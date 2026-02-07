@@ -1,0 +1,101 @@
+/* Card components for hero sidebar stories and grid article tiles */
+
+/* Hero sidebar cards */
+.card {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem;
+  box-shadow: var(--shadow);
+}
+
+.card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.card .meta {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.card h3 {
+  margin: .2rem 0 .25rem;
+  font-size: 1rem;
+}
+
+/* Article cards */
+.articles {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.article {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.article img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.article .content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.article h3 {
+  margin: 0;
+  line-height: 1.25;
+  font-size: 1.05rem;
+}
+
+.article p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.article .byline {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+
+/* Section header & badge */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.badge {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px;
+  padding: .2rem .5rem;
+  font-size: .8rem;
+  text-transform: uppercase;
+}

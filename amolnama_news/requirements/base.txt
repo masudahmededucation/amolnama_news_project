@@ -1,0 +1,12 @@
+# Shared / base dependencies (installed in all environments)
+django>=5.2,<6.0
+mssql-django>=1.6
+pyodbc>=4.0.39
+django-environ>=0.12
+djangorestframework>=3.15
+djangorestframework-simplejwt>=5.3
+django-allauth>=0.63
+django-axes>=7.0
+django-ratelimit>=4.1
+Pillow>=10.4
+whitenoise>=6.7

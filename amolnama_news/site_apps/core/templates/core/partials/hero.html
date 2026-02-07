@@ -1,0 +1,45 @@
+{% load static %}
+{% static "core/assets/img" as baseUrl %}
+
+<section class="hero" aria-label="Top stories">
+  <a class="main" href="{% url 'core:article_detail' slug='city-commute' %}">
+    <img src="{% static 'core/assets/img/hero.svg' %}" alt="Lead story image"/>
+    <div class="ribbon">
+      <div class="kicker">Exclusive</div>
+      <h1>Inside the race to reinvent the city commute</h1>
+      <p>From e-bikes to micro-buses, how a new wave of mobility is reshaping daily life.</p>
+    </div>
+  </a>
+
+  <div class="side">
+    {% for dest in dests %}
+    <article class="card">
+      <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="Story thumbnail"/>
+      <div>
+        <div class="kicker">World of war</div>
+        <h3><a href="{% url 'core:article_detail' slug=dest.slug %}">{{ dest.name }}</a></h3>
+        <img src="{{ baseUrl }}/{{ dest.img }}" alt="image missing"/>
+        <div class="meta">4 min read · 12 comments</div>
+      </div>
+    </article>
+    {% endfor %}
+
+    <article class="card">
+      <img src="{% static 'core/assets/img/thumb-2.svg' %}" alt="Story thumbnail"/>
+      <div>
+        <div class="kicker">Business</div>
+        <h3><a href="{% url 'core:article_detail' slug='chip-demand-surges' %}">Chip demand surges as AI boom accelerates</a></h3>
+        <div class="meta">7 min read · Analysis</div>
+      </div>
+    </article>
+
+    <article class="card">
+      <img src="{% static 'core/assets/img/thumb-3.svg' %}" alt="Story thumbnail"/>
+      <div>
+        <div class="kicker">Culture</div>
+        <h3><a href="{% url 'core:article_detail' slug='indie-festival' %}">The indie festival rewriting the rules</a></h3>
+        <div class="meta">3 min read · Review</div>
+      </div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Home · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'core/assets/css/pages/home.css' %}">
+{% endblock %}
+
+{% block content %}
+  {% include "core/partials/hero.html" %}
+
+  <section class="grid">
+    <div>
+      <div class="section-head">
+        <h2>Latest</h2>
+        <span class="badge">Updated</span>
+      </div>
+      <div class="articles">
+        {% for article in latest_articles %}
+          {% include "core/partials/article_card.html" with article=article %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      {% include "core/partials/sidebar_trending.html" %}
+      {% include "core/partials/sidebar_newsletter.html" %}
+    </aside>
+  </section>
+{% endblock %}

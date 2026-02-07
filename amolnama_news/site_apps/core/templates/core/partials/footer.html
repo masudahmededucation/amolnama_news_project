@@ -1,0 +1,49 @@
+{% load static %}
+<footer class="footer">
+  <div class="container">
+    <div class="cols">
+      <div>
+        <div class="brand">
+          <img src="{% static 'core/assets/img/logo.png' %}" alt="Site logo small"/>
+          <div>
+            <div class="title">Amolnama News</div>
+            <div class="tag">Independent · Global · Now</div>
+          </div>
+        </div>
+        <p class="muted">Trusted reporting and sharp analysis from around the world.</p>
+      </div>
+      <div>
+        <h5>Sections</h5>
+        <ul class="list">
+          <li><a href="{% url 'core:category' 'world' %}">World</a></li>
+          <li><a href="{% url 'core:category' 'politics' %}">Politics</a></li>
+          <li><a href="{% url 'core:category' 'business' %}">Business</a></li>
+          <li><a href="{% url 'core:category' 'tech' %}">Tech</a></li>
+          <li><a href="{% url 'core:category' 'culture' %}">Culture</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Company</h5>
+        <ul class="list">
+          <li><a href="{% url 'core:about' %}">About</a></li>
+          <li><a href="{% url 'core:contact' %}">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Advertise</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Legal</h5>
+        <ul class="list">
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Licensing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">© <span id="year"></span> Amolnama News. All rights reserved.</div>
+  </div>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</footer>

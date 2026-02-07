@@ -1,0 +1,48 @@
+/* Global grid layout for hero, main content rows and responsiveness */
+
+.hero {
+  margin: 1.5rem 0;
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 2fr 1fr;
+}
+
+.grid {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 2fr 1fr;
+  margin: 2rem 0;
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .articles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .article img {
+    height: 160px;
+  }
+
+  .articles {
+    grid-template-columns: 1fr;
+  }
+
+  .footer .cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}

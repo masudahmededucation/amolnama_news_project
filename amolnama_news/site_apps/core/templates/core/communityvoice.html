@@ -1,0 +1,172 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+  Community Voice · Contribute Your Stories · Amolnama News
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'core/assets/css/pages/communityvoice.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="grid">
+  <div>
+
+    <header class="section-head">
+      <h2>Community Voice</h2>
+      <span class="badge">Readers' Voice</span>
+    </header>
+
+    <p class="muted" style="margin-bottom:1rem;">
+      This is a space for our readers to share their experiences, perspectives, and local stories.
+      Your voice matters — contribute to shaping our community conversation.
+    </p>
+
+    {# SUBMISSION FORM #}
+    <article class="widget" style="margin-bottom:2rem;">
+      <h3>Write Your Story</h3>
+      <p>
+        Share a local event, a personal experience, or an issue that matters to you.
+        Our editors will review your submission before publishing.
+      </p>
+
+      <form method="post" enctype="multipart/form-data" class="community-form">
+        {% csrf_token %}
+
+        {# TITLE #}
+        <label for="id_title">Title</label>
+        <input
+          type="text"
+          id="id_title"
+          name="title"
+          required
+          placeholder="Your article title">
+
+        {# SHORT DESCRIPTION / SUMMARY #}
+        <label for="id_summary">Short description</label>
+        <textarea
+          id="id_summary"
+          name="summary"
+          rows="3"
+          placeholder="One–two sentences summarising your story."></textarea>
+
+        {# MAIN CONTENT #}
+        <label for="id_content">Full story</label>
+        <textarea
+          id="id_content"
+          name="content"
+          rows="6"
+          required
+          placeholder="Write your story here..."></textarea>
+
+        {# IMAGE UPLOAD #}
+        <label for="id_image">Upload an image (optional)</label>
+        <input
+          type="file"
+          id="id_image"
+          name="image"
+          accept="image/*">
+
+        {# YOUTUBE LINK #}
+        <label for="id_youtube_url">YouTube link (optional)</label>
+        <input
+          type="url"
+          id="id_youtube_url"
+          name="youtube_url"
+          placeholder="https://www.youtube.com/watch?v=...">
+
+        {# LINK PREVIEW AREA (NOW DIRECTLY UNDER YOUTUBE LINK) #}
+        <div id="youtubePreview" class="link-preview-block" style="margin-top:.75rem; display:none;">
+          <h4>YouTube preview</h4>
+          <div class="link-preview-embed">
+            <iframe
+              id="youtubeFrame"
+              width="100%"
+              height="315"
+              frameborder="0"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        {# FACEBOOK LINK #}
+        <label for="id_facebook_url" style="margin-top:1rem;">Facebook link (optional)</label>
+        <input
+          type="url"
+          id="id_facebook_url"
+          name="facebook_url"
+          placeholder="https://www.facebook.com/...">
+
+        <div id="facebookPreview" class="link-preview-block" style="margin-top:.4rem; display:none;">
+          <h4>Facebook link</h4>
+          <p id="facebookPreviewText" class="muted"></p>
+        </div>
+
+        {# OTHER LINK #}
+        <label for="id_external_url" style="margin-top:1rem;">Any other relevant link (optional)</label>
+        <input
+          type="url"
+          id="id_external_url"
+          name="external_url"
+          placeholder="https://example.com/related-article">
+
+        <div id="externalPreview" class="link-preview-block" style="margin-top:.4rem; display:none;">
+          <h4>External link</h4>
+          <p id="externalPreviewText" class="muted"></p>
+        </div>
+
+        <button class="btn primary" type="submit" style="margin-top:1rem;">
+          Submit Story
+        </button>
+      </form>
+    </article>
+
+    {# COMMUNITY POSTS LIST #}
+    <div class="section-head">
+      <h2>Recent Contributions</h2>
+    </div>
+
+    <div class="articles">
+      {% for post in community_posts %}
+        <article class="article">
+          {% if post.image %}
+            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+          {% else %}
+            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="placeholder">
+          {% endif %}
+
+          <div class="content">
+            <div class="kicker">Community</div>
+            <h3>
+              <a href="{% url 'core:community_detail' slug=post.slug %}">
+                {{ post.title }}
+              </a>
+            </h3>
+
+            <p>{{ post.summary }}</p>
+            <div class="byline">
+              By {{ post.author_name }}
+              {% if post.created_at %} · {{ post.created_at|date:"F j, Y" }}{% endif %}
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <p>No community posts yet. Be the first to contribute!</p>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <aside class="sidebar">
+    {% include "core/partials/sidebar_trending.html" %}
+    {% include "core/partials/sidebar_newsletter.html" %}
+  </aside>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'core/assets/js/pages/communityvoice.js' %}"></script>
+{% endblock %}

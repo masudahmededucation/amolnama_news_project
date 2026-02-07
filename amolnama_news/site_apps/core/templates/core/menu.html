@@ -1,0 +1,22 @@
+{% load static %}
+<nav class="nav" aria-label="Primary">
+  <a href="{% url 'core:home' %}" {% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'core' %}class="active"{% endif %}>Home</a>
+  <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Vote</a>
+
+  <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a>
+  <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>
+  <a href="{% url 'core:category' 'business' %}" {% if slug == 'business' %}class="active"{% endif %}>Business</a>
+  <a href="{% url 'core:category' 'tech' %}" {% if slug == 'tech' %}class="active"{% endif %}>Tech</a>
+
+  <div class="nav-dropdown">
+    <a href="{% url 'core:category' 'sports' %}" {% if slug == 'sports' or slug == 'football' or slug == 'cricket' or slug == 'badminton' %}class="active"{% endif %}>Sports</a>
+    <div class="submenu ribbon" role="menu" aria-label="Sports sub menu">
+      <a href="{% url 'core:category' 'football' %}" role="menuitem" {% if slug == 'football' %}class="active"{% endif %}>Football</a>
+      <a href="{% url 'core:category' 'cricket' %}" role="menuitem" {% if slug == 'cricket' %}class="active"{% endif %}>Cricket</a>
+      <a href="{% url 'core:category' 'badminton' %}" role="menuitem" {% if slug == 'badminton' %}class="active"{% endif %}>Badminton</a>
+    </div>
+  </div>
+
+  <a href="{% url 'core:category' 'culture' %}" {% if slug == 'culture' %}class="active"{% endif %}>Culture</a>
+  <a href="{% url 'core:communityvoice' %}" {% if request.resolver_match.url_name == 'communityvoice' %}class="active"{% endif %}>Community Voice</a>
+</nav>

@@ -1,0 +1,65 @@
+/* Article detail page layout, typography and media styling */
+
+.article-detail {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.75rem;
+}
+
+.article-detail__header {
+  margin-bottom: 1rem;
+}
+
+.article-detail__header h1 {
+  margin: .25rem 0 .5rem;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.article-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.article-detail__hero {
+  margin: 1.25rem 0;
+}
+
+.article-detail__hero img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+.article-detail__hero figcaption {
+  margin-top: .5rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.article-detail__body {
+  display: grid;
+  gap: 1rem;
+  font-size: 1rem;
+}
+
+.article-detail__body h2 {
+  margin-top: 1.25rem;
+  margin-bottom: .25rem;
+  font-size: 1.25rem;
+}
+
+.article-detail__body ul {
+  padding-left: 1.25rem;
+}
+
+.article-detail__body li {
+  margin-bottom: .25rem;
+}

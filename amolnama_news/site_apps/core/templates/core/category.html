@@ -1,0 +1,39 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ category_slug|title }} · Amolnama News
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'core/assets/css/pages/home.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="grid">
+    <div>
+      <div class="section-head">
+        <h2>{{ category_slug|title }}</h2>
+        <span class="badge">Category</span>
+      </div>
+
+      <p class="muted">
+        This is the <strong>{{ category_slug }}</strong> category page.
+        Later you can filter and show articles from this section here.
+      </p>
+
+      <div class="articles">
+        {% for article in latest_articles %}
+          {% include "core/partials/article_card.html" with article=article %}
+        {% empty %}
+          <p>No articles in this category yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      {% include "core/partials/sidebar_trending.html" %}
+      {% include "core/partials/sidebar_newsletter.html" %}
+    </aside>
+  </section>
+{% endblock %}

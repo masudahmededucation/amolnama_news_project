@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Django: Runserver (127.0.0.1:8001)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["manage.py", "runserver", "127.0.0.1:8001"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

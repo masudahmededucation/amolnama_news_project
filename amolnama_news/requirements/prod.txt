@@ -1,0 +1,4 @@
+ -r base.txt
+
+# Production-only dependencies (process managers, monitoring, etc.)
+gunicorn>=22.0

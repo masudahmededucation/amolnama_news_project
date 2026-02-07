@@ -1,0 +1,42 @@
+#static command in the index
+
+{% load static %}
+
+<img src="{% static 'assets/img/logo/logo.png' %} ">
+<img src="{% static 'img/logo/logo' %}">
+
+{% block content %} {% endblock %}
+
+
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+
+{'price':'$700'}
+
+<h1>The price is: {{ price }}.</h1>
+
+ {% for dest in dests  %}
+
+ {% endfor %}
+
+
+pip freeze > requirements\requirements.txt
+
+pip install psycopg2
+
+pip install psycopg2-binary
+
+#migrate a specific migrations of an app
+python manage.py sqlmigrate core 0001 
+
+#create super user
+python manage.py createsuperuser
+
+
+#model register in admin.py
+
+from .models import ImageDetails
+# Register your models here.
+
+admin.site.register(ImageDetails)

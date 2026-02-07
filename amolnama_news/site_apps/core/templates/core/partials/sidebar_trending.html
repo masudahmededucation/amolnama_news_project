@@ -1,0 +1,22 @@
+{% load static %}
+<div class="widget">
+  <h4>Trending</h4>
+  <ul class="list">
+    <li>
+      <img src="{% static 'core/assets/img/thumb-4.svg' %}" alt="">
+      <a href="{% url 'core:article_detail' slug='riverside-renewal-plan' %}">City unveils riverside renewal plan</a>
+    </li>
+    <li>
+      <img src="{% static 'core/assets/img/thumb-2.svg' %}" alt="">
+      <a href="{% url 'core:article_detail' slug='battery-breakthrough' %}">Breakthrough battery hits key milestone</a>
+    </li>
+    <li>
+      <img src="{% static 'core/assets/img/thumb-3.svg' %}" alt="">
+      <a href="{% url 'core:article_detail' slug='derby-thriller' %}">Derby thriller ends in stoppage-time drama</a>
+    </li>
+    <li>
+      <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+      <a href="{% url 'core:article_detail' slug='street-food' %}">Five dishes redefining street food</a>
+    </li>
+  </ul>
+</div>

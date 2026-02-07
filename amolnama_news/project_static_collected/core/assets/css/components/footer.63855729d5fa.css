@@ -1,0 +1,26 @@
+/* Footer layout, columns and legal strip styling */
+
+.footer {
+  margin-top: 2rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 2rem 0;
+  color: var(--muted);
+}
+
+.footer .cols {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.footer .cols h5 {
+  margin: .25rem 0;
+  color: var(--text);
+}
+
+.footer .legal {
+  margin-top: 1rem;
+  font-size: .85rem;
+  text-align: center;
+}

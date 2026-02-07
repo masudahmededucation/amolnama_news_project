@@ -1,0 +1,14 @@
+/* Spacing and small layout utilities such as grid helpers and dividers */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+}
+
+.hr {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0;
+  border: 0;
+}

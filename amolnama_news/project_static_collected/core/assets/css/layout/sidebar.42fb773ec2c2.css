@@ -1,0 +1,45 @@
+/* Sidebar column layout, widget container and reusable list styling */
+
+.sidebar {
+  display: grid;
+  gap: var(--gap);
+}
+
+.widget {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.widget h4 {
+  margin: 0 0 .5rem;
+}
+
+/* Shared list style (used in sidebar + footer) */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .5rem;
+}
+
+.list li a {
+  color: inherit;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.list li img {
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}

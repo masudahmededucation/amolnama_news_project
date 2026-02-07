@@ -1,0 +1,10 @@
+ -r base.txt
+
+# Development-only dependencies (local tooling, debugging, testing)
+django-debug-toolbar>=4.4
+ipython>=8.26
+pytest>=8.3
+pytest-django>=4.8
+black>=24.8
+isort>=5.13
+ruff>=0.6

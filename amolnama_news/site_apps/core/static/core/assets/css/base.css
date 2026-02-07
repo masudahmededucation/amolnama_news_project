@@ -1,0 +1,90 @@
+/* Base reset and layout styles for global HTML elements and page container */
+
+
+:root {
+  --maxw: 1200px;
+  --bg: #fff;
+  --text: #222;
+  --accent: #0077cc;
+}
+
+/* Reset and box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  letter-spacing: .2px;
+  min-height: 100vh;
+}
+
+
+/* Sticky footer layout */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* Links */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Generic site-width container */
+.container {
+  width: min(100% - 2rem, var(--maxw));
+  margin-inline: auto;
+}
+
+/* Footer styles */
+footer {
+  background: #f8f8f8;
+  color: #555;
+  text-align: center;
+  padding: 1.5rem 0 1rem 0;
+  font-size: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Optional: Utility classes */
+.muted {
+  color: #888;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .container {
+    width: 100%;
+    padding: 0 1rem;
+  }
+  footer {
+    font-size: 0.95rem;
+    padding: 1rem 0 0.5rem 0;
+  }
+}

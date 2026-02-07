@@ -1,0 +1,31 @@
+pip install -r requirements.txt
+
+cd "D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\projects\amolnama_news>"
+
+#activate virtual environment
+
+
+"D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\.venv\Scripts\activate.bat
+
+
+#run the server
+
+
+python "D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\projects\amolnama_news\manage.py" runserver
+
+
+#makemigrations
+
+
+python "D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\projects\amolnama_news\manage.py" makemigrations
+
+
+#migrate
+
+python "D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\projects\amolnama_news\manage.py" migrations
+
+#collectstatic
+
+
+python "D:\GoogleDrive\personal folder\Apps\NilDoriaCorporation\amolnama_news\projects\amolnama_news\manage.py" collectstatic
+

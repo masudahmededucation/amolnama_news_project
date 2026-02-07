@@ -1,0 +1,67 @@
+{% load static %}
+{% static "core/assets/img" as baseUrl %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{% block title %}Amolnama News - Truth is our strength{% endblock %}</title>
+  <meta name="description" content="Clean, responsive HTML5 newspaper/magazine template."/>
+
+  <link rel="stylesheet" href="{% static 'core/assets/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/colors.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/typography.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/spacing.css' %}">
+
+  <link rel="stylesheet" href="{% static 'core/assets/css/layout/header.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/layout/grid.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/layout/sidebar.css' %}">
+
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/navigation.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/cards.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/forms.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}">
+  
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="topbar">
+      <div class="container">
+        <!-- Row 1: Live Bangla clock -->
+        <div class="topbar-clock">
+          <div class="muted" id="liveDateTime"></div>
+        </div>
+        <!-- Row 2: Full-width marquee ticker -->
+        <div class="ticker" aria-label="Breaking news">
+          <label>Breaking</label>
+          <div class="marquee" aria-live="polite">
+            <span>The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="container header-grid">
+        {% include "core/logo.html" %}
+        <div class="controls">
+          {% include "core/menu.html" with slug=slug %}
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    {% comment %} {% include "core/partials/footer.html" %} {% endcomment %}
+  </div>
+
+  {% block extra_js %}{% endblock %}
+  <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
+</body>
+</html>

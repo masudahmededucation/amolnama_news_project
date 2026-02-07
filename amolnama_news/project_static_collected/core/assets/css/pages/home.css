@@ -1,0 +1,50 @@
+/* Home page hero section, ribbon overlay and hero sidebar layout */
+
+/* Hero main feature */
+.hero .main {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.hero .main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Hero ribbon overlay */
+.ribbon {
+  position: absolute;
+  inset: auto 1rem 1rem 1rem;
+  background: rgba(0, 0, 0, .65);
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.ribbon .kicker {
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  opacity: .9;
+  font-size: .8rem;
+}
+
+.ribbon h1 {
+  margin: .25rem 0 .5rem;
+  line-height: 1.15;
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+}
+
+.ribbon p {
+  margin: 0;
+  opacity: .9;
+}
+
+/* Hero sidebar list */
+.hero .side {
+  display: grid;
+  gap: var(--gap);
+}
