@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Article · Amolnama News{% endblock %}
+{% block title %}{{ article.title }} · Amolnama News{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'core/assets/css/pages/article-detail.css' %}">
@@ -12,12 +12,29 @@
   <div>
     <article class="article-detail">
       <header class="article-detail__header">
-        <h1>Article: {{ slug }}</h1>
-        <p>This is the article detail page for: <strong>{{ slug }}</strong></p>
+        {% if article.section %}
+          <div class="kicker">{{ article.section }}</div>
+        {% endif %}
+        <h1>{{ article.title }}</h1>
+
+        <div class="article-detail__meta">
+          {% if article.author %}<span>{{ article.author }}</span>{% endif %}
+          {% if article.published_at %}<span>·</span><time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"F j, Y" }}</time>{% endif %}
+          {% if article.read_time %}<span>·</span><span>{{ article.read_time }} min read</span>{% endif %}
+        </div>
       </header>
 
+      {% if article.hero_image %}
+      <figure class="article-detail__hero">
+        <img src="{{ article.hero_image.url }}" alt="{{ article.hero_image_alt|default:article.title }}">
+        {% if article.hero_caption %}
+        <figcaption>{{ article.hero_caption }}</figcaption>
+        {% endif %}
+      </figure>
+      {% endif %}
+
       <div class="article-detail__body">
-        <p>Content for this article will be loaded here.</p>
+        {{ article.body|safe }}
       </div>
     </article>
   </div>

@@ -1,0 +1,19 @@
+{% load static %}
+<div class="widget">
+  <h4>{{ title }}</h4>
+  <ul class="list">
+    {% for result in voting_results %}
+    <li>
+      {% if result.party_image %}
+        <img src="{{ result.party_image }}" alt="{{ result.party_name }}">
+      {% else %}
+        <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+      {% endif %}
+      <div>
+        <strong>{{ result.party_name }}</strong>
+        <small>{{ result.vote_percentage }}% ({{ result.vote_count }} votes)</small>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,14 @@
+{% load static %}
+<div class="widget">
+  <h4>{{ title }}</h4>
+  <ul class="list">
+    {% for item in items %}
+    <li>
+      {% if item.image %}
+        <img src="{% static item.image %}" alt="">
+      {% endif %}
+      <a href="{{ item.url }}">{{ item.label }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>

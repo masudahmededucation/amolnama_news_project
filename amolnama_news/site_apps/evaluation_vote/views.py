@@ -9,7 +9,6 @@ from amolnama_news.site_apps.locations.models import Division, District, Constit
 from .models import RefEvaluation, RefParty, EvaluationResponse, UserDevice, UserProfile, UserSession
 from amolnama_news.site_apps.locations.models import get_or_create_geo_source
 from django.db import connection
-from django.http import JsonResponse
 from amolnama_news.site_apps.core.models import MediaAppAsset
 from .models import AppGetEvaluation
 from .models import AppGetPartyDetails
@@ -18,23 +17,17 @@ from .models import AppGetPartyDetails
 
 
 def home(request):
-    divisions = Division.objects.filter(is_active=True).order_by('division_name_en')
-    evaluation = AppGetEvaluation.objects.first()
-    parties = AppGetPartyDetails.objects.order_by('party_id')  # if is_active exists, else remove
+    # Get current evaluation/election to vote on - TODO: hook to database
+    evaluation = None
+    parties = []
 
-    division_name = request.GET.get('division_name', '')
-    district_name = request.GET.get('district_name', '')
-    constituency_name = request.GET.get('constituency_name', '')
-    party_name = request.GET.get('party_name', '')
+    # TODO: Get past voting results - for now just pass empty list
+    voting_results = []
 
     return render(request, 'evaluation_vote/home.html', {
-        'divisions': divisions,
         'evaluation': evaluation,
         'parties': parties,
-        'division_name': division_name,
-        'district_name': district_name,
-        'constituency_name': constituency_name,
-        'party_name': party_name,
+        'voting_results': voting_results,
     })
 
 

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from .models import Article
 
 
 def home(request):
@@ -6,7 +7,14 @@ def home(request):
 
 
 def article_detail(request, slug):
-    return render(request, "core/article_detail.html", {"slug": slug})
+    article = Article.objects.filter(slug=slug).first()
+    if not article:
+        context = {
+            'message': 'This article is no longer available.',
+            'slug': slug
+        }
+        return render(request, "core/article_not_found.html", context)
+    return render(request, "core/article_detail.html", {"article": article})
 
 # Remove duplicate - keep only one category function
 def category(request, slug):
@@ -27,3 +35,5 @@ def contact(request):
 
 def communityvoice(request):
     return render(request, "core/communityvoice.html")
+
+

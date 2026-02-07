@@ -1,0 +1,18 @@
+{% load static %}
+<div class="voting-card">
+  <h3>{{ evaluation.title }}</h3>
+  {% if evaluation.description %}
+    <p>{{ evaluation.description }}</p>
+  {% endif %}
+  
+  <div class="voting-options">
+    {% for party in options %}
+    <button class="vote-btn" data-party-id="{{ party.id }}" data-evaluation-id="{{ evaluation.id }}">
+      {% if party.logo %}
+        <img src="{{ party.logo }}" alt="{{ party.name }}">
+      {% endif %}
+      <span>{{ party.name }}</span>
+    </button>
+    {% endfor %}
+  </div>
+</div>
