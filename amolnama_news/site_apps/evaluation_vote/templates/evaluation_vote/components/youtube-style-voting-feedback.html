@@ -1,0 +1,82 @@
+{% comment %}
+Voting feedback and results component
+Displays after a vote is cast, including:
+- Success message
+- Vote summary
+- Party results with progress bars
+- Optional additional info collection form
+- Start new vote button
+{% endcomment %}
+
+<!-- Success View (shown after vote) -->
+<div id="success-view" style="display: none;">
+  <div class="success-card">
+    <!-- Success message with tick icon -->
+    <p class="success-message" style="text-align: center; font-size: 1.2em; margin: 10px 0;">
+      <span style="color: #0a0; font-size: 2em; font-weight: bold; vertical-align: middle;">✔</span>
+      <span style="margin-left: 10px;">আপনার ভোট গ্রহণ করা হয়েছে</span>
+    </p>
+
+    <!-- Vote summary: Division, District, Constituency, Party -->
+    <p class="vote-summary-info">
+      বিভাগ: {{ division_name }}, জেলা: {{ district_name }}, নির্বাচনী এলাকা: {{ constituency_name }}, দল: {{ party_name }}
+    </p>
+
+    <!-- Total vote count display component -->
+    {% include "evaluation_vote/components/youtube-style-total-vote-info.html" %}
+
+    <!-- Party results list with progress bars and vote counts -->
+    <ul class="selection-list party-list" id="party-list-success">
+      <!-- Filled dynamically by JavaScript after voting -->
+    </ul>
+
+    <!-- Optional Additional Information Card -->
+    <div class="optional-card">
+      <h4>🌟 আরও তথ্য দিয়ে সাহায্য করুন (Optional)</h4>
+
+      <!-- Voting reason textarea -->
+      <div class="form-group">
+        <label for="vote-reason" id="reason-label">এই দলটিকে বেছে নেওয়ার মূল কারণ কী?</label>
+        <textarea 
+          id="vote-reason" 
+          class="form-textarea" 
+          maxlength="500" 
+          rows="3"
+          placeholder="আপনার মতামত লিখুন..."
+        ></textarea>
+        <div class="char-count"><span id="char-count">0</span>/500</div>
+      </div>
+
+      <!-- Location selection note -->
+      <p class="optional-note">সুনির্দিষ্ট ফলাফল পেতে আপনার ইউনিয়ন বা এলাকাটি বেছে নিন</p>
+
+      <!-- Upazila selection -->
+      <div class="form-group">
+        <label for="upazila">উপজেলা / Upazila</label>
+        <select id="upazila" class="form-select" onchange="loadUnions()">
+          <option value="">-- নির্বাচন করুন / Select --</option>
+        </select>
+      </div>
+
+      <!-- Union Parishad selection -->
+      <div class="form-group">
+        <label for="union">ইউনিয়ন পরিষদ / Union Parishad</label>
+        <select id="union" class="form-select" disabled>
+          <option value="">-- নির্বাচন করুন / Select --</option>
+        </select>
+      </div>
+
+      <!-- Submit additional info button -->
+      <button class="update-btn" onclick="updateVote()">তথ্য আপডেট করুন / Update Info</button>
+
+      <!-- Success message for info update -->
+      <div class="update-success" id="update-success">
+        <span class="tick-icon">✓</span>
+        <span>তথ্য আপডেট হয়েছে! / Info Updated!</span>
+      </div>
+    </div>
+
+    <!-- Button to cast another vote -->
+    <button class="new-vote-btn" onclick="startNewVote()">নতুন ভোট দিন / Cast Another Vote</button>
+  </div>
+</div>

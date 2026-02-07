@@ -1,0 +1,219 @@
+/* ========== VOTING SELECTION - Breadcrumb & Selection Lists ========== */
+
+:root {
+  --primary: #007bff;
+  --primary-dark: #0056b3;
+  --surface: #fff;
+  --border: #ddd;
+  --background: #f8f9fa;
+  --muted: #888;
+  --text: #222;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb span {
+  color: var(--text);
+}
+
+.breadcrumb .current {
+  font-weight: 600;
+}
+
+/* Selection list */
+.selection-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.selection-list li {
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selection-list li:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.selection-list li:active {
+  transform: scale(0.98);
+}
+
+.selection-list li .name-en {
+  font-weight: 600;
+}
+
+.selection-list li .name-bn {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Area info for constituencies */
+.area-info {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.selection-list li:hover .area-info {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Back button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ========== RESPONSIVE - SELECTION ========== */
+
+/* Tablets and below (768px) */
+@media (max-width: 768px) {
+  .breadcrumb {
+    font-size: 0.85rem;
+    gap: 0.35rem;
+  }
+
+  .selection-list li {
+    padding: 1rem;
+    margin: 0.4rem 0;
+  }
+
+  .selection-list li:hover {
+    transform: none;
+  }
+}
+
+/* Mobile phones (480px) */
+@media (max-width: 480px) {
+  .breadcrumb {
+    font-size: 0.8rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .selection-list li {
+    padding: 1rem 0.75rem;
+    margin: 0.35rem 0;
+    border-radius: 0.4rem;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .selection-list li .name-en {
+    display: block;
+    font-size: 1rem;
+  }
+
+  .selection-list li .name-bn {
+    display: block;
+    font-size: 0.9rem;
+    margin-top: 0.15rem;
+  }
+
+  .area-info {
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+    line-height: 1.4;
+  }
+
+  .back-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Small phones (360px) */
+@media (max-width: 360px) {
+  .breadcrumb {
+    font-size: 0.75rem;
+  }
+
+  .selection-list li .name-en {
+    font-size: 0.95rem;
+  }
+
+  .selection-list li .name-bn {
+    font-size: 0.85rem;
+  }
+
+  .area-info {
+    font-size: 0.75rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .selection-list li:hover {
+    background: var(--surface);
+    color: inherit;
+    border-color: var(--border);
+    transform: none;
+  }
+
+  .selection-list li:active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .selection-list li:active .area-info {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .back-btn:hover {
+    background: var(--surface);
+    color: inherit;
+    border-color: var(--border);
+  }
+
+  .back-btn:active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+}

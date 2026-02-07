@@ -332,7 +332,7 @@ class AppGetEvaluation(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[evaluation].[vw_app_get_evaluation]'
+        db_table = '[evaluation].[vw_app_get_evaluation_current]'
         
 
 class AppGetPartyDetails(models.Model):
@@ -349,3 +349,55 @@ class AppGetPartyDetails(models.Model):
     class Meta:
         managed = False
         db_table = '[party].[vw_app_get_party_details]'
+
+
+class AppSidebarPastResults(models.Model):
+    """Past election results for sidebar and drill-through reports"""
+
+    # Computed row identifier for Django (combination of IDs makes each row unique)
+    id = models.CharField(max_length=100, primary_key=True, db_column='row_id', verbose_name='Row ID')
+
+    # ID fields
+    evaluation_id = models.IntegerField(verbose_name='Evaluation ID', blank=True, null=True)
+    party_id = models.IntegerField(verbose_name='Party ID', blank=True, null=True)
+    division_id = models.IntegerField(verbose_name='Division ID', blank=True, null=True)
+    district_id = models.IntegerField(verbose_name='District ID', blank=True, null=True)
+    constituency_id = models.IntegerField(verbose_name='Constituency ID', blank=True, null=True)
+
+    # Name/Display fields - clean column names matching database view
+    evaluation_name_bn = models.CharField(max_length=200, verbose_name='মূল্যায়ন নাম')
+    party_name_bn = models.CharField(max_length=200, verbose_name='দলের নাম', blank=True, null=True)
+    party_name_symbol = models.CharField(max_length=250, verbose_name='দলের নাম ও প্রতীক', blank=True, null=True)
+    party_short_name_bn = models.CharField(max_length=50, verbose_name='দলের সংক্ষিপ্ত নাম', blank=True, null=True)
+    party_symbol_name_bn = models.CharField(max_length=100, verbose_name='দলের প্রতীক', blank=True, null=True)
+
+    # Media fields
+    file_path = models.CharField(max_length=500, verbose_name='ফাইল পাথ', blank=True, null=True)
+    file_name = models.CharField(max_length=255, verbose_name='ফাইল নাম', blank=True, null=True)
+
+    # Location fields - updated to match new view column names
+    division_name_bn = models.CharField(max_length=100, verbose_name='বিভাগ', blank=True, null=True)
+    district_name_bn = models.CharField(max_length=100, verbose_name='জেলা', blank=True, null=True)
+
+    # Constituency fields - updated to match new view column names
+    constituency_name_en = models.CharField(max_length=200, verbose_name='Constituency (EN)', blank=True, null=True)
+    constituency_name_bn = models.CharField(max_length=200, verbose_name='আসন', blank=True, null=True)
+    constituency_area_list_bn = models.TextField(verbose_name='এলাকার তালিকা', blank=True, null=True)
+
+    # Vote count fields - clean column names
+    party_national_vote = models.IntegerField(verbose_name='জাতীয় ভোট', blank=True, null=True)
+    party_seat_vote = models.IntegerField(verbose_name='আসন ভোট', blank=True, null=True)
+    seat_total_vote = models.IntegerField(verbose_name='মোট ভোট', blank=True, null=True)
+    seat_vote_share = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        verbose_name='ভোটের শেয়ার (%)',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = '[evaluation].[vw_app_vote_sidebar_past_results]'
+        verbose_name = 'Past Election Result'
+        verbose_name_plural = 'Past Election Results'

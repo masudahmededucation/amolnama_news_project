@@ -32,7 +32,7 @@ class Article(models.Model):
     
     class Meta:
         db_table = '[article].[article]'
-        managed = True  # Changed to True so Django can create the table
+        managed = False  # Changed to True so Django can create the table
         
     def __str__(self):
         return self.title

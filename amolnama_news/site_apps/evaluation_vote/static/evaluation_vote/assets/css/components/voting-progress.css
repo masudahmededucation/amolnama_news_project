@@ -1,0 +1,193 @@
+/* ========== VOTING PROGRESS - Progress Bars & Party Results ========== */
+
+:root {
+  --primary: #007bff;
+  --surface: #fff;
+  --border: #ddd;
+  --muted: #888;
+  --text: #222;
+}
+
+/* Progress bar styles */
+.bar-container {
+  background: #eee;
+  border-radius: 4px;
+  height: 18px;
+  margin-top: 5px;
+  position: relative;
+  width: 100%;
+}
+
+.bar-fill {
+  background: #4caf50;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s;
+}
+
+.pct-text {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  font-size: 0.9em;
+  color: #222;
+}
+
+/* Party list specific styles */
+.party-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.party-list li {
+  padding: 0.5rem 1rem;
+  margin: 0.5rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.party-list li:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.party-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.party-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 0.25rem;
+}
+
+.party-text {
+  flex: 1;
+}
+
+.party-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.party-short {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.party-separator {
+  color: var(--muted);
+}
+
+.party-name {
+  font-size: 0.95rem;
+}
+
+.party-details {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.party-alliance {
+  margin-right: 0.5rem;
+}
+
+.party-list li:hover .party-details {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Vote highlight */
+.highlight-vote {
+  background-color: #ffe066;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* ========== RESPONSIVE - PROGRESS ========== */
+
+/* Tablets and below (768px) */
+@media (max-width: 768px) {
+  .party-logo {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Mobile phones (480px) */
+@media (max-width: 480px) {
+  .party-list li {
+    min-height: auto;
+    display: block;
+  }
+
+  .party-item {
+    gap: 0.75rem;
+  }
+
+  .party-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .party-short {
+    font-size: 1rem;
+  }
+
+  .party-name {
+    font-size: 0.9rem;
+  }
+}
+
+/* Small phones (360px) */
+@media (max-width: 360px) {
+  .party-logo {
+    width: 35px;
+    height: 35px;
+  }
+
+  .party-short {
+    font-size: 0.95rem;
+  }
+
+  .party-name {
+    font-size: 0.85rem;
+  }
+
+  .party-details {
+    font-size: 0.8rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .party-list li:hover {
+    background: var(--surface);
+    color: inherit;
+    border-color: var(--border);
+    transform: none;
+  }
+
+  .party-list li:active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .party-list li:active .party-details {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}

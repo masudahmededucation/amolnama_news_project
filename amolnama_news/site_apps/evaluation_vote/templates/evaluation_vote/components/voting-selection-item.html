@@ -1,0 +1,56 @@
+{% comment %}
+Reusable voting selection item component
+Usage: 
+  {% include "evaluation_vote/components/voting-selection-item.html" with item_type="division" data_id=123 name_en="Dhaka" name_bn="ঢাকা" extra_info="Optional area info" %}
+
+Parameters:
+  - item_type: "division", "district", "constituency", or "party"
+  - data_id: Item ID
+  - name_en: English name
+  - name_bn: Bengali name
+  - extra_info: Optional additional info (for constituencies/parties)
+  - onclick_handler: Custom onclick handler (optional)
+{% endcomment %}
+
+<li 
+  onclick="{{ onclick_handler|default:'selectDivision(""'|add:data_id|add:', &#34;'|add:name_en|add:'&#34;, &#34;'|add:name_bn|add:'&#34;); return false;' }}"
+  class="{% if item_type == 'party' %}party-item-container{% endif %}"
+>
+  {% if item_type == 'party' %}
+    <!-- Party item with logo and progress -->
+    <div class="party-item">
+      {% if logo_url %}
+        <img 
+          src="{{ logo_url }}"
+          alt="{{ name_bn }}"
+          class="party-logo"
+        />
+      {% endif %}
+      <div class="party-text">
+        <div class="party-info">
+          <span class="party-short">{{ name_bn }}</span>
+          {% if alliance_name %}
+            <span class="party-separator">-</span>
+            <span class="party-name">{{ alliance_name }}</span>
+          {% endif %}
+        </div>
+        {% if extra_info %}
+          <div class="party-details">{{ extra_info }}</div>
+        {% endif %}
+        {% if vote_percentage %}
+          <div class="bar-container">
+            <div class="bar-fill" style="width: {{ vote_percentage }}%;"></div>
+            <span class="pct-text">{{ vote_percentage|floatformat:1 }}%</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <!-- Standard selection item (division/district/constituency) -->
+    <span class="name-en">{{ name_en }}</span>
+    <span class="name-bn">({{ name_bn }})</span>
+    {% if extra_info %}
+      <div class="area-info">{{ extra_info }}</div>
+    {% endif %}
+  {% endif %}
+</li>

@@ -1,0 +1,48 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Vote · Amolnama News{% endblock %}
+
+{% block extra_css %}
+<!-- Import all modular CSS components -->
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-flow.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-selection.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-progress.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-form.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/youtube-style-total-vote-info.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="grid">
+  <div>
+    <!-- Page Title -->
+    <div class="section-head">
+      {% if evaluation %}
+        <h2>{{ evaluation.evaluation_name_bn }}</h2>
+      {% endif %}
+    </div>
+
+    <div class="vote-content">
+      <!-- Include voting form component with all selection steps -->
+      {% include "evaluation_vote/components/voting-form.html" %}
+
+      <!-- Include voting feedback component with success view and results -->
+      {% include "evaluation_vote/components/youtube-style-voting-feedback.html" %}
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    {% include "evaluation_vote/partials/sidebar_past_vote_results.html" %}
+  </aside>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Import all modular JavaScript modules -->
+<script src="{% static 'evaluation_vote/assets/js/components/youtube-style-total-vote-info.js' %}"></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-navigation.js' %}"></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-selection.js' %}"></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-submission.js' %}"></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-tracker.js' %}"></script>
+<script src="{% static 'evaluation_vote/assets/js/pages/home.js' %}?v=2"></script>
+{% endblock %}

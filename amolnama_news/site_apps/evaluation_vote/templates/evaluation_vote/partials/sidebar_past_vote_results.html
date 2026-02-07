@@ -1,4 +1,21 @@
-
 {% load static %}
-{% include "core/partials/widget.html" with title="Trending" items=trending_items %}
-
+<div class="widget">
+  <h4>Past Elections / বিগত নির্বাচন</h4>
+  <ul class="list">
+    {% if past_evaluations %}
+      {% for eval in past_evaluations %}
+        <li>
+          <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+          <a href="{% url 'evaluation_vote:past_election_results' eval.evaluation_id %}">
+            {{ eval.evaluation_name_bn }}
+          </a>
+        </li>
+      {% endfor %}
+    {% else %}
+      {# Fallback message when no past evaluations found #}
+      <li style="text-align: center; padding: 1rem;">
+        কোনো বিগত নির্বাচন পাওয়া যায়নি
+      </li>
+    {% endif %}
+  </ul>
+</div>
