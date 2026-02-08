@@ -36,41 +36,11 @@
       <!-- Level 1: National Results - All Parties -->
       <h3>National Level Results / জাতীয় পর্যায়ের ফলাফল</h3>
 
-      <!-- Total vote count component -->
       {% include "evaluation_vote/components/youtube-style-total-vote-info.html" %}
 
       <ul class="selection-list party-list" style="margin-top: 1rem;">
         {% for result in results %}
-          <li>
-            <div class="party-item">
-              {% if result.party_logo_file %}
-                <img
-                  src="/media/{{ result.party_logo_path }}{{ result.party_logo_file }}"
-                  alt="{{ result.party_short_name }}"
-                  class="party-logo"
-                />
-              {% else %}
-                <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                  🏛️
-                </div>
-              {% endif %}
-              <div class="party-text">
-                <div class="party-info">
-                  <span class="party-short">{{ result.party_short_name }}</span>
-                  <span class="party-separator">-</span>
-                  <span class="party-name">{{ result.party_name }}</span>
-                </div>
-                <!-- YouTube-style progress bar -->
-                <div class="bar-container">
-                  <div class="bar-fill" style="width: {{ result.vote_percentage }}%;"></div>
-                  <span class="pct-text">
-                    {{ result.vote_percentage|floatformat:1 }}%
-                    <span class="vote-count">({{ result.total_votes|default:"0"|floatformat:0 }} ভোট)</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </li>
+          {% include "evaluation_vote/components/party-result-item.html" with party=result %}
         {% empty %}
           <li style="text-align: center; padding: 2rem; color: var(--muted);">
             No results found / কোনো ফলাফল পাওয়া যায়নি
@@ -86,59 +56,10 @@
       </div>
 
     {% elif drill_level == 'division' %}
-      <!-- Level 2: Division Level Results - All Divisions with All Parties -->
+      <!-- Level 2: Division Level Results -->
       <h3>Division Level Results / বিভাগ পর্যায়ের ফলাফল</h3>
-
-      {% for division_result in results %}
-        <div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
-          <h4 style="margin: 0 0 0.5rem 0;">
-            {{ division_result.division }}
-          </h4>
-          <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
-            <span class="highlight-vote">মোট ভোট: {{ division_result.total_votes|floatformat:0 }}</span>
-          </p>
-
-          <ul class="selection-list party-list">
-            {% for party in division_result.parties %}
-              <li>
-                <div class="party-item">
-                  {% if party.file_name %}
-                    <img
-                      src="/media/{{ party.file_path }}{{ party.file_name }}"
-                      alt="{{ party.party_short_name }}"
-                      class="party-logo"
-                    />
-                  {% else %}
-                    <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                      🏛️
-                    </div>
-                  {% endif %}
-                  <div class="party-text">
-                    <div class="party-info">
-                      <span class="party-short">{{ party.party_short_name }}</span>
-                      <span class="party-separator">-</span>
-                      <span class="party-name">{{ party.party_name }}</span>
-                    </div>
-                    <div class="bar-container">
-                      <div class="bar-fill" style="width: {{ party.percentage }}%;"></div>
-                      <span class="pct-text">
-                        {{ party.percentage|floatformat:1 }}%
-                        <span class="vote-count">({{ party.votes|floatformat:0 }} ভোট)</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-
-          <!-- Drill through to districts -->
-          <div style="text-align: center; margin-top: 1rem;">
-            <a href="?division_id={{ division_result.division_id }}" style="color: var(--primary); text-decoration: none; font-weight: bold;">
-              View Districts in {{ division_result.division }} →
-            </a>
-          </div>
-        </div>
+      {% for item in results %}
+        {% include "evaluation_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties drilldown_url=item.drilldown_url drilldown_text=item.drilldown_text %}
       {% empty %}
         <p style="text-align: center; padding: 2rem; color: var(--muted);">
           No divisions found / কোনো বিভাগ পাওয়া যায়নি
@@ -146,59 +67,10 @@
       {% endfor %}
 
     {% elif drill_level == 'district' %}
-      <!-- Level 3: District Level Results - All Districts with All Parties -->
+      <!-- Level 3: District Level Results -->
       <h3>District Level Results / জেলা পর্যায়ের ফলাফল</h3>
-
-      {% for district_result in results %}
-        <div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
-          <h4 style="margin: 0 0 0.5rem 0;">
-            {{ district_result.district }}
-          </h4>
-          <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
-            <span class="highlight-vote">মোট ভোট: {{ district_result.total_votes|floatformat:0 }}</span>
-          </p>
-
-          <ul class="selection-list party-list">
-            {% for party in district_result.parties %}
-              <li>
-                <div class="party-item">
-                  {% if party.file_name %}
-                    <img
-                      src="/media/{{ party.file_path }}{{ party.file_name }}"
-                      alt="{{ party.party_short_name }}"
-                      class="party-logo"
-                    />
-                  {% else %}
-                    <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                      🏛️
-                    </div>
-                  {% endif %}
-                  <div class="party-text">
-                    <div class="party-info">
-                      <span class="party-short">{{ party.party_short_name }}</span>
-                      <span class="party-separator">-</span>
-                      <span class="party-name">{{ party.party_name }}</span>
-                    </div>
-                    <div class="bar-container">
-                      <div class="bar-fill" style="width: {{ party.percentage }}%;"></div>
-                      <span class="pct-text">
-                        {{ party.percentage|floatformat:1 }}%
-                        <span class="vote-count">({{ party.votes|floatformat:0 }} ভোট)</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-
-          <!-- Drill through to constituencies -->
-          <div style="text-align: center; margin-top: 1rem;">
-            <a href="?division_id={{ current_division_id }}&district_id={{ district_result.district_id }}" style="color: var(--primary); text-decoration: none; font-weight: bold;">
-              View Constituencies in {{ district_result.district }} →
-            </a>
-          </div>
-        </div>
+      {% for item in results %}
+        {% include "evaluation_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties drilldown_url=item.drilldown_url drilldown_text=item.drilldown_text %}
       {% empty %}
         <p style="text-align: center; padding: 2rem; color: var(--muted);">
           No districts found / কোনো জেলা পাওয়া যায়নি
@@ -206,53 +78,10 @@
       {% endfor %}
 
     {% elif drill_level == 'constituency' %}
-      <!-- Level 4: Constituency Level Results - All Constituencies with All Parties -->
+      <!-- Level 4: Constituency Level Results (lowest level, no drilldown) -->
       <h3>Constituency Level Results / আসন পর্যায়ের ফলাফল</h3>
-
-      {% for constituency_result in results %}
-        <div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
-          <h4 style="margin: 0 0 0.5rem 0;">{{ constituency_result.seat_name }}</h4>
-          <p style="margin: 0 0 0.5rem 0; color: var(--muted); font-size: 0.9rem;">
-            {{ constituency_result.area_list }}
-          </p>
-          <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
-            <span class="highlight-vote">মোট ভোট: {{ constituency_result.total_votes|floatformat:0 }}</span>
-          </p>
-
-          <ul class="selection-list party-list">
-            {% for party in constituency_result.parties %}
-              <li>
-                <div class="party-item">
-                  {% if party.file_name %}
-                    <img
-                      src="/media/{{ party.file_path }}{{ party.file_name }}"
-                      alt="{{ party.party_short_name }}"
-                      class="party-logo"
-                    />
-                  {% else %}
-                    <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
-                      🏛️
-                    </div>
-                  {% endif %}
-                  <div class="party-text">
-                    <div class="party-info">
-                      <span class="party-short">{{ party.party_short_name }}</span>
-                      <span class="party-separator">-</span>
-                      <span class="party-name">{{ party.party_name }}</span>
-                    </div>
-                    <div class="bar-container">
-                      <div class="bar-fill" style="width: {{ party.percentage }}%;"></div>
-                      <span class="pct-text">
-                        {{ party.percentage|floatformat:1 }}%
-                        <span class="vote-count">({{ party.votes|floatformat:0 }} ভোট)</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+      {% for item in results %}
+        {% include "evaluation_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties area_list=item.area_list %}
       {% empty %}
         <p style="text-align: center; padding: 2rem; color: var(--muted);">
           No constituencies found / কোনো আসন পাওয়া যায়নি

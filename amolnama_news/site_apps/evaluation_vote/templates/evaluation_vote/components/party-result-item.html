@@ -1,0 +1,40 @@
+{% comment %}
+Reusable party result item with logo and YouTube-style progress bar.
+Usage:
+  {% include "evaluation_vote/components/party-result-item.html" with party=result %}
+
+Expected party dict keys:
+  - file_name, file_path (party logo)
+  - party_short_name, party_name
+  - percentage, votes
+{% endcomment %}
+
+<li>
+  <div class="party-item">
+    {% if party.file_name %}
+      <img
+        src="/media/{{ party.file_path }}{{ party.file_name }}"
+        alt="{{ party.party_short_name }}"
+        class="party-logo"
+      />
+    {% else %}
+      <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+        &#x1F3DB;&#xFE0F;
+      </div>
+    {% endif %}
+    <div class="party-text">
+      <div class="party-info">
+        <span class="party-short">{{ party.party_short_name }}</span>
+        <span class="party-separator">-</span>
+        <span class="party-name">{{ party.party_name }}</span>
+      </div>
+      <div class="bar-container">
+        <div class="bar-fill" style="width: {{ party.percentage }}%;"></div>
+        <span class="pct-text">
+          {{ party.percentage|floatformat:1 }}%
+          <span class="vote-count">({{ party.votes|floatformat:0 }} ভোট)</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</li>

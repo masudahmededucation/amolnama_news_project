@@ -41,6 +41,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "amolnama_news.site_apps.core",
     "amolnama_news.site_apps.evaluation_vote",
+    "amolnama_news.site_apps.election_vote",
     "amolnama_news.site_apps.locations",
     "amolnama_news.site_apps.user_account",
     "amolnama_news.site_apps.user_portal_staff",

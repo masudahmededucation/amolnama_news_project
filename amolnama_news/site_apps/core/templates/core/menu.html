@@ -1,7 +1,8 @@
 {% load static %}
 <nav class="nav" aria-label="Primary">
   <a href="{% url 'core:home' %}" {% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'core' %}class="active"{% endif %}>Home</a>
-  <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Vote</a>
+  <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Evaluation Vote</a>
+  <a href="{% url 'election_vote:home' %}" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>Election Vote</a>
 
   <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a>
   <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>

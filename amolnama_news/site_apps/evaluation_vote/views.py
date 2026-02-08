@@ -372,231 +372,173 @@ def sidebar_past_vote_results(request):
     return render(request, "evaluation_vote/partials/sidebar_past_vote_results.html")
 
 
-def past_election_results_drillthrough_location(request, evaluation_id):
-    """
-    Location-based drill-through report for past election results using IDs for filtering
-    Hierarchy: National → Division → District → Constituency
-    Shows ALL parties at each geographic level
-    Uses evaluation_id, division_id, district_id for URL parameters and filtering
-    Displays Bengali names from database for user interface
-    """
-    from django.db.models import Sum, Max
-    from collections import defaultdict
+# ---- Reusable helper constants ----
+PARTY_FIELDS = ['party_name_symbol', 'party_short_name_bn',
+                'party_symbol_name_bn', 'file_path', 'file_name']
+
+
+# ---- Level-specific data builders ----
+
+def _build_national_results(queryset, evaluation_name, request_path):
+    """Level 1: National aggregate results - all parties across all constituencies."""
+    from django.db.models import Sum
+    from .services import build_party_entry, calculate_party_percentages
+
+    party_results = queryset.values(*PARTY_FIELDS).annotate(
+        votes=Sum('party_seat_vote')
+    ).order_by('-votes')
+
+    results = [build_party_entry(row) for row in party_results]
+    total_votes = calculate_party_percentages(results)
+
+    breadcrumb = [{'name': evaluation_name, 'url': None}]
+    return results, 'national', breadcrumb, total_votes
+
+
+def _build_division_results(queryset, evaluation_name, request_path):
+    """Level 2: Division overview - all divisions with all parties."""
+    from .services import group_results_by_location
+
+    results = group_results_by_location(
+        queryset,
+        group_id_field='division_id',
+        group_name_field='division_name_bn',
+        party_fields=PARTY_FIELDS,
+    )
+
+    # Add template-friendly keys
+    for r in results:
+        r['heading'] = r['division_name_bn']
+        r['drilldown_url'] = f"?division_id={r['division_id']}"
+        r['drilldown_text'] = f"View Districts in {r['division_name_bn']}"
+
+    breadcrumb = [
+        {'name': evaluation_name, 'url': request_path},
+        {'name': 'Division Level Results', 'url': None},
+    ]
+    return results, 'division', breadcrumb
+
+
+def _build_district_results(queryset, evaluation_name, request_path, division_id):
+    """Level 3: District results within a division - all parties per district."""
+    from .services import group_results_by_location
+
+    queryset_filtered = queryset.filter(division_id=division_id)
+
+    # Get division name for breadcrumb
+    first_row = queryset_filtered.first()
+    division_name = first_row.division_name_bn if first_row else "Unknown Division"
+
+    results = group_results_by_location(
+        queryset_filtered,
+        group_id_field='district_id',
+        group_name_field='district_name_bn',
+        party_fields=PARTY_FIELDS,
+    )
+
+    # Add template-friendly keys
+    for r in results:
+        r['heading'] = r['district_name_bn']
+        r['drilldown_url'] = f"?division_id={division_id}&district_id={r['district_id']}"
+        r['drilldown_text'] = f"View Constituencies in {r['district_name_bn']}"
+
+    breadcrumb = [
+        {'name': evaluation_name, 'url': request_path},
+        {'name': f"Division / বিভাগ: {division_name}", 'url': f"{request_path}?view=divisions"},
+    ]
+    return results, 'district', breadcrumb
+
+
+def _build_constituency_results(queryset, evaluation_name, request_path, division_id, district_id):
+    """Level 4: Constituency results within a district - all parties per constituency."""
+    from .services import group_results_by_location
     from urllib.parse import urlencode
 
-    # Get location filter parameters from URL - use IDs for filtering
-    view_level = request.GET.get('view')  # 'divisions' to show all divisions
-    division_id = request.GET.get('division_id')  # Division ID for filtering
-    district_id = request.GET.get('district_id')  # District ID for filtering
+    queryset_filtered = queryset.filter(division_id=division_id, district_id=district_id)
 
-    # Convert to int if provided
+    # Get division and district names for breadcrumb
+    first_row = queryset_filtered.first()
+    division_name = first_row.division_name_bn if first_row else "Unknown Division"
+    district_name = first_row.district_name_bn if first_row else "Unknown District"
+
+    results = group_results_by_location(
+        queryset_filtered,
+        group_id_field='constituency_name_bn',
+        group_name_field='constituency_name_bn',
+        party_fields=PARTY_FIELDS,
+        extra_fields=['constituency_area_list_bn'],
+    )
+
+    # Add template-friendly keys (no drilldown at lowest level)
+    for r in results:
+        r['heading'] = r['constituency_name_bn']
+        r['area_list'] = r.get('constituency_area_list_bn', '')
+
+    breadcrumb = [
+        {'name': evaluation_name, 'url': request_path},
+        {'name': f"Division / বিভাগ: {division_name}", 'url': f"{request_path}?view=divisions"},
+        {'name': f"District / জেলা: {district_name}", 'url': f"{request_path}?{urlencode({'division_id': division_id})}"},
+    ]
+    return results, 'constituency', breadcrumb
+
+
+# ---- Shared helpers ----
+
+def _determine_back_url(drill_level, request_path, division_id=None):
+    """Calculate the back navigation URL based on current drill level."""
+    from urllib.parse import urlencode
+
+    if drill_level == 'division':
+        return request_path
+    elif drill_level == 'district':
+        return f"{request_path}?view=divisions"
+    elif drill_level == 'constituency':
+        return f"{request_path}?{urlencode({'division_id': division_id})}"
+    return None
+
+
+def _get_sidebar_evaluations():
+    """Fetch past evaluations for the sidebar widget."""
+    return AppSidebarPastResults.objects.values(
+        'evaluation_id', 'evaluation_name_bn'
+    ).distinct().order_by('evaluation_name_bn')
+
+
+# ---- Main dispatcher ----
+
+def past_election_results_drillthrough_location(request, evaluation_id):
+    """
+    Location-based drill-through report dispatcher.
+    Determines drill level from URL parameters and delegates to level-specific builders.
+    Hierarchy: National → Division → District → Constituency
+    """
+    view_level = request.GET.get('view')
+    division_id = request.GET.get('division_id')
+    district_id = request.GET.get('district_id')
+
     if division_id:
         division_id = int(division_id)
     if district_id:
         district_id = int(district_id)
 
-    # Start with base queryset for this evaluation - filter by ID
     queryset = AppSidebarPastResults.objects.filter(evaluation_id=evaluation_id)
-
-    # Get evaluation name for display
     first_record = queryset.first()
     evaluation_name = first_record.evaluation_name_bn if first_record else f"Evaluation {evaluation_id}"
 
-    # Build breadcrumb - start with just evaluation name, will add links based on level
-    breadcrumb = []
+    total_votes = None
 
-    # Determine current drill level based on location parameters
-    # Check view_level FIRST before checking division/district parameters
     if view_level == 'divisions':
-        # Level 1.5: Division Overview - Show all divisions with ALL parties
-        division_data = defaultdict(lambda: {'parties': []})
-
-        for row in queryset.values('division_id', 'division_name_bn', 'party_name_symbol', 'party_short_name_bn',
-                                  'party_symbol_name_bn', 'file_path', 'file_name').annotate(
-            votes=Sum('party_seat_vote')
-        ).order_by('division_name_bn', '-votes'):
-            division_name = row['division_name_bn']
-            div_id = row['division_id']
-            division_data[division_name]['division'] = division_name
-            division_data[division_name]['division_id'] = div_id
-            division_data[division_name]['parties'].append({
-                'party_name': row['party_name_symbol'],
-                'party_short_name': row['party_short_name_bn'] or row['party_name_symbol'],
-                'party_symbol': row['party_symbol_name_bn'] or '',
-                'file_path': row['file_path'] or '',
-                'file_name': row['file_name'] or '',
-                'votes': row['votes'] or 0,
-            })
-
-        # Calculate percentages and store total votes for each division
-        for division_name, data in division_data.items():
-            total = sum(p['votes'] for p in data['parties'])
-            data['total_votes'] = total
-            for party in data['parties']:
-                party['percentage'] = (party['votes'] / total * 100) if total > 0 else 0
-
-        results = list(division_data.values())
-        drill_level = 'division'
-        # Breadcrumb: evaluation_name (link to national) / Division Level Results (current)
-        breadcrumb = [
-            {'name': evaluation_name, 'url': request.path},
-            {'name': 'Division Level Results', 'url': None}
-        ]
-
-    elif not division_id and not district_id:
-        # Level 1: National - Aggregate all seat votes nationally for each party
-        party_results = queryset.values(
-            'party_name_symbol',
-            'party_short_name_bn',
-            'party_symbol_name_bn',
-            'file_path',
-            'file_name'
-        ).annotate(
-            total_votes=Sum('party_seat_vote')
-        ).order_by('-total_votes')
-
-        # Calculate total votes for percentage
-        total_votes = sum(r['total_votes'] or 0 for r in party_results)
-
-        # Build results with percentages using fields directly from database view
-        results = []
-        for result in party_results:
-            vote_count = result['total_votes'] or 0
-            vote_percentage = (vote_count / total_votes * 100) if total_votes > 0 else 0
-
-            results.append({
-                'party_name': result['party_name_symbol'],
-                'total_votes': vote_count,
-                'vote_percentage': vote_percentage,
-                'party_logo_path': result['file_path'] or '',
-                'party_logo_file': result['file_name'] or '',
-                'party_short_name': result['party_short_name_bn'] or result['party_name_symbol'],
-                'party_symbol': result['party_symbol_name_bn'] or '',
-            })
-
-        drill_level = 'national'
-        # Breadcrumb: evaluation_name (current, no link)
-        breadcrumb = [
-            {'name': evaluation_name, 'url': None}
-        ]
-
-    elif division_id and not district_id:
-        # Level 2: District Results - Show all districts in selected division with ALL parties
-        queryset_filtered = queryset.filter(division_id=division_id)
-
-        # Get division name for display from first result
-        first_row = queryset_filtered.first()
-        division_name = first_row.division_name_bn if first_row else "Unknown Division"
-
-        # Group by district and party to show all parties for each district
-        district_data = defaultdict(lambda: {'parties': [], 'district_id': None})
-
-        for row in queryset_filtered.values('district_id', 'district_name_bn', 'party_name_symbol', 'party_short_name_bn',
-                                           'party_symbol_name_bn', 'file_path', 'file_name').annotate(
-            votes=Sum('party_seat_vote')
-        ).order_by('district_name_bn', '-votes'):
-            district_name = row['district_name_bn']
-            dist_id = row['district_id']
-            district_data[district_name]['district'] = district_name
-            district_data[district_name]['district_id'] = dist_id
-            district_data[district_name]['parties'].append({
-                'party_name': row['party_name_symbol'],
-                'party_short_name': row['party_short_name_bn'] or row['party_name_symbol'],
-                'party_symbol': row['party_symbol_name_bn'] or '',
-                'file_path': row['file_path'] or '',
-                'file_name': row['file_name'] or '',
-                'votes': row['votes'] or 0,
-            })
-
-        # Calculate percentages and store total votes for each district
-        for district_name, data in district_data.items():
-            total = sum(p['votes'] for p in data['parties'])
-            data['total_votes'] = total
-            for party in data['parties']:
-                party['percentage'] = (party['votes'] / total * 100) if total > 0 else 0
-
-        results = list(district_data.values())
-        drill_level = 'district'
-        # Breadcrumb: evaluation_name (link to national) / Division: name (link to division overview)
-        division_display = f"Division / বিভাগ: {division_name}"
-        division_overview_url = f"{request.path}?view=divisions"
-        breadcrumb = [
-            {'name': evaluation_name, 'url': request.path},
-            {'name': division_display, 'url': division_overview_url}
-        ]
-
+        results, drill_level, breadcrumb = _build_division_results(
+            queryset, evaluation_name, request.path)
     elif division_id and district_id:
-        # Level 3: Constituency Results - Show all constituencies in selected district with ALL parties
-        queryset_filtered = queryset.filter(division_id=division_id, district_id=district_id)
-
-        # Get division and district names for display from first result
-        first_row = queryset_filtered.first()
-        division_name = first_row.division_name_bn if first_row else "Unknown Division"
-        district_name = first_row.district_name_bn if first_row else "Unknown District"
-
-        # Group by constituency and party
-        constituency_data = defaultdict(lambda: {'parties': [], 'area_list': ''})
-
-        for row in queryset_filtered.values('constituency_name_bn', 'constituency_area_list_bn', 'party_name_symbol',
-                                           'party_short_name_bn', 'party_symbol_name_bn',
-                                           'file_path', 'file_name', 'party_seat_vote',
-                                           'seat_total_vote').order_by('constituency_name_bn', '-party_seat_vote'):
-            seat_name = row['constituency_name_bn']
-            constituency_data[seat_name]['seat_name'] = seat_name
-            constituency_data[seat_name]['area_list'] = row['constituency_area_list_bn'] or ''
-            constituency_data[seat_name]['parties'].append({
-                'party_name': row['party_name_symbol'],
-                'party_short_name': row['party_short_name_bn'] or row['party_name_symbol'],
-                'party_symbol': row['party_symbol_name_bn'] or '',
-                'file_path': row['file_path'] or '',
-                'file_name': row['file_name'] or '',
-                'votes': row['party_seat_vote'] or 0,
-            })
-
-        # Calculate percentages and store total votes for each constituency
-        for seat_name, data in constituency_data.items():
-            total = sum(p['votes'] for p in data['parties'])
-            data['total_votes'] = total
-            for party in data['parties']:
-                party['percentage'] = (party['votes'] / total * 100) if total > 0 else 0
-
-        results = list(constituency_data.values())
-        drill_level = 'constituency'
-        # Breadcrumb: evaluation_name / Division: name / District: name
-        # Use IDs in URLs, display names for user interface
-        division_display = f"Division / বিভাগ: {division_name}"
-        district_display = f"District / জেলা: {district_name}"
-        # Division links to division overview, district links to district level for that division
-        division_overview_url = f"{request.path}?view=divisions"
-        district_url = f"{request.path}?{urlencode({'division_id': division_id})}"
-        breadcrumb = [
-            {'name': evaluation_name, 'url': request.path},
-            {'name': division_display, 'url': division_overview_url},
-            {'name': district_display, 'url': district_url}
-        ]
-
+        results, drill_level, breadcrumb = _build_constituency_results(
+            queryset, evaluation_name, request.path, division_id, district_id)
+    elif division_id:
+        results, drill_level, breadcrumb = _build_district_results(
+            queryset, evaluation_name, request.path, division_id)
     else:
-        results = []
-        drill_level = 'national'
-        total_votes = 0
-        breadcrumb = [
-            {'name': evaluation_name, 'url': None}
-        ]
-
-    # Determine back URL based on current drill level
-    back_url = None
-    if drill_level == 'division':
-        # From division overview, go back to national
-        back_url = request.path
-    elif drill_level == 'district':
-        # From district level, go back to division overview
-        back_url = f"{request.path}?view=divisions"
-    elif drill_level == 'constituency':
-        # From constituency level, go back to district level
-        back_url = f"{request.path}?{urlencode({'division_id': division_id})}"
-
-    # Get past evaluations for sidebar
-    past_evaluations = AppSidebarPastResults.objects.values('evaluation_id', 'evaluation_name_bn').distinct().order_by('evaluation_name_bn')
+        results, drill_level, breadcrumb, total_votes = _build_national_results(
+            queryset, evaluation_name, request.path)
 
     context = {
         'evaluation_name': evaluation_name,
@@ -605,9 +547,9 @@ def past_election_results_drillthrough_location(request, evaluation_id):
         'breadcrumb': breadcrumb,
         'current_division_id': division_id,
         'current_district_id': district_id,
-        'total_votes': total_votes if drill_level == 'national' else None,
-        'back_url': back_url,
-        'past_evaluations': past_evaluations,
+        'total_votes': total_votes,
+        'back_url': _determine_back_url(drill_level, request.path, division_id),
+        'past_evaluations': _get_sidebar_evaluations(),
     }
 
     return render(request, 'evaluation_vote/pages/past_election_results_drillthrough_location.html', context)

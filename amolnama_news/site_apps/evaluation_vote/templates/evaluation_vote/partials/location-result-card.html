@@ -1,0 +1,54 @@
+{% comment %}
+Reusable location-level result card with party list and progress bars.
+Used by division, district, and constituency drill levels.
+
+Usage:
+  {% include "evaluation_vote/partials/location-result-card.html" with
+     heading=item.heading
+     total_votes=item.total_votes
+     parties=item.parties
+     drilldown_url=item.drilldown_url
+     drilldown_text=item.drilldown_text
+     area_list=item.area_list
+  %}
+
+Parameters:
+  - heading: Card title (location name)
+  - total_votes: Total votes for this location
+  - parties: List of party dicts
+  - drilldown_url: Optional URL for drill-down link (omit for lowest level)
+  - drilldown_text: Text for drill-down link
+  - area_list: Optional area info (for constituencies)
+{% endcomment %}
+
+<div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
+  <h4 style="margin: 0 0 0.5rem 0;">{{ heading }}</h4>
+
+  {% if area_list %}
+    <p style="margin: 0 0 0.5rem 0; color: var(--muted); font-size: 0.9rem;">
+      {{ area_list }}
+    </p>
+  {% endif %}
+
+  <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+    <span class="highlight-vote">মোট ভোট: {{ total_votes|floatformat:0 }}</span>
+  </p>
+
+  <ul class="selection-list party-list">
+    {% for party in parties %}
+      {% include "evaluation_vote/components/party-result-item.html" with party=party %}
+    {% empty %}
+      <li style="text-align: center; padding: 2rem; color: var(--muted);">
+        No results found / কোনো ফলাফল পাওয়া যায়নি
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if drilldown_url %}
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="{{ drilldown_url }}" style="color: var(--primary); text-decoration: none; font-weight: bold;">
+        {{ drilldown_text }} →
+      </a>
+    </div>
+  {% endif %}
+</div>
