@@ -3,10 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..models import User
-from ..utils import normalize_email
-from ..services.auth_service import register_user, authenticate_user
+from ..services import register_user, authenticate_user
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -16,6 +15,7 @@ class RegisterView(APIView):
         s.is_valid(raise_exception=True)
         user = register_user(**s.validated_data)
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
