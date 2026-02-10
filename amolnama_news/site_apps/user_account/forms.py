@@ -98,12 +98,12 @@ class SignupForm(forms.Form):
     )
 
     def clean_first_name(self):
-        val = (self.cleaned_data.get("first_name") or "").strip()
-        return val.title() if val else val
+        val = (self.cleaned_data.get("first_name") or None)
+        return val.strip().title() if val and val.strip() else None
 
     def clean_last_name(self):
-        val = (self.cleaned_data.get("last_name") or "").strip()
-        return val.title() if val else val
+        val = (self.cleaned_data.get("last_name") or None)
+        return val.strip().title() if val and val.strip() else None
 
     def clean(self):
         cleaned = super().clean()
@@ -438,18 +438,20 @@ class PersonalDetailsForm(forms.Form):
         return dob
 
     def clean_first_name_en(self):
-        val = (self.cleaned_data.get("first_name_en") or "").strip()
-        return val.title() if val else val
+        val = self.cleaned_data.get("first_name_en") or None
+        return val.strip().title() if val and val.strip() else None
 
     def clean_last_name_en(self):
-        val = (self.cleaned_data.get("last_name_en") or "").strip()
-        return val.title() if val else val
+        val = self.cleaned_data.get("last_name_en") or None
+        return val.strip().title() if val and val.strip() else None
 
     def clean_first_name_bn(self):
-        return (self.cleaned_data.get("first_name_bn") or "").strip()
+        val = self.cleaned_data.get("first_name_bn") or None
+        return val.strip() if val and val.strip() else None
 
     def clean_last_name_bn(self):
-        return (self.cleaned_data.get("last_name_bn") or "").strip()
+        val = self.cleaned_data.get("last_name_bn") or None
+        return val.strip() if val and val.strip() else None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -499,12 +501,14 @@ class ContactInfoForm(forms.Form):
     )
 
     def clean_mobile_number(self):
-        val = (self.cleaned_data.get("mobile_number") or "").strip()
-        val = val.replace(" ", "").replace("-", "")
-        return val
+        val = self.cleaned_data.get("mobile_number") or None
+        if val:
+            val = val.strip().replace(" ", "").replace("-", "")
+        return val or None
 
     def clean_email_address(self):
-        return (self.cleaned_data.get("email_address") or "").strip().lower()
+        val = self.cleaned_data.get("email_address") or None
+        return val.strip().lower() if val and val.strip() else None
 
 
 class HomeAddressForm(AddressFieldsMixin, forms.Form):

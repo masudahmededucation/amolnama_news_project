@@ -51,7 +51,7 @@
 
     <!-- Address line 1 -->
     <div class="signup-form-group">
-      <label class="signup-form-label" for="{{ form.address_line_one.id_for_label }}">Address line 1</label>
+      <label class="signup-form-label" for="{{ form.address_line_one.id_for_label }}">Address line 1 *</label>
       {{ form.address_line_one }}
       {% if form.address_line_one.errors %}
         <ul class="signup-field-errors">{% for e in form.address_line_one.errors %}<li>{{ e }}</li>{% endfor %}</ul>
@@ -78,7 +78,7 @@
 
     <!-- City / Town -->
     <div class="signup-form-group">
-      <label class="signup-form-label" for="{{ form.city_town.id_for_label }}">City / Town</label>
+      <label class="signup-form-label" for="{{ form.city_town.id_for_label }}">City / Town *</label>
       {{ form.city_town }}
       {% if form.city_town.errors %}
         <ul class="signup-field-errors">{% for e in form.city_town.errors %}<li>{{ e }}</li>{% endfor %}</ul>

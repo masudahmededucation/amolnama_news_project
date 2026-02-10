@@ -52,11 +52,13 @@ EMAIL_AUTH_BACKEND = (
 
 def _build_full_phone(data):
     """Concatenate country code + local number, stripping leading zeros."""
-    code = data.get("country", "")
-    number = (data.get("mobile_number") or "").lstrip("0")
+    code = data.get("country") or None
+    number = data.get("mobile_number") or None
+    if number:
+        number = number.lstrip("0") or None
     if code and number:
         return f"{code}{number}"
-    return number or None
+    return number
 
 
 def _split_full_phone(full_phone):
@@ -209,7 +211,7 @@ def signup_complete_view(request):
                     now = timezone.now()
                     person = Person.objects.create(
                         first_name_en=first or email,
-                        last_name_en=last or "",
+                        last_name_en=last or None,
                         primary_email_address=email,
                         is_active=True,
                         created_at=now,
@@ -352,7 +354,7 @@ def mobile_set_password_view(request):
                 now = timezone.now()
                 person = Person.objects.create(
                     first_name_en=phone,
-                    last_name_en="",
+                    last_name_en=None,
                     primary_mobile_number=phone,
                     is_active=True,
                     created_at=now,
@@ -586,15 +588,15 @@ def profile_personal_view(request):
         initial = {}
         if person:
             initial = {
-                "first_name_en": person.first_name_en or "",
-                "last_name_en": person.last_name_en or "",
-                "first_name_bn": person.first_name_bn or "",
-                "last_name_bn": person.last_name_bn or "",
+                "first_name_en": person.first_name_en,
+                "last_name_en": person.last_name_en,
+                "first_name_bn": person.first_name_bn,
+                "last_name_bn": person.last_name_bn,
                 "date_of_birth": person.date_of_birth,
-                "link_gender_id": person.link_gender_id or "",
-                "link_religion_id": person.link_religion_id or "",
-                "nid_number": person.nid_card_number or "",
-                "notes": person.notes or "",
+                "link_gender_id": person.link_gender_id,
+                "link_religion_id": person.link_religion_id,
+                "nid_number": person.nid_card_number,
+                "notes": person.notes,
             }
         form = PersonalDetailsForm(initial=initial)
 
@@ -622,7 +624,7 @@ def profile_contact_view(request):
             if not person:
                 person = Person.objects.create(
                     first_name_en=request.user.email,
-                    last_name_en="",
+                    last_name_en=None,
                     is_active=True,
                     created_at=timezone.now(),
                     modified_at=timezone.now(),
@@ -640,7 +642,8 @@ def profile_contact_view(request):
             ])
 
             # Save or update Phone record
-            phone_number = (data.get("mobile_number") or "").lstrip("0")
+            raw_number = data.get("mobile_number") or None
+            phone_number = raw_number.lstrip("0") if raw_number else None
             country_code = data.get("country") or "+880"
             if phone_number:
                 Phone.objects.update_or_create(
@@ -667,7 +670,7 @@ def profile_contact_view(request):
             messages.success(request, "Contact info updated.")
             return redirect("user_account:profile_contact")
     else:
-        initial = {"country": "+880", "mobile_number": "", "email_address": ""}
+        initial = {"country": "+880"}
         if person:
             phone_rec = Phone.objects.filter(
                 link_person_id=person.person_id,
@@ -675,14 +678,14 @@ def profile_contact_view(request):
             ).first()
             if phone_rec:
                 initial["country"] = phone_rec.country_calling_code or "+880"
-                initial["mobile_number"] = phone_rec.phone_number or ""
+                initial["mobile_number"] = phone_rec.phone_number
 
             email_rec = Email.objects.filter(
                 link_person_id=person.person_id,
                 is_active=True,
             ).first()
             if email_rec:
-                initial["email_address"] = email_rec.email_address or ""
+                initial["email_address"] = email_rec.email_address
         form = ContactInfoForm(initial=initial)
 
     return render(request, "user_account/profile_contact.html", {
@@ -722,7 +725,7 @@ def profile_address_view(request):
             if not person:
                 person = Person.objects.create(
                     first_name_en=request.user.email,
-                    last_name_en="",
+                    last_name_en=None,
                     is_active=True,
                     created_at=timezone.now(),
                     modified_at=timezone.now(),
@@ -733,57 +736,67 @@ def profile_address_view(request):
 
             # Save or update Address
             union_id = data.get("link_union_parishad_id") or None
-            addr_line_1 = (data.get("address_line_one") or "").strip()
+            raw = data.get("address_line_one") or None
+            addr_line_1 = raw.strip() if raw else None
             addr_line_2 = data.get("address_line_two") or None
-            city = (data.get("city_town") or "").strip()
+            raw = data.get("city_town") or None
+            city = raw.strip() if raw else None
             has_address = union_id or addr_line_1 or city
 
-            if has_address:
-                addr_fields = {
-                    "link_union_parishad_id": union_id,
-                    "address_line_one": addr_line_1,
-                    "address_line_two": addr_line_2,
-                    "local_area_name": data.get("local_area_name") or None,
-                    "city_town": city,
-                    "region_province_state_division": data.get("region_province_state_division") or None,
-                    "postal_code": data.get("postal_code") or None,
-                }
+            if has_address and not addr_line_1:
+                form.add_error("address_line_one", "Address line one is required.")
+            if has_address and not city:
+                form.add_error("city_town", "City / Town is required.")
+
+            if form.errors:
+                pass  # fall through to re-render form with errors
+            else:
+                if has_address:
+                    addr_fields = {
+                        "link_union_parishad_id": union_id,
+                        "address_line_one": addr_line_1,
+                        "address_line_two": addr_line_2,
+                        "local_area_name": data.get("local_area_name") or None,
+                        "city_town": city,
+                        "region_province_state_division": data.get("region_province_state_division") or None,
+                        "postal_code": data.get("postal_code") or None,
+                    }
+                    if address:
+                        for field, value in addr_fields.items():
+                            setattr(address, field, value)
+                        address.modified_at = timezone.now()
+                        address.save()
+                    else:
+                        address = Address.objects.create(
+                            **addr_fields,
+                            is_active=True,
+                            created_at=timezone.now(),
+                        )
+
+                # Link Person ↔ Address via junction table
                 if address:
-                    for field, value in addr_fields.items():
-                        setattr(address, field, value)
-                    address.modified_at = timezone.now()
-                    address.save()
-                else:
-                    address = Address.objects.create(
-                        **addr_fields,
-                        is_active=True,
-                        created_at=timezone.now(),
+                    PersonAddress.objects.update_or_create(
+                        link_person_id=person.person_id,
+                        is_current=True,
+                        defaults={
+                            "link_address_id": address.address_id,
+                            "is_active": True,
+                            "updated_at": timezone.now(),
+                        },
                     )
 
-            # Link Person ↔ Address via junction table
-            if address:
-                PersonAddress.objects.update_or_create(
-                    link_person_id=person.person_id,
-                    is_current=True,
-                    defaults={
-                        "link_address_id": address.address_id,
-                        "is_active": True,
-                        "updated_at": timezone.now(),
-                    },
-                )
-
-            messages.success(request, "Address updated.")
-            return redirect("user_account:profile_address")
+                messages.success(request, "Address updated.")
+                return redirect("user_account:profile_address")
     else:
         initial = {}
         if address:
-            initial["address_line_one"] = address.address_line_one or ""
-            initial["address_line_two"] = address.address_line_two or ""
-            initial["local_area_name"] = address.local_area_name or ""
-            initial["city_town"] = address.city_town or ""
-            initial["region_province_state_division"] = address.region_province_state_division or ""
-            initial["postal_code"] = address.postal_code or ""
-            initial["link_union_parishad_id"] = address.link_union_parishad_id or ""
+            initial["address_line_one"] = address.address_line_one
+            initial["address_line_two"] = address.address_line_two
+            initial["local_area_name"] = address.local_area_name
+            initial["city_town"] = address.city_town
+            initial["region_province_state_division"] = address.region_province_state_division
+            initial["postal_code"] = address.postal_code
+            initial["link_union_parishad_id"] = address.link_union_parishad_id
             # Derive district and upazila from union_parishad for cascading
             if address.link_union_parishad_id:
                 try:
