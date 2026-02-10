@@ -9,7 +9,7 @@
   {% csrf_token %}
 
   <div class="signup-form-group">
-    <label class="signup-form-label" for="{{ form.current_password.id_for_label }}">Current Password</label>
+    <label class="signup-form-label" for="{{ form.current_password.id_for_label }}">Current Password *</label>
     {{ form.current_password }}
     {% if form.current_password.errors %}
       <ul class="signup-field-errors">{% for e in form.current_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
@@ -17,7 +17,7 @@
   </div>
 
   <div class="signup-form-group">
-    <label class="signup-form-label" for="{{ form.new_password.id_for_label }}">New Password</label>
+    <label class="signup-form-label" for="{{ form.new_password.id_for_label }}">New Password *</label>
     {{ form.new_password }}
     {% if form.new_password.errors %}
       <ul class="signup-field-errors">{% for e in form.new_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
@@ -26,7 +26,7 @@
   </div>
 
   <div class="signup-form-group">
-    <label class="signup-form-label" for="{{ form.new_password_confirm.id_for_label }}">Confirm New Password</label>
+    <label class="signup-form-label" for="{{ form.new_password_confirm.id_for_label }}">Confirm New Password *</label>
     {{ form.new_password_confirm }}
     {% if form.new_password_confirm.errors %}
       <ul class="signup-field-errors">{% for e in form.new_password_confirm.errors %}<li>{{ e }}</li>{% endfor %}</ul>

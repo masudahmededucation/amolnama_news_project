@@ -22,7 +22,7 @@
       {% csrf_token %}
 
       <div class="login-form-group">
-        <label class="login-form-label">Phone number</label>
+        <label class="login-form-label">Phone number *</label>
         <div class="phone-input-row">
           {{ form.country_code }}
           {{ form.phone }}
@@ -44,7 +44,7 @@
       </div>
 
       <div class="login-form-group">
-        <label class="login-form-label" for="{{ form.password.id_for_label }}">Password</label>
+        <label class="login-form-label" for="{{ form.password.id_for_label }}">Password *</label>
         {{ form.password }}
         {% if form.password.errors %}
           <ul class="login-field-errors">

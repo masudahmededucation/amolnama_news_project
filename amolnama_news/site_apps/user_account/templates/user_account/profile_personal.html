@@ -48,7 +48,7 @@
   <h2 class="profile-section-title">Personal Details</h2>
   <div class="profile-form-row profile-form-row--two">
     <div class="signup-form-group">
-      <label class="signup-form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth</label>
+      <label class="signup-form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth *</label>
       {{ form.date_of_birth }}
       {% if form.date_of_birth.errors %}
         <ul class="signup-field-errors">{% for e in form.date_of_birth.errors %}<li>{{ e }}</li>{% endfor %}</ul>
@@ -57,14 +57,14 @@
   </div>
   <div class="profile-form-row profile-form-row--two">
     <div class="signup-form-group">
-      <label class="signup-form-label" for="{{ form.link_gender_id.id_for_label }}">Gender</label>
+      <label class="signup-form-label" for="{{ form.link_gender_id.id_for_label }}">Gender *</label>
       {{ form.link_gender_id }}
       {% if form.link_gender_id.errors %}
         <ul class="signup-field-errors">{% for e in form.link_gender_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
       {% endif %}
     </div>
     <div class="signup-form-group">
-      <label class="signup-form-label" for="{{ form.link_religion_id.id_for_label }}">Religion</label>
+      <label class="signup-form-label" for="{{ form.link_religion_id.id_for_label }}">Religion *</label>
       {{ form.link_religion_id }}
       {% if form.link_religion_id.errors %}
         <ul class="signup-field-errors">{% for e in form.link_religion_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>

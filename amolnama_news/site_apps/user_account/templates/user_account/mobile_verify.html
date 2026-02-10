@@ -24,7 +24,7 @@
       {% csrf_token %}
 
       <div class="signup-form-group">
-        <label class="signup-form-label" for="{{ form.otp_code.id_for_label }}">Enter OTP</label>
+        <label class="signup-form-label" for="{{ form.otp_code.id_for_label }}">Enter OTP *</label>
         {{ form.otp_code }}
         {% if form.otp_code.errors %}
           <ul class="signup-field-errors">

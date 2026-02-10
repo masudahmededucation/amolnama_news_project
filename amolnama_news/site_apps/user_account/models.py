@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import uuid
-
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
@@ -248,7 +246,8 @@ class Person(models.Model):
     """Maps to [person].[person]. Managed by SQL Server."""
 
     person_id = models.BigAutoField(primary_key=True)
-    person_guid = models.UUIDField(default=uuid.uuid4)
+    # person_guid: NOT NULL column with DB DEFAULT NEWID() — omitted so
+    # Django never sends a value and the DB generates it automatically.
     link_gender_id = models.IntegerField(blank=True, null=True)
     link_religion_id = models.IntegerField(blank=True, null=True)
     title_en = models.CharField(max_length=50, blank=True, null=True)

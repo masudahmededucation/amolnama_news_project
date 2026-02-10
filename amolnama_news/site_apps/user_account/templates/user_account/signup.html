@@ -43,7 +43,7 @@
       {% csrf_token %}
 
       <div class="signup-form-group">
-        <label class="signup-form-label" for="{{ form.email.id_for_label }}">Email</label>
+        <label class="signup-form-label" for="{{ form.email.id_for_label }}">Email *</label>
         {{ form.email }}
         {% if form.email.errors %}
           <ul class="signup-field-errors">

@@ -44,7 +44,7 @@
 
       {% for field in form %}
         <div class="login-form-group">
-          <label class="login-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <label class="login-form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
           {{ field }}
           {% if field.errors %}
             <ul class="login-field-errors">

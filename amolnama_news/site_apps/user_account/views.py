@@ -130,25 +130,65 @@ def mobile_login_view(request):
 
 @require_http_methods(["GET", "POST"])
 def signup_view(request):
-    """Step 1: social buttons + email field."""
+    """Step 1: social buttons + email field → send OTP."""
     if request.user.is_authenticated:
         return redirect("/")
 
     form = SignupEmailForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        request.session["signup_email"] = form.cleaned_data["email"]
-        return redirect("user_account:signup_complete")
+        email = form.cleaned_data["email"]
+        code = generate_otp()
+        store_otp_in_session(request.session, email, code)
+        send_otp_email(email, code)
+        messages.info(request, "OTP sent to your email.")
+        return redirect("user_account:signup_verify")
 
     return render(request, "user_account/signup.html", {"form": form})
 
 
 @require_http_methods(["GET", "POST"])
-def signup_complete_view(request):
-    """Step 2: name + password to finish registration."""
+def signup_verify_view(request):
+    """Step 2: verify the OTP sent to the email."""
     if request.user.is_authenticated:
         return redirect("/")
 
-    email = request.session.get("signup_email")
+    email = request.session.get("otp_phone")  # stored by store_otp_in_session
+    if not email:
+        return redirect("user_account:signup")
+
+    # Mask email for display: t***@gmail.com
+    local, domain = email.split("@", 1)
+    if len(local) <= 1:
+        masked = f"{local}***@{domain}"
+    else:
+        masked = f"{local[0]}***@{domain}"
+
+    form = OTPVerifyForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        ok, error = verify_otp_from_session(
+            request.session, form.cleaned_data["otp_code"]
+        )
+        if not ok:
+            messages.error(request, error)
+        else:
+            clear_otp_from_session(request.session)
+            request.session["signup_email_verified"] = email
+            return redirect("user_account:signup_complete")
+
+    return render(
+        request,
+        "user_account/signup_verify.html",
+        {"form": form, "masked_email": masked},
+    )
+
+
+@require_http_methods(["GET", "POST"])
+def signup_complete_view(request):
+    """Step 3: name + password to finish registration."""
+    if request.user.is_authenticated:
+        return redirect("/")
+
+    email = request.session.get("signup_email_verified")
     if not email:
         return redirect("user_account:signup")
 
@@ -193,11 +233,11 @@ def signup_complete_view(request):
                         email_address=email,
                         defaults={
                             "is_primary": True,
-                            "is_verified": False,
+                            "is_verified": True,
                         },
                     )
 
-                del request.session["signup_email"]
+                del request.session["signup_email_verified"]
                 request._auth_method = AUTH_METHOD_EMAIL
                 login(request, user, backend=EMAIL_AUTH_BACKEND)
                 messages.success(request, "Account created successfully!")
@@ -524,7 +564,7 @@ def profile_personal_view(request):
             if person:
                 for field, value in person_fields.items():
                     setattr(person, field, value)
-                person.save()
+                person.save(update_fields=list(person_fields.keys()))
             else:
                 person_fields["is_active"] = True
                 person_fields["created_at"] = timezone.now()

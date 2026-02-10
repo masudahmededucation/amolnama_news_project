@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Verify OTP · Amolnama News{% endblock %}
+{% block title %}Verify Email · Amolnama News{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'user_account/assets/css/components/forms.css' %}">
@@ -10,7 +10,7 @@
 {% block content %}
 <div class="signup-page">
   <div class="signup-card">
-    <h1 class="signup-title">Verify OTP</h1>
+    <h1 class="signup-title">Verify Your Email</h1>
 
     {% if messages %}
       {% for message in messages %}
@@ -18,7 +18,7 @@
       {% endfor %}
     {% endif %}
 
-    <p class="mobile-phone-display">{{ identifier }}</p>
+    <p class="signup-email-display">{{ masked_email }}</p>
 
     <form method="post" class="signup-form" novalidate>
       {% csrf_token %}
@@ -39,7 +39,7 @@
     </form>
 
     <p class="signup-switch-text">
-      <a href="{% url 'user_account:login' %}">Back to login</a>
+      <a href="{% url 'user_account:signup' %}">Change email</a>
     </p>
   </div>
 </div>

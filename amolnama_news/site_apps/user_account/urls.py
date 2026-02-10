@@ -8,6 +8,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("login/mobile/", views.mobile_login_view, name="mobile_login"),
     path("signup/", views.signup_view, name="signup"),
+    path("signup/verify/", views.signup_verify_view, name="signup_verify"),
     path("signup/complete/", views.signup_complete_view, name="signup_complete"),
     path("signup/mobile/", views.mobile_signup_view, name="mobile_signup"),
     path("signup/mobile/verify/", views.mobile_verify_view, name="mobile_verify"),

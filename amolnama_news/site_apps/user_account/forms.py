@@ -400,7 +400,6 @@ class PersonalDetailsForm(forms.Form):
 
     # ── Personal ──
     date_of_birth = forms.DateField(
-        required=False,
         widget=forms.DateInput(attrs={
             "type": "date",
             "placeholder": "Date of birth",
