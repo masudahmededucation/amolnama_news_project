@@ -10,6 +10,14 @@ MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 INTERNAL_IPS = ["127.0.0.1"]
 
+# Dev: serve static files directly without filename hashing or caching.
+# This ensures CSS/JS changes take effect immediately on refresh.
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
+}
+
 # Dev-friendly logging
 LOGGING = {
     "version": 1,

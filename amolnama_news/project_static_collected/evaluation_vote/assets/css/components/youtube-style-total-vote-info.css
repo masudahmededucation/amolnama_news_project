@@ -1,0 +1,47 @@
+/* ========== YOUTUBE-STYLE TOTAL VOTE INFO - Display Component ========== */
+
+/* Container for total vote count */
+.total-vote-info {
+  text-align: center;
+  font-weight: bold;
+  margin: 1rem 0;
+  padding: 0.5rem;
+}
+
+/* Highlighted vote count text */
+.highlight-vote {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: var(--primary-light, #e8f4f8);
+  color: var(--primary, #0066cc);
+  border-radius: var(--radius, 0.5rem);
+  font-size: 1.1rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablets and below (768px) */
+@media (max-width: 768px) {
+  .highlight-vote {
+    font-size: 1rem;
+    padding: 0.4rem 1.2rem;
+  }
+}
+
+/* Mobile phones (480px) */
+@media (max-width: 480px) {
+  .highlight-vote {
+    font-size: 0.95rem;
+    padding: 0.3rem 1rem;
+  }
+}
+
+/* Small phones (360px) */
+@media (max-width: 360px) {
+  .highlight-vote {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.8rem;
+  }
+}

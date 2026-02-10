@@ -1,0 +1,116 @@
+{% extends "user_account/profile_base.html" %}
+{% load static %}
+
+{% block profile_title %}Home Address{% endblock %}
+
+{% block profile_content %}
+<form method="post" class="profile-form" novalidate>
+  {% csrf_token %}
+
+  <div id="address-module"
+       data-api-upazilas="{{ api_upazilas_url }}"
+       data-api-unions="{{ api_unions_url }}"
+       data-saved-upazila="{{ form.link_upazila_id.value|default:'' }}"
+       data-saved-union="{{ form.link_union_parishad_id.value|default:'' }}">
+
+    <!-- Country -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.country.id_for_label }}">Country</label>
+      {{ form.country }}
+      {% if form.country.errors %}
+        <ul class="signup-field-errors">{% for e in form.country.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+    <!-- Bangladesh-only: cascading location dropdowns -->
+    <div id="bd-address-fields">
+      <div class="profile-form-row profile-form-row--three">
+        <div class="signup-form-group">
+          <label class="signup-form-label" for="{{ form.link_district_id.id_for_label }}">District</label>
+          {{ form.link_district_id }}
+          {% if form.link_district_id.errors %}
+            <ul class="signup-field-errors">{% for e in form.link_district_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="signup-form-group">
+          <label class="signup-form-label" for="{{ form.link_upazila_id.id_for_label }}">Upazila</label>
+          {{ form.link_upazila_id }}
+          {% if form.link_upazila_id.errors %}
+            <ul class="signup-field-errors">{% for e in form.link_upazila_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="signup-form-group">
+          <label class="signup-form-label" for="{{ form.link_union_parishad_id.id_for_label }}">Union Parishad</label>
+          {{ form.link_union_parishad_id }}
+          {% if form.link_union_parishad_id.errors %}
+            <ul class="signup-field-errors">{% for e in form.link_union_parishad_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Address line 1 -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.address_line_one.id_for_label }}">Address line 1</label>
+      {{ form.address_line_one }}
+      {% if form.address_line_one.errors %}
+        <ul class="signup-field-errors">{% for e in form.address_line_one.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+    <!-- Address line 2 -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.address_line_two.id_for_label }}">Address line 2</label>
+      {{ form.address_line_two }}
+      {% if form.address_line_two.errors %}
+        <ul class="signup-field-errors">{% for e in form.address_line_two.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+    <!-- Local area / Village -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.local_area_name.id_for_label }}">Local area / Village</label>
+      {{ form.local_area_name }}
+      {% if form.local_area_name.errors %}
+        <ul class="signup-field-errors">{% for e in form.local_area_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+    <!-- City / Town -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.city_town.id_for_label }}">City / Town</label>
+      {{ form.city_town }}
+      {% if form.city_town.errors %}
+        <ul class="signup-field-errors">{% for e in form.city_town.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+    <!-- International only: Region / Province / State / Division -->
+    <div id="intl-address-fields">
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.region_province_state_division.id_for_label }}">Region / Province / State / Division</label>
+        {{ form.region_province_state_division }}
+        {% if form.region_province_state_division.errors %}
+          <ul class="signup-field-errors">{% for e in form.region_province_state_division.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Postal code -->
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.postal_code.id_for_label }}">Postal code</label>
+      {{ form.postal_code }}
+      {% if form.postal_code.errors %}
+        <ul class="signup-field-errors">{% for e in form.postal_code.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <button type="submit" class="btn primary signup-submit-button">Save Address</button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'locations/js/address.js' %}"></script>
+{% endblock %}

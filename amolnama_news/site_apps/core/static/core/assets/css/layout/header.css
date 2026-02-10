@@ -82,6 +82,17 @@
   transform: none;
 }
 
+/* ── Nav bar row: nav links left + auth controls right ── */
+.nav-bar-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+/* Auth controls moved to user_account/assets/css/layout/header-auth.css */
+
 /* Header-related responsive tweaks */
 @media (max-width: 640px) {
   .header-grid {
@@ -92,5 +103,12 @@
   .nav {
     overflow: auto;
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-bar-row {
+    flex-direction: column;
+    gap: .5rem;
   }
 }

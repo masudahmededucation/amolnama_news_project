@@ -1,10 +1,11 @@
 {% load static %}
 <nav class="nav" aria-label="Primary">
   <a href="{% url 'core:home' %}" {% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'core' %}class="active"{% endif %}>Home</a>
-  <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Evaluation Vote</a>
-  <a href="{% url 'election_vote:home' %}" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>Election Vote</a>
+  <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>evaluation vote</a>
+  <a href="{% url 'election_vote:home' %}" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>election vote</a>
 
-  <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a>
+
+  {% comment %} <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a>
   <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>
   <a href="{% url 'core:category' 'business' %}" {% if slug == 'business' %}class="active"{% endif %}>Business</a>
   <a href="{% url 'core:category' 'tech' %}" {% if slug == 'tech' %}class="active"{% endif %}>Tech</a>
@@ -19,5 +20,6 @@
   </div>
 
   <a href="{% url 'core:category' 'culture' %}" {% if slug == 'culture' %}class="active"{% endif %}>Culture</a>
-  <a href="{% url 'core:communityvoice' %}" {% if request.resolver_match.url_name == 'communityvoice' %}class="active"{% endif %}>Community Voice</a>
+  <a href="{% url 'core:communityvoice' %}" {% if request.resolver_match.url_name == 'communityvoice' %}class="active"{% endif %}>Community Voice</a> {% endcomment %}
+
 </nav>

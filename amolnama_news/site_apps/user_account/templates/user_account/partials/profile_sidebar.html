@@ -1,0 +1,18 @@
+<nav class="profile-sidebar">
+  <a href="{% url 'user_account:profile_personal' %}"
+     class="profile-sidebar-item {% if active_tab == 'personal' %}active{% endif %}">
+    Personal Details
+  </a>
+  <a href="{% url 'user_account:profile_contact' %}"
+     class="profile-sidebar-item {% if active_tab == 'contact' %}active{% endif %}">
+    Contact Info
+  </a>
+  <a href="{% url 'user_account:profile_address' %}"
+     class="profile-sidebar-item {% if active_tab == 'address' %}active{% endif %}">
+    Home Address
+  </a>
+  <a href="{% url 'user_account:profile_settings' %}"
+     class="profile-sidebar-item {% if active_tab == 'settings' %}active{% endif %}">
+    Account Settings
+  </a>
+</nav>

@@ -1,0 +1,71 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Login with Mobile · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'user_account/assets/css/components/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+  <div class="login-card">
+    <h1 class="login-title">Login with Mobile</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="auth-alert auth-alert--{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" class="login-form" novalidate>
+      {% csrf_token %}
+
+      <div class="login-form-group">
+        <label class="login-form-label">Phone number</label>
+        <div class="phone-input-row">
+          {{ form.country_code }}
+          {{ form.phone }}
+        </div>
+        {% if form.phone.errors %}
+          <ul class="login-field-errors">
+            {% for error in form.phone.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if form.country_code.errors %}
+          <ul class="login-field-errors">
+            {% for error in form.country_code.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <div class="login-form-group">
+        <label class="login-form-label" for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <ul class="login-field-errors">
+            {% for error in form.password.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <a href="{% url 'user_account:forgot_password_phone' %}" class="forgot-password-link">Forgot password?</a>
+
+      <button type="submit" class="btn primary login-submit-button">Login</button>
+    </form>
+
+    <p class="login-switch-text">
+      Don't have an account? <a href="{% url 'user_account:mobile_signup' %}">Sign up with Mobile</a>
+    </p>
+    <p class="login-switch-text">
+      <a href="{% url 'user_account:login' %}">Back to login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "user_account/profile_base.html" %}
+
+{% block profile_title %}Contact Info{% endblock %}
+
+{% block profile_content %}
+<form method="post" class="profile-form" novalidate>
+  {% csrf_token %}
+
+  <!-- Mobile -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.mobile_number.id_for_label }}">Mobile</label>
+    <div class="phone-input-row">
+      <span class="phone-code-prefix" id="phone-code-prefix">{{ form.country.value|default:"+880" }}</span>
+      {{ form.mobile_number }}
+    </div>
+    {% if form.mobile_number.errors %}
+      <ul class="signup-field-errors">{% for e in form.mobile_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <!-- Hidden country field to submit with the form -->
+  <input type="hidden" name="country" id="id_country" value="{{ form.country.value|default:'+880' }}">
+
+  <!-- Email -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.email_address.id_for_label }}">Email</label>
+    {{ form.email_address }}
+    {% if form.email_address.errors %}
+      <ul class="signup-field-errors">{% for e in form.email_address.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn primary signup-submit-button">Save Contact Info</button>
+</form>
+{% endblock %}

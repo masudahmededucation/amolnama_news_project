@@ -1,0 +1,43 @@
+{% extends "user_account/profile_base.html" %}
+
+{% block profile_title %}Account Settings{% endblock %}
+
+{% block profile_content %}
+<h2 class="profile-section-title">Change Password</h2>
+
+<form method="post" class="profile-form" novalidate>
+  {% csrf_token %}
+
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.current_password.id_for_label }}">Current Password</label>
+    {{ form.current_password }}
+    {% if form.current_password.errors %}
+      <ul class="signup-field-errors">{% for e in form.current_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.new_password.id_for_label }}">New Password</label>
+    {{ form.new_password }}
+    {% if form.new_password.errors %}
+      <ul class="signup-field-errors">{% for e in form.new_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    <span class="field-helper">Minimum 8 characters</span>
+  </div>
+
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.new_password_confirm.id_for_label }}">Confirm New Password</label>
+    {{ form.new_password_confirm }}
+    {% if form.new_password_confirm.errors %}
+      <ul class="signup-field-errors">{% for e in form.new_password_confirm.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn primary signup-submit-button">Change Password</button>
+</form>
+
+<p class="login-switch-text">
+  Don't remember your current password?
+  <a href="{% url 'user_account:forgot_password' %}">Reset via email</a>
+</p>
+{% endblock %}

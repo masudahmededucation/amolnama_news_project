@@ -1,6 +1,8 @@
-/* Topbar, breaking-news ticker and primary navigation menu styling */
+/* Topbar, breaking-news ticker and primary navigation menu styling.
+   Uses global variables from colors.css.
+   No other CSS file should redefine :root variables. */
 
-/* Topbar wrapper */
+/* ── Topbar wrapper ── */
 .topbar {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -19,7 +21,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Ticker row (full-width under clock) */
+/* ── Breaking news ticker ── */
 .ticker {
   display: flex;
   align-items: center;
@@ -27,8 +29,8 @@
   padding: .25rem 0 .5rem;
 }
 
-/* "Breaking" label style */
-.ticker label {
+/* "Breaking" label – always red, completely isolated */
+.ticker-breaking-label {
   font-weight: 600;
   color: var(--primary);
   text-transform: uppercase;
@@ -57,7 +59,7 @@
   }
 }
 
-/* Primary nav */
+/* ── Primary nav menu ── */
 .nav {
   display: flex;
   align-items: center;
@@ -65,8 +67,12 @@
   flex-wrap: wrap;
 }
 
-.nav a {
-  color: inherit;
+.nav a,
+.nav a:link,
+.nav a:visited,
+.nav a:active,
+.nav a:focus {
+  color: var(--text);
   font-weight: 600;
   padding: .5rem .75rem;
   border-radius: 999px;
@@ -79,7 +85,7 @@
   color: #fff;
 }
 
-/* --- Submenu: Ribbon style for "Sports" --- */
+/* ── Submenu: Ribbon style for "Sports" ── */
 .nav .nav-dropdown {
   position: relative;
   display: inline-block;
@@ -146,18 +152,12 @@
   box-shadow: 1px 1px 0 rgba(0, 0, 0, .2);
 }
 
-/* Ensure selected (active) menu item uses red background */
-.nav a.active {
-  background: var(--primary) !important;
-  color: #fff !important;
-}
-
 .submenu.ribbon a.active {
-  background: var(--primary) !important;
-  color: #fff !important;
+  background: var(--primary);
+  color: #fff;
 }
 
-/* Simple responsive tweak for nav overflow on small screens */
+/* ── Responsive ── */
 @media (max-width: 640px) {
   .nav {
     overflow-x: auto;

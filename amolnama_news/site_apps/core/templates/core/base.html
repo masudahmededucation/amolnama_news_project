@@ -22,8 +22,9 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/components/cards.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/components/forms.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}">
+
+  <link rel="stylesheet" href="{% static 'user_account/assets/css/layout/header-auth.css' %}">
   
   {% block extra_css %}{% endblock %}
 </head>
@@ -31,13 +32,13 @@
   <div class="page-wrapper">
     <div class="topbar">
       <div class="container">
-        <!-- Row 1: Live Bangla clock -->
+        <!-- Row 1: Live clock -->
         <div class="topbar-clock">
           <div class="muted" id="liveDateTime"></div>
         </div>
         <!-- Row 2: Full-width marquee ticker -->
         <div class="ticker" aria-label="Breaking news">
-          <label>Breaking</label>
+          <span class="ticker-breaking-label">Breaking</span>
           <div class="marquee" aria-live="polite">
             <span>The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. </span>
           </div>
@@ -47,10 +48,9 @@
 
     <header class="header">
       <div class="container header-grid">
+        {% include "core/partials/header_auth_controls.html" %}
         {% include "core/logo.html" %}
-        <div class="controls">
-          {% include "core/menu.html" with slug=slug %}
-        </div>
+        {% include "core/menu.html" with slug=slug %}
       </div>
     </header>
 
@@ -63,5 +63,6 @@
 
   {% block extra_js %}{% endblock %}
   <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
+  <script src="{% static 'user_account/assets/js/header-user-menu.js' %}"></script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+<!-- Reusable address fields partial.
+     Requires: form (with AddressFieldsMixin fields), api_upazilas_url, api_unions_url
+     JS:       Load locations/js/address.js after including this partial. -->
+
+<h2 class="profile-section-title">Address</h2>
+
+<div id="address-module"
+     data-api-upazilas="{{ api_upazilas_url }}"
+     data-api-unions="{{ api_unions_url }}"
+     data-saved-upazila="{{ form.link_upazila_id.value|default:'' }}"
+     data-saved-union="{{ form.link_union_parishad_id.value|default:'' }}">
+
+  <!-- Country selector (controls which address fields are shown) -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.country.id_for_label }}">Country</label>
+    {{ form.country }}
+  </div>
+
+  <!-- Bangladesh-only: cascading location dropdowns -->
+  <div id="bd-address-fields">
+    <div class="profile-form-row profile-form-row--three">
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.link_district_id.id_for_label }}">District</label>
+        {{ form.link_district_id }}
+      </div>
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.link_upazila_id.id_for_label }}">Upazila</label>
+        {{ form.link_upazila_id }}
+      </div>
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.link_union_parishad_id.id_for_label }}">Union Parishad</label>
+        {{ form.link_union_parishad_id }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Common address fields -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.address_line_one.id_for_label }}">Address line 1</label>
+    {{ form.address_line_one }}
+  </div>
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.address_line_two.id_for_label }}">Address line 2</label>
+    {{ form.address_line_two }}
+  </div>
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.local_area_name.id_for_label }}">Local area / Village</label>
+    {{ form.local_area_name }}
+  </div>
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.city_town.id_for_label }}">City / Town</label>
+    {{ form.city_town }}
+  </div>
+
+  <!-- International only: Region / Province / State / Division -->
+  <div id="intl-address-fields">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.region_province_state_division.id_for_label }}">Region / Province / State / Division</label>
+      {{ form.region_province_state_division }}
+    </div>
+  </div>
+
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.postal_code.id_for_label }}">Postal code</label>
+    {{ form.postal_code }}
+  </div>
+
+</div>

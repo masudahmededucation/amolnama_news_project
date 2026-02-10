@@ -16,10 +16,8 @@ from .models import AppGetEvaluation, AppGetPartyDetails, AppSidebarPastResults
 
 
 def home(request):
-    # Get current active evaluation
-    evaluation = AppGetEvaluation.objects.filter(
-        evaluation_id=3  # Adjust this based on your active evaluation
-    ).first()
+    # Get current active evaluation (view returns only the active one)
+    evaluation = AppGetEvaluation.objects.first()
 
     # Get all active parties with their details
     parties = AppGetPartyDetails.objects.all().order_by('party_name_bn')
@@ -164,9 +162,7 @@ def get_parties(request):
 
 def get_evaluation(request):
     """API: Get active evaluation"""
-    evaluation = AppGetEvaluation.objects.filter(
-        evaluation_id=3  # Adjust based on your active evaluation
-    ).first()
+    evaluation = AppGetEvaluation.objects.first()
 
     if evaluation:
         data = {
@@ -189,6 +185,14 @@ def get_evaluation(request):
 def submit_vote(request):
     """API: Submit vote - INSERT new record and device/session info"""
     try:
+        # Get current active evaluation from the DB view
+        evaluation = AppGetEvaluation.objects.first()
+        if not evaluation:
+            return JsonResponse({
+                'success': False,
+                'error': 'No active evaluation found'
+            }, status=400)
+
         data = json.loads(request.body)
         device_info = data.get('device_info', {})
 
@@ -224,7 +228,7 @@ def submit_vote(request):
 
         # Insert UserSession (now with geo_source_id)
         session = UserSession.objects.create(
-            link_evaluation_id=3,
+            link_evaluation_id=evaluation.evaluation_id,
             link_user_profile_id=profile.user_profile_id,
             link_user_device_id=device.user_device_id,
             link_geo_source_id=geo_source_id,  # <-- add this line
@@ -239,7 +243,7 @@ def submit_vote(request):
 
         # Insert EvaluationResponse as before
         vote = EvaluationResponse.objects.create(
-            link_evaluation_id=3,
+            link_evaluation_id=evaluation.evaluation_id,
             link_constituency_id=data.get('constituency_id'),
             link_party_id=data.get('party_id'),
             link_user_session_id=session.user_session_id,

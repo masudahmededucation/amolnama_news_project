@@ -1,0 +1,95 @@
+{% extends "user_account/profile_base.html" %}
+
+{% block profile_title %}Personal Details{% endblock %}
+
+{% block profile_content %}
+<form method="post" class="profile-form" novalidate>
+  {% csrf_token %}
+
+  <!-- Name (English) -->
+  <h2 class="profile-section-title">Name (English)</h2>
+  <div class="profile-form-row">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.first_name_en.id_for_label }}">First name *</label>
+      {{ form.first_name_en }}
+      {% if form.first_name_en.errors %}
+        <ul class="signup-field-errors">{% for e in form.first_name_en.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.last_name_en.id_for_label }}">Last name *</label>
+      {{ form.last_name_en }}
+      {% if form.last_name_en.errors %}
+        <ul class="signup-field-errors">{% for e in form.last_name_en.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Name (Bengali) -->
+  <h2 class="profile-section-title">নাম (বাংলা)</h2>
+  <div class="profile-form-row">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.first_name_bn.id_for_label }}">প্রথম নাম</label>
+      {{ form.first_name_bn }}
+      {% if form.first_name_bn.errors %}
+        <ul class="signup-field-errors">{% for e in form.first_name_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.last_name_bn.id_for_label }}">শেষ নাম</label>
+      {{ form.last_name_bn }}
+      {% if form.last_name_bn.errors %}
+        <ul class="signup-field-errors">{% for e in form.last_name_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Personal Details -->
+  <h2 class="profile-section-title">Personal Details</h2>
+  <div class="profile-form-row profile-form-row--two">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth</label>
+      {{ form.date_of_birth }}
+      {% if form.date_of_birth.errors %}
+        <ul class="signup-field-errors">{% for e in form.date_of_birth.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+  <div class="profile-form-row profile-form-row--two">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.link_gender_id.id_for_label }}">Gender</label>
+      {{ form.link_gender_id }}
+      {% if form.link_gender_id.errors %}
+        <ul class="signup-field-errors">{% for e in form.link_gender_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.link_religion_id.id_for_label }}">Religion</label>
+      {{ form.link_religion_id }}
+      {% if form.link_religion_id.errors %}
+        <ul class="signup-field-errors">{% for e in form.link_religion_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- NID -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.nid_number.id_for_label }}">NID Number</label>
+    {{ form.nid_number }}
+    {% if form.nid_number.errors %}
+      <ul class="signup-field-errors">{% for e in form.nid_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <!-- Notes -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.notes.id_for_label }}">Notes</label>
+    {{ form.notes }}
+    {% if form.notes.errors %}
+      <ul class="signup-field-errors">{% for e in form.notes.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn primary signup-submit-button">Save Personal Details</button>
+</form>
+{% endblock %}

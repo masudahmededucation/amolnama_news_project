@@ -22,6 +22,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 THIRD_PARTY_APPS = [
@@ -78,6 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "amolnama_news.site_apps.user_account.context_processors.user_display_name",
             ],
         },
     },
@@ -157,13 +159,39 @@ AUTHENTICATION_BACKENDS = (
     "amolnama_news.site_apps.user_account.backends.EmailAuthBackend",
 )
 
+SITE_ID = 1
+
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-# Replace deprecated allauth settings with the newer names
-# Use email as the login method
 ACCOUNT_LOGIN_METHODS = {"email"}
-# Fields required at signup: email and passwords
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+# Social account settings
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_ADAPTER = (
+    "amolnama_news.site_apps.user_account.adapters.CustomSocialAccountAdapter"
+)
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": env("GOOGLE_CLIENT_ID", default=""),
+            "secret": env("GOOGLE_CLIENT_SECRET", default=""),
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    },
+    "facebook": {
+        "APP": {
+            "client_id": env("FACEBOOK_APP_ID", default=""),
+            "secret": env("FACEBOOK_APP_SECRET", default=""),
+        },
+        "METHOD": "oauth2",
+        "SCOPE": ["email", "public_profile"],
+        "FIELDS": ["id", "email", "name", "first_name", "last_name"],
+    },
+}
 
 # DRF / JWT
 REST_FRAMEWORK = {
@@ -179,6 +207,11 @@ REST_FRAMEWORK = {
 # django-axes
 AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=10)
 AXES_COOLOFF_TIME = env.int("AXES_COOLOFF_TIME", default=1)  # hours
+
+# Login/logout redirects
+LOGIN_URL = "/account/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Secure cookies toggled by env modules
 SESSION_COOKIE_SECURE = False

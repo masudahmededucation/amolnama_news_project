@@ -1,0 +1,14 @@
+/* ========== UNIFIED VOTING SYSTEM - Import all modular CSS components ========== */
+
+/* Import component CSS files in order of precedence */
+@import url('components/voting-flow.css');
+@import url('components/voting-selection.css');
+@import url('components/voting-progress.css');
+@import url('components/voting-form.css');
+
+/* Note: This file consolidates all CSS imports */
+/* Individual component files are organized in: */
+/* - voting-flow.css: Layout & container structure */
+/* - voting-selection.css: Breadcrumbs & selection lists */
+/* - voting-progress.css: Progress bars & party results */
+/* - voting-form.css: Forms, buttons & messages */

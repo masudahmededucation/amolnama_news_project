@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import uuid
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import PermissionDenied
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.db.models.functions import Lower
 
 
@@ -23,22 +26,20 @@ class UserManager(BaseUserManager):
             raise ValueError("Email is required.")
         return self.normalize_email(email).lower()
 
-    def _validate_password(self, password: str) -> None:
-        if not password:
-            raise ValueError("Password is required.")
-
-    def _create_user(self, email: str, password: str, **extra_fields):
+    def _create_user(self, email: str, password=None, **extra_fields):
         email = self._normalize_email(email)
-        self._validate_password(password)
         extra_fields.pop("username", None)
 
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
         user.full_clean()
         user.save(using=self._db)
         return user
 
-    def create_user(self, email: str, password: str, **extra_fields):
+    def create_user(self, email: str, password=None, **extra_fields):
         extra_fields["is_staff"] = False
         extra_fields["is_superuser"] = False
         return self._create_user(email, password, **extra_fields)
@@ -57,9 +58,15 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    """Custom user model: email-based login; username removed."""
+    """Custom user model: email-based login; username removed.
+
+    Names live in [person].[person] (first_name_en, last_name_en) —
+    not on this table — to avoid duplication.
+    """
 
     username = None
+    first_name = None
+    last_name = None
     email = models.EmailField("email address", unique=True)
     phone = models.CharField(max_length=20, validators=[phone_validator], blank=True)
 
@@ -103,6 +110,8 @@ class UserProfile(models.Model):
     """Maps to [account].[user_profile]. Managed by SQL Server."""
 
     user_profile_id = models.BigAutoField(primary_key=True)
+    link_user_account_user_id = models.BigIntegerField(blank=True, null=True)
+    link_person_id = models.BigIntegerField(blank=True, null=True)
     hash_phone_id = models.BinaryField(blank=True, null=True)
     botdetection_phone_sim_slot_no = models.IntegerField(blank=True, null=True)
     otp_verified_at = models.DateTimeField(blank=True, null=True)
@@ -164,7 +173,6 @@ class UserSession(models.Model):
     """Maps to [account].[user_session]. Managed by SQL Server."""
 
     user_session_id = models.BigAutoField(primary_key=True)
-    link_evaluation_id = models.IntegerField()
     link_user_profile_id = models.BigIntegerField(blank=True, null=True)
     link_user_device_id = models.BigIntegerField(blank=True, null=True)
     link_geo_source_id = models.IntegerField(blank=True, null=True)
@@ -194,3 +202,176 @@ class UserSession(models.Model):
 
     def __str__(self):
         return f"UserSession({self.user_session_id})"
+
+
+# ---------------------------------------------------------------------------
+# Unmanaged models — [person] schema (SQL Server is source of truth)
+# ---------------------------------------------------------------------------
+
+class RefGender(models.Model):
+    """Maps to [person].[ref_gender]. Managed by SQL Server."""
+
+    gender_id = models.IntegerField(primary_key=True)
+    gender_name_en = models.CharField(max_length=50, blank=True, null=True)
+    gender_name_bn = models.CharField(max_length=50, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[person].[ref_gender]'
+        verbose_name = "Gender"
+        verbose_name_plural = "Genders"
+
+    def __str__(self):
+        return self.gender_name_en or f"Gender({self.gender_id})"
+
+
+class RefReligion(models.Model):
+    """Maps to [person].[ref_religion]. Managed by SQL Server."""
+
+    religion_id = models.IntegerField(primary_key=True)
+    religion_name_en = models.CharField(max_length=50, blank=True, null=True)
+    religion_name_bn = models.CharField(max_length=50, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[person].[ref_religion]'
+        verbose_name = "Religion"
+        verbose_name_plural = "Religions"
+
+    def __str__(self):
+        return self.religion_name_en or f"Religion({self.religion_id})"
+
+
+class Person(models.Model):
+    """Maps to [person].[person]. Managed by SQL Server."""
+
+    person_id = models.BigAutoField(primary_key=True)
+    person_guid = models.UUIDField(default=uuid.uuid4)
+    link_gender_id = models.IntegerField(blank=True, null=True)
+    link_religion_id = models.IntegerField(blank=True, null=True)
+    title_en = models.CharField(max_length=50, blank=True, null=True)
+    title_bn = models.CharField(max_length=50, blank=True, null=True)
+    first_name_en = models.CharField(max_length=100, blank=True, null=True)
+    last_name_en = models.CharField(max_length=100, blank=True, null=True)
+    first_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    last_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    nick_name_en = models.CharField(max_length=100, blank=True, null=True)
+    nick_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    father_name_en = models.CharField(max_length=200, blank=True, null=True)
+    father_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    mother_name_en = models.CharField(max_length=200, blank=True, null=True)
+    mother_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    link_birth_district_id = models.IntegerField(blank=True, null=True)
+    birth_certificate_number = models.CharField(max_length=50, blank=True, null=True)
+    nid_card_number = models.CharField(max_length=20, blank=True, null=True)
+    hash_nid_card_number = models.BinaryField(blank=True, null=True)
+    primary_mobile_number = models.CharField(max_length=20, blank=True, null=True)
+    primary_email_address = models.CharField(max_length=200, blank=True, null=True)
+    name_tag = models.CharField(max_length=200, blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_protected = models.BooleanField(default=False)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    modified_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[person].[person]'
+        verbose_name = "Person"
+        verbose_name_plural = "Persons"
+
+    def __str__(self):
+        name = f"{self.first_name_en or ''} {self.last_name_en or ''}".strip()
+        return name or f"Person({self.person_id})"
+
+
+class PersonAddress(models.Model):
+    """Maps to [person].[person_address]. Junction table linking Person to Address."""
+
+    person_address_id = models.AutoField(primary_key=True)
+    link_person_id = models.BigIntegerField()
+    link_address_id = models.IntegerField()
+    is_current = models.BooleanField(default=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_by = models.IntegerField(blank=True, null=True)
+    updated_by = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[person].[person_address]'
+        verbose_name = "Person Address"
+        verbose_name_plural = "Person Addresses"
+
+    def __str__(self):
+        return f"PersonAddress(person={self.link_person_id}, address={self.link_address_id})"
+
+
+# ---------------------------------------------------------------------------
+# Unmanaged models — [contact] schema (SQL Server is source of truth)
+# ---------------------------------------------------------------------------
+
+
+class RefContactType(models.Model):
+    """Maps to [contact].[ref_contact_type]."""
+
+    contact_type_id = models.IntegerField(primary_key=True)
+    contact_type_code = models.CharField(max_length=50)
+    contact_type_name_en = models.CharField(max_length=100)
+    contact_type_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[contact].[ref_contact_type]'
+
+    def __str__(self):
+        return self.contact_type_name_en
+
+
+class Phone(models.Model):
+    """Maps to [contact].[phone]."""
+
+    phone_id = models.AutoField(primary_key=True)
+    link_person_id = models.BigIntegerField()
+    link_contact_type_id = models.IntegerField(default=1)
+    country_calling_code = models.CharField(max_length=10, default='+880')
+    phone_number = models.CharField(max_length=20)
+    is_primary = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[contact].[phone]'
+
+    def __str__(self):
+        return f"{self.country_calling_code}{self.phone_number}"
+
+
+class Email(models.Model):
+    """Maps to [contact].[email]."""
+
+    email_id = models.AutoField(primary_key=True)
+    link_person_id = models.BigIntegerField()
+    link_contact_type_id = models.IntegerField(default=1)
+    email_address = models.CharField(max_length=255)
+    is_primary = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[contact].[email]'
+
+    def __str__(self):
+        return self.email_address

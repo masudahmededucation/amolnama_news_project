@@ -1,0 +1,69 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Complete Sign Up · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'user_account/assets/css/components/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="signup-page">
+  <div class="signup-card">
+    <h1 class="signup-title">Complete Your Account</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="auth-alert auth-alert--{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <p class="signup-email-display">{{ email }}</p>
+
+    <form method="post" class="signup-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="email" value="{{ email }}">
+
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.first_name.id_for_label }}">First name</label>
+        {{ form.first_name }}
+      </div>
+
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.last_name.id_for_label }}">Last name</label>
+        {{ form.last_name }}
+      </div>
+
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <ul class="signup-field-errors">
+            {% for error in form.password.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.password_confirm.id_for_label }}">Confirm password</label>
+        {{ form.password_confirm }}
+        {% if form.password_confirm.errors %}
+          <ul class="signup-field-errors">
+            {% for error in form.password_confirm.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn primary signup-submit-button">Sign Up</button>
+    </form>
+
+    <p class="signup-switch-text">
+      <a href="{% url 'user_account:signup' %}">Back</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

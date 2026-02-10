@@ -42,13 +42,18 @@ main {
   flex: 1;
 }
 
-/* Links */
+/* Links – scoped to main content only.
+   Navigation, header, and ticker define their own link colors. */
 a {
-  color: var(--accent);
   text-decoration: none;
+  color: inherit;
 }
 
-a:hover {
+main a {
+  color: var(--accent);
+}
+
+main a:hover {
   text-decoration: underline;
 }
 

@@ -6,7 +6,11 @@
       "Bash(python -c:*)",
       "Bash(findstr /i \"^nul$\")",
       "Bash(cmd /c \"cd /d \"\"d:\\\\GoogleDrive\\\\personal folder\\\\Apps\\\\amolnama_news\\\\amolnama_news_project\"\" && del /f /q \"\"\\\\?\\\\d:\\\\GoogleDrive\\\\personal folder\\\\Apps\\\\amolnama_news\\\\amolnama_news_project\\\\nul\"\"\")",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(git -C \"d:\\\\GoogleDrive\\\\personal folder\\\\Apps\\\\amolnama_news\\\\amolnama_news_project\" show HEAD:amolnama_news/site_apps/user_account/backends.py)",
+      "Bash(pip freeze:*)",
+      "Bash(del \"d:\\\\GoogleDrive\\\\personal folder\\\\Apps\\\\amolnama_news\\\\amolnama_news_project\\\\amolnama_news\\\\site_apps\\\\user_account\\\\templates\\\\user_account\\\\mobile_complete.html\")",
+      "Bash(python amolnama_news/manage.py collectstatic:*)"
     ]
   }
 }

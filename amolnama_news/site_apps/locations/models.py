@@ -1,5 +1,4 @@
-from django.db import models
-from django.db import connection
+from django.db import connection, models
 
 
 class Division(models.Model):
@@ -186,6 +185,38 @@ class UnionParishad(models.Model):
             return Upazila.objects.filter(upazila_id=self.link_upazila_id).first()
         return None
     
+class Address(models.Model):
+    """Maps to [location].[address]. Managed by SQL Server."""
+    address_id = models.AutoField(primary_key=True)
+    link_address_type_id = models.IntegerField(default=1)
+    link_country_id = models.IntegerField(default=18)
+    address_line_one = models.CharField(max_length=255)
+    address_line_two = models.CharField(max_length=255, blank=True, null=True)
+    local_area_name = models.CharField(max_length=100, blank=True, null=True)
+    city_town = models.CharField(max_length=100)
+    region_province_state_division = models.CharField(max_length=100, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    link_union_parishad_id = models.IntegerField(blank=True, null=True)
+    link_ward_id = models.IntegerField(blank=True, null=True)
+    link_village_id = models.IntegerField(blank=True, null=True)
+    location_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    location_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    notes = models.CharField(max_length=500, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_by = models.IntegerField(blank=True, null=True)
+    updated_by = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[location].[address]'
+
+    def __str__(self):
+        parts = filter(None, [self.address_line_one, self.address_line_two])
+        return ", ".join(parts) or f"Address({self.address_id})"
+
+
 class GeoSource(models.Model):
     geo_source_id = models.AutoField(primary_key=True)
     country_name_en = models.CharField(max_length=100, blank=True, null=True)

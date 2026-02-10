@@ -1,0 +1,102 @@
+/* ── Header auth controls: right-aligned above logo ── */
+.header-auth-controls {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  align-self: flex-end;
+}
+
+/* Login / Sign Up links – fully isolated from global a and nav styles */
+.header-login-link,
+.header-login-link:link,
+.header-login-link:visited,
+.header-login-link:active,
+.header-login-link:focus,
+.header-signup-link,
+.header-signup-link:link,
+.header-signup-link:visited,
+.header-signup-link:active,
+.header-signup-link:focus {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--muted) !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  padding: .3rem 0;
+}
+
+.header-login-link:hover,
+.header-signup-link:hover {
+  color: var(--text) !important;
+  text-decoration: none !important;
+}
+
+.header-auth-controls .header-login-link::after {
+  content: "|";
+  margin-left: .5rem;
+  color: var(--border);
+  font-weight: 400;
+}
+
+/* ── User menu dropdown (logged-in state) ── */
+.header-user-menu {
+  position: relative;
+}
+
+.header-user-menu-toggle {
+  cursor: pointer;
+  font-size: .85rem;
+}
+
+.header-user-menu-toggle svg {
+  transition: transform .2s;
+}
+
+.header-user-menu-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.header-user-menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + .5rem);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 160px;
+  z-index: 60;
+  overflow: hidden;
+}
+
+.header-user-menu-dropdown.open {
+  display: block;
+}
+
+.header-user-menu-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: .6rem 1rem;
+  text-align: left;
+  color: var(--text);
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .85rem;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.header-user-menu-dropdown-item:hover {
+  background: var(--surface);
+  text-decoration: none;
+}
+
+/* Auth controls responsive */
+@media (max-width: 480px) {
+  .header-auth-controls {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,46 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Verify OTP · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'user_account/assets/css/components/forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="signup-page">
+  <div class="signup-card">
+    <h1 class="signup-title">Verify Your Number</h1>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="auth-alert auth-alert--{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <p class="mobile-phone-display">{{ masked_phone }}</p>
+
+    <form method="post" class="signup-form" novalidate>
+      {% csrf_token %}
+
+      <div class="signup-form-group">
+        <label class="signup-form-label" for="{{ form.otp_code.id_for_label }}">Enter OTP</label>
+        {{ form.otp_code }}
+        {% if form.otp_code.errors %}
+          <ul class="signup-field-errors">
+            {% for error in form.otp_code.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn primary signup-submit-button">Verify</button>
+    </form>
+
+    <p class="signup-switch-text">
+      <a href="{% url 'user_account:mobile_signup' %}">Change number</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

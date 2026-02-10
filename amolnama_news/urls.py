@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("api/auth/", include("amolnama_news.site_apps.user_account.api.urls")),
+    path("account/", include("amolnama_news.site_apps.user_account.urls")),
     path("", include("amolnama_news.site_apps.core.urls")),  # Core app as the homepage
     path("evaluation_vote/", include("amolnama_news.site_apps.evaluation_vote.urls")),  # Evaluation Vote app
     path("election_vote/", include("amolnama_news.site_apps.election_vote.urls")),  # Election Vote app
