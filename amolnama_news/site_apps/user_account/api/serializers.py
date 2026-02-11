@@ -6,8 +6,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = (
-            "user_profile_id", "display_name", "age_years",
-            "auth_provider", "is_phone_verified", "is_social_verified",
+            "user_profile_id", "display_name",
             "is_blocked", "last_login_at", "created_at",
         )
         read_only_fields = fields
@@ -20,8 +19,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "first_name", "last_name", "phone", "groups")
-        read_only_fields = ("id", "groups")
+        fields = ("user_account_user_id", "email", "user_auth_provider_key", "groups")
+        read_only_fields = ("user_account_user_id", "groups")
 
 
 class RegisterSerializer(serializers.Serializer):

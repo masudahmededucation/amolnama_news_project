@@ -2,16 +2,8 @@ from __future__ import annotations
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import PermissionDenied
-from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
-from django.db.models.functions import Lower
-
-
-phone_validator = RegexValidator(
-    regex=r"^\+?[0-9]{7,15}$",
-    message="Phone number must be 7-15 digits and may start with +.",
-)
 
 
 class UserManager(BaseUserManager):
@@ -65,8 +57,11 @@ class User(AbstractUser):
     username = None
     first_name = None
     last_name = None
-    email = models.EmailField("email address", unique=True)
-    phone = models.CharField(max_length=20, validators=[phone_validator], blank=True)
+    user_account_user_id = models.BigAutoField(primary_key=True)
+    link_user_auth_method_type_id = models.IntegerField()
+    user_auth_provider_key = models.CharField(max_length=255)
+    email = models.EmailField("email address", unique=True, db_column="username_email")
+    password = models.CharField(max_length=128, db_column="hash_password")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -74,9 +69,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(Lower("email"), name="uniq_user_email_ci"),
-        ]
+        pass
 
     def clean(self):
         super().clean()
@@ -108,24 +101,13 @@ class UserProfile(models.Model):
     """Maps to [account].[user_profile]. Managed by SQL Server."""
 
     user_profile_id = models.BigAutoField(primary_key=True)
-    link_user_account_user_id = models.BigIntegerField(blank=True, null=True)
     link_person_id = models.BigIntegerField(blank=True, null=True)
-    hash_phone_id = models.BinaryField(blank=True, null=True)
-    botdetection_phone_sim_slot_no = models.IntegerField(blank=True, null=True)
+    link_user_account_user_id = models.BigIntegerField(blank=True, null=True)
     otp_verified_at = models.DateTimeField(blank=True, null=True)
     otp_attempt_count = models.IntegerField(blank=True, null=True)
-    auth_provider = models.CharField(max_length=20, blank=True, null=True)
-    auth_subject_hash = models.BinaryField(blank=True, null=True)
-    auth_account_age_days = models.IntegerField(blank=True, null=True)
-    face_embedding_hash = models.BinaryField(blank=True, null=True)
-    face_verified_at = models.DateTimeField(blank=True, null=True)
-    liveness_score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
-    age_years = models.SmallIntegerField(blank=True, null=True)
     is_blocked = models.BooleanField(blank=True, null=True)
     blocked_reason = models.CharField(max_length=200, blank=True, null=True)
-    is_phone_verified = models.BooleanField(blank=True, null=True)
-    is_social_verified = models.BooleanField(blank=True, null=True)
     last_login_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
@@ -140,12 +122,30 @@ class UserProfile(models.Model):
         return f"UserProfile({self.user_profile_id})"
 
 
+class RefUserAuthMethodType(models.Model):
+    """Maps to [account].[ref_user_auth_method_type]. Managed by SQL Server."""
+
+    user_auth_method_type_id = models.IntegerField(primary_key=True)
+    auth_method_type = models.CharField(max_length=20)
+    auth_method_name_en = models.CharField(max_length=50)
+    is_active = models.BooleanField()
+
+    class Meta:
+        managed = False
+        db_table = '[account].[ref_user_auth_method_type]'
+        verbose_name = "Auth Method Type"
+        verbose_name_plural = "Auth Method Types"
+
+    def __str__(self):
+        return self.auth_method_name_en
+
+
+
 class UserDevice(models.Model):
     """Maps to [account].[user_device]. Managed by SQL Server."""
 
     user_device_id = models.BigAutoField(primary_key=True)
     hash_device_fingerprint = models.CharField(max_length=32, blank=True, null=True)
-    app_instance_id = models.CharField(max_length=64, blank=True, null=True)
     app_platform_name = models.CharField(max_length=100, blank=True, null=True)
     device_category = models.CharField(max_length=100, blank=True, null=True)
     last_ip_address = models.CharField(max_length=45, blank=True, null=True)
@@ -174,13 +174,8 @@ class UserSession(models.Model):
     link_user_profile_id = models.BigIntegerField(blank=True, null=True)
     link_user_device_id = models.BigIntegerField(blank=True, null=True)
     link_geo_source_id = models.IntegerField(blank=True, null=True)
-    link_intent_type_id = models.IntegerField(blank=True, null=True)
-    link_respondent_type_id = models.IntegerField(blank=True, null=True)
-    interaction_medium_name = models.CharField(max_length=100, blank=True, null=True)
     session_ip_address = models.CharField(max_length=45, blank=True, null=True)
     is_vpn_suspected = models.BooleanField(blank=True, null=True)
-    started_at = models.DateTimeField(blank=True, null=True)
-    ended_at = models.DateTimeField(blank=True, null=True)
     total_questions_answered = models.IntegerField(blank=True, null=True)
     total_session_ms = models.IntegerField(blank=True, null=True)
     avg_time_per_question_ms = models.IntegerField(blank=True, null=True)
@@ -189,6 +184,9 @@ class UserSession(models.Model):
     is_blocked = models.BooleanField(blank=True, null=True)
     blocked_reason = models.CharField(max_length=200, blank=True, null=True)
     is_authenticated_session = models.BooleanField(blank=True, null=True)
+    has_device_changed_during_session = models.BooleanField(blank=True, null=True)
+    started_at = models.DateTimeField(blank=True, null=True)
+    ended_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 

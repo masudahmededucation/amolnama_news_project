@@ -1,0 +1,17 @@
+/* Election Vote – Home page */
+
+.ev-section-title {
+  margin: 0 0 1rem;
+}
+
+.ev-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.ev-placeholder {
+  color: var(--muted);
+}

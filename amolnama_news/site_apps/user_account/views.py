@@ -211,7 +211,7 @@ def signup_complete_view(request):
                     now = timezone.now()
                     person = Person.objects.create(
                         first_name_en=first or email,
-                        last_name_en=last or None,
+                        last_name_en=last or "",
                         primary_email_address=email,
                         is_active=True,
                         created_at=now,
@@ -313,7 +313,7 @@ def mobile_verify_view(request):
 
             User = get_user_model()
             try:
-                user = User.objects.get(phone=phone)
+                user = User.objects.get(user_auth_provider_key=phone)
                 request._auth_method = AUTH_METHOD_PHONE
                 login(request, user, backend=EMAIL_AUTH_BACKEND)
                 messages.success(request, "Welcome back!")
@@ -351,10 +351,12 @@ def mobile_set_password_view(request):
 
                 # Create Person + link to UserProfile BEFORE login()
                 # so track_auth_event sees link_person_id already set.
+                first = form.cleaned_data.get("first_name", "")
+                last = form.cleaned_data.get("last_name", "")
                 now = timezone.now()
                 person = Person.objects.create(
-                    first_name_en=phone,
-                    last_name_en=None,
+                    first_name_en=first or phone,
+                    last_name_en=last or "",
                     primary_mobile_number=phone,
                     is_active=True,
                     created_at=now,
@@ -364,7 +366,7 @@ def mobile_set_password_view(request):
                     link_user_account_user_id=user.pk,
                 )
                 profile.link_person_id = person.person_id
-                profile.display_name = phone
+                profile.display_name = f"{first} {last}".strip() or phone
                 profile.updated_at = now
                 profile.save(update_fields=[
                     "link_person_id", "display_name", "updated_at",
@@ -435,7 +437,7 @@ def forgot_password_phone_view(request):
         full_phone = form.cleaned_data["full_phone"]
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        user = User.objects.get(phone=full_phone)
+        user = User.objects.get(user_auth_provider_key=full_phone)
 
         code = generate_otp()
         masked = "*" * (len(full_phone) - 4) + full_phone[-4:]

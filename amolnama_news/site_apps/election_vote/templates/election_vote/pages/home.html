@@ -3,10 +3,35 @@
 
 {% block title %}Election Vote{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'election_vote/assets/css/pages/home.css' %}">
+{% endblock %}
+
 {% block content %}
 <section class="grid">
-  <div>
-    <h3>Election Vote</h3>
+
+  <!-- ── Main: Cast Your Vote ── -->
+  <div class="ev-main">
+    <h2 class="ev-section-title">Cast Your Vote</h2>
+
+    <div class="ev-card">
+      <p class="ev-placeholder">Voting section coming soon.</p>
+    </div>
   </div>
+
+  <!-- ── Sidebar: Past Results ── -->
+  <aside class="sidebar">
+    <div class="widget">
+      <h4>Past Results</h4>
+      <ul class="list">
+        <li class="ev-placeholder">No past results yet.</li>
+      </ul>
+    </div>
+  </aside>
+
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'election_vote/assets/js/pages/home.js' %}"></script>
 {% endblock %}

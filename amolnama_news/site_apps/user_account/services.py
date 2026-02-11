@@ -28,6 +28,17 @@ def assign_user_to_group(user, group_name: str):
     user.groups.add(group)
 
 
+def _get_auth_method_type_id(method_code: str) -> int:
+    """Look up the PK for an auth method type code (e.g. 'email', 'phone')."""
+    from .models import RefUserAuthMethodType
+    obj = RefUserAuthMethodType.objects.filter(
+        auth_method_type=method_code, is_active=True,
+    ).first()
+    if obj is None:
+        raise ValueError(f"No active auth method type for '{method_code}'.")
+    return obj.user_auth_method_type_id
+
+
 def register_user(
     email: str,
     password: str,
@@ -41,9 +52,12 @@ def register_user(
         raise ValueError(
             f"Self-registration is not allowed for group '{group_name}'."
         )
+    clean_email = (email or "").strip().lower()
     user = User.objects.create_user(
-        email=(email or "").strip().lower(),
+        email=clean_email,
         password=password,
+        link_user_auth_method_type_id=_get_auth_method_type_id(AUTH_METHOD_EMAIL),
+        user_auth_provider_key=clean_email,
     )
     assign_user_to_group(user, group_name)
     return user
@@ -60,7 +74,12 @@ def register_user_by_phone(phone: str, password: str = None):
     phone = normalize_phone(phone)
     sanitized = phone.lstrip("+").replace("-", "")
     email = f"phone_{sanitized}@amolnamanews.com"
-    user = User.objects.create_user(email=email, password=password, phone=phone)
+    user = User.objects.create_user(
+        email=email,
+        password=password,
+        link_user_auth_method_type_id=_get_auth_method_type_id(AUTH_METHOD_PHONE),
+        user_auth_provider_key=phone,
+    )
     assign_user_to_group(user, GROUP_VISITOR)
     return user
 
@@ -79,7 +98,7 @@ def authenticate_user_by_phone(request, phone: str, password: str):
     """
     phone = normalize_phone(phone)
     try:
-        user = User.objects.get(phone=phone)
+        user = User.objects.get(user_auth_provider_key=phone)
     except User.DoesNotExist:
         return None
     # Route through authenticate() for axes tracking
@@ -190,7 +209,9 @@ def track_auth_event(request, user, auth_method=None):
     Each ORM step is wrapped in try/except so a tracking failure
     never blocks the login itself.
     """
-    from .models import Email, Person, Phone, UserDevice, UserProfile, UserSession
+    from .models import (
+        Email, Person, Phone, UserDevice, UserProfile, UserSession,
+    )
 
     now = timezone.now()
     ip_address = _get_client_ip(request)
@@ -236,31 +257,15 @@ def track_auth_event(request, user, auth_method=None):
             link_user_account_user_id=user.pk,
             defaults={
                 "display_name": user.email,
-                "auth_provider": auth_method,
                 "last_login_at": now,
                 "created_at": now,
                 "updated_at": now,
             },
         )
         if not created:
-            update_fields = ["last_login_at", "updated_at"]
             profile.last_login_at = now
             profile.updated_at = now
-
-            if auth_method:
-                profile.auth_provider = auth_method
-                update_fields.append("auth_provider")
-
-            if auth_method == AUTH_METHOD_PHONE and not profile.is_phone_verified:
-                profile.is_phone_verified = True
-                profile.otp_verified_at = now
-                update_fields.extend(["is_phone_verified", "otp_verified_at"])
-
-            if auth_method in _SOCIAL_METHODS and not profile.is_social_verified:
-                profile.is_social_verified = True
-                update_fields.append("is_social_verified")
-
-            profile.save(update_fields=update_fields)
+            profile.save(update_fields=["last_login_at", "updated_at"])
     except Exception:
         logger.exception("track_auth_event: UserProfile upsert failed")
 
@@ -273,7 +278,12 @@ def track_auth_event(request, user, auth_method=None):
                 and email.endswith("@amolnamanews.com")
             )
             real_email = email if (email and not is_synthetic) else None
-            phone = getattr(user, "phone", None) or None
+            # Phone is stored in user_auth_provider_key for phone-registered users
+            phone = (
+                user.user_auth_provider_key
+                if auth_method == AUTH_METHOD_PHONE
+                else None
+            )
 
             # first_name_en is NOT NULL in SQL Server — use email
             # local part or phone as fallback.
@@ -303,7 +313,6 @@ def track_auth_event(request, user, auth_method=None):
             link_user_profile_id=profile.user_profile_id if profile else None,
             link_user_device_id=device.user_device_id if device else None,
             session_ip_address=ip_address,
-            interaction_medium_name="web",
             is_authenticated_session=True,
             started_at=now,
             created_at=now,
@@ -315,8 +324,12 @@ def track_auth_event(request, user, auth_method=None):
     # ── Phone / Email records ────────────────────────────────
     person_id = profile.link_person_id if profile else None
     if person_id:
-        # Phone record
-        full_phone = getattr(user, "phone", None) or None
+        # Phone record (from user_auth_provider_key for phone users)
+        full_phone = (
+            user.user_auth_provider_key
+            if auth_method == AUTH_METHOD_PHONE
+            else None
+        )
         if full_phone:
             try:
                 # Split into country code + local number

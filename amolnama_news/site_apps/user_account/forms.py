@@ -240,7 +240,7 @@ class PhoneForm(forms.Form):
             number = number.lstrip("0")
             full_phone = f"{code}{number}"
             cleaned["full_phone"] = full_phone
-            if User.objects.filter(phone=full_phone).exists():
+            if User.objects.filter(user_auth_provider_key=full_phone).exists():
                 raise forms.ValidationError(
                     "An account with this phone number already exists. "
                     "Please log in."
@@ -264,6 +264,23 @@ class OTPVerifyForm(forms.Form):
 
 class MobilePasswordForm(forms.Form):
     """Set password after mobile OTP verification."""
+    first_name = forms.CharField(
+        max_length=100,
+        validators=[_validate_name_en, _validate_name_min],
+        widget=forms.TextInput(attrs={
+            "placeholder": "First name",
+            "autofocus": True,
+            "autocomplete": "given-name",
+        }),
+    )
+    last_name = forms.CharField(
+        max_length=100,
+        validators=[_validate_name_en, _validate_name_min],
+        widget=forms.TextInput(attrs={
+            "placeholder": "Last name",
+            "autocomplete": "family-name",
+        }),
+    )
     password = forms.CharField(
         min_length=8,
         widget=forms.PasswordInput(attrs={
@@ -278,6 +295,18 @@ class MobilePasswordForm(forms.Form):
             "autocomplete": "new-password",
         }),
     )
+
+    def clean_first_name(self):
+        value = (self.cleaned_data.get("first_name") or "").strip()
+        if not value:
+            raise forms.ValidationError("First name is required.")
+        return value.title()
+
+    def clean_last_name(self):
+        value = (self.cleaned_data.get("last_name") or "").strip()
+        if not value:
+            raise forms.ValidationError("Last name is required.")
+        return value.title()
 
     def clean(self):
         cleaned = super().clean()
@@ -336,7 +365,7 @@ class ForgotPasswordPhoneForm(forms.Form):
             number = number.lstrip("0")
             full_phone = f"{code}{number}"
             cleaned["full_phone"] = full_phone
-            if not User.objects.filter(phone=full_phone).exists():
+            if not User.objects.filter(user_auth_provider_key=full_phone).exists():
                 raise forms.ValidationError(
                     "No account found with this phone number."
                 )
