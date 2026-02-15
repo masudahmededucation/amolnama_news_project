@@ -1,0 +1,83 @@
+{% comment %}
+  Contributor identity section — name, type, organization, contact.
+  Expects: contributor_form (ContributorInfoForm instance)
+           contributor_types (queryset of RefContributorType)
+{% endcomment %}
+
+<div class="form-section" id="section-contributor-info"
+  {% if user.is_authenticated %}data-is-self="1" data-self-name="{{ self_info.name }}" data-self-email="{{ self_info.email }}" data-self-phone="{{ self_info.phone }}"{% endif %}>
+  <div class="contributor-title-row">
+    <h3 class="form-section-title">তথ্যদাতার বিবরণ (Contributor's Details)</h3>
+    <label for="contributor-type" class="contributor-type-label">ধরন (Type)<span class="required-mark">*</span></label>
+    <select id="contributor-type" name="contributor_type_id" class="contributor-type-inline" required>
+      <option value="">-- ধরন নির্বাচন করুন (Type) --</option>
+      {% regroup contributor_types by contributor_group_code as type_groups %}
+      {% for group in type_groups %}
+        <optgroup label="{{ group.grouper }}">
+          {% for ct in group.list %}
+            <option value="{{ ct.contributor_type_id }}"
+              {% if contributor_form.contributor_type_id.value|stringformat:"s" == ct.contributor_type_id|stringformat:"s" %}selected{% elif not contributor_form.contributor_type_id.value and ct.contributor_type_id == default_contributor_type_id %}selected{% endif %}>
+              {{ ct.contributor_type_label_bn }}{% if ct.contributor_type_label_en %} ({{ ct.contributor_type_label_en }}){% endif %}
+            </option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+  </div>
+  {% if contributor_form.contributor_type_id.errors %}
+    <ul class="field-errors">{% for e in contributor_form.contributor_type_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {# All contributor fields — hidden when "Self" is selected for logged-in user #}
+  <div id="contributor-details">
+    {# Full name #}
+    <div class="form-field">
+      <label for="contributor-full-name">
+        {{ contributor_form.contributor_full_name_bn.label }}<span class="required-mark">*</span>
+      </label>
+      {{ contributor_form.contributor_full_name_bn }}
+      {% if contributor_form.contributor_full_name_bn.errors %}
+        <ul class="field-errors">{% for e in contributor_form.contributor_full_name_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    {# Organisation type + name #}
+    <div class="form-row-half">
+      <div class="form-field">
+        <label for="contributor-org-type">প্রতিষ্ঠানের ধরন (Organisation Type)</label>
+        <select id="contributor-org-type" name="organisation_type_id">
+          <option value="">-- ধরন নির্বাচন করুন --</option>
+          {% for ot in organisation_types %}
+            <option value="{{ ot.organisation_type_id }}">
+              {{ ot.organisation_type_name_bn }}{% if ot.organisation_type_name_en %} ({{ ot.organisation_type_name_en }}){% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="contributor-organization">প্রতিষ্ঠান (Organisation)</label>
+        <select id="contributor-organization" name="contributor_organization_id">
+          <option value="">-- প্রতিষ্ঠানের নাম (ঐচ্ছিক) --</option>
+        </select>
+        <input type="text" id="contributor-org-custom" name="contributor_organization_custom"
+          maxlength="500" placeholder="তালিকায় না থাকলে নাম লিখুন (Type if not in list)">
+      </div>
+    </div>
+
+    <div class="form-row-half">
+      {# Email #}
+      <div class="form-field">
+        <label for="contributor-email">{{ contributor_form.contributor_contact_email.label }}</label>
+        {{ contributor_form.contributor_contact_email }}
+        {% if contributor_form.contributor_contact_email.errors %}
+          <ul class="field-errors">{% for e in contributor_form.contributor_contact_email.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+      </div>
+
+      {# Phone #}
+      <div class="form-field">
+        <label for="contributor-phone">{{ contributor_form.contributor_contact_phone.label }}</label>
+        {{ contributor_form.contributor_contact_phone }}
+      </div>
+    </div>
+  </div>
+</div>

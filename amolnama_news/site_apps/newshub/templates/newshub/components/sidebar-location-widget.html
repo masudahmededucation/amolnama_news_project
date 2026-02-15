@@ -1,0 +1,52 @@
+{% comment %}
+  Sidebar widget — district, constituency, upazila, union parishad dropdowns (cascading).
+  Expects: districts (queryset of District)
+           selected_district_id, selected_constituency_id,
+           selected_upazila_id, selected_union_parishad_id (current values or None)
+{% endcomment %}
+
+<div class="widget-location" id="widget-location">
+  <h4>অবস্থান (Location)</h4>
+
+  {# District #}
+  <div class="widget-field">
+    <label for="news-district-id">জেলা (District) (জেলা নির্বাচন করুন)<span class="required-mark">*</span></label>
+    <select id="news-district-id" name="district_id" required>
+      <option value=""></option>
+      {% for d in districts %}
+        <option value="{{ d.district_id }}"
+          {% if selected_district_id|stringformat:"s" == d.district_id|stringformat:"s" %}selected{% endif %}>
+          {{ d.district_name_bn }}{% if d.district_name_en %} ({{ d.district_name_en }}){% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {# Constituency — loaded dynamically via JS when district changes #}
+  <div class="widget-field">
+    <label for="news-constituency-id">নির্বাচনী এলাকা (Constituency)</label>
+    <select id="news-constituency-id" name="constituency_id">
+      <option value="">-- প্রথমে জেলা নির্বাচন করুন --</option>
+    </select>
+  </div>
+
+  {# Upazila — loaded dynamically via JS when district changes #}
+  <div class="widget-field">
+    <label for="news-upazila-id">উপজেলা (Upazila)</label>
+    <select id="news-upazila-id" name="upazila_id">
+      <option value="">-- প্রথমে জেলা নির্বাচন করুন --</option>
+    </select>
+  </div>
+
+  {# Union Parishad — loaded dynamically via JS when upazila changes #}
+  <div class="widget-field">
+    <label for="news-union-parishad-id">ইউনিয়ন পরিষদ (Union Parishad)</label>
+    <select id="news-union-parishad-id" name="union_parishad_id">
+      <option value="">-- প্রথমে উপজেলা নির্বাচন করুন --</option>
+    </select>
+  </div>
+
+  {# Geo coordinates — auto-collected via browser geolocation #}
+  <input type="hidden" id="news-latitude" name="latitude">
+  <input type="hidden" id="news-longitude" name="longitude">
+</div>

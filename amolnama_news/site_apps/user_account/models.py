@@ -106,9 +106,13 @@ class UserProfile(models.Model):
     otp_verified_at = models.DateTimeField(blank=True, null=True)
     otp_attempt_count = models.IntegerField(blank=True, null=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
+    professional_bio_summary_bn = models.CharField(max_length=200, blank=True, null=True)
+    professional_bio_description_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_blocked = models.BooleanField(blank=True, null=True)
     blocked_reason = models.CharField(max_length=200, blank=True, null=True)
     last_login_at = models.DateTimeField(blank=True, null=True)
+    is_verified = models.BooleanField(blank=True, null=True)
+    verification_date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -372,3 +376,55 @@ class Email(models.Model):
 
     def __str__(self):
         return self.email_address
+
+
+class OrganisationType(models.Model):
+    """Maps to [directory].[organisation_type]."""
+
+    organisation_type_id = models.IntegerField(primary_key=True)
+    organisation_type_code = models.CharField(max_length=100)
+    organisation_type_name_en = models.CharField(max_length=200)
+    organisation_type_name_bn = models.CharField(max_length=200)
+    sort_order = models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[directory].[organisation_type]'
+
+    def __str__(self):
+        return self.organisation_type_name_en
+
+
+class Organisation(models.Model):
+    """Maps to [directory].[organisation]."""
+
+    organisation_id = models.IntegerField(primary_key=True)
+    organisation_uid = models.UUIDField()
+    link_organisation_type_id = models.IntegerField()
+    link_branch_address_id = models.IntegerField(blank=True, null=True)
+    organisation_name_en = models.CharField(max_length=200)
+    organisation_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    organisation_legal_name_en = models.CharField(max_length=200, blank=True, null=True)
+    organisation_legal_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    organisation_description_en = models.CharField(max_length=1000, blank=True, null=True)
+    organisation_description_bn = models.CharField(max_length=1000, blank=True, null=True)
+    organisation_tax_id = models.CharField(max_length=200, blank=True, null=True)
+    organisation_registration_no = models.CharField(max_length=200, blank=True, null=True)
+    organisation_code = models.CharField(max_length=50, blank=True, null=True)
+    total_employee_number = models.IntegerField(blank=True, null=True)
+    total_client_number = models.IntegerField(blank=True, null=True)
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[directory].[organisation]'
+
+    def __str__(self):
+        return self.organisation_name_en

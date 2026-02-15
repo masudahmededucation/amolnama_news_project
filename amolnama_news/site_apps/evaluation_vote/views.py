@@ -9,7 +9,7 @@ from amolnama_news.site_apps.locations.models import Division, District, Constit
 from .models import RefEvaluation, RefParty, EvaluationResponse, UserDevice, UserProfile, UserSession
 from amolnama_news.site_apps.locations.models import get_or_create_geo_source
 from django.db import connection
-from amolnama_news.site_apps.core.models import MediaAppAsset
+from amolnama_news.site_apps.multimedia.models import AppAsset
 from .models import AppGetEvaluation, AppGetPartyDetails, AppSidebarPastResults
 
 
@@ -241,13 +241,14 @@ def submit_vote(request):
             created_at=timezone.now(),
         )
 
-        # Insert EvaluationResponse as before
+        # Insert EvaluationResponse
         vote = EvaluationResponse.objects.create(
             link_evaluation_id=evaluation.evaluation_id,
             link_constituency_id=data.get('constituency_id'),
             link_party_id=data.get('party_id'),
             link_user_session_id=session.user_session_id,
             is_active=True,
+            created_at=timezone.now(),
         )
 
         return JsonResponse({

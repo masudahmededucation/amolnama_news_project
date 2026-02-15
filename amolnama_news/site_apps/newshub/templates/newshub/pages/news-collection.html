@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}সংবাদ জমা — News Collection{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'newshub/assets/css/pages/news-collection.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<h2>সংবাদ জমা দিন (Submit News)</h2>
+
+{% if not user.is_authenticated %}
+<div class="auth-warning">
+  সংবাদ জমা দিতে <a href="{% url 'user_account:login' %}?next={{ request.path }}">লগইন (Log in)</a>
+  অথবা <a href="{% url 'user_account:signup' %}?next={{ request.path }}">সাইন আপ (Sign up)</a> করুন।
+  আপনার ফর্মের তথ্য সংরক্ষিত থাকবে। (Your form data will be preserved.)
+</div>
+{% endif %}
+
+{% if success_message %}
+  <div class="form-message form-message-success">{{ success_message }}</div>
+{% endif %}
+
+{% if error_message %}
+  <div class="form-message form-message-error">{{ error_message }}</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="news-collection-form" novalidate>
+  {% csrf_token %}
+
+  <section class="grid">
+    {# ====== Content block (left 2/3) ====== #}
+    <div class="news-form-content">
+      {% include "newshub/components/contributor-info-form.html" %}
+      {% include "newshub/components/news-entry-form.html" %}
+      {% include "newshub/components/news-attachment-form.html" %}
+      {% include "newshub/components/news-social-source-form.html" %}
+    </div>
+
+    {# ====== Sidebar (right 1/3) ====== #}
+    <aside class="sidebar">
+      <div class="sidebar-clear-row">
+        <button type="button" id="news-clear-form-btn" class="btn-clear-form">
+          তথ্য মুছুন (Clear Form)
+        </button>
+      </div>
+      {% include "newshub/components/sidebar-location-widget.html" %}
+      {% include "newshub/components/sidebar-category-widget.html" %}
+      {% include "newshub/components/sidebar-tags-widget.html" %}
+      {% include "newshub/components/sidebar-options-widget.html" %}
+      {% include "newshub/components/sidebar-submit-widget.html" %}
+    </aside>
+  </section>
+
+</form>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+  <script src="{% static 'newshub/assets/js/components/news-searchable-dropdown.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-org-cascade.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-contributor-self.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-location-cascade.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-auto-location.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-category-tag-cascade.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-tag-search.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-auto-tag.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-geo-collect.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-occurrence-time.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-attachment-upload.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-social-url-check.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-char-count.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-form-validate.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-form-clear.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-form-persist.js' %}"></script>
+{% endblock %}

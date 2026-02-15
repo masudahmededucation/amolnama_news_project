@@ -1,0 +1,39 @@
+{% comment %}
+Location-level result card with party list and progress bars.
+Election-vote version (uses election_vote party-result-item without logos).
+
+Usage:
+  {% include "election_vote/partials/location-result-card.html" with
+     heading=item.heading
+     total_votes=item.total_votes
+     parties=item.parties
+     drilldown_url=item.drilldown_url
+     drilldown_text=item.drilldown_text
+  %}
+{% endcomment %}
+
+<div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
+  <h4 style="margin: 0 0 0.5rem 0;">{{ heading }}</h4>
+
+  <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+    <span class="highlight-vote">মোট ভোট: {{ total_votes|floatformat:0 }}</span>
+  </p>
+
+  <ul class="selection-list party-list">
+    {% for party in parties %}
+      {% include "election_vote/components/party-result-item.html" with party=party %}
+    {% empty %}
+      <li style="text-align: center; padding: 2rem; color: var(--muted);">
+        কোনো ফলাফল পাওয়া যায়নি (No results found)
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if drilldown_url %}
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="{{ drilldown_url }}" style="color: var(--primary); text-decoration: none; font-weight: bold;">
+        {{ drilldown_text }} →
+      </a>
+    </div>
+  {% endif %}
+</div>

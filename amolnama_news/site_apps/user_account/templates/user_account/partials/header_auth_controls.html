@@ -7,7 +7,7 @@
       </button>
       <div class="header-user-menu-dropdown">
         <a href="{% url 'user_account:profile' %}" class="header-user-menu-dropdown-item">Profile</a>
-        <form method="post" action="{% url 'user_account:logout' %}">
+        <form method="post" action="{% url 'user_account:logout' %}" onsubmit="try{localStorage.removeItem('newshub_draft');localStorage.removeItem('newshub_draft_tags')}catch(e){}">
           {% csrf_token %}
           <button type="submit" class="header-user-menu-dropdown-item header-user-menu-logout-button">Logout</button>
         </form>

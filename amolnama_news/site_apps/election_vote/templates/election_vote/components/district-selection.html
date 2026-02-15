@@ -1,0 +1,11 @@
+<!-- District Selection (Step 2) -->
+<div id="district-view" style="display: none;">
+  <button class="back-btn" onclick="navigateBackToDivisions()">← Back / পিছনে</button>
+  {% if not user.is_authenticated %}
+    <div class="page-message page-message--warning">
+      ভোট দিতে অনুগ্রহ করে <a href="/account/login/">লগইন</a> করুন। (Please <a href="/account/login/">log in</a> to cast your vote.)
+    </div>
+  {% endif %}
+  <h3>আপনার জেলা নির্বাচন করুন (Select Your District)</h3>
+  <ul class="selection-list" id="district-list"></ul>
+</div>

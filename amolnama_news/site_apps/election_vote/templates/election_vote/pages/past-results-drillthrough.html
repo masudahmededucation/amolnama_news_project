@@ -1,0 +1,115 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ evaluation_name }} · ফলাফল{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-selection.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-progress.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/youtube-style-total-vote-info.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="grid">
+  <div>
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" style="margin-bottom: 1rem;">
+      {% for crumb in breadcrumb %}
+        {% if crumb.url %}
+          <a href="{{ crumb.url }}">{{ crumb.name }}</a> /
+        {% else %}
+          <span>{{ crumb.name }}</span>
+        {% endif %}
+      {% endfor %}
+    </nav>
+
+    <!-- Back button for non-national levels -->
+    {% if back_url %}
+      <a href="{{ back_url }}" class="back-btn" style="display: inline-block; margin-bottom: 1rem; padding: 0.5rem 1rem; color: var(--primary); text-decoration: none; border: 1px solid var(--border); border-radius: var(--radius);">
+        ← পিছনে (Back)
+      </a>
+    {% endif %}
+
+    <!-- Results display based on drill level -->
+    {% if drill_level == 'national' %}
+      <!-- Level 1: National Results -->
+      <h3>জাতীয় পর্যায়ের ফলাফল (National Level Results)</h3>
+
+      {% include "evaluation_vote/components/youtube-style-total-vote-info.html" %}
+
+      <ul class="selection-list party-list" style="margin-top: 1rem;">
+        {% for result in results %}
+          {% include "election_vote/components/party-result-item.html" with party=result %}
+        {% empty %}
+          <li style="text-align: center; padding: 2rem; color: var(--muted);">
+            কোনো ফলাফল পাওয়া যায়নি (No results found)
+          </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Drill through to divisions -->
+      <div style="text-align: center; margin-top: 2rem;">
+        <a href="?view=divisions" class="btn-primary" style="padding: 0.75rem 2rem; background: var(--primary); color: white; text-decoration: none; border-radius: var(--radius); display: inline-block;">
+          বিভাগ পর্যায়ে দেখুন (View Division Level) →
+        </a>
+      </div>
+
+    {% elif drill_level == 'division' %}
+      <!-- Level 2: Division Level Results -->
+      <h3>বিভাগ পর্যায়ের ফলাফল (Division Level Results)</h3>
+      {% for item in results %}
+        {% include "election_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties drilldown_url=item.drilldown_url drilldown_text=item.drilldown_text %}
+      {% empty %}
+        <p style="text-align: center; padding: 2rem; color: var(--muted);">
+          কোনো বিভাগ পাওয়া যায়নি (No divisions found)
+        </p>
+      {% endfor %}
+
+    {% elif drill_level == 'district' %}
+      <!-- Level 3: District Level Results -->
+      <h3>জেলা পর্যায়ের ফলাফল (District Level Results)</h3>
+      {% for item in results %}
+        {% include "election_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties drilldown_url=item.drilldown_url drilldown_text=item.drilldown_text %}
+      {% empty %}
+        <p style="text-align: center; padding: 2rem; color: var(--muted);">
+          কোনো জেলা পাওয়া যায়নি (No districts found)
+        </p>
+      {% endfor %}
+
+    {% elif drill_level == 'constituency' %}
+      <!-- Level 4: Constituency Level Results (lowest level) -->
+      <h3>আসন পর্যায়ের ফলাফল (Constituency Level Results)</h3>
+      {% for item in results %}
+        {% include "election_vote/partials/location-result-card.html" with heading=item.heading total_votes=item.total_votes parties=item.parties %}
+      {% empty %}
+        <p style="text-align: center; padding: 2rem; color: var(--muted);">
+          কোনো আসন পাওয়া যায়নি (No constituencies found)
+        </p>
+      {% endfor %}
+
+    {% endif %}
+
+  </div>
+
+  <!-- Sidebar: Other past elections -->
+  <aside class="sidebar">
+    <div class="widget">
+      <h4>বিগত নির্বাচন (Past Elections)</h4>
+      <ul class="list">
+        {% for election in past_elections %}
+          <li>
+            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+            <a href="{% url 'election_vote:past_results' election.election_evaluation_id %}">
+              {{ election.evaluation_name_bn }}
+            </a>
+          </li>
+        {% empty %}
+          <li style="text-align: center; padding: 1rem;">
+            কোনো বিগত নির্বাচন পাওয়া যায়নি
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</section>
+{% endblock %}

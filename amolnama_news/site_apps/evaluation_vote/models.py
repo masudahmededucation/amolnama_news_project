@@ -1,5 +1,5 @@
-from django.db import models
-from django.db import connection
+from django.db import models, connection
+from django.db.models import F
 
 
 class RefEvaluation(models.Model):
@@ -100,22 +100,45 @@ class RefQuestionOption(models.Model):
         return RefQuestion.objects.filter(question_id=self.link_question_id).first()
 
 
+class ElectionEvaluation(models.Model):
+    """Maps to [evaluation].[election_evaluation]. Links elections to evaluations."""
+    election_evaluation_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField()
+    link_evaluation_id = models.IntegerField()
+    sort_order = models.IntegerField()
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[evaluation].[election_evaluation]'
+
+    def __str__(self):
+        return f"ElectionEvaluation({self.election_evaluation_id})"
+
+
 class EvaluationResponse(models.Model):
     """মূল্যায়ন প্রতিক্রিয়া - User evaluation responses"""
-    evaluation_response_id = models.BigAutoField(primary_key=True)  # Identity
+    evaluation_response_id = models.BigAutoField(primary_key=True)
     link_evaluation_id = models.IntegerField()
-    link_party_id = models.IntegerField(blank=True, null=True)
+    link_digital_ballot_id = models.BigIntegerField(blank=True, null=True)
     link_constituency_id = models.IntegerField(blank=True, null=True)
     link_union_parishad_id = models.IntegerField(blank=True, null=True)
+    link_party_id = models.IntegerField(blank=True, null=True)
     link_candidate_id = models.IntegerField(blank=True, null=True)
     link_question_id = models.IntegerField(blank=True, null=True)
     link_question_option_id = models.IntegerField(blank=True, null=True)
     link_user_session_id = models.BigIntegerField(blank=True, null=True)
+    link_user_session_id_key = models.GeneratedField(
+        expression=F('link_user_session_id'),
+        output_field=models.BigIntegerField(),
+        db_persist=True,
+    )
     marks_awarded = models.IntegerField(blank=True, null=True)
     remarks_bn = models.CharField(max_length=500, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -160,8 +183,10 @@ class EvaluationResponse(models.Model):
 
 class EvaluationResult(models.Model):
     """মূল্যায়ন ফলাফল - Evaluation results"""
-    evaluation_result_id = models.BigAutoField(primary_key=True)
+    evaluation_result_id = models.IntegerField(primary_key=True)
     link_evaluation_id = models.IntegerField()
+    link_constituency_id = models.IntegerField(blank=True, null=True)
+    link_party_id = models.IntegerField(blank=True, null=True)
     link_candidate_id = models.IntegerField()
     total_score = models.IntegerField()
     max_possible_score = models.IntegerField(blank=True, null=True)
