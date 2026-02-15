@@ -1,0 +1,75 @@
+/* ========== Vote Receipt Card ========== */
+
+.receipt-card {
+  text-align: center;
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.receipt-card h3 {
+  margin-bottom: 1.25rem;
+  color: var(--success, #28a745);
+}
+
+.receipt-code-wrapper {
+  background: var(--surface, #f8f9fa);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.receipt-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.receipt-code {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  font-family: monospace;
+  margin: 0;
+  color: var(--text);
+}
+
+.receipt-summary {
+  text-align: left;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  background: var(--surface, #f8f9fa);
+  border-radius: var(--radius);
+}
+
+.receipt-summary p {
+  margin: 0.35rem 0;
+}
+
+.receipt-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.receipt-download-btn {
+  padding: 0.6rem 1.25rem;
+  background: var(--primary, #0d6efd);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius, 4px);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.receipt-download-btn:hover {
+  opacity: 0.85;
+}

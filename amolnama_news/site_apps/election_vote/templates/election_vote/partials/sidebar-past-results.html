@@ -1,0 +1,22 @@
+{% load static %}
+<aside class="sidebar">
+  <div class="widget">
+    <h4>বিগত নির্বাচন (Past Elections)</h4>
+    <ul class="list">
+      {% if past_elections %}
+        {% for election in past_elections %}
+          <li>
+            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+            <a href="{% url 'election_vote:past_results' election.election_evaluation_id %}">
+              {{ election.evaluation_name_bn }}
+            </a>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li style="text-align: center; padding: 1rem;">
+          কোনো বিগত নির্বাচন পাওয়া যায়নি
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</aside>

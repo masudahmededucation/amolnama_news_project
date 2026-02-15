@@ -1,0 +1,30 @@
+{% comment %}
+  Attachment section — incremental file upload (up to 4).
+  Uses a hidden file input; JS manages the file list with add/remove.
+  Expects: attachment_form (NewsAttachmentForm instance)
+{% endcomment %}
+
+<div class="form-section" id="section-news-attachment">
+  <h3 class="form-section-title">সংযুক্তি (Attachment)</h3>
+
+  <div class="form-field">
+    <label>ফাইল আপলোড করুন (সর্বোচ্চ ৪টি) — Upload files (Max 4 files)</label>
+    {# Hidden real input — JS syncs files into this before submit #}
+    <input type="file" id="attachment-file-real" name="attachment_file"
+           multiple style="display:none;">
+    {# Picker trigger — hidden, opened by JS #}
+    <input type="file" id="attachment-file-picker"
+           accept="image/*,video/*,audio/*,.pdf,.doc,.docx" multiple style="display:none;">
+    <button type="button" id="attachment-add-btn" class="btn-add-file">+ ফাইল আপলোড করুন (Upload files)</button>
+    <div id="attachment-file-list" class="file-info" style="display:none;"></div>
+  </div>
+
+  {# Caption #}
+  <div class="form-field">
+    <label for="attachment-caption">{{ attachment_form.attachment_caption_bn.label }}</label>
+    {{ attachment_form.attachment_caption_bn }}
+  </div>
+
+  {# Featured image — tracked per-file via radio buttons in the file list (JS) #}
+  <input type="hidden" id="featured-file-index" name="featured_file_index" value="">
+</div>

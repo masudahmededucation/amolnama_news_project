@@ -11,6 +11,7 @@ urlpatterns = [
     path("", include("amolnama_news.site_apps.core.urls")),  # Core app as the homepage
     path("evaluation_vote/", include("amolnama_news.site_apps.evaluation_vote.urls")),  # Evaluation Vote app
     path("election_vote/", include("amolnama_news.site_apps.election_vote.urls")),  # Election Vote app
+    path("newshub/", include("amolnama_news.site_apps.newshub.urls")),  # News Hub app
 
 ]
 

@@ -44,6 +44,8 @@ LOCAL_APPS = [
     "amolnama_news.site_apps.evaluation_vote",
     "amolnama_news.site_apps.election_vote",
     "amolnama_news.site_apps.locations",
+    "amolnama_news.site_apps.multimedia",
+    "amolnama_news.site_apps.newshub",
     "amolnama_news.site_apps.user_account",
     "amolnama_news.site_apps.user_portal_staff",
     "amolnama_news.site_apps.user_portal_visitor",
@@ -145,6 +147,11 @@ STORAGES = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "amolnama_news" / "media"
+
+# Newshub file uploads — relative to MEDIA_ROOT
+# Final path: MEDIA_ROOT / upload / newshub / <asset_type_category_name> /
+# Subfolders: audio, files, image, video
+NEWSHUB_UPLOAD_DIR = "upload/newshub"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

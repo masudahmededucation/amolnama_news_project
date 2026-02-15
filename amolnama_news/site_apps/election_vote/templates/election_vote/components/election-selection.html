@@ -1,0 +1,29 @@
+<!-- Election Selection (Step 0) -->
+<!-- CSRF token for API calls -->
+<form style="display:none">{% csrf_token %}</form>
+
+<div id="election-view">
+  {% if not user.is_authenticated %}
+    <div class="page-message page-message--warning">
+      ভোট দিতে অনুগ্রহ করে <a href="/account/login/">লগইন</a> করুন। (Please <a href="/account/login/">log in</a> to cast your vote.)
+    </div>
+  {% endif %}
+
+  {% if current_elections %}
+    <h3>নির্বাচন নির্বাচন করুন (Select Election)</h3>
+    <ul class="selection-list">
+      {% for election in current_elections %}
+        <li onclick="handleElectionSelection({{ election.election_evaluation_id }}, {{ election.link_election_id }}, '{{ election.evaluation_name_en }}', '{{ election.evaluation_name_bn }}')">
+          <span class="name-bn">{{ election.evaluation_name_bn }}</span>
+          <span class="name-en">({{ election.evaluation_name_en }})</span>
+        </li>
+      {% empty %}
+        <li>No active elections at this time.</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="ev-card">
+      <p class="ev-placeholder">No active elections at this time.</p>
+    </div>
+  {% endif %}
+</div>

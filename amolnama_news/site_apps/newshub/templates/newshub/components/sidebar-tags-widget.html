@@ -1,0 +1,37 @@
+{% comment %}
+  Sidebar widget — tag selection with chips.
+  Click a tag to add it as a chip; click X to remove.
+  Tags persist across category changes.
+  JS: news-category-tag-cascade.js handles all interaction.
+{% endcomment %}
+
+<div class="widget" id="widget-tags">
+  <h4>ট্যাগ (Tags)<span class="required-mark">*</span></h4>
+  <p class="tag-hint">আপনি বিভিন্ন ক্যাটাগরি (যেমন- খেলাধুলা, বিনোদন) থেকে একাধিক ট্যাগ যুক্ত করতে পারেন।</p>
+
+  {# Search across all categories #}
+  <div class="tag-search-wrapper">
+    <input type="text" id="tag-search-input" class="tag-search-input"
+      placeholder="ট্যাগ খুঁজুন (Search tags)" autocomplete="off">
+    <ul class="tag-search-results" id="tag-search-results"></ul>
+  </div>
+
+  {# Selected tags — chips with hidden inputs for form submission #}
+  <div id="selected-tags-area" class="selected-tags-area"></div>
+
+  {# Available tags — populated by JS on category change #}
+  <ul class="tag-available-list" id="tag-available-list">
+    <li class="tag-hint">ট্যাগ লোড হচ্ছে...</li>
+  </ul>
+</div>
+
+{# All tags (unique) — embedded JSON for auto-tag matching from content body #}
+<script type="application/json" id="all-tags-data">
+[{% for tag in unique_news_category_tags %}{"id":{{ tag.news_category_tag_id }},"cat_id":{{ tag.link_news_category_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}","aliases":"{{ tag.news_tag_search_aliases|default:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+</script>
+
+{% if selected_tag_ids %}
+<script type="application/json" id="initial-selected-tags">
+[{% for tag in tags %}{% if tag.news_category_tag_id in selected_tag_ids %}{"id":{{ tag.news_category_tag_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}"},{% endif %}{% endfor %}]
+</script>
+{% endif %}

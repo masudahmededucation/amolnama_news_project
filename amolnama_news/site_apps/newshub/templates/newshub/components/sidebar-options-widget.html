@@ -1,0 +1,13 @@
+{% comment %}
+  Sidebar widget — breaking news flag.
+  Expects: is_breaking_checked (bool)
+{% endcomment %}
+
+<div class="widget" id="widget-options">
+  <h4>অপশন (Options)</h4>
+  <div class="form-field-inline">
+    <input type="checkbox" id="news-is-breaking" name="is_breaking" value="1"
+      {% if is_breaking_checked %}checked{% endif %}>
+    <label for="news-is-breaking">ব্রেকিং নিউজ (Breaking News)</label>
+  </div>
+</div>

@@ -89,25 +89,41 @@ class RefVoteMethod(models.Model):
 
 # ========== Transaction Tables ==========
 
+class DigitalBallotRegistryBook(models.Model):
+    digital_ballot_registry_book_id = models.BigAutoField(primary_key=True)
+    link_election_evaluation_id = models.IntegerField()
+    link_user_profile_id = models.IntegerField()
+    hash_identity_anchor_binary = models.BinaryField()
+    hash_device_hardware_fingerprint_binary = models.BinaryField(blank=True, null=True)
+    hash_biometric_face_vector_binary = models.BinaryField(blank=True, null=True)
+    mobile_sim_slot_number = models.IntegerField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[election].[digital_ballot_registry_book]'
+
+    def __str__(self):
+        return f"RegistryBook({self.digital_ballot_registry_book_id})"
+
+
 class DigitalBallot(models.Model):
     digital_ballot_id = models.BigAutoField(primary_key=True)
+    link_digital_ballot_registry_book_id = models.BigIntegerField()
     link_election_id = models.IntegerField()
-    link_ballot_instance_id = models.UUIDField(blank=True, null=True)
-    link_user_profile_id = models.BigIntegerField()
-    link_user_session_id = models.BigIntegerField(blank=True, null=True)
-    hash_identity_voter_binary = models.BinaryField(blank=True, null=True)
+    link_election_evaluation_id = models.IntegerField()
+    ballot_voter_audit_receipt_code = models.CharField(max_length=50)
     ballot_cast_timestamp = models.DateTimeField(blank=True, null=True)
-    ballot_voter_audit_receipt_code = models.CharField(max_length=50, blank=True, null=True)
-    geofencing_ip_address = models.CharField(max_length=50, blank=True, null=True)
+    geofencing_ip_address = models.CharField(max_length=45, blank=True, null=True)
     geofencing_network_ping = models.IntegerField(blank=True, null=True)
-    geofencing_isp_name = models.CharField(max_length=100, blank=True, null=True)
+    geofencing_isp_name = models.CharField(max_length=255, blank=True, null=True)
     botdetection_vote_duration_ms = models.IntegerField(blank=True, null=True)
     botdetection_interaction_count = models.IntegerField(blank=True, null=True)
-    botdetection_question_avg = models.IntegerField(blank=True, null=True)
-    user_verification_method = models.CharField(max_length=100, blank=True, null=True)
-    is_active = models.BooleanField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    modified_at = models.DateTimeField(blank=True, null=True)
+    botdetection_question_avg = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
 
     class Meta:
         managed = False
@@ -126,13 +142,10 @@ class DigitalBallot(models.Model):
 class DigitalBallotVoteEntry(models.Model):
     digital_ballot_vote_entry_id = models.BigAutoField(primary_key=True)
     link_digital_ballot_id = models.BigIntegerField()
-    link_election_id = models.IntegerField(blank=True, null=True)
     link_constituency_id = models.IntegerField(blank=True, null=True)
     link_union_parishad_id = models.IntegerField(blank=True, null=True)
     link_party_id = models.IntegerField(blank=True, null=True)
     link_candidate_id = models.IntegerField(blank=True, null=True)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_primary_asset = models.BooleanField(blank=True, null=True)
     is_active = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     modified_at = models.DateTimeField(blank=True, null=True)
@@ -150,10 +163,80 @@ class DigitalBallotVoteEntry(models.Model):
             digital_ballot_id=self.link_digital_ballot_id,
         ).first()
 
-    @property
-    def election(self):
-        if self.link_election_id:
-            return RefElection.objects.filter(
-                election_id=self.link_election_id,
-            ).first()
-        return None
+
+class CandidateNomination(models.Model):
+    candidate_nomination_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    link_person_id = models.BigIntegerField(blank=True, null=True)
+    link_constituency_id = models.IntegerField(blank=True, null=True)
+    link_party_id = models.IntegerField(blank=True, null=True)
+    link_asset_id = models.BigIntegerField(blank=True, null=True)
+    link_candidate_nomination_status_id = models.IntegerField(blank=True, null=True)
+    candidate_symbol_name_en = models.CharField(max_length=100, blank=True, null=True)
+    candidate_symbol_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    candidate_summary = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_by = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[candidate_nomination]'
+
+    def __str__(self):
+        return f"CandidateNomination({self.candidate_nomination_id})"
+
+
+# ========== View Models ==========
+
+class AppGetCurrentElection(models.Model):
+    election_evaluation_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField()
+    link_evaluation_id = models.IntegerField()
+    evaluation_name_en = models.CharField(max_length=200)
+    evaluation_name_bn = models.CharField(max_length=200)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[vw_app_get_current_election]'
+
+    def __str__(self):
+        return self.evaluation_name_en
+
+
+class AppGetPastResults(models.Model):
+    """Election vote past results — pre-aggregated by SQL Server window functions.
+    Read-only view; all queries use .values() / .filter().
+    """
+    election_evaluation_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField()
+    evaluation_name_bn = models.CharField(max_length=200)
+
+    party_id = models.IntegerField()
+    party_name_bn = models.CharField(max_length=200)
+    party_symbol_name_bn = models.CharField(max_length=100, blank=True, null=True)
+
+    constituency_id = models.IntegerField()
+    constituency_name_bn = models.CharField(max_length=200)
+    seat_number_bn = models.CharField(max_length=50, blank=True, null=True)
+
+    division_id = models.IntegerField()
+    division_name_bn = models.CharField(max_length=100)
+    district_id = models.IntegerField()
+    district_name_bn = models.CharField(max_length=100)
+
+    file_path = models.CharField(max_length=500, blank=True, null=True)
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+
+    national_party_vote = models.IntegerField()
+    division_party_vote = models.IntegerField()
+    district_party_vote = models.IntegerField()
+    seat_party_vote = models.IntegerField()
+    up_party_vote = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = '[election].[vw_app_get_past_results]'
+        verbose_name = 'Past Election Result'
+        verbose_name_plural = 'Past Election Results'

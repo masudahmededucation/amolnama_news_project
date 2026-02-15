@@ -1,0 +1,35 @@
+<!-- Party Selection (Step 4) -->
+<div id="party-view" style="display: none;">
+  <button class="back-btn" onclick="navigateBackToConstituencies()">← Back / পিছনে</button>
+  {% if not user.is_authenticated %}
+    <div class="page-message page-message--warning">
+      ভোট দিতে অনুগ্রহ করে <a href="/account/login/">লগইন</a> করুন। (Please <a href="/account/login/">log in</a> to cast your vote.)
+    </div>
+  {% endif %}
+  <h3>দল নির্বাচন করুন (Select Party)</h3>
+  <ul class="selection-list party-list" id="party-list-selection">
+    {% for party in parties %}
+      <li onclick="handlePartySelectionAndCastVote({{ party.party_id }}, '{{ party.party_name_en }}', '{{ party.party_name_bn }}', event)">
+        <div class="party-item">
+          <img
+            src="/media/{{ party.file_path }}{{ party.file_name }}"
+            alt="{{ party.party_short_name_bn }}"
+            class="party-logo"
+          />
+          <div class="party-text">
+            <div class="party-info">
+              <span class="party-short">{{ party.party_short_name_bn }}</span>
+              <span class="party-separator">-</span>
+              <span class="party-name">{{ party.party_name_bn }}</span>
+            </div>
+            <div class="party-details">
+              <span class="party-symbol">{{ party.party_symbol_name_bn }}</span>
+            </div>
+          </div>
+        </div>
+      </li>
+    {% empty %}
+      <li>No parties found / কোনো দল পাওয়া যায়নি</li>
+    {% endfor %}
+  </ul>
+</div>

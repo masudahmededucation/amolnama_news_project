@@ -117,6 +117,12 @@
   border: 1px solid #b8d4f5;
 }
 
+.auth-alert--warning {
+  background: #fff8e1;
+  color: #8a6d00;
+  border: 1px solid #ffe082;
+}
+
 /* ── Switch link ("Already have an account?") ── */
 .login-switch-text,
 .signup-switch-text {
@@ -260,16 +266,60 @@
   font-size: .95rem;
 }
 
-/* ── Profile page ── */
-.profile-page {
-  display: flex;
-  justify-content: center;
+/* ── Profile layout: sidebar + content ── */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
   padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
+/* Sidebar nav */
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.profile-sidebar-item {
+  padding: .6rem 1rem;
+  border-radius: var(--radius, 10px);
+  color: var(--text);
+  text-decoration: none;
+  font-size: .9rem;
+  transition: background .2s;
+}
+
+.profile-sidebar-item:hover {
+  background: var(--surface);
+}
+
+.profile-sidebar-item.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 700px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+  .profile-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: .5rem;
+  }
+  .profile-sidebar-item {
+    white-space: nowrap;
+  }
+}
+
+/* Profile content card */
 .profile-card {
   width: 100%;
-  max-width: 620px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -278,9 +328,14 @@
 }
 
 .profile-title {
-  text-align: center;
   margin: 0 0 1.5rem;
   font-size: 1.5rem;
+}
+
+/* Settings placeholder */
+.profile-placeholder-text {
+  color: var(--muted);
+  font-size: .95rem;
 }
 
 .profile-form {

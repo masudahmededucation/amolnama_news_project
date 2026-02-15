@@ -1,0 +1,95 @@
+{% comment %}
+  News entry content section — headline, summary, body, source, occurrence.
+  Expects: news_entry_form (NewsEntryForm instance)
+{% endcomment %}
+
+<div class="form-section" id="section-news-entry">
+  <h3 class="form-section-title">সংবাদ বিবরণ (News Content)</h3>
+
+  {# Headline (Bengali) #}
+  <div class="form-field">
+    <label for="news-headline-bn">
+      {{ news_entry_form.headline_bn.label }}<span class="required-mark">*</span>
+    </label>
+    {{ news_entry_form.headline_bn }}
+    {% if news_entry_form.headline_bn.errors %}
+      <ul class="field-errors">{% for e in news_entry_form.headline_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  {# Summary (Bengali) #}
+  <div class="form-field">
+    <label for="news-summary-bn">{{ news_entry_form.summary_bn.label }}</label>
+    {{ news_entry_form.summary_bn }}
+  </div>
+
+  {# Content body (Bengali) #}
+  <div class="form-field">
+    <label for="news-content-body-bn">
+      {{ news_entry_form.content_body_bn.label }}<span class="required-mark">*</span>
+    </label>
+    {{ news_entry_form.content_body_bn }}
+    {% if news_entry_form.content_body_bn.errors %}
+      <ul class="field-errors">{% for e in news_entry_form.content_body_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  {# Occurrence datetime — custom selects for Bengali labels #}
+  <div class="form-field" id="field-occurrence">
+    <label>ঘটনার সময় (Occurrence Time)<span class="required-mark">*</span></label>
+    <input type="hidden" id="news-occurrence-at" name="occurrence_at"
+      value="{{ news_entry_form.occurrence_at.value|default:'' }}">
+    <div class="occurrence-row">
+      <div class="occurrence-part">
+        <label for="occ-date">তারিখ (Date)</label>
+        <input type="date" id="occ-date">
+      </div>
+      <div class="occurrence-part">
+        <label for="occ-hour">ঘন্টা (Hour)</label>
+        <select id="occ-hour">
+          <option value="">--</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+        </select>
+      </div>
+      <div class="occurrence-part">
+        <label for="occ-minute">মিনিট (Minute)</label>
+        <select id="occ-minute">
+          <option value="">--</option>
+          <option value="0">00</option>
+          <option value="5">05</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="25">25</option>
+          <option value="30">30</option>
+          <option value="35">35</option>
+          <option value="40">40</option>
+          <option value="45">45</option>
+          <option value="50">50</option>
+          <option value="55">55</option>
+        </select>
+      </div>
+      <div class="occurrence-part">
+        <label for="occ-period">সময়কাল</label>
+        <select id="occ-period">
+          <option value="AM">সকাল (AM)</option>
+          <option value="PM">বিকাল (PM)</option>
+        </select>
+      </div>
+    </div>
+    {% if news_entry_form.occurrence_at.errors %}
+      <ul class="field-errors">{% for e in news_entry_form.occurrence_at.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+</div>

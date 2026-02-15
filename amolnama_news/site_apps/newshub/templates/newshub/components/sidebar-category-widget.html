@@ -1,0 +1,21 @@
+{% comment %}
+  Sidebar widget — news category as searchable dropdown (Tom Select).
+  Expects: news_categories (queryset of RefNewsCategory)
+           selected_category_id (current value or None)
+{% endcomment %}
+
+<div class="widget-category" id="widget-category">
+  <h4>ক্যাটাগরি (Category) <small>ট্যাগ ফিল্টার করতে ব্যবহার করুন</small></h4>
+  <div class="widget-field">
+    <select id="news-category-id" name="news_category_id">
+      <option value=""></option>
+      {% for cat in news_categories %}
+        <option value="{{ cat.news_category_id }}"
+          data-aliases="{{ cat.news_category_search_aliases|default:'' }}"
+          {% if selected_category_id|stringformat:"s" == cat.news_category_id|stringformat:"s" %}selected{% endif %}>
+          {{ cat.news_category_name_bn }}{% if cat.news_category_name_en %} ({{ cat.news_category_name_en }}){% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>

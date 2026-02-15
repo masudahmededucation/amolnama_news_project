@@ -1,0 +1,44 @@
+{% comment %}
+  Social media source section — platform, URL, embed code.
+  Expects: social_source_form (NewsSocialSourceForm instance)
+           platform_types (queryset of RefPlatformType)
+{% endcomment %}
+
+<div class="form-section" id="section-news-social-source">
+  <h3 class="form-section-title">সোশ্যাল মিডিয়া সূত্র (Social Media Source)</h3>
+
+  <div class="form-row-half">
+    {# Platform type dropdown #}
+    <div class="form-field">
+      <label for="social-platform-type">{{ social_source_form.platform_type_id.label }}</label>
+      <select id="social-platform-type" name="platform_type_id">
+        <option value="">-- প্ল্যাটফর্ম নির্বাচন করুন --</option>
+        {% for pt in platform_types %}
+          {% if pt.sort_order == 3 or pt.sort_order == 7 %}
+            <option disabled>──────────────────</option>
+          {% endif %}
+          <option value="{{ pt.platform_type_id }}"
+            data-base-url="{{ pt.platform_base_url|default:'' }}"
+            {% if social_source_form.platform_type_id.value|stringformat:"s" == pt.platform_type_id|stringformat:"s" %}selected{% endif %}>
+            {{ pt.platform_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {# Social URL #}
+    <div class="form-field">
+      <label for="social-source-url">{{ social_source_form.social_source_url.label }}</label>
+      {{ social_source_form.social_source_url }}
+      {% if social_source_form.social_source_url.errors %}
+        <ul class="field-errors">{% for e in social_source_form.social_source_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Embed code #}
+  <div class="form-field">
+    <label for="social-embed-code">{{ social_source_form.social_embed_code.label }}</label>
+    {{ social_source_form.social_embed_code }}
+  </div>
+</div>

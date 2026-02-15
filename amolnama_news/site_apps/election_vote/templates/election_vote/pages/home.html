@@ -4,34 +4,45 @@
 {% block title %}Election Vote{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-flow.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-selection.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/voting-progress.css' %}">
+<link rel="stylesheet" href="{% static 'evaluation_vote/assets/css/components/youtube-style-total-vote-info.css' %}">
+<link rel="stylesheet" href="{% static 'election_vote/assets/css/components/vote-receipt.css' %}">
 <link rel="stylesheet" href="{% static 'election_vote/assets/css/pages/home.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="grid">
 
-  <!-- ── Main: Cast Your Vote ── -->
+  <!-- Main: Cast Your Vote -->
   <div class="ev-main">
     <h2 class="ev-section-title">Cast Your Vote</h2>
 
-    <div class="ev-card">
-      <p class="ev-placeholder">Voting section coming soon.</p>
-    </div>
+    <!-- Inline message area (replaces popup alerts) -->
+    <div id="page-message" class="page-message" style="display: none;"></div>
+
+    {% include "election_vote/components/election-selection.html" %}
+    {% include "election_vote/components/breadcrumb-navigation.html" %}
+    {% include "election_vote/components/division-selection.html" %}
+    {% include "election_vote/components/district-selection.html" %}
+    {% include "election_vote/components/constituency-selection.html" %}
+    {% include "election_vote/components/party-selection.html" %}
+    {% include "election_vote/components/vote-receipt.html" %}
   </div>
 
-  <!-- ── Sidebar: Past Results ── -->
-  <aside class="sidebar">
-    <div class="widget">
-      <h4>Past Results</h4>
-      <ul class="list">
-        <li class="ev-placeholder">No past results yet.</li>
-      </ul>
-    </div>
-  </aside>
+  <!-- Sidebar -->
+  {% include "election_vote/partials/sidebar-past-results.html" %}
 
 </section>
 {% endblock %}
 
 {% block extra_js %}
+<script>var isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 <script src="{% static 'election_vote/assets/js/pages/home.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-navigation.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-selection.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-receipt.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-submission.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-receipt-download.js' %}"></script>
 {% endblock %}
