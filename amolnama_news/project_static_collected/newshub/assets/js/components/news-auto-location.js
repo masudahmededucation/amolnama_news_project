@@ -11,7 +11,7 @@
  *   Can detect any level directly from content and infer the parent:
  *     - Upazila mentioned → infer district from upazila.district_id
  *     - Union parishad mentioned → infer upazila → infer district
- *   Constituencies are matched from cascade-loaded options (after district set).
+ *   Constituencies are auto-matched by news-location-cascade.js when upazila is set.
  *
  * Matching strategy — two-pass (exact first, then fuzzy):
  *   Pass 1 (exact): full name appears as substring in raw content text.
@@ -28,7 +28,7 @@
  * DOM dependencies:
  *   #news-content-body-bn      — content body textarea
  *   #news-district-id          — district select
- *   #news-constituency-id      — constituency select (cascade-populated)
+ *   #news-constituency-id      — constituency hidden input (auto-set by cascade)
  *   #news-upazila-id           — upazila select (cascade-populated)
  *   #news-union-parishad-id    — union parishad select (cascade-populated)
  *
@@ -43,7 +43,6 @@
 (function () {
   var contentBody = document.getElementById('news-content-body-bn');
   var districtSelect = document.getElementById('news-district-id');
-  var constituencySelect = document.getElementById('news-constituency-id');
   var upazilaSelect = document.getElementById('news-upazila-id');
   var unionSelect = document.getElementById('news-union-parishad-id');
 
@@ -94,7 +93,6 @@
   }
 
   trackManualOverride(districtSelect);
-  trackManualOverride(constituencySelect);
   trackManualOverride(upazilaSelect);
   trackManualOverride(unionSelect);
 
@@ -306,60 +304,6 @@
     selectEl.dispatchEvent(new Event('change'));
   }
 
-  /* ---- Parse name_bn and name_en from option text "bn (en) — area" ---- */
-  function parseOptionNames(text) {
-    var name_bn = text;
-    var name_en = '';
-    var parenIdx = text.indexOf('(');
-    if (parenIdx !== -1) {
-      name_bn = text.substring(0, parenIdx).trim();
-      var closeIdx = text.indexOf(')', parenIdx);
-      if (closeIdx > parenIdx) name_en = text.substring(parenIdx + 1, closeIdx).trim();
-    }
-    return { name_bn: name_bn, name_en: name_en };
-  }
-
-  /* ---- Match constituency from cascade-loaded options (two-pass) ---- */
-  function matchConstituencyFromOptions(rawText, rawTextLower, contentWords, contentWordsLower) {
-    if (!constituencySelect || constituencySelect.value) return;
-    if (constituencySelect.options.length <= 1) return;
-
-    var options = constituencySelect.options;
-    var i, opt, text, parsed;
-
-    /* Pass 1: exact substring match against raw text */
-    for (i = 0; i < options.length; i++) {
-      opt = options[i];
-      if (!opt.value) continue;
-      text = opt.textContent.trim();
-      parsed = parseOptionNames(text);
-
-      if (matchExactBn(parsed.name_bn, rawText)) { constituencySelect.value = opt.value; return; }
-      if (matchExactEn(parsed.name_en, rawTextLower)) { constituencySelect.value = opt.value; return; }
-    }
-
-    /* Pass 2: fuzzy word-start match (name + area names) */
-    for (i = 0; i < options.length; i++) {
-      opt = options[i];
-      if (!opt.value) continue;
-      text = opt.textContent.trim();
-      parsed = parseOptionNames(text);
-
-      if (matchBn(parsed.name_bn, contentWords)) { constituencySelect.value = opt.value; return; }
-      if (matchEn(parsed.name_en, contentWordsLower)) { constituencySelect.value = opt.value; return; }
-
-      /* Also check area names after em-dash (comma-separated) */
-      var dashIdx = text.indexOf('\u2014');
-      if (dashIdx !== -1) {
-        var areaText = text.substring(dashIdx + 1).trim();
-        var areaNames = areaText.split(WORD_SPLIT_RE).filter(function (w) { return w.length >= MIN_WORD_LEN; });
-        for (var j = 0; j < areaNames.length; j++) {
-          if (matchBn(areaNames[j], contentWords)) { constituencySelect.value = opt.value; return; }
-        }
-      }
-    }
-  }
-
   /* ---- Track what was auto-filled so we can reset when content is cleared ---- */
   var autoFilledDistrict = false;
 
@@ -447,13 +391,8 @@
       }
       /* else: district already set to this same value — continue to sub-locations */
 
-      /* Constituency — match from cascade-loaded options (two-pass) */
-      if (constituencySelect && !constituencySelect.value) {
-        waitForOptions(constituencySelect, function () {
-          if (userOverride) return;
-          matchConstituencyFromOptions(rawText, rawTextLower, contentWords, contentWordsLower);
-        });
-      }
+      /* Constituency is now auto-matched by news-location-cascade.js
+         when upazila changes — no manual matching needed here */
 
       /* Upazila */
       if (detectedUpazilaId && upazilaSelect && !upazilaSelect.value) {

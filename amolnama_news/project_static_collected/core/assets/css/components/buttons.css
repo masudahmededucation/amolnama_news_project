@@ -4,18 +4,29 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   padding: .6rem 1rem;
   border: 1px solid var(--border);
   background: var(--card);
   font-weight: 600;
   box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.btn:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .btn.primary {
   background: var(--primary);
   color: #fff;
   border-color: transparent;
+}
+
+.btn.primary:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-md);
 }
 
 /* Icon button (header controls) */
@@ -30,4 +41,9 @@
   background: var(--card);
   box-shadow: var(--shadow);
   cursor: pointer;
+  transition: all .2s;
+}
+
+.icon-btn:hover {
+  box-shadow: var(--shadow-md);
 }

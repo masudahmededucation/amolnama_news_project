@@ -7,7 +7,7 @@
 <div class="form-section" id="section-contributor-info"
   {% if user.is_authenticated %}data-is-self="1" data-self-name="{{ self_info.name }}" data-self-email="{{ self_info.email }}" data-self-phone="{{ self_info.phone }}"{% endif %}>
   <div class="contributor-title-row">
-    <h3 class="form-section-title">তথ্যদাতার বিবরণ (Contributor's Details)</h3>
+    <h3 class="form-section-title"><span class="section-icon">👤</span>তথ্যদাতার বিবরণ (Contributor's Details)</h3>
     <label for="contributor-type" class="contributor-type-label">ধরন (Type)<span class="required-mark">*</span></label>
     <select id="contributor-type" name="contributor_type_id" class="contributor-type-inline" required>
       <option value="">-- ধরন নির্বাচন করুন (Type) --</option>

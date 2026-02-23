@@ -1,28 +1,40 @@
-/* Color variables, theme tokens and dark-mode adjustments */
+/* Color variables, theme tokens and dark-mode adjustments.
+   This is the SINGLE source of truth for :root variables.
+   No other CSS file should redefine :root. */
 
 :root {
-  --bg: #ffffff;
-  --surface: #f7f7f8;
-  --text: #111213;
-  --muted: #5a5f69;
-  --primary: #e51010;
+  --bg: #FFFFFF;
+  --surface: #EDE9E1;
+  --text: #1A1A1A;
+  --muted: #5A5A5A;
+  --primary: #1B6B4A;
+  --primary-light: #E8F5EE;
+  --primary-hover: #145438;
   --accent: #0a66c2;
-  --card: #ffffff;
-  --border: #e6e6e9;
-  --shadow: 0 10px 24px rgba(17, 18, 19, .06);
-  --radius: 16px;
+  --danger: #C53030;
+  --card: #FFFFFF;
+  --border: #D9D5CC;
+  --shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .08);
+  --radius: 12px;
+  --radius-sm: 8px;
   --maxw: 1200px;
   --gap: 1.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b0c0f;
-    --surface: #111319;
+    --bg: #0d0f0e;
+    --surface: #141a17;
     --text: #eef0f3;
     --muted: #9aa1ab;
-    --card: #141821;
-    --border: #222837;
-    --shadow: 0 10px 24px rgba(0, 0, 0, .45);
+    --primary: #2d9d6a;
+    --primary-light: #162b20;
+    --primary-hover: #24805a;
+    --danger: #e05555;
+    --card: #161c19;
+    --border: #253028;
+    --shadow: 0 2px 8px rgba(0, 0, 0, .4);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, .5);
   }
 }

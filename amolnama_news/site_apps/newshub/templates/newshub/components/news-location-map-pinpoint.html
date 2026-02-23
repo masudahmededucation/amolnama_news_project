@@ -1,0 +1,18 @@
+{% comment %}
+  Map pinpoint for precise location marking.
+  Search input queries Nominatim, Leaflet map allows click/drag pin placement,
+  reverse geocode displays address below map.
+  Depends on: Leaflet.js CSS + JS (CDN)
+{% endcomment %}
+
+  {# ---- Map pinpointing (optional) — for further location precision ---- #}
+  <div class="map-pinpoint-section">
+    <div class="map-search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="map-search-input" class="map-search-input"
+             placeholder="ম্যাপে পিন করে সঠিক অবস্থান দেখান (Pinpoint exact location on map)"
+             autocomplete="off">
+    </div>
+    <div id="map-pinpoint-container" class="map-pinpoint-container"></div>
+    <div class="map-address-display" id="map-address-display"></div>
+  </div>

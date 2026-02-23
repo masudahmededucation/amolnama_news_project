@@ -51,18 +51,30 @@
     }
   ];
 
-  /* --- Create warning divs inside each container --- */
+  /* --- Create warning spans beside each label --- */
   MANDATORY.forEach(function (field) {
     var el = document.getElementById(field.id);
     if (!el) return;
     var container = field.getContainer(el);
     if (!container) return;
 
-    var warning = document.createElement('div');
+    /* Find the label or field-label for this field */
+    var label = container.querySelector('label[for="' + field.id + '"]')
+             || container.querySelector('label')
+             || container.querySelector('.field-label')
+             || container.querySelector('.contributor-type-label')
+             || container.querySelector('h4');
+
+    var warning = document.createElement('span');
     warning.className = 'field-warning';
-    warning.style.display = 'none';
     warning.textContent = field.msg;
-    container.appendChild(warning);
+
+    if (label) {
+      /* Insert warning right after the label (inline beside it) */
+      label.parentNode.insertBefore(warning, label.nextSibling);
+    } else {
+      container.appendChild(warning);
+    }
   });
 
   /* --- Clear warning on input / change --- */
@@ -81,12 +93,30 @@
 
   function clearFieldWarning(field) {
     var el = document.getElementById(field.id);
-    if (!el || !el.value || !el.value.trim()) return;
+    if (!el) return;
+
+    /* Use customCheck if available, otherwise check el.value */
+    var isFilled = field.customCheck
+      ? field.customCheck()
+      : (el.value && el.value.trim());
+    if (!isFilled) return;
+
     var container = field.getContainer(el);
     if (!container) return;
     var warning = container.querySelector('.field-warning');
-    if (warning) warning.style.display = 'none';
+    if (warning) warning.style.display = '';
     container.classList.remove('field-shake');
+  }
+
+  /* --- Watch tags area for chip add/remove (DOM mutations) --- */
+  var tagsArea = document.getElementById('selected-tags-area');
+  if (tagsArea) {
+    new MutationObserver(function () {
+      var tagField = MANDATORY[MANDATORY.length - 1]; /* last entry = tags */
+      if (tagField.id === 'selected-tags-area') {
+        clearFieldWarning(tagField);
+      }
+    }).observe(tagsArea, { childList: true });
   }
 
   /* --- Validate on submit --- */
@@ -106,19 +136,32 @@
 
       if (isEmpty) {
         e.preventDefault();
-        if (warning) warning.style.display = 'block';
+        if (warning) warning.style.display = 'inline';
         if (!firstEmpty) firstEmpty = container;
       } else {
-        if (warning) warning.style.display = 'none';
+        if (warning) warning.style.display = '';
         container.classList.remove('field-shake');
       }
     });
 
     if (firstEmpty) {
-      firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      firstEmpty.classList.remove('field-shake');
-      void firstEmpty.offsetWidth; /* force reflow to restart animation */
-      firstEmpty.classList.add('field-shake');
+      /* If the failing field is inside a hidden container, show a form-level banner
+         so the user gets visible feedback instead of silent blocking */
+      if (firstEmpty.offsetWidth === 0 && firstEmpty.offsetHeight === 0) {
+        var banner = form.parentNode.querySelector('.form-message-error');
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.className = 'form-message form-message-error';
+          form.parentNode.insertBefore(banner, form);
+        }
+        banner.textContent = 'কিছু বাধ্যতামূলক ক্ষেত্র পূরণ হয়নি। (Some mandatory fields are empty.)';
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstEmpty.classList.remove('field-shake');
+        void firstEmpty.offsetWidth; /* force reflow to restart animation */
+        firstEmpty.classList.add('field-shake');
+      }
     }
   });
 })();

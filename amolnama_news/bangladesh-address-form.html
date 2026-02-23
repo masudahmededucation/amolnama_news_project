@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bangladesh Address Form | ঠিকানা ফর্ম</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EB;
+    --card: #FFFFFF;
+    --primary: #1B6B4A;
+    --primary-light: #E8F5EE;
+    --primary-hover: #145438;
+    --accent: #D4622B;
+    --accent-light: #FFF3EC;
+    --text: #1A1A1A;
+    --text-secondary: #5A5A5A;
+    --text-muted: #8A8A8A;
+    --border: #D9D5CC;
+    --border-focus: #1B6B4A;
+    --danger: #C53030;
+    --danger-light: #FFF5F5;
+    --success: #1B6B4A;
+    --success-light: #E8F5EE;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+    --font-bn: 'Noto Sans Bengali', sans-serif;
+    --font-en: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-en);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Subtle pattern background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(27,107,74,0.04) 1px, transparent 0);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .header-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  .header-flag .circle {
+    width: 18px;
+    height: 18px;
+    background: #E53E3E;
+    border-radius: 50%;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .header .bn-title {
+    font-family: var(--font-bn);
+    font-size: 20px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ─── Language Toggle ─── */
+  .lang-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--card);
+    border-radius: 10px;
+    padding: 4px;
+    display: inline-flex;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid var(--border);
+  }
+
+  .lang-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text-secondary);
+  }
+
+  .lang-btn.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  /* ─── Progress Stepper ─── */
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 32px;
+    padding: 0 8px;
+    flex-wrap: wrap;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    background: var(--card);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .step-dot:hover { border-color: var(--primary); color: var(--primary); }
+
+  .step-dot.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(27,107,74,0.15);
+  }
+
+  .step-dot.completed {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .step-dot.completed::after {
+    content: '✓';
+    font-size: 14px;
+  }
+
+  .step-dot.completed span { display: none; }
+
+  .step-line {
+    width: 28px;
+    height: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .step-line.completed { background: var(--primary); }
+
+  .step-label {
+    display: none;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow 0.3s;
+  }
+
+  .card:hover { box-shadow: var(--shadow-md); }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #F0EDE6;
+  }
+
+  .card-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-header h2 .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .card-header .bn-subtitle {
+    font-family: var(--font-bn);
+    font-size: 14px;
+    color: var(--primary);
+    margin-top: 2px;
+    margin-left: 42px;
+  }
+
+  .card-header .helper {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-left: 42px;
+  }
+
+  .card-body { padding: 20px 24px 24px; }
+
+  /* ─── Area Type Picker ─── */
+  .area-type-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .area-type-card {
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: var(--card);
+    position: relative;
+  }
+
+  .area-type-card:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .area-type-card.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(27,107,74,0.12);
+  }
+
+  .area-type-card .emoji { font-size: 28px; margin-bottom: 8px; }
+
+  .area-type-card .label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    display: block;
+  }
+
+  .area-type-card .bn-label {
+    font-family: var(--font-bn);
+    font-size: 13px;
+    color: var(--primary);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .area-type-card .desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .area-type-card .check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .area-type-card.selected .check { display: flex; }
+
+  /* ─── Form Fields ─── */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .form-group label .bn {
+    font-family: var(--font-bn);
+    color: var(--primary);
+    font-weight: 500;
+    margin-left: 6px;
+    font-size: 12px;
+  }
+
+  .form-group label .required {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: var(--font-en);
+    color: var(--text);
+    background: var(--card);
+    transition: all 0.2s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A5A5A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .form-group select:focus,
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(27,107,74,0.1);
+  }
+
+  .form-group select:disabled,
+  .form-group input:disabled {
+    background: #F5F3EE;
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+
+  .form-group .hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  /* ─── Smart Search Box ─── */
+  .smart-search-box {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .smart-search-box input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-family: var(--font-en);
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: all 0.25s;
+  }
+
+  .smart-search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(27,107,74,0.1);
+  }
+
+  .smart-search-box .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  .smart-search-box .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  .smart-search-box .suggestions.show { display: block; }
+
+  .smart-search-box .suggestion-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #F0EDE6;
+    transition: background 0.15s;
+  }
+
+  .smart-search-box .suggestion-item:hover { background: var(--primary-light); }
+
+  .smart-search-box .suggestion-item .main {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .smart-search-box .suggestion-item .path {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Info Banner ─── */
+  .info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-light);
+    border: 1px solid rgba(27,107,74,0.15);
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--primary-hover);
+    line-height: 1.5;
+  }
+
+  .info-banner .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ─── Section Divider ─── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 20px;
+  }
+
+  .section-divider .line { flex: 1; height: 1px; background: #E8E5DD; }
+
+  .section-divider .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ─── Navigation Buttons ─── */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--text-secondary); }
+
+  .btn-accent {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-accent:hover { background: #B8521F; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* ─── Review Card ─── */
+  .review-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #E8E5DD;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid #E8E5DD;
+  }
+
+  .review-item {
+    background: var(--card);
+    padding: 14px 16px;
+  }
+
+  .review-item .r-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .review-item .r-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .review-item .r-value.empty {
+    color: var(--text-muted);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .review-item.full { grid-column: 1 / -1; }
+
+  /* ─── Success State ─── */
+  .success-card {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .success-card .check-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--success-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 20px;
+    animation: popIn 0.4s ease;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-card h2 { font-size: 22px; margin-bottom: 4px; }
+  .success-card .bn { font-family: var(--font-bn); font-size: 18px; color: var(--primary); margin-bottom: 12px; }
+  .success-card p { font-size: 14px; color: var(--text-secondary); max-width: 400px; margin: 0 auto 24px; }
+
+  /* ─── Step Panels ─── */
+  .step-panel { display: none; animation: fadeSlide 0.35s ease; }
+  .step-panel.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 640px) {
+    .container { padding: 16px 12px 48px; }
+    .header h1 { font-size: 22px; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.triple { grid-template-columns: 1fr; }
+    .area-type-picker { grid-template-columns: 1fr; }
+    .area-type-card { padding: 16px; flex-direction: row; display: flex; align-items: center; gap: 12px; text-align: left; }
+    .area-type-card .emoji { font-size: 24px; margin-bottom: 0; }
+    .review-grid { grid-template-columns: 1fr; }
+    .nav-buttons { flex-direction: column-reverse; }
+    .nav-buttons .btn { width: 100%; justify-content: center; }
+    .step-dot { width: 30px; height: 30px; font-size: 11px; }
+    .step-line { width: 16px; }
+  }
+
+  /* ─── Tooltip ─── */
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    cursor: help;
+    margin-left: 6px;
+    position: relative;
+  }
+
+  .tooltip-trigger:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    font-size: 11px;
+    font-weight: 400;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    max-width: 220px;
+    white-space: normal;
+    z-index: 50;
+    line-height: 1.4;
+  }
+
+  /* Hide step number inside completed dots */
+  .step-dot.completed span { display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-flag"><div class="circle"></div> BANGLADESH</div>
+    <h1>Address Form</h1>
+    <div class="bn-title">ঠিকানা ফর্ম</div>
+    <p>Complete your address step by step. We'll guide you through each level — from Division to your exact location.</p>
+  </div>
+
+  <!-- Language Toggle -->
+  <div style="text-align:center;">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">English</button>
+      <button class="lang-btn" onclick="setLang('bn')">বাংলা</button>
+    </div>
+  </div>
+
+  <!-- Smart Search -->
+  <div class="smart-search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="smartSearch" placeholder="Quick search: type area, post office, or village name..." oninput="handleSmartSearch(this.value)" onfocus="this.parentElement.querySelector('.suggestions').classList.add('show')" onblur="setTimeout(()=>this.parentElement.querySelector('.suggestions').classList.remove('show'),200)">
+    <div class="suggestions" id="searchSuggestions"></div>
+  </div>
+
+  <!-- Progress Stepper -->
+  <div class="stepper" id="stepper">
+    <div class="step-item">
+      <div class="step-dot active" onclick="goToStep(0)"><span>1</span></div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" onclick="goToStep(1)"><span>2</span></div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" onclick="goToStep(2)"><span>3</span></div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" onclick="goToStep(3)"><span>4</span></div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" onclick="goToStep(4)"><span>5</span></div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-dot" onclick="goToStep(5)"><span>6</span></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 0: Area Type Selection                 -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel active" id="step-0">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon" style="background:#E8F5EE;">📍</span> Where do you live?</h2>
+        <div class="bn-subtitle">আপনি কোথায় থাকেন?</div>
+        <div class="helper">Select your area type to see the right form fields.</div>
+      </div>
+      <div class="card-body">
+        <div class="area-type-picker">
+          <div class="area-type-card" onclick="selectAreaType('city_corp')" id="at-city_corp">
+            <div class="check">✓</div>
+            <div class="emoji">🏙️</div>
+            <span class="label">City Corporation</span>
+            <span class="bn-label">সিটি কর্পোরেশন</span>
+            <div class="desc">Dhaka, Chittagong, Rajshahi, Khulna, etc.</div>
+          </div>
+          <div class="area-type-card" onclick="selectAreaType('municipality')" id="at-municipality">
+            <div class="check">✓</div>
+            <div class="emoji">🏘️</div>
+            <span class="label">Municipality</span>
+            <span class="bn-label">পৌরসভা</span>
+            <div class="desc">Pourashava / Town area</div>
+          </div>
+          <div class="area-type-card" onclick="selectAreaType('rural')" id="at-rural">
+            <div class="check">✓</div>
+            <div class="emoji">🌾</div>
+            <span class="label">Rural / Village</span>
+            <span class="bn-label">গ্রাম / ইউনিয়ন</span>
+            <div class="desc">Union Parishad area</div>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <div></div>
+          <button class="btn btn-primary" id="btn-next-0" disabled onclick="nextStep()">
+            Continue →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 1: Division & District (Tier 1 & 2)   -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-1">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon" style="background:#FFF3EC;">🗺️</span> Division & District</h2>
+        <div class="bn-subtitle">বিভাগ ও জেলা</div>
+        <div class="helper">Tier 1 & 2 — Select your Division, then District.</div>
+      </div>
+      <div class="card-body">
+        <div class="info-banner">
+          <span class="icon">💡</span>
+          <span>Bangladesh has <strong>8 Divisions</strong> and <strong>64 Districts</strong>. Select your Division first — Districts will filter automatically.</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Division <span class="bn">বিভাগ</span> <span class="required">*</span></label>
+            <select id="sel-division" onchange="onDivisionChange(this.value)">
+              <option value="">— Select Division —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>District <span class="bn">জেলা</span> <span class="required">*</span></label>
+            <select id="sel-district" disabled onchange="onDistrictChange(this.value)">
+              <option value="">— Select District —</option>
+            </select>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" id="btn-next-1" disabled onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 2: Tier 3 & 4 (varies by area type)   -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-2">
+    <div class="card">
+      <div class="card-header">
+        <h2>
+          <span class="icon" style="background:#EDE9FE;">🏛️</span>
+          <span id="step2-title">Upazila & Local Area</span>
+        </h2>
+        <div class="bn-subtitle" id="step2-bn-title">উপজেলা ও স্থানীয় এলাকা</div>
+        <div class="helper" id="step2-helper">Tier 3 & 4 — Administrative sub-divisions.</div>
+      </div>
+      <div class="card-body">
+
+        <!-- City Corporation path -->
+        <div id="path-city-corp" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>City Corporation <span class="bn">সিটি কর্পোরেশন</span> <span class="required">*</span>
+                <span class="tooltip-trigger" data-tip="12 City Corporations in Bangladesh: Dhaka North, Dhaka South, Chittagong, Khulna, Rajshahi, Sylhet, Rangpur, Barishal, Comilla, Gazipur, Narayanganj, Mymensingh">?</span>
+              </label>
+              <select id="sel-city-corp" onchange="onCityCorpChange(this.value)">
+                <option value="">— Select City Corporation —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Municipality path -->
+        <div id="path-municipality" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Upazila / Thana <span class="bn">উপজেলা</span> <span class="required">*</span></label>
+              <select id="sel-upazila-muni" onchange="onUpazilaMuniChange(this.value)">
+                <option value="">— Select Upazila —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Municipality <span class="bn">পৌরসভা</span> <span class="required">*</span>
+                <span class="tooltip-trigger" data-tip="Pourashavas are classified as A, B, or C. Select yours from the dropdown.">?</span>
+              </label>
+              <select id="sel-municipality" onchange="onMunicipalityChange(this.value)">
+                <option value="">— Select Municipality —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rural path -->
+        <div id="path-rural" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Upazila / Thana <span class="bn">উপজেলা</span> <span class="required">*</span></label>
+              <select id="sel-upazila-rural" onchange="onUpazilaRuralChange(this.value)">
+                <option value="">— Select Upazila —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Union Parishad <span class="bn">ইউনিয়ন পরিষদ</span> <span class="required">*</span>
+                <span class="tooltip-trigger" data-tip="Union Parishads are the smallest rural local government units. Each has 9 wards.">?</span>
+              </label>
+              <select id="sel-union" onchange="onUnionChange(this.value)">
+                <option value="">— Select Union —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" id="btn-next-2" disabled onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 3: Ward & Locality (Tier 5 & 6)       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-3">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon" style="background:#FEF3C7;">🏠</span> Ward & Locality</h2>
+        <div class="bn-subtitle">ওয়ার্ড ও এলাকা</div>
+        <div class="helper">Tier 5 & 6 — Your ward, mohalla/village, and mouza details.</div>
+      </div>
+      <div class="card-body">
+
+        <!-- Urban Ward (City Corp) -->
+        <div id="ward-city-corp" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ward No. <span class="bn">ওয়ার্ড নং</span> <span class="required">*</span></label>
+              <select id="sel-cc-ward">
+                <option value="">— Select Ward —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mohalla <span class="bn">মহল্লা</span></label>
+              <input type="text" id="inp-mohalla-cc" placeholder="e.g., Dhanmondi, Mirpur Sec-10">
+            </div>
+          </div>
+        </div>
+
+        <!-- Urban Ward (Municipality) -->
+        <div id="ward-municipality" style="display:none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ward No. <span class="bn">ওয়ার্ড নং</span> <span class="required">*</span></label>
+              <select id="sel-muni-ward">
+                <option value="">— Select Ward —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mohalla <span class="bn">মহল্লা</span></label>
+              <input type="text" id="inp-mohalla-muni" placeholder="e.g., Station Road, College Para">
+            </div>
+          </div>
+        </div>
+
+        <!-- Rural Ward -->
+        <div id="ward-rural" style="display:none;">
+          <div class="form-row triple">
+            <div class="form-group">
+              <label>Ward No. <span class="bn">ওয়ার্ড নং</span> <span class="required">*</span>
+                <span class="tooltip-trigger" data-tip="Each Union has 9 wards numbered 1 through 9.">?</span>
+              </label>
+              <select id="sel-union-ward">
+                <option value="">— Select —</option>
+                <option value="1">Ward 1</option>
+                <option value="2">Ward 2</option>
+                <option value="3">Ward 3</option>
+                <option value="4">Ward 4</option>
+                <option value="5">Ward 5</option>
+                <option value="6">Ward 6</option>
+                <option value="7">Ward 7</option>
+                <option value="8">Ward 8</option>
+                <option value="9">Ward 9</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mouza <span class="bn">মৌজা</span>
+                <span class="tooltip-trigger" data-tip="Mouza is the revenue/cadastral unit used in land records. Has a JL number.">?</span>
+              </label>
+              <input type="text" id="inp-mouza" placeholder="Mouza name">
+            </div>
+            <div class="form-group">
+              <label>JL No. <span class="bn">জে.এল. নং</span></label>
+              <input type="text" id="inp-jl" placeholder="e.g., 123">
+              <div class="hint">Jurisdiction List number (land records)</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Village <span class="bn">গ্রাম</span> <span class="required">*</span></label>
+              <input type="text" id="inp-village" placeholder="Village name">
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" id="btn-next-3" onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 4: Street Details & Postal             -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-4">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon" style="background:#E0F2FE;">✉️</span> Street Details & Postal</h2>
+        <div class="bn-subtitle">রাস্তার বিবরণ ও ডাকঘর</div>
+        <div class="helper">Postal info, police station, and your exact street address.</div>
+      </div>
+      <div class="card-body">
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="label">Postal & Police</div>
+          <div class="line"></div>
+        </div>
+        <div class="form-row triple">
+          <div class="form-group">
+            <label>Post Office <span class="bn">ডাকঘর</span> <span class="required">*</span></label>
+            <input type="text" id="inp-post-office" placeholder="Post office name">
+          </div>
+          <div class="form-group">
+            <label>Post Code <span class="bn">পোস্ট কোড</span> <span class="required">*</span></label>
+            <input type="text" id="inp-post-code" placeholder="e.g., 1205" maxlength="6" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label>Police Station <span class="bn">থানা</span></label>
+            <input type="text" id="inp-police-station" placeholder="Thana name">
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="label">Street Address</div>
+          <div class="line"></div>
+        </div>
+
+        <!-- Urban street details -->
+        <div id="street-urban" style="display:none;">
+          <div class="form-row triple">
+            <div class="form-group">
+              <label>House / Holding No. <span class="bn">বাড়ি নং</span></label>
+              <input type="text" id="inp-house" placeholder="e.g., 12/A">
+            </div>
+            <div class="form-group">
+              <label>Road / Street <span class="bn">রাস্তা</span></label>
+              <input type="text" id="inp-road" placeholder="e.g., Road 5">
+            </div>
+            <div class="form-group">
+              <label>Block / Sector <span class="bn">ব্লক / সেক্টর</span></label>
+              <input type="text" id="inp-block" placeholder="e.g., Block C">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Area / Locality <span class="bn">এলাকা</span></label>
+            <input type="text" id="inp-area" placeholder="e.g., Uttara, Agrabad, etc.">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Landmark <span class="bn">নিকটস্থ চিহ্ন</span></label>
+            <input type="text" id="inp-landmark" placeholder="Near mosque, school, bazaar, etc.">
+            <div class="hint">Helps identify your location more easily</div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="line"></div>
+          <div class="label">Full Address (Optional)</div>
+          <div class="line"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Address (English)</label>
+            <textarea id="inp-full-en" placeholder="Complete address in English..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Full Address (বাংলা)</label>
+            <textarea id="inp-full-bn" placeholder="সম্পূর্ণ ঠিকানা বাংলায়..." style="font-family:var(--font-bn);"></textarea>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep()">Review Address →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STEP 5: Review & Submit                     -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-5">
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="icon" style="background:#E8F5EE;">✅</span> Review Your Address</h2>
+        <div class="bn-subtitle">আপনার ঠিকানা পর্যালোচনা করুন</div>
+        <div class="helper">Make sure everything is correct before submitting.</div>
+      </div>
+      <div class="card-body">
+        <div id="review-content"></div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" onclick="prevStep()">← Edit</button>
+          <button class="btn btn-accent" onclick="submitForm()">🚀 Submit Address</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SUCCESS STATE                               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="step-panel" id="step-success">
+    <div class="card">
+      <div class="success-card">
+        <div class="check-circle">✓</div>
+        <h2>Address Saved!</h2>
+        <div class="bn">ঠিকানা সংরক্ষিত হয়েছে!</div>
+        <p>Your complete Bangladesh address has been recorded successfully across all administrative tiers.</p>
+        <button class="btn btn-primary" onclick="resetForm()">+ Add Another Address</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────
+// DATA — Comprehensive Bangladesh data
+// ─────────────────────────────────────
+const BD_DATA = {
+  divisions: [
+    { id: 'barishal',   name_en: 'Barishal',   name_bn: 'বরিশাল' },
+    { id: 'chattogram', name_en: 'Chattogram',  name_bn: 'চট্টগ্রাম' },
+    { id: 'dhaka',      name_en: 'Dhaka',       name_bn: 'ঢাকা' },
+    { id: 'khulna',     name_en: 'Khulna',      name_bn: 'খুলনা' },
+    { id: 'mymensingh', name_en: 'Mymensingh',  name_bn: 'ময়মনসিংহ' },
+    { id: 'rajshahi',   name_en: 'Rajshahi',    name_bn: 'রাজশাহী' },
+    { id: 'rangpur',    name_en: 'Rangpur',     name_bn: 'রংপুর' },
+    { id: 'sylhet',     name_en: 'Sylhet',      name_bn: 'সিলেট' },
+  ],
+  districts: {
+    barishal:   ['Barguna','Barishal','Bhola','Jhalokathi','Patuakhali','Pirojpur'],
+    chattogram: ['Bandarban','Brahmanbaria','Chandpur','Chittagong','Comilla','Cox\'s Bazar','Feni','Khagrachhari','Lakshmipur','Noakhali','Rangamati'],
+    dhaka:      ['Dhaka','Faridpur','Gazipur','Gopalganj','Kishoreganj','Madaripur','Manikganj','Munshiganj','Narayanganj','Narsingdi','Rajbari','Shariatpur','Tangail'],
+    khulna:     ['Bagerhat','Chuadanga','Jessore','Jhenaidah','Khulna','Kushtia','Magura','Meherpur','Narail','Satkhira'],
+    mymensingh: ['Jamalpur','Mymensingh','Netrokona','Sherpur'],
+    rajshahi:   ['Bogra','Chapainawabganj','Joypurhat','Naogaon','Natore','Nawabganj','Pabna','Rajshahi','Sirajganj'],
+    rangpur:    ['Dinajpur','Gaibandha','Kurigram','Lalmonirhat','Nilphamari','Panchagarh','Rangpur','Thakurgaon'],
+    sylhet:     ['Habiganj','Moulvibazar','Sunamganj','Sylhet'],
+  },
+  cityCorps: {
+    'Dhaka':        ['Dhaka North City Corporation','Dhaka South City Corporation'],
+    'Chittagong':   ['Chittagong City Corporation'],
+    'Khulna':       ['Khulna City Corporation'],
+    'Rajshahi':     ['Rajshahi City Corporation'],
+    'Sylhet':       ['Sylhet City Corporation'],
+    'Rangpur':      ['Rangpur City Corporation'],
+    'Barishal':     ['Barishal City Corporation'],
+    'Comilla':      ['Cumilla City Corporation'],
+    'Gazipur':      ['Gazipur City Corporation'],
+    'Narayanganj':  ['Narayanganj City Corporation'],
+    'Mymensingh':   ['Mymensingh City Corporation'],
+  },
+  // Sample upazilas per district (abbreviated for demo — in production this is from DB)
+  upazilas: {
+    'Dhaka':       ['Dhamrai','Dohar','Keraniganj','Nawabganj','Savar','Tejgaon Circle'],
+    'Chittagong':  ['Anwara','Banshkhali','Boalkhali','Chandanaish','Fatikchhari','Hathazari','Lohagara','Mirsharai','Patiya','Rangunia','Raozan','Sandwip','Satkania','Sitakunda'],
+    'Gazipur':     ['Gazipur Sadar','Kaliakair','Kaliganj','Kapasia','Sreepur'],
+    'Narayanganj': ['Araihazar','Bandar','Narayanganj Sadar','Rupganj','Sonargaon'],
+    'Comilla':     ['Barura','Brahmanpara','Burichang','Chandina','Chauddagram','Comilla Adarsha Sadar','Comilla Sadar Dakshin','Daudkandi','Debidwar','Homna','Laksam','Meghna','Muradnagar','Nangalkot','Titas'],
+    'Khulna':      ['Batiaghata','Dacope','Dighalia','Dumuria','Khalishpur','Koyra','Paikgachha','Phultala','Rupsa','Sonadanga','Terokhada'],
+    'Rajshahi':    ['Bagha','Bagmara','Boalia','Charghat','Durgapur','Godagari','Matihar','Mohanpur','Paba','Puthia','Rajpara','Shah Makhdum','Tanore'],
+    'Sylhet':      ['Balaganj','Beanibazar','Bishwanath','Companiganj','Fenchuganj','Golapganj','Gowainghat','Jaintiapur','Kanaighat','South Surma','Sylhet Sadar','Zakiganj'],
+    'Rangpur':     ['Badarganj','Gangachara','Kaunia','Mithapukur','Pirgachha','Pirganj','Rangpur Sadar','Taraganj'],
+    'Barishal':    ['Agailjhara','Babuganj','Bakerganj','Banaripara','Barishal Sadar','Gournadi','Hizla','Mehendiganj','Muladi','Wazirpur'],
+    'Mymensingh':  ['Bhaluka','Dhobaura','Fulbaria','Gaffargaon','Gauripur','Haluaghat','Ishwarganj','Mymensingh Sadar','Muktagachha','Nandail','Phulpur','Trishal'],
+    'Bogra':       ['Adamdighi','Bogra Sadar','Dhunat','Dhupchanchia','Gabtali','Kahaloo','Nandigram','Sariakandi','Shajahanpur','Sherpur','Shibganj','Sonatola'],
+    'Dinajpur':    ['Birampur','Birganj','Biral','Bochaganj','Chirirbandar','Dinajpur Sadar','Fulbari','Ghoraghat','Hakimpur','Kaharole','Khansama','Nawabganj','Parbatipur'],
+  }
+};
+
+// Sample unions and municipalities (in production, fetched from DB)
+const SAMPLE_UNIONS = ['Bhatshala','Chandra','Dhamrai','Gangutia','Jadabpur','Kalampur','Kushura','Nannar','Rowail','Sanora','Suapur','Sombhag'];
+const SAMPLE_MUNICIPALITIES = ['Savar Pourashava','Dhamrai Pourashava','Keraniganj Pourashava','Tongi Pourashava'];
+
+// ─────────────────────────────────────
+// STATE
+// ─────────────────────────────────────
+let currentStep = 0;
+let areaType = null;
+let selectedData = {};
+let lang = 'en';
+
+// ─────────────────────────────────────
+// LANGUAGE
+// ─────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ─────────────────────────────────────
+// AREA TYPE SELECTION
+// ─────────────────────────────────────
+function selectAreaType(type) {
+  areaType = type;
+  document.querySelectorAll('.area-type-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('at-' + type).classList.add('selected');
+  document.getElementById('btn-next-0').disabled = false;
+}
+
+// ─────────────────────────────────────
+// POPULATE SELECTS
+// ─────────────────────────────────────
+function populateDivisions() {
+  const sel = document.getElementById('sel-division');
+  sel.innerHTML = '<option value="">— Select Division —</option>';
+  BD_DATA.divisions.forEach(d => {
+    sel.innerHTML += `<option value="${d.id}">${d.name_en} (${d.name_bn})</option>`;
+  });
+}
+
+function onDivisionChange(divId) {
+  selectedData.division = divId;
+  const selD = document.getElementById('sel-district');
+  selD.innerHTML = '<option value="">— Select District —</option>';
+  selD.disabled = !divId;
+
+  if (divId && BD_DATA.districts[divId]) {
+    BD_DATA.districts[divId].forEach(d => {
+      selD.innerHTML += `<option value="${d}">${d}</option>`;
+    });
+  }
+  selectedData.district = '';
+  document.getElementById('btn-next-1').disabled = true;
+}
+
+function onDistrictChange(dist) {
+  selectedData.district = dist;
+  document.getElementById('btn-next-1').disabled = !dist;
+}
+
+function onCityCorpChange(val) {
+  selectedData.cityCorp = val;
+  checkStep2Complete();
+  // Populate ward numbers
+  if (val) {
+    const sel = document.getElementById('sel-cc-ward');
+    sel.innerHTML = '<option value="">— Select Ward —</option>';
+    for (let i = 1; i <= 50; i++) {
+      sel.innerHTML += `<option value="${i}">Ward ${i}</option>`;
+    }
+  }
+}
+
+function onUpazilaMuniChange(val) {
+  selectedData.upazila = val;
+  // Populate sample municipalities
+  const sel = document.getElementById('sel-municipality');
+  sel.innerHTML = '<option value="">— Select Municipality —</option>';
+  sel.disabled = !val;
+  if (val) {
+    SAMPLE_MUNICIPALITIES.forEach(m => {
+      sel.innerHTML += `<option value="${m}">${m}</option>`;
+    });
+  }
+  checkStep2Complete();
+}
+
+function onMunicipalityChange(val) {
+  selectedData.municipality = val;
+  checkStep2Complete();
+  if (val) {
+    const sel = document.getElementById('sel-muni-ward');
+    sel.innerHTML = '<option value="">— Select Ward —</option>';
+    for (let i = 1; i <= 15; i++) {
+      sel.innerHTML += `<option value="${i}">Ward ${i}</option>`;
+    }
+  }
+}
+
+function onUpazilaRuralChange(val) {
+  selectedData.upazila = val;
+  const sel = document.getElementById('sel-union');
+  sel.innerHTML = '<option value="">— Select Union —</option>';
+  sel.disabled = !val;
+  if (val) {
+    SAMPLE_UNIONS.forEach(u => {
+      sel.innerHTML += `<option value="${u}">${u}</option>`;
+    });
+  }
+  checkStep2Complete();
+}
+
+function onUnionChange(val) {
+  selectedData.union = val;
+  checkStep2Complete();
+}
+
+function checkStep2Complete() {
+  let ok = false;
+  if (areaType === 'city_corp') ok = !!selectedData.cityCorp;
+  else if (areaType === 'municipality') ok = !!selectedData.municipality;
+  else if (areaType === 'rural') ok = !!selectedData.union;
+  document.getElementById('btn-next-2').disabled = !ok;
+}
+
+// ─────────────────────────────────────
+// STEP NAVIGATION
+// ─────────────────────────────────────
+function goToStep(step) {
+  if (step > currentStep + 1) return; // Can't skip ahead
+  showStep(step);
+}
+
+function nextStep() {
+  if (currentStep === 0) {
+    populateDivisions();
+  }
+  if (currentStep === 1) {
+    setupStep2();
+  }
+  if (currentStep === 2) {
+    setupStep3();
+  }
+  if (currentStep === 3) {
+    setupStep4();
+  }
+  if (currentStep === 4) {
+    buildReview();
+  }
+  showStep(currentStep + 1);
+}
+
+function prevStep() {
+  showStep(currentStep - 1);
+}
+
+function showStep(step) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-' + step).classList.add('active');
+
+  // Update stepper dots
+  const dots = document.querySelectorAll('.step-dot');
+  const lines = document.querySelectorAll('.step-line');
+  dots.forEach((d, i) => {
+    d.classList.remove('active', 'completed');
+    if (i < step) d.classList.add('completed');
+    else if (i === step) d.classList.add('active');
+  });
+  lines.forEach((l, i) => {
+    l.classList.toggle('completed', i < step);
+  });
+
+  currentStep = step;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setupStep2() {
+  // Show/hide the right path
+  document.getElementById('path-city-corp').style.display = areaType === 'city_corp' ? 'block' : 'none';
+  document.getElementById('path-municipality').style.display = areaType === 'municipality' ? 'block' : 'none';
+  document.getElementById('path-rural').style.display = areaType === 'rural' ? 'block' : 'none';
+
+  const dist = selectedData.district;
+
+  if (areaType === 'city_corp') {
+    document.getElementById('step2-title').textContent = 'City Corporation';
+    document.getElementById('step2-bn-title').textContent = 'সিটি কর্পোরেশন';
+    document.getElementById('step2-helper').textContent = 'Tier 3 — Select your City Corporation.';
+    const sel = document.getElementById('sel-city-corp');
+    sel.innerHTML = '<option value="">— Select City Corporation —</option>';
+    const corps = BD_DATA.cityCorps[dist] || [];
+    corps.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+    if (!corps.length) sel.innerHTML += '<option value="" disabled>No city corporation found for this district</option>';
+  }
+
+  if (areaType === 'municipality' || areaType === 'rural') {
+    const selId = areaType === 'municipality' ? 'sel-upazila-muni' : 'sel-upazila-rural';
+    document.getElementById('step2-title').textContent = areaType === 'municipality' ? 'Upazila & Municipality' : 'Upazila & Union';
+    document.getElementById('step2-bn-title').textContent = areaType === 'municipality' ? 'উপজেলা ও পৌরসভা' : 'উপজেলা ও ইউনিয়ন';
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '<option value="">— Select Upazila —</option>';
+    const ups = BD_DATA.upazilas[dist] || [];
+    ups.forEach(u => sel.innerHTML += `<option value="${u}">${u}</option>`);
+    if (!ups.length) sel.innerHTML += '<option value="" disabled>Select a district with upazila data</option>';
+  }
+}
+
+function setupStep3() {
+  document.getElementById('ward-city-corp').style.display = areaType === 'city_corp' ? 'block' : 'none';
+  document.getElementById('ward-municipality').style.display = areaType === 'municipality' ? 'block' : 'none';
+  document.getElementById('ward-rural').style.display = areaType === 'rural' ? 'block' : 'none';
+}
+
+function setupStep4() {
+  document.getElementById('street-urban').style.display = (areaType !== 'rural') ? 'block' : 'none';
+}
+
+// ─────────────────────────────────────
+// REVIEW
+// ─────────────────────────────────────
+function buildReview() {
+  const items = [];
+
+  const areaLabels = { city_corp: 'City Corporation (Urban)', municipality: 'Municipality (Urban)', rural: 'Rural / Village' };
+  items.push({ label: 'Area Type', value: areaLabels[areaType] || '—' });
+
+  const div = BD_DATA.divisions.find(d => d.id === selectedData.division);
+  items.push({ label: 'Division', value: div ? `${div.name_en} (${div.name_bn})` : '—' });
+  items.push({ label: 'District', value: selectedData.district || '—' });
+
+  if (areaType === 'city_corp') {
+    items.push({ label: 'City Corporation', value: selectedData.cityCorp || '—' });
+    items.push({ label: 'Ward', value: document.getElementById('sel-cc-ward').value || '—' });
+    items.push({ label: 'Mohalla', value: document.getElementById('inp-mohalla-cc').value || '—' });
+  } else if (areaType === 'municipality') {
+    items.push({ label: 'Upazila', value: selectedData.upazila || '—' });
+    items.push({ label: 'Municipality', value: selectedData.municipality || '—' });
+    items.push({ label: 'Ward', value: document.getElementById('sel-muni-ward').value || '—' });
+    items.push({ label: 'Mohalla', value: document.getElementById('inp-mohalla-muni').value || '—' });
+  } else {
+    items.push({ label: 'Upazila', value: selectedData.upazila || '—' });
+    items.push({ label: 'Union Parishad', value: selectedData.union || '—' });
+    items.push({ label: 'Ward', value: document.getElementById('sel-union-ward').value || '—' });
+    items.push({ label: 'Mouza', value: document.getElementById('inp-mouza').value || '—' });
+    items.push({ label: 'JL No.', value: document.getElementById('inp-jl').value || '—' });
+    items.push({ label: 'Village', value: document.getElementById('inp-village').value || '—' });
+  }
+
+  items.push({ label: 'Post Office', value: document.getElementById('inp-post-office').value || '—' });
+  items.push({ label: 'Post Code', value: document.getElementById('inp-post-code').value || '—' });
+  items.push({ label: 'Police Station', value: document.getElementById('inp-police-station').value || '—' });
+
+  if (areaType !== 'rural') {
+    items.push({ label: 'House No.', value: document.getElementById('inp-house').value || '—' });
+    items.push({ label: 'Road / Street', value: document.getElementById('inp-road').value || '—' });
+    items.push({ label: 'Block / Sector', value: document.getElementById('inp-block').value || '—' });
+  }
+  items.push({ label: 'Area / Locality', value: document.getElementById('inp-area').value || '—' });
+  items.push({ label: 'Landmark', value: document.getElementById('inp-landmark').value || '—', full: true });
+
+  const fullEn = document.getElementById('inp-full-en').value;
+  const fullBn = document.getElementById('inp-full-bn').value;
+  if (fullEn) items.push({ label: 'Full Address (EN)', value: fullEn, full: true });
+  if (fullBn) items.push({ label: 'Full Address (BN)', value: fullBn, full: true });
+
+  let html = '<div class="review-grid">';
+  items.forEach(item => {
+    const cls = item.full ? 'review-item full' : 'review-item';
+    const valCls = item.value === '—' ? 'r-value empty' : 'r-value';
+    html += `<div class="${cls}"><div class="r-label">${item.label}</div><div class="${valCls}">${item.value}</div></div>`;
+  });
+  html += '</div>';
+
+  document.getElementById('review-content').innerHTML = html;
+}
+
+// ─────────────────────────────────────
+// SUBMIT & RESET
+// ─────────────────────────────────────
+function submitForm() {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step-success').classList.add('active');
+  // Update all dots to completed
+  document.querySelectorAll('.step-dot').forEach(d => { d.classList.remove('active'); d.classList.add('completed'); });
+  document.querySelectorAll('.step-line').forEach(l => l.classList.add('completed'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  currentStep = 0;
+  areaType = null;
+  selectedData = {};
+  document.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; s.disabled = (s.id !== 'sel-division'); });
+  document.querySelectorAll('input[type="text"], textarea').forEach(i => i.value = '');
+  document.querySelectorAll('.area-type-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btn-next-0').disabled = true;
+  showStep(0);
+}
+
+// ─────────────────────────────────────
+// SMART SEARCH
+// ─────────────────────────────────────
+function handleSmartSearch(query) {
+  const box = document.getElementById('searchSuggestions');
+  if (query.length < 2) { box.innerHTML = ''; box.classList.remove('show'); return; }
+
+  const q = query.toLowerCase();
+  const results = [];
+
+  // Search divisions
+  BD_DATA.divisions.forEach(d => {
+    if (d.name_en.toLowerCase().includes(q) || d.name_bn.includes(query)) {
+      results.push({ main: d.name_en, path: `Division · ${d.name_bn}`, action: () => { selectAreaType('rural'); document.getElementById('at-rural').classList.add('selected'); selectedData.division = d.id; } });
+    }
+  });
+
+  // Search districts
+  Object.entries(BD_DATA.districts).forEach(([divId, dists]) => {
+    dists.forEach(dist => {
+      if (dist.toLowerCase().includes(q)) {
+        const div = BD_DATA.divisions.find(d => d.id === divId);
+        results.push({ main: dist, path: `District · ${div.name_en} Division` });
+      }
+    });
+  });
+
+  // Search upazilas
+  Object.entries(BD_DATA.upazilas).forEach(([dist, ups]) => {
+    ups.forEach(u => {
+      if (u.toLowerCase().includes(q)) {
+        results.push({ main: u, path: `Upazila · ${dist} District` });
+      }
+    });
+  });
+
+  // Search city corps
+  Object.entries(BD_DATA.cityCorps).forEach(([dist, corps]) => {
+    corps.forEach(c => {
+      if (c.toLowerCase().includes(q)) {
+        results.push({ main: c, path: `City Corporation · ${dist}` });
+      }
+    });
+  });
+
+  box.innerHTML = results.slice(0, 8).map(r =>
+    `<div class="suggestion-item"><div class="main">${r.main}</div><div class="path">${r.path}</div></div>`
+  ).join('') || '<div class="suggestion-item"><div class="main" style="color:var(--text-muted)">No results found</div></div>';
+  box.classList.add('show');
+}
+
+// Init
+populateDivisions();
+</script>
+</body>
+</html>

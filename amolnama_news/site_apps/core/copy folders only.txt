@@ -1,0 +1,3 @@
+xcopy "D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_news_project\amolnama_news\site_apps\core\static\core\" "D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_news_project\amolnama_news\site_apps\multimedia\static\multimedia\" /t /e
+
+xcopy "D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_news_project\amolnama_news\site_apps\core\templates\core\" "D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_news_project\amolnama_news\site_apps\multimedia\templates\multimedia\" /t /e

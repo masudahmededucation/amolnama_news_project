@@ -12,12 +12,13 @@
 }
 
 .breadcrumb a {
-  color: var(--primary);
+  color: var(--accent);
   text-decoration: none;
 }
 
 .breadcrumb a:hover {
   text-decoration: underline;
+  color: var(--danger);
 }
 
 .breadcrumb span {
@@ -38,18 +39,20 @@
 .selection-list li {
   padding: 0.75rem 1rem;
   margin: 0.5rem 0;
-  background: var(--surface);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+  transition: all .2s;
 }
 
 .selection-list li:hover {
-  background: var(--primary);
+  background: var(--danger);
   color: #fff;
-  border-color: var(--primary);
+  border-color: var(--danger);
   transform: translateX(5px);
+  box-shadow: var(--shadow-md);
 }
 
 .selection-list li:active {
@@ -85,16 +88,17 @@
   margin-bottom: 1rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow);
+  transition: all .2s;
 }
 
 .back-btn:hover {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
+  background: var(--card);
+  border-color: #B0ADA6;
+  box-shadow: var(--shadow-md);
 }
 
 /* ========== RESPONSIVE - SELECTION ========== */
@@ -187,9 +191,9 @@
   }
 
   .selection-list li:active {
-    background: var(--primary);
+    background: var(--danger);
     color: #fff;
-    border-color: var(--primary);
+    border-color: var(--danger);
   }
 
   .selection-list li:active .area-info {
@@ -203,8 +207,8 @@
   }
 
   .back-btn:active {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
+    background: var(--card);
+    border-color: #B0ADA6;
+    box-shadow: var(--shadow-md);
   }
 }

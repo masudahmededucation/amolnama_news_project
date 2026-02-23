@@ -72,21 +72,6 @@ class RefPlatformType(models.Model):
         return self.platform_name
 
 
-class RefNewsTag(models.Model):
-    news_tag_id = models.IntegerField(primary_key=True)
-    link_news_category_id = models.IntegerField(blank=True, null=True)
-    news_tag_name_bn = models.CharField(max_length=255)
-    news_tag_name_en = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = '[newshub].[ref_news_tag]'
-
-    def __str__(self):
-        return self.news_tag_name_en or self.news_tag_name_bn
-
-
 class RefNewsCategoryTag(models.Model):
     news_category_tag_id = models.IntegerField(primary_key=True)
     link_news_category_id = models.IntegerField(blank=True, null=True)
@@ -172,7 +157,8 @@ class CollNewsEntry(models.Model):
     occurrence_at = models.DateTimeField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
-    hash_headline_check = models.CharField(max_length=450, blank=True, null=True, editable=False)  # computed column — never INSERT/UPDATE
+    # hash_headline_check — SQL Server computed column; excluded from Django model
+    # so ORM never includes it in INSERT/UPDATE statements.
 
     class Meta:
         managed = False
@@ -219,16 +205,16 @@ class CollSocialSource(models.Model):
 class CollNewsEntryTag(models.Model):
     """Junction table: news entry <-> tag (composite PK in SQL Server)."""
     link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
-    link_news_tag_id = models.IntegerField()
-    created_at = models.DateTimeField(blank=True, null=True)
+    link_news_category_tag_id = models.IntegerField()
+    created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = '[newshub].[coll_news_entry_tag]'
-        unique_together = [['link_coll_news_entry_id', 'link_news_tag_id']]
+        unique_together = [['link_coll_news_entry_id', 'link_news_category_tag_id']]
 
     def __str__(self):
-        return f"CollNewsEntryTag({self.link_coll_news_entry_id}, {self.link_news_tag_id})"
+        return f"CollNewsEntryTag({self.link_coll_news_entry_id}, {self.link_news_category_tag_id})"
 
 
 # ========== Publishing Tables ==========

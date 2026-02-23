@@ -6,20 +6,16 @@
 (function () {
   if (typeof TomSelect === 'undefined') return;
 
-  var opts = {
-    placeholder: '',
-    allowEmptyOption: true,
-    sortField: { field: 'text', direction: 'asc' }
-  };
-
   var districtSelect = document.getElementById('news-district-id');
-  if (districtSelect) new TomSelect(districtSelect, opts);
+  if (districtSelect) new TomSelect(districtSelect, {
+    placeholder: 'জেলা খুঁজুন...',
+    sortField: { field: 'text', direction: 'asc' }
+  });
 
   /* Category — search text + aliases for transliteration support */
   var categorySelect = document.getElementById('news-category-id');
   if (categorySelect) new TomSelect(categorySelect, {
-    placeholder: '',
-    allowEmptyOption: true,
+    placeholder: 'খবরের ধরন নির্বাচন করুন...',
     sortField: { field: 'text', direction: 'asc' },
     searchField: ['text', 'aliases']
   });

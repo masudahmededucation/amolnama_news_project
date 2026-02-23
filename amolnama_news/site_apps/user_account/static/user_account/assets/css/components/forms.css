@@ -87,7 +87,7 @@
 
 .login-field-errors li,
 .signup-field-errors li {
-  color: var(--primary);
+  color: var(--danger);
   font-size: .8rem;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .signup-social-button--mobile:hover {
-  border-color: var(--primary);
+  border-color: var(--primary, #1B6B4A);
 }
 
 /* ── OR divider ── */

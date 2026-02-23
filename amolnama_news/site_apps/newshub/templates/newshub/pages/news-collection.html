@@ -6,6 +6,7 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'newshub/assets/css/pages/news-collection.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 {% endblock %}
 
 {% block content %}
@@ -35,6 +36,10 @@
     <div class="news-form-content">
       {% include "newshub/components/contributor-info-form.html" %}
       {% include "newshub/components/news-entry-form.html" %}
+      <div class="widget-location" id="widget-location">
+        {% include "newshub/components/news-location-administrative-cascade.html" %}
+        {% include "newshub/components/news-location-map-pinpoint.html" %}
+      </div>
       {% include "newshub/components/news-attachment-form.html" %}
       {% include "newshub/components/news-social-source-form.html" %}
     </div>
@@ -46,28 +51,34 @@
           তথ্য মুছুন (Clear Form)
         </button>
       </div>
-      {% include "newshub/components/sidebar-location-widget.html" %}
       {% include "newshub/components/sidebar-category-widget.html" %}
       {% include "newshub/components/sidebar-tags-widget.html" %}
       {% include "newshub/components/sidebar-options-widget.html" %}
-      {% include "newshub/components/sidebar-submit-widget.html" %}
     </aside>
   </section>
+
+  {% include "newshub/components/sidebar-submit-widget.html" %}
 
 </form>
 {% endblock %}
 
 {% block extra_js %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
   <script src="{% static 'newshub/assets/js/components/news-searchable-dropdown.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-org-cascade.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-contributor-self.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-location-cascade.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-location-search.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-auto-location.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-category-tag-cascade.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-tag-search.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-auto-tag.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-geo-collect.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-map-pinpoint.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-map-reverse-geocode.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-map-search.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-map-location-autofill.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-occurrence-time.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-attachment-upload.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-social-url-check.js' %}"></script>

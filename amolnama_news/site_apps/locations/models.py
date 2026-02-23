@@ -123,7 +123,8 @@ class Upazila(models.Model):
     upazila_name_en = models.CharField(max_length=100, blank=True, null=True)
     old_upazila_name_en = models.CharField(max_length=100, blank=True, null=True)
     upazila_name_bn = models.CharField(max_length=100, blank=True, null=True)
-    upazila_type = models.CharField(max_length=100, blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=100, blank=True, null=True)
     upazila_code = models.CharField(max_length=100, blank=True, null=True)
     upazila_iso_number = models.CharField(max_length=20, blank=True, null=True)
     upazila_iso_code = models.CharField(max_length=20, blank=True, null=True)
@@ -159,6 +160,8 @@ class UnionParishad(models.Model):
     link_upazila_id = models.IntegerField(blank=True, null=True)
     union_parishad_name_en = models.CharField(max_length=200, blank=True, null=True)
     union_parishad_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=100, blank=True, null=True)
     union_parishad_code = models.CharField(max_length=200, blank=True, null=True)
     union_parishad_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     union_parishad_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
@@ -184,7 +187,263 @@ class UnionParishad(models.Model):
         if self.link_upazila_id:
             return Upazila.objects.filter(upazila_id=self.link_upazila_id).first()
         return None
-    
+
+
+class MetropolitanThana(models.Model):
+    """মহানগর থানা - Metropolitan police stations within city corporation areas"""
+    metropolitan_thana_id = models.IntegerField(primary_key=True)
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=100, blank=True, null=True)
+    district_name_en = models.CharField(max_length=100, blank=True, null=True)
+    metropolitan_thana_name_en = models.CharField(max_length=100, blank=True, null=True)
+    old_metropolitan_thana_name_en = models.CharField(max_length=100, blank=True, null=True)
+    metropolitan_thana_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    metropolitan_thana_code = models.CharField(max_length=100, blank=True, null=True)
+    metropolitan_thana_iso_number = models.CharField(max_length=20, blank=True, null=True)
+    metropolitan_thana_iso_code = models.CharField(max_length=20, blank=True, null=True)
+    metropolitan_thana_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    metropolitan_thana_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
+    total_population = models.IntegerField(blank=True, null=True)
+    website = models.CharField(max_length=200, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[location].[metropolitan_thana]'
+
+    def __str__(self):
+        return self.metropolitan_thana_name_en or f"Metropolitan Thana {self.metropolitan_thana_id}"
+
+
+class MetropolitanThanaWard(models.Model):
+    """মহানগর থানা ↔ সিটি কর্পোরেশন ওয়ার্ড junction"""
+    metropolitan_thana_ward_id = models.IntegerField(primary_key=True)
+    metropolitan_thana_id = models.IntegerField()
+    city_corporation_ward_id = models.IntegerField()
+    is_primary_thana = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[location].[metropolitan_thana_ward]'
+
+    def __str__(self):
+        return f"ThanaWard({self.metropolitan_thana_id}->{self.city_corporation_ward_id})"
+
+
+class CityCorporation(models.Model):
+    """সিটি কর্পোরেশন - City corporations"""
+    city_corporation_id = models.IntegerField(primary_key=True)
+    link_district_id = models.IntegerField()
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    city_corporation_code_en = models.CharField(max_length=50, blank=True, null=True)
+    city_corporation_name_en = models.CharField(max_length=100)
+    city_corporation_name_bn = models.CharField(max_length=200)
+    city_corporation_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    city_corporation_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    city_corporation_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    location_type = models.CharField(max_length=100, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.IntegerField(blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    notes = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[city_corporation]'
+
+    def __str__(self):
+        return self.city_corporation_name_en or f"City Corporation {self.city_corporation_id}"
+
+
+class CityCorporationWard(models.Model):
+    """সিটি কর্পোরেশন ওয়ার্ড"""
+    city_corporation_ward_id = models.IntegerField(primary_key=True)
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_city_corporation_id = models.IntegerField()
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    city_corporation_ward_number = models.IntegerField()
+    city_corporation_ward_name_en = models.CharField(max_length=100, blank=True, null=True)
+    city_corporation_ward_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    city_corporation_ward_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    city_corporation_ward_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    city_corporation_ward_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    city_corporation_ward_area_square_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.BigIntegerField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[city_corporation_ward]'
+
+    def __str__(self):
+        return self.city_corporation_ward_name_en or f"City Corp Ward {self.city_corporation_ward_number}"
+
+
+class Municipality(models.Model):
+    """পৌরসভা - Municipalities under upazilas"""
+    municipality_id = models.IntegerField(primary_key=True)
+    link_upazila_id = models.IntegerField(blank=True, null=True)
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    municipality_name_en = models.CharField(max_length=100)
+    municipality_name_bn = models.CharField(max_length=200)
+    municipality_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    municipality_class = models.CharField(max_length=5, blank=True, null=True)
+    municipality_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    municipality_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.BigIntegerField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[municipality]'
+
+    def __str__(self):
+        return self.municipality_name_en or f"Municipality {self.municipality_id}"
+
+
+class MunicipalityWard(models.Model):
+    """পৌরসভা ওয়ার্ড"""
+    municipality_ward_id = models.IntegerField(primary_key=True)
+    link_municipality_id = models.IntegerField()
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_upazila_id = models.IntegerField(blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    municipality_ward_number = models.IntegerField()
+    municipality_ward_name_en = models.CharField(max_length=100, blank=True, null=True)
+    municipality_ward_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    municipality_ward_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    municipality_ward_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    municipality_ward_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.BigIntegerField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[municipality_ward]'
+
+    def __str__(self):
+        return self.municipality_ward_name_en or f"Municipality Ward {self.municipality_ward_number}"
+
+
+class UnionParishadWard(models.Model):
+    """ইউনিয়ন পরিষদ ওয়ার্ড"""
+    union_parishad_ward_id = models.IntegerField(primary_key=True)
+    link_union_parishad_id = models.IntegerField()
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_upazila_id = models.IntegerField(blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    union_parishad_ward_number = models.IntegerField()
+    union_parishad_ward_name_en = models.CharField(max_length=100, blank=True, null=True)
+    union_parishad_ward_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    union_parishad_ward_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    union_parishad_ward_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    union_parishad_ward_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.BigIntegerField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[union_parishad_ward]'
+
+    def __str__(self):
+        return self.union_parishad_ward_name_en or f"UP Ward {self.union_parishad_ward_number}"
+
+
+class UnionParishadVillage(models.Model):
+    """ইউনিয়ন পরিষদ গ্রাম"""
+    union_parishad_village_id = models.IntegerField(primary_key=True)
+    link_union_parishad_id = models.IntegerField()
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_upazila_id = models.IntegerField(blank=True, null=True)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    union_parishad_village_name_en = models.CharField(max_length=100, blank=True, null=True)
+    union_parishad_village_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    union_parishad_village_bbs_code = models.CharField(max_length=10, blank=True, null=True)
+    union_parishad_village_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    union_parishad_village_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
+    area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    total_population = models.BigIntegerField(blank=True, null=True)
+    website = models.CharField(max_length=300, blank=True, null=True)
+    established_at = models.DateField(blank=True, null=True)
+    notes = models.CharField(max_length=1000, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[location].[union_parishad_village]'
+
+    def __str__(self):
+        return self.union_parishad_village_name_en or f"Village {self.union_parishad_village_id}"
+
+
+class UnifiedLocationSearch(models.Model):
+    """Read-only model mapped to [location].[vw_app_unified_location_search] view.
+    Underlying data lives in [location].[unified_location_search] table.
+    Used for Tom Select location search across all administrative levels."""
+    unified_location_search_id = models.IntegerField(primary_key=True)
+    link_location_id = models.IntegerField()
+    link_location_table = models.CharField(max_length=200)
+    link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    unified_location_search_name_en = models.CharField(max_length=100, blank=True, null=True)
+    unified_location_search_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    unified_location_display_title_en = models.CharField(max_length=500)
+    unified_location_display_title_bn = models.CharField(max_length=500)
+    unified_location_relationship_path = models.CharField(max_length=200)
+    notes = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[location].[vw_app_unified_location_search]'
+
+    def __str__(self):
+        return self.unified_location_display_title_en or f"Location {self.unified_location_search_id}"
+
+
 class Address(models.Model):
     """Maps to [location].[address]. Managed by SQL Server."""
     address_id = models.AutoField(primary_key=True)

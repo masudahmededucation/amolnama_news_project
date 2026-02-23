@@ -4,7 +4,7 @@
 {% endcomment %}
 
 <div class="form-section" id="section-news-entry">
-  <h3 class="form-section-title">সংবাদ বিবরণ (News Content)</h3>
+  <h3 class="form-section-title"><span class="section-icon">📝</span>সংবাদ বিবরণ (News Content)</h3>
 
   {# Headline (Bengali) #}
   <div class="form-field">
@@ -36,7 +36,7 @@
 
   {# Occurrence datetime — custom selects for Bengali labels #}
   <div class="form-field" id="field-occurrence">
-    <label>ঘটনার সময় (Occurrence Time)<span class="required-mark">*</span></label>
+    <span class="field-label">ঘটনার সময় (Occurrence Time)<span class="required-mark">*</span></span>
     <input type="hidden" id="news-occurrence-at" name="occurrence_at"
       value="{{ news_entry_form.occurrence_at.value|default:'' }}">
     <div class="occurrence-row">

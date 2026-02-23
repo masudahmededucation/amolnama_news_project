@@ -49,18 +49,26 @@ def _unique_news_category_tags():
 
 
 def _get_user_contributor_info(user):
-    """Return logged-in user's contributor details from Person, for auto-fill."""
+    """Return logged-in user's contributor details for auto-fill.
+    Name comes from UserProfile.display_name (account.user_profile),
+    with fallback to Person name. Email/phone from Person."""
     info = {'name': '', 'email': '', 'phone': ''}
     if not user or not user.is_authenticated:
         return info
     try:
         profile = UserProfile.objects.get(link_user_account_user_id=user.pk)
+        # Name: prefer display_name from user_profile
+        info['name'] = (profile.display_name or '').strip()
         if profile.link_person_id:
             person = Person.objects.get(person_id=profile.link_person_id)
-            parts = [person.first_name_bn or '', person.last_name_bn or '']
-            info['name'] = ' '.join(p for p in parts if p).strip()
+            # Fallback to Person Bengali name if display_name is empty
+            if not info['name']:
+                parts = [person.first_name_bn or '', person.last_name_bn or '']
+                info['name'] = ' '.join(p for p in parts if p).strip()
             info['email'] = person.primary_email_address or user.email or ''
             info['phone'] = person.primary_mobile_number or ''
+        else:
+            info['email'] = user.email or ''
     except (UserProfile.DoesNotExist, Person.DoesNotExist):
         info['email'] = user.email or ''
     return info
@@ -144,6 +152,7 @@ def _handle_news_submission(request):
     union_parishad_id = request.POST.get('union_parishad_id', '') or None
     latitude = request.POST.get('latitude', '') or None
     longitude = request.POST.get('longitude', '') or None
+    formatted_address_bn = request.POST.get('formatted_address_bn', '') or None
     is_breaking = request.POST.get('is_breaking') == '1'
     tag_ids = request.POST.getlist('tag_ids')
 
@@ -298,6 +307,7 @@ def _handle_news_submission(request):
                 link_union_parishad_id=int(union_parishad_id) if union_parishad_id else None,
                 coll_news_entry_latitude=latitude,
                 coll_news_entry_longitude=longitude,
+                coll_news_entry_formatted_address_bn=formatted_address_bn,
                 coll_news_entry_is_breaking=is_breaking,
                 occurrence_at=nd['occurrence_at'],
                 created_at=now,
@@ -401,12 +411,13 @@ def _handle_news_submission(request):
                 if tid.isdigit():
                     CollNewsEntryTag.objects.create(
                         link_coll_news_entry_id=entry.coll_news_entry_id,
-                        link_news_tag_id=int(tid),
+                        link_news_category_tag_id=int(tid),
+                        created_at=now,
                     )
 
-    except (IntegrityError, DatabaseError):
+    except (IntegrityError, DatabaseError) as exc:
         # Safety net: DB-level unique constraint or data truncation
-        error_msg = 'সংবাদ জমা দেওয়া সম্ভব হয়নি। সম্ভবত এই শিরোনামে ইতিমধ্যে একটি সংবাদ আছে অথবা তথ্য সীমার বেশি। (Submission failed — possible duplicate headline or data too long.)'
+        error_msg = 'সংবাদ জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন। (Submission failed. Please try again.)'
         ctx = _build_form_context(
             contributor_form, news_entry_form, attachment_form, social_source_form,
             extra={

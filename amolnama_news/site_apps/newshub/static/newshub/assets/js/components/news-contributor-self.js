@@ -52,14 +52,15 @@
       }
     }
 
-    /* --- Self: hide details + auto-fill (logged-in only) --- */
+    /* --- Self: auto-fill + hide details only if name populated (logged-in only) --- */
     if (isSelfAvailable && details) {
       if (selectedType === SELF_TYPE_ID) {
         if (nameInput && selfName) nameInput.value = selfName;
         if (emailInput && selfEmail) emailInput.value = selfEmail;
         if (phoneInput && selfPhone) phoneInput.value = selfPhone;
         autoFilled = true;
-        details.style.display = 'none';
+        /* Only hide if name was actually filled — otherwise keep visible so user can type */
+        details.style.display = selfName ? 'none' : '';
       } else {
         if (autoFilled) {
           if (nameInput) nameInput.value = '';

@@ -10,6 +10,11 @@
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   box-shadow: var(--shadow);
+  transition: box-shadow .3s;
+}
+
+.ev-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .ev-placeholder {
@@ -21,9 +26,11 @@
   position: relative;
   background: var(--card);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--primary);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-sm);
   padding: 1rem 1.25rem 1rem 5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow);
+  transition: all .2s;
 }
 
 #election-view .selection-list li::before {
@@ -33,15 +40,17 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.15rem;
-  color: var(--primary);
+  color: var(--danger);
   transition: color 0.2s ease;
 }
 
 #election-view .selection-list li:hover {
-  background: var(--primary);
+  background: var(--danger);
   color: #fff;
-  border-color: var(--primary);
+  border-color: var(--danger);
   border-left-color: #fff;
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
 }
 
 #election-view .selection-list li:hover::before {
@@ -49,7 +58,7 @@
 }
 
 #election-view .selection-list li:hover .name-en {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 #election-view .selection-list .name-bn {

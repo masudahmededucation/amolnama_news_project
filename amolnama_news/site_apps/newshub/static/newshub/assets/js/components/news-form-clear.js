@@ -85,19 +85,37 @@
     var constSel = document.getElementById('news-constituency-id');
     var upazilaSel = document.getElementById('news-upazila-id');
     var unionSel = document.getElementById('news-union-parishad-id');
-    if (constSel) constSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u099C\u09C7\u09B2\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
+    var wardSel = document.getElementById('news-ward-id');
+    var villageSel = document.getElementById('news-village-id');
+    var villageOther = document.getElementById('news-village-other');
+    var villageRow = document.getElementById('news-village-row');
+    if (constSel) constSel.value = '';
     if (upazilaSel) upazilaSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u099C\u09C7\u09B2\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
-    if (unionSel) unionSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0989\u09AA\u099C\u09C7\u09B2\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
+    if (unionSel) unionSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
+    if (wardSel) wardSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09AF\u09BC \u09B8\u09B0\u0995\u09BE\u09B0 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
+    if (villageSel) villageSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
+    if (villageOther) { villageOther.style.display = 'none'; villageOther.value = ''; }
+    if (villageRow) villageRow.style.display = 'none';
+    /* Clear type tracking hidden inputs */
+    ['news-subdistrict-type', 'news-local-body-type', 'news-ward-type'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
 
     /* 8. Reset organisation cascade */
     var orgNameSel = document.getElementById('contributor-organization');
     if (orgNameSel) orgNameSel.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A4\u09BF\u09B7\u09CD\u09A0\u09BE\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --</option>';
 
-    /* 8b. Reset Tom Select instances (district + category) */
+    /* 8b. Reset Tom Select instances (district, category, location search) */
     ['news-district-id', 'news-category-id'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el && el.tomselect) el.tomselect.clear(true);
     });
+
+    /* 8c. Reset unified location search */
+    if (window.newshubLocationSearch && window.newshubLocationSearch.clear) {
+      window.newshubLocationSearch.clear();
+    }
 
     /* 9. Clear tags via exposed API */
     if (window.newshubTags && window.newshubTags.clearAll) {
@@ -107,6 +125,14 @@
     /* 10. Reset auto-location state */
     if (window.newshubAutoLocation && window.newshubAutoLocation.reset) {
       window.newshubAutoLocation.reset();
+    }
+
+    /* 10b. Reset map pinpoint and search */
+    if (window.newshubMapPinpoint && window.newshubMapPinpoint.resetMapToDefault) {
+      window.newshubMapPinpoint.resetMapToDefault();
+    }
+    if (window.newshubMapSearch && window.newshubMapSearch.clearSearchInput) {
+      window.newshubMapSearch.clearSearchInput();
     }
 
     /* 11. Clear file attachments via exposed API */

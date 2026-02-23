@@ -80,6 +80,7 @@
   /* Fields restored via cascade (skip in the simple loop) */
   var CASCADE = [
     'district_id', 'constituency_id', 'upazila_id', 'union_parishad_id',
+    'ward_id', 'village_id',
     'news_category_id',
     'organisation_type_id', 'contributor_organization_id',
     'occurrence_at',
@@ -131,11 +132,13 @@
     }
   }
 
-  /* 4. Location cascade: district → constituency + upazila → union parishad */
+  /* 4. Location cascade: district → constituency + subdistrict → local body → ward → village */
   var districtSel = document.getElementById('news-district-id');
   var constSel = document.getElementById('news-constituency-id');
   var upazilaSel = document.getElementById('news-upazila-id');
   var unionSel = document.getElementById('news-union-parishad-id');
+  var wardSel = document.getElementById('news-ward-id');
+  var villageSel = document.getElementById('news-village-id');
 
   if (districtSel && saved.district_id) {
     districtSel.value = saved.district_id;
@@ -144,10 +147,9 @@
     }
     districtSel.dispatchEvent(new Event('change'));
 
+    /* Constituency is a hidden input — set directly */
     if (saved.constituency_id && constSel) {
-      waitForOptions(constSel, function () {
-        constSel.value = saved.constituency_id;
-      });
+      constSel.value = saved.constituency_id;
     }
 
     if (saved.upazila_id && upazilaSel) {
@@ -158,6 +160,20 @@
           upazilaSel.dispatchEvent(new Event('change'));
           waitForOptions(unionSel, function () {
             unionSel.value = saved.union_parishad_id;
+
+            if (saved.ward_id && wardSel) {
+              unionSel.dispatchEvent(new Event('change'));
+              waitForOptions(wardSel, function () {
+                wardSel.value = saved.ward_id;
+
+                if (saved.village_id && villageSel) {
+                  wardSel.dispatchEvent(new Event('change'));
+                  waitForOptions(villageSel, function () {
+                    villageSel.value = saved.village_id;
+                  });
+                }
+              });
+            }
           });
         }
       });
@@ -178,8 +194,9 @@
   }
 
   /* Unblock saves after all async cascade fetches have had time to complete.
-     waitForOptions polls up to 50×100ms = 5s, so 6s covers the worst case. */
-  setTimeout(function () { isRestoring = false; }, 6000);
+     Cascade is now 5 levels deep (district → subdistrict → local body → ward → village),
+     waitForOptions polls up to 50×100ms = 5s per level, so 10s covers the worst case. */
+  setTimeout(function () { isRestoring = false; }, 10000);
 
   /* ========== Helpers ========== */
 
