@@ -315,7 +315,7 @@ def vote_results(request):
         cursor.execute("""
             SELECT [party_id], [party_name_bn], [party_short_name_bn], [party_symbol_name_bn],
                 [party_vote_count], [total_vote_count], [vote_percentage]
-            FROM [news_magazine].[evaluation].[vw_app_vote_cast_current_results]
+            FROM [news_magazine].[evaluation].[app_vw_vote_cast_current_results]
             ORDER BY [party_id]
         """)
         rows = cursor.fetchall()
@@ -349,8 +349,8 @@ def vote_cast_current_results(request):
                v.[vote_percentage],
                p.[file_path],
                p.[file_name]
-        FROM [news_magazine].[evaluation].[vw_app_vote_cast_current_results] v
-        LEFT JOIN [news_magazine].[party].[vw_app_get_party_details] p
+        FROM [news_magazine].[evaluation].[app_vw_vote_cast_current_results] v
+        LEFT JOIN [news_magazine].[party].[app_vw_get_party_details] p
             ON v.party_id = p.party_id
         ORDER BY v.[party_id]
         """)

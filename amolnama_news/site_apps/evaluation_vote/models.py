@@ -357,7 +357,7 @@ class AppGetEvaluation(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[evaluation].[vw_app_get_evaluation_current]'
+        db_table = '[evaluation].[app_vw_get_evaluation_current]'
         
 
 class AppGetPartyDetails(models.Model):
@@ -373,7 +373,7 @@ class AppGetPartyDetails(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[party].[vw_app_get_party_details]'
+        db_table = '[party].[app_vw_get_party_details]'
 
 
 class AppSidebarPastResults(models.Model):
@@ -423,6 +423,6 @@ class AppSidebarPastResults(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[evaluation].[vw_app_vote_sidebar_past_results]'
+        db_table = '[evaluation].[app_vw_vote_sidebar_past_results]'
         verbose_name = 'Past Election Result'
         verbose_name_plural = 'Past Election Results'

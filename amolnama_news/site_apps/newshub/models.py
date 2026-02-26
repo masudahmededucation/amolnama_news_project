@@ -103,7 +103,7 @@ class VwAppNewsCategoryTag(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[vw_app_news_category_tags]'
+        db_table = '[newshub].[app_vw_news_category_tags]'
 
     def __str__(self):
         return self.news_tag_name_en or self.news_tag_name_bn

@@ -7,11 +7,14 @@
 
   {# ---- Map pinpointing (optional) — for further location precision ---- #}
   <div class="map-pinpoint-section">
-    <div class="map-search-wrapper">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="map-search-input" class="map-search-input"
-             placeholder="ম্যাপে পিন করে সঠিক অবস্থান দেখান (Pinpoint exact location on map)"
-             autocomplete="off">
+    <div class="map-search-highlight">
+      <label for="map-search-input" class="map-search-label">মানচিত্রে অনুসন্ধান (Search on Map)</label>
+      <div class="map-search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="map-search-input" class="map-search-input"
+               placeholder="এলাকার নাম লিখুন, যেমন: মিরপুর, ধানমন্ডি, চকবাজার..."
+               autocomplete="off">
+      </div>
     </div>
     <div id="map-pinpoint-container" class="map-pinpoint-container"></div>
     <div class="map-address-display" id="map-address-display"></div>

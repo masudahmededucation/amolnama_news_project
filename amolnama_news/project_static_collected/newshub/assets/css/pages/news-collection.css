@@ -515,6 +515,18 @@
   margin-bottom: .4rem;
 }
 
+/* Highlight the unified search box to attract user attention */
+.widget-location .widget-field:has(#news-location-search) {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: .5rem .6rem;
+  border-radius: var(--radius-sm);
+}
+
+.widget-location .widget-field:has(#news-location-search) label {
+  color: var(--primary);
+}
+
 .widget-location .widget-field label {
   display: block;
   font-weight: 600;
@@ -555,9 +567,24 @@
   padding-top: .75rem;
 }
 
+.map-search-highlight {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: .5rem .6rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: .5rem;
+}
+
+.map-search-label {
+  display: block;
+  font-weight: 600;
+  font-size: .825rem;
+  margin-bottom: .2rem;
+  color: var(--primary);
+}
+
 .map-search-wrapper {
   position: relative;
-  margin-bottom: .5rem;
 }
 
 .map-search-input {

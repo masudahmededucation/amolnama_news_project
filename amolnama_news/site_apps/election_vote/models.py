@@ -199,7 +199,7 @@ class AppGetCurrentElection(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[election].[vw_app_get_current_election]'
+        db_table = '[election].[app_vw_get_current_election]'
 
     def __str__(self):
         return self.evaluation_name_en
@@ -237,6 +237,6 @@ class AppGetPastResults(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[election].[vw_app_get_past_results]'
+        db_table = '[election].[app_vw_get_past_results]'
         verbose_name = 'Past Election Result'
         verbose_name_plural = 'Past Election Results'

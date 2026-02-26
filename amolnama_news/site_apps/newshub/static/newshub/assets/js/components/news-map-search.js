@@ -140,10 +140,8 @@
       if (searchInputElement) searchInputElement.value = '';
       mapSearchResultsHide();
     },
-    /** Called by news-map-reverse-geocode.js to show address in search box */
-    setSearchText: function (text) {
-      if (searchInputElement) searchInputElement.value = text || '';
-    }
+    /** No-op: address already shown in map-address-display below the map */
+    setSearchText: function () {}
   };
 
   /* ===== Init ===== */

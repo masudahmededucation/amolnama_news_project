@@ -114,8 +114,9 @@ def api_locations_all(request):
 # ========== Combined Cascade Location API Views ==========
 
 def api_subdistricts_by_district(request, district_id):
-    """Return upazilas + metropolitan thanas for a district, each tagged with type.
-    Used by the combined উপজেলা/থানা dropdown."""
+    """Return upazilas + metropolitan thanas + city corporations + municipalities
+    for a district, each tagged with type.
+    Used by the combined উপজেলা/থানা/সিটি কর্পোরেশন/পৌরসভা dropdown."""
     data = []
 
     for u in Upazila.objects.filter(
@@ -142,12 +143,36 @@ def api_subdistricts_by_district(request, district_id):
             'lng': float(t.metropolitan_thana_longitude) if t.metropolitan_thana_longitude else None,
         })
 
+    for cc in CityCorporation.objects.filter(
+        link_district_id=district_id, is_active=True,
+    ).order_by('city_corporation_name_bn'):
+        data.append({
+            'id': cc.city_corporation_id,
+            'name_bn': cc.city_corporation_name_bn or '',
+            'name_en': cc.city_corporation_name_en or '',
+            'type': 'city_corporation',
+            'lat': float(cc.city_corporation_geo_latitude) if cc.city_corporation_geo_latitude else None,
+            'lng': float(cc.city_corporation_geo_longitude) if cc.city_corporation_geo_longitude else None,
+        })
+
+    for m in Municipality.objects.filter(
+        link_district_id=district_id, is_active=True,
+    ).order_by('municipality_name_bn'):
+        data.append({
+            'id': m.municipality_id,
+            'name_bn': m.municipality_name_bn or '',
+            'name_en': m.municipality_name_en or '',
+            'type': 'municipality',
+            'lat': float(m.municipality_geo_latitude) if m.municipality_geo_latitude else None,
+            'lng': float(m.municipality_geo_longitude) if m.municipality_geo_longitude else None,
+        })
+
     return JsonResponse({'subdistricts': data})
 
 
 def api_local_bodies_by_parent(request):
-    """Return union parishads + municipalities (for upazila) or
-    city corporations (for metropolitan thana).
+    """Return union parishads for an upazila.
+    City corporations and municipalities are now at the subdistrict level.
     Query params: parent_type, parent_id."""
     parent_type = request.GET.get('parent_type', '')
     parent_id = request.GET.get('parent_id', '')
@@ -170,34 +195,6 @@ def api_local_bodies_by_parent(request):
                 'lat': float(up.union_parishad_latitude) if up.union_parishad_latitude else None,
                 'lng': float(up.union_parishad_longitude) if up.union_parishad_longitude else None,
             })
-        for m in Municipality.objects.filter(
-            link_upazila_id=parent_id, is_active=True,
-        ).order_by('municipality_name_bn'):
-            data.append({
-                'id': m.municipality_id,
-                'name_bn': m.municipality_name_bn or '',
-                'name_en': m.municipality_name_en or '',
-                'type': 'municipality',
-                'lat': float(m.municipality_geo_latitude) if m.municipality_geo_latitude else None,
-                'lng': float(m.municipality_geo_longitude) if m.municipality_geo_longitude else None,
-            })
-
-    elif parent_type == 'metropolitan_thana':
-        thana = MetropolitanThana.objects.filter(
-            metropolitan_thana_id=parent_id,
-        ).first()
-        if thana and thana.link_district_id:
-            for cc in CityCorporation.objects.filter(
-                link_district_id=thana.link_district_id, is_active=True,
-            ).order_by('city_corporation_name_bn'):
-                data.append({
-                    'id': cc.city_corporation_id,
-                    'name_bn': cc.city_corporation_name_bn or '',
-                    'name_en': cc.city_corporation_name_en or '',
-                    'type': 'city_corporation',
-                    'lat': float(cc.city_corporation_geo_latitude) if cc.city_corporation_geo_latitude else None,
-                    'lng': float(cc.city_corporation_geo_longitude) if cc.city_corporation_geo_longitude else None,
-                })
 
     return JsonResponse({'local_bodies': data})
 
@@ -391,15 +388,13 @@ def api_location_resolve_ancestry(request):
                 ids['district_id'] = parent['link_district_id']
 
     elif table == 'municipality':
+        # Municipality is at subdistrict level (alongside upazilas) — resolve to district only
         ids['municipality_id'] = entity_id
         obj = Municipality.objects.filter(
             municipality_id=entity_id,
-        ).values('link_upazila_id', 'link_district_id').first()
-        if obj:
-            if obj['link_upazila_id']:
-                ids['upazila_id'] = obj['link_upazila_id']
-            if obj['link_district_id']:
-                ids['district_id'] = obj['link_district_id']
+        ).values('link_district_id').first()
+        if obj and obj['link_district_id']:
+            ids['district_id'] = obj['link_district_id']
 
     elif table == 'city_corporation':
         ids['city_corporation_id'] = entity_id
@@ -428,6 +423,7 @@ def api_location_resolve_ancestry(request):
                     ids['district_id'] = gp['link_district_id']
 
     elif table == 'municipality_ward':
+        # Municipality is at subdistrict level — resolve ward → municipality → district
         ids['municipality_ward_id'] = entity_id
         obj = MunicipalityWard.objects.filter(
             municipality_ward_id=entity_id,
@@ -436,12 +432,9 @@ def api_location_resolve_ancestry(request):
             ids['municipality_id'] = obj['link_municipality_id']
             parent = Municipality.objects.filter(
                 municipality_id=obj['link_municipality_id'],
-            ).values('link_upazila_id', 'link_district_id').first()
-            if parent:
-                if parent['link_upazila_id']:
-                    ids['upazila_id'] = parent['link_upazila_id']
-                if parent['link_district_id']:
-                    ids['district_id'] = parent['link_district_id']
+            ).values('link_district_id').first()
+            if parent and parent['link_district_id']:
+                ids['district_id'] = parent['link_district_id']
 
     elif table == 'city_corporation_ward':
         ids['city_corporation_ward_id'] = entity_id

@@ -420,7 +420,7 @@ class UnionParishadVillage(models.Model):
 
 
 class UnifiedLocationSearch(models.Model):
-    """Read-only model mapped to [location].[vw_app_unified_location_search] view.
+    """Read-only model mapped to [location].[app_vw_unified_location_search] view.
     Underlying data lives in [location].[unified_location_search] table.
     Used for Tom Select location search across all administrative levels."""
     unified_location_search_id = models.IntegerField(primary_key=True)
@@ -438,7 +438,7 @@ class UnifiedLocationSearch(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[location].[vw_app_unified_location_search]'
+        db_table = '[location].[app_vw_unified_location_search]'
 
     def __str__(self):
         return self.unified_location_display_title_en or f"Location {self.unified_location_search_id}"

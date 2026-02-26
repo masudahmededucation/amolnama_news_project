@@ -1,8 +1,9 @@
 /**
  * news-location-cascade.js
- * Cascading location dropdowns with parallel rural/urban paths:
- *   District → Subdistrict (Upazila / Metro Thana)
+ * Cascading location dropdowns with parallel rural/urban/city paths:
+ *   District → Subdistrict (Upazila / Metro Thana / City Corporation)
  *   Subdistrict → Local Body (Union Parishad / Municipality / City Corporation)
+ *                 OR directly to Ward if City Corporation selected at subdistrict
  *   Local Body → Ward (UP Ward / Muni Ward / City Corp Ward)
  *   Ward → Village (rural path only, via union parishad ID)
  *
@@ -40,11 +41,25 @@
     return (opt && opt.dataset && opt.dataset.type) || '';
   }
 
+  /* Human-readable type labels (Bengali) */
+  var TYPE_LABELS = {
+    'upazila': 'উপজেলা',
+    'metropolitan_thana': 'থানা',
+    'city_corporation': 'সিটি কর্পোরেশন',
+    'union_parishad': 'ইউনিয়ন পরিষদ',
+    'municipality': 'পৌরসভা',
+    'union_parishad_ward': 'ওয়ার্ড',
+    'municipality_ward': 'ওয়ার্ড',
+    'city_corporation_ward': 'ওয়ার্ড'
+  };
+
   function buildTypedOptions(items, placeholder) {
     var opts = '<option value="">' + placeholder + '</option>';
     items.forEach(function (item) {
       var label = item.name_bn || '';
       if (item.name_en) label += ' (' + item.name_en + ')';
+      var typeLabel = TYPE_LABELS[item.type] || '';
+      if (typeLabel) label += ' [' + typeLabel + ']';
       var latAttr = item.lat != null ? ' data-lat="' + item.lat + '"' : '';
       var lngAttr = item.lng != null ? ' data-lng="' + item.lng + '"' : '';
       opts += '<option value="' + item.id + '" data-type="' + (item.type || '') + '"'
@@ -154,6 +169,7 @@
 
   function resetVillageOptions() {
     if (villageSelect) {
+      villageSelect.style.display = '';
       villageSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     }
     if (villageOtherInput) {
@@ -213,7 +229,7 @@
         .then(function (data) {
           var items = data.subdistricts || [];
           subDistrictSelect.innerHTML = buildTypedOptions(
-            items, '-- \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
+            items, '-- \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
           );
         })
         .catch(function () {
@@ -222,7 +238,7 @@
     }
   });
 
-  /* ========== Subdistrict (Upazila / Metro Thana) Change ========== */
+  /* ========== Subdistrict (Upazila / Metro Thana / City Corporation) Change ========== */
 
   if (subDistrictSelect) {
     subDistrictSelect.addEventListener('change', function () {
@@ -240,6 +256,44 @@
         return;
       }
 
+      /* City Corp / Metro Thana / Municipality: skip local body, fetch wards directly */
+      if (subDistrictType === 'city_corporation' || subDistrictType === 'metropolitan_thana' || subDistrictType === 'municipality') {
+        resetLocalBody();
+        if (localBodyTypeInput) localBodyTypeInput.value = subDistrictType;
+
+        /* Show village/moholla row with text input only (no dropdown for urban areas) */
+        showVillageRow(true);
+        if (villageSelect) villageSelect.style.display = 'none';
+        if (villageOtherInput) villageOtherInput.style.display = '';
+
+        if (wardSelect) {
+          wardSelect.innerHTML = '<option value="">-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
+
+          var wardUrl;
+          if (subDistrictType === 'city_corporation') {
+            wardUrl = '/newshub/api/city-corporation-wards/' + subDistrictId + '/';
+          } else if (subDistrictType === 'metropolitan_thana') {
+            wardUrl = '/newshub/api/city-corporation-wards/metro-thana/' + subDistrictId + '/';
+          } else {
+            wardUrl = '/newshub/api/municipality-wards/' + subDistrictId + '/';
+          }
+
+          fetch(wardUrl)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              var items = data.wards || [];
+              wardSelect.innerHTML = buildTypedOptions(
+                items, '-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
+              );
+            })
+            .catch(function () {
+              wardSelect.innerHTML = '<option value="">-- \u09B2\u09CB\u09A1 \u09AC\u09CD\u09AF\u09B0\u09CD\u09A5 --</option>';
+            });
+        }
+        return;
+      }
+
+      /* Upazila: fetch local bodies (union parishad) */
       if (localBodySelect) {
         localBodySelect.innerHTML = '<option value="">-- \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
 
@@ -247,10 +301,9 @@
           .then(function (r) { return r.json(); })
           .then(function (data) {
             var items = data.local_bodies || [];
-            var placeholder = subDistrictType === 'metropolitan_thana'
-              ? '-- \u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
-              : '-- \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 / \u09AA\u09CC\u09B0\u09B8\u09AD\u09BE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --';
-            localBodySelect.innerHTML = buildTypedOptions(items, placeholder);
+            localBodySelect.innerHTML = buildTypedOptions(
+              items, '-- \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
+            );
           })
           .catch(function () {
             localBodySelect.innerHTML = '<option value="">-- \u09B2\u09CB\u09A1 \u09AC\u09CD\u09AF\u09B0\u09CD\u09A5 --</option>';

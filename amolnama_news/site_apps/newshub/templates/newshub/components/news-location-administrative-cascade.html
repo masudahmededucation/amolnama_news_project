@@ -24,15 +24,15 @@
   <input type="hidden" id="news-local-body-type" name="local_body_type">
   <input type="hidden" id="news-ward-type" name="ward_type">
 
-  {# Village — loaded dynamically; visible only on rural (union parishad) path #}
+  {# Village/Moholla — loaded dynamically for union parishad; text input for city corp/metro thana #}
   <div class="widget-field" id="news-village-row" style="display:none;">
-    <label for="news-village-id">গ্রাম (Village)</label>
+    <label for="news-village-id">গ্রাম/মহল্লা (Village/Moholla)</label>
     <select id="news-village-id" name="village_id">
       <option value="">-- প্রথমে ইউনিয়ন পরিষদ নির্বাচন করুন --</option>
     </select>
     <input type="text" id="news-village-other" name="village_other"
            class="village-other-input" style="display:none;"
-           placeholder="গ্রামের নাম লিখুন (Enter village name)" autocomplete="off">
+           placeholder="গ্রাম/মহল্লার নাম লিখুন (Enter village/moholla name)" autocomplete="off">
   </div>
 
   {# Ward — loaded dynamically via JS when local body changes #}
@@ -43,17 +43,17 @@
     </select>
   </div>
 
-  {# Union Parishad / Municipality / City Corporation — loaded dynamically #}
+  {# Union Parishad — loaded dynamically when upazila is selected #}
   <div class="widget-field">
-    <label for="news-union-parishad-id">ইউনিয়ন পরিষদ / পৌরসভা / সিটি কর্পোরেশন (Union Parishad / Municipality / City Corporation)</label>
+    <label for="news-union-parishad-id">ইউনিয়ন পরিষদ (Union Parishad)</label>
     <select id="news-union-parishad-id" name="union_parishad_id">
       <option value="">-- প্রথমে উপজেলা/থানা নির্বাচন করুন --</option>
     </select>
   </div>
 
-  {# Upazila / Metropolitan Thana — loaded dynamically via JS when district changes #}
+  {# Upazila / Metropolitan Thana / City Corporation — loaded dynamically via JS when district changes #}
   <div class="widget-field">
-    <label for="news-upazila-id">উপজেলা/থানা (Upazila/Metropolitan Thana)</label>
+    <label for="news-upazila-id">উপজেলা/থানা/সিটি কর্পোরেশন (Upazila/Metropolitan Thana/City Corporation)</label>
     <select id="news-upazila-id" name="upazila_id">
       <option value="">-- প্রথমে জেলা নির্বাচন করুন --</option>
     </select>

@@ -29,7 +29,7 @@
     valueField: 'id',
     labelField: 'title_bn',
     searchField: ['name_bn', 'name_en', 'title_bn', 'title_en'],
-    placeholder: '\u0997\u09CD\u09B0\u09BE\u09AE, \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8, \u0989\u09AA\u099C\u09C7\u09B2\u09BE, \u09AC\u09BE \u099C\u09C7\u09B2\u09BE \u09B2\u09BF\u0996\u09C7 \u0996\u09C1\u0981\u099C\u09C1\u09A8... (Search by village, union, upazila or district...)',
+    placeholder: 'এলাকার নাম যেমন: রূপনগর, সাভার......লিখে খুজুন',
     loadThrottle: 250,
     openOnFocus: false,
 
@@ -112,41 +112,67 @@
     /* Step 1: District */
     setSelectValue(districtSelect, String(ids.district_id));
 
-    /* Step 2: Subdistrict (upazila or metro thana) */
+    /* Step 2: Subdistrict (upazila, metro thana, city corporation, or municipality) */
     var subDistrictId = ids.upazila_id || ids.metropolitan_thana_id;
+    /* City corp / municipality at subdistrict level: when no upazila/metro thana path */
+    var directSubdistrict = false;
+    if (!subDistrictId && ids.city_corporation_id) {
+      subDistrictId = ids.city_corporation_id;
+      directSubdistrict = true;
+    }
+    if (!subDistrictId && ids.municipality_id) {
+      subDistrictId = ids.municipality_id;
+      directSubdistrict = true;
+    }
+    /* Metro thana, city corp, municipality all skip local body → wards directly */
+    var skipLocalBody = directSubdistrict || ids.metropolitan_thana_id;
+
     if (subDistrictId && subDistrictSelect) {
       waitForOptions(subDistrictSelect, function () {
         setSelectValue(subDistrictSelect, String(subDistrictId));
 
-        /* Step 3: Local body */
-        var localBodyId = ids.union_parishad_id || ids.municipality_id || ids.city_corporation_id;
-        if (localBodyId && localBodySelect) {
-          waitForOptions(localBodySelect, function () {
-            setSelectValue(localBodySelect, String(localBodyId));
-
-            /* Step 4: Ward */
-            var wardId = ids.union_parishad_ward_id || ids.municipality_ward_id || ids.city_corporation_ward_id;
-            if (wardId && wardSelect) {
-              waitForOptions(wardSelect, function () {
-                setSelectValue(wardSelect, String(wardId));
-
-                /* Step 5: Village */
-                var villageId = ids.union_parishad_village_id;
-                if (villageId && villageSelect) {
-                  waitForOptions(villageSelect, function () {
-                    villageSelect.value = String(villageId);
-                    endFillAndCenterMap();
-                  });
-                } else {
-                  endFillAndCenterMap();
-                }
-              });
-            } else {
+        if (skipLocalBody) {
+          /* Metro thana / city corp / municipality: cascade JS fetches wards directly */
+          var wardId = ids.city_corporation_ward_id || ids.municipality_ward_id;
+          if (wardId && wardSelect) {
+            waitForOptions(wardSelect, function () {
+              setSelectValue(wardSelect, String(wardId));
               endFillAndCenterMap();
-            }
-          });
+            });
+          } else {
+            endFillAndCenterMap();
+          }
         } else {
-          endFillAndCenterMap();
+          /* Upazila path: go through local body (union parishad) */
+          var localBodyId = ids.union_parishad_id;
+          if (localBodyId && localBodySelect) {
+            waitForOptions(localBodySelect, function () {
+              setSelectValue(localBodySelect, String(localBodyId));
+
+              /* Step 4: Ward */
+              var wardId = ids.union_parishad_ward_id;
+              if (wardId && wardSelect) {
+                waitForOptions(wardSelect, function () {
+                  setSelectValue(wardSelect, String(wardId));
+
+                  /* Step 5: Village */
+                  var villageId = ids.union_parishad_village_id;
+                  if (villageId && villageSelect) {
+                    waitForOptions(villageSelect, function () {
+                      setSelectValue(villageSelect, String(villageId));
+                      endFillAndCenterMap();
+                    });
+                  } else {
+                    endFillAndCenterMap();
+                  }
+                });
+              } else {
+                endFillAndCenterMap();
+              }
+            });
+          } else {
+            endFillAndCenterMap();
+          }
         }
       });
     } else {
