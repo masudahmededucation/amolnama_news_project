@@ -10,24 +10,64 @@
   if (!form) return;
 
   var poemId = form.dataset.poemId;
+  var poemType = form.dataset.poemType || "poem";
   var currentLang = document.querySelector(".poem-create-lang-btn--active");
   currentLang = currentLang ? currentLang.dataset.lang : "bn";
 
-  /* ── Language toggle ── */
+  // Song type label overrides
+  if (poemType === "song") {
+    document.title = "গানের কথা সম্পাদনা · Amolnama News";
+    var swaps = {
+      "poemEditForm":   null, // skip form element
+    };
+    var labelSwaps = {
+      // Find labels by for attribute since edit form doesn't have same IDs
+    };
+    // Update h1
+    var h1 = document.querySelector(".poem-create-form-panel h1");
+    if (h1) { h1.setAttribute("data-bn", "গানের কথা সম্পাদনা"); h1.setAttribute("data-en", "Edit Song Lyrics"); h1.textContent = "গানের কথা সম্পাদনা"; }
+    // Update labels
+    var lbls = {
+      "poem-author-name":        { bn: "গীতিকার / শিল্পীর নাম *", en: "Lyricist / Artist Name *" },
+      "poem-title-bn":           { bn: "গানের নাম *", en: "Song Title *" },
+      "poem-body-bn":            { bn: "গানের কথা *", en: "Song Lyrics *" },
+      "poem-backstory-bn":       { bn: "গানের পেছনের গল্প (ঐচ্ছিক)", en: "Story Behind the Song (optional)" },
+      "poem-interpretation-bn":  { bn: "গীতিকারের ভাবনা (ঐচ্ছিক)", en: "Lyricist's Interpretation (optional)" },
+      "poem-audio-url":          { bn: "গানের লিংক (ঐচ্ছিক)", en: "Song URL (optional)" },
+      "poem-audio-reciter-name": { bn: "শিল্পীর নাম (ঐচ্ছিক)", en: "Singer Name (optional)" },
+      "poem-audio-description":  { bn: "গানের বিবরণ (ঐচ্ছিক)", en: "Song Description (optional)" },
+    };
+    for (var forAttr in lbls) {
+      var lbl = document.querySelector('label[for="' + forAttr + '"]');
+      if (lbl) {
+        lbl.setAttribute("data-bn", lbls[forAttr].bn);
+        lbl.setAttribute("data-en", lbls[forAttr].en);
+        lbl.textContent = lbls[forAttr].bn;
+      }
+    }
+    var submitEl = document.getElementById("poemSubmitBtn");
+    if (submitEl) { submitEl.setAttribute("data-bn", "আপডেট করুন"); submitEl.setAttribute("data-en", "Update"); submitEl.textContent = "আপডেট করুন"; }
+  }
+
+  /* ── Language toggle — uses universal body[data-lang] system ── */
   document.querySelectorAll(".poem-create-lang-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
         b.classList.remove("poem-create-lang-btn--active");
       });
       btn.classList.add("poem-create-lang-btn--active");
-
       currentLang = btn.dataset.lang;
+      document.body.setAttribute("data-lang", currentLang);
+      var headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
+      if (headerRadio) headerRadio.checked = true;
+    });
+  });
 
-      document.querySelectorAll(".poem-create-field-bn").forEach(function (el) {
-        el.classList.toggle("poem-create-hidden", currentLang !== "bn");
-      });
-      document.querySelectorAll(".poem-create-field-en").forEach(function (el) {
-        el.classList.toggle("poem-create-hidden", currentLang !== "en");
+  document.querySelectorAll('input[name="form_lang"]').forEach(function (radio) {
+    radio.addEventListener("change", function () {
+      currentLang = this.value;
+      document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
+        b.classList.toggle("poem-create-lang-btn--active", b.dataset.lang === currentLang);
       });
     });
   });

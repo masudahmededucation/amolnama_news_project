@@ -23,8 +23,12 @@
 
   /* ========== Language Toggle ========== */
 
-  var langRadios = document.querySelectorAll('input[name="cert-lang"]');
+  /* Use header toggle (form_lang) instead of cert-specific toggle */
+  var langRadios = document.querySelectorAll('input[name="form_lang"]');
   var currentLang = 'bn';
+  for (var lr = 0; lr < langRadios.length; lr++) {
+    if (langRadios[lr].checked) { currentLang = langRadios[lr].value; break; }
+  }
 
   function setLang(lang) {
     currentLang = lang;
@@ -51,6 +55,16 @@
       setLang(this.value);
     });
   });
+
+  /* Apply initial language */
+  setLang(currentLang);
+
+  /* Re-apply when body data-lang changes (set by news-form-lang.js) */
+  var langObserver = new MutationObserver(function () {
+    var bodyLang = document.body.getAttribute('data-lang');
+    if (bodyLang && bodyLang !== currentLang) setLang(bodyLang);
+  });
+  langObserver.observe(document.body, { attributes: true, attributeFilter: ['data-lang'] });
 
   /* ========== Helpers ========== */
 

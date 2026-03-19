@@ -31,16 +31,38 @@
 
   /* ========== Apply language to all labelled elements ========== */
 
+  /* Save original text on first run — so we can restore when switching back to BN */
+  var defaultsSaved = false;
+  function saveDefaults() {
+    if (defaultsSaved) return;
+    defaultsSaved = true;
+    document.querySelectorAll('[data-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-bn')) {
+        // Extract only text content (not child element text)
+        var textOnly = '';
+        for (var c = 0; c < el.childNodes.length; c++) {
+          if (el.childNodes[c].nodeType === Node.TEXT_NODE) textOnly += el.childNodes[c].textContent;
+        }
+        el.setAttribute('data-bn', textOnly.trim());
+      }
+    });
+    document.querySelectorAll('[data-ph-en]').forEach(function (el) {
+      if (!el.hasAttribute('data-ph-bn')) {
+        el.setAttribute('data-ph-bn', el.placeholder || '');
+      }
+    });
+  }
+
   function applyLanguage(lang) {
     if (lang !== 'bn' && lang !== 'en') return;
+    saveDefaults();
 
     /* Static labels, headings, option text */
-    var labelled = document.querySelectorAll('[data-bn][data-en]');
+    var labelled = document.querySelectorAll('[data-en]');
     for (var i = 0; i < labelled.length; i++) {
       var el = labelled[i];
       var text = el.getAttribute('data-' + lang);
       if (text !== null) {
-        /* Preserve non-text child nodes (e.g. .field-mandatory-star spans) */
         var kids = Array.prototype.slice.call(el.childNodes).filter(function (n) {
           return n.nodeType !== Node.TEXT_NODE;
         });
@@ -50,7 +72,7 @@
     }
 
     /* Input / textarea placeholders */
-    var inputs = document.querySelectorAll('[data-ph-bn][data-ph-en]');
+    var inputs = document.querySelectorAll('[data-ph-en]');
     for (var j = 0; j < inputs.length; j++) {
       var ph = inputs[j].getAttribute('data-ph-' + lang);
       if (ph !== null) inputs[j].placeholder = ph;
@@ -58,8 +80,18 @@
 
     currentLang = lang;
 
-    /* Set data-lang on body — drives universal CSS visibility */
+    /* Set data-lang on body */
     document.body.setAttribute('data-lang', lang);
+
+    /* Toggle lang-field-bn / lang-field-en visibility */
+    var bnFields = document.querySelectorAll('.lang-field-bn, .lang-inline-bn');
+    var enFields = document.querySelectorAll('.lang-field-en, .lang-inline-en');
+    for (var b = 0; b < bnFields.length; b++) {
+      bnFields[b].classList.toggle('lang-hidden', lang !== 'bn');
+    }
+    for (var e = 0; e < enFields.length; e++) {
+      enFields[e].classList.toggle('lang-hidden', lang !== 'en');
+    }
 
     /* Keep toggle radios in sync */
     for (var k = 0; k < radios.length; k++) {

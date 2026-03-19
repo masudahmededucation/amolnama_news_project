@@ -11,23 +11,30 @@
   if (pageType === "song") {
     document.title = "গানের কথা লিখুন · Amolnama News";
 
+    // Update both visible text AND data-bn/data-en attributes
     var swaps = {
-      "poemCreateTitle":    "গানের কথা লিখুন (Write Song Lyrics)",
-      "labelAuthor":        "গীতিকার / শিল্পীর নাম (Lyricist / Artist Name) *",
-      "labelTitleBn":       "গানের নাম (Song Title — Bengali) *",
-      "labelBodyBn":        "গানের কথা (Song Lyrics — Bengali) *",
-      "labelBackstoryBn":   "গানের পেছনের গল্প (Story Behind the Song) <small>ঐচ্ছিক</small>",
-      "labelInterpretationBn": "গীতিকারের ভাবনা (Lyricist's Interpretation) <small>ঐচ্ছিক</small>",
-      "labelAudioUrl":      "গানের লিংক (Song URL) <small>ঐচ্ছিক</small>",
-      "labelReciter":       "শিল্পীর নাম (Singer Name) <small>ঐচ্ছিক</small>",
-      "labelAudioDesc":     "গানের বিবরণ (Song Description) <small>ঐচ্ছিক</small>",
-      "hintAuthor":         "গীতিকার বা শিল্পীর নাম (Lyricist or artist name)",
-      "hintAudioUrl":       "YouTube, SoundCloud বা গানের লিংক (YouTube, SoundCloud, or song link)",
+      "poemCreateTitle":       { bn: "গানের কথা লিখুন", en: "Write Song Lyrics" },
+      "labelAuthor":           { bn: "গীতিকার / শিল্পীর নাম *", en: "Lyricist / Artist Name *" },
+      "labelTitleBn":          { bn: "গানের নাম *", en: "Song Title *" },
+      "labelBodyBn":           { bn: "গানের কথা *", en: "Song Lyrics *" },
+      "labelBackstoryBn":      { bn: "গানের পেছনের গল্প (ঐচ্ছিক)", en: "Story Behind the Song (optional)" },
+      "labelInterpretationBn": { bn: "গীতিকারের ভাবনা (ঐচ্ছিক)", en: "Lyricist's Interpretation (optional)" },
+      "labelAudioUrl":         { bn: "গানের লিংক (ঐচ্ছিক)", en: "Song URL (optional)" },
+      "labelReciter":          { bn: "শিল্পীর নাম (ঐচ্ছিক)", en: "Singer Name (optional)" },
+      "labelAudioDesc":        { bn: "গানের বিবরণ (ঐচ্ছিক)", en: "Song Description (optional)" },
+      "hintAuthor":            { bn: "গীতিকার বা শিল্পীর নাম", en: "Lyricist or artist name" },
+      "hintAudioUrl":          { bn: "YouTube, SoundCloud বা গানের লিংক", en: "YouTube, SoundCloud, or song link" },
+      "poemSubmitBtn":         { bn: "প্রকাশ করুন", en: "Publish" },
+      "poemDraftBadge":        { bn: "খসড়া সংরক্ষিত", en: "Draft saved" },
     };
 
     for (var id in swaps) {
       var el = document.getElementById(id);
-      if (el) el.innerHTML = swaps[id];
+      if (el) {
+        el.setAttribute("data-bn", swaps[id].bn);
+        el.setAttribute("data-en", swaps[id].en);
+        el.textContent = swaps[id].bn; // default to BN
+      }
     }
 
     // Placeholders
@@ -57,21 +64,28 @@
 
   var currentLang = "bn";
 
-  /* ── Language toggle ── */
+  /* ── Language toggle — uses universal body[data-lang] system ── */
   document.querySelectorAll(".poem-create-lang-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
         b.classList.remove("poem-create-lang-btn--active");
       });
       btn.classList.add("poem-create-lang-btn--active");
-
       currentLang = btn.dataset.lang;
+      // Set body data-lang — CSS handles visibility of .lang-field-bn / .lang-field-en
+      document.body.setAttribute("data-lang", currentLang);
+      // Sync header toggle
+      var headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
+      if (headerRadio) headerRadio.checked = true;
+    });
+  });
 
-      document.querySelectorAll(".poem-create-field-bn").forEach(function (el) {
-        el.classList.toggle("poem-create-hidden", currentLang !== "bn");
-      });
-      document.querySelectorAll(".poem-create-field-en").forEach(function (el) {
-        el.classList.toggle("poem-create-hidden", currentLang !== "en");
+  // Sync poem toggle with header toggle
+  document.querySelectorAll('input[name="form_lang"]').forEach(function (radio) {
+    radio.addEventListener("change", function () {
+      currentLang = this.value;
+      document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
+        b.classList.toggle("poem-create-lang-btn--active", b.dataset.lang === currentLang);
       });
     });
   });

@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}File Conversion · Tools · Amolnama News{% endblock %}
+{% block title %}ফাইল রূপান্তর · Tools · Amolnama News{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
@@ -10,9 +10,9 @@
 
 {% block content %}
 <section class="tool-page tool-page--convert">
-  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
-  <h1>File Conversion</h1>
-  <p class="tool-subtitle">Convert files right in your browser. Nothing is uploaded to any server.</p>
+  <a href="{% url 'tools:tools' %}" class="tool-back" data-en="&larr; Back to Tools">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1 data-en="File Conversion">ফাইল রূপান্তর (File Conversion)</h1>
+  <p class="tool-subtitle" data-en="Convert files right in your browser. Nothing is uploaded to any server.">আপনার ব্রাউজারেই ফাইল রূপান্তর করুন। কোনো সার্ভারে আপলোড হবে না। (Convert files right in your browser. Nothing is uploaded to any server.)</p>
 
   <!-- ===== Drop Zone ===== -->
   <div class="convert-dropzone" id="convert-dropzone">
@@ -26,10 +26,10 @@
         <path d="M22 20 L26 24 L22 28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <p class="convert-dropzone-text">Drag &amp; drop a file here</p>
-    <p class="convert-dropzone-or">or</p>
-    <button type="button" class="convert-browse-btn" id="convert-browse-btn">Browse Files</button>
-    <p class="convert-dropzone-hint">Images, Documents, Spreadsheets &middot; Max 50 MB</p>
+    <p class="convert-dropzone-text" data-en="Drag &amp; drop a file here">ফাইল টেনে এখানে ছাড়ুন (Drag &amp; drop a file here)</p>
+    <p class="convert-dropzone-or" data-en="or">অথবা (or)</p>
+    <button type="button" class="convert-browse-btn" id="convert-browse-btn" data-en="Browse Files">ফাইল বাছাই করুন (Browse Files)</button>
+    <p class="convert-dropzone-hint" data-en="Images, Documents, Spreadsheets &middot; Max 50 MB">ছবি, ডকুমেন্ট, স্প্রেডশিট &middot; সর্বোচ্চ ৫০ MB</p>
   </div>
 
   <!-- ===== File Info + Conversion Options ===== -->
@@ -40,17 +40,17 @@
         <div class="convert-file-name" id="convert-file-name"></div>
         <div class="convert-file-meta" id="convert-file-meta"></div>
       </div>
-      <button type="button" class="convert-change-btn" id="convert-change-btn" title="Change file">Change File</button>
+      <button type="button" class="convert-change-btn" id="convert-change-btn" title="Change file" data-en="Change File">ফাইল পরিবর্তন (Change File)</button>
       <button type="button" class="convert-remove-btn" id="convert-remove-btn" title="Remove file">&times;</button>
     </div>
 
     <div class="convert-options">
-      <h3>Convert to:</h3>
+      <h3 data-en="Convert to:">রূপান্তর করুন (Convert to):</h3>
       <div class="convert-format-grid" id="convert-format-grid"></div>
     </div>
 
     <button type="button" class="convert-action-btn" id="convert-action-btn" disabled>
-      <span class="convert-action-label">Convert</span>
+      <span class="convert-action-label" data-en="Convert">রূপান্তর করুন (Convert)</span>
       <span class="convert-action-spinner" style="display:none"></span>
     </button>
   </div>
@@ -58,12 +58,12 @@
   <!-- ===== Result ===== -->
   <div class="convert-result" id="convert-result" style="display:none">
     <div class="convert-result-header">
-      <h3>Conversion Complete</h3>
+      <h3 data-en="Conversion Complete">রূপান্তর সম্পন্ন! (Conversion Complete)</h3>
     </div>
     <div class="convert-result-info" id="convert-result-info"></div>
     <div class="convert-result-actions">
-      <button type="button" class="convert-download-btn" id="convert-download-btn">Download</button>
-      <button type="button" class="convert-another-btn" id="convert-another-btn">Convert Another File</button>
+      <button type="button" class="convert-download-btn" id="convert-download-btn" data-en="Download">ডাউনলোড করুন (Download)</button>
+      <button type="button" class="convert-another-btn" id="convert-another-btn" data-en="Convert Another File">আরেকটি ফাইল রূপান্তর করুন (Convert Another File)</button>
     </div>
   </div>
 

@@ -235,6 +235,13 @@
   var radioNextPreview = document.getElementById("poemRadioNextPreview");
   var radioTimer = null;
   var radioCancelled = false;
+  var playedIds = [];          // track poems already played in this session
+  var exhaustedCategories = []; // categories fully played
+
+  // Add current poem to played list
+  var initialPoemId = document.querySelector(".poem-detail") ?
+    parseInt(document.querySelector(".poem-detail").getAttribute("data-poem-id")) : null;
+  if (initialPoemId) playedIds.push(initialPoemId);
 
   function fetchNextPoem() {
     if (!radioNextEl) return;
@@ -242,19 +249,37 @@
     var poemId = article ? article.getAttribute("data-poem-id") : null;
     if (!poemId) return;
 
-    fetch("/poem/api/poems/" + poemId + "/next/")
+    var params = "?played=" + playedIds.join(",") +
+                 "&exhausted=" + exhaustedCategories.join(",");
+
+    fetch("/poem/api/poems/" + poemId + "/next/" + params)
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.success || !data.next) return;
-        showUpNext(data.next);
+
+        // Track this poem as played
+        playedIds.push(data.next.id);
+
+        // Update exhausted categories from server
+        if (data.exhausted_categories) {
+          exhaustedCategories = data.exhausted_categories;
+        }
+
+        // If all reset (server sent empty exhausted), clear our lists
+        if (data.exhausted_categories && data.exhausted_categories.length === 0 && playedIds.length > 10) {
+          playedIds = [data.next.id];
+          exhaustedCategories = [];
+        }
+
+        showUpNext(data.next, data.category_changed);
       })
       .catch(function() {});
   }
 
-  function showUpNext(next) {
+  function showUpNext(next, categoryChanged) {
     radioCancelled = false;
-    radioNextTitle.textContent = next.title;
-    radioNextAuthor.textContent = "— " + next.author;
+    radioNextTitle.textContent = (categoryChanged ? "🔀 " : "") + next.title;
+    radioNextAuthor.textContent = "— " + next.author + (categoryChanged ? " (" + next.category + ")" : "");
     radioNextPreview.textContent = next.body.substring(0, 150) + (next.body.length > 150 ? "..." : "");
     radioNextEl.style.display = "block";
 

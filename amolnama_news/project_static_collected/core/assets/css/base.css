@@ -82,6 +82,10 @@ footer {
   border-top: 1px solid #e0e0e0;
 }
 
+/* ---- Universal language field visibility ---- */
+/* Handled by news-form-lang.js — toggles .lang-hidden class */
+.lang-hidden { display: none !important; }
+
 /* Optional: Utility classes */
 .muted {
   color: #888;

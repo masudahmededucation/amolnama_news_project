@@ -303,26 +303,58 @@ def api_poem_entry_like_toggle(request, poem_id):
 
 @require_GET
 def api_poem_next(request, poem_id):
-    """GET /poem/api/poems/<id>/next/ — get next poem with audio from same category.
-    Returns full poem detail for radio-style autoplay."""
+    """GET /poem/api/poems/<id>/next/ — smart radio: play same category first,
+    then move to next category when exhausted. Accepts played IDs to avoid repeats.
+
+    Query params:
+      played    — comma-separated IDs of already-played poems
+      exhausted — comma-separated category IDs already fully played
+    """
     try:
         current = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
     except CollPoemEntry.DoesNotExist:
         return JsonResponse({"success": False, "error": "Not found"}, status=404)
 
-    # Find next poem: same category, has audio, different poem, ordered by created_at
-    qs = CollPoemEntry.objects.filter(
-        link_poem_ref_poem_category_id=current.link_poem_ref_poem_category_id,
-    ).exclude(
-        poem_coll_poem_entry_id=poem_id,
+    # Parse played IDs and exhausted categories from query params
+    played_raw = request.GET.get("played", "")
+    played_ids = set()
+    for x in played_raw.split(","):
+        x = x.strip()
+        if x.isdigit():
+            played_ids.add(int(x))
+    played_ids.add(poem_id)  # always exclude current
+
+    exhausted_raw = request.GET.get("exhausted", "")
+    exhausted_cats = set()
+    for x in exhausted_raw.split(","):
+        x = x.strip()
+        if x.isdigit():
+            exhausted_cats.add(int(x))
+
+    # Base filter: has audio, not already played
+    base_qs = CollPoemEntry.objects.exclude(
+        poem_coll_poem_entry_id__in=played_ids,
     ).exclude(
         poem_audio_url__isnull=True,
     ).exclude(
         poem_audio_url="",
-    ).order_by("?")[:1]  # random from same category with audio
+    )
 
+    # Step 1: Try same category (not exhausted)
+    current_cat = current.link_poem_ref_poem_category_id
+    qs = base_qs.filter(
+        link_poem_ref_poem_category_id=current_cat,
+    ).order_by("?")[:1]
+
+    # Step 2: If same category exhausted, try other categories (not in exhausted list)
     if not qs:
-        # Fallback: any poem with audio
+        exhausted_cats.add(current_cat)
+        qs = base_qs.exclude(
+            link_poem_ref_poem_category_id__in=exhausted_cats,
+        ).order_by("?")[:1]
+
+    # Step 3: If all categories exhausted, reset — play any poem with audio
+    if not qs:
         qs = CollPoemEntry.objects.exclude(
             poem_coll_poem_entry_id=poem_id,
         ).exclude(
@@ -330,6 +362,8 @@ def api_poem_next(request, poem_id):
         ).exclude(
             poem_audio_url="",
         ).order_by("?")[:1]
+        # Signal to client to reset played/exhausted lists
+        exhausted_cats = set()
 
     if not qs:
         return JsonResponse({"success": False, "next": None})
@@ -358,6 +392,8 @@ def api_poem_next(request, poem_id):
             "category_id": p.link_poem_ref_poem_category_id,
             "url": "/poem/" + str(p.poem_coll_poem_entry_id) + "/",
         },
+        "exhausted_categories": sorted(exhausted_cats),
+        "category_changed": p.link_poem_ref_poem_category_id != current_cat,
     })
 
 

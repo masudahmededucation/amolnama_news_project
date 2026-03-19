@@ -10,24 +10,24 @@
 
 {% block content %}
 <section class="tool-page tool-page--split-pdf">
-  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Tools এ ফিরুন (Back to Tools)</a>
-  <h1>পিডিএফ স্প্লিট (Split PDF)</h1>
-  <p class="tool-subtitle">বড় পিডিএফ ফাইল থেকে প্রতিটি পাতা আলাদা করুন অথবা নির্দিষ্ট পরিসীমা দিয়ে ভাগ করুন। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
+  <a href="{% url 'tools:tools' %}" class="tool-back" data-en="&larr; Back to Tools">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1 data-en="Split PDF">পিডিএফ স্প্লিট (Split PDF)</h1>
+  <p class="tool-subtitle" data-en="Split each page from a large PDF or divide by custom ranges. Everything is processed in your browser — nothing is uploaded to any server.">বড় পিডিএফ ফাইল থেকে প্রতিটি পাতা আলাদা করুন অথবা নির্দিষ্ট পরিসীমা দিয়ে ভাগ করুন। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
 
   <!-- ===== Drop Zone ===== -->
   <div class="spl-dropzone" id="spl-dropzone">
     <input type="file" id="spl-file-input" accept=".pdf" hidden>
     <div class="spl-dropzone-icon">✂️</div>
-    <p class="spl-dropzone-text">PDF ফাইল এখানে টেনে আনুন (Drag & drop a PDF here)</p>
-    <p class="spl-dropzone-or">অথবা</p>
-    <button type="button" class="spl-browse-btn" id="spl-browse-btn">ফাইল নির্বাচন করুন (Browse File)</button>
-    <p class="spl-dropzone-hint">শুধুমাত্র PDF &middot; সর্বোচ্চ ২০০ MB</p>
+    <p class="spl-dropzone-text" data-en="Drag &amp; drop a PDF here">PDF ফাইল এখানে টেনে আনুন (Drag &amp; drop a PDF here)</p>
+    <p class="spl-dropzone-or" data-en="or">অথবা (or)</p>
+    <button type="button" class="spl-browse-btn" id="spl-browse-btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
+    <p class="spl-dropzone-hint" data-en="PDF only &middot; Max 200 MB">শুধুমাত্র PDF &middot; সর্বোচ্চ ২০০ MB</p>
   </div>
 
   <!-- ===== Error Section ===== -->
   <div class="spl-error" id="spl-error" style="display:none">
     <p id="spl-error-text"></p>
-    <button type="button" class="spl-try-again-btn" id="spl-try-again-btn">আবার চেষ্টা করুন (Try Again)</button>
+    <button type="button" class="spl-try-again-btn" id="spl-try-again-btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
   </div>
 
   <!-- ===== Workspace ===== -->
@@ -40,17 +40,17 @@
       <span id="spl-file-pages">0 পৃষ্ঠা</span>
       <span class="spl-stats-divider">&middot;</span>
       <span id="spl-file-size">0 KB</span>
-      <button type="button" class="spl-change-btn" id="spl-change-btn" title="অন্য ফাইল নির্বাচন করুন">🔄 পরিবর্তন</button>
+      <button type="button" class="spl-change-btn" id="spl-change-btn" title="অন্য ফাইল নির্বাচন করুন" data-en="🔄 Change">🔄 পরিবর্তন</button>
     </div>
 
     <!-- Toolbar: all actions in one place -->
     <div class="spl-toolbar">
       <div class="spl-toolbar-btns">
-        <button type="button" class="spl-toolbar-btn active" id="spl-tab-all">✂️ সব পৃষ্ঠা আলাদা (Split All)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-odd">বিজোড় পৃষ্ঠা (Odd Pages)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-even">জোড় পৃষ্ঠা (Even Pages)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-none">সব বাতিল (Deselect All)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-tab-range">📐 পৃষ্ঠা পরিসীমা (Page Ranges)</button>
+        <button type="button" class="spl-toolbar-btn active" id="spl-tab-all" data-en="✂️ Split All">✂️ সব পৃষ্ঠা আলাদা (Split All)</button>
+        <button type="button" class="spl-toolbar-btn" id="spl-pick-odd" data-en="Odd Pages">বিজোড় পৃষ্ঠা (Odd Pages)</button>
+        <button type="button" class="spl-toolbar-btn" id="spl-pick-even" data-en="Even Pages">জোড় পৃষ্ঠা (Even Pages)</button>
+        <button type="button" class="spl-toolbar-btn" id="spl-pick-none" data-en="Deselect All">সব বাতিল (Deselect All)</button>
+        <button type="button" class="spl-toolbar-btn" id="spl-tab-range" data-en="📐 Page Ranges">📐 পৃষ্ঠা পরিসীমা (Page Ranges)</button>
       </div>
       <p class="spl-pick-counter" id="spl-pick-counter"></p>
     </div>
@@ -58,9 +58,9 @@
     <!-- Range input (shown when Page Ranges is active) -->
     <div class="spl-range-panel" id="spl-panel-range" style="display:none">
       <div class="spl-range-section">
-        <label class="spl-label" for="spl-range-input">পরিসীমা দিন (Enter Ranges) — যেমন: <strong>1-3, 5, 8-10</strong></label>
+        <label class="spl-label" for="spl-range-input" data-en="Enter Ranges — e.g.: 1-3, 5, 8-10">পরিসীমা দিন (Enter Ranges) — যেমন: <strong>1-3, 5, 8-10</strong></label>
         <div class="spl-range-row">
-          <input type="text" id="spl-range-input" class="spl-input" placeholder="যেমন: 1-3, 4-7, 8-10">
+          <input type="text" id="spl-range-input" class="spl-input" placeholder="যেমন: 1-3, 4-7, 8-10" data-no-bangla>
         </div>
         <p class="spl-range-hint" id="spl-range-hint"></p>
       </div>
@@ -76,8 +76,8 @@
     <!-- Output options -->
     <div class="spl-options">
       <div class="spl-option-row">
-        <label class="spl-label" for="spl-output-name">ফাইলের নাম (Output Filename)</label>
-        <input type="text" id="spl-output-name" class="spl-input" value="split-document" placeholder="split-document">
+        <label class="spl-label" for="spl-output-name" data-en="Output Filename">ফাইলের নাম (Output Filename)</label>
+        <input type="text" id="spl-output-name" class="spl-input" value="split-document" placeholder="split-document" data-no-bangla>
       </div>
     </div>
 
@@ -86,9 +86,9 @@
     <!-- Split action -->
     <div class="spl-actions">
       <button type="button" class="spl-btn spl-btn--split" id="spl-split-btn">
-        <span class="spl-btn-text">✂️ স্প্লিট করুন (Split PDF)</span>
+        <span class="spl-btn-text" data-en="✂️ Split PDF">✂️ স্প্লিট করুন (Split PDF)</span>
       </button>
-      <button type="button" class="spl-btn spl-btn--reset" id="spl-reset-btn">🔄 নতুন করে শুরু (Start Over)</button>
+      <button type="button" class="spl-btn spl-btn--reset" id="spl-reset-btn" data-en="🔄 Start Over">🔄 নতুন করে শুরু (Start Over)</button>
     </div>
 
     <!-- Progress -->
@@ -96,22 +96,22 @@
       <div class="spl-progress-bar">
         <div class="spl-progress-fill" id="spl-progress-fill"></div>
       </div>
-      <p class="spl-progress-text" id="spl-progress-text">স্প্লিট হচ্ছে… (Splitting…)</p>
+      <p class="spl-progress-text" id="spl-progress-text" data-en="Splitting…">স্প্লিট হচ্ছে… (Splitting…)</p>
     </div>
 
     <!-- Download result -->
     <div class="spl-result" id="spl-result" style="display:none">
-      <p class="spl-result-text">স্প্লিট সম্পন্ন! (Split Complete!)</p>
+      <p class="spl-result-text" data-en="Split Complete!">স্প্লিট সম্পন্ন! (Split Complete!)</p>
       <div class="spl-result-info">
         <span id="spl-result-pages">0 ফাইল</span>
         <span class="spl-stats-divider">&middot;</span>
         <span id="spl-result-size">0 KB</span>
       </div>
-      <button type="button" class="spl-btn spl-btn--download" id="spl-download-btn">⬇️ ডাউনলোড (Download)</button>
+      <button type="button" class="spl-btn spl-btn--download" id="spl-download-btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
     </div>
   </div>
 
-  <p class="spl-privacy">🔒 আপনার ফাইল সম্পূর্ণ ব্রাউজারে প্রসেস হয় — কোনো সার্ভারে পাঠানো হয় না (Files are processed entirely in your browser — nothing is uploaded)</p>
+  <p class="spl-privacy" data-en="🔒 Files are processed entirely in your browser — nothing is uploaded">🔒 আপনার ফাইল সম্পূর্ণ ব্রাউজারে প্রসেস হয় — কোনো সার্ভারে পাঠানো হয় না (Files are processed entirely in your browser — nothing is uploaded)</p>
 </section>
 {% endblock %}
 

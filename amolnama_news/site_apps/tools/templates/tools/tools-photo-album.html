@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}Photo Album Maker · Tools · Amolnama News{% endblock %}
+{% block title %}ফটো অ্যালবাম মেকার · Tools · Amolnama News{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
@@ -12,11 +12,11 @@
 <section class="tool-page tool-page--photo-album">
 
   <!-- Back link -->
-  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
+  <a href="{% url 'tools:tools' %}" class="tool-back" data-en="&larr; Back to Tools">&larr; টুলসে ফিরুন (Back to Tools)</a>
 
   <!-- Header -->
-  <h1>📷 ফটো অ্যালবাম মেকার (Photo Album Maker)</h1>
-  <p class="tool-subtitle">
+  <h1 data-en="📷 Photo Album Maker">📷 ফটো অ্যালবাম মেকার (Photo Album Maker)</h1>
+  <p class="tool-subtitle" data-en="Create print-quality album pages — reposition images by dragging, swap frames. Also use for NID card front/back print layout or passport photo print sheets.">
     প্রিন্ট-কোয়ালিটি ফটো অ্যালবাম পেজ তৈরি করুন — ছবি ড্র্যাগ করে পজিশন ঠিক করুন, ফ্রেম অদলবদল করুন।
     এনআইডি কার্ডের সামনে-পেছনে সাজাতে বা পাসপোর্ট ছবি প্রিন্ট-রেডি করতেও ব্যবহার করুন।<br>
     Create print-quality album pages — reposition images by dragging, swap frames.
@@ -25,7 +25,7 @@
 
   <!-- ---- Page size ---- -->
   <div class="album-page-sizes">
-    <label class="album-label" for="album-page-size">পেজ সাইজ (Page Size)</label>
+    <label class="album-label" for="album-page-size" data-en="Page Size">পেজ সাইজ (Page Size)</label>
     <select class="album-select" id="album-page-size">
       <optgroup label="Standard">
         <option value="5x7" selected>5″ × 7″ — Portrait</option>
@@ -46,7 +46,7 @@
 
   <!-- ---- Layout selector ---- -->
   <div class="album-layouts">
-    <span class="album-label">লেআউট (Layout)</span>
+    <span class="album-label" data-en="Layout">লেআউট (Layout)</span>
     <div class="album-layout-grid">
 
       <button type="button" class="album-layout-btn" data-layout="2h" title="2 Side-by-Side">
@@ -124,7 +124,7 @@
 
   <!-- ---- Background color ---- -->
   <div class="album-bg-options">
-    <span class="album-label">ব্যাকগ্রাউন্ড (Background)</span>
+    <span class="album-label" data-en="Background">ব্যাকগ্রাউন্ড (Background)</span>
     <div class="album-bg-swatches">
       <span class="album-swatch" data-color="#FFFFFF" style="background:#FFFFFF" title="White"></span>
       <span class="album-swatch" data-color="#F5F5F0" style="background:#F5F5F0" title="Cream"></span>
@@ -143,18 +143,18 @@
       </div>
     </div>
     <p class="album-swap-hint" id="album-swap-hint"></p>
-    <p class="album-drag-hint">ছবি ড্র্যাগ করে ফ্রেমের মধ্যে পজিশন ঠিক করুন (Drag image inside frame to reposition)</p>
+    <p class="album-drag-hint" data-en="Drag image inside frame to reposition">ছবি ড্র্যাগ করে ফ্রেমের মধ্যে পজিশন ঠিক করুন (Drag image inside frame to reposition)</p>
   </div>
 
   <!-- ---- Border & rounding controls ---- -->
   <div class="album-controls-row">
     <div class="album-control">
-      <label for="album-border-slider">ফ্রেম প্যাডিং (Frame Padding)</label>
+      <label for="album-border-slider" data-en="Frame Padding">ফ্রেম প্যাডিং (Frame Padding)</label>
       <input type="range" id="album-border-slider" min="0" max="40" value="12" step="1">
       <span class="album-control-value" id="album-border-value">12px</span>
     </div>
     <div class="album-control">
-      <label for="album-round-slider">কর্নার রাউন্ডিং (Corner Rounding)</label>
+      <label for="album-round-slider" data-en="Corner Rounding">কর্নার রাউন্ডিং (Corner Rounding)</label>
       <input type="range" id="album-round-slider" min="0" max="40" value="0" step="1">
       <span class="album-control-value" id="album-round-value">0px</span>
     </div>
@@ -162,17 +162,17 @@
 
   <!-- ---- Create button ---- -->
   <div class="album-actions">
-    <button type="button" class="album-btn album-btn--create" id="album-create-btn" disabled>
+    <button type="button" class="album-btn album-btn--create" id="album-create-btn" disabled data-en="🖼️ Create Album">
       🖼️ অ্যালবাম তৈরি করুন (Create Album)
     </button>
-    <button type="button" class="album-btn album-btn--reset" id="album-reset-btn">
+    <button type="button" class="album-btn album-btn--reset" id="album-reset-btn" data-en="🔄 Reset">
       🔄 রিসেট (Reset)
     </button>
   </div>
 
   <!-- ---- Result section (hidden until created) ---- -->
   <div class="album-result" id="album-result" style="display:none">
-    <h3 class="album-result-title">অ্যালবাম তৈরি হয়েছে (Album Created)</h3>
+    <h3 class="album-result-title" data-en="Album Created">অ্যালবাম তৈরি হয়েছে (Album Created)</h3>
     <div class="album-result-preview" id="album-result-preview">
       <!-- canvas rendered here -->
     </div>

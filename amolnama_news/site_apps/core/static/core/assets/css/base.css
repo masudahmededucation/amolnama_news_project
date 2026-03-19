@@ -83,17 +83,8 @@ footer {
 }
 
 /* ---- Universal language field visibility ---- */
-/* Default: Bengali visible, English hidden (BN is default language) */
-.lang-field-bn { display: block; }
-.lang-field-en { display: none; }
-/* When body has data-lang="en", swap visibility */
-body[data-lang="en"] .lang-field-bn { display: none; }
-body[data-lang="en"] .lang-field-en { display: block; }
-/* Inline variants for flex/inline layouts */
-.lang-inline-bn { display: inline; }
-.lang-inline-en { display: none; }
-body[data-lang="en"] .lang-inline-bn { display: none; }
-body[data-lang="en"] .lang-inline-en { display: inline; }
+/* Handled by news-form-lang.js — toggles .lang-hidden class */
+.lang-hidden { display: none !important; }
 
 /* Optional: Utility classes */
 .muted {

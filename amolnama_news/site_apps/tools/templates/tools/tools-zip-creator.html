@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}ZIP Creator · Tools · Amolnama News{% endblock %}
+{% block title %}জিপ ক্রিয়েটর · Tools · আমলনামা নিউজ{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
@@ -10,9 +10,9 @@
 
 {% block content %}
 <section class="tool-page tool-page--zip">
-  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
-  <h1>ZIP Creator</h1>
-  <p class="tool-subtitle">Create ZIP archives right in your browser. Nothing is uploaded to any server.</p>
+  <a href="{% url 'tools:tools' %}" class="tool-back" data-en="&larr; Back to Tools">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1 data-en="ZIP Creator">জিপ ফাইল তৈরি (ZIP Creator)</h1>
+  <p class="tool-subtitle" data-en="Create ZIP archives right in your browser. Nothing is uploaded to any server.">ব্রাউজারেই ZIP আর্কাইভ তৈরি করুন — কোনো সার্ভারে আপলোড হয় না</p>
 
   <!-- ===== Drop Zone ===== -->
   <div class="zip-dropzone" id="zip-dropzone">
@@ -28,10 +28,10 @@
         <circle cx="23" cy="36" r="1.5" fill="currentColor"/>
       </svg>
     </div>
-    <p class="zip-dropzone-text">Drag &amp; drop files here</p>
-    <p class="zip-dropzone-or">or</p>
-    <button type="button" class="zip-browse-btn" id="zip-browse-btn">Browse Files</button>
-    <p class="zip-dropzone-hint">Add multiple files to create a ZIP archive</p>
+    <p class="zip-dropzone-text" data-en="Drag &amp; drop files here">ফাইল টেনে এখানে ছাড়ুন (Drag &amp; drop files here)</p>
+    <p class="zip-dropzone-or" data-en="or">অথবা (or)</p>
+    <button type="button" class="zip-browse-btn" id="zip-browse-btn" data-en="Browse Files">ফাইল বাছাই করুন (Browse Files)</button>
+    <p class="zip-dropzone-hint" data-en="Add multiple files to create a ZIP archive">একাধিক ফাইল যোগ করে ZIP আর্কাইভ তৈরি করুন</p>
   </div>
 
   <!-- ===== File List ===== -->
@@ -39,8 +39,8 @@
 
     <!-- Add more files bar -->
     <div class="zip-add-bar">
-      <button type="button" class="zip-add-btn" id="zip-add-btn">+ Add More Files</button>
-      <button type="button" class="zip-clear-btn" id="zip-clear-btn">Clear All</button>
+      <button type="button" class="zip-add-btn" id="zip-add-btn" data-en="+ Add More Files">+ আরও ফাইল যোগ করুন (Add More)</button>
+      <button type="button" class="zip-clear-btn" id="zip-clear-btn" data-en="Clear All">সব মুছুন (Clear All)</button>
     </div>
 
     <!-- File list table -->
@@ -49,27 +49,27 @@
     <!-- Summary -->
     <div class="zip-summary" id="zip-summary">
       <div class="zip-summary-row">
-        <span class="zip-summary-label">Files:</span>
+        <span class="zip-summary-label" data-en="Files:">ফাইল (Files):</span>
         <span class="zip-summary-value" id="zip-file-count">0</span>
       </div>
       <div class="zip-summary-row">
-        <span class="zip-summary-label">Total Size:</span>
+        <span class="zip-summary-label" data-en="Total Size:">মোট সাইজ (Total Size):</span>
         <span class="zip-summary-value" id="zip-total-size">0 B</span>
       </div>
     </div>
 
     <!-- ZIP name input -->
     <div class="zip-name-field">
-      <label for="zip-name-input">Archive Name</label>
+      <label for="zip-name-input" data-en="Archive Name">আর্কাইভের নাম (Archive Name)</label>
       <div class="zip-name-input-wrap">
-        <input type="text" id="zip-name-input" value="archive" placeholder="archive">
+        <input type="text" id="zip-name-input" value="archive" placeholder="archive" data-no-bangla>
         <span class="zip-name-ext">.zip</span>
       </div>
     </div>
 
     <!-- Create button -->
     <button type="button" class="zip-action-btn" id="zip-action-btn">
-      <span class="zip-action-label">Create ZIP</span>
+      <span class="zip-action-label" data-en="Create ZIP">ZIP তৈরি করুন (Create ZIP)</span>
       <span class="zip-action-spinner" style="display:none"></span>
     </button>
   </div>
@@ -77,12 +77,12 @@
   <!-- ===== Result ===== -->
   <div class="zip-result" id="zip-result" style="display:none">
     <div class="zip-result-header">
-      <h3>ZIP Archive Created</h3>
+      <h3 data-en="ZIP Archive Created">ZIP আর্কাইভ তৈরি হয়েছে (ZIP Created)</h3>
     </div>
     <div class="zip-result-details" id="zip-result-details"></div>
     <div class="zip-result-actions">
-      <button type="button" class="zip-download-btn" id="zip-download-btn">Download ZIP</button>
-      <button type="button" class="zip-another-btn" id="zip-another-btn">Create Another ZIP</button>
+      <button type="button" class="zip-download-btn" id="zip-download-btn" data-en="Download ZIP">ডাউনলোড করুন (Download ZIP)</button>
+      <button type="button" class="zip-another-btn" id="zip-another-btn" data-en="Create Another ZIP">আরেকটি ZIP তৈরি করুন (Create Another)</button>
     </div>
   </div>
 

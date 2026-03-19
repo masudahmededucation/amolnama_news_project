@@ -10,14 +10,14 @@
 {% block content %}
 <section class="bh-header">
   <div class="bh-header-left">
-    <h1>ছবি / ভিডিও আপলোড করুন</h1>
-    <p>বাংলাদেশের সৌন্দর্য শেয়ার করুন — ছবি (JPEG, PNG, WebP) বা ভিডিও (MP4, MOV, সর্বোচ্চ ৪০ সেকেন্ড, ৫০MB)</p>
+    <h1 data-en="Upload Photo / Video">ছবি / ভিডিও আপলোড করুন</h1>
+    <p data-en="Share the beauty of Bangladesh — Photo (JPEG, PNG, WebP) or Video (MP4, MOV, max 40 sec, 50MB)">বাংলাদেশের সৌন্দর্য শেয়ার করুন — ছবি (JPEG, PNG, WebP) বা ভিডিও (MP4, MOV, সর্বোচ্চ ৪০ সেকেন্ড, ৫০MB)</p>
   </div>
 </section>
 
 <form id="bhUploadForm" enctype="multipart/form-data" novalidate style="max-width:700px;">
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">ফাইল নির্বাচন করুন *</label>
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Choose File *">ফাইল আপলোড করুন *</label>
     <input type="file" id="bh-file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required style="font-size:.85rem;">
     <div id="bhFilePreview" style="margin-top:.5rem;display:none;">
       <img id="bhImgPreview" style="max-width:300px;max-height:200px;border-radius:var(--radius);display:none;">
@@ -26,55 +26,55 @@
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">ধরন (Category) *</label>
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
     <select id="bh-category" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" required>
-      <option value="">-- বাছাই করুন --</option>
+      <option value="" data-en="-- Select --">-- বাছাই করুন --</option>
       {% for cat in categories %}
-        <option value="{{ cat.bangladesh_ref_media_category_id }}">{{ cat.media_category_name_bn }} ({{ cat.media_category_name_en }})</option>
+        <option value="{{ cat.bangladesh_ref_media_category_id }}" data-en="{{ cat.media_category_name_en }}">{{ cat.media_category_name_bn }} ({{ cat.media_category_name_en }})</option>
       {% endfor %}
     </select>
   </div>
 
   {# Festival date fields — shown only when Festival category selected #}
   <div id="bhFestivalFields" style="display:none;margin-bottom:1rem;background:var(--surface);border-radius:var(--radius);padding:.85rem;">
-    <div style="font-weight:600;font-size:.82rem;margin-bottom:.5rem;">উৎসবের তথ্য (Festival Details)</div>
+    <div style="font-weight:600;font-size:.82rem;margin-bottom:.5rem;" data-en="Festival Details">উৎসবের তথ্য (Festival Details)</div>
     <div style="display:flex;gap:1rem;margin-bottom:.5rem;">
       <div style="flex:1;">
-        <label style="font-size:.8rem;display:block;margin-bottom:.2rem;">তারিখ থেকে (Date From)</label>
+        <label style="font-size:.8rem;display:block;margin-bottom:.2rem;" data-en="Date From">তারিখ থেকে (Date From)</label>
         <input type="date" id="bh-event-date-from" style="width:100%;padding:.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
       </div>
       <div style="flex:1;">
-        <label style="font-size:.8rem;display:block;margin-bottom:.2rem;">তারিখ পর্যন্ত (Date To)</label>
+        <label style="font-size:.8rem;display:block;margin-bottom:.2rem;" data-en="Date To">তারিখ পর্যন্ত (Date To)</label>
         <input type="date" id="bh-event-date-to" style="width:100%;padding:.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
       </div>
     </div>
-    <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer;">
+    <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer;" data-en="Yearly recurring event">
       <input type="checkbox" id="bh-yearly-event" style="width:16px;height:16px;">
       প্রতি বছর পুনরাবৃত্তি হয় (Yearly recurring event)
     </label>
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">শিরোনাম (বাংলা)</label>
-    <input type="text" id="bh-title-bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সুন্দরবনের সূর্যাস্ত">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Title">শিরোনাম</label>
+    <input type="text" id="bh-title-bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সুন্দরবনের সূর্যাস্ত" data-ph-en="e.g. Sunset at Sundarbans">
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">বিবরণ (বাংলা)</label>
-    <textarea id="bh-desc-bn" rows="3" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="ছবি বা ভিডিওর বিবরণ..."></textarea>
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Description">বিবরণ</label>
+    <textarea id="bh-desc-bn" rows="3" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="ছবি বা ভিডিওর বিবরণ..." data-ph-en="Describe the photo or video..."></textarea>
   </div>
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">স্থান (Location)</label>
-      <input type="text" id="bh-location-bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার, বান্দরবান">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Location">স্থান (Location)</label>
+      <input type="text" id="bh-location-bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার, বান্দরবান" data-ph-en="e.g. Cox's Bazar, Bandarban">
     </div>
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">ঋতু (Season)</label>
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Season">ঋতু (Season)</label>
       <select id="bh-season" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
-        <option value="">-- ঐচ্ছিক --</option>
+        <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         {% for s in seasons %}
-          <option value="{{ s.bangladesh_ref_season_id }}">{{ s.season_name_bn }}</option>
+          <option value="{{ s.bangladesh_ref_season_id }}" data-en="{{ s.season_name_en }}">{{ s.season_name_bn }}</option>
         {% endfor %}
       </select>
     </div>
@@ -82,21 +82,21 @@
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">ক্যামেরা মডেল</label>
-      <input type="text" id="bh-camera" maxlength="100" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: Canon EOS R5, iPhone 15 Pro">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Camera Model">ক্যামেরা মডেল</label>
+      <input type="text" id="bh-camera" maxlength="100" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: Canon EOS R5, iPhone 15 Pro" data-no-bangla>
     </div>
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">সময় (Time of Day)</label>
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Time of Day">সময় (Time of Day)</label>
       <select id="bh-time-of-day" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
-        <option value="">-- ঐচ্ছিক --</option>
-        <option value="dawn">ভোর (Dawn)</option>
-        <option value="morning">সকাল (Morning)</option>
-        <option value="noon">দুপুর (Noon)</option>
-        <option value="afternoon">বিকাল (Afternoon)</option>
-        <option value="golden_hour">গোল্ডেন আওয়ার</option>
-        <option value="sunset">সূর্যাস্ত (Sunset)</option>
-        <option value="dusk">সন্ধ্যা (Dusk)</option>
-        <option value="night">রাত (Night)</option>
+        <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
+        <option value="dawn" data-en="Dawn">ভোর (Dawn)</option>
+        <option value="morning" data-en="Morning">সকাল (Morning)</option>
+        <option value="noon" data-en="Noon">দুপুর (Noon)</option>
+        <option value="afternoon" data-en="Afternoon">বিকাল (Afternoon)</option>
+        <option value="golden_hour" data-en="Golden Hour">গোল্ডেন আওয়ার</option>
+        <option value="sunset" data-en="Sunset">সূর্যাস্ত (Sunset)</option>
+        <option value="dusk" data-en="Dusk">সন্ধ্যা (Dusk)</option>
+        <option value="night" data-en="Night">রাত (Night)</option>
       </select>
     </div>
   </div>
@@ -105,12 +105,12 @@
     <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
       <div id="bhProgressBar" style="width:0%;height:100%;background:var(--primary);transition:width .2s;"></div>
     </div>
-    <span id="bhProgressText" style="font-size:.72rem;color:var(--muted);">আপলোড হচ্ছে...</span>
+    <span id="bhProgressText" style="font-size:.72rem;color:var(--muted);" data-en="Uploading...">আপলোড হচ্ছে...</span>
   </div>
 
   <div id="bhUploadError" style="color:#e74c3c;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
 
-  <button type="submit" id="bhUploadSubmit" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;">
+  <button type="submit" id="bhUploadSubmit" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;" data-en="Upload">
     আপলোড করুন (Upload)
   </button>
 </form>

@@ -4,20 +4,20 @@
     <img src="{% static 'core/assets/img/pwa-icon-192.png' %}" alt="AN" class="pwa-header-install-logo">
     <span class="pwa-header-install-label">Install App</span>
   </button>
+  <div class="header-lang-toggle">
+    <label class="header-lang-option">
+      <input type="radio" name="form_lang" value="bn"
+             {% if form_lang_pref != 'en' %}checked{% endif %}>
+      <span>বাংলা</span>
+    </label>
+    <span class="header-lang-sep">|</span>
+    <label class="header-lang-option">
+      <input type="radio" name="form_lang" value="en"
+             {% if form_lang_pref == 'en' %}checked{% endif %}>
+      <span>English</span>
+    </label>
+  </div>
   {% if user.is_authenticated %}
-    <div class="header-lang-toggle">
-      <label class="header-lang-option">
-        <input type="radio" name="form_lang" value="bn"
-               {% if form_lang_pref != 'en' %}checked{% endif %}>
-        <span>বাং</span>
-      </label>
-      <span class="header-lang-sep">|</span>
-      <label class="header-lang-option">
-        <input type="radio" name="form_lang" value="en"
-               {% if form_lang_pref == 'en' %}checked{% endif %}>
-        <span>EN</span>
-      </label>
-    </div>
     <div class="header-user-menu">
       <button class="btn header-user-menu-toggle" aria-expanded="false" aria-haspopup="true">
         {{ user_display_name }}

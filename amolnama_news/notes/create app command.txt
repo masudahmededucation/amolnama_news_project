@@ -25,4 +25,8 @@ english only text fields - shows when english selected
 --just don't touch the tools or software page. 
 because there is nothing to enter. 
 it is better to keep mixture of english and bengali 
-because some bengali text maybe confusing due to transalation issue
+because some bengali text maybe confusing due to translation issue
+
+--
+did you plan your work how to achieve it? you have done it for register marriage forms.
+simply follow the same steps. i gave you hint

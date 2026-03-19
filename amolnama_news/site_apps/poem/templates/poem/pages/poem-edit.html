@@ -13,122 +13,100 @@
 
   {# ── Form Panel ── #}
   <div class="poem-create-form-panel">
-    <h1>সম্পাদনা করুন (Edit Poem)</h1>
+    <h1 data-bn="সম্পাদনা করুন" data-en="Edit Poem">সম্পাদনা করুন (Edit Poem)</h1>
 
-    {# Language toggle #}
-    <div class="poem-create-lang-toggle">
-      <button type="button" class="poem-create-lang-btn{% if poem.poem_language_code == 'bn' %} poem-create-lang-btn--active{% endif %}" data-lang="bn">বাংলা</button>
-      <button type="button" class="poem-create-lang-btn{% if poem.poem_language_code == 'en' %} poem-create-lang-btn--active{% endif %}" data-lang="en">English</button>
-    </div>
+    {# Language toggle removed — use header toggle (বাংলা | English) #}
 
     <div class="poem-create-error" id="poemCreateError"></div>
 
-    <form id="poemEditForm" data-poem-id="{{ poem.poem_coll_poem_entry_id }}" novalidate>
+    <form id="poemEditForm" data-poem-id="{{ poem.poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
       {# Category #}
       <div class="poem-create-group" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-category">ধরন (Category) *</label>
+        <label class="poem-create-label" for="poem-category" data-bn="ধরন *" data-en="Category *">ধরন (Category) *</label>
         <select class="poem-create-select" id="poem-category" name="poem-category" required>
-          <option value="">-- বাছাই করুন (Select) --</option>
+          <option value="" data-bn="-- বাছাই করুন --" data-en="-- Select --">-- বাছাই করুন (Select) --</option>
           {% for cat in categories %}
-            <option value="{{ cat.poem_ref_poem_category_id }}"{% if cat.poem_ref_poem_category_id == poem.link_poem_ref_poem_category_id %} selected{% endif %}>{{ cat.poem_category_name_bn }} ({{ cat.poem_category_name_en }})</option>
+            <option value="{{ cat.poem_ref_poem_category_id }}" data-bn="{{ cat.poem_category_name_bn }}" data-en="{{ cat.poem_category_name_en }}"{% if cat.poem_ref_poem_category_id == poem.link_poem_ref_poem_category_id %} selected{% endif %}>{{ cat.poem_category_name_bn }} ({{ cat.poem_category_name_en }})</option>
           {% endfor %}
         </select>
       </div>
 
       {# Writer's Name / Pen Name #}
       <div class="poem-create-group" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-author-name">লেখকের নাম / ছদ্মনাম (Writer's Name / Pen Name) *</label>
+        <label class="poem-create-label" for="poem-author-name" data-bn="লেখকের নাম / ছদ্মনাম *" data-en="Writer's Name / Pen Name *">লেখকের নাম / ছদ্মনাম (Writer's Name / Pen Name) *</label>
         <input type="text" class="poem-create-input" id="poem-author-name" name="poem-author-name" maxlength="200" autocomplete="off" value="{{ poem.poem_author_display_name }}">
       </div>
 
       {# Title — Bengali #}
-      <div class="poem-create-group poem-create-field-bn{% if poem.poem_language_code == 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-title-bn">শিরোনাম (Title — Bengali) *</label>
+      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-title-bn" data-bn="শিরোনাম *" data-en="Title *">শিরোনাম *</label>
         <input type="text" class="poem-create-input" id="poem-title-bn" name="poem-title-bn" maxlength="200" autocomplete="off" value="{{ poem.poem_title_bn|default_if_none:'' }}">
       </div>
 
       {# Title — English #}
-      <div class="poem-create-group poem-create-field-en{% if poem.poem_language_code != 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
         <label class="poem-create-label" for="poem-title-en">Title (English)</label>
         <input type="text" class="poem-create-input" id="poem-title-en" name="poem-title-en" maxlength="200" autocomplete="off" value="{{ poem.poem_title_en|default_if_none:'' }}">
       </div>
 
       {# Body — Bengali #}
-      <div class="poem-create-group poem-create-field-bn{% if poem.poem_language_code == 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-body-bn">কবিতা (Poem — Bengali) *</label>
+      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-body-bn" data-bn="কবিতা *" data-en="Poem *">কবিতা *</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-bn" name="poem-body-bn">{{ poem.poem_body_bn|default_if_none:'' }}</textarea>
         <span class="poem-create-counter" id="poemBodyBnCounter">০ লাইন | ০ অক্ষর</span>
       </div>
 
       {# Body — English #}
-      <div class="poem-create-group poem-create-field-en{% if poem.poem_language_code != 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
         <label class="poem-create-label" for="poem-body-en">Poem (English)</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-en" name="poem-body-en">{{ poem.poem_body_en|default_if_none:'' }}</textarea>
         <span class="poem-create-counter" id="poemBodyEnCounter">0 lines | 0 chars</span>
       </div>
 
       {# Backstory — Bengali #}
-      <div class="poem-create-group poem-create-field-bn{% if poem.poem_language_code == 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-backstory-bn">রচনার গল্প (Story Behind) <small>ঐচ্ছিক</small></label>
+      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-backstory-bn" data-bn="রচনার গল্প (ঐচ্ছিক)" data-en="Story Behind (optional)">রচনার গল্প (Story Behind) ঐচ্ছিক</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-backstory-bn" name="poem-backstory-bn">{{ poem.poem_backstory_bn|default_if_none:'' }}</textarea>
       </div>
 
       {# Backstory — English #}
-      <div class="poem-create-group poem-create-field-en{% if poem.poem_language_code != 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-backstory-en">Story Behind <small>optional</small></label>
+      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-backstory-en">Story Behind (optional)</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-backstory-en" name="poem-backstory-en">{{ poem.poem_backstory_en|default_if_none:'' }}</textarea>
       </div>
 
       {# Interpretation — Bengali #}
-      <div class="poem-create-group poem-create-field-bn{% if poem.poem_language_code == 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-interpretation-bn">কবির ভাবনা (Poet's Interpretation) <small>ঐচ্ছিক</small></label>
+      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-interpretation-bn" data-bn="কবির ভাবনা (ঐচ্ছিক)" data-en="Poet's Interpretation (optional)">কবির ভাবনা (Poet's Interpretation) ঐচ্ছিক</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-interpretation-bn" name="poem-interpretation-bn">{{ poem.poem_interpretation_bn|default_if_none:'' }}</textarea>
       </div>
 
       {# Interpretation — English #}
-      <div class="poem-create-group poem-create-field-en{% if poem.poem_language_code != 'en' %} poem-create-hidden{% endif %}" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-interpretation-en">Poet's Interpretation <small>optional</small></label>
+      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+        <label class="poem-create-label" for="poem-interpretation-en">Poet's Interpretation (optional)</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-interpretation-en" name="poem-interpretation-en">{{ poem.poem_interpretation_en|default_if_none:'' }}</textarea>
       </div>
 
       {# Audio URL #}
       <div class="poem-create-group" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-audio-url">অডিও লিংক (Audio URL) <small>ঐচ্ছিক</small></label>
+        <label class="poem-create-label" for="poem-audio-url" data-bn="অডিও লিংক (ঐচ্ছিক)" data-en="Audio URL (optional)">অডিও লিংক (Audio URL) ঐচ্ছিক</label>
         <input type="url" class="poem-create-input" id="poem-audio-url" name="poem-audio-url" value="{{ poem.poem_audio_url|default_if_none:'' }}" autocomplete="off">
       </div>
 
       {# Audio Reciter Name #}
       <div class="poem-create-group" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-audio-reciter-name">আবৃত্তিকারের নাম (Reciter Name) <small>ঐচ্ছিক</small></label>
+        <label class="poem-create-label" for="poem-audio-reciter-name" data-bn="আবৃত্তিকারের নাম (ঐচ্ছিক)" data-en="Reciter Name (optional)">আবৃত্তিকারের নাম (Reciter Name) ঐচ্ছিক</label>
         <input type="text" class="poem-create-input" id="poem-audio-reciter-name" name="poem-audio-reciter-name" maxlength="200" autocomplete="off" value="{{ poem.poem_audio_reciter_name|default_if_none:'' }}">
       </div>
 
       {# Audio Description #}
       <div class="poem-create-group" style="margin-bottom:1rem;">
-        <label class="poem-create-label" for="poem-audio-description">অডিও বিবরণ (Audio Description) <small>ঐচ্ছিক</small></label>
+        <label class="poem-create-label" for="poem-audio-description" data-bn="অডিও বিবরণ (ঐচ্ছিক)" data-en="Audio Description (optional)">অডিও বিবরণ (Audio Description) ঐচ্ছিক</label>
         <input type="text" class="poem-create-input" id="poem-audio-description" name="poem-audio-description" maxlength="500" autocomplete="off" value="{{ poem.poem_audio_description|default_if_none:'' }}">
       </div>
 
-      <button type="submit" class="poem-create-submit" id="poemSubmitBtn">সংরক্ষণ করুন (Save Changes)</button>
+      <button type="submit" class="poem-create-submit" id="poemSubmitBtn" data-bn="আপডেট করুন" data-en="Update">আপডেট করুন (Update)</button>
     </form>
-  </div>
-
-  {# ── Preview Panel ── #}
-  <div class="poem-create-preview-panel">
-    <div class="poem-create-preview-label">প্রিভিউ (Preview)</div>
-    <h2 class="poem-create-preview-title" id="previewTitle"></h2>
-    <div class="poem-create-preview-author" id="previewAuthor"></div>
-    <div class="poem-create-preview-body" id="previewBody">
-      <span class="poem-create-preview-empty">কবিতা লিখতে শুরু করুন...</span>
-    </div>
-    <div class="poem-create-preview-section" id="previewBackstoryWrap" style="display:none;">
-      <div class="poem-create-preview-section-title">রচনার গল্প (Story Behind)</div>
-      <div class="poem-create-preview-section-text" id="previewBackstory"></div>
-    </div>
-    <div class="poem-create-preview-section" id="previewInterpretationWrap" style="display:none;">
-      <div class="poem-create-preview-section-title">কবির ভাবনা (Poet's Interpretation)</div>
-      <div class="poem-create-preview-section-text" id="previewInterpretation"></div>
-    </div>
   </div>
 
 </div>
@@ -137,5 +115,4 @@
 
 {% block extra_js %}
 <script src="{% static 'poem/assets/js/pages/poem-edit.js' %}"></script>
-<script src="{% static 'poem/assets/js/pages/poem-create-preview.js' %}"></script>
 {% endblock %}

@@ -94,17 +94,19 @@
   text-decoration: none;
 }
 
-/* ── Language toggle pill (authenticated header) ── */
+/* ── Language toggle pill (authenticated header) — marriage-style ── */
 .header-lang-toggle {
-  display: flex;
-  align-items: center;
-  gap: .15rem;
+  display: inline-flex;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .header-lang-option {
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin: 0;
 }
 
 .header-lang-option input[type="radio"] {
@@ -112,8 +114,7 @@
 }
 
 .header-lang-option span {
-  padding: .1rem .3rem;
-  border-radius: 3px;
+  padding: .3rem .7rem;
   font-size: .78rem;
   font-weight: 600;
   color: var(--muted);
@@ -121,18 +122,17 @@
 }
 
 .header-lang-option:has(input:checked) span {
-  color: var(--text);
-  background: var(--surface);
+  background: #c8960c;
+  color: #fff;
 }
 
-.header-lang-option:hover span {
+.header-lang-option:not(:has(input:checked)):hover span {
+  background: var(--surface);
   color: var(--text);
 }
 
 .header-lang-sep {
-  font-size: .78rem;
-  color: var(--border);
-  line-height: 1;
+  display: none;
 }
 
 /* Auth controls responsive */
