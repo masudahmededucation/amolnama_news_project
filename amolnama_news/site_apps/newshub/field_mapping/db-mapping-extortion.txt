@@ -1,0 +1,490 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: EXTORTION & LAND GRAB (চাঁদাবাজি ও জমি দখল)
+================================================================================
+Last updated: 2026-03-14 (DDL verified: is_law/is_support/is_risk_threat columns; code-based save; shared retaliation)
+Form page:    news-collection-multistep-extortion.html
+Steps:        12 total
+JS managed:   news-accused-repeater.js, news-victim-repeater.js,
+              news-witness-repeater.js, news-extortion-incident.js,
+              news-legal-fir.js (shared), news-extortion-legal.js
+Shared actor modules (loaded via news-multistep-base.html):
+              news-person-name.js, news-person-identity.js,
+              news-person-party-details.js
+
+================================================================================
+STEP 1 — Form Type
+POST key: form_type (value: "extortion")
+Mapping: See db-mapping-common-steps.txt → STEP 1
+================================================================================
+
+================================================================================
+STEP 2 — Contributor
+Mapping: See db-mapping-common-steps.txt → STEP 2
+================================================================================
+
+================================================================================
+STEP 3 — News Content (Generic)
+Template: step-news-content.html → news-entry-form.html
+          NOTE: Uses generic news-entry-form.html — NO extortion-specific sub-type picker.
+Mapping: See db-mapping-common-steps.txt → STEP 3
+================================================================================
+
+================================================================================
+STEP 4 — Accused (অভিযুক্ত / সন্দেহভাজন)
+Template:     step-accused.html → accused-form.html
+JS file:      news-accused-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #accused-json (name="accused_json")
+Reference data (embedded in accused-form.html):
+  #actor-involvement-types-data → {{ actor_involvement_types_json }}
+  #actor-types-data             → {{ actor_types_json }}
+File upload: #accused-photos-real (name="accused_photos") — up to 3 files
+             #accused-photos-descriptions-json (name="accused_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=ACCUSED
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per accused card:
+  {
+    role:               "accused"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"      — single Bengali name
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile] — one row each per accused card
+  Step 1: [person].[person] INSERT — actor identity
+  Step 2: [investigation].[incident_involved_actor_profile] INSERT — actor role & incident link
+    link_coll_news_entry_id                         = <new coll_news_entry_id>
+    link_person_id                                  = <new person_id from step 1>
+    link_ref_status_incident_involved_actor_role_id = 34 (ACCUSED) ← set via _FIELD_TO_ROLE: accused_json→'ACCUSED'
+    incident_involved_actor_role_group_code          = 'ACCUSED' (denormalised status_code for query)
+    link_ref_status_incident_involved_actor_type_id = actor.actorTypeId
+    link_ref_status_victim_medical_condition_id      = None
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 5 — Victim (ভুক্তভোগী / ক্ষতিগ্রস্ত)
+Template:     step-victim.html → victim-form.html
+              NOTE: Uses victim-form.html (NOT victim-form-crime.html)
+                    → NO crime-specific fields (no condition dropdown, no medical location)
+JS file:      news-victim-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #victim-json (name="victim_json")
+File upload: #victim-photos-real (name="victim_photos") — up to 3 files
+             #victim-photos-descriptions-json (name="victim_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=VICTIM
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per victim card (basic — no crime fields):
+  {
+    role:               "victim"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile]
+  (same two-table pattern as Step 4)
+    link_ref_status_incident_involved_actor_role_id = 39 (VICTIM) ← set via _FIELD_TO_ROLE: victim_json→'VICTIM'
+    incident_involved_actor_role_group_code          = 'VICTIM' (denormalised status_code for query)
+    link_ref_status_victim_medical_condition_id      = None (extortion victims have no health condition fields)
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 6 — Witness (সাক্ষী / তথ্যদাতা)
+Template:     step-witness.html → witness-form.html
+JS file:      news-witness-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #witness-json (name="witness_json")
+File upload: #witness-photos-real (name="witness_photos") — up to 3 files
+             #witness-photos-descriptions-json (name="witness_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=WITNESS
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per witness card:
+  {
+    role:               "witness"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile]
+  (same two-table pattern; all optional fields → None if empty)
+    link_ref_status_incident_involved_actor_role_id = 40 (WITNESS) ← set via _FIELD_TO_ROLE: witness_json→'WITNESS'
+    incident_involved_actor_role_group_code          = 'WITNESS' (denormalised status_code for query)
+    link_ref_status_victim_medical_condition_id      = None
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 7 — Incident Details (চাঁদাবাজির বিবরণ)
+Template:     step-incident-details.html → extortion-incident-details-form.html
+JS file:      news-extortion-incident.js
+Hidden input: #extortion-incident-json (name="extortion_incident_json")
+File upload:  #evidence-real (name="evidence_file") — up to 4 files
+              #evidence-descriptions-json (name="evidence_descriptions_json")
+              Template: {% include "file-upload-section.html" %} with upload_prefix="evidence"
+              Backend: _save_evidence_files(request, entry_id, 'evidence_file',
+                       'evidence_descriptions_json', 4, now)
+
+All checkbox/radio values are status_ids from [investigation].[ref_status].
+Container IDs for checkbox groups:
+  #extortion-affiliation-checkboxes  — group_code='extortion_form_extortion_accused_affiliation'
+  #extortion-threat-checkboxes       — group_code='extortion_form_extortion_threat_pressure_method'
+  #extortion-consequence-checkboxes  — group_code='extortion_form_extortion_victim_consequence'
+  #extortion-context-checkboxes      — group_code='extortion_form_extortion_bangladesh_context'
+
+─────────────────────────────────────────────────────────────────────────────────
+COMPLETE JSON STRUCTURE (from news-extortion-incident.js):
+─────────────────────────────────────────────────────────────────────────────────
+
+SECTION 1 — Extortion Sector (DB-driven radio cards)
+  sectorId:           <int>         — status_id from extortion_form_extortion_sector (427-436)
+                                      e.g. 427=SHOP_MARKET, 428=TRANSPORT_VEHICLE, 431=GARMENT_FACTORY
+                                      436=OTHER → triggers sectorOther text input
+  sectorOther:        "<string>"    — free-text detail (shown when sectorId=436 OTHER, code='OTHER')
+  transportLocation:  "<string>"    — hardcoded sub-type (shown when sectorId=428 TRANSPORT_VEHICLE):
+                                      terminal | road_checkpoint | depot_garage | highway
+  garmentType:        "<string>"    — hardcoded sub-type (shown when sectorId=431 GARMENT_FACTORY):
+                                      cash_demand | jhut_forced | abduction_ransom
+
+SECTION 2 — Financial Demand
+  amountDemanded:     <float>       — BDT, optional (0 if blank)
+  amountTaken:        <float>       — BDT, optional (0 if blank)
+  frequencyId:        <int>         — status_id from extortion_form_extortion_demand_frequency (437-443)
+                                      e.g. 437=ONE_TIME, 438=DAILY, 439=WEEKLY, 440=MONTHLY,
+                                           441=PER_TRIP, 442=PER_OCCASION, 443=IRREGULAR
+
+SECTION 3 — Perpetrator Affiliation (DB-driven checkboxes)
+  affiliationIds:     [<int>, ...]  — status_ids from extortion_form_extortion_accused_affiliation (444-451)
+                                      444=POLITICAL_PARTY_STUDENT_YOUTH_WING → triggers partyName row
+                                      445=TRANSPORT_OWNER_WORKER_ASSOCIATION
+                                      446=BUSINESS_TRADE_ASSOCIATION
+                                      447=PROFESSIONAL_CRIMINAL_GANG
+                                      448=LAW_ENFORCEMENT
+                                      449=TEEN_GANG
+                                      450=DISGUISED_AS_ASSOCIATION_FEE
+                                      451=UNKNOWN
+  partyName:          "<string>"    — shown when affiliationIds contains 444 (POLITICAL_PARTY...)
+
+SECTION 4 — Threat Methods (DB-driven checkboxes)
+  threatMethodIds:    [<int>, ...]  — status_ids from extortion_form_extortion_threat_pressure_method (452-460)
+                                      452=IN_PERSON_INTIMIDATION, 453=PHONE_SMS_THREAT,
+                                      454=ONLINE_SOCIAL_MEDIA_THREAT, 455=WRITTEN_LETTER_NOTICE,
+                                      456=BLOCKING_BUSINESS_SUPPLY, 457=PHYSICAL_ASSAULT,
+                                      458=VANDALISM_ARSON, 459=ABDUCTION_HOSTAGE,
+                                      460=THREAT_FALSE_CASE
+
+SECTION 5 — Victim Consequences (DB-driven checkboxes)
+  consequenceIds:     [<int>, ...]  — status_ids from extortion_form_extortion_victim_consequence (461-470)
+                                      461=PAID_FULL, 462=PAID_PARTIAL, 463=BUSINESS_SHUT_DOWN_DISRUPTED,
+                                      464=PHYSICALLY_ASSAULTED_INJURED, 465=ABDUCTED_HELD_HOSTAGE,
+                                      466=SHOT_CRITICALLY_INJURED, 467=KILLED,
+                                      468=FALSE_CASE_FILED,
+                                      469=PROPERTY_VANDALIZED_ARSON → triggers damage rows
+                                      470=NO_CONSEQUENCE_YET
+  damageAmount:       <float>       — shown when consequenceIds contains 469, optional
+  damageDesc:         "<string>"    — shown when consequenceIds contains 469, optional
+
+SECTION 6 — Bangladesh Context (DB-driven checkboxes)
+  bangladeshContextIds: [<int>, ...] — status_ids from extortion_form_extortion_bangladesh_context (472-473)
+                                       472=LAW_ENFORCEMENT_INVOLVED
+                                       473=SYSTEMATIC_EXTORTION_PATTERN
+
+SECTION 7 — General Remarks (Step 7 level, separate from Bangladesh context)
+  remarks:              "<string>"    — optional free-text additional info for the whole incident step
+
+─────────────────────────────────────────────────────────────────────────────────
+DB MAPPING — ExtortionFormImpact
+─────────────────────────────────────────────────────────────────────────────────
+Table: [investigation].[extortion_form_impact]
+Django model: ExtortionFormImpact (investigation/models.py)
+
+  link_coll_news_entry_id                        = entry.coll_news_entry_id
+  link_ref_status_extortion_form_extortion_demand_frequency_id = json.frequencyId or None
+
+SECTOR (single radio → one BIT True, rest False; status_ids 427-436):
+  sector_is_shop_market          = (sectorId == 427)
+  sector_is_transport_vehicle    = (sectorId == 428)
+  sector_is_construction_site    = (sectorId == 429)
+  sector_is_contract_tender      = (sectorId == 430)
+  sector_is_garment_factory      = (sectorId == 431)
+  sector_is_crops_produce        = (sectorId == 432)
+  sector_is_school_college       = (sectorId == 433)
+  sector_is_healthcare_clinic    = (sectorId == 434)
+  sector_is_phone_digital        = (sectorId == 435)
+  sector_is_other                = (sectorId == 436)
+  sector_other_description       = json.sectorOther or None
+
+  sector_transport_location_code  = json.transportLocation or None (terminal/road_checkpoint/depot_garage/highway)
+  sector_garment_extortion_type_code = json.garmentType or None (cash_demand/jhut_forced/abduction_ransom)
+  accused_political_party_org_name = json.partyName or None
+  consequence_property_damage_description = json.damageDesc or None
+  (All 4 columns added 2026-03-19, wired in model + views.py create() call)
+
+FINANCIAL:
+  demand_amount_demanded_bdt     = json.amountDemanded if > 0 else None
+  demand_amount_collected_bdt    = json.amountTaken if > 0 else None
+
+PERPETRATOR AFFILIATION (multi-select → BIT flags; status_ids 444-451):
+  accused_is_political_student_wing   = (444 in affiliationIds)
+  accused_is_transport_association    = (445 in affiliationIds)
+  accused_is_business_trade_association = (446 in affiliationIds)
+  accused_is_professional_gang        = (447 in affiliationIds)
+  accused_is_law_enforcement          = (448 in affiliationIds)
+  accused_is_teen_gang                = (449 in affiliationIds)
+  accused_is_disguised_association_fee = (450 in affiliationIds)
+  accused_is_unknown                  = (451 in affiliationIds)
+
+THREAT METHODS (multi-select → BIT flags; status_ids 452-460):
+  threat_is_in_person            = (452 in threatMethodIds)
+  threat_is_phone_sms            = (453 in threatMethodIds)
+  threat_is_online_social_media  = (454 in threatMethodIds)
+  threat_is_written_letter       = (455 in threatMethodIds)
+  threat_is_blocking_supply      = (456 in threatMethodIds)
+  threat_is_physical_assault     = (457 in threatMethodIds)
+  threat_is_vandalism_arson      = (458 in threatMethodIds)
+  threat_is_abduction_hostage    = (459 in threatMethodIds)
+  threat_is_false_case_threat    = (460 in threatMethodIds)
+
+CONSEQUENCES (multi-select → BIT flags; status_ids 461-470):
+  consequence_is_paid_full               = (461 in consequenceIds)
+  consequence_is_paid_partial            = (462 in consequenceIds)
+  consequence_is_business_disrupted      = (463 in consequenceIds)
+  consequence_is_physically_injured      = (464 in consequenceIds)
+  consequence_is_abducted_hostage        = (465 in consequenceIds)
+  consequence_is_shot_critically_injured = (466 in consequenceIds)
+  consequence_is_killed                  = (467 in consequenceIds)
+  consequence_is_false_case_filed        = (468 in consequenceIds)
+  consequence_is_property_vandalized     = (469 in consequenceIds)
+  consequence_is_none_yet                = (470 in consequenceIds)
+
+BANGLADESH CONTEXT (multi-select → BIT flags; status_ids 472-473):
+  context_is_law_enforcement_direct_participation = (472 in bangladeshContextIds)
+  context_is_systematic_extortion_pattern         = (473 in bangladeshContextIds)
+
+  additional_remarks             = json.remarks or None
+================================================================================
+
+================================================================================
+STEP 8 — Legal Action (আইনি পদক্ষেপ ও সহায়তা)
+Template:     step-extortion-legal.html → extortion-legal-form.html
+              (extortion-legal-form.html includes legal-fir-section.html for shared FIR block)
+JS files:     news-legal-fir.js (shared FIR module), news-extortion-legal.js (form-specific)
+Hidden input: #ext-legal (name="ext_legal")
+
+Reference data (all DB-driven via views context):
+  #legal-fir-status-data   — ✅ DB-driven: {{ fir_statuses_json|safe }}
+                              group_code=law_gd_fir_status (205: NO, 206: POLICE_REFUSED, 207: YES)
+  #ext-applicable-law-data — ✅ DB-driven: {{ ext_applicable_laws_json|safe }}
+                              group_code=extortion_form_law_applicable
+  #ext-case-status-data    — ✅ DB-driven: {{ ext_case_status_json|safe }}
+                              group_code=law_case_status (shared, IDs 486-495)
+  #ext-support-service-data — ✅ DB-driven: {{ ext_support_services_json|safe }}
+                              group_code=extortion_form_law_support_service
+  #ext-retaliation-data    — ✅ DB-driven: {{ ext_retaliation_json|safe }}
+                              group_code=common_victim_risk_threat_pressure_retaliation (shared, IDs 781-788)
+
+JSON structure (serialized to #ext-legal by news-extortion-legal.js):
+  {
+    firStatusId:            <int>          — status_id from law_gd_fir_status (FIR/GD filed status)
+    policeStation:          "<string>"     — থানার নাম via Tom Select (only when FIR=YES)
+    caseNumber:             "<string>"     — মামলা/জিডি নম্বর (only when FIR=YES)
+    policeRefusalStatement: "<string>"     — পুলিশ অস্বীকার বিবৃতি (only when FIR=POLICE_REFUSED)
+    noFirReason:            "<string>"     — মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (only when FIR=NO)
+    applicableLawIds:       [<int>, ...]   — checked law status_ids (474-477)
+    caseStatusId:           <int>          — selected case status status_id (law_case_status, 0 if none)
+    supportServiceIds:      [<int>, ...]   — checked support service status_ids (478-481)
+    retaliationIds:         [<int>, ...]   — checked retaliation/pressure status_ids (482-485)
+    remarks:                "<string>"     — additional remarks
+  }
+
+Step validator: FIR status mandatory; if FIR=YES, police station also required.
+
+DB: ✅ [investigation].[extortion_form_victim_legal_action] — ONE row per submission
+  Django model: ExtortionFormVictimLegalAction (investigation/models.py)
+
+  link_coll_news_entry_id                = <new entry id>
+  link_ref_status_law_gd_fir_status_id   = firStatusId (FK → [investigation].[ref_status])
+  -- GD/FIR text fields (DDL column names use law_gd_fir_ prefix; Django model uses db_column):
+  gd_fir_case_gd_number                  → [law_gd_fir_case_gd_number] NVARCHAR(100) = caseNumber or None (FIR=YES)
+  gd_fir_reason_not_filing_and_plans     → [law_gd_fir_reason_not_filing_and_plans] NVARCHAR(1000) = noFirReason or None (FIR=NO)
+  gd_fir_police_refusal_statement        → [law_gd_fir_police_refusal_statement] NVARCHAR(1000) = policeRefusalStatement (FIR=POLICE_REFUSED)
+  gd_fir_location_display_title_en       → [law_gd_fir_thana_location_display_title_en] NVARCHAR(200) = policeStation or None (FIR=YES)
+  link_ref_status_law_case_status_id     = caseStatusId (FK → [investigation].[ref_status])
+
+  -- Applicable laws (BIT NULL DEFAULT 0, code-based lookup from group_code=extortion_form_law_applicable):
+  is_law_penal_code_383_389              = 'PENAL_CODE_383_389' in law_codes
+  is_law_anti_terrorism_act              = 'ANTI_TERRORISM_ACT' in law_codes
+  is_law_prevention_of_corruption_act    = 'PREVENTION_OF_CORRUPTION_ACT' in law_codes
+  is_law_money_laundering_prevention_act = 'MONEY_LAUNDERING_PREVENTION_ACT' in law_codes
+
+  -- Support services (BIT NULL DEFAULT 0, code-based lookup from group_code=extortion_form_law_support_service):
+  is_support_gov_legal_aid               = 'GOV_LEGAL_AID' in support_codes
+  is_support_acc_complaint               = 'ACC_COMPLAINT' in support_codes
+  is_support_business_association        = 'BUSINESS_ASSOCIATION' in support_codes
+  is_support_ngo_aid                     = 'NGO_AID' in support_codes
+
+  -- Risk / threat / pressure / retaliation (BIT NULL DEFAULT 0, code-based from group_code=common_victim_risk_threat_pressure_retaliation):
+  is_risk_threat_family_pressure             = 'FAMILY_PRESSURE' in retaliation_codes
+  is_risk_threat_settlement_pressure         = 'SETTLEMENT_PRESSURE' in retaliation_codes
+  is_risk_threat_case_withdrawal_pressure    = 'CASE_WITHDRAWAL_PRESSURE' in retaliation_codes
+  is_risk_threat_business_loss_threat        = 'BUSINESS_LOSS_THREAT' in retaliation_codes
+  is_risk_threat_witness_victim_threat       = 'WITNESS_VICTIM_THREAT' in retaliation_codes
+  is_risk_threat_eviction_threat             = 'EVICTION_THREAT' in retaliation_codes
+  is_risk_threat_retaliation_threat          = 'RETALIATION_THREAT' in retaliation_codes
+  is_risk_threat_death_or_physical_harm_threat = 'DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes
+
+  legal_action_additional_remarks        = remarks or None  [nvarchar](1000) NULL
+  created_at                             = now (Python-supplied)
+================================================================================
+
+================================================================================
+STEP 9 — Location
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+================================================================================
+
+================================================================================
+STEP 10 — Social Sources
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+================================================================================
+
+================================================================================
+STEP 11 — Category / Tags
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+================================================================================
+
+================================================================================
+STEP 12 — Submit
+No new POST keys; form submission triggered.
+================================================================================
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+1. [newshub].[coll_news_entry] INSERT
+   - form_type = "extortion"
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (per db-mapping-common-steps.txt)
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — accused rows
+   Source: accused_json (array, Step 4) — first person, then profile per card
+
+4. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — victim rows
+   Source: victim_json (array, Step 5) — first person, then profile per card (no condition/medical fields)
+
+5. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — witness rows
+   Source: witness_json (array, Step 6) — first person, then profile per card
+
+6. [investigation].[extortion_form_impact] INSERT — one row
+   Source: extortion_incident_json (Step 7)
+   Saves:
+     SECTOR BIT flags (status_ids 427-436):
+       sector_is_shop_market, sector_is_transport_vehicle, sector_is_construction_site,
+       sector_is_contract_tender, sector_is_garment_factory, sector_is_crops_produce,
+       sector_is_school_college, sector_is_healthcare_clinic, sector_is_phone_digital,
+       sector_is_other
+     sector_other_description             (json.sectorOther or None)
+     demand_amount_demanded_bdt           (json.amountDemanded if > 0 else None)
+     demand_amount_collected_bdt          (json.amountTaken if > 0 else None)
+     link_ref_status_extortion_form_extortion_demand_frequency_id  (json.frequencyId or None)
+     ACCUSED AFFILIATION BIT flags (status_ids 444-451):
+       accused_is_political_student_wing, accused_is_transport_association,
+       accused_is_business_trade_association, accused_is_professional_gang,
+       accused_is_law_enforcement, accused_is_teen_gang,
+       accused_is_disguised_association_fee, accused_is_unknown
+     THREAT METHOD BIT flags (status_ids 452-460):
+       threat_is_in_person, threat_is_phone_sms, threat_is_online_social_media,
+       threat_is_written_letter, threat_is_blocking_supply, threat_is_physical_assault,
+       threat_is_vandalism_arson, threat_is_abduction_hostage, threat_is_false_case_threat
+     CONSEQUENCE BIT flags (status_ids 461-470):
+       consequence_is_paid_full, consequence_is_paid_partial,
+       consequence_is_business_disrupted, consequence_is_physically_injured,
+       consequence_is_abducted_hostage, consequence_is_shot_critically_injured,
+       consequence_is_killed, consequence_is_false_case_filed,
+       consequence_is_property_vandalized, consequence_is_none_yet
+     BANGLADESH CONTEXT BIT flags (status_ids 472-473):
+       context_is_law_enforcement_direct_participation,
+       context_is_systematic_extortion_pattern
+     additional_remarks                   (json.remarks or None)
+
+   NOW SAVED (columns added 2026-03-19):
+     json.damageAmount     — maps to demand_amount_demanded_bdt (reuses existing column)
+     json.damageDesc       → consequence_property_damage_description NVARCHAR(2000) NULL
+     json.transportLocation → sector_transport_location_code VARCHAR(30) NULL (terminal/road_checkpoint/depot_garage/highway)
+     json.garmentType      → sector_garment_extortion_type_code VARCHAR(30) NULL (cash_demand/jhut_forced/abduction_ransom)
+     json.partyName        → accused_political_party_org_name NVARCHAR(300) NULL
+
+7. ✅ [investigation].[extortion_form_victim_legal_action] INSERT — one row
+   Source: ext_legal (JSON string, Step 8)
+   Parses firStatusId, caseStatusId (stored as FK int), applicableLawIds (474-477 → BIT columns),
+   supportServiceIds (478-481 → BIT columns), retaliationIds (482-485 → BIT columns),
+   policeStation, caseNumber, policeRefusalStatement, noFirReason, remarks.
+
+8. Attachment files (accused_photos, victim_photos, witness_photos, evidence_file)
+   + per-file description JSONs
+
+9. Social source data INSERT (per db-mapping-common-steps.txt)
+
+10. Category/Tag associations INSERT (per db-mapping-common-steps.txt)
+
+================================================================================
+OUTSTANDING QUESTIONS / GAPS
+================================================================================
+1. ~~MAJOR GAP: 14+ fields dropped on save~~ — RESOLVED. ExtortionFormImpact.objects.create()
+   now saves the full set of sector/financial/affiliation/threat/consequence/context fields.
+   All JS fields now saved — damageDesc, transportLocation, garmentType, partyName
+   wired to new DB columns (2026-03-19). damageAmount reuses demand_amount_demanded_bdt.
+   Step 8 (Legal Action) is now ✅ SAVED — see Step 8 and save sequence item 7.
+
+2. ext_amount_demanded_bdt / ext_amount_taken_bdt in model are DECIMAL(18,2)
+   NOT NULL — what should the default be when field is blank? 0 or NULL?
+   Model has no null=True, so Django will insert 0 for empty. Confirm.
+
+3. evidence_file uploads (Step 7): Where are these stored and linked?
+   The form uses name="evidence_file" — same name as in extortion incident form.
+   Does this conflict with any other step's file upload?
+
+4. victim-form.html vs victim-form-crime.html: Extortion uses victim-form.html
+   (no condition/medical fields). Is this the correct UX? Extortion victims can
+   also be assaulted/injured. Consider if crime-specific victim fields are needed
+   for extortion cases where physical violence occurred.
+
+5. Extortion form currently has NO sub-type selector (uses generic news-entry-form.html).
+   Should a separate extortion sub-type (land grab vs. monetary extortion vs.
+   tendering) be added? Currently not in the DB or form.
+================================================================================

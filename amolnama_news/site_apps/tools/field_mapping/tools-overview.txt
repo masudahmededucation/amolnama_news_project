@@ -1,0 +1,139 @@
+================================================================================
+TOOLS APP — OVERVIEW
+================================================================================
+
+App:            site_apps/tools
+URL prefix:     /tools/
+Landing page:   /tools/ → tools.html (7 tool cards)
+Views:          tools/views.py (8 views + 1 API endpoint)
+All tools are 100% client-side (browser-based, no file uploads to server).
+
+================================================================================
+TOOL INDEX
+================================================================================
+
+1. Reduce File Size (ফাইল সংকোচন)
+   URL:     /tools/reduce-file-size/
+   Doc:     tool-reduce-file-size.txt
+   CDN:     JSZip, pdf-lib, pdfjs-dist
+   Summary: Compress images (canvas re-encode) and PDFs (re-render as JPEG pages).
+            Multi-file, sequential queue, before/after comparison, ZIP batch download.
+
+2. File Conversion (ফাইল রূপান্তর)
+   URL:     /tools/file-conversion/
+   Doc:     tool-file-conversion.txt
+   CDN:     pdfjs-dist, jsPDF, mammoth
+   API:     /tools/api/file-conversion-map/ → RefFileConversionMap table
+   Summary: 50+ conversion functions. Image↔image, image→PDF, DOCX↔PDF,
+            CSV↔JSON, JSON↔YAML, XML↔JSON, Markdown↔HTML, and more.
+
+3. ZIP Creator (জিপ ফাইল তৈরি)
+   URL:     /tools/zip-creator/
+   Doc:     tool-zip-creator.txt
+   CDN:     None (custom ZIP builder)
+   Summary: Pure JS ZIP creation with browser-native DEFLATE compression.
+            Smart skip for already-compressed formats. Per-file stats.
+
+4. Passport Photo Resizer (পাসপোর্ট ফটো রিসাইজার)
+   URL:     /tools/passport-photo-resizer/
+   Doc:     tool-passport-photo-resizer.txt
+   CDN:     None
+   Summary: Interactive crop editor with drag-to-position, zoom, pinch-to-zoom.
+            12 presets (Teletalk, BCS, Passport, Visa, Bank). JPEG quality
+            auto-reduction to meet KB limits. Photo/Signature/Background modes.
+
+5. Background Remover (ছবির ব্যাকগ্রাউন্ড রিমুভার)
+   URL:     /tools/background-remover/
+   Doc:     tool-bg-remover.txt
+   CDN:     @mediapipe/selfie_segmentation
+   Summary: AI-powered background removal. Manual brush editing (erase/restore).
+            Edge smoothing, auto-refine, background replacement, shadow effects.
+            Zoom/pan, compare mode. Async pipeline with generation counter.
+
+6. Merge Documents (ডকুমেন্ট মার্জ)
+   URL:     /tools/merge-documents/
+   Doc:     tool-merge-documents.txt
+   CDN:     pdf-lib, pdfjs-dist
+   Summary: Merge PDFs and images into single PDF. Drag-and-drop reorder
+            (desktop + mobile touch). PDF pages copied as vector, images
+            converted to JPEG and centered on A4 pages.
+
+7. Photo Album Maker (ফটো অ্যালবাম মেকার)
+   URL:     /tools/photo-album/
+   Doc:     tool-photo-album.txt
+   CDN:     None
+   Summary: Print-quality album page creator. 8 layouts (3-across, 2-across,
+            grid, asymmetric). 10 page sizes (5×7″ to A4). Drag-and-drop
+            images into frames, swap positions. Border/rounding controls.
+            Download as 300 DPI JPEG.
+
+================================================================================
+SHARED PATTERNS
+================================================================================
+
+- All tools use IIFE pattern: (function () { 'use strict'; ... })();
+- All tools have showSection/hideSection helpers with CSS transition class
+- All tools have drag & drop dropzone + browse button + file input
+- Download pattern: createObjectURL → <a> click → revokeObjectURL (with timeout)
+- No server-side file processing — everything runs in the browser
+- Bengali + English labels throughout (bilingual UI)
+
+================================================================================
+CDN DEPENDENCIES (consolidated)
+================================================================================
+
+Library                    Version     Used By
+-----------                -------     -------
+pdf-lib                    1.17.1      reduce-file-size, merge-documents
+pdfjs-dist                 3.11.174    reduce-file-size, merge-documents, file-conversion
+JSZip                      3.10.1      reduce-file-size (batch download)
+jsPDF                      2.5.2       file-conversion
+mammoth                    1.6.0       file-conversion (DOCX parsing)
+@mediapipe/selfie_seg      0.1.167...  bg-remover
+
+================================================================================
+FILE STRUCTURE
+================================================================================
+
+tools/
+├── field_mapping/
+│   ├── tools-overview.txt                    ← this file
+│   ├── tool-reduce-file-size.txt
+│   ├── tool-file-conversion.txt
+│   ├── tool-zip-creator.txt
+│   ├── tool-passport-photo-resizer.txt
+│   ├── tool-bg-remover.txt
+│   ├── tool-merge-documents.txt
+│   └── tool-photo-album.txt
+├── static/tools/assets/
+│   ├── css/pages/
+│   │   ├── tools.css                         (landing page grid)
+│   │   ├── tools-reduce-file-size.css
+│   │   ├── tools-file-conversion.css
+│   │   ├── tools-zip-creator.css
+│   │   ├── tools-passport-photo-resizer.css
+│   │   ├── tools-bg-remover.css
+│   │   ├── tools-merge-documents.css
+│   │   └── tools-photo-album.css
+│   └── js/pages/
+│       ├── tools-reduce-file-size.js
+│       ├── tools-file-conversion.js
+│       ├── tools-zip-creator.js
+│       ├── tools-passport-photo-resizer.js
+│       ├── tools-bg-remover.js
+│       ├── tools-merge-documents.js
+│       └── tools-photo-album.js
+├── templates/tools/
+│   ├── tools.html                            (landing page)
+│   ├── tools-reduce-file-size.html
+│   ├── tools-file-conversion.html
+│   ├── tools-zip-creator.html
+│   ├── tools-passport-photo-resizer.html
+│   ├── tools-bg-remover.html
+│   ├── tools-merge-documents.html
+│   └── tools-photo-album.html
+├── urls.py
+├── views.py
+├── validators.py
+├── models.py
+└── apps.py

@@ -1,0 +1,366 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: COMMON STEPS (all multi-step forms)
+================================================================================
+Last updated: 2026-03-13 (field audit — corrected Step 1/2 columns, added contributor)
+File: amolnama_news/site_apps/newshub/db-mapping-common-steps.txt
+
+Every multi-step form shares these steps. Each per-form mapping file references
+this file for steps 1-2, attachments, and social sources.
+================================================================================
+
+
+================================================================================
+TRANSACTION POLICY — ALL FORMS
+================================================================================
+Function  : _handle_news_submission()  (newshub/views.py)
+Updated   : 2026-03-13
+
+ALL database writes for a single form submission are wrapped in ONE
+transaction.atomic() block. This guarantees:
+
+  ✅ FULL SUCCESS  — every table row (contributor, news entry, attachments,
+                     social sources, tags, form-specific evidence) is committed
+                     together.
+  ✅ FULL ROLLBACK — if ANY step fails (malformed JSON, DB constraint violation,
+                     data type conversion error, file upload error), the ENTIRE
+                     transaction is rolled back. No orphan rows. No partial data.
+
+Implementation:
+  - Outer block: try → with transaction.atomic(): → except (...)
+  - All inner try/except blocks re-raise exceptions (no silent `pass`).
+    If JSON parsing or data conversion fails for submitted data, the exception
+    propagates to the outer handler, triggering a full rollback.
+  - Outer except catches: IntegrityError, DatabaseError, json.JSONDecodeError,
+    ValueError, TypeError, IndexError.
+  - On failure, the user sees an error message and can re-submit.
+
+Rules:
+  1. NEVER add `except (...): pass` inside the transaction block.
+     Always use `raise` to propagate errors.
+  2. The `if raw_json:` guard handles "no data submitted" (skips the block).
+     The try/except handles "data was submitted but is invalid" (raises → rollback).
+  3. File uploads (attachments, photos) also fail-fast — no silent skip.
+  4. Date helpers (_sdate/_sedate) return None for empty strings but let
+     ValueError propagate for malformed dates — no silent `return None` on error.
+  5. Any new form-specific save block MUST follow this pattern.
+
+Audit (2026-03-13, round 4):
+  - ALL except blocks inside the transaction and its helper functions use `raise`.
+  - ZERO `pass` blocks exist anywhere in the file (verified by grep).
+  - Helper functions also fixed:
+    • _save_evidence_files(): descriptions JSON parse error → raise (was pass)
+    • _save_actor_person(): malformed DOB → raise (was pass, now no try/except)
+    • _save_actors_from_json(): malformed actor JSON → raise (was pass)
+  - Outer except catches: IntegrityError, DatabaseError, json.JSONDecodeError,
+    ValueError, TypeError, IndexError.
+  - Forms covered: crime, extortion, land grabbing, civic, price hike, political
+    tracker, global news, war/conflict, sports, entertainment, July uprising,
+    women/child violence + common (attachments, social sources, tags, actors).
+================================================================================
+
+STEP 0: Contributor
+-------
+TABLE     : [newshub].[coll_contributor]
+Django    : CollContributor  (newshub/models.py)
+
+  POST key                        →  DB column                              Notes
+  contributor_full_name_bn        →  coll_contributor_full_name_bn         NVARCHAR, required
+  contributor_type_id             →  link_contributor_type_id              INT FK
+  contributor_contact_email       →  coll_contributor_contact_email        NVARCHAR NULL
+  contributor_contact_phone       →  coll_contributor_contact_phone        NVARCHAR NULL
+  contributor_organization_id     →  coll_contributor_organization_bn      Resolved to org name string
+  contributor_organization_custom →  (fallback for above)                  Used when org = "other"
+
+  NOT SAVED (UI-only):
+    organisation_type_id  — cascade trigger only, no DB column
+  NOT COLLECTED (NULL at submission):
+    link_user_profile_id  — future: link to logged-in user
+    professional_bio_bn   — editorial field, no form input
+
+
+STEP 1: News Content (headline, summary, body, occurrence date)
+-------
+Django form : NewsEntryForm
+TABLE       : [newshub].[coll_news_entry]
+
+  POST key            →  DB column                              Notes
+  headline_bn         →  news_headline_bn                      NVARCHAR, NFKC normalized
+  summary_bn          →  news_summary_bn                       NVARCHAR NULL, NFKC normalized
+  content_body_bn     →  news_content_body_bn                  NVARCHAR(MAX), NFKC normalized
+  occurrence_at       →  occurrence_at                          DATETIME2 (JS date-picker assembly)
+
+  NOT COLLECTED (NULL at submission — editorial workflow):
+    news_headline_en, news_summary_en, news_content_body_en
+    coll_news_entry_external_source_url
+    coll_news_entry_verification_notes
+
+  Category & Tags (set in a later step):
+    news_category_id    →  link_news_category_id               INT FK (or derived from first tag)
+    is_breaking         →  is_breaking                         BIT (checkbox in sidebar)
+
+TABLE : [newshub].[coll_news_entry_tag]  (junction — one row per tag)
+  link_coll_news_entry_id
+  link_ref_news_category_tag_id
+
+
+STEP 2: Location (district → upazila → union/municipality → GPS pin)
+-------
+TABLE : [newshub].[coll_news_entry]  (same row as Step 1)
+
+  POST key                      →  DB column                              Notes
+  district_id                   →  link_district_id                      INT FK, required
+  constituency_id               →  link_constituency_id                  INT FK (set by JS)
+  union_parishad_id             →  link_union_parishad_id                INT FK NULL
+  upazila_city_corporation_name →  upazila_city_corporation_name         NVARCHAR (name string)
+  ward_name                     →  link_ward_name                        NVARCHAR (name string)
+  village_moholla_name          →  link_village_moholla_name             NVARCHAR (name string)
+  latitude                      →  coll_news_entry_latitude              FLOAT NULL
+  longitude                     →  coll_news_entry_longitude             FLOAT NULL
+  formatted_address_bn          →  map_formatted_address_bn              NVARCHAR NULL (Nominatim)
+  full_address_bn               →  full_address_bn                       NVARCHAR NULL (built on submit)
+
+  NOT SAVED (UI-only, used for cascade/persist):
+    upazila_id        — select value, but no link_upazila_id column exists (name string stored instead)
+    ward_id           — select value, but no link_ward_id column exists (name string stored instead)
+    village_id        — select value, but no link_village_id column exists (name string stored instead)
+    subdistrict_type  — JS type tracker for subdistrict cascade branching
+    local_body_type   — JS type tracker for local body cascade branching
+    ward_type         — JS type tracker for ward API endpoint selection
+
+ATTACHMENTS (present on all forms)
+-------
+MODULARISATION (2026-03-12):
+  Template : newshub/components/file-upload-section.html  — SINGLE SOURCE OF TRUTH
+             All upload UI uses {% include %} with context variables:
+               upload_prefix, upload_name, upload_accept, upload_label,
+               upload_btn_label, upload_desc_name, upload_show_featured, upload_hint
+  JS       : news-attachment-upload.js → initFileUploadSection(config)
+             ID convention: {prefix}-picker, {prefix}-real, {prefix}-add-btn,
+                            {prefix}-file-list, {prefix}-descriptions-json
+  Backend  : _save_or_reuse_asset() → shared file save (all forms)
+             _save_evidence_files() → shared evidence file save (crime, extortion, land-grab)
+             Actor photos save loop → inline in _handle_news_submission() (already DRY)
+
+  Upload sections using shared template:
+    attachment      → general news attachment (max 4, featured image, caption)
+    crime-evidence  → crime weapons/evidence (max 4)
+    evidence        → extortion & land-grab evidence (max 4)
+    accused-photos  → accused person photos (max 3)
+    victim-photos   → victim person photos (max 3)
+    witness-photos  → witness person photos (max 3)
+
+POST keys : attachment_file (multipart, up to 4 files)
+            featured_file_index (integer — which file is the cover image)
+            attachment_descriptions_json (JSON array of per-file description strings)
+            attachment_caption_bn (single caption, applied to first file only)
+
+CLIENT-SIDE VALIDATION — ref_asset_type rules (✅ CONFIRMED 2026-03-05)
+  Source  : [media].[ref_asset_type]   Django model: RefAssetType  (multimedia/models.py)
+  Context : asset_type_rules_json → <script type="application/json" id="asset-type-rules-data">
+  JS reads : mime_type, max_size_kb, allowed_extension   (only active rows)
+
+  Validation order in news-attachment-upload.js:
+    1. Match uploaded file by mime_type first
+    2. Fallback: match by allowed_extension (single extension per row, e.g. ".jpg")
+    3. No rule matched → reject: "এই ধরনের ফাইল অনুমোদিত নয় (File type not allowed)"
+    4. file.size > max_size_kb × 1024 → reject with max MB message
+
+  ref_asset_type columns used:
+    [mime_type]          [nvarchar](100) NULL   — e.g. "image/jpeg"
+    [max_size_kb]        [int] NOT NULL         — e.g. 5120 (= 5 MB)
+    [max_size_mb]        [decimal](18,2) NULL   — informational only (JS uses max_size_kb)
+    [allowed_extension]  [nvarchar](50) NULL    — e.g. ".jpg"
+    [is_active]          [bit] NOT NULL         — inactive rows are excluded from rules
+
+SERVER-SIDE SAVE — two-table flow (✅ CONFIRMED 2026-03-05)
+
+  Step A — _save_or_reuse_asset() helper:
+    1. Compute SHA-256 hash of uploaded file
+    2. Look up [media].[asset] by hash_sha256 + file_size_bytes + is_active=True
+    3. If found    → reuse existing asset (get-or-create rule — confirmed)
+    4. If not found → INSERT into [media].[asset]:
+         [asset_guid]           → uuid4()
+         [file_original_name]   → uploaded_file.name
+         [file_extension]       → os.path.splitext(name)[1].lower()
+         [file_mime_type]       → uploaded_file.content_type
+         [file_size_bytes]      → uploaded_file.size
+         [asset_description_bn] → per-file description from attachment_descriptions_json (or NULL)
+         [hash_sha256]          → SHA-256 digest (binary)
+         [hash_algorithm_used]  → 'SHA-256'
+         [hash_is_verified]     → True
+         [hash_last_verify_at]  → now
+         [is_active]            → True
+         [created_at]           → now
+         [modified_at]          → now
+         NOTE: [file_storage_path] is a SQL Server COMPUTED column — never defined in Django model.
+               After INSERT, read back via raw SQL: SELECT file_storage_path WHERE asset_id = %s
+               Then save physical file to MEDIA_ROOT / file_storage_path.
+    5. Returns Asset instance
+
+  Step B — Create junction row in [newshub].[coll_news_asset]:
+    Django model: CollNewsAsset  (newshub/models.py)
+
+    [link_coll_news_entry_id]       → entry.coll_news_entry_id
+    [link_asset_id]                 → asset.asset_id  (from Step A)
+    [coll_news_asset_caption_bn]    → attachment_caption_bn  (first file only; NULL for others)
+    [is_featured]                   → True if this file's index == featured_file_index
+    [sort_order]                    → loop index (0-based)
+    [created_at]                    → now
+
+  Max files per submission: 4
+
+SOCIAL SOURCES (repeater — present on all forms)
+-------
+POST key  : social_source_json  (JSON array, news-social-source-repeater.js)
+Repeater  : multiple entries allowed per submission
+
+Platform dropdown source:
+  TABLE  : [media].[ref_social_media_platform_type]
+  Django : RefSocialMediaPlatformType  (newshub/models.py)
+  Context key : platform_types
+  Template value : pt.social_media_platform_type_id
+
+  Step A — get-or-create URL record in [media].[social_media_url_library]:
+    Django : SocialUrlLibrary  (multimedia/models.py)
+    Filter by social_url == src_url  (DB also has unique constraint on social_url_hash = SHA2_256 of lowercased url)
+    If not found → INSERT:
+      [link_social_media_platform_type_id] → platformId from JSON (int)
+      [social_url]                         → url from JSON
+      [social_embed_code]                  → embedCode from JSON (or NULL)
+      [created_at]                         → now
+      NOTE: [social_url_hash] is a computed persisted column (SHA2_256) — never written by Django
+
+  Step B — create junction row in [newshub].[coll_news_social_media_source]:
+    Django : CollNewsSocialMediaSource  (newshub/models.py)
+    One row per social source entry (multiple rows per news entry allowed)
+    [link_coll_news_entry_id]          → entry.coll_news_entry_id
+    [link_social_media_url_library_id] → url_record.social_media_url_library_id
+    [created_at]                       → now
+
+  JSON keys from news-social-source-repeater.js:
+    platformId   →  link_social_media_platform_type_id
+    url          →  social_url
+    embedCode    →  social_embed_code
+
+INVOLVED ACTOR PROFILE (multi-person repeater — used by forms with a person/actor step)
+-------
+POST key  : involved_actors_json  (JSON array serialized by JS repeater)
+Repeater  : multiple entries per submission — one row per person
+Django    : IncidentInvolvedActorProfile  (investigation/models.py)
+TABLE     : [investigation].[incident_involved_actor_profile]
+
+Save flow — per actor entry:
+
+  Step A — INSERT new Person row into [person].[person]:
+    Rule: Person → ALWAYS INSERT a new row. Never check for existing (confirmed).
+    → get back person_id
+
+  Step A2 (optional) — If the form collects profession/occupation:
+    Shared helper: _save_actor_occupation(person_id, actor_data, now, occ_key='occupationId')
+    Django models: JobTitle (person/models.py), PersonJob (person/models.py)
+    Does nothing if occupationId == 0 or institution is blank.
+
+    Internally:
+    1. Get-or-create [career].[job_title] by job_title_name_bn / job_title_name_en
+       → get job_title_id
+    2. Get-or-create [directory].[organisation] by name
+       → infer organisation_type_id via _infer_org_type_id(name) keyword matching
+       → get organisation_id
+    3. INSERT [person].[person_job]:
+         [link_person_id]       → person_id from Step A
+         [link_job_title_id]    → job_title_id from step 1
+         [link_organisation_id] → organisation_id from step 2
+         [link_department_id]   → NULL unless form collects department
+         [start_date]           → today (or form-supplied date)
+         [is_active]            → True
+         [created_at]           → now
+
+    Used by: WCV victim (Step 4), WCV accused (Step 6), July Uprising martyr (Step 4)
+    Note: occ_key='occupation' for July Uprising (different JSON key name)
+
+  Step B — INSERT one row into [investigation].[incident_involved_actor_profile]:
+    [link_coll_news_entry_id]                              → entry.coll_news_entry_id
+    [link_person_id]                                       → person_id from Step A
+    [link_person_marriage_id]                              → marriage_id if form collects it, else NULL
+    [link_ref_status_incident_involved_actor_role_id]      → status_id from [investigation].[ref_status]
+                                                              group_code = 'incident_involved_actor_role'
+                                                              ACCUSED=34, VICTIM=39, WITNESS=40
+                                                              Set via _FIELD_TO_ROLE or explicit role_code param.
+    [incident_involved_actor_role_group_code]              → denormalised status_code string
+                                                              'ACCUSED', 'VICTIM', 'WITNESS', etc.
+                                                              Enables querying by role without join.
+    [link_ref_status_incident_involved_actor_type_id]      → actor type status_id from JS (actorTypeId)
+    [incident_involved_actor_type_details]                 → actor type detail text from JS
+    [actor_organization_name]                              → from JS (organization)
+    [actor_designation]                                    → from JS (designation)
+    [actor_patron_name]                                    → from JS (patron)
+    [actor_statement]                                      → from JS (statement)
+    [link_ref_status_victim_medical_condition_id]          → from JS (conditionId, crime victim only)
+    [victim_medical_treatment_location_name]               → from JS (medicalLocation, crime victim only)
+    [link_form_type_id]                                    → looked up from [newshub].[ref_news_form_type]
+                                                              by group_code (same ID used in coll_news_entry)
+    [created_at]                                           → DB default (sysdatetime())
+
+  Role assignment (ALWAYS set — every actor_profile row gets both FK and denormalised code):
+    _save_actors_from_json() uses _FIELD_TO_ROLE mapping:
+      accused_json → role_code='ACCUSED' → _resolve_actor_role() → (34, 'ACCUSED')
+      victim_json  → role_code='VICTIM'  → _resolve_actor_role() → (39, 'VICTIM')
+      witness_json → role_code='WITNESS' → _resolve_actor_role() → (40, 'WITNESS')
+    WCV + July Uprising pass role_code directly to _save_actor_profile().
+
+  Notes:
+    - Each actor in the repeater creates exactly one Person row + one actor_profile row.
+    - Multiple rows per news entry are allowed (one per actor added).
+    - link_person_marriage_id is NULL unless the form specifically collects spouse/marriage data.
+    - Profession is stored in [person].[person_job] (not on the person row itself).
+    - Involvement type dropdown populated from ref_status filtered by
+      group_code = 'incident_involved_actor_role'.
+
+================================================================================
+KEY CODING RULES (apply to ALL forms)
+================================================================================
+
+1. _bn columns → display/storage only. Never use in order_by(). Never filter()
+   on _bn alone. Search: Q(col_en__icontains=q) | Q(col_bn__icontains=q)
+
+2. Non-mandatory text → save as None (not "").
+   Pattern: (val or '').strip() or None
+
+3. BIT columns with DB DEFAULT ((0)) → do NOT add null=True to Django field.
+   Do NOT add default= to any model field — DB handles its own defaults.
+
+4. ref_status bulk code lookup:
+   a) Collect all IDs into a set, remove zeros
+   b) code_map = {row['status_id']: row['status_code'].upper()}
+      via RefStatus.objects.filter(status_id__in=all_ids).values(...)
+   c) Derive column name from code or compare against known codes.
+
+5. Tom Select dropdowns → never set .value directly.
+   Use: element.tomselect.setValue(value, true)
+   Then dispatch native 'change' event for cascade triggers.
+
+6. SQL Server computed columns → NEVER define as Django model fields.
+   Leave a comment in the model. Example: # hash_headline_check (computed)
+
+7. INSERT vs GET-OR-CREATE rule (confirmed 2026-03-05):
+   Person          → always INSERT new row. Never check for existing.
+   Everything else → get-or-create: check first, insert if not found, use the ID.
+
+   Applies to (non-exhaustive):
+     organisation           → get-or-create by name → use link_organisation_id
+     education institution  → get-or-create by name → use for person_education
+     media asset (file/pic) → get-or-create in [media].[asset] by file hash or path
+                               if not found → INSERT new asset row, get asset_id
+                               if found     → use existing asset_id
+
+8. link_X_id column naming convention:
+   Strip 'link_' prefix and '_id' suffix to get the table name.
+   Example: link_organisation_id → [organisation] table
+            link_job_title_id    → [career].[job_title] table
+            link_gender_id       → [person].[gender] table
+   'ref_' is a table naming prefix in the DB schema — it does NOT appear
+   in link column names. link_issue_sub_type_id → [ref_issue_sub_type] table.
+
+================================================================================
+END OF FILE
+================================================================================

@@ -1,0 +1,20 @@
+<a href="{% url 'poem:poem_detail' poem_id=poem.poem_coll_poem_entry_id %}" class="poem-card">
+  <div class="poem-card-body">
+    <div class="poem-card-header">
+      <span class="poem-card-category-badge">{{ poem.category_name }}</span>
+      <span class="poem-card-lang">{{ poem.poem_language_code|upper }}</span>
+    </div>
+    <h3 class="poem-card-title">{{ poem.display_title }}</h3>
+    <p class="poem-card-preview">{{ poem.body_preview }}</p>
+  </div>
+  <div class="poem-card-footer">
+    <span class="poem-card-author">{{ poem.poem_author_display_name }}</span>
+    <div class="poem-card-stats">
+      <span class="poem-card-stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        {{ poem.like_count }}
+      </span>
+      <span class="poem-card-time">{{ poem.time_ago }}</span>
+    </div>
+  </div>
+</a>

@@ -4,10 +4,13 @@
   
   {% comment %} <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Evaluation Vote</a> {% endcomment %}
   <a href="{% url 'election_vote:home' %}" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>Election Vote</a>
-  <a href="{% url 'newshub:news_collection' %}" {% if request.resolver_match.namespace == 'newshub' %}class="active"{% endif %}>নাগরিক সংবাদ কেন্দ্র (সাংবাদিকতা)</a>
+  <a href="{% url 'newshub:news_collection_multistep' %}" {% if request.resolver_match.namespace == 'newshub' %}class="active"{% endif %}>নাগরিক সংবাদ কেন্দ্র (সাংবাদিকতা)</a>
+  <a href="{% url 'tools:tools' %}" {% if request.resolver_match.namespace == 'tools' %}class="active"{% endif %}>সফটওয়্যার</a>
+  <a href="{% url 'marriage:marriage' %}" {% if request.resolver_match.namespace == 'marriage' %}class="active"{% endif %}>বিবাহ</a>
+  <a href="{% url 'poem:poem_landing' %}" {% if request.resolver_match.namespace == 'poem' %}class="active"{% endif %}>কবিতা ও গান</a>
+  <a href="{% url 'bangladesh:bangladesh_landing' %}" {% if request.resolver_match.namespace == 'bangladesh' %}class="active"{% endif %}>বাংলাদেশ</a>
 
-
-  <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a>
+  {% comment %} <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a> {% endcomment %}
   {% comment %} <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>
   <a href="{% url 'core:category' 'business' %}" {% if slug == 'business' %}class="active"{% endif %}>Business</a>
   <a href="{% url 'core:category' 'tech' %}" {% if slug == 'tech' %}class="active"{% endif %}>Tech</a>

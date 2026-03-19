@@ -1,0 +1,122 @@
+================================================================================
+TOOL: Passport Photo Resizer (পাসপোর্ট ফটো রিসাইজার)
+================================================================================
+
+URL:        /tools/passport-photo-resizer/
+View:       tools_passport_photo_resizer
+Template:   tools/tools-passport-photo-resizer.html
+JS:         tools/assets/js/pages/tools-passport-photo-resizer.js
+CSS:        tools/assets/css/pages/tools-passport-photo-resizer.css
+
+External Libraries: None (pure canvas-based)
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. THREE MODES
+   - Photo mode (default): white background, square/rectangle presets
+   - Signature mode: 300×80 default, optimized for signature images
+   - Background mode: shows color swatches (white, blue, grey, red)
+
+2. PRESET DIMENSIONS (PRESETS map) — each has w, h, minKb, kb (maxKb)
+   Government Jobs (Teletalk = state-owned telecom running govt job application portal):
+     - teletalk_photo:    300×300, 0–100 KB
+     - teletalk_sig:      300×80,  0–60 KB
+     - bcs_photo:         300×300, 0–100 KB
+     - bcs_sig:           300×80,  0–60 KB
+   Passport:
+     - bd_passport:       1063×1299, 0–300 KB (45×55mm @600dpi)
+     - bd_epassport:      591×709,   0–240 KB (25×30mm @600dpi)
+   Visa:
+     - us_visa:           600×600,   0–240 KB (2×2 inch)
+     - uk_visa:           600×750,   50–10000 KB (has min KB requirement)
+     - schengen_visa:     827×1063,  50–500 KB (35×45mm @600dpi, has min KB requirement)
+   Standard:
+     - bd_passport_size:  413×531,   0–300 KB (35×45mm @300dpi)
+   Bank:
+     - bank_photo:        300×300, 0–100 KB
+     - bank_sig:          300×80,  0–60 KB
+
+3. INTERACTIVE CROP EDITOR
+   - Viewport with movable image behind fixed crop frame
+   - Crop frame: dotted border, centered, maintains target aspect ratio
+   - Frame size: 85% of viewport, auto-calculated from target W×H ratio
+   - Drag to position: mouse drag + single-finger touch
+   - Zoom: slider (0.2× to 3×), mouse wheel on viewport, pinch-to-zoom (mobile)
+   - Zoom anchored to pointer/pinch center point
+
+4. LIVE PREVIEW
+   - Canvas preview updates in real-time as user drags/zooms
+   - getCropRegion: maps viewport crop frame to source image coordinates
+   - Proper clamping for partial overlaps (image doesn't fully cover frame)
+   - Background fill: white for photo/signature, chosen color for background mode
+
+5. CROP & COMPRESS (cropBtn click)
+   - Renders final output to canvas at target dimensions
+   - compressToRange: iterative JPEG quality reduction (0.95 down to 0.10, step 0.05)
+   - Supports min KB and max KB range — warns if range is impossible
+   - Look-ahead: before stepping quality down, tests if next step would go below minimum
+   - Shows: dimensions, file size in KB, quality %, warning messages if range violated
+
+6. MIN/MAX KB RANGE
+   - Two inputs: "সর্বনিম্ন (Min KB)" and "সর্বোচ্চ (Max KB)"
+   - Presets auto-populate both values (e.g. UK Visa: 50–10000 KB)
+   - Warning messages (bilingual Bengali + English):
+     a) Below min KB → "use a higher resolution image"
+     b) Above max KB at lowest quality → "cannot fit within max KB"
+     c) Cannot satisfy both min and max → "adjust image size"
+
+7. DOWNLOAD
+   - Downloads as JPEG: "photo-{W}x{H}.jpg"
+   - Blob URL created and revoked immediately after click
+
+8. RESET
+   - Clears image, canvas, zoom, returns to dropzone
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+photo-resizer-mode-btn (class, multiple)
+photo-resizer-preset-select
+photo-resizer-width, photo-resizer-height
+photo-resizer-min-kb, photo-resizer-max-kb
+photo-resizer-bg-options, photo-resizer-swatch (class, multiple)
+photo-resizer-dropzone, photo-resizer-file-input, photo-resizer-browse-btn
+photo-resizer-editor, photo-resizer-viewport
+photo-resizer-source-img, photo-resizer-crop-frame
+photo-resizer-zoom-range, photo-resizer-zoom-value
+photo-resizer-preview-canvas, photo-resizer-info
+photo-resizer-crop-btn, photo-resizer-download-btn, photo-resizer-reset-btn
+
+================================================================================
+KEY FUNCTIONS
+================================================================================
+
+getCropFrameSize()            — calculates crop frame pixels for target aspect ratio within viewport
+updateCropFrame()             — positions crop frame centered in viewport
+centerImage()                 — fits image to viewport at zoom=1, centers it
+applyImagePosition()          — applies imgLeft/imgTop/zoom to <img> element
+getCropRegion(tw, th)         — maps crop frame to source coordinates with clamping
+updatePreview()               — draws live preview canvas from current crop region
+loadImage(file)               — reads file, creates Image, shows editor
+compressToRange(canvas, minKb, maxKb, cb) — iterative JPEG quality reduction with min/max range
+startDrag / onDrag / endDrag  — mouse drag handlers for image positioning
+getTouchDist / getTouchCenter — touch geometry helpers for pinch-to-zoom
+
+================================================================================
+STATE VARIABLES
+================================================================================
+
+currentMode       — 'photo' | 'signature' | 'background'
+bgColor           — background fill color (default '#FFFFFF')
+originalImage     — loaded Image object
+resultBlob        — final compressed JPEG blob
+imgLeft, imgTop   — image position within viewport (pixels)
+baseW, baseH      — image display dimensions at zoom=1
+currentZoom       — current zoom level (0.2–3.0)
+isDragging        — mouse/touch drag active
+isPinching        — two-finger pinch active

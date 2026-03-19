@@ -1,0 +1,20 @@
+{% comment %}
+  Civic Issue Sub-Type — radio buttons (DB-driven from ref_issue_sub_type)
+  for selecting the type of civic/community issue being reported.
+  Civic & Community form type specific.
+  Selected ID stored in hidden input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-civic-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>সমস্যার ধরন (Issue Sub-Type)</h3>
+
+  {# Hidden input — stores selected sub-type ID for form submission #}
+  <input type="hidden" id="civic-sub-type" name="civic_sub_type" value="">
+
+  {# Embed reference data as JSON (type=application/json bypasses CSP) #}
+  <script type="application/json" id="issue-sub-types-data">{{ issue_sub_types_json|default:"[]"|safe }}</script>
+
+  <div class="civic-sub-type-picker" id="civic-sub-type-picker">
+    {# Radio cards populated by JS from issue-sub-types-data #}
+  </div>
+</div>

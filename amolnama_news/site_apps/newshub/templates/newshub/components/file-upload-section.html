@@ -1,0 +1,47 @@
+{% comment %}
+  Shared file upload section — modularised, reusable.
+  Single source of truth for ALL file upload UI across every form.
+
+  Include with context variables:
+    upload_prefix       — ID prefix, e.g., "attachment", "evidence", "accused-photos"
+    upload_name         — form field name, e.g., "attachment_file", "evidence_file"
+    upload_accept       — accept attribute, e.g., "image/*,video/*,audio/*,.pdf,.doc,.docx"
+    upload_label        — Bengali+English field label text
+    upload_btn_label    — Bengali+English button text
+    upload_desc_name    — descriptions hidden input name, e.g., "attachment_descriptions_json"
+    upload_show_featured — "1" to show featured image hidden input (optional)
+    upload_hint         — hint text below the upload (optional)
+
+  ID convention (all auto-generated from upload_prefix):
+    {prefix}-picker            — hidden file picker input
+    {prefix}-real              — hidden real file input (synced before submit)
+    {prefix}-add-btn           — "add files" button
+    {prefix}-file-list         — file list container
+    {prefix}-descriptions-json — per-file descriptions hidden input
+
+  JS: news-attachment-upload.js initFileUploadSection() reads these IDs via config.
+{% endcomment %}
+
+<div class="form-field">
+  <span class="field-label">{{ upload_label }}</span>
+  {# Hidden real input — JS syncs files into this before submit #}
+  <input type="file" id="{{ upload_prefix }}-real" name="{{ upload_name }}"
+         multiple style="display:none;">
+  {# Picker trigger — hidden, opened by JS #}
+  <input type="file" id="{{ upload_prefix }}-picker"
+         accept="{{ upload_accept }}" multiple style="display:none;">
+  <button type="button" id="{{ upload_prefix }}-add-btn" class="btn-add-file">{{ upload_btn_label }}</button>
+  <div id="{{ upload_prefix }}-file-list" class="file-info" style="display:none;"></div>
+
+  {% if upload_show_featured %}
+  {# Featured image — tracked per-file via radio buttons in the file list (JS) #}
+  <input type="hidden" id="featured-file-index" name="featured_file_index" value="">
+  {% endif %}
+
+  {# Per-file descriptions — JSON array synced by JS #}
+  <input type="hidden" id="{{ upload_prefix }}-descriptions-json" name="{{ upload_desc_name }}" value="">
+
+  {% if upload_hint %}
+  <small class="field-hint">{{ upload_hint }}</small>
+  {% endif %}
+</div>

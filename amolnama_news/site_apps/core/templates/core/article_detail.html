@@ -1,7 +1,7 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}{{ article.title }} · Amolnama News{% endblock %}
+{% block title %}{{ article.title }} — আমলনামা নিউজ{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'core/assets/css/pages/article-detail.css' %}">
@@ -26,7 +26,7 @@
 
       {% if article.hero_image %}
       <figure class="article-detail__hero">
-        <img src="{{ article.hero_image.url }}" alt="{{ article.hero_image_alt|default:article.title }}">
+        <img src="{{ article.hero_image.url }}" alt="{{ article.hero_image_alt|default:article.title }}" loading="eager" width="800" height="450" fetchpriority="high">
         {% if article.hero_caption %}
         <figcaption>{{ article.hero_caption }}</figcaption>
         {% endif %}

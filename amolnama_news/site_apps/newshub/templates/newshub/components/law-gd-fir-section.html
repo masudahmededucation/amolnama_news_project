@@ -1,0 +1,63 @@
+{% comment %}
+  Shared GD/FIR (General Diary / First Information Report) section — modularised, reusable.
+  Single source of truth for ALL GD/FIR UI across every legal form.
+
+  Include with context variables:
+    fir_prefix  — ID prefix, e.g., "legal", "wcv"
+
+  ID convention (all auto-generated from fir_prefix):
+    {prefix}-fir-status-radios        — radio group container (built by JS)
+    {prefix}-fir-status-data          — JSON data element
+    {prefix}-fir-details-row          — conditional row (FIR = YES)
+    {prefix}-police-station           — thana search input (Tom Select)
+    {prefix}-case-number              — case/GD number input
+    {prefix}-police-refused-row       — conditional row (FIR = POLICE_REFUSED)
+    {prefix}-police-refusal-statement — textarea
+    {prefix}-no-fir-row               — conditional row (FIR = NO)
+    {prefix}-no-fir-reason            — textarea
+
+  JS: news-law-gd-fir.js initLawGdFirSection() reads these IDs via config.
+      Thana search is auto-initialized inside the factory (uses news-thana-search-select.js).
+
+  FIR status data: parent template must provide a <script type="application/json">
+  with id="{prefix}-fir-status-data" containing the status array.
+{% endcomment %}
+
+  <div class="form-field">
+    <label>এফআইআর/জিডি দায়ের হয়েছে? <span class="field-required">*</span></label>
+    <div class="radio-inline-group" id="{{ fir_prefix }}-fir-status-radios">
+      {# Populated by news-law-gd-fir.js from #{prefix}-fir-status-data #}
+    </div>
+  </div>
+
+  {# Shown when FIR = YES #}
+  <div id="{{ fir_prefix }}-fir-details-row" style="display: none;">
+    <div class="form-field form-field-thana-search">
+      <label for="{{ fir_prefix }}-police-station">🔍 থানার নাম অনুসন্ধান করুন (Search Police Station)</label>
+      <input type="text" id="{{ fir_prefix }}-police-station"
+             placeholder="যেমন: মিরপুর মডেল... লিখে খুঁজুন অথবা সরাসরি নাম লিখুন">
+    </div>
+    <div class="form-field">
+      <label for="{{ fir_prefix }}-case-number">মামলা/জিডি নম্বর (Case / GD Number)</label>
+      <input type="text" id="{{ fir_prefix }}-case-number"
+             placeholder="যেমন: জিডি নং ১২৩, মামলা নং ৪৫৬...">
+    </div>
+  </div>
+
+  {# Shown when FIR = POLICE_REFUSED #}
+  <div id="{{ fir_prefix }}-police-refused-row" style="display: none;">
+    <div class="form-field">
+      <label for="{{ fir_prefix }}-police-refusal-statement">পুলিশের অস্বীকারের বিবৃতি (Police Refusal Statement)</label>
+      <textarea id="{{ fir_prefix }}-police-refusal-statement" rows="3"
+                placeholder="পুলিশ কী কারণে মামলা নিতে অস্বীকার করেছে তা লিখুন..."></textarea>
+    </div>
+  </div>
+
+  {# Shown when FIR = NO #}
+  <div id="{{ fir_prefix }}-no-fir-row" style="display: none;">
+    <div class="form-field">
+      <label for="{{ fir_prefix }}-no-fir-reason">মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (Reason for Not Filing & Plans)</label>
+      <textarea id="{{ fir_prefix }}-no-fir-reason" rows="3"
+                placeholder="কেন মামলা হয়নি এবং ভুক্তভোগীর ভবিষ্যৎ পরিকল্পনা কী তা লিখুন..."></textarea>
+    </div>
+  </div>

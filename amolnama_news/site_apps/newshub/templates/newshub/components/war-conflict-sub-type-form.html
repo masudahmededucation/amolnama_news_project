@@ -1,0 +1,20 @@
+{% comment %}
+  Global Conflict Sub-Type — radio buttons (DB-driven from ref_issue_sub_type)
+  for selecting the type of global event being reported.
+  Global News & Conflict form type specific.
+  Selected ID stored in hidden input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-global-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>সংঘাতের ধরন (Conflict Sub-Type)</h3>
+
+  {# Hidden input — stores selected sub-type ID for form submission #}
+  <input type="hidden" id="global-sub-type" name="global_sub_type" value="">
+
+  {# Embed reference data as JSON (type=application/json bypasses CSP) #}
+  <script type="application/json" id="conflict-sub-types-data">{{ conflict_sub_types_json|default:"[]"|safe }}</script>
+
+  <div class="global-sub-type-picker" id="global-sub-type-picker">
+    {# Radio cards populated by JS from conflict-sub-types-data #}
+  </div>
+</div>

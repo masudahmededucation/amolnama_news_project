@@ -14,7 +14,7 @@
  */
 (function () {
   var btn = document.getElementById('news-clear-form-btn');
-  var form = document.querySelector('.news-collection-form');
+  var form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!btn || !form) return;
 
   /* Inline confirmation message element */
@@ -140,6 +140,215 @@
       window.newshubAttachments.reset();
     }
 
+    /* 11b. Clear involved parties repeater (legacy combined form) */
+    if (window.newshubInvolvedParties && window.newshubInvolvedParties.reset) {
+      window.newshubInvolvedParties.reset();
+    }
+
+    /* 11b2. Clear split accused / victim / witness repeaters */
+    if (window.newshubAccused && window.newshubAccused.reset) {
+      window.newshubAccused.reset();
+    }
+    if (window.newshubVictim && window.newshubVictim.reset) {
+      window.newshubVictim.reset();
+    }
+    if (window.newshubWitness && window.newshubWitness.reset) {
+      window.newshubWitness.reset();
+    }
+
+    /* 11c. Clear crime casualties & weapons */
+    if (window.newshubCrimeCasualties && window.newshubCrimeCasualties.reset) {
+      window.newshubCrimeCasualties.reset();
+    }
+    if (window.newshubCrimeWeapons && window.newshubCrimeWeapons.reset) {
+      window.newshubCrimeWeapons.reset();
+    }
+
+    /* 11cc. Clear extortion incident fields */
+    if (window.newshubExtortionIncident && window.newshubExtortionIncident.reset) {
+      window.newshubExtortionIncident.reset();
+    }
+
+    /* 11cd. Clear land grabbing incident fields */
+    if (window.newshubLandGrabIncident && window.newshubLandGrabIncident.reset) {
+      window.newshubLandGrabIncident.reset();
+    }
+
+    /* 11d. Clear price hike fields (price gap repeater, stockpiling) */
+    if (window.newshubPriceGap && window.newshubPriceGap.reset) {
+      window.newshubPriceGap.reset();
+    }
+    if (window.newshubStockpiling && window.newshubStockpiling.reset) {
+      window.newshubStockpiling.reset();
+    }
+
+    /* 11e. Clear watchdog_bangladesh fields (contradiction, context) */
+    if (window.newshubPoliticalContradiction && window.newshubPoliticalContradiction.reset) {
+      window.newshubPoliticalContradiction.reset();
+    }
+    if (window.newshubPoliticalContext && window.newshubPoliticalContext.reset) {
+      window.newshubPoliticalContext.reset();
+    }
+    /* Clear watchdog type-specific field sections */
+    if (window.newshubWatchdogIssue && window.newshubWatchdogIssue.reset) {
+      window.newshubWatchdogIssue.reset();
+    }
+    if (window.newshubWatchdogPartyChange && window.newshubWatchdogPartyChange.reset) {
+      window.newshubWatchdogPartyChange.reset();
+    }
+    if (window.newshubWatchdogProxyPuppet && window.newshubWatchdogProxyPuppet.reset) {
+      window.newshubWatchdogProxyPuppet.reset();
+    }
+    if (window.newshubWatchdogBootlicker && window.newshubWatchdogBootlicker.reset) {
+      window.newshubWatchdogBootlicker.reset();
+    }
+    if (window.newshubWatchdogWomenFixer && window.newshubWatchdogWomenFixer.reset) {
+      window.newshubWatchdogWomenFixer.reset();
+    }
+    /* Reset section switcher (hides all watchdog field sections) */
+    if (window.newshubWatchdogSectionSwitcher && window.newshubWatchdogSectionSwitcher.reset) {
+      window.newshubWatchdogSectionSwitcher.reset();
+    }
+    /* Clear political sub-type radios */
+    var politicalRadios = document.querySelectorAll('input[name="political_sub_type_radio"]');
+    for (var p = 0; p < politicalRadios.length; p++) { politicalRadios[p].checked = false; }
+    var politicalHidden = document.getElementById('political-sub-type');
+    if (politicalHidden) politicalHidden.value = '';
+
+    /* 11f. Clear civic & community fields (impact, status) */
+    if (window.newshubCivicImpact && window.newshubCivicImpact.reset) {
+      window.newshubCivicImpact.reset();
+    }
+    if (window.newshubCivicStatus && window.newshubCivicStatus.reset) {
+      window.newshubCivicStatus.reset();
+    }
+    /* Clear civic sub-type radios */
+    var civicRadios = document.querySelectorAll('input[name="civic_sub_type_radio"]');
+    for (var c = 0; c < civicRadios.length; c++) { civicRadios[c].checked = false; }
+    var civicHidden = document.getElementById('civic-sub-type');
+    if (civicHidden) civicHidden.value = '';
+
+    /* 11g. Clear global news / war & conflict fields (sub-type, parties, frontline, humanitarian, geopolitics) */
+    if (window.newshubGlobalSubType && window.newshubGlobalSubType.reset) {
+      window.newshubGlobalSubType.reset();
+    }
+    if (window.newshubGlobalConflictParties && window.newshubGlobalConflictParties.reset) {
+      window.newshubGlobalConflictParties.reset();
+    }
+    if (window.newshubGlobalFrontline && window.newshubGlobalFrontline.reset) {
+      window.newshubGlobalFrontline.reset();
+    }
+    if (window.newshubGlobalHumanitarian && window.newshubGlobalHumanitarian.reset) {
+      window.newshubGlobalHumanitarian.reset();
+    }
+    if (window.newshubGlobalGeopolitics && window.newshubGlobalGeopolitics.reset) {
+      window.newshubGlobalGeopolitics.reset();
+    }
+    /* Clear strategic impact checkboxes */
+    var strategicCbs = document.querySelectorAll('input[name="strategic_impact"]');
+    for (var s = 0; s < strategicCbs.length; s++) { strategicCbs[s].checked = false; }
+
+    /* 11g2. Clear general global news fields (sub-type, countries, classification, bangladesh, reaction) */
+    if (window.newshubGlobalNewsSubType && window.newshubGlobalNewsSubType.reset) {
+      window.newshubGlobalNewsSubType.reset();
+    }
+    if (window.newshubGlobalNewsCountries && window.newshubGlobalNewsCountries.reset) {
+      window.newshubGlobalNewsCountries.reset();
+    }
+    if (window.newshubGlobalNewsClassification && window.newshubGlobalNewsClassification.reset) {
+      window.newshubGlobalNewsClassification.reset();
+    }
+    if (window.newshubGlobalNewsBangladesh && window.newshubGlobalNewsBangladesh.reset) {
+      window.newshubGlobalNewsBangladesh.reset();
+    }
+    if (window.newshubGlobalNewsReaction && window.newshubGlobalNewsReaction.reset) {
+      window.newshubGlobalNewsReaction.reset();
+    }
+
+    /* 11h. Clear sports fields (sub-type, match-event, teams-result, key-performances) */
+    if (window.newshubSportsSubType && window.newshubSportsSubType.reset) {
+      window.newshubSportsSubType.reset();
+    }
+    if (window.newshubSportsMatchEvent && window.newshubSportsMatchEvent.reset) {
+      window.newshubSportsMatchEvent.reset();
+    }
+    if (window.newshubSportsTeamsResult && window.newshubSportsTeamsResult.reset) {
+      window.newshubSportsTeamsResult.reset();
+    }
+    if (window.newshubSportsKeyPerformances && window.newshubSportsKeyPerformances.reset) {
+      window.newshubSportsKeyPerformances.reset();
+    }
+
+    /* 11i. Clear entertainment fields (sub-type, production, cast-release, performance) */
+    if (window.newshubEntertainmentSubType && window.newshubEntertainmentSubType.reset) {
+      window.newshubEntertainmentSubType.reset();
+    }
+    if (window.newshubEntertainmentProduction && window.newshubEntertainmentProduction.reset) {
+      window.newshubEntertainmentProduction.reset();
+    }
+    if (window.newshubEntertainmentCastRelease && window.newshubEntertainmentCastRelease.reset) {
+      window.newshubEntertainmentCastRelease.reset();
+    }
+    if (window.newshubEntertainmentPerformance && window.newshubEntertainmentPerformance.reset) {
+      window.newshubEntertainmentPerformance.reset();
+    }
+
+    /* 11i2. Clear crime / extortion / land grab legal fields */
+    if (window.newshubCrimeLegal && window.newshubCrimeLegal.reset) {
+      window.newshubCrimeLegal.reset();
+    }
+    if (window.newshubExtortionLegal && window.newshubExtortionLegal.reset) {
+      window.newshubExtortionLegal.reset();
+    }
+    if (window.newshubLandGrabLegal && window.newshubLandGrabLegal.reset) {
+      window.newshubLandGrabLegal.reset();
+    }
+
+    /* 11j. Clear women & child violence fields (type, victim, accused, injury, legal) */
+    if (window.newshubWcvType && window.newshubWcvType.reset) {
+      window.newshubWcvType.reset();
+    }
+    if (window.newshubWcvVictim && window.newshubWcvVictim.reset) {
+      window.newshubWcvVictim.reset();
+    }
+    if (window.newshubWcvConditionInjury && window.newshubWcvConditionInjury.reset) {
+      window.newshubWcvConditionInjury.reset();
+    }
+    if (window.newshubWcvAccused && window.newshubWcvAccused.reset) {
+      window.newshubWcvAccused.reset();
+    }
+    if (window.newshubWcvLegal && window.newshubWcvLegal.reset) {
+      window.newshubWcvLegal.reset();
+    }
+
+    /* 11k. Clear july uprising fields (sub-type, context, martyr, story, cause, oppressors, evidence) */
+    if (window.newshubJulySubType && window.newshubJulySubType.reset) {
+      window.newshubJulySubType.reset();
+    }
+    if (window.newshubJulyContext && window.newshubJulyContext.reset) {
+      window.newshubJulyContext.reset();
+    }
+    if (window.newshubJulyMartyr && window.newshubJulyMartyr.reset) {
+      window.newshubJulyMartyr.reset();
+    }
+    if (window.newshubJulyStory && window.newshubJulyStory.reset) {
+      window.newshubJulyStory.reset();
+    }
+    if (window.newshubJulyCause && window.newshubJulyCause.reset) {
+      window.newshubJulyCause.reset();
+    }
+    if (window.newshubJulyOppressors && window.newshubJulyOppressors.reset) {
+      window.newshubJulyOppressors.reset();
+    }
+    if (window.newshubJulyEvidence && window.newshubJulyEvidence.reset) {
+      window.newshubJulyEvidence.reset();
+    }
+    /* Clear july uprising sub-type radios */
+    var julyRadios = document.querySelectorAll('input[name="july_sub_type_radio"]');
+    for (var jr = 0; jr < julyRadios.length; jr++) { julyRadios[jr].checked = false; }
+    var julyHidden = document.getElementById('july-sub-type');
+    if (julyHidden) julyHidden.value = '';
+
     /* 12. Clear localStorage drafts */
     localStorage.removeItem('newshub_draft');
     localStorage.removeItem('newshub_draft_tags');
@@ -154,8 +363,9 @@
       shakes[n].classList.remove('field-shake');
     }
 
-    /* 14. Clear social URL mismatch warning */
-    var socialWarn = document.querySelector('.social-url-mismatch');
-    if (socialWarn) socialWarn.style.display = 'none';
+    /* 14. Clear social source repeater */
+    if (window.newshubSocialSource && window.newshubSocialSource.reset) {
+      window.newshubSocialSource.reset();
+    }
   });
 })();

@@ -1,0 +1,263 @@
+================================================================================
+TOOL: Background Remover (ছবির ব্যাকগ্রাউন্ড রিমুভার)
+================================================================================
+
+URL:        /tools/background-remover/
+View:       tools_bg_remover
+Template:   tools/tools-bg-remover.html
+JS:         tools/assets/js/pages/tools-bg-remover.js
+CSS:        tools/assets/css/pages/tools-bg-remover.css
+
+External Libraries (CDN):
+  - @mediapipe/selfie_segmentation 0.1.1675465747 — AI segmentation model
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. FILE INPUT
+   - Drag & drop onto dropzone
+   - Browse button (file picker)
+   - Ctrl+V paste from clipboard
+   - Accepts: JPG, PNG, WebP
+   - Max file size: 10 MB
+   - Image cap: MAX_IMAGE_DIM = 2048px (downscaled before processing)
+
+2. AI SEGMENTATION (MediaPipe SelfieSegmentation)
+   - Model 1 (landscape mode) for general use
+   - Produces alpha mask (0–255) per pixel
+   - Processing overlay with spinner during model load/inference
+   - Model loaded once, reused for subsequent images
+
+3. MASK PROCESSING PIPELINE (async, non-blocking)
+   - Generation counter (opGen) prevents stale callbacks
+   - compositeResultAsync: 3-step setTimeout chain (scale → blur → render)
+   - Each step checks generation counter before proceeding
+
+4. FEATHERING / EDGE SMOOTHING
+   - boxBlurFast: running-sum O(w*h) blur (not O(w*h*r))
+   - Two-threshold feathering: threshLow / threshHigh from slider
+   - Edge Smooth slider (0–10): controls blur radius
+   - Edge Shift slider (-5 to +5): shifts threshold boundaries
+
+5. BRUSH TOOLS (manual mask editing)
+   - Hand Tool (🤚): pan/move mode, deactivates brush painting
+   - Eraser (🧹): paint to remove foreground (set mask to 0)
+   - Restore (🔄): paint to bring back foreground (set mask to 255)
+   - Brush size slider (3–80px)
+   - Custom brush cursor circle follows mouse
+   - Undo stack (multiple levels)
+   - Space+drag: temporary pan mode while in brush mode
+
+6. AUTO REFINE (Edge Refinement)
+   - Chunked processing: 50 rows per frame via setTimeout(fn, 0)
+   - Analyzes edge pixels and sharpens mask transitions
+   - Toggle button with active state indicator
+
+7. BACKGROUND OPTIONS
+   - Transparent (checkerboard preview)
+   - Preset colors: White, Light Blue, Red, Green
+   - Custom color picker
+   - Background swatches with active state
+
+8. SHADOW EFFECT
+   - Shadow blur slider (0–40)
+   - Renders drop shadow behind the subject on the background
+
+9. ZOOM & PAN
+   - Zoom in/out buttons (+/−) with level display (1×, 2×, etc.)
+   - Ctrl+mouse wheel zoom
+   - Click+drag to pan (when zoomed or in hand mode)
+   - Space+drag to pan in brush mode
+   - Two-finger pan on mobile
+   - Zoomed container: overflow auto, scrollbar hidden, grab cursor
+
+10. COMPARE MODE
+    - Hold "eye" button to see original image overlaid on result
+    - Toggle class bgr-comparing on result wrap
+
+11. PREVIEW
+    - Side-by-side: Original canvas + Result canvas
+    - Result canvas has checkerboard background for transparency
+    - Tips bar: keyboard/mouse shortcuts for zoom, pan, brush
+
+12. DOWNLOAD / EXPORT
+    - Download as PNG (transparent background preserved)
+    - Download as JPG (background composited)
+    - Copy to clipboard (canvas.toBlob → clipboard.write)
+    - "New" button resets everything
+
+13. PERFORMANCE OPTIMIZATIONS
+    - MAX_IMAGE_DIM = 2048: large images downscaled before processing
+    - Running-sum box blur: O(w*h) instead of O(w*h*radius)
+    - Reusable shadow canvas (module-scoped, not recreated each render)
+    - Bitwise OR rounding: (value + 0.5) | 0 in pixel loops
+    - Async pipeline with setTimeout yields between steps
+    - Generation counter prevents stale operation callbacks
+    - Chunked edge refinement (50 rows/frame)
+
+14. MEMORY MANAGEMENT
+    - Generation counter cancels stale async operations
+    - Shadow canvas reused (not garbage collected between renders)
+    - Processing overlay shown during heavy operations
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+bgr-dropzone, bgr-file-input, bgr-browse-btn
+bgr-error, bgr-error-text, bgr-try-again-btn
+bgr-editor
+bgr-original-canvas, bgr-result-canvas
+bgr-result-wrap, bgr-result-tools
+bgr-compare-btn, bgr-zoom-out, bgr-zoom-in, bgr-zoom-level
+bgr-processing-overlay, bgr-processing-text
+bgr-brush-cursor
+bgr-tips
+bgr-brush-tools
+bgr-brush-move, bgr-brush-erase, bgr-brush-restore
+bgr-brush-size, bgr-brush-size-value
+bgr-brush-undo, bgr-auto-refine
+bgr-custom-color
+bgr-edge-slider, bgr-edge-value
+bgr-edge-shift, bgr-edge-shift-value
+bgr-shadow-blur, bgr-shadow-blur-value
+bgr-download-png, bgr-download-jpg, bgr-copy-btn, bgr-reset-btn
+
+================================================================================
+KEY FUNCTIONS (34 total)
+================================================================================
+
+--- Core Flow ---
+processImage(file)                  — loads image, caps dimensions, runs MediaPipe segmentation
+initSegmenter()                     — initializes SelfieSegmentation model from CDN (once)
+showError(msg)                      — displays error message
+resetAll()                          — resets entire tool state
+
+--- Mask Processing ---
+scaleMask(mask, mw, mh, tw, th)     — bilinear interpolation to resize mask
+featherMaskFn(raw, w, h, r, lo, hi) — blur + two-threshold feathering
+boxBlurFast(src, w, h, radius)      — running-sum O(w*h) 3-pass blur
+applyThreshold(mask, low, high)     — smoothstep interpolation on mask values
+buildWorkingMask()                  — combines featheredMask + brushDelta, clamped [0,1]
+
+--- Auto Refine ---
+computeEdgeRefinement(callback)     — chunked edge color decontamination (50 rows/frame)
+getSourcePixels()                   — returns refined or original pixel data
+
+--- Rendering Pipeline ---
+compositeResultAsync(callback)      — async multi-step: scale → feather → build → refine → render
+renderAsync(callback)               — quick render for bg/shadow changes (no re-feathering)
+renderFullResult()                  — composites subject + background + shadow to canvas
+
+--- Brush Painting ---
+activateBrush(mode)                 — enters erase/restore brush mode, updates UI
+deactivateBrush()                   — exits brush mode, enters hand/pan mode
+paintDab(cx, cy)                    — paints single brush stroke on mask
+paintLine(fromX, fromY, toX, toY)   — interpolated paintDab calls for smooth strokes
+pointerToCanvas(e)                  — converts pointer coords to canvas pixels (zoom/DPI aware)
+getBrushCanvasRadius()              — converts slider size to canvas pixel radius
+updateBrushCursor(e)                — positions visual brush cursor circle
+hideBrushCursor()                   — hides brush cursor
+updateUndoBtn()                     — enables/disables undo based on stack length
+
+--- Zoom ---
+zoomIn() / zoomOut()                — steps through ZOOM_STEPS [1, 1.5, 2, 3, 4]
+resetZoom()                         — resets to 1×
+captureBaseSize()                   — stores base canvas display dimensions
+applyZoom()                         — applies zoom scaling, updates level display
+
+--- Utility ---
+parseHexColor(hex)                  — parses "#RRGGBB" to {r, g, b}
+setControlsEnabled(enabled)         — enables/disables buttons/sliders during processing
+downloadCanvas(format)              — downloads result as PNG or JPG
+endCompare()                        — restores result after hold-to-compare
+
+================================================================================
+CONSTANTS
+================================================================================
+
+MAX_FILE_SIZE     = 10 MB (10 * 1024 * 1024)
+MAX_IMAGE_DIM     = 2048 px (caps processing size)
+BRUSH_INTENSITY   = 0.35 (brush strength multiplier)
+MAX_UNDO          = 30 (max undo snapshots)
+ZOOM_STEPS        = [1, 1.5, 2, 3, 4]
+EDGE_LOW          = 0.02, EDGE_HIGH = 0.92, SEARCH_R = 5
+Threshold defaults: low = 0.15, high = 0.85
+Auto-refine chunk: 50 rows per frame
+
+================================================================================
+STATE VARIABLES (35 total)
+================================================================================
+
+--- Model/Segmentation ---
+segmenter         — SelfieSegmentation instance
+modelLoaded       — boolean flag
+processing        — boolean flag for async operations
+opGen             — generation counter to cancel stale callbacks
+
+--- Image Data ---
+originalImage     — Image element (capped at MAX_IMAGE_DIM)
+maskData          — Float32Array from segmentation
+maskWidth/Height  — mask dimensions
+origPixelData     — ImageData from original canvas
+
+--- Mask Layers ---
+featheredMask     — blurred + thresholded mask
+brushDelta        — brush stroke deltas (Float32Array)
+workingMask       — final mask (feathered + brush)
+refinedPixelData  — edge-refined pixel data
+
+--- Brush State ---
+brushMode         — 'erase' | 'restore' | null
+painting          — currently painting flag
+lastPaintX/Y      — last brush position
+undoStack         — array of Float32Array snapshots (max 30)
+
+--- Background/Rendering ---
+currentBg         — hex color or 'transparent'
+fileName          — original filename
+shadowCanvas/Ctx  — reusable offscreen canvases
+shadowBlur        — current shadow blur value
+
+--- Auto Refine ---
+autoRefineOn      — boolean flag
+
+--- Zoom ---
+zoomLevel         — current zoom (1, 1.5, 2, 3, 4)
+baseCanvasWidth/Height — base display dimensions
+
+--- Compare ---
+comparing         — hold-to-compare active flag
+savedResultData   — saved ImageData for comparison
+
+--- Pan/Input ---
+panning           — currently panning flag
+panStartX/Y       — pan start coordinates
+panScrollStartX/Y — scroll offset at pan start
+spaceHeld         — Space key held flag
+touchPanning      — two-finger touch pan flag
+touchStartX/Y, touchScrollStartX/Y — touch pan state
+
+================================================================================
+EVENT LISTENERS (47 total)
+================================================================================
+
+File Upload:        browseBtn click, dropzone click/dragover/dragleave/drop,
+                    fileInput change, document paste (Ctrl+V)
+Background:         swatches click (forEach), customColorInput input
+Edge Sliders:       edgeSlider input+change, edgeShiftSlider input+change,
+                    shadowBlurSlider input+change
+Compare:            compareBtn pointerdown/pointerup/pointerleave/pointercancel
+Clipboard:          copyBtn click
+Download/Reset:     downloadPng click, downloadJpg click, resetBtn click, tryAgainBtn click
+Auto Refine:        autoRefineBtn click
+Zoom:               zoomInBtn click, zoomOutBtn click, resultWrap wheel (Ctrl+scroll)
+Brush Buttons:      brushMoveBtn click, brushEraseBtn click, brushRestoreBtn click,
+                    brushUndoBtn click, brushSizeSlider input
+Canvas Painting:    resultCanvas pointerdown/pointermove/pointerup/pointerleave
+Pan (keyboard):     document keydown(Space), document keyup(Space)
+Pan (pointer):      resultWrap pointerdown/pointermove/pointerup/pointerenter/pointerleave
+Touch Pan:          resultWrap touchstart/touchmove/touchend

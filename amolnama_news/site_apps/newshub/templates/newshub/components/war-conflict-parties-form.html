@@ -1,0 +1,33 @@
+{% comment %}
+  Conflict Parties — dynamic repeater for aggressor, defender, ally/observer countries.
+  Global News & Conflict form type specific.
+  Each party is a country-level card with alliance, leader, and statement fields.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-conflict-parties">
+  <h3 class="form-section-title"><span class="section-icon">🌐</span>সংঘাতের পক্ষসমূহ (Conflict Parties)</h3>
+
+  {# Hidden input — JS serializes the parties array here before submit #}
+  <input type="hidden" id="global-conflict-parties-json" name="global_conflict_parties_json" value="">
+
+  {# Quick-add buttons — data-role matches actor_involvement_type_code (lowercased) #}
+  <div class="actor-add-buttons" id="conflict-party-add-buttons">
+    <button type="button" class="actor-add-btn actor-add-accused" data-role="accused">+ আক্রমণকারী দেশ যোগ করুন (Add Aggressor Country)</button>
+    <button type="button" class="actor-add-btn actor-add-victim" data-role="victim">+ প্রতিরক্ষাকারী দেশ যোগ করুন (Add Defender Country)</button>
+    <button type="button" class="actor-add-btn actor-add-witness" data-role="witness">+ মিত্র/পর্যবেক্ষক দেশ যোগ করুন (Add Ally/Observer Country)</button>
+  </div>
+
+  {# Dynamic cards rendered here by JS #}
+  <div id="conflict-parties-list"></div>
+
+  {# Empty state #}
+  <div class="actor-empty-state" id="conflict-party-empty-state">
+    এখনো কোনো দেশ যোগ করা হয়নি। উপরের বোতাম ব্যবহার করে আক্রমণকারী, প্রতিরক্ষাকারী বা মিত্র দেশ যোগ করুন।
+    <br><small>(No countries added yet. Use the buttons above to add aggressor, defender or ally/observer country.)</small>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="countries-data">{{ countries_json|default:"[]"|safe }}</script>

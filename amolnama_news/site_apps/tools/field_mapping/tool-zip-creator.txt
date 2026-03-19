@@ -1,0 +1,92 @@
+================================================================================
+TOOL: ZIP Creator (জিপ ফাইল তৈরি)
+================================================================================
+
+URL:        /tools/zip-creator/
+View:       tools_zip_creator
+Template:   tools/tools-zip-creator.html
+JS:         tools/assets/js/pages/tools-zip-creator.js
+CSS:        tools/assets/css/pages/tools-zip-creator.css
+
+External Libraries: None (pure JS ZIP builder)
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. FILE INPUT
+   - Drag & drop onto dropzone
+   - Browse button (file picker)
+   - "Add more files" button in panel
+   - Any file type accepted
+   - Duplicate detection (same name + size + lastModified)
+
+2. FILE LIST
+   - Each file shown with: colored extension badge, name, size, type, date
+   - Extension badge color map (EXT_COLORS): 60+ extensions mapped to colors
+   - Individual remove button per file
+   - File count and total size display
+
+3. CUSTOM ZIP BUILDER (no JSZip dependency)
+   - buildZipBlob(entries) — builds ZIP from scratch using ArrayBuffer manipulation
+   - Local file headers + Central directory + EOCD structure
+   - CRC32 computed per file (lookup table)
+   - DOS date/time encoding for file timestamps
+
+4. DEFLATE COMPRESSION
+   - Uses browser-native CompressionStream API ('deflate-raw') when available
+   - Smart skip: already-compressed formats (COMPRESSED_EXTS map) stored without DEFLATE
+   - COMPRESSED_EXTS: ~50 formats (png, jpg, pdf, mp4, docx, zip, etc.)
+   - Fallback: STORE method if no CompressionStream or if DEFLATE produces larger output
+
+5. RESULT DISPLAY
+   - Stat grid: archive name, file count, original total, ZIP size, savings %, compression method breakdown
+   - Per-file breakdown table: file name, original size, compressed size, method (DEFLATE/STORE), % saved
+   - Note about already-compressed formats when applicable
+   - Largest/smallest file stats
+
+6. DOWNLOAD
+   - Custom archive name input (default: "archive")
+   - Download button creates blob URL, revokes after 5s
+   - "Create Another" button resets everything
+
+7. MEMORY MANAGEMENT
+   - Download blob URL revoked after 5s timeout
+   - resultBlob cleared on resetAll
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+zip-dropzone, zip-file-input, zip-browse-btn
+zip-panel, zip-add-btn, zip-clear-btn
+zip-file-list, zip-file-count, zip-total-size
+zip-name-input, zip-action-btn
+zip-result, zip-result-details
+zip-download-btn, zip-another-btn
+
+================================================================================
+KEY FUNCTIONS
+================================================================================
+
+addFiles(newFiles)            — adds files to list, skips duplicates
+renderFileList()              — builds file list DOM with extension badges
+createZip()                   — reads all files as ArrayBuffer, calls buildZipBlob
+buildZipBlob(entries)         — builds ZIP binary from scratch (headers + data + EOCD)
+deflateData(data)             — compresses via CompressionStream or returns raw (fallback)
+crc32(bytes)                  — computes CRC32 checksum using lookup table
+showResult()                  — renders stat grid + per-file breakdown table
+resetAll()                    — clears files, result, resets UI to dropzone
+getExt(name)                  — extracts file extension
+formatSize(bytes)             — human-readable file size
+formatDate(date)              — "Mon DD, YYYY HH:MM" format
+truncName(name, maxLen)       — truncates filename preserving extension
+
+================================================================================
+CONSTANTS
+================================================================================
+
+COMPRESSED_EXTS               — ~50 already-compressed formats (skip DEFLATE)
+EXT_COLORS                    — extension → hex color map for icon badges

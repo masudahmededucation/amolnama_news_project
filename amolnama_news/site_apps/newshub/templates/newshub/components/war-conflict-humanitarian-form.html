@@ -1,0 +1,44 @@
+{% comment %}
+  Casualties & Humanitarian Crisis — captures military/civilian casualties,
+  refugee count, and war crime allegations.
+  Global News & Conflict form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-global-humanitarian">
+  <h3 class="form-section-title"><span class="section-icon">🏥</span>হতাহত ও মানবিক সংকট (Casualties & Humanitarian Crisis)</h3>
+
+  {# Hidden input — JS serializes humanitarian data here before submit #}
+  <input type="hidden" id="global-humanitarian-json" name="global_humanitarian_json" value="">
+
+  <div class="form-field">
+    <label for="global-military-casualties">সামরিক হতাহত (Military Casualties)</label>
+    <input type="number" id="global-military-casualties" min="0"
+           placeholder="আনুমানিক সংখ্যা...">
+  </div>
+
+  <div class="form-field">
+    <label for="global-civilian-casualties">বেসামরিক হতাহত (Civilian Casualties)</label>
+    <input type="number" id="global-civilian-casualties" min="0"
+           placeholder="আনুমানিক সংখ্যা...">
+  </div>
+
+  <div class="form-field">
+    <label for="global-refugees">উদ্বাস্তু/বাস্তুচ্যুত (Refugees/Displaced)</label>
+    <input type="number" id="global-refugees" min="0"
+           placeholder="বাস্তুচ্যুত মানুষের আনুমানিক সংখ্যা... (Estimated displaced people...)">
+  </div>
+
+  <div class="form-field">
+    <label class="form-label form-label-inline" for="global-war-crimes">
+      <input type="checkbox" id="global-war-crimes" class="form-checkbox">
+      যুদ্ধাপরাধের অভিযোগ আছে? (War Crime Allegations?)
+    </label>
+  </div>
+
+  <div class="form-field" id="global-war-crimes-details-row" style="display: none;">
+    <label for="global-war-crimes-description">যুদ্ধাপরাধের বিবরণ (War Crime Details)</label>
+    <textarea id="global-war-crimes-description" rows="3"
+              placeholder="যুদ্ধাপরাধের অভিযোগের বিস্তারিত... (Describe the war crime allegations...)"></textarea>
+  </div>
+</div>

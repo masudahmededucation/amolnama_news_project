@@ -6,7 +6,19 @@ app_name = 'newshub'
 
 urlpatterns = [
     path('news-collection/', views.news_collection, name='news_collection'),
-
+    path('news-collection/multistep/', views.news_collection_multistep, name='news_collection_multistep'),
+    path('news-collection/multistep/extortion/', views.news_collection_multistep_extortion, name='news_collection_multistep_extortion'),
+    path('news-collection/multistep/land-grabbing/', views.news_collection_multistep_land_grabbing, name='news_collection_multistep_land_grabbing'),
+    path('news-collection/multistep/crime-violence/', views.news_collection_multistep_crime_violence, name='news_collection_multistep_crime_violence'),
+    path('news-collection/multistep/price-hike/', views.news_collection_multistep_price_hike, name='news_collection_multistep_price_hike'),
+    path('news-collection/multistep/watchdog-bangladesh/', views.news_collection_multistep_watchdog_bangladesh, name='news_collection_multistep_watchdog_bangladesh'),
+    path('news-collection/multistep/civic-community/', views.news_collection_multistep_civic_community, name='news_collection_multistep_civic_community'),
+    path('news-collection/multistep/global-news/', views.news_collection_multistep_global_news, name='news_collection_multistep_global_news'),
+    path('news-collection/multistep/war-conflict/', views.news_collection_multistep_war_conflict, name='news_collection_multistep_war_conflict'),
+    path('news-collection/multistep/sports/', views.news_collection_multistep_sports, name='news_collection_multistep_sports'),
+    path('news-collection/multistep/entertainment/', views.news_collection_multistep_entertainment, name='news_collection_multistep_entertainment'),
+    path('news-collection/multistep/july-uprising/', views.news_collection_multistep_july_uprising, name='news_collection_multistep_july_uprising'),
+    path('news-collection/multistep/women-child-violence/', views.news_collection_multistep_women_child_violence, name='news_collection_multistep_women_child_violence'),
     # API endpoints — location cascade (original)
     path('api/constituencies/<int:district_id>/', views_api.api_constituencies_by_district, name='api_constituencies_by_district'),
     path('api/upazilas/<int:district_id>/', views_api.api_upazilas_by_district, name='api_upazilas_by_district'),
@@ -29,6 +41,9 @@ urlpatterns = [
     path('api/tags/<int:category_id>/', views_api.api_news_category_tags_by_category, name='api_news_category_tags_by_category'),
     path('api/categories/search/', views_api.api_news_category_search, name='api_news_category_search'),
     path('api/tags/search/', views_api.api_news_category_tags_search, name='api_news_category_tags_search'),
+
+    # API endpoints — WCV form helpers
+    path('api/thana/search/', views_api.api_wcv_thana_search, name='api_wcv_thana_search'),
 
     # API endpoints — organisations
     path('api/organisations/search/', views_api.api_organisation_search, name='api_organisation_search'),

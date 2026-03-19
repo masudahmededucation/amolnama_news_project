@@ -1,0 +1,50 @@
+{% comment %}
+  July Uprising 2024 — Evidence & Verification.
+  Captures verification status, available evidence types,
+  eyewitness count, and cross-references with memorial databases.
+  Data serialized to hidden JSON input by JS.
+{% endcomment %}
+
+<div class="form-section" id="section-july-evidence">
+  <h3 class="form-section-title"><span class="section-icon">📋</span>প্রমাণ ও যাচাই (Evidence & Verification)</h3>
+
+  {# Hidden input — JS serializes evidence data here before submit #}
+  <input type="hidden" id="july-evidence-json" name="july_evidence_json" value="">
+
+  <div class="form-field">
+    <label>যাচাই অবস্থা (Verification Status)</label>
+    <div class="radio-inline-group">
+      {% for vs in july_verification_statuses %}
+      <label class="radio-inline">
+        <input type="radio" name="july_verification_status" value="{{ vs.status_id }}">
+        {% if vs.status_icon %}{{ vs.status_icon }} {% endif %}{{ vs.status_name_bn }} ({{ vs.status_name_en }})
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>প্রাপ্ত প্রমাণ (Available Evidence)</label>
+    <div class="checkbox-group">
+      {% for ev in july_available_evidence %}
+      <label class="checkbox-inline">
+        <input type="checkbox" name="july_evidence_type" value="{{ ev.status_id }}"
+          {% if ev.status_code == 'EYEWITNESS_TESTIMONY' %}id="july-has-eyewitness"{% endif %}>
+        {% if ev.status_icon %}{{ ev.status_icon }} {% endif %}{{ ev.status_name_bn }} ({{ ev.status_name_en }})
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="form-field" id="july-eyewitness-count-row" style="display: none;">
+    <label for="july-eyewitness-count">প্রত্যক্ষদর্শীর সংখ্যা (Eyewitness Count)</label>
+    <input type="number" id="july-eyewitness-count" min="0"
+           placeholder="কতজন প্রত্যক্ষদর্শী পাওয়া গেছে?" style="max-width: 200px;">
+  </div>
+
+  <div class="form-field">
+    <label for="july-memorial-ref">স্মৃতি ডাটাবেজ রেফারেন্স (Memorial Database Reference)</label>
+    <input type="text" id="july-memorial-ref"
+           placeholder="যেমন: shohid.info, জুলাই শহীদ স্মৃতি ফাউন্ডেশন (JSSF) তালিকা...">
+  </div>
+</div>

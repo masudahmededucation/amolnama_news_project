@@ -1,0 +1,111 @@
+{% comment %}
+  Women & Child Violence — Victim Profile (Demographics Only).
+  Three groups:
+    1. Name (En + Bn + Father via person-name-fields.html)
+    2. Personal Identity (universal: Gender, Religion, Age, DOB, District, Contact)
+    3. WCV-specific: Marital Status + conditional Husband, Occupation, Institution
+  Group 2 uses template-rendered querysets (wcv_victim_genders, etc.).
+  Group 3 marital/occupation are JS-populated from JSON (CSP-safe script tags).
+  Data serialized to hidden JSON input by news-wcv-victim.js.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-victim">
+  <h3 class="form-section-title">
+    <span class="section-icon">👤</span><span
+      data-bn="ভুক্তভোগী পরিচিতি" data-en="Victim Profile">ভুক্তভোগী পরিচিতি</span>
+  </h3>
+
+  <input type="hidden" id="wcv-victim" name="wcv_victim" value="">
+
+  {# ======== Group 1 — Name ======== #}
+  <div class="actor-group" style="border-left-color: #66bb6a;">
+    <h5 class="actor-group-title" data-bn="নাম" data-en="Name">নাম (Name)</h5>
+    {% include "newshub/components/person-name-alias-fields.html" with prefix="wcv-victim" label_main="ভুক্তভোগীর নাম" %}
+  </div>
+
+  {# ======== Group 2 — Personal Identity (universal) ======== #}
+  <div class="actor-group" style="border-left-color: #66bb6a;">
+    <h5 class="actor-group-title" data-bn="ব্যক্তিগত পরিচয়" data-en="Personal Identity">ব্যক্তিগত পরিচয় (Personal Identity)</h5>
+    {% include "newshub/components/person-personal-info-fields.html" with prefix="wcv-victim" genders=wcv_victim_genders religions=wcv_victim_religions districts=wcv_victim_districts %}
+
+    {# Age validation messages (WCV-specific — attached to universal #wcv-victim-age) #}
+    <p class="form-field-error" id="wcv-age-error" style="display: none;"
+       data-bn="⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে"
+       data-en="⛔ Age cannot exceed 100 years — value clamped to 100">
+      ⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে
+    </p>
+    <p class="form-field-warning" id="wcv-age-warning" style="display: none;"
+       data-bn="⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন"
+       data-en="⚠️ Age is over 50 — please verify">
+      ⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন
+    </p>
+  </div>
+
+  {# ======== Group 3 — Marital & Occupation (WCV-specific) ======== #}
+  <div class="actor-group" style="border-left-color: #66bb6a;">
+    <h5 class="actor-group-title" data-bn="বৈবাহিক অবস্থা ও পেশা" data-en="Marital Status & Occupation">বৈবাহিক অবস্থা ও পেশা (Marital Status & Occupation)</h5>
+
+    {# ---- Marital status ---- #}
+    <div class="form-field">
+      <label for="wcv-victim-marital" data-bn="বৈবাহিক অবস্থা" data-en="Marital Status">বৈবাহিক অবস্থা (Marital Status)</label>
+      <select id="wcv-victim-marital">
+        <option value=""
+                data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
+        {# Options populated by JS from wcv-marital-statuses-data #}
+      </select>
+    </div>
+
+    {# ---- Husband's name + marriage date (conditional, shown when married) ---- #}
+    <div id="wcv-husband-row" style="display: none;">
+      <div class="form-field">
+        <label data-bn="স্বামীর নাম" data-en="Husband's Name">স্বামীর নাম (Husband's Name) <span class="field-required">*</span></label>
+        <div class="form-name-split">
+          <div>
+            <label for="wcv-victim-husband-firstname" class="form-name-sublabel"
+                   data-bn="প্রথম নাম" data-en="First Name">প্রথম নাম <span class="field-required">*</span></label>
+            <input type="text" id="wcv-victim-husband-firstname"
+                   data-ph-bn="স্বামীর প্রথম নাম (বাংলা)..." data-ph-en="Husband's first name..."
+                   placeholder="স্বামীর প্রথম নাম (বাংলা)...">
+          </div>
+          <div>
+            <label for="wcv-victim-husband-lastname" class="form-name-sublabel"
+                   data-bn="শেষ নাম" data-en="Last Name">শেষ নাম <span class="field-required">*</span></label>
+            <input type="text" id="wcv-victim-husband-lastname"
+                   data-ph-bn="স্বামীর শেষ নাম (বাংলা)..." data-ph-en="Husband's last name..."
+                   placeholder="স্বামীর শেষ নাম (বাংলা)...">
+          </div>
+        </div>
+        <div style="margin-top: 0.75rem;">
+          <label for="wcv-victim-marriage-date" class="form-name-sublabel"
+                 data-bn="বিয়ের তারিখ" data-en="Marriage Date">বিয়ের তারিখ (Marriage Date)</label>
+          <input type="date" id="wcv-victim-marriage-date" style="max-width: 200px;">
+        </div>
+      </div>
+    </div>
+
+    {# ---- Occupation ---- #}
+    <div class="form-field">
+      <label for="wcv-victim-occupation" data-bn="পেশা" data-en="Occupation">পেশা (Occupation)</label>
+      <select id="wcv-victim-occupation">
+        <option value=""
+                data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
+        {# Options populated by JS from wcv-victim-occupations-data #}
+      </select>
+    </div>
+
+    {# ---- Institution / Workplace ---- #}
+    <div class="form-field">
+      <label for="wcv-victim-institution"
+             data-bn="প্রতিষ্ঠান / কর্মস্থল" data-en="Institution / Workplace">প্রতিষ্ঠান / কর্মস্থল (Institution / Workplace)</label>
+      <input type="text" id="wcv-victim-institution"
+             data-ph-bn="প্রতিষ্ঠান / কর্মস্থল (বাংলা)..."
+             data-ph-en="Institution / Workplace..."
+             placeholder="প্রতিষ্ঠান / কর্মস্থল (বাংলা)...">
+    </div>
+  </div>
+
+</div>
+
+{# Embed reference data as JSON for JS-populated fields (type=application/json bypasses CSP) #}
+<script type="application/json" id="wcv-marital-statuses-data">{{ wcv_marital_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-victim-occupations-data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>

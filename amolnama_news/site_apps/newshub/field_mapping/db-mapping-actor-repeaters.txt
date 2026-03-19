@@ -1,0 +1,407 @@
+================================================================================
+  ACTOR REPEATERS — DB FIELD MAPPING
+  Last updated: 2026-03-13 (role_code parameter for _save_actor_profile; actor role always set)
+  Applies to: ALL forms with actors (crime, extortion, land-grabbing, WCV, July uprising, watchdog_bangladesh)
+  Files:
+    news-accused-repeater.js
+    news-victim-repeater.js
+    news-witness-repeater.js
+    news-wcv-accused.js       — uses shared Name + Identity modules
+    news-july-uprising-martyr.js — uses shared Name module
+  Shared JS modules:
+    news-person-name.js           — Name group (3 rendering modes)
+    news-person-identity.js       — Personal Identity group (2 JS modes + template)
+    news-person-party-details.js  — Party Details group (2 JS modes: HTML string + DOM)
+  Shared Python helpers (views.py):
+    _resolve_gender_id()          — ref_status gender ID → ref_gender FK
+    _save_actor_person()          — Name + Identity → [person].[person]
+    _save_actor_occupation()      — Occupation + Institution → [person].[person_job] (get-or-create JobTitle + Organisation)
+    _resolve_actor_role()         — Cached lookup: (role_code or role_id) → (status_id, status_code) tuple
+                                    e.g. _resolve_actor_role(role_code='VICTIM') → (39, 'VICTIM')
+    _save_actor_profile()         — Actor Type + Party Details → [investigation].[incident_involved_actor_profile]
+                                    Accepts role_code= param for server-side role assignment.
+                                    Sets BOTH link_ref_status_incident_involved_actor_role_id (FK)
+                                    AND incident_involved_actor_role_group_code (denormalised code).
+    _save_actors_from_json()      — Top-level: parse JSON + call both helpers per actor
+                                    Uses _FIELD_TO_ROLE mapping:
+                                      accused_json → 'ACCUSED' (status_id=34)
+                                      victim_json  → 'VICTIM'  (status_id=39)
+                                      witness_json → 'WITNESS' (status_id=40)
+================================================================================
+
+MODULARISATION RULE — UI + DATA ENTRY ARE IDENTICAL EVERYWHERE:
+
+  The Name Group, Personal Identity Group, and Party Details Group are IDENTICAL
+  across all repeaters AND across all rendering modes (template, HTML string, DOM).
+  Only the CSS class for event delegation differs.
+
+  This modularisation is NOT just UI rendering — the DATA ENTRY (save operation)
+  is also modularised. All forms use the SAME shared Python helper functions:
+    _save_actor_person()     → [person].[person]
+    _save_actor_occupation() → [person].[person_job] (if occupationId provided)
+    _save_actor_profile()    → [investigation].[incident_involved_actor_profile]
+
+  EVERY form that collects actor data goes through these functions.
+  The JSON keys, DB columns, save order, and target tables are identical
+  everywhere. No form has its own inline Person.objects.create,
+  JobTitle/Organisation get-or-create, or IncidentInvolvedActorProfile.objects.create
+  for standard actor fields.
+
+  Form-specific extras (WCV marital status/relationship/attributes, July mother name, etc.)
+  are handled AFTER the shared save, as post-updates or additional table inserts.
+
+  Forms using shared save helpers:
+    Crime & Violence      — _save_actors_from_json (accused, victim, witness)
+    Extortion             — _save_actors_from_json (accused, victim, witness)
+    Land Grabbing         — _save_actors_from_json (accused, victim, witness)
+    Price Hike/Syndicate  — _save_actors_from_json (accused, victim, witness)
+    Watchdog (নজরদারি)    — _save_actors_from_json (politician)
+    Civic Community       — _save_actors_from_json (accused, victim, witness)
+    WCV                   — _save_actor_person + _save_actor_profile (victim + accused)
+    July Uprising         — _save_actor_person + _save_actor_profile (martyr)
+
+RENDERING MODES (all produce identical structure):
+  A) Template mode  — person-name-core-fields.html + person-name-father-fields.html
+                       + person-personal-info-fields.html
+                       Used by: WCV victim (Step 4), July martyr (Step 4)
+  B) HTML string    — news-person-name.js buildNameGroupHtml()
+                       + news-person-identity.js buildIdentityGroupHtml()
+                       Used by: Crime accused/victim/witness repeaters
+  C) DOM mode       — news-person-name.js buildNameGroupDom()
+                       + news-person-identity.js buildIdentityGroupDom()
+                       Used by: WCV accused repeater
+
+--------------------------------------------------------------------------------
+  GROUP: NAME  →  [person].[person]
+  Title: নাম (Name)  — with data-bn/data-en
+  Source: NAME_ROWS + ALIAS_FIELD + ROW_LABELS in news-person-name.js
+  Template: person-name-core-fields.html + person-name-father-fields.html
+--------------------------------------------------------------------------------
+
+  UI structure (identical across all 3 rendering modes):
+    Block label: "নাম — ইংরেজি (Name — English) *"  [field-label-block]
+      └─ form-name-split: প্রথম নাম [sublabel] | শেষ নাম [sublabel]
+    Block label: "নাম — বাংলা (Name — Bengali)"      [field-label-block]
+      └─ form-name-split: প্রথম নাম [sublabel] | শেষ নাম [sublabel]
+    Single field: "ডাকনাম বা পরিচিত নাম (Alias / Nickname)"
+    Block label: "পিতার নাম (Father's Name)"          [field-label-block]
+      └─ form-name-split: প্রথম নাম [sublabel] | শেষ নাম [sublabel]
+
+  All labels have data-bn / data-en attributes for language toggle.
+
+  Form field         JSON key      DB column              Notes
+  ─────────────────  ────────────  ─────────────────────  ─────────────────────────
+  First Name EN      firstNameEn   first_name_en          NOT NULL. Required field.
+  Last Name EN       lastNameEn    last_name_en            NOT NULL. Use '' if blank.
+  First Name BN      firstNameBn   first_name_bn           Nullable.
+  Last Name BN       lastNameBn    last_name_bn            Nullable.
+  Alias              alias         name_alias_bn           Store in BN column only.
+                                                            UI: "ডাকনাম বা পরিচিত নাম
+                                                            (Alias / Nickname)".
+                                                            name_alias_en left NULL.
+  Father First Name  fatherFirstName  father_first_name_bn  Nullable.
+  Father Last Name   fatherLastName   father_last_name_bn   Nullable.
+
+--------------------------------------------------------------------------------
+  GROUP: PERSONAL IDENTITY  →  [person].[person]
+  Title: ব্যক্তিগত পরিচয় (Personal Identity)  — with data-bn/data-en
+  Source: IDENTITY_ROWS in news-person-identity.js
+  Template: person-personal-info-fields.html
+--------------------------------------------------------------------------------
+
+  UI structure (identical across all 3 rendering modes):
+    Row 1: লিঙ্গ (Gender) [select]        | ধর্ম (Religion) [select]
+    Row 2: বয়স (Age) [number]             | জন্ম তারিখ (Date of Birth) [date]
+    Row 3: নিজ জেলা (Home District) [select] | যোগাযোগ (Contact) [text]
+
+  All labels have data-bn / data-en attributes for language toggle.
+  All inputs have data-ph-bn / data-ph-en for placeholder toggle.
+  Default option format: "-- নির্বাচন করুন (Select) --" with data-bn/data-en.
+
+  Form field      JSON key    DB column                  Notes
+  ──────────────  ──────────  ─────────────────────────  ──────────────────────────
+  Gender          genderId    link_gender_id (INT FK)    DB-driven from ref_status
+                                                          group='gender'. status_id.
+                                                          0 = not set.
+  Religion        religionId  link_religion_id (INT FK)  DB-driven from ref_status
+                                                          group='religion'. status_id.
+                                                          0 = not set.
+  Age             age         age (INT, nullable)         Direct map.
+  Date of Birth   dob         date_of_birth (DATE)        Direct map.
+  Home District   districtId  link_birth_district_id     Tom Select from
+                              (INT FK)                    location.district table.
+                                                          district_id (int).
+                                                          0 = not set.
+  Contact         contact     primary_mobile_number       maxlength=200.
+                                                          See contact rules below.
+
+  ┌─ Contact field rules ───────────────────────────────────────────────────────
+  │  Form: single text field, stores phone number as free text.
+  │  DB rules:
+  │
+  │    Single phone → [person].[person].primary_mobile_number (VARCHAR)
+  │                   Store as-is (e.g. "01712345678").
+  │                   This is a quick-access convenience column.
+  │
+  │    Multiple phones → [contact].[phone] rows
+  │                   Each row: link_person_id, country_calling_code (+880),
+  │                   phone_number (without country code), link_contact_type_id.
+  │
+  │    Email → [person].[person].primary_email_address  (single)
+  │            [contact].[email] rows                   (multiple)
+  │
+  │  Current state: form has NO email field. Phone only, single value.
+  │  The current single `contact` field maps to primary_mobile_number.
+  │
+  │  Future: if email capture is needed, add an email field to all 3 repeaters.
+  └─────────────────────────────────────────────────────────────────────────────
+
+--------------------------------------------------------------------------------
+  GROUP: PARTY DETAILS  →  [investigation].[incident_involved_actor_profile]
+  Title: সংশ্লিষ্ট পক্ষের বিস্তারিত (Party Details)  — with data-bn/data-en
+  Source: PARTY_FIELDS in news-person-party-details.js
+  Template: (none — JS-only for now; template can be added when needed)
+--------------------------------------------------------------------------------
+
+  UI structure (identical across all rendering modes):
+    Field 1: সংগঠনের নাম (Organization Name)                [text, maxlength 200]
+    Field 2: পদবী (Designation)                               [text, maxlength 100]
+    Field 3: আশ্রয়দাতা/পৃষ্ঠপোষক (Patron)                    [text, maxlength 200]
+    Field 4: বক্তব্য (Statement)                               [textarea, maxlength 2000]
+
+  All labels have data-bn / data-en attributes for language toggle.
+  All inputs have data-ph-bn / data-ph-en for placeholder toggle.
+
+  Form field      JSON key      DB column                          Notes
+  ──────────────  ────────────  ─────────────────────────────────  ─────────────────────────
+  Organization    organization  actor_organization_name             NVARCHAR(255) NULL.
+  Designation     designation   actor_designation                   NVARCHAR(100) NULL.
+  Patron          patron        actor_patron_name                   NVARCHAR(255) NULL.
+  Statement       statement     actor_statement                     NVARCHAR(2000) NULL.
+
+  NOTE: WCV accused form does NOT include Party Details — it has its own
+  Occupation & Workplace and Relationship to Victim groups instead.
+
+--------------------------------------------------------------------------------
+  IMPLEMENTED CHANGES (person.person fields — all 3 repeaters)
+--------------------------------------------------------------------------------
+
+  Change             Old state               New state (IMPLEMENTED)
+  ─────────────────  ──────────────────────  ──────────────────────────────────
+  Alias label        "Alias" (English)       "ডাকনাম বা পরিচিত নাম (Alias / Nickname)"
+  Alias storage      alias (free text)       alias → name_alias_bn (NULL if empty)
+  Gender             hardcoded strings       genderId (int) from ref_status.gender
+                     'male'|'female'|...     via DB-driven <select>, status_id
+  Religion           hardcoded strings       religionId (int) from ref_status.religion
+                     'islam'|'hinduism'|...  via DB-driven <select>, status_id
+  District           district (free text)    districtId (int) from location.district
+                                             via Tom Select autocomplete
+  Contact maxlength  50                      200 (aligned with template)
+
+  Rendering consistency (2026-03-12):
+  ─────────────────  ──────────────────────  ──────────────────────────────────
+  Name block labels  HTML string mode had    All 3 modes now produce identical
+                     no block labels above   block labels: "নাম — ইংরেজি",
+                     EN/BN/Father rows       "নাম — বাংলা", "পিতার নাম"
+  Name sublabels     HTML string had full    Sublabels now just "প্রথম নাম" /
+                     "প্রথম নাম (First       "শেষ নাম" inside form-name-split
+                     Name — English)"        (block label provides context)
+  Name layout        HTML string used        Now uses form-field + form-name-split
+                     form-row-half           (matching template and DOM mode)
+  data-bn/data-en    HTML string mode was    All labels, titles, default options
+                     missing data-bn/en      now have data-bn/data-en attributes
+  data-ph-bn/ph-en   HTML string inputs      All inputs now have data-ph-bn/ph-en
+                     had no ph attributes    (matching template and DOM mode)
+  Default option     JS had dashes inside    Now "-- নির্বাচন করুন (Select) --"
+                     each part separately    matching template format exactly
+  ROW_LABELS         Duplicated locally in   Shared constant used by both HTML
+                     buildNameGroupDom()     string and DOM builders
+
+  Party Details modularisation (2026-03-12):
+  ─────────────────  ──────────────────────  ──────────────────────────────────
+  Party Details      Each repeater had its   Extracted to news-person-party-details.js
+                     own inline HTML for     All 3 repeaters now call shared module:
+                     organization/desig-     buildPartyDetailsGroupHtml(index, actor, fieldClass)
+                     nation/patron/statement partyDefaults() provides default values
+  Party title h5     No data-bn/data-en      Now has data-bn + data-en attributes
+  Party labels       No data-bn/data-en      All labels now have data-bn/data-en
+  Party inputs       No data-ph-bn/ph-en     All inputs now have data-ph-bn/data-ph-en
+  Party placeholders Each role had different  Now unified: same placeholders everywhere
+                     placeholders for desig-  (generic examples that work for all roles)
+                     nation and statement
+  Party group class  <div class="actor-group"> Now <div class="actor-group actor-group-party">
+                     (no specific class)      (semantic class for CSS targeting)
+
+  Data entry modularisation (2026-03-12):
+  ─────────────────  ──────────────────────  ──────────────────────────────────
+  Save target table  IncidentEvidence-       [person].[person] + [investigation].
+                     InvolvedActor (old)     [incident_involved_actor_profile] (new)
+  Save operation     Each form had inline    Shared helpers: _save_actor_person()
+                     Person.objects.create   + _save_actor_profile() used by ALL
+                     or IncidentEvidence-    forms. Single source of truth.
+                     InvolvedActor inline
+  JSON keys          Old: 'name' (single),  New: firstNameEn, lastNameEn,
+                     'fatherName' (single)   firstNameBn, lastNameBn,
+                                             fatherFirstName, fatherLastName
+  Gender resolution  Inline per-form code   Shared _resolve_gender_id() maps
+                     (WCV only had it)       ref_status → ref_gender for all forms
+  WCV accused        acc.get('name') was     Now uses _save_actor_person() with
+                     BROKEN (key mismatch)   correct firstNameEn/lastNameEn keys
+  July uprising      Inline Person.create   Now uses _save_actor_person() + post-
+                     + read 'father'/'mother' update for motherFirstName/motherLastName
+
+--------------------------------------------------------------------------------
+  FIELDS THAT DO NOT GO INTO person.person
+  Table: [investigation].[incident_involved_actor_profile]
+  Django model: IncidentInvolvedActorProfile (investigation/models.py)
+--------------------------------------------------------------------------------
+
+  JSON key          DB column                                           Notes
+  ────────────────  ──────────────────────────────────────────────────  ────────────────────
+  involvementTypeId link_ref_status_incident_involved_actor_role_id    INT FK → investigation.ref_status
+                                                                         group_code='incident_involved_actor_role'
+                                                                         ACCUSED=34, COMPLAINANT=35, INVESTIGATOR=36,
+                                                                         OTHER=37, PATRON=38, VICTIM=39, WITNESS=40
+                    ALWAYS SET via _FIELD_TO_ROLE server-side mapping:
+                      accused_json → role_code='ACCUSED' → (34, 'ACCUSED')
+                      victim_json  → role_code='VICTIM'  → (39, 'VICTIM')
+                      witness_json → role_code='WITNESS' → (40, 'WITNESS')
+                    WCV + July Uprising pass role_code directly to _save_actor_profile().
+                    _resolve_actor_role() resolves code → (status_id, status_code) tuple.
+  (denormalised)    incident_involved_actor_role_group_code             NVARCHAR(100) — denormalised status_code
+                                                                         Stores 'ACCUSED', 'VICTIM', 'WITNESS' etc.
+                                                                         Enables querying by role without joining ref_status.
+                                                                         Set automatically by _save_actor_profile().
+  actorTypeId       link_ref_status_incident_involved_actor_type_id    INT FK → investigation.ref_status
+                                                                         group_code='incident_involved_actor_type'
+  actorTypeDetail   incident_involved_actor_type_details               NVARCHAR(100) NULL
+  organization      actor_organization_name                            NVARCHAR(255) NULL
+  designation       actor_designation                                  NVARCHAR(100) NULL
+  patron            actor_patron_name                                  NVARCHAR(255) NULL
+  statement         actor_statement                                    NVARCHAR(2000) NULL
+
+  Other columns (not from repeater form — set server-side):
+  group_code        incident_involved_actor_role_group_code             See above — denormalised role code
+  link_form_type_id link_form_type_id                                  INT FK → newshub.ref_news_form_type
+  link_person_id    link_person_id                                     BIGINT FK → person.person
+                                                                         Set after person INSERT
+  link_person_marriage_id link_person_marriage_id                      BIGINT FK → person.person_marriage
+                                                                         NULL for most cases
+
+  Victim-specific (IN incident_involved_actor_profile — same table):
+  conditionId       link_ref_status_victim_medical_condition_id        INT FK → investigation.ref_status
+  medicalLocation   victim_medical_treatment_location_name             NVARCHAR(100) NULL
+
+--------------------------------------------------------------------------------
+  INSERT SEQUENCE  (per actor card on form submit)
+--------------------------------------------------------------------------------
+
+  1. INSERT INTO [person].[person] (first_name_en, last_name_en, first_name_bn,
+        last_name_bn, name_alias_bn, link_gender_id, link_religion_id,
+        date_of_birth, age, link_birth_district_id, primary_mobile_number,
+        is_active, created_at, modified_at)
+     → returns person_id
+     Note: name_alias_en = NULL (alias stored in BN column only)
+
+  2. If contact count > 1:
+     INSERT INTO [contact].[phone] (link_person_id=person_id, ...)
+     for each additional phone.
+
+  3. INSERT INTO [investigation].[incident_involved_actor_profile]
+     (link_ref_status_incident_involved_actor_role_id, incident_involved_actor_role_group_code,
+      link_form_type_id, link_coll_news_entry_id, link_person_id,
+      link_ref_status_incident_involved_actor_type_id, incident_involved_actor_type_details,
+      actor_organization_name, actor_designation, actor_patron_name, actor_statement,
+      link_ref_status_victim_medical_condition_id, victim_medical_treatment_location_name,
+      created_at)
+     Values: link_ref_status_incident_involved_actor_role_id → resolved by _resolve_actor_role()
+               using role_code from _FIELD_TO_ROLE (accused_json→ACCUSED, victim_json→VICTIM, witness_json→WITNESS)
+               or explicit role_code param (WCV, July Uprising)
+             incident_involved_actor_role_group_code → denormalised status_code ('ACCUSED'/'VICTIM'/'WITNESS')
+             link_form_type_id = form type FK for this news entry
+             link_person_id = person_id from step 1
+             link_ref_status_incident_involved_actor_type_id = actorTypeId (from JS)
+             incident_involved_actor_type_details = actorTypeDetail (from JS)
+             link_ref_status_victim_medical_condition_id = conditionId (from JS, crime victim only)
+             victim_medical_treatment_location_name = medicalLocation (from JS, crime victim only)
+
+--------------------------------------------------------------------------------
+  GAPS SUMMARY — ALL RESOLVED
+--------------------------------------------------------------------------------
+
+  #  Field       Issue                        Resolution (IMPLEMENTED)
+  ── ─────────── ──────────────────────────── ─────────────────────────────────
+  1  alias       Single field vs two columns  Store in name_alias_bn only.
+                                              UI: "ডাকনাম বা পরিচিত নাম
+                                              (Alias / Nickname)"
+  2  gender      Hardcoded string vs FK ID    DB-driven from ref_status group
+                                              'gender'. JSON key: genderId (int).
+  3  religion    Hardcoded string vs FK ID    DB-driven from ref_status group
+                                              'religion'. JSON key: religionId (int).
+  4  district    Free text vs INT FK          Tom Select from location.district.
+                                              JSON key: districtId (int).
+  5  contact     Single phone, no email       Current: single phone →
+                                              primary_mobile_number. Email to be
+                                              added when required.
+  6  rendering   HTML string mode differed    All 3 modes now produce identical
+     consistency from template/DOM mode       structure, labels, attributes.
+                 (missing data-bn/en, block   See IMPLEMENTED CHANGES above.
+                 labels, sublabels, etc.)
+
+================================================================================
+
+================================================================================
+PHOTO ATTACHMENTS — [newshub].[coll_news_asset]
+================================================================================
+MODULARISATION (2026-03-12):
+  Template: newshub/components/file-upload-section.html — SINGLE SOURCE OF TRUTH
+            All photo upload sections use {% include %} with context variables.
+  JS:       news-attachment-upload.js → initFileUploadSection(config)
+            ID convention: {prefix}-picker, {prefix}-real, {prefix}-add-btn,
+                           {prefix}-file-list, {prefix}-descriptions-json
+
+All actor photo uploads (accused / victim / witness) save via:
+  _save_or_reuse_asset() → [media].[asset] (dedup by SHA-256)
+  → [newshub].[coll_news_asset] (junction, sort_order ranges: accused=100-102, victim=200-202, witness=300-302)
+
+POST fields per actor type:
+  Accused  : accused_photos     (FileList, max 3) + accused_photos_descriptions_json
+  Victim   : victim_photos      (FileList, max 3) + victim_photos_descriptions_json
+  Witness  : witness_photos     (FileList, max 3) + witness_photos_descriptions_json
+
+descriptions_json format: [{"index": 0, "description": "..."}, ...]
+
+SAVE PATTERN — per file in each FileList:
+  1. Save file bytes to storage
+  2. INSERT INTO [media].[asset] → returns asset_id
+  3. INSERT INTO [media].[news_entry_asset]:
+       link_asset_id                        = asset_id (from step 2)
+       link_coll_news_entry_id              = news entry id
+       link_person_id                       = person_id (AFTER person INSERT completes)
+                                              NULL for crime evidence files
+       link_ref_status_incident_involved_actor_role_id = status_id (see table below)
+
+ROLE ID LOOKUP — [investigation].[ref_status]
+  group_code = 'incident_involved_actor_role'
+  WHERE status_code = ...
+
+  Actor type        status_code    status_id   link_person_id
+  ────────────────  ─────────────  ──────────  ──────────────────────────────
+  Accused photos    ACCUSED        (lookup)    accused person_id
+  Victim photos     VICTIM         (lookup)    victim person_id
+  Witness photos    WITNESS        (lookup)    witness person_id
+  Crime evidence    INVESTIGATOR   36          NULL or named officer's person_id
+
+NOTE: status_ids for ACCUSED / VICTIM / WITNESS must be looked up at runtime.
+  Only INVESTIGATOR = 36 is a confirmed hardcoded value.
+
+ORDERING CONSTRAINT:
+  Person INSERTs (step 1 of actor sequence) must complete before
+  news_entry_asset INSERTs so that link_person_id is available.
+
+Forms using this pattern:
+  Crime & Violence     — Steps 4 (accused), 5 (victim), 6 (witness), 8 (evidence)
+  Extortion            — Steps 4 (accused), 5 (victim), 6 (witness)
+  Land Grabbing        — Steps 4 (accused), 5 (victim), 6 (witness)
+  Watchdog (নজরদারি)   — Step 4 (politician)
+================================================================================

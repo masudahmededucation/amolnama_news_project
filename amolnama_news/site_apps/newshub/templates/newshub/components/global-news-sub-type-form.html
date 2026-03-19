@@ -1,0 +1,30 @@
+{% comment %}
+  Global News Issue Sub-Type — dropdown (DB-driven from ref_status)
+  for selecting the type of global news being reported.
+  Global News form type specific — included in Step 3.
+  Selected ID stored in select for form submission.
+  When "Other" is selected, a text input appears for details.
+  Populated by news-global-news-sub-type.js.
+{% endcomment %}
+
+<div class="form-section" id="section-global-news-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>সংবাদের ধরন (Issue Sub-Type)</h3>
+
+  {# Embed reference data as JSON (type=application/json bypasses CSP) #}
+  <script type="application/json" id="global-news-sub-types-data">{{ global_news_sub_types_json|default:"[]"|safe }}</script>
+
+  <div class="form-field">
+    <label for="global-news-sub-type">সংবাদের বিষয় নির্বাচন করুন (Select News Topic)</label>
+    <select id="global-news-sub-type" name="global_news_sub_type">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from global-news-sub-types-data #}
+    </select>
+  </div>
+
+  {# Shown when "Other" is selected #}
+  <div class="form-field" id="global-news-sub-type-other-row" style="display:none;">
+    <label for="global-news-sub-type-other-detail">অন্যান্য বিষয়ের বিবরণ (Other Topic Details)</label>
+    <input type="text" id="global-news-sub-type-other-detail" name="global_news_sub_type_other_detail"
+           maxlength="100" placeholder="সংবাদের বিষয় লিখুন (Describe the news topic)">
+  </div>
+</div>

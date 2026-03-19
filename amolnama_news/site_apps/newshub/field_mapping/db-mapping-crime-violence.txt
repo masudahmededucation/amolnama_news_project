@@ -1,0 +1,464 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: CRIME & VIOLENCE (অপরাধ ও সহিংসতা)
+================================================================================
+Last updated: 2026-03-14 (Step 8 weapons wired to CrimeFormWeapon; Step 9 legal action DDL-verified)
+Form page:    news-collection-multistep-crime-violence.html
+Steps:        13 total
+JS managed:   news-accused-repeater.js, news-victim-repeater.js,
+              news-witness-repeater.js, news-crime-casualties.js,
+              news-crime-weapons.js,
+              news-legal-fir.js (shared), news-crime-legal.js
+Shared actor modules (loaded via news-multistep-base.html):
+              news-person-name.js, news-person-identity.js,
+              news-person-party-details.js
+
+================================================================================
+STEP 1 — Form Type
+POST key: form_type (value: "crime_violence")
+Mapping: See db-mapping-common-steps.txt → STEP 1
+================================================================================
+
+================================================================================
+STEP 2 — Contributor
+Mapping: See db-mapping-common-steps.txt → STEP 2
+================================================================================
+
+================================================================================
+STEP 3 — News Content (Generic)
+Template: step-news-content.html → news-entry-form.html
+          NOTE: Uses generic news-entry-form.html — NO crime-specific sub-type picker.
+Mapping: See db-mapping-common-steps.txt → STEP 3
+================================================================================
+
+================================================================================
+STEP 4 — Accused (অভিযুক্ত / সন্দেহভাজন)
+Template:     step-accused.html → accused-form.html
+JS file:      news-accused-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #accused-json (name="accused_json")
+Reference data (embedded in accused-form.html):
+  #actor-involvement-types-data → {{ actor_involvement_types_json }}
+  #actor-types-data             → {{ actor_types_json }}
+File upload: #accused-photos-real (name="accused_photos") — up to 3 files
+             #accused-photos-descriptions-json (name="accused_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=ACCUSED
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per accused card:
+  {
+    role:               "accused"
+    actorTypeId:        <int>                   — from ref_actor_type.actor_type_id
+    involvementTypeId:  <int>                   — from ref_actor_involvement_type (code="accused")
+    firstNameEn:        "<string>"              — first name (English) — news-person-name.js
+    lastNameEn:         "<string>"              — last name (English)
+    firstNameBn:        "<string>"              — first name (Bengali)
+    lastNameBn:         "<string>"              — last name (Bengali)
+    alias:              "<string>"              — উপনাম / ডাকনাম (name_alias_bn/en)
+    fatherFirstName:    "<string>"              — father's first name (Bengali)
+    fatherLastName:     "<string>"              — father's last name (Bengali)
+    designation:        "<string>"              — পদবী
+    organization:       "<string>"              — সংগঠনের নাম
+    patron:             "<string>"              — পৃষ্ঠপোষকের নাম
+    contact:            "<string>"              — ফোন নম্বর
+    statement:          "<string>"              — অভিযুক্তের বক্তব্য
+  }
+  NOTE: name fields are produced by news-person-name.js module. _save_actor_person() maps
+  these to [person].[person] columns: first_name_en, last_name_en, first_name_bn, last_name_bn,
+  name_alias_bn/en, father_first_name_bn, father_last_name_bn.
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile] — one row each per accused card
+  Step 1: [person].[person] INSERT — actor identity
+  Step 2: [investigation].[incident_involved_actor_profile] INSERT — actor role & incident link
+    link_coll_news_entry_id                         = <new coll_news_entry_id>
+    link_person_id                                  = <new person_id from step 1>
+    link_ref_status_incident_involved_actor_role_id = 34 (ACCUSED) ← set via _FIELD_TO_ROLE: accused_json→'ACCUSED'
+    incident_involved_actor_role_group_code          = 'ACCUSED' (denormalised status_code for query)
+    link_ref_status_incident_involved_actor_type_id = actor.actorTypeId
+    link_ref_status_victim_medical_condition_id      = None (accused have no health condition)
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 5 — Victim — Crime (ভুক্তভোগী / আহত)
+Template:     step-victim-crime.html → victim-form-crime.html
+JS file:      news-victim-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #victim-json (name="victim_json")
+Crime config: #crime-actor-config JSON = {"showVictimCondition": true, "showMedicalLocation": true}
+              → tells JS to add conditionId and medicalLocation fields to each victim card
+Reference data added in victim-form-crime.html:
+  #victim-health-statuses-data → {{ victim_health_statuses_json }}
+File upload: #victim-photos-real (name="victim_photos") — up to 3 files
+             #victim-photos-descriptions-json (name="victim_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=VICTIM
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per victim card (crime-specific — includes condition/medical):
+  {
+    role:               "victim"
+    actorTypeId:        <int>
+    involvementTypeId:  <int>
+    firstNameEn:        "<string>"              — first name (English) — news-person-name.js
+    lastNameEn:         "<string>"              — last name (English)
+    firstNameBn:        "<string>"              — first name (Bengali)
+    lastNameBn:         "<string>"              — last name (Bengali)
+    alias:              "<string>"              — উপনাম / ডাকনাম (name_alias_bn/en)
+    fatherFirstName:    "<string>"              — father's first name (Bengali)
+    fatherLastName:     "<string>"              — father's last name (Bengali)
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+    conditionId:        <int>                   — from victim-health-statuses-data (status_id)
+    medicalLocation:    "<string>"              — hospital name / চিকিৎসার স্থান
+  }
+  NOTE: conditionId and medicalLocation are ONLY present in crime victims (not
+        other forms), because crime-actor-config is only embedded in victim-form-crime.html.
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile] — one row each per victim card
+  Step 1: [person].[person] INSERT — actor identity
+  Step 2: [investigation].[incident_involved_actor_profile] INSERT — actor role & incident link
+    link_coll_news_entry_id                         = <new coll_news_entry_id>
+    link_person_id                                  = <new person_id from step 1>
+    link_ref_status_incident_involved_actor_role_id = 39 (VICTIM) ← set via _FIELD_TO_ROLE: victim_json→'VICTIM'
+    incident_involved_actor_role_group_code          = 'VICTIM' (denormalised status_code for query)
+    link_ref_status_incident_involved_actor_type_id = actor.actorTypeId
+    link_ref_status_victim_medical_condition_id      = actor.conditionId if non-zero else None
+    victim_medical_treatment_location_name           = actor.medicalLocation or None
+================================================================================
+
+================================================================================
+STEP 6 — Witness (সাক্ষী / তথ্যদাতা)
+Template:     step-witness.html → witness-form.html
+JS file:      news-witness-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #witness-json (name="witness_json")
+File upload: #witness-photos-real (name="witness_photos") — up to 3 files
+             #witness-photos-descriptions-json (name="witness_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=WITNESS
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per witness card:
+  {
+    role:               "witness"
+    actorTypeId:        <int>
+    involvementTypeId:  <int>
+    firstNameEn:        "<string>"              — first name (English) — news-person-name.js
+    lastNameEn:         "<string>"              — last name (English)
+    firstNameBn:        "<string>"              — first name (Bengali)
+    lastNameBn:         "<string>"              — last name (Bengali)
+    alias:              "<string>"              — উপনাম / ডাকনাম (name_alias_bn/en)
+    fatherFirstName:    "<string>"              — father's first name (Bengali)
+    fatherLastName:     "<string>"              — father's last name (Bengali)
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile]
+  (same two-table pattern as Step 4/5)
+    link_ref_status_incident_involved_actor_role_id = 40 (WITNESS) ← set via _FIELD_TO_ROLE: witness_json→'WITNESS'
+    incident_involved_actor_role_group_code          = 'WITNESS' (denormalised status_code for query)
+    link_ref_status_victim_medical_condition_id      = None (witnesses have no health condition)
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 7 — Casualties & Impact (হতাহত ও ক্ষয়ক্ষতি)
+Template:     step-casualties-impact.html → crime-casualties-impact-form.html
+JS file:      news-crime-casualties.js
+Hidden input: #casualties-impact-json (name="casualties_impact_json")
+
+DOM elements read by JS (all by element ID, values synced to JSON):
+  #impact-death-count          → input[type=number]   name="impact_death_count"
+  #impact-injury-count         → input[type=number]   name="impact_injury_count"
+  #impact-property-destruction → textarea             name="impact_property_destruction_bn"
+  #impact-damage-amount        → input[type=number]   name="impact_damage_amount_bdt"
+  #impact-is-ongoing           → input[type=checkbox] name="impact_is_ongoing"
+
+JSON structure:
+  {
+    deathCount:           <int>       — নিহত সংখ্যা (Death Count)
+    injuryCount:          <int>       — আহত সংখ্যা (Injury Count)
+    propertyDestruction:  "<string>"  — সম্পত্তি ধ্বংসের বিবরণ (text description)
+    damageAmount:         "<string>"  — আনুমানিক ক্ষতির পরিমাণ (BDT, numeric string)
+    isOngoing:            <bool>      — ঘটনা চলমান কিনা
+  }
+
+DB: [investigation].[crime_form_impact_casualty] — one row per submission
+  link_coll_news_entry_id                  = <new entry id>
+  casualty_death_count                     = json.deathCount                (int, default 0)
+  casualty_injury_count                    = json.injuryCount               (int, default 0)
+  casualty_missing_count                   = 0                              (NOT in form — default)
+  casualty_arrested_count                  = 0                              (NOT in form — default)
+  property_has_property_destruction        = True if json.propertyDestruction else False
+  property_destruction_description_bn      = json.propertyDestruction or None
+  property_estimated_damage_amount_bdt     = Decimal(json.damageAmount) if non-empty else None
+  state_is_incident_ongoing                = json.isOngoing (bool)
+  state_last_verified_at                   = None          (not in form)
+
+⚠ NOTE: casualty_missing_count and casualty_arrested_count are NOT in the form.
+   They default to 0. Future form enhancement needed if these fields are required.
+================================================================================
+
+================================================================================
+STEP 8 — Weapons & Evidence (অস্ত্র ও আলামত)
+Template:     step-weapons-evidence.html → crime-weapons-evidence-form.html
+JS file:      news-crime-weapons.js
+Hidden input: #weapons-evidence-json (name="weapons_evidence_json")
+DB-driven weapon checkboxes: {{ weapon_types }} from ref_status (group_code=crime_form_weapon_type)
+  Seeded rows (status_id → status_code):
+    405 FIREARMS, 406 EXPLOSIVES, 407 SHARP_WEAPON, 408 STICKS_RODS,
+    409 POISON_CHEMICAL, 410 OTHER
+File upload: #crime-evidence-real (name="crime_evidence_file") — up to 4 files
+             #crime-evidence-descriptions-json (name="crime_evidence_descriptions_json")
+             Template: {% include "file-upload-section.html" %} with upload_prefix="crime-evidence"
+             Backend: _save_evidence_files(request, entry_id, 'crime_evidence_file',
+                      'crime_evidence_descriptions_json', 4, now)
+             Saves to: [media].[asset] (dedup by SHA-256) + [newshub].[coll_news_asset] (junction)
+             NOTE: evidence_file_path column in [investigation].[crime_form_weapon] is NOT USED.
+
+DOM elements:
+  .weapon-type-cb [value=<status_id>] [data-code=<STATUS_CODE>]
+                                        — weapon type checkboxes (all DB-driven)
+  #weapon-other-text                    — text input shown when OTHER checkbox is checked
+  #evidence-recovered                   — textarea for recovered evidence description
+                                          (name="evidence_recovered_bn")
+
+JSON structure:
+  {
+    weaponTypeIds:     [<int>, ...]    — status_ids of all checked weapon types (incl. OTHER)
+    otherWeaponDetail: "<string>"     — text from #weapon-other-text (empty string if OTHER not checked)
+    recoveredEvidence: "<string>"     — textarea text
+  }
+
+NOTE: "Other" weapon type is a DB row (status_id=410, status_code=OTHER).
+  When checked, its status_id is included in weaponTypeIds AND a text input
+  (#weapon-other-text, maxlength=100) appears. That text → weapon_other_description.
+
+DB: [investigation].[crime_form_weapon] — ONE row per submission
+  Django model: CrimeFormWeapon (investigation/models.py)
+  Save method: code-based lookup (resolve status_id → status_code via RefStatus, match code strings)
+  Updated: 2026-03-14
+
+  link_coll_news_entry_id           = <new entry id>
+  weapon_is_firearms_used           = 'FIREARMS' in wpn_codes             (BIT, status_id 405)
+  weapon_is_explosives_used         = 'EXPLOSIVES' in wpn_codes           (BIT, status_id 406)
+  weapon_is_sharp_weapon_used       = 'SHARP_WEAPON' in wpn_codes         (BIT, status_id 407)
+  weapon_is_sticks_rods_used        = 'STICKS_RODS' in wpn_codes          (BIT, status_id 408)
+  weapon_is_poison_chemical_used    = 'POISON_CHEMICAL' in wpn_codes      (BIT, status_id 409)
+  weapon_other_description          = otherWeaponDetail or None            (NVARCHAR(100) NULL)
+  evidence_recovered_description    = recoveredEvidence or None            (NVARCHAR(500) NULL)
+  evidence_file_path                = NOT USED (files save to media.asset + newshub.coll_news_asset)
+  created_at                        = now                                  (DATETIME2 NOT NULL)
+  updated_at                        = NOT SET (DATETIME2 NULL, DB default)
+
+  Guard: if weapons_evidence_json is empty → skip INSERT (no data to save).
+
+  NOTE: OLD tables incident_evidence_weapon + incident_evidence_impact_weapon were DROPPED.
+  CrimeFormWeapon replaces them with flat BIT columns per weapon type.
+================================================================================
+
+================================================================================
+STEP 9 — Legal Action (আইনি পদক্ষেপ ও সহায়তা)
+Template:     step-crime-legal.html → crime-legal-form.html
+              (crime-legal-form.html includes legal-fir-section.html for shared FIR block)
+JS files:     news-legal-fir.js (shared FIR module), news-crime-legal.js (form-specific)
+Hidden input: #crime-legal (name="crime_legal")
+
+Reference data:
+  #legal-fir-status-data       — DB-driven via {{ fir_statuses_json|safe }}
+                                   group_code=law_gd_fir_status  (SHARED across all forms)
+                                   IDs: 205 NO, 206 POLICE_REFUSED, 207 YES
+  #crime-case-status-data      — DB-driven via {{ crime_case_status_json|safe }}
+                                   group_code=law_case_status  (SHARED across all forms)
+                                   IDs: 486–495
+                                   Stored as FK int → link_ref_status_law_case_status_id
+  #crime-applicable-law-data   — DB-driven via {{ applicable_laws_json|safe }}
+                                   group_code=crime_form_law_applicable
+  #crime-support-service-data  — DB-driven via {{ victim_support_services_json|safe }}
+                                   group_code=crime_form_law_support_service
+  #crime-retaliation-data      — DB-driven via {{ victim_risks_threats_json|safe }}
+                                   group_code=common_victim_risk_threat_pressure_retaliation  (SHARED)
+                                   IDs: 781–788
+
+JSON structure (serialized to #crime-legal by news-crime-legal.js):
+  {
+    firStatusId:            <int>          — status_id from law_gd_fir_status (205/206/207)
+    policeStation:          "<string>"     — থানার নাম via Tom Select (only when FIR=YES)
+    caseNumber:             "<string>"     — মামলা/জিডি নম্বর (only when FIR=YES)
+    policeRefusalStatement: "<string>"     — পুলিশ অস্বীকার বিবৃতি (only when FIR=POLICE_REFUSED)
+    noFirReason:            "<string>"     — মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (only when FIR=NO)
+    applicableLawIds:       [<int>, ...]   — checked law status_ids
+    caseStatusId:           <int>          — selected case status status_id (0 if none)
+    supportServiceIds:      [<int>, ...]   — checked support service status_ids
+    retaliationIds:         [<int>, ...]   — checked risk/threat status_ids (781–788)
+    remarks:                "<string>"     — additional remarks
+  }
+
+Step validator: firStatusId mandatory; if FIR=YES, policeStation also required.
+
+DB: [investigation].[crime_form_victim_legal_action] — ONE row per submission
+  Django model: CrimeFormVictimLegalAction (investigation/models.py)
+  Save method: code-based lookup (resolve status_id → status_code via RefStatus, match code strings)
+
+  link_coll_news_entry_id                       = <new entry id>
+  link_ref_status_law_gd_fir_status_id          = firStatusId          (FK → ref_status, group_code=law_gd_fir_status)
+
+  -- FIR conditional fields (Django attr → DDL column via db_column)
+  case_gd_number                                → [law_gd_fir_case_gd_number] NVARCHAR(100) NULL = caseNumber or None (FIR=YES)
+  reason_not_filing_and_plans                   → [law_gd_fir_reason_not_filing_and_plans] NVARCHAR(1000) NULL = noFirReason or None (FIR=NO)
+  police_refusal_statement                      → [law_gd_fir_police_refusal_statement] NVARCHAR(1000) NULL = policeRefusalStatement or None (FIR=POLICE_REFUSED)
+  location_display_title_en                     → [law_gd_fir_thana_location_display_title_en] NVARCHAR(200) NULL = policeStation or None (FIR=YES)
+
+  -- Applicable laws (group_code=crime_form_law_applicable): code-based BIT NULL DEFAULT 0
+  is_law_penal_302_murder                       = 'PENAL_302_MURDER' in law_codes
+  is_law_penal_307_attempt_murder               = 'PENAL_307_ATTEMPT_MURDER' in law_codes
+  is_law_penal_323_325_hurt                     = 'PENAL_323_325_HURT' in law_codes
+  is_law_penal_392_394_robbery                  = 'PENAL_392_394_ROBBERY' in law_codes
+  is_law_arms_act                               = 'ARMS_ACT' in law_codes
+  is_law_anti_terrorism_act                     = 'ANTI_TERRORISM_ACT' in law_codes
+  is_law_narcotics_control_act                  = 'NARCOTICS_CONTROL_ACT' in law_codes
+  is_law_special_powers_act                     = 'SPECIAL_POWERS_ACT' in law_codes
+
+  -- Case status: FK int → ref_status (group_code=law_case_status, SHARED)
+  link_ref_status_law_case_status_id            = caseStatusId or None (INT NULL)
+
+  -- Victim support services (group_code=crime_form_law_support_service): code-based BIT NULL DEFAULT 0
+  is_victim_support_govt_legal_aid              = 'GOVT_LEGAL_AID' in support_codes
+  is_victim_support_victim_support_center       = 'VICTIM_SUPPORT_CENTER' in support_codes
+  is_victim_support_ngo_support                 = 'NGO_SUPPORT' in support_codes
+  is_victim_support_family_community_support    = 'FAMILY_COMMUNITY_SUPPORT' in support_codes
+
+  -- Risk / threat / pressure / retaliation (group_code=common_victim_risk_threat_pressure_retaliation, SHARED)
+  -- code-based BIT NULL DEFAULT 0
+  is_risk_threat_family_pressure                = 'FAMILY_PRESSURE' in retaliation_codes
+  is_risk_threat_settlement_pressure            = 'SETTLEMENT_PRESSURE' in retaliation_codes
+  is_risk_threat_case_withdrawal_pressure       = 'CASE_WITHDRAWAL_PRESSURE' in retaliation_codes
+  is_risk_threat_business_loss_threat           = 'BUSINESS_LOSS_THREAT' in retaliation_codes
+  is_risk_threat_witness_victim_threat          = 'WITNESS_VICTIM_THREAT' in retaliation_codes
+  is_risk_threat_eviction_threat                = 'EVICTION_THREAT' in retaliation_codes
+  is_risk_threat_retaliation_threat             = 'RETALIATION_THREAT' in retaliation_codes
+  is_risk_threat_death_or_physical_harm_threat  = 'DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes
+
+  legal_action_additional_remarks               = remarks or None  (NVARCHAR(1000) NULL)
+  created_at                                    = now (DATETIME2 NOT NULL)
+  created_by_user_id                            = NOT SET (INT NULL, DB default)
+  updated_at                                    = NOT SET (DATETIME2 NULL, DB default)
+  updated_by_user_id                            = NOT SET (INT NULL, DB default)
+================================================================================
+
+================================================================================
+STEP 10 — Location
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+================================================================================
+
+================================================================================
+STEP 11 — Social Sources
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+================================================================================
+
+================================================================================
+STEP 12 — Category / Tags
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+================================================================================
+
+================================================================================
+STEP 13 — Submit
+No new POST keys; form submission triggered.
+================================================================================
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+1. [newshub].[coll_news_entry] INSERT
+   - form_type = "crime_violence"
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (per db-mapping-common-steps.txt)
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — accused rows
+   Source: accused_json (array, Step 4) — first person, then profile per card
+
+4. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — victim rows
+   Source: victim_json (array, Step 5) — first person, then profile per card
+   Role: _FIELD_TO_ROLE victim_json→'VICTIM' (status_id=39, group_code='VICTIM')
+   Include: link_ref_status_victim_medical_condition_id, victim_medical_treatment_location_name from crime victim fields
+
+5. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — witness rows
+   Source: witness_json (array, Step 6) — first person, then profile per card
+
+6. [investigation].[crime_form_impact_casualty] INSERT — one row
+   Source: casualties_impact_json (Step 7)
+
+7. [investigation].[incident_evidence_weapon] INSERT — one row
+   + [investigation].[incident_evidence_impact_weapon] INSERT — one row per checked weapon type
+   Source: weapons_evidence_json (Step 8)
+   evid_is_recovered = True if recoveredEvidence non-empty.
+   evid_description_bn = merged otherWeaponDetail + recoveredEvidence text.
+   Junction rows: one per status_id in weaponTypeIds.
+
+9. ✅ [investigation].[crime_form_victim_legal_action] INSERT — one row
+   Source: crime_legal (JSON string, Step 9)
+   Parses firStatusId, caseStatusId (resolved to status_code string via RefStatus lookup),
+   applicableLawIds (411-418 → BIT columns), supportServiceIds (419-422 → BIT columns),
+   retaliationIds (423-426 → BIT columns), policeStation, caseNumber, policeRefusalStatement,
+   noFirReason, remarks.
+
+8b. [media].[news_entry_asset] INSERT — accused photos (accused_photos FileList)
+    link_incident_involved_actor_role_id = ACCUSED status_id (lookup)
+    link_person_id = person_id from step 3 (match by card index)
+    One row per file. See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS.
+
+8c. [media].[news_entry_asset] INSERT — victim photos (victim_photos FileList)
+    link_incident_involved_actor_role_id = VICTIM status_id (lookup)
+    link_person_id = person_id from step 4 (match by card index)
+
+8d. [media].[news_entry_asset] INSERT — witness photos (witness_photos FileList)
+    link_incident_involved_actor_role_id = WITNESS status_id (lookup)
+    link_person_id = person_id from step 5 (match by card index)
+
+8e. [media].[asset] INSERT (dedup by SHA-256) + [newshub].[coll_news_asset] INSERT (junction)
+    — crime evidence files (crime_evidence_file FileList)
+    Saved via _save_evidence_files() → _save_or_reuse_asset() per file.
+    link_incident_involved_actor_role_id = 36 (INVESTIGATOR, confirmed)
+    link_person_id = NULL
+
+11. Social source data INSERT (per db-mapping-common-steps.txt)
+
+12. Category/Tag associations INSERT (per db-mapping-common-steps.txt)
+
+================================================================================
+OUTSTANDING QUESTIONS / GAPS
+================================================================================
+1. ✅ RESOLVED (2026-03-14) — Weapons save block wired to CrimeFormWeapon.
+
+2. ✅ RESOLVED — Evidence file uploads use shared _save_evidence_files() helper.
+   Saves to [media].[asset] (dedup by SHA-256) + [newshub].[coll_news_asset] (junction).
+   Per-file descriptions from crime_evidence_descriptions_json are saved to
+   [media].[asset].[asset_description_bn] via _save_or_reuse_asset().
+
+3. casualties_impact_json — property_has_property_destruction is derived from
+   text being non-empty (True if propertyDestruction is non-empty). No separate
+   checkbox. Confirm with team if a separate BIT is needed.
+
+4. victim-form-crime.html uses SAME #victim-json input as victim-form.html
+   (both output to name="victim_json"). The JS reads #crime-actor-config
+   to decide whether to add conditionId/medicalLocation fields.
+   Confirm: is #crime-actor-config always absent on non-crime forms?
+================================================================================

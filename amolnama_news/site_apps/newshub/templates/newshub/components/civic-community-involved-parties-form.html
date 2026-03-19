@@ -1,0 +1,37 @@
+{% comment %}
+  Responsible Authority & Parties — dynamic repeater for accused, victims, witnesses.
+  Civic & Community form type specific.
+  Same actor fields as extortion (no victim condition/hospital — that's crime-specific).
+  Each person is a card; users add/remove as needed.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-involved-parties">
+  <h3 class="form-section-title"><span class="section-icon">🏛️</span>দায়িত্বশীল কর্তৃপক্ষ ও জড়িত ব্যক্তি (Responsible Authority & Involved Parties)</h3>
+
+  {# Hidden input — JS serializes the actors array here before submit #}
+  <input type="hidden" id="involved-actors-json" name="involved_actors_json" value="">
+
+  {# Quick-add buttons #}
+  <div class="actor-add-buttons" id="actor-add-buttons">
+    <button type="button" class="actor-add-btn actor-add-accused" data-role="accused">+ দায়ী কর্তৃপক্ষ যোগ করুন (Add Responsible Authority)</button>
+    <button type="button" class="actor-add-btn actor-add-victim" data-role="victim">+ ভুক্তভোগী যোগ করুন (Add Victim)</button>
+    <button type="button" class="actor-add-btn actor-add-witness" data-role="witness">+ সাক্ষী যোগ করুন (Add Witness)</button>
+  </div>
+
+  {# Dynamic cards rendered here by JS #}
+  <div id="involved-actors-list"></div>
+
+  {# Empty state #}
+  <div class="actor-empty-state" id="actor-empty-state">
+    এখনো কোনো ব্যক্তি/কর্তৃপক্ষ যোগ করা হয়নি। উপরের বোতাম ব্যবহার করে দায়ী কর্তৃপক্ষ, ভুক্তভোগী বা সাক্ষী যোগ করুন।
+    <br><small>(No persons/authorities added yet. Use the buttons above to add responsible authority, victims or witnesses.)</small>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>

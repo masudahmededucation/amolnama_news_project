@@ -1,0 +1,685 @@
+/* ========== Poem Detail Page ========== */
+
+.poem-detail {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Header */
+.poem-detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.poem-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-bottom: .75rem;
+}
+
+.poem-detail-category {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 6px;
+  padding: .2rem .6rem;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.poem-detail-lang {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface);
+  border-radius: 4px;
+  padding: .15rem .4rem;
+}
+
+.poem-detail-time {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.poem-detail-edit-btn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .2rem .6rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color .15s, border-color .15s;
+}
+
+.poem-detail-edit-btn:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.poem-detail-edit-btn svg {
+  width: 13px;
+  height: 13px;
+}
+
+/*
+ * Poem body — CSS-only old book page effect
+ *
+ * Reference: media/poem/img/old book page - kobita.png
+ *            media/poem/img/old book page - background.png
+ *
+ * Technique breakdown (7 layers, no images):
+ *
+ * LAYER 1 — Base color gradient (bottom)
+ *   Warm cream (#f6eee0) center fading to slightly darker edges (#efe3d0).
+ *   Mimics the natural yellowing of old paper — center lighter, edges aged.
+ *
+ * LAYER 2 — Edge vignette
+ *   Radial gradient darkening corners/edges with warm brown tones.
+ *   Simulates how real aged pages darken at the perimeter from oxidation.
+ *
+ * LAYER 3 — Foxing spots (5 radial gradients)
+ *   Randomly placed elliptical spots of faint brown discoloration.
+ *   Mimics the irregular "foxing" marks found on old paper.
+ *   Kept very subtle (opacity .03–.05) to match the reference's clean look.
+ *
+ * LAYER 4 — Vertical paper grain (repeating-linear-gradient)
+ *   Thin vertical lines every 3-4px in faint brown.
+ *   Simulates the directional grain of paper fibers.
+ *
+ * LAYER 5 — Spine fold + edge wear (::before pseudo-element)
+ *   Left edge: darker gradient simulating a book's spine shadow.
+ *   Top/bottom edges: faint darkening like handling wear.
+ *
+ * LAYER 6 — Cross-hatch fiber texture (::after pseudo-element)
+ *   Four repeating gradients at 0°, 90°, 35°, -35° in very faint brown.
+ *   Creates subtle paper fiber / tree bark micro-texture.
+ *
+ * LAYER 7 — Ink bleed text-shadow
+ *   Very subtle text-shadow (.5px) to mimic ink bleeding into old paper.
+ *
+ * Box-shadow adds depth: outer shadow (book on surface) + inner warm glow.
+ */
+.poem-detail-body {
+  white-space: pre-line;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', 'Shonar Bangla', 'SolaimanLipi', Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 2.1;
+  letter-spacing: .02em;
+  color: #2c1810;
+  padding: 2.5rem 2.5rem;
+  background:
+    /* L2 — Edge vignette */
+    radial-gradient(ellipse at center, transparent 60%, rgba(120,90,40,.06) 82%, rgba(80,55,20,.12) 100%),
+    /* L3 — Foxing spots (subtle, matches clean reference) */
+    radial-gradient(ellipse at 12% 18%, rgba(160,120,60,.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 82% 12%, rgba(140,100,50,.04) 0%, transparent 38%),
+    radial-gradient(ellipse at 55% 78%, rgba(150,110,55,.04) 0%, transparent 42%),
+    radial-gradient(ellipse at 22% 88%, rgba(130,95,45,.03) 0%, transparent 38%),
+    radial-gradient(ellipse at 88% 55%, rgba(145,105,50,.03) 0%, transparent 32%),
+    /* L4 — Vertical paper grain */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(120,90,40,.01) 3px,
+      rgba(120,90,40,.01) 4px
+    ),
+    /* Spine fold shadow — left & right edges */
+    linear-gradient(to right, rgba(80,55,20,.08) 0%, rgba(120,90,40,.03) .5%, transparent 2%, transparent 98%, rgba(120,90,40,.03) 99.5%, rgba(80,55,20,.06) 100%),
+    /* L1 — Base cream gradient */
+    linear-gradient(to bottom, #efe3d0 0%, #f4ead8 3%, #f6eee0 12%, #f8f0e2 50%, #f6eee0 88%, #f4ead8 97%, #efe3d0 100%);
+  border-radius: 2px;
+  border: none;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.08),
+    0 0 1px rgba(0,0,0,.06),
+    inset 0 0 50px rgba(139,109,63,.05),
+    inset 0 0 15px rgba(100,70,30,.03);
+  margin-bottom: 1.5rem;
+  position: relative;
+  /* L7 — Ink bleed */
+  text-shadow: 0 0 .5px rgba(44,24,16,.12);
+}
+
+/* L5 — Spine fold + edge wear */
+.poem-detail-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    linear-gradient(to right, rgba(80,55,20,.1) 0%, rgba(120,90,40,.04) .6%, transparent 2.5%),
+    linear-gradient(to bottom, rgba(100,70,30,.04) 0%, transparent 2.5%),
+    linear-gradient(to top, rgba(100,70,30,.04) 0%, transparent 2.5%);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* L6 — Cross-hatch fiber texture */
+.poem-detail-body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(100,70,30,.006) 1px,
+      rgba(100,70,30,.006) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(100,70,30,.005) 2px,
+      rgba(100,70,30,.005) 3px
+    ),
+    repeating-linear-gradient(
+      35deg,
+      transparent,
+      transparent 4px,
+      rgba(90,60,20,.006) 4px,
+      rgba(90,60,20,.006) 5px
+    ),
+    repeating-linear-gradient(
+      -35deg,
+      transparent,
+      transparent 6px,
+      rgba(90,60,20,.005) 6px,
+      rgba(90,60,20,.005) 7px
+    );
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 1;
+  opacity: .7;
+}
+
+/* L8 — Grainy noise overlay (SVG feTurbulence) */
+.poem-detail-grain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .12;
+  mix-blend-mode: multiply;
+  border-radius: 2px;
+}
+
+/* Title & author inside the old book page */
+.poem-detail-title {
+  margin: 0 0 .3rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #2c1810;
+  text-align: center;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', 'Shonar Bangla', Georgia, serif;
+  position: relative;
+  z-index: 2;
+}
+
+.poem-detail-author {
+  margin: 0 0 1.2rem;
+  font-size: .88rem;
+  font-weight: 600;
+  font-style: italic;
+  color: #5a3e28;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.poem-detail-text {
+  position: relative;
+  z-index: 2;
+  text-align: left;
+  width: fit-content;
+  max-width: 85%;
+  margin: 0 auto;
+}
+
+/* ---- Audio Player Bar ---- */
+
+.poem-audio-player {
+  margin-bottom: 1.5rem;
+}
+
+.poem-audio-bar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: #1a1a2e;
+  border-radius: 10px;
+  padding: .5rem .75rem;
+}
+
+/* Play button */
+.poem-audio-play-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, transform .1s;
+}
+
+.poem-audio-play-btn:hover {
+  background: var(--primary-hover, #388e3c);
+}
+
+.poem-audio-play-btn:active {
+  transform: scale(.93);
+}
+
+/* Info (title + description) */
+.poem-audio-info {
+  flex: 0 0 auto;
+  max-width: 160px;
+  min-width: 80px;
+  overflow: hidden;
+}
+
+.poem-audio-title {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poem-audio-desc {
+  display: block;
+  font-size: .68rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Progress bar */
+.poem-audio-progress-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.poem-audio-progress-bar {
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+  /* Larger hit area for drag — 24px tall invisible touch zone */
+  padding: 10px 0;
+  margin: -10px 0;
+  background-clip: content-box;
+}
+
+.poem-audio-progress-fill {
+  height: 4px;
+  background: var(--primary);
+  border-radius: 2px;
+  width: 0%;
+  transition: width .1s linear;
+  pointer-events: none;
+}
+
+.poem-audio-progress-bar:hover,
+.poem-audio-progress-bar:active {
+  cursor: pointer;
+}
+
+.poem-audio-time {
+  font-size: .65rem;
+  color: #777;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Volume button */
+.poem-audio-vol-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: .2rem;
+  border-radius: 4px;
+  transition: color .15s;
+  display: flex;
+  align-items: center;
+}
+
+.poem-audio-vol-btn:hover {
+  color: #fff;
+}
+
+/* Watch Video button */
+.poem-audio-video-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid #444;
+  color: #aaa;
+  cursor: pointer;
+  padding: .3rem .5rem;
+  border-radius: 6px;
+  transition: color .15s, border-color .15s;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  font-size: .7rem;
+}
+
+.poem-audio-video-btn:hover {
+  color: #fff;
+  border-color: #888;
+}
+
+/* Video expand area */
+.poem-audio-video-wrap {
+  margin-top: .5rem;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.poem-audio-video-wrap iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+}
+
+.poem-audio-collapse-btn {
+  display: block;
+  width: 100%;
+  padding: .4rem;
+  background: #1a1a2e;
+  border: none;
+  color: #888;
+  font-size: .75rem;
+  cursor: pointer;
+  transition: color .15s;
+}
+
+.poem-audio-collapse-btn:hover {
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .poem-audio-bar {
+    flex-wrap: wrap;
+    gap: .4rem;
+  }
+  .poem-audio-info {
+    max-width: 120px;
+  }
+  .poem-audio-progress-wrap {
+    order: 10;
+    flex-basis: 100%;
+  }
+}
+
+/* ---- Radio Up Next Banner ---- */
+
+.poem-radio-next {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 0 0 10px 10px;
+  padding: .75rem 1rem;
+  margin-top: -2px;
+  animation: poem-radio-slide-in .3s ease-out;
+}
+
+@keyframes poem-radio-slide-in {
+  from { opacity: 0; max-height: 0; padding: 0 1rem; }
+  to   { opacity: 1; max-height: 200px; padding: .75rem 1rem; }
+}
+
+.poem-radio-next-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .4rem;
+}
+
+.poem-radio-next-label {
+  font-size: .75rem;
+  font-weight: 700;
+  color: #ff9800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.poem-radio-next-countdown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #fff;
+  background: #ff9800;
+  border-radius: 50%;
+}
+
+.poem-radio-next-cancel {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #555;
+  color: #aaa;
+  font-size: .7rem;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+
+.poem-radio-next-cancel:hover {
+  color: #fff;
+  border-color: #aaa;
+}
+
+.poem-radio-next-preview h4 {
+  margin: 0;
+  font-size: .88rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.poem-radio-next-preview span {
+  display: block;
+  font-size: .72rem;
+  color: #888;
+  margin-bottom: .3rem;
+}
+
+.poem-radio-next-preview p {
+  margin: 0;
+  font-size: .78rem;
+  color: #bbb;
+  line-height: 1.5;
+  max-height: 3em;
+  overflow: hidden;
+  font-style: italic;
+}
+
+/* Collapsible sections (backstory, interpretation) */
+.poem-detail-section {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.poem-detail-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: .75rem 1rem;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface);
+  border: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.poem-detail-section-toggle:hover {
+  background: var(--border);
+}
+
+.poem-detail-section-toggle svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform .2s;
+}
+
+.poem-detail-section-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.poem-detail-section-content {
+  display: none;
+  padding: 1rem;
+  font-size: .92rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-line;
+}
+
+.poem-detail-section-content--open {
+  display: block;
+}
+
+/* Action bar (like, share, views) */
+.poem-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.poem-detail-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .8rem;
+  font-size: .82rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.poem-detail-action-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.poem-detail-action-btn--liked {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.poem-detail-action-btn--liked svg {
+  fill: #e74c3c;
+}
+
+.poem-detail-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.poem-detail-views {
+  margin-left: auto;
+  font-size: .78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+.poem-detail-views svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Related poems */
+.poem-detail-related {
+  margin-top: 2rem;
+}
+
+.poem-detail-related-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--text);
+}
+
+.poem-detail-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .poem-detail-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .poem-detail-title {
+    font-size: 1.2rem;
+  }
+
+  .poem-detail-body {
+    padding: 1.5rem 1.25rem;
+    font-size: .95rem;
+  }
+
+  .poem-detail-author {
+    font-size: .8rem;
+  }
+
+  .poem-detail-related-grid {
+    grid-template-columns: 1fr;
+  }
+}

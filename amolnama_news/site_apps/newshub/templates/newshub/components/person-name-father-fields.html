@@ -1,0 +1,29 @@
+{% comment %}
+  person-name-father-fields.html — Father's name fields (first + last, Bengali).
+  Extracted from person-name-fields.html for flexible composition.
+
+  Parameters (passed via {% include ... with %}):
+    prefix  — ID prefix, e.g. "july-martyr", "wcv-victim"
+              Generates IDs: {prefix}-father-firstname, {prefix}-father-lastname
+{% endcomment %}
+
+{# ---- Father's name (Bengali only — part of identity in Bangladesh) ---- #}
+<div class="form-field">
+  <label data-bn="পিতার নাম" data-en="Father's Name">পিতার নাম (Father's Name)</label>
+  <div class="form-name-split">
+    <div>
+      <label for="{{ prefix }}-father-firstname" class="form-name-sublabel"
+             data-bn="প্রথম নাম" data-en="First Name">প্রথম নাম</label>
+      <input type="text" id="{{ prefix }}-father-firstname"
+             data-ph-bn="প্রথম নাম (বাংলা)..." data-ph-en="First name..."
+             placeholder="প্রথম নাম (বাংলা)...">
+    </div>
+    <div>
+      <label for="{{ prefix }}-father-lastname" class="form-name-sublabel"
+             data-bn="শেষ নাম" data-en="Last Name">শেষ নাম</label>
+      <input type="text" id="{{ prefix }}-father-lastname"
+             data-ph-bn="শেষ নাম (বাংলা)..." data-ph-en="Last name..."
+             placeholder="শেষ নাম (বাংলা)...">
+    </div>
+  </div>
+</div>

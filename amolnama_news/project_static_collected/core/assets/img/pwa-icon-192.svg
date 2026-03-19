@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <!-- Background: theme dark -->
+  <rect width="192" height="192" rx="0" fill="#1a1a2e"/>
+
+  <!-- Outer white ring -->
+  <circle cx="96" cy="82" r="52" fill="#ffffff"/>
+
+  <!-- Red circle -->
+  <circle cx="96" cy="82" r="45" fill="#e02020"/>
+
+  <!-- White N letter -->
+  <text x="96" y="95" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="58" fill="#ffffff">N</text>
+
+  <!-- "EWS" text -->
+  <text x="118" y="118" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="20" fill="#ffffff">EWS</text>
+
+  <!-- Bengali name below -->
+  <text x="96" y="162" text-anchor="middle" font-family="Noto Sans Bengali, Arial, sans-serif" font-weight="700" font-size="22" fill="#e0e0e0">আমলনামা</text>
+</svg>

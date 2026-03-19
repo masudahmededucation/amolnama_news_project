@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path("", include("amolnama_news.site_apps.seo.urls")),  # SEO: robots.txt, sitemap.xml, llms.txt
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("api/auth/", include("amolnama_news.site_apps.user_account.api.urls")),
@@ -12,6 +13,13 @@ urlpatterns = [
     path("evaluation_vote/", include("amolnama_news.site_apps.evaluation_vote.urls")),  # Evaluation Vote app
     path("election_vote/", include("amolnama_news.site_apps.election_vote.urls")),  # Election Vote app
     path("newshub/", include("amolnama_news.site_apps.newshub.urls")),  # News Hub app
+    path("market/", include("amolnama_news.site_apps.market.urls")),  # Market app
+    path("investigation/", include("amolnama_news.site_apps.investigation.urls")),  # Investigation app
+    path("tools/", include("amolnama_news.site_apps.tools.urls")),  # Tools app
+    path("marriage/", include("amolnama_news.site_apps.marriage.urls")),  # Marriage app
+    path("poem/", include("amolnama_news.site_apps.poem.urls")),  # Poem app
+    path("bangladesh/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh app
+    path("englishtobangla/", include("amolnama_news.site_apps.englishtobangla.urls")),  # English to Bangla transliteration
 
 ]
 

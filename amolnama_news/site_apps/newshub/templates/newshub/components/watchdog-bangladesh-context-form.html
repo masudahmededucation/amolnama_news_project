@@ -1,0 +1,45 @@
+{% comment %}
+  Context & Pressure — captures the motive/reason behind the political flip-flop.
+  Checkbox group for predefined motives + free-text description.
+  Watchdog (নজরদারি) form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-political-context">
+  <h3 class="form-section-title"><span class="section-icon">🔍</span>প্রেক্ষাপট ও চাপ (Context & Pressure)</h3>
+
+  {# Hidden input — JS serializes context data here before submit #}
+  <input type="hidden" id="political-context-json" name="political_context_json" value="">
+
+  <div class="form-field">
+    <label>কারণ/চাপ (Motive/Pressure)</label>
+    <div class="checkbox-group" id="political-motive-checkboxes">
+      <label class="checkbox-card">
+        <input type="checkbox" name="political_motive" value="fear">
+        <span class="checkbox-card-label">গ্রেপ্তার/মামলার ভয় (Fear of Arrest/Case)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" name="political_motive" value="greed">
+        <span class="checkbox-card-label">পদ/পদবির লোভ (Greed for Position)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" name="political_motive" value="election">
+        <span class="checkbox-card-label">নির্বাচনী মনোনয়ন (Election Nomination)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" name="political_motive" value="pressure">
+        <span class="checkbox-card-label">বাহ্যিক চাপ (External Pressure)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" name="political_motive" value="other">
+        <span class="checkbox-card-label">অন্যান্য (Other)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="political-context-description">প্রেক্ষাপটের বিবরণ (Context Description)</label>
+    <textarea id="political-context-description" rows="4"
+              placeholder="কেন তিনি দল/অবস্থান পরিবর্তন করলেন তার বিস্তারিত বিবরণ... (Describe why they changed party/position...)"></textarea>
+  </div>
+</div>

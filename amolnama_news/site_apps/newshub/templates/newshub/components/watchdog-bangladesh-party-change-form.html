@@ -1,0 +1,52 @@
+{% comment %}
+  Watchdog Bangladesh — Party Change Watchdog fields.
+  Tracks political party switching (দল পরিবর্তন নজরদারি).
+  JS: news-watchdog-bangladesh-party-change.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-party-change" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">🦎</span>দল পরিবর্তন নজরদারি (Party Change Watchdog)</h3>
+
+  {# Hidden input — JS serializes party change data here before submit #}
+  <input type="hidden" id="party-change-json" name="party_change_json" value="">
+
+  <div class="form-field">
+    <label for="party-change-previous-party">আগের দল (Previous Party)<span class="required-mark">*</span></label>
+    <input type="text" id="party-change-previous-party"
+           placeholder="কোন দলে ছিলেন... (Which party were they in...)">
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-current-party">বর্তমান দল (Current Party)<span class="required-mark">*</span></label>
+    <input type="text" id="party-change-current-party"
+           placeholder="এখন কোন দলে... (Which party are they in now...)">
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-date">দল পরিবর্তনের তারিখ (Date of Change)</label>
+    <input type="date" id="party-change-date">
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-reason">দল পরিবর্তনের কারণ (Reason for Change)</label>
+    <textarea id="party-change-reason" rows="3"
+              placeholder="কেন দল পরিবর্তন করেছেন... (Why did they change party...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-benefit">প্রাপ্ত সুবিধা/পদ (Benefit / Position Gained)</label>
+    <textarea id="party-change-benefit" rows="2"
+              placeholder="দল পরিবর্তনে কী সুবিধা পেয়েছেন... (What benefit or position was gained...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-history">দলবদলের ইতিহাস (History of Party Changes)</label>
+    <textarea id="party-change-history" rows="3"
+              placeholder="আগে কতবার দল পরিবর্তন করেছেন... (How many times have they changed parties before...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="party-change-source">সূত্র/প্রমাণ (Source/Proof Link)</label>
+    <input type="url" id="party-change-source" placeholder="https://...">
+  </div>
+</div>

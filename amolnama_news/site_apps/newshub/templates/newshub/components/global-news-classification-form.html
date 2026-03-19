@@ -1,0 +1,44 @@
+{% comment %}
+  Significance & Story Status — for General Global News form.
+  Step 5 of the আন্তর্জাতিক সংবাদ (Global News) form.
+  News sub-type moved to Step 3 (global-news-sub-type-form.html).
+  Serialized to global_news_classification_json by news-global-news-classification.js.
+{% endcomment %}
+
+<div class="form-section" id="section-global-news-classification">
+  <h3 class="form-section-title"><span class="section-icon">📋</span>সংবাদের গুরুত্ব ও অবস্থা (Significance & Story Status)</h3>
+
+  {# Hidden JSON — serialized by news-global-news-classification.js #}
+  <input type="hidden" id="global-news-classification-json" name="global_news_classification_json" value="">
+
+  {# ---- Significance Level (DB-driven from ref_status) ---- #}
+  <h4 class="form-subsection-title">সংবাদের গুরুত্ব (News Significance)</h4>
+  <div class="form-field">
+    <div class="radio-inline-group" id="global-news-significance-group">
+      {# Populated by JS from news-significance-data #}
+    </div>
+    <input type="hidden" id="global-news-significance" value="">
+  </div>
+
+  {# JSON embed for significance options #}
+  <script type="application/json" id="news-significance-data">{{ news_significance_json|default:"[]"|safe }}</script>
+
+  {# ---- Story Status ---- #}
+  <h4 class="form-subsection-title">সংবাদের অবস্থা (Story Status)</h4>
+  <div class="form-field">
+    <div class="checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="global-news-is-developing">
+        🔄 ঘটনা এখনো চলছে / বিকাশমান সংবাদ (Developing / ongoing story)
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="global-news-is-breaking">
+        🔴 ব্রেকিং নিউজ (Breaking news)
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="global-news-has-bangladesh-angle">
+        🇧🇩 বাংলাদেশের জন্য সরাসরি প্রাসঙ্গিক (Directly relevant to Bangladesh)
+      </label>
+    </div>
+  </div>
+</div>

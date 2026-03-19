@@ -1,5 +1,4 @@
 from django.db import models, connection
-from django.db.models import F
 
 
 class RefEvaluation(models.Model):
@@ -129,11 +128,7 @@ class EvaluationResponse(models.Model):
     link_question_id = models.IntegerField(blank=True, null=True)
     link_question_option_id = models.IntegerField(blank=True, null=True)
     link_user_session_id = models.BigIntegerField(blank=True, null=True)
-    link_user_session_id_key = models.GeneratedField(
-        expression=F('link_user_session_id'),
-        output_field=models.BigIntegerField(),
-        db_persist=True,
-    )
+    link_user_session_id_key = models.BigIntegerField()
     marks_awarded = models.IntegerField(blank=True, null=True)
     remarks_bn = models.CharField(max_length=500, blank=True, null=True)
     is_active = models.BooleanField()

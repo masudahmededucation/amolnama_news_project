@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background: theme dark -->
+  <rect width="512" height="512" rx="0" fill="#1a1a2e"/>
+
+  <!-- Outer white ring -->
+  <circle cx="256" cy="230" r="120" fill="#ffffff"/>
+
+  <!-- Red circle -->
+  <circle cx="256" cy="230" r="105" fill="#e02020"/>
+
+  <!-- White N letter -->
+  <text x="256" y="258" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="140" fill="#ffffff">N</text>
+
+  <!-- "EWS" text to the right of the circle, smaller -->
+  <text x="310" y="320" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#ffffff">EWS</text>
+
+  <!-- Bengali name below -->
+  <text x="256" y="430" text-anchor="middle" font-family="Noto Sans Bengali, Arial, sans-serif" font-weight="700" font-size="48" fill="#e0e0e0">আমলনামা</text>
+
+  <!-- Tagline -->
+  <text x="256" y="475" text-anchor="middle" font-family="Noto Sans Bengali, Arial, sans-serif" font-weight="400" font-size="24" fill="#999999">সত্যই আমাদের শক্তি</text>
+</svg>

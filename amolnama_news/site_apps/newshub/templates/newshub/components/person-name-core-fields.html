@@ -1,0 +1,55 @@
+{% comment %}
+  person-name-core-fields.html — English + Bengali name fields only.
+  This is the base building block — no alias, no father.
+  Used by person-name-fields.html and person-name-alias-fields.html for composition.
+
+  Parameters (passed via {% include ... with %}):
+    prefix     — ID prefix for all inputs (e.g., "july-martyr", "wcv-victim")
+    label_main — Label shown above the name fields (e.g., "শহীদ/আহতের নাম")
+
+  Generates IDs:
+    {prefix}-first-name-en     {prefix}-last-name-en
+    {prefix}-first-name-bn     {prefix}-last-name-bn
+{% endcomment %}
+
+{# ---- English name ---- #}
+<div class="form-field">
+  <label data-bn="{{ label_main }} — ইংরেজি" data-en="{{ label_main }} — English">{{ label_main }} — ইংরেজি (English)</label>
+  <div class="form-name-split">
+    <div>
+      <label for="{{ prefix }}-first-name-en" class="form-name-sublabel"
+             data-bn="প্রথম নাম" data-en="First Name">প্রথম নাম</label>
+      <input type="text" id="{{ prefix }}-first-name-en"
+             data-ph-bn="প্রথম নাম (ইংরেজিতে)..." data-ph-en="First name (English)..."
+             placeholder="প্রথম নাম (ইংরেজিতে)...">
+    </div>
+    <div>
+      <label for="{{ prefix }}-last-name-en" class="form-name-sublabel"
+             data-bn="শেষ নাম" data-en="Last Name">শেষ নাম</label>
+      <input type="text" id="{{ prefix }}-last-name-en"
+             data-ph-bn="শেষ নাম (ইংরেজিতে)..." data-ph-en="Last name (English)..."
+             placeholder="শেষ নাম (ইংরেজিতে)...">
+    </div>
+  </div>
+</div>
+
+{# ---- Bengali name ---- #}
+<div class="form-field">
+  <label data-bn="{{ label_main }} — বাংলা" data-en="{{ label_main }} — Bengali">{{ label_main }} — বাংলা (Bengali)</label>
+  <div class="form-name-split">
+    <div>
+      <label for="{{ prefix }}-first-name-bn" class="form-name-sublabel"
+             data-bn="প্রথম নাম" data-en="First Name">প্রথম নাম</label>
+      <input type="text" id="{{ prefix }}-first-name-bn"
+             data-ph-bn="প্রথম নাম (বাংলা)..." data-ph-en="First name (Bengali)..."
+             placeholder="প্রথম নাম (বাংলা)...">
+    </div>
+    <div>
+      <label for="{{ prefix }}-last-name-bn" class="form-name-sublabel"
+             data-bn="শেষ নাম" data-en="Last Name">শেষ নাম</label>
+      <input type="text" id="{{ prefix }}-last-name-bn"
+             data-ph-bn="শেষ নাম (বাংলা)..." data-ph-en="Last name (Bengali)..."
+             placeholder="শেষ নাম (বাংলা)...">
+    </div>
+  </div>
+</div>

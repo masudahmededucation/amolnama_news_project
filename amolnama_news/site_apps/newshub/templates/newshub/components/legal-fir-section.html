@@ -1,0 +1,66 @@
+{% comment %}
+  Shared FIR/GD section — included in crime, extortion, and land-grab legal forms.
+  Uses shared IDs: one legal form per page so no ID conflicts.
+  FIR radios built by news-legal-fir.js; conditional rows toggled by same module.
+  Form-specific JS reads state via window.newshubLegalFir API.
+
+  Shared element IDs:
+    #legal-fir-status-radios        — radio group (built by news-legal-fir.js)
+    #legal-fir-details-row          — conditional row (FIR = YES)
+    #legal-police-station           — police station input (Tom Select, init in form JS)
+    #legal-case-number              — case/GD number input
+    #legal-police-refused-row       — conditional row (FIR = POLICE_REFUSED)
+    #legal-police-refusal-statement — police refusal statement textarea
+    #legal-no-fir-row               — conditional row (FIR = NO)
+    #legal-no-fir-reason            — no-FIR reason textarea
+
+  Shared data element:
+    #legal-fir-status-data          — JSON [{ status_id, status_code, status_name_bn, status_name_en }]
+{% endcomment %}
+
+  <div class="form-field">
+    <label>এফআইআর/জিডি দায়ের হয়েছে? <span class="field-required">*</span></label>
+    <div class="radio-inline-group" id="legal-fir-status-radios">
+      {# Populated by news-legal-fir.js from #legal-fir-status-data #}
+    </div>
+  </div>
+
+  {# Shown when FIR = YES #}
+  <div id="legal-fir-details-row" style="display: none;">
+    <div class="form-field form-field-thana-search">
+      <label for="legal-police-station">🔍 থানার নাম অনুসন্ধান করুন (Search Police Station)</label>
+      <input type="text" id="legal-police-station"
+             placeholder="যেমন: মিরপুর মডেল... লিখে খুঁজুন অথবা সরাসরি নাম লিখুন">
+    </div>
+    <div class="form-field">
+      <label for="legal-case-number">মামলা/জিডি নম্বর (Case / GD Number)</label>
+      <input type="text" id="legal-case-number"
+             placeholder="যেমন: জিডি নং ১২৩, মামলা নং ৪৫৬...">
+    </div>
+  </div>
+
+  {# Shown when FIR = POLICE_REFUSED #}
+  <div id="legal-police-refused-row" style="display: none;">
+    <div class="form-field">
+      <label for="legal-police-refusal-statement">পুলিশের অস্বীকারের বিবৃতি (Police Refusal Statement)</label>
+      <textarea id="legal-police-refusal-statement" rows="3"
+                placeholder="পুলিশ কী কারণে মামলা নিতে অস্বীকার করেছে তা লিখুন..."></textarea>
+    </div>
+  </div>
+
+  {# Shown when FIR = NO #}
+  <div id="legal-no-fir-row" style="display: none;">
+    <div class="form-field">
+      <label for="legal-no-fir-reason">মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (Reason for Not Filing & Plans)</label>
+      <textarea id="legal-no-fir-reason" rows="3"
+                placeholder="কেন মামলা হয়নি এবং ভুক্তভোগীর ভবিষ্যৎ পরিকল্পনা কী তা লিখুন..."></textarea>
+    </div>
+  </div>
+
+<script type="application/json" id="legal-fir-status-data">
+[
+  {"status_id": 901, "status_code": "NO",             "status_name_bn": "না",                   "status_name_en": "No"},
+  {"status_id": 902, "status_code": "POLICE_REFUSED", "status_name_bn": "পুলিশ নিতে অস্বীকার", "status_name_en": "Police Refused"},
+  {"status_id": 903, "status_code": "YES",            "status_name_bn": "হ্যাঁ",                "status_name_en": "Yes"}
+]
+</script>

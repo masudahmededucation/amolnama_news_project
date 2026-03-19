@@ -1,0 +1,25 @@
+{% comment %}
+  person-name-alias-fields.html — Full name block with alias.
+  Reusable across any person form (martyr, victim, accused, witness, etc.)
+
+  Composition: core (EN + BN) → Alias → Father
+  For forms without Alias, use person-name-fields.html instead.
+
+  Parameters (passed via {% include ... with %}):
+    prefix             — ID prefix, e.g. "july-martyr", "wcv-victim"
+    label_main         — Label for the name fields, e.g. "শহীদ/আহতের নাম *"
+    alias_placeholder  — (optional) Placeholder text for the alias input
+{% endcomment %}
+
+{% include "newshub/components/person-name-core-fields.html" with prefix=prefix label_main=label_main %}
+
+{# ---- Alias (before Father) ---- #}
+<div class="form-field">
+  <label for="{{ prefix }}-alias"
+         data-bn="ডাকনাম বা পরিচিত নাম" data-en="Alias / Nickname">ডাকনাম বা পরিচিত নাম (Alias / Nickname)</label>
+  <input type="text" id="{{ prefix }}-alias" maxlength="100"
+         data-ph-bn="{{ alias_placeholder|default:'ডাকনাম (বাংলা)...' }}" data-ph-en="Alias..."
+         placeholder="{{ alias_placeholder|default:'ডাকনাম (বাংলা)...' }}">
+</div>
+
+{% include "newshub/components/person-name-father-fields.html" with prefix=prefix %}

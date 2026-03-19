@@ -1,0 +1,136 @@
+================================================================================
+ FIELD MAPPING: বিবাহ সনদপত্র (Marriage Certificate Notary)
+================================================================================
+ Template: marriage/marriage-certificate.html
+ URL:      /marriage/marriage-certificate/
+ View:     marriage.views.marriage_certificate
+ Storage:  Client-side only (no backend DB) — PDF/print output
+            Saved offices stored in [marriage].[user_saved_office] (logged-in users)
+================================================================================
+
+NOTE: This form is primarily client-side. Certificate is rendered into an A4
+preview for print/PDF export. Logged-in users can save/load office info via API.
+
+JS files:
+  - marriage/assets/js/components/marriage-sigpad.js              (signature pad — shared)
+  - marriage/assets/js/components/marriage-saved-office.js        (save/load office — logged-in)
+  - marriage/assets/js/pages/marriage-certificate-stepper.js      (multi-step stepper)
+  - marriage/assets/js/pages/marriage-certificate-preview.js      (preview builder)
+
+CSS files:
+  - marriage/assets/css/components/marriage-sigpad.css             (signature pad — shared)
+  - marriage/assets/css/pages/marriage-certificate.css             (form + preview styles)
+
+
+================================================================================
+ PAGE-LEVEL CONTROL
+================================================================================
+
+ ID          | Type   | Label (BN)  | Label (EN) | Notes
+-------------+--------+-------------+------------+-----------------------------
+ cert-lang   | radio  | বাংলা       | English    | Toggles form language (bn/en)
+
+
+================================================================================
+ STEP 1: অফিস (Office & Header Information)
+================================================================================
+
+ ID                  | Type  | Label (BN)               | Label (EN)
+---------------------+-------+--------------------------+---------------------
+ cert-govt-title     | text  | সরকারের শিরোনাম           | Government Title
+ cert-office-name    | text  | অফিসের নাম               | Office Name
+ cert-office-address | text  | অফিসের ঠিকানা            | Office Address
+ cert-reg-no         | text *| নিবন্ধন নং               | REGD NO
+ cert-date           | date *| তারিখ                    | Date
+
+
+================================================================================
+ STEP 2: বর (Groom Information)
+================================================================================
+
+ ID                  | Type      | Label (BN)          | Label (EN)
+---------------------+-----------+---------------------+----------------------
+ cert-groom-name     | text *    | বরের পূর্ণ নাম       | Groom's Full Name
+ cert-groom-dob      | date      | জন্ম তারিখ          | Date of Birth
+ cert-groom-religion | text      | ধর্ম                | Religion
+ cert-groom-father   | text      | পিতার নাম           | Father's Name
+ cert-groom-mother   | text      | মাতার নাম           | Mother's Name
+ cert-groom-address  | textarea  | বরের ঠিকানা          | Groom's Address
+ cert-groom-nid      | text      | NID নং              | NID Number
+
+
+================================================================================
+ STEP 3: কনে (Bride Information)
+================================================================================
+
+ ID                  | Type      | Label (BN)          | Label (EN)
+---------------------+-----------+---------------------+----------------------
+ cert-bride-name     | text *    | কনের পূর্ণ নাম       | Bride's Full Name
+ cert-bride-dob      | date      | জন্ম তারিখ          | Date of Birth
+ cert-bride-religion | text      | ধর্ম                | Religion
+ cert-bride-father   | text      | পিতার নাম           | Father's Name
+ cert-bride-mother   | text      | মাতার নাম           | Mother's Name
+ cert-bride-address  | textarea  | কনের ঠিকানা          | Bride's Address
+ cert-bride-nid      | text      | NID নং              | NID Number
+
+
+================================================================================
+ STEP 4: নিবন্ধন (Registration Details)
+================================================================================
+
+ ID                  | Type  | Label (BN)           | Label (EN)
+---------------------+-------+----------------------+----------------------
+ cert-marriage-date  | date *| বিবাহের তারিখ         | Marriage Date
+ cert-book-no        | text  | বই নং               | Book No.
+ cert-volume-no      | text  | খণ্ড নং              | Volume No.
+ cert-page-no        | text  | পৃষ্ঠা নং             | Page No.
+ cert-entry-no       | text  | এন্ট্রি নং            | Entry No.
+ cert-reg-year       | text  | নিবন্ধনের সন          | Registration Year
+
+
+================================================================================
+ STEP 5: নোটারি ও স্বাক্ষর (Notary & Signatures)
+================================================================================
+
+ --- Issue Date ---
+ cert-issue-date     | date  | ইস্যু তারিখ           | Issue Date
+
+ --- Attested By (সত্যায়নকারী) ---
+ ID                         | Type        | Label (BN)              | Label (EN)
+----------------------------+-------------+-------------------------+------------------------
+ cert-attested-name         | text        | নাম                     | Name
+ cert-attested-qualification| text        | যোগ্যতা                  | Qualification
+ cert-attested-designation  | text        | পদবি                    | Designation
+ cert-attested-place        | text        | স্থান                    | Place
+ cert-attested-date         | date        | সত্যায়নের তারিখ          | Attestation Date
+ sig-mode-attested          | radio       | মাউসে আঁকুন / ছবি আপলোড  | Draw / Upload
+ cert-attested-sig          | file-upload | স্বাক্ষরের ছবি আপলোড     | Upload Signature Image
+
+ --- Marriage Registrar / Kazi (কাজী / নিকাহ রেজিস্ট্রার) ---
+ cert-registrar-name        | text        | নাম                     | Name
+ cert-registrar-designation | text        | পদবি                    | Designation
+ cert-registrar-office      | text        | অফিস                    | Office
+ cert-registrar-date        | date        | স্বাক্ষরের তারিখ          | Signature Date
+ sig-mode-registrar         | radio       | মাউসে আঁকুন / ছবি আপলোড  | Draw / Upload
+ cert-registrar-sig         | file-upload | স্বাক্ষরের ছবি আপলোড     | Upload Signature Image
+
+ Signature zones:
+ Sig Key      | Person                      | Drop Element ID
+--------------+-----------------------------+---------------------
+ attested     | সত্যায়নকারী (Attester)        | sig-attested-drop
+ registrar    | কাজী/রেজিস্ট্রার (Registrar)   | sig-registrar-drop
+
+
+================================================================================
+ STEP 6: সনদপত্র প্রিভিউ (Certificate Preview & Export)
+================================================================================
+
+ Preview area: #cert-preview
+ Action buttons: Print, PDF Download, Edit (not form fields)
+
+ * = Required field
+
+
+================================================================================
+ TOTAL: ~34 input fields, 2 signature canvases, 1 language toggle
+================================================================================

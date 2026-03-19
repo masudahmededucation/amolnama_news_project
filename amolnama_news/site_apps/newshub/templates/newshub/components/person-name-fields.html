@@ -1,0 +1,23 @@
+{% comment %}
+  person-name-fields.html — Reusable name fields: English first/last, Bengali first/last,
+  then Father's name (first/last — integral to identity in Bangladesh).
+
+  Composition: core (EN + BN) → Father
+  For forms that need Alias, use person-name-alias-fields.html instead.
+
+  Parameters (passed via {% include ... with %}):
+    prefix     — ID prefix for all inputs (e.g., "july-martyr", "wcv-victim")
+    label_main — Label shown above the name fields (e.g., "শহীদ/আহতের নাম")
+
+  Generates IDs:
+    {prefix}-first-name-en     {prefix}-last-name-en
+    {prefix}-first-name-bn     {prefix}-last-name-bn
+    {prefix}-father-firstname  {prefix}-father-lastname
+
+  JS: window.newshubPersonName.read(prefix) / bind(prefix, fn) / reset(prefix)
+  CSS: .form-name-split for two-column layout.
+  Language toggle: supports data-bn / data-en for news-form-lang.js.
+{% endcomment %}
+
+{% include "newshub/components/person-name-core-fields.html" with prefix=prefix label_main=label_main %}
+{% include "newshub/components/person-name-father-fields.html" with prefix=prefix %}

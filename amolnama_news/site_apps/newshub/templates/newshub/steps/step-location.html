@@ -1,0 +1,15 @@
+<div class="step-panel{% if step == 1 %} active{% endif %}"
+     data-step="{{ step }}"
+     data-step-label-bn="স্থান"
+     data-step-label-en="Location">
+  {% if location_hint_bn %}
+  <div class="step-hint step-hint-highlight">
+    <strong>{{ location_hint_bn }}</strong>
+    {% if location_hint_en %}<br><span class="step-hint-en">({{ location_hint_en }})</span>{% endif %}
+  </div>
+  {% endif %}
+  <div class="widget-location" id="widget-location">
+    {% include "newshub/components/news-location-administrative-cascade.html" %}
+    {% include "newshub/components/news-location-map-pinpoint.html" %}
+  </div>
+</div>

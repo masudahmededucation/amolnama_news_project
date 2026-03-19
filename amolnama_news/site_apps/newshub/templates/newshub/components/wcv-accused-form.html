@@ -1,0 +1,38 @@
+{% comment %}
+  Women & Child Violence — Accused/Perpetrator Info.
+  Repeater: multiple perpetrators supported.
+  Dropdowns/checkboxes are DB-driven from ref_status via CSP-safe JSON.
+  Data serialized to hidden JSON array by JS.
+  Language toggle:
+    - Section title and "add" button are wired (data-bn/data-en on inner <span>).
+    - Card fields are JS-generated (news-wcv-accused.js). The JS does NOT currently
+      read window.newshubFormLang.current() when rendering cards, so card labels
+      always render in Bengali regardless of the toggle setting.
+      FUTURE: pass current lang into createCard() to render bilingual card labels.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-accused">
+  <h3 class="form-section-title"><span class="section-icon">🔍</span><span
+      data-bn="অভিযুক্ত পক্ষের তথ্য" data-en="Accused Party/Perpetrator Info">অভিযুক্ত পক্ষের তথ্য</span></h3>
+
+  <input type="hidden" id="wcv-accused" name="wcv_accused" value="">
+
+  {# Repeater container — cards rendered by JS #}
+  <div id="wcv-accused-list"></div>
+
+  <div class="form-field" style="text-align:center;">
+    <button type="button" id="wcv-accused-add-btn" class="btn-add-social-source">
+      ➕ <span data-bn="আরেকজন অভিযুক্ত পক্ষ যোগ করুন"
+               data-en="Add Another Accused Party">আরেকজন অভিযুক্ত পক্ষ যোগ করুন</span>
+    </button>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="wcv-attacker-relationships-data">{{ wcv_attacker_relationships|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-attacker-positions-data">{{ wcv_attacker_positions|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-attacker-attributes-data">{{ wcv_attacker_attributes|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-genders-data">{{ wcv_genders|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-religions-data">{{ wcv_religions|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-districts-data">{{ wcv_districts|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-occupations-data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>

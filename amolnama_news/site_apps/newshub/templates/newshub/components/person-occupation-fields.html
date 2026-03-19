@@ -1,0 +1,29 @@
+{% comment %}
+  person-occupation-fields.html — Occupation & Workplace fields.
+  Separated from Personal Identity to keep identity universal.
+  Use as a standalone group when a form needs occupation data.
+
+  Parameters (passed via {% include ... with %}):
+    prefix       — ID prefix, e.g. "july-martyr", "wcv-victim"
+                   Generates IDs: {prefix}-occupation, {prefix}-institution
+    occupations  — queryset/list of ref_status (status_id, status_name_bn, status_name_en)
+{% endcomment %}
+
+<div class="form-field">
+  <label for="{{ prefix }}-occupation"
+         data-bn="পেশা" data-en="Occupation">পেশা (Occupation)</label>
+  <select id="{{ prefix }}-occupation">
+    <option value="" data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
+    {% for occ in occupations %}
+    <option value="{{ occ.status_id }}">{{ occ.status_name_bn }} ({{ occ.status_name_en }})</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="form-field">
+  <label for="{{ prefix }}-institution"
+         data-bn="প্রতিষ্ঠান / কর্মস্থল" data-en="Institution / Workplace">প্রতিষ্ঠান / কর্মস্থল (Institution / Workplace)</label>
+  <input type="text" id="{{ prefix }}-institution"
+         data-ph-bn="প্রতিষ্ঠান / কর্মস্থল (বাংলা)..." data-ph-en="Institution / Workplace..."
+         placeholder="প্রতিষ্ঠান / কর্মস্থল (বাংলা)...">
+</div>

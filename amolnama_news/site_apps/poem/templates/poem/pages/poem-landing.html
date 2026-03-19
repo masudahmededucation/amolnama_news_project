@@ -1,0 +1,93 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}কবিতা — আমলনামা নিউজ | Poems{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'poem/assets/css/components/poem-card.css' %}">
+<link rel="stylesheet" href="{% static 'poem/assets/css/pages/poem-landing.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Header ── #}
+<section class="poem-header">
+  <div class="poem-header-left">
+    <h1>কবিতা ও গানের কথা (Poems & Lyrics)</h1>
+    <p>আপনার কবিতা বা গানের কথা শেয়ার করুন — Share your poems & song lyrics</p>
+  </div>
+  <div class="poem-header-search">
+    <svg class="poem-header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="poem-header-search-input" id="poemSearchInput" name="poem-search" placeholder="কবিতা খুঁজুন... (Type in English e.g. dalal → দালাল)" autocomplete="off" autofocus>
+  </div>
+  {% if user.is_authenticated %}
+    <div class="poem-header-cta-group">
+      <a href="{% url 'poem:poem_create' %}?type=poem" class="poem-header-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        কবিতা লিখুন
+      </a>
+      <a href="{% url 'poem:poem_create' %}?type=song" class="poem-header-cta poem-header-cta--song">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        গানের কথা লিখুন
+      </a>
+    </div>
+  {% else %}
+    <a href="{% url 'user_account:login' %}?next={% url 'poem:poem_create' %}" class="poem-header-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      লগইন করুন
+    </a>
+  {% endif %}
+</section>
+
+{# ── Type Tabs + Category Filter ── #}
+<div class="poem-filter-bar">
+  <div class="poem-type-tabs" id="poemTypeTabs">
+    <button type="button" class="poem-type-tab poem-type-tab--active" data-type="">সব (All)</button>
+    <button type="button" class="poem-type-tab" data-type="poem">কবিতা (Poems)</button>
+    <button type="button" class="poem-type-tab" data-type="song">গানের কথা (Songs)</button>
+  </div>
+  <div class="poem-filter-pills" id="poemFilterPills">
+    <button type="button" class="poem-filter-pill poem-filter-pill--active" data-category="">সব ধরন (All)</button>
+    {% for cat in categories %}
+      <button type="button" class="poem-filter-pill" data-category="{{ cat.poem_ref_poem_category_id }}">
+        {{ cat.poem_category_name_bn }}
+      </button>
+    {% endfor %}
+  </div>
+</div>
+
+{# ── Active Filter Breadcrumbs ── #}
+<div class="poem-filter-crumbs" id="poemFilterCrumbs" style="display:none;">
+  <span class="poem-filter-crumbs-label">ফিল্টার:</span>
+  <div class="poem-filter-crumbs-chips" id="poemFilterChips"></div>
+  <button type="button" class="poem-filter-crumbs-clear" id="poemFilterClearAll">সব মুছুন ✕</button>
+</div>
+
+{# ── Card Grid (server-rendered first page) ── #}
+<div class="poem-card-grid" id="poemCardGrid">
+  {% for poem in poems %}
+    {% include "poem/components/poem-card.html" %}
+  {% empty %}
+    <div class="poem-empty-state">
+      <p>এখনো কোনো কবিতা প্রকাশিত হয়নি। প্রথম কবিতাটি আপনার হোক!</p>
+      <p>No poems published yet. Be the first to share yours!</p>
+    </div>
+  {% endfor %}
+</div>
+
+{# ── Load More ── #}
+{% if has_next %}
+<div class="poem-load-more" id="poemLoadMore">
+  <button type="button" class="poem-load-more-button" id="poemLoadMoreBtn">আরও দেখুন (Load More)</button>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{# avro-phonetic.js + bangla-input.js loaded globally via base.html #}
+<script src="{% static 'poem/assets/js/pages/poem-landing.js' %}"></script>
+{% endblock %}

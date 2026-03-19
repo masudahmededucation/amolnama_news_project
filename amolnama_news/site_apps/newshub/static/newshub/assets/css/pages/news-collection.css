@@ -163,11 +163,23 @@
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
+.form-field input:hover::placeholder,
+.form-field textarea:hover::placeholder {
+  color: var(--text);
+  opacity: .85;
+}
+
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(10, 102, 194, .12);
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: var(--text);
+  opacity: .65;
 }
 
 .form-field textarea {
@@ -262,6 +274,42 @@
   margin-bottom: 0;
 }
 
+/* ---- Checkbox / radio groups (used in multi-step custom forms) ---- */
+
+.checkbox-group,
+.radio-inline-group {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.checkbox-inline,
+.radio-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .875rem;
+  font-weight: 400;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.checkbox-inline input[type="checkbox"],
+.radio-inline input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Prevent .form-field label block styling from affecting inline labels */
+.form-field .checkbox-inline,
+.form-field .radio-inline {
+  display: inline-flex;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
 /* ---- Two-column field row ---- */
 
 .form-row-half {
@@ -295,6 +343,10 @@
   overflow: hidden;
 }
 
+.file-info-block + .file-info-block {
+  border-top: 1px solid var(--border);
+}
+
 .file-info-row {
   display: flex;
   align-items: center;
@@ -302,8 +354,8 @@
   padding: .45rem .85rem;
 }
 
-.file-info-row + .file-info-row {
-  border-top: 1px solid var(--border);
+.file-desc-row {
+  padding: 0 .85rem .45rem;
 }
 
 .file-info-name {
@@ -322,20 +374,50 @@
   white-space: nowrap;
 }
 
-.file-info-remove {
-  background: none;
-  border: none;
-  color: var(--danger);
-  font-size: 1.1rem;
-  line-height: 1;
+/* ---- Shared repeater delete button ---- */
+
+.btn-repeater-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .7rem;
+  border: 1px solid #fca5a5;
+  border-radius: 1rem;
+  background: #fff5f5;
+  color: #dc2626;
+  font-size: .8rem;
+  font-weight: 600;
   cursor: pointer;
-  padding: 0 .25rem;
-  font-weight: 700;
+  transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+  white-space: nowrap;
   flex-shrink: 0;
+  line-height: 1;
 }
 
-.file-info-remove:hover {
-  color: #8b1a1a;
+.btn-repeater-delete:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, .25);
+}
+
+.btn-delete-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fecaca;
+  font-size: .85rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background .2s, color .2s;
+}
+
+.btn-repeater-delete:hover .btn-delete-x {
+  background: rgba(255, 255, 255, .3);
+  color: #fff;
 }
 
 /* ---- Featured image radio per file ---- */
@@ -363,6 +445,22 @@
   background: rgba(245, 166, 35, .08);
 }
 
+/* ---- Per-file description input ---- */
+
+.file-description-input {
+  width: 100%;
+  padding: .3rem .5rem;
+  font-size: .8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+}
+.file-description-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 /* ---- Add file button ---- */
 
 .btn-add-file {
@@ -388,6 +486,32 @@
   border-color: var(--border);
   cursor: default;
   background: var(--surface);
+}
+
+/* ---- File upload validation errors ---- */
+
+.file-upload-errors {
+  padding: .5rem .75rem;
+  margin-top: .4rem;
+  margin-bottom: .5rem;
+  border-radius: var(--radius-sm);
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: var(--danger);
+  font-size: .8rem;
+  line-height: 1.5;
+}
+
+.file-upload-warnings {
+  padding: .5rem .75rem;
+  margin-top: .4rem;
+  margin-bottom: .5rem;
+  border-radius: var(--radius-sm);
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: .8rem;
+  line-height: 1.5;
 }
 
 /* ---- Clear form button row ---- */
@@ -725,14 +849,26 @@
 }
 
 .widget-location .ts-control > input,
-.widget-category .ts-control > input {
+.widget-category .ts-control > input,
+.widget-field .ts-control > input {
+  height: 1.5rem;
+  line-height: 1.5;
   font-size: inherit;
   color: var(--text) !important;
-  flex-shrink: 1;
+  flex: 1 1 2rem;
   min-width: 2rem !important;
-  line-height: 1.6;
   padding: 0 !important;
   margin: 0 !important;
+  border: none !important;
+  background: transparent;
+}
+
+/* Placeholder — same dark tone as upazila dropdown text */
+.widget-location .ts-control > input::placeholder,
+.widget-category .ts-control > input::placeholder,
+.widget-field .ts-control > input::placeholder {
+  color: var(--text);
+  opacity: .65;
 }
 
 .widget-location .ts-control:hover,
@@ -740,6 +876,13 @@
   border-color: #90CAF9;
   background-color: #F0F7FF;
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
+}
+
+.widget-location .ts-control:hover > input::placeholder,
+.widget-category .ts-control:hover > input::placeholder,
+.widget-field .ts-control:hover > input::placeholder {
+  color: var(--text);
+  opacity: .85;
 }
 
 .widget-location .ts-wrapper.focus .ts-control,
@@ -765,8 +908,8 @@
 
 .widget-location .ts-dropdown .active,
 .widget-category .ts-dropdown .active {
-  background: var(--accent);
-  color: #fff;
+  background: #F0F7FF;
+  color: var(--text);
 }
 
 /* ---- Sidebar widgets (extend core .widget) ---- */
@@ -814,6 +957,14 @@
   font-weight: 600;
   margin-bottom: .3rem;
   color: var(--text);
+}
+
+/* ---- Mandatory field indicators ---- */
+
+.field-mandatory-star {
+  color: var(--danger);
+  font-weight: 700;
+  margin-left: 3px;
 }
 
 /* ---- Mandatory field validation (shared) ---- */
@@ -896,28 +1047,181 @@
 .location-search-path-en {
   font-size: .7rem;
   color: var(--muted);
-  opacity: .7;
+  opacity: .85;
   line-height: 1.3;
 }
 
-/* Active (hovered/selected) state */
+/* Active (hovered/selected) state — light blue bg + dark text like upazila */
 .widget-location .ts-dropdown .active .location-search-type-badge {
-  background: rgba(255, 255, 255, .2);
-  color: #fff;
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 .widget-location .ts-dropdown .active .location-search-name,
 .widget-location .ts-dropdown .active .location-search-path-bn,
 .widget-location .ts-dropdown .active .location-search-path-en {
-  color: #fff;
+  color: var(--text);
 }
 
 .widget-location .ts-dropdown .active .location-search-path-en {
-  opacity: .8;
+  opacity: .85;
 }
 
 /* Separator between search results */
 .widget-location .ts-dropdown .option + .option {
+  border-top: 1px solid var(--border);
+}
+
+
+/* ========== Thana (Police Station) Search — WCV Legal Form ========== */
+
+/* Wrapper — blue highlight matching .widget-location search field */
+.form-field-thana-search {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: .5rem .6rem;
+  border-radius: var(--radius-sm);
+}
+
+.form-field-thana-search label {
+  color: var(--primary);
+}
+
+.form-field-thana-search .ts-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+/* Tom Select control — mirrors .widget-location .ts-control exactly */
+.form-field-thana-search .ts-wrapper .ts-control,
+.form-field-thana-search .ts-wrapper.single .ts-control {
+  padding: .65rem 1rem .65rem 2rem;
+  min-height: 2.8rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background-color: #FAFAF8;
+  color: var(--text);
+  cursor: text;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  transition: all .2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A5A5A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: .5rem center;
+  background-size: 14px 14px;
+}
+
+/* Selected item stays on one line */
+.form-field-thana-search .ts-control > .item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* Input: match .widget-location cursor height exactly */
+.form-field-thana-search .ts-control > input,
+.form-field-thana-search .ts-wrapper.single.has-items .ts-control > input,
+.form-field-thana-search .ts-wrapper.has-items .ts-control > input {
+  height: 1.5rem;
+  line-height: 1.5;
+  font-size: inherit !important;
+  color: var(--text) !important;
+  flex: 1 1 2rem;
+  min-width: 2rem !important;
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  position: static !important;
+}
+
+/* Placeholder — same dark tone as upazila dropdown text */
+.form-field-thana-search .ts-control > input::placeholder {
+  color: var(--text);
+  opacity: .65;
+}
+
+.form-field-thana-search .ts-control:hover {
+  border-color: #90CAF9;
+  background: #F0F7FF;
+  box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
+}
+
+.form-field-thana-search .ts-control:hover > input::placeholder {
+  color: var(--text);
+  opacity: .85;
+}
+
+.form-field-thana-search .ts-wrapper.focus .ts-control,
+.form-field-thana-search .ts-wrapper.input-active .ts-control {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(10, 102, 194, .12);
+  outline: none;
+}
+
+/* Dropdown — explicit white bg to override parent .form-field-thana-search blue bg */
+.form-field-thana-search .ts-dropdown,
+.form-field-thana-search .ts-dropdown-content {
+  background: #fff !important;
+  color: var(--text) !important;
+}
+
+.form-field-thana-search .ts-dropdown .option {
+  color: var(--text) !important;
+  background: #fff !important;
+  padding: .4rem .65rem;
+}
+
+/* Active (hovered/keyboard-selected) option — light blue bg + dark text like upazila */
+.form-field-thana-search .ts-dropdown .active {
+  background: #F0F7FF !important;
+  color: var(--text) !important;
+}
+
+/* Dropdown option layout */
+.thana-search-option {
+  padding: .35rem 0;
+}
+
+.thana-search-header {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.thana-search-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text) !important;
+}
+
+.thana-search-path {
+  font-size: .75rem;
+  color: var(--text) !important;
+  opacity: .7;
+  margin-top: .15rem;
+  line-height: 1.3;
+}
+
+/* Active (hovered/keyboard-selected) state — dark text on light blue */
+.form-field-thana-search .ts-dropdown .active .location-search-type-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.form-field-thana-search .ts-dropdown .active .thana-search-name,
+.form-field-thana-search .ts-dropdown .active .thana-search-path {
+  color: var(--text) !important;
+  opacity: 1 !important;
+}
+
+/* Separator between dropdown results */
+.form-field-thana-search .ts-dropdown .option + .option {
   border-top: 1px solid var(--border);
 }
 
@@ -1229,6 +1533,95 @@
   color: #922;
 }
 
+/* ========== Social Source Repeater — Row Cards ========== */
+
+.social-source-row {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 0 .85rem .85rem;
+  margin-bottom: .75rem;
+  background: var(--card);
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+
+.social-source-row:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Colored header bar — flush with card edges via negative margin */
+.social-source-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .85rem;
+  margin: 0 -.85rem .75rem;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+/* Row number pill badge */
+.social-source-row-number {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .2rem .6rem;
+  border-radius: .75rem;
+  background: rgba(255, 255, 255, .55);
+  letter-spacing: .02em;
+}
+
+/* ---- Color cycling (5 colours) ---- */
+
+/* 1 — Blue (default) */
+.social-source-row:nth-child(5n+1) .social-source-row-header {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+.social-source-row:nth-child(5n+1) .social-source-row-number { color: #1565c0; }
+
+/* 2 — Green */
+.social-source-row:nth-child(5n+2) .social-source-row-header {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+}
+.social-source-row:nth-child(5n+2) .social-source-row-number { color: #2e7d32; }
+
+/* 3 — Purple */
+.social-source-row:nth-child(5n+3) .social-source-row-header {
+  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+}
+.social-source-row:nth-child(5n+3) .social-source-row-number { color: #6a1b9a; }
+
+/* 4 — Amber */
+.social-source-row:nth-child(5n+4) .social-source-row-header {
+  background: linear-gradient(135deg, #fff8e1, #ffe082);
+}
+.social-source-row:nth-child(5n+4) .social-source-row-number { color: #e65100; }
+
+/* 5 — Teal */
+.social-source-row:nth-child(5n+5) .social-source-row-header {
+  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+}
+.social-source-row:nth-child(5n+5) .social-source-row-number { color: #00695c; }
+
+/* Add source button */
+.btn-add-social-source {
+  background: none;
+  border: 2px dashed var(--border);
+  border-radius: .5rem;
+  padding: .55rem 1.5rem;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+}
+
+.btn-add-social-source:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(25, 118, 210, .04);
+}
+
 /* ---- Social URL mismatch warning ---- */
 
 .social-url-mismatch {
@@ -1312,4 +1705,526 @@
   .form-section-title {
     font-size: 1rem;
   }
+
+  /* Contributor type: stack label + select below the title */
+  .contributor-title-row {
+    flex-wrap: wrap;
+  }
+
+  .contributor-type-inline {
+    width: 100%;
+  }
+
+  /* File list: wrap radio + name + meta onto multiple lines */
+  .file-info-row {
+    flex-wrap: wrap;
+  }
+
+  .file-info-name {
+    min-width: 0;
+    flex-basis: 100%;
+  }
 }
+
+/* ---- Form subsection headers (colored gradient bars) ---- */
+
+.form-subsection-title {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 1.25rem -1.5rem .75rem;
+  padding: .55rem 1.5rem;
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.form-subsection-title:first-of-type {
+  margin-top: .25rem;
+}
+
+/* Color variants for different question sets within one step */
+.form-subsection-title.subsection-blue {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1565c0;
+}
+
+.form-subsection-title.subsection-green {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+  color: #2e7d32;
+}
+
+.form-subsection-title.subsection-purple {
+  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+  color: #6a1b9a;
+}
+
+.form-subsection-title.subsection-amber {
+  background: linear-gradient(135deg, #fff8e1, #ffe082);
+  color: #e65100;
+}
+
+.form-subsection-title.subsection-teal {
+  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+  color: #00695c;
+}
+
+.form-subsection-title.subsection-red {
+  background: linear-gradient(135deg, #ffebee, #ef9a9a);
+  color: #c62828;
+}
+
+/* ---- Input with suffix (e.g. currency unit) ---- */
+
+.input-suffix-group {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.input-suffix-group input {
+  flex: 1;
+}
+
+.input-suffix {
+  font-size: .85rem;
+  color: var(--muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ========== Commodity Price Repeater — Row Cards ========== */
+
+.commodity-price-row {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 0 .85rem .85rem;
+  margin-bottom: .75rem;
+  background: var(--card);
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+
+.commodity-price-row:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Colored header bar — flush with card edges via negative margin */
+.commodity-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .85rem;
+  margin: 0 -.85rem .75rem;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+/* Row number pill badge */
+.commodity-row-number {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .2rem .6rem;
+  border-radius: .75rem;
+  background: rgba(255, 255, 255, .55);
+  letter-spacing: .02em;
+}
+
+/* ---- Color cycling (5 colours) ---- */
+
+/* 1 — Blue (default) */
+.commodity-price-row:nth-child(5n+1) .commodity-row-header {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+.commodity-price-row:nth-child(5n+1) .commodity-row-number { color: #1565c0; }
+
+/* 2 — Green */
+.commodity-price-row:nth-child(5n+2) .commodity-row-header {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+}
+.commodity-price-row:nth-child(5n+2) .commodity-row-number { color: #2e7d32; }
+
+/* 3 — Purple */
+.commodity-price-row:nth-child(5n+3) .commodity-row-header {
+  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+}
+.commodity-price-row:nth-child(5n+3) .commodity-row-number { color: #6a1b9a; }
+
+/* 4 — Amber */
+.commodity-price-row:nth-child(5n+4) .commodity-row-header {
+  background: linear-gradient(135deg, #fff8e1, #ffe082);
+}
+.commodity-price-row:nth-child(5n+4) .commodity-row-number { color: #e65100; }
+
+/* 5 — Teal */
+.commodity-price-row:nth-child(5n+5) .commodity-row-header {
+  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+}
+.commodity-price-row:nth-child(5n+5) .commodity-row-number { color: #00695c; }
+
+/* ---- Commodity detail tags ---- */
+.commodity-detail-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-bottom: .65rem;
+}
+
+.commodity-detail-tag {
+  font-size: .78rem;
+  padding: .2rem .5rem;
+  border-radius: .75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* ---- Input with suffix (currency) ---- */
+.input-with-suffix {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.input-with-suffix input {
+  flex: 1;
+}
+
+/* ---- Price gap calculated display ---- */
+.price-gap-calculated {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  padding: .5rem .75rem;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: .65rem;
+}
+
+.price-gap-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .85rem;
+}
+
+.price-gap-label {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.price-gap-value {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- Add commodity button ---- */
+.btn-add-commodity {
+  display: inline-block;
+  padding: .5rem 1.25rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1.5px dashed var(--primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.btn-add-commodity:hover {
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+/* ========== Involved Parties — Dynamic Repeater Cards ========== */
+
+/* Quick-add button group */
+.actor-add-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.actor-add-btn {
+  padding: .45rem .9rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+
+.actor-add-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.actor-add-accused { border-color: #ef9a9a; }
+.actor-add-accused:hover { border-color: var(--danger); background: #fef2f2; }
+.actor-add-victim { border-color: #a5d6a7; }
+.actor-add-victim:hover { border-color: #388e3c; background: #f1f8e9; }
+.actor-add-witness { border-color: #90caf9; }
+.actor-add-witness:hover { border-color: #1976d2; background: #e3f2fd; }
+
+.actor-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-left: .4rem;
+  padding: 0 .35rem;
+  border-radius: 50%;
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: var(--primary);
+}
+.actor-add-accused .actor-count-badge { background: var(--danger); }
+.actor-add-victim .actor-count-badge { background: #388e3c; }
+.actor-add-witness .actor-count-badge { background: #1976d2; }
+
+/* Actor card */
+.actor-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 1rem .75rem;
+  margin-bottom: .75rem;
+  background: var(--card);
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+
+.actor-card:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Card header: colored bar flush with card edges */
+.actor-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem 1rem;
+  margin: 0 -1rem .6rem;
+  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+}
+
+/* Role-specific header gradients */
+.actor-card-accused .actor-card-header {
+  background: linear-gradient(135deg, #ffebee, #ef9a9a);
+}
+.actor-card-victim .actor-card-header {
+  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+}
+.actor-card-witness .actor-card-header {
+  background: linear-gradient(135deg, #e3f2fd, #90caf9);
+}
+
+/* Role badge — frosted pill on colored header */
+.actor-role-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .2rem .6rem;
+  border-radius: .75rem;
+  background: rgba(255, 255, 255, .55);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.role-accused { color: #c62828; }
+.role-victim  { color: #2e7d32; }
+.role-witness { color: #1565c0; }
+
+/* .actor-remove-btn — now styled by shared .btn-repeater-delete */
+
+/* Primary row: type + name */
+.actor-primary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+/* Expand/collapse toggle */
+.actor-details-toggle {
+  display: inline-block;
+  margin-top: .4rem;
+  padding: .2rem 0;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color .2s;
+}
+
+.actor-details-toggle:hover {
+  color: var(--primary);
+}
+
+/* Collapsible details */
+.actor-details {
+  margin-top: .5rem;
+  padding-top: .5rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* Actor card — two-group sections */
+.actor-group {
+  background: var(--bg-alt, #f8fafc);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius-sm, 4px);
+  padding: .85rem 1rem;
+  margin-top: .65rem;
+}
+
+.actor-group + .actor-group {
+  margin-top: .5rem;
+}
+
+.actor-group-title {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted, #6b7280);
+  margin: 0 0 .85rem 0;
+  padding-bottom: .45rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+/* Role-specific left border accent on groups */
+.actor-card-accused .actor-group  { border-left-color: #e57373; }
+.actor-card-victim  .actor-group  { border-left-color: #66bb6a; }
+.actor-card-witness .actor-group  { border-left-color: #42a5f5; }
+
+/* Required field indicator */
+.field-required {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Empty state */
+.actor-empty-state {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--muted);
+  font-size: .85rem;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .actor-add-buttons {
+    flex-direction: column;
+  }
+
+  .actor-primary-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ========== WCV Accused / Perpetrator Repeater — Cards ========== */
+
+.wcv-accused-card {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 0 .85rem .85rem;
+  margin-bottom: .75rem;
+  background: #fff;
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+
+.wcv-accused-card:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Colored header bar — flush with card edges via negative margin */
+.wcv-accused-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .85rem;
+  margin: 0 -.85rem .85rem;
+  background: linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%);
+}
+
+/* Card number pill badge */
+.wcv-card-number {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: .85rem;
+  color: #880e4f;
+}
+
+/* ---- Color cycling (5 colours) ---- */
+
+/* 1 — Rose/Pink (default — fitting for WCV context) */
+.wcv-accused-card:nth-child(5n+1) .wcv-accused-card-header {
+  background: linear-gradient(135deg, #fce4ec, #f48fb1);
+}
+.wcv-accused-card:nth-child(5n+1) .wcv-card-number { color: #880e4f; }
+
+/* 2 — Deep Orange */
+.wcv-accused-card:nth-child(5n+2) .wcv-accused-card-header {
+  background: linear-gradient(135deg, #fbe9e7, #ffab91);
+}
+.wcv-accused-card:nth-child(5n+2) .wcv-card-number { color: #bf360c; }
+
+/* 3 — Purple */
+.wcv-accused-card:nth-child(5n+3) .wcv-accused-card-header {
+  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+}
+.wcv-accused-card:nth-child(5n+3) .wcv-card-number { color: #6a1b9a; }
+
+/* 4 — Amber */
+.wcv-accused-card:nth-child(5n+4) .wcv-accused-card-header {
+  background: linear-gradient(135deg, #fff8e1, #ffe082);
+}
+.wcv-accused-card:nth-child(5n+4) .wcv-card-number { color: #e65100; }
+
+/* 5 — Teal */
+.wcv-accused-card:nth-child(5n+5) .wcv-accused-card-header {
+  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+}
+.wcv-accused-card:nth-child(5n+5) .wcv-card-number { color: #00695c; }
+
+/* ---- Split first/last name layout ---- */
+
+.form-name-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem 1rem;
+}
+
+.form-name-split input {
+  width: 100%;
+}
+
+.form-name-sublabel {
+  display: block;
+  font-size: .8rem;
+  color: var(--text-muted, #666);
+  margin-bottom: .25rem;
+}
+
+@media (max-width: 480px) {
+  .form-name-split {
+    grid-template-columns: 1fr;
+  }
+}
+

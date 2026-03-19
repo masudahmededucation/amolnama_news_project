@@ -1,0 +1,109 @@
+================================================================================
+TOOL: Reduce File Size (ফাইল সংকোচন)
+================================================================================
+
+URL:        /tools/reduce-file-size/
+View:       tools_reduce_file_size
+Template:   tools/tools-reduce-file-size.html
+JS:         tools/assets/js/pages/tools-reduce-file-size.js
+CSS:        tools/assets/css/pages/tools-reduce-file-size.css
+
+External Libraries (CDN):
+  - JSZip 3.10.1          — batch ZIP download
+  - pdf-lib 1.17.1        — PDF re-rendering (embed compressed page images)
+  - pdfjs-dist 3.11.174   — PDF page rendering to canvas
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. FILE INPUT
+   - Drag & drop onto dropzone
+   - Browse button (file picker)
+   - Multiple files supported
+   - Duplicate detection (same name + size)
+   - Max file size: 50 MB per file
+   - Accepts: images, PDFs, any file type (non-compressible kept as-is)
+
+2. COMPRESSION SETTINGS
+   - Slider (0–100%) with 3 snap points: Low (15), Medium (50), High (85)
+   - Color-coded thumb (green → yellow → red)
+   - Output format select: Auto (best), Original, JPEG, WebP
+   - Resize checkbox with max width input
+   - Strip metadata (via canvas re-encoding)
+   - Live estimation display (original → estimated range)
+
+3. IMAGE COMPRESSION ENGINE (compressImage)
+   - Canvas-based re-encoding
+   - Quality mapping: slider 0→0.92, slider 100→0.10
+   - Auto mode: tries JPEG + WebP at normal and aggressive quality, picks smallest
+   - High compression (>75%): additional scale-down (up to 50%)
+   - Dimension caps: Medium→2000px, High→1200px max width
+   - User max width override via resize checkbox
+
+4. PDF COMPRESSION ENGINE (compressPdf)
+   - Renders each page to canvas via pdfjs, re-embeds as JPEG in new PDF via pdf-lib
+   - Scale varies by compression level: Low→1.5x, Medium→1.2x, High→0.9x
+   - Only saves if smaller than original
+
+5. SEQUENTIAL PROCESSING QUEUE
+   - Files processed one at a time (not parallel)
+   - Per-file status badges: pending → processing (spinner) → done/skip
+   - Progress text: "Compressing... (3/5)"
+   - .catch() handler: on error, keeps original file, marks as "skip", continues queue
+
+6. RESULTS DISPLAY
+   - Per-file: thumbnail, name, original→compressed size, % saved
+   - Format badge with "best" indicator for auto mode
+   - Summary: total files, total savings, % reduction
+   - Before/After comparison modal (images only) with slider overlay
+
+7. DOWNLOAD
+   - Individual download per file (with _compressed suffix)
+   - "Download All (ZIP)" using JSZip (or sequential fallback)
+   - Blob URLs revoked after 3s to prevent memory leaks
+
+8. MEMORY MANAGEMENT
+   - Input file thumbUrls revoked on remove/clear
+   - Result thumbUrls revoked on re-compress/clear (revokeResultThumbs)
+   - Download blob URLs revoked after timeout
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+compress-dropzone, compress-file-input, compress-browse-btn
+compress-file-list, compress-file-items, compress-clear-btn
+compress-settings, compress-slider, compress-slider-value
+compress-estimate-text, compress-format
+compress-resize-check, compress-resize-width, compress-strip-meta
+compress-action-btn
+compress-results, compress-results-summary, compress-results-items
+compress-download-all-btn
+compress-compare-overlay, compress-compare-close, compress-compare-title
+compress-compare-before-img, compress-compare-after-img
+compress-compare-before, compress-compare-slider
+compress-compare-divider, compress-compare-info
+
+================================================================================
+KEY FUNCTIONS
+================================================================================
+
+sliderToQuality(val)          — maps slider 0–100 to JPEG quality 0.92–0.10
+sliderToMaxDimension(val, w)  — returns dimension cap based on compression level
+getEstimateRange(val)         — returns [minReduction, maxReduction] for estimation
+compressImage(file, sliderVal, userMaxWidth, preferredFormat) → Promise<{blob, outputType}>
+compressPdf(file, sliderVal)  → Promise<{blob, outputType}>
+drawToCanvas(img, w, h, fill) — renders image to canvas at given dimensions
+canvasToBlob(canvas, type, q) — Promise wrapper around canvas.toBlob
+addFiles(fileList)            — validates and adds files to selectedFiles[]
+removeFile(id)                — removes file, revokes thumbUrl
+clearAllFiles()               — clears all files and results, revokes all URLs
+renderFileList()              — builds file list HTML with status badges
+updateFileStatus(id, status)  — updates just the status badge in DOM (no re-render)
+renderResults()               — builds results HTML with comparison buttons
+downloadFile(result)          — triggers download for single file
+revokeResultThumbs()          — revokes blob URLs from compressed result thumbnails
+openCompare(idx)              — opens before/after comparison modal

@@ -1,0 +1,40 @@
+Implement full Progressive Web App (PWA) capabilities to provide a seamless, 
+installable experience that mirrors a native mobile application. 
+Users can add the platform directly to their home screen with a custom app icon 
+and branded splash screen, launching into a refined, 
+full-screen environment that eliminates the browser interface 
+and the need for traditional app stores.
+
+add hints for user that they can add to their home screen.
+
+we couldn't accommodate A@News -is that too many letters?
+
+
+--since this is not destructive app. 
+always overwrite without asking. 
+always fires browser if it is clicked. Then install it without feedback from user. 
+make it one click done job. hassle free make it.
+
+
+--Since you already installed the app before.
+Chrome thinks it's already installed and won't offer the native prompt again.
+
+don't let the chance to chrome think. fire it always once clicked.
+
+--basically i deleted the shortcut to test it and it is not working anymore. 
+so user may do the same thing
+
+
+--Already installed! If you deleted the shortcut, 
+go to your browser menu (⋮) 
+→ "Cast, save, and share" → "Install Amolnama News" to re-add it.
+
+--i want it seamless for user. user may delete it and try to install it. 
+then it should work seamlessly.
+You're right — let me make this completely seamless. 
+The approach: reset + reload + auto-trigger on reload, all behind one click. 
+No waiting, no tooltips, no instructions.
+
+
+after uninstalling, it has worked. then if the user clicks then it will try to uninstall 
+automatically then install?

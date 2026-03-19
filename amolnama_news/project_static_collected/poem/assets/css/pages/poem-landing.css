@@ -1,0 +1,311 @@
+/* ========== Poem Landing Page ========== */
+
+/* Header — clean, professional, no gradient */
+.poem-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.poem-header-left h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.poem-header-left p {
+  margin: .15rem 0 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.poem-header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .45rem 1rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s, box-shadow .2s;
+}
+
+.poem-header-cta:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.poem-header-cta:active {
+  transform: scale(.97);
+}
+
+.poem-header-cta--song {
+  background: #7c3aed;
+}
+
+.poem-header-cta--song:hover {
+  background: #6d28d9;
+}
+
+.poem-header-cta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.poem-header-cta-group {
+  display: flex;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+/* Header Search — between title and CTA */
+.poem-header-search {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.poem-header-search-input {
+  width: 100%;
+  padding: .45rem .75rem .45rem 2.1rem;
+  font-size: .82rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+
+.poem-header-search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.poem-header-search-icon {
+  position: absolute;
+  left: .65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Filter Bar */
+.poem-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Type tabs (সব / কবিতা / গানের কথা) */
+.poem-type-tabs {
+  display: flex;
+  gap: .4rem;
+  margin-bottom: .6rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.poem-type-tab {
+  padding: .4rem 1rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: #5b6abf;
+  background: #f0f0fa;
+  border: 1.5px solid #c7c7e0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+  white-space: nowrap;
+}
+
+.poem-type-tab:hover {
+  border-color: #5b6abf;
+  background: #e8e8f5;
+}
+
+.poem-type-tab--active {
+  background: #5b6abf;
+  color: #fff;
+  border-color: #5b6abf;
+}
+
+.poem-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+.poem-filter-pill {
+  padding: .3rem .7rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.poem-filter-pill:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.poem-filter-pill--active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* Active filter breadcrumbs */
+.poem-filter-crumbs {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+
+.poem-filter-crumbs-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.poem-filter-crumbs-chips {
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+
+.poem-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .2rem .5rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #5b6abf;
+  background: #eeecfa;
+  border: 1px solid #d4d0ef;
+  border-radius: 12px;
+}
+
+.poem-filter-chip-remove {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: .75rem;
+  cursor: pointer;
+  padding: 0 .1rem;
+  line-height: 1;
+  transition: color .15s;
+}
+
+.poem-filter-chip-remove:hover {
+  color: #e74c3c;
+}
+
+.poem-filter-crumbs-clear {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: .7rem;
+  color: #e74c3c;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity .15s;
+}
+
+.poem-filter-crumbs-clear:hover {
+  opacity: .7;
+}
+
+/* Card Grid */
+.poem-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Empty State */
+.poem-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: .88rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* Load More */
+.poem-load-more {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.poem-load-more-button {
+  padding: .45rem 1.5rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+
+.poem-load-more-button:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.poem-load-more-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .poem-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
+  .poem-header-search {
+    max-width: none;
+  }
+
+  .poem-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .poem-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

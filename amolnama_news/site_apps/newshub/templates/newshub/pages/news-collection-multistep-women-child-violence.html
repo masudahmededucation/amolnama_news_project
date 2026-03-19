@@ -1,0 +1,26 @@
+{% extends "newshub/pages/news-multistep-base.html" %}
+
+{% block multistep_title %}নারী ও শিশু নির্যাতন — Women & Child Violence (Multi-Step){% endblock %}
+{% block multistep_heading %}নারী ও শিশু নির্যাতন সংবাদ জমা দিন (Submit Women & Child Violence News){% endblock %}
+
+{% block form_steps %}
+  {% include "newshub/steps/step-form-type.html" with step=1 %}
+  {% include "newshub/steps/step-contributor.html" with step=2 %}
+  {% include "newshub/steps/step-news-content-women-child-violence.html" with step=3 %}
+  {% include "newshub/steps/step-wcv-victim.html" with step=4 %}
+  {% include "newshub/steps/step-wcv-condition-injury.html" with step=5 %}
+  {% include "newshub/steps/step-wcv-accused.html" with step=6 %}
+  {% include "newshub/steps/step-witness.html" with step=7 %}
+  {% include "newshub/steps/step-wcv-legal.html" with step=8 %}
+  {% include "newshub/steps/step-location.html" with step=9 %}
+  {% include "newshub/steps/step-social-source.html" with step=10 %}
+  {% include "newshub/steps/step-category-tags.html" with step=11 %}
+  {% include "newshub/steps/step-submit.html" with step=12 %}
+
+  {# Reference data for standard witness repeater (Step 7) — CSP-safe JSON #}
+  <script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>
+{% endblock %}

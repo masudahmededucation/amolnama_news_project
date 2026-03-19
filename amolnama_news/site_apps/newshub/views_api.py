@@ -18,6 +18,7 @@ from .models import (
 )
 
 
+
 # ========== Location API Views ==========
 
 def api_constituencies_by_district(request, district_id):
@@ -25,7 +26,7 @@ def api_constituencies_by_district(request, district_id):
     qs = Constituency.objects.filter(
         link_district_id=district_id,
         is_active=True,
-    ).order_by('constituency_name_bn')
+    ).order_by('constituency_name_en')
 
     data = []
     for c in qs:
@@ -44,7 +45,7 @@ def api_upazilas_by_district(request, district_id):
     qs = Upazila.objects.filter(
         link_district_id=district_id,
         is_active=True,
-    ).order_by('upazila_name_bn')
+    ).order_by('upazila_name_en')
 
     data = []
     for u in qs:
@@ -62,7 +63,7 @@ def api_union_parishads_by_upazila(request, upazila_id):
     qs = UnionParishad.objects.filter(
         link_upazila_id=upazila_id,
         is_active=True,
-    ).order_by('union_parishad_name_bn')
+    ).order_by('union_parishad_name_en')
 
     data = []
     for up in qs:
@@ -79,7 +80,7 @@ def api_locations_all(request):
     """Return all active districts, upazilas, and union parishads with hierarchy links.
     Used by news-auto-location.js to detect locations from content body text."""
     districts = []
-    for d in District.objects.filter(is_active=True).order_by('district_name_bn'):
+    for d in District.objects.filter(is_active=True).order_by('district_name_en'):
         districts.append({
             'id': d.district_id,
             'name_bn': d.district_name_bn or '',
@@ -87,7 +88,7 @@ def api_locations_all(request):
         })
 
     upazilas = []
-    for u in Upazila.objects.filter(is_active=True).order_by('upazila_name_bn'):
+    for u in Upazila.objects.filter(is_active=True).order_by('upazila_name_en'):
         upazilas.append({
             'id': u.upazila_id,
             'name_bn': u.upazila_name_bn or '',
@@ -96,7 +97,7 @@ def api_locations_all(request):
         })
 
     unions = []
-    for up in UnionParishad.objects.filter(is_active=True).order_by('union_parishad_name_bn'):
+    for up in UnionParishad.objects.filter(is_active=True).order_by('union_parishad_name_en'):
         unions.append({
             'id': up.union_parishad_id,
             'name_bn': up.union_parishad_name_bn or '',
@@ -114,57 +115,61 @@ def api_locations_all(request):
 # ========== Combined Cascade Location API Views ==========
 
 def api_subdistricts_by_district(request, district_id):
-    """Return upazilas + metropolitan thanas + city corporations + municipalities
-    for a district, each tagged with type.
+    """Return city corporations + metropolitan thanas + municipalities + upazilas
+    for a district, each tagged with type and group label for <optgroup>.
     Used by the combined উপজেলা/থানা/সিটি কর্পোরেশন/পৌরসভা dropdown."""
     data = []
 
-    for u in Upazila.objects.filter(
-        link_district_id=district_id, is_active=True,
-    ).order_by('upazila_name_bn'):
-        data.append({
-            'id': u.upazila_id,
-            'name_bn': u.upazila_name_bn or '',
-            'name_en': u.upazila_name_en or '',
-            'type': 'upazila',
-            'lat': float(u.upazila_latitude) if u.upazila_latitude else None,
-            'lng': float(u.upazila_longitude) if u.upazila_longitude else None,
-        })
-
-    for t in MetropolitanThana.objects.filter(
-        link_district_id=district_id, is_active=True,
-    ).order_by('metropolitan_thana_name_bn'):
-        data.append({
-            'id': t.metropolitan_thana_id,
-            'name_bn': t.metropolitan_thana_name_bn or '',
-            'name_en': t.metropolitan_thana_name_en or '',
-            'type': 'metropolitan_thana',
-            'lat': float(t.metropolitan_thana_latitude) if t.metropolitan_thana_latitude else None,
-            'lng': float(t.metropolitan_thana_longitude) if t.metropolitan_thana_longitude else None,
-        })
-
     for cc in CityCorporation.objects.filter(
         link_district_id=district_id, is_active=True,
-    ).order_by('city_corporation_name_bn'):
+    ).order_by('city_corporation_name_en'):
         data.append({
             'id': cc.city_corporation_id,
             'name_bn': cc.city_corporation_name_bn or '',
             'name_en': cc.city_corporation_name_en or '',
             'type': 'city_corporation',
+            'group': 'সিটি কর্পোরেশন (City Corporation)',
             'lat': float(cc.city_corporation_geo_latitude) if cc.city_corporation_geo_latitude else None,
             'lng': float(cc.city_corporation_geo_longitude) if cc.city_corporation_geo_longitude else None,
         })
 
+    for t in MetropolitanThana.objects.filter(
+        link_district_id=district_id, is_active=True,
+    ).order_by('metropolitan_thana_name_en'):
+        data.append({
+            'id': t.metropolitan_thana_id,
+            'name_bn': t.metropolitan_thana_name_bn or '',
+            'name_en': t.metropolitan_thana_name_en or '',
+            'type': 'metropolitan_thana',
+            'group': 'মহানগর থানা (Metropolitan Thana)',
+            'lat': float(t.metropolitan_thana_latitude) if t.metropolitan_thana_latitude else None,
+            'lng': float(t.metropolitan_thana_longitude) if t.metropolitan_thana_longitude else None,
+        })
+
     for m in Municipality.objects.filter(
         link_district_id=district_id, is_active=True,
-    ).order_by('municipality_name_bn'):
+    ).order_by('municipality_name_en'):
         data.append({
             'id': m.municipality_id,
             'name_bn': m.municipality_name_bn or '',
             'name_en': m.municipality_name_en or '',
             'type': 'municipality',
+            'group': 'পৌরসভা (Municipality)',
             'lat': float(m.municipality_geo_latitude) if m.municipality_geo_latitude else None,
             'lng': float(m.municipality_geo_longitude) if m.municipality_geo_longitude else None,
+        })
+
+    for u in Upazila.objects.filter(
+        link_district_id=district_id, is_active=True,
+    ).order_by('upazila_name_en'):
+        data.append({
+            'id': u.upazila_id,
+            'name_bn': u.upazila_name_bn or '',
+            'name_en': u.upazila_name_en or '',
+            'type': 'upazila',
+            'group': 'উপজেলা (Upazila)',
+            'lat': float(u.upazila_latitude) if u.upazila_latitude else None,
+            'lng': float(u.upazila_longitude) if u.upazila_longitude else None,
         })
 
     return JsonResponse({'subdistricts': data})
@@ -186,7 +191,7 @@ def api_local_bodies_by_parent(request):
     if parent_type == 'upazila':
         for up in UnionParishad.objects.filter(
             link_upazila_id=parent_id, is_active=True,
-        ).order_by('union_parishad_name_bn'):
+        ).order_by('union_parishad_name_en'):
             data.append({
                 'id': up.union_parishad_id,
                 'name_bn': up.union_parishad_name_bn or '',
@@ -203,12 +208,16 @@ def api_union_parishad_wards_by_union_parishad(request, union_parishad_id):
     """Return wards for a given union parishad."""
     qs = UnionParishadWard.objects.filter(
         link_union_parishad_id=union_parishad_id, is_active=True,
+    ).only(
+        'union_parishad_ward_id', 'union_parishad_ward_number',
+        'union_parishad_ward_name_en', 'union_parishad_ward_name_bn',
+        'union_parishad_ward_geo_latitude', 'union_parishad_ward_geo_longitude',
     ).order_by('union_parishad_ward_number')
 
     data = []
     for w in qs:
-        name_bn = w.union_parishad_ward_name_bn or f'ওয়ার্ড {w.union_parishad_ward_number}'
-        name_en = w.union_parishad_ward_name_en or f'Ward {w.union_parishad_ward_number}'
+        name_bn = w.union_parishad_ward_name_bn or w.union_parishad_ward_name_en or ''
+        name_en = w.union_parishad_ward_name_en or ''
         data.append({
             'id': w.union_parishad_ward_id,
             'name_bn': name_bn,
@@ -225,12 +234,17 @@ def api_municipality_wards_by_municipality(request, municipality_id):
     """Return wards for a given municipality."""
     qs = MunicipalityWard.objects.filter(
         link_municipality_id=municipality_id, is_active=True,
+    ).only(
+        'municipality_ward_id', 'municipality_ward_number',
+        'municipality_ward_name_en', 'municipality_ward_area_name_en',
+        'municipality_ward_area_name_bn',
+        'municipality_ward_geo_latitude', 'municipality_ward_geo_longitude',
     ).order_by('municipality_ward_number')
 
     data = []
     for w in qs:
-        name_bn = w.municipality_ward_name_bn or f'ওয়ার্ড {w.municipality_ward_number}'
-        name_en = w.municipality_ward_name_en or f'Ward {w.municipality_ward_number}'
+        name_bn = w.municipality_ward_area_name_bn or w.municipality_ward_name_en or ''
+        name_en = w.municipality_ward_area_name_en or w.municipality_ward_name_en or ''
         data.append({
             'id': w.municipality_ward_id,
             'name_bn': name_bn,
@@ -247,12 +261,17 @@ def api_city_corporation_wards_by_city_corporation(request, city_corporation_id)
     """Return wards for a given city corporation."""
     qs = CityCorporationWard.objects.filter(
         link_city_corporation_id=city_corporation_id, is_active=True,
+    ).only(
+        'city_corporation_ward_id', 'city_corporation_ward_number',
+        'city_corporation_ward_name_en', 'city_corporation_ward_area_name_en',
+        'city_corporation_ward_area_name_bn',
+        'city_corporation_ward_geo_latitude', 'city_corporation_ward_geo_longitude',
     ).order_by('city_corporation_ward_number')
 
     data = []
     for w in qs:
-        name_bn = w.city_corporation_ward_name_bn or f'ওয়ার্ড {w.city_corporation_ward_number}'
-        name_en = w.city_corporation_ward_name_en or f'Ward {w.city_corporation_ward_number}'
+        name_bn = w.city_corporation_ward_area_name_bn or w.city_corporation_ward_name_en or ''
+        name_en = w.city_corporation_ward_area_name_en or w.city_corporation_ward_name_en or ''
         data.append({
             'id': w.city_corporation_ward_id,
             'name_bn': name_bn,
@@ -267,18 +286,24 @@ def api_city_corporation_wards_by_city_corporation(request, city_corporation_id)
 
 def api_city_corporation_wards_by_metropolitan_thana(request, metropolitan_thana_id):
     """Return city corporation wards linked to a metropolitan thana via junction table."""
-    ward_ids = MetropolitanThanaWard.objects.filter(
-        metropolitan_thana_id=metropolitan_thana_id,
-    ).values_list('city_corporation_ward_id', flat=True)
+    # Subquery — Django sends a single SQL with IN (SELECT ...) instead of two round-trips
+    ward_id_subquery = MetropolitanThanaWard.objects.filter(
+        link_metropolitan_thana_id=metropolitan_thana_id,
+    ).values('link_city_corporation_ward_id')
 
     qs = CityCorporationWard.objects.filter(
-        city_corporation_ward_id__in=list(ward_ids), is_active=True,
+        city_corporation_ward_id__in=ward_id_subquery, is_active=True,
+    ).only(
+        'city_corporation_ward_id', 'city_corporation_ward_number',
+        'city_corporation_ward_name_en', 'city_corporation_ward_area_name_en',
+        'city_corporation_ward_area_name_bn',
+        'city_corporation_ward_geo_latitude', 'city_corporation_ward_geo_longitude',
     ).order_by('city_corporation_ward_number')
 
     data = []
     for w in qs:
-        name_bn = w.city_corporation_ward_name_bn or f'ওয়ার্ড {w.city_corporation_ward_number}'
-        name_en = w.city_corporation_ward_name_en or f'Ward {w.city_corporation_ward_number}'
+        name_bn = w.city_corporation_ward_area_name_bn or w.city_corporation_ward_name_en or ''
+        name_en = w.city_corporation_ward_area_name_en or w.city_corporation_ward_name_en or ''
         data.append({
             'id': w.city_corporation_ward_id,
             'name_bn': name_bn,
@@ -295,7 +320,7 @@ def api_union_parishad_villages_by_union_parishad(request, union_parishad_id):
     """Return villages for a given union parishad."""
     qs = UnionParishadVillage.objects.filter(
         link_union_parishad_id=union_parishad_id, is_active=True,
-    ).order_by('union_parishad_village_name_bn')
+    ).order_by('union_parishad_village_name_en')
 
     data = []
     for v in qs:
@@ -320,9 +345,9 @@ def api_unified_location_search(request):
         return JsonResponse({'locations': []})
 
     qs = UnifiedLocationSearch.objects.filter(
-        Q(unified_location_search_name_bn__istartswith=q)
-        | Q(unified_location_search_name_en__istartswith=q)
-    ).order_by('link_location_type_id', 'unified_location_display_title_bn')[:30]
+        Q(unified_location_search_name_en__istartswith=q)
+        | Q(unified_location_search_name_bn__istartswith=q)
+    ).order_by('link_location_type_id', 'unified_location_display_title_en')[:30]
 
     data = []
     for loc in qs:
@@ -450,15 +475,15 @@ def api_location_resolve_ancestry(request):
                 ids['district_id'] = parent['link_district_id']
             # Find metro thana via junction for Level 2 auto-fill
             junction = MetropolitanThanaWard.objects.filter(
-                city_corporation_ward_id=entity_id,
+                link_city_corporation_ward_id=entity_id,
                 is_primary_thana=True,
-            ).values('metropolitan_thana_id').first()
+            ).values('link_metropolitan_thana_id').first()
             if not junction:
                 junction = MetropolitanThanaWard.objects.filter(
-                    city_corporation_ward_id=entity_id,
-                ).values('metropolitan_thana_id').first()
+                    link_city_corporation_ward_id=entity_id,
+                ).values('link_metropolitan_thana_id').first()
             if junction:
-                ids['metropolitan_thana_id'] = junction['metropolitan_thana_id']
+                ids['metropolitan_thana_id'] = junction['link_metropolitan_thana_id']
 
     elif table == 'union_parishad_village':
         ids['union_parishad_village_id'] = entity_id
@@ -595,7 +620,7 @@ def api_organisations_by_type(request, type_id):
     qs = Organisation.objects.filter(
         link_organisation_type_id=type_id,
         is_active=True,
-    ).order_by('organisation_name_bn', 'organisation_name_en')
+    ).order_by('organisation_name_en')
 
     data = []
     for o in qs:
@@ -606,6 +631,42 @@ def api_organisations_by_type(request, type_id):
         })
 
     return JsonResponse({'organisations': data})
+
+
+def api_wcv_thana_search(request):
+    """Search for police stations (থানা) by name.
+    Combines upazilas (rural thanas) and metropolitan thanas from the unified
+    location search view.  Used for Tom Select on the WCV legal form.
+    Returns: { results: [{value, name_bn, name_en, title_bn, title_en, type}] }
+    """
+    q = request.GET.get('q', '').strip()
+    if len(q) < 2:
+        return JsonResponse({'results': []})
+
+    qs = UnifiedLocationSearch.objects.filter(
+        location_type__in=['upazila', 'metropolitan_thana'],
+    ).filter(
+        Q(unified_location_search_name_en__icontains=q)
+        | Q(unified_location_search_name_bn__icontains=q)
+    ).order_by('unified_location_display_title_en')[:20]
+
+    results = []
+    for loc in qs:
+        name_bn = loc.unified_location_search_name_bn or ''
+        name_en = loc.unified_location_search_name_en or ''
+        value = name_bn
+        if name_en:
+            value += ' (' + name_en + ')'
+        results.append({
+            'value': value,
+            'name_bn': name_bn,
+            'name_en': name_en,
+            'title_bn': loc.unified_location_display_title_bn or value,
+            'title_en': loc.unified_location_display_title_en or '',
+            'type': loc.location_type or '',
+        })
+
+    return JsonResponse({'results': results})
 
 
 def api_organisation_search(request):
@@ -623,7 +684,7 @@ def api_organisation_search(request):
     if type_id and type_id.isdigit():
         qs = qs.filter(link_organisation_type_id=int(type_id))
 
-    qs = qs.order_by('organisation_name_bn', 'organisation_name_en')[:15]
+    qs = qs.order_by('organisation_name_en')[:15]
 
     data = []
     for o in qs:

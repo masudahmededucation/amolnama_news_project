@@ -1,0 +1,72 @@
+{% comment %}
+  person-personal-info-fields.html — Universal Personal Identity fields.
+  Gender, Religion, Age, DOB, Home District, Contact.
+  Template mode equivalent of window.newshubPersonIdentity (JS module).
+  Same fields everywhere — extra fields (Occupation, Institution) go in their own group.
+
+  Parameters (passed via {% include ... with %}):
+    prefix       — ID prefix, e.g. "july-martyr", "wcv-victim"
+                   Generates IDs: {prefix}-gender, {prefix}-religion, {prefix}-age,
+                   {prefix}-dob, {prefix}-district, {prefix}-contact
+    genders      — queryset/list of ref_status (status_id, status_name_bn, status_name_en)
+    religions    — queryset/list of ref_status
+    districts    — queryset/list of district (district_id, district_name_bn, district_name_en)
+{% endcomment %}
+
+<div class="form-row-half">
+  <div class="form-field">
+    <label for="{{ prefix }}-gender"
+           data-bn="লিঙ্গ" data-en="Gender">লিঙ্গ (Gender)</label>
+    <select id="{{ prefix }}-gender">
+      <option value="" data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
+      {% for g in genders %}
+      <option value="{{ g.status_id }}">{{ g.status_name_bn }} ({{ g.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-field">
+    <label for="{{ prefix }}-religion"
+           data-bn="ধর্ম" data-en="Religion">ধর্ম (Religion)</label>
+    <select id="{{ prefix }}-religion">
+      <option value="" data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
+      {% for r in religions %}
+      <option value="{{ r.status_id }}">{{ r.status_name_bn }} ({{ r.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div class="form-row-half">
+  <div class="form-field">
+    <label for="{{ prefix }}-age"
+           data-bn="বয়স" data-en="Age">বয়স (Age)</label>
+    <input type="number" id="{{ prefix }}-age" min="1" max="120"
+           data-ph-bn="যেমন: 25" data-ph-en="e.g. 25"
+           placeholder="যেমন: 25">
+  </div>
+  <div class="form-field">
+    <label for="{{ prefix }}-dob"
+           data-bn="জন্ম তারিখ" data-en="Date of Birth">জন্ম তারিখ (Date of Birth)</label>
+    <input type="date" id="{{ prefix }}-dob">
+  </div>
+</div>
+
+<div class="form-row-half">
+  <div class="form-field">
+    <label for="{{ prefix }}-district"
+           data-bn="নিজ জেলা" data-en="Home District">নিজ জেলা (Home District)</label>
+    <select id="{{ prefix }}-district">
+      <option value="" data-bn="-- জেলা নির্বাচন (ইংরেজি বর্ণানুক্রমে) --" data-en="-- Select District (alphabetical A–Z) --">-- জেলা নির্বাচন (ইংরেজি বর্ণানুক্রমে) --</option>
+      {% for d in districts %}
+      <option value="{{ d.district_id }}">{{ d.district_name_bn }} ({{ d.district_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-field">
+    <label for="{{ prefix }}-contact"
+           data-bn="যোগাযোগ" data-en="Contact">যোগাযোগ (Contact)</label>
+    <input type="text" id="{{ prefix }}-contact" maxlength="200"
+           data-ph-bn="ফোন নম্বর (বাংলা)..." data-ph-en="Phone number..."
+           placeholder="ফোন নম্বর (বাংলা)...">
+  </div>
+</div>

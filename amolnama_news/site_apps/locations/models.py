@@ -222,19 +222,28 @@ class MetropolitanThana(models.Model):
 
 
 class MetropolitanThanaWard(models.Model):
-    """মহানগর থানা ↔ সিটি কর্পোরেশন ওয়ার্ড junction"""
-    metropolitan_thana_ward_id = models.IntegerField(primary_key=True)
-    metropolitan_thana_id = models.IntegerField()
-    city_corporation_ward_id = models.IntegerField()
+    """মহানগর থানা ↔ সিটি কর্পোরেশন ওয়ার্ড — denormalized view/table"""
+    metropolitan_thana_ward_id = models.BigIntegerField(primary_key=True)
+    link_district_id = models.IntegerField(blank=True, null=True)
+    link_city_corporation_id = models.IntegerField(blank=True, null=True)
+    link_metropolitan_thana_id = models.IntegerField(blank=True, null=True)
+    link_city_corporation_ward_id = models.IntegerField(blank=True, null=True)
+    district_name_en = models.CharField(max_length=100)
+    city_corporation_name_en = models.CharField(max_length=100)
+    metropolitan_thana_name_en = models.CharField(max_length=100)
+    city_corporation_ward_number = models.IntegerField()
+    city_corporation_ward_name_en = models.CharField(max_length=17)
+    city_corporation_ward_area_name_en = models.CharField(max_length=100, blank=True, null=True)
+    city_corporation_ward_area_name_bn = models.CharField(max_length=200, blank=True, null=True)
     is_primary_thana = models.BooleanField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = '[location].[metropolitan_thana_ward]'
 
     def __str__(self):
-        return f"ThanaWard({self.metropolitan_thana_id}->{self.city_corporation_ward_id})"
+        return f"ThanaWard({self.link_metropolitan_thana_id}->{self.link_city_corporation_ward_id})"
 
 
 class CityCorporation(models.Model):
@@ -272,14 +281,18 @@ class CityCorporationWard(models.Model):
     link_district_id = models.IntegerField(blank=True, null=True)
     link_city_corporation_id = models.IntegerField()
     link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    district_name_en = models.CharField(max_length=100, blank=True, null=True)
+    city_corporation_name_en = models.CharField(max_length=100, blank=True, null=True)
     city_corporation_ward_number = models.IntegerField()
-    city_corporation_ward_name_en = models.CharField(max_length=100, blank=True, null=True)
-    city_corporation_ward_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    city_corporation_ward_name_en = models.CharField(max_length=17)
+    city_corporation_ward_area_name_en = models.CharField(max_length=100, blank=True, null=True)
+    city_corporation_ward_area_name_bn = models.CharField(max_length=200, blank=True, null=True)
     city_corporation_ward_bbs_code = models.CharField(max_length=10, blank=True, null=True)
     city_corporation_ward_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
     city_corporation_ward_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
     city_corporation_ward_area_square_km = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    location_type = models.CharField(max_length=50, blank=True, null=True)
+    # city_corporation_ward_geo_boundaries — nvarchar(MAX), excluded
     area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     total_population = models.BigIntegerField(blank=True, null=True)
     website = models.CharField(max_length=300, blank=True, null=True)
@@ -334,13 +347,16 @@ class MunicipalityWard(models.Model):
     link_district_id = models.IntegerField(blank=True, null=True)
     link_upazila_id = models.IntegerField(blank=True, null=True)
     link_location_type_id = models.IntegerField(blank=True, null=True)
+    location_type = models.CharField(max_length=50, blank=True, null=True)
+    # district_name_en, upazila_name_en, municipality_name_en — denormalized, not needed in model
     municipality_ward_number = models.IntegerField()
-    municipality_ward_name_en = models.CharField(max_length=100, blank=True, null=True)
-    municipality_ward_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    municipality_ward_name_en = models.CharField(max_length=17)
+    municipality_ward_area_name_en = models.CharField(max_length=100, blank=True, null=True)
+    municipality_ward_area_name_bn = models.CharField(max_length=200, blank=True, null=True)
     municipality_ward_bbs_code = models.CharField(max_length=10, blank=True, null=True)
     municipality_ward_geo_latitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
     municipality_ward_geo_longitude = models.DecimalField(max_digits=10, decimal_places=7, blank=True, null=True)
-    location_type = models.CharField(max_length=50, blank=True, null=True)
+    # location_geo_boundaries — nvarchar(MAX), excluded
     area_square_kilometer = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     total_population = models.BigIntegerField(blank=True, null=True)
     website = models.CharField(max_length=300, blank=True, null=True)

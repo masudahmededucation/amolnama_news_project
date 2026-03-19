@@ -1,0 +1,65 @@
+{% comment %}
+  Impact & Duration — captures the scope and duration of the civic issue.
+  People affected count, impact category (DB-driven), duration (DB-driven units),
+  previous complaints, and budget/project info.
+  Civic & Community form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-civic-impact">
+  <h3 class="form-section-title"><span class="section-icon">📊</span>প্রভাব ও সময়কাল (Impact & Duration)</h3>
+
+  {# Hidden input — JS serializes impact data here before submit #}
+  <input type="hidden" id="civic-impact-json" name="civic_impact_json" value="">
+
+  {# Embed reference data as JSON (type=application/json bypasses CSP) #}
+  <script type="application/json" id="impact-categories-data">{{ impact_categories_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="duration-units-data">{{ duration_units_json|default:"[]"|safe }}</script>
+
+  <div class="form-field">
+    <label for="civic-people-affected">ক্ষতিগ্রস্ত মানুষের সংখ্যা (People Affected)</label>
+    <input type="number" id="civic-people-affected" min="0"
+           placeholder="আনুমানিক সংখ্যা... (Estimated number...)">
+  </div>
+
+  <div class="form-field">
+    <label for="civic-impact-type">প্রভাবের ধরন (Impact Type)</label>
+    <select id="civic-impact-type">
+      <option value="">-- নির্বাচন করুন --</option>
+      {# Options populated by JS from impact-categories-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="civic-duration-unit">সময়ের একক (Duration Unit)</label>
+    <select id="civic-duration-unit">
+      <option value="">-- নির্বাচন করুন --</option>
+      {# Options populated by JS from duration-units-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="civic-duration-value">সমস্যার সময়কাল (Duration)</label>
+    <input type="number" id="civic-duration-value" min="0" step="1"
+           placeholder="সংখ্যা... (Number...)">
+  </div>
+
+  <div class="form-field">
+    <label class="form-label form-label-inline" for="civic-previous-complaint">
+      <input type="checkbox" id="civic-previous-complaint" class="form-checkbox">
+      পূর্বে অভিযোগ/দরখাস্ত করা হয়েছিল? (Previous Complaint Filed?)
+    </label>
+  </div>
+
+  <div class="form-field" id="civic-complaint-details-row" style="display: none;">
+    <label for="civic-complaint-details">পূর্বের অভিযোগের বিবরণ (Previous Complaint Details)</label>
+    <textarea id="civic-complaint-details" rows="3"
+              placeholder="কবে, কোথায় অভিযোগ করা হয়েছিল, কী পদক্ষেপ নেওয়া হয়েছিল... (When, where was the complaint filed, what action was taken...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="civic-budget-info">বাজেট/প্রকল্প তথ্য (Budget/Project Info)</label>
+    <textarea id="civic-budget-info" rows="3"
+              placeholder="সংশ্লিষ্ট প্রকল্প/বাজেটের তথ্য থাকলে লিখুন... (Any related project/budget info...)"></textarea>
+  </div>
+</div>

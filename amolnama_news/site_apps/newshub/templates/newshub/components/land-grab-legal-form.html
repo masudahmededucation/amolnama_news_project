@@ -1,0 +1,78 @@
+{% comment %}
+  Land Grabbing — Legal Action & Support.
+  GD/FIR section shared via {% include "newshub/components/law-gd-fir-section.html" %}.
+  Form-specific: land-specific applicable laws (CrPC 145, civil suits,
+  injunctions, forgery), case status (incl. COURT_ORDER_OBTAINED),
+  support services, retaliation.
+  Hardcoded JSON data — replace with {{ context_var|safe }} when DB tables are created.
+  Data serialized to #land-legal hidden input by news-land-grab-legal.js.
+
+  Form-specific element IDs:
+    #land-legal                       — hidden JSON input
+    #land-applicable-law-checkboxes   — checkbox group container
+    #land-case-status                 — select
+    #land-support-service-checkboxes  — checkbox group container
+    #land-retaliation-checkboxes      — checkbox group container
+    #land-remarks                     — textarea
+
+  Form-specific data elements:
+    #land-applicable-law-data         — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #land-case-status-data            — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #land-support-service-data        — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #land-retaliation-data            — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+{% endcomment %}
+
+<div class="form-section" id="section-land-legal">
+  <h3 class="form-section-title"><span class="section-icon">⚖️</span>আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)</h3>
+
+  <input type="hidden" id="land-legal" name="land_legal" value="">
+
+  {% include "newshub/components/law-gd-fir-section.html" with fir_prefix="legal" %}
+
+  <div class="form-field">
+    <label>প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)</label>
+    <div class="checkbox-group" id="land-applicable-law-checkboxes">
+      {# Populated by news-land-grab-legal.js from #land-applicable-law-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="land-case-status">মামলার অবস্থা (Case Status)</label>
+    <select id="land-case-status">
+      <option value="">-- নির্বাচন করুন --</option>
+      {# Populated by news-land-grab-legal.js from #land-case-status-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>সহায়তা সেবা — একাধিক নির্বাচন করা যাবে (Support Services — multiple selections allowed)</label>
+    <div class="checkbox-group" id="land-support-service-checkboxes">
+      {# Populated by news-land-grab-legal.js from #land-support-service-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে (Social Pressure & Retaliation — multiple selections allowed)</label>
+    <div class="checkbox-group" id="land-retaliation-checkboxes">
+      {# Populated by news-land-grab-legal.js from #land-retaliation-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="land-remarks">অতিরিক্ত তথ্য / মন্তব্য (Additional Information / Remarks)</label>
+    <textarea id="land-remarks" rows="4"
+              placeholder="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."></textarea>
+  </div>
+</div>
+
+{# GD/FIR status data — shared module reads #{prefix}-fir-status-data #}
+<script type="application/json" id="legal-fir-status-data">{{ fir_statuses_json|safe }}</script>
+
+{# DB-driven reference data — populated from views context (land_grabbing view) #}
+<script type="application/json" id="land-applicable-law-data">{{ land_applicable_law_json|safe }}</script>
+
+<script type="application/json" id="land-case-status-data">{{ land_case_status_json|safe }}</script>
+
+<script type="application/json" id="land-support-service-data">{{ land_support_service_json|safe }}</script>
+
+<script type="application/json" id="land-retaliation-data">{{ land_retaliation_json|safe }}</script>

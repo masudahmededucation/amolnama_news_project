@@ -1,0 +1,87 @@
+/**
+ * news-war-conflict-humanitarian.js
+ * Reads humanitarian fields (military/civilian casualties, refugees,
+ * war crimes checkbox + description) and serializes to
+ * #global-humanitarian-json hidden input on input/change and before form submit.
+ *
+ * DOM dependencies:
+ *   #global-military-casualties      — number input
+ *   #global-civilian-casualties      — number input
+ *   #global-refugees                 — number input
+ *   #global-war-crimes               — checkbox
+ *   #global-war-crimes-description   — textarea (shown/hidden by checkbox)
+ *   #global-war-crimes-details-row   — row container (toggled)
+ *   #global-humanitarian-json        — hidden JSON input for form submission
+ *
+ * Exposes: window.newshubGlobalHumanitarian = { reset: fn }
+ */
+(function () {
+  'use strict';
+
+  var militaryCasualties = document.getElementById('global-military-casualties');
+  var civilianCasualties = document.getElementById('global-civilian-casualties');
+  var refugees = document.getElementById('global-refugees');
+  var warCrimes = document.getElementById('global-war-crimes');
+  var warCrimesDesc = document.getElementById('global-war-crimes-description');
+  var warCrimesRow = document.getElementById('global-war-crimes-details-row');
+  var hiddenJson = document.getElementById('global-humanitarian-json');
+
+  if (!hiddenJson) return;
+
+  /* Toggle war crimes details row visibility */
+  function toggleWarCrimesRow() {
+    if (!warCrimes || !warCrimesRow) return;
+    warCrimesRow.style.display = warCrimes.checked ? '' : 'none';
+    if (!warCrimes.checked && warCrimesDesc) {
+      warCrimesDesc.value = '';
+    }
+  }
+
+  function serialize() {
+    var data = {
+      militaryCasualties: militaryCasualties ? (parseInt(militaryCasualties.value, 10) || 0) : 0,
+      civilianCasualties: civilianCasualties ? (parseInt(civilianCasualties.value, 10) || 0) : 0,
+      refugees: refugees ? (parseInt(refugees.value, 10) || 0) : 0,
+      warCrimes: warCrimes ? warCrimes.checked : false,
+      warCrimesDescription: warCrimesDesc ? warCrimesDesc.value.trim() : '',
+    };
+
+    hiddenJson.value = JSON.stringify(data);
+  }
+
+  /* Listen for input changes on number fields */
+  var inputFields = [militaryCasualties, civilianCasualties, refugees, warCrimesDesc];
+  inputFields.forEach(function (el) {
+    if (el) el.addEventListener('input', serialize);
+  });
+
+  /* Checkbox: toggle + serialize */
+  if (warCrimes) {
+    warCrimes.addEventListener('change', function () {
+      toggleWarCrimesRow();
+      serialize();
+    });
+  }
+
+  /* Serialize before form submit */
+  var form = hiddenJson.closest('form');
+  if (form) {
+    form.addEventListener('submit', serialize);
+  }
+
+  /* Initial state */
+  toggleWarCrimesRow();
+
+  /* Public API for form-clear */
+  window.newshubGlobalHumanitarian = {
+    reset: function () {
+      if (militaryCasualties) militaryCasualties.value = '';
+      if (civilianCasualties) civilianCasualties.value = '';
+      if (refugees) refugees.value = '';
+      if (warCrimes) warCrimes.checked = false;
+      if (warCrimesDesc) warCrimesDesc.value = '';
+      toggleWarCrimesRow();
+      hiddenJson.value = '';
+    },
+  };
+})();

@@ -1,0 +1,51 @@
+{% comment %}
+  Martyr home address — full administrative cascade:
+    District → Upazila/Thana/City Corp → Union Parishad → Ward
+  Uses "martyr-home-" prefixed IDs to avoid conflict with the incident location
+  cascade (news-*) which lives in Step 9 on the same July uprising form page.
+  Driven by news-july-martyr-home-location.js.
+  Expects: districts (queryset passed from view context).
+{% endcomment %}
+
+{# Tom Select remote search — auto-fills cascade on selection #}
+<div class="form-field">
+  <label for="martyr-home-location-search">এলাকা অনুসন্ধান করুন (Search Area)</label>
+  <select id="martyr-home-location-search"></select>
+</div>
+
+{# Ward — loaded dynamically when local body changes #}
+<div class="form-field">
+  <label for="martyr-home-ward-id">ওয়ার্ড (Ward)</label>
+  <select id="martyr-home-ward-id">
+    <option value="">-- প্রথমে স্থানীয় সরকার নির্বাচন করুন --</option>
+  </select>
+</div>
+
+{# Union Parishad — loaded dynamically when upazila is selected #}
+<div class="form-field">
+  <label for="martyr-home-local-body-id">ইউনিয়ন পরিষদ (Union Parishad)</label>
+  <select id="martyr-home-local-body-id">
+    <option value="">-- প্রথমে উপজেলা/থানা নির্বাচন করুন --</option>
+  </select>
+</div>
+
+{# Upazila / Metropolitan Thana / City Corporation — loaded dynamically when district changes #}
+<div class="form-field">
+  <label for="martyr-home-upazila-id">উপজেলা/থানা/সিটি কর্পোরেশন (Upazila/Metropolitan Thana/City Corporation)</label>
+  <select id="martyr-home-upazila-id">
+    <option value="">-- প্রথমে জেলা নির্বাচন করুন --</option>
+  </select>
+</div>
+
+{# District #}
+<div class="form-field">
+  <label for="martyr-home-district-id">জেলা (District)</label>
+  <select id="martyr-home-district-id">
+    <option value="">-- জেলা নির্বাচন করুন --</option>
+    {% for d in districts %}
+      <option value="{{ d.district_id }}">
+        {{ d.district_name_bn }}{% if d.district_name_en %} ({{ d.district_name_en }}){% endif %}
+      </option>
+    {% endfor %}
+  </select>
+</div>

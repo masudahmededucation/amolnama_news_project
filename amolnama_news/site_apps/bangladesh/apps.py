@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class BangladeshConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "amolnama_news.site_apps.bangladesh"
+    verbose_name = "Bangladesh"

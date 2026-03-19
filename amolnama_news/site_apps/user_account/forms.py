@@ -434,8 +434,9 @@ class PersonalDetailsForm(forms.Form):
             "placeholder": "Date of birth",
         }),
     )
-    link_gender_id = forms.ChoiceField(label="Gender")
-    link_religion_id = forms.ChoiceField(label="Religion")
+    link_gender_id = forms.ChoiceField(label="Gender", required=False)
+    link_religion_id = forms.ChoiceField(label="Religion", required=False)
+    link_marital_status_id = forms.ChoiceField(label="Marital Status", required=False)
 
     # ── NID ──
     nid_number = forms.CharField(
@@ -485,20 +486,31 @@ class PersonalDetailsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         import datetime
-        from .models import RefGender, RefReligion
+        from amolnama_news.site_apps.investigation.models import RefStatus
 
         self.fields["date_of_birth"].widget.attrs["max"] = (
             datetime.date.today().isoformat()
         )
 
-        genders = RefGender.objects.filter(is_active=True).order_by("gender_id")
+        genders = RefStatus.objects.filter(
+            group_code='gender', is_active=True
+        ).order_by('sort_order')
         self.fields["link_gender_id"].choices = [("", "-- Select gender --")] + [
-            (g.gender_id, g.gender_name_en) for g in genders
+            (g.status_id, g.status_name_en) for g in genders
         ]
 
-        religions = RefReligion.objects.filter(is_active=True).order_by("religion_id")
+        marital = RefStatus.objects.filter(
+            group_code='marital_status', is_active=True
+        ).order_by('sort_order')
+        self.fields["link_marital_status_id"].choices = [("", "-- Select marital status --")] + [
+            (m.status_id, m.status_name_en) for m in marital
+        ]
+
+        religions = RefStatus.objects.filter(
+            group_code='religion', is_active=True
+        ).order_by('sort_order')
         self.fields["link_religion_id"].choices = [("", "-- Select religion --")] + [
-            (r.religion_id, r.religion_name_en) for r in religions
+            (r.status_id, r.status_name_en) for r in religions
         ]
 
 

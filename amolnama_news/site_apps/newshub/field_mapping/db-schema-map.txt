@@ -1,0 +1,412 @@
+================================================================================
+AMOLNAMA NEWS — FULL SCHEMA MAP (all models + cross-schema relationships)
+================================================================================
+Last updated: 2026-03-13
+File: amolnama_news/site_apps/newshub/field_mapping/db-schema-map.txt
+
+Key:  →   FK from left table to right table
+      ↔   junction (many-to-many)
+      *   multiple FK columns to same target schema
+================================================================================
+
+CENTRAL HUB
+--------------------------------------------------------------------------------
+[newshub].[coll_news_entry]  ← ALL investigation and market fact tables point here
+  → [newshub].[ref_news_form_type]           (link_form_type_id)
+  → [newshub].[ref_news_category]       (link_news_category_id)  [via link_issue_type_id in some docs]
+  → [newshub].[coll_contributor]        (link_contributor_id)
+  → [location].[district]              (link_district_id)
+  → [location].[upazila]               (link_upazila_id / upazila_city_corporation_name text)
+  → [location].[union_parishad]        (link_union_parishad_id)
+  → [location].[constituency]          (link_constituency_id)
+  lat/lon, map_formatted_address_bn, full_address_bn (free text)
+
+================================================================================
+[account] SCHEMA  ←→  user_account/models.py
+================================================================================
+  ref_user_auth_method_type   (lookup — auth method: email/google/otp)
+  User                        → ref_user_auth_method_type
+  user_profile                → person.person (link_person_id)
+                              → User (link_user_account_user_id)
+  user_device
+  user_session                → user_profile
+                              → user_device
+                              → location.geo_source (link_geo_source_id)
+
+================================================================================
+[person] SCHEMA  ←→  user_account/models.py + person/models.py
+================================================================================
+Reference tables:
+  ref_gender
+  ref_religion
+  ref_title              (person/models.py)
+  ref_marital_status     (person/models.py)
+  ref_citizenship_category
+  ref_citizenship_status
+  ref_housing_tenure
+  ref_residence_status
+
+Core:
+  person                 → ref_gender       (link_gender_id)
+                         → ref_religion     (link_religion_id)
+                         → ref_marital_status (link_marital_status_id)
+                         → location.district (link_birth_district_id)
+  NOTE: person_guid is a NOT NULL DB DEFAULT NEWID() computed-style column —
+        omitted from Django model so DB auto-generates it.
+
+Person sub-tables (all FK → person):
+  person_address         ↔ location.address      (via link_address_id)
+  person_citizenship     ↔ citizenship            (link_citizenship_id — table not modeled)
+  person_citizenship_category  ↔ ref_citizenship_category
+  person_citizenship_status    ↔ ref_citizenship_status
+  person_education       ↔ education.qualification (link_qualification_id)
+                           (get-or-create institution by name — separate table not modeled)
+  person_housing_tenure  ↔ ref_housing_tenure + location.district
+  person_job             → career.job_title       (link_job_title_id — GET-OR-CREATE)
+                         → directory.organisation  (link_organisation_id — GET-OR-CREATE)
+                         → career.job_department  (link_department_id — optional)
+  person_marriage        → person (link_husband_person_id)
+                         → person (link_wife_person_id)
+  person_residence_status ↔ ref_residence_status
+
+RULE: Person → ALWAYS INSERT new row (never get-or-create)
+RULE: person_job, organisation → GET-OR-CREATE
+
+================================================================================
+[contact] SCHEMA  ←→  user_account/models.py + person/models.py
+================================================================================
+  ref_contact_type  /  ref_contact_type   (same concept, two model files)
+  phone              → person.person (link_person_id)
+                     → ref_contact_type (link_contact_type_id)
+                     stored as: country_calling_code + phone_number (separate columns)
+  email              → person.person
+                     → ref_contact_type
+  social_media       → person.person
+                     → ref_social_media_platform  (contact schema platform, NOT media schema)
+  ref_social_media_platform   (contact schema — for person social profiles)
+  entity_type
+  ContactType  (person/models.py)  ← duplicate of RefContactType in user_account/models.py
+               → [contact].[contact_type]  (same DB table, two Django models)
+
+================================================================================
+[career] SCHEMA  ←→  person/models.py
+================================================================================
+  job_category
+  job_department
+  job_title        → job_category (link_job_category_id)
+  (GET-OR-CREATE by name when saving person_job)
+
+================================================================================
+[education] SCHEMA  ←→  person/models.py
+================================================================================
+  qualification_type
+  qualification    → qualification_type
+
+================================================================================
+[directory] SCHEMA  ←→  user_account/models.py
+================================================================================
+  organisation_type
+  organisation     → organisation_type (link_organisation_type_id)
+                   → location.address  (link_branch_address_id — optional)
+  NOTE: organisation_uid is NOT NULL DB DEFAULT NEWID() — omitted from model.
+  (GET-OR-CREATE by name when saving person_job)
+
+================================================================================
+[location] SCHEMA  ←→  locations/models.py
+================================================================================
+Hierarchy (top → bottom):
+  division           → country (link_country_id — not modeled)
+  district           → division
+  constituency       → division, district
+  upazila            → district
+  │
+  ├─ union_parishad        → upazila
+  │    ├─ union_parishad_ward    → union_parishad, district, upazila
+  │    └─ union_parishad_village → union_parishad, district, upazila
+  │
+  ├─ municipality          → upazila, district
+  │    └─ municipality_ward → municipality, district, upazila
+  │
+  └─ (city corporations — parallel to upazila level)
+       city_corporation          → district
+       city_corporation_ward     → district, city_corporation
+       metropolitan_thana        → district
+       metropolitan_thana_ward   → district, city_corporation, metropolitan_thana,
+                                    city_corporation_ward
+
+Utility:
+  address            → union_parishad, ward, village
+  geo_source         (IP geolocation — populated via stored procedure
+                      [location].[app_usp_GetOrCreateGeoSource])
+  app_vw_unified_location_search  (view — Tom Select search across all levels)
+
+================================================================================
+[media] SCHEMA  ←→  multimedia/models.py
+================================================================================
+  ref_asset_type     (MIME type, size limits, extension — used for client-side validation)
+  app_asset          (static app assets — logos, icons)
+  asset              → ref_asset_type (link_asset_type_id)
+                     NOTE: file_storage_path is SQL Server COMPUTED column — read back
+                           via raw SQL after INSERT; never defined in Django model.
+                     NOTE: asset_guid → CharField (not UUIDField) to avoid mssql dash-stripping bug.
+  ref_social_media_platform_type  (platform list for social source repeater)
+  social_media_url_library        → ref_social_media_platform_type
+                                  NOTE: social_url_hash is SHA2_256 computed persisted column —
+                                        never written by Django
+
+================================================================================
+[newshub] SCHEMA  ←→  newshub/models.py
+================================================================================
+Reference:
+  ref_news_form_type         (13 form types — group_code drives link_form_type_id everywhere)
+  ref_ad_placement
+  ref_contributor_type
+  ref_news_category
+  ref_news_category_tag → ref_news_category (link_news_category_id)
+  ref_actor_type
+  app_vw_news_category_tags  (view — category + tag joined, used by Tom Select)
+
+Collection (data entry):
+  coll_contributor      → ref_contributor_type, account.user_profile
+  coll_news_entry       (see CENTRAL HUB above)
+  coll_news_asset       ↔ coll_news_entry ↔ media.asset
+                          [is_featured, sort_order, caption_bn]
+  coll_news_social_media_source ↔ coll_news_entry ↔ media.social_media_url_library
+  coll_news_entry_tag   ↔ coll_news_entry ↔ ref_news_category_tag
+
+Publishing:
+  pub_article           → coll_news_entry
+  eng_article_stat      → pub_article
+  eng_comment           → pub_article
+
+Advertising:
+  ads_campaign          → ref_ad_placement
+  ads_performance_log   → ads_campaign
+
+Audit logs:
+  vlog_editorial_change → coll_news_entry
+  vlog_verification     → coll_news_entry
+
+================================================================================
+[investigation] SCHEMA  ←→  investigation/models.py
+================================================================================
+Reference:
+  ref_status            (single lookup table; group_code distinguishes categories)
+                        Columns: status_id, link_status_id (computed), link_status_code (computed),
+                                 group_code, status_code, status_name_en, status_name_bn,
+                                 status_icon, hex_color_code, sort_order, is_active, created_at
+                        → FK column naming: link_ref_status_<group_code>_id
+  incident_type
+  influence_type
+  reliability_rating
+  intelligence_source   → ref_status (investigation_intelligence_source), reliability_rating
+
+Fact tables (all → coll_news_entry):
+  crime_form_impact_casualty           → coll_news_entry
+  crime_form_weapon                    → coll_news_entry
+                                         (BIT columns per weapon type)
+  crime_form_victim_legal_action       → coll_news_entry
+                                       → ref_status (law_gd_fir_status)
+                                         (BIT columns: applicable laws, support services,
+                                          pressure/retaliation flags)
+  extortion_form_impact                → coll_news_entry
+                                       → ref_status (extortion_demand_frequency)
+                                         (BIT columns: sector, accused, threat, consequence, context)
+  civic_form_impact                    → coll_news_entry
+                                       → ref_status (sub_issue_type, impact_category,
+                                                     time_duration_unit, current_issue_status)
+  global_news_form_fact                → coll_news_entry
+                                       → ref_status (issue_sub_type, news_significance,
+                                                     relevance_to_bangladesh, global_reaction,
+                                                     global_media_coverage)
+                                         (BIT columns: international organisations)
+  conflict_form_actor_country          → coll_news_entry
+                                       → ref_status (actor_involvement_type)
+                                       → location.country (link_country_id — not modeled)
+  conflict_form_impact                 → coll_news_entry
+                                       → ref_status (conflict_type, territorial_sovereignty_status,
+                                                     conflict_intensity, weapon, involvement_level,
+                                                     global_reaction)
+                                         (BIT columns: strategic impacts, bangladesh impact)
+  land_grabbing_form_fact              → coll_news_entry
+                                       → ref_status (land_type, area_unit, current_status)
+                                         (BIT columns: ownership status, grabbing methods)
+  land_grabbing_form_victim_legal_action → coll_news_entry
+                                       → ref_status (law_gd_fir_status, law_case_status)
+                                         (BIT columns: applicable laws, support services,
+                                          social pressure/retaliation)
+  price_hiking_form_comodity_price     → coll_news_entry
+                                       → market.ref_commodity (link_commodity_id)
+  price_hiking_form_commodity_stock_supply_chain → coll_news_entry
+                                       → market.ref_commodity (link_commodity_id)
+  incident_evidence_weapon             → coll_news_entry
+  incident_evidence_involved_actor     → coll_news_entry
+                                       → ref_status (actor_involvement_type, actor_type,
+                                                     condition, body_injury_site, gender)
+  incident_evidence_impact_weapon      → coll_news_entry, incident_evidence_weapon
+                                       → ref_status (weapon_type)
+  incident_evidence_women_victim_condition  → incident_involved_actor_profile
+                                              (composite PK — insert-only)
+  women_form_victim_profile_fact            → person, person_marriage
+                                              → coll_news_entry
+                                                (flat BIT columns for violence type + condition)
+                                                (replaces deleted incident_evidence_women_victim_condition_attribute)
+  women_form_perpetrator                    → coll_news_entry
+                                              → person
+                                              → ref_status (victim_attacker_relationship,
+                                                            women_attacker_power_position)
+                                              (replaces deleted incident_evidence_women_perpetrator)
+  women_form_victim_legal_action            → coll_news_entry
+                                              (replaces deleted incident_evidence_women_legal_action)
+  sports_form_fact                          → coll_news_entry
+                                            → ref_status (sports_form_tournament_round_stage, sports_form_match_status)
+  entertainment_form_fact                   → coll_news_entry
+                                            → ref_status (entertainment_form_language, entertainment_form_entertainment_industry,
+                                                          entertainment_form_media_platform, entertainment_form_genre_category,
+                                                          entertainment_form_audience_response)
+  incident_involved_actor_profile           → coll_news_entry
+                                            → person.person (link_person_id)
+                                            → person.person_marriage (link_person_marriage_id)
+                                            → ref_status (incident_involved_actor_role)
+                                            → newshub.ref_news_form_type (link_form_type_id)
+  july2024_fact_protest                     → coll_news_entry
+                                            → ref_status (incident_type, protest_scale,
+                                                          internet_status, curfew_status,
+                                                          victim_current_status,
+                                                          protest_suppression_weapon,
+                                                          victim_body_injury_site,
+                                                          verification_status)
+
+================================================================================
+[market] SCHEMA  ←→  market/models.py
+================================================================================
+  ref_commodity               (commodity/product reference)
+  ref_unit_type
+  market_commodity_price_impact → coll_news_entry, ref_commodity
+  market_stock_supply_impact    → coll_news_entry, ref_commodity
+
+================================================================================
+[article] SCHEMA  ←→  core/models.py
+================================================================================
+  article     (standalone — no FK to newshub)
+
+================================================================================
+[election] SCHEMA  ←→  election_vote/models.py
+================================================================================
+Reference:
+  ref_election_type
+  ref_election_status
+  ref_election        → ref_election_type, ref_election_status
+  ref_vote_method
+  ref_candidate_nomination_rulebook
+  ref_candidate_nomination_status
+  ref_voter_eligibility_status
+
+Candidates:
+  candidate_nomination  → ref_election, person.person, location.constituency,
+                          party.ref_party, media.asset, ref_candidate_nomination_status
+  candidate             → person.person, ref_election, candidate_nomination
+  candidate_rule_compliance_record → candidate_nomination, ref_candidate_nomination_rulebook
+
+Voting:
+  electoral_roll              → person.person, location.constituency,
+                                ref_voter_eligibility_status
+  electoral_roll_poll_book    → ref_election, electoral_roll
+  ballot                      → ref_election, electoral_roll, ref_vote_method
+  ballot_vote_entry           → ballot, candidate
+  digital_security_config     → ref_election
+  digital_ballot_registry_book → election_evaluation, account.user_profile
+  digital_ballot              → digital_ballot_registry_book, ref_election, election_evaluation
+  digital_ballot_vote_entry   → digital_ballot, constituency, union_parishad,
+                                 party.ref_party, candidate
+  election_contest_seat       → ref_election, location.constituency
+  election_result_certification → ref_election, candidate
+
+Views:
+  app_vw_get_current_election
+  app_vw_get_past_results
+
+================================================================================
+[evaluation] SCHEMA  ←→  evaluation_vote/models.py
+================================================================================
+  ref_evaluation
+  ref_question_category  → ref_evaluation
+  ref_question           → ref_evaluation, ref_question_category
+  ref_question_option    → ref_question
+  election_evaluation    → election.ref_election, ref_evaluation   (junction)
+  evaluation_response    → ref_evaluation, election.digital_ballot,
+                           location.constituency, location.union_parishad,
+                           party.ref_party, candidate, ref_question,
+                           ref_question_option, evaluator.user_session
+  evaluation_result      → ref_evaluation, location.constituency,
+                           party.ref_party, candidate
+
+Views:
+  app_vw_get_evaluation_current
+  app_vw_vote_sidebar_past_results
+
+================================================================================
+[evaluator] SCHEMA  ←→  evaluation_vote/models.py
+================================================================================
+  user_device
+  user_profile
+  user_session  → ref_evaluation, user_profile, user_device, location.geo_source
+
+================================================================================
+[party] SCHEMA  ←→  evaluation_vote/models.py
+================================================================================
+  ref_party    → investigation.ref_status (link_party_status_id, link_party_ideology_id)
+               → media.app_asset (link_app_asset_id)
+
+Views:
+  app_vw_get_party_details
+
+================================================================================
+CROSS-SCHEMA DEPENDENCY SUMMARY
+================================================================================
+
+location.*    ← used by: person.person (birth district)
+                          person.person_job (via organisation.branch_address)
+                          person.person_housing_tenure
+                          person.person_address (via location.address)
+                          newshub.coll_news_entry (district/upazila/union/constituency)
+                          account.user_session (geo_source)
+                          election.* (constituency, union_parishad)
+                          evaluation.evaluation_response
+
+person.person ← used by: account.user_profile
+                          investigation.incident_evidence_women_victim_profile
+                          investigation.incident_involved_actor_profile
+                          election.electoral_roll
+                          election.candidate_nomination
+                          election.candidate
+
+media.asset   ← used by: newshub.coll_news_asset
+                          election.candidate_nomination
+
+investigation.ref_status ← used by: all investigation fact tables
+                                     party.ref_party (party_status, ideology)
+
+newshub.ref_news_form_type ← used by: newshub.coll_news_entry (link_form_type_id)
+                                  investigation.incident_involved_actor_profile
+
+market.*      ← linked to newshub.coll_news_entry (price_hike form data)
+
+================================================================================
+MODELS NOT DIRECTLY LINKED TO coll_news_entry (standalone domains)
+================================================================================
+  election.*          (voting/election management)
+  evaluation.*        (candidate evaluation/quiz)
+  evaluator.*         (evaluator user sessions)
+  party.ref_party     (political parties)
+  article.article     (CMS articles — separate from newshub)
+  account.user_*      (authentication/sessions)
+  person.ref_*        (lookup tables)
+  career.*            (job titles — only used via person_job)
+  education.*         (qualifications — only used via person_education)
+  contact.*           (phone/email — only used via person_* tables)
+  directory.organisation (only used via person_job)
+
+================================================================================
+END OF FILE
+================================================================================

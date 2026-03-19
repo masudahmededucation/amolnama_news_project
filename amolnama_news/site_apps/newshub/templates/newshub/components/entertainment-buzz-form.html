@@ -1,0 +1,75 @@
+{% comment %}
+  Buzz & Controversy — captures audience sentiment, trending hashtags,
+  meme factor, plagiarism/copyright issues, and boycott level.
+  Entertainment form type specific.
+  Plagiarism source field shown conditionally when checkbox is checked.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-buzz">
+  <h3 class="form-section-title"><span class="section-icon">🔥</span>প্রতিক্রিয়া ও বিতর্ক (Buzz & Controversy)</h3>
+
+  {# Hidden input — JS serializes buzz data here before submit #}
+  <input type="hidden" id="entertainment-buzz-json" name="entertainment_buzz_json" value="">
+
+  <div class="form-field">
+    <label>দর্শক প্রতিক্রিয়া (Audience Sentiment)</label>
+    <div class="radio-inline-group">
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_sentiment" value="positive">
+        🔥 হাইপ (Hype)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_sentiment" value="neutral">
+        😐 নিরপেক্ষ (Neutral)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_sentiment" value="negative">
+        💢 ব্যাকল্যাশ (Backlash)
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-trending-hashtag">ট্রেন্ডিং হ্যাশট্যাগ (Trending Hashtag)</label>
+    <input type="text" id="entertainment-trending-hashtag"
+           placeholder="যেমন: #Pathaan, #ViralVideo, #Cannes2026, #BPL...">
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-meme-factor">মিম ফ্যাক্টর (Meme Factor)</label>
+    <select id="entertainment-meme-factor">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="none">নেই (None)</option>
+      <option value="low">কম (Low)</option>
+      <option value="medium">মাঝারি (Medium)</option>
+      <option value="viral">ভাইরাল (Viral)</option>
+    </select>
+  </div>
+
+  {# ---- Plagiarism / Copyright ---- #}
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="entertainment-plagiarism-check" value="1">
+      কপিরাইট/চুরির অভিযোগ আছে (Plagiarism/Copyright Issue)
+    </label>
+  </div>
+
+  <div class="form-field" id="entertainment-plagiarism-row" style="display: none;">
+    <label for="entertainment-plagiarism-source">মূল উৎস (Original Source)</label>
+    <input type="text" id="entertainment-plagiarism-source"
+           placeholder="যেমন: মূল গানটি ছিল XYZ-এর, মূল চলচ্চিত্রটি ছিল কোরিয়ান...">
+  </div>
+
+  {# ---- Boycott Level ---- #}
+  <div class="form-field">
+    <label for="entertainment-boycott-level">বয়কট মাত্রা (Boycott Level)</label>
+    <select id="entertainment-boycott-level">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="none">নেই (None)</option>
+      <option value="minor">সামান্য (Minor)</option>
+      <option value="significant">উল্লেখযোগ্য (Significant)</option>
+      <option value="massive">ব্যাপক (Massive)</option>
+    </select>
+  </div>
+</div>

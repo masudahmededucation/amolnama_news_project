@@ -1,0 +1,51 @@
+{% comment %}
+  Metrics & Charts — captures views/streams, rating,
+  revenue/box office, and opening weekend numbers.
+  Entertainment form type specific.
+  All fields are flexible text inputs (no rigid number validation).
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-metrics">
+  <h3 class="form-section-title"><span class="section-icon">📊</span>পরিসংখ্যান ও চার্ট (Metrics & Charts)</h3>
+
+  {# Hidden input — JS serializes metrics data here before submit #}
+  <input type="hidden" id="entertainment-metrics-json" name="entertainment_metrics_json" value="">
+
+  <div class="form-field">
+    <label for="entertainment-views">ভিউ/স্ট্রিম (Views/Streams)</label>
+    <input type="text" id="entertainment-views"
+           placeholder="যেমন: 10M in 24hrs, ১ কোটি ভিউ, 1 Billion streams...">
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-rating-source">রেটিং উৎস (Rating Source)</label>
+    <select id="entertainment-rating-source">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="imdb">IMDb</option>
+      <option value="rotten_tomatoes">Rotten Tomatoes</option>
+      <option value="metacritic">Metacritic</option>
+      <option value="audience_score">দর্শক রেটিং (Audience Score)</option>
+      <option value="letterboxd">Letterboxd</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-rating-score">রেটিং স্কোর (Rating Score)</label>
+    <input type="text" id="entertainment-rating-score"
+           placeholder="যেমন: 8.5/10, 94%, 4.5★, ৯০% ফ্রেশ...">
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-revenue">আয়/বক্স অফিস (Revenue/Box Office)</label>
+    <input type="text" id="entertainment-revenue"
+           placeholder="যেমন: ₹500 কোটি, $1 Billion worldwide...">
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-opening-weekend">উদ্বোধনী সপ্তাহ (Opening Weekend)</label>
+    <input type="text" id="entertainment-opening-weekend"
+           placeholder="যেমন: ₹50 কোটি opening day, ৫০ কোটি প্রথম সপ্তাহ, $200M domestic...">
+  </div>
+</div>

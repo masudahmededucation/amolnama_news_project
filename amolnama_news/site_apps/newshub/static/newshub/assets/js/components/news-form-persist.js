@@ -15,8 +15,8 @@
  */
 (function () {
   var STORAGE_KEY = 'newshub_draft';
-  var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids'];
-  var form = document.querySelector('.news-collection-form');
+  var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status'];
+  var form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
 
   /* --- If submission succeeded, clear draft but keep save listeners active --- */
@@ -44,7 +44,7 @@
       if (el.type === 'file') continue;
 
       if (el.type === 'radio') {
-        if (el.checked) data[name] = el.value;
+        continue; /* Never persist radio buttons — user must actively select each visit */
       } else if (el.type === 'checkbox') {
         data[name] = el.checked ? '1' : '';
       } else {
@@ -73,6 +73,13 @@
   try { saved = JSON.parse(raw); } catch (e) { return; }
   if (!saved || typeof saved !== 'object') return;
 
+  /* Purge skipped keys from saved data so stale values never linger */
+  var purged = false;
+  SKIP_NAMES.forEach(function (k) {
+    if (saved.hasOwnProperty(k)) { delete saved[k]; purged = true; }
+  });
+  if (purged) localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+
   /* Block saves while restoring — async cascade fetches would otherwise
      overwrite saved values (e.g. constituency_id) with empty strings */
   isRestoring = true;
@@ -89,15 +96,14 @@
   /* 1. Restore simple fields */
   Object.keys(saved).forEach(function (name) {
     if (CASCADE.indexOf(name) !== -1) return;
+    if (SKIP_NAMES.indexOf(name) !== -1) return;
 
     var els = form.querySelectorAll('[name="' + name + '"]');
     if (!els.length) return;
 
     var el = els[0];
     if (el.type === 'radio') {
-      for (var i = 0; i < els.length; i++) {
-        els[i].checked = (els[i].value === saved[name]);
-      }
+      return; /* Never restore radio buttons — user must actively select each visit */
     } else if (el.type === 'checkbox') {
       el.checked = saved[name] === '1';
     } else {

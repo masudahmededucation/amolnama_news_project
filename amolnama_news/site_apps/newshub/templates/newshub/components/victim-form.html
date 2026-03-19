@@ -1,0 +1,34 @@
+{% comment %}
+  Victim Form — single-role repeater for ভুক্তভোগী (victims).
+  Used by: Extortion & Land Grab, Price Hike.
+  NO crime-specific fields (condition dropdown / medical location).
+  Data is serialized to #victim-json hidden input by news-victim-repeater.js.
+{% endcomment %}
+
+<div class="form-section" id="section-victim">
+  <h3 class="form-section-title"><span class="section-icon">🟠</span>ভুক্তভোগী / ক্ষতিগ্রস্ত (Victims / Affected Parties)</h3>
+
+  {# Hidden input — JS serializes the victim array here before submit #}
+  <input type="hidden" id="victim-json" name="victim_json" value="">
+
+  {# Add button #}
+  <div class="actor-add-buttons" id="victim-add-btn-wrap">
+    <button type="button" class="actor-add-btn actor-add-victim" id="victim-add-btn">
+      + ভুক্তভোগী যোগ করুন (Add Victim)
+    </button>
+  </div>
+
+  {# Dynamic cards rendered here by news-victim-repeater.js #}
+  <div id="victim-list"></div>
+
+  {# Empty state #}
+  <div class="actor-empty-state" id="victim-empty-state">
+    এখনো কোনো ভুক্তভোগী যোগ করা হয়নি।
+    <br><small>(No victims added yet. Click the button above to add one.)</small>
+  </div>
+</div>
+
+<div class="form-section" id="section-victim-photos">
+  <h3 class="form-section-title"><span class="section-icon">📂</span>ভুক্তভোগীর ছবি ও ক্ষয়ক্ষতির দলিল (Victim — Damage Evidence)</h3>
+  {% include "newshub/components/file-upload-section.html" with upload_prefix="victim-photos" upload_name="victim_photos" upload_accept="image/*" upload_label="ভুক্তভোগীর ছবি বা ক্ষতির প্রমাণ আপলোড করুন — সর্বোচ্চ ৩টি (Upload victim's photo or damage evidence, max 3)" upload_btn_label="+ ভুক্তভোগীর ছবি যোগ করুন (Add photo)" upload_desc_name="victim_photos_descriptions_json" upload_hint="ভুক্তভোগীর পরিচিতিমূলক ছবি বা ক্ষতির প্রমাণ দিন — যেমন ক্ষতিগ্রস্ত সম্পদ বা জমির ছবি, হয়রানির স্ক্রিনশট, চুক্তিপত্র বা অন্য প্রাসঙ্গিক দলিল (ID photo, damaged property, harassment screenshot or legal document)" %}
+</div>

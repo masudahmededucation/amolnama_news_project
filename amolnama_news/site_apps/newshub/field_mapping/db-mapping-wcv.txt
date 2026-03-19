@@ -1,0 +1,453 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: WOMEN & CHILD VIOLENCE FORM
+================================================================================
+Last updated: 2026-03-14 (legal action DDL verified: is_ prefix on law/support/risk columns; 8 risk_threat fields)
+File: amolnama_news/site_apps/newshub/db-mapping-wcv.txt
+
+URL view  : news_collection_multistep_women_child_violence()
+Template  : newshub/pages/news-collection-multistep-women-child-violence.html
+
+Steps 1-2, Attachments, Social Sources → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table / architecture confirmed
+  ⚠️ PENDING    — not yet implemented or column does not yet exist in DB
+  🔍 VERIFY     — DDL inferred from Django model; confirm against actual DB
+================================================================================
+
+
+================================================================================
+STEP 3: Violence Type
+================================================================================
+POST key  : wcv_violence_context  (hidden JSON, news-wcv-violence-type.js)
+TABLE     : [investigation].[women_form_victim_profile_fact]
+STATUS    : ✅ CONFIRMED (DDL provided by user 2026-03-13)
+
+NOTE: The fact_victim row covers BOTH Step 3 (violence_type_*) AND Step 5
+      (victim_condition_*, injury_type_*, msc_*).
+      It is written in ONE INSERT after both steps are parsed.
+      FKs: link_person_id → person PK, link_person_marriage_id → person_marriage PK.
+
+JSON key         →  DB column
+---------------------------------------------------------------------------
+violenceTypeIds  →  resolved via ref_status code lookup.
+                    ref_status group_code: women_form_violence_type (status_ids 635-650)
+                    mapping rule: col = 'violence_type_' + code.lower()
+                    overrides: TORTURE_CRUELTY → violence_type_torture_or_cruelty
+                               OTHER           → violence_type_other
+
+  ref_status.status_code   →  DB column
+  ACID_ATTACK              →  [violence_type_acid_attack]              [bit] NOT NULL
+  ATTEMPTED_RAPE           →  [violence_type_attempted_rape]           [bit] NOT NULL
+  CHILD_MARRIAGE           →  [violence_type_child_marriage]           [bit] NOT NULL
+  CYBER_HARASSMENT         →  [violence_type_cyber_harassment]         [bit] NOT NULL
+  DOMESTIC_VIOLENCE        →  [violence_type_domestic_violence]        [bit] NOT NULL
+  DOWRY_VIOLENCE           →  [violence_type_dowry_violence]           [bit] NOT NULL
+  EVE_TEASING              →  [violence_type_eve_teasing]              [bit] NOT NULL
+  FORCED_MARRIAGE          →  [violence_type_forced_marriage]          [bit] NOT NULL
+  GANG_RAPE                →  [violence_type_gang_rape]                [bit] NOT NULL
+  HONOR_KILLING            →  [violence_type_honor_killing]            [bit] NOT NULL
+  RAPE                     →  [violence_type_rape]                     [bit] NOT NULL
+  SEXUAL_ASSAULT           →  [violence_type_sexual_assault]           [bit] NOT NULL
+  TORTURE_CRUELTY          →  [violence_type_torture_or_cruelty]       [bit] NOT NULL  ← override
+  TRAFFICKING              →  [violence_type_trafficking]              [bit] NOT NULL
+  WORKPLACE_HARASSMENT     →  [violence_type_workplace_harassment]     [bit] NOT NULL
+  OTHER                    →  [violence_type_other]                    [bit] NOT NULL  ← override
+
+otherType        →  [violence_type_describe_type_of_violence_bn]
+                    [nvarchar](500) COLLATE Bengali_100_CI_AS NULL
+
+locationTypeId   →  resolved to code text  →  [violence_type_incident_location_type]
+                    [nvarchar](100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+
+recurring        →  [violence_type_is_recurring_violence]   [bit] NOT NULL
+
+duration         →  [violence_type_duration_of_violence]
+                    [nvarchar](50) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+
+
+================================================================================
+STEP 4: Victim Demographics
+================================================================================
+POST key  : wcv_victim  (hidden JSON, news-wcv-victim.js)
+STATUS    : ✅ CONFIRMED architecture (2026-03-05, updated 2026-03-12)
+
+PRINCIPLE: Use the fully normalised [person] schema. No duplicate columns in
+           investigation tables. Once saved correctly, the data lives forever
+           in the right place.
+
+Template  : wcv-victim-form.html (3 groups):
+              Group 1: person-name-alias-fields.html      (Name — first/last EN+BN, alias, father)
+              Group 2: person-personal-info-fields.html   (Universal Personal Identity)
+              Group 3: WCV-specific inline fields         (Marital Status, Husband, Occupation, Institution)
+JS        : news-wcv-victim.js
+              Uses shared modules: newshubPersonName.read/bind/reset('wcv-victim')
+                                   newshubPersonIdentity.read/bind/reset('wcv-victim')
+              WCV-specific fields (Group 3) handled directly in JS.
+
+Save uses shared helpers: _save_actor_person()     → [person].[person]
+                         _save_actor_occupation() → [person].[person_job]
+                         _save_actor_profile()    → [investigation].[incident_involved_actor_profile]
+                         Then WCV-specific tables for extras.
+
+Tables written, in this order: ① person (shared helper)
+                                ② person_job (shared helper)  ③ person_marriage (WCV-specific)
+                                ④ incident_involved_actor_profile (shared helper, with marriage_id)
+
+--------------------------------------------------------------------------------
+① TABLE: [person].[person]   (victim identity)
+   Django model: Person  (user_account/models.py)
+
+   Group 1 — Name:
+   JSON key          →  column
+   firstNameEn       →  first_name_en          [nvarchar](100) NOT NULL  (mandatory)
+   lastNameEn        →  last_name_en           [nvarchar](100) NOT NULL  (mandatory)
+   firstNameBn       →  first_name_bn          [nvarchar](100) NULL
+   lastNameBn        →  last_name_bn           [nvarchar](100) NULL
+   alias             →  name_alias_bn          [nvarchar](100) NULL
+   fatherFirstName   →  father_first_name_bn   [nvarchar](100) NULL
+   fatherLastName    →  father_last_name_bn    [nvarchar](100) NULL
+
+   Group 2 — Universal Personal Identity (same 6 fields as crime repeaters):
+   genderId          →  link_gender_id         [int] NULL  ← FK → [person].[ref_gender].gender_id
+   religionId        →  link_religion_id       [int] NULL  ← FK (ref_status group='religion')
+   age               →  age                    [int] NULL
+   dob               →  date_of_birth          [date] NULL
+   districtId        →  link_birth_district_id [int] NULL  ← FK → [location].[district]
+                        View context: wcv_victim_districts queryset.
+   contact           →  primary_mobile_number  [varchar] NULL
+
+   Group 3 — WCV-specific:
+   maritalStatusId   →  link_marital_status_id [int] NULL  ← FK → [person].[ref_marital_status].marital_status_id
+
+   (fixed)           →  is_active = True
+   (fixed)           →  created_at = now,  modified_at = now
+
+   → result: victim_person_id = Person.person_id
+
+   GENDER PATTERN (confirmed 2026-03-05):
+      UI     : ref_status group_code='gender' — keeps as is. No context change.
+      SAVE   : get-or-create in [person].[ref_gender]  Django model: RefGender (user_account/models.py)
+        1. In views.py: look up ref_status by genderId → get status_name_bn + status_name_en
+        2. RefGender.objects.filter(gender_name_bn=status_name_bn).first()
+        3. If not found → RefGender.objects.create(
+                gender_name_en = status_name_en,
+                gender_name_bn = status_name_bn,
+                is_active      = True,
+           )
+        4. Use gender_id as link_gender_id in Person row.
+
+   MARITAL STATUS PATTERN (confirmed 2026-03-05):
+      UI     : ref_status group_code='marital_status' — keeps as is. No context change.
+      SAVE   : get-or-create in [person].[ref_marital_status]  Django model: RefMaritalStatus (person/models.py)
+        1. In views.py: look up ref_status by maritalStatusId → get status_name_bn + status_name_en
+        2. RefMaritalStatus.objects.filter(marital_status_title_bn=status_name_bn).first()
+        3. If not found → RefMaritalStatus.objects.create(
+                marital_status_title_en = status_name_en,
+                marital_status_title_bn = status_name_bn,
+                is_active               = True,
+           )
+        4. Use marital_status_id as link_marital_status_id in Person row.
+
+   NOTE — serialize() also sends text-label fields (gender, maritalStatus, occupation)
+      for display purposes only. These are NOT saved to DB. Only the ID fields are used:
+        genderId, maritalStatusId, occupationId  (✅ added 2026-03-05)
+
+--------------------------------------------------------------------------------
+④ TABLE: [investigation].[incident_involved_actor_profile]   (shared actor profile)
+   Django model: IncidentInvolvedActorProfile  (investigation/models.py)
+   Written by shared helper: _save_actor_profile()  (views.py)
+   One row per person per news entry.
+   REPLACES deleted [investigation].[incident_evidence_women_victim_profile] (2026-03-13).
+   Child tables (condition_attribute, perpetrator) now FK here via
+   link_incident_involved_actor_profile_id.
+
+   Column                                              →  Source / Value
+   ---------------------------------------------------------------------------
+   incident_involved_actor_profile_id                  →  [bigint] IDENTITY (auto)
+   link_coll_news_entry_id                             →  entry.coll_news_entry_id
+   link_person_id                                      →  victim_person_id  (from ①)
+   link_person_marriage_id                              →  marriage_id  (from ③, NULL if not married)
+   link_ref_status_incident_involved_actor_role_id     →  39 (VICTIM)  ← set via role_code='VICTIM'
+                                                          FK → ref_status group_code='incident_involved_actor_role'
+   incident_involved_actor_role_group_code             →  'VICTIM'  (denormalised status_code for query)
+   link_ref_status_incident_involved_actor_type_id     →  NULL  (WCV victim has no actorTypeId)
+   incident_involved_actor_type_details                →  NULL  (WCV victim has no actorTypeDetail)
+   link_form_type_id                                   →  form_type_id  (from ref_news_form_type lookup)
+                                                          ← FK → [newshub].[ref_news_form_type]
+   actor_organization_name                             →  NULL  (WCV victim has no organization)
+   actor_designation                                   →  NULL  (WCV victim has no designation)
+   actor_patron_name                                   →  NULL  (WCV victim has no patron)
+   actor_statement                                     →  NULL  (WCV victim has no statement)
+   link_ref_status_victim_medical_condition_id         →  NULL  (crime-specific, not used by WCV)
+   victim_medical_treatment_location_name              →  NULL  (crime-specific, not used by WCV)
+   created_at                                          →  now
+
+   → result: actor_profile.incident_involved_actor_profile_id
+     Used downstream by: condition_attribute (Step 3+5), perpetrator (Step 6)
+
+--------------------------------------------------------------------------------
+② TABLE: [person].[person_job]   (victim occupation + workplace)
+   Shared helper: _save_actor_occupation(person_id, actor_data, now)
+   Django model: PersonJob  (person/models.py)
+   Written only when occupationId > 0 AND institution is not blank.
+
+   JSON key        →  column
+   occupationId    →  link_job_title_id    [int] NOT NULL   ← FK → [career].[job_title]
+   institution     →  link_organisation_id [int] NOT NULL   ← FK → [organisation]
+   (fixed)         →  link_person_id = victim_person_id
+   (fixed)         →  start_date = today   (victim job start date unknown, use submission date)
+   (fixed)         →  is_active = True
+   (fixed)         →  created_at = now
+
+   The shared helper _save_actor_occupation() handles the full flow:
+     1. Look up ref_status by occupationId → get status_name_bn/en
+     2. Get-or-create JobTitle by job_title_name_bn
+     3. Get-or-create Organisation by name (keyword-based type inference via _infer_org_type_id)
+     4. INSERT PersonJob row
+
+   UI: load from ref_status group_code='women_victim_occupation'
+   JS must send occupationId (ref_status status_id as int).
+
+   See db-mapping-common-steps.txt Step A2 for full details.
+            Do NOT define in Django model — DB generates it automatically.
+
+   GENERAL RULE (confirmed 2026-03-05):
+      Person          → always INSERT new row. Never check for existing.
+      Everything else → get-or-create: check first, insert if not found, use the ID.
+
+      Applies to (non-exhaustive):
+        organisation           → get-or-create by name → link_organisation_id
+        education institution  → get-or-create by name → link for person_education
+        media asset (file/pic) → get-or-create in [media].[asset] by file hash or path
+                                  if not found → INSERT new asset row, get asset_id
+                                  if found     → use existing asset_id
+
+--------------------------------------------------------------------------------
+③ TABLE: [person].[person_marriage]   (only when victim is married)
+   Django model: PersonMarriage  (person/models.py)
+   Condition: husbandFirstName or husbandLastName is not blank.
+
+   First create husband row in [person].[person]:
+     husbandFirstName → first_name_bn AND first_name_en (same value if only bn available)
+     husbandLastName  → last_name_bn  AND last_name_en  (same value if only bn available)
+     (fixed)          → is_active = True, created_at = now, modified_at = now
+   → result: husband_person_id = Person.person_id
+
+   Then create marriage row:
+     link_wife_person_id    = victim_person_id
+     link_husband_person_id = husband_person_id
+     marriage_valid_from    = marriageDate from JSON  (today if blank)
+     created_at             = now
+   → result: marriage_id = PersonMarriage.person_marriage_id
+
+   NOTE: [investigation].[incident_evidence_women_victim_profile] was DELETED (2026-03-13).
+         Its columns (link_person_id, link_person_marriage_id) are now in
+         incident_involved_actor_profile (④ above). Child tables that previously
+         FK'd to victim_profile now FK to actor_profile via
+         link_incident_involved_actor_profile_id.
+
+
+================================================================================
+STEP 5: Victim Condition & Injury
+================================================================================
+POST key  : wcv_condition_injury  (hidden JSON, news-wcv-condition-injury.js)
+TABLE     : [investigation].[women_form_victim_profile_fact]  (same row as Step 3)
+STATUS    : ✅ CONFIRMED — implemented in views.py (same single INSERT as Step 3)
+
+Section A: Condition attributes
+  JSON key       →  DB column
+  pregnant       →  [victim_condition_is_pregnant]              [bit] NOT NULL
+  pregnantMonths →  [victim_condition_months_pregnant]           [int] NULL
+  hasChildren    →  [victim_condition_has_children]              [bit] NOT NULL
+  childrenCount  →  [victim_condition_number_of_children]        [int] NULL
+  dependent      →  [victim_condition_has_economic_dependency]   [bit] NOT NULL
+  disability     →  [victim_condition_has_disability]            [bit] NOT NULL
+  disabilityType →  [victim_condition_disability_type_bn]        [nvarchar](100) COLLATE Bengali_100_CI_AS NULL
+
+Section B: Injury types  (injuryTypeIds — ref_status code lookup)
+  Codes now have HAS_ prefix. Strip HAS_ then prepend 'injury_type_has_'.
+  mapping rule: col = 'injury_type_has_' + code[4:].lower()   (strip HAS_)
+  override: HAS_PTSD_FLASHBACKS → injury_type_has_ptsd_or_flashbacks
+
+  ref_status.status_code       →  DB column
+  HAS_PHYSICAL_INJURY          →  [injury_type_has_physical_injury]        [bit] NOT NULL
+  HAS_SEXUAL_INJURY            →  [injury_type_has_sexual_injury]          [bit] NOT NULL
+  HAS_PSYCHOLOGICAL_TRAUMA     →  [injury_type_has_psychological_trauma]   [bit] NOT NULL
+  HAS_ACID_OR_BURN_INJURY      →  [injury_type_has_acid_or_burn_injury]    [bit] NOT NULL
+  HAS_FRACTURE                 →  [injury_type_has_fracture]               [bit] NOT NULL
+  HAS_INTERNAL_INJURY          →  [injury_type_has_internal_injury]        [bit] NOT NULL
+  HAS_STRANGULATION_INJURY     →  [injury_type_has_strangulation_injury]   [bit] NOT NULL
+
+  severityId (single radio) → code text →  [injury_type_injury_severity]
+                               [nvarchar](50) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+
+Section C: Psychological symptoms  (psychSymptoms — ref_status code lookup)
+  Same HAS_ stripping rule as injury types.
+  override: HAS_PTSD_FLASHBACKS → injury_type_has_ptsd_or_flashbacks
+
+  ref_status.status_code       →  DB column
+  HAS_PTSD_FLASHBACKS          →  [injury_type_has_ptsd_or_flashbacks]  [bit] NOT NULL  ← override
+  HAS_DEPRESSION               →  [injury_type_has_depression]          [bit] NOT NULL
+  HAS_ANXIETY                  →  [injury_type_has_anxiety]             [bit] NOT NULL
+  HAS_SLEEP_DISORDER           →  [injury_type_has_sleep_disorder]      [bit] NOT NULL
+  HAS_SUICIDAL_IDEATION        →  [injury_type_has_suicidal_ideation]   [bit] NOT NULL
+
+Section D: Medical / Safety / Consent  (single radio each — stores code text)
+  JSON key        →  DB column
+  conditionId     →  [msc_victim_current_condition]
+                     [nvarchar](100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+  safetyStatusId  →  [msc_current_safety_status]
+                     [nvarchar](100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+  consentId       →  [msc_consent_to_share_information]
+                     [nvarchar](50)  COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL
+
+Django model: WomenFormVictimProfileFact  (investigation/models.py)
+FK columns: link_person_id → victim_person_id (from ①)
+            link_person_marriage_id → marriage_id (from ③, NULL if not married)
+
+
+================================================================================
+STEP 6: Accused / Perpetrators
+================================================================================
+POST key  : wcv_accused  (hidden JSON array, news-wcv-accused.js)
+TABLE     : [investigation].[women_form_perpetrator]
+STATUS    : ✅ CONFIRMED — DDL provided 2026-03-13; one row per accused (skipped if name blank)
+            Accused uses DOM createElement mode (buildIdentityGroupDom from news-person-identity.js).
+            View context: wcv_religions (JSON), wcv_districts (JSON) for JS repeater.
+
+Save flow per accused (all shared helpers):
+  ① _save_actor_person(acc, now)              → INSERT [person].[person] → person_id
+  ①b _save_actor_occupation(person_id, acc, now) → INSERT [person].[person_job] (if occupation selected)
+  ② _save_actor_profile(role_code='ACCUSED')  → INSERT [investigation].[incident_involved_actor_profile]
+     Sets: link_ref_status_incident_involved_actor_role_id = 34 (ACCUSED)
+           incident_involved_actor_role_group_code = 'ACCUSED'
+  ③ WomenFormPerpetrator.objects.create()      → INSERT below (WCV-specific fields only)
+
+JSON key per item          →  DB column
+(fixed)                    →  link_person_id  = person.person_id  (from ①, NOT NULL)
+(fixed)                    →  link_women_form_victim_profile_fact_id = victim_profile_fact PK  (from Step 3+5 save, NULL)
+firstNameEn, lastNameEn    →  saved to [person].[person] via _save_actor_person
+firstNameBn, lastNameBn    →  saved to [person].[person] via _save_actor_person
+fatherFirstName/LastName   →  saved to [person].[person] via _save_actor_person
+alias                      →  saved to [person].[person].name_alias_bn via _save_actor_person
+age, genderId, religionId, dob, districtId, contact → saved to [person].[person] via _save_actor_person
+occupationId, institution  →  saved to [person].[person_job] via _save_actor_occupation (shared helper)
+relationshipId             →  link_ref_status_victim_attacker_relationship_id          [int] NULL
+relationshipOther          →  perp_other_relationship_details                          [nvarchar](100) NULL
+accusedCount               →  perp_number_of_perpetrators                              [int] NULL  (DB DEFAULT 1)
+positionId                 →  link_ref_status_women_form_attacker_power_position_id    [int] NULL
+positionRemarks            →  perp_power_position_details_bn                           [nvarchar](2000) NULL
+previousHistoryDetails     →  perp_history_previous_details_bn                         [nvarchar](4000) NULL
+remarks                    →  remarks_about_perpetrator_bn                             [nvarchar](2000) NULL
+
+NOTE: perpetrator_name and perpetrator_father_name removed from this table (2026-03-13).
+      Name data lives in [person].[person] via link_person_id.
+
+attributeIds  (ref_status group_code=women_form_attacker_attribute)  →  BIT columns
+  ref_status.status_code                   DB column
+  HAS_THREATENED_VICTIM_OR_FAMILY   →  [is_perp_threatened_victim_or_family]   [bit] NOT NULL
+  HAS_USED_DRUGS_OR_INTOXICATION    →  [is_perp_used_drugs_or_intoxication]    [bit] NOT NULL
+  HAS_PREVIOUS_HISTORY_OF_VIOLENCE  →  [is_perp_history_previous_violence]     [bit] NOT NULL
+
+Django model: WomenFormPerpetrator  (investigation/models.py)
+FK column: link_person_id → person.person_id (from ①)
+
+
+================================================================================
+STEP 7: Witnesses (Standard Repeater)
+================================================================================
+POST key  : witness_json  (hidden JSON array, news-witness-repeater.js)
+TABLES    : [person].[person] + [investigation].[incident_involved_actor_profile]
+STATUS    : ✅ STANDARD — uses _save_actors_from_json(json_fields=('witness_json',))
+
+This is the STANDARD witness step — identical to Crime, Extortion, etc.
+Template  : step-witness.html → witness-form.html (shared component)
+JS        : news-witness-repeater.js (shared, loaded in news-multistep-base.html)
+Context   : actor_genders_json, actor_religions_json, actor_districts_json
+            (provided via _add_actor_person_refs() in view)
+
+Save: _save_actors_from_json → _save_actor_person + _save_actor_profile per witness.
+See db-mapping-common-steps.txt and db-mapping-actor-repeaters.txt for full details.
+
+
+================================================================================
+STEP 8: Legal Action
+================================================================================
+POST key  : wcv_legal  (hidden JSON, news-wcv-legal.js)
+TABLE     : [investigation].[women_form_victim_legal_action]
+STATUS    : ✅ CONFIRMED — DDL provided 2026-03-13; single row per news entry
+
+JSON key             →  DB column (DDL name)
+firStatusId  →  [link_ref_status_law_gd_fir_status_id]  INT NOT NULL, FK → ref_status
+                 Stored as FK int directly (not code text)
+
+  When FIR = YES:
+    policeStation          →  [law_gd_fir_thana_location_display_title_en]  NVARCHAR(200) NULL
+    caseNumber             →  [law_gd_fir_case_gd_number]                   NVARCHAR(100) NULL
+
+  When FIR = POLICE_REFUSED:
+    policeRefusalStatement →  [law_gd_fir_police_refusal_statement]         NVARCHAR(1000) NULL
+
+  When FIR = NO:
+    noFirReason            →  [law_gd_fir_reason_not_filing_and_plans]      NVARCHAR(1000) NULL
+
+applicableLawIds  (ref_status code lookup)  →  BIT columns
+  ref_status.status_code                          DB column
+  WOMEN_CHILD_REPRESSION_ACT_2000        →  [is_law_women_children_repression_2000]  [bit] NULL DEFAULT 0
+  PENAL_CODE_375_376_RAPE                →  [is_law_penal_code_375_376_rape]         [bit] NULL DEFAULT 0
+  DOMESTIC_VIOLENCE_ACT_2010             →  [is_law_domestic_violence_2010]          [bit] NULL DEFAULT 0
+  ACID_CONTROL_ACT_2002                  →  [is_law_acid_control_2002]               [bit] NULL DEFAULT 0
+  DIGITAL_SECURITY_ACT                   →  [is_law_digital_security]                [bit] NULL DEFAULT 0
+  DOWRY_PROHIBITION_ACT_2018             →  [is_law_dowry_prohibition_2018]          [bit] NULL DEFAULT 0
+  CHILD_MARRIAGE_RESTRAINT_ACT_2017      →  [is_law_child_marriage_restraint_2017]   [bit] NULL DEFAULT 0
+  HUMAN_TRAFFICKING_PREVENTION_ACT_2012  →  [is_law_human_trafficking_2012]          [bit] NULL DEFAULT 0
+
+caseStatusId  →  [link_ref_status_law_case_status_id]  INT NULL, FK → ref_status
+                 Stored as FK int directly (not code text)
+
+supportServiceIds  (ref_status code lookup)  →  BIT columns
+  ref_status.status_code            DB column
+  HAS_SHELTER_ACCESSED        →  [is_support_shelter_accessed]       [bit] NULL DEFAULT 0
+  HAS_LEGAL_AID               →  [is_support_legal_aid]              [bit] NULL DEFAULT 0
+  HAS_COUNSELING_PROVIDED     →  [is_support_counseling_provided]    [bit] NULL DEFAULT 0
+  HAS_ONE_STOP_CRISIS_CENTRE  →  [is_support_one_stop_crisis_centre] [bit] NULL DEFAULT 0
+
+retaliationIds  (ref_status group_code=common_victim_risk_threat_pressure_retaliation)  →  BIT columns
+  ref_status.status_code                    DB column
+  FAMILY_PRESSURE                    →  [is_risk_threat_family_pressure]                    [bit] NULL DEFAULT 0
+  SETTLEMENT_PRESSURE                →  [is_risk_threat_settlement_pressure]                [bit] NULL DEFAULT 0
+  CASE_WITHDRAWAL_PRESSURE           →  [is_risk_threat_case_withdrawal_pressure]           [bit] NULL DEFAULT 0
+  BUSINESS_LOSS_THREAT               →  [is_risk_threat_business_loss_threat]               [bit] NULL DEFAULT 0
+  WITNESS_VICTIM_THREAT              →  [is_risk_threat_witness_victim_threat]               [bit] NULL DEFAULT 0
+  EVICTION_THREAT                    →  [is_risk_threat_eviction_threat]                    [bit] NULL DEFAULT 0
+  RETALIATION_THREAT                 →  [is_risk_threat_retaliation_threat]                 [bit] NULL DEFAULT 0
+  DEATH_OR_PHYSICAL_HARM_THREAT      →  [is_risk_threat_death_or_physical_harm_threat]      [bit] NULL DEFAULT 0
+
+remarks  →  [legal_action_additional_remarks]  [nvarchar](1000) COLLATE Bengali_100_CI_AS NULL
+
+Django model: WomenFormVictimLegalAction  (investigation/models.py)
+
+
+================================================================================
+PENDING / OPEN QUESTIONS
+================================================================================
+
+1. ✅ JS FIX DONE (Step 4)  — 2026-03-05
+   news-wcv-victim.js serialize() now sends:
+     genderId       : (integer radio value, not label text)
+     maritalStatusId: (integer select value, not label text)
+     occupationId   : (integer select value, not label text)
+
+2. ✅ VIEWS.PY CONTEXT — NO CHANGE NEEDED
+   All three dropdowns (gender, marital status, occupation) keep loading from ref_status.
+   ref_status is the user input mechanism; the real table insert happens in the save block.
+
+3. ✅ STEP 4 VIEWS.PY SAVE IMPLEMENTED — 2026-03-05, updated 2026-03-13
+   Person → PersonJob (if occupation + institution) → PersonMarriage (if husband name)
+   → IncidentInvolvedActorProfile with link_person_id and link_person_marriage_id.
+   (incident_evidence_women_victim_profile DELETED 2026-03-13 — replaced by actor_profile)
+
+================================================================================
+END OF FILE
+================================================================================

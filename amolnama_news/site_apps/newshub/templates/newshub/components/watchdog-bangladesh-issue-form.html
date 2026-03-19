@@ -1,0 +1,67 @@
+{% comment %}
+  Watchdog Bangladesh — Issue Watchdog fields.
+  Tracks stance changes on specific issues (ইস্যু নজরদারি).
+  JS: news-watchdog-bangladesh-issue.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-issue" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">📍</span>ইস্যু নজরদারি (Issue Watchdog)</h3>
+
+  {# Hidden input — JS serializes issue data here before submit #}
+  <input type="hidden" id="issue-watchdog-json" name="issue_watchdog_json" value="">
+
+  <div class="form-field">
+    <label for="issue-topic">ইস্যুর বিষয় (Issue / Topic)<span class="required-mark">*</span></label>
+    <textarea id="issue-topic" rows="2"
+              placeholder="কোন ইস্যু নিয়ে অবস্থান পরিবর্তন হয়েছে... (What issue has the stance changed on...)"></textarea>
+  </div>
+
+  {# ---- Previous Stance ---- #}
+  <div class="contradiction-block contradiction-block-then">
+    <h4 class="contradiction-block-title">আগের অবস্থান (Previous Stance)</h4>
+
+    <div class="form-field">
+      <label for="issue-original-stance">আগের অবস্থান (Previous Stance)<span class="required-mark">*</span></label>
+      <textarea id="issue-original-stance" rows="3"
+                placeholder="এই ইস্যুতে আগে কী অবস্থান ছিল... (What was the previous stance on this issue...)"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="issue-original-date">আগের অবস্থানের তারিখ (Previous Stance Date)</label>
+      <input type="date" id="issue-original-date">
+    </div>
+
+    <div class="form-field">
+      <label for="issue-original-source">আগের সূত্র/লিঙ্ক (Previous Source/Link)</label>
+      <input type="url" id="issue-original-source" placeholder="https://...">
+    </div>
+  </div>
+
+  {# ---- Current Stance ---- #}
+  <div class="contradiction-block contradiction-block-now">
+    <h4 class="contradiction-block-title">বর্তমান অবস্থান (Current Stance)</h4>
+
+    <div class="form-field">
+      <label for="issue-current-stance">বর্তমান অবস্থান (Current Stance)<span class="required-mark">*</span></label>
+      <textarea id="issue-current-stance" rows="3"
+                placeholder="এখন এই ইস্যুতে কী অবস্থান... (What is the current stance on this issue...)"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="issue-current-date">বর্তমান অবস্থানের তারিখ (Current Stance Date)</label>
+      <input type="date" id="issue-current-date">
+    </div>
+
+    <div class="form-field">
+      <label for="issue-current-source">বর্তমান সূত্র/লিঙ্ক (Current Source/Link)</label>
+      <input type="url" id="issue-current-source" placeholder="https://...">
+    </div>
+  </div>
+
+  {# ---- Impact ---- #}
+  <div class="form-field">
+    <label for="issue-impact">জনগণের উপর প্রভাব (Impact on Public)</label>
+    <textarea id="issue-impact" rows="2"
+              placeholder="এই অবস্থান পরিবর্তনে জনগণের কী প্রভাব পড়েছে... (How has this stance change impacted the public...)"></textarea>
+  </div>
+</div>

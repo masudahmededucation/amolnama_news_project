@@ -1,0 +1,64 @@
+{% comment %}
+  July Uprising 2024 — Incident Type & Context.
+  Sub-type radio cards (DB-driven from july2024_incident_type) + timeline
+  context (protest scale, internet status, curfew status — DB-driven).
+  Selected sub-type status_id stored in #july-sub-type hidden input.
+  Context data serialized to #july-context-json hidden input by JS.
+  No inline <script> — handled by news-july-uprising-sub-type.js (CSP-safe).
+{% endcomment %}
+
+<div class="form-section" id="section-july-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>ঘটনার ধরন (Incident Type)</h3>
+
+  {# Hidden input — stores selected status_id for form submission #}
+  <input type="hidden" id="july-sub-type" name="july_sub_type" value="">
+
+  <div class="radio-card-grid" id="july-sub-type-grid">
+    {% for itype in july_incident_types %}
+    <label class="radio-card">
+      <input type="radio" name="july_sub_type_radio" value="{{ itype.status_id }}">
+      <span class="radio-card-icon">{{ itype.status_icon }}</span>
+      <span class="radio-card-label">{{ itype.status_name_bn }} ({{ itype.status_name_en }})</span>
+    </label>
+    {% endfor %}
+  </div>
+</div>
+
+{# No inline <script> — handled by news-july-uprising-sub-type.js (CSP-safe) #}
+
+<div class="form-section" id="section-july-context">
+  <h3 class="form-section-title"><span class="section-icon">📋</span>প্রেক্ষাপট (Context)</h3>
+
+  {# Hidden input — JS serializes context data here before submit #}
+  <input type="hidden" id="july-context-json" name="july_context_json" value="">
+
+  <div class="form-field">
+    <label for="july-scale">আন্দোলনের মাত্রা (Protest Scale)</label>
+    <select id="july-scale">
+      <option value="">-- নির্বাচন করুন --</option>
+      {% for opt in july_protest_scales %}
+      <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="july-internet-status">ইন্টারনেট অবস্থা (Internet Status)</label>
+    <select id="july-internet-status">
+      <option value="">-- নির্বাচন করুন --</option>
+      {% for opt in july_internet_statuses %}
+      <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="july-curfew-status">কারফিউ অবস্থা (Curfew Status)</label>
+    <select id="july-curfew-status">
+      <option value="">-- নির্বাচন করুন --</option>
+      {% for opt in july_curfew_statuses %}
+      <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>

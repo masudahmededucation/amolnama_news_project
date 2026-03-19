@@ -1,0 +1,41 @@
+{% comment %}
+  Weapons & Evidence section — weapon types used, recovered evidence, evidence file uploads.
+  Crime & Violence form type specific.
+  Data serialized to hidden JSON input for form submission.
+  Saved to [investigation].[incident_evidence_weapon] + [incident_evidence_impact_weapon].
+{% endcomment %}
+
+<div class="form-section" id="section-weapons-evidence">
+  <h3 class="form-section-title"><span class="section-icon">🔍</span>অস্ত্র ও আলামত (Weapons & Evidence)</h3>
+
+  {# ---- Weapons Used ---- #}
+  <h4 class="form-subsection-title">ব্যবহৃত অস্ত্র (Weapons Used)</h4>
+  <div class="form-field">
+    <span class="field-label">যে অস্ত্র ব্যবহার করা হয়েছে তা নির্বাচন করুন (Select weapons used)</span>
+    <div class="weapon-type-checkboxes" id="weapon-type-checkboxes">
+      {% for wt in weapon_types %}
+      <label class="checkbox-label">
+        <input type="checkbox" class="weapon-type-cb" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">
+        {{ wt.status_name_bn }} ({{ wt.status_name_en }})
+      </label>
+      {% endfor %}
+      <input type="text" id="weapon-other-text" class="weapon-other-input" maxlength="100"
+             placeholder="অন্যান্য অস্ত্রের বিবরণ দিন (Describe other weapon)" style="display:none;">
+    </div>
+  </div>
+
+  {# ---- Recovered Evidence ---- #}
+  <h4 class="form-subsection-title">উদ্ধারকৃত আলামত (Recovered Evidence)</h4>
+  <div class="form-field">
+    <label for="evidence-recovered">উদ্ধারকৃত আলামতের বিবরণ (Description of recovered evidence)</label>
+    <textarea id="evidence-recovered" name="evidence_recovered_bn" rows="3" maxlength="500"
+              placeholder="বুলেট, রক্তের নমুনা, সিসিটিভি ফুটেজ, মোবাইল ফোন ইত্যাদি (Bullets, blood samples, CCTV footage, mobile phones, etc.)"></textarea>
+  </div>
+
+  {# ---- Evidence File Upload ---- #}
+  <h4 class="form-subsection-title">আলামত আপলোড (Evidence Upload)</h4>
+  {% include "newshub/components/file-upload-section.html" with upload_prefix="crime-evidence" upload_name="crime_evidence_file" upload_accept="image/*,video/*,audio/*" upload_label="ছবি, ভিডিও বা অডিও (সর্বোচ্চ ৪টি) — Photos, videos, or audio (Max 4 files)" upload_btn_label="+ আলামত আপলোড করুন (Upload evidence)" upload_desc_name="crime_evidence_descriptions_json" %}
+
+  {# Hidden JSON input — JS serializes weapons data here before submit #}
+  <input type="hidden" id="weapons-evidence-json" name="weapons_evidence_json" value="">
+</div>

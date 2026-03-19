@@ -23,6 +23,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django.contrib.sitemaps",
 ]
 
 THIRD_PARTY_APPS = [
@@ -45,12 +46,23 @@ LOCAL_APPS = [
     "amolnama_news.site_apps.election_vote",
     "amolnama_news.site_apps.locations",
     "amolnama_news.site_apps.multimedia",
+    "amolnama_news.site_apps.market",
     "amolnama_news.site_apps.newshub",
     "amolnama_news.site_apps.user_account",
     "amolnama_news.site_apps.user_portal_staff",
     "amolnama_news.site_apps.user_portal_visitor",
     "amolnama_news.site_apps.user_portal_journalists",
     "amolnama_news.site_apps.user_portal_moderator",
+    "amolnama_news.site_apps.investigation",
+    "amolnama_news.site_apps.person",
+    "amolnama_news.site_apps.sports",
+    "amolnama_news.site_apps.entertainment",
+    "amolnama_news.site_apps.tools",
+    "amolnama_news.site_apps.marriage",
+    "amolnama_news.site_apps.poem",
+    "amolnama_news.site_apps.seo",
+    "amolnama_news.site_apps.bangladesh",
+    "amolnama_news.site_apps.englishtobangla",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -66,6 +78,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
+    "amolnama_news.middleware.anti_scraper.AntiScraperMiddleware",
 ]
 
 ROOT_URLCONF = "amolnama_news.urls"
@@ -79,9 +92,11 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "amolnama_news.site_apps.user_account.context_processors.user_display_name",
+                "amolnama_news.site_apps.seo.context_processors.seo_defaults",
             ],
         },
     },
@@ -103,7 +118,7 @@ db_options = {"driver": env("DB_DRIVER", default="ODBC Driver 17 for SQL Server"
 
 DATABASES = {
     "default": {
-        "ENGINE": "mssql",
+        "ENGINE": "amolnama_news.db_backend",
         "NAME": env("DB_NAME", default="news_magazine"),
         "HOST": env("DB_HOST", default="localhost"),
         "OPTIONS": db_options,

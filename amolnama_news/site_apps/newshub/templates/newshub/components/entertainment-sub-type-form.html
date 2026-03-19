@@ -1,0 +1,77 @@
+{% comment %}
+  Entertainment Sub-Type — entertainment medium dropdown + radio cards for news sub-type.
+  Entertainment form — Step 3 (alongside the news content step).
+  Medium and sub-type stored in hidden inputs for form submission.
+  JS in news-entertainment-sub-type.js (CSP-safe — no inline script).
+  Dispatches entertainment:subTypeChanged custom event so downstream steps
+  can conditionally show award-specific fields.
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>কন্টেন্টের ধরন (Content Type)</h3>
+
+  {# Hidden inputs — JS syncs values before submit #}
+  <input type="hidden" id="entertainment-sub-type"    name="entertainment_sub_type"    value="">
+  <input type="hidden" id="entertainment-medium-id"   name="entertainment_medium_id"   value="">
+
+  {# ---- Entertainment Medium ---- #}
+  <div class="form-field">
+    <label for="entertainment-medium-select">মাধ্যম (Medium)</label>
+    <select id="entertainment-medium-select">
+      <option value="">-- মাধ্যম নির্বাচন করুন --</option>
+      <option value="film">চলচ্চিত্র (Film)</option>
+      <option value="tv_drama_serial">টিভি নাটক / সিরিয়াল (TV Drama / Serial)</option>
+      <option value="music">সংগীত (Music)</option>
+      <option value="ott_web_series">ওটিটি / ওয়েব সিরিজ (OTT / Web Series)</option>
+      <option value="theater_stage">মঞ্চ নাটক (Theater / Stage)</option>
+      <option value="award_show">পুরস্কার অনুষ্ঠান (Award Show)</option>
+      <option value="celebrity_news">সেলিব্রিটি সংবাদ (Celebrity News)</option>
+    </select>
+  </div>
+
+  {# ---- News Sub-Type (radio cards) ---- #}
+  <div class="radio-card-grid" id="entertainment-sub-type-grid">
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="release_premiere">
+      <span class="radio-card-icon">🎬</span>
+      <span class="radio-card-label">মুক্তি / প্রিমিয়ার (Release / Premiere)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="box_office">
+      <span class="radio-card-icon">💰</span>
+      <span class="radio-card-label">বক্স অফিস (Box Office)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="award_nomination">
+      <span class="radio-card-icon">🏆</span>
+      <span class="radio-card-label">পুরস্কার / মনোনয়ন (Award / Nomination)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="casting_production">
+      <span class="radio-card-icon">🎭</span>
+      <span class="radio-card-label">কাস্টিং / প্রযোজনা (Casting / Production)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="controversy">
+      <span class="radio-card-icon">💥</span>
+      <span class="radio-card-label">বিতর্ক (Controversy)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="review_critique">
+      <span class="radio-card-icon">⭐</span>
+      <span class="radio-card-label">সমালোচনা / রিভিউ (Review / Critique)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="music_release">
+      <span class="radio-card-icon">🎵</span>
+      <span class="radio-card-label">সংগীত মুক্তি (Music Release)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="entertainment_sub_type_radio" value="viral_trending">
+      <span class="radio-card-icon">📱</span>
+      <span class="radio-card-label">ভাইরাল / ট্রেন্ডিং (Viral / Trending)</span>
+    </label>
+  </div>
+</div>
+
+{# No inline <script> — handled by news-entertainment-sub-type.js (CSP-safe) #}

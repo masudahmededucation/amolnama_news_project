@@ -1,0 +1,74 @@
+{% comment %}
+  Project & Platform — captures platform, project stage,
+  IP type (original/remake/sequel), and rumor flag.
+  Entertainment form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-project">
+  <h3 class="form-section-title"><span class="section-icon">📺</span>প্রকল্প ও প্ল্যাটফর্ম (Project & Platform)</h3>
+
+  {# Hidden input — JS serializes project data here before submit #}
+  <input type="hidden" id="entertainment-project-json" name="entertainment_project_json" value="">
+
+  <div class="form-field">
+    <label for="entertainment-platform">প্ল্যাটফর্ম (Platform)</label>
+    <select id="entertainment-platform">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="netflix">নেটফ্লিক্স (Netflix)</option>
+      <option value="youtube">ইউটিউব (YouTube)</option>
+      <option value="tiktok">টিকটক (TikTok)</option>
+      <option value="spotify">স্পটিফাই (Spotify)</option>
+      <option value="amazon_prime">অ্যামাজন প্রাইম (Amazon Prime)</option>
+      <option value="hoichoi">হইচই (Hoichoi)</option>
+      <option value="chorki">চর্কি (Chorki)</option>
+      <option value="cinema_hall">সিনেমা হল (Cinema Hall)</option>
+      <option value="tv_channel">টিভি চ্যানেল (TV Channel)</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-project-stage">প্রকল্পের ধাপ (Project Stage)</label>
+    <select id="entertainment-project-stage">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="announcement">ঘোষণা (Announcement)</option>
+      <option value="pre_production">প্রি-প্রোডাকশন (Pre-Production)</option>
+      <option value="shooting">শুটিং (Shooting)</option>
+      <option value="post_production">পোস্ট-প্রোডাকশন (Post-Production)</option>
+      <option value="trailer">ট্রেলার (Trailer)</option>
+      <option value="release">মুক্তি (Release)</option>
+      <option value="review">রিভিউ (Review)</option>
+      <option value="sequel_announced">সিক্যুয়েল ঘোষণা (Sequel Announced)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>মেধাস্বত্ব (Intellectual Property Type)</label>
+    <div class="radio-inline-group">
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_ip_type" value="original" checked>
+        মৌলিক (Original)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_ip_type" value="remake">
+        রিমেক (Remake)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_ip_type" value="sequel">
+        সিক্যুয়েল (Sequel)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="entertainment_ip_type" value="adaptation">
+        রূপান্তর (Adaptation)
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="entertainment-rumor" value="1">
+      অনিশ্চিত/গুজব (Unverified/Rumor) — এই সংবাদটি এখনো নিশ্চিত হয়নি
+    </label>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+{% comment %}
+  Stockpiling & Supply — repeater: each row captures commodity + hoarding,
+  artificial supply crisis, and supply chain disruption details.
+  Price Hike & Syndicate form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-stockpiling">
+  <h3 class="form-section-title"><span class="section-icon">📦</span>মজুদ ও সরবরাহ (Stockpiling & Supply)</h3>
+
+  {# Hidden input — JS serializes stockpiling data here before submit #}
+  <input type="hidden" id="stockpiling-json" name="stockpiling_json" value="">
+
+  {# Embed commodity API URL as CSP-safe JSON (same as price-gap) #}
+  <script type="application/json" id="stockpile-commodity-search-url-data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
+
+  {# Repeater row template — cloned by JS for each commodity #}
+  <template id="stockpile-row-template">
+    <div class="stockpile-row" data-row-index="">
+      <div class="commodity-row-header">
+        <span class="stockpile-row-number"></span>
+        <button type="button" class="btn-repeater-delete btn-remove-stockpile" title="ডিলিট করুন (Delete)">ডিলিট <span class="btn-delete-x">&times;</span></button>
+      </div>
+
+      <div class="form-field">
+        <label>পণ্য নির্বাচন (Select Commodity)</label>
+        <select class="stockpile-commodity-select" name="stockpile-commodity-select" placeholder="পণ্যের নাম লিখুন... (Type commodity name...)"></select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label form-label-inline">
+          <input type="checkbox" class="stockpile-artificial-crisis form-checkbox" name="stockpile-artificial-crisis">
+          কৃত্রিম সংকট সৃষ্টি করা হচ্ছে? (Artificial Crisis Created?)
+        </label>
+      </div>
+
+      <div class="form-field">
+        <label>মজুদের গুদামের বিবরণ (Stockpile Description)</label>
+        <textarea class="stockpile-description" name="stockpile-description" rows="3"
+                  placeholder="গুদামের অবস্থান, আনুমানিক পরিমাণ ইত্যাদি... (Godown location, estimated quantity...)"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label>আনুমানিক মজুদ পরিমাণ (Estimated Stock Quantity)</label>
+        <input type="text" class="stockpile-estimated-quantity" name="stockpile-estimated-quantity" placeholder="যেমন: ৫০০ টন, ২০০০ বস্তা... (e.g. 500 tons, 2000 bags)">
+      </div>
+
+      <div class="form-field">
+        <label>সরবরাহ শৃঙ্খলে সমস্যা (Supply Chain Issue)</label>
+        <textarea class="stockpile-supply-chain-issue" name="stockpile-supply-chain-issue" rows="3"
+                  placeholder="সরবরাহ শৃঙ্খলে কী ধরনের সমস্যা হচ্ছে... (Describe supply chain disruption...)"></textarea>
+      </div>
+    </div>
+  </template>
+
+  {# Container for repeater rows #}
+  <div id="stockpile-rows-container"></div>
+
+  {# Add button — after all rows #}
+  <div class="form-field" style="text-align:center;">
+    <button type="button" class="btn-add-commodity" id="btn-add-stockpile">
+      ➕ পণ্য যোগ করুন (Add Commodity)
+    </button>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+{% comment %}
+  Women & Child Violence — Legal Action & Support.
+  GD/FIR section shared via {% include "newshub/components/law-gd-fir-section.html" %}.
+  Form-specific: applicable laws, case status, support services, retaliation.
+  All radio/checkbox groups are DB-driven from ref_status via CSP-safe JSON.
+  Data serialized to hidden input by JS.
+  Language toggle: labels use data-bn/data-en, inputs use data-ph-bn/data-ph-en.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-legal">
+  <h3 class="form-section-title"><span class="section-icon">⚖️</span><span
+      data-bn="আইনি পদক্ষেপ ও সহায়তা" data-en="Legal Action & Support">আইনি পদক্ষেপ ও সহায়তা</span></h3>
+
+  <input type="hidden" id="wcv-legal" name="wcv_legal" value="">
+
+  {% include "newshub/components/law-gd-fir-section.html" with fir_prefix="wcv" %}
+
+  <div class="form-field">
+    <label data-bn="প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে"
+           data-en="Applicable Law — multiple selections allowed">প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-applicable-law-checkboxes">
+      {# Populated by JS from wcv-applicable-law-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="wcv-case-status"
+           data-bn="মামলার অবস্থা" data-en="Case Status">মামলার অবস্থা</label>
+    <select id="wcv-case-status">
+      <option value=""
+              data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন --</option>
+      {# Populated by JS from wcv-case-status-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label data-bn="সহায়তা সেবা — একাধিক নির্বাচন করা যাবে"
+           data-en="Support Services — multiple selections allowed">সহায়তা সেবা — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-support-service-checkboxes">
+      {# Populated by JS from wcv-support-service-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label data-bn="সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে"
+           data-en="Social Pressure & Retaliation — multiple selections allowed">সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-retaliation-checkboxes">
+      {# Populated by JS from wcv-retaliation-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="wcv-legal-remarks"
+           data-bn="অতিরিক্ত তথ্য / মন্তব্য" data-en="Additional Information / Remarks">অতিরিক্ত তথ্য / মন্তব্য</label>
+    <textarea id="wcv-legal-remarks" rows="4"
+              data-ph-bn="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."
+              data-ph-en="Enter any additional information about legal actions or support..."
+              placeholder="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."></textarea>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="wcv-fir-status-data">{{ wcv_fir_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-applicable-law-data">{{ wcv_applicable_laws|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-case-status-data">{{ wcv_case_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-support-service-data">{{ wcv_support_services|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-retaliation-data">{{ wcv_retaliation_types|default:"[]"|safe }}</script>

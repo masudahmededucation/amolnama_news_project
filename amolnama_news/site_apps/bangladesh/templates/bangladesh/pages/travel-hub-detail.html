@@ -1,0 +1,137 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+{% block meta_description %}{{ seo.description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/travel-hub.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<article style="max-width:800px;margin:0 auto;">
+
+  {# ── Hero Image ── #}
+  {% if dest.cover_image_url %}
+    <div style="width:100%;height:300px;background:url('{{ dest.cover_image_url }}') center/cover;border-radius:var(--radius);margin-bottom:1.5rem;"></div>
+  {% endif %}
+
+  {# ── Header ── #}
+  <div style="margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;">
+      <span style="font-size:.75rem;font-weight:600;color:var(--primary);">{{ dest.category_name_bn }}</span>
+      {% if dest.best_season_bn %}<span style="font-size:.7rem;color:var(--muted);background:var(--surface);padding:.1rem .4rem;border-radius:3px;">🗓️ {{ dest.best_season_bn }}</span>{% endif %}
+      {% if dest.difficulty_level %}<span style="font-size:.7rem;color:var(--muted);background:var(--surface);padding:.1rem .4rem;border-radius:3px;">⛰️ {{ dest.difficulty_level }}</span>{% endif %}
+      {% if can_edit %}<a href="#" style="margin-left:auto;font-size:.72rem;color:var(--muted);text-decoration:none;">✏️ সম্পাদনা</a>{% endif %}
+    </div>
+    <h1 style="font-size:1.6rem;font-weight:700;margin:0 0 .3rem;">{{ dest.destination_name_bn }}</h1>
+    {% if dest.destination_name_en %}<p style="font-size:.9rem;color:var(--muted);margin:0 0 .5rem;">{{ dest.destination_name_en }}</p>{% endif %}
+    {% if dest.map_formatted_address_bn %}<p style="font-size:.8rem;color:var(--muted);margin:0;">📍 {{ dest.map_formatted_address_bn }}</p>{% endif %}
+
+    <div style="display:flex;align-items:center;gap:1rem;margin-top:.6rem;font-size:.78rem;color:var(--muted);">
+      {% if dest.avg_rating %}<span style="font-weight:700;color:#e89a1e;">★ {{ dest.avg_rating }} <span style="font-weight:400;">({{ dest.review_count }} রিভিউ)</span></span>{% endif %}
+      <span>👁 {{ dest.view_count }} বার দেখা হয়েছে</span>
+      <span>{{ dest.time_ago }}</span>
+    </div>
+  </div>
+
+  {# ── Description ── #}
+  {% if dest.destination_description_bn or dest.destination_description_en %}
+  <div style="margin-bottom:1.5rem;line-height:1.7;font-size:.92rem;color:var(--text);white-space:pre-line;">{{ dest.destination_description_bn|default:dest.destination_description_en }}</div>
+  {% endif %}
+
+  {# ── Practical Info ── #}
+  {% if dest.entry_fee_bdt or dest.visiting_hours_bn %}
+  <div style="background:var(--surface);border-radius:var(--radius);padding:1rem;margin-bottom:1.5rem;">
+    <h3 style="font-size:.9rem;font-weight:700;margin:0 0 .5rem;">ব্যবহারিক তথ্য (Practical Info)</h3>
+    {% if dest.entry_fee_bdt %}
+      <p style="font-size:.82rem;margin:.2rem 0;">💰 প্রবেশ মূল্য: ৳{{ dest.entry_fee_bdt }}{% if dest.entry_fee_note_bn %} — {{ dest.entry_fee_note_bn }}{% endif %}</p>
+    {% endif %}
+    {% if dest.visiting_hours_bn %}
+      <p style="font-size:.82rem;margin:.2rem 0;">🕐 পরিদর্শন সময়: {{ dest.visiting_hours_bn }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ── Photos ── #}
+  {% if photos %}
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:.95rem;font-weight:700;margin:0 0 .6rem;">ছবি (Photos)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;">
+      {% for p in photos %}
+        <div style="height:120px;background:url('{{ p.photo_url }}') center/cover;border-radius:4px;"></div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Transport ── #}
+  {% if transport %}
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:.95rem;font-weight:700;margin:0 0 .6rem;">🚌 কীভাবে যাবেন (How to Get There)</h3>
+    {% for t in transport %}
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem;margin-bottom:.5rem;">
+        <div style="font-weight:600;font-size:.85rem;margin-bottom:.2rem;">{{ t.transport_mode|upper }}{% if t.departure_point_bn %} — {{ t.departure_point_bn }}{% endif %}</div>
+        {% if t.route_description_bn %}<p style="font-size:.8rem;color:var(--muted);margin:.2rem 0;">{{ t.route_description_bn }}</p>{% endif %}
+        <div style="display:flex;gap:.8rem;font-size:.75rem;color:var(--muted);">
+          {% if t.estimated_duration_minutes %}<span>⏱️ {{ t.estimated_duration_minutes }} মিনিট</span>{% endif %}
+          {% if t.estimated_cost_bdt %}<span>💰 ৳{{ t.estimated_cost_bdt }}</span>{% endif %}
+          {% if t.frequency_note_bn %}<span>🔄 {{ t.frequency_note_bn }}</span>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── Accommodations ── #}
+  {% if accommodations %}
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:.95rem;font-weight:700;margin:0 0 .6rem;">🏨 থাকার ব্যবস্থা (Accommodation)</h3>
+    {% for a in accommodations %}
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem;margin-bottom:.5rem;">
+        <div style="font-weight:600;font-size:.85rem;">{{ a.accommodation_name_bn|default:a.accommodation_name_en }}</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">
+          <span>{{ a.accommodation_type }}</span>
+          {% if a.price_range_min_bdt %}<span> · ৳{{ a.price_range_min_bdt }}{% if a.price_range_max_bdt %} - ৳{{ a.price_range_max_bdt }}{% endif %}</span>{% endif %}
+          {% if a.star_rating %}<span> · ★{{ a.star_rating }}</span>{% endif %}
+        </div>
+        {% if a.contact_phone %}<div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">📞 {{ a.contact_phone }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── Tips ── #}
+  {% if tips %}
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:.95rem;font-weight:700;margin:0 0 .6rem;">💡 ভ্রমণ টিপস (Travel Tips)</h3>
+    {% for tip in tips %}
+      <div style="background:var(--surface);border-radius:var(--radius);padding:.7rem;margin-bottom:.4rem;font-size:.82rem;line-height:1.5;">{{ tip.tip_text_bn|default:tip.tip_text_en }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── Reviews ── #}
+  <div style="margin-bottom:2rem;">
+    <h3 style="font-size:.95rem;font-weight:700;margin:0 0 .6rem;">⭐ রিভিউ (Reviews) {% if dest.review_count %}({{ dest.review_count }}){% endif %}</h3>
+    {% for r in reviews %}
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem;margin-bottom:.5rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">
+          <span style="font-weight:700;font-size:.9rem;color:#e89a1e;">★ {{ r.rating_overall }}/5</span>
+          {% if r.review_title_bn %}<span style="font-weight:600;font-size:.85rem;">{{ r.review_title_bn }}</span>{% endif %}
+        </div>
+        {% if r.review_body_bn %}<p style="font-size:.82rem;margin:.2rem 0;line-height:1.5;color:var(--text);">{{ r.review_body_bn }}</p>{% endif %}
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem;">
+          {% if r.visited_at %}🗓️ ভ্রমণ: {{ r.visited_at }}{% endif %}
+          · 👍 {{ r.helpful_count }} সহায়ক
+        </div>
+      </div>
+    {% empty %}
+      <p style="font-size:.85rem;color:var(--muted);">এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনি লিখুন!</p>
+    {% endfor %}
+  </div>
+
+</article>
+
+{% endblock %}

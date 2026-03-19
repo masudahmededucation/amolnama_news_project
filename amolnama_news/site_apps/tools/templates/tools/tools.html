@@ -1,0 +1,89 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ফ্রি অনলাইন টুলস — আমলনামা নিউজ | Free Online Tools{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tools-header">
+  <h1>Tools</h1>
+</section>
+
+<div class="tools-grid">
+
+  <a href="{% url 'tools:tools_reduce_file_size' %}" class="tool-card tool-card--compress">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">📦</div>
+    <h3>ফাইল সংকোচন (Reduce File Size)</h3>
+    <p>ছবি ও ফাইলের সাইজ কমান — ব্রাউজারেই কম্প্রেস করুন, কোনো আপলোড নেই</p>
+  </a>
+
+  <a href="{% url 'tools:tools_zip_creator' %}" class="tool-card tool-card--zip">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🗜️</div>
+    <h3>জিপ ফাইল তৈরি (ZIP Creator)</h3>
+    <p>একাধিক ফাইল একটি ZIP এ প্যাক করুন — সরাসরি ব্রাউজারে</p>
+  </a>
+
+  <a href="{% url 'tools:tools_file_conversion' %}" class="tool-card tool-card--convert">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🔄</div>
+    <h3>ফাইল রূপান্তর (File Conversion)</h3>
+    <p>ছবি, ডকুমেন্ট ও অডিও ফরম্যাট পরিবর্তন করুন</p>
+  </a>
+
+  <a href="{% url 'tools:tools_merge_documents' %}" class="tool-card tool-card--merge-docs">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">📑</div>
+    <h3>ডকুমেন্ট মার্জ (Merge Documents)</h3>
+    <p>PDF ও ছবি একত্র করে একটি PDF তৈরি করুন — সর্বোচ্চ ২০ ফাইল</p>
+  </a>
+
+  <a href="{% url 'tools:tools_split_pdf' %}" class="tool-card tool-card--split-pdf">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">✂️</div>
+    <h3>পিডিএফ স্প্লিট (Split PDF)</h3>
+    <p>বড় পিডিএফ থেকে নির্দিষ্ট পাতা আলাদা করুন — মার্জের উল্টো কাজ</p>
+  </a>
+
+  <a href="{% url 'tools:tools_passport_photo_resizer' %}" class="tool-card tool-card--photo-resizer">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">📸</div>
+    <h3>পাসপোর্ট ফটো রিসাইজার (Passport Photo Resizer)</h3>
+    <p>ছবি ও স্বাক্ষর রিসাইজ, ক্রপ এবং ব্যাকগ্রাউন্ড পরিবর্তন</p>
+  </a>
+
+  <a href="{% url 'tools:tools_bg_remover' %}" class="tool-card tool-card--bg-remover">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🪄</div>
+    <h3>ছবির ব্যাকগ্রাউন্ড রিমুভার (Picture's Background Remover)</h3>
+    <p>AI দিয়ে ছবির ব্যাকগ্রাউন্ড মুছুন — চুল ও কিনারা সংরক্ষিত</p>
+  </a>
+
+  <a href="{% url 'tools:tools_photo_album' %}" class="tool-card tool-card--photo-album">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">📷</div>
+    <h3>ফটো অ্যালবাম (Photo Album Maker)</h3>
+    <p>অ্যালবাম পেজ, এনআইডি কার্ড সেটআপ, পাসপোর্ট ফটো শিট — ফ্রেমে ছবি সাজান ও প্রিন্ট করুন</p>
+  </a>
+
+  <a href="{% url 'tools:tools_gpa_calculator' %}" class="tool-card tool-card--gpa">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🎓</div>
+    <h3>জিপিএ/সিজিপিএ ক্যালকুলেটর (GPA/CGPA Calculator)</h3>
+    <p>এসএসসি/এইচএসসি জিপিএ ও বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন — টার্গেট প্ল্যানার সহ</p>
+  </a>
+
+  <a href="{% url 'tools:tools_age_calculator' %}" class="tool-card tool-card--age">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🎂</div>
+    <h3>বয়স ক্যালকুলেটর (Age Calculator)</h3>
+    <p>জন্মতারিখ দিন — বছর, মাস, দিন ও পরবর্তী জন্মদিন কত দিন বাকি তা জানুন</p>
+  </a>
+
+
+</div>
+{% endblock %}

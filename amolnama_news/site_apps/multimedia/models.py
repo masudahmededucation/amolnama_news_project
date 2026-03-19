@@ -3,6 +3,21 @@ from django.db import models
 
 # ========== Reference Tables ==========
 
+class RefFileConversionMap(models.Model):
+    source_format = models.CharField(max_length=15)
+    category = models.CharField(max_length=50, blank=True, null=True)
+    allowed_destinations = models.CharField(max_length=1000)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[media].[ref_file_conversion_map]'
+
+    def __str__(self):
+        return f"{self.source_format} → {self.allowed_destinations}"
+
+
+
 class RefAssetType(models.Model):
     asset_type_id = models.IntegerField(primary_key=True)
     asset_type_category_name = models.CharField(max_length=50, blank=True, null=True)
@@ -73,3 +88,21 @@ class Asset(models.Model):
 
     def __str__(self):
         return self.file_original_name
+
+
+# ========== Social URL Library ==========
+
+class SocialUrlLibrary(models.Model):
+    social_media_url_library_id = models.BigAutoField(primary_key=True)
+    link_social_media_platform_type_id = models.IntegerField()
+    social_url = models.CharField(max_length=1000)
+    # social_url_hash — computed persisted column (SHA2_256); excluded from Django model
+    social_embed_code = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[media].[social_media_url_library]'
+
+    def __str__(self):
+        return f"SocialUrl({self.social_media_url_library_id})"

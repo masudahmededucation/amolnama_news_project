@@ -47,6 +47,14 @@ def home(request):
         'divisions': divisions,
         'parties': parties,
         'past_elections': past_elections,
+        'seo': {
+            'title': 'নির্বাচন ভোট — আমলনামা নিউজ | Election Vote',
+            'description': 'ডিজিটাল নির্বাচনে আপনার ভোট দিন। Cast your vote in the digital election.',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'নির্বাচন ভোট', 'url': None},
+            ],
+        },
     })
 
 
@@ -419,5 +427,14 @@ def past_results_drillthrough(request, election_evaluation_id):
         'back_url': back_url,
         'total_votes': total_votes,
         'past_elections': past_elections,
+        'seo': {
+            'title': f'{evaluation_name} — বিস্তারিত ফলাফল — আমলনামা নিউজ | Past Election Results',
+            'description': f'{evaluation_name} নির্বাচনের অবস্থানভিত্তিক বিস্তারিত ফলাফল দেখুন। View detailed location-based results for past elections.',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'নির্বাচন ভোট', 'url': '/election-vote/'},
+                {'name': evaluation_name, 'url': None},
+            ],
+        },
     }
     return render(request, 'election_vote/pages/past-results-drillthrough.html', context)

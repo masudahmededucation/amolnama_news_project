@@ -1,0 +1,60 @@
+{% comment %}
+  Match & Event Details — competition name, round/stage, venue, date, match status.
+  Sports form — Step 4.
+  Data is serialized by news-sports-match-event.js into #sports-match-event-json.
+  DB table: [investigation].[sports_form_fact]
+{% endcomment %}
+
+<div class="form-section" id="section-sports-match-event">
+  <h3 class="form-section-title"><span class="section-icon">🏟️</span>ম্যাচ ও ইভেন্ট তথ্য (Match &amp; Event Details)</h3>
+
+  {# Hidden input — JS serializes match/event data here before submit #}
+  <input type="hidden" id="sports-match-event-json" name="sports_match_event_json" value="">
+
+  <div class="form-field">
+    <label for="sports-competition-name">প্রতিযোগিতা / টুর্নামেন্টের নাম (Competition / Tournament Name)</label>
+    <input type="text" id="sports-competition-name"
+           placeholder="যেমন: FIFA World Cup 2026, BPL 2025-26, All England Open, এশিয়া কাপ...">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-match-stage-select">রাউন্ড / পর্যায় (Round / Stage)</label>
+    <select id="sports-match-stage-select">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="group_stage">গ্রুপ পর্ব (Group Stage)</option>
+      <option value="round_of_16">রাউন্ড অব ১৬ (Round of 16)</option>
+      <option value="quarter_final">কোয়ার্টার ফাইনাল (Quarter-final)</option>
+      <option value="semi_final">সেমিফাইনাল (Semi-final)</option>
+      <option value="final">ফাইনাল (Final)</option>
+      <option value="league_match">লিগ ম্যাচ (League Match)</option>
+      <option value="qualifier">বাছাইপর্ব (Qualifier)</option>
+      <option value="friendly">প্রীতি ম্যাচ (Friendly)</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-venue">ভেন্যু / স্টেডিয়াম (Venue / Stadium)</label>
+    <input type="text" id="sports-venue"
+           placeholder="যেমন: শের-ই-বাংলা জাতীয় ক্রিকেট স্টেডিয়াম, মিরপুর · Sher-e-Bangla, Mirpur">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-match-date">ম্যাচের তারিখ (Match Date)</label>
+    <input type="date" id="sports-match-date">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-match-status-select">ম্যাচের অবস্থা (Match Status)</label>
+    <select id="sports-match-status-select">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="upcoming">আসন্ন (Upcoming)</option>
+      <option value="live">লাইভ (Live)</option>
+      <option value="completed">সম্পন্ন (Completed)</option>
+      <option value="postponed">স্থগিত (Postponed)</option>
+      <option value="abandoned">পরিত্যক্ত (Abandoned)</option>
+      <option value="drawn">ড্র (Drawn)</option>
+      <option value="no_result">ফলাফল নেই (No Result)</option>
+    </select>
+  </div>
+</div>

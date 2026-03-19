@@ -1,0 +1,68 @@
+{% comment %}
+  July Uprising 2024 — Cause of Death/Injury.
+  Captures weapon type, injury site, medical timeline,
+  and documentation status (autopsy, death certificate).
+  Weapon categories based on UN/OHCHR investigation findings.
+  Data serialized to hidden JSON input by JS.
+{% endcomment %}
+
+<div class="form-section" id="section-july-cause">
+  <h3 class="form-section-title"><span class="section-icon">⚕️</span>মৃত্যু/আঘাতের কারণ (Cause of Death/Injury)</h3>
+
+  {# Hidden input — JS serializes cause data here before submit #}
+  <input type="hidden" id="july-cause-json" name="july_cause_json" value="">
+
+  <div class="form-field">
+    <label for="july-weapon-type">অস্ত্রের ধরন (Weapon Type)</label>
+    <select id="july-weapon-type">
+      <option value="">-- নির্বাচন করুন --</option>
+      {% for wt in weapon_types %}
+      <option value="{{ wt.status_id }}">{{ wt.status_name_bn }} ({{ wt.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="july-injury-site">শরীরে আঘাতের স্থান (Body Injury Site)</label>
+    <select id="july-injury-site">
+      <option value="">-- নির্বাচন করুন --</option>
+      {% for bp in injury_sites %}
+      <option value="{{ bp.status_id }}">{{ bp.status_name_bn }} ({{ bp.status_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="july-time-of-injury">আঘাতের সময় (Time of Injury)</label>
+    <input type="text" id="july-time-of-injury"
+           placeholder="যেমন: ১৬ জুলাই বিকাল ৫:৩০, July 20 afternoon...">
+  </div>
+
+  <div class="form-field">
+    <label for="july-hospital">হাসপাতালের নাম (Hospital Name)</label>
+    <input type="text" id="july-hospital"
+           placeholder="যেমন: ঢাকা মেডিকেল কলেজ, রংপুর মেডিকেল...">
+  </div>
+
+  <div class="form-field">
+    <label for="july-time-of-death">মৃত্যুর সময় (Time of Death — if applicable)</label>
+    <input type="text" id="july-time-of-death"
+           placeholder="যেমন: ১৬ জুলাই সন্ধ্যা ৭:০০, হাসপাতালে নেওয়ার পথে...">
+  </div>
+
+  <div class="form-field">
+    <div class="checkbox-group">
+      {% for de in july_death_evidence %}
+      <label class="checkbox-inline">
+        <input type="checkbox" name="july-death-evidence"
+          {% if de.status_code == 'AUTOPSY_DONE' %}id="july-autopsy-done"
+          {% elif de.status_code == 'DEATH_CERTIFICATE_AVAILABLE' %}id="july-death-certificate"
+          {% elif de.status_code == 'MEDICAL_DOCUMENTS_AVAILABLE' %}id="july-medical-docs"
+          {% endif %}
+          value="{{ de.status_id }}">
+        {{ de.status_name_bn }} ({{ de.status_name_en }})
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+</div>

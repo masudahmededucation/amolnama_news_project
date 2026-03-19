@@ -1,0 +1,73 @@
+{% comment %}
+  Production Details — title, language, industry/origin, director, producer,
+  writer, and music director/singer.
+  Entertainment form — Step 4.
+  Data is serialized by news-entertainment-production.js into
+  #entertainment-production-json.
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-production">
+  <h3 class="form-section-title"><span class="section-icon">🎬</span>প্রযোজনার তথ্য (Production Details)</h3>
+
+  {# Hidden input — JS serializes production data here before submit #}
+  <input type="hidden" id="entertainment-production-json" name="entertainment_production_json" value="">
+
+  <div class="form-field">
+    <label for="entertainment-title">শিরোনাম / নাম (Title / Name)</label>
+    <input type="text" id="entertainment-title"
+           placeholder="যেমন: সুড়ঙ্গ, পরাণ, Hawa, Laila Majnu, প্রিয়তমা গান...">
+  </div>
+
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="entertainment-language-select">ভাষা (Language)</label>
+      <select id="entertainment-language-select">
+        <option value="">-- নির্বাচন করুন --</option>
+        <option value="bangla">বাংলা (Bangla)</option>
+        <option value="hindi">হিন্দি (Hindi)</option>
+        <option value="english">ইংরেজি (English)</option>
+        <option value="tamil">তামিল (Tamil)</option>
+        <option value="telugu">তেলেগু (Telugu)</option>
+        <option value="korean">কোরিয়ান (Korean)</option>
+        <option value="japanese">জাপানি (Japanese)</option>
+        <option value="other">অন্যান্য (Other)</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="entertainment-industry-select">ইন্ডাস্ট্রি / উৎস (Industry / Origin)</label>
+      <select id="entertainment-industry-select">
+        <option value="">-- নির্বাচন করুন --</option>
+        <option value="dhallywood">ঢালিউড (Dhallywood)</option>
+        <option value="bollywood">বলিউড (Bollywood)</option>
+        <option value="tollywood_kolkata">টলিউড-কলকাতা (Tollywood-Kolkata)</option>
+        <option value="tollywood_telugu">টলিউড-তেলেগু (Tollywood-Telugu)</option>
+        <option value="hollywood">হলিউড (Hollywood)</option>
+        <option value="k_drama">কে-ড্রামা (K-Drama)</option>
+        <option value="other">অন্যান্য (Other)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="entertainment-director">পরিচালক (Director) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-director"
+             placeholder="যেমন: Mostofa Sarwar Farooki, Sanjay Leela Bhansali">
+    </div>
+    <div class="form-field">
+      <label for="entertainment-producer">প্রযোজক / প্রযোজনা প্রতিষ্ঠান (Producer / Production House) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-producer"
+             placeholder="যেমন: Jaaz Multimedia, Karan Johar / Dharma Productions">
+    </div>
+    <div class="form-field">
+      <label for="entertainment-writer">লেখক / চিত্রনাট্যকার (Writer / Screenwriter) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-writer" placeholder="">
+    </div>
+    <div class="form-field">
+      <label for="entertainment-music-director">সংগীত পরিচালক / শিল্পী (Music Director / Singer) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-music-director"
+             placeholder="যেমন: Pritom Hasan, A.R. Rahman, Arijit Singh">
+    </div>
+  </div>
+</div>

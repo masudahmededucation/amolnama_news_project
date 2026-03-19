@@ -1,0 +1,1245 @@
+/* ========== Marriage Form — Multi-Step ========== */
+
+/* ---- Stepper indicator row ---- */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 1.5rem 0 2rem;
+  padding: 0 1rem;
+  overflow-x: auto;
+}
+
+.step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .9rem;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  transition: all .3s;
+}
+
+.step-label {
+  font-size: .7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color .3s;
+}
+
+/* Active dot */
+.step-dot.active .step-num {
+  background: #c8960c;
+  border-color: #c8960c;
+  color: #fff;
+}
+
+.step-dot.active .step-label {
+  color: #c8960c;
+  font-weight: 600;
+}
+
+/* Completed dot */
+.step-dot.completed {
+  cursor: pointer;
+}
+
+.step-dot.completed .step-num {
+  background: #fdf6e3;
+  border-color: #c8960c;
+  color: #c8960c;
+}
+
+.step-dot.completed .step-label {
+  color: #c8960c;
+}
+
+/* Error dot */
+.step-dot.has-error .step-num {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: #fef2f2;
+}
+
+.step-dot.has-error .step-label {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.step-dot.has-error.active .step-num {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Connecting lines */
+.step-line {
+  flex: 1;
+  height: 2px;
+  min-width: 20px;
+  max-width: 60px;
+  background: var(--border);
+  margin: 0 .25rem;
+  margin-bottom: 1.1rem;
+  transition: background .3s;
+}
+
+.step-line.completed {
+  background: #c8960c;
+}
+
+/* ---- Step panels ---- */
+
+.step-panel {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.step-panel.active {
+  height: auto;
+  overflow: visible;
+  visibility: visible;
+}
+
+/* ---- Navigation bar ---- */
+
+.step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+  padding: 1rem 0;
+  gap: 1rem;
+}
+
+.step-counter {
+  font-size: .85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.btn-step-prev,
+.btn-step-next {
+  padding: .6rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.btn-step-prev {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn-step-prev:hover {
+  background: var(--border);
+}
+
+.btn-step-next {
+  background: #c8960c;
+  color: #fff;
+}
+
+.btn-step-next:hover {
+  background: #a67a0a;
+}
+
+/* ---- Marriage form layout ---- */
+
+.marriage-form {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Section groups */
+.marriage-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid #c8960c;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.marriage-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 1.1rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+
+.marriage-section-title .section-icon {
+  font-size: 1.1rem;
+}
+
+/* Subsection headers */
+.marriage-subsection {
+  font-size: .875rem;
+  font-weight: 600;
+  color: #8a6d3b;
+  margin: 1.25rem 0 .5rem;
+  padding-bottom: .35rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+/* ---- Form fields ---- */
+
+.marriage-form .form-row {
+  margin-bottom: .85rem;
+}
+
+.marriage-form .form-row-half {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+  margin-bottom: .85rem;
+}
+
+.marriage-form label {
+  display: block;
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--text);
+  margin-bottom: .3rem;
+}
+
+.marriage-form label .label-en {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.marriage-form .required-mark {
+  color: var(--danger);
+  margin-left: .1rem;
+}
+
+.marriage-form input[type="text"],
+.marriage-form input[type="tel"],
+.marriage-form input[type="number"],
+.marriage-form input[type="date"],
+.marriage-form select,
+.marriage-form textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  font-size: .9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.marriage-form input:focus,
+.marriage-form select:focus,
+.marriage-form textarea:focus {
+  outline: none;
+  border-color: #c8960c;
+  box-shadow: 0 0 0 3px rgba(200, 150, 12, .15);
+}
+
+.marriage-form textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.marriage-form .hint {
+  font-size: .75rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+/* ---- Language toggle ---- */
+
+.marriage-lang-toggle {
+  display: inline-flex;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.marriage-lang-toggle label {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .4rem .85rem;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  margin: 0;
+}
+
+.marriage-lang-toggle input[type="radio"] {
+  display: none;
+}
+
+.marriage-lang-toggle label:has(input:checked) {
+  background: #c8960c;
+  color: #fff;
+}
+
+.marriage-lang-toggle label:not(:has(input:checked)):hover {
+  background: var(--surface);
+}
+
+/* ---- Question number labels ---- */
+
+.marriage-q-number {
+  font-size: .88rem;
+  font-weight: 700;
+  color: #8a6d3b;
+  margin: 1.1rem 0 .6rem;
+  padding: .4rem .6rem;
+  background: #fdf6e3;
+  border-left: 3px solid #c8960c;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* ---- Signature upload ---- */
+
+.marriage-sig-upload {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: var(--card);
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.marriage-sig-upload:hover {
+  border-color: #c8960c;
+  background: #fdf6e3;
+}
+
+.marriage-sig-upload .sig-icon {
+  font-size: 1.5rem;
+}
+
+.marriage-sig-upload .sig-text {
+  font-size: .78rem;
+}
+
+.marriage-sig-upload input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.marriage-sig-preview {
+  max-height: 60px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Signature pad styles moved to components/marriage-sigpad.css */
+
+/* ---- Same-as checkbox ---- */
+
+.same-as-check {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: .75rem;
+  cursor: pointer;
+  font-size: .82rem;
+  color: var(--text);
+}
+
+.same-as-check input[type="checkbox"] {
+  accent-color: #c8960c;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* ---- Preview step ---- */
+
+.marriage-preview {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.marriage-preview-header {
+  background: linear-gradient(135deg, #c8960c, #a67a0a);
+  color: #fff;
+  text-align: center;
+  padding: 1.25rem 1rem;
+}
+
+.marriage-preview-header h2 {
+  margin: 0 0 .25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.marriage-preview-header p {
+  margin: 0;
+  font-size: .85rem;
+  opacity: .85;
+}
+
+.marriage-preview-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.preview-group {
+  margin-bottom: 1.25rem;
+}
+
+.preview-group-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #c8960c;
+  margin: 0 0 .6rem;
+  padding-bottom: .4rem;
+  border-bottom: 2px solid #f0e6c8;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+
+.preview-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.preview-table tr:last-child {
+  border-bottom: none;
+}
+
+.preview-table td {
+  padding: .4rem .5rem;
+  vertical-align: top;
+}
+
+.preview-table td:first-child {
+  font-weight: 600;
+  color: var(--muted);
+  width: 40%;
+  white-space: nowrap;
+}
+
+.preview-table td:last-child {
+  color: var(--text);
+}
+
+.preview-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ---- Registration header (certificate-style) ---- */
+
+.preview-reg-header {
+  background: #fdf8ec;
+  border: 1px solid #f0e6c8;
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.preview-reg-title {
+  margin: 0 0 .4rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #c8960c;
+}
+
+.preview-reg-subtitle {
+  margin: 0 0 1rem;
+  text-align: center;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.preview-reg-row {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  padding: .5rem 0;
+}
+
+.preview-reg-row:not(:last-child) {
+  border-bottom: 1px dashed #e8dbb8;
+}
+
+.preview-reg-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  min-width: 40%;
+}
+
+.preview-reg-value {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  flex: 1;
+  padding-bottom: 2px;
+  min-height: 1.4em;
+}
+
+.preview-reg-row-divider {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #c8960c;
+  margin-top: .4rem;
+  padding-top: .4rem;
+  border-top: 1px solid #e8dbb8;
+}
+
+/* Serial / Book / Volume / Page — 4 across */
+.preview-reg-row-quad {
+  flex-wrap: wrap;
+}
+
+.preview-reg-row-quad .preview-reg-label {
+  min-width: auto;
+  flex: 0 0 auto;
+}
+
+.preview-reg-row-quad .preview-reg-value {
+  flex: 1 1 3rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+/* ---- Nikah Nama Q&A preview table ---- */
+
+.preview-nikah-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+
+.preview-nikah-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.preview-nikah-table td.q-num {
+  width: 2.5rem;
+  font-weight: 700;
+  color: #c8960c;
+  vertical-align: top;
+  padding: .4rem .3rem;
+  white-space: nowrap;
+}
+
+.preview-nikah-table td.q-label {
+  font-weight: 600;
+  color: var(--muted);
+  width: 35%;
+  vertical-align: top;
+  padding: .4rem .4rem;
+}
+
+.preview-nikah-table td.q-value {
+  color: var(--text);
+  vertical-align: top;
+  padding: .4rem .4rem;
+}
+
+.cert-field {
+  font-weight: 500;
+}
+
+/* ---- Signature preview grid ---- */
+
+.preview-signatures {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid #f0e6c8;
+}
+
+.preview-sig-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #c8960c;
+  margin-bottom: .75rem;
+}
+
+/* ---- Nikah Nama signature line layout ---- */
+
+.preview-sig-line-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.preview-sig-line-row .preview-sig-line-item {
+  flex: 1;
+}
+
+.preview-sig-line-single .preview-sig-line-item {
+  flex: 0 1 60%;
+}
+
+.preview-sig-line-item {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.preview-sig-line-label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.preview-sig-line {
+  border-bottom: 1px solid var(--border);
+  min-height: 2rem;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.preview-sig-line img {
+  max-height: 45px;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.preview-sig-witnesses {
+  margin-bottom: 1.25rem;
+}
+
+.preview-sig-witnesses .preview-sig-line-item {
+  flex-direction: row;
+  align-items: baseline;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.preview-sig-witnesses .preview-sig-line-label:first-child {
+  margin-bottom: .25rem;
+}
+
+.preview-sig-witnesses .preview-sig-line {
+  flex: 1;
+}
+
+/* ---- Seal marker (circular) ---- */
+
+.preview-seal-area {
+  width: 90px;
+  height: 90px;
+  border: 2px dashed #ede4cd;
+  border-radius: 50%;
+  margin: .5rem 0 0;
+  position: relative;
+}
+
+.preview-seal-area::before {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: #ede4cd;
+  line-height: 1;
+}
+
+.preview-seal-area::after {
+  content: 'সীল';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .6rem;
+  color: #ddd4bc;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* Stamp seal — rectangular */
+.preview-stamp-area {
+  width: 100px;
+  height: 45px;
+  border: 2px dashed #ede4cd;
+  border-radius: 4px;
+  margin: .5rem 0 0;
+  position: relative;
+}
+
+.preview-stamp-area::before {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  color: #ede4cd;
+  line-height: 1;
+}
+
+.preview-stamp-area::after {
+  content: 'স্ট্যাম্প';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .6rem;
+  color: #ddd4bc;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.preview-seal-box {
+  flex: 0 0 auto !important;
+  align-items: center;
+  text-align: center;
+}
+
+/* Registrar seal heading */
+.preview-sig-seal-heading {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: .5rem;
+}
+
+/* Stamp + Round seal side by side */
+.preview-sig-seal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Legacy grid (unused, kept for compat) */
+.preview-sig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.preview-sig-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.preview-sig-row-center {
+  justify-content: center;
+}
+
+.preview-sig-item {
+  text-align: center;
+}
+
+.preview-sig-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: .35rem;
+}
+
+.preview-sig-item img {
+  max-height: 50px;
+  max-width: 100%;
+  object-fit: contain;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .25rem;
+}
+
+/* ---- Preview actions ---- */
+
+.marriage-preview-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.btn-marriage-print {
+  padding: .6rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #fff;
+  background: #c8960c;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.btn-marriage-print:hover {
+  background: #a67a0a;
+}
+
+.btn-marriage-edit {
+  padding: .6rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+
+.btn-marriage-edit:hover {
+  border-color: #c8960c;
+  color: #c8960c;
+}
+
+/* ---- Step validation warnings ---- */
+
+.step-validation-messages {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-left: 4px solid #ef4444;
+  border-radius: 0 .375rem .375rem 0;
+  padding: .75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.step-validation-msg {
+  color: #991b1b;
+  font-size: .9rem;
+  line-height: 1.6;
+}
+
+/* ========== Flatpickr date picker — themed to marriage form ========== */
+
+.datepicker-alt-input {
+  padding-right: 2.5rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 1.1rem;
+  cursor: pointer;
+}
+
+.flatpickr-calendar {
+  font-family: inherit;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+  border: 1px solid var(--border);
+}
+
+.flatpickr-months {
+  background: #c8960c;
+  border-radius: 10px 10px 0 0;
+}
+
+.flatpickr-months .flatpickr-month {
+  background: transparent;
+  color: #fff;
+  fill: #fff;
+  height: 44px;
+}
+
+.flatpickr-current-month {
+  color: #fff;
+}
+
+.flatpickr-current-month input.cur-year,
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  color: #fff;
+  background: transparent;
+  font-weight: 600;
+}
+
+.flatpickr-current-month .numInputWrapper:hover {
+  background: rgba(255, 255, 255, .12);
+}
+
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  fill: #fff;
+  color: #fff;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  background: rgba(255, 255, 255, .15);
+  border-radius: 6px;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+  fill: #fff;
+}
+
+.flatpickr-weekdays {
+  background: #c8960c;
+}
+
+span.flatpickr-weekday {
+  background: #c8960c;
+  color: rgba(255, 255, 255, .8);
+  font-weight: 600;
+  font-size: .78rem;
+}
+
+.flatpickr-day:hover,
+.flatpickr-day.prevMonthDay:not(.flatpickr-disabled):hover,
+.flatpickr-day.nextMonthDay:not(.flatpickr-disabled):hover {
+  background: #fdf6e3;
+  border-color: #c8960c;
+  color: #c8960c;
+}
+
+.flatpickr-day.today {
+  border-color: #c8960c;
+  color: #c8960c;
+  font-weight: 700;
+}
+
+.flatpickr-day.today:hover {
+  background: #c8960c;
+  border-color: #c8960c;
+  color: #fff;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.selected.today {
+  background: #c8960c;
+  border-color: #c8960c;
+  color: #fff;
+  font-weight: 700;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: var(--muted);
+  opacity: .45;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover {
+  color: var(--muted);
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .flatpickr-calendar {
+    width: calc(100vw - 2rem) !important;
+    left: 1rem !important;
+  }
+}
+
+/* ---- A4 Page Preview ---- */
+
+.preview-a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  max-width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .15);
+  border: 1px solid var(--border);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.preview-page-top-space {
+  min-height: 20mm;
+  border-bottom: 1px dashed #e8dbb8;
+  margin: 0 14mm;
+  position: relative;
+}
+
+.preview-page-top-space::after {
+  content: 'সিলের জন্য সংরক্ষিত';
+  position: absolute;
+  bottom: 2px;
+  right: 0;
+  font-size: .65rem;
+  color: #ddd4bc;
+  font-style: italic;
+}
+
+.preview-a4-page-content {
+  flex: 1;
+  padding: 4mm 14mm 4mm;
+}
+
+.preview-page-bottom-space {
+  min-height: 18mm;
+}
+
+.preview-a4-page-footer {
+  padding: 2mm 14mm 5mm;
+  text-align: center;
+  font-size: .75rem;
+  color: var(--muted);
+  border-top: 1px solid #f0e6c8;
+}
+
+.preview-page-gap {
+  height: 24px;
+  background: var(--bg, #f3f4f6);
+}
+
+/* ---- Seal box in signatures ---- */
+
+.preview-seal-box {
+  min-width: 120px;
+}
+
+.preview-seal-area {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #ede4cd;
+  border-radius: 50%;
+  margin: .5rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.preview-seal-area::after {
+  content: 'সিল';
+  font-size: .7rem;
+  color: #ddd4bc;
+  font-style: italic;
+}
+
+/* Stamp seal — rectangular */
+.preview-stamp-area {
+  width: 120px;
+  height: 50px;
+  border: 2px dashed #ede4cd;
+  border-radius: 4px;
+  margin: .5rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-stamp-area::after {
+  content: 'স্ট্যাম্প';
+  font-size: .7rem;
+  color: #ddd4bc;
+  font-style: italic;
+}
+
+/* ---- Pre-printed form toggle ---- */
+
+.preview-toggle {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .85rem;
+  cursor: pointer;
+  margin-bottom: .5rem;
+}
+
+.preview-toggle input[type="checkbox"] {
+  accent-color: #c8960c;
+  width: 16px;
+  height: 16px;
+}
+
+.preview-action-btns {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* When preprinted mode is on, hide header content but keep space */
+.marriage-preview.preprinted .preview-reg-header,
+.marriage-preview.preprinted .marriage-preview-header {
+  visibility: hidden;
+}
+
+/* ---- Bottom seal / govt serial reserved space ---- */
+
+.preview-seal-space {
+  min-height: 80px;
+  border-top: 1px dashed #e8dbb8;
+  margin-top: 1.5rem;
+  padding-top: .5rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: .75rem;
+  font-style: italic;
+}
+
+/* ---- A4 Print Layout ---- */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .stepper,
+  .step-nav,
+  .marriage-preview-actions,
+  .marriage-preview-header,
+  .tool-back,
+  .header,
+  .footer,
+  .ticker-bar,
+  .preview-page-gap,
+  .tool-page > *:not(.marriage-form) {
+    display: none !important;
+  }
+
+  .step-panel {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    visibility: visible !important;
+  }
+
+  .step-panel:not([data-step="8"]) {
+    display: none !important;
+  }
+
+  .marriage-preview {
+    border: none;
+    box-shadow: none;
+    width: 100%;
+    max-width: none;
+  }
+
+  .preview-a4-page {
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    min-height: auto;
+    page-break-after: always;
+  }
+
+  .preview-a4-page:last-child {
+    page-break-after: auto;
+  }
+
+  .preview-a4-page-content {
+    padding: 0;
+  }
+
+  .preview-a4-page-footer {
+    padding: 2mm 0 4mm;
+  }
+
+  /* Preprinted: hide content but keep space */
+  .marriage-preview.preprinted .preview-reg-header,
+  .marriage-preview.preprinted .marriage-preview-header {
+    visibility: hidden !important;
+  }
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .stepper {
+    gap: 0;
+    padding: 0 .25rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+  }
+
+  .step-label {
+    font-size: .6rem;
+  }
+
+  .step-line {
+    min-width: 10px;
+    margin-bottom: .85rem;
+  }
+
+  .step-nav {
+    padding: .75rem 0;
+  }
+
+  .btn-step-prev,
+  .btn-step-next {
+    padding: .5rem 1rem;
+    font-size: .8rem;
+  }
+
+  .marriage-form .form-row-half {
+    grid-template-columns: 1fr;
+  }
+
+  .marriage-section {
+    padding: 1rem;
+  }
+
+  .marriage-preview-body {
+    padding: 1rem;
+  }
+
+  .preview-table td:first-child {
+    width: auto;
+    white-space: normal;
+  }
+}

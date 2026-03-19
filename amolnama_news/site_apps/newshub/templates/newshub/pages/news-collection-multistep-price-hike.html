@@ -1,0 +1,19 @@
+{% extends "newshub/pages/news-multistep-base.html" %}
+
+{% block multistep_title %}দ্রব্যমূল্য ও সিন্ডিকেট — Price Hike & Syndicate (Multi-Step){% endblock %}
+{% block multistep_heading %}দ্রব্যমূল্য ও সিন্ডিকেট সংবাদ জমা দিন (Submit Price Hike & Syndicate News){% endblock %}
+
+{% block form_steps %}
+  {% include "newshub/steps/step-form-type.html" with step=1 %}
+  {% include "newshub/steps/step-contributor.html" with step=2 %}
+  {% include "newshub/steps/step-news-content-price-hike.html" with step=3 %}
+  {% include "newshub/steps/step-accused.html" with step=4 %}
+  {% include "newshub/steps/step-victim.html" with step=5 %}
+  {% include "newshub/steps/step-witness.html" with step=6 %}
+  {% include "newshub/steps/step-price-gap.html" with step=7 %}
+  {% include "newshub/steps/step-stockpiling.html" with step=8 %}
+  {% include "newshub/steps/step-location.html" with step=9 location_hint_bn="বাজার/দোকানের অবস্থান নির্বাচন করুন — আপনার নিজের ঠিকানা নয়" location_hint_en="Select the market/shop location, not your personal address" %}
+  {% include "newshub/steps/step-social-source.html" with step=10 %}
+  {% include "newshub/steps/step-category-tags.html" with step=11 %}
+  {% include "newshub/steps/step-submit.html" with step=12 %}
+{% endblock %}

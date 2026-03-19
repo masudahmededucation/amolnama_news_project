@@ -1,0 +1,62 @@
+{% comment %}
+  Bangladesh Connection & Impact — for General Global News form.
+  Step 6 of the আন্তর্জাতিক সংবাদ (Global News) form.
+  Captures Bangladesh's stake, expat community impact, and official position.
+  Serialized to global_news_bangladesh_json by news-global-news-bangladesh.js.
+{% endcomment %}
+
+<div class="form-section" id="section-global-news-bangladesh">
+  <h3 class="form-section-title"><span class="section-icon">🇧🇩</span>বাংলাদেশের সংযোগ ও প্রভাব (Bangladesh Connection & Impact)</h3>
+
+  {# Hidden JSON — serialized by news-global-news-bangladesh.js #}
+  <input type="hidden" id="global-news-bangladesh-json" name="global_news_bangladesh_json" value="">
+
+  {# ---- Relevance to Bangladesh (DB-driven from ref_status) ---- #}
+  <div class="form-field">
+    <label>বাংলাদেশের সাথে প্রাসঙ্গিকতা (Relevance to Bangladesh)</label>
+    <div class="radio-inline-group" id="global-news-bd-relevance-group">
+      {# Populated by JS from bd-relevance-data #}
+    </div>
+    <input type="hidden" id="global-news-bd-relevance" value="">
+  </div>
+
+  {# JSON embed for BD relevance options #}
+  <script type="application/json" id="bd-relevance-data">{{ bd_relevance_json|default:"[]"|safe }}</script>
+
+  {# ---- Bangladesh Stake / Interest ---- #}
+  <div class="form-field">
+    <label for="global-news-bd-stake">বাংলাদেশের স্বার্থ ও সম্পর্ক (Bangladesh's Stake / Interest) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <textarea id="global-news-bd-stake" rows="3" maxlength="2000"
+              placeholder="এই সংবাদে বাংলাদেশের কী স্বার্থ বা সম্পর্ক আছে? রপ্তানি, রেমিট্যান্স, কূটনীতি ইত্যাদি বিষয়ে লিখুন।&#10;(How does Bangladesh have a stake? e.g., exports, remittances, diplomatic ties, imports...)"></textarea>
+  </div>
+
+  {# ---- Expatriate / Workers Impact ---- #}
+  <div class="form-field">
+    <label class="checkbox-label">
+      <input type="checkbox" id="global-news-bd-expat-affected">
+      প্রবাসী বাংলাদেশি বা শ্রমিক ক্ষতিগ্রস্ত (Expatriate Bangladeshis or workers affected)
+    </label>
+  </div>
+  <div class="form-field" id="global-news-bd-expat-row" style="display:none;">
+    <label for="global-news-bd-expat-count">ক্ষতিগ্রস্ত প্রবাসীর আনুমানিক সংখ্যা (Estimated number affected) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="number" id="global-news-bd-expat-count" min="0"
+           placeholder="আনুমানিক সংখ্যা (Approximate number)">
+    <label for="global-news-bd-expat-desc" style="margin-top:8px;">প্রবাসীদের উপর প্রভাবের বিবরণ (Description of impact on expatriates)</label>
+    <textarea id="global-news-bd-expat-desc" rows="2" maxlength="1000"
+              placeholder="বিবরণ দিন (Describe the impact on Bangladeshi expatriates or workers)"></textarea>
+  </div>
+
+  {# ---- Economic Impact ---- #}
+  <div class="form-field">
+    <label for="global-news-bd-economic-impact">বাংলাদেশের অর্থনীতিতে প্রভাব (Economic Impact on Bangladesh) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <textarea id="global-news-bd-economic-impact" rows="2" maxlength="1000"
+              placeholder="আমদানি, রপ্তানি, তেলের দাম, বাজারে প্রভাব ইত্যাদি (Imports, exports, commodity prices, market impact, etc.)"></textarea>
+  </div>
+
+  {# ---- Bangladesh Official Position ---- #}
+  <div class="form-field">
+    <label for="global-news-bd-govt-position">বাংলাদেশ সরকারের অবস্থান বা বিবৃতি (Bangladesh Government Position / Statement) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <textarea id="global-news-bd-govt-position" rows="2" maxlength="1000"
+              placeholder="পররাষ্ট্র মন্ত্রণালয় বা সরকারি বিবৃতি থাকলে লিখুন (Foreign Ministry or official statement, if any)"></textarea>
+  </div>
+</div>

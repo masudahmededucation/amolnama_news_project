@@ -1,0 +1,485 @@
+/* ========== Passport Photo Resizer — Page Styles ========== */
+
+/* ---- Subtitle ---- */
+
+.tool-page--photo-resizer .tool-subtitle {
+  font-size: .9rem;
+  color: var(--muted);
+  margin: -.75rem 0 1.5rem;
+  line-height: 1.6;
+}
+
+/* ---- Mode selector tabs ---- */
+
+.photo-resizer-modes {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.photo-resizer-mode-btn {
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .1s;
+}
+
+.photo-resizer-mode-btn:hover,
+.photo-resizer-mode-btn:active {
+  border-color: #7c6bc4;
+}
+
+.photo-resizer-mode-btn:active {
+  transform: scale(0.96);
+}
+
+.photo-resizer-mode-btn.active {
+  border-color: #7c6bc4;
+  background: #f0ecff;
+  color: #5a4a9e;
+}
+
+/* ---- Preset selector ---- */
+
+.photo-resizer-presets {
+  margin-bottom: 1.25rem;
+}
+
+.photo-resizer-label {
+  display: block;
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--text);
+  margin-bottom: .35rem;
+}
+
+.photo-resizer-select {
+  width: 100%;
+  padding: .55rem .75rem;
+  font-size: .9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+}
+
+.photo-resizer-select:focus {
+  outline: none;
+  border-color: #7c6bc4;
+  box-shadow: 0 0 0 3px rgba(124, 107, 196, .15);
+}
+
+/* ---- Custom size inputs ---- */
+
+.photo-resizer-custom {
+  margin-bottom: 1.25rem;
+}
+
+.photo-resizer-custom-row {
+  display: flex;
+  align-items: flex-end;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+
+.photo-resizer-times {
+  font-size: 1.2rem;
+  color: var(--muted);
+  padding-bottom: .4rem;
+}
+
+.photo-resizer-field {
+  flex: 1;
+  margin-bottom: .5rem;
+}
+
+.photo-resizer-field label {
+  display: block;
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--text);
+  margin-bottom: .3rem;
+}
+
+.photo-resizer-field input {
+  width: 100%;
+  padding: .5rem .65rem;
+  font-size: .9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.photo-resizer-field input:focus {
+  outline: none;
+  border-color: #7c6bc4;
+  box-shadow: 0 0 0 3px rgba(124, 107, 196, .15);
+}
+
+.photo-resizer-field .hint {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+/* ---- Min/Max KB row ---- */
+
+.photo-resizer-size-row {
+  display: flex;
+  align-items: flex-end;
+  gap: .75rem;
+  margin-bottom: .25rem;
+}
+
+.photo-resizer-size-sep {
+  font-size: 1rem;
+  color: var(--muted);
+  padding-bottom: .8rem;
+}
+
+.photo-resizer-custom > .hint {
+  display: block;
+  font-size: .78rem;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+/* ---- Background color swatches ---- */
+
+.photo-resizer-bg-options {
+  margin-bottom: 1.25rem;
+}
+
+.photo-resizer-bg-swatches {
+  display: flex;
+  gap: .5rem;
+  margin-top: .35rem;
+}
+
+.photo-resizer-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .1s;
+}
+
+.photo-resizer-swatch:hover,
+.photo-resizer-swatch:active {
+  border-color: #7c6bc4;
+}
+
+.photo-resizer-swatch:active {
+  transform: scale(0.9);
+}
+
+.photo-resizer-swatch.active {
+  border-color: #7c6bc4;
+  box-shadow: 0 0 0 3px rgba(124, 107, 196, .25);
+}
+
+/* ---- Drop zone ---- */
+
+.photo-resizer-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, opacity .3s;
+  background: var(--card);
+  margin-bottom: 1.5rem;
+}
+
+.photo-resizer-dropzone:hover,
+.photo-resizer-dropzone.dragover {
+  border-color: #7c6bc4;
+  background: rgba(124, 107, 196, .05);
+}
+
+.photo-resizer-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.photo-resizer-dropzone-text {
+  margin: .25rem 0;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.photo-resizer-dropzone-or {
+  margin: .25rem 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.photo-resizer-browse-btn {
+  display: inline-block;
+  padding: .55rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #fff;
+  background: #7c6bc4;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+
+.photo-resizer-browse-btn:hover {
+  background: #5a4a9e;
+}
+
+.photo-resizer-browse-btn:active {
+  background: #5a4a9e;
+  transform: scale(0.96);
+}
+
+.photo-resizer-dropzone-hint {
+  margin: .5rem 0 0;
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+/* ---- Drag hint ---- */
+
+.photo-resizer-drag-hint {
+  font-size: .82rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+/* ---- Editor layout ---- */
+
+.photo-resizer-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.photo-resizer-source h3,
+.photo-resizer-preview h3 {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+/* ---- Interactive crop viewport ---- */
+
+.photo-resizer-viewport {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #f0f0f0;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;  /* Prevent browser scroll/zoom on touch */
+}
+
+.photo-resizer-viewport.dragging {
+  cursor: grabbing;
+}
+
+.photo-resizer-viewport img {
+  position: absolute;
+  /* JS sets top, left, width, height, and transform */
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* Dotted crop frame overlay — centered, non-interactive */
+.photo-resizer-crop-frame {
+  position: absolute;
+  border: 2px dashed #7c6bc4;
+  border-radius: 2px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---- Zoom slider ---- */
+
+.photo-resizer-zoom {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.photo-resizer-zoom label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.photo-resizer-zoom input[type="range"] {
+  flex: 1;
+  accent-color: #7c6bc4;
+  height: 28px;  /* Larger touch target */
+}
+
+.photo-resizer-zoom span {
+  font-size: .8rem;
+  color: var(--muted);
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* ---- Preview panel ---- */
+
+.photo-resizer-preview-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  padding: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.photo-resizer-preview-wrap canvas {
+  max-width: 100%;
+  max-height: 350px;
+}
+
+.photo-resizer-info {
+  margin-top: .5rem;
+  font-size: .8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ---- Action buttons ---- */
+
+.photo-resizer-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.photo-resizer-btn {
+  padding: .6rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+
+.photo-resizer-btn:active {
+  transform: scale(0.96);
+}
+
+.photo-resizer-btn--crop {
+  color: #fff;
+  background: #7c6bc4;
+}
+
+.photo-resizer-btn--crop:hover,
+.photo-resizer-btn--crop:active {
+  background: #5a4a9e;
+}
+
+.photo-resizer-btn--download {
+  color: #fff;
+  background: #27ae60;
+}
+
+.photo-resizer-btn--download:hover,
+.photo-resizer-btn--download:active {
+  background: #1e8449;
+}
+
+.photo-resizer-btn--reset {
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.photo-resizer-btn--reset:hover,
+.photo-resizer-btn--reset:active {
+  border-color: #7c6bc4;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .photo-resizer-editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-resizer-viewport {
+    height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .photo-resizer-modes {
+    flex-direction: column;
+  }
+
+  .photo-resizer-mode-btn {
+    text-align: center;
+  }
+
+  .photo-resizer-custom-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .photo-resizer-times {
+    text-align: center;
+    padding: 0;
+  }
+
+  .photo-resizer-size-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .photo-resizer-size-sep {
+    text-align: center;
+    padding: 0;
+  }
+
+  .photo-resizer-viewport {
+    height: 260px;
+  }
+
+  .photo-resizer-actions {
+    flex-direction: column;
+  }
+
+  .photo-resizer-btn {
+    width: 100%;
+    text-align: center;
+    padding: .7rem 1rem;
+  }
+
+  .photo-resizer-browse-btn {
+    padding: .65rem 1.5rem;
+    font-size: .95rem;
+  }
+}

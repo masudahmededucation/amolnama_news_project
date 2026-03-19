@@ -1,0 +1,105 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Marriage · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'marriage/assets/css/pages/marriage-landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="marriage-header">
+  <h1>Marriage</h1>
+</section>
+
+<div class="marriage-grid">
+
+  <a href="{% url 'marriage:marriage_form' %}" class="tool-card tool-card--marriage" style="display:none; --bg-img: url('{% static 'marriage/assets/img/marriage-card-bg.jpg' %}');">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">
+      <svg width="64" height="52" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gold-left" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f5d442"/>
+            <stop offset="50%" stop-color="#e6b422"/>
+            <stop offset="100%" stop-color="#c8960c"/>
+          </linearGradient>
+          <linearGradient id="gold-right" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5d442"/>
+            <stop offset="50%" stop-color="#e6b422"/>
+            <stop offset="100%" stop-color="#c8960c"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="30" r="13" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <circle cx="40" cy="30" r="13" stroke="url(#gold-right)" stroke-width="4" fill="none"/>
+        <circle cx="40" cy="30" r="11" stroke="#f7e27a" stroke-width="0.5" fill="none" opacity="0.5"/>
+        <circle cx="24" cy="30" r="13" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <circle cx="24" cy="30" r="13" stroke="url(#gold-left)" stroke-width="4" fill="none"/>
+        <circle cx="24" cy="30" r="11" stroke="#f7e27a" stroke-width="0.5" fill="none" opacity="0.5"/>
+        <path d="M 27,30 A 13,13 0 0,1 40,17 A 13,13 0 0,1 53,30" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <path d="M 27,30 A 13,13 0 0,1 40,17 A 13,13 0 0,1 53,30" stroke="url(#gold-right)" stroke-width="4" fill="none"/>
+        <path d="M21,18 L24,15 L27,18" stroke="#c8960c" stroke-width="1.5" fill="#e6b422"/>
+        <path d="M24,9 C21.5,5.5, 16.5,6, 16.5,9.5 C16.5,13, 24,17.5, 24,17.5 C24,17.5, 31.5,13, 31.5,9.5 C31.5,6, 26.5,5.5, 24,9Z" fill="#f06292" stroke="#3d200a" stroke-width="1.2"/>
+        <path d="M24,9 L20,11.5 M24,9 L28,11.5 M24,9 L24,14" stroke="#d81b60" stroke-width="0.5" opacity="0.4"/>
+        <path d="M21,8 L21.3,6.8 L21.6,8 L22.2,7.5 L21.6,8 L21,8Z" fill="white" opacity="0.9"/>
+        <circle cx="21.2" cy="7.4" r="0.6" fill="white" opacity="0.8"/>
+        <path d="M37,18 L40,15 L43,18" stroke="#c8960c" stroke-width="1.5" fill="#e6b422"/>
+        <path d="M40,9 C37.5,5.5, 32.5,6, 32.5,9.5 C32.5,13, 40,17.5, 40,17.5 C40,17.5, 47.5,13, 47.5,9.5 C47.5,6, 42.5,5.5, 40,9Z" fill="#e53935" stroke="#3d200a" stroke-width="1.2"/>
+        <path d="M40,9 L36,11.5 M40,9 L44,11.5 M40,9 L40,14" stroke="#b71c1c" stroke-width="0.5" opacity="0.4"/>
+        <path d="M37,8 L37.3,6.8 L37.6,8 L38.2,7.5 L37.6,8 L37,8Z" fill="white" opacity="0.9"/>
+        <circle cx="37.2" cy="7.4" r="0.6" fill="white" opacity="0.8"/>
+      </svg>
+    </div>
+    <h3>নিকাহনামা</h3>
+    <div class="tool-card-petals">&#x2740; &#x2740; &#x2740; &#x2740; &#x2740;</div>
+  </a>
+
+  <a href="{% url 'marriage:register_marriage' %}" class="tool-card tool-card--marriage" style="--bg-img: url('{% static 'marriage/assets/img/marriage-card-bg.jpg' %}');">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">
+      <svg width="64" height="52" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gold-left-2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f5d442"/>
+            <stop offset="50%" stop-color="#e6b422"/>
+            <stop offset="100%" stop-color="#c8960c"/>
+          </linearGradient>
+          <linearGradient id="gold-right-2" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5d442"/>
+            <stop offset="50%" stop-color="#e6b422"/>
+            <stop offset="100%" stop-color="#c8960c"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="30" r="13" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <circle cx="40" cy="30" r="13" stroke="url(#gold-right-2)" stroke-width="4" fill="none"/>
+        <circle cx="40" cy="30" r="11" stroke="#f7e27a" stroke-width="0.5" fill="none" opacity="0.5"/>
+        <circle cx="24" cy="30" r="13" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <circle cx="24" cy="30" r="13" stroke="url(#gold-left-2)" stroke-width="4" fill="none"/>
+        <circle cx="24" cy="30" r="11" stroke="#f7e27a" stroke-width="0.5" fill="none" opacity="0.5"/>
+        <path d="M 27,30 A 13,13 0 0,1 40,17 A 13,13 0 0,1 53,30" stroke="#3d200a" stroke-width="5.5" fill="none"/>
+        <path d="M 27,30 A 13,13 0 0,1 40,17 A 13,13 0 0,1 53,30" stroke="url(#gold-right-2)" stroke-width="4" fill="none"/>
+        <path d="M21,18 L24,15 L27,18" stroke="#c8960c" stroke-width="1.5" fill="#e6b422"/>
+        <path d="M24,9 C21.5,5.5, 16.5,6, 16.5,9.5 C16.5,13, 24,17.5, 24,17.5 C24,17.5, 31.5,13, 31.5,9.5 C31.5,6, 26.5,5.5, 24,9Z" fill="#f06292" stroke="#3d200a" stroke-width="1.2"/>
+        <path d="M24,9 L20,11.5 M24,9 L28,11.5 M24,9 L24,14" stroke="#d81b60" stroke-width="0.5" opacity="0.4"/>
+        <path d="M21,8 L21.3,6.8 L21.6,8 L22.2,7.5 L21.6,8 L21,8Z" fill="white" opacity="0.9"/>
+        <circle cx="21.2" cy="7.4" r="0.6" fill="white" opacity="0.8"/>
+        <path d="M37,18 L40,15 L43,18" stroke="#c8960c" stroke-width="1.5" fill="#e6b422"/>
+        <path d="M40,9 C37.5,5.5, 32.5,6, 32.5,9.5 C32.5,13, 40,17.5, 40,17.5 C40,17.5, 47.5,13, 47.5,9.5 C47.5,6, 42.5,5.5, 40,9Z" fill="#e53935" stroke="#3d200a" stroke-width="1.2"/>
+        <path d="M40,9 L36,11.5 M40,9 L44,11.5 M40,9 L40,14" stroke="#b71c1c" stroke-width="0.5" opacity="0.4"/>
+        <path d="M37,8 L37.3,6.8 L37.6,8 L38.2,7.5 L37.6,8 L37,8Z" fill="white" opacity="0.9"/>
+        <circle cx="37.2" cy="7.4" r="0.6" fill="white" opacity="0.8"/>
+      </svg>
+    </div>
+    <h3>Register Marriage</h3>
+    <div class="tool-card-petals">&#x2740; &#x2740; &#x2740; &#x2740; &#x2740;</div>
+  </a>
+
+  <a href="{% url 'marriage:marriage_certificate' %}" class="tool-card tool-card--certificate">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">📜</div>
+    <h3>বিবাহ সনদপত্র (Marriage Certificate Notary)</h3>
+    <p>নোটারি সহ বিবাহ নিবন্ধন সনদপত্র তৈরি করুন</p>
+  </a>
+
+</div>
+{% endblock %}

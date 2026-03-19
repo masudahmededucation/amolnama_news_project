@@ -1,0 +1,123 @@
+{% comment %}
+  Land Grabbing Incident Details — property type, Bangladesh land records
+  (দাগ নং, মৌজা, খতিয়ান), size, method of grabbing, current status,
+  and evidence upload.
+  All lookup fields (property type, area unit, document status, grabbing method,
+  current status) are DB-driven via ref_status context variables from views.py.
+  Serialized to land_grab_incident_json by news-land-grab-incident.js.
+{% endcomment %}
+
+<div class="form-section" id="section-land-grab-incident-details">
+  <h3 class="form-section-title"><span class="section-icon">🏚️</span>দখলবাজির বিবরণ (Land Grabbing Details)</h3>
+
+  {# Hidden JSON — serialized by news-land-grab-incident.js #}
+  <input type="hidden" id="land-grab-incident-json" name="land_grab_incident_json" value="">
+
+  {# ---- Reference data (DB-driven, read by JS) ---- #}
+  <script type="application/json" id="land-property-type-data">{{ land_property_type_json|safe }}</script>
+  <script type="application/json" id="land-grabbing-method-data">{{ land_grabbing_method_json|safe }}</script>
+  <script type="application/json" id="land-current-status-data">{{ land_current_status_json|safe }}</script>
+  <script type="application/json" id="land-document-title-status-data">{{ land_document_title_status_json|safe }}</script>
+  <script type="application/json" id="land-area-unit-data">{{ land_area_unit_json|safe }}</script>
+
+  {# ---- Property Type ---- #}
+  <h4 class="form-subsection-title">সম্পত্তির ধরন (Property Type)</h4>
+  <div class="form-field">
+    <div class="radio-card-grid" id="land-grab-property-type-grid">
+      {# Populated by news-land-grab-incident.js from #land-property-type-data #}
+    </div>
+    <input type="hidden" id="land-grab-property-type" value="">
+  </div>
+  <div class="form-field" id="land-grab-property-type-other-row" style="display:none;">
+    <label for="land-grab-property-type-other">অন্যান্য সম্পত্তির বিবরণ (Other Property Type) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="text" id="land-grab-property-type-other" maxlength="255"
+           placeholder="সম্পত্তির ধরন লিখুন (Describe the property type)">
+  </div>
+
+  {# ---- Bangladesh Land Record Details ---- #}
+  <h4 class="form-subsection-title">ভূমি রেকর্ডের তথ্য (Land Record Details)</h4>
+  <div class="form-field">
+    <label for="land-grab-mouza">মৌজার নাম (Mouza Name) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="text" id="land-grab-mouza" maxlength="300"
+           placeholder="যেমন: পাইকপাড়া মৌজা, বসিলা মৌজা (e.g., Paikpara Mouza)">
+  </div>
+  <div class="form-field">
+    <label for="land-grab-daag">দাগ নম্বর (Daag / Plot Number) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="text" id="land-grab-daag" maxlength="100"
+           placeholder="যেমন: ৪২৩, ৮৮/ক (e.g., 423, 88/ka)">
+    <small class="field-hint">একাধিক দাগ নম্বর থাকলে কমা দিয়ে লিখুন (For multiple plot numbers, separate with commas)</small>
+  </div>
+  <div class="form-field">
+    <label for="land-grab-khatian">খতিয়ান নম্বর (Khatian Number) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="text" id="land-grab-khatian" maxlength="100"
+           placeholder="যেমন: ১২৫ (e.g., 125)">
+  </div>
+  <div class="form-field">
+    <label>জমির পরিমাণ (Land Area) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <div class="input-pair-group">
+      <input type="number" id="land-grab-area-amount"
+             min="0" step="0.001" placeholder="পরিমাণ (Amount)" style="flex:1;">
+      <select id="land-grab-area-unit" style="flex:0 0 auto; min-width: 130px;">
+        <option value="">-- একক (Unit) --</option>
+        {# Populated by news-land-grab-incident.js from #land-area-unit-data #}
+      </select>
+    </div>
+  </div>
+
+  {# ---- Document / Title Status ---- #}
+  <h4 class="form-subsection-title">দলিল ও মালিকানার অবস্থা (Document & Title Status)</h4>
+  <div class="form-field">
+    <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
+    <div class="checkbox-group" id="land-doc-title-status-checkboxes">
+      {# Populated by news-land-grab-incident.js from #land-document-title-status-data #}
+    </div>
+  </div>
+
+  {# ---- How the Grabbing Happened ---- #}
+  <h4 class="form-subsection-title">দখলের পদ্ধতি (Method of Grabbing)</h4>
+  <div class="form-field">
+    <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
+    <div class="checkbox-group" id="land-grabbing-method-checkboxes">
+      {# Populated by news-land-grab-incident.js from #land-grabbing-method-data #}
+    </div>
+  </div>
+  <div class="form-field" id="land-grab-method-other-row" style="display:none;">
+    <label for="land-grab-method-other-detail">অন্যান্য পদ্ধতির বিবরণ (Other Method Detail) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="text" id="land-grab-method-other-detail" maxlength="255"
+           placeholder="দখলের পদ্ধতি লিখুন (Describe the grabbing method)">
+  </div>
+
+  {# ---- Current Situation ---- #}
+  <h4 class="form-subsection-title">বর্তমান অবস্থা (Current Situation)</h4>
+  <div class="form-field">
+    <div class="radio-inline-group" id="land-grab-status-group">
+      {# Populated by news-land-grab-incident.js from #land-current-status-data #}
+    </div>
+    <input type="hidden" id="land-grab-current-status" value="">
+  </div>
+
+  {# ---- Human Impact ---- #}
+  <h4 class="form-subsection-title">মানবিক ক্ষয়ক্ষতি (Human Impact)</h4>
+  <div class="form-field">
+    <label for="land-grab-families-evicted">উচ্ছেদ হওয়া পরিবারের সংখ্যা (Families Evicted) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <input type="number" id="land-grab-families-evicted" min="0" step="1"
+           placeholder="পরিবারের সংখ্যা (Number of families)">
+  </div>
+  <div class="form-field">
+    <label class="checkbox-label">
+      <input type="checkbox" id="land-grab-violence-occurred">
+      দখলের সময় সহিংসতা হয়েছে (Violence occurred during the grabbing)
+    </label>
+  </div>
+  <div class="form-field" id="land-grab-violence-desc-row" style="display:none;">
+    <label for="land-grab-violence-desc">সহিংসতার বিবরণ (Violence Description)</label>
+    <textarea id="land-grab-violence-desc" rows="3" maxlength="2000"
+              placeholder="হামলা, আহত বা নিহতের বিবরণ দিন (Describe assault, injuries or deaths during grabbing)"></textarea>
+  </div>
+
+  {# Legal action moved to dedicated step-land-grab-legal.html (Step 8) #}
+
+  {# ---- Evidence Upload ---- #}
+  <h4 class="form-subsection-title">প্রমাণ আপলোড (Evidence Upload)</h4>
+  {% include "newshub/components/file-upload-section.html" with upload_prefix="evidence" upload_name="evidence_file" upload_accept="image/*,video/*,audio/*" upload_label="জমির ছবি, দলিলের স্ক্যান, পর্চার ছবি বা ভিডিও (সর্বোচ্চ ৪টি) — Land photos, document scans, porcha images or video (Max 4 files)" upload_btn_label="+ প্রমাণ আপলোড করুন (Upload evidence)" upload_desc_name="evidence_descriptions_json" %}
+</div>

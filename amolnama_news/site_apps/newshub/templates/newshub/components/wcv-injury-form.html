@@ -1,0 +1,78 @@
+{% comment %}
+  Women & Child Violence — Injury & Medical.
+  Captures injury types, severity, medical treatment,
+  pregnancy from assault, and psychological symptoms.
+  Data serialized to hidden JSON input by JS.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-injury">
+  <h3 class="form-section-title"><span class="section-icon">🏥</span>আঘাত ও চিকিৎসা (Injury & Medical)</h3>
+
+  <input type="hidden" id="wcv-injury" name="wcv_injury" value="">
+
+  <div class="form-field">
+    <label>আঘাতের ধরন (Injury Type) — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group">
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="physical"> শারীরিক আঘাত (Physical Injury)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="sexual"> যৌন আঘাত (Sexual Injury)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="psychological"> মানসিক আঘাত (Psychological Trauma)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="acid_burn"> এসিড/পোড়া (Acid/Burn)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="fracture"> হাড় ভাঙা (Fracture)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="internal"> অভ্যন্তরীণ আঘাত (Internal Injury)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_injury_type" value="strangulation"> শ্বাসরোধ/গলা টিপে (Strangulation)
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>আঘাতের তীব্রতা (Injury Severity)</label>
+    <div class="radio-inline-group">
+      <label class="radio-inline">
+        <input type="radio" name="wcv_injury_severity" value="mild"> হালকা (Mild)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="wcv_injury_severity" value="moderate"> মাঝারি (Moderate)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="wcv_injury_severity" value="severe"> গুরুতর (Severe)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="wcv_injury_severity" value="life_threatening"> প্রাণঘাতী (Life-Threatening)
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>মানসিক লক্ষণ (Psychological Symptoms) — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group">
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_psych_symptom" value="ptsd"> PTSD
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_psych_symptom" value="depression"> বিষণ্নতা (Depression)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_psych_symptom" value="anxiety"> উদ্বেগ (Anxiety)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_psych_symptom" value="sleep_disorders"> ঘুমের সমস্যা (Sleep Disorders)
+      </label>
+      <label class="checkbox-inline">
+        <input type="checkbox" name="wcv_psych_symptom" value="suicidal_ideation"> আত্মহত্যার চিন্তা (Suicidal Ideation)
+      </label>
+    </div>
+  </div>
+</div>

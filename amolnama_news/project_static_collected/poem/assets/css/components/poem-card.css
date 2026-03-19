@@ -1,0 +1,150 @@
+/* ========== Poem Card Component ========== */
+
+.poem-card {
+  border: none;
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .2s, transform .2s;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.08),
+    0 0 1px rgba(0,0,0,.06);
+}
+
+.poem-card:hover {
+  box-shadow:
+    0 4px 16px rgba(0,0,0,.12),
+    0 0 2px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+}
+
+.poem-card-body {
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  flex: 1;
+  position: relative;
+  /* Old book page background */
+  background:
+    radial-gradient(ellipse at center, transparent 60%, rgba(120,90,40,.06) 82%, rgba(80,55,20,.1) 100%),
+    radial-gradient(ellipse at 15% 20%, rgba(160,120,60,.04) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 15%, rgba(140,100,50,.03) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 80%, rgba(150,110,55,.03) 0%, transparent 42%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 3px,
+      rgba(120,90,40,.008) 3px,
+      rgba(120,90,40,.008) 4px
+    ),
+    linear-gradient(to bottom, #efe3d0 0%, #f4ead8 3%, #f6eee0 12%, #f8f0e2 50%, #f6eee0 88%, #f4ead8 97%, #efe3d0 100%);
+  color: #2c1810;
+  text-shadow: 0 0 .4px rgba(44,24,16,.1);
+}
+
+.poem-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.poem-card-category-badge {
+  background: rgba(80,55,20,.1);
+  color: #6b4c2a;
+  border-radius: 3px;
+  padding: .1rem .45rem;
+  font-size: .68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.poem-card-lang {
+  font-size: .62rem;
+  font-weight: 700;
+  color: #8b6d3f;
+  background: rgba(80,55,20,.07);
+  border-radius: 3px;
+  padding: .1rem .3rem;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.poem-card-title {
+  margin: 0;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', 'Shonar Bangla', Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #2c1810;
+}
+
+.poem-card-preview {
+  margin: 0;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', 'Shonar Bangla', Georgia, serif;
+  color: #5a3e28;
+  font-style: italic;
+  font-size: .82rem;
+  line-height: 1.65;
+  letter-spacing: .01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.poem-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .55rem 1.15rem;
+  border-top: 1px solid rgba(120,90,40,.12);
+  font-size: .75rem;
+  color: #8b6d3f;
+  background: #f0e4d2;
+}
+
+.poem-card-author {
+  font-weight: 600;
+  color: #4a3520;
+  font-size: .78rem;
+  font-family: 'Tiro Bangla', 'Noto Serif Bengali', Georgia, serif;
+}
+
+.poem-card-stats {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.poem-card-stat {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+
+.poem-card-stat svg {
+  width: 13px;
+  height: 13px;
+}
+
+.poem-card-time {
+  font-size: .7rem;
+  color: #8b6d3f;
+}
+
+/* Touch optimization */
+.poem-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.poem-card:active {
+  transform: scale(.98);
+  transition: transform .1s ease;
+}

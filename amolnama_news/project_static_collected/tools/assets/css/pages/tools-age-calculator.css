@@ -1,0 +1,553 @@
+/* ============================================================
+   Age Calculator — Modern Soft Theme
+   ============================================================ */
+
+.tool-page--age .tool-subtitle {
+  font-size: .9rem;
+  color: var(--muted);
+  margin: -.75rem 0 1.5rem;
+}
+
+/* ---- Input form ---- */
+
+.age-form {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.age-form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.age-form-field {
+  flex: 1;
+}
+
+.age-form-field label {
+  display: block;
+  font-weight: 600;
+  font-size: .85rem;
+  color: var(--text);
+  margin-bottom: .35rem;
+}
+
+.age-form-field input[type="date"] {
+  width: 100%;
+  padding: .65rem .85rem;
+  font-size: .92rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.age-form-field input[type="date"]:focus {
+  outline: none;
+  border-color: #7c7cba;
+  box-shadow: 0 0 0 3px rgba(124,124,186,.12);
+}
+
+.age-form-field .hint {
+  font-size: .75rem;
+  color: var(--muted);
+  margin-top: .25rem;
+}
+
+.age-form .required-mark {
+  color: var(--danger);
+}
+
+/* ---- Custom Date Picker ---- */
+
+.age-date-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.age-date-input {
+  width: 100%;
+  padding: .65rem .85rem;
+  padding-right: 2.5rem;
+  font-size: .92rem;
+  border: 1.5px solid #d4d4de;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color .2s, box-shadow .2s;
+  font-family: 'Courier New', monospace;
+  letter-spacing: .1em;
+}
+
+.age-date-input:focus {
+  outline: none;
+  border-color: #7c7cba;
+  box-shadow: 0 0 0 3px rgba(124,124,186,.12);
+}
+
+.age-date-input::placeholder {
+  color: #b0b0c0;
+  letter-spacing: .08em;
+}
+
+.age-date-toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: .3rem;
+  border-radius: 4px;
+  transition: background .15s;
+  line-height: 1;
+}
+
+.age-date-toggle:hover {
+  background: rgba(124,124,186,.1);
+}
+
+/* ---- Calendar dropdown ---- */
+
+.age-calendar {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: #fff;
+  border: 1.5px solid #d4d4de;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  padding: .6rem;
+  width: 280px;
+  animation: age-cal-open .15s ease-out;
+}
+
+.age-calendar.is-open {
+  display: block;
+}
+
+@keyframes age-cal-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.age-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .4rem;
+  padding: 0 .15rem;
+}
+
+.age-cal-header button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: .25rem .45rem;
+  border-radius: 6px;
+  color: var(--text);
+  transition: background .15s;
+  line-height: 1;
+}
+
+.age-cal-header button:hover {
+  background: rgba(124,124,186,.1);
+}
+
+.age-cal-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  padding: .2rem .5rem;
+  border-radius: 6px;
+  transition: background .15s;
+}
+
+.age-cal-title:hover {
+  background: rgba(124,124,186,.08);
+}
+
+.age-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: .2rem;
+}
+
+.age-cal-weekdays span {
+  font-size: .68rem;
+  font-weight: 600;
+  color: #9a9ab0;
+  padding: .2rem 0;
+}
+
+.age-cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.age-cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0 auto;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  border: none;
+  background: none;
+}
+
+.age-cal-day:hover {
+  background: rgba(124,124,186,.12);
+}
+
+.age-cal-day.is-today {
+  border: 1.5px solid #7c7cba;
+  font-weight: 700;
+}
+
+.age-cal-day.is-selected {
+  background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.age-cal-day.is-other-month {
+  color: #ccc;
+}
+
+.age-cal-day.is-future {
+  color: #ccc;
+  pointer-events: none;
+}
+
+/* Year/month grid view */
+.age-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.age-cal-grid button {
+  padding: .45rem;
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .12s;
+}
+
+.age-cal-grid button:hover {
+  background: rgba(124,124,186,.12);
+}
+
+.age-cal-grid button.is-selected {
+  background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ---- Calculate Button ---- */
+
+.age-form .btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem 2rem;
+  font-size: .95rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(91,106,191,.2);
+}
+
+.age-form .btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(91,106,191,.28);
+}
+
+.age-form .btn-submit:active {
+  transform: translateY(0) scale(.98);
+}
+
+/* ---- Primary age card ---- */
+
+.age-primary-card {
+  background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: tool-slide-in .3s ease-out both;
+}
+
+.age-primary-label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.7);
+  margin-bottom: .5rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.age-primary-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+
+.age-big {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.age-unit {
+  font-size: .85rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.65);
+  margin-right: .75rem;
+}
+
+/* ---- Next birthday card ---- */
+
+.age-birthday-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #faf8f5;
+  border: 1.5px solid #e8e2da;
+  border-left: 3px solid #c4935a;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  animation: tool-slide-in .3s ease-out .05s both;
+}
+
+.age-birthday-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.age-birthday-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #8a7460;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.age-birthday-countdown {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #b07d3c;
+}
+
+.age-birthday-date {
+  font-size: .85rem;
+  color: var(--text);
+}
+
+.age-birthday-day {
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* ---- Detail breakdown grid ---- */
+
+.age-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .75rem;
+  margin-bottom: 1rem;
+  animation: tool-slide-in .3s ease-out .1s both;
+}
+
+.age-detail-item {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: .8rem;
+  text-align: center;
+}
+
+.age-detail-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4a5078;
+  line-height: 1.2;
+}
+
+.age-detail-label {
+  display: block;
+  font-size: .68rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+/* ---- Fun facts ---- */
+
+.age-fun-facts {
+  background: #faf9f5;
+  border: 1.5px solid #e8e4d8;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  animation: tool-slide-in .3s ease-out .15s both;
+}
+
+.age-fun-facts h3 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+.age-fun-facts ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.age-fun-facts li {
+  padding: .4rem 0;
+  font-size: .85rem;
+  color: var(--text);
+  border-bottom: 1px solid #eae6dc;
+}
+
+.age-fun-facts li:last-child {
+  border-bottom: none;
+}
+
+.age-fun-facts li::before {
+  content: "✦ ";
+  color: #b07d3c;
+  font-weight: 600;
+}
+
+/* ---- Life milestones ---- */
+
+.age-milestones {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  animation: tool-slide-in .3s ease-out .2s both;
+}
+
+.age-milestones h3 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+}
+
+.age-milestone-list {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.age-milestone {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .45rem .75rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  transition: transform .1s;
+}
+
+.age-milestone:hover {
+  transform: translateX(2px);
+}
+
+.age-milestone--past {
+  background: #f0f5f0;
+  border: 1px solid #d5e0d5;
+  color: #3a6b3a;
+}
+
+.age-milestone--future {
+  background: #f5f2ec;
+  border: 1px solid #e0dad0;
+  color: #7a6540;
+}
+
+.age-milestone-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.age-milestone-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.age-milestone-date {
+  font-size: .73rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: .75;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .age-form-row {
+    flex-direction: column;
+    gap: .75rem;
+  }
+
+  .age-detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .age-big {
+    font-size: 1.9rem;
+  }
+
+  .age-birthday-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .age-form .btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}

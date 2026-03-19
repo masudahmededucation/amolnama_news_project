@@ -1,0 +1,157 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Reduce File Size · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-reduce-file-size.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--compress">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
+  <h1>Reduce File Size</h1>
+  <p class="tool-subtitle">Compress images &amp; PDFs right in your browser. Nothing is uploaded to any server.</p>
+
+  <!-- ===== Drop Zone ===== -->
+  <div class="compress-dropzone" id="compress-dropzone">
+    <input type="file" id="compress-file-input" multiple hidden>
+    <div class="compress-dropzone-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="10" width="36" height="28" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M16 30 L21 24 L25 27 L31 20 L38 30Z" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="16" cy="18" r="3" fill="currentColor" opacity="0.3"/>
+        <path d="M24 4 L24 14 M20 8 L24 4 L28 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="compress-dropzone-text">Drag &amp; drop files here</p>
+    <p class="compress-dropzone-or">or</p>
+    <button type="button" class="compress-browse-btn" id="compress-browse-btn">Browse Files</button>
+    <p class="compress-dropzone-hint">Any file type &middot; Max 50 MB per file</p>
+  </div>
+
+  <!-- ===== File List ===== -->
+  <div class="compress-file-list" id="compress-file-list" style="display:none">
+    <div class="compress-file-list-header">
+      <h3>Selected Files</h3>
+      <button type="button" class="compress-clear-btn" id="compress-clear-btn">Clear All</button>
+    </div>
+    <div class="compress-file-items" id="compress-file-items"></div>
+  </div>
+
+  <!-- ===== Compression Settings ===== -->
+  <div class="compress-settings" id="compress-settings" style="display:none">
+    <h3>Compression Level</h3>
+
+    <div class="compress-slider-wrap">
+      <div class="compress-slider-value" id="compress-slider-value">Compression: 50%</div>
+      <input type="range" id="compress-slider" class="compress-slider" min="0" max="100" value="50" step="1">
+      <div class="compress-slider-labels">
+        <span class="compress-slider-label" data-pos="low">
+          <span class="compress-slider-dot compress-slider-dot--green"></span>
+          Low <small>Best quality</small>
+        </span>
+        <span class="compress-slider-label" data-pos="medium">
+          <span class="compress-slider-dot compress-slider-dot--yellow"></span>
+          Medium <small>Balanced</small>
+        </span>
+        <span class="compress-slider-label" data-pos="high">
+          <span class="compress-slider-dot compress-slider-dot--red"></span>
+          High <small>Smallest size</small>
+        </span>
+      </div>
+      <div class="compress-slider-bar-labels">
+        <span>Larger file, better quality</span>
+        <span>Smaller file, lower quality</span>
+      </div>
+    </div>
+
+    <!-- Estimation tip -->
+    <div class="compress-estimate" id="compress-estimate">
+      <div class="compress-estimate-icon">💡</div>
+      <div class="compress-estimate-text" id="compress-estimate-text">
+        Select files and a compression level to see the estimated output size.
+      </div>
+    </div>
+
+    <!-- Output format (images only) -->
+    <div class="compress-advanced">
+      <div class="compress-option-row">
+        <label class="compress-option-label" for="compress-format">Output Format</label>
+        <select id="compress-format" class="compress-select">
+          <option value="original" selected>Keep Original</option>
+          <option value="auto">Auto (smallest)</option>
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Resize & metadata controls -->
+    <div class="compress-advanced">
+      <label class="compress-checkbox-label">
+        <input type="checkbox" id="compress-resize-check">
+        <span>Resize if wider than</span>
+        <input type="number" id="compress-resize-width" value="1920" min="100" max="10000" step="10" class="compress-resize-input">
+        <span>px</span>
+      </label>
+    </div>
+
+    <div class="compress-advanced">
+      <label class="compress-checkbox-label">
+        <input type="checkbox" id="compress-strip-meta" checked>
+        <span>Strip metadata (EXIF, GPS, camera info)</span>
+      </label>
+    </div>
+
+    <button type="button" class="compress-action-btn" id="compress-action-btn" disabled>
+      <span class="compress-action-label">Compress Files</span>
+      <span class="compress-action-spinner" style="display:none"></span>
+    </button>
+  </div>
+
+  <!-- ===== Results ===== -->
+  <div class="compress-results" id="compress-results" style="display:none">
+    <div class="compress-results-header">
+      <h3>Results</h3>
+      <div class="compress-results-actions">
+        <button type="button" class="compress-download-all-btn" id="compress-download-all-btn">Download All (ZIP)</button>
+      </div>
+    </div>
+    <div class="compress-results-summary" id="compress-results-summary"></div>
+    <div class="compress-results-items" id="compress-results-items"></div>
+  </div>
+
+  <!-- ===== Before/After Comparison Modal ===== -->
+  <div class="compress-compare-overlay" id="compress-compare-overlay" style="display:none">
+    <div class="compress-compare-modal">
+      <div class="compress-compare-header">
+        <h3 id="compress-compare-title">Before / After</h3>
+        <button type="button" class="compress-compare-close" id="compress-compare-close">&times;</button>
+      </div>
+      <div class="compress-compare-container" id="compress-compare-container">
+        <div class="compress-compare-before" id="compress-compare-before">
+          <img id="compress-compare-before-img" alt="Original">
+          <span class="compress-compare-label compress-compare-label--before">Original</span>
+        </div>
+        <div class="compress-compare-after" id="compress-compare-after">
+          <img id="compress-compare-after-img" alt="Compressed">
+          <span class="compress-compare-label compress-compare-label--after">Compressed</span>
+        </div>
+        <input type="range" class="compress-compare-slider" id="compress-compare-slider" min="0" max="100" value="50">
+        <div class="compress-compare-divider" id="compress-compare-divider"></div>
+      </div>
+      <div class="compress-compare-info" id="compress-compare-info"></div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="{% static 'tools/assets/js/pages/tools-reduce-file-size.js' %}"></script>
+{% endblock %}

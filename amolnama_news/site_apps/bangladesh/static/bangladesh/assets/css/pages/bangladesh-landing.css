@@ -1,0 +1,263 @@
+/* ========== Bangladesh Landing Page ========== */
+
+.bd-header {
+  padding: 1.25rem 0 .75rem;
+}
+
+.bd-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .2rem;
+}
+
+.bd-header p {
+  margin: 0;
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+/* ---- Hub cards grid ---- */
+
+.bd-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: .5rem 0 2rem;
+}
+
+/* ---- Base hub card ---- */
+
+.bd-hub-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.4rem 1.25rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+
+.bd-hub-card:hover {
+  transform: translateY(-2px);
+}
+
+.bd-hub-card:active {
+  transform: scale(.98);
+  transition: transform .1s ease;
+}
+
+/* Arrow indicator — slides in on hover */
+.bd-hub-card-arrow {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%) translateX(6px);
+  opacity: 0;
+  font-size: 1.1rem;
+  color: inherit;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+
+.bd-hub-card:hover .bd-hub-card-arrow {
+  opacity: .6;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Card icon */
+.bd-hub-card-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: .6rem;
+}
+
+/* Card title */
+.bd-hub-card h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Card description */
+.bd-hub-card p {
+  margin: 0;
+  font-size: .82rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Card tag pills */
+.bd-hub-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-top: .7rem;
+}
+
+.bd-hub-card-tag {
+  font-size: .65rem;
+  font-weight: 600;
+  padding: .15rem .5rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* ========================================
+   Travel Hub card — warm sunset / golden
+   ======================================== */
+
+.bd-hub-card--travel {
+  background: linear-gradient(135deg, #fffbf0 0%, #fff5e0 40%, #fffcf5 100%);
+  border: 1.5px solid rgba(234, 160, 28, .2);
+  box-shadow:
+    0 1px 4px rgba(234, 160, 28, .08),
+    0 0 0 1px rgba(234, 160, 28, .04);
+  border-left: 3.5px solid #e89a1e;
+}
+
+.bd-hub-card--travel:hover {
+  border-color: #e89a1e;
+  box-shadow:
+    0 4px 16px rgba(234, 160, 28, .14),
+    0 0 0 1px rgba(234, 160, 28, .08);
+}
+
+.bd-hub-card--travel h3 {
+  color: #92600a;
+}
+
+.bd-hub-card--travel .bd-hub-card-arrow {
+  color: #e89a1e;
+}
+
+.bd-hub-card--travel .bd-hub-card-tag {
+  background: rgba(234, 160, 28, .12);
+  color: #92600a;
+}
+
+.bd-hub-card--travel .bd-hub-card-map-icon {
+  fill: #e89a1e;
+}
+
+/* ========================================
+   Beauty of Bangladesh — warm emerald / nature
+   ======================================== */
+
+.bd-hub-card--beauty {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e8f8ec 40%, #f5fdf7 100%);
+  border: 1.5px solid rgba(34, 197, 94, .18);
+  box-shadow:
+    0 1px 4px rgba(34, 197, 94, .06),
+    0 0 0 1px rgba(34, 197, 94, .04);
+  border-left: 3.5px solid #22c55e;
+}
+
+.bd-hub-card--beauty:hover {
+  border-color: #22c55e;
+  box-shadow:
+    0 4px 16px rgba(34, 197, 94, .12),
+    0 0 0 1px rgba(34, 197, 94, .08);
+}
+
+.bd-hub-card--beauty h3 {
+  color: #15803d;
+}
+
+.bd-hub-card--beauty .bd-hub-card-arrow {
+  color: #22c55e;
+}
+
+.bd-hub-card--beauty .bd-hub-card-tag {
+  background: rgba(34, 197, 94, .1);
+  color: #15803d;
+}
+
+/* Logo icon inside card */
+.bd-hub-card-logo {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---- Card featured highlights ---- */
+
+.bd-hub-card-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .85rem;
+  padding-top: .75rem;
+  border-top: 1px solid rgba(0,0,0,.05);
+}
+
+.bd-hub-card-highlight {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.bd-hub-card-highlight-icon {
+  font-size: .82rem;
+  line-height: 1;
+}
+
+/* Stats row */
+.bd-hub-card-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: .6rem;
+}
+
+.bd-hub-card-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .1rem;
+}
+
+.bd-hub-card-stat-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bd-hub-card-stat-label {
+  font-size: .6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.bd-hub-card--travel .bd-hub-card-stat-value { color: #b07810; }
+.bd-hub-card--travel .bd-hub-card-stat-label { color: #c4922e; }
+.bd-hub-card--beauty .bd-hub-card-stat-value { color: #15803d; }
+.bd-hub-card--beauty .bd-hub-card-stat-label { color: #22c55e; }
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .bd-hub-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .bd-hub-card {
+    padding: 1.15rem 1.1rem 1rem;
+  }
+
+  .bd-header h1 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Touch optimization */
+.bd-hub-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}

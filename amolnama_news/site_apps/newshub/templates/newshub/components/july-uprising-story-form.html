@@ -1,0 +1,62 @@
+{% comment %}
+  July Uprising 2024 — Personal Story & Memory.
+  Captures last words, life story, how they joined,
+  family breadwinner status, and family impact.
+  Data serialized to hidden JSON input by JS.
+{% endcomment %}
+
+<div class="form-section" id="section-july-status">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>অবস্থা (Status)</h3>
+  <div class="radio-inline-group">
+    {% for status in july_victim_statuses %}
+    <label class="radio-inline">
+      <input type="radio" name="july_martyr_status" value="{{ status.status_id }}">
+      {% if status.status_icon %}{{ status.status_icon }} {% endif %}{{ status.status_name_bn }} ({{ status.status_name_en }})
+    </label>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="form-section" id="section-july-story">
+  <h3 class="form-section-title"><span class="section-icon">📖</span>ব্যক্তিগত গল্প ও স্মৃতি (Personal Story & Memory)</h3>
+
+  {# Hidden input — JS serializes story data here before submit #}
+  <input type="hidden" id="july-story-json" name="july_story_json" value="">
+
+  <div class="form-field">
+    <label for="july-last-words">শেষ কথা/কাজ (Last Words/Actions)</label>
+    <textarea id="july-last-words" rows="4"
+              placeholder="তাঁর শেষ কথা বা শেষ কাজ কী ছিল? যেমন: 'পানি লাগবে কারো?', 'বুকে গুলি খেয়েও দাঁড়িয়ে ছিলেন', 'বন্ধুদের নিরাপদে পাঠিয়ে নিজে রাস্তায় থেকে গেছেন...'"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="july-life-story">জীবন কাহিনী (Life Story / Biographical Note)</label>
+    <textarea id="july-life-story" rows="6"
+              placeholder="তাঁর জীবন সম্পর্কে সংক্ষেপে লিখুন — কোথা থেকে এসেছিলেন, কী স্বপ্ন ছিল, কেমন মানুষ ছিলেন... (Write briefly about their life — where they came from, their dreams, what kind of person they were...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="july-how-joined">কীভাবে আন্দোলনে যোগ দিয়েছিলেন (How They Joined the Protest)</label>
+    <textarea id="july-how-joined" rows="4"
+              placeholder="কোটা সংস্কার আন্দোলনে কীভাবে সম্পৃক্ত হয়েছিলেন? কবে থেকে? বিশ্ববিদ্যালয়ের বন্ধুদের সাথে? একা?..."></textarea>
+  </div>
+
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="july-breadwinner" value="1">
+      পরিবারের একমাত্র উপার্জনকারী ছিলেন (Was the sole breadwinner of the family)
+    </label>
+  </div>
+
+  <div class="form-field" id="july-dependents-row" style="display: none;">
+    <label for="july-dependents">নির্ভরশীল সদস্য সংখ্যা (Number of Dependents)</label>
+    <input type="number" id="july-dependents" min="0" max="50"
+           placeholder="যেমন: 5" style="max-width: 200px;">
+  </div>
+
+  <div class="form-field">
+    <label for="july-family-impact">পরিবারের উপর প্রভাব (Impact on Family)</label>
+    <textarea id="july-family-impact" rows="4"
+              placeholder="পরিবার কীভাবে ক্ষতিগ্রস্ত হয়েছে? অর্থনৈতিক সংকট? শিশুদের পড়াশোনা? মানসিক আঘাত?..."></textarea>
+  </div>
+</div>

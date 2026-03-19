@@ -1,0 +1,84 @@
+/* ========== Header Install Button (next to lang toggle) ========== */
+
+.pwa-header-install {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .2rem .6rem .2rem .25rem;
+  color: #e17055;
+  background: transparent;
+  border: 1.5px solid #e17055;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s, transform .1s;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.pwa-header-install:hover {
+  background: #e17055;
+  color: #fff;
+  border-color: #e17055;
+}
+
+.pwa-header-install:active {
+  transform: scale(0.95);
+}
+
+.pwa-header-install-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.pwa-header-install-label {
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* ========== Tooltip (iOS/Firefox manual instructions) ========== */
+
+.pwa-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 300px;
+  padding: .6rem .9rem;
+  background: #1a1a2e;
+  color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+  font-size: .82rem;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+}
+
+.pwa-tooltip--visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.pwa-tooltip strong {
+  color: #fff;
+}
+
+.pwa-tooltip small {
+  display: block;
+  margin-top: .4rem;
+  color: #aaa;
+  font-size: .72rem;
+  line-height: 1.35;
+}
+
+.pwa-tooltip code {
+  background: rgba(255, 255, 255, .12);
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-size: .75rem;
+}

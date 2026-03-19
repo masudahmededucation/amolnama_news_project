@@ -1,0 +1,101 @@
+================================================================================
+TOOL: Merge Documents (ডকুমেন্ট মার্জ)
+================================================================================
+
+URL:        /tools/merge-documents/
+View:       tools_merge_documents
+Template:   tools/tools-merge-documents.html
+JS:         tools/assets/js/pages/tools-merge-documents.js
+CSS:        tools/assets/css/pages/tools-merge-documents.css
+
+External Libraries (CDN):
+  - pdf-lib 1.17.1        — PDF creation, page copying, image embedding
+  - pdfjs-dist 3.11.174   — PDF thumbnail rendering
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. FILE INPUT
+   - Drag & drop onto dropzone
+   - Browse button (file picker)
+   - "Add more" button in workspace
+   - Accepted types: PDF, JPEG, PNG, WebP
+   - Max files: 20
+   - Max file size: 50 MB per file
+   - Duplicate detection not implemented (relies on user)
+
+2. FILE GRID / CARD VIEW
+   - Each file shown as a card with: order badge, thumbnail, name, size, page count
+   - Thumbnails: images use blob URL, PDFs rendered via pdfjs (page 1 at 0.5x scale)
+   - Order badges update dynamically on reorder
+
+3. DRAG-AND-DROP REORDER (Desktop)
+   - Row-aware linear scan algorithm (findInsertPosition)
+   - Placeholder removed from DOM before computing positions (prevents shift bug)
+   - Ghost image: cloned card at 85% scale
+   - Source card fades to dashed outline during drag
+   - domIdxToEntryIdx converts DOM position to fileEntries array index
+
+4. TOUCH DRAG REORDER (Mobile)
+   - touchstart → touchmove → touchend
+   - 10px dead zone before drag activates
+   - Reuses same placeholder/executeDrop logic as desktop
+
+5. SORTING
+   - Sort A→Z button (alphabetical by filename)
+   - Sort Z→A button (reverse alphabetical)
+
+6. MERGE ENGINE (doMerge)
+   - Creates new PDF via PDFLib.PDFDocument.create()
+   - PDFs: copies all pages via copyPages (preserves vector content)
+   - Images: PNG embedded directly, JPEG/WebP converted via canvas first
+   - convertImageToJpgBytes: creates canvas → toBlob('image/jpeg', 0.92) → ArrayBuffer
+   - Images placed centered on A4 pages (595.28 × 841.89 pt), scaled to fit
+   - Sequential processing with progress bar (per-file %)
+
+7. RESULT
+   - Shows total page count and file size
+   - Custom output filename input (default: "merged-document")
+   - Download as PDF
+
+8. MEMORY MANAGEMENT
+   - Image thumbUrls (blob URLs) revoked on removeFile and resetAll
+   - convertImageToJpgBytes revokes its temporary blob URL in onload/onerror
+   - Download URL revoked after 5s timeout
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+mgr-dropzone, mgr-file-input, mgr-browse-btn
+mgr-error, mgr-error-text, mgr-try-again-btn
+mgr-workspace, mgr-file-grid
+mgr-file-count, mgr-total-size
+mgr-sort-az, mgr-sort-za, mgr-add-more-btn
+mgr-output-name, mgr-merge-btn, mgr-reset-btn
+mgr-progress, mgr-progress-fill, mgr-progress-text
+mgr-result, mgr-result-pages, mgr-result-size, mgr-download-btn
+
+================================================================================
+KEY FUNCTIONS
+================================================================================
+
+addFiles(files)               — validates type/size/limit, creates entries, generates thumbs
+removeFile(id)                — revokes thumbUrl, removes entry, re-renders grid
+sortFiles(order)              — sorts fileEntries by name (az/za), re-renders
+generateThumb(entry)          — creates thumbnail: blob URL for images, canvas render for PDFs
+createFileCard(entry, index)  — builds card DOM element with badge, thumb, name, meta, remove btn
+renderGrid()                  — clears grid, creates all cards, sets up drag-and-drop
+setupDragAndDrop()            — attaches dragstart/dragend listeners to all cards
+findInsertPosition(x, y)      — row-aware linear scan to find insertion index
+updatePlaceholder(x, y)       — removes placeholder, computes position, re-inserts
+domIdxToEntryIdx(domIdx)      — converts DOM child index to fileEntries array index
+executeDrop()                 — moves entry in array from srcIdx to destIdx
+doMerge()                     — orchestrates the merge: reads files → builds PDF → shows result
+readFileAsArrayBuffer(file)   — Promise wrapper for FileReader.readAsArrayBuffer
+convertImageToJpgBytes(file)  — converts any image to JPEG bytes via canvas (for pdf-lib)
+downloadMerged()              — triggers download of merged PDF blob
+resetAll()                    — revokes all thumbUrls, clears state, shows dropzone

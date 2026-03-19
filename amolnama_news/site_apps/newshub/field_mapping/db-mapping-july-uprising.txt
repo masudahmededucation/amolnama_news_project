@@ -1,0 +1,391 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: JULY UPRISING 2024 (জুলাই অভ্যুত্থান)
+================================================================================
+Last updated: 2026-03-14 (home address wired to july2024_fact_protest — 4 FK columns + home_local_area_name)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-july-uprising.txt
+Form: news-collection-multistep-july-uprising.html
+Steps: 12
+Django model: July2024FactProtest (investigation/models.py)
+DB table: [investigation].[july2024_fact_protest]
+
+group_code for this form: 'july_uprising_2024'  (used in incident_involved_actor_profile)
+link_form_type_id: looked up from [newshub].[ref_news_form_type] by group_code
+
+For Steps 1–2 (Contributor + News Content core), Attachments, Social Sources:
+  → see db-mapping-common-steps.txt
+================================================================================
+
+STEP 3: News Content — Incident Type & Context
+------
+Template  : step-news-content-july-uprising.html
+Components: july-uprising-incident-form.html + news-entry-form.html
+JS        : news-july-uprising-sub-type.js (sub-type radio → hidden #july-sub-type)
+            news-july-uprising-context.js  (context dropdowns → #july-context-json)
+
+POST key: july_sub_type         (hidden input, value = status_id int)
+POST key: july_context_json     (JSON via news-july-uprising-context.js)
+
+  july_sub_type (status_id, int)
+    → [investigation].[july2024_fact_protest].link_ref_status_incident_type_id ONLY
+      DB-driven from ref_status group_code = 'july2024_incident_type'
+      (e.g. shaheed/martyr, injured, detained, witness)
+    ⚠ [newshub].[coll_news_entry] has NO link_issue_sub_type_id column.
+       july_sub_type is NOT saved to coll_news_entry.
+
+  july_context_json keys:
+    scale          → status_id  (ref_status group_code = 'july2024_protest_state_number')
+    internetStatus → status_id  (ref_status group_code = 'government_internet_speed_control')
+    curfewStatus   → status_id  (ref_status group_code = 'government_curfew_status')
+
+DB columns on [investigation].[july2024_fact_protest] (Step 3 partial):
+  [link_ref_status_incident_type_id]     ← july_sub_type (int or None)
+  [link_ref_status_protest_scale_id]     ← july_context_json.scale (int or None)
+  [link_ref_status_internet_status_id]   ← july_context_json.internetStatus (int or None)
+  [link_ref_status_curfew_status_id]     ← july_context_json.curfewStatus (int or None)
+
+  news-entry-form.html fields (common) → [newshub].[coll_news_entry]:
+    headline_bn, summary_bn, news_date, link_news_category_id,
+    is_breaking_news, link_form_type_id
+    → see db-mapping-common-steps.txt STEP 1
+
+================================================================================
+
+STEP 4: Martyr/Injured Profile (শহীদ/আহত পরিচিতি)
+------
+Template  : step-july-martyr.html
+Component : july-uprising-martyr-form.html (5 groups):
+              Group 1: person-name-alias-fields.html     (Name & Identity)
+              Group 2: person-personal-info-fields.html  (Universal Personal Identity)
+              Group 3: person-occupation-fields.html     (Occupation & Workplace — extra)
+              Group 4: person-family-name-fields.html    (Family — mother only)
+              Group 5: july-martyr-home-location.html    (Home Address cascade)
+JS        : news-july-uprising-martyr.js + news-person-name.js
+              + news-july-martyr-home-location.js
+POST key  : july_martyr_json  (JSON via news-july-uprising-martyr.js)
+
+JSON keys from news-july-uprising-martyr.js:
+
+  Group 1 — Name (via window.newshubPersonName):
+  firstNameEn   → person.first_name_en      (NOT NULL — required)
+  lastNameEn    → person.last_name_en        (NOT NULL — required)
+  firstNameBn   → person.first_name_bn
+  lastNameBn    → person.last_name_bn
+  slug          → (informational only; auto-generated from EN name — NOT saved to DB)
+  alias         → person.name_alias_bn       (from person-name-alias-fields.html)
+
+  Group 2 — Universal Personal Identity (same 6 fields as crime repeaters):
+  genderId      → person.link_gender_id      (INT FK, from <select>, ref_status group='gender')
+  religionId    → person.link_religion_id    (INT FK, from <select>, ref_status group='religion')
+  ✅ FIXED: JS keys changed from `gender`/`religion` → `genderId`/`religionId` to match
+            what _save_actor_person() reads. Old keys caused silent NULL saves.
+  age           → person.age                 (INT, nullable)
+  dob           → person.date_of_birth       (DATE, nullable, max=2024-08-07)
+  districtId    → person.link_birth_district_id (INT FK to [location].[district])
+                  ✅ Now a <select> dropdown (was free text). Sends district_id directly.
+                  View context: july_districts queryset.
+  contact       → person.primary_mobile_number (VARCHAR, nullable)
+
+  Group 3 — Occupation & Workplace (extra fields not in universal identity):
+  occupation    → status_id from ref_status (group_code='july2024_occupation_list')
+                  → get-or-create [career].[job_title] by status_name_bn/en
+                  → person_job.link_job_title_id
+  institution   → text → get-or-create [directory].[organisation] by name
+                  → person_job.link_organisation_id
+
+  Group 4 — Family:
+  fatherFirstName → person.father_first_name_bn  (from Name module, person-name-fields.html)
+  fatherLastName  → person.father_last_name_bn   (from Name module, person-name-fields.html)
+  motherFirstName → person.mother_first_name_bn  (from person-family-name-fields.html)
+  motherLastName  → person.mother_last_name_bn
+
+  Group 5 — Home Address (via window.julyMartyrHomeLocation):
+  homeDistrictId    → july2024_fact_protest.link_home_district_id       (INT NULL)
+  homeDistrictName  → (display only — not saved)
+  homeUpazilaId     → july2024_fact_protest.link_home_upazila_id        (INT NULL)
+  homeUpazilaName   → (display only — not saved)
+  homeLocalBodyId   → july2024_fact_protest.link_home_union_parishad_id (INT NULL)
+  homeLocalBodyName → (display only — not saved)
+  homeWardId        → july2024_fact_protest.link_home_ward_id           (INT NULL)
+  homeWardName      → (display only — not saved)
+  (no JS field)     → july2024_fact_protest.home_local_area_name        (NVARCHAR(200) NULL — no UI yet)
+
+  Other:
+  status        → status_id from ref_status group_code='july2024_victim_current_status'
+                  (radio in Step 5 — read in Step 4 serializer; see Step 5 note below)
+
+SAVE FLOW (Step 4 — per martyr):
+  Uses shared helpers: _save_actor_person() + _save_actor_occupation() + _save_actor_profile()
+  See db-mapping-actor-repeaters.txt for full shared save protocol.
+  Mother name is a July-specific post-update after the shared save.
+
+  A. _save_actor_person() → INSERT [person].[person]  (ALWAYS INSERT new row)
+       [first_name_en]            ← firstNameEn (required)
+       [last_name_en]             ← lastNameEn (required, '' if blank)
+       [first_name_bn]            ← firstNameBn
+       [last_name_bn]             ← lastNameBn
+       [name_alias_bn]            ← alias or None
+       [link_gender_id]           ← genderId (int FK, 0 → None)
+       [link_religion_id]         ← religionId (int FK, 0 → None)
+       [age]                      ← age (or None)
+       [date_of_birth]            ← dob (or None)
+       [link_birth_district_id]   ← districtId (int FK, 0 → None) — now direct from <select>
+       [primary_mobile_number]    ← contact or None
+       [father_first_name_bn]     ← fatherFirstName or None
+       [father_last_name_bn]      ← fatherLastName or None
+       [mother_first_name_bn]     ← motherFirstName or None
+       [mother_last_name_bn]      ← motherLastName or None
+       [modified_at]              ← now()
+     → get back person_id
+
+  A2. _save_actor_occupation(person_id, jm, now, occ_key='occupation')
+       → Shared helper: get-or-create JobTitle + Organisation → INSERT person_job
+       → Does nothing if occupation == 0 or institution is blank
+       (see db-mapping-common-steps.txt Step A2 for full detail)
+
+  B. _save_actor_profile(role_code='VICTIM') → INSERT [investigation].[incident_involved_actor_profile]:
+       [link_coll_news_entry_id]                          ← entry.coll_news_entry_id
+       [link_person_id]                                   ← person_id from Step A
+       [link_person_marriage_id]                          ← NULL (not collected here)
+       [link_ref_status_incident_involved_actor_role_id]  ← 39 (VICTIM, resolved by _resolve_actor_role)
+       [incident_involved_actor_role_group_code]          ← 'VICTIM' (denormalised role code)
+       [group_code]                                       ← 'july_uprising_2024'
+       [link_form_type_id]                                ← FK from [newshub].[ref_news_form_type]
+                                                            by group_code='july_uprising_2024'
+       [created_at]                                       ← DB default (sysdatetime())
+
+NOTE: The victim 'status' radio (step=5) is read by the martyr JS serializer and
+      included in july_martyr_json. However it maps to July2024FactProtest
+      (link_ref_status_victim_current_status_id) — see STEP 5 below.
+
+================================================================================
+
+STEP 5: Personal Story & Memory (ব্যক্তিগত গল্প ও স্মৃতি)
+------
+Template  : step-july-story.html
+Component : july-uprising-story-form.html
+JS        : news-july-uprising-story.js
+POST key  : july_story_json  (JSON via news-july-uprising-story.js)
+POST key  : july_martyr_status  (direct radio input, name="july_martyr_status",
+                                  value = status_id int)
+
+july_martyr_status:
+  → ref_status group_code = 'july2024_victim_current_status' (DB-driven radio buttons)
+  → Maps to: [investigation].[july2024_fact_protest].link_ref_status_victim_current_status_id
+
+JSON keys from news-july-uprising-story.js:
+  lastWords    → july2024_fact_protest.victim_story_final_words_or_actions  (NVARCHAR 4000)
+  lifeStory    → july2024_fact_protest.victim_story_biographical_note       (NVARCHAR 4000)
+  howJoined    → july2024_fact_protest.victim_story_involvement_context      (NVARCHAR 4000)
+  breadwinner  → july2024_fact_protest.victim_story_is_sole_breadwinner      (BIT)
+  dependents   → july2024_fact_protest.victim_story_dependents_count         (INT, nullable)
+  familyImpact → july2024_fact_protest.victim_story_family_impact_note       (NVARCHAR 4000)
+
+DB columns on [investigation].[july2024_fact_protest] written from Steps 4+5 combined:
+  [link_coll_news_entry_id]                ← entry.coll_news_entry_id
+  [link_ref_status_victim_current_status_id]          ← july_martyr_status (int or None)
+  [victim_story_final_words_or_actions]    ← july_story_json.lastWords    or None
+  [victim_story_biographical_note]         ← july_story_json.lifeStory    or None
+  [victim_story_involvement_context]       ← july_story_json.howJoined    or None
+  [victim_story_is_sole_breadwinner]       ← july_story_json.breadwinner  (bool → BIT, default False)
+  [victim_story_family_impact_note]        ← july_story_json.familyImpact or None
+  [victim_story_dependents_count]          ← july_story_json.dependents   (int or None)
+  [created_at]                             ← DB default (sysutcdatetime())
+
+================================================================================
+
+STEP 6: Cause of Death/Injury (মৃত্যু/আঘাতের কারণ)
+------
+Template  : step-july-cause.html
+Component : july-uprising-cause-form.html
+JS        : news-july-uprising-cause.js
+POST key  : july_cause_json  (JSON via news-july-uprising-cause.js)
+
+Context vars supplied by view:
+  weapon_types    → ref_status filtered by group_code='july2024_protest_suppression_weapon'
+  injury_sites    → ref_status filtered by group_code='victim_body_injury_site'
+
+JSON keys from news-july-uprising-cause.js:
+  weaponType       → status_id (int or '')
+  injurySite       → status_id (int or '')
+  timeOfInjury     → free text string
+  hospital         → free text string
+  timeOfDeath      → free text string
+  autopsyDone      → bool
+  deathCertificate → bool
+  medicalDocs      → bool
+
+DB columns on [investigation].[july2024_fact_protest] (same single INSERT as Steps 5+7+8 — all steps combined in one objects.create() call):
+  [link_ref_status_protest_suppression_weapon_id]          ← weaponType (int or None)
+  [link_ref_status_victim_body_injury_site_id]             ← injurySite (int or None)
+  [victim_medical_injury_timestamp_text]        ← timeOfInjury or None
+  [victim_medical_hospital_name]                ← hospital or None
+  [victim_medical_death_timestamp_text]         ← timeOfDeath or None
+  [victim_evidence_is_autopsy_done]             ← autopsyDone (bool → BIT, default False)
+  [victim_evidence_is_death_certificate_available] ← deathCertificate (bool → BIT)
+  [victim_evidence_is_medical_documents_available] ← medicalDocs (bool → BIT)
+
+================================================================================
+
+STEP 7: Oppressive Forces & Accountability (দমনকারী বাহিনী ও জবাবদিহিতা)
+------
+Template  : step-july-oppressors.html
+Component : july-uprising-oppressors-form.html
+JS        : news-july-uprising-oppressors.js
+POST key  : july_oppressors_json  (JSON via news-july-uprising-oppressors.js)
+
+Context vars supplied by view:
+  july_forces_involved → ref_status filtered by group_code='july2024_protest_suppression_force_involved'
+
+JSON keys from news-july-uprising-oppressors.js:
+  forces             → array of status_ids (ints) for checked force checkboxes
+  unitBadge          → free text string
+  commandingOfficer  → free text string
+  ocDc               → free text string
+  directives         → free text string (textarea)
+
+SAVE LOGIC — BIT columns (hardcoded):
+  The ref_status IDs are ONLY used to populate the UI checkboxes.
+  The status_id values in the forces array are NOT saved as FKs.
+  The view has a hardcoded mapping from status_code → BIT column name.
+  When a checkbox is checked, the corresponding BIT column is set to 1:
+    status_code 'POLICE'               → force_involved_is_police = True
+    status_code 'RAB'                  → force_involved_is_rab = True
+    status_code 'BGB'                  → force_involved_is_bgb = True
+    status_code 'ARMY'                 → force_involved_is_army = True
+    status_code 'DB_POLICE'            → force_involved_is_db_police = True
+    status_code 'BCL'                  → force_involved_is_bcl = True
+    status_code 'JUBO_LEAGUE'          → force_involved_is_jubo_league = True
+    status_code 'UNKNOWN_PLAINCLOTHES' → force_involved_is_unknown_plainclothes = True
+  All unchecked BIT columns default to False (DB DEFAULT 0).
+  No FK/link_id column is written for force types.
+
+DB columns on [investigation].[july2024_fact_protest]:
+  [force_involved_is_police]               ← True if POLICE in forces else False
+  [force_involved_is_rab]                  ← True if RAB in forces else False
+  [force_involved_is_bgb]                  ← True if BGB in forces else False
+  [force_involved_is_army]                 ← True if ARMY in forces else False
+  [force_involved_is_db_police]            ← True if DB_POLICE in forces else False
+  [force_involved_is_bcl]                  ← True if BCL in forces else False
+  [force_involved_is_jubo_league]          ← True if JUBO_LEAGUE in forces else False
+  [force_involved_is_unknown_plainclothes] ← True if UNKNOWN_PLAINCLOTHES in forces else False
+  [force_details_unit_or_badge_number]     ← unitBadge or None
+  [force_details_commanding_officer_name]  ← commandingOfficer or None
+  [force_details_area_oc_or_dc_name]       ← ocDc or None
+  [force_details_orders_or_directives]     ← directives or None
+
+================================================================================
+
+STEP 8: Evidence & Verification (প্রমাণ ও যাচাই)
+------
+Template  : step-july-evidence.html
+Component : july-uprising-evidence-form.html
+JS        : news-july-uprising-evidence.js
+POST key  : july_evidence_json  (JSON via news-july-uprising-evidence.js)
+
+Context vars supplied by view:
+  july_verification_statuses → ref_status group_code='verification_status'
+  july_available_evidence    → ref_status group_code='july2024_available_evidence'
+
+JSON keys from news-july-uprising-evidence.js:
+  verificationStatus  → status_id (int or '')
+  evidenceTypes       → array of status_ids (ints) for checked evidence checkboxes
+  eyewitnessCount     → int (only if EYEWITNESS_TESTIMONY checked, else '')
+  memorialRef         → free text string
+
+SAVE LOGIC — BIT columns (hardcoded):
+  The ref_status IDs are ONLY used to populate the UI checkboxes.
+  The status_id values in the evidenceTypes array are NOT saved as FKs.
+  The view has a hardcoded mapping from status_code → BIT column name.
+  When a checkbox is checked, the corresponding BIT column is set to 1:
+    status_code 'VIDEO_EVIDENCE'       → verification_has_video_evidence = True
+    status_code 'PHOTO_EVIDENCE'       → verification_has_photo_evidence = True
+    status_code 'CCTV_FOOTAGE'         → verification_has_cctv_footage = True
+    status_code 'EYEWITNESS_TESTIMONY' → verification_has_eyewitness_testimony = True
+    status_code 'LISTED_IN_GAZETTE'    → verification_is_listed_in_official_gazette = True
+  All unchecked BIT columns default to False (DB DEFAULT 0).
+  No FK/link_id column is written for evidence types.
+
+DB columns on [investigation].[july2024_fact_protest]:
+  [link_ref_status_verification_status_id]                ← verificationStatus (int or None)
+  [verification_has_video_evidence]            ← True if VIDEO_EVIDENCE in evidenceTypes
+  [verification_has_photo_evidence]            ← True if PHOTO_EVIDENCE in evidenceTypes
+  [verification_has_cctv_footage]              ← True if CCTV_FOOTAGE in evidenceTypes
+  [verification_has_eyewitness_testimony]      ← True if EYEWITNESS_TESTIMONY in evidenceTypes
+  [verification_is_listed_in_official_gazette] ← True if LISTED_IN_GAZETTE in evidenceTypes
+  [verification_eyewitness_count]              ← eyewitnessCount (int or None)
+  [verification_memorial_reference]            ← memorialRef or None
+
+================================================================================
+
+STEPS 9–12: Common Steps
+------
+STEP 9  : Location        → see db-mapping-common-steps.txt STEP 2
+STEP 10 : Social Sources  → see db-mapping-common-steps.txt SOCIAL SOURCES
+STEP 11 : Category Tags   → [newshub].[coll_news_entry_tag]
+STEP 12 : Submit
+
+================================================================================
+
+OVERALL SAVE SEQUENCE
+------
+All data for one submission is written in a SINGLE TRANSACTION:
+
+1. INSERT [newshub].[coll_news_entry]
+   - headline_bn, summary_bn, news_date, link_form_type_id, etc.
+   - ⚠ link_issue_sub_type_id NOT saved here — column does not exist in coll_news_entry
+   → returns coll_news_entry_id
+
+2. INSERT [newshub].[coll_news_entry_tag]        (Step 11 — one row per tag)
+
+3. INSERT [person].[person]                       (Step 4 — martyr identity)
+   → returns person_id
+
+4. INSERT [person].[person_job]   (Step 4 — if occupation/institution provided)
+
+5. INSERT [investigation].[incident_involved_actor_profile]  (Step 4 — martyr profile)
+
+6. INSERT [investigation].[july2024_fact_protest]
+   All columns written in one INSERT covering Steps 3, 5, 6, 7, 8:
+     link_coll_news_entry_id              ← coll_news_entry_id (Step 1)
+     link_ref_status_incident_type_id               ← july_sub_type (Step 3)
+     link_ref_status_protest_scale_id               ← july_context_json.scale (Step 3)
+     link_ref_status_internet_status_id             ← july_context_json.internetStatus (Step 3)
+     link_ref_status_curfew_status_id               ← july_context_json.curfewStatus (Step 3)
+     link_ref_status_victim_current_status_id       ← july_martyr_status (Step 5)
+     victim_story_* fields               ← july_story_json (Step 5)
+     victim_story_dependents_count       ← july_story_json.dependents (Step 5)
+     victim_medical_* / victim_evidence_* fields  ← july_cause_json (Step 6)
+     force_involved_* / force_details_* fields    ← july_oppressors_json (Step 7)
+     link_ref_status_verification_status_id / verification_* fields ← july_evidence_json (Step 8)
+     verification_eyewitness_count       ← july_evidence_json.eyewitnessCount (Step 8)
+     verification_memorial_reference     ← july_evidence_json.memorialRef (Step 8)
+     created_by_user_id                  ← request.user.id
+
+7. INSERT [newshub].[coll_news_asset]        (attachments — if any)
+8. INSERT [media].[asset]                    (attachment files — get-or-create by hash)
+9. INSERT [newshub].[coll_news_social_media_source]  (social sources — if any)
+10. INSERT [media].[social_media_url_library]        (social URLs — get-or-create)
+
+================================================================================
+
+RESOLVED QUESTIONS
+------
+✓ Q1 (RESOLVED): [person].[person] does NOT have father_name_bn / mother_name_bn.
+   Actual columns: father_first_name_bn (line 278) and mother_first_name_bn (line 280)
+   in user_account/models.py. The form's single "father" text value is saved to
+   father_first_name_bn, and "mother" to mother_first_name_bn.
+   father_last_name_bn and mother_last_name_bn are left NULL (not collected by form).
+
+NOTE (BIT columns — CONFIRMED DESIGN):
+  Checkbox groups (forces, evidence types, breadwinner, autopsy, death cert, medical docs):
+    → ref_status is used ONLY to populate the UI.
+    → Status IDs are NOT saved as FKs.
+    → Each checked checkbox sets the corresponding BIT column to 1.
+    → The view has a hardcoded status_code → column_name mapping.
+  Radio / dropdown values (incident type, scale, internet, curfew, victim status,
+  weapon, injury site, verification status):
+    → The selected status_id IS saved in the corresponding link_*_id column.
+
+================================================================================
+END OF FILE
+================================================================================

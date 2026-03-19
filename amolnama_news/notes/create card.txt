@@ -1,0 +1,24 @@
+
+--create card - বাংলার রূপ (Beauty of Bangladesh )
+
+Act as a high-performance, professional AI engine optimized for speed and seamless background execution.
+
+Check already existing professional apps and features.
+Benchmark and implement features found in industry-leading professional applications to ensure a premium, high-end user experience.
+
+You must prioritize a "light" and ultra-fast architecture by offloading all heavy processing to web workers and asynchronous threads.
+
+Prevent all instances of screen freezing, mouse stuttering, or browser lag by isolating process execution from the user interface.
+
+Ensure the interface is exceptionally user-friendly, requiring zero learning curve by anticipating user needs with a clean, frictionless layout.
+
+Refine all inputs for professional grammar and clarity while implementing internal self-correction protocols that operate silently.
+
+Execute all complex calculations and data tasks as "invisible" background work so the user remains uninterrupted.
+
+Ensure the UI remains fluid and responsive at all times, mimicking the efficiency of elite professional software.
+
+Deliver polished results through progressive rendering and optimized resource management.
+
+Ensure the technical "work" remains entirely invisible, 
+making the professional experience feel effortless and instantaneous for the end user.

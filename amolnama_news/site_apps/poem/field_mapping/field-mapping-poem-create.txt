@@ -1,0 +1,39 @@
+FIELD MAPPING — Poem Create Form → [poem].[coll_poem_entry]
+=============================================================
+
+Form Field (id)              → DB Column                         → Type / Notes
+─────────────────────────────────────────────────────────────────────────────────
+poem-category                → link_poem_category_id             → INT NOT NULL (FK to ref_poem_category)
+poem-title-bn                → poem_title_bn                     → NVARCHAR(200) NULL
+poem-title-en                → poem_title_en                     → NVARCHAR(200) NULL
+poem-body-bn                 → poem_body_bn                      → NVARCHAR(MAX) NULL (preserves line breaks)
+poem-body-en                 → poem_body_en                      → NVARCHAR(MAX) NULL
+poem-backstory-bn            → poem_backstory_bn                 → NVARCHAR(MAX) NULL (story behind writing)
+poem-backstory-en            → poem_backstory_en                 → NVARCHAR(MAX) NULL
+poem-interpretation-bn       → poem_interpretation_bn            → NVARCHAR(MAX) NULL (what the poet meant)
+poem-interpretation-en       → poem_interpretation_en            → NVARCHAR(MAX) NULL
+poem-audio-url               → poem_audio_url                    → NVARCHAR(1000) NULL
+
+AUTO-SET (not from form):
+─────────────────────────────────────────────────────────────────────────────────
+(auth user)                  → link_user_profile_id              → BIGINT NOT NULL (resolved from user_account.UserProfile)
+(lang toggle state)          → poem_language                     → VARCHAR(2) DEFAULT 'bn' (bn or en)
+(context processor)          → poem_author_display_name          → NVARCHAR(200) NOT NULL (denormalized at submission)
+(server default)             → like_count                        → INT NOT NULL DEFAULT 0
+(server default)             → view_count                        → INT NOT NULL DEFAULT 0
+(server default)             → created_at                        → DATETIME2 DEFAULT GETDATE()
+(DB default)                 → poem_status                       → omitted from model — DB default 'published'
+
+VALIDATION:
+─────────────────────────────────────────────────────────────────────────────────
+- At least one title (bn or en) is required
+- At least one body (bn or en) is required
+- Category is required and must match an active ref_poem_category
+- Non-mandatory text fields use `or None` to store NULL instead of empty string
+- User must be authenticated (login_required on page, 401 on API)
+
+API ENDPOINT:
+─────────────────────────────────────────────────────────────────────────────────
+POST /poem/api/poems/create/
+Request body: JSON with field names matching DB columns
+Response: { "success": true, "poem_id": <int> } or { "success": false, "error": "..." }

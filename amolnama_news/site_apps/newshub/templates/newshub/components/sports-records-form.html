@@ -1,0 +1,73 @@
+{% comment %}
+  Records & Details — captures tournament name, milestones,
+  and conditional transfer/injury details.
+  Sports form type specific.
+  Transfer section shown when sub-type = transfer.
+  Injury section shown when sub-type = injury.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-sports-records">
+  <h3 class="form-section-title"><span class="section-icon">🏅</span>রেকর্ড ও তথ্য (Records & Details)</h3>
+
+  {# Hidden input — JS serializes records data here before submit #}
+  <input type="hidden" id="sports-records-json" name="sports_records_json" value="">
+
+  <div class="form-field">
+    <label for="sports-tournament-name">টুর্নামেন্ট/লীগের নাম (Tournament/League Name)</label>
+    <input type="text" id="sports-tournament-name"
+           placeholder="যেমন: IPL 2026, FIFA World Cup, BPL, চ্যাম্পিয়ন্স লীগ...">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-records-milestones">রেকর্ড ও মাইলফলক (Records & Milestones)</label>
+    <textarea id="sports-records-milestones" rows="3"
+              placeholder="১০০তম গোল, ৫০০০ রান, ব্যক্তিগত সেরা, অপরাজিত ধারা... (100th goal, 5000 runs, personal best, unbeaten run...)"></textarea>
+  </div>
+
+  {# ---- Transfer Details (shown only when sub-type = transfer) ---- #}
+  <div class="sports-conditional-section" id="sports-transfer-section" style="display: none;">
+    <h4 class="form-subsection-title">দলবদলের তথ্য (Transfer Details)</h4>
+
+    <div class="form-field">
+      <label for="sports-transfer-from">পূর্ববর্তী দল (From Team)</label>
+      <input type="text" id="sports-transfer-from"
+             placeholder="যে দল থেকে ছেড়ে আসছেন...">
+    </div>
+
+    <div class="form-field">
+      <label for="sports-transfer-to">নতুন দল (To Team)</label>
+      <input type="text" id="sports-transfer-to"
+             placeholder="যে দলে যোগ দিচ্ছেন...">
+    </div>
+
+    <div class="form-field">
+      <label for="sports-transfer-fee">স্থানান্তর মূল্য (Transfer Fee)</label>
+      <input type="text" id="sports-transfer-fee"
+             placeholder="যেমন: €100 Million, ₹50 Crore...">
+    </div>
+
+    <div class="form-field">
+      <label for="sports-transfer-duration">চুক্তির মেয়াদ (Contract Duration)</label>
+      <input type="text" id="sports-transfer-duration"
+             placeholder="যেমন: 3 বছর, 1 মৌসুম...">
+    </div>
+  </div>
+
+  {# ---- Injury Details (shown only when sub-type = injury) ---- #}
+  <div class="sports-conditional-section" id="sports-injury-section" style="display: none;">
+    <h4 class="form-subsection-title">ইনজুরির তথ্য (Injury Details)</h4>
+
+    <div class="form-field">
+      <label for="sports-injury-type">ইনজুরির ধরন (Injury Type)</label>
+      <input type="text" id="sports-injury-type"
+             placeholder="যেমন: হাঁটুর লিগামেন্ট, হ্যামস্ট্রিং, কাঁধে চোট...">
+    </div>
+
+    <div class="form-field">
+      <label for="sports-injury-recovery">সুস্থতার সময়কাল (Recovery Duration)</label>
+      <input type="text" id="sports-injury-recovery"
+             placeholder="যেমন: ৩ সপ্তাহ, ৬ মাস, অনির্দিষ্ট...">
+    </div>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}বয়স ক্যালকুলেটর · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-age-calculator.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--age">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1>বয়স ক্যালকুলেটর (Age Calculator)</h1>
+  <p class="tool-subtitle">জন্মতারিখ দিন — বয়স, পরবর্তী জন্মদিন ও মজার তথ্য জানুন</p>
+
+  <div class="age-form">
+    <div class="age-form-row">
+      <div class="age-form-field">
+        <label for="age-dob">জন্মতারিখ (Date of Birth) <span class="required-mark">*</span></label>
+        <div class="age-date-wrap">
+          <input type="text" id="age-dob" class="age-date-input" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required>
+          <button type="button" class="age-date-toggle" data-target="age-dob">📅</button>
+          <div class="age-calendar" id="age-dob-calendar"></div>
+        </div>
+      </div>
+      <div class="age-form-field">
+        <label for="age-target">তারিখ পর্যন্ত (Calculate to)</label>
+        <div class="age-date-wrap">
+          <input type="text" id="age-target" class="age-date-input" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off">
+          <button type="button" class="age-date-toggle" data-target="age-target">📅</button>
+          <div class="age-calendar" id="age-target-calendar"></div>
+        </div>
+        <span class="hint">খালি রাখলে আজকের তারিখ ধরা হবে</span>
+      </div>
+    </div>
+    <button type="button" id="age-calc-btn" class="btn-submit">
+      হিসাব করুন (Calculate)
+    </button>
+  </div>
+
+  {# ── Results — hidden until calculated ── #}
+  <div id="ageResults" class="age-results" style="display:none;">
+
+    {# Primary age display #}
+    <div class="age-primary-card">
+      <div class="age-primary-label">আপনার বয়স (Your Age)</div>
+      <div class="age-primary-value">
+        <span id="ageYears" class="age-big">0</span><span class="age-unit">বছর</span>
+        <span id="ageMonths" class="age-big">0</span><span class="age-unit">মাস</span>
+        <span id="ageDays" class="age-big">0</span><span class="age-unit">দিন</span>
+      </div>
+    </div>
+
+    {# Next birthday countdown #}
+    <div class="age-birthday-card">
+      <div class="age-birthday-icon">🎂</div>
+      <div class="age-birthday-info">
+        <div class="age-birthday-label">পরবর্তী জন্মদিন</div>
+        <div id="ageBirthdayCountdown" class="age-birthday-countdown"></div>
+        <div id="ageBirthdayDate" class="age-birthday-date"></div>
+        <div id="ageBirthdayDay" class="age-birthday-day"></div>
+      </div>
+    </div>
+
+    {# Detailed breakdown grid #}
+    <div class="age-detail-grid">
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalMonths">0</span>
+        <span class="age-detail-label">মোট মাস (Total Months)</span>
+      </div>
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalWeeks">0</span>
+        <span class="age-detail-label">মোট সপ্তাহ (Total Weeks)</span>
+      </div>
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalDays">0</span>
+        <span class="age-detail-label">মোট দিন (Total Days)</span>
+      </div>
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalHours">0</span>
+        <span class="age-detail-label">মোট ঘণ্টা (Total Hours)</span>
+      </div>
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalMinutes">0</span>
+        <span class="age-detail-label">মোট মিনিট (Total Minutes)</span>
+      </div>
+      <div class="age-detail-item">
+        <span class="age-detail-value" id="ageTotalSeconds">0</span>
+        <span class="age-detail-label">মোট সেকেন্ড (Total Seconds)</span>
+      </div>
+    </div>
+
+    {# Fun facts #}
+    <div class="age-fun-facts">
+      <h3>মজার তথ্য (Fun Facts)</h3>
+      <ul id="ageFunFacts"></ul>
+    </div>
+
+    {# Life milestones #}
+    <div class="age-milestones">
+      <h3>জীবনের মাইলফলক (Life Milestones)</h3>
+      <div id="ageMilestones" class="age-milestone-list"></div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'tools/assets/js/pages/tools-age-datepicker.js' %}"></script>
+<script src="{% static 'tools/assets/js/pages/tools-age-calculator.js' %}"></script>
+{% endblock %}

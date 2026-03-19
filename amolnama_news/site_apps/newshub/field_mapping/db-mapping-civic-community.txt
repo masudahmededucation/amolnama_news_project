@@ -1,0 +1,195 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: CIVIC & COMMUNITY FORM
+================================================================================
+Last updated: 2026-03-14 (DDL verified — 3 column names corrected)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-civic-community.txt
+
+URL view  : news_collection_multistep_civic_community()
+Template  : newshub/pages/news-collection-multistep-civic-community.html
+Steps     : 12 total
+
+Steps 1-2, Attachments, Social Sources → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table
+  ⚠️ PENDING    — not yet implemented
+  🔍 VERIFY     — DDL inferred from Django model; confirm against actual DB
+
+NOTE: Steps 3 + 7 + 8 are all saved as ONE row in the civic table.
+      The row is only written when both link_ref_status_impact_category_id AND
+      link_ref_status_issue_status_id are present.
+================================================================================
+
+
+================================================================================
+STEP 3: Civic Sub-Type
+================================================================================
+POST key  : civic_sub_type  (plain integer, news-civic-sub-type.js)
+TABLE     : [investigation].[civic_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  civic_sub_type  →  link_ref_status_civic_form_sub_issue_type_id   FK → [investigation].[ref_status]
+
+group_code: civic_form_sub_issue_type  (status_ids 590-606)
+  590 roads_infrastructure    🛣️ — রাস্তা ও অবকাঠামো
+  591 water_logging           🌊 — জলাবদ্ধতা
+  592 drainage_sewage         🚰 — পয়ঃনিষ্কাশন
+  593 waste_management        🗑️ — বর্জ্য ব্যবস্থাপনা
+  594 electricity             ⚡ — বিদ্যুৎ
+  595 gas_supply              🔥 — গ্যাস সরবরাহ
+  596 water_supply            🚿 — পানি সরবরাহ
+  597 public_transport        🚌 — গণপরিবহন
+  598 illegal_market          🛒 — অবৈধ বাজার/অবৈধ দখল
+  599 air_quality             🍃💨 — বায়ু মান
+  600 noise_pollution         🔊 — শব্দ দূষণ
+  601 land_encroachment       🚧 — ভূমি দখল
+  602 illegal_construction    🏗️ — অবৈধ নির্মাণ
+  603 environmental_pollution 🏭 — পরিবেশ দূষণ
+  604 public_safety           🛡️ — জননিরাপত্তা
+  605 healthcare_services     🏥 — স্বাস্থ্যসেবা
+  606 education_facilities    🏫 — শিক্ষা অবকাঠামো
+
+Django model: CivicFormImpact  (investigation/models.py)
+
+
+================================================================================
+STEP 4: Responsible Authority (দায়ী কর্তৃপক্ষ)
+================================================================================
+Template:     step-civic-accused.html → civic-accused-form.html
+JS file:      news-accused-repeater.js
+Hidden input: #accused-json (name="accused_json")
+Mapping: See db-mapping-actor-repeaters.txt → ACCUSED
+Note: Label is "দায়ী কর্তৃপক্ষ" (Responsible Authority) in civic context,
+      but uses the same accused_json POST key and accused-repeater.js module.
+
+
+================================================================================
+STEP 5: Victim (ভুক্তভোগী)
+================================================================================
+Template:     step-victim.html → victim-form.html
+JS file:      news-victim-repeater.js
+Hidden input: #victim-json (name="victim_json")
+Mapping: See db-mapping-actor-repeaters.txt → VICTIM (basic — no health condition fields)
+
+
+================================================================================
+STEP 6: Witness (সাক্ষী / তথ্যদাতা)
+================================================================================
+Template:     step-witness.html → witness-form.html
+JS file:      news-witness-repeater.js
+Hidden input: #witness-json (name="witness_json")
+Mapping: See db-mapping-actor-repeaters.txt → WITNESS
+
+
+================================================================================
+STEP 7: Impact & Duration
+================================================================================
+POST key  : civic_impact_json  (hidden JSON, news-civic-impact-duration.js)
+TABLE     : [investigation].[civic_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key           →  DB column
+  impactCategoryId   →  link_ref_status_civic_form_impact_category_id       FK → [investigation].[ref_status] (civic_form_impact_category group)
+  peopleAffected     →  impact_affected_people_count                         [int] NULL
+  durationValue      →  impact_time_duration_unit_number                     [int] NULL
+  durationUnitId     →  link_ref_status_civic_form_time_duration_unit_id    FK → [investigation].[ref_status] (civic_form_time_duration_unit group), NULL
+  previousComplaint  →  is_complaint_filed_previously   [bit] NOT NULL DEFAULT 0
+  complaintDetails   →  complaint_previous_details      NVARCHAR(2000) NULL
+  budgetInfo         →  complaint_budget_project_info   NULL
+
+group_code: civic_form_impact_category  (status_ids 9-14)
+   9 BUSINESS_LOSS        — ব্যবসায়িক ক্ষতি
+  10 DAILY_LIFE_IMPACT    — দৈনন্দিন জীবনে প্রভাব
+  11 ENVIRONMENTAL_DAMAGE — পরিবেশগত ক্ষতি
+  12 HEALTH_HAZARD        — স্বাস্থ্যহানি
+  13 SAFETY_RISK          — নিরাপত্তা ঝুঁকি
+  14 TRAFFIC_JAM          — যানজট
+
+group_code: civic_form_time_duration_unit  (status_ids 58-60)
+  58 DAYS   — দিন
+  59 MONTHS — মাস
+  60 YEARS  — বছর
+
+
+================================================================================
+STEP 8: Current Status
+================================================================================
+POST key  : civic_status_json  (hidden JSON, news-civic-current-status.js)
+TABLE     : [investigation].[civic_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key       →  DB column
+  issueStatusId  →  link_ref_status_civic_form_current_issue_status_id   FK → [investigation].[ref_status] (mandatory for row to save)
+  description    →  status_description_bn  NULL
+
+group_code: civic_form_current_issue_status  (status_ids 607-615)
+  607 newly_reported                  📋 — নতুন রিপোর্ট
+  608 acknowledged_under_assessment   🔍 — স্বীকৃত/মূল্যায়নাধীন
+  609 verbally_promised_pending       🤝 — মৌখিক প্রতিশ্রুতি / শুরু হয়নি
+  610 work_started                    🔧 — কাজ শুরু হয়েছে
+  611 delayed                         ⏳ — বিলম্বিত
+  612 ignored                         ❌ — উপেক্ষিত
+  613 recurring                       🔄 — পুনরাবৃত্ত
+  614 partially_resolved              ✔️ — আংশিক সমাধান
+  615 fully_resolved                  ✅ — সম্পূর্ণ সমাধান
+
+Django model: CivicFormImpact  (investigation/models.py)
+
+
+================================================================================
+STEP 9: Location
+================================================================================
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+Location hint: সমস্যার স্থান নির্বাচন করুন (location of the civic issue)
+
+
+================================================================================
+STEP 10: Social Sources
+================================================================================
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+
+
+================================================================================
+STEP 11: Category / Tags
+================================================================================
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+
+
+================================================================================
+STEP 12: Submit
+================================================================================
+No new POST keys; form submission triggered.
+
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+1. [newshub].[coll_news_entry] INSERT
+   - form_type = "civic_community"
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (per db-mapping-common-steps.txt)
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — responsible authority rows
+   Source: accused_json (Step 4) — first person, then profile per card
+   Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+   See db-mapping-actor-repeaters.txt for full mapping.
+
+4. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — victim rows
+   Source: victim_json (Step 5) — first person, then profile per card
+
+5. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — witness rows
+   Source: witness_json (Step 6) — first person, then profile per card
+
+6. [investigation].[civic_form_impact] INSERT — single row combining Steps 3+7+8
+   Source: civic_sub_type + civic_impact_json + civic_status_json
+
+7. Social source data INSERT (per db-mapping-common-steps.txt)
+
+8. Category/Tag associations INSERT (per db-mapping-common-steps.txt)
+================================================================================
+
+
+================================================================================
+END OF FILE
+================================================================================

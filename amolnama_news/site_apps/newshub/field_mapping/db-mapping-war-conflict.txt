@@ -1,0 +1,137 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: WAR & CONFLICT FORM (যুদ্ধ ও সংঘাত)
+================================================================================
+Last updated: 2026-03-13 (corrected Step 4 involvement type group_code)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-war-conflict.txt
+
+URL view  : news_collection_multistep_war_conflict()
+Template  : newshub/pages/news-collection-multistep-war-conflict.html
+
+Steps 1-2, Attachments, Social Sources → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table
+
+NOTE: Steps 3 + 5 + 6 + 7 (main data) are saved as ONE row in conflict_form_impact.
+      Step 4 (parties) is a separate repeater table, one row per party.
+================================================================================
+
+
+================================================================================
+STEP 3: Conflict Sub-Type
+================================================================================
+POST key  : global_sub_type  (plain integer — status_id)
+TABLE     : [investigation].[conflict_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  global_sub_type  →  link_ref_status_conflict_form_conflict_type_id
+                       FK → [investigation].[ref_status]
+                       group_code=conflict_form_conflict_sub_issue_type
+                       41=Coup/অভ্যুত্থান  42=Diplomacy/কূটনীতি
+                       43=Sanctions/নিষেধাজ্ঞা  44=War/যুদ্ধ
+
+
+================================================================================
+STEP 4: Conflict Parties  (repeater)
+================================================================================
+POST key  : global_conflict_parties_json  (hidden JSON array, news-war-conflict-parties.js)
+TABLE     : [investigation].[conflict_form_actor_country]
+STATUS    : ✅ CONFIRMED — one row per party (skipped if countryId or involvementTypeId absent)
+
+  JSON key per item    →  DB column
+  countryId            →  link_country_id                FK → [ref].[country] (mandatory)
+  involvementTypeId    →  link_ref_status_actor_involvement_type_id
+                           FK → [investigation].[ref_status] (mandatory)
+                           group_code=incident_involved_actor_role
+                           Reused as party role: accused=Aggressor, victim=Defender, witness=Ally
+                           34=ACCUSED  39=VICTIM  40=WITNESS
+                           NOTE: This column stores party ROLE, not military involvement level.
+                           Military involvement level is a separate field on conflict_form_impact
+                           (Step 5, link_ref_status_conflict_form_involvement_level_id).
+  alliance             →  actor_alliance_coalition_bn    nvarchar(255) NULL
+  leaderName           →  actor_leader_decision_maker_bn nvarchar(255) NULL
+  statement            →  actor_official_statement_bn    nvarchar(MAX) NULL
+
+Django model: ConflictFormActorCountry  (investigation/models.py)
+
+
+================================================================================
+STEP 5: Frontline Status
+================================================================================
+POST key  : global_frontline_json  (hidden JSON, news-war-conflict-frontline.js)
+TABLE     : [investigation].[conflict_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key              →  DB column
+  territoryStatusId     →  link_ref_status_conflict_form_territorial_sovereignty_status_id
+                            FK → [investigation].[ref_status]
+                            group_code=conflict_form_territorial_sovereignty_status
+                            45=CAPTURED/দখলকৃত  46=CONTESTED/বিতর্কিত
+                            47=LIBERATED/মুক্ত  48=UNDER_SIEGE/অবরুদ্ধ
+  territoryDescription  →  frontline_territory_name_bn    nvarchar(255) NULL
+  conflictIntensityId   →  link_ref_status_conflict_form_conflict_intensity_id
+                            FK → [investigation].[ref_status], NULL
+                            group_code=conflict_form_conflict_intensity
+                            496=Minimal  497=Border Skirmish  498=Regional Conflict
+                            499=Active Combat  500=Intense Urban Warfare  501=Full-Scale War
+  weaponClassId         →  link_ref_status_conflict_form_weapon_id
+                            FK → [investigation].[ref_status], NULL
+                            group_code=conflict_form_weapon
+                            66=Chemical  67=Conventional  68=Cyber
+                            69=Drones  70=Missiles  71=Nuclear
+  involvementLevelId    →  link_ref_status_conflict_form_involvement_level_id
+                            FK → [investigation].[ref_status], NULL
+                            group_code=conflict_form_involvement_level
+                            96=Arms Supply  97=Direct Combat  98=Financial Aid  99=Proxy War
+
+
+================================================================================
+STEP 6: Humanitarian / Casualties
+================================================================================
+POST key  : global_humanitarian_json  (hidden JSON, news-war-conflict-humanitarian.js)
+TABLE     : [investigation].[conflict_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key              →  DB column
+  militaryCasualties    →  casualty_military_count              [int] NOT NULL (default 0)
+  civilianCasualties    →  casualty_civilian_count              [int] NOT NULL (default 0)
+  refugees              →  casualty_displaced_refugee_count     [int] NOT NULL (default 0)
+  warCrimes             →  casualty_has_war_crime_allegation    [bit] NOT NULL
+  warCrimesDescription  →  casualty_war_crime_details_bn        nvarchar(2000) NULL
+
+
+================================================================================
+STEP 7: Geopolitics / Strategic Impact
+================================================================================
+POST key  : global_geopolitics_json  (hidden JSON, news-war-conflict-geopolitics.js)
+TABLE     : [investigation].[conflict_form_impact]
+STATUS    : ✅ CONFIRMED
+
+  NOTE: Strategic impacts are 4 hardcoded checkboxes mapping to 4 bit columns.
+        Each maps to a known status_code in conflict_form_global_strategic_impact
+        (status_ids 78–81) but stored as bit flags, not FK references.
+
+  JSON key                  →  DB column
+  globalReactionId          →  link_ref_status_conflict_form_global_reaction_id
+                                FK → [investigation].[ref_status], NULL
+                                group_code=conflict_form_global_reaction
+                                72=Condemnation  73=Military Alliance  74=Peace Talks
+                                75=Sanctions Imposed  76=Trade Ban  77=UN Vote
+  globalReactionDetails     →  global_reaction_details_bn    nvarchar(1000) NULL
+  strategicCurrencyEconomy  →  global_is_impact_currency_economy  [bit] NOT NULL
+                                (status_id=78, CURRENCY_ECONOMY)
+  strategicFoodSupply       →  global_is_impact_food_supply       [bit] NOT NULL
+                                (status_id=79, FOOD_SUPPLY)
+  strategicOilEnergy        →  global_is_impact_oil_energy        [bit] NOT NULL
+                                (status_id=80, OIL_ENERGY)
+  strategicShippingLanes    →  global_is_impact_shipping_lanes    [bit] NOT NULL
+                                (status_id=81, SHIPPING_LANES)
+  localImpact               →  local_has_bangladesh_impact        [bit] NOT NULL
+  localImpactDescription    →  local_impact_description_bn        nvarchar(2000) NULL
+
+Django model: ConflictFormImpact  (investigation/models.py)
+
+
+================================================================================
+END OF FILE
+================================================================================

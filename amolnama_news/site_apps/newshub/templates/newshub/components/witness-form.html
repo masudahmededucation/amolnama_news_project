@@ -1,0 +1,33 @@
+{% comment %}
+  Witness Form — single-role repeater for সাক্ষী (witnesses/informants).
+  Used by: Crime & Violence, Extortion & Land Grab, Price Hike.
+  Data is serialized to #witness-json hidden input by news-witness-repeater.js.
+{% endcomment %}
+
+<div class="form-section" id="section-witness">
+  <h3 class="form-section-title"><span class="section-icon">🟡</span>সাক্ষী / তথ্যদাতা (Witnesses / Informants)</h3>
+
+  {# Hidden input — JS serializes the witness array here before submit #}
+  <input type="hidden" id="witness-json" name="witness_json" value="">
+
+  {# Add button #}
+  <div class="actor-add-buttons" id="witness-add-btn-wrap">
+    <button type="button" class="actor-add-btn actor-add-witness" id="witness-add-btn">
+      + সাক্ষী যোগ করুন (Add Witness)
+    </button>
+  </div>
+
+  {# Dynamic cards rendered here by news-witness-repeater.js #}
+  <div id="witness-list"></div>
+
+  {# Empty state #}
+  <div class="actor-empty-state" id="witness-empty-state">
+    এখনো কোনো সাক্ষী যোগ করা হয়নি।
+    <br><small>(No witnesses added yet. Click the button above to add one.)</small>
+  </div>
+</div>
+
+<div class="form-section" id="section-witness-photos">
+  <h3 class="form-section-title"><span class="section-icon">🗣️</span>সাক্ষীর পরিচয় ও সাক্ষ্যমূলক দলিল (Witness — Identity &amp; Testimonial Evidence) <em class="field-optional">(ঐচ্ছিক)</em></h3>
+  {% include "newshub/components/file-upload-section.html" with upload_prefix="witness-photos" upload_name="witness_photos" upload_accept="image/*" upload_label="সাক্ষীর ছবি বা প্রাসঙ্গিক নথি আপলোড করুন — সর্বোচ্চ ৩টি (Upload witness photo or document, max 3)" upload_btn_label="+ সাক্ষীর ছবি/নথি যোগ করুন (Add photo/document)" upload_desc_name="witness_photos_descriptions_json" upload_hint="সাক্ষীর পরিচিতিমূলক ছবি, তাঁর বিবৃতির স্ক্রিনশট বা প্রাসঙ্গিক নথি দিন — পরিচয় গোপন রাখতে চাইলে সম্পাদনা নোটে উল্লেখ করুন (ID photo, statement screenshot or document — flag for anonymity if required)" %}
+</div>

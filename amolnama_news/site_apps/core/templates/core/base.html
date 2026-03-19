@@ -1,19 +1,29 @@
 {% load static %}
+{% load seo_tags %}
 {% static "core/assets/img" as baseUrl %}
 
 <!doctype html>
-<html lang="en">
+<html lang="bn" dir="ltr">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>{% block title %}Amolnama News - Truth is our strength{% endblock %}</title>
-  <meta name="description" content="Clean, responsive HTML5 newspaper/magazine template."/>
+  <title>{% block title %}আমলনামা নিউজ — সত্যই আমাদের শক্তি | Amolnama News{% endblock %}</title>
+
+  {% seo_meta_tags %}
+
+  <meta name="theme-color" content="#1a1a2e"/>
+  <link rel="icon" type="image/png" href="{% static 'core/assets/img/logo.png' %}"/>
+  <link rel="apple-touch-icon" href="{% static 'core/assets/img/pwa-icon-192.png' %}"/>
+  <link rel="manifest" href="/manifest.json"/>
+
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
-                 script-src 'self' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net;
+                 script-src 'self' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com;
+                 worker-src 'self' https://cdn.jsdelivr.net blob:;
                  style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://fonts.googleapis.com;
                  font-src 'self' https://fonts.gstatic.com;
-                 img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com;
+                 img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com https://i.ytimg.com;
+                 frame-src https://www.youtube.com;
                  connect-src 'self' https://nominatim.openstreetmap.org https://unpkg.com https://cdn.jsdelivr.net;">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,10 +44,14 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/components/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/pwa-install-banner.css' %}">
 
   <link rel="stylesheet" href="{% static 'user_account/assets/css/layout/header-auth.css' %}">
   
   {% block extra_css %}{% endblock %}
+  {% block extra_head %}{% endblock %}
+
+  {% seo_json_ld %}
 </head>
 <body>
   <div class="page-wrapper">
@@ -75,5 +89,10 @@
   {% block extra_js %}{% endblock %}
   <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
   <script src="{% static 'user_account/assets/js/header-user-menu.js' %}"></script>
+  <script src="{% static 'englishtobangla/assets/js/utilities/avro-phonetic.js' %}"></script>
+  <script src="{% static 'englishtobangla/assets/js/utilities/bangla-input.js' %}"></script>
+  <script src="{% static 'newshub/assets/js/components/news-form-lang.js' %}"></script>
+  <script src="{% static 'core/assets/js/pwa-register-sw.js' %}"></script>
+  <script src="{% static 'core/assets/js/pwa-install-prompt.js' %}"></script>
 </body>
 </html>

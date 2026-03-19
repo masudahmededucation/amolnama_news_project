@@ -1,0 +1,206 @@
+================================================================================
+TOOL: File Conversion (ফাইল রূপান্তর)
+================================================================================
+
+URL:        /tools/file-conversion/
+View:       tools_file_conversion
+Template:   tools/tools-file-conversion.html
+JS:         tools/assets/js/pages/tools-file-conversion.js
+CSS:        tools/assets/css/pages/tools-file-conversion.css
+
+External Libraries (CDN):
+  - pdfjs-dist 3.11.174   — PDF text extraction and page rendering
+  - jsPDF 2.5.2            — PDF generation from text/images
+  - mammoth 1.6.0          — DOCX → HTML/text conversion
+
+Server API:
+  - /tools/api/file-conversion-map/  — returns JSON { ext: [target_exts] }
+    from [multimedia].[ref_file_conversion_map] table
+    Fallback: CONVERSION_MAP_FALLBACK hardcoded in JS
+
+Processing: 100% client-side (no server upload, API only provides config)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. FILE INPUT
+   - Single file at a time
+   - Drag & drop onto dropzone
+   - Browse button (file picker)
+   - "Change file" button (swap without resetting target selection)
+
+2. CONVERSION MAP (dynamic)
+   - Loaded from API on page init: /tools/api/file-conversion-map/
+   - Falls back to CONVERSION_MAP_FALLBACK if API fails
+   - Format grid shows available target formats as clickable buttons
+   - Formats colored by extension (EXT_COLORS map, 60+ extensions)
+
+3. SUPPORTED CONVERSIONS
+
+   IMAGE → IMAGE (canvas-based):
+     png, jpg, jpeg, webp, bmp, gif, svg, tiff, tif, ico, avif → any image format
+     convertImageToImage() — loads to canvas, exports as target MIME type
+
+   IMAGE → PDF:
+     convertImageToPdf() — embeds image centered on A4 page via jsPDF
+
+   IMAGE → SVG:
+     convertImageToSvg() — wraps as base64 <image> inside SVG wrapper
+
+   DOCX → PDF:
+     convertDocxToPdf() — mammoth extracts HTML, renders to canvas via jsPDF
+
+   DOCX → TEXT:
+     convertDocxToText() — mammoth.extractRawText()
+
+   DOCX → HTML:
+     convertDocxToHtml() — mammoth.convertToHtml()
+
+   PDF → IMAGE (png/jpg/webp):
+     convertPdfToImage() — renders first page via pdfjs canvas, exports
+
+   PDF → TEXT:
+     convertPdfToText() — extracts text from all pages via pdfjs
+
+   PDF → HTML:
+     convertPdfToHtml() — extracts text per page, wraps in styled HTML
+
+   PDF → DOCX:
+     convertPdfToDocx() — extracts text per page, builds DOCX XML, packages as ZIP
+
+   TEXT/CODE → PDF:
+     convertTextToPdf() — wraps text in jsPDF with monospace font, auto-pagination
+
+   CSV ↔ JSON:
+     convertCsvToJson() — parses CSV rows to array of objects
+     convertJsonToCsv() — flattens JSON array to CSV with headers
+
+   CSV ↔ TSV:
+     convertCsvTsv(fromType, toType) — delimiter swap
+
+   CSV → HTML:
+     convertCsvToHtml() — renders as styled HTML table
+
+   JSON ↔ YAML:
+     convertJsonToYaml() — custom JSON→YAML serializer
+     convertYamlToJson() — custom YAML parser (simple subset)
+
+   JSON → HTML:
+     convertJsonToHtml() — renders as styled collapsible-like HTML
+
+   JSON → XML / XML → JSON:
+     convertJsonToXml() — wraps JSON in XML structure
+     convertXmlToJson() — DOMParser → recursive object conversion
+
+   XML → HTML / XML → CSV:
+     convertXmlToHtml() — pretty-print with syntax highlighting
+     convertXmlToCsv() — flattens repeated child elements to CSV rows
+
+   MARKDOWN → HTML / MARKDOWN → PDF:
+     markdownToHtml() — custom regex-based parser (headers, bold, italic, lists, code, links)
+     convertMarkdownToPdf() — markdown → HTML → jsPDF
+
+   HTML → MARKDOWN:
+     htmlNodeToMd() — recursive DOM walker converting tags to markdown
+
+   HTML → PDF / HTML → TEXT:
+     Renders via jsPDF / extracts via textContent
+
+   MARKDOWN/HTML/TEXT → DOCX:
+     Builds DOCX XML package (document.xml + relationships + content_types)
+     createZipBlob() — custom ZIP builder (same pattern as zip-creator tool)
+
+4. RESULT DISPLAY
+   - Shows: output filename, file size, conversion path (EXT → EXT)
+   - Download button
+
+5. DOWNLOAD
+   - Creates blob URL, triggers <a> download, revokes after 5s
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+convert-dropzone, convert-file-input, convert-browse-btn
+convert-panel
+convert-file-icon, convert-file-name, convert-file-meta
+convert-change-btn, convert-remove-btn
+convert-format-grid, convert-action-btn
+convert-result, convert-result-info
+convert-download-btn, convert-another-btn
+
+================================================================================
+KEY FUNCTIONS (50+)
+================================================================================
+
+--- Core flow ---
+loadConversionMap()                — fetches conversion map from API
+handleFile(file)                   — sets current file, builds format grid
+startConversion()                  — routes to correct conversion function
+resolveConversion(src, tgt, ...)   — large routing function matching src→tgt to converter
+showResult()                       — displays result with file info and download button
+resetAll()                         — clears state, returns to dropzone
+
+--- Image conversions ---
+convertImageToImage()              — canvas re-encode (any image → any image)
+convertImageToPdf()                — image embedded on A4 page via jsPDF
+convertImageToSvg()                — wraps image as base64 in SVG
+
+--- Document conversions ---
+convertDocxToPdf()                 — mammoth HTML → jsPDF
+convertDocxToText()                — mammoth extractRawText
+convertDocxToHtml()                — mammoth convertToHtml
+convertPdfToImage()                — pdfjs page render → canvas export
+convertPdfToText()                 — pdfjs text extraction (all pages)
+convertPdfToHtml()                 — pdfjs text → styled HTML
+convertPdfToDocx()                 — pdfjs text → DOCX XML → ZIP
+convertTextToPdf()                 — plain text → jsPDF with pagination
+
+--- Data format conversions ---
+convertCsvToJson()                 — CSV → JSON array of objects
+convertJsonToCsv()                 — JSON array → CSV
+convertCsvTsv(from, to)            — delimiter swap (comma ↔ tab)
+convertCsvToHtml()                 — CSV → styled HTML table
+convertJsonToYaml()                — JSON → YAML (custom serializer)
+convertYamlToJson()                — YAML → JSON (custom parser)
+convertJsonToHtml()                — JSON → styled HTML
+convertJsonToXml() / convertXmlToJson() — JSON ↔ XML
+convertXmlToHtml() / convertXmlToCsv()  — XML → HTML / CSV
+
+--- Markup conversions ---
+convertMarkdownToHtml()            — markdown → HTML (regex parser)
+convertMarkdownToPdf()             — markdown → HTML → jsPDF
+convertHtmlToMarkdown()            — recursive DOM → markdown
+convertPlainToHtml()               — text → HTML with <p> tags
+convertTxtToJson()                 — text lines → JSON array
+
+--- DOCX builders ---
+convertMarkdownToDocx()            — md → HTML → DOCX XML → ZIP
+convertHtmlToDocx()                — HTML → DOCX XML → ZIP
+convertTextToDocx()                — text → DOCX XML → ZIP
+buildDocxBlob(pageTexts)           — assembles DOCX XML package
+createZipBlob(files)               — custom ZIP builder for DOCX packaging
+
+--- Utilities ---
+parseCsvLine(line)                 — RFC 4180 compliant CSV line parser
+csvEscape(val)                     — escapes value for CSV output
+markdownToHtml(md)                 — regex-based markdown → HTML
+htmlNodeToMd(node)                 — recursive DOM → markdown
+xmlNodeToObj(node)                 — recursive XML DOM → JS object
+jsonToYaml(obj, indent)            — recursive JSON → YAML string
+parseSimpleYaml(text)              — simple YAML subset parser
+xmlEscape(str)                     — escapes &, <, >, ", '
+xmlTagName(name)                   — sanitizes string for XML tag name
+crc32(bytes)                       — CRC32 checksum for ZIP
+
+================================================================================
+STATE VARIABLES
+================================================================================
+
+CONVERSION_MAP     — loaded from API (or fallback), { ext: [target_exts] }
+currentFile        — the selected File object
+currentExt         — source file extension
+selectedTarget     — chosen target extension
+resultBlob         — converted output Blob
+resultFileName     — output filename with new extension

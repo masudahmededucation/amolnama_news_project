@@ -1,0 +1,192 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+{% block meta_description %}{{ seo.description }}{% endblock %}
+
+{% block extra_head %}
+{% if og %}
+{# Open Graph — Facebook, Instagram, LinkedIn, WhatsApp #}
+<meta property="og:title" content="{{ og.title }}">
+<meta property="og:description" content="{{ og.description }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ og.image }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ og.url }}">
+<meta property="og:type" content="{{ og.type }}">
+<meta property="og:site_name" content="আমলনামা নিউজ">
+<meta property="og:locale" content="bn_BD">
+{# Twitter Card #}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og.title }}">
+<meta name="twitter:description" content="{{ og.description }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ og.image }}">
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'poem/assets/css/components/poem-card.css' %}">
+<link rel="stylesheet" href="{% static 'poem/assets/css/pages/poem-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<article class="poem-detail" data-poem-id="{{ poem.poem_coll_poem_entry_id }}" data-category-id="{{ poem.link_poem_ref_poem_category_id }}" data-poem-type="{{ poem.poem_type_code }}">
+
+  {# ── Meta bar (category, language, time, edit) ── #}
+  <header class="poem-detail-header">
+    <div class="poem-detail-meta">
+      <span class="poem-detail-category">{{ poem.category_name }}</span>
+      <span class="poem-detail-lang">{{ poem.poem_language_code|upper }}</span>
+      <span class="poem-detail-time">{{ poem.time_ago }}</span>
+      {% if can_edit %}
+      <a href="{% url 'poem:poem_edit' poem.poem_coll_poem_entry_id %}" class="poem-detail-edit-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        সম্পাদনা (Edit)
+      </a>
+      {% endif %}
+    </div>
+  </header>
+
+  {# ── Poem Body (title + author + text inside old book page) ── #}
+  <div class="poem-detail-body">
+    <h1 class="poem-detail-title">{{ poem.display_title }}</h1>
+    <p class="poem-detail-author">— {{ poem.poem_author_display_name }}</p>
+    <div class="poem-detail-text">{{ poem.poem_body_bn|default:poem.poem_body_en|default:"" }}</div>
+    {# Grain noise overlay — SVG feTurbulence for old paper texture #}
+    <svg class="poem-detail-grain" aria-hidden="true">
+      <filter id="poemGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <rect width="100%" height="100%" filter="url(#poemGrain)"/>
+    </svg>
+  </div>
+
+  {# ── Audio Player (optional) ── #}
+  {% if poem.poem_audio_url %}
+  <div class="poem-audio-player" id="poemAudioPlayer" data-url="{{ poem.poem_audio_url }}">
+
+    {# Audio bar — always visible #}
+    <div class="poem-audio-bar">
+      <button type="button" class="poem-audio-play-btn" id="poemAudioPlayBtn" title="Play / Pause">
+        <svg id="poemAudioIconPlay" viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><polygon points="6 3 20 12 6 21"/></svg>
+        <svg id="poemAudioIconPause" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" style="display:none;"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+      </button>
+
+      <div class="poem-audio-info">
+        {% if poem.poem_audio_reciter_name %}
+        <span class="poem-audio-title">আবৃত্তি: {{ poem.poem_audio_reciter_name }}</span>
+        {% else %}
+        <span class="poem-audio-title">অডিও শুনুন</span>
+        {% endif %}
+        {% if poem.poem_audio_description %}
+        <span class="poem-audio-desc">{{ poem.poem_audio_description }}</span>
+        {% endif %}
+      </div>
+
+      <div class="poem-audio-progress-wrap" id="poemAudioProgressWrap">
+        <div class="poem-audio-progress-bar">
+          <div class="poem-audio-progress-fill" id="poemAudioProgressFill"></div>
+        </div>
+        <span class="poem-audio-time" id="poemAudioTime">0:00 / 0:00</span>
+      </div>
+
+      <button type="button" class="poem-audio-vol-btn" id="poemAudioVolBtn" title="Mute / Unmute">
+        <svg id="poemAudioIconVol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <svg id="poemAudioIconMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+      </button>
+
+      <button type="button" class="poem-audio-video-btn" id="poemAudioVideoBtn" title="ভিডিও দেখুন (Watch Video)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 8 16 12 10 16"/></svg>
+      </button>
+    </div>
+
+    {# Hidden YouTube player — expands when "Watch Video" clicked #}
+    <div class="poem-audio-video-wrap" id="poemAudioVideoWrap" style="display:none;">
+      <div id="poemYTPlayer"></div>
+      <button type="button" class="poem-audio-collapse-btn" id="poemAudioCollapseBtn">ভিডিও বন্ধ করুন (Hide Video)</button>
+    </div>
+
+    {# Up Next banner — radio autoplay #}
+    <div class="poem-radio-next" id="poemRadioNext" style="display:none;">
+      <div class="poem-radio-next-header">
+        <span class="poem-radio-next-label">পরবর্তী (Up Next)</span>
+        <span class="poem-radio-next-countdown" id="poemRadioCountdown">5</span>
+        <button type="button" class="poem-radio-next-cancel" id="poemRadioCancelBtn">বাতিল (Cancel)</button>
+      </div>
+      <div class="poem-radio-next-preview">
+        <h4 id="poemRadioNextTitle"></h4>
+        <span id="poemRadioNextAuthor"></span>
+        <p id="poemRadioNextPreview"></p>
+      </div>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {# ── Backstory (collapsible) ── #}
+  {% if poem.poem_backstory_bn or poem.poem_backstory_en %}
+  <div class="poem-detail-section">
+    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="backstory">
+      রচনার গল্প (Story Behind the Writing)
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="poem-detail-section-content" id="backstory">{{ poem.poem_backstory_bn|default:poem.poem_backstory_en }}</div>
+  </div>
+  {% endif %}
+
+  {# ── Interpretation (collapsible) ── #}
+  {% if poem.poem_interpretation_bn or poem.poem_interpretation_en %}
+  <div class="poem-detail-section">
+    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="interpretation">
+      কবির ভাবনা (Poet's Interpretation)
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="poem-detail-section-content" id="interpretation">{{ poem.poem_interpretation_bn|default:poem.poem_interpretation_en }}</div>
+  </div>
+  {% endif %}
+
+  {# ── Action Bar ── #}
+  <div class="poem-detail-actions">
+    <button type="button" class="poem-detail-action-btn{% if user_liked %} poem-detail-action-btn--liked{% endif %}" id="poemLikeBtn"
+      data-poem-id="{{ poem.poem_coll_poem_entry_id }}"
+      data-liked="{{ user_liked|yesno:'true,false' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span id="poemLikeCount">{{ poem.like_count }}</span>
+    </button>
+
+    <button type="button" class="poem-detail-action-btn" id="poemShareBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      শেয়ার
+    </button>
+
+    <span class="poem-detail-views">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      {{ poem.view_count }}
+    </span>
+  </div>
+
+</article>
+
+{# ── Related Poems ── #}
+{% if related_poems %}
+<section class="poem-detail-related">
+  <h2 class="poem-detail-related-title">একই ধরনের কবিতা (Related Poems)</h2>
+  <div class="poem-detail-related-grid">
+    {% for poem in related_poems %}
+      {% include "poem/components/poem-card.html" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'poem/assets/js/pages/poem-detail.js' %}"></script>
+<script src="{% static 'poem/assets/js/components/poem-audio-player.js' %}"></script>
+{% endblock %}

@@ -3,6 +3,22 @@ from django.db import models
 
 # ========== Reference Tables ==========
 
+class RefNewsFormType(models.Model):
+    ref_news_form_type_id = models.IntegerField(primary_key=True)
+    group_code            = models.CharField(max_length=100)
+    form_name_en          = models.CharField(max_length=100)
+    form_name_bn          = models.CharField(max_length=100)
+    is_active             = models.BooleanField()
+    created_at            = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[ref_news_form_type]'
+
+    def __str__(self):
+        return self.form_name_en
+
+
 class RefAdPlacement(models.Model):
     ad_placement_id = models.IntegerField(primary_key=True)
     placement_name = models.CharField(max_length=100)
@@ -55,8 +71,8 @@ class RefNewsCategory(models.Model):
         return self.news_category_name_en or self.news_category_name_bn
 
 
-class RefPlatformType(models.Model):
-    platform_type_id = models.IntegerField(primary_key=True)
+class RefSocialMediaPlatformType(models.Model):
+    social_media_platform_type_id = models.IntegerField(primary_key=True)
     platform_name = models.CharField(max_length=100)
     platform_base_url = models.CharField(max_length=500, blank=True, null=True)
     platform_icon_url = models.CharField(max_length=1000, blank=True, null=True)
@@ -66,7 +82,7 @@ class RefPlatformType(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[ref_platform_type]'
+        db_table = '[media].[ref_social_media_platform_type]'
 
     def __str__(self):
         return self.platform_name
@@ -89,6 +105,23 @@ class RefNewsCategoryTag(models.Model):
 
     def __str__(self):
         return self.news_tag_name_en or self.news_tag_name_bn
+
+
+class RefActorType(models.Model):
+    actor_type_id = models.IntegerField(primary_key=True)
+    actor_group_code = models.CharField(max_length=50, blank=True, null=True)
+    actor_type_name_en = models.CharField(max_length=100, blank=True, null=True)
+    actor_type_name_bn = models.CharField(max_length=100)
+    sort_order = models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[ref_actor_type]'
+
+    def __str__(self):
+        return self.actor_type_name_en or self.actor_type_name_bn
+
 
 
 class VwAppNewsCategoryTag(models.Model):
@@ -135,29 +168,37 @@ class CollContributor(models.Model):
 
 class CollNewsEntry(models.Model):
     coll_news_entry_id = models.BigAutoField(primary_key=True)
-    coll_news_entry_headline_bn = models.CharField(max_length=100)
-    coll_news_entry_summary_bn = models.CharField(max_length=400, blank=True, null=True)
-    coll_news_entry_content_body_bn = models.TextField()
-    coll_news_entry_headline_en = models.CharField(max_length=1000, blank=True, null=True)
-    coll_news_entry_summary_en = models.CharField(max_length=2000, blank=True, null=True)
-    coll_news_entry_content_body_en = models.TextField(blank=True, null=True)
+    link_form_type_id = models.IntegerField(blank=True, null=True)
     link_news_category_id = models.IntegerField()
     link_contributor_id = models.BigIntegerField()
     link_constituency_id = models.IntegerField(blank=True, null=True)
+    link_district_id = models.IntegerField(blank=True, null=True)
+    upazila_city_corporation_name = models.CharField(max_length=100, blank=True, null=True)
     link_union_parishad_id = models.IntegerField(blank=True, null=True)
+    link_ward_name = models.CharField(max_length=100, blank=True, null=True)
+    link_village_moholla_name = models.CharField(max_length=100, blank=True, null=True)
+    news_headline_bn = models.CharField(max_length=100)
+    news_summary_bn = models.CharField(max_length=400, blank=True, null=True)
+    news_content_body_bn = models.TextField()
+    # SQL column is news__headline_en (double underscore); db_column needed
+    news_headline_en = models.CharField(max_length=1000, blank=True, null=True, db_column='news__headline_en')
+    # SQL column is news__summary_en (double underscore); db_column needed
+    news_summary_en = models.CharField(max_length=2000, blank=True, null=True, db_column='news__summary_en')
+    news_content_body_en = models.TextField(blank=True, null=True)
     coll_news_entry_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     coll_news_entry_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    # coll_news_entry_geo_location — computed geography column from lat/lng; excluded from Django
+    # coll_news_entry_geo_location — geography column; excluded from Django
     # (mssql-django cannot deserialize SQL Server geography type)
-    coll_news_entry_formatted_address_bn = models.CharField(max_length=500, blank=True, null=True)
-    # coll_news_entry_status — omitted so DB default applies on INSERT
+    map_formatted_address_bn = models.CharField(max_length=500, blank=True, null=True)
+    full_address_bn = models.CharField(max_length=300, blank=True, null=True)
+    # news_status — omitted so DB default ('pending') applies on INSERT
     coll_news_entry_verification_notes = models.TextField(blank=True, null=True)
-    coll_news_entry_is_breaking = models.BooleanField()
+    is_breaking = models.BooleanField()
     coll_news_entry_external_source_url = models.CharField(max_length=1000, blank=True, null=True)
     occurrence_at = models.DateTimeField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
-    # hash_headline_check — SQL Server computed column; excluded from Django model
+    # hash_headline_check — excluded from Django model
     # so ORM never includes it in INSERT/UPDATE statements.
 
     class Meta:
@@ -165,7 +206,7 @@ class CollNewsEntry(models.Model):
         db_table = '[newshub].[coll_news_entry]'
 
     def __str__(self):
-        return self.coll_news_entry_headline_bn[:80]
+        return self.news_headline_bn[:80]
 
 
 class CollNewsAsset(models.Model):
@@ -186,27 +227,25 @@ class CollNewsAsset(models.Model):
         return f"CollNewsAsset({self.link_coll_news_entry_id}, {self.link_asset_id})"
 
 
-class CollSocialSource(models.Model):
-    coll_social_source_id = models.BigAutoField(primary_key=True)
-    link_news_entry_id = models.BigIntegerField()
-    link_platform_type_id = models.IntegerField()
-    coll_social_source_url = models.CharField(max_length=1000)
-    coll_social_source_embed_code = models.TextField(blank=True, null=True)
+class CollNewsSocialMediaSource(models.Model):
+    coll_news_social_media_source_id = models.BigAutoField(primary_key=True)
+    link_coll_news_entry_id = models.BigIntegerField()
+    link_social_media_url_library_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = '[newshub].[coll_social_source]'
+        db_table = '[newshub].[coll_news_social_media_source]'
 
     def __str__(self):
-        return f"SocialSource({self.coll_social_source_id})"
+        return f"NewsSocialSource({self.coll_news_social_media_source_id})"
 
 
 class CollNewsEntryTag(models.Model):
     """Junction table: news entry <-> tag (composite PK in SQL Server)."""
     link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
     link_news_category_tag_id = models.IntegerField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False

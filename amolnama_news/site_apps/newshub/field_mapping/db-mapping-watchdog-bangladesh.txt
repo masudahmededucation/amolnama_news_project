@@ -1,0 +1,317 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: WATCHDOG BANGLADESH (রাজনীতি, সুশাসন, নীতি ও জবাবদিহিতা নজরদারি)
+================================================================================
+Last updated: 2026-03-14 (renamed political-tracker → watchdog_bangladesh; removed steps 4-6; 10 steps total)
+Form page:    news-collection-multistep-watchdog-bangladesh.html
+Steps:        10 total
+JS managed:   news-watchdog-bangladesh-sub-type.js, news-involved-parties.js,
+              news-watchdog-bangladesh-contradiction.js, news-watchdog-bangladesh-context.js,
+              news-watchdog-bangladesh-section-switcher.js,
+              news-watchdog-bangladesh-issue.js, news-watchdog-bangladesh-party-change.js,
+              news-watchdog-bangladesh-proxy-puppet.js, news-watchdog-bangladesh-bootlicker.js,
+              news-watchdog-bangladesh-women-fixer.js
+Shared actor modules (loaded via news-multistep-base.html):
+              news-person-name.js, news-person-identity.js,
+              news-person-party-details.js
+
+================================================================================
+STEP 1 — Form Type
+POST key: form_type (value: "watchdog_bangladesh")
+Mapping: See db-mapping-common-steps.txt → STEP 1
+================================================================================
+
+================================================================================
+STEP 2 — Contributor (reporter who filed the form)
+POST keys: contributor fields
+Mapping: See db-mapping-common-steps.txt → STEP 2
+================================================================================
+
+================================================================================
+STEP 3 — News Content + Watchdog Sub-Type
+Templates: step-news-content-political.html
+           → news-entry-form.html
+           → watchdog-bangladesh-sub-type-form.html
+
+── news-entry-form fields ───────────────────────────────────────────────────────
+Mapping: See db-mapping-common-steps.txt → STEP 3 (news entry fields)
+Table: [newshub].[coll_news_entry]
+
+── watchdog-bangladesh-sub-type-form.html fields ──────────────────────────────────────────
+POST key: political_sub_type (hidden input #political-sub-type, synced via inline script)
+Values: hardcoded strings (NOT DB status_ids)
+  - allegiance_change  → দলবদল / ডিগবাজি (Party Hopping)
+  - statement_denial   → বক্তব্য প্রত্যাহার (Statement Denial)
+  - ideological_swing  → আদর্শিক বিচ্যুতি (Ideological Swing)
+  - secret_meeting     → গোপন বৈঠক (Secret Meeting)
+
+DB: [newshub].[coll_news_entry]
+    coll_news_entry.political_sub_type = POST['political_sub_type'] or None
+    (column must exist — ⚠ verify column name in coll_news_entry table)
+
+⚠ NOTE: This is a free string value (not a FK). If the column does not exist
+   in coll_news_entry, this value is currently NOT saved anywhere.
+================================================================================
+
+================================================================================
+STEP 4 — Politician / Bureaucrat (রাজনৈতিক বা আমলা)
+Template:   step-politician.html → watchdog-bangladesh-involved-parties-form.html
+JS file:    news-involved-parties.js
+Hidden input: #involved-actors-json (name="involved_actors_json")
+Reference data: #actor-involvement-types-data, #actor-types-data (embedded in this template)
+
+Role button: single "politician" role
+  "রাজনৈতিক বা আমলা যোগ করুন (Add Politician / Bureaucrat)" (data-role="politician")
+
+JSON structure per person card (uses SPLIT EN+BN names):
+  {
+    role:               "politician"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    firstNameEn:        "<string>"
+    lastNameEn:         "<string>"
+    firstNameBn:        "<string>"
+    lastNameBn:         "<string>"
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+  NOTE: No conditionId / medicalLocation (no #crime-actor-config in this template).
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile] — one row each per person
+  Step 1: [person].[person] INSERT — actor identity
+    first_name_bn                    = actor.firstNameBn or actor.firstNameEn
+    last_name_bn                     = actor.lastNameBn or actor.lastNameEn
+    first_name_en                    = actor.firstNameEn or None
+    last_name_en                     = actor.lastNameEn or None
+    name_alias_bn                    = actor.alias or None
+  Step 2: [investigation].[incident_involved_actor_profile] INSERT — actor role & incident link
+    link_coll_news_entry_id                         = <new entry id>
+    link_person_id                                  = <new person_id from step 1>
+    link_ref_status_incident_involved_actor_role_id = resolved by role "politician" in JSON
+    incident_involved_actor_role_group_code          = 'POLITICIAN'
+    link_ref_status_incident_involved_actor_type_id = actor.actorTypeId
+
+  NOTE: The split firstNameEn/lastNameEn/firstNameBn/lastNameBn are now stored
+    individually in [person].[person] (no longer concatenated into a single field).
+    If EN names are provided but BN is empty, use EN names as fallback for BN columns.
+================================================================================
+
+================================================================================
+STEP 5 — Contradiction & Denial (নজরদারি / Watchdog)
+Template:   step-contradiction.html → watchdog-bangladesh-contradiction-form.html
+JS file:    news-watchdog-bangladesh-contradiction.js
+Hidden input: #contradiction-json (name="contradiction_json")
+
+JSON structure:
+  {
+    originalStatement:  "<string>"    — textarea: পূর্বের বক্তব্য (Original Statement)
+    originalDate:       "<string>"    — date input: তারিখ পূর্বের বক্তব্যের (YYYY-MM-DD)
+    originalSource:     "<string>"    — URL input: সূত্র/লিঙ্ক
+    currentStatement:   "<string>"    — textarea: বর্তমান বক্তব্য/অস্বীকার
+    currentDate:        "<string>"    — date input: তারিখ বর্তমান বক্তব্যের (YYYY-MM-DD)
+    proofUrl:           "<string>"    — URL input: যাচাইয়ের প্রমাণ (Proof Link)
+  }
+
+⚠ DB: NO DEDICATED TABLE EXISTS for contradiction data.
+   This data is currently NOT saved to the database on form submission.
+   Action needed: Create [investigation].[incident_evidence_contradiction] table with:
+     - link_coll_news_entry_id  BIGINT NOT NULL
+     - original_statement_bn    NVARCHAR(MAX) NULL
+     - original_date            DATE NULL
+     - original_source_url      NVARCHAR(1000) NULL
+     - current_statement_bn     NVARCHAR(MAX) NULL
+     - current_date             DATE NULL
+     - proof_url                NVARCHAR(1000) NULL
+     - created_at               DATETIME2 NOT NULL
+
+── CONDITIONAL FIELD SECTIONS (shown based on watchdog group_code) ──────────────
+
+Section switcher JS: news-watchdog-bangladesh-section-switcher.js
+Maps group_code → section ID:
+  watchdog_bangladesh_form_watchdog_statment  → #section-contradiction (Statement — above)
+  watchdog_bangladesh_form_watchdog_issue     → #section-watchdog-issue
+  watchdog_bangladesh_form_watchdog_party_change → #section-watchdog-party-change
+  watchdog_bangladesh_form_watchdog_proxy_puppet → #section-watchdog-proxy-puppet
+  watchdog_bangladesh_form_watchdog_bootlicker   → #section-watchdog-bootlicker
+  watchdog_bangladesh_form_watchdog_women_fixer   → #section-watchdog-women-fixer
+
+── Issue Watchdog (#section-watchdog-issue) ──────────────────────────────────────
+JS file:    news-watchdog-bangladesh-issue.js
+Hidden input: #issue-watchdog-json (name="issue_watchdog_json")
+JSON structure:
+  {
+    topic:          "<string>"    — textarea: ইস্যুর বিষয় (Issue / Topic)
+    originalStance: "<string>"    — textarea: আগের অবস্থান (Previous Stance)
+    originalDate:   "<string>"    — date: আগের অবস্থানের তারিখ (YYYY-MM-DD)
+    originalSource: "<string>"    — URL: আগের সূত্র/লিঙ্ক
+    currentStance:  "<string>"    — textarea: বর্তমান অবস্থান (Current Stance)
+    currentDate:    "<string>"    — date: বর্তমান অবস্থানের তারিখ (YYYY-MM-DD)
+    currentSource:  "<string>"    — URL: বর্তমান সূত্র/লিঙ্ক
+    impact:         "<string>"    — textarea: জনগণের উপর প্রভাব (Impact on Public)
+  }
+
+── Party Change Watchdog (#section-watchdog-party-change) ────────────────────────
+JS file:    news-watchdog-bangladesh-party-change.js
+Hidden input: #party-change-json (name="party_change_json")
+JSON structure:
+  {
+    previousParty: "<string>"    — text: আগের দল (Previous Party)
+    currentParty:  "<string>"    — text: বর্তমান দল (Current Party)
+    changeDate:    "<string>"    — date: দল পরিবর্তনের তারিখ (YYYY-MM-DD)
+    reason:        "<string>"    — textarea: দল পরিবর্তনের কারণ (Reason)
+    benefit:       "<string>"    — textarea: প্রাপ্ত সুবিধা/পদ (Benefit / Position)
+    history:       "<string>"    — textarea: দলবদলের ইতিহাস (History of Changes)
+    source:        "<string>"    — URL: সূত্র/প্রমাণ
+  }
+
+── Proxy & Puppet Watchdog (#section-watchdog-proxy-puppet) ──────────────────────
+JS file:    news-watchdog-bangladesh-proxy-puppet.js
+Hidden input: #proxy-puppet-json (name="proxy_puppet_json")
+JSON structure:
+  {
+    puppetMaster:        "<string>"    — text: নেপথ্যের ব্যক্তি/গোষ্ঠী
+    frontPerson:         "<string>"    — text: সামনের ব্যক্তি (Front Person)
+    relationship:        "<string>"    — textarea: সম্পর্কের ধরন
+    evidenceDescription: "<string>"    — textarea: প্রমাণের বিবরণ
+    incidentDate:        "<string>"    — date: ঘটনার তারিখ (YYYY-MM-DD)
+    benefitExchange:     "<string>"    — textarea: বিনিময়/সুবিধা
+    source:              "<string>"    — URL: সূত্র/প্রমাণ লিঙ্ক
+  }
+
+── Bootlicker Watchdog (#section-watchdog-bootlicker) ────────────────────────────
+JS file:    news-watchdog-bangladesh-bootlicker.js
+Hidden input: #bootlicker-json (name="bootlicker_json")
+JSON structure:
+  {
+    targetPerson:  "<string>"    — text: যাকে তোষামোদ করা হচ্ছে
+    statement:     "<string>"    — textarea: চাটুকারমূলক বক্তব্য
+    statementDate: "<string>"    — date: বক্তব্যের তারিখ (YYYY-MM-DD)
+    context:       "<string>"    — textarea: প্রেক্ষাপট
+    benefit:       "<string>"    — textarea: প্রত্যাশিত/প্রাপ্ত সুবিধা
+    source:        "<string>"    — URL: সূত্র/প্রমাণ লিঙ্ক
+  }
+
+── Women Fixer Watchdog (#section-watchdog-women-fixer) ──────────────────────────
+JS file:    news-watchdog-bangladesh-women-fixer.js
+Hidden input: #women-fixer-json (name="women_fixer_json")
+JSON structure:
+  {
+    incidentType:        "<string>"    — select: ঘটনার ধরন
+                         values: trafficking, escort_providing, sexual_favor,
+                                 predatory_broker, other
+    incidentDescription: "<string>"    — textarea: ঘটনার বিবরণ
+    incidentDate:        "<string>"    — date: ঘটনার তারিখ (YYYY-MM-DD)
+    victimCount:         "<string>"    — number: ক্ষতিগ্রস্ত ব্যক্তির সংখ্যা
+    networkDescription:  "<string>"    — textarea: নেটওয়ার্কের বিবরণ
+    legalAction:         "<string>"    — textarea: আইনি পদক্ষেপ
+    source:              "<string>"    — URL: সূত্র/প্রমাণ লিঙ্ক
+  }
+
+⚠ DB: NO DEDICATED TABLES EXIST for any of the 6 watchdog type-specific data.
+   All JSON data is collected client-side but not yet saved to the database.
+================================================================================
+
+================================================================================
+STEP 6 — Context & Pressure (প্রেক্ষাপট)
+Template:   step-political-context.html → watchdog-bangladesh-context-form.html
+JS file:    news-watchdog-bangladesh-context.js
+Hidden input: #political-context-json (name="political_context_json")
+
+JSON structure:
+  {
+    motives:     ["fear" | "greed" | "election" | "pressure" | "other"]   — array of checked values
+                 fear     → গ্রেপ্তার/মামলার ভয় (Fear of Arrest/Case)
+                 greed    → পদ/পদবির লোভ (Greed for Position)
+                 election → নির্বাচনী মনোনয়ন (Election Nomination)
+                 pressure → বাহ্যিক চাপ (External Pressure)
+                 other    → অন্যান্য (Other)
+    description: "<string>"    — textarea: প্রেক্ষাপটের বিবরণ
+  }
+
+⚠ DB: NO DEDICATED TABLE EXISTS for watchdog context data.
+   This data is currently NOT saved to the database on form submission.
+   Action needed: Create [investigation].[incident_evidence_watchdog_context] table with:
+     - link_coll_news_entry_id      BIGINT NOT NULL
+     - motive_fear                  BIT NOT NULL DEFAULT 0
+     - motive_greed                 BIT NOT NULL DEFAULT 0
+     - motive_election              BIT NOT NULL DEFAULT 0
+     - motive_pressure              BIT NOT NULL DEFAULT 0
+     - motive_other                 BIT NOT NULL DEFAULT 0
+     - context_description_bn       NVARCHAR(MAX) NULL
+     - created_at                   DATETIME2 NOT NULL
+================================================================================
+
+================================================================================
+STEP 7 — Location
+POST keys: location fields
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+================================================================================
+
+================================================================================
+STEP 8 — Social Sources
+POST keys: social source fields
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+================================================================================
+
+================================================================================
+STEP 9 — Category / Tags
+POST keys: category/tag fields
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+================================================================================
+
+================================================================================
+STEP 10 — Submit (Review & Submit)
+No new POST keys; form submission triggered.
+================================================================================
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+Order of DB operations:
+
+1. [newshub].[coll_news_entry] INSERT
+   - Includes: news headline, body, date, form_type, reporter, contributor info
+   - Also saves: political_sub_type (from Step 3) if column exists
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (Steps for location cascade)
+   - Tables: [location].[* ] per db-mapping-common-steps.txt
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — politician rows
+   - Source: involved_actors_json (array) from Step 4
+   - Split EN+BN names stored individually in [person].[person]
+   - First person, then profile per card
+
+4. ⚠ Contradiction data (Step 5) — NOT SAVED (no table)
+
+5. ⚠ Watchdog context data (Step 6) — NOT SAVED (no table)
+
+6. Attachment files (from common steps)
+
+7. Social source data INSERT (from common steps)
+
+8. Category/Tag associations INSERT (from common steps)
+
+================================================================================
+OUTSTANDING QUESTIONS / GAPS
+================================================================================
+1. political_sub_type: Does coll_news_entry have this column? If not, the
+   form sub-type is currently lost. Verify and add column if missing.
+
+2. Contradiction data (Step 5): No DB table. 6 fields collected but not saved.
+   Need table: [investigation].[incident_evidence_contradiction]
+
+3. Watchdog context data (Step 6): No DB table. Motives array + description
+   collected but not saved.
+   Need table: [investigation].[incident_evidence_watchdog_context]
+
+4. involved_actors_json (Step 4) — split names: actor_name_bn must be
+   assembled from firstNameBn + lastNameBn (or EN fallback). The view must
+   handle this concatenation explicitly — do NOT assume a single name field.
+================================================================================

@@ -206,7 +206,22 @@
     renderAvailable();
   });
 
-  var DEFAULT_CATEGORY_ID = 12;  // Crime (অপরাধ) — shown when no category selected
+  /* Default category per form type — shown when no category selected */
+  var FORM_TYPE_CATEGORY = {
+    crime_violence:    12,  // Crime (অপরাধ)
+    extortion_land:    25,  // Extortion (চাঁদাবাজ)
+    price_syndicate:    8,  // Essentials & Market (নিত্যপণ্য ও বাজার)
+    watchdog_bangladesh: 4,  // Politics (রাজনীতি)
+    civic_community:    5,  // Government (সরকার)
+    global_news:        4,  // Politics (রাজনীতি)
+    sports:            18,  // Sports (খেলাধুলা)
+    entertainment:     19,  // Entertainment (বিনোদন)
+    july_uprising_2024: 20, // Violence (সহিংসতা)
+    women_child_violence: 20  // Violence (সহিংসতা)
+  };
+  var formTypeInput = document.getElementById('news-form-type');
+  var formType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
+  var DEFAULT_CATEGORY_ID = FORM_TYPE_CATEGORY[formType] || 12;
 
   /* ---- fetchCategoryTags() — load tags for a given category ID ---- */
   function fetchCategoryTags(categoryId) {
@@ -249,7 +264,15 @@
 
   renderSelected();
 
-  /* 3. Load default tags — use selected category, or crime (default) */
+  /* 3. Load default tags — use selected category, or form-type-based default */
+  if (!categorySelect.value && DEFAULT_CATEGORY_ID) {
+    /* Pre-select the default category in the dropdown so user sees which is active */
+    if (categorySelect.tomselect) {
+      categorySelect.tomselect.setValue(String(DEFAULT_CATEGORY_ID), true);
+    } else {
+      categorySelect.value = String(DEFAULT_CATEGORY_ID);
+    }
+  }
   fetchCategoryTags(categorySelect.value || DEFAULT_CATEGORY_ID);
 
   /* ========== Public API for other scripts (e.g. news-auto-tag.js) ========== */

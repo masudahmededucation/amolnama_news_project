@@ -1,0 +1,374 @@
+/* ========== File Conversion Tool ========== */
+
+.tool-page--convert .tool-subtitle {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: -.75rem 0 1.5rem;
+}
+
+/* ---- Drop Zone ---- */
+
+.convert-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, opacity .3s;
+  background: var(--card);
+}
+
+.convert-dropzone:hover,
+.convert-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.convert-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.convert-dropzone-text {
+  margin: .25rem 0;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.convert-dropzone-or {
+  margin: .35rem 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.convert-browse-btn {
+  display: inline-block;
+  padding: .55rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
+}
+
+.convert-browse-btn:hover,
+.convert-browse-btn:active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.convert-browse-btn:active {
+  transform: scale(0.96);
+}
+
+.convert-dropzone-hint {
+  margin: .75rem 0 0;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+/* ---- Panel (file info + options) ---- */
+
+.convert-panel {
+  margin-top: 1.5rem;
+}
+
+.convert-file-info {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.convert-file-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.convert-file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.convert-file-name {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convert-file-meta {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: .1rem;
+}
+
+.convert-change-btn {
+  padding: .35rem .85rem;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: transparent;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
+  white-space: nowrap;
+}
+
+.convert-change-btn:hover,
+.convert-change-btn:active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.convert-change-btn:active {
+  transform: scale(0.96);
+}
+
+.convert-remove-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: .25rem;
+  line-height: 1;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .15s;
+}
+
+.convert-remove-btn:hover,
+.convert-remove-btn:active {
+  color: var(--danger);
+}
+
+/* ---- Conversion options ---- */
+
+.convert-options {
+  margin-top: 1.25rem;
+}
+
+.convert-options h3 {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 .75rem;
+}
+
+.convert-format-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.convert-format-btn {
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s, transform .1s;
+}
+
+.convert-format-btn:hover,
+.convert-format-btn:active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.convert-format-btn:active {
+  transform: scale(0.95);
+}
+
+.convert-format-btn.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ---- Action button ---- */
+
+.convert-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 1.25rem;
+  padding: .65rem 1.5rem;
+  font-size: .95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, opacity .2s, transform .1s;
+}
+
+.convert-action-btn:hover:not(:disabled),
+.convert-action-btn:active:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.convert-action-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.convert-action-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.convert-action-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: convert-spin .6s linear infinite;
+}
+
+@keyframes convert-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Result ---- */
+
+.convert-result {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+}
+
+.convert-result-header h3 {
+  margin: 0 0 .75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.convert-result-info {
+  font-size: .88rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.convert-result-info strong {
+  font-weight: 600;
+}
+
+.convert-result-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.convert-download-btn {
+  padding: .6rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+}
+
+.convert-download-btn:hover,
+.convert-download-btn:active {
+  background: var(--primary-hover);
+}
+
+.convert-download-btn:active {
+  transform: scale(0.96);
+}
+
+.convert-another-btn {
+  padding: .6rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s, color .2s, transform .1s;
+}
+
+.convert-another-btn:hover,
+.convert-another-btn:active {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.convert-another-btn:active {
+  transform: scale(0.96);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .convert-dropzone {
+    padding: 2rem 1rem;
+  }
+
+  .convert-file-info {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  .convert-format-grid {
+    gap: .4rem;
+  }
+
+  .convert-format-btn {
+    padding: .5rem .85rem;
+    font-size: .82rem;
+  }
+
+  .convert-result-actions {
+    flex-direction: column;
+  }
+
+  .convert-download-btn,
+  .convert-another-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .convert-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,94 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ZIP Creator · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-zip-creator.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--zip">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
+  <h1>ZIP Creator</h1>
+  <p class="tool-subtitle">Create ZIP archives right in your browser. Nothing is uploaded to any server.</p>
+
+  <!-- ===== Drop Zone ===== -->
+  <div class="zip-dropzone" id="zip-dropzone">
+    <input type="file" id="zip-file-input" multiple hidden>
+    <div class="zip-dropzone-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="4" width="32" height="40" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M20 4v40" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <rect x="20" y="8" width="6" height="4" rx="1" fill="currentColor" opacity=".3"/>
+        <rect x="20" y="16" width="6" height="4" rx="1" fill="currentColor" opacity=".3"/>
+        <rect x="20" y="24" width="6" height="4" rx="1" fill="currentColor" opacity=".3"/>
+        <rect x="18" y="32" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <circle cx="23" cy="36" r="1.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <p class="zip-dropzone-text">Drag &amp; drop files here</p>
+    <p class="zip-dropzone-or">or</p>
+    <button type="button" class="zip-browse-btn" id="zip-browse-btn">Browse Files</button>
+    <p class="zip-dropzone-hint">Add multiple files to create a ZIP archive</p>
+  </div>
+
+  <!-- ===== File List ===== -->
+  <div class="zip-panel" id="zip-panel" style="display:none">
+
+    <!-- Add more files bar -->
+    <div class="zip-add-bar">
+      <button type="button" class="zip-add-btn" id="zip-add-btn">+ Add More Files</button>
+      <button type="button" class="zip-clear-btn" id="zip-clear-btn">Clear All</button>
+    </div>
+
+    <!-- File list table -->
+    <div class="zip-file-list" id="zip-file-list"></div>
+
+    <!-- Summary -->
+    <div class="zip-summary" id="zip-summary">
+      <div class="zip-summary-row">
+        <span class="zip-summary-label">Files:</span>
+        <span class="zip-summary-value" id="zip-file-count">0</span>
+      </div>
+      <div class="zip-summary-row">
+        <span class="zip-summary-label">Total Size:</span>
+        <span class="zip-summary-value" id="zip-total-size">0 B</span>
+      </div>
+    </div>
+
+    <!-- ZIP name input -->
+    <div class="zip-name-field">
+      <label for="zip-name-input">Archive Name</label>
+      <div class="zip-name-input-wrap">
+        <input type="text" id="zip-name-input" value="archive" placeholder="archive">
+        <span class="zip-name-ext">.zip</span>
+      </div>
+    </div>
+
+    <!-- Create button -->
+    <button type="button" class="zip-action-btn" id="zip-action-btn">
+      <span class="zip-action-label">Create ZIP</span>
+      <span class="zip-action-spinner" style="display:none"></span>
+    </button>
+  </div>
+
+  <!-- ===== Result ===== -->
+  <div class="zip-result" id="zip-result" style="display:none">
+    <div class="zip-result-header">
+      <h3>ZIP Archive Created</h3>
+    </div>
+    <div class="zip-result-details" id="zip-result-details"></div>
+    <div class="zip-result-actions">
+      <button type="button" class="zip-download-btn" id="zip-download-btn">Download ZIP</button>
+      <button type="button" class="zip-another-btn" id="zip-another-btn">Create Another ZIP</button>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'tools/assets/js/pages/tools-zip-creator.js' %}"></script>
+{% endblock %}

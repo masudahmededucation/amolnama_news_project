@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Marriage Form · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'core/assets/css/pages/tools.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page">
+  <a href="{% url 'core:tools' %}" class="tool-back">&larr; Back to Tools</a>
+  <h1>Marriage Form</h1>
+
+  <!-- Marriage form will be built here -->
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% comment %}
+  Watchdog Bangladesh — Bootlicker Watchdog fields.
+  Tracks political sycophancy (চাটুকার নজরদারি).
+  JS: news-watchdog-bangladesh-bootlicker.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-bootlicker" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">👞</span>চাটুকার নজরদারি (Bootlicker Watchdog)</h3>
+
+  {# Hidden input — JS serializes bootlicker data here before submit #}
+  <input type="hidden" id="bootlicker-json" name="bootlicker_json" value="">
+
+  <div class="form-field">
+    <label for="bootlicker-target-person">যাকে তোষামোদ করা হচ্ছে (Person Being Flattered)<span class="required-mark">*</span></label>
+    <input type="text" id="bootlicker-target-person"
+           placeholder="কাকে তোষামোদ করা হচ্ছে... (Who is being flattered...)">
+  </div>
+
+  <div class="form-field">
+    <label for="bootlicker-statement">চাটুকারমূলক বক্তব্য (Sycophantic Statement)<span class="required-mark">*</span></label>
+    <textarea id="bootlicker-statement" rows="3"
+              placeholder="কী বলা হয়েছে... (What was said...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="bootlicker-statement-date">বক্তব্যের তারিখ (Statement Date)</label>
+    <input type="date" id="bootlicker-statement-date">
+  </div>
+
+  <div class="form-field">
+    <label for="bootlicker-context">প্রেক্ষাপট (Context / Circumstance)</label>
+    <textarea id="bootlicker-context" rows="2"
+              placeholder="কোন প্রেক্ষাপটে বলা হয়েছে... (In what context was it said...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="bootlicker-benefit">প্রত্যাশিত/প্রাপ্ত সুবিধা (Expected / Received Benefit)</label>
+    <textarea id="bootlicker-benefit" rows="2"
+              placeholder="কী সুবিধা পাওয়া গেছে বা প্রত্যাশিত... (What benefit was expected or received...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="bootlicker-source">সূত্র/প্রমাণ লিঙ্ক (Source/Proof Link)</label>
+    <input type="url" id="bootlicker-source" placeholder="https://...">
+  </div>
+</div>

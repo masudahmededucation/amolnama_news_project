@@ -1,0 +1,508 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}বিবাহ সনদপত্র · Marriage Certificate Notary · Marriage{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'marriage/assets/css/pages/marriage-landing.css' %}">
+  <link rel="stylesheet" href="{% static 'marriage/assets/css/components/marriage-sigpad.css' %}">
+  <link rel="stylesheet" href="{% static 'marriage/assets/css/pages/marriage-certificate.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page">
+  <a href="{% url 'marriage:marriage' %}" class="tool-back">&larr; ম্যারেজ এ ফিরুন (Back to Marriage)</a>
+  <h1>বিবাহ সনদপত্র (Marriage Certificate Notary)</h1>
+
+  {# Language toggle #}
+  <div class="cert-lang-toggle">
+    <label><input type="radio" name="cert-lang" value="bn" checked> বাংলা</label>
+    <label><input type="radio" name="cert-lang" value="en"> English</label>
+  </div>
+
+  {# Stepper #}
+  <div class="stepper" id="stepper"></div>
+
+  <div class="cert-form">
+
+    {# ===== Step 1: Office & Header Info ===== #}
+    <div class="step-panel" data-step="1" data-step-label-bn="অফিস">
+
+      <div class="cert-section">
+        <div class="cert-section-title">
+          <span class="section-icon">🏛️</span>
+          <span class="lbl-bn">কাজী অফিসের তথ্য</span>
+          <span class="lbl-en" style="display:none">Office Information</span>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="saved-office-bar" id="saved-office-bar">
+          <div class="saved-office-select-row">
+            <select id="saved-office-select">
+              <option value="">-- সংরক্ষিত অফিস নির্বাচন করুন (Select Saved Office) --</option>
+            </select>
+            <button type="button" class="btn-saved-office btn-saved-office--load" id="btn-load-office" disabled>
+              <span class="lbl-bn">লোড</span><span class="lbl-en" style="display:none">Load</span>
+            </button>
+            <button type="button" class="btn-saved-office btn-saved-office--delete" id="btn-delete-office" disabled>
+              <span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Delete</span>
+            </button>
+          </div>
+          <div class="saved-office-save-row">
+            <input type="text" id="save-office-label" placeholder="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-bn="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-en="Office label (e.g. Dhaka Office)">
+            <label class="saved-office-default-label">
+              <input type="checkbox" id="save-office-default"> <span class="lbl-bn">ডিফল্ট</span><span class="lbl-en" style="display:none">Default</span>
+            </label>
+            <button type="button" class="btn-saved-office btn-saved-office--save" id="btn-save-office">
+              <span class="lbl-bn">সংরক্ষণ করুন</span><span class="lbl-en" style="display:none">Save Office</span>
+            </button>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="form-row">
+          <label for="cert-govt-title">
+            <span class="lbl-bn">সরকারের শিরোনাম</span>
+            <span class="lbl-en" style="display:none">Government Title</span>
+          </label>
+          <input type="text" id="cert-govt-title" value="Government Of The People's Republic Of Bangladesh">
+        </div>
+
+        <div class="form-row">
+          <label for="cert-office-name">
+            <span class="lbl-bn">অফিসের নাম</span>
+            <span class="lbl-en" style="display:none">Office Name</span>
+          </label>
+          <input type="text" id="cert-office-name" value="Office of the Muslim Marriage Register &amp; Kazi">
+        </div>
+
+        <div class="form-row">
+          <label for="cert-office-address">
+            <span class="lbl-bn">অফিসের ঠিকানা</span>
+            <span class="lbl-en" style="display:none">Office Address</span>
+          </label>
+          <input type="text" id="cert-office-address" placeholder="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full office address">
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-reg-no">
+              <span class="lbl-bn">নিবন্ধন নং</span>
+              <span class="lbl-en" style="display:none">REGD NO</span>
+              <span class="required-mark">*</span>
+            </label>
+            <input type="text" id="cert-reg-no" placeholder="নিবন্ধন নম্বর" data-placeholder-bn="নিবন্ধন নম্বর" data-placeholder-en="Registration number">
+          </div>
+          <div>
+            <label for="cert-date">
+              <span class="lbl-bn">তারিখ</span>
+              <span class="lbl-en" style="display:none">Date</span>
+              <span class="required-mark">*</span>
+            </label>
+            <input type="date" id="cert-date">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# ===== Step 2: Groom Information ===== #}
+    <div class="step-panel" data-step="2" data-step-label-bn="বর">
+
+      <div class="cert-section">
+        <div class="cert-section-title">
+          <span class="section-icon">🤵</span>
+          <span class="lbl-bn">বরের তথ্য</span>
+          <span class="lbl-en" style="display:none">Groom Information</span>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-groom-name">
+            <span class="lbl-bn">বরের পূর্ণ নাম</span>
+            <span class="lbl-en" style="display:none">Groom's Full Name</span>
+            <span class="required-mark">*</span>
+          </label>
+          <input type="text" id="cert-groom-name" placeholder="বরের পূর্ণ নাম লিখুন" data-placeholder-bn="বরের পূর্ণ নাম লিখুন" data-placeholder-en="Enter groom's full name">
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-groom-dob">
+              <span class="lbl-bn">জন্ম তারিখ</span>
+              <span class="lbl-en" style="display:none">Date of Birth</span>
+            </label>
+            <input type="date" id="cert-groom-dob">
+          </div>
+          <div>
+            <label for="cert-groom-religion">
+              <span class="lbl-bn">ধর্ম</span>
+              <span class="lbl-en" style="display:none">Religion</span>
+            </label>
+            <input type="text" id="cert-groom-religion" value="Islam">
+          </div>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-groom-father">
+              <span class="lbl-bn">পিতার নাম</span>
+              <span class="lbl-en" style="display:none">Father's Name</span>
+            </label>
+            <input type="text" id="cert-groom-father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
+          </div>
+          <div>
+            <label for="cert-groom-mother">
+              <span class="lbl-bn">মাতার নাম</span>
+              <span class="lbl-en" style="display:none">Mother's Name</span>
+            </label>
+            <input type="text" id="cert-groom-mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-groom-address">
+            <span class="lbl-bn">বরের ঠিকানা</span>
+            <span class="lbl-en" style="display:none">Groom's Address</span>
+          </label>
+          <textarea id="cert-groom-address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-groom-nid">
+            <span class="lbl-bn">NID নং</span>
+            <span class="lbl-en" style="display:none">NID Number</span>
+          </label>
+          <input type="text" id="cert-groom-nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
+        </div>
+      </div>
+
+    </div>
+
+    {# ===== Step 3: Bride Information ===== #}
+    <div class="step-panel" data-step="3" data-step-label-bn="কনে">
+
+      <div class="cert-section">
+        <div class="cert-section-title">
+          <span class="section-icon">👰</span>
+          <span class="lbl-bn">কনের তথ্য</span>
+          <span class="lbl-en" style="display:none">Bride Information</span>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-bride-name">
+            <span class="lbl-bn">কনের পূর্ণ নাম</span>
+            <span class="lbl-en" style="display:none">Bride's Full Name</span>
+            <span class="required-mark">*</span>
+          </label>
+          <input type="text" id="cert-bride-name" placeholder="কনের পূর্ণ নাম লিখুন" data-placeholder-bn="কনের পূর্ণ নাম লিখুন" data-placeholder-en="Enter bride's full name">
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-bride-dob">
+              <span class="lbl-bn">জন্ম তারিখ</span>
+              <span class="lbl-en" style="display:none">Date of Birth</span>
+            </label>
+            <input type="date" id="cert-bride-dob">
+          </div>
+          <div>
+            <label for="cert-bride-religion">
+              <span class="lbl-bn">ধর্ম</span>
+              <span class="lbl-en" style="display:none">Religion</span>
+            </label>
+            <input type="text" id="cert-bride-religion" value="Islam">
+          </div>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-bride-father">
+              <span class="lbl-bn">পিতার নাম</span>
+              <span class="lbl-en" style="display:none">Father's Name</span>
+            </label>
+            <input type="text" id="cert-bride-father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
+          </div>
+          <div>
+            <label for="cert-bride-mother">
+              <span class="lbl-bn">মাতার নাম</span>
+              <span class="lbl-en" style="display:none">Mother's Name</span>
+            </label>
+            <input type="text" id="cert-bride-mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-bride-address">
+            <span class="lbl-bn">কনের ঠিকানা</span>
+            <span class="lbl-en" style="display:none">Bride's Address</span>
+          </label>
+          <textarea id="cert-bride-address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-bride-nid">
+            <span class="lbl-bn">NID নং</span>
+            <span class="lbl-en" style="display:none">NID Number</span>
+          </label>
+          <input type="text" id="cert-bride-nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
+        </div>
+      </div>
+
+    </div>
+
+    {# ===== Step 4: Registration Details ===== #}
+    <div class="step-panel" data-step="4" data-step-label-bn="নিবন্ধন">
+
+      <div class="cert-section">
+        <div class="cert-section-title">
+          <span class="section-icon">📋</span>
+          <span class="lbl-bn">নিবন্ধন তথ্য</span>
+          <span class="lbl-en" style="display:none">Registration Details</span>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-marriage-date">
+            <span class="lbl-bn">বিবাহের তারিখ</span>
+            <span class="lbl-en" style="display:none">Marriage Date</span>
+            <span class="required-mark">*</span>
+          </label>
+          <input type="date" id="cert-marriage-date">
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-book-no">
+              <span class="lbl-bn">বই নং</span>
+              <span class="lbl-en" style="display:none">Book No.</span>
+            </label>
+            <input type="text" id="cert-book-no" placeholder="বই নম্বর" data-placeholder-bn="বই নম্বর" data-placeholder-en="Book number">
+          </div>
+          <div>
+            <label for="cert-volume-no">
+              <span class="lbl-bn">খণ্ড নং</span>
+              <span class="lbl-en" style="display:none">Volume No.</span>
+            </label>
+            <input type="text" id="cert-volume-no" placeholder="খণ্ড নম্বর" data-placeholder-bn="খণ্ড নম্বর" data-placeholder-en="Volume number">
+          </div>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-page-no">
+              <span class="lbl-bn">পৃষ্ঠা নং</span>
+              <span class="lbl-en" style="display:none">Page No.</span>
+            </label>
+            <input type="text" id="cert-page-no" placeholder="পৃষ্ঠা নম্বর" data-placeholder-bn="পৃষ্ঠা নম্বর" data-placeholder-en="Page number">
+          </div>
+          <div>
+            <label for="cert-entry-no">
+              <span class="lbl-bn">এন্ট্রি নং</span>
+              <span class="lbl-en" style="display:none">Entry No.</span>
+            </label>
+            <input type="text" id="cert-entry-no" placeholder="এন্ট্রি নম্বর" data-placeholder-bn="এন্ট্রি নম্বর" data-placeholder-en="Entry number">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-reg-year">
+            <span class="lbl-bn">নিবন্ধনের সন</span>
+            <span class="lbl-en" style="display:none">Registration Year</span>
+          </label>
+          <input type="text" id="cert-reg-year" placeholder="যেমন: ২০২৬" data-placeholder-bn="যেমন: ২০২৬" data-placeholder-en="e.g. 2026">
+        </div>
+      </div>
+
+    </div>
+
+    {# ===== Step 5: Notary & Signatures ===== #}
+    <div class="step-panel" data-step="5" data-step-label-bn="নোটারি">
+
+      <div class="cert-section">
+        <div class="cert-section-title">
+          <span class="section-icon">✍️</span>
+          <span class="lbl-bn">নোটারি ও স্বাক্ষর তথ্য</span>
+          <span class="lbl-en" style="display:none">Notary & Signature Information</span>
+        </div>
+
+        {# Issue date #}
+        <div class="form-row">
+          <label for="cert-issue-date">
+            <span class="lbl-bn">ইস্যু তারিখ</span>
+            <span class="lbl-en" style="display:none">Issue Date</span>
+          </label>
+          <input type="date" id="cert-issue-date">
+        </div>
+
+        <div class="cert-subsection">
+          <span class="lbl-bn">সত্যায়নকারী</span>
+          <span class="lbl-en" style="display:none">Attested By</span>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-attested-name">
+              <span class="lbl-bn">নাম</span>
+              <span class="lbl-en" style="display:none">Name</span>
+            </label>
+            <input type="text" id="cert-attested-name" placeholder="সত্যায়নকারীর নাম" data-placeholder-bn="সত্যায়নকারীর নাম" data-placeholder-en="Attester's name">
+          </div>
+          <div>
+            <label for="cert-attested-qualification">
+              <span class="lbl-bn">যোগ্যতা</span>
+              <span class="lbl-en" style="display:none">Qualification</span>
+            </label>
+            <input type="text" id="cert-attested-qualification" placeholder="যেমন: B.A., LL.B." data-placeholder-bn="যেমন: B.A., LL.B." data-placeholder-en="e.g. B.A., LL.B.">
+          </div>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-attested-designation">
+              <span class="lbl-bn">পদবি</span>
+              <span class="lbl-en" style="display:none">Designation</span>
+            </label>
+            <input type="text" id="cert-attested-designation" placeholder="যেমন: নোটারি পাবলিক" data-placeholder-bn="যেমন: নোটারি পাবলিক" data-placeholder-en="e.g. Notary Public">
+          </div>
+          <div>
+            <label for="cert-attested-place">
+              <span class="lbl-bn">স্থান</span>
+              <span class="lbl-en" style="display:none">Place</span>
+            </label>
+            <input type="text" id="cert-attested-place" placeholder="স্থান লিখুন" data-placeholder-bn="স্থান লিখুন" data-placeholder-en="Enter place">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="cert-attested-date">
+            <span class="lbl-bn">সত্যায়নের তারিখ</span>
+            <span class="lbl-en" style="display:none">Attestation Date</span>
+          </label>
+          <input type="date" id="cert-attested-date">
+        </div>
+
+        <div class="form-row">
+          <label>
+            <span class="lbl-bn">সত্যায়নকারীর স্বাক্ষর</span>
+            <span class="lbl-en" style="display:none">Attester's Signature</span>
+          </label>
+          <div class="sig-zone" data-sig-key="attested">
+            <div class="sig-mode-toggle">
+              <label><input type="radio" name="sig-mode-attested" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
+              <label><input type="radio" name="sig-mode-attested" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
+            </div>
+            <div class="sig-draw-area">
+              <canvas class="sig-canvas" width="400" height="120"></canvas>
+              <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            </div>
+            <div class="cert-sig-upload" id="sig-attested-drop" style="display:none">
+              <span class="sig-icon">✍️</span>
+              <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
+              <span class="sig-text lbl-en" style="display:none">Upload signature image</span>
+              <input type="file" id="cert-attested-sig" accept="image/*">
+            </div>
+          </div>
+        </div>
+
+        <div class="cert-subsection">
+          <span class="lbl-bn">কাজী / নিকাহ রেজিস্ট্রার</span>
+          <span class="lbl-en" style="display:none">Marriage Register & Kazi</span>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-registrar-name">
+              <span class="lbl-bn">নাম</span>
+              <span class="lbl-en" style="display:none">Name</span>
+            </label>
+            <input type="text" id="cert-registrar-name" placeholder="কাজীর নাম" data-placeholder-bn="কাজীর নাম" data-placeholder-en="Kazi's name">
+          </div>
+          <div>
+            <label for="cert-registrar-designation">
+              <span class="lbl-bn">পদবি</span>
+              <span class="lbl-en" style="display:none">Designation</span>
+            </label>
+            <input type="text" id="cert-registrar-designation" placeholder="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-bn="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-en="e.g. Muslim Marriage Register & Kazi">
+          </div>
+        </div>
+
+        <div class="form-row-half">
+          <div>
+            <label for="cert-registrar-office">
+              <span class="lbl-bn">অফিস</span>
+              <span class="lbl-en" style="display:none">Office</span>
+            </label>
+            <input type="text" id="cert-registrar-office" placeholder="অফিসের নাম" data-placeholder-bn="অফিসের নাম" data-placeholder-en="Office name">
+          </div>
+          <div>
+            <label for="cert-registrar-date">
+              <span class="lbl-bn">স্বাক্ষরের তারিখ</span>
+              <span class="lbl-en" style="display:none">Signature Date</span>
+            </label>
+            <input type="date" id="cert-registrar-date">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>
+            <span class="lbl-bn">কাজীর স্বাক্ষর</span>
+            <span class="lbl-en" style="display:none">Registrar's Signature</span>
+          </label>
+          <div class="sig-zone" data-sig-key="registrar">
+            <div class="sig-mode-toggle">
+              <label><input type="radio" name="sig-mode-registrar" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
+              <label><input type="radio" name="sig-mode-registrar" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
+            </div>
+            <div class="sig-draw-area">
+              <canvas class="sig-canvas" width="400" height="120"></canvas>
+              <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            </div>
+            <div class="cert-sig-upload" id="sig-registrar-drop" style="display:none">
+              <span class="sig-icon">✍️</span>
+              <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
+              <span class="sig-text lbl-en" style="display:none">Upload signature image</span>
+              <input type="file" id="cert-registrar-sig" accept="image/*">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {# ===== Step 6: Certificate Preview ===== #}
+    <div class="step-panel" data-step="6" data-step-label-bn="সনদপত্র">
+
+      <div class="cert-preview" id="cert-preview">
+        {# Filled by JS #}
+      </div>
+
+      <div class="cert-preview-actions">
+        <button type="button" class="btn-cert-print" id="btn-cert-print">🖨️ প্রিন্ট করুন (Print)</button>
+        <button type="button" class="btn-cert-print" id="btn-cert-pdf">📄 PDF ডাউনলোড (Download PDF)</button>
+        <button type="button" class="btn-cert-edit" id="btn-cert-edit">✏️ সম্পাদনা করুন (Edit)</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  {# Navigation buttons #}
+  <div class="step-nav" id="step-nav">
+    <button type="button" class="btn-step-prev" id="btn-step-prev">&larr; পূর্ববর্তী (Previous)</button>
+    <span class="step-counter" id="step-counter"></span>
+    <button type="button" class="btn-step-next" id="btn-step-next">পরবর্তী (Next) &rarr;</button>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="{% static 'newshub/assets/js/components/news-date-picker.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/components/marriage-sigpad.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/components/marriage-saved-office.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/pages/marriage-certificate-stepper.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/pages/marriage-certificate-preview.js' %}"></script>
+{% endblock %}

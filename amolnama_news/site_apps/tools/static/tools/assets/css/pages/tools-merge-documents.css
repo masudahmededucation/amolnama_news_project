@@ -1,0 +1,532 @@
+/* ========== Merge Documents Tool ========== */
+
+.tool-page--merge-docs {
+  max-width: 800px;
+}
+
+.tool-page--merge-docs .tool-subtitle {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: -.75rem 0 1.5rem;
+}
+
+/* ---- Drop Zone ---- */
+
+.mgr-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: var(--card);
+}
+
+.mgr-dropzone:hover,
+.mgr-dropzone.dragover {
+  border-color: #e17055;
+  background: #fff8f5;
+}
+
+.mgr-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.mgr-dropzone-text {
+  margin: .25rem 0;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mgr-dropzone-or {
+  margin: .35rem 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.mgr-browse-btn {
+  display: inline-block;
+  padding: .55rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #e17055;
+  background: transparent;
+  border: 1.5px solid #e17055;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
+}
+
+.mgr-browse-btn:hover,
+.mgr-browse-btn:active {
+  background: #e17055;
+  color: #fff;
+}
+
+.mgr-browse-btn:active {
+  transform: scale(0.96);
+}
+
+.mgr-dropzone-hint {
+  margin: .75rem 0 0;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+/* ---- Error ---- */
+
+.mgr-error {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: #fff5f5;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+}
+
+.mgr-error p {
+  color: var(--danger);
+  font-weight: 600;
+  font-size: .95rem;
+  margin: 0 0 1rem;
+}
+
+.mgr-try-again-btn {
+  padding: .5rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: transparent;
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.mgr-try-again-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ---- Workspace ---- */
+
+.mgr-workspace {
+  margin-top: 1.5rem;
+}
+
+/* ---- Toolbar ---- */
+
+.mgr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.mgr-file-stats {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mgr-stats-divider {
+  margin: 0 .35rem;
+  color: var(--muted);
+}
+
+.mgr-toolbar-actions {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+}
+
+.mgr-tool-btn {
+  padding: .35rem .75rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+
+.mgr-tool-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.mgr-tool-btn--add {
+  color: #e17055;
+  border-color: #e17055;
+}
+
+.mgr-tool-btn--add:hover {
+  background: #e17055;
+  color: #fff;
+}
+
+/* ---- File Grid ---- */
+
+.mgr-file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .75rem;
+}
+
+/* ---- File Card ---- */
+
+.mgr-file-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .75rem .5rem .6rem;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  transition: border-color .2s, box-shadow .2s, transform .15s, opacity .15s;
+  user-select: none;
+}
+
+.mgr-file-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.mgr-file-card.mgr-dragging {
+  opacity: .25;
+  transform: scale(.95);
+  border-style: dashed;
+  border-color: var(--muted);
+  background: var(--bg);
+}
+
+/* Drop placeholder — empty dotted card showing where item will land */
+.mgr-drop-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #e17055;
+  border-radius: var(--radius-sm);
+  background: rgba(225, 112, 85, .06);
+  min-height: 140px;
+  animation: mgr-placeholder-pulse .8s ease-in-out infinite alternate;
+}
+
+.mgr-drop-placeholder-text {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #e17055;
+  opacity: .7;
+}
+
+@keyframes mgr-placeholder-pulse {
+  from { border-color: #e17055; background: rgba(225, 112, 85, .06); }
+  to   { border-color: #f0a090; background: rgba(225, 112, 85, .02); }
+}
+
+/* Order badge */
+.mgr-file-order {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Remove button */
+.mgr-file-remove {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.mgr-file-remove:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+/* Thumbnail */
+.mgr-file-thumb {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f8f9fa;
+  margin-bottom: .5rem;
+}
+
+.mgr-file-thumb canvas,
+.mgr-file-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.mgr-file-thumb-icon {
+  font-size: 2rem;
+  color: var(--muted);
+}
+
+/* File info */
+.mgr-file-name {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.3;
+  max-height: 2.6em;
+  overflow: hidden;
+  width: 100%;
+}
+
+.mgr-file-meta {
+  font-size: .68rem;
+  color: var(--muted);
+  margin-top: .15rem;
+  text-align: center;
+}
+
+/* ---- Divider ---- */
+
+.mgr-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+  opacity: .5;
+}
+
+/* ---- Options ---- */
+
+.mgr-options {
+  margin-bottom: .25rem;
+}
+
+.mgr-option-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.mgr-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.mgr-input {
+  padding: .45rem .75rem;
+  font-size: .85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  min-width: 200px;
+  max-width: 300px;
+  transition: border-color .2s;
+}
+
+.mgr-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* ---- Actions ---- */
+
+.mgr-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.mgr-btn {
+  padding: .6rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, transform .1s, opacity .2s;
+}
+
+.mgr-btn:active {
+  transform: scale(0.96);
+}
+
+.mgr-btn--merge {
+  color: #fff;
+  background: #e17055;
+}
+
+.mgr-btn--merge:hover {
+  background: #d35400;
+}
+
+.mgr-btn--merge:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.mgr-btn--download {
+  color: #fff;
+  background: var(--primary);
+}
+
+.mgr-btn--download:hover {
+  background: var(--primary-hover);
+}
+
+.mgr-btn--reset {
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--border);
+}
+
+.mgr-btn--reset:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ---- Progress ---- */
+
+.mgr-progress {
+  margin-top: 1rem;
+}
+
+.mgr-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.mgr-progress-fill {
+  height: 100%;
+  width: 0;
+  background: #e17055;
+  border-radius: 4px;
+  transition: width .3s ease;
+}
+
+.mgr-progress-text {
+  margin: .5rem 0 0;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---- Result ---- */
+
+.mgr-result {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.mgr-result-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #16a34a;
+  margin: 0 0 .35rem;
+}
+
+.mgr-result-info {
+  font-size: .82rem;
+  color: var(--text);
+  margin-bottom: .75rem;
+}
+
+/* ---- Privacy message ---- */
+
+.mgr-privacy {
+  margin-top: 2rem;
+  font-size: .78rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .mgr-dropzone {
+    padding: 2rem 1rem;
+  }
+
+  .mgr-file-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: .5rem;
+  }
+
+  .mgr-file-thumb {
+    height: 80px;
+  }
+
+  .mgr-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mgr-option-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mgr-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mgr-actions {
+    flex-direction: column;
+  }
+
+  .mgr-btn {
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
+  }
+}

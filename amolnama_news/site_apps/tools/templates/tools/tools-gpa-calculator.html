@@ -1,0 +1,253 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}GPA/CGPA Calculator · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-gpa-calculator.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--gpa">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1>জিপিএ/সিজিপিএ ক্যালকুলেটর (GPA/CGPA Calculator)</h1>
+  <p class="tool-subtitle">এসএসসি/এইচএসসি জিপিএ, বিশ্ববিদ্যালয় সিজিপিএ এবং টার্গেট প্ল্যানার</p>
+
+  {# ── Tab Switcher ── #}
+  <div class="gpa-tabs" id="gpaTabs">
+    <button type="button" class="gpa-tab gpa-tab--active" data-tab="ssc">এসএসসি/এইচএসসি (SSC/HSC)</button>
+    <button type="button" class="gpa-tab" data-tab="uni">বিশ্ববিদ্যালয় (University)</button>
+    <button type="button" class="gpa-tab" data-tab="target">টার্গেট প্ল্যানার (Target Planner)</button>
+  </div>
+
+  {# ═══════════════ TAB 1: SSC/HSC ═══════════════ #}
+  <div class="gpa-panel" id="panel-ssc">
+
+    <div class="gpa-section">
+      <div class="gpa-section-title">বিষয় ও গ্রেড পয়েন্ট (Subjects & Grade Points)</div>
+
+      {# Grade reference table #}
+      <div class="gpa-grade-ref">
+        <table class="gpa-grade-table">
+          <thead><tr><th>গ্রেড</th><th>নম্বর</th><th>পয়েন্ট</th></tr></thead>
+          <tbody>
+            <tr><td>A+</td><td>৮০-১০০</td><td>5.00</td></tr>
+            <tr><td>A</td><td>৭০-৭৯</td><td>4.00</td></tr>
+            <tr><td>A-</td><td>৬০-৬৯</td><td>3.50</td></tr>
+            <tr><td>B</td><td>৫০-৫৯</td><td>3.00</td></tr>
+            <tr><td>C</td><td>৪০-৪৯</td><td>2.00</td></tr>
+            <tr><td>D</td><td>৩৩-৩৯</td><td>1.00</td></tr>
+            <tr><td>F</td><td>০-৩২</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {# Subject rows #}
+      <div class="gpa-ssc-subjects" id="gpaSscSubjects">
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ১ (Subject 1)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-1" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ২ (Subject 2)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-2" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ৩ (Subject 3)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-3" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ৪ (Subject 4)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-4" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ৫ (Subject 5)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-5" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">বিষয় ৬ (Subject 6)</label>
+          <select class="gpa-ssc-select" name="ssc-gp-6" data-mandatory="true">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="gpa-add-subject-btn" id="gpaSscAddSubject">+ আরও বিষয় যোগ করুন (Add Subject)</button>
+
+      {# 4th Subject (Optional) #}
+      <div class="gpa-section" style="margin-top:1rem;">
+        <div class="gpa-section-title">চতুর্থ বিষয় / ঐচ্ছিক (4th / Optional Subject)</div>
+        <div class="gpa-ssc-row">
+          <label class="gpa-ssc-label">৪র্থ বিষয়</label>
+          <select class="gpa-ssc-select" id="gpaSscOptional" name="ssc-gp-optional">
+            <option value="">গ্রেড</option>
+            <option value="5.00">A+ (5.00)</option>
+            <option value="4.00">A (4.00)</option>
+            <option value="3.50">A- (3.50)</option>
+            <option value="3.00">B (3.00)</option>
+            <option value="2.00">C (2.00)</option>
+            <option value="1.00">D (1.00)</option>
+            <option value="0">F (0.00)</option>
+          </select>
+        </div>
+        <small class="gpa-hint">৪র্থ বিষয়ের পয়েন্ট থেকে ২.০০ বিয়োগ করে অতিরিক্ত পয়েন্ট যোগ হবে (Bonus = GP - 2.00)</small>
+      </div>
+    </div>
+
+    {# SSC Result #}
+    <div class="gpa-result-card" id="gpaSscResult" style="display:none;">
+      <div class="gpa-result-header">
+        <span class="gpa-result-label">আপনার জিপিএ (Your GPA)</span>
+        <span class="gpa-result-badge" id="gpaSscBadge"></span>
+      </div>
+      <div class="gpa-result-value" id="gpaSscValue">0.00</div>
+      <div class="gpa-result-detail" id="gpaSscDetail"></div>
+    </div>
+  </div>
+
+  {# ═══════════════ TAB 2: UNIVERSITY ═══════════════ #}
+  <div class="gpa-panel" id="panel-uni" style="display:none;">
+
+    <div class="gpa-section">
+      <div class="gpa-section-title">কোর্স, ক্রেডিট ও গ্রেড পয়েন্ট (Courses, Credits & Grade Points)</div>
+
+      {# NU Grade reference #}
+      <div class="gpa-grade-ref">
+        <table class="gpa-grade-table">
+          <thead><tr><th>গ্রেড</th><th>নম্বর</th><th>পয়েন্ট</th></tr></thead>
+          <tbody>
+            <tr><td>A+</td><td>৮০-১০০</td><td>4.00</td></tr>
+            <tr><td>A</td><td>৭৫-৭৯</td><td>3.75</td></tr>
+            <tr><td>A-</td><td>৭০-৭৪</td><td>3.50</td></tr>
+            <tr><td>B+</td><td>৬৫-৬৯</td><td>3.25</td></tr>
+            <tr><td>B</td><td>৬০-৬৪</td><td>3.00</td></tr>
+            <tr><td>B-</td><td>৫৫-৫৯</td><td>2.75</td></tr>
+            <tr><td>C+</td><td>৫০-৫৪</td><td>2.50</td></tr>
+            <tr><td>C</td><td>৪৫-৪৯</td><td>2.25</td></tr>
+            <tr><td>D</td><td>৪০-৪৪</td><td>2.00</td></tr>
+            <tr><td>F</td><td>০-৩৯</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      {# Course rows #}
+      <div class="gpa-uni-courses" id="gpaUniCourses">
+        <div class="gpa-uni-header-row">
+          <span>কোর্স</span>
+          <span>ক্রেডিট</span>
+          <span>গ্রেড পয়েন্ট</span>
+          <span></span>
+        </div>
+      </div>
+
+      <button type="button" class="gpa-add-subject-btn" id="gpaUniAddCourse">+ কোর্স যোগ করুন (Add Course)</button>
+    </div>
+
+    {# University Result #}
+    <div class="gpa-result-card" id="gpaUniResult" style="display:none;">
+      <div class="gpa-result-header">
+        <span class="gpa-result-label">আপনার সিজিপিএ (Your CGPA)</span>
+        <span class="gpa-result-badge" id="gpaUniBadge"></span>
+      </div>
+      <div class="gpa-result-value" id="gpaUniValue">0.00</div>
+      <div class="gpa-result-detail" id="gpaUniDetail"></div>
+    </div>
+  </div>
+
+  {# ═══════════════ TAB 3: TARGET PLANNER ═══════════════ #}
+  <div class="gpa-panel" id="panel-target" style="display:none;">
+
+    <div class="gpa-section">
+      <div class="gpa-section-title">একাডেমিক পাথ প্ল্যানার (Academic Path Planner)</div>
+      <p class="gpa-hint" style="margin-bottom:1rem;">আপনার লক্ষ্য নির্ধারণ করুন — আমরা হিসাব করে বলব ঠিক কতটুকু দরকার।<br>Define your goal. We'll calculate exactly what's needed.</p>
+
+      <div class="gpa-target-fields">
+        <div class="gpa-target-field">
+          <label for="gpa-target-current">বর্তমান সিজিপিএ (Current CGPA)</label>
+          <input type="number" id="gpa-target-current" name="gpa-target-current" min="0" max="4" step="0.01" placeholder="3.10" autocomplete="off">
+        </div>
+        <div class="gpa-target-field">
+          <label for="gpa-target-credits-done">সম্পন্ন ক্রেডিট (Credits Completed)</label>
+          <input type="number" id="gpa-target-credits-done" name="gpa-target-credits-done" min="0" step="1" placeholder="80" autocomplete="off">
+        </div>
+        <div class="gpa-target-field">
+          <label for="gpa-target-credits-next">পরবর্তী সেমিস্টার ক্রেডিট (Next Semester Credits)</label>
+          <input type="number" id="gpa-target-credits-next" name="gpa-target-credits-next" min="1" step="1" placeholder="20" autocomplete="off">
+        </div>
+        <div class="gpa-target-field">
+          <label for="gpa-target-goal">টার্গেট সিজিপিএ (Target CGPA)</label>
+          <input type="number" id="gpa-target-goal" name="gpa-target-goal" min="0" max="4" step="0.01" placeholder="3.50" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    {# Target Result #}
+    <div class="gpa-result-card" id="gpaTargetResult" style="display:none;">
+      <div class="gpa-result-header">
+        <span class="gpa-result-label">প্রয়োজনীয় জিপিএ (Required GPA)</span>
+        <span class="gpa-result-badge" id="gpaTargetBadge"></span>
+      </div>
+      <div class="gpa-result-value" id="gpaTargetValue">0.00</div>
+      <div class="gpa-result-message" id="gpaTargetMessage"></div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'tools/assets/js/pages/tools-gpa-calculator.js' %}"></script>
+{% endblock %}

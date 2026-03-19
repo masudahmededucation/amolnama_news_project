@@ -1,0 +1,66 @@
+{% comment %}
+  Teams / Players & Result — team names, scores, result summary,
+  and Player of the Match.
+  Sports form — Step 5.
+  Data is serialized by news-sports-teams-result.js into #sports-teams-result-json.
+  DB table: [investigation].[sports_form_fact]
+{% endcomment %}
+
+<div class="form-section" id="section-sports-teams-result">
+  <h3 class="form-section-title"><span class="section-icon">🆚</span>দল / খেলোয়াড় ও ফলাফল (Teams / Players &amp; Result)</h3>
+
+  {# Hidden input — JS serializes teams & result data here before submit #}
+  <input type="hidden" id="sports-teams-result-json" name="sports_teams_result_json" value="">
+
+  {# Teams / Players #}
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="sports-team-a">দল / খেলোয়াড় — ক (Team / Player A)</label>
+      <input type="text" id="sports-team-a"
+             placeholder="যেমন: বাংলাদেশ, Real Madrid, Lakshya Sen">
+    </div>
+    <div class="form-field">
+      <label for="sports-team-b">দল / খেলোয়াড় — খ (Team / Player B)</label>
+      <input type="text" id="sports-team-b"
+             placeholder="যেমন: ভারত, Barcelona, Viktor Axelsen">
+    </div>
+
+    {# Scores #}
+    <div class="form-field">
+      <label for="sports-score-a">স্কোর — ক (Score — A)</label>
+      <input type="text" id="sports-score-a"
+             placeholder="যেমন: 3, 256/8 (50 ov), 21-18 21-15">
+    </div>
+    <div class="form-field">
+      <label for="sports-score-b">স্কোর — খ (Score — B)</label>
+      <input type="text" id="sports-score-b"
+             placeholder="যেমন: 1, 180 all out (45.3 ov), 15-21 18-21">
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-result-summary">ফলাফল সারসংক্ষেপ (Result Summary)</label>
+    <input type="text" id="sports-result-summary"
+           placeholder="যেমন: বাংলাদেশ ৫ উইকেটে জিতেছে · ড্র ১-১ · ব্যক্তিগত সেরা রান">
+  </div>
+
+  {# Toss — relevant for cricket, coin-toss sports #}
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="sports-toss-winner">টস বিজয়ী (Toss Winner) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="sports-toss-winner"
+             placeholder="যেমন: বাংলাদেশ, India, চট্টগ্রাম চ্যালেঞ্জার্স">
+    </div>
+    <div class="form-field">
+      <label for="sports-toss-decision">টসের সিদ্ধান্ত (Toss Decision) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="sports-toss-decision"
+             placeholder="যেমন: ব্যাটিং, ফিল্ডিং, Bat first">
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-player-of-match">ম্যান অব দ্য ম্যাচ (Player of the Match)</label>
+    <input type="text" id="sports-player-of-match"
+           placeholder="যেমন: Shakib Al Hasan, Ronaldo, পোগবা...">
+  </div>
+</div>

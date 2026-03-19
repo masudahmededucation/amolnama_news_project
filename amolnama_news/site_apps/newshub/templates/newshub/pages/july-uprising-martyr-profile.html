@@ -1,0 +1,513 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ profile.nameBn|default:"শহীদ" }} — জুলাই অভ্যুত্থান ২০২৪ | Amolnama News{% endblock %}
+
+{% block extra_css %}
+<style>
+  .martyr-profile {
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: 'Noto Sans Bengali', 'Noto Sans', sans-serif;
+  }
+
+  /* Header */
+  .martyr-header {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-bottom: 3px solid #1a6b3a;
+    margin-bottom: 1.5rem;
+  }
+  .martyr-name-bn {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+    line-height: 1.3;
+  }
+  .martyr-name-en {
+    font-size: 1.1rem;
+    color: #555;
+    margin-top: .3rem;
+  }
+  .martyr-status-badge {
+    display: inline-block;
+    padding: .35rem 1rem;
+    border-radius: 20px;
+    font-size: .9rem;
+    font-weight: 600;
+    margin-top: .75rem;
+    color: #fff;
+  }
+  .status-martyred       { background: #b91c1c; }
+  .status-critically_injured { background: #dc2626; }
+  .status-injured         { background: #ea580c; }
+  .status-eye_injured     { background: #9333ea; }
+  .status-missing         { background: #6b7280; }
+  .status-arrested        { background: #4b5563; }
+
+  /* Sections */
+  .martyr-section {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+  }
+  .martyr-section h2 {
+    font-size: 1.1rem;
+    color: #1a6b3a;
+    margin: 0 0 .75rem 0;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem .75rem;
+  }
+  .info-item label {
+    display: block;
+    font-size: .75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .info-item span {
+    font-size: .95rem;
+    color: #111;
+  }
+
+  .story-block {
+    margin-bottom: .75rem;
+  }
+  .story-block h3 {
+    font-size: .85rem;
+    color: #374151;
+    margin: 0 0 .25rem 0;
+  }
+  .story-block p {
+    margin: 0;
+    color: #111;
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+
+  .force-tag {
+    display: inline-block;
+    padding: .2rem .6rem;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    font-size: .85rem;
+    margin: .15rem .2rem;
+  }
+  .evidence-badge {
+    display: inline-block;
+    padding: .2rem .6rem;
+    border-radius: 4px;
+    font-size: .85rem;
+    margin: .15rem .2rem;
+  }
+  .evidence-verified       { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .evidence-under_review   { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+  .evidence-pending        { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+  .evidence-unverified     { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  /* Share */
+  .share-section {
+    text-align: center;
+    padding: 1.5rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .share-section h2 {
+    font-size: 1rem;
+    color: #1a6b3a;
+    margin: 0 0 .75rem 0;
+  }
+  .share-buttons {
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .5rem 1rem;
+    border-radius: 6px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+  .share-btn-copy {
+    background: #1a6b3a;
+    color: #fff;
+  }
+  .share-btn-whatsapp {
+    background: #25d366;
+    color: #fff;
+  }
+  .share-btn-facebook {
+    background: #1877f2;
+    color: #fff;
+  }
+
+  .martyr-footer {
+    text-align: center;
+    padding: 1rem;
+    color: #6b7280;
+    font-size: .8rem;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .martyr-name-bn { font-size: 1.5rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="martyr-profile">
+
+  <!-- Header -->
+  <div class="martyr-header">
+    <h1 class="martyr-name-bn">{{ profile.nameBn|default:"—" }}</h1>
+    {% if profile.nameEn %}
+      <div class="martyr-name-en">{{ profile.nameEn }}</div>
+    {% endif %}
+
+    {% if profile.status %}
+      <span class="martyr-status-badge status-{{ profile.status }}">
+        {% if profile.status == 'martyred' %}🕯️ শহীদ
+        {% elif profile.status == 'critically_injured' %}🔴 গুরুতর আহত
+        {% elif profile.status == 'injured' %}🟠 আহত
+        {% elif profile.status == 'eye_injured' %}👁️ চোখ হারিয়েছেন
+        {% elif profile.status == 'missing' %}❓ নিখোঁজ
+        {% elif profile.status == 'arrested' %}⛓️ গ্রেফতার
+        {% else %}{{ profile.status }}
+        {% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  <!-- Personal Information -->
+  <div class="martyr-section">
+    <h2>ব্যক্তিগত তথ্য (Personal Information)</h2>
+    <div class="info-grid">
+      {% if profile.age %}
+        <div class="info-item">
+          <label>বয়স (Age)</label>
+          <span>{{ profile.age }}</span>
+        </div>
+      {% endif %}
+      {% if profile.occupation %}
+        <div class="info-item">
+          <label>পেশা (Occupation)</label>
+          <span>
+            {% if profile.occupation == 'student' %}শিক্ষার্থী
+            {% elif profile.occupation == 'teacher' %}শিক্ষক
+            {% elif profile.occupation == 'worker' %}শ্রমিক
+            {% elif profile.occupation == 'rickshaw_puller' %}রিকশাচালক
+            {% elif profile.occupation == 'day_laborer' %}দিনমজুর
+            {% elif profile.occupation == 'shopkeeper' %}দোকানদার
+            {% elif profile.occupation == 'journalist' %}সাংবাদিক
+            {% elif profile.occupation == 'garment_worker' %}গার্মেন্টস শ্রমিক
+            {% elif profile.occupation == 'farmer' %}কৃষক
+            {% elif profile.occupation == 'housewife' %}গৃহিণী
+            {% elif profile.occupation == 'child' %}শিশু
+            {% else %}{{ profile.occupation }}
+            {% endif %}
+          </span>
+        </div>
+      {% endif %}
+      {% if profile.institution %}
+        <div class="info-item">
+          <label>প্রতিষ্ঠান (Institution)</label>
+          <span>{{ profile.institution }}</span>
+        </div>
+      {% endif %}
+      {% if profile.district %}
+        <div class="info-item">
+          <label>জেলা (District)</label>
+          <span>{{ profile.district }}</span>
+        </div>
+      {% endif %}
+      {% if profile.father %}
+        <div class="info-item">
+          <label>পিতা (Father)</label>
+          <span>{{ profile.father }}</span>
+        </div>
+      {% endif %}
+      {% if profile.mother %}
+        <div class="info-item">
+          <label>মাতা (Mother)</label>
+          <span>{{ profile.mother }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Story -->
+  {% if story.lastWords or story.lifeStory or story.howJoined or story.familyImpact %}
+  <div class="martyr-section">
+    <h2>ব্যক্তিগত গল্প ও স্মৃতি (Personal Story & Memory)</h2>
+    {% if story.lastWords %}
+      <div class="story-block">
+        <h3>শেষ কথা / শেষ কাজ (Last Words/Actions)</h3>
+        <p>{{ story.lastWords }}</p>
+      </div>
+    {% endif %}
+    {% if story.lifeStory %}
+      <div class="story-block">
+        <h3>জীবন কাহিনী (Life Story)</h3>
+        <p>{{ story.lifeStory }}</p>
+      </div>
+    {% endif %}
+    {% if story.howJoined %}
+      <div class="story-block">
+        <h3>কীভাবে আন্দোলনে যোগ দিয়েছিলেন (How They Joined)</h3>
+        <p>{{ story.howJoined }}</p>
+      </div>
+    {% endif %}
+    {% if story.breadwinner %}
+      <div class="story-block">
+        <h3>পরিবারের একমাত্র উপার্জনকারী (Breadwinner)</h3>
+        <p>হ্যাঁ{% if story.dependents %} — নির্ভরশীল: {{ story.dependents }} জন{% endif %}</p>
+      </div>
+    {% endif %}
+    {% if story.familyImpact %}
+      <div class="story-block">
+        <h3>পরিবারের উপর প্রভাব (Family Impact)</h3>
+        <p>{{ story.familyImpact }}</p>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Cause of Death/Injury -->
+  {% if cause.weaponType or cause.injurySite or cause.timeOfInjury %}
+  <div class="martyr-section">
+    <h2>মৃত্যু/আঘাতের কারণ (Cause of Death/Injury)</h2>
+    <div class="info-grid">
+      {% if cause.weaponType %}
+        <div class="info-item">
+          <label>অস্ত্র (Weapon)</label>
+          <span>
+            {% if cause.weaponType == 'military_rifle_762' %}৭.৬২মিমি রাইফেল
+            {% elif cause.weaponType == 'shotgun_pellets' %}শটগান পেলেট
+            {% elif cause.weaponType == 'handgun' %}পিস্তল/রিভলভার
+            {% elif cause.weaponType == 'rubber_bullet' %}রাবার বুলেট
+            {% elif cause.weaponType == 'sound_grenade' %}সাউন্ড গ্রেনেড
+            {% elif cause.weaponType == 'tear_gas' %}কাঁদানে গ্যাস
+            {% elif cause.weaponType == 'lathi_baton' %}লাঠি
+            {% elif cause.weaponType == 'sharp_weapon' %}ধারালো অস্ত্র
+            {% elif cause.weaponType == 'vehicle_ramming' %}গাড়ি দিয়ে চাপা
+            {% elif cause.weaponType == 'helicopter_gunfire' %}হেলিকপ্টার থেকে গুলি
+            {% elif cause.weaponType == 'submachine_gun' %}সাবমেশিনগান
+            {% else %}{{ cause.weaponType }}
+            {% endif %}
+          </span>
+        </div>
+      {% endif %}
+      {% if cause.injurySite %}
+        <div class="info-item">
+          <label>আঘাতের স্থান (Injury Site)</label>
+          <span>
+            {% if cause.injurySite == 'head' %}মাথা
+            {% elif cause.injurySite == 'eye' %}চোখ
+            {% elif cause.injurySite == 'chest' %}বুক
+            {% elif cause.injurySite == 'back' %}পিঠ
+            {% elif cause.injurySite == 'abdomen' %}পেট
+            {% elif cause.injurySite == 'neck' %}গলা
+            {% elif cause.injurySite == 'limbs' %}হাত/পা
+            {% elif cause.injurySite == 'multiple' %}একাধিক স্থান
+            {% else %}{{ cause.injurySite }}
+            {% endif %}
+          </span>
+        </div>
+      {% endif %}
+      {% if cause.timeOfInjury %}
+        <div class="info-item">
+          <label>আঘাতের সময় (Time of Injury)</label>
+          <span>{{ cause.timeOfInjury }}</span>
+        </div>
+      {% endif %}
+      {% if cause.hospital %}
+        <div class="info-item">
+          <label>হাসপাতাল (Hospital)</label>
+          <span>{{ cause.hospital }}</span>
+        </div>
+      {% endif %}
+      {% if cause.timeOfDeath %}
+        <div class="info-item">
+          <label>মৃত্যুর সময় (Time of Death)</label>
+          <span>{{ cause.timeOfDeath }}</span>
+        </div>
+      {% endif %}
+    </div>
+    {% if cause.autopsyDone or cause.deathCertificate or cause.medicalDocs %}
+    <div style="margin-top: .75rem;">
+      {% if cause.autopsyDone %}<span class="evidence-badge evidence-verified">ময়নাতদন্ত হয়েছে</span>{% endif %}
+      {% if cause.deathCertificate %}<span class="evidence-badge evidence-verified">মৃত্যু সনদ আছে</span>{% endif %}
+      {% if cause.medicalDocs %}<span class="evidence-badge evidence-verified">চিকিৎসা নথি আছে</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Oppressive Forces -->
+  {% if oppressors.forces or oppressors.unitBadge or oppressors.commandingOfficer %}
+  <div class="martyr-section">
+    <h2>দমনকারী বাহিনী (Oppressive Forces)</h2>
+    {% if oppressors.forces %}
+    <div style="margin-bottom: .75rem;">
+      {% for force in oppressors.forces %}
+        <span class="force-tag">
+          {% if force == 'police' %}পুলিশ
+          {% elif force == 'rab' %}র‍্যাব
+          {% elif force == 'bgb' %}বিজিবি
+          {% elif force == 'army' %}সেনাবাহিনী
+          {% elif force == 'db_police' %}ডিবি পুলিশ
+          {% elif force == 'bcl' %}ছাত্রলীগ
+          {% elif force == 'jubo_league' %}যুবলীগ
+          {% elif force == 'unknown_plainclothes' %}অজ্ঞাত সাদা পোশাক
+          {% else %}{{ force }}
+          {% endif %}
+        </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="info-grid">
+      {% if oppressors.unitBadge %}
+        <div class="info-item">
+          <label>ইউনিট/ব্যাজ (Unit/Badge)</label>
+          <span>{{ oppressors.unitBadge }}</span>
+        </div>
+      {% endif %}
+      {% if oppressors.commandingOfficer %}
+        <div class="info-item">
+          <label>কমান্ডিং অফিসার (Commanding Officer)</label>
+          <span>{{ oppressors.commandingOfficer }}</span>
+        </div>
+      {% endif %}
+      {% if oppressors.ocDc %}
+        <div class="info-item">
+          <label>ওসি/ডিসি (OC/DC)</label>
+          <span>{{ oppressors.ocDc }}</span>
+        </div>
+      {% endif %}
+    </div>
+    {% if oppressors.directives %}
+      <div class="story-block" style="margin-top: .75rem;">
+        <h3>আদেশ/নির্দেশনা (Orders/Directives)</h3>
+        <p>{{ oppressors.directives }}</p>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Evidence & Verification -->
+  {% if evidence.verificationStatus or evidence.evidenceTypes %}
+  <div class="martyr-section">
+    <h2>প্রমাণ ও যাচাই (Evidence & Verification)</h2>
+    {% if evidence.verificationStatus %}
+    <div style="margin-bottom: .75rem;">
+      <span class="evidence-badge evidence-{{ evidence.verificationStatus }}">
+        {% if evidence.verificationStatus == 'verified' %}✅ যাচাইকৃত
+        {% elif evidence.verificationStatus == 'under_review' %}🔍 পর্যালোচনাধীন
+        {% elif evidence.verificationStatus == 'pending_evidence' %}⏳ প্রমাণ প্রত্যাশিত
+        {% elif evidence.verificationStatus == 'unverified' %}❌ অযাচাইকৃত
+        {% else %}{{ evidence.verificationStatus }}
+        {% endif %}
+      </span>
+    </div>
+    {% endif %}
+    {% if evidence.evidenceTypes %}
+    <div style="margin-bottom: .75rem;">
+      {% for etype in evidence.evidenceTypes %}
+        <span class="evidence-badge evidence-verified">
+          {% if etype == 'has_video' %}ভিডিও প্রমাণ
+          {% elif etype == 'has_photo' %}ছবি
+          {% elif etype == 'has_cctv' %}সিসিটিভি ফুটেজ
+          {% elif etype == 'has_eyewitness' %}প্রত্যক্ষদর্শী{% if evidence.eyewitnessCount %} ({{ evidence.eyewitnessCount }} জন){% endif %}
+          {% else %}{{ etype }}
+          {% endif %}
+        </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="info-grid">
+      {% if evidence.gazetteListed %}
+        <div class="info-item">
+          <label>সরকারি গেজেটে তালিকাভুক্ত</label>
+          <span>হ্যাঁ</span>
+        </div>
+      {% endif %}
+      {% if evidence.memorialRef %}
+        <div class="info-item">
+          <label>স্মৃতি ডাটাবেস রেফারেন্স</label>
+          <span>{{ evidence.memorialRef }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- News Entry Info -->
+  {% if entry.headline_bn or entry.news_body_bn %}
+  <div class="martyr-section">
+    <h2>ঘটনার বিবরণ (Incident Details)</h2>
+    {% if entry.headline_bn %}
+      <div class="story-block">
+        <h3>শিরোনাম (Headline)</h3>
+        <p>{{ entry.headline_bn }}</p>
+      </div>
+    {% endif %}
+    {% if entry.news_body_bn %}
+      <div class="story-block">
+        <h3>বিস্তারিত (Details)</h3>
+        <p>{{ entry.news_body_bn }}</p>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Share -->
+  <div class="share-section">
+    <h2>শেয়ার করুন (Share This Profile)</h2>
+    <div class="share-buttons">
+      <button class="share-btn share-btn-copy" onclick="navigator.clipboard.writeText(window.location.href).then(function(){alert('লিংক কপি হয়েছে!')})">
+        📋 লিংক কপি
+      </button>
+      <a class="share-btn share-btn-whatsapp"
+         href="https://wa.me/?text={{ profile.nameBn|default:'' }}%20—%20জুলাই%20অভ্যুত্থান%20২০২৪%20{{ request.build_absolute_uri }}"
+         target="_blank" rel="noopener">
+        💬 WhatsApp
+      </a>
+      <a class="share-btn share-btn-facebook"
+         href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+         target="_blank" rel="noopener">
+        📘 Facebook
+      </a>
+    </div>
+  </div>
+
+  <div class="martyr-footer">
+    এই তথ্য <strong>Amolnama News</strong> দ্বারা সংরক্ষিত ও নথিভুক্ত।<br>
+    জুলাই অভ্যুত্থান ২০২৪ — রক্তস্নাত ইতিহাস ও ন্যায়বিচার
+  </div>
+
+</div>
+{% endblock %}

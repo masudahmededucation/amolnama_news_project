@@ -1,0 +1,220 @@
+from django.http import JsonResponse
+from django.shortcuts import render
+
+from amolnama_news.site_apps.multimedia.models import RefFileConversionMap
+
+
+def _tools_breadcrumbs(name, url):
+    """Helper to build standard tools breadcrumbs."""
+    return [
+        {"name": "হোম", "url": "/"},
+        {"name": "টুলস", "url": "/tools/"},
+        {"name": name, "url": url},
+    ]
+
+
+def tools(request):
+    context = {
+        "seo": {
+            "title": "ফ্রি অনলাইন টুলস — আমলনামা নিউজ | Free Online Tools",
+            "description": (
+                "ফ্রি অনলাইন টুলস — ফাইল কম্প্রেশন, ফরম্যাট রূপান্তর, ব্যাকগ্রাউন্ড রিমুভার, "
+                "ফটো অ্যালবাম মেকার, পাসপোর্ট ফটো রিসাইজার এবং আরও অনেক কিছু। সম্পূর্ণ বিনামূল্যে। "
+                "Free online tools: file compression, format conversion, background remover, photo album maker."
+            ),
+            "breadcrumbs": [
+                {"name": "হোম", "url": "/"},
+                {"name": "টুলস", "url": "/tools/"},
+            ],
+        },
+    }
+    return render(request, "tools/tools.html", context)
+
+
+def tools_reduce_file_size(request):
+    context = {
+        "seo": {
+            "title": "ফাইল কম্প্রেশন — ফাইলের সাইজ কমান | Reduce File Size — Free Online Tool",
+            "description": (
+                "ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "Reduce image, PDF, and document file sizes online for free. No upload required."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ফাইল কম্প্রেশন", "/tools/reduce-file-size/"),
+        },
+    }
+    return render(request, "tools/tools-reduce-file-size.html", context)
+
+
+def tools_file_conversion(request):
+    context = {
+        "seo": {
+            "title": "ফাইল রূপান্তর — ফরম্যাট কনভার্ট করুন | File Conversion — Free Online Tool",
+            "description": (
+                "ফাইল ফরম্যাট রূপান্তর করুন — ছবি, ডকুমেন্ট, অডিও, ভিডিও। সম্পূর্ণ বিনামূল্যে। "
+                "Convert between file formats — images, documents, audio, video. Free, client-side."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ফাইল রূপান্তর", "/tools/file-conversion/"),
+        },
+    }
+    return render(request, "tools/tools-file-conversion.html", context)
+
+
+def tools_zip_creator(request):
+    context = {
+        "seo": {
+            "title": "জিপ ক্রিয়েটর — ফাইল জিপ করুন | ZIP Creator — Free Online Tool",
+            "description": (
+                "একাধিক ফাইল একটি ZIP আর্কাইভে বান্ডেল করুন — সম্পূর্ণ বিনামূল্যে। "
+                "Bundle multiple files into a ZIP archive online for free."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("জিপ ক্রিয়েটর", "/tools/zip-creator/"),
+        },
+    }
+    return render(request, "tools/tools-zip-creator.html", context)
+
+
+def tools_passport_photo_resizer(request):
+    """Passport photo & signature resizer tool page."""
+    context = {
+        "seo": {
+            "title": "পাসপোর্ট ফটো রিসাইজার — ছবির সাইজ পরিবর্তন | Passport Photo Resizer",
+            "description": (
+                "পাসপোর্ট, ভিসা ও সরকারি ফর্মের জন্য ছবির সাইজ পরিবর্তন করুন। "
+                "Resize photos for passport, visa, and government forms. Free online tool."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("পাসপোর্ট ফটো", "/tools/passport-photo-resizer/"),
+        },
+    }
+    return render(request, "tools/tools-passport-photo-resizer.html", context)
+
+
+def tools_bg_remover(request):
+    """AI background remover tool page."""
+    context = {
+        "seo": {
+            "title": "ছবির ব্যাকগ্রাউন্ড রিমুভার — AI দিয়ে ব্যাকগ্রাউন্ড সরান | Background Remover",
+            "description": (
+                "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "Remove image backgrounds with AI — free, runs entirely in your browser."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ব্যাকগ্রাউন্ড রিমুভার", "/tools/background-remover/"),
+        },
+    }
+    return render(request, "tools/tools-bg-remover.html", context)
+
+
+def tools_merge_documents(request):
+    """Merge multiple PDFs and images into a single PDF — client-side."""
+    context = {
+        "seo": {
+            "title": "ডকুমেন্ট মার্জ — PDF ও ছবি একত্রিত করুন | Merge Documents — Free Tool",
+            "description": (
+                "একাধিক PDF ও ছবি একটি PDF-এ একত্রিত করুন — সম্পূর্ণ বিনামূল্যে। "
+                "Merge multiple PDFs and images into one PDF. Free, client-side."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ডকুমেন্ট মার্জ", "/tools/merge-documents/"),
+        },
+    }
+    return render(request, "tools/tools-merge-documents.html", context)
+
+
+def tools_photo_album(request):
+    """Photo album maker tool page."""
+    context = {
+        "seo": {
+            "title": "ফটো অ্যালবাম মেকার — প্রিন্ট-রেডি অ্যালবাম পেজ তৈরি করুন | Photo Album Maker",
+            "description": (
+                "ফটো অ্যালবাম পেজ তৈরি করুন — NID কার্ড, পাসপোর্ট ফটো শীট, পারিবারিক অ্যালবাম। "
+                "Create printable photo album pages — NID cards, passport sheets, family albums. Free tool."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ফটো অ্যালবাম", "/tools/photo-album/"),
+        },
+    }
+    return render(request, "tools/tools-photo-album.html", context)
+
+
+def tools_split_pdf(request):
+    """PDF splitter tool page."""
+    context = {
+        "seo": {
+            "title": "পিডিএফ স্প্লিট — পিডিএফ থেকে পাতা আলাদা করুন | Split PDF — Free Online Tool",
+            "description": (
+                "বড় পিডিএফ ফাইল থেকে নির্দিষ্ট পাতা আলাদা করুন — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "Extract specific pages from a PDF file. Free, client-side, no upload required."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("পিডিএফ স্প্লিট", "/tools/split-pdf/"),
+        },
+    }
+    return render(request, "tools/tools-split-pdf.html", context)
+
+
+def tools_gpa_calculator(request):
+    """GPA/CGPA Calculator tool page."""
+    context = {
+        "seo": {
+            "title": "জিপিএ/সিজিপিএ ক্যালকুলেটর | GPA/CGPA Calculator — Free Tool",
+            "description": (
+                "এসএসসি/এইচএসসি জিপিএ এবং বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন। "
+                "টার্গেট সিজিপিএ প্ল্যানার সহ। "
+                "Calculate SSC/HSC GPA and University CGPA with target planner. Free online tool."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("জিপিএ ক্যালকুলেটর", "/tools/gpa-calculator/"),
+        },
+    }
+    return render(request, "tools/tools-gpa-calculator.html", context)
+
+
+def tools_age_calculator(request):
+    """Age Calculator — 100% client-side."""
+    context = {
+        "seo": {
+            "title": "বয়স ক্যালকুলেটর — জন্মতারিখ থেকে বয়স হিসাব | Age Calculator — Free Tool",
+            "description": (
+                "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন, পরবর্তী জন্মদিন ও মজার তথ্য। "
+                "Calculate your exact age in years, months, days. Free online tool."
+            ),
+            "breadcrumbs": _tools_breadcrumbs("বয়স ক্যালকুলেটর", "/tools/age-calculator/"),
+        },
+    }
+    return render(request, "tools/tools-age-calculator.html", context)
+
+
+def api_transliterate(request):
+    """Proxy to Google's transliteration API — returns Bengali suggestions for English input."""
+    import urllib.request
+    import urllib.parse
+    text = request.GET.get("text", "").strip()
+    if not text or len(text) > 100:
+        return JsonResponse({"suggestions": []})
+    try:
+        url = (
+            "https://inputtools.google.com/request?"
+            "text=" + urllib.parse.quote(text) +
+            "&itc=bn-t-i0-und&num=5&cp=0&cs=1&ie=utf-8&oe=utf-8"
+        )
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        resp = urllib.request.urlopen(req, timeout=3)
+        import json
+        data = json.loads(resp.read().decode())
+        if data[0] == "SUCCESS" and len(data[1]) > 0:
+            return JsonResponse({"suggestions": data[1][0][1]})
+    except Exception:
+        pass
+    return JsonResponse({"suggestions": []})
+
+
+def api_file_conversion_map(request):
+    """Return the conversion map as JSON: { ext: [targets], ... }"""
+    rows = RefFileConversionMap.objects.all().values(
+        "source_format", "allowed_destinations"
+    )
+    conversion_map = {}
+    for row in rows:
+        ext = row["source_format"].strip().lower().lstrip(".")
+        destinations = [
+            d.strip().lower().lstrip(".")
+            for d in row["allowed_destinations"].split(",")
+            if d.strip()
+        ]
+        conversion_map[ext] = destinations
+    return JsonResponse(conversion_map)

@@ -1,0 +1,211 @@
+================================================================================
+ FIELD MAPPING: Register Marriage / Nikahnama (Form 'ঘ')
+================================================================================
+ Template: marriage/marriage-form.html
+ URL:      /marriage/register-marriage/  (also /marriage/nikahnama/ — hidden card)
+ View:     marriage.views.register_marriage / marriage.views.marriage_form
+ Storage:  Client-side only (no backend DB) — PDF/print output
+================================================================================
+
+NOTE: This form is entirely client-side. No data is saved to any database.
+All fields are rendered into an A4 paginated preview for print/PDF export.
+
+JS files:
+  - marriage/assets/js/components/marriage-sigpad.js          (signature pad — shared)
+  - marriage/assets/js/pages/marriage-form-stepper.js         (multi-step stepper)
+  - marriage/assets/js/pages/marriage-form-preview.js         (A4 preview builder)
+
+CSS files:
+  - marriage/assets/css/components/marriage-sigpad.css        (signature pad — shared)
+  - marriage/assets/css/pages/marriage-form.css               (form + preview styles)
+
+
+================================================================================
+ STEP 1: নিবন্ধন (Registration Information)
+================================================================================
+
+ ID                    | Type      | Label (BN)                         | Label (EN)
+-----------------------+-----------+------------------------------------+---------------------------
+ reg-kazi-name         | text      | কাজী/নিকাহ রেজিস্ট্রারের নাম       | Kazi / Nikah Registrar Name
+ reg-license-no        | text      | লাইসেন্স নং                        | License No.
+ reg-bd-form-no        | text      | বাংলাদেশ ফর্ম নং                    | Bangladesh Form No.
+ reg-serial-no         | text      | ক্রমিক নং                          | Serial No.
+ reg-book-no           | text      | বই নং                             | Book No.
+ reg-volume-no         | text      | খণ্ড নং                           | Volume No.
+ reg-page-no           | text      | পৃষ্ঠা নং                          | Page No.
+ reg-header-date       | date      | তারিখ                             | Date
+ reg-marriage-date     | date *    | বিবাহের তারিখ                      | Date of Marriage (Q23)
+ reg-marriage-place    | text      | বিবাহের স্থান                       | Place of Marriage (Q23)
+ reg-reg-date          | date      | নিবন্ধনের তারিখ                    | Registration Date (Q24)
+ reg-fee               | text      | নিবন্ধন ফি (টাকা)                  | Registration Fee (Taka) (Q24)
+ reg-remarks           | textarea  | নিবন্ধনকারীর মন্তব্য                | Registrar's Remarks (Q25)
+
+
+================================================================================
+ STEP 2: বর (Groom Information)
+================================================================================
+
+ ID                         | Type      | Label (BN)                  | Label (EN)
+----------------------------+-----------+-----------------------------+----------------------------
+ groom-name-bn              | text *    | বরের নাম (বাংলা)             | Groom's Name (Bengali) (Q2)
+ groom-name-en              | text      | বরের নাম (ইংরেজি)            | Groom's Name (English) (Q2)
+ groom-father               | text      | পিতার নাম                   | Father's Name (Q2)
+ groom-mother               | text      | মাতার নাম                   | Mother's Name (Q2)
+ groom-present-address      | textarea  | বর্তমান ঠিকানা               | Present Address (Q2)
+ groom-permanent-address    | textarea  | স্থায়ী ঠিকানা                | Permanent Address (Q2)
+ groom-dob                  | date      | জন্ম তারিখ / বয়স            | Date of Birth / Age (Q3)
+ groom-nid                  | text      | জাতীয় পরিচয়পত্র নং          | National ID No. (Q3)
+ groom-occupation           | text      | পেশা                        | Occupation (Q3)
+ groom-religion             | select    | ধর্ম                        | Religion (Q3)
+ groom-nationality          | text      | জাতীয়তা                     | Nationality (Q3) [default: বাংলাদেশী]
+ groom-phone                | tel       | মোবাইল                      | Phone (Q3)
+ groom-marital-status       | select    | বৈবাহিক অবস্থা               | Marital Status (Q21)
+ groom-living-wives         | number    | জীবিত স্ত্রীর সংখ্যা          | Living Wives (Q21) [conditional]
+ groom-arbitration          | select    | সালিশী পরিষদের অনুমতি         | Arbitration Permission (Q22) [conditional]
+ groom-arbitration-details  | text      | বিবরণ                       | Details (Q22) [conditional]
+
+Select options:
+  groom-religion:       ইসলাম (Islam), অন্যান্য (Other)
+  groom-marital-status: অবিবাহিত (Bachelor), বিবাহিত (Married),
+                        বিপত্নীক (Widower), তালাকপ্রাপ্ত (Divorced)
+  groom-arbitration:    হ্যাঁ (Yes), না (No), প্রযোজ্য নয় (N/A)
+
+Conditional:
+  groom-living-wives → shown when marital-status != অবিবাহিত
+  groom-arbitration  → shown when marital-status != অবিবাহিত
+
+
+================================================================================
+ STEP 3: কনে (Bride Information)
+================================================================================
+
+ ID                       | Type      | Label (BN)                    | Label (EN)
+--------------------------+-----------+-------------------------------+----------------------------
+ bride-name-bn            | text *    | কনের নাম (বাংলা)               | Bride's Name (Bengali) (Q4)
+ bride-name-en            | text      | কনের নাম (ইংরেজি)              | Bride's Name (English) (Q4)
+ bride-father             | text      | পিতার নাম                     | Father's Name (Q4)
+ bride-mother             | text      | মাতার নাম                     | Mother's Name (Q4)
+ bride-present-address    | textarea  | বর্তমান ঠিকানা                 | Present Address (Q4)
+ bride-permanent-address  | textarea  | স্থায়ী ঠিকানা                  | Permanent Address (Q4)
+ bride-dob                | date      | জন্ম তারিখ / বয়স              | Date of Birth / Age (Q5)
+ bride-nid                | text      | জাতীয় পরিচয়পত্র নং            | National ID No. (Q5)
+ bride-occupation         | text      | পেশা                          | Occupation (Q5)
+ bride-religion           | select    | ধর্ম                          | Religion (Q5)
+ bride-nationality        | text      | জাতীয়তা                       | Nationality (Q5) [default: বাংলাদেশী]
+ bride-phone              | tel       | মোবাইল                        | Phone (Q5)
+ bride-marital-status     | select    | বৈবাহিক অবস্থা                 | Marital Status (Q6)
+ bride-prev-husband       | text      | পূর্ববর্তী স্বামীর নাম           | Previous Husband (Q6) [conditional]
+
+Select options:
+  bride-religion:       ইসলাম (Islam), অন্যান্য (Other)
+  bride-marital-status: কুমারী (Unmarried), বিধবা (Widow), তালাকপ্রাপ্তা (Divorced)
+
+Conditional:
+  bride-prev-husband → shown when marital-status != কুমারী
+
+
+================================================================================
+ STEP 4: উকিল (Advocates Information)
+================================================================================
+
+ Q7 — Bride's Advocate:
+ ID                       | Type  | Label (BN)              | Label (EN)
+--------------------------+-------+-------------------------+----------------------------
+ bride-advocate-name      | text  | উকিলের নাম              | Advocate's Name
+ bride-advocate-father    | text  | পিতার নাম               | Father's Name
+ bride-advocate-address   | text  | ঠিকানা                  | Address
+ bride-advocate-relation  | text  | কনের সাথে সম্পর্ক        | Relation with Bride
+
+ Q8 — Groom's Advocate:
+ ID                       | Type  | Label (BN)              | Label (EN)
+--------------------------+-------+-------------------------+----------------------------
+ groom-advocate-name      | text  | উকিলের নাম              | Advocate's Name
+ groom-advocate-father    | text  | পিতার নাম               | Father's Name
+ groom-advocate-address   | text  | ঠিকানা                  | Address
+ groom-advocate-relation  | text  | বরের সাথে সম্পর্ক        | Relation with Groom
+
+
+================================================================================
+ STEP 5: সাক্ষী (Witnesses Information)
+================================================================================
+
+ Q9 — Bride's Advocate Witnesses:
+ ID                       | Type  | Label (BN)  | Label (EN)
+--------------------------+-------+-------------+------------
+ bride-witness1-name      | text  | নাম         | Name (1)
+ bride-witness1-address   | text  | ঠিকানা      | Address (1)
+ bride-witness2-name      | text  | নাম         | Name (2)
+ bride-witness2-address   | text  | ঠিকানা      | Address (2)
+
+ Q10 — Groom's Advocate Witnesses:
+ groom-witness1-name      | text  | নাম         | Name (1)
+ groom-witness1-address   | text  | ঠিকানা      | Address (1)
+ groom-witness2-name      | text  | নাম         | Name (2)
+ groom-witness2-address   | text  | ঠিকানা      | Address (2)
+
+ Q11 — Marriage Witnesses (3):
+ marriage-witness1-name    | text  | নাম         | Name (1)
+ marriage-witness1-address | text  | ঠিকানা      | Address (1)
+ marriage-witness2-name    | text  | নাম         | Name (2)
+ marriage-witness2-address | text  | ঠিকানা      | Address (2)
+ marriage-witness3-name    | text  | নাম         | Name (3)
+ marriage-witness3-address | text  | ঠিকানা      | Address (3)
+
+ Q12 — Person Who Solemnized:
+ solemnizer-name           | text  | নাম         | Name
+ solemnizer-address        | text  | ঠিকানা      | Address
+
+
+================================================================================
+ STEP 6: দেনমোহর (Mehr & Conditions)
+================================================================================
+
+ ID                       | Type      | Label (BN)                                        | Label (EN)
+--------------------------+-----------+---------------------------------------------------+---------------------------
+ mehr-total               | text      | মোট দেনমোহর (টাকা)                                 | Total Mehr (Taka) (Q13)
+ mehr-total-words         | text      | কথায়                                              | In Words (Q13)
+ mehr-prompt              | text      | তাৎক্ষণিক দেনমোহর (টাকা)                            | Prompt Mehr (Taka) (Q14)
+ mehr-prompt-paid         | select    | পরিশোধিত কিনা                                      | Paid Status (Q14)
+ mehr-deferred            | text      | বিলম্বিত দেনমোহর (টাকা)                             | Deferred Mehr (Taka) (Q15)
+ mehr-payment-method      | textarea  | দেনমোহর কিভাবে পরিশোধ করা হবে                       | How Mehr will be paid (Q16)
+ mehr-description         | textarea  | দেনমোহরের বিবরণ (নগদ/সম্পত্তি/অন্যান্য)              | Mehr Description (Q17)
+ marriage-conditions      | textarea  | বিবাহে কোনো শর্ত আরোপিত হইয়াছে কি?                  | Conditions Imposed? (Q18)
+ divorce-delegation       | select    | তালাকের ক্ষমতা                                     | Divorce Delegation (Q19)
+ divorce-delegation-details | text    | শর্তাবলী (যদি হ্যাঁ)                                | Conditions (Q19)
+ attached-documents       | textarea  | সংযুক্ত দলিলের তালিকা                               | Attached Documents (Q20)
+
+Select options:
+  mehr-prompt-paid:     পরিশোধিত (Paid), অপরিশোধিত (Unpaid), আংশিক (Partial)
+  divorce-delegation:   হ্যাঁ (Yes), না (No)
+
+
+================================================================================
+ STEP 7: স্বাক্ষর (Signatures)
+================================================================================
+
+ Each signature zone has: radio toggle (draw/upload), canvas, clear button, file input.
+ Signature data stored as data URL in dataset.sigUrl on the drop element.
+
+ Sig Key           | Person                    | Drop Element ID
+-------------------+---------------------------+--------------------
+ groom             | বরের স্বাক্ষর (Groom)       | sig-groom-drop
+ bride             | কনের স্বাক্ষর (Bride)       | sig-bride-drop
+ bride-advocate    | কনের উকিলের স্বাক্ষর        | sig-bride-advocate-drop
+ groom-advocate    | বরের উকিলের স্বাক্ষর        | sig-groom-advocate-drop
+ kazi              | কাজী/রেজিস্ট্রার স্বাক্ষর    | sig-kazi-drop
+
+
+================================================================================
+ STEP 8: প্রিভিউ (Preview & Export)
+================================================================================
+
+ Controls:
+  chk-preprinted       | checkbox | প্রি-প্রিন্টেড ফর্মে মুদ্রণ | Pre-printed form toggle
+  btn-marriage-print   | button   | প্রিন্ট করুন             | Print
+  btn-marriage-pdf     | button   | PDF ডাউনলোড             | Download PDF
+  btn-marriage-edit    | button   | সম্পাদনা করুন            | Edit
+
+
+================================================================================
+ TOTAL: ~95 input fields, 5 signature canvases, 3 action buttons
+================================================================================

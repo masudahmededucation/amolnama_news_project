@@ -1,0 +1,53 @@
+/* ========== Beauty of Bangladesh Page ========== */
+
+.bh-header { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:1rem 0 .75rem; }
+.bh-header-left { flex:1; min-width:200px; }
+.bh-header-left h1 { font-size:1.4rem; font-weight:700; color:var(--text); margin:0 0 .15rem; }
+.bh-header-left p { margin:0; font-size:.82rem; color:var(--muted); }
+.bh-header-search { position:relative; flex:0 1 280px; }
+.bh-header-search-icon { position:absolute; left:.6rem; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--muted); pointer-events:none; }
+.bh-header-search-input { width:100%; padding:.5rem .7rem .5rem 2rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.82rem; background:var(--card); color:var(--text); }
+.bh-header-search-input:focus { border-color:var(--primary); outline:none; }
+.bh-header-cta { display:inline-flex; align-items:center; gap:.3rem; padding:.45rem .9rem; font-size:.8rem; font-weight:600; color:#fff; background:var(--primary); border-radius:var(--radius); text-decoration:none; white-space:nowrap; }
+.bh-header-cta svg { width:14px; height:14px; }
+
+/* Filter pills */
+.bh-filter-bar { padding:.25rem 0 .75rem; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.bh-filter-pills { display:flex; gap:.4rem; }
+.bh-filter-pill { padding:.3rem .7rem; font-size:.72rem; font-weight:600; border:1.5px solid var(--border); border-radius:20px; background:var(--card); color:var(--muted); cursor:pointer; white-space:nowrap; transition:all .15s; }
+.bh-filter-pill:hover { border-color:var(--primary); color:var(--primary); }
+.bh-filter-pill--active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* Masonry gallery grid */
+.bh-gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem; padding:.5rem 0 2rem; }
+
+.bh-card { border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); cursor:pointer; transition:box-shadow .2s, transform .2s; }
+.bh-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+
+.bh-card-img { height:200px; background-size:cover; background-position:center; background-color:var(--surface); position:relative; }
+.bh-card-video-badge { position:absolute; top:.5rem; left:.5rem; background:rgba(0,0,0,.7); color:#fff; font-size:.65rem; font-weight:600; padding:.2rem .5rem; border-radius:3px; }
+
+.bh-card-body { padding:.7rem .85rem; display:flex; flex-direction:column; gap:.25rem; }
+.bh-card-title { margin:0; font-size:.88rem; font-weight:700; color:var(--text); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bh-card-meta { display:flex; align-items:center; gap:.5rem; font-size:.68rem; color:var(--muted); }
+.bh-card-category { font-weight:600; }
+.bh-card-location { font-style:italic; }
+
+.bh-card-footer { display:flex; align-items:center; gap:.5rem; font-size:.68rem; color:var(--muted); padding-top:.2rem; }
+.bh-card-time { margin-left:auto; }
+
+/* Empty + load more */
+.bh-empty-state { grid-column:1/-1; text-align:center; padding:3rem 1rem; color:var(--muted); }
+.bh-empty-state p { margin:.3rem 0; font-size:.9rem; }
+.bh-load-more { text-align:center; padding:1rem 0 2rem; }
+.bh-load-more-btn { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
+.bh-load-more-btn:hover { background:var(--primary); color:#fff; }
+
+@media (max-width:640px) {
+  .bh-gallery { grid-template-columns:1fr 1fr; gap:.6rem; }
+  .bh-card-img { height:140px; }
+  .bh-header { flex-direction:column; align-items:stretch; }
+}
+@media (max-width:400px) {
+  .bh-gallery { grid-template-columns:1fr; }
+}

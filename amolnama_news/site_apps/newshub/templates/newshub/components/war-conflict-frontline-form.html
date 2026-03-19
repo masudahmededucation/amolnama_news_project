@@ -1,0 +1,57 @@
+{% comment %}
+  Frontline & Situation — captures territory status, conflict intensity,
+  weapon class, and involvement level.
+  Global News & Conflict form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-global-frontline">
+  <h3 class="form-section-title"><span class="section-icon">🗺️</span>রণক্ষেত্র ও পরিস্থিতি (Frontline & Situation)</h3>
+
+  {# Hidden input — JS serializes frontline data here before submit #}
+  <input type="hidden" id="global-frontline-json" name="global_frontline_json" value="">
+
+  <div class="form-field">
+    <label for="global-territory-status">ভূখণ্ডের অবস্থা (Territory Status)</label>
+    <select id="global-territory-status">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from territory-statuses-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="global-territory-description">ভূখণ্ড/অঞ্চলের নাম (Territory/Region Name)</label>
+    <input type="text" id="global-territory-description"
+           placeholder="যেমন: খেরসন, গাজা, তাইওয়ান প্রণালী...">
+  </div>
+
+  <div class="form-field">
+    <label for="global-conflict-intensity">সংঘাতের তীব্রতা (Conflict Intensity)</label>
+    <select id="global-conflict-intensity">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from conflict-intensity-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="global-weapon-class">অস্ত্রের ধরন (Weapon Class)</label>
+    <select id="global-weapon-class">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from weapon-classes-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="global-involvement-level">অংশগ্রহণের মাত্রা (Involvement Level)</label>
+    <select id="global-involvement-level">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from involvement-levels-data #}
+    </select>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="territory-statuses-data">{{ territory_statuses_json|default:"[]"|safe }}</script>
+<script type="application/json" id="conflict-intensity-data">{{ conflict_intensity_json|default:"[]"|safe }}</script>
+<script type="application/json" id="weapon-classes-data">{{ weapon_classes_json|default:"[]"|safe }}</script>
+<script type="application/json" id="involvement-levels-data">{{ involvement_levels_json|default:"[]"|safe }}</script>

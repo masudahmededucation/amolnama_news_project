@@ -1,0 +1,385 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: LAND GRABBING (দখলবাজি)
+================================================================================
+Last updated: 2026-03-14 (DDL verified: is_law/is_support/is_risk_threat columns; code-based save; shared retaliation)
+Form page:    news-collection-multistep-land-grabbing.html
+Steps:        12 total
+JS managed:   news-accused-repeater.js, news-victim-repeater.js,
+              news-witness-repeater.js, news-land-grab-incident.js,
+              news-legal-fir.js (shared), news-land-grab-legal.js
+Shared actor modules (loaded via news-multistep-base.html):
+              news-person-name.js, news-person-identity.js,
+              news-person-party-details.js
+
+================================================================================
+STEP 1 — Form Type
+POST key: form_type (value: "land_grabbing")
+Mapping: See db-mapping-common-steps.txt → STEP 1
+================================================================================
+
+================================================================================
+STEP 2 — Contributor
+Mapping: See db-mapping-common-steps.txt → STEP 2
+================================================================================
+
+================================================================================
+STEP 3 — News Content (Generic)
+Template: step-news-content.html → news-entry-form.html
+          NOTE: Uses generic news-entry-form.html — NO land-grab-specific sub-type picker.
+Mapping: See db-mapping-common-steps.txt → STEP 3
+================================================================================
+
+================================================================================
+STEP 4 — Accused (অভিযুক্ত / দখলকারী)
+Template:     step-accused.html → accused-form.html
+JS file:      news-accused-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #accused-json (name="accused_json")
+Reference data (embedded in accused-form.html):
+  #actor-involvement-types-data → {{ actor_involvement_types_json }}
+  #actor-types-data             → {{ actor_types_json }}
+File upload: #accused-photos-real (name="accused_photos") — up to 3 files
+             #accused-photos-descriptions-json (name="accused_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=ACCUSED
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per accused card:
+  {
+    role:               "accused"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"      — single Bengali name
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile] — one row each per accused card
+  Step 1: [person].[person] INSERT — actor identity
+  Step 2: [investigation].[incident_involved_actor_profile] INSERT — actor role & incident link
+    link_coll_news_entry_id                         = <new coll_news_entry_id>
+    link_person_id                                  = <new person_id from step 1>
+    link_ref_status_incident_involved_actor_role_id = 34 (ACCUSED) ← set via _FIELD_TO_ROLE: accused_json→'ACCUSED'
+    incident_involved_actor_role_group_code          = 'ACCUSED' (denormalised status_code for query)
+    link_ref_status_incident_involved_actor_type_id = actor.actorTypeId
+    link_ref_status_victim_medical_condition_id      = None
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 5 — Victim (ভুক্তভোগী / ক্ষতিগ্রস্ত জমির মালিক)
+Template:     step-victim.html → victim-form.html
+              NOTE: Uses victim-form.html — no crime-specific health condition fields
+JS file:      news-victim-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #victim-json (name="victim_json")
+File upload: #victim-photos-real (name="victim_photos") — up to 3 files
+             #victim-photos-descriptions-json (name="victim_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=VICTIM
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per victim card (basic — no health condition fields):
+  {
+    role:               "victim"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile]
+  (same two-table pattern as Step 4)
+    link_ref_status_incident_involved_actor_role_id = 39 (VICTIM) ← set via _FIELD_TO_ROLE: victim_json→'VICTIM'
+    incident_involved_actor_role_group_code          = 'VICTIM' (denormalised status_code for query)
+    link_ref_status_victim_medical_condition_id      = None
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 6 — Witness (সাক্ষী / তথ্যদাতা)
+Template:     step-witness.html → witness-form.html
+JS file:      news-witness-repeater.js
+Card groups:  Name → news-person-name.js | Identity → news-person-identity.js
+              Party Details → news-person-party-details.js (all shared modules)
+Hidden input: #witness-json (name="witness_json")
+File upload: #witness-photos-real (name="witness_photos") — up to 3 files
+             #witness-photos-descriptions-json (name="witness_photos_descriptions_json")
+             Photo save → [media].[news_entry_asset] with status_code=WITNESS
+             See db-mapping-actor-repeaters.txt → PHOTO ATTACHMENTS for full save pattern.
+
+JSON structure per witness card:
+  {
+    role:               "witness"
+    involvementTypeId:  <int>
+    actorTypeId:        <int>
+    name:               "<string>"
+    alias:              "<string>"
+    designation:        "<string>"
+    organization:       "<string>"
+    patron:             "<string>"
+    contact:            "<string>"
+    statement:          "<string>"
+  }
+
+Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+See db-mapping-actor-repeaters.txt for full mapping.
+
+DB: [person].[person] + [investigation].[incident_involved_actor_profile]
+  (same two-table pattern as Step 4; all optional fields → None if empty)
+    link_ref_status_incident_involved_actor_role_id = 40 (WITNESS) ← set via _FIELD_TO_ROLE: witness_json→'WITNESS'
+    incident_involved_actor_role_group_code          = 'WITNESS' (denormalised status_code for query)
+    link_ref_status_victim_medical_condition_id      = None
+    victim_medical_treatment_location_name           = None
+================================================================================
+
+================================================================================
+STEP 7 — Incident Details (দখলবাজির বিবরণ)
+Template:     step-land-grab-incident-details.html → land-grab-incident-details-form.html
+JS file:      news-land-grab-incident.js
+Hidden input: #land-grab-incident-json (name="land_grab_incident_json")
+File upload:  #evidence-real (name="evidence_file") — up to 4 files
+              #evidence-descriptions-json (name="evidence_descriptions_json")
+              Template: {% include "file-upload-section.html" %} with upload_prefix="evidence"
+              Backend: _save_evidence_files(request, entry_id, 'evidence_file',
+                       'evidence_descriptions_json', 4, now)
+
+Reference data embedded in template (DB-driven from views context):
+  #land-property-type-data          — ref_status group_code=land_grabbing_form_land_type
+  #land-grabbing-method-data        — ref_status group_code=land_grabbing_form_land_grabbing_method
+  #land-current-status-data         — ref_status group_code=land_grabbing_form_land_current_status
+  #land-document-title-status-data  — ref_status group_code=land_grabbing_form_land_document_title_status
+  #land-area-unit-data              — ref_status group_code=land_grabbing_form_land_grab_area_amount
+
+ref_status values (status_id → status_code):
+  land_grabbing_form_land_type:
+    503: AGRICULTURAL_LAND, 504: HOMESTEAD_RESIDENTIAL, 505: WATER_BODY
+    506: FOREST_GARDEN_ORCHARD, 507: GOVERNMENT_KHAS_LAND, 508: COMMERCIAL_PROPERTY
+    509: RELIGIOUS_CEMETERY, 510: OTHER
+  land_grabbing_form_land_grab_area_amount:
+    511: DECIMAL, 512: KATHA, 513: BIGHHA, 514: ACRE, 515: GONDA, 516: OTHER
+  land_grabbing_form_land_document_title_status:
+    517: KHATIAN_PORCHA_AVAILABLE, 518: REGISTERED_SALE_DEED_AVAILABLE
+    519: INHERITED_FAMILY_LAND, 520: COURT_ORDER_DECREE_AVAILABLE, 521: NO_DOCUMENTS_AVAILABLE
+  land_grabbing_form_land_grabbing_method:
+    522: FORCEFUL_ARMED_OCCUPATION, 523: FORGED_DOCUMENTS, 524: FALSE_FABRICATED_LAWSUIT
+    525: POLITICAL_INFLUENCE_NEXUS, 526: GOVERNMENT_OFFICIAL_NEXUS
+    527: GRADUAL_ENCROACHMENT, 528: FORCED_EVICTION, 529: OTHER_METHOD
+  land_grabbing_form_land_current_status:
+    530: FULLY_OCCUPIED, 531: PARTIALLY_OCCUPIED
+    532: UNDER_LEGAL_DISPUTE, 533: RECOVERED_REGAINED
+
+DOM elements populated by JS (DB-driven, no hardcoded IDs):
+  #land-grab-property-type-grid — radio cards built from #land-property-type-data
+  #land-grab-property-type      — hidden input (stores selected status_id INT)
+  name="land_doc_title_status"  — checkboxes built from #land-document-title-status-data
+  #land-doc-title-status-checkboxes — container
+  name="land_grabbing_method"   — checkboxes built from #land-grabbing-method-data
+  #land-grabbing-method-checkboxes — container
+  #land-grab-status-group       — inline radios built from #land-current-status-data
+  #land-grab-current-status     — hidden input (stores selected status_id INT)
+  #land-grab-area-unit          — select options built from #land-area-unit-data
+  #land-grab-property-type-other-row / #land-grab-property-type-other — shown when OTHER (510)
+  #land-grab-method-other-row / #land-grab-method-other-detail — shown when OTHER_METHOD (529)
+  #land-grab-mouza, #land-grab-daag, #land-grab-khatian, #land-grab-area-amount — text/number
+  #land-grab-families-evicted, #land-grab-violence-occurred, #land-grab-violence-desc
+
+JSON structure (serialized to #land-grab-incident-json):
+  {
+    propertyTypeId:   <int>          — status_id (503-510); 0 if none selected
+    propertyTypeOther: "<string>"   — free-text; only relevant when propertyTypeId=510 (OTHER)
+    mouza:            "<string>"     — মৌজার নাম (optional)
+    daag:             "<string>"     — দাগ নম্বর, comma-separated (optional)
+    khatian:          "<string>"     — খতিয়ান নম্বর (optional)
+    areaAmount:       <float>        — land area quantity (0 if empty)
+    areaUnitId:       <int>          — status_id (511-516); 0 if none selected
+    documentIds:      [<int>, ...]   — checked document type status_ids (from 517-521)
+    methodIds:        [<int>, ...]   — checked grabbing method status_ids (from 522-529)
+    methodOther:      "<string>"     — free-text; only relevant when methodIds includes 529 (OTHER_METHOD)
+    currentStatusId:  <int>          — status_id (530-533); 0 if none selected
+    familiesEvicted:  <int>          — number of evicted families (0 if empty)
+    violenceOccurred: <bool>         — whether violence occurred
+    violenceDesc:     "<string>"     — violence description (only if violenceOccurred=true)
+  }
+  NOTE: Legal action data is NOT in this JSON — it is in land_legal JSON (Step 8).
+
+DB: [investigation].[land_grabbing_form_fact] — one row per submission
+  link_coll_news_entry_id                              = entry.coll_news_entry_id
+  link_ref_status_land_grabbing_form_land_type_id      = json.propertyTypeId if > 0 else None (503-510)
+  land_details_other_property_type_description         = json.propertyTypeOther or None
+  record_details_mouza_name                            = json.mouza or None
+  record_details_daag_plot_number                      = json.daag or None
+  record_details_khatian_number                        = json.khatian or None
+  record_details_area_amount                           = json.areaAmount if > 0 else None (DECIMAL(18,2))
+  link_ref_status_land_grabbing_form_area_unit_id      = json.areaUnitId if > 0 else None (511-516)
+  -- Document title status (bit flags, status_ids 517-521):
+  ownership_status_has_khatian_porcha                  = 517 in json.documentIds
+  ownership_status_has_registered_deed                 = 518 in json.documentIds
+  ownership_status_is_inherited                        = 519 in json.documentIds
+  ownership_status_has_court_order                     = 520 in json.documentIds
+  ownership_status_no_documents                        = 521 in json.documentIds
+  -- Grabbing methods (bit flags, status_ids 522-529):
+  grabbing_method_is_forceful_armed                    = 522 in json.methodIds
+  grabbing_method_is_forged_documents                  = 523 in json.methodIds
+  grabbing_method_is_false_lawsuit                     = 524 in json.methodIds
+  grabbing_method_is_political_influence               = 525 in json.methodIds
+  grabbing_method_is_govt_official_nexus               = 526 in json.methodIds
+  grabbing_method_is_gradual_encroachment              = 527 in json.methodIds
+  grabbing_method_is_forced_eviction                   = 528 in json.methodIds
+  grabbing_method_is_other                             = 529 in json.methodIds
+  grabbing_method_other_details                        = json.methodOther or None
+  link_ref_status_land_grabbing_form_current_status_id = json.currentStatusId if > 0 else None (530-533)
+  human_impact_families_evicted_count                  = json.familiesEvicted if > 0 else None
+  human_impact_has_violence_occurred                   = json.violenceOccurred (bool)
+  human_impact_violence_description                    = json.violenceDesc or None
+================================================================================
+
+================================================================================
+STEP 8 — Legal Action (আইনি পদক্ষেপ ও সহায়তা)
+Template:     step-land-grab-legal.html → land-grab-legal-form.html
+              (land-grab-legal-form.html includes legal-fir-section.html for shared FIR block)
+JS files:     news-legal-fir.js (shared FIR module), news-land-grab-legal.js (form-specific)
+Hidden input: #land-legal (name="land_legal")
+
+Reference data (all DB-driven via views context):
+  #legal-fir-status-data         — ✅ DB-driven: {{ fir_statuses_json|safe }}
+                                     group_code=law_gd_fir_status
+                                     205: NO, 206: POLICE_REFUSED, 207: YES
+  #land-applicable-law-data      — ✅ DB-driven: {{ land_applicable_law_json|safe }}
+                                     group_code=land_grabbing_form_law_applicable
+  #land-case-status-data         — ✅ DB-driven: {{ land_case_status_json|safe }}
+                                     group_code=law_case_status (shared)
+                                     486-495: FILED, UNDER_INVESTIGATION, etc.
+  #land-support-service-data     — ✅ DB-driven: {{ land_support_service_json|safe }}
+                                     group_code=land_grabbing_form_law_support_service
+  #land-retaliation-data         — ✅ DB-driven: {{ land_retaliation_json|safe }}
+                                     group_code=common_victim_risk_threat_pressure_retaliation (shared)
+                                     781-788: FAMILY_PRESSURE, SETTLEMENT_PRESSURE, etc.
+
+JSON structure (serialized to #land-legal by news-land-grab-legal.js):
+  {
+    firStatusId:            <int>          — status_id: 901 (NO) | 902 (POLICE_REFUSED) | 903 (YES)
+    policeStation:          "<string>"     — থানার নাম via Tom Select (only when FIR=YES)
+    caseNumber:             "<string>"     — মামলা/জিডি নম্বর (only when FIR=YES)
+    policeRefusalStatement: "<string>"     — পুলিশ অস্বীকার বিবৃতি (only when FIR=POLICE_REFUSED)
+    noFirReason:            "<string>"     — মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (only when FIR=NO)
+    applicableLawIds:       [<int>, ...]   — checked law status_ids (from land-applicable-law-data)
+    caseStatusId:           <int>          — selected case status status_id (0 if none selected)
+    supportServiceIds:      [<int>, ...]   — checked support service status_ids
+    retaliationIds:         [<int>, ...]   — checked retaliation/pressure status_ids
+    remarks:                "<string>"     — additional remarks (অতিরিক্ত তথ্য / মন্তব্য)
+  }
+
+Step validator: FIR status mandatory; if FIR=YES, police station also required.
+
+DB: [investigation].[land_grabbing_form_victim_legal_action] — one row per submission
+  Django model: LandGrabbingFormVictimLegalAction (investigation/models.py)
+  link_coll_news_entry_id                    = entry.coll_news_entry_id
+  link_ref_status_law_gd_fir_status_id       = json.firStatusId (INT NOT NULL FK)
+  -- GD/FIR text fields (DDL column names use law_gd_fir_ prefix; Django model uses db_column):
+  legal_action_case_gd_number               → [law_gd_fir_case_gd_number] NVARCHAR(100) = json.caseNumber or None
+  legal_action_reason_not_filing_desc        → [law_gd_fir_reason_not_filing_and_plans] NVARCHAR(1000) = json.noFirReason or None
+  legal_action_police_refusal_statement      → [law_gd_fir_police_refusal_statement] NVARCHAR(1000) = json.policeRefusalStatement or None
+  legal_action_thana_name_en                 → [law_gd_fir_thana_location_display_title_en] NVARCHAR(200) = json.policeStation or None
+  -- Applicable laws (BIT NULL DEFAULT 0, code-based lookup from group_code=land_grabbing_form_law_applicable):
+  is_law_crpc_145                            = 'CRPC_145' in law_codes
+  is_law_civil_suit                          = 'CIVIL_SUIT' in law_codes
+  is_law_injunction                          = 'INJUNCTION' in law_codes
+  is_law_penal_code_fraud                    = 'PENAL_CODE_FRAUD' in law_codes
+  is_law_land_reform_act                     = 'LAND_REFORM_ACT' in law_codes
+  is_law_land_acquisition_act                = 'LAND_ACQUISITION_ACT' in law_codes
+  link_ref_status_law_case_status_id         = json.caseStatusId if > 0 else None
+                                               ✅ DB-driven (group_code=law_case_status, IDs 486-495)
+  -- Support services (BIT NULL DEFAULT 0, code-based lookup from group_code=land_grabbing_form_law_support_service):
+  is_support_service_govt_legal_aid          = 'GOVT_LEGAL_AID' in support_codes
+  is_support_service_land_center             = 'LAND_CENTER' in support_codes
+  is_support_service_dc_office               = 'DC_OFFICE' in support_codes
+  is_support_service_ngo_support             = 'NGO_SUPPORT' in support_codes
+  -- Risk / threat / pressure / retaliation (BIT NULL DEFAULT 0, code-based from group_code=common_victim_risk_threat_pressure_retaliation):
+  is_risk_threat_family_pressure             = 'FAMILY_PRESSURE' in retaliation_codes
+  is_risk_threat_settlement_pressure         = 'SETTLEMENT_PRESSURE' in retaliation_codes
+  is_risk_threat_case_withdrawal_pressure    = 'CASE_WITHDRAWAL_PRESSURE' in retaliation_codes
+  is_risk_threat_business_loss_threat        = 'BUSINESS_LOSS_THREAT' in retaliation_codes
+  is_risk_threat_witness_victim_threat       = 'WITNESS_VICTIM_THREAT' in retaliation_codes
+  is_risk_threat_eviction_threat             = 'EVICTION_THREAT' in retaliation_codes
+  is_risk_threat_retaliation_threat          = 'RETALIATION_THREAT' in retaliation_codes
+  is_risk_threat_death_or_physical_harm_threat = 'DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes
+  legal_action_additional_remarks            = json.remarks or None  [nvarchar](1000) NULL
+================================================================================
+
+================================================================================
+STEP 9 — Location
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+================================================================================
+
+================================================================================
+STEP 10 — Social Sources
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+================================================================================
+
+================================================================================
+STEP 11 — Category / Tags
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+================================================================================
+
+================================================================================
+STEP 12 — Submit
+No new POST keys; form submission triggered.
+================================================================================
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+1. [newshub].[coll_news_entry] INSERT
+   - form_type = "land_grabbing"
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (per db-mapping-common-steps.txt)
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — accused rows
+   Source: accused_json (array, Step 4) — first person, then profile per card
+
+4. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — victim rows
+   Source: victim_json (array, Step 5) — first person, then profile per card
+
+5. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — witness rows
+   Source: witness_json (array, Step 6) — first person, then profile per card
+
+6. [investigation].[land_grabbing_form_fact] INSERT — one row
+   Source: land_grab_incident_json (Step 7)
+   Multi-selects (documentIds, methodIds) converted to individual bit columns in save block.
+
+7. [investigation].[land_grabbing_form_victim_legal_action] INSERT — one row
+   Source: land_legal (Step 8)
+   Multi-selects (applicableLawIds, supportServiceIds, retaliationIds) → individual bit columns.
+
+8. Attachment files (accused_photos, victim_photos, witness_photos, evidence_file)
+   + per-file description JSONs
+
+9. Social source data INSERT (per db-mapping-common-steps.txt)
+
+10. Category/Tag associations INSERT (per db-mapping-common-steps.txt)
+
+================================================================================
+OUTSTANDING QUESTIONS / GAPS
+================================================================================
+1. ✅ RESOLVED (2026-03-14) — Case status now DB-driven (group_code=law_case_status, IDs 486-495).
+2. ✅ RESOLVED (2026-03-14) — FIR status now DB-driven (group_code=law_gd_fir_status, IDs 205-207).
+3. evidence_file uploads (Step 7): Saved via the generic evidence_file handler in
+   _handle_news_submission() (shared with extortion form). No separate action needed.
+================================================================================

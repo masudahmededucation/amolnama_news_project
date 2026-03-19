@@ -1,0 +1,21 @@
+{% comment %}
+  person-family-name-fields.html — Mother's name fields only.
+  Father's name is now part of person-name-fields.html (Name module).
+
+  Parameters (passed via {% include ... with %}):
+    prefix  — ID prefix, e.g. "july-martyr"
+              Generates IDs: {prefix}-mother-first, {prefix}-mother-last
+{% endcomment %}
+
+<div class="form-field">
+  <label class="field-label-block"
+         data-bn="মাতার নাম" data-en="Mother's Name">মাতার নাম (Mother's Name)</label>
+  <div class="form-row-half">
+    <input type="text" id="{{ prefix }}-mother-first"
+           data-ph-bn="প্রথম নাম" data-ph-en="First Name"
+           placeholder="প্রথম নাম (First Name)">
+    <input type="text" id="{{ prefix }}-mother-last"
+           data-ph-bn="শেষ নাম" data-ph-en="Last Name"
+           placeholder="শেষ নাম (Last Name)">
+  </div>
+</div>

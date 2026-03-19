@@ -1,0 +1,52 @@
+{% comment %}
+  Watchdog Bangladesh — Proxy & Puppet Watchdog fields.
+  Tracks political proxies and puppet relationships (প্রক্সি ও ক্রীড়নক নজরদারি).
+  JS: news-watchdog-bangladesh-proxy-puppet.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-proxy-puppet" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">🪆</span>প্রক্সি ও ক্রীড়নক নজরদারি (Proxy & Puppet Watchdog)</h3>
+
+  {# Hidden input — JS serializes proxy/puppet data here before submit #}
+  <input type="hidden" id="proxy-puppet-json" name="proxy_puppet_json" value="">
+
+  <div class="form-field">
+    <label for="proxy-puppet-master">নেপথ্যের ব্যক্তি/গোষ্ঠী (Person/Group Behind Scenes)<span class="required-mark">*</span></label>
+    <input type="text" id="proxy-puppet-master"
+           placeholder="কে নেপথ্যে আছেন... (Who is behind the scenes...)">
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-front-person">সামনের ব্যক্তি (Front Person / Proxy)<span class="required-mark">*</span></label>
+    <input type="text" id="proxy-front-person"
+           placeholder="সামনে কে আছেন... (Who is the front person...)">
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-relationship">সম্পর্কের ধরন (Nature of Relationship)</label>
+    <textarea id="proxy-relationship" rows="2"
+              placeholder="তাদের মধ্যে সম্পর্কের ধরন কী... (What is the nature of their relationship...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-evidence-description">প্রমাণের বিবরণ (Evidence Description)</label>
+    <textarea id="proxy-evidence-description" rows="3"
+              placeholder="কী প্রমাণ আছে এই সম্পর্কের... (What evidence exists for this relationship...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-incident-date">ঘটনার তারিখ (Incident Date)</label>
+    <input type="date" id="proxy-incident-date">
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-benefit-exchange">বিনিময়/সুবিধা (Exchange of Benefits)</label>
+    <textarea id="proxy-benefit-exchange" rows="2"
+              placeholder="কী বিনিময় বা সুবিধা হয়েছে... (What exchange or benefits occurred...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="proxy-source">সূত্র/প্রমাণ লিঙ্ক (Source/Proof Link)</label>
+    <input type="url" id="proxy-source" placeholder="https://...">
+  </div>
+</div>

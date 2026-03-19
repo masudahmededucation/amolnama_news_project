@@ -1,0 +1,65 @@
+{% comment %}
+  Geopolitics & Global Reaction — captures global response,
+  strategic impact, and local (Bangladesh) impact.
+  Global News & Conflict form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-global-geopolitics">
+  <h3 class="form-section-title"><span class="section-icon">🌍</span>ভূ-রাজনীতি ও বৈশ্বিক প্রতিক্রিয়া (Geopolitics & Global Reaction)</h3>
+
+  {# Hidden input — JS serializes geopolitics data here before submit #}
+  <input type="hidden" id="global-geopolitics-json" name="global_geopolitics_json" value="">
+
+  <div class="form-field">
+    <label for="global-reaction">বৈশ্বিক প্রতিক্রিয়া (Global Reaction)</label>
+    <select id="global-reaction">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      {# Options populated by JS from global-reactions-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="global-reaction-details">প্রতিক্রিয়ার বিবরণ (Reaction Details) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <textarea id="global-reaction-details" rows="3" maxlength="2000"
+              placeholder="বৈশ্বিক প্রতিক্রিয়ার বিস্তারিত বিবরণ লিখুন... (Describe the global reaction in detail...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label>কৌশলগত প্রভাব (Strategic Impact)</label>
+    <div class="checkbox-group">
+      <label class="checkbox-card">
+        <input type="checkbox" id="global-strategic-currency-economy" class="form-checkbox">
+        <span class="checkbox-card-label">মুদ্রা ও অর্থনীতি (Currency/Economy)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" id="global-strategic-food-supply" class="form-checkbox">
+        <span class="checkbox-card-label">খাদ্য সরবরাহ (Food Supply)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" id="global-strategic-oil-energy" class="form-checkbox">
+        <span class="checkbox-card-label">তেল ও জ্বালানি (Oil/Energy)</span>
+      </label>
+      <label class="checkbox-card">
+        <input type="checkbox" id="global-strategic-shipping-lanes" class="form-checkbox">
+        <span class="checkbox-card-label">শিপিং রুট (Shipping Lanes)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label class="form-label form-label-inline" for="global-local-impact">
+      <input type="checkbox" id="global-local-impact" class="form-checkbox">
+      দেশীয় প্রভাব আছে কি? (Does this have local impact on Bangladesh?)
+    </label>
+  </div>
+
+  <div class="form-field" id="global-local-impact-row" style="display: none;">
+    <label for="global-local-impact-description">দেশীয় প্রভাবের বিবরণ (Local Impact Description)</label>
+    <textarea id="global-local-impact-description" rows="3"
+              placeholder="বাংলাদেশে কীভাবে প্রভাব পড়ছে... (How does this impact Bangladesh...)"></textarea>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="global-reactions-data">{{ global_reactions_json|default:"[]"|safe }}</script>

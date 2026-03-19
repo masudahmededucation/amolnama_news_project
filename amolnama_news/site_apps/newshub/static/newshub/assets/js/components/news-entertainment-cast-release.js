@@ -1,0 +1,68 @@
+/**
+ * news-entertainment-cast-release.js
+ * Serializes the Cast & Release form (Step 5 of the Entertainment form)
+ * into a hidden JSON input #entertainment-cast-release-json.
+ *
+ * DB table: [investigation].[entertainment_form_fact]
+ * Saved keys: leadCast, suppCast, releaseDate, platform, genre
+ *
+ * DOM dependencies:
+ *   #entertainment-cast-release-json  — hidden input (JSON payload)
+ *   #entertainment-lead-cast          — textarea
+ *   #entertainment-supporting-cast    — textarea
+ *   #entertainment-release-date       — date input
+ *   #entertainment-platform-select    — select
+ *   #entertainment-genre-select       — select (single)
+ */
+(function () {
+  'use strict';
+
+  var hiddenInput      = document.getElementById('entertainment-cast-release-json');
+  if (!hiddenInput) return;
+
+  var leadCastEl       = document.getElementById('entertainment-lead-cast');
+  var suppCastEl       = document.getElementById('entertainment-supporting-cast');
+  var releaseDateEl    = document.getElementById('entertainment-release-date');
+  var platformSelect   = document.getElementById('entertainment-platform-select');
+  var genreSelect      = document.getElementById('entertainment-genre-select');
+
+  function collectData() {
+    return {
+      leadCast:      (leadCastEl     && leadCastEl.value.trim())     || '',
+      suppCast:      (suppCastEl     && suppCastEl.value.trim())     || '',
+      releaseDate:   (releaseDateEl  && releaseDateEl.value)         || '',
+      platform:      (platformSelect && platformSelect.value)        || '',
+      genre:         (genreSelect    && genreSelect.value)           || ''
+    };
+  }
+
+  function hasAnyData(d) {
+    return d.leadCast || d.suppCast || d.releaseDate || d.platform || d.genre;
+  }
+
+  function syncToHiddenInput() {
+    var data = collectData();
+    hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
+  }
+
+  var section = document.getElementById('section-entertainment-cast-release');
+  if (section) {
+    section.addEventListener('input',  syncToHiddenInput);
+    section.addEventListener('change', syncToHiddenInput);
+  }
+
+  var form = hiddenInput.closest('form');
+  if (form) form.addEventListener('submit', syncToHiddenInput);
+
+  /* ---- Public API for form-clear.js ---- */
+  window.newshubEntertainmentCastRelease = {
+    reset: function () {
+      if (leadCastEl)     leadCastEl.value     = '';
+      if (suppCastEl)     suppCastEl.value     = '';
+      if (releaseDateEl)  releaseDateEl.value  = '';
+      if (platformSelect) platformSelect.value = '';
+      if (genreSelect)    genreSelect.value    = '';
+      hiddenInput.value = '';
+    }
+  };
+})();

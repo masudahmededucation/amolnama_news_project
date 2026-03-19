@@ -1,0 +1,65 @@
+{% comment %}
+  Women & Child Violence — Violence Type & Context.
+  Captures type(s) of violence (DB-driven multi-select checkboxes),
+  incident location type, and recurring violence flag with duration.
+  Data serialized to hidden JSON input by JS.
+  Language toggle: labels use data-bn/data-en, inputs use data-ph-bn/data-ph-en.
+  Note: checkbox-inline labels use inner <span> to preserve <input> child node position.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-type">
+  <h3 class="form-section-title"><span class="section-icon">⚠️</span><span
+      data-bn="ঘটনার ধরন ও প্রেক্ষাপট" data-en="Violence Type & Context">ঘটনার ধরন ও প্রেক্ষাপট</span></h3>
+
+  {# Hidden inputs — JS serializes data here before submit #}
+  <input type="hidden" id="wcv-sub-type" name="wcv_sub_type" value="">
+  <input type="hidden" id="wcv-violence-context" name="wcv_violence_context" value="">
+
+  <div class="form-field">
+    <label data-bn="সহিংসতার ধরন — একাধিক নির্বাচন করা যাবে"
+           data-en="Type of Violence — multiple selections allowed">সহিংসতার ধরন — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-violence-types-checkboxes">
+      {# Populated by JS from wcv-violence-types-data #}
+    </div>
+  </div>
+
+  <div class="form-field" id="wcv-other-type-row" style="display: none;">
+    <label for="wcv-other-type"
+           data-bn="সহিংসতার ধরন লিখুন" data-en="Describe Type of Violence">সহিংসতার ধরন লিখুন</label>
+    <input type="text" id="wcv-other-type"
+           data-ph-bn="সহিংসতার ধরন বিস্তারিত লিখুন..."
+           data-ph-en="Describe the type of violence in detail..."
+           placeholder="সহিংসতার ধরন বিস্তারিত লিখুন...">
+  </div>
+
+  <div class="form-field">
+    <label for="wcv-location-type"
+           data-bn="ঘটনাস্থলের ধরন" data-en="Incident Location Type">ঘটনাস্থলের ধরন</label>
+    <select id="wcv-location-type">
+      <option value=""
+              data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন --</option>
+      {# Populated by JS from wcv-location-types-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="wcv-recurring" name="wcv-recurring-violence" value="1">
+      <span data-bn="পুনরাবৃত্ত নির্যাতন — এটি একবারের ঘটনা নয়"
+            data-en="Recurring Violence — this is not a one-time incident">পুনরাবৃত্ত নির্যাতন — এটি একবারের ঘটনা নয়</span>
+    </label>
+  </div>
+
+  <div class="form-field" id="wcv-duration-row" style="display: none;">
+    <label for="wcv-duration"
+           data-bn="নির্যাতনের সময়কাল" data-en="Duration of Abuse">নির্যাতনের সময়কাল</label>
+    <input type="text" id="wcv-duration"
+           data-ph-bn="যেমন: ৬ মাস ধরে, ৩ বছর, বিয়ের পর থেকে..."
+           data-ph-en="e.g. 6 months, 3 years, since marriage..."
+           placeholder="যেমন: ৬ মাস ধরে, ৩ বছর, বিয়ের পর থেকে...">
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="wcv-violence-types-data">{{ wcv_violence_types|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-location-types-data">{{ wcv_incident_location_types|default:"[]"|safe }}</script>

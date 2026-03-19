@@ -1,0 +1,91 @@
+{% comment %}
+  Result & Scoreboard — captures sport type, competition type,
+  match status, tournament level, scores, and key performance.
+  Sports form type specific.
+  Works for both team sports (football, cricket) and individual sports (tennis, boxing).
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-sports-scoreboard">
+  <h3 class="form-section-title"><span class="section-icon">📊</span>ফলাফল ও স্কোরবোর্ড (Result & Scoreboard)</h3>
+
+  {# Hidden input — JS serializes scoreboard data here before submit #}
+  <input type="hidden" id="sports-scoreboard-json" name="sports_scoreboard_json" value="">
+
+  <div class="form-field">
+    <label for="sports-sport-type">ক্রীড়া (Sport)</label>
+    <select id="sports-sport-type">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="football">ফুটবল (Football)</option>
+      <option value="cricket">ক্রিকেট (Cricket)</option>
+      <option value="tennis">টেনিস (Tennis)</option>
+      <option value="athletics">অ্যাথলেটিক্স (Athletics)</option>
+      <option value="kabaddi">কাবাডি (Kabaddi)</option>
+      <option value="chess">দাবা (Chess)</option>
+      <option value="boxing">বক্সিং (Boxing)</option>
+      <option value="badminton">ব্যাডমিন্টন (Badminton)</option>
+      <option value="hockey">হকি (Hockey)</option>
+      <option value="swimming">সাঁতার (Swimming)</option>
+      <option value="shooting">শুটিং (Shooting)</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>প্রতিযোগিতার ধরন (Competition Type)</label>
+    <div class="radio-inline-group">
+      <label class="radio-inline">
+        <input type="radio" name="sports_competition_type" value="team_vs_team" checked>
+        দল বনাম দল (Team vs Team)
+      </label>
+      <label class="radio-inline">
+        <input type="radio" name="sports_competition_type" value="individual">
+        ব্যক্তিগত (Individual)
+      </label>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-match-status">ম্যাচের অবস্থা (Match Status)</label>
+    <select id="sports-match-status">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="upcoming">আসন্ন (Upcoming)</option>
+      <option value="live">লাইভ (Live)</option>
+      <option value="full_time">সম্পূর্ণ (Full-Time)</option>
+      <option value="postponed">স্থগিত (Postponed)</option>
+      <option value="abandoned">পরিত্যক্ত (Abandoned)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-tournament-level">প্রতিযোগিতার স্তর (Tournament Level)</label>
+    <select id="sports-tournament-level">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="international">আন্তর্জাতিক (International)</option>
+      <option value="domestic_league">ঘরোয়া লীগ (Domestic League)</option>
+      <option value="final">ফাইনাল (Final)</option>
+      <option value="semifinal">সেমিফাইনাল (Semifinal)</option>
+      <option value="knockout">নকআউট (Knockout)</option>
+      <option value="qualifier">বাছাইপর্ব (Qualifier)</option>
+      <option value="friendly">প্রীতি ম্যাচ (Friendly)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-score-a">স্কোর — পক্ষ ক (Score — Side A)</label>
+    <input type="text" id="sports-score-a"
+           placeholder="যেমন: 3-1, 250/5, 6-4 6-2, 9.58s...">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-score-b">স্কোর — পক্ষ খ (Score — Side B)</label>
+    <input type="text" id="sports-score-b"
+           placeholder="যেমন: 1-3, 180 all out, 4-6 2-6...">
+  </div>
+
+  <div class="form-field">
+    <label for="sports-key-performance">মূল পারফরম্যান্স (Key Performance)</label>
+    <textarea id="sports-key-performance" rows="3"
+              placeholder="ম্যান অব দ্য ম্যাচ, হ্যাটট্রিক, সেঞ্চুরি, ৫ উইকেট, ব্যক্তিগত সেরা... (Man of the Match, hat-trick, century, 5-wicket haul, personal best...)"></textarea>
+  </div>
+</div>

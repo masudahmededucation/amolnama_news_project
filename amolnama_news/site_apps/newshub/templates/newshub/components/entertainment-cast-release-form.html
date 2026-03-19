@@ -1,0 +1,81 @@
+{% comment %}
+  Cast & Release — lead cast, supporting cast, release date, platform/channel,
+  and genre (single select).
+  Entertainment form — Step 5.
+  Data is serialized by news-entertainment-cast-release.js into
+  #entertainment-cast-release-json.
+  DB table: [investigation].[entertainment_form_fact]
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-cast-release">
+  <h3 class="form-section-title"><span class="section-icon">🎭</span>কাস্ট ও মুক্তি (Cast &amp; Release)</h3>
+
+  {# Hidden input — JS serializes cast & release data here before submit #}
+  <input type="hidden" id="entertainment-cast-release-json" name="entertainment_cast_release_json" value="">
+
+  <div class="form-field">
+    <label for="entertainment-lead-cast">মূল অভিনেতা/অভিনেত্রী (Lead Cast)</label>
+    <textarea id="entertainment-lead-cast" rows="2"
+              placeholder="কমা দিয়ে আলাদা করুন — যেমন: শাকিব খান, বুবলী, মিশা সওদাগর · Shakib Khan, Bubly, Misha Sawdagor"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-supporting-cast">সহ-অভিনেতা/অভিনেত্রী (Supporting Cast) <span class="field-optional">(ঐচ্ছিক)</span></label>
+    <textarea id="entertainment-supporting-cast" rows="2"
+              placeholder="কমা দিয়ে আলাদা করুন (comma-separated)"></textarea>
+  </div>
+
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="entertainment-release-date">মুক্তির তারিখ (Release Date)</label>
+      <input type="date" id="entertainment-release-date">
+    </div>
+
+    <div class="form-field">
+      <label for="entertainment-platform-select">প্ল্যাটফর্ম / চ্যানেল (Platform / Channel)</label>
+      <select id="entertainment-platform-select">
+        <option value="">-- নির্বাচন করুন --</option>
+        <option value="cinema_hall">সিনেমা হল (Cinema Hall)</option>
+        <option value="hoichoi">হইচই (Hoichoi)</option>
+        <option value="chorki">চর্কি (Chorki)</option>
+        <option value="bongo">বঙ্গ (Bongo)</option>
+        <option value="netflix">নেটফ্লিক্স (Netflix)</option>
+        <option value="amazon_prime">অ্যামাজন প্রাইম (Amazon Prime)</option>
+        <option value="disney_hotstar">ডিজনি+ হটস্টার (Disney+ Hotstar)</option>
+        <option value="jiocinema">জিওসিনেমা (JioCinema)</option>
+        <option value="youtube">ইউটিউব (YouTube)</option>
+        <option value="btv">বিটিভি (BTV)</option>
+        <option value="channel_i">চ্যানেল আই (Channel i)</option>
+        <option value="atn_bangla">এটিএন বাংলা (ATN Bangla)</option>
+        <option value="maasranga_tv">মাছরাঙা টিভি (Maasranga TV)</option>
+        <option value="ntv">এনটিভি (NTV)</option>
+        <option value="somoy_tv">সময় টিভি (Somoy TV)</option>
+        <option value="star_jalsha">স্টার জলসা (Star Jalsha)</option>
+        <option value="zee_bangla">জি বাংলা (Zee Bangla)</option>
+        <option value="sony">সনি (Sony)</option>
+        <option value="other">অন্যান্য (Other)</option>
+      </select>
+    </div>
+  </div>
+
+  {# ---- Genre (single select) ---- #}
+  <div class="form-field">
+    <label for="entertainment-genre-select">ঘরানা (Genre)</label>
+    <select id="entertainment-genre-select">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="action">অ্যাকশন (Action)</option>
+      <option value="comedy">কমেডি (Comedy)</option>
+      <option value="drama">ড্রামা (Drama)</option>
+      <option value="romance">রোমান্স (Romance)</option>
+      <option value="thriller">থ্রিলার (Thriller)</option>
+      <option value="horror">হরর (Horror)</option>
+      <option value="documentary">ডকুমেন্টারি (Documentary)</option>
+      <option value="musical">মিউজিক্যাল (Musical)</option>
+      <option value="biographical">জীবনীমূলক (Biographical)</option>
+      <option value="historical">ঐতিহাসিক (Historical)</option>
+      <option value="crime">অপরাধ (Crime)</option>
+      <option value="fantasy">ফ্যান্টাসি (Fantasy)</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+</div>

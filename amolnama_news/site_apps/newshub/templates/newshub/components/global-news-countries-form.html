@@ -1,0 +1,57 @@
+{% comment %}
+  Countries & International Organizations — for General Global News form.
+  Step 4 of the আন্তর্জাতিক সংবাদ (Global News) form.
+  War/Conflict form uses step-war-conflict-parties instead.
+  Serialized to global_news_countries_json by news-global-news-countries.js.
+{% endcomment %}
+
+<div class="form-section" id="section-global-news-countries">
+  <h3 class="form-section-title"><span class="section-icon">🌐</span>সংশ্লিষ্ট দেশ ও আন্তর্জাতিক সংস্থা (Countries & International Organizations)</h3>
+
+  {# Hidden JSON — serialized by news-global-news-countries.js #}
+  <input type="hidden" id="global-news-countries-json" name="global_news_countries_json" value="">
+
+  {# ---- Primary Country / Region ---- #}
+  <div class="form-field">
+    <label for="global-news-primary-country">প্রধান দেশ বা অঞ্চল (Primary Country / Region)</label>
+    <input type="text" id="global-news-primary-country" maxlength="300"
+           placeholder="যেমন: যুক্তরাষ্ট্র, মধ্যপ্রাচ্য, ইউরোপ (e.g., যুক্তরাষ্ট্র, ভারত, ইউরোপ)">
+  </div>
+
+  {# ---- All Countries / Regions Involved ---- #}
+  <div class="form-field">
+    <label for="global-news-countries-involved">সংশ্লিষ্ট সকল দেশ/অঞ্চল (All Countries / Regions Involved) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <textarea id="global-news-countries-involved" rows="3" maxlength="1000"
+              placeholder="কমা দিয়ে আলাদা করুন — যেমন: যুক্তরাষ্ট্র, চীন, রাশিয়া, ইউরোপীয় ইউনিয়ন&#10;(Separate with commas — e.g., US, China, Russia, EU)"></textarea>
+  </div>
+
+  {# ---- International Organizations ---- #}
+  <div class="form-field">
+    <label>সংশ্লিষ্ট আন্তর্জাতিক সংস্থা (International Organizations Involved) <em class="field-optional">(ঐচ্ছিক)</em></label>
+    <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
+    <div class="checkbox-group checkbox-group-cols">
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-un" value="UN"> 🌐 জাতিসংঘ (UN)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-eu" value="EU"> 🇪🇺 ইউরোপীয় ইউনিয়ন (EU)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-nato" value="NATO"> ⚔️ ন্যাটো (NATO)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-imf" value="IMF"> 💵 আন্তর্জাতিক মুদ্রা তহবিল (IMF)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-worldbank" value="WorldBank"> 🏦 বিশ্বব্যাংক (World Bank)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-wto" value="WTO"> 🤝 বিশ্ব বাণিজ্য সংস্থা (WTO)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-who" value="WHO"> 🏥 বিশ্ব স্বাস্থ্য সংস্থা (WHO)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-asean" value="ASEAN"> 🌏 আসিয়ান (ASEAN)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-oic" value="OIC"> ☪️ ওআইসি (OIC)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-saarc" value="SAARC"> 🏔️ সার্ক (SAARC)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-g7" value="G7"> 🌐 জি-৭ (G7)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-g20" value="G20"> 🌐 জি-২০ (G20)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-brics" value="BRICS"> 🤝 ব্রিকস (BRICS)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-icc" value="ICC"> ⚖️ আন্তর্জাতিক অপরাধ আদালত (ICC)</label>
+      <label class="checkbox-label"><input type="checkbox" id="global-news-org-other" value="other"> 📌 অন্যান্য (Other)</label>
+    </div>
+  </div>
+
+  {# Other organization name (shown when 'other' is checked) #}
+  <div class="form-field" id="global-news-org-other-row" style="display:none;">
+    <label for="global-news-org-other-name">অন্যান্য সংস্থার নাম (Other Organization Name)</label>
+    <input type="text" id="global-news-org-other-name" maxlength="300"
+           placeholder="সংস্থার নাম লিখুন (Enter organization name)">
+  </div>
+</div>

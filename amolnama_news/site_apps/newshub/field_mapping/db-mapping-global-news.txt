@@ -1,0 +1,143 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: GLOBAL NEWS FORM (আন্তর্জাতিক সংবাদ)
+================================================================================
+Last updated: 2026-03-14 (DDL verified — all column names, types, missing fields fixed)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-global-news.txt
+
+URL view  : news_collection_multistep_global_news()
+Template  : newshub/pages/news-collection-multistep-global-news.html
+Steps     : 10 (was 11 — classification merged into Step 3)
+
+Steps 1-3 (common), Location, Social Sources, Category/Tags → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table
+
+NOTE: Steps 3 + 4 + 5 + 6 data are saved as ONE row in global_news_form_fact.
+      PK column: investigation_global_news_form_fact_id (INT IDENTITY)
+================================================================================
+
+
+================================================================================
+STEP 3: News Content + Sub-Type + Significance + Story Status
+================================================================================
+POST key  : global_news_sub_type (direct select, news-global-news-sub-type.js)
+            global_news_sub_type_other_detail (text input, shown when "Other")
+            global_news_classification_json (hidden JSON, news-global-news-classification.js)
+TABLE     : [investigation].[global_news_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  Form field                      →  DB column
+  global_news_sub_type (select)   →  link_ref_status_global_news_form_issue_sub_type_id  INT NULL
+                                      FK → [investigation].[ref_status]
+                                      group_code=global_news_form_issue_sub_type
+                                      625=Diplomacy  626=Economy/Trade  627=Politics/Elections
+                                      628=Environment/Climate  629=Health/Pandemic
+                                      630=Human Rights/Refugees  631=Science/Technology
+                                      632=Sanctions/Economic Pressure  633=Disaster/Emergency
+                                      634=Other
+  global_news_sub_type_other_detail →  news_issue_sub_type_other_category_details  NVARCHAR(100) NULL
+
+  JSON key (classification)  →  DB column
+  significanceId             →  link_ref_status_global_news_form_news_significance_id  INT NULL
+                                FK → [investigation].[ref_status]
+                                group_code=global_news_form_news_significance
+                                616=Global Impact  617=Regional Impact  618=Limited Impact
+
+  isBreaking                 →  is_news_breaking                INT NULL  (1 if checked, NULL otherwise)
+  isDeveloping               →  is_news_developing_ongoing_story  BIT NULL
+  hasBangladeshAngle         →  is_bd_directly_relevant_to_bangladesh  BIT NULL
+                                (saved on the Bangladesh step — see Step 5)
+
+  Story status ref_status data (group_code=global_news_story_status):
+    756=breaking_news  757=developing_ongoing_story  758=directly_relevant_bangladesh
+
+
+================================================================================
+STEP 4: Countries & International Organisations
+================================================================================
+POST key  : global_news_countries_json  (hidden JSON, news-global-news-countries.js)
+TABLE     : [investigation].[global_news_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key           →  DB column                                    Type
+  primaryCountry     →  geo_primary_country_or_region                NVARCHAR(100) NOT NULL
+  involvedCountries  →  geo_all_involved_countries_or_regions        NVARCHAR(1000) NULL
+  orgUN              →  is_org_un                                    BIT NOT NULL DEFAULT 0
+  orgEU              →  is_org_eu                                    BIT NOT NULL DEFAULT 0
+  orgNATO            →  is_org_nato                                  BIT NOT NULL DEFAULT 0
+  orgIMF             →  is_org_imf                                   BIT NOT NULL DEFAULT 0
+  orgWorldBank       →  is_org_world_bank                            BIT NOT NULL DEFAULT 0
+  orgWTO             →  is_org_wto                                   BIT NOT NULL DEFAULT 0
+  orgWHO             →  is_org_who                                   BIT NOT NULL DEFAULT 0
+  orgASEAN           →  is_org_asean                                 BIT NOT NULL DEFAULT 0
+  orgOIC             →  is_org_oic                                   BIT NOT NULL DEFAULT 0
+  orgSAARC           →  is_org_saarc                                 BIT NOT NULL DEFAULT 0
+  orgG7              →  is_org_g7                                    BIT NOT NULL DEFAULT 0
+  orgG20             →  is_org_g20                                   BIT NOT NULL DEFAULT 0
+  orgBRICS           →  is_org_brics                                 BIT NOT NULL DEFAULT 0
+  orgICC             →  is_org_icc                                   BIT NOT NULL DEFAULT 0
+  orgOther           →  is_org_other                                 BIT NOT NULL DEFAULT 0
+  otherOrgName       →  org_other_organization_name                  NVARCHAR(200) NULL
+
+
+================================================================================
+STEP 5: Bangladesh Connection & Impact
+================================================================================
+POST key  : global_news_bangladesh_json  (hidden JSON, news-global-news-bangladesh.js)
+TABLE     : [investigation].[global_news_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key           →  DB column                                    Type
+  (from classification) →  is_bd_directly_relevant_to_bangladesh     BIT NULL
+  stake              →  bd_stake_interest_details                    NVARCHAR(1000) NULL
+  expatAffected      →  is_bd_expatriate_workers_affected            BIT NOT NULL DEFAULT 0
+  expatCount         →  bd_estimated_affected_expatriates_count      INT NULL (CHECK >= 0)
+  expatDesc          →  bd_expatriate_impact_description             NVARCHAR(1000) NULL
+  economicImpact     →  bd_economic_impact_details                   NVARCHAR(1000) NULL
+  govtPosition       →  bd_govt_position_statement                   NVARCHAR(1000) NULL
+
+
+================================================================================
+STEP 6: International Reaction & Media Coverage
+================================================================================
+POST key  : global_news_reaction_json  (hidden JSON, news-global-news-reaction.js)
+TABLE     : [investigation].[global_news_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key             →  DB column                                          Type
+  intlStatement        →  intl_body_statement                                NVARCHAR(1000) NULL
+  sanctionsImposed     →  is_intl_sanctions_special_measures_imposed         BIT NOT NULL DEFAULT 0
+  sanctionsDesc        →  intl_sanctions_special_measures_description        NVARCHAR(500) NULL
+  agreementReached     →  is_intl_agreement_or_resolution_adopted            BIT NOT NULL DEFAULT 0
+  agreementDesc        →  intl_agreement_or_resolution_description           NVARCHAR(500) NULL
+  worldReactionId      →  link_ref_status_global_news_form_sanctions_imposed_id  INT NULL
+                           FK → [investigation].[ref_status]
+                           group_code=global_news_form_sanctions_imposed
+  mediaCoverageId      →  link_ref_status_global_news_form_global_media_coverage_id  INT NULL
+                           FK → [investigation].[ref_status]
+                           group_code=global_news_form_global_media_coverage
+                           619=Widespread  620=Moderate  621=Limited
+
+  DB column with no form field:
+    created_by NVARCHAR(100) NULL — not collected from form
+
+Django model: GlobalNewsFormFact  (investigation/models.py)
+
+
+================================================================================
+SAVE SEQUENCE (on form submit — in _handle_news_submission)
+================================================================================
+1. Read classification JSON: significanceId, isBreaking, isDeveloping, hasBangladeshAngle
+2. Read countries JSON: primaryCountry (required), involvedCountries, 15 org checkboxes, otherOrgName
+3. Read bangladesh JSON: stake, expatAffected, expatCount, expatDesc, economicImpact, govtPosition
+4. Read reaction JSON: intlStatement, sanctionsImposed, sanctionsDesc, agreementReached,
+   agreementDesc, worldReactionId, mediaCoverageId
+5. GlobalNewsFormFact.objects.create() — single row
+   geo_primary_country_or_region is NOT NULL — row only created when primaryCountry is non-empty
+   created_at = now (Python-supplied)
+
+
+================================================================================
+END OF FILE
+================================================================================

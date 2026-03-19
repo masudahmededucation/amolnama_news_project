@@ -1,0 +1,195 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Photo Album Maker · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-photo-album.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--photo-album">
+
+  <!-- Back link -->
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Back to Tools</a>
+
+  <!-- Header -->
+  <h1>📷 ফটো অ্যালবাম মেকার (Photo Album Maker)</h1>
+  <p class="tool-subtitle">
+    প্রিন্ট-কোয়ালিটি ফটো অ্যালবাম পেজ তৈরি করুন — ছবি ড্র্যাগ করে পজিশন ঠিক করুন, ফ্রেম অদলবদল করুন।
+    এনআইডি কার্ডের সামনে-পেছনে সাজাতে বা পাসপোর্ট ছবি প্রিন্ট-রেডি করতেও ব্যবহার করুন।<br>
+    Create print-quality album pages — reposition images by dragging, swap frames.
+    Also use for NID card front/back print layout or passport photo print sheets.
+  </p>
+
+  <!-- ---- Page size ---- -->
+  <div class="album-page-sizes">
+    <label class="album-label" for="album-page-size">পেজ সাইজ (Page Size)</label>
+    <select class="album-select" id="album-page-size">
+      <optgroup label="Standard">
+        <option value="5x7" selected>5″ × 7″ — Portrait</option>
+        <option value="7x5">7″ × 5″ — Landscape</option>
+        <option value="4x6">4″ × 6″ — Portrait</option>
+        <option value="6x4">6″ × 4″ — Landscape</option>
+        <option value="8x10">8″ × 10″ — Portrait</option>
+        <option value="10x8">10″ × 8″ — Landscape</option>
+      </optgroup>
+      <optgroup label="Paper">
+        <option value="a4_p">A4 — Portrait</option>
+        <option value="a4_l">A4 — Landscape</option>
+        <option value="letter_p">Letter — Portrait</option>
+        <option value="letter_l">Letter — Landscape</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <!-- ---- Layout selector ---- -->
+  <div class="album-layouts">
+    <span class="album-label">লেআউট (Layout)</span>
+    <div class="album-layout-grid">
+
+      <button type="button" class="album-layout-btn" data-layout="2h" title="2 Side-by-Side">
+        <div class="album-layout-thumb album-thumb--2h"><span></span><span></span></div>
+        <span class="album-layout-label">1×2</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="3h" title="3 Side-by-Side">
+        <div class="album-layout-thumb album-thumb--3h"><span></span><span></span><span></span></div>
+        <span class="album-layout-label">1×3</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="1" title="1 Full Page">
+        <div class="album-layout-thumb album-thumb--1"><span></span></div>
+        <span class="album-layout-label">1×1</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="4g" title="2 × 2 (4 photos)">
+        <div class="album-layout-thumb album-thumb--4g"><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×2</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="2x3" title="2 × 3 (6 photos)">
+        <div class="album-layout-thumb album-thumb--2x3"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×3</span>
+      </button>
+
+      <button type="button" class="album-layout-btn album-layout-btn--tall" data-layout="2x4" title="2 × 4 (8 photos)">
+        <div class="album-layout-thumb album-thumb--2x4"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×4</span>
+      </button>
+
+      <button type="button" class="album-layout-btn album-layout-btn--tall" data-layout="2x5" title="2 × 5 (10 photos)">
+        <div class="album-layout-thumb album-thumb--2x5"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×5</span>
+      </button>
+
+      <button type="button" class="album-layout-btn album-layout-btn--tall" data-layout="2x6" title="2 × 6 (12 photos)">
+        <div class="album-layout-thumb album-thumb--2x6"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×6</span>
+      </button>
+
+      <button type="button" class="album-layout-btn album-layout-btn--tall" data-layout="2x7" title="2 × 7 (14 photos)">
+        <div class="album-layout-thumb album-thumb--2x7"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×7</span>
+      </button>
+
+      <button type="button" class="album-layout-btn album-layout-btn--tall" data-layout="2x8" title="2 × 8 (16 photos)">
+        <div class="album-layout-thumb album-thumb--2x8"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2×8</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="1l2r" title="1 Left + 2 Right">
+        <div class="album-layout-thumb album-thumb--1l2r"><span></span><span></span><span></span></div>
+        <span class="album-layout-label">1+2</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="2l1r" title="2 Left + 1 Right">
+        <div class="album-layout-thumb album-thumb--2l1r"><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2+1</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="1t2b" title="1 Top + 2 Bottom">
+        <div class="album-layout-thumb album-thumb--1t2b"><span></span><span></span><span></span></div>
+        <span class="album-layout-label">1/2</span>
+      </button>
+
+      <button type="button" class="album-layout-btn" data-layout="2t1b" title="2 Top + 1 Bottom">
+        <div class="album-layout-thumb album-thumb--2t1b"><span></span><span></span><span></span></div>
+        <span class="album-layout-label">2/1</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ---- Background color ---- -->
+  <div class="album-bg-options">
+    <span class="album-label">ব্যাকগ্রাউন্ড (Background)</span>
+    <div class="album-bg-swatches">
+      <span class="album-swatch" data-color="#FFFFFF" style="background:#FFFFFF" title="White"></span>
+      <span class="album-swatch" data-color="#F5F5F0" style="background:#F5F5F0" title="Cream"></span>
+      <span class="album-swatch" data-color="#2C2C2C" style="background:#2C2C2C" title="Dark"></span>
+      <span class="album-swatch" data-color="#1a1a2e" style="background:#1a1a2e" title="Navy"></span>
+      <span class="album-swatch" data-color="#f0e6d3" style="background:#f0e6d3" title="Beige"></span>
+      <input type="color" id="album-custom-color" class="album-custom-color" value="#FFFFFF" title="Custom color">
+    </div>
+  </div>
+
+  <!-- ---- Album workspace ---- -->
+  <div class="album-workspace">
+    <div class="album-canvas-wrap" id="album-canvas-wrap">
+      <div class="album-canvas-inner" id="album-canvas-inner">
+        <!-- Frames generated by JS -->
+      </div>
+    </div>
+    <p class="album-swap-hint" id="album-swap-hint"></p>
+    <p class="album-drag-hint">ছবি ড্র্যাগ করে ফ্রেমের মধ্যে পজিশন ঠিক করুন (Drag image inside frame to reposition)</p>
+  </div>
+
+  <!-- ---- Border & rounding controls ---- -->
+  <div class="album-controls-row">
+    <div class="album-control">
+      <label for="album-border-slider">ফ্রেম প্যাডিং (Frame Padding)</label>
+      <input type="range" id="album-border-slider" min="0" max="40" value="12" step="1">
+      <span class="album-control-value" id="album-border-value">12px</span>
+    </div>
+    <div class="album-control">
+      <label for="album-round-slider">কর্নার রাউন্ডিং (Corner Rounding)</label>
+      <input type="range" id="album-round-slider" min="0" max="40" value="0" step="1">
+      <span class="album-control-value" id="album-round-value">0px</span>
+    </div>
+  </div>
+
+  <!-- ---- Create button ---- -->
+  <div class="album-actions">
+    <button type="button" class="album-btn album-btn--create" id="album-create-btn" disabled>
+      🖼️ অ্যালবাম তৈরি করুন (Create Album)
+    </button>
+    <button type="button" class="album-btn album-btn--reset" id="album-reset-btn">
+      🔄 রিসেট (Reset)
+    </button>
+  </div>
+
+  <!-- ---- Result section (hidden until created) ---- -->
+  <div class="album-result" id="album-result" style="display:none">
+    <h3 class="album-result-title">অ্যালবাম তৈরি হয়েছে (Album Created)</h3>
+    <div class="album-result-preview" id="album-result-preview">
+      <!-- canvas rendered here -->
+    </div>
+    <p class="album-result-info" id="album-result-info"></p>
+    <div class="album-download-row">
+      <button type="button" class="album-btn album-btn--download" id="album-dl-jpg">⬇️ JPG</button>
+      <button type="button" class="album-btn album-btn--download" id="album-dl-png">⬇️ PNG</button>
+      <button type="button" class="album-btn album-btn--download-pdf" id="album-dl-pdf">⬇️ PDF</button>
+    </div>
+  </div>
+
+  <p class="album-info" id="album-info"></p>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="{% static 'tools/assets/js/pages/tools-photo-album.js' %}"></script>
+{% endblock %}

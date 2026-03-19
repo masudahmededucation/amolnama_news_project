@@ -1,0 +1,8 @@
+<div class="step-panel{% if step == 1 %} active{% endif %}"
+     data-step="{{ step }}"
+     data-step-label-bn="ট্যাগ"
+     data-step-label-en="Tags">
+  {% include "newshub/components/sidebar-category-widget.html" %}
+  {% include "newshub/components/sidebar-tags-widget.html" %}
+  {% include "newshub/components/sidebar-options-widget.html" %}
+</div>

@@ -1,0 +1,135 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: ENTERTAINMENT FORM (বিনোদন সংবাদ)
+================================================================================
+Last updated: 2026-03-14 (DDL verified — Step 3 medium + sub_type NOW SAVED, max_lengths corrected)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-entertainment.txt
+
+URL view  : news_collection_multistep_entertainment()
+Template  : newshub/pages/news-collection-multistep-entertainment.html
+
+Steps 1-3 (common), Location, Social Sources, Category/Tags → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table
+
+NOTE: Steps 3 + 4 + 5 + 6 data are saved as ONE row in entertainment_form_fact.
+================================================================================
+
+
+================================================================================
+STEP 3: Entertainment Medium & News Sub-Type
+================================================================================
+POST key  : entertainment_medium_id  (plain string — status_code, e.g. "film")
+             entertainment_sub_type   (plain string — status_code, e.g. "release_premiere")
+TABLE     : [investigation].[entertainment_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  entertainment_medium_id →  link_ref_status_entertainment_form_medium_type_id
+                              INT NULL, FK → [investigation].[ref_status]
+                              group_code=entertainment_form_medium_type
+                              Resolved server-side: _ref_id('entertainment_form_medium_type', status_code)
+                              741=film  742=tv_drama_serial  743=music  744=ott_web_series
+                              745=theater_stage  746=award_show  747=celebrity_news
+
+  entertainment_sub_type  →  link_ref_status_entertainment_form_issue_sub_type_id
+                              INT NULL, FK → [investigation].[ref_status]
+                              group_code=entertainment_form_issue_sub_type
+                              Resolved server-side: _ref_id('entertainment_form_issue_sub_type', status_code)
+                              748=release_premiere  749=box_office  750=award_nomination
+                              751=casting_production  752=controversy  753=review_critique
+                              754=music_release  755=viral_trending
+
+JS: news-entertainment-sub-type.js
+    Dispatches: entertainment:subTypeChanged { subType: status_code string }
+
+
+================================================================================
+STEP 4: Production Details (প্রযোজনার তথ্য)
+================================================================================
+Template  : entertainment-production-form.html
+POST key  : entertainment_production_json  (hidden JSON, news-entertainment-production.js)
+TABLE     : [investigation].[entertainment_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key      →  DB column                                    Type / Notes
+  title         →  prod_title_name_bn                          NVARCHAR(500) NOT NULL
+  language      →  prod_link_ref_language_id                   INT NULL, FK → ref_status
+                     db_column: link_ref_status_entertainment_form_language_id
+                     Resolved server-side: _ref_id('entertainment_form_language', status_code)
+  industry      →  prod_link_ref_entertainment_industry_id     INT NULL, FK → ref_status
+                     db_column: link_ref_status_entertainment_form_entertainment_industry_id
+                     Resolved server-side: _ref_id('entertainment_form_entertainment_industry', status_code)
+  director      →  prod_director_bn                            NVARCHAR(100) NULL
+  producer      →  prod_producer_house_bn                      NVARCHAR(100) NULL
+  writer        →  prod_writer_screenwriter_bn                 NVARCHAR(100) NULL
+  musicDirector →  prod_music_director_singer_bn               NVARCHAR(100) NULL
+
+
+================================================================================
+STEP 5: Cast & Release (কাস্ট ও মুক্তি)
+================================================================================
+Template  : entertainment-cast-release-form.html
+POST key  : entertainment_cast_release_json  (hidden JSON, news-entertainment-cast-release.js)
+TABLE     : [investigation].[entertainment_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key     →  DB column                                    Type / Notes
+  leadCast     →  cast_lead_cast_bn                           NVARCHAR(2000) NULL
+  suppCast     →  cast_supporting_cast_bn                     NVARCHAR(2000) NULL
+  releaseDate  →  cast_release_date                           DATE NULL (ISO 8601)
+  platform     →  cast_link_ref_media_platform_id             INT NULL, FK → ref_status
+                    db_column: link_ref_status_entertainment_form_media_platform_id
+                    Resolved server-side: _ref_id('entertainment_form_media_platform', status_code)
+  genre        →  cast_link_ref_genre_category_id             INT NULL, FK → ref_status
+                    db_column: link_ref_status_entertainment_form_genre_category_id
+                    Resolved server-side: _ref_id('entertainment_form_genre_category', status_code)
+                    Single select (not multi-select)
+
+  NOT in this table (no DDL column):
+    genres[] — removed. No junction table. Genre is a single FK on the main table.
+
+
+================================================================================
+STEP 6: Performance & Reception (পারফরম্যান্স ও প্রতিক্রিয়া)
+================================================================================
+Template  : entertainment-performance-form.html
+POST key  : entertainment_performance_json  (hidden JSON, news-entertainment-performance.js)
+TABLE     : [investigation].[entertainment_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key          →  DB column                                Type / Notes
+  boxOffice         →  perf_box_office_revenue_bn              NVARCHAR(100) NULL
+  viewsStreams      →  perf_views_streams_bn                   NVARCHAR(100) NULL
+  rating            →  perf_rating_bn                          NVARCHAR(100) NULL
+  audienceResponse  →  perf_link_ref_audience_response_id      INT NULL, FK → ref_status
+                         db_column: link_ref_status_entertainment_form_audience_response_id
+                         Resolved server-side: _ref_id('entertainment_form_audience_response', status_code)
+
+  NOT in this table (no DDL column):
+    awardName/awardCategory/awardResult — removed. No award columns in entertainment_form_fact.
+
+Django model: EntertainmentFormFact  (entertainment/models.py)
+
+
+================================================================================
+SAVE SEQUENCE (on form submit — in _handle_news_submission)
+================================================================================
+1. Read 2 plain POST keys: entertainment_medium_id, entertainment_sub_type (status_code strings)
+2. Parse 3 hidden JSON inputs: entertainment_production_json,
+   entertainment_cast_release_json, entertainment_performance_json
+3. Resolve FK values:
+   - link_ref_status_entertainment_form_medium_type_id = _ref_id('entertainment_form_medium_type', entertainment_medium_id)
+   - link_ref_status_entertainment_form_issue_sub_type_id = _ref_id('entertainment_form_issue_sub_type', entertainment_sub_type)
+   - prod_link_ref_language_id = _ref_id('entertainment_form_language', status_code)
+   - prod_link_ref_entertainment_industry_id = _ref_id('entertainment_form_entertainment_industry', status_code)
+   - cast_link_ref_media_platform_id = _ref_id('entertainment_form_media_platform', status_code)
+   - cast_link_ref_genre_category_id = _ref_id('entertainment_form_genre_category', status_code)
+   - perf_link_ref_audience_response_id = _ref_id('entertainment_form_audience_response', status_code)
+4. EntertainmentFormFact.objects.create() — single row with all 18 data columns
+   prod_title_name_bn is NOT NULL — fallback to empty string if empty
+   created_at = now (Python-supplied, not DB default)
+
+
+================================================================================
+END OF FILE
+================================================================================

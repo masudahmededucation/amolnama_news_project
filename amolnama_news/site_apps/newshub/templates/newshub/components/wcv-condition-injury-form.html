@@ -1,0 +1,158 @@
+{% comment %}
+  Women & Child Violence — Victim Condition & Injury.
+  Merged step combining:
+    A) Condition attributes (pregnancy, children, dependence, disability)
+    B) Injury types, severity, psychological symptoms
+    C) Medical condition, safety status, consent
+  Each sub-section has a colored label bar to visually separate question sets.
+  All radios/checkboxes are DB-driven or static. Data serialized to hidden JSON by JS.
+  Language toggle: labels use data-bn/data-en, inputs use data-ph-bn/data-ph-en.
+  Note: checkbox-inline labels use inner <span> to preserve <input> child node position.
+{% endcomment %}
+
+<div class="form-section" id="section-wcv-condition-injury">
+  <h3 class="form-section-title"><span class="section-icon">🩺</span><span
+      data-bn="অবস্থা ও আঘাত" data-en="Condition & Injury">অবস্থা ও আঘাত</span></h3>
+
+  <input type="hidden" id="wcv-condition-injury" name="wcv_condition_injury" value="">
+
+  {# ── Section A: Condition Attributes ── #}
+  <h4 class="form-subsection-title subsection-blue"><span
+      data-bn="ভুক্তভোগীর অবস্থা" data-en="Victim Condition">ভুক্তভোগীর অবস্থা</span></h4>
+
+  {# Pregnancy Status (conditional expansion) #}
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="wcv-victim-pregnant" name="wcv-victim-pregnant" value="1">
+      <span data-bn="গর্ভবতী" data-en="Is Pregnant">গর্ভবতী</span>
+    </label>
+  </div>
+
+  <div class="form-field" id="wcv-pregnant-months-row" style="display: none;">
+    <label for="wcv-victim-pregnant-months"
+           data-bn="গর্ভকালীন মাস" data-en="Months Pregnant">গর্ভকালীন মাস</label>
+    <input type="number" id="wcv-victim-pregnant-months" min="1" max="10"
+           data-ph-bn="যেমন: ৫" data-ph-en="e.g. 5"
+           placeholder="যেমন: ৫" style="max-width: 150px;">
+    <p class="form-field-warning" id="wcv-pregnant-months-warning" style="display: none;"
+       data-bn="⚠️ গর্ভকালীন মাস ১০-এর বেশি হতে পারে না — দয়া করে যাচাই করুন"
+       data-en="⚠️ Months pregnant cannot exceed 10 — please verify">
+      ⚠️ গর্ভকালীন মাস ১০-এর বেশি হতে পারে না — দয়া করে যাচাই করুন
+    </p>
+  </div>
+
+  {# Children Status (conditional expansion) #}
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="wcv-victim-has-children" name="wcv-victim-has-children" value="1">
+      <span data-bn="সন্তান আছে" data-en="Has Children">সন্তান আছে</span>
+    </label>
+  </div>
+
+  <div class="form-field" id="wcv-children-count-row" style="display: none;">
+    <label for="wcv-victim-children-count"
+           data-bn="সন্তান সংখ্যা" data-en="Number of Children">সন্তান সংখ্যা</label>
+    <input type="number" id="wcv-victim-children-count" min="1" max="20"
+           data-ph-bn="যেমন: ৩" data-ph-en="e.g. 3"
+           placeholder="যেমন: ৩" style="max-width: 150px;">
+    <p class="form-field-error" id="wcv-children-count-error" style="display: none;"
+       data-bn="⛔ সন্তান সংখ্যা ২০-এর বেশি হতে পারে না — মান মুছে দেওয়া হয়েছে"
+       data-en="⛔ Cannot exceed 20 children — value reset">
+      ⛔ সন্তান সংখ্যা ২০-এর বেশি হতে পারে না — মান মুছে দেওয়া হয়েছে
+    </p>
+    <p class="form-field-warning" id="wcv-children-count-warning" style="display: none;"
+       data-bn="⚠️ সন্তান সংখ্যা ৪-এর বেশি — দয়া করে যাচাই করুন"
+       data-en="⚠️ More than 4 children — please verify">
+      ⚠️ সন্তান সংখ্যা ৪-এর বেশি — দয়া করে যাচাই করুন
+    </p>
+  </div>
+
+  {# Economic Dependence #}
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="wcv-victim-dependent" name="wcv-victim-dependent" value="1">
+      <span data-bn="অভিযুক্তের উপর অর্থনৈতিকভাবে নির্ভরশীল"
+            data-en="Economically Dependent on Perpetrator">অভিযুক্তের উপর অর্থনৈতিকভাবে নির্ভরশীল</span>
+    </label>
+  </div>
+
+  {# Disability Status (conditional expansion) #}
+  <div class="form-field">
+    <label class="checkbox-inline">
+      <input type="checkbox" id="wcv-victim-disability" name="wcv-victim-disability" value="1">
+      <span data-bn="প্রতিবন্ধিতা আছে" data-en="Has Disability">প্রতিবন্ধিতা আছে</span>
+    </label>
+  </div>
+
+  <div class="form-field" id="wcv-disability-type-row" style="display: none;">
+    <label for="wcv-victim-disability-type"
+           data-bn="প্রতিবন্ধিতার ধরন" data-en="Disability Type">প্রতিবন্ধিতার ধরন</label>
+    <input type="text" id="wcv-victim-disability-type"
+           data-ph-bn="যেমন: দৃষ্টি প্রতিবন্ধী, শারীরিক প্রতিবন্ধী..."
+           data-ph-en="e.g. visual impairment, physical disability..."
+           placeholder="যেমন: দৃষ্টি প্রতিবন্ধী, শারীরিক প্রতিবন্ধী...">
+  </div>
+
+  {# ── Section B: Injury & Psychological ── #}
+  <h4 class="form-subsection-title subsection-green"><span
+      data-bn="আঘাত ও মানসিক অবস্থা" data-en="Injury & Psychological">আঘাত ও মানসিক অবস্থা</span></h4>
+
+  <div class="form-field">
+    <label data-bn="আঘাতের ধরন — একাধিক নির্বাচন করা যাবে"
+           data-en="Injury Type — multiple selections allowed">আঘাতের ধরন — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-injury-types-checkboxes">
+      {# Populated by JS from wcv-injury-types-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label data-bn="আঘাতের তীব্রতা" data-en="Injury Severity">আঘাতের তীব্রতা</label>
+    <div class="radio-inline-group" id="wcv-injury-severity-radios">
+      {# Populated by JS from wcv-injury-severity-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label data-bn="মানসিক লক্ষণ — একাধিক নির্বাচন করা যাবে"
+           data-en="Psychological Symptoms — multiple selections allowed">মানসিক লক্ষণ — একাধিক নির্বাচন করা যাবে</label>
+    <div class="checkbox-group" id="wcv-psych-symptoms-checkboxes">
+      {# Populated by JS from wcv-psychological-symptoms-data #}
+    </div>
+  </div>
+
+  {# ── Section C: Medical, Safety & Consent ── #}
+  <h4 class="form-subsection-title subsection-purple"><span
+      data-bn="চিকিৎসা, নিরাপত্তা ও সম্মতি" data-en="Medical, Safety & Consent">চিকিৎসা, নিরাপত্তা ও সম্মতি</span></h4>
+
+  {# Victim's Current Condition — populated by JS #}
+  <div class="form-field">
+    <label data-bn="ভুক্তভোগীর বর্তমান অবস্থা" data-en="Victim's Current Condition">ভুক্তভোগীর বর্তমান অবস্থা</label>
+    <div class="radio-inline-group" id="wcv-condition-radios">
+      {# Populated by JS from wcv-medical-conditions-data #}
+    </div>
+  </div>
+
+  {# Safety Status — populated by JS #}
+  <div class="form-field">
+    <label data-bn="বর্তমান নিরাপত্তা অবস্থা" data-en="Current Safety Status">বর্তমান নিরাপত্তা অবস্থা</label>
+    <div class="radio-inline-group" id="wcv-safety-radios">
+      {# Populated by JS from wcv-safety-statuses-data #}
+    </div>
+  </div>
+
+  {# Consent to Share Information — populated by JS #}
+  <div class="form-field">
+    <label data-bn="তথ্য প্রকাশে সম্মতি" data-en="Consent to Share Information">তথ্য প্রকাশে সম্মতি</label>
+    <div class="radio-inline-group" id="wcv-consent-radios">
+      {# Populated by JS from wcv-consent-statuses-data #}
+    </div>
+  </div>
+</div>
+
+{# Embed reference data as JSON (type=application/json bypasses CSP) #}
+<script type="application/json" id="wcv-injury-types-data">{{ wcv_injury_types|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-injury-severity-data">{{ wcv_injury_severity|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-psychological-symptoms-data">{{ wcv_psychological_symptoms|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-medical-conditions-data">{{ wcv_medical_conditions|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-safety-statuses-data">{{ wcv_safety_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-consent-statuses-data">{{ wcv_consent_statuses|default:"[]"|safe }}</script>

@@ -1,12 +1,29 @@
 /**
  * news-form-validate.js
- * Unified client-side validation for all mandatory fields.
- * On submit: checks each field, shows inline warning, scrolls + shakes the first empty one.
- * On input/change: clears the warning for that field.
+ * Unified client-side validation for all mandatory fields and length limits.
+ * - Real-time: step dots turn red immediately as errors appear/resolve.
+ * - On submit: shows inline warnings, navigates to first error step.
+ * - On input/change: clears warnings and re-evaluates step error dots.
  */
 (function () {
-  var form = document.querySelector('.news-collection-form');
+  var form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
+
+  var isMultistep = form.classList.contains('news-multistep-form');
+
+  /* ========== Prevent Enter-key form submission ========== */
+  /* Text/number inputs submit on Enter by default — block this globally.
+     The form should only submit via the explicit Submit button. */
+  form.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var tag = e.target.tagName;
+    var type = (e.target.type || '').toLowerCase();
+    if (tag === 'INPUT' && (type === 'text' || type === 'number' || type === 'search' || type === 'tel' || type === 'url')) {
+      e.preventDefault();
+    }
+  });
+
+  /* ========== Validation Rules ========== */
 
   var MANDATORY = [
     {
@@ -43,59 +60,209 @@
       id: 'selected-tags-area',
       msg: 'অন্তত একটি ট্যাগ যুক্ত করুন (Please add at least one tag)',
       getContainer: function () { return document.getElementById('widget-tags'); },
-      /* Tags are chips, not an input — check for hidden inputs instead */
       customCheck: function () {
         var area = document.getElementById('selected-tags-area');
         return area && area.querySelector('input[name="tag_ids"]');
       }
+    },
+    /* WCV step 4 — victim first name in English (mandatory) */
+    {
+      id: 'wcv-victim-first-name-en',
+      msg: 'ভুক্তভোগীর প্রথম নাম (ইংরেজি) দিন (Please enter victim first name in English)',
+      getContainer: function (el) { return el.closest('.form-field'); }
+    },
+    /* WCV step 4 — victim last name in English (mandatory) */
+    {
+      id: 'wcv-victim-last-name-en',
+      msg: 'ভুক্তভোগীর শেষ নাম (ইংরেজি) দিন (Please enter victim last name in English)',
+      getContainer: function (el) { return el.closest('.form-field'); }
+    },
+    /* WCV step 4 — age (mandatory, must be > 0) */
+    {
+      id: 'wcv-victim-age',
+      msg: 'ভুক্তভোগীর বয়স দিন (Please enter victim age)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () {
+        var el = document.getElementById('wcv-victim-age');
+        return el && el.value && parseInt(el.value, 10) > 0;
+      }
+    },
+    /* WCV step 4 — gender radio (mandatory) */
+    {
+      id: 'wcv-gender-radios',
+      checkName: 'wcv_victim_gender',
+      msg: 'লিঙ্গ নির্বাচন করুন (Please select gender)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_victim_gender"]:checked'); }
+    },
+    /* WCV step 4 — marital status (mandatory select) */
+    {
+      id: 'wcv-victim-marital',
+      msg: 'বৈবাহিক অবস্থা নির্বাচন করুন (Please select marital status)',
+      getContainer: function (el) { return el.closest('.form-field'); }
+    },
+    /* WCV step 4 — occupation (mandatory select) */
+    {
+      id: 'wcv-victim-occupation',
+      msg: 'পেশা নির্বাচন করুন (Please select occupation)',
+      getContainer: function (el) { return el.closest('.form-field'); }
+    },
+    /* WCV form — violence type checkboxes (at least one required) */
+    {
+      id: 'wcv-violence-types-checkboxes',
+      checkName: 'wcv_violence_type',
+      msg: 'সহিংসতার ধরন নির্বাচন করুন (Please select at least one violence type)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () {
+        return document.querySelector('input[name="wcv_violence_type"]:checked');
+      }
+    },
+    /* WCV form — incident location type (mandatory select) */
+    {
+      id: 'wcv-location-type',
+      msg: 'ঘটনাস্থলের ধরন নির্বাচন করুন (Please select incident location type)',
+      getContainer: function (el) { return el.closest('.form-field'); }
+    },
+    /* WCV step 5 — injury types (at least one required) */
+    {
+      id: 'wcv-injury-types-checkboxes',
+      checkName: 'wcv_injury_type',
+      msg: 'আঘাতের ধরন নির্বাচন করুন (Please select at least one injury type)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_injury_type"]:checked'); }
+    },
+    /* WCV step 5 — injury severity (mandatory radio) */
+    {
+      id: 'wcv-injury-severity-radios',
+      checkName: 'wcv_injury_severity',
+      msg: 'আঘাতের তীব্রতা নির্বাচন করুন (Please select injury severity)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_injury_severity"]:checked'); }
+    },
+    /* WCV step 5 — current condition (mandatory radio) */
+    {
+      id: 'wcv-condition-radios',
+      checkName: 'wcv_victim_condition',
+      msg: 'ভুক্তভোগীর বর্তমান অবস্থা নির্বাচন করুন (Please select victim condition)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_victim_condition"]:checked'); }
+    },
+    /* WCV step 5 — safety status (mandatory radio) */
+    {
+      id: 'wcv-safety-radios',
+      checkName: 'wcv_victim_safety',
+      msg: 'নিরাপত্তা অবস্থা নির্বাচন করুন (Please select safety status)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_victim_safety"]:checked'); }
+    },
+    /* WCV step 5 — consent (mandatory radio) */
+    {
+      id: 'wcv-consent-radios',
+      checkName: 'wcv_victim_consent',
+      msg: 'তথ্য প্রকাশে সম্মতি নির্বাচন করুন (Please select consent status)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_victim_consent"]:checked'); }
+    },
+    /* WCV step 7 — FIR/GD status (mandatory radio) */
+    {
+      id: 'wcv-fir-status-radios',
+      checkName: 'wcv_fir_status',
+      msg: 'এফআইআর/জিডি অবস্থা নির্বাচন করুন (Please select FIR/GD status)',
+      getContainer: function (el) { return el.closest('.form-field'); },
+      customCheck: function () { return document.querySelector('input[name="wcv_fir_status"]:checked'); }
     }
   ];
 
-  /* --- Create warning spans beside each label --- */
+  var LENGTH_LIMITS = [
+    { id: 'news-headline-bn', max: 100, label: 'শিরোনাম (Headline)' },
+    { id: 'news-summary-bn', max: 400, label: 'সংক্ষেপ (Summary)' }
+  ];
+
+  /* ========== Create Warning Elements ========== */
+
+  /* Mandatory field warnings + stars (hidden until triggered) */
   MANDATORY.forEach(function (field) {
     var el = document.getElementById(field.id);
     if (!el) return;
     var container = field.getContainer(el);
     if (!container) return;
 
-    /* Find the label or field-label for this field */
     var label = container.querySelector('label[for="' + field.id + '"]')
              || container.querySelector('label')
              || container.querySelector('.field-label')
              || container.querySelector('.contributor-type-label')
              || container.querySelector('h4');
 
+    /* Inject mandatory star — skip if already marked manually */
+    if (label
+        && !label.querySelector('.field-mandatory-star')
+        && !label.querySelector('.required-mark')
+        && label.textContent.indexOf('*') === -1) {
+      var star = document.createElement('span');
+      star.className = 'field-mandatory-star';
+      star.textContent = ' *';
+      label.appendChild(star);
+    }
+
     var warning = document.createElement('span');
     warning.className = 'field-warning';
     warning.textContent = field.msg;
 
     if (label) {
-      /* Insert warning right after the label (inline beside it) */
       label.parentNode.insertBefore(warning, label.nextSibling);
     } else {
       container.appendChild(warning);
     }
   });
 
-  /* --- Clear warning on input / change --- */
+  /* Length limit warnings (hidden until triggered) */
+  LENGTH_LIMITS.forEach(function (rule) {
+    var el = document.getElementById(rule.id);
+    if (!el) return;
+    var container = el.closest('.form-field');
+    if (!container) return;
+
+    var warning = document.createElement('span');
+    warning.className = 'field-warning field-warning-length';
+    warning.setAttribute('data-limit-for', rule.id);
+    container.appendChild(warning);
+  });
+
+  /* ========== Real-Time Validation ========== */
+
   form.addEventListener('input', onFieldChange);
   form.addEventListener('change', onFieldChange);
 
   function onFieldChange(e) {
     var targetId = e.target.id;
+
+    /* Clear server-rendered field errors when the user edits the field */
+    var fieldContainer = e.target.closest('.form-field');
+    if (fieldContainer) {
+      var serverErrors = fieldContainer.querySelector('.field-errors');
+      if (serverErrors) serverErrors.remove();
+    }
+
+    /* Clear mandatory field warning if filled */
     for (var i = 0; i < MANDATORY.length; i++) {
-      if (MANDATORY[i].id === targetId) {
-        clearFieldWarning(MANDATORY[i]);
+      if (MANDATORY[i].id === targetId ||
+          (MANDATORY[i].checkName && e.target.name === MANDATORY[i].checkName)) {
+        clearMandatoryWarning(MANDATORY[i]);
         break;
       }
     }
+
+    /* Check length limits in real-time */
+    checkLengthLimits();
+
+    /* Always re-evaluate step error dots */
+    if (isMultistep) reevaluateStepErrors();
   }
 
-  function clearFieldWarning(field) {
+  function clearMandatoryWarning(field) {
     var el = document.getElementById(field.id);
     if (!el) return;
 
-    /* Use customCheck if available, otherwise check el.value */
     var isFilled = field.customCheck
       ? field.customCheck()
       : (el.value && el.value.trim());
@@ -103,32 +270,90 @@
 
     var container = field.getContainer(el);
     if (!container) return;
-    var warning = container.querySelector('.field-warning');
+    var warning = container.querySelector('.field-warning:not(.field-warning-length)');
     if (warning) warning.style.display = '';
     container.classList.remove('field-shake');
   }
 
-  /* --- Watch tags area for chip add/remove (DOM mutations) --- */
+  /** Show/hide inline length warnings as the user types. */
+  function checkLengthLimits() {
+    LENGTH_LIMITS.forEach(function (rule) {
+      var el = document.getElementById(rule.id);
+      if (!el) return;
+      var warning = form.querySelector('.field-warning-length[data-limit-for="' + rule.id + '"]');
+      if (!warning) return;
+
+      var len = (el.value || '').trim().length;
+      if (len > rule.max) {
+        warning.textContent = rule.label + ' সর্বোচ্চ ' + rule.max + ' অক্ষর, বর্তমানে ' + len + ' অক্ষর। (Max ' + rule.max + ' chars, currently ' + len + ')';
+        warning.style.display = 'inline';
+      } else {
+        warning.style.display = '';
+      }
+    });
+  }
+
+  /* Watch tags area for chip add/remove (DOM mutations) */
   var tagsArea = document.getElementById('selected-tags-area');
   if (tagsArea) {
     new MutationObserver(function () {
-      var tagField = MANDATORY[MANDATORY.length - 1]; /* last entry = tags */
+      var tagField = MANDATORY[MANDATORY.length - 1];
       if (tagField.id === 'selected-tags-area') {
-        clearFieldWarning(tagField);
+        clearMandatoryWarning(tagField);
+        if (isMultistep) reevaluateStepErrors();
       }
     }).observe(tagsArea, { childList: true });
   }
 
-  /* --- Validate on submit --- */
+  /* ========== Step Error Dot Evaluation ========== */
+
+  /**
+   * Scan each step panel for ANY visible error indicator and update stepper dots.
+   * Generic — works with any error source (server errors, length warnings,
+   * calendar validation, format checks, etc.) without enumerating specific rules.
+   * Any script just needs to show a .field-warning or .field-errors element.
+   */
+  function reevaluateStepErrors() {
+    if (!window.newshubStepper) return;
+    var remaining = {};
+
+    document.querySelectorAll('.step-panel[data-step]').forEach(function (panel) {
+      var step = parseInt(panel.getAttribute('data-step'), 10);
+
+      /* Server-rendered errors */
+      if (panel.querySelector('.field-errors li')) {
+        remaining[step] = true;
+        return;
+      }
+
+      /* Any visible .field-warning (from any validation source) */
+      var warnings = panel.querySelectorAll('.field-warning');
+      for (var i = 0; i < warnings.length; i++) {
+        if (warnings[i].style.display === 'inline') {
+          remaining[step] = true;
+          return;
+        }
+      }
+    });
+
+    window.newshubStepper.updateErrors(remaining);
+  }
+
+  /** Expose for other scripts (calendar, social URL, etc.) to trigger after showing/hiding errors. */
+  window.newshubValidation = { reevaluateStepErrors: reevaluateStepErrors };
+
+  /* ========== Validate on Submit ========== */
+
   form.addEventListener('submit', function (e) {
-    var firstEmpty = null;
+    var firstEmptyContainer = null;
+    var errorStepNumbers = {};
 
     MANDATORY.forEach(function (field) {
       var el = document.getElementById(field.id);
       if (!el) return;
       var container = field.getContainer(el);
       if (!container) return;
-      var warning = container.querySelector('.field-warning');
+      var warning = container.querySelector('.field-warning:not(.field-warning-length)');
 
       var isEmpty = field.customCheck
         ? !field.customCheck()
@@ -137,31 +362,55 @@
       if (isEmpty) {
         e.preventDefault();
         if (warning) warning.style.display = 'inline';
-        if (!firstEmpty) firstEmpty = container;
+        if (!firstEmptyContainer) firstEmptyContainer = container;
+
+        if (isMultistep) {
+          var panel = el.closest('.step-panel[data-step]');
+          if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
+        }
       } else {
         if (warning) warning.style.display = '';
         container.classList.remove('field-shake');
       }
     });
 
-    if (firstEmpty) {
-      /* If the failing field is inside a hidden container, show a form-level banner
-         so the user gets visible feedback instead of silent blocking */
-      if (firstEmpty.offsetWidth === 0 && firstEmpty.offsetHeight === 0) {
-        var banner = form.parentNode.querySelector('.form-message-error');
-        if (!banner) {
-          banner = document.createElement('div');
-          banner.className = 'form-message form-message-error';
-          form.parentNode.insertBefore(banner, form);
+    /* Also block submit if length limits exceeded */
+    LENGTH_LIMITS.forEach(function (rule) {
+      var el = document.getElementById(rule.id);
+      if (!el || !el.value) return;
+      if (el.value.trim().length > rule.max) {
+        e.preventDefault();
+        if (!firstEmptyContainer) {
+          firstEmptyContainer = el.closest('.form-field');
         }
-        banner.textContent = 'কিছু বাধ্যতামূলক ক্ষেত্র পূরণ হয়নি। (Some mandatory fields are empty.)';
-        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        firstEmpty.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstEmpty.classList.remove('field-shake');
-        void firstEmpty.offsetWidth; /* force reflow to restart animation */
-        firstEmpty.classList.add('field-shake');
+        if (isMultistep) {
+          var panel = el.closest('.step-panel[data-step]');
+          if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
+        }
       }
+    });
+
+    if (!firstEmptyContainer) return;
+
+    if (isMultistep && window.newshubStepper) {
+      var numericSteps = {};
+      Object.keys(errorStepNumbers).forEach(function (step) {
+        numericSteps[parseInt(step, 10)] = true;
+      });
+      window.newshubStepper.showErrors(numericSteps);
+    } else if (!isMultistep) {
+      firstEmptyContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstEmptyContainer.classList.remove('field-shake');
+      void firstEmptyContainer.offsetWidth;
+      firstEmptyContainer.classList.add('field-shake');
     }
   });
+
+  /* ========== Initial Evaluation ========== */
+
+  /* Run once on page load so step dots reflect current state immediately
+     (e.g. after POST re-render with errors, or after persist restores partial data). */
+  if (isMultistep) {
+    setTimeout(function () { reevaluateStepErrors(); }, 500);
+  }
 })();

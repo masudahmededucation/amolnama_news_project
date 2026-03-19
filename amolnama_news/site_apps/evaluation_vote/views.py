@@ -33,6 +33,14 @@ def home(request):
         'parties': parties,
         'divisions': divisions,
         'past_evaluations': past_evaluations,
+        'seo': {
+            'title': 'মূল্যায়ন ভোট — আমলনামা নিউজ | Evaluation Vote',
+            'description': 'সরকার ও রাজনৈতিক দলের কর্মক্ষমতা মূল্যায়ন করুন আপনার ভোটের মাধ্যমে। Evaluate government and political party performance through your vote.',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'মূল্যায়ন ভোট', 'url': None},
+            ],
+        },
     })
 
 
@@ -332,7 +340,19 @@ def vote_results(request):
             for row in rows
         ]
     total_votes = results[0]["total_vote_count"] if results else 0
-    return render(request, "evaluation_vote/vote_results.html", {"results": results, "total": total_votes})
+    return render(request, "evaluation_vote/vote_results.html", {
+        "results": results,
+        "total": total_votes,
+        "seo": {
+            "title": "ভোটের ফলাফল — আমলনামা নিউজ | Vote Results",
+            "description": "বর্তমান মূল্যায়ন ভোটের সরাসরি ফলাফল দেখুন। View live results of the current evaluation vote.",
+            "breadcrumbs": [
+                {"name": "হোম", "url": "/"},
+                {"name": "মূল্যায়ন ভোট", "url": "/evaluation-vote/"},
+                {"name": "ফলাফল", "url": None},
+            ],
+        },
+    })
 
 
 # In your get_party_results view
@@ -374,7 +394,9 @@ def vote_cast_current_results(request):
 
 def sidebar_past_vote_results(request):
     # Add your logic here, or just render the template
-    return render(request, "evaluation_vote/partials/sidebar_past_vote_results.html")
+    return render(request, "evaluation_vote/partials/sidebar_past_vote_results.html", {
+        "seo": {"noindex": True},
+    })
 
 
 # ---- Reusable helper constants ----
@@ -555,6 +577,15 @@ def past_election_results_drillthrough_location(request, evaluation_id):
         'total_votes': total_votes,
         'back_url': _determine_back_url(drill_level, request.path, division_id),
         'past_evaluations': _get_sidebar_evaluations(),
+        'seo': {
+            'title': f'{evaluation_name} — বিস্তারিত ফলাফল — আমলনামা নিউজ | Past Evaluation Results',
+            'description': f'{evaluation_name} মূল্যায়নের অবস্থানভিত্তিক বিস্তারিত ফলাফল দেখুন। View detailed location-based results for past evaluations.',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'মূল্যায়ন ভোট', 'url': '/evaluation-vote/'},
+                {'name': evaluation_name, 'url': None},
+            ],
+        },
     }
 
     return render(request, 'evaluation_vote/pages/past_election_results_drillthrough_location.html', context)

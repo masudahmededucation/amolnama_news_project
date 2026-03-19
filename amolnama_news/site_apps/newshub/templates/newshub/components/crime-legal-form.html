@@ -1,0 +1,76 @@
+{% comment %}
+  Crime & Violence — Legal Action & Support.
+  GD/FIR section shared via {% include "newshub/components/law-gd-fir-section.html" %}.
+  Form-specific: applicable laws, case status, support services, retaliation.
+  Hardcoded JSON data — replace with {{ context_var|safe }} when DB tables are created.
+  Data serialized to #crime-legal hidden input by news-crime-legal.js.
+
+  Form-specific element IDs:
+    #crime-legal                      — hidden JSON input
+    #crime-applicable-law-checkboxes  — checkbox group container
+    #crime-case-status                — select
+    #crime-support-service-checkboxes — checkbox group container
+    #crime-retaliation-checkboxes     — checkbox group container
+    #crime-remarks                    — textarea
+
+  Form-specific data elements:
+    #crime-applicable-law-data        — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #crime-case-status-data           — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #crime-support-service-data       — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+    #crime-retaliation-data           — JSON [{status_id, status_code, status_name_bn, status_name_en}]
+{% endcomment %}
+
+<div class="form-section" id="section-crime-legal">
+  <h3 class="form-section-title"><span class="section-icon">⚖️</span>আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)</h3>
+
+  <input type="hidden" id="crime-legal" name="crime_legal" value="">
+
+  {% include "newshub/components/law-gd-fir-section.html" with fir_prefix="legal" %}
+
+  <div class="form-field">
+    <label>প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)</label>
+    <div class="checkbox-group" id="crime-applicable-law-checkboxes">
+      {# Populated by news-crime-legal.js from #crime-applicable-law-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="crime-case-status">মামলার অবস্থা (Case Status)</label>
+    <select id="crime-case-status">
+      <option value="">-- নির্বাচন করুন --</option>
+      {# Populated by news-crime-legal.js from #crime-case-status-data #}
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label>ভিকটিম সহায়তা সেবা — একাধিক নির্বাচন করা যাবে (Victim Support Services — multiple selections allowed)</label>
+    <div class="checkbox-group" id="crime-support-service-checkboxes">
+      {# Populated by news-crime-legal.js from #crime-support-service-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>ভুক্তভোগীর ঝুঁকি ও হুমকির বিবরণ (Victim Risks and Threats)</label>
+    <div class="checkbox-group" id="crime-retaliation-checkboxes">
+      {# Populated by news-crime-legal.js from #crime-retaliation-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="crime-remarks">অতিরিক্ত তথ্য / মন্তব্য (Additional Information / Remarks)</label>
+    <textarea id="crime-remarks" rows="4"
+              placeholder="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."></textarea>
+  </div>
+</div>
+
+{# GD/FIR status data — shared module reads #{prefix}-fir-status-data #}
+<script type="application/json" id="legal-fir-status-data">{{ fir_statuses_json|safe }}</script>
+
+{# DB-driven reference data — populated from views context (crime_violence view) #}
+<script type="application/json" id="crime-applicable-law-data">{{ applicable_laws_json|safe }}</script>
+
+<script type="application/json" id="crime-case-status-data">{{ crime_case_status_json|safe }}</script>
+
+<script type="application/json" id="crime-support-service-data">{{ victim_support_services_json|safe }}</script>
+
+<script type="application/json" id="crime-retaliation-data">{{ victim_risks_threats_json|safe }}</script>

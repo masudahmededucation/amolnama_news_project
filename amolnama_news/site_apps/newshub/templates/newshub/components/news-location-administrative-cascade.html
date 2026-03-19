@@ -19,10 +19,18 @@
   <input type="hidden" id="news-longitude" name="longitude">
   <input type="hidden" id="news-formatted-address-bn" name="formatted_address_bn">
 
+  {# Full address built from cascade selections (Village → Ward → Union → Upazila → District) #}
+  <input type="hidden" id="news-full-address-bn" name="full_address_bn">
+
   {# Type tracking — set by cascade JS, used by form-persist #}
   <input type="hidden" id="news-subdistrict-type" name="subdistrict_type">
   <input type="hidden" id="news-local-body-type" name="local_body_type">
   <input type="hidden" id="news-ward-type" name="ward_type">
+
+  {# Name-based location columns — populated by cascade JS for DB columns that store names not IDs #}
+  <input type="hidden" id="news-upazila-name" name="upazila_city_corporation_name">
+  <input type="hidden" id="news-ward-name" name="ward_name">
+  <input type="hidden" id="news-village-name" name="village_moholla_name">
 
   {# Village/Moholla — loaded dynamically for union parishad; text input for city corp/metro thana #}
   <div class="widget-field" id="news-village-row" style="display:none;">

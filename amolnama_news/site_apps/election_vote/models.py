@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 # ========== Reference Tables ==========
@@ -9,7 +10,7 @@ class RefElectionType(models.Model):
     election_type_name_en = models.CharField(max_length=100)
     election_type_name_bn = models.CharField(max_length=100, blank=True, null=True)
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = False
@@ -85,6 +86,57 @@ class RefVoteMethod(models.Model):
 
     def __str__(self):
         return self.vote_method_name_en or self.vote_method_code or ''
+
+
+class RefCandidateNominationRulebook(models.Model):
+    candidate_nomination_rulebook_id = models.IntegerField(primary_key=True)
+    rule_code = models.CharField(max_length=200)
+    rule_title_en = models.CharField(max_length=200)
+    rule_title_bn = models.CharField(max_length=200)
+    rule_description_en = models.CharField(max_length=500, blank=True, null=True)
+    rule_description_bn = models.CharField(max_length=500, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField(default=timezone.now)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[ref_candidate_nomination_rulebook]'
+
+    def __str__(self):
+        return self.rule_title_en
+
+
+class RefCandidateNominationStatus(models.Model):
+    candidate_nomination_status_id = models.IntegerField(primary_key=True)
+    candidate_nomination_status_group_code = models.CharField(max_length=100, blank=True, null=True)
+    candidate_nomination_status_name_en = models.CharField(max_length=100, blank=True, null=True)
+    candidate_nomination_status_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[ref_candidate_nomination_status]'
+
+    def __str__(self):
+        return self.candidate_nomination_status_name_en or ''
+
+
+class RefVoterEligibilityStatus(models.Model):
+    voter_eligibility_status_id = models.IntegerField(primary_key=True)
+    voter_eligibility_status_code = models.CharField(max_length=200, blank=True, null=True)
+    voter_eligibility_status_name_en = models.CharField(max_length=200, blank=True, null=True)
+    voter_eligibility_status_name_bn = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[ref_voter_eligibility_status]'
+
+    def __str__(self):
+        return self.voter_eligibility_status_name_en or ''
 
 
 # ========== Transaction Tables ==========
@@ -164,6 +216,96 @@ class DigitalBallotVoteEntry(models.Model):
         ).first()
 
 
+class DigitalSecurityConfig(models.Model):
+    digital_security_config_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    hash_election_salt = models.UUIDField(blank=True, null=True)
+    hash_algorithm = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[digital_security_config]'
+
+    def __str__(self):
+        return f"SecurityConfig({self.digital_security_config_id})"
+
+
+class ElectoralRoll(models.Model):
+    electoral_roll_id = models.IntegerField(primary_key=True)
+    voter_id = models.IntegerField(blank=True, null=True)
+    link_person_id = models.IntegerField(blank=True, null=True)
+    link_constituency_id = models.IntegerField(blank=True, null=True)
+    link_voter_eligibility_status_id = models.IntegerField(blank=True, null=True)
+    registration_date = models.DateField(blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[electoral_roll]'
+
+    def __str__(self):
+        return f"ElectoralRoll({self.electoral_roll_id})"
+
+
+class ElectoralRollPollBook(models.Model):
+    electoral_roll_poll_book_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    link_electoral_roll_id = models.IntegerField(blank=True, null=True)
+    is_ballot_cast = models.BooleanField(blank=True, null=True)
+    check_in_time = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[electoral_roll_poll_book]'
+
+    def __str__(self):
+        return f"PollBook({self.electoral_roll_poll_book_id})"
+
+
+class Ballot(models.Model):
+    ballot_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    link_electoral_roll_id = models.IntegerField(blank=True, null=True)
+    link_vote_method_id = models.IntegerField(blank=True, null=True)
+    hash_voter_binary = models.BinaryField(blank=True, null=True)
+    cast_timestamp = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[ballot]'
+
+    def __str__(self):
+        return f"Ballot({self.ballot_id})"
+
+
+class BallotVoteEntry(models.Model):
+    ballot_vote_entry_id = models.IntegerField(primary_key=True)
+    link_ballot_id = models.IntegerField(blank=True, null=True)
+    link_candidate_id = models.IntegerField(blank=True, null=True)
+    rank_choice = models.IntegerField(blank=True, null=True)
+    sort_order = models.IntegerField(blank=True, null=True)
+    is_primary_asset = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[ballot_vote_entry]'
+
+    def __str__(self):
+        return f"BallotVoteEntry({self.ballot_vote_entry_id})"
+
+
 class CandidateNomination(models.Model):
     candidate_nomination_id = models.IntegerField(primary_key=True)
     link_election_id = models.IntegerField(blank=True, null=True)
@@ -186,6 +328,81 @@ class CandidateNomination(models.Model):
 
     def __str__(self):
         return f"CandidateNomination({self.candidate_nomination_id})"
+
+
+class Candidate(models.Model):
+    candidate_id = models.IntegerField(primary_key=True)
+    link_person_id = models.IntegerField(blank=True, null=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    link_candidate_nomination_id = models.IntegerField(blank=True, null=True)
+    candidate_ballot_name_en = models.CharField(max_length=200, blank=True, null=True)
+    candidate_summary = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[candidate]'
+
+    def __str__(self):
+        return self.candidate_ballot_name_en or f"Candidate({self.candidate_id})"
+
+
+class CandidateRuleComplianceRecord(models.Model):
+    candidate_rule_compliance_record_id = models.IntegerField(primary_key=True)
+    link_candidate_nomination_id = models.IntegerField(blank=True, null=True)
+    link_candidate_nomination_rulebook_id = models.IntegerField(blank=True, null=True)
+    investigation_finding_detail_en = models.CharField(max_length=1000, blank=True, null=True)
+    is_rule_broken = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[candidate_rule_compliance_record]'
+
+    def __str__(self):
+        return f"ComplianceRecord({self.candidate_rule_compliance_record_id})"
+
+
+class ElectionContestSeat(models.Model):
+    election_contest_seat_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField()
+    link_constituency_id = models.IntegerField(blank=True, null=True)
+    contest_max_votes_per_voter = models.IntegerField()
+    notes = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[election].[election_contest_seat]'
+
+    def __str__(self):
+        return f"ContestSeat({self.election_contest_seat_id})"
+
+
+class ElectionResultCertification(models.Model):
+    election_result_certification_id = models.IntegerField(primary_key=True)
+    link_election_id = models.IntegerField(blank=True, null=True)
+    link_election_contest_type_id = models.IntegerField(blank=True, null=True)
+    link_candidate_id = models.IntegerField(blank=True, null=True)
+    total_votes_received = models.IntegerField(blank=True, null=True)
+    certification_date = models.DateField(blank=True, null=True)
+    certified_by_person_id = models.IntegerField(blank=True, null=True)
+    hash_certification_signature = models.BinaryField(blank=True, null=True)
+    is_active = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    modified_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[election].[election_result_certification]'
+
+    def __str__(self):
+        return f"ResultCertification({self.election_result_certification_id})"
 
 
 # ========== View Models ==========

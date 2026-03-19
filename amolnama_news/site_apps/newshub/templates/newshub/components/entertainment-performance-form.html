@@ -1,0 +1,46 @@
+{% comment %}
+  Performance & Reception — box office/revenue, views/streams, rating,
+  audience response.
+  Entertainment form — Step 6.
+  Data is serialized by news-entertainment-performance.js into
+  #entertainment-performance-json.
+  DB table: [investigation].[entertainment_form_fact]
+{% endcomment %}
+
+<div class="form-section" id="section-entertainment-performance">
+  <h3 class="form-section-title"><span class="section-icon">📊</span>পারফরম্যান্স ও প্রতিক্রিয়া (Performance &amp; Reception)</h3>
+
+  {# Hidden input — JS serializes all data here before submit #}
+  <input type="hidden" id="entertainment-performance-json" name="entertainment_performance_json" value="">
+
+  <div class="form-grid-2col">
+    <div class="form-field">
+      <label for="entertainment-box-office">বক্স অফিস / আয় (Box Office / Revenue) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-box-office"
+             placeholder="যেমন: উদ্বোধনী দিন: ৳১৫ কোটি · মোট: ৳৫০০ কোটি · $1B worldwide">
+    </div>
+    <div class="form-field">
+      <label for="entertainment-views-streams">ভিউ / স্ট্রিম (Views / Streams) <span class="field-optional">(ঐচ্ছিক)</span></label>
+      <input type="text" id="entertainment-views-streams"
+             placeholder="যেমন: ২৪ ঘণ্টায় ১০ মিলিয়ন ভিউ · 1B streams">
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-rating">রেটিং (Rating) <span class="field-optional">(ঐচ্ছিক)</span></label>
+    <input type="text" id="entertainment-rating"
+           placeholder="যেমন: IMDb 8.5/10 · 94% Rotten Tomatoes · দর্শক রেটিং ৯/১০">
+  </div>
+
+  <div class="form-field">
+    <label for="entertainment-audience-response-select">দর্শক প্রতিক্রিয়া (Audience Response)</label>
+    <select id="entertainment-audience-response-select">
+      <option value="">-- নির্বাচন করুন --</option>
+      <option value="very_positive">অত্যন্ত ইতিবাচক (Very Positive)</option>
+      <option value="positive">ইতিবাচক (Positive)</option>
+      <option value="mixed">মিশ্র (Mixed)</option>
+      <option value="negative">নেতিবাচক (Negative)</option>
+      <option value="very_negative">অত্যন্ত নেতিবাচক (Very Negative)</option>
+    </select>
+  </div>
+</div>

@@ -94,6 +94,47 @@
   text-decoration: none;
 }
 
+/* ── Language toggle pill (authenticated header) ── */
+.header-lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+}
+
+.header-lang-option {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.header-lang-option input[type="radio"] {
+  display: none;
+}
+
+.header-lang-option span {
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: color .15s, background .15s;
+}
+
+.header-lang-option:has(input:checked) span {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.header-lang-option:hover span {
+  color: var(--text);
+}
+
+.header-lang-sep {
+  font-size: .78rem;
+  color: var(--border);
+  line-height: 1;
+}
+
 /* Auth controls responsive */
 @media (max-width: 480px) {
   .header-auth-controls {

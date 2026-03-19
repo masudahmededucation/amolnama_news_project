@@ -1,0 +1,38 @@
+{% comment %}
+  Watchdog Sub-Type — radio buttons for selecting
+  the type of political inconsistency being reported.
+  Watchdog (নজরদারি) form type specific.
+  Selected value stored in hidden input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-political-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>ঘটনার ধরন (Incident Sub-Type)</h3>
+
+  {# Hidden input — stores selected sub-type value for form submission #}
+  <input type="hidden" id="political-sub-type" name="political_sub_type" value="">
+
+  <div class="political-sub-type-picker" id="political-sub-type-picker">
+    <label class="radio-card">
+      <input type="radio" name="political_sub_type_radio" value="allegiance_change">
+      <span class="radio-card-icon">🔄</span>
+      <span class="radio-card-label">দলবদল / ডিগবাজি (Party Hopping)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="political_sub_type_radio" value="statement_denial">
+      <span class="radio-card-icon">🚫</span>
+      <span class="radio-card-label">বক্তব্য প্রত্যাহার (Statement Denial)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="political_sub_type_radio" value="ideological_swing">
+      <span class="radio-card-icon">↔️</span>
+      <span class="radio-card-label">আদর্শিক বিচ্যুতি (Ideological Swing)</span>
+    </label>
+    <label class="radio-card">
+      <input type="radio" name="political_sub_type_radio" value="secret_meeting">
+      <span class="radio-card-icon">🤝</span>
+      <span class="radio-card-label">গোপন বৈঠক (Secret Meeting)</span>
+    </label>
+  </div>
+</div>
+
+{# Radio-to-hidden sync handled by news-watchdog-bangladesh-sub-type.js (CSP-safe) #}

@@ -1,44 +1,60 @@
 {% comment %}
-  Social media source section — platform, URL, embed code.
-  Expects: social_source_form (NewsSocialSourceForm instance)
-           platform_types (queryset of RefPlatformType)
+  Social media source repeater — platform, URL, embed code.
+  Multiple sources per submission.
+  Data serialized to hidden JSON input by JS.
+  Expects: platform_types (queryset of RefPlatformType)
 {% endcomment %}
 
 <div class="form-section" id="section-news-social-source">
   <h3 class="form-section-title"><span class="section-icon">🔗</span>সোশ্যাল মিডিয়া সূত্র (Social Media Source)</h3>
 
-  <div class="form-row-half">
-    {# Platform type dropdown #}
-    <div class="form-field">
-      <label for="social-platform-type">{{ social_source_form.platform_type_id.label }}</label>
-      <select id="social-platform-type" name="platform_type_id">
-        <option value="">-- প্ল্যাটফর্ম নির্বাচন করুন --</option>
-        {% for pt in platform_types %}
-          {% if pt.sort_order == 3 or pt.sort_order == 7 %}
-            <option disabled>──────────────────</option>
-          {% endif %}
-          <option value="{{ pt.platform_type_id }}"
-            data-base-url="{{ pt.platform_base_url|default:'' }}"
-            {% if social_source_form.platform_type_id.value|stringformat:"s" == pt.platform_type_id|stringformat:"s" %}selected{% endif %}>
-            {{ pt.platform_name }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
+  {# Hidden input — JS serializes all social sources here #}
+  <input type="hidden" id="social-source-json" name="social_source_json" value="">
 
-    {# Social URL #}
-    <div class="form-field">
-      <label for="social-source-url">{{ social_source_form.social_source_url.label }}</label>
-      {{ social_source_form.social_source_url }}
-      {% if social_source_form.social_source_url.errors %}
-        <ul class="field-errors">{% for e in social_source_form.social_source_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>
-      {% endif %}
-    </div>
-  </div>
+  {# Repeater row template — cloned by JS for each source #}
+  <template id="social-source-row-template">
+    <div class="social-source-row" data-row-index="">
+      <div class="social-source-row-header">
+        <span class="social-source-row-number"></span>
+        <button type="button" class="btn-repeater-delete btn-remove-social-source" title="ডিলিট করুন (Delete)">ডিলিট <span class="btn-delete-x">&times;</span></button>
+      </div>
 
-  {# Embed code #}
-  <div class="form-field">
-    <label for="social-embed-code">{{ social_source_form.social_embed_code.label }}</label>
-    {{ social_source_form.social_embed_code }}
+      <div class="form-field">
+        <label>প্ল্যাটফর্ম (Platform)</label>
+        <select class="social-row-platform" name="social-source-platform">
+          <option value="">-- প্ল্যাটফর্ম নির্বাচন করুন --</option>
+          {% for pt in platform_types %}
+            {% if pt.sort_order == 3 or pt.sort_order == 7 %}
+              <option disabled>──────────────────</option>
+            {% endif %}
+            <option value="{{ pt.social_media_platform_type_id }}"
+              data-base-url="{{ pt.platform_base_url|default:'' }}">
+              {{ pt.platform_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>সোশ্যাল লিঙ্ক (Social URL)</label>
+        <input type="url" class="social-row-url" name="social-source-url" placeholder="https://facebook.com/...">
+        <div class="social-url-mismatch" style="display:none;"></div>
+      </div>
+
+      <div class="form-field">
+        <label>এম্বেড কোড (Embed Code)</label>
+        <textarea class="social-row-embed" name="social-source-embed" rows="2" placeholder="<iframe>...</iframe>"></textarea>
+      </div>
+    </div>
+  </template>
+
+  {# Container for repeater rows #}
+  <div id="social-source-rows-container"></div>
+
+  {# Add button — after all rows #}
+  <div class="form-field" style="text-align:center;">
+    <button type="button" class="btn-add-social-source" id="btn-add-social-source">
+      ➕ সূত্র যোগ করুন (Add Source)
+    </button>
   </div>
 </div>

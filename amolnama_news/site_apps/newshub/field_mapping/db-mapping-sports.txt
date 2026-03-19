@@ -1,0 +1,133 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: SPORTS FORM (খেলাধুলা সংবাদ)
+================================================================================
+Last updated: 2026-03-13 (Step 3 NOW SAVED — sport_list_id + sub_issue_type_id added to DDL + save block)
+File: amolnama_news/site_apps/newshub/field_mapping/db-mapping-sports.txt
+
+URL view  : news_collection_multistep_sports()
+Template  : newshub/pages/news-collection-multistep-sports.html
+
+Steps 1-3 (common), Location, Social Sources, Category/Tags → see db-mapping-common-steps.txt
+
+LEGEND
+  ✅ CONFIRMED  — DDL verified from actual SQL Server table
+
+NOTE: Steps 3 + 4 + 5 + 6 data are saved as ONE row in sports_form_fact.
+================================================================================
+
+
+================================================================================
+STEP 3: Sport & News Sub-Type
+================================================================================
+POST key  : sports_sport_type  (plain string — status_code, e.g. "cricket")
+             sports_sub_type     (plain string — status_code, e.g. "match_report")
+TABLE     : [investigation].[sports_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  sports_sport_type  →  link_ref_status_sports_form_sport_list_id
+                         INT NULL, FK → [investigation].[ref_status]
+                         group_code=sports_form_sport_list
+                         Resolved server-side: _ref_id('sports_form_sport_list', status_code)
+                         719=football  720=cricket  721=badminton  722=hockey
+                         723=tennis  724=kabaddi  725=athletics  726=swimming
+                         727=chess  728=wrestling  729=shooting  730=boxing
+                         731=table_tennis  732=archery  733=other
+
+  sports_sub_type    →  link_ref_status_sports_form_sub_issue_type_id
+                         INT NULL, FK → [investigation].[ref_status]
+                         group_code=sports_form_sub_issue_type
+                         Resolved server-side: _ref_id('sports_form_sub_issue_type', status_code)
+                         734=match_report  735=tournament_update  736=transfer
+                         737=injury_update  738=record_achievement  739=retirement_debut
+                         740=discipline_controversy
+
+JS: news-sports-sub-type.js
+    Dispatches: sports:sportChanged  { sport: status_code string }
+                sports:subTypeChanged { subType: status_code string }
+
+
+================================================================================
+STEP 4: Match & Event Details (ম্যাচ ও ইভেন্ট তথ্য)
+================================================================================
+Template  : sports-match-event-form.html
+POST key  : sports_match_event_json  (hidden JSON, news-sports-match-event.js)
+TABLE     : [investigation].[sports_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key         →  DB column                                         Type / Notes
+  competitionName  →  event_tournament_name_bn                         NVARCHAR(255) NULL
+  stage            →  event_link_ref_tournament_round_stage_id         INT NULL, FK → ref_status
+                       Resolved server-side: _ref_id('sports_form_tournament_round_stage', stage_code)
+  stageName        →  event_tournament_round_stage_bn                  NVARCHAR(100) NULL
+                       Display text auto-captured from <select> option text by JS
+  venue            →  event_venue_stadium_bn                           NVARCHAR(255) NULL
+  matchDate        →  event_match_date                                 DATE NULL (ISO 8601)
+  matchStatus      →  event_link_ref_match_status_id                   INT NULL, FK → ref_status
+                       Resolved server-side: _ref_id('sports_form_match_status', status_code)
+
+  NOT in this table (no DDL column):
+    matchFormat — removed. Cricket match format has no column in sports_form_fact.
+
+
+================================================================================
+STEP 5: Teams / Players & Result (দল / খেলোয়াড় ও ফলাফল)
+================================================================================
+Template  : sports-teams-result-form.html
+POST key  : sports_teams_result_json  (hidden JSON, news-sports-teams-result.js)
+TABLE     : [investigation].[sports_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key       →  DB column                             Type / Notes
+  teamA          →  match_team_player_a_bn               NVARCHAR(255) NULL
+  teamB          →  match_team_player_b_bn               NVARCHAR(255) NULL
+  scoreA         →  match_score_a                        NVARCHAR(100) NULL (Latin1 collation)
+  scoreB         →  match_score_b                        NVARCHAR(100) NULL (Latin1 collation)
+  result         →  match_result_summary_bn              NVARCHAR(500) NULL
+  tossWinner     →  match_toss_winner_bn                 NVARCHAR(100) NULL (free text team name)
+  tossDecision   →  match_toss_decision_bn               NVARCHAR(100) NULL (free text e.g. ব্যাটিং/ফিল্ডিং)
+  playerOfMatch  →  match_player_of_the_match_bn         NVARCHAR(255) NULL
+
+
+================================================================================
+STEP 6: Key Performances & Records (মূল পারফরম্যান্স ও রেকর্ড)
+================================================================================
+Template  : sports-key-performances-form.html
+POST key  : sports_key_performances_json  (hidden JSON, news-sports-key-performances.js)
+TABLE     : [investigation].[sports_form_fact]
+STATUS    : ✅ CONFIRMED
+
+  JSON key            →  DB column                          Type / Notes
+  performer1Name      →  perf_top_performer_1_name_bn      NVARCHAR(255) NULL
+  performer1Detail    →  perf_top_performer_1_desc_bn      NVARCHAR(500) NULL
+  performer2Name      →  perf_top_performer_2_name_bn      NVARCHAR(255) NULL
+  performer2Detail    →  perf_top_performer_2_desc_bn      NVARCHAR(500) NULL
+  performer3Name      →  perf_top_performer_3_name_bn      NVARCHAR(255) NULL
+  performer3Detail    →  perf_top_performer_3_desc_bn      NVARCHAR(500) NULL
+  records             →  perf_records_milestones_bn        NVARCHAR(MAX) NULL
+  standing            →  perf_tournament_standing_bn       NVARCHAR(500) NULL
+
+  NOT in this table (no DDL column):
+    transferPlayer/From/To/Fee/Contract — removed. No transfer columns.
+    injuryPlayer/Description/Recovery — removed. No injury columns.
+
+Django model: SportsFormFact  (sports/models.py)
+
+
+================================================================================
+SAVE SEQUENCE (on form submit — in _handle_news_submission)
+================================================================================
+1. Read 2 plain POST keys: sports_sport_type, sports_sub_type (status_code strings)
+2. Parse 3 hidden JSON inputs: sports_match_event_json, sports_teams_result_json,
+   sports_key_performances_json
+3. Resolve FK values:
+   - link_ref_status_sports_form_sport_list_id = _ref_id('sports_form_sport_list', sports_sport_type)
+   - link_ref_status_sports_form_sub_issue_type_id = _ref_id('sports_form_sub_issue_type', sports_sub_type)
+   - event_link_ref_tournament_round_stage_id = _ref_id('sports_form_tournament_round_stage', stage_code)
+   - event_link_ref_match_status_id = _ref_id('sports_form_match_status', status_code)
+4. SportsFormFact.objects.create() — single row with all 22 data columns
+   created_at = now (Python-supplied, not DB default)
+
+
+================================================================================
+END OF FILE
+================================================================================

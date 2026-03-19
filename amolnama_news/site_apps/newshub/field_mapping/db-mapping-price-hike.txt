@@ -1,0 +1,191 @@
+================================================================================
+AMOLNAMA NEWS — DB MAPPING: PRICE HIKE & SYNDICATE (দ্রব্যমূল্য ও সিন্ডিকেট)
+================================================================================
+Last updated: 2026-03-10
+Form page:    news-collection-multistep-price-hike.html
+Steps:        12 total
+JS managed:   news-accused-repeater.js, news-victim-repeater.js,
+              news-witness-repeater.js, news-price-hike-price-gap.js,
+              news-price-hike-stockpiling.js
+
+================================================================================
+STEP 1 — Form Type
+POST key: form_type (value: "price_hike_syndicate")
+Mapping: See db-mapping-common-steps.txt → STEP 1
+================================================================================
+
+================================================================================
+STEP 2 — Contributor
+Mapping: See db-mapping-common-steps.txt → STEP 2
+================================================================================
+
+================================================================================
+STEP 3 — News Content (Generic)
+Template: step-news-content-price-hike.html → news-entry-form.html
+          NOTE: Uses generic news-entry-form.html — NO price-hike-specific sub-type picker.
+Mapping: See db-mapping-common-steps.txt → STEP 3
+================================================================================
+
+================================================================================
+STEP 4 — Accused (অভিযুক্ত / সিন্ডিকেট সদস্য)
+Template:     step-accused.html → accused-form.html
+JS file:      news-accused-repeater.js
+Hidden input: #accused-json (name="accused_json")
+Mapping: See db-mapping-actor-repeaters.txt → ACCUSED
+================================================================================
+
+================================================================================
+STEP 5 — Victim (ভুক্তভোগী / ক্ষতিগ্রস্ত ভোক্তা)
+Template:     step-victim.html → victim-form.html
+JS file:      news-victim-repeater.js
+Hidden input: #victim-json (name="victim_json")
+Mapping: See db-mapping-actor-repeaters.txt → VICTIM (basic — no health condition fields)
+================================================================================
+
+================================================================================
+STEP 6 — Witness (সাক্ষী / তথ্যদাতা)
+Template:     step-witness.html → witness-form.html
+JS file:      news-witness-repeater.js
+Hidden input: #witness-json (name="witness_json")
+Mapping: See db-mapping-actor-repeaters.txt → WITNESS
+================================================================================
+
+================================================================================
+STEP 7 — Price Gap & Consumer Impact (মূল্যের ব্যবধান ও ভোক্তা প্রভাব)
+================================================================================
+Template:     step-price-gap.html → price-hike-price-gap-form.html
+JS file:      news-price-hike-price-gap.js
+Hidden input: #price-gap-json (name="price_gap_json")
+
+Commodity search: Tom Select via API (views_api.py commodity search endpoint)
+  Each row: commodity (Tom Select) + govt rate + market rate + consumer impact
+  JS auto-calculates: priceGap = marketRate - govtRate, markupPercent = (gap/govt)*100
+  (These calculated fields are in JSON but NOT saved to DB — display only)
+
+JSON structure (serialized to #price-gap-json):
+  {
+    commodities: [
+      {
+        commodityId:    "<string>"   — commodity_id from ref_commodity (mandatory; row skipped if absent)
+        commodityNameBn: "<string>"  — display only; NOT saved
+        unit:           "<string>"   — display only; NOT saved
+        govtRate:       <float>      — সরকার নির্ধারিত মূল্য
+        marketRate:     <float>      — বাজার মূল্য
+        priceGap:       <float>      — calculated (market - govt); NOT saved
+        markupPercent:  <float>      — calculated markup %; NOT saved
+        consumerImpact: "<string>"   — ভোক্তা প্রভাব (optional)
+      },
+      ...
+    ]
+  }
+
+DB: [investigation].[price_hiking_form_comodity_price] — one row per commodity in array
+  NOTE: table name has typo "comodity" (single m) — matches DB exactly
+  market_commodity_price_impact_id = IDENTITY PK (auto)
+  link_coll_news_entry_id          = entry.coll_news_entry_id
+  link_commodity_id                = int(json.commodityId)          (mandatory)
+  price_govt_fixed_rate            = float(json.govtRate)           decimal(18,2)
+  price_market_rate                = float(json.marketRate)         decimal(18,2)
+  consumer_impact_description_bn   = json.consumerImpact or None    nvarchar(1000)
+  created_at                       = now
+
+Django model: PriceHikingFormCommodityPrice (investigation/models.py)
+Status: ✅ CONFIRMED — save block at views.py (search "price hike form Step 7")
+================================================================================
+
+================================================================================
+STEP 8 — Stockpiling & Supply Impact (মজুদ ও সরবরাহ সংকট)
+================================================================================
+Template:     step-stockpiling.html → price-hike-stockpiling-form.html
+JS file:      news-price-hike-stockpiling.js
+Hidden input: #stockpiling-json (name="stockpiling_json")
+
+JSON structure (serialized to #stockpiling-json):
+  {
+    commodities: [
+      {
+        commodityId:       "<string>"   — commodity_id (mandatory; row skipped if absent)
+        artificialCrisis:  <bool>       — কৃত্রিম সংকট তৈরি হয়েছে
+        description:       "<string>"   — মজুদের বিবরণ (optional)
+        estimatedQuantity: "<string>"   — আনুমানিক মজুদের পরিমাণ (optional)
+        supplyChainIssue:  "<string>"   — সরবরাহ শৃঙ্খলের সংকট (optional)
+      },
+      ...
+    ]
+  }
+
+DB: [investigation].[price_hiking_form_commodity_stock_supply_chain] — one row per commodity in array
+  price_hiking_form_commodity_stock_supply_chain_id = IDENTITY PK (auto)
+  link_coll_news_entry_id          = entry.coll_news_entry_id
+  link_commodity_id                = int(json.commodityId)          (mandatory)
+  is_crisis_artificial_created     = bool(json.artificialCrisis)    bit NOT NULL DEFAULT 0
+  stock_storage_description_bn    = json.description or None       nvarchar(500)
+  stock_estimated_quantity         = json.estimatedQuantity or None  nvarchar(100)
+  supply_chain_crisis_description_bn = json.supplyChainIssue or None nvarchar(500)
+  created_at                       = now
+  modified_at                      = NULL (updated by app on edits)
+
+Django model: PriceHikingFormCommodityStockSupplyChain (investigation/models.py)
+Status: ✅ CONFIRMED — save block at views.py (search "price hike form Step 8")
+================================================================================
+
+================================================================================
+STEP 9 — Location
+Mapping: See db-mapping-common-steps.txt → STEP: Location
+Location hint: বাজার/দোকানের অবস্থান নির্বাচন করুন (market/shop location, not personal address)
+================================================================================
+
+================================================================================
+STEP 10 — Social Sources
+Mapping: See db-mapping-common-steps.txt → STEP: Social Sources
+================================================================================
+
+================================================================================
+STEP 11 — Category / Tags
+Mapping: See db-mapping-common-steps.txt → STEP: Category/Tags
+================================================================================
+
+================================================================================
+STEP 12 — Submit
+No new POST keys; form submission triggered.
+================================================================================
+
+================================================================================
+SAVE SEQUENCE (on form submit)
+================================================================================
+1. [newshub].[coll_news_entry] INSERT
+   - form_type = "price_hike_syndicate"
+   - Returns: new coll_news_entry_id
+
+2. Location data INSERT (per db-mapping-common-steps.txt)
+
+3. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — accused rows
+   Source: accused_json (Step 4) — first person, then profile per card
+   Save operation uses shared helpers: _save_actors_from_json() → _save_actor_person() + _save_actor_profile().
+   See db-mapping-actor-repeaters.txt for full mapping.
+
+4. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — victim rows
+   Source: victim_json (Step 5) — first person, then profile per card
+
+5. [person].[person] + [investigation].[incident_involved_actor_profile] INSERT — witness rows
+   Source: witness_json (Step 6) — first person, then profile per card
+
+6. [investigation].[price_hiking_form_comodity_price] INSERT — one row per commodity
+   Source: price_gap_json (Step 7)
+
+7. [investigation].[price_hiking_form_commodity_stock_supply_chain] INSERT — one row per commodity
+   Source: stockpiling_json (Step 8)
+
+8. Social source data INSERT (per db-mapping-common-steps.txt)
+
+9. Category/Tag associations INSERT (per db-mapping-common-steps.txt)
+================================================================================
+
+================================================================================
+NOTES
+================================================================================
+- priceGap and markupPercent are JS-calculated display values — NOT stored in DB.
+  DB stores only govtRate and marketRate; gap/markup can be re-calculated on read.
+- Both commodity repeater steps share the same Tom Select commodity search API.
+- Actor steps (4-6) use basic repeater — no crime-specific condition/medical fields.
+================================================================================

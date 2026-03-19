@@ -1,0 +1,18 @@
+{% extends "newshub/pages/news-multistep-base.html" %}
+
+{% block multistep_title %}যুদ্ধ ও সংঘাত — War & Conflict (Multi-Step){% endblock %}
+{% block multistep_heading %}যুদ্ধ ও সংঘাত সংবাদ জমা দিন (Submit War & Conflict News){% endblock %}
+
+{% block form_steps %}
+  {% include "newshub/steps/step-form-type.html" with step=1 %}
+  {% include "newshub/steps/step-contributor.html" with step=2 %}
+  {% include "newshub/steps/step-news-content-war-conflict.html" with step=3 %}
+  {% include "newshub/steps/step-war-conflict-parties.html" with step=4 %}
+  {% include "newshub/steps/step-war-conflict-frontline.html" with step=5 %}
+  {% include "newshub/steps/step-war-conflict-humanitarian.html" with step=6 %}
+  {% include "newshub/steps/step-war-conflict-geopolitics.html" with step=7 %}
+  {% include "newshub/steps/step-location.html" with step=8 %}
+  {% include "newshub/steps/step-social-source.html" with step=9 %}
+  {% include "newshub/steps/step-category-tags.html" with step=10 %}
+  {% include "newshub/steps/step-submit.html" with step=11 %}
+{% endblock %}

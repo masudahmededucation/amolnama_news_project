@@ -1,0 +1,603 @@
+/* ========== Split PDF Tool ========== */
+
+.tool-page--split-pdf {
+  max-width: 800px;
+}
+
+.tool-page--split-pdf .tool-subtitle {
+  color: var(--muted);
+  font-size: .9rem;
+  margin: -.75rem 0 1.5rem;
+}
+
+/* ---- Drop Zone ---- */
+
+.spl-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: var(--card);
+}
+
+.spl-dropzone:hover,
+.spl-dropzone.dragover {
+  border-color: #e17055;
+  background: #fff8f5;
+}
+
+.spl-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.spl-dropzone-text {
+  margin: .25rem 0;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.spl-dropzone-or {
+  margin: .35rem 0;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.spl-browse-btn {
+  display: inline-block;
+  padding: .55rem 1.5rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #e17055;
+  background: transparent;
+  border: 1.5px solid #e17055;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .1s;
+}
+
+.spl-browse-btn:hover,
+.spl-browse-btn:active {
+  background: #e17055;
+  color: #fff;
+}
+
+.spl-browse-btn:active {
+  transform: scale(0.96);
+}
+
+.spl-dropzone-hint {
+  margin: .75rem 0 0;
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+/* ---- Error ---- */
+
+.spl-error {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: #fff5f5;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+}
+
+.spl-error p {
+  color: var(--danger);
+  font-weight: 600;
+  font-size: .95rem;
+  margin: 0 0 1rem;
+}
+
+.spl-try-again-btn {
+  padding: .5rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: transparent;
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.spl-try-again-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ---- Workspace ---- */
+
+.spl-workspace {
+  margin-top: 1.5rem;
+}
+
+/* ---- File Info Bar ---- */
+
+.spl-file-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .35rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1rem;
+  padding: .6rem .75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.spl-file-info-name {
+  font-weight: 700;
+  color: var(--primary);
+  word-break: break-all;
+}
+
+.spl-stats-divider {
+  margin: 0 .25rem;
+  color: var(--muted);
+}
+
+.spl-change-btn {
+  margin-left: auto;
+  padding: .25rem .6rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #e17055;
+  background: transparent;
+  border: 1px solid #e17055;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.spl-change-btn:hover {
+  background: #e17055;
+  color: #fff;
+}
+
+/* ---- Toolbar (unified button bar) ---- */
+
+.spl-toolbar {
+  margin-bottom: 1rem;
+  padding: .6rem .75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.spl-toolbar-btns {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.spl-toolbar-btn {
+  padding: .4rem .85rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text);
+  background: #f1f3f5;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.spl-toolbar-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.spl-toolbar-btn:active {
+  transform: scale(0.96);
+}
+
+.spl-toolbar-btn.active {
+  background: #e17055;
+  color: #fff;
+  border-color: #e17055;
+  box-shadow: 0 1px 4px rgba(225, 112, 85, .3);
+}
+
+.spl-toolbar-btn.active:hover {
+  background: #d35400;
+  border-color: #d35400;
+}
+
+/* ---- Pick Counter ---- */
+
+.spl-pick-counter {
+  margin: .45rem 0 0;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+.spl-pick-counter--active {
+  color: #e17055;
+}
+
+/* ---- Range Panel ---- */
+
+.spl-range-panel {
+  margin-bottom: 1rem;
+  padding: .75rem 1rem;
+  background: #fef9f0;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Page Grid (preview only) ---- */
+
+.spl-page-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: .6rem;
+  margin-bottom: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: .25rem;
+}
+
+/* ---- Page Card ---- */
+
+.spl-page-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .5rem .4rem .4rem;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  user-select: none;
+}
+
+/* Selectable state (pick mode) */
+.spl-page-card.spl-selectable {
+  cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+
+.spl-page-card.spl-selectable:hover {
+  border-color: #e17055;
+  background: #fff8f5;
+}
+
+.spl-page-card.spl-selected {
+  border-color: #e17055;
+  background: #fff0ec;
+  box-shadow: 0 0 0 2px rgba(225, 112, 85, .25);
+}
+
+.spl-page-card.spl-selected .spl-page-num {
+  background: #e17055;
+}
+
+/* Selection check mark */
+.spl-page-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .6rem;
+  color: transparent;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.spl-selected .spl-page-check {
+  background: #e17055;
+  border-color: #e17055;
+  color: #fff;
+}
+
+/* Page number */
+.spl-page-num {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Thumbnail */
+.spl-page-thumb {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #f8f9fa;
+  margin-bottom: .25rem;
+}
+
+.spl-page-thumb canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.spl-page-label {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ---- Range Section ---- */
+
+.spl-range-section {
+  margin-bottom: .5rem;
+}
+
+.spl-range-row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  margin-top: .35rem;
+}
+
+.spl-range-hint {
+  margin: .4rem 0 0;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+.spl-range-hint--ok {
+  color: #16a34a;
+}
+
+.spl-range-hint--error {
+  color: var(--danger);
+}
+
+/* ---- Shared ---- */
+
+.spl-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+  opacity: .5;
+}
+
+.spl-options {
+  margin-bottom: .25rem;
+}
+
+.spl-option-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.spl-label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.spl-input {
+  flex: 1;
+  padding: .45rem .75rem;
+  font-size: .85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  min-width: 200px;
+  max-width: 400px;
+  transition: border-color .2s;
+}
+
+.spl-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* ---- Actions ---- */
+
+.spl-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.spl-btn {
+  padding: .6rem 1.25rem;
+  font-size: .9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s, transform .1s, opacity .2s;
+}
+
+.spl-btn:active {
+  transform: scale(0.96);
+}
+
+.spl-btn--split {
+  color: #fff;
+  background: #e17055;
+}
+
+.spl-btn--split:hover {
+  background: #d35400;
+}
+
+.spl-btn--split:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.spl-btn--download {
+  color: #fff;
+  background: var(--primary);
+}
+
+.spl-btn--download:hover {
+  background: var(--primary-hover);
+}
+
+.spl-btn--reset {
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--border);
+}
+
+.spl-btn--reset:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ---- Progress ---- */
+
+.spl-progress {
+  margin-top: 1rem;
+}
+
+.spl-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.spl-progress-fill {
+  height: 100%;
+  width: 0;
+  background: #e17055;
+  border-radius: 4px;
+  transition: width .3s ease;
+}
+
+.spl-progress-text {
+  margin: .5rem 0 0;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---- Result ---- */
+
+.spl-result {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.spl-result-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #16a34a;
+  margin: 0 0 .35rem;
+}
+
+.spl-result-info {
+  font-size: .82rem;
+  color: var(--text);
+  margin-bottom: .75rem;
+}
+
+/* ---- Privacy message ---- */
+
+.spl-privacy {
+  margin-top: 2rem;
+  font-size: .78rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .spl-dropzone {
+    padding: 2rem 1rem;
+  }
+
+  .spl-page-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: .4rem;
+    max-height: 400px;
+  }
+
+  .spl-page-thumb {
+    height: 90px;
+  }
+
+  .spl-toolbar-btns {
+    gap: .3rem;
+  }
+
+  .spl-toolbar-btn {
+    padding: .35rem .6rem;
+    font-size: .72rem;
+  }
+
+  .spl-range-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .spl-option-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .spl-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .spl-actions {
+    flex-direction: column;
+  }
+
+  .spl-btn {
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
+  }
+
+  .spl-file-info {
+    font-size: .78rem;
+  }
+}

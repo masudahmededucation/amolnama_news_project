@@ -1,0 +1,82 @@
+{% comment %}
+  Price Gap — Commodity Price Repeater.
+  Each row: commodity (Tom Select) + govt rate + market rate + auto-calc gap/markup%
+  + consumer impact textarea.
+  Multiple commodities per submission.
+  Data serialized to hidden JSON input by JS.
+{% endcomment %}
+
+<div class="form-section" id="section-price-gap">
+  <h3 class="form-section-title"><span class="section-icon">📊</span>পণ্য মূল্য পার্থক্য (Commodity Price Gap)</h3>
+
+  {# Hidden input — JS serializes all commodity prices here #}
+  <input type="hidden" id="price-gap-json" name="price_gap_json" value="">
+
+  {# Embed commodity API URL as CSP-safe JSON #}
+  <script type="application/json" id="commodity-search-url-data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
+
+  {# Repeater row template — cloned by JS for each commodity #}
+  <template id="commodity-row-template">
+    <div class="commodity-price-row" data-row-index="">
+      <div class="commodity-row-header">
+        <span class="commodity-row-number"></span>
+        <button type="button" class="btn-repeater-delete btn-remove-commodity" title="ডিলিট করুন (Delete)">ডিলিট <span class="btn-delete-x">&times;</span></button>
+      </div>
+
+      <div class="form-field">
+        <label>পণ্য নির্বাচন (Select Commodity)</label>
+        <select class="commodity-select" name="commodity-select" placeholder="পণ্যের নাম লিখুন... (Type commodity name...)"></select>
+      </div>
+
+      {# Commodity detail display — shown after selection #}
+      <div class="commodity-detail-display" style="display:none;">
+        <span class="commodity-detail-tag"><strong>গ্রুপ:</strong> <span class="commodity-row-group"></span></span>
+        <span class="commodity-detail-tag"><strong>ভ্যারিয়েন্ট:</strong> <span class="commodity-row-variant"></span></span>
+        <span class="commodity-detail-tag"><strong>একক:</strong> <span class="commodity-row-unit"></span></span>
+      </div>
+
+      <div class="form-field">
+        <label>সরকারি/নির্ধারিত মূল্য (Govt/Fixed Rate)</label>
+        <div class="input-with-suffix">
+          <input type="number" class="commodity-govt-rate" name="commodity-govt-rate" min="0" step="0.01" placeholder="০.০০">
+          <span class="input-suffix">টাকা (BDT)</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>বাজার মূল্য (Market Rate)</label>
+        <div class="input-with-suffix">
+          <input type="number" class="commodity-market-rate" name="commodity-market-rate" min="0" step="0.01" placeholder="০.০০">
+          <span class="input-suffix">টাকা (BDT)</span>
+        </div>
+      </div>
+
+      <div class="price-gap-calculated commodity-gap-display" style="display:none;">
+        <div class="price-gap-row">
+          <span class="price-gap-label">মূল্য পার্থক্য (Price Gap):</span>
+          <span class="price-gap-value commodity-gap-diff">০.০০ টাকা</span>
+        </div>
+        <div class="price-gap-row">
+          <span class="price-gap-label">মূল্য বৃদ্ধির হার (Markup %):</span>
+          <span class="price-gap-value commodity-gap-markup">০.০০%</span>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>ভোক্তার ক্ষতির বিবরণ (Consumer Impact Description)</label>
+        <textarea class="commodity-consumer-impact" name="commodity-consumer-impact" rows="2"
+                  placeholder="এই পণ্যে ভোক্তারা কীভাবে ক্ষতিগ্রস্ত... (How consumers are affected by this commodity...)"></textarea>
+      </div>
+    </div>
+  </template>
+
+  {# Container for repeater rows #}
+  <div id="commodity-rows-container"></div>
+
+  {# Add button — after all rows #}
+  <div class="form-field" style="text-align:center;">
+    <button type="button" class="btn-add-commodity" id="btn-add-commodity">
+      ➕ পণ্য যোগ করুন (Add Commodity)
+    </button>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/travel-hub.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="th-header">
+  <div class="th-header-left">
+    <h1>দর্শনীয় স্থান যোগ করুন (Add Destination)</h1>
+    <p>নতুন দর্শনীয় স্থানের তথ্য শেয়ার করুন</p>
+  </div>
+</section>
+
+<form id="thAddForm" novalidate style="max-width:700px;">
+  <div style="margin-bottom:1rem;">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">ধরন (Category) *</label>
+    <select id="th-category" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" required>
+      <option value="">-- বাছাই করুন --</option>
+      {% for cat in categories %}
+        <option value="{{ cat.bangladesh_ref_destination_category_id }}">{{ cat.destination_category_name_bn }} ({{ cat.destination_category_name_en }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="margin-bottom:1rem;">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">স্থানের নাম (বাংলা) *</label>
+    <input type="text" id="th-name-bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার সমুদ্র সৈকত">
+  </div>
+
+  <div style="margin-bottom:1rem;">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">Name (English)</label>
+    <input type="text" id="th-name-en" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="e.g. Cox's Bazar Sea Beach">
+  </div>
+
+  <div style="margin-bottom:1rem;">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
+    <textarea id="th-short-desc-bn" rows="2" maxlength="500" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="সংক্ষেপে বর্ণনা করুন..."></textarea>
+  </div>
+
+  <div style="margin-bottom:1rem;">
+    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">বিস্তারিত বিবরণ (বাংলা)</label>
+    <textarea id="th-desc-bn" rows="5" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="দর্শনীয় স্থানের বিস্তারিত বর্ণনা..."></textarea>
+  </div>
+
+  <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+    <div style="flex:1;">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">সেরা ঋতু (Best Season)</label>
+      <select id="th-season" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
+        <option value="">-- ঐচ্ছিক --</option>
+        {% for s in seasons %}
+          <option value="{{ s.bangladesh_ref_season_id }}">{{ s.season_name_bn }} ({{ s.season_months }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="flex:1;">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">কঠিনতা (Difficulty)</label>
+      <select id="th-difficulty" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
+        <option value="">-- ঐচ্ছিক --</option>
+        <option value="easy">সহজ (Easy)</option>
+        <option value="moderate">মাঝারি (Moderate)</option>
+        <option value="hard">কঠিন (Hard)</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+    <div style="flex:1;">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">প্রবেশ মূল্য (৳)</label>
+      <input type="number" id="th-entry-fee" step="0.01" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: 200">
+    </div>
+    <div style="flex:1;">
+      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;">পরিদর্শন সময়</label>
+      <input type="text" id="th-visiting-hours" maxlength="200" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সকাল ৮টা - সন্ধ্যা ৬টা">
+    </div>
+  </div>
+
+  <div id="thAddError" style="color:#e74c3c;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
+
+  <button type="submit" id="thAddSubmit" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;">
+    প্রকাশ করুন (Publish)
+  </button>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'bangladesh/assets/js/pages/travel-hub-add.js' %}"></script>
+{% endblock %}

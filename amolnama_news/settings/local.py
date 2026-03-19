@@ -22,7 +22,7 @@ db_options = {"driver": env("DB_DRIVER")}
 
 DATABASES = {
 	"default": {
-		"ENGINE": "mssql",
+		"ENGINE": "amolnama_news.db_backend",
 		"NAME": env("DB_NAME"),
 		"HOST": env("DB_HOST"),
 		"OPTIONS": db_options,

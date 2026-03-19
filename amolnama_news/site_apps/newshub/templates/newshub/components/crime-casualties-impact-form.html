@@ -1,0 +1,54 @@
+{% comment %}
+  Casualties & Impact section — death/injury counts, property destruction.
+  Crime & Violence form type specific.
+  UI-only for now; data serialized to hidden JSON input for form submission.
+  Saved to [investigation].[incident_evidence_impact_casualty] on submit.
+{% endcomment %}
+
+<div class="form-section" id="section-casualties-impact">
+  <h3 class="form-section-title"><span class="section-icon">🩹</span>হতাহত ও ক্ষয়ক্ষতি (Casualties & Impact)</h3>
+
+  {# ---- Casualty Counts ---- #}
+  <h4 class="form-subsection-title">হতাহতের সংখ্যা (Casualty Count)</h4>
+
+  <div class="form-field">
+    <label for="impact-death-count">নিহত সংখ্যা (Death Count)</label>
+    <input type="number" id="impact-death-count" name="impact_death_count"
+           min="0" step="1" placeholder="০ (0)">
+  </div>
+
+  <div class="form-field">
+    <label for="impact-injury-count">আহত সংখ্যা (Injury Count)</label>
+    <input type="number" id="impact-injury-count" name="impact_injury_count"
+           min="0" step="1" placeholder="০ (0)">
+  </div>
+
+  {# ---- Property Destruction ---- #}
+  <h4 class="form-subsection-title">সম্পত্তি ধ্বংস (Property Destruction)</h4>
+  <div class="form-field">
+    <label for="impact-property-destruction">সম্পত্তি ধ্বংসের বিবরণ (Destruction Description)</label>
+    <textarea id="impact-property-destruction" name="impact_property_destruction_bn" rows="3" maxlength="2000"
+              placeholder="ঘরবাড়ি পোড়ানো, দোকান লুটপাট, গাড়ি ভাঙচুর ইত্যাদি (Arson, looting, vehicle vandalism, etc.)"></textarea>
+  </div>
+
+  {# ---- Estimated Damage ---- #}
+  <div class="form-field">
+    <label for="impact-damage-amount">আনুমানিক ক্ষতির পরিমাণ (Estimated Damage Amount)</label>
+    <div class="input-suffix-group">
+      <input type="number" id="impact-damage-amount" name="impact_damage_amount_bdt"
+             min="0" step="1" placeholder="পরিমাণ লিখুন (Enter amount)">
+      <span class="input-suffix">টাকা (BDT)</span>
+    </div>
+  </div>
+
+  {# ---- Is Ongoing? ---- #}
+  <div class="form-field">
+    <label class="checkbox-label">
+      <input type="checkbox" id="impact-is-ongoing" name="impact_is_ongoing">
+      ঘটনা এখনো চলমান (Incident is still ongoing)
+    </label>
+  </div>
+
+  {# Hidden JSON input — JS serializes casualties data here before submit #}
+  <input type="hidden" id="casualties-impact-json" name="casualties_impact_json" value="">
+</div>

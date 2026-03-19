@@ -1,0 +1,17 @@
+{% extends "newshub/pages/news-multistep-base.html" %}
+
+{% block multistep_title %}খেলাধুলা — Sports (Multi-Step){% endblock %}
+{% block multistep_heading %}খেলাধুলা সংবাদ জমা দিন (Submit Sports News){% endblock %}
+
+{% block form_steps %}
+  {% include "newshub/steps/step-form-type.html" with step=1 %}
+  {% include "newshub/steps/step-contributor.html" with step=2 %}
+  {% include "newshub/steps/step-news-content-sports.html" with step=3 %}
+  {% include "newshub/steps/step-sports-match-event.html" with step=4 %}
+  {% include "newshub/steps/step-sports-teams-result.html" with step=5 %}
+  {% include "newshub/steps/step-sports-key-performances.html" with step=6 %}
+  {% include "newshub/steps/step-location.html" with step=7 %}
+  {% include "newshub/steps/step-social-source.html" with step=8 %}
+  {% include "newshub/steps/step-category-tags.html" with step=9 %}
+  {% include "newshub/steps/step-submit.html" with step=10 %}
+{% endblock %}

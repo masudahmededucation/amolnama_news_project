@@ -1,0 +1,61 @@
+{% comment %}
+  Key Performances & Records — top 3 performers, records/milestones,
+  tournament standing.
+  Sports form — Step 6.
+  Data is serialized by news-sports-key-performances.js into #sports-key-performances-json.
+  DB table: [investigation].[sports_form_fact]
+{% endcomment %}
+
+<div class="form-section" id="section-sports-key-performances">
+  <h3 class="form-section-title"><span class="section-icon">🏅</span>মূল পারফরম্যান্স ও রেকর্ড (Key Performances &amp; Records)</h3>
+
+  {# Hidden input — JS serializes all data here before submit #}
+  <input type="hidden" id="sports-key-performances-json" name="sports_key_performances_json" value="">
+
+  {# ---- Top Performers ---- #}
+  <div class="form-subsection">
+    <h4 class="form-subsection-title">সেরা পারফর্মার (Top Performers)</h4>
+    <div class="form-grid-2col">
+      <div class="form-field">
+        <label for="sports-performer-1-name">পারফর্মার ১ — নাম</label>
+        <input type="text" id="sports-performer-1-name"
+               placeholder="যেমন: Shakib Al Hasan, Messi, Neeraj Chopra">
+      </div>
+      <div class="form-field">
+        <label for="sports-performer-1-detail">পারফর্মার ১ — পারফরম্যান্স বিবরণ</label>
+        <input type="text" id="sports-performer-1-detail"
+               placeholder="যেমন: ৪ উইকেট ৩২ রানে, 2 goals, ৮৮.১৩ মি নিক্ষেপ">
+      </div>
+
+      <div class="form-field">
+        <label for="sports-performer-2-name">পারফর্মার ২ — নাম <span class="field-optional">(ঐচ্ছিক)</span></label>
+        <input type="text" id="sports-performer-2-name" placeholder="">
+      </div>
+      <div class="form-field">
+        <label for="sports-performer-2-detail">পারফর্মার ২ — বিবরণ <span class="field-optional">(ঐচ্ছিক)</span></label>
+        <input type="text" id="sports-performer-2-detail" placeholder="">
+      </div>
+
+      <div class="form-field">
+        <label for="sports-performer-3-name">পারফর্মার ৩ — নাম <span class="field-optional">(ঐচ্ছিক)</span></label>
+        <input type="text" id="sports-performer-3-name" placeholder="">
+      </div>
+      <div class="form-field">
+        <label for="sports-performer-3-detail">পারফর্মার ৩ — বিবরণ <span class="field-optional">(ঐচ্ছিক)</span></label>
+        <input type="text" id="sports-performer-3-detail" placeholder="">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-records-milestones">রেকর্ড ও মাইলফলক (Records &amp; Milestones)</label>
+    <textarea id="sports-records-milestones" rows="2"
+              placeholder="যেমন: দ্রুততম সেঞ্চুরি · ১০০তম আন্তর্জাতিক গোল · টি-টোয়েন্টিতে সর্বোচ্চ রান · বিশ্বরেকর্ড..."></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="sports-tournament-standing">টুর্নামেন্ট অবস্থান (Tournament Standing)</label>
+    <input type="text" id="sports-tournament-standing"
+           placeholder="যেমন: সিরিজে ২-১ এগিয়ে · পয়েন্ট টেবিলে ৩য় · গ্রুপ শীর্ষে">
+  </div>
+</div>

@@ -1,0 +1,122 @@
+================================================================================
+TOOL: PDF Splitter (পিডিএফ স্প্লিট)
+================================================================================
+
+URL:        /tools/split-pdf/
+View:       tools_split_pdf
+Template:   tools/tools-split-pdf.html
+JS:         tools/assets/js/pages/tools-split-pdf.js
+CSS:        tools/assets/css/pages/tools-split-pdf.css
+
+External Libraries:
+  - pdf-lib 1.17.1 (CDN) — PDF creation/manipulation
+  - pdfjs-dist 3.11.174 (CDN) — PDF rendering for thumbnails
+
+Processing: 100% client-side (no server upload)
+
+================================================================================
+FEATURES
+================================================================================
+
+1. SINGLE PDF INPUT
+   - Drag & drop or browse for one PDF file
+   - Max file size: 200 MB
+   - Validates file type (PDF only)
+   - Handles encrypted/password-protected PDFs (with ignoreEncryption)
+
+2. PAGE THUMBNAILS
+   - All pages rendered as visual thumbnails in a scrollable grid
+   - Rendered progressively (one per rAF tick) to prevent UI jank
+   - Scale: 0.4x of original page size
+   - Scrollable container: max-height 500px
+
+3. PAGE SELECTION (click to toggle)
+   - Click any page card to select/deselect
+   - Visual feedback: orange border + checkmark badge
+   - All pages selected by default on load
+
+4. SELECTION HELPERS
+   - সব নির্বাচন (Select All) — selects every page
+   - কিছুই না (Select None) — deselects all
+   - বিজোড় (Odd) — selects pages 1, 3, 5, ...
+   - জোড় (Even) — selects pages 2, 4, 6, ...
+   - উল্টান (Invert) — flips selection
+
+5. RANGE INPUT
+   - Text input for page ranges: "1-5, 8, 11-15"
+   - Comma-separated values, dash for ranges
+   - Enter key triggers apply
+   - Deselects all first, then selects specified pages
+
+6. SPLIT OPERATION
+   - Uses pdf-lib to create new PDF with only selected pages
+   - Sequential page copy with progress bar (0-85% per page, 90% building, 100% done)
+   - setTimeout(50) before heavy work to let UI update
+   - Shows page count and file size in result
+
+7. DOWNLOAD
+   - Single PDF download with custom filename
+   - Blob URL revoked after 3 seconds
+
+8. FILE CHANGE
+   - "পরিবর্তন" button resets and opens file picker for new PDF
+
+9. RESET
+   - Clears all state, returns to dropzone
+
+10. RESPONSIVE
+    - Grid adapts: 110px min on desktop, 90px on mobile
+    - Buttons go full-width on mobile
+    - Selection bar stacks vertically on small screens
+
+================================================================================
+DOM ELEMENT IDS
+================================================================================
+
+spl-dropzone, spl-file-input, spl-browse-btn
+spl-error, spl-error-text, spl-try-again-btn
+spl-workspace
+spl-file-name, spl-file-pages, spl-file-size, spl-change-btn
+spl-page-grid
+spl-selected-count
+spl-select-all, spl-select-none, spl-select-odd, spl-select-even, spl-select-invert
+spl-range-input, spl-range-apply
+spl-output-name
+spl-split-btn, spl-reset-btn
+spl-progress, spl-progress-fill, spl-progress-text
+spl-result, spl-result-pages, spl-result-size, spl-download-btn
+
+================================================================================
+KEY FUNCTIONS
+================================================================================
+
+loadPdf(file)            — validates and loads PDF, renders thumbnails
+buildPageGrid(pdfDoc)    — creates page cards with progressive thumbnail rendering
+createPageCard(index)    — builds one page card with thumbnail + check + number
+selectAll/None/Odd/Even/Invert() — selection helpers
+applyRange()             — parses range string and applies selection
+doSplit()                — creates new PDF with selected pages using pdf-lib
+downloadSplit()          — triggers download of split PDF
+resetAll()               — clears state and returns to dropzone
+updateSelectedCount()    — updates selected count display and split button state
+updateCardStyles()       — syncs card CSS classes with selection state
+
+================================================================================
+STATE VARIABLES
+================================================================================
+
+pdfBytes        — ArrayBuffer of loaded PDF
+totalPages      — number of pages in source PDF
+selected        — boolean[] parallel to pages (true = selected)
+splitBlob       — Blob of result PDF (null until split)
+splitting       — boolean flag to prevent concurrent splits
+
+================================================================================
+USE CASES
+================================================================================
+
+- Extract specific pages from a large document
+- Remove unwanted pages from a PDF
+- Split a scanned document into individual pages
+- Extract odd/even pages for duplex printing
+- Create a subset PDF for sharing specific sections

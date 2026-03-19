@@ -1,0 +1,42 @@
+{% comment %}
+  Accused Form — single-role repeater for অভিযুক্ত পক্ষ (accused party/suspects).
+  Used by: Crime & Violence, Extortion, Land Grab, Price Hike, Civic & Community.
+  Reference data (#actor-involvement-types-data, #actor-types-data) is embedded here
+  and shared by victim and witness repeater JS files on the same page.
+  Data is serialized to #accused-json hidden input by news-accused-repeater.js.
+{% endcomment %}
+
+<div class="form-section" id="section-accused">
+  <h3 class="form-section-title"><span class="section-icon">🔴</span>অভিযুক্ত পক্ষ / সন্দেহভাজন (Accused Party / Suspects)</h3>
+
+  {# Hidden input — JS serializes the accused array here before submit #}
+  <input type="hidden" id="accused-json" name="accused_json" value="">
+
+  {# Add button #}
+  <div class="actor-add-buttons" id="accused-add-btn-wrap">
+    <button type="button" class="actor-add-btn actor-add-accused" id="accused-add-btn">
+      + অভিযুক্ত পক্ষ যোগ করুন (Add Accused Party)
+    </button>
+  </div>
+
+  {# Dynamic cards rendered here by news-accused-repeater.js #}
+  <div id="accused-list"></div>
+
+  {# Empty state #}
+  <div class="actor-empty-state" id="accused-empty-state">
+    এখনো কোনো অভিযুক্ত পক্ষ যোগ করা হয়নি।
+    <br><small>(No accused party added yet. Click the button above to add one.)</small>
+  </div>
+</div>
+
+<div class="form-section" id="section-accused-photos">
+  <h3 class="form-section-title"><span class="section-icon">🕵️</span>অভিযুক্ত পক্ষের ছবি ও পরিচিতিমূলক নথি (Accused Party — Identification Evidence)</h3>
+  {% include "newshub/components/file-upload-section.html" with upload_prefix="accused-photos" upload_name="accused_photos" upload_accept="image/*" upload_label="অভিযুক্ত পক্ষের ছবি আপলোড করুন — সর্বোচ্চ ৩টি (Upload accused party's photo, max 3)" upload_btn_label="+ অভিযুক্ত পক্ষের ছবি যোগ করুন (Add photo)" upload_desc_name="accused_photos_descriptions_json" upload_hint="পরিচয় শনাক্তকরণে সহায়ক ছবি দিন — যেমন CCTV বা ক্যামেরার ফুটেজ স্ক্রিনশট, সোশ্যাল মিডিয়া প্রোফাইল ছবি, জাতীয় পরিচয়পত্রের কপি বা ঘটনাস্থলে ধারণকৃত ছবি (CCTV screenshot, social media profile, NID copy or scene photo)" %}
+</div>
+
+{# Reference data — shared by victim & witness JS files (must be in accused step) #}
+<script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>

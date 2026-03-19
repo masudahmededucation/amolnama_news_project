@@ -1,0 +1,58 @@
+{% comment %}
+  Watchdog Bangladesh — Women Fixer Watchdog fields.
+  Tracks women trafficking/fixer networks (নারী সরবরাহ নজরদারি).
+  JS: news-watchdog-bangladesh-women-fixer.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-women-fixer" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">⛓️</span>নারী সরবরাহ নজরদারি (Women Fixer Watchdog)</h3>
+
+  {# Hidden input — JS serializes women fixer data here before submit #}
+  <input type="hidden" id="women-fixer-json" name="women_fixer_json" value="">
+
+  <div class="form-field">
+    <label for="women-fixer-incident-type">ঘটনার ধরন (Incident Type)<span class="required-mark">*</span></label>
+    <select id="women-fixer-incident-type">
+      <option value="">-- নির্বাচন করুন (Select) --</option>
+      <option value="trafficking">নারী পাচার (Trafficking)</option>
+      <option value="escort_providing">এসকর্ট সরবরাহ (Escort Providing)</option>
+      <option value="sexual_favor">যৌন সুবিধা প্রদান (Sexual Favor)</option>
+      <option value="predatory_broker">রক্ষক বেশে ভক্ষক (Predatory Broker)</option>
+      <option value="other">অন্যান্য (Other)</option>
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-incident-description">ঘটনার বিবরণ (Incident Description)<span class="required-mark">*</span></label>
+    <textarea id="women-fixer-incident-description" rows="3"
+              placeholder="ঘটনার বিস্তারিত বিবরণ... (Detailed description of the incident...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-incident-date">ঘটনার তারিখ (Incident Date)</label>
+    <input type="date" id="women-fixer-incident-date">
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-victim-count">ক্ষতিগ্রস্ত ব্যক্তির সংখ্যা (Number of Victims)</label>
+    <input type="number" id="women-fixer-victim-count" min="0"
+           placeholder="সংখ্যা... (Number...)">
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-network-description">নেটওয়ার্কের বিবরণ (Network Description)</label>
+    <textarea id="women-fixer-network-description" rows="2"
+              placeholder="জড়িত নেটওয়ার্কের বিবরণ... (Description of the involved network...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-legal-action">আইনি পদক্ষেপ (Legal Action Taken)</label>
+    <textarea id="women-fixer-legal-action" rows="2"
+              placeholder="কী আইনি পদক্ষেপ নেওয়া হয়েছে... (What legal action has been taken...)"></textarea>
+  </div>
+
+  <div class="form-field">
+    <label for="women-fixer-source">সূত্র/প্রমাণ লিঙ্ক (Source/Proof Link)</label>
+    <input type="url" id="women-fixer-source" placeholder="https://...">
+  </div>
+</div>

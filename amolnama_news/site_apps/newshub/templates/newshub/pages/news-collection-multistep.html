@@ -1,0 +1,12 @@
+{% extends "newshub/pages/news-multistep-base.html" %}
+
+{% block form_steps %}
+  {% include "newshub/steps/step-form-type.html" with step=1 %}
+  {% include "newshub/steps/step-contributor.html" with step=2 %}
+  {% include "newshub/steps/step-news-content.html" with step=3 %}
+  {% include "newshub/steps/step-location.html" with step=4 %}
+  {% include "newshub/steps/step-attachment.html" with step=5 %}
+  {% include "newshub/steps/step-social-source.html" with step=6 %}
+  {% include "newshub/steps/step-category-tags.html" with step=7 %}
+  {% include "newshub/steps/step-submit.html" with step=8 %}
+{% endblock %}

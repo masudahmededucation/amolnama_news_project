@@ -1,0 +1,59 @@
+{% comment %}
+  July Uprising 2024 — Martyr/Injured Profile.
+  Five groups, each using a reusable component with prefix="july-martyr":
+    1. নাম ও পরিচিতি         — person-name-alias-fields.html (includes father name)
+    2. ব্যক্তিগত পরিচয়       — person-personal-info-fields.html (universal: Gender, Religion, Age, DOB, District, Contact)
+    3. পেশা ও কর্মস্থল        — person-occupation-fields.html (Occupation, Institution)
+    4. পারিবারিক পরিচয়       — person-family-name-fields.html (mother only)
+    5. শহীদের বাড়ির ঠিকানা  — july-martyr-home-location.html
+  Data serialized to hidden JSON input by news-july-uprising-martyr.js.
+  Home location cascade driven by news-july-martyr-home-location.js.
+{% endcomment %}
+
+<div class="form-section" id="section-july-martyr">
+  <h3 class="form-section-title"><span class="section-icon">🕯️</span>শহীদ/আহত পরিচিতি (Martyr/Injured Profile)</h3>
+
+  {# Hidden input — JS serializes all martyr data here before submit #}
+  <input type="hidden" id="july-martyr-json" name="july_martyr_json" value="">
+
+  {# ======================================================= #}
+  {# Group 1 — Name & Identity                               #}
+  {# ======================================================= #}
+  <div class="martyr-profile-group">
+    <h4 class="martyr-group-title"><span class="section-icon">📝</span>নাম ও পরিচিতি (Name & Identity)</h4>
+    {% include "newshub/components/person-name-alias-fields.html" with prefix="july-martyr" label_main="শহীদ/আহতের নাম *" alias_placeholder="যেমন: 'শাওন', 'শান্ত', 'Gunner Selim'" %}
+  </div>
+
+  {# ======================================================= #}
+  {# Group 2 — Personal Identity (universal)                 #}
+  {# ======================================================= #}
+  <div class="martyr-profile-group">
+    <h4 class="martyr-group-title"><span class="section-icon">👤</span>ব্যক্তিগত পরিচয় (Personal Identity)</h4>
+    {% include "newshub/components/person-personal-info-fields.html" with prefix="july-martyr" genders=july_genders religions=july_religions districts=july_districts %}
+  </div>
+
+  {# ======================================================= #}
+  {# Group 3 — Occupation & Workplace                        #}
+  {# ======================================================= #}
+  <div class="martyr-profile-group">
+    <h4 class="martyr-group-title"><span class="section-icon">💼</span>পেশা ও কর্মস্থল (Occupation & Workplace)</h4>
+    {% include "newshub/components/person-occupation-fields.html" with prefix="july-martyr" occupations=july_occupations %}
+  </div>
+
+  {# ======================================================= #}
+  {# Group 4 — Family & Social Roots                         #}
+  {# ======================================================= #}
+  <div class="martyr-profile-group">
+    <h4 class="martyr-group-title"><span class="section-icon">🏡</span>পারিবারিক ও সামাজিক পরিচয় (Family & Social Roots)</h4>
+    {% include "newshub/components/person-family-name-fields.html" with prefix="july-martyr" %}
+  </div>
+
+  {# ======================================================= #}
+  {# Group 5 — Home Address                                  #}
+  {# ======================================================= #}
+  <div class="martyr-profile-group">
+    <h4 class="martyr-group-title"><span class="section-icon">🏠</span>শহীদের বাড়ির ঠিকানা (Martyr's Home Address)</h4>
+    {% include "newshub/components/july-martyr-home-location.html" %}
+  </div>
+
+</div>

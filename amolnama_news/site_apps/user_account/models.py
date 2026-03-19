@@ -106,6 +106,7 @@ class UserProfile(models.Model):
     otp_verified_at = models.DateTimeField(blank=True, null=True)
     otp_attempt_count = models.IntegerField(blank=True, null=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
+    language_pref = models.CharField(max_length=2, blank=True, null=True)
     professional_bio_summary_bn = models.CharField(max_length=200, blank=True, null=True)
     professional_bio_description_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_blocked = models.BooleanField(blank=True, null=True)
@@ -208,42 +209,6 @@ class UserSession(models.Model):
 # Unmanaged models — [person] schema (SQL Server is source of truth)
 # ---------------------------------------------------------------------------
 
-class RefGender(models.Model):
-    """Maps to [person].[ref_gender]. Managed by SQL Server."""
-
-    gender_id = models.IntegerField(primary_key=True)
-    gender_name_en = models.CharField(max_length=50, blank=True, null=True)
-    gender_name_bn = models.CharField(max_length=50, blank=True, null=True)
-    is_active = models.BooleanField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[person].[ref_gender]'
-        verbose_name = "Gender"
-        verbose_name_plural = "Genders"
-
-    def __str__(self):
-        return self.gender_name_en or f"Gender({self.gender_id})"
-
-
-class RefReligion(models.Model):
-    """Maps to [person].[ref_religion]. Managed by SQL Server."""
-
-    religion_id = models.IntegerField(primary_key=True)
-    religion_name_en = models.CharField(max_length=50, blank=True, null=True)
-    religion_name_bn = models.CharField(max_length=50, blank=True, null=True)
-    is_active = models.BooleanField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[person].[ref_religion]'
-        verbose_name = "Religion"
-        verbose_name_plural = "Religions"
-
-    def __str__(self):
-        return self.religion_name_en or f"Religion({self.religion_id})"
-
-
 class Person(models.Model):
     """Maps to [person].[person]. Managed by SQL Server."""
 
@@ -252,29 +217,35 @@ class Person(models.Model):
     # Django never sends a value and the DB generates it automatically.
     link_gender_id = models.IntegerField(blank=True, null=True)
     link_religion_id = models.IntegerField(blank=True, null=True)
+    link_marital_status_id = models.IntegerField(blank=True, null=True)
     title_en = models.CharField(max_length=50, blank=True, null=True)
     title_bn = models.CharField(max_length=50, blank=True, null=True)
-    first_name_en = models.CharField(max_length=100, blank=True, null=True)
-    last_name_en = models.CharField(max_length=100, blank=True, null=True)
+    first_name_en = models.CharField(max_length=100)
+    last_name_en = models.CharField(max_length=100)
     first_name_bn = models.CharField(max_length=100, blank=True, null=True)
     last_name_bn = models.CharField(max_length=100, blank=True, null=True)
-    nick_name_en = models.CharField(max_length=100, blank=True, null=True)
-    nick_name_bn = models.CharField(max_length=100, blank=True, null=True)
-    father_name_en = models.CharField(max_length=200, blank=True, null=True)
-    father_name_bn = models.CharField(max_length=200, blank=True, null=True)
-    mother_name_en = models.CharField(max_length=200, blank=True, null=True)
-    mother_name_bn = models.CharField(max_length=200, blank=True, null=True)
-    date_of_birth = models.DateField(blank=True, null=True)
+    name_alias_en = models.CharField(max_length=100, blank=True, null=True)
+    name_alias_bn = models.CharField(max_length=100, blank=True, null=True)
+    father_first_name_en = models.CharField(max_length=100, blank=True, null=True)
+    father_last_name_en = models.CharField(max_length=100, blank=True, null=True)
+    mother_first_name_en = models.CharField(max_length=100, blank=True, null=True)
+    mother_last_name_en = models.CharField(max_length=100, blank=True, null=True)
+    father_first_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    father_last_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    mother_first_name_bn = models.CharField(max_length=100, blank=True, null=True)
+    mother_last_name_bn = models.CharField(max_length=100, blank=True, null=True)
     link_birth_district_id = models.IntegerField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
     birth_certificate_number = models.CharField(max_length=50, blank=True, null=True)
-    nid_card_number = models.CharField(max_length=20, blank=True, null=True)
+    nid_card_number = models.CharField(max_length=17, blank=True, null=True)
     hash_nid_card_number = models.BinaryField(blank=True, null=True)
     primary_mobile_number = models.CharField(max_length=20, blank=True, null=True)
-    primary_email_address = models.CharField(max_length=200, blank=True, null=True)
-    name_tag = models.CharField(max_length=200, blank=True, null=True)
-    notes = models.CharField(max_length=1000, blank=True, null=True)
-    is_protected = models.BooleanField(default=False)
-    is_active = models.BooleanField(blank=True, null=True)
+    primary_email_address = models.CharField(max_length=100, blank=True, null=True)
+    name_tag = models.CharField(max_length=100, blank=True, null=True)
+    is_protected = models.BooleanField(blank=True, null=True)
+    notes = models.CharField(max_length=200, blank=True, null=True)
+    is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
 
@@ -292,17 +263,17 @@ class Person(models.Model):
 class PersonAddress(models.Model):
     """Maps to [person].[person_address]. Junction table linking Person to Address."""
 
-    person_address_id = models.AutoField(primary_key=True)
+    person_address_id = models.BigAutoField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_address_id = models.IntegerField()
-    is_current = models.BooleanField(default=True)
+    link_address_id = models.BigIntegerField()
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_current = models.BooleanField()
     created_by = models.IntegerField(blank=True, null=True)
     updated_by = models.IntegerField(blank=True, null=True)
+    is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
@@ -326,7 +297,7 @@ class RefContactType(models.Model):
     contact_type_code = models.CharField(max_length=50)
     contact_type_name_en = models.CharField(max_length=100)
     contact_type_name_bn = models.CharField(max_length=100, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -340,13 +311,13 @@ class RefContactType(models.Model):
 class Phone(models.Model):
     """Maps to [contact].[phone]."""
 
-    phone_id = models.AutoField(primary_key=True)
+    phone_id = models.IntegerField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_contact_type_id = models.IntegerField(default=1)
-    country_calling_code = models.CharField(max_length=10, default='+880')
+    link_contact_type_id = models.IntegerField()
+    country_calling_code = models.CharField(max_length=10)
     phone_number = models.CharField(max_length=20)
-    is_primary = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_primary = models.BooleanField()
+    is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -360,13 +331,13 @@ class Phone(models.Model):
 class Email(models.Model):
     """Maps to [contact].[email]."""
 
-    email_id = models.AutoField(primary_key=True)
+    email_id = models.IntegerField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_contact_type_id = models.IntegerField(default=1)
+    link_contact_type_id = models.IntegerField()
     email_address = models.CharField(max_length=255)
-    is_primary = models.BooleanField(default=False)
-    is_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_primary = models.BooleanField()
+    is_verified = models.BooleanField()
+    is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(blank=True, null=True)
 
@@ -387,7 +358,7 @@ class OrganisationType(models.Model):
     organisation_type_name_bn = models.CharField(max_length=200)
     sort_order = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -402,7 +373,8 @@ class Organisation(models.Model):
     """Maps to [directory].[organisation]."""
 
     organisation_id = models.IntegerField(primary_key=True)
-    organisation_uid = models.UUIDField()
+    # organisation_uid: NOT NULL column with DB DEFAULT NEWID() — omitted so
+    # Django never sends a value and the DB generates it automatically.
     link_organisation_type_id = models.IntegerField()
     link_branch_address_id = models.IntegerField(blank=True, null=True)
     organisation_name_en = models.CharField(max_length=200)

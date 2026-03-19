@@ -1,237 +1,524 @@
 /**
  * news-attachment-upload.js
  * Incremental file attachment manager for the news collection form.
+ * Supports multiple independent upload sections (e.g., attachments + evidence).
  * Users can add files one-by-one or multi-select, remove individual files,
  * up to a configurable maximum. Syncs collected files into a hidden
- * <input name="attachment_file"> for form submission.
+ * file input for form submission.
  *
  * Featured image: each image file gets a radio button; the first image
- * is auto-selected. A hidden input "featured_file_index" tracks which
- * file index the user chose as the cover/featured image.
+ * is auto-selected. A hidden input tracks which file index the user
+ * chose as the cover/featured image.
  */
 (function () {
-  var MAX_ATTACHMENT_COUNT = 4;
 
-  /* ===== DOM references ===== */
+  /* ===== Load file validation rules from ref_asset_type (CSP-safe JSON) ===== */
 
-  var filePicker = document.getElementById('attachment-file-picker');
-  var hiddenFileInput = document.getElementById('attachment-file-real');
-  var addFileButton = document.getElementById('attachment-add-btn');
-  var fileListContainer = document.getElementById('attachment-file-list');
-  var featuredInput = document.getElementById('featured-file-index');
+  var assetTypeRules = (function () {
+    var el = document.getElementById('asset-type-rules-data');
+    if (!el) return [];
+    try { return JSON.parse(el.textContent); } catch (e) { return []; }
+  })();
 
-  if (!filePicker || !hiddenFileInput || !addFileButton || !fileListContainer) return;
+  /**
+   * Find the matching ref_asset_type rule for a file.
+   * Returns { rule, error } — rule is null if type not allowed.
+   */
+  function findAssetRule(file) {
+    if (!assetTypeRules.length) return { rule: null, error: null };
 
-  var attachedFiles = [];
-  var featuredIndex = -1; // index of the file marked as featured (-1 = none)
-
-  /* ===== Utilities ===== */
-
-  function isImageFile(file) {
-    return (file.type || '').indexOf('image/') === 0;
-  }
-
-  function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-  }
-
-  function isDuplicateFile(file) {
-    for (var i = 0; i < attachedFiles.length; i++) {
-      if (attachedFiles[i].name === file.name && attachedFiles[i].size === file.size) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /* ===== Sync featured index to hidden input ===== */
-
-  function syncFeaturedInput() {
-    if (featuredInput) {
-      featuredInput.value = featuredIndex >= 0 ? featuredIndex : '';
-    }
-  }
-
-  /* ===== Auto-select first image as featured if none selected ===== */
-
-  function autoSelectFeatured() {
-    /* If current featured is still valid, keep it */
-    if (featuredIndex >= 0 && featuredIndex < attachedFiles.length
-        && isImageFile(attachedFiles[featuredIndex])) {
-      syncFeaturedInput();
-      return;
-    }
-    /* Find first image */
-    featuredIndex = -1;
-    for (var i = 0; i < attachedFiles.length; i++) {
-      if (isImageFile(attachedFiles[i])) {
-        featuredIndex = i;
+    /* Find matching rule by MIME type */
+    var rule = null;
+    for (var i = 0; i < assetTypeRules.length; i++) {
+      if (assetTypeRules[i].mime_type === file.type) {
+        rule = assetTypeRules[i];
         break;
       }
     }
-    syncFeaturedInput();
-  }
 
-  /* ===== Sync files to hidden input ===== */
-
-  function syncFilesToFormInput() {
-    var dataTransfer = new DataTransfer();
-    for (var i = 0; i < attachedFiles.length; i++) {
-      dataTransfer.items.add(attachedFiles[i]);
-    }
-    hiddenFileInput.files = dataTransfer.files;
-  }
-
-  /* ===== Build file row HTML ===== */
-
-  function buildFileRowHtml(file, index) {
-    var isImage = isImageFile(file);
-    var isChecked = (index === featuredIndex);
-
-    var html = '<div class="file-info-row' + (isChecked ? ' file-info-featured' : '') + '">';
-
-    /* Featured radio — only for images */
-    if (isImage) {
-      html += '<label class="file-featured-radio">'
-        + '<input type="radio" name="_featured_radio" value="' + index + '"'
-        + (isChecked ? ' checked' : '') + '>'
-        + ' \u09AA\u09CD\u09B0\u099A\u09CD\u099B\u09A6 \u099B\u09AC\u09BF (Cover Image)'
-        + '</label>';
+    /* Fallback: match by extension */
+    if (!rule) {
+      var ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+      for (var j = 0; j < assetTypeRules.length; j++) {
+        if (assetTypeRules[j].allowed_extension === ext) {
+          rule = assetTypeRules[j];
+          break;
+        }
+      }
     }
 
-    html += '<span class="file-info-name">' + file.name + '</span>'
-      + '<span class="file-info-size">' + formatFileSize(file.size) + '</span>'
-      + '<span class="file-info-type">' + (file.type || 'unknown') + '</span>'
-      + '<button type="button" class="file-info-remove" data-index="' + index + '"'
-      + ' title="সরান (Remove)">&times;</button>'
-      + '</div>';
-    return html;
-  }
-
-  /* ===== Update button label ===== */
-
-  function updateAddButtonState() {
-    if (attachedFiles.length >= MAX_ATTACHMENT_COUNT) {
-      addFileButton.textContent = 'সর্বোচ্চ ' + MAX_ATTACHMENT_COUNT
-        + ' টি ফাইল আপলোড হয়েছে (Max ' + MAX_ATTACHMENT_COUNT + ' reached)';
-      addFileButton.disabled = true;
-    } else if (attachedFiles.length > 0) {
-      addFileButton.textContent = '+ আরো ফাইল আপলোড করুন (Add more — '
-        + attachedFiles.length + '/' + MAX_ATTACHMENT_COUNT + ')';
-      addFileButton.disabled = false;
-    } else {
-      addFileButton.textContent = '+ ফাইল আপলোড করুন (Upload files)';
-      addFileButton.disabled = false;
+    if (!rule) {
+      return {
+        rule: null,
+        error: file.name + ': \u098F\u0987 \u09A7\u09B0\u09A8\u09C7\u09B0 \u09AB\u09BE\u0987\u09B2 \u0985\u09A8\u09C1\u09AE\u09CB\u09A6\u09BF\u09A4 \u09A8\u09AF\u09BC (File type not allowed)'
+      };
     }
+
+    return { rule: rule, error: null };
   }
 
-  /* ===== Render the file list ===== */
+  /**
+   * Validate file type only (size is handled by compressor).
+   * Returns null if type is valid, or an error message string.
+   */
+  function validateFileType(file) {
+    var result = findAssetRule(file);
+    return result.error;
+  }
 
-  function renderFileList() {
-    autoSelectFeatured();
+  /**
+   * Initialize a file upload section.
+   * @param {Object} config
+   * @param {string} config.pickerId        — file picker input ID
+   * @param {string} config.hiddenInputId   — hidden file input ID (synced before submit)
+   * @param {string} config.addButtonId     — "add files" button ID
+   * @param {string} config.fileListId      — file list container ID
+   * @param {string} [config.featuredInputId] — featured file index hidden input ID (optional)
+   * @param {string} [config.descriptionsInputId] — hidden input ID for per-file descriptions JSON (optional)
+   * @param {number} [config.maxCount]      — max files allowed (default 4)
+   * @returns {Object|null} public API or null if DOM elements missing
+   */
+  function initFileUploadSection(config) {
+    var MAX_COUNT = config.maxCount || 4;
 
-    if (!attachedFiles.length) {
-      fileListContainer.style.display = 'none';
-      fileListContainer.innerHTML = '';
-    } else {
-      var html = '';
+    var filePicker = document.getElementById(config.pickerId);
+    var hiddenFileInput = document.getElementById(config.hiddenInputId);
+    var addFileButton = document.getElementById(config.addButtonId);
+    var fileListContainer = document.getElementById(config.fileListId);
+    var featuredInput = config.featuredInputId
+      ? document.getElementById(config.featuredInputId)
+      : null;
+    var descriptionsInput = config.descriptionsInputId
+      ? document.getElementById(config.descriptionsInputId)
+      : null;
+
+    if (!filePicker || !hiddenFileInput || !addFileButton || !fileListContainer) return null;
+
+    var attachedFiles = [];
+    var fileDescriptions = [];
+    var featuredIndex = -1;
+
+    /* Unique radio name per section to avoid conflicts */
+    var radioName = '_featured_radio_' + config.hiddenInputId;
+
+    /* ===== Utilities ===== */
+
+    function isImageFile(file) {
+      return (file.type || '').indexOf('image/') === 0;
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function isDuplicateFile(file) {
       for (var i = 0; i < attachedFiles.length; i++) {
-        html += buildFileRowHtml(attachedFiles[i], i);
+        if (attachedFiles[i].name === file.name && attachedFiles[i].size === file.size) {
+          return true;
+        }
       }
-      fileListContainer.innerHTML = html;
-      fileListContainer.style.display = 'block';
+      return false;
     }
-    updateAddButtonState();
-  }
 
-  /* ===== Add selected files to the list ===== */
+    /* ===== Sync featured index ===== */
 
-  function addSelectedFiles(fileList) {
-    var slotsAvailable = MAX_ATTACHMENT_COUNT - attachedFiles.length;
-
-    for (var i = 0; i < fileList.length && slotsAvailable > 0; i++) {
-      if (!isDuplicateFile(fileList[i])) {
-        attachedFiles.push(fileList[i]);
-        slotsAvailable--;
+    function syncFeaturedInput() {
+      if (featuredInput) {
+        featuredInput.value = featuredIndex >= 0 ? featuredIndex : '';
       }
     }
 
-    syncFilesToFormInput();
-    renderFileList();
-  }
-
-  /* ===== Remove a file by index ===== */
-
-  function removeFileAtIndex(index) {
-    attachedFiles.splice(index, 1);
-
-    /* Adjust featuredIndex after removal */
-    if (index === featuredIndex) {
-      featuredIndex = -1; // autoSelectFeatured will pick next image
-    } else if (index < featuredIndex) {
-      featuredIndex--;
-    }
-
-    syncFilesToFormInput();
-    renderFileList();
-  }
-
-  /* ===== Event listeners ===== */
-
-  addFileButton.addEventListener('click', function () {
-    if (attachedFiles.length >= MAX_ATTACHMENT_COUNT) return;
-    filePicker.value = '';
-    filePicker.click();
-  });
-
-  filePicker.addEventListener('change', function () {
-    if (filePicker.files && filePicker.files.length) {
-      addSelectedFiles(filePicker.files);
-    }
-  });
-
-  fileListContainer.addEventListener('click', function (e) {
-    /* Remove button */
-    var removeButton = e.target.closest('.file-info-remove');
-    if (removeButton) {
-      var index = parseInt(removeButton.getAttribute('data-index'), 10);
-      removeFileAtIndex(index);
-      return;
-    }
-
-    /* Featured radio */
-    var radio = e.target.closest('input[name="_featured_radio"]');
-    if (radio) {
-      featuredIndex = parseInt(radio.value, 10);
+    function autoSelectFeatured() {
+      if (!featuredInput) return;
+      if (featuredIndex >= 0 && featuredIndex < attachedFiles.length
+          && isImageFile(attachedFiles[featuredIndex])) {
+        syncFeaturedInput();
+        return;
+      }
+      featuredIndex = -1;
+      for (var i = 0; i < attachedFiles.length; i++) {
+        if (isImageFile(attachedFiles[i])) {
+          featuredIndex = i;
+          break;
+        }
+      }
       syncFeaturedInput();
-      /* Re-render to update highlight */
+    }
+
+    /* ===== Sync files to hidden input ===== */
+
+    function syncFilesToFormInput() {
+      var dataTransfer = new DataTransfer();
+      for (var i = 0; i < attachedFiles.length; i++) {
+        dataTransfer.items.add(attachedFiles[i]);
+      }
+      hiddenFileInput.files = dataTransfer.files;
+    }
+
+    /* ===== Sync descriptions to hidden JSON input ===== */
+
+    function syncDescriptions() {
+      if (!descriptionsInput) return;
+      descriptionsInput.value = JSON.stringify(fileDescriptions);
+    }
+
+    /* ===== Build file row HTML ===== */
+
+    function buildFileRowHtml(file, index) {
+      var isImage = isImageFile(file);
+      var isChecked = featuredInput && (index === featuredIndex);
+
+      var html = '<div class="file-info-block' + (isChecked ? ' file-info-featured' : '') + '">';
+
+      /* Top row: file meta + remove button */
+      html += '<div class="file-info-row">';
+      if (featuredInput && isImage) {
+        html += '<label class="file-featured-radio">'
+          + '<input type="radio" name="' + radioName + '" value="' + index + '"'
+          + (isChecked ? ' checked' : '') + '>'
+          + ' \u09AA\u09CD\u09B0\u099A\u09CD\u099B\u09A6 \u099B\u09AC\u09BF (Cover Image)'
+          + '</label>';
+      }
+      html += '<span class="file-info-name">' + file.name + '</span>'
+        + '<span class="file-info-size">' + formatFileSize(file.size) + '</span>'
+        + '<span class="file-info-type">' + (file.type || 'unknown') + '</span>'
+        + '<button type="button" class="btn-repeater-delete file-info-remove" data-index="' + index + '"'
+        + ' title="\u09A1\u09BF\u09B2\u09BF\u099F \u0995\u09B0\u09C1\u09A8 (Delete)">'
+        + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="btn-delete-x">&times;</span></button>';
+      html += '</div>';
+
+      /* Description row */
+      if (descriptionsInput) {
+        var desc = fileDescriptions[index] || '';
+        html += '<div class="file-desc-row">'
+          + '<input type="text" class="file-description-input" data-index="' + index + '"'
+          + ' value="' + desc.replace(/"/g, '&quot;') + '"'
+          + ' maxlength="1000"'
+          + ' placeholder="\u09AC\u09BF\u09AC\u09B0\u09A3 (Description)">'
+          + '</div>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    /* ===== Update button label ===== */
+
+    function updateAddButtonState() {
+      /* Read default label from data attribute so each section has its own label */
+      var defaultLabel = addFileButton.getAttribute('data-default-label')
+        || addFileButton.textContent;
+      if (!addFileButton.getAttribute('data-default-label')) {
+        addFileButton.setAttribute('data-default-label', defaultLabel);
+      }
+
+      if (attachedFiles.length >= MAX_COUNT) {
+        addFileButton.textContent = '\u09B8\u09B0\u09CD\u09AC\u09CB\u099A\u09CD\u099A ' + MAX_COUNT
+          + ' \u099F\u09BF \u09AB\u09BE\u0987\u09B2 \u0986\u09AA\u09B2\u09CB\u09A1 \u09B9\u09DF\u09C7\u099B\u09C7 (Max ' + MAX_COUNT + ' reached)';
+        addFileButton.disabled = true;
+      } else if (attachedFiles.length > 0) {
+        addFileButton.textContent = '+ \u0986\u09B0\u09CB \u09AB\u09BE\u0987\u09B2 ('
+          + attachedFiles.length + '/' + MAX_COUNT + ')';
+        addFileButton.disabled = false;
+      } else {
+        addFileButton.textContent = defaultLabel;
+        addFileButton.disabled = false;
+      }
+    }
+
+    /* ===== Render the file list ===== */
+
+    function renderFileList() {
+      autoSelectFeatured();
+      if (!attachedFiles.length) {
+        fileListContainer.style.display = 'none';
+        fileListContainer.innerHTML = '';
+      } else {
+        var html = '';
+        for (var i = 0; i < attachedFiles.length; i++) {
+          html += buildFileRowHtml(attachedFiles[i], i);
+        }
+        fileListContainer.innerHTML = html;
+        fileListContainer.style.display = 'block';
+      }
+      updateAddButtonState();
+    }
+
+    /* ===== Validation error display ===== */
+
+    function showValidationErrors(errors) {
+      var existing = fileListContainer.parentNode.querySelector('.file-upload-errors');
+      if (existing) existing.parentNode.removeChild(existing);
+      var div = document.createElement('div');
+      div.className = 'file-upload-errors';
+      div.innerHTML = errors.join('<br>');
+      fileListContainer.parentNode.insertBefore(div, fileListContainer);
+      setTimeout(function () {
+        if (div.parentNode) div.parentNode.removeChild(div);
+      }, 6000);
+    }
+
+    /* ===== Show compression warnings ===== */
+
+    function showCompressionWarnings(warnings) {
+      var existing = fileListContainer.parentNode.querySelector('.file-upload-warnings');
+      if (existing) existing.parentNode.removeChild(existing);
+      if (!warnings.length) return;
+      var div = document.createElement('div');
+      div.className = 'file-upload-warnings';
+      div.innerHTML = warnings.join('<br>');
+      fileListContainer.parentNode.insertBefore(div, fileListContainer);
+      setTimeout(function () {
+        if (div.parentNode) div.parentNode.removeChild(div);
+      }, 8000);
+    }
+
+    /* ===== Add selected files (with auto-compression) ===== */
+
+    function addSelectedFiles(fileList) {
+      var slotsAvailable = MAX_COUNT - attachedFiles.length;
+      var errors = [];
+      var warnings = [];
+      var compressor = window.newshubFileCompressor;
+
+      /* Collect files that pass type validation */
+      var candidates = [];
+      for (var i = 0; i < fileList.length && candidates.length < slotsAvailable; i++) {
+        if (isDuplicateFile(fileList[i])) continue;
+        var typeErr = validateFileType(fileList[i]);
+        if (typeErr) {
+          errors.push(typeErr);
+          continue;
+        }
+        candidates.push(fileList[i]);
+      }
+
+      if (!candidates.length) {
+        if (errors.length) showValidationErrors(errors);
+        return;
+      }
+
+      /* Process each candidate — compress if oversized */
+      var promises = [];
+      for (var c = 0; c < candidates.length; c++) {
+        (function (file) {
+          var ruleResult = findAssetRule(file);
+          var maxKb = ruleResult.rule ? ruleResult.rule.max_size_kb : 0;
+          var maxBytes = maxKb ? maxKb * 1024 : 0;
+
+          if (!maxBytes || file.size <= maxBytes) {
+            /* Already within limit */
+            promises.push(Promise.resolve({ file: file, wasCompressed: false, originalSize: file.size }));
+          } else if (compressor) {
+            /* Try to compress */
+            promises.push(
+              compressor.compress(file, maxBytes).then(function (result) {
+                result.originalSize = file.size;
+                return result;
+              }).catch(function () {
+                /* Compression failed — add anyway */
+                return { file: file, wasCompressed: false, originalSize: file.size };
+              })
+            );
+          } else {
+            /* No compressor available — add anyway */
+            promises.push(Promise.resolve({ file: file, wasCompressed: false, originalSize: file.size }));
+          }
+        })(candidates[c]);
+      }
+
+      Promise.all(promises).then(function (results) {
+        for (var r = 0; r < results.length; r++) {
+          var res = results[r];
+          attachedFiles.push(res.file);
+          fileDescriptions.push('');
+
+          if (res.wasCompressed) {
+            var origMb = (res.originalSize / (1024 * 1024)).toFixed(2);
+            var newMb = (res.file.size / (1024 * 1024)).toFixed(2);
+            warnings.push(
+              res.file.name + ': \u09AB\u09BE\u0987\u09B2\u09C7\u09B0 \u0986\u0995\u09BE\u09B0 \u0995\u09AE\u09BE\u09A8\u09CB \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 '
+              + origMb + ' MB \u2192 ' + newMb + ' MB '
+              + '(File was auto-compressed because it exceeded the recommended size)'
+            );
+          }
+        }
+
+        if (errors.length) showValidationErrors(errors);
+        if (warnings.length) showCompressionWarnings(warnings);
+
+        syncFilesToFormInput();
+        syncDescriptions();
+        renderFileList();
+      });
+    }
+
+    /* ===== Remove a file ===== */
+
+    function removeFileAtIndex(index) {
+      attachedFiles.splice(index, 1);
+      fileDescriptions.splice(index, 1);
+      if (index === featuredIndex) {
+        featuredIndex = -1;
+      } else if (index < featuredIndex) {
+        featuredIndex--;
+      }
+      syncFilesToFormInput();
+      syncDescriptions();
       renderFileList();
     }
-  });
 
-  /* ===== Re-sync files right before form submits ===== */
+    /* ===== Event listeners ===== */
 
-  var form = hiddenFileInput.closest('form');
-  if (form) {
-    form.addEventListener('submit', function () {
-      syncFilesToFormInput();
+    addFileButton.addEventListener('click', function () {
+      if (attachedFiles.length >= MAX_COUNT) return;
+      filePicker.value = '';
+      filePicker.click();
     });
+
+    filePicker.addEventListener('change', function () {
+      if (filePicker.files && filePicker.files.length) {
+        addSelectedFiles(filePicker.files);
+      }
+    });
+
+    fileListContainer.addEventListener('click', function (e) {
+      var removeButton = e.target.closest('.file-info-remove');
+      if (removeButton) {
+        var index = parseInt(removeButton.getAttribute('data-index'), 10);
+        removeFileAtIndex(index);
+        return;
+      }
+      var radio = e.target.closest('input[name="' + radioName + '"]');
+      if (radio) {
+        featuredIndex = parseInt(radio.value, 10);
+        syncFeaturedInput();
+        renderFileList();
+      }
+    });
+
+    /* Description input changes */
+    fileListContainer.addEventListener('input', function (e) {
+      var descInput = e.target.closest('.file-description-input');
+      if (!descInput) return;
+      var idx = parseInt(descInput.getAttribute('data-index'), 10);
+      if (!isNaN(idx) && idx < fileDescriptions.length) {
+        fileDescriptions[idx] = descInput.value;
+        syncDescriptions();
+      }
+    });
+
+    /* Re-sync right before form submit */
+    var form = hiddenFileInput.closest('form');
+    if (form) {
+      form.addEventListener('submit', function () {
+        syncFilesToFormInput();
+        syncDescriptions();
+      });
+    }
+
+    /* Initial render */
+    renderFileList();
+
+    return {
+      reset: function () {
+        attachedFiles = [];
+        fileDescriptions = [];
+        featuredIndex = -1;
+        syncFilesToFormInput();
+        syncDescriptions();
+        renderFileList();
+      }
+    };
   }
 
-  /* ===== Initial render ===== */
+  /* ===== Initialize upload sections =====
+     ID convention: {prefix}-picker, {prefix}-real, {prefix}-add-btn,
+     {prefix}-file-list, {prefix}-descriptions-json
+     Generated by shared template: file-upload-section.html */
 
-  renderFileList();
+  var attachmentApi = initFileUploadSection({
+    pickerId: 'attachment-picker',
+    hiddenInputId: 'attachment-real',
+    addButtonId: 'attachment-add-btn',
+    fileListId: 'attachment-file-list',
+    featuredInputId: 'featured-file-index',
+    descriptionsInputId: 'attachment-descriptions-json',
+    maxCount: 4
+  });
+
+  /* Evidence section (extortion & land-grab forms — only if DOM exists) */
+
+  var evidenceApi = initFileUploadSection({
+    pickerId: 'evidence-picker',
+    hiddenInputId: 'evidence-real',
+    addButtonId: 'evidence-add-btn',
+    fileListId: 'evidence-file-list',
+    featuredInputId: null,
+    descriptionsInputId: 'evidence-descriptions-json',
+    maxCount: 4
+  });
+
+  /* Crime evidence section (crime/violence form — only if DOM exists) */
+
+  var crimeEvidenceApi = initFileUploadSection({
+    pickerId: 'crime-evidence-picker',
+    hiddenInputId: 'crime-evidence-real',
+    addButtonId: 'crime-evidence-add-btn',
+    fileListId: 'crime-evidence-file-list',
+    featuredInputId: null,
+    descriptionsInputId: 'crime-evidence-descriptions-json',
+    maxCount: 4
+  });
+
+  /* ===== Initialize accused photos section (accused step — only if DOM exists) ===== */
+
+  var accusedPhotosApi = initFileUploadSection({
+    pickerId: 'accused-photos-picker',
+    hiddenInputId: 'accused-photos-real',
+    addButtonId: 'accused-photos-add-btn',
+    fileListId: 'accused-photos-file-list',
+    featuredInputId: null,
+    descriptionsInputId: 'accused-photos-descriptions-json',
+    maxCount: 3
+  });
+
+  /* ===== Initialize victim photos section (victim step — only if DOM exists) ===== */
+
+  var victimPhotosApi = initFileUploadSection({
+    pickerId: 'victim-photos-picker',
+    hiddenInputId: 'victim-photos-real',
+    addButtonId: 'victim-photos-add-btn',
+    fileListId: 'victim-photos-file-list',
+    featuredInputId: null,
+    descriptionsInputId: 'victim-photos-descriptions-json',
+    maxCount: 3
+  });
+
+  /* ===== Initialize witness photos section (witness step — only if DOM exists) ===== */
+
+  var witnessPhotosApi = initFileUploadSection({
+    pickerId: 'witness-photos-picker',
+    hiddenInputId: 'witness-photos-real',
+    addButtonId: 'witness-photos-add-btn',
+    fileListId: 'witness-photos-file-list',
+    featuredInputId: null,
+    descriptionsInputId: 'witness-photos-descriptions-json',
+    maxCount: 3
+  });
 
   /* ===== Public API for other scripts (e.g. news-form-clear.js) ===== */
+
   window.newshubAttachments = {
-    /** reset() — clear all attached files and re-render */
     reset: function () {
-      attachedFiles = [];
-      featuredIndex = -1;
-      syncFilesToFormInput();
-      renderFileList();
+      if (attachmentApi) attachmentApi.reset();
+      if (evidenceApi) evidenceApi.reset();
+      if (crimeEvidenceApi) crimeEvidenceApi.reset();
+      if (accusedPhotosApi) accusedPhotosApi.reset();
+      if (victimPhotosApi) victimPhotosApi.reset();
+      if (witnessPhotosApi) witnessPhotosApi.reset();
     }
   };
 })();

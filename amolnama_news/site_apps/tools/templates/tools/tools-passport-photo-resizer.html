@@ -1,0 +1,142 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Passport Photo Resizer · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-passport-photo-resizer.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--photo-resizer">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; Tools এ ফিরুন (Back to Tools)</a>
+  <h1>পাসপোর্ট ফটো রিসাইজার (Passport Photo Resizer)</h1>
+  <p class="tool-subtitle">ছবি ও স্বাক্ষর রিসাইজ, ক্রপ এবং ব্যাকগ্রাউন্ড পরিবর্তন করুন। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
+
+  <!-- ===== Mode Selector ===== -->
+  <div class="photo-resizer-modes" id="photo-resizer-modes">
+    <button type="button" class="photo-resizer-mode-btn active" data-mode="photo">📸 ছবি রিসাইজ (Photo Resize)</button>
+    <button type="button" class="photo-resizer-mode-btn" data-mode="signature">✍️ স্বাক্ষর রিসাইজ (Signature Resize)</button>
+    <button type="button" class="photo-resizer-mode-btn" data-mode="background">🎨 ব্যাকগ্রাউন্ড পরিবর্তন (Background Change)</button>
+  </div>
+
+  <!-- ===== Preset Selector ===== -->
+  <div class="photo-resizer-presets" id="photo-resizer-presets">
+    <label class="photo-resizer-label">প্রিসেট নির্বাচন করুন (Select Preset)</label>
+    <select id="photo-resizer-preset-select" class="photo-resizer-select">
+      <option value="">— কাস্টম সাইজ (Custom Size) —</option>
+      <optgroup label="সরকারি চাকরি (Government Jobs — Teletalk)">
+        <option value="teletalk_photo">Teletalk ছবি — 300×300px (≤100KB)</option>
+        <option value="teletalk_sig">Teletalk স্বাক্ষর — 300×80px (≤60KB)</option>
+        <option value="bcs_photo">BCS ছবি — 300×300px (≤100KB)</option>
+        <option value="bcs_sig">BCS স্বাক্ষর — 300×80px (≤60KB)</option>
+      </optgroup>
+      <optgroup label="পাসপোর্ট (Passport)">
+        <option value="bd_passport">বাংলাদেশ পাসপোর্ট — 45×55mm (1063×1299px)</option>
+        <option value="bd_epassport">বাংলাদেশ ই-পাসপোর্ট — 591×709px (≤240KB)</option>
+        <option value="bd_passport_size">পাসপোর্ট সাইজ ছবি — 35×45mm (413×531px)</option>
+      </optgroup>
+      <optgroup label="ভিসা (Visa)">
+        <option value="us_visa">US Visa — 600×600px (≤240KB, JPEG)</option>
+        <option value="uk_visa">UK Visa — 600×750px (50KB–10MB)</option>
+        <option value="schengen_visa">Schengen Visa — 827×1063px (50–500KB)</option>
+      </optgroup>
+      <optgroup label="ব্যাংক ও অন্যান্য (Bank & Others)">
+        <option value="bank_photo">ব্যাংক ছবি — 300×300px (≤100KB)</option>
+        <option value="bank_sig">ব্যাংক স্বাক্ষর — 300×80px (≤60KB)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <!-- ===== Custom Size Inputs ===== -->
+  <div class="photo-resizer-custom" id="photo-resizer-custom">
+    <div class="photo-resizer-custom-row">
+      <div class="photo-resizer-field">
+        <label for="photo-resizer-width">প্রস্থ (Width px)</label>
+        <input type="number" id="photo-resizer-width" min="1" max="5000" value="300" placeholder="300">
+      </div>
+      <span class="photo-resizer-times">&times;</span>
+      <div class="photo-resizer-field">
+        <label for="photo-resizer-height">উচ্চতা (Height px)</label>
+        <input type="number" id="photo-resizer-height" min="1" max="5000" value="300" placeholder="300">
+      </div>
+    </div>
+    <div class="photo-resizer-size-row">
+      <div class="photo-resizer-field">
+        <label for="photo-resizer-min-kb">সর্বনিম্ন (Min KB)</label>
+        <input type="number" id="photo-resizer-min-kb" min="0" max="10000" value="0" placeholder="0">
+      </div>
+      <span class="photo-resizer-size-sep">&mdash;</span>
+      <div class="photo-resizer-field">
+        <label for="photo-resizer-max-kb">সর্বোচ্চ (Max KB)</label>
+        <input type="number" id="photo-resizer-max-kb" min="1" max="10000" value="100" placeholder="100">
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Background Color (for background mode) ===== -->
+  <div class="photo-resizer-bg-options" id="photo-resizer-bg-options" style="display:none">
+    <label class="photo-resizer-label">ব্যাকগ্রাউন্ড রঙ (Background Color)</label>
+    <div class="photo-resizer-bg-swatches">
+      <button type="button" class="photo-resizer-swatch active" data-color="#FFFFFF" style="background:#FFFFFF" title="সাদা (White)"></button>
+      <button type="button" class="photo-resizer-swatch" data-color="#D6EAF8" style="background:#D6EAF8" title="হালকা নীল (Light Blue)"></button>
+      <button type="button" class="photo-resizer-swatch" data-color="#AED6F1" style="background:#AED6F1" title="নীল (Blue)"></button>
+      <button type="button" class="photo-resizer-swatch" data-color="#E8E8E8" style="background:#E8E8E8" title="হালকা ধূসর (Light Grey)"></button>
+      <button type="button" class="photo-resizer-swatch" data-color="#FF0000" style="background:#FF0000" title="লাল (Red)"></button>
+    </div>
+  </div>
+
+  <!-- ===== Drop Zone ===== -->
+  <div class="photo-resizer-dropzone" id="photo-resizer-dropzone">
+    <input type="file" id="photo-resizer-file-input" accept="image/*" hidden>
+    <div class="photo-resizer-dropzone-icon">📷</div>
+    <p class="photo-resizer-dropzone-text">ছবি এখানে টেনে আনুন (Drag & drop image here)</p>
+    <p class="photo-resizer-dropzone-or">অথবা</p>
+    <button type="button" class="photo-resizer-browse-btn" id="photo-resizer-browse-btn">ফাইল নির্বাচন করুন (Browse File)</button>
+    <p class="photo-resizer-dropzone-hint">JPG, PNG, WebP &middot; সর্বোচ্চ ১০ MB</p>
+  </div>
+
+  <!-- ===== Editor (interactive crop + preview) ===== -->
+  <div class="photo-resizer-editor" id="photo-resizer-editor" style="display:none">
+    <p class="photo-resizer-drag-hint">ছবি টেনে সরান — ক্রপ ফ্রেমের ভেতরে যা আছে তা-ই রাখা হবে (Drag the image to position it inside the crop frame)</p>
+
+    <div class="photo-resizer-editor-layout">
+      <!-- Crop viewport: image moves behind a fixed dotted frame -->
+      <div class="photo-resizer-source">
+        <h3>ক্রপ করুন (Position & Crop)</h3>
+        <div class="photo-resizer-viewport" id="photo-resizer-viewport">
+          <img id="photo-resizer-source-img" draggable="false" alt="">
+          <div class="photo-resizer-crop-frame" id="photo-resizer-crop-frame"></div>
+          <div class="photo-resizer-dim-overlay" id="photo-resizer-dim-overlay"></div>
+        </div>
+        <div class="photo-resizer-zoom">
+          <label for="photo-resizer-zoom-range">জুম (Zoom)</label>
+          <input type="range" id="photo-resizer-zoom-range" min="0.2" max="3" step="0.05" value="1">
+          <span id="photo-resizer-zoom-value">100%</span>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div class="photo-resizer-preview">
+        <h3>প্রিভিউ (Preview)</h3>
+        <div class="photo-resizer-preview-wrap">
+          <canvas id="photo-resizer-preview-canvas"></canvas>
+        </div>
+        <div class="photo-resizer-info" id="photo-resizer-info"></div>
+      </div>
+    </div>
+
+    <div class="photo-resizer-actions">
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--crop" id="photo-resizer-crop-btn">✂️ ক্রপ ও রিসাইজ (Crop & Resize)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--download" id="photo-resizer-download-btn" style="display:none">⬇️ ডাউনলোড (Download)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--reset" id="photo-resizer-reset-btn">🔄 নতুন ছবি (New Image)</button>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'tools/assets/js/pages/tools-passport-photo-resizer.js' %}"></script>
+{% endblock %}

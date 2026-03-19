@@ -1,0 +1,526 @@
+/* ========== Tools Landing & Tool Pages ========== */
+
+.tools-header {
+  padding: 1rem 0 .5rem;
+}
+
+.tools-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ---- Tool cards grid ---- */
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: .5rem 0 2rem;
+}
+
+.tool-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+/* Tick checkmark — fully hidden, appears only on hover */
+.tool-card .tool-card-tick {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.tool-card .tool-card-tick::after {
+  content: '\2713';
+}
+
+.tool-card:hover .tool-card-tick {
+  opacity: 1;
+}
+
+/* ---- Reduce File Size card — soft sage ---- */
+
+.tool-card--compress {
+  background: linear-gradient(135deg, #fbfefc 0%, #f4faf6 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #8ec5a2;
+}
+
+.tool-card--compress:hover {
+  border-color: #8ec5a2;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--compress h3 {
+  color: var(--text);
+}
+
+.tool-card--compress p {
+  color: var(--muted);
+}
+
+/* ---- File Conversion card — soft blue ---- */
+
+.tool-card--convert {
+  background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #7ba4d9;
+}
+
+.tool-card--convert:hover {
+  border-color: #7ba4d9;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--convert h3 {
+  color: var(--text);
+}
+
+.tool-card--convert p {
+  color: var(--muted);
+}
+
+/* ---- ZIP Creator card — soft amber ---- */
+
+.tool-card--zip {
+  background: linear-gradient(135deg, #fffdf5 0%, #fff8e1 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #ffa000;
+}
+
+.tool-card--zip:hover {
+  border-color: #ffa000;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--zip h3 {
+  color: var(--text);
+}
+
+.tool-card--zip p {
+  color: var(--muted);
+}
+
+/* ---- Passport Photo Resizer card — soft violet ---- */
+
+.tool-card--photo-resizer {
+  background: linear-gradient(135deg, #faf8ff 0%, #f0ecff 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #7c6bc4;
+}
+
+.tool-card--photo-resizer:hover {
+  border-color: #7c6bc4;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--photo-resizer h3 {
+  color: var(--text);
+}
+
+.tool-card--photo-resizer p {
+  color: var(--muted);
+}
+
+/* ---- Background Remover card — soft teal ---- */
+
+.tool-card--bg-remover {
+  background: linear-gradient(135deg, #f5fcfb 0%, #e8f8f5 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #1abc9c;
+}
+
+.tool-card--bg-remover:hover {
+  border-color: #1abc9c;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--bg-remover h3 {
+  color: var(--text);
+}
+
+.tool-card--bg-remover p {
+  color: var(--muted);
+}
+
+/* ---- Merge Documents card — soft coral ---- */
+
+.tool-card--merge-docs {
+  background: linear-gradient(135deg, #fffaf8 0%, #fff0eb 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #e17055;
+}
+
+.tool-card--merge-docs:hover {
+  border-color: #e17055;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--merge-docs h3 {
+  color: var(--text);
+}
+
+.tool-card--merge-docs p {
+  color: var(--muted);
+}
+
+/* ---- Split PDF card — soft steel blue ---- */
+
+.tool-card--split-pdf {
+  background: linear-gradient(135deg, #f8faff 0%, #edf2fc 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #5c7cba;
+}
+
+.tool-card--split-pdf:hover {
+  border-color: #5c7cba;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--split-pdf h3 {
+  color: var(--text);
+}
+
+.tool-card--split-pdf p {
+  color: var(--muted);
+}
+
+/* ---- Photo Album card — warm brown ---- */
+
+.tool-card--photo-album {
+  background: linear-gradient(135deg, #fdf8f3 0%, #f5ece3 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #d4845a;
+}
+
+.tool-card--photo-album:hover {
+  border-color: #d4845a;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--photo-album h3 {
+  color: var(--text);
+}
+
+.tool-card--photo-album p {
+  color: var(--muted);
+}
+
+/* ---- GPA Calculator card — academic indigo ---- */
+
+.tool-card--gpa {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #6366f1;
+}
+
+.tool-card--gpa:hover {
+  border-color: #6366f1;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--gpa h3 {
+  color: var(--text);
+}
+
+.tool-card--gpa p {
+  color: var(--muted);
+}
+
+/* ---- Age Calculator card — warm rose ---- */
+
+.tool-card--age {
+  background: linear-gradient(135deg, #fef5f7 0%, #fce4ec 100%);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  border-left: 3px solid #e91e63;
+}
+
+.tool-card--age:hover {
+  border-color: #e91e63;
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card--age h3 {
+  color: var(--text);
+}
+
+.tool-card--age p {
+  color: var(--muted);
+}
+
+/* ---- Shared card elements ---- */
+
+.tool-card-icon {
+  font-size: 2rem;
+  margin-bottom: .5rem;
+}
+
+.tool-card h3 {
+  margin: 0 0 .35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.tool-card p {
+  margin: 0;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+/* ---- Tool page layout ---- */
+
+.tool-page {
+  max-width: 720px;
+  padding: 2rem 0 3rem;
+}
+
+.tool-page .tool-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  padding: .45rem .9rem .45rem .65rem;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color .2s, color .2s, background .2s, transform .1s;
+}
+
+.tool-page .tool-back:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-light, rgba(76,175,80,0.06));
+}
+
+.tool-page .tool-back:active {
+  transform: scale(0.97);
+}
+
+.tool-page h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+}
+
+/* ---- Form styling for tool pages ---- */
+
+.tool-form .form-field {
+  margin-bottom: 1.25rem;
+}
+
+.tool-form label {
+  display: block;
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--text);
+  margin-bottom: .35rem;
+}
+
+.tool-form .required-mark {
+  color: var(--danger);
+  margin-left: .15rem;
+}
+
+.tool-form input[type="text"],
+.tool-form input[type="email"],
+.tool-form input[type="tel"],
+.tool-form input[type="number"],
+.tool-form input[type="date"],
+.tool-form input[type="file"],
+.tool-form select,
+.tool-form textarea {
+  width: 100%;
+  padding: .55rem .75rem;
+  font-size: .9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+.tool-form input:focus,
+.tool-form select:focus,
+.tool-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.tool-form .hint {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: .25rem;
+}
+
+.tool-form .btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1.5rem;
+  font-size: .95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.tool-form .btn-submit:hover {
+  background: var(--primary-hover);
+}
+
+/* ---- File drop zone (for Reduce File Size tool) ---- */
+
+.tool-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  background: var(--card);
+}
+
+.tool-dropzone:hover,
+.tool-dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.tool-dropzone-icon {
+  font-size: 2.5rem;
+  margin-bottom: .5rem;
+}
+
+.tool-dropzone p {
+  margin: .25rem 0;
+  font-size: .9rem;
+}
+
+.tool-dropzone .browse-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---- Result card ---- */
+
+.tool-result {
+  padding: 1rem 1.25rem;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  margin-top: 1.5rem;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.tool-result strong {
+  font-weight: 600;
+}
+
+/* ---- Smooth section reveal (shared across all tools) ---- */
+
+@keyframes tool-slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tool-section-reveal {
+  animation: tool-slide-in .3s ease-out both;
+}
+
+/* ---- Touch & mobile foundations ---- */
+
+/* Prevent 300ms tap delay on all interactive elements */
+.tool-page button,
+.tool-page a,
+.tool-page input,
+.tool-page select,
+.tool-page label,
+.tool-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Card active state for touch feedback */
+.tool-card:active {
+  transform: scale(0.97);
+  transition: transform .1s ease;
+}
+
+.tool-card--compress:active  { border-color: #8ec5a2; box-shadow: var(--shadow-md); }
+.tool-card--convert:active   { border-color: #7ba4d9; box-shadow: var(--shadow-md); }
+.tool-card--zip:active       { border-color: #ffa000; box-shadow: var(--shadow-md); }
+.tool-card--photo-resizer:active { border-color: #7c6bc4; box-shadow: var(--shadow-md); }
+.tool-card--bg-remover:active    { border-color: #1abc9c; box-shadow: var(--shadow-md); }
+.tool-card--merge-docs:active    { border-color: #e17055; box-shadow: var(--shadow-md); }
+.tool-card--split-pdf:active     { border-color: #5c7cba; box-shadow: var(--shadow-md); }
+.tool-card--photo-album:active   { border-color: #d4845a; box-shadow: var(--shadow-md); }
+.tool-card--gpa:active           { border-color: #6366f1; box-shadow: var(--shadow-md); }
+.tool-card--age:active           { border-color: #e91e63; box-shadow: var(--shadow-md); }
+
+/* ---- Responsive ---- */
+
+@media (max-width: 640px) {
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tool-page {
+    padding: 1rem 0 2rem;
+  }
+
+  /* Ensure minimum 44px touch targets on mobile */
+  .tool-page button {
+    min-height: 44px;
+  }
+
+  .tool-card {
+    padding: 1.25rem;
+  }
+}

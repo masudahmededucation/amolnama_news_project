@@ -26,4 +26,6 @@ urlpatterns = [
     # JSON APIs for cascading location dropdowns
     path("api/upazilas/", views.api_upazilas, name="api_upazilas"),
     path("api/union-parishads/", views.api_union_parishads, name="api_union_parishads"),
+    # JSON API — user preferences
+    path("api/language-pref/", views.api_user_language_pref_save, name="api_language_pref_save"),
 ]

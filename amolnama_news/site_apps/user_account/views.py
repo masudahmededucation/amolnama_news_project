@@ -101,7 +101,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid email or password.")
 
-    return render(request, "user_account/login.html", {"form": form})
+    return render(request, "user_account/login.html", {"form": form, "seo": {"noindex": True}})
 
 
 @require_http_methods(["GET", "POST"])
@@ -127,7 +127,7 @@ def mobile_login_view(request):
         else:
             messages.error(request, "Invalid phone number or password.")
 
-    return render(request, "user_account/mobile_login.html", {"form": form})
+    return render(request, "user_account/mobile_login.html", {"form": form, "seo": {"noindex": True}})
 
 
 @require_http_methods(["GET", "POST"])
@@ -145,7 +145,7 @@ def signup_view(request):
         messages.info(request, "OTP sent to your email.")
         return redirect("user_account:signup_verify")
 
-    return render(request, "user_account/signup.html", {"form": form})
+    return render(request, "user_account/signup.html", {"form": form, "seo": {"noindex": True}})
 
 
 @require_http_methods(["GET", "POST"])
@@ -180,7 +180,7 @@ def signup_verify_view(request):
     return render(
         request,
         "user_account/signup_verify.html",
-        {"form": form, "masked_email": masked},
+        {"form": form, "masked_email": masked, "seo": {"noindex": True}},
     )
 
 
@@ -252,7 +252,7 @@ def signup_complete_view(request):
     return render(
         request,
         "user_account/signup_complete.html",
-        {"form": form, "email": email},
+        {"form": form, "email": email, "seo": {"noindex": True}},
     )
 
 
@@ -281,7 +281,7 @@ def mobile_signup_view(request):
         messages.info(request, "OTP sent to your phone.")
         return redirect("user_account:mobile_verify")
 
-    return render(request, "user_account/mobile_signup.html", {"form": form})
+    return render(request, "user_account/mobile_signup.html", {"form": form, "seo": {"noindex": True}})
 
 
 @require_http_methods(["GET", "POST"])
@@ -326,7 +326,7 @@ def mobile_verify_view(request):
     return render(
         request,
         "user_account/mobile_verify.html",
-        {"form": form, "masked_phone": masked},
+        {"form": form, "masked_phone": masked, "seo": {"noindex": True}},
     )
 
 
@@ -402,7 +402,7 @@ def mobile_set_password_view(request):
     return render(
         request,
         "user_account/mobile_set_password.html",
-        {"form": form, "masked_phone": masked},
+        {"form": form, "masked_phone": masked, "seo": {"noindex": True}},
     )
 
 
@@ -426,7 +426,7 @@ def forgot_password_view(request):
         messages.info(request, "OTP sent to your email.")
         return redirect("user_account:forgot_password_verify")
 
-    return render(request, "user_account/forgot_password.html", {"form": form})
+    return render(request, "user_account/forgot_password.html", {"form": form, "seo": {"noindex": True}})
 
 
 @require_http_methods(["GET", "POST"])
@@ -448,7 +448,7 @@ def forgot_password_phone_view(request):
         return redirect("user_account:forgot_password_verify")
 
     return render(
-        request, "user_account/forgot_password_phone.html", {"form": form},
+        request, "user_account/forgot_password_phone.html", {"form": form, "seo": {"noindex": True}},
     )
 
 
@@ -478,7 +478,7 @@ def forgot_password_verify_view(request):
     return render(
         request,
         "user_account/forgot_password_verify.html",
-        {"form": form, "identifier": identifier},
+        {"form": form, "identifier": identifier, "seo": {"noindex": True}},
     )
 
 
@@ -508,7 +508,7 @@ def forgot_password_reset_view(request):
             return redirect("user_account:login")
 
     return render(
-        request, "user_account/forgot_password_reset.html", {"form": form},
+        request, "user_account/forgot_password_reset.html", {"form": form, "seo": {"noindex": True}},
     )
 
 
@@ -559,6 +559,7 @@ def profile_personal_view(request):
                 "last_name_bn": data.get("last_name_bn") or None,
                 "date_of_birth": data.get("date_of_birth") or None,
                 "link_gender_id": int(data["link_gender_id"]) if data.get("link_gender_id") else None,
+                "link_marital_status_id": int(data["link_marital_status_id"]) if data.get("link_marital_status_id") else None,
                 "link_religion_id": int(data["link_religion_id"]) if data.get("link_religion_id") else None,
                 "nid_card_number": data.get("nid_number") or None,
                 "notes": data.get("notes") or None,
@@ -596,6 +597,7 @@ def profile_personal_view(request):
                 "last_name_bn": person.last_name_bn,
                 "date_of_birth": person.date_of_birth,
                 "link_gender_id": person.link_gender_id,
+                "link_marital_status_id": person.link_marital_status_id,
                 "link_religion_id": person.link_religion_id,
                 "nid_number": person.nid_card_number,
                 "notes": person.notes,
@@ -605,6 +607,7 @@ def profile_personal_view(request):
     return render(request, "user_account/profile_personal.html", {
         "form": form,
         "active_tab": "personal",
+        "seo": {"noindex": True},
     })
 
 
@@ -693,6 +696,7 @@ def profile_contact_view(request):
     return render(request, "user_account/profile_contact.html", {
         "form": form,
         "active_tab": "contact",
+        "seo": {"noindex": True},
     })
 
 
@@ -824,6 +828,7 @@ def profile_address_view(request):
         "active_tab": "address",
         "api_upazilas_url": reverse("user_account:api_upazilas"),
         "api_unions_url": reverse("user_account:api_union_parishads"),
+        "seo": {"noindex": True},
     })
 
 
@@ -845,6 +850,7 @@ def profile_settings_view(request):
     return render(request, "user_account/profile_settings.html", {
         "active_tab": "settings",
         "form": form,
+        "seo": {"noindex": True},
     })
 
 
@@ -885,3 +891,19 @@ def api_union_parishads(request):
         .values("union_parishad_id", "union_parishad_name_en")
     )
     return JsonResponse(list(unions), safe=False)
+
+
+@login_required
+@require_http_methods(["POST"])
+def api_user_language_pref_save(request):
+    """Save the user's preferred form UI language (bn/en) to their profile."""
+    lang = request.POST.get('lang', '').lower()
+    if lang not in ('bn', 'en'):
+        return JsonResponse({'ok': False, 'error': 'Invalid language'}, status=400)
+    try:
+        profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+        profile.language_pref = lang
+        profile.save(update_fields=['language_pref'])
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Profile not found'}, status=404)
+    return JsonResponse({'ok': True, 'lang': lang})

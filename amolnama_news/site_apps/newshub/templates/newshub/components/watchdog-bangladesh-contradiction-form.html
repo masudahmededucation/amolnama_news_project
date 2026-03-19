@@ -1,0 +1,228 @@
+{% comment %}
+  Watchdog Bangladesh Step 5 — sub-type radio cards (grouped) + contradiction fields.
+  Radio cards are grouped by ref_status group_code categories.
+  Selected sub-type stored in hidden input. No inline script (CSP-safe).
+  JS: news-watchdog-bangladesh-sub-type.js
+{% endcomment %}
+
+<div class="form-section" id="section-watchdog-bangladesh-sub-type">
+  <h3 class="form-section-title"><span class="section-icon">🏷️</span>নজরদারির ধরন (Watchdog Type)</h3>
+
+  {# Hidden input — JS syncs selected radio value here #}
+  <input type="hidden" id="watchdog-bangladesh-sub-type" name="watchdog_bangladesh_sub_type" value="">
+
+  {# ---- Group: বক্তব্য নজরদারি (Statement Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_statment">
+    <h4 class="radio-card-group-title">বক্তব্য নজরদারি (Statement Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="789">
+        <span class="radio-card-icon">🔄</span>
+        <span class="radio-card-label">বক্তব্য পরিবর্তন বা পল্টি (Statement Flip-Flop)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="790">
+        <span class="radio-card-icon">⚖️</span>
+        <span class="radio-card-label">পরস্পরবিরোধী অবস্থান (Contradictory Position)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="791">
+        <span class="radio-card-icon">❌</span>
+        <span class="radio-card-label">বক্তব্য অস্বীকার (Statement Denial)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="792">
+        <span class="radio-card-icon">🚫</span>
+        <span class="radio-card-label">বক্তব্য প্রত্যাহার (Statement Withdrawal / Retraction)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="793">
+        <span class="radio-card-icon">🔍</span>
+        <span class="radio-card-label">বক্তব্য বনাম বাস্তবতা (Rhetoric vs Reality)</span>
+      </label>
+    </div>
+  </div>
+
+  {# ---- Group: ইস্যু নজরদারি (Issue Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_issue">
+    <h4 class="radio-card-group-title">ইস্যু নজরদারি (Issue Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="794">
+        <span class="radio-card-icon">📍</span>
+        <span class="radio-card-label">ইস্যুভিত্তিক অবস্থান (Issue-Based Stance)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="795">
+        <span class="radio-card-icon">🤐</span>
+        <span class="radio-card-label">কৌশলী নীরবতা (Strategic Silence on Issue)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="796">
+        <span class="radio-card-icon">👉</span>
+        <span class="radio-card-label">দোষারোপের রাজনীতি (Political Blame Shifting)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="797">
+        <span class="radio-card-icon">↔️</span>
+        <span class="radio-card-label">আদর্শিক বিচ্যুতি (Ideological Shift)</span>
+      </label>
+    </div>
+  </div>
+
+  {# ---- Group: দল পরিবর্তন নজরদারি (Party Change Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_party_change">
+    <h4 class="radio-card-group-title">দল পরিবর্তন নজরদারি (Party Change Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="798">
+        <span class="radio-card-icon">🦎</span>
+        <span class="radio-card-label">রাজনৈতিক বহুরূপী (Political Chameleon)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="799">
+        <span class="radio-card-icon">🤝</span>
+        <span class="radio-card-label">সুবিধাবাদী জোট (Coalition of Convenience)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="800">
+        <span class="radio-card-icon">🚪</span>
+        <span class="radio-card-label">দলত্যাগ (Political Defection)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="801">
+        <span class="radio-card-icon">🔄</span>
+        <span class="radio-card-label">দলবদল / ডিগবাজি / পাল্টি (Party Switching / Party-Hopping)</span>
+      </label>
+    </div>
+  </div>
+
+  {# ---- Group: প্রক্সি ও ক্রীড়নক নজরদারি (Proxy & Puppet Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_proxy_puppet">
+    <h4 class="radio-card-group-title">প্রক্সি ও ক্রীড়নক নজরদারি (Proxy & Puppet Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="802">
+        <span class="radio-card-icon">👤</span>
+        <span class="radio-card-label">রাজনৈতিক প্রক্সি বা প্রতিনিধি (Political Proxy Representative)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="803">
+        <span class="radio-card-icon">🪆</span>
+        <span class="radio-card-label">রাজনৈতিক ক্রীড়নক (Political Puppet)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="804">
+        <span class="radio-card-icon">💼</span>
+        <span class="radio-card-label">ক্ষমতার দালাল (Power Broker / Influence Broker)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="805">
+        <span class="radio-card-icon">🤝</span>
+        <span class="radio-card-label">গোপন বৈঠক (Secret Political Meeting)</span>
+      </label>
+    </div>
+  </div>
+
+  {# ---- Group: চাটুকার নজরদারি (Bootlicker Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_bootlicker">
+    <h4 class="radio-card-group-title">চাটুকার নজরদারি (Bootlicker Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="806">
+        <span class="radio-card-icon">👞</span>
+        <span class="radio-card-label">অনুগত আজ্ঞাবহ বা চাটুকার (Political Bootlicker)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="807">
+        <span class="radio-card-icon">✅</span>
+        <span class="radio-card-label">সহমত ভাই (Political Yes-Man)</span>
+      </label>
+    </div>
+  </div>
+
+  {# ---- Group: নারী সরবরাহ নজরদারি (Women Fixer Watchdog) ---- #}
+  <div class="radio-card-group" data-group="watchdog_bangladesh_form_watchdog_women_fixer">
+    <h4 class="radio-card-group-title">নারী সরবরাহ নজরদারি (Women Fixer Watchdog)</h4>
+    <div class="radio-card-grid">
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="808">
+        <span class="radio-card-icon">⛓️</span>
+        <span class="radio-card-label">নারী সরবরাহকারী (Escort Provider / Women Trafficker)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="809">
+        <span class="radio-card-icon">🕸️</span>
+        <span class="radio-card-label">অনৈতিক সিন্ডিকেট (Vice Syndicate Operator)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="810">
+        <span class="radio-card-icon">🔞</span>
+        <span class="radio-card-label">যৌন সুবিধা প্রদানকারী (Sexual Favor Broker)</span>
+      </label>
+      <label class="radio-card">
+        <input type="radio" name="watchdog_bangladesh_sub_type_radio" value="811">
+        <span class="radio-card-icon">🐺</span>
+        <span class="radio-card-label">রক্ষক বেশে ভক্ষক (Predatory Power Broker)</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<div class="form-section" id="section-contradiction" style="display:none">
+  <h3 class="form-section-title"><span class="section-icon">⚖️</span>বৈপরিত্য ও অস্বীকার (Contradiction & Denial)</h3>
+
+  {# Hidden input — JS serializes contradiction data here before submit #}
+  <input type="hidden" id="contradiction-json" name="contradiction_json" value="">
+
+  {# ---- "THEN" section: Original Statement ---- #}
+  <div class="contradiction-block contradiction-block-then">
+    <h4 class="contradiction-block-title">তখন (Then) — পূর্বের বক্তব্য</h4>
+
+    <div class="form-field">
+      <label for="contradiction-original-statement">পূর্বের বক্তব্য (Original Statement)<span class="required-mark">*</span></label>
+      <textarea id="contradiction-original-statement" rows="3"
+                placeholder="তিনি আগে কী বলেছিলেন বা করেছিলেন... (What did they say or do before...)"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="contradiction-original-date">তারিখ পূর্বের বক্তব্যের (Previous Statement Date)</label>
+      <input type="date" id="contradiction-original-date">
+    </div>
+
+    <div class="form-field">
+      <label for="contradiction-original-source">সূত্র/লিঙ্ক (Source/Link)</label>
+      <input type="url" id="contradiction-original-source"
+             placeholder="https://...">
+    </div>
+  </div>
+
+  {# ---- "NOW" section: Current Denial / Contradiction ---- #}
+  <div class="contradiction-block contradiction-block-now">
+    <h4 class="contradiction-block-title">এখন (Now) — বর্তমান বক্তব্য/অস্বীকার</h4>
+
+    <div class="form-field">
+      <label for="contradiction-current-statement">বর্তমান বক্তব্য/অস্বীকার (Current Denial/Contradiction)<span class="required-mark">*</span></label>
+      <textarea id="contradiction-current-statement" rows="3"
+                placeholder="এখন তিনি কী বলছেন... (What are they saying now...)"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="contradiction-current-date">তারিখ বর্তমান বক্তব্যের (Current Statement Date)</label>
+      <input type="date" id="contradiction-current-date">
+    </div>
+
+    <div class="form-field">
+      <label for="contradiction-proof-url">যাচাইয়ের প্রমাণ (Proof Link)</label>
+      <input type="url" id="contradiction-proof-url"
+             placeholder="https://... (ভিডিও/স্ক্রিনশট লিঙ্ক)">
+    </div>
+  </div>
+</div>
+
+{# ---- Conditional field sections for other watchdog types ---- #}
+{% include "newshub/components/watchdog-bangladesh-issue-form.html" %}
+{% include "newshub/components/watchdog-bangladesh-party-change-form.html" %}
+{% include "newshub/components/watchdog-bangladesh-proxy-puppet-form.html" %}
+{% include "newshub/components/watchdog-bangladesh-bootlicker-form.html" %}
+{% include "newshub/components/watchdog-bangladesh-women-fixer-form.html" %}

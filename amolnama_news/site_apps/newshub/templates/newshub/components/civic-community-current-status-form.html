@@ -1,0 +1,29 @@
+{% comment %}
+  Current Status — captures the current state of the civic issue.
+  Radio buttons for status (DB-driven from ref_issue_status) + description textarea.
+  Civic & Community form type specific.
+  Data is serialized to a hidden JSON input for form submission.
+{% endcomment %}
+
+<div class="form-section" id="section-civic-status">
+  <h3 class="form-section-title"><span class="section-icon">📋</span>বর্তমান অবস্থা (Current Status)</h3>
+
+  {# Hidden input — JS serializes status data here before submit #}
+  <input type="hidden" id="civic-status-json" name="civic_status_json" value="">
+
+  {# Embed reference data as JSON (type=application/json bypasses CSP) #}
+  <script type="application/json" id="issue-statuses-data">{{ issue_statuses_json|default:"[]"|safe }}</script>
+
+  <div class="form-field">
+    <label>সমস্যার বর্তমান অবস্থা (Current Status of the Issue)</label>
+    <div class="radio-list" id="civic-status-picker">
+      {# Radio cards populated by JS from issue-statuses-data #}
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label for="civic-status-description">অবস্থার বিবরণ (Status Description)</label>
+    <textarea id="civic-status-description" rows="4"
+              placeholder="বর্তমান পরিস্থিতির বিস্তারিত বিবরণ... (Describe the current situation in detail...)"></textarea>
+  </div>
+</div>

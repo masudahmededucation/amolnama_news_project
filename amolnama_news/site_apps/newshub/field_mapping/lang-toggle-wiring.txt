@@ -1,0 +1,217 @@
+================================================================================
+  LANGUAGE TOGGLE WIRING — PROGRESS TRACKER
+  Feature: news-form-lang.js — Bengali/English toggle in header
+  Last updated: 2026-03-06
+================================================================================
+
+HOW IT WORKS
+────────────
+1. Header radio buttons: input[name="form_lang"] value="bn" or "en"
+2. news-form-lang.js scans DOM for [data-bn][data-en] and [data-ph-bn][data-ph-en]
+3. On toggle: swaps textContent of labels/headings; swaps placeholder of inputs
+4. Saves preference via AJAX POST to /account/api/language-pref/
+5. Next page load: UserProfile.language_pref drives which radio is checked
+
+RULES FOR WIRING TEMPLATES
+────────────────────────────
+• Regular <label>, <h3>, <h4>, <p> elements:
+    <label data-bn="Bengali text" data-en="English text">Bengali text</label>
+    NOTE: set textContent to Bengali initially (data-bn = displayed default)
+
+• <input> and <textarea> placeholders:
+    data-ph-bn="বাংলা প্লেসহোল্ডার..." data-ph-en="English placeholder..."
+
+• <label class="checkbox-inline"> or <label class="radio-inline"> wrapping <input>:
+    DO NOT put data-bn/data-en on the label itself — JS clears textContent which
+    re-orders the input after the text. Instead, wrap only the text in a <span>:
+    <label class="checkbox-inline">
+      <input type="checkbox" ...>
+      <span data-bn="বাংলা" data-en="English">বাংলা</span>
+    </label>
+
+• <option value=""> default (select placeholder):
+    <option value="" data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন --</option>
+
+• Tom Select inputs: placeholder is set by Tom Select JS, not by the HTML attribute.
+    data-ph-bn/data-ph-en do NOT work on Tom Select-enhanced inputs.
+
+• JS-generated content (repeater cards, DB-driven checkboxes/radios):
+    NOT covered by template wiring. JS would need to call
+    window.newshubFormLang.current() when rendering to apply the current language.
+
+================================================================================
+  WCV FORM (Women & Child Violence) — 7 steps
+================================================================================
+
+STEP 1: News content (news headline, summary, etc.)
+  Template: steps/step-news-content-wcv.html (includes common content fields)
+  Common content step template — shared across all forms
+  Status: ❌ NOT YET WIRED — pending (part of common steps work)
+
+STEP 2: Location (area search, map)
+  Template: steps/step-news-location.html (shared)
+  Status: ❌ NOT YET WIRED — pending (part of common steps work)
+
+STEP 3: Violence Type & Context
+  Template: components/wcv-violence-type-form.html
+  Status: ✅ WIRED — 2026-03-06
+  Wired elements:
+    h3 span                         data-bn/data-en ✓
+    label (violence type group)     data-bn/data-en ✓
+    label (other type)              data-bn/data-en ✓
+    input#wcv-other-type            data-ph-bn/data-ph-en ✓
+    label (location type)           data-bn/data-en ✓
+    option value="" (select)        data-bn/data-en ✓
+    recurring checkbox text (span)  data-bn/data-en ✓
+    label (duration)                data-bn/data-en ✓
+    input#wcv-duration              data-ph-bn/data-ph-en ✓
+  Limitations:
+    - DB-driven violence type checkboxes are JS-generated → not wired
+    - DB-driven location type options are JS-generated → not wired
+
+STEP 4: Victim Profile (Demographics)
+  Template: components/wcv-victim-form.html
+  Status: ✅ WIRED — done in original build (pre-2026-03-06)
+  This is the reference template — all patterns follow this.
+
+STEP 5: Condition & Injury
+  Template: components/wcv-condition-injury-form.html
+  Status: ✅ WIRED — 2026-03-06
+  Wired elements:
+    h3 span                               data-bn/data-en ✓
+    h4 Section A (span)                   data-bn/data-en ✓
+    checkbox spans: pregnant, children,
+      dependent, disability               data-bn/data-en ✓ (inner <span> pattern)
+    label (pregnant months)               data-bn/data-en ✓
+    input#wcv-victim-pregnant-months      data-ph-bn/data-ph-en ✓
+    p#wcv-pregnant-months-warning         data-bn/data-en ✓
+    label (children count)                data-bn/data-en ✓
+    input#wcv-victim-children-count       data-ph-bn/data-ph-en ✓
+    p#wcv-children-count-error            data-bn/data-en ✓
+    p#wcv-children-count-warning          data-bn/data-en ✓
+    label (disability type)               data-bn/data-en ✓
+    input#wcv-victim-disability-type      data-ph-bn/data-ph-en ✓
+    h4 Section B (span)                   data-bn/data-en ✓
+    label (injury type group)             data-bn/data-en ✓
+    label (injury severity group)         data-bn/data-en ✓
+    label (psych symptoms group)          data-bn/data-en ✓
+    h4 Section C (span)                   data-bn/data-en ✓
+    label (current condition group)       data-bn/data-en ✓
+    label (safety status group)           data-bn/data-en ✓
+    label (consent group)                 data-bn/data-en ✓
+  Limitations:
+    - All DB-driven checkboxes and radios are JS-generated → not wired
+
+STEP 6: Accused/Perpetrator Info
+  Template: components/wcv-accused-form.html
+  Status: ✅ PARTIALLY WIRED — 2026-03-06
+  Wired elements:
+    h3 span                   data-bn/data-en ✓
+    "add accused" button span data-bn/data-en ✓
+  Limitations:
+    - ALL card fields (name, father name, relationship, position, attributes, remarks)
+      are created by news-wcv-accused.js at runtime.
+    - Language toggle does NOT affect card labels.
+    - FUTURE WORK: Pass window.newshubFormLang.current() into createCard() to
+      render card labels in the current language.
+
+STEP 7: Legal Action & Support
+  Template: components/wcv-legal-form.html
+  Status: ✅ WIRED — 2026-03-06
+  Wired elements:
+    h3 span                             data-bn/data-en ✓
+    label (FIR status group)            data-bn/data-en ✓
+    label (police station)              data-bn/data-en ✓
+    label (case number)                 data-bn/data-en ✓
+    input#wcv-case-number               data-ph-bn/data-ph-en ✓
+    label (police refusal statement)    data-bn/data-en ✓
+    textarea#wcv-police-refusal-statement data-ph-bn/data-ph-en ✓
+    label (no FIR reason)               data-bn/data-en ✓
+    textarea#wcv-no-fir-reason          data-ph-bn/data-ph-en ✓
+    label (applicable law group)        data-bn/data-en ✓
+    label (case status)                 data-bn/data-en ✓
+    option value="" (case status)       data-bn/data-en ✓
+    label (support services group)      data-bn/data-en ✓
+    label (retaliation group)           data-bn/data-en ✓
+    label (legal remarks)               data-bn/data-en ✓
+    textarea#wcv-legal-remarks          data-ph-bn/data-ph-en ✓
+  Limitations:
+    - Tom Select police station: placeholder set by news-thana-search-select.js,
+      data-ph-bn/data-ph-en on the input are ignored by Tom Select.
+    - DB-driven checkboxes/radios (FIR status, applicable laws, support services,
+      retaliation types) are JS-generated → labels not wired.
+
+LEGACY / UNUSED:
+  wcv-injury-form.html — included by step-wcv-injury.html
+  step-wcv-injury.html — NOT included in any page template
+  Both are dead code — NOT wired, NOT needed.
+
+================================================================================
+  OTHER FORMS — NOT YET WIRED
+================================================================================
+
+CRIME / VIOLENCE FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/crime-*.html
+
+CIVIC COMMUNITY FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/civic-community-*.html
+
+SPORTS FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/sports-*.html
+
+ENTERTAINMENT FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/entertainment-*.html
+
+EXTORTION FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/extortion-*.html
+
+GLOBAL CONFLICT FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/global-conflict-*.html
+
+JULY UPRISING FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/july-uprising-*.html
+
+WATCHDOG BANGLADESH FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/watchdog-bangladesh-*.html
+
+PRICE HIKE FORM
+  Status: ❌ NOT YET WIRED
+  Templates in: components/price-hike-*.html
+
+COMMON STEPS (shared across all forms)
+  Status: ❌ NOT YET WIRED
+  Templates in: steps/step-news-content-*.html, steps/step-news-location.html
+  These include: headline, summary, reporter, date — high value to wire since
+  they appear in every form.
+
+================================================================================
+  KNOWN LIMITATIONS (all forms)
+================================================================================
+
+1. JS-GENERATED CONTENT NOT WIRED:
+   All DB-driven radio/checkbox/select options are rendered by JS (news-wcv-*.js etc.)
+   and always use Bengali labels. The language toggle cannot affect these after
+   page load without JS changes.
+   Fix needed: each component JS must check window.newshubFormLang.current()
+   when populating checkboxes/radios, and listen for a custom event when the
+   language changes.
+
+2. TOM SELECT PLACEHOLDERS NOT WIRED:
+   Tom Select replaces the native <input> placeholder with its own. The
+   data-ph-bn/data-ph-en approach does not work for Tom Select controls.
+   Affected: police station search (#wcv-police-station), location search,
+   district/category dropdowns.
+
+3. REPEATER CARD FIELDS NOT WIRED (Step 6 accused cards):
+   All fields in wcv-accused-form.html card repeater are JS-generated.
+   Partial fix wired (section title + add button). Full fix requires JS changes.
+
+================================================================================
