@@ -6,3 +6,23 @@ create all the necessary files including urls, views, and etc.
 don't miss a thing and make me work manually.
 add the app the appropriate setting file as local app.
 
+--hook english2bangla keyboard 
+hook it in all forms.
+hook it in all text fields
+hook it in all apps
+hook it in all cards. 
+hook it in everywhere. 
+hook it in all nav options.
+hook it in every pages. 
+
+in all text fields in all forms in all apps, in whole project. 
+don't missfire. do one by one form to avoid errors.
+
+--separate text fields
+bangla only text fields - shows when bangla selected
+english only text fields - shows when english selected
+
+--just don't touch the tools or software page. 
+because there is nothing to enter. 
+it is better to keep mixture of english and bengali 
+because some bengali text maybe confusing due to transalation issue
