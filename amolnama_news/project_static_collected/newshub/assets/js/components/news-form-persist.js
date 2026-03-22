@@ -45,9 +45,13 @@
       if (el.type === 'file') continue;
 
       if (el.type === 'radio') {
-        continue; /* Never persist radio buttons — user must actively select each visit */
+        /* Save only the checked radio's value (skip unchecked ones) */
+        if (el.checked) data[name] = el.value;
       } else if (el.type === 'checkbox') {
-        data[name] = el.checked ? '1' : '';
+        /* For checkboxes with same name, store comma-separated checked values */
+        if (el.checked) {
+          data[name] = data[name] ? (data[name] + ',' + el.value) : el.value;
+        }
       } else {
         data[name] = el.value;
       }
@@ -104,9 +108,20 @@
 
     var el = els[0];
     if (el.type === 'radio') {
-      return; /* Never restore radio buttons — user must actively select each visit */
+      /* Find and check the radio with the saved value, dispatch change for conditional rows */
+      for (var r = 0; r < els.length; r++) {
+        if (els[r].value === saved[name]) {
+          els[r].checked = true;
+          els[r].dispatchEvent(new Event('change', { bubbles: true }));
+          break;
+        }
+      }
     } else if (el.type === 'checkbox') {
-      el.checked = saved[name] === '1';
+      /* Restore checkboxes — saved as comma-separated values */
+      var savedValues = (saved[name] || '').split(',');
+      for (var c = 0; c < els.length; c++) {
+        els[c].checked = savedValues.indexOf(els[c].value) !== -1;
+      }
     } else {
       el.value = saved[name];
     }
