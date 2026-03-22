@@ -16,15 +16,15 @@
     <label>দর্শক প্রতিক্রিয়া (Audience Sentiment)</label>
     <div class="radio-inline-group">
       <label class="radio-inline">
-        <input type="radio" name="entertainment_sentiment" value="positive">
+        <input type="radio" id="entertainment-sentiment-positive" name="entertainment_sentiment" value="positive">
         🔥 হাইপ (Hype)
       </label>
       <label class="radio-inline">
-        <input type="radio" name="entertainment_sentiment" value="neutral">
+        <input type="radio" id="entertainment-sentiment-neutral" name="entertainment_sentiment" value="neutral">
         😐 নিরপেক্ষ (Neutral)
       </label>
       <label class="radio-inline">
-        <input type="radio" name="entertainment_sentiment" value="negative">
+        <input type="radio" id="entertainment-sentiment-negative" name="entertainment_sentiment" value="negative">
         💢 ব্যাকল্যাশ (Backlash)
       </label>
     </div>
@@ -32,13 +32,13 @@
 
   <div class="form-field">
     <label for="entertainment-trending-hashtag">ট্রেন্ডিং হ্যাশট্যাগ (Trending Hashtag)</label>
-    <input type="text" id="entertainment-trending-hashtag"
+    <input type="text" id="entertainment-trending-hashtag" name="entertainment_trending_hashtag"
            placeholder="যেমন: #Pathaan, #ViralVideo, #Cannes2026, #BPL...">
   </div>
 
   <div class="form-field">
     <label for="entertainment-meme-factor">মিম ফ্যাক্টর (Meme Factor)</label>
-    <select id="entertainment-meme-factor">
+    <select id="entertainment-meme-factor" name="entertainment_meme_factor">
       <option value="">-- নির্বাচন করুন --</option>
       <option value="none">নেই (None)</option>
       <option value="low">কম (Low)</option>
@@ -57,14 +57,14 @@
 
   <div class="form-field" id="entertainment-plagiarism-row" style="display: none;">
     <label for="entertainment-plagiarism-source">মূল উৎস (Original Source)</label>
-    <input type="text" id="entertainment-plagiarism-source"
+    <input type="text" id="entertainment-plagiarism-source" name="entertainment_plagiarism_source"
            placeholder="যেমন: মূল গানটি ছিল XYZ-এর, মূল চলচ্চিত্রটি ছিল কোরিয়ান...">
   </div>
 
   {# ---- Boycott Level ---- #}
   <div class="form-field">
     <label for="entertainment-boycott-level">বয়কট মাত্রা (Boycott Level)</label>
-    <select id="entertainment-boycott-level">
+    <select id="entertainment-boycott-level" name="entertainment_boycott_level">
       <option value="">-- নির্বাচন করুন --</option>
       <option value="none">নেই (None)</option>
       <option value="minor">সামান্য (Minor)</option>

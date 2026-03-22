@@ -16,7 +16,7 @@
 
   <!-- ===== Drop Zone ===== -->
   <div class="zip-dropzone" id="zip-dropzone">
-    <input type="file" id="zip-file-input" multiple hidden>
+    <input type="file" id="zip-file-input" name="zip_file_input" multiple hidden>
     <div class="zip-dropzone-icon">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="8" y="4" width="32" height="40" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -62,7 +62,7 @@
     <div class="zip-name-field">
       <label for="zip-name-input" data-en="Archive Name">আর্কাইভের নাম (Archive Name)</label>
       <div class="zip-name-input-wrap">
-        <input type="text" id="zip-name-input" value="archive" placeholder="archive" data-no-bangla>
+        <input type="text" id="zip-name-input" name="zip_name_input" value="archive" placeholder="archive" data-no-bangla>
         <span class="zip-name-ext">.zip</span>
       </div>
     </div>

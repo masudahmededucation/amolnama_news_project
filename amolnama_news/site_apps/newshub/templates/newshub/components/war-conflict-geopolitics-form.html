@@ -13,7 +13,7 @@
 
   <div class="form-field">
     <label for="global-reaction">বৈশ্বিক প্রতিক্রিয়া (Global Reaction)</label>
-    <select id="global-reaction">
+    <select id="global-reaction" name="global_reaction">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       {# Options populated by JS from global-reactions-data #}
     </select>
@@ -21,7 +21,7 @@
 
   <div class="form-field">
     <label for="global-reaction-details">প্রতিক্রিয়ার বিবরণ (Reaction Details) <em class="field-optional">(ঐচ্ছিক)</em></label>
-    <textarea id="global-reaction-details" rows="3" maxlength="2000"
+    <textarea id="global-reaction-details" name="global_reaction_details" rows="3" maxlength="2000"
               placeholder="বৈশ্বিক প্রতিক্রিয়ার বিস্তারিত বিবরণ লিখুন... (Describe the global reaction in detail...)"></textarea>
   </div>
 
@@ -56,7 +56,7 @@
 
   <div class="form-field" id="global-local-impact-row" style="display: none;">
     <label for="global-local-impact-description">দেশীয় প্রভাবের বিবরণ (Local Impact Description)</label>
-    <textarea id="global-local-impact-description" rows="3"
+    <textarea id="global-local-impact-description" name="global_local_impact_description" rows="3"
               placeholder="বাংলাদেশে কীভাবে প্রভাব পড়ছে... (How does this impact Bangladesh...)"></textarea>
   </div>
 </div>

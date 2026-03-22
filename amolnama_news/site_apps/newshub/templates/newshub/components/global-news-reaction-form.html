@@ -18,7 +18,7 @@
     <div class="radio-inline-group" id="global-news-world-reaction-group">
       {# Populated by JS from global-reactions-data #}
     </div>
-    <input type="hidden" id="global-news-world-reaction" value="">
+    <input type="hidden" id="global-news-world-reaction" name="global_news_world_reaction" value="">
   </div>
 
   {# JSON embed for world reaction options #}
@@ -27,7 +27,7 @@
   {# ---- UN / International Body Statement ---- #}
   <div class="form-field">
     <label for="global-news-intl-statement">জাতিসংঘ বা আন্তর্জাতিক সংস্থার বিবৃতি (UN / International Body Statement) <em class="field-optional">(ঐচ্ছিক)</em></label>
-    <textarea id="global-news-intl-statement" rows="3" maxlength="2000"
+    <textarea id="global-news-intl-statement" name="global_news_intl_statement" rows="3" maxlength="2000"
               placeholder="জাতিসংঘ, ইউরোপীয় ইউনিয়ন বা অন্য কোনো আন্তর্জাতিক সংস্থার বিবৃতি থাকলে লিখুন&#10;(Enter any UN, EU or international body statements...)"></textarea>
   </div>
 
@@ -40,7 +40,7 @@
   </div>
   <div class="form-field" id="global-news-sanctions-row" style="display:none;">
     <label for="global-news-sanctions-desc">নিষেধাজ্ঞার বিবরণ (Sanctions / Measures Description)</label>
-    <textarea id="global-news-sanctions-desc" rows="2" maxlength="1000"
+    <textarea id="global-news-sanctions-desc" name="global_news_sanctions_desc" rows="2" maxlength="1000"
               placeholder="কোন দেশের বিরুদ্ধে, কোন ধরনের নিষেধাজ্ঞা বা ব্যবস্থা... (Describe the sanctions or measures...)"></textarea>
   </div>
 
@@ -53,7 +53,7 @@
   </div>
   <div class="form-field" id="global-news-agreement-row" style="display:none;">
     <label for="global-news-agreement-desc">চুক্তি/প্রস্তাবের বিবরণ (Agreement / Resolution Details)</label>
-    <textarea id="global-news-agreement-desc" rows="2" maxlength="1000"
+    <textarea id="global-news-agreement-desc" name="global_news_agreement_desc" rows="2" maxlength="1000"
               placeholder="চুক্তি বা প্রস্তাবের বিষয়বস্তু সংক্ষেপে লিখুন (Briefly describe the agreement or resolution)"></textarea>
   </div>
 
@@ -63,7 +63,7 @@
     <div class="radio-inline-group" id="global-news-media-coverage-group">
       {# Populated by JS from media-coverage-data #}
     </div>
-    <input type="hidden" id="global-news-media-coverage" value="">
+    <input type="hidden" id="global-news-media-coverage" name="global_news_media_coverage" value="">
   </div>
 
   {# JSON embed for media coverage options #}

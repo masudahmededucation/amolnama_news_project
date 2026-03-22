@@ -10,7 +10,7 @@
   <div class="radio-inline-group">
     {% for status in july_victim_statuses %}
     <label class="radio-inline">
-      <input type="radio" name="july_martyr_status" value="{{ status.status_id }}">
+      <input type="radio" id="july-martyr-status-{{ status.status_id }}" name="july_martyr_status" value="{{ status.status_id }}">
       {% if status.status_icon %}{{ status.status_icon }} {% endif %}{{ status.status_name_bn }} ({{ status.status_name_en }})
     </label>
     {% endfor %}
@@ -25,19 +25,19 @@
 
   <div class="form-field">
     <label for="july-last-words">শেষ কথা/কাজ (Last Words/Actions)</label>
-    <textarea id="july-last-words" rows="4"
+    <textarea id="july-last-words" name="july_last_words" rows="4"
               placeholder="তাঁর শেষ কথা বা শেষ কাজ কী ছিল? যেমন: 'পানি লাগবে কারো?', 'বুকে গুলি খেয়েও দাঁড়িয়ে ছিলেন', 'বন্ধুদের নিরাপদে পাঠিয়ে নিজে রাস্তায় থেকে গেছেন...'"></textarea>
   </div>
 
   <div class="form-field">
     <label for="july-life-story">জীবন কাহিনী (Life Story / Biographical Note)</label>
-    <textarea id="july-life-story" rows="6"
+    <textarea id="july-life-story" name="july_life_story" rows="6"
               placeholder="তাঁর জীবন সম্পর্কে সংক্ষেপে লিখুন — কোথা থেকে এসেছিলেন, কী স্বপ্ন ছিল, কেমন মানুষ ছিলেন... (Write briefly about their life — where they came from, their dreams, what kind of person they were...)"></textarea>
   </div>
 
   <div class="form-field">
     <label for="july-how-joined">কীভাবে আন্দোলনে যোগ দিয়েছিলেন (How They Joined the Protest)</label>
-    <textarea id="july-how-joined" rows="4"
+    <textarea id="july-how-joined" name="july_how_joined" rows="4"
               placeholder="কোটা সংস্কার আন্দোলনে কীভাবে সম্পৃক্ত হয়েছিলেন? কবে থেকে? বিশ্ববিদ্যালয়ের বন্ধুদের সাথে? একা?..."></textarea>
   </div>
 
@@ -50,13 +50,13 @@
 
   <div class="form-field" id="july-dependents-row" style="display: none;">
     <label for="july-dependents">নির্ভরশীল সদস্য সংখ্যা (Number of Dependents)</label>
-    <input type="number" id="july-dependents" min="0" max="50"
+    <input type="number" id="july-dependents" name="july_dependents" min="0" max="50"
            placeholder="যেমন: 5" style="max-width: 200px;">
   </div>
 
   <div class="form-field">
     <label for="july-family-impact">পরিবারের উপর প্রভাব (Impact on Family)</label>
-    <textarea id="july-family-impact" rows="4"
+    <textarea id="july-family-impact" name="july_family_impact" rows="4"
               placeholder="পরিবার কীভাবে ক্ষতিগ্রস্ত হয়েছে? অর্থনৈতিক সংকট? শিশুদের পড়াশোনা? মানসিক আঘাত?..."></textarea>
   </div>
 </div>

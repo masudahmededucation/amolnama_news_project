@@ -17,7 +17,7 @@
     <div class="checkbox-group">
       {% for force in july_forces_involved %}
       <label class="checkbox-inline">
-        <input type="checkbox" name="july_force" value="{{ force.status_id }}">
+        <input type="checkbox" id="july-force-{{ force.status_id }}" name="july_force" value="{{ force.status_id }}">
         {{ force.status_name_bn }} ({{ force.status_name_en }})
       </label>
       {% endfor %}
@@ -26,25 +26,25 @@
 
   <div class="form-field">
     <label for="july-unit-badge">নির্দিষ্ট ইউনিট/ব্যাজ নম্বর (Specific Unit/Badge Number)</label>
-    <input type="text" id="july-unit-badge"
+    <input type="text" id="july-unit-badge" name="july_unit_badge"
            placeholder="যেমন: ঢাকা মেট্রোপলিটন পুলিশ, র‍্যাব-১০...">
   </div>
 
   <div class="form-field">
     <label for="july-commanding-officer">কমান্ডিং অফিসার (Commanding Officer)</label>
-    <input type="text" id="july-commanding-officer"
+    <input type="text" id="july-commanding-officer" name="july_commanding_officer"
            placeholder="ঘটনাস্থলের দায়িত্বে থাকা অফিসারের নাম...">
   </div>
 
   <div class="form-field">
     <label for="july-oc-dc">ওসি/ডিসি (OC/DC of the Zone)</label>
-    <input type="text" id="july-oc-dc"
+    <input type="text" id="july-oc-dc" name="july_oc_dc"
            placeholder="সেই সময় এলাকার ওসি বা ডিসি কে ছিলেন?">
   </div>
 
   <div class="form-field">
     <label for="july-directives">আদেশ/নির্দেশনা (Orders/Directives Noted)</label>
-    <textarea id="july-directives" rows="4"
+    <textarea id="july-directives" name="july_directives" rows="4"
               placeholder="কোনো নির্দিষ্ট আদেশ বা নির্দেশনার কথা জানা গেছে কি? যেমন: 'গুলি চালাও', 'ছাত্রদের ছাড়বে না'..."></textarea>
   </div>
 </div>

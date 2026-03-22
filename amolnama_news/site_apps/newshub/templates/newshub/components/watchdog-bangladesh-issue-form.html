@@ -12,7 +12,7 @@
 
   <div class="form-field">
     <label for="issue-topic">ইস্যুর বিষয় (Issue / Topic)<span class="required-mark">*</span></label>
-    <textarea id="issue-topic" rows="2"
+    <textarea id="issue-topic" name="issue_topic" rows="2"
               placeholder="কোন ইস্যু নিয়ে অবস্থান পরিবর্তন হয়েছে... (What issue has the stance changed on...)"></textarea>
   </div>
 
@@ -22,18 +22,18 @@
 
     <div class="form-field">
       <label for="issue-original-stance">আগের অবস্থান (Previous Stance)<span class="required-mark">*</span></label>
-      <textarea id="issue-original-stance" rows="3"
+      <textarea id="issue-original-stance" name="issue_original_stance" rows="3"
                 placeholder="এই ইস্যুতে আগে কী অবস্থান ছিল... (What was the previous stance on this issue...)"></textarea>
     </div>
 
     <div class="form-field">
       <label for="issue-original-date">আগের অবস্থানের তারিখ (Previous Stance Date)</label>
-      <input type="date" id="issue-original-date">
+      <input type="date" id="issue-original-date" name="issue_original_date">
     </div>
 
     <div class="form-field">
       <label for="issue-original-source">আগের সূত্র/লিঙ্ক (Previous Source/Link)</label>
-      <input type="url" id="issue-original-source" placeholder="https://...">
+      <input type="url" id="issue-original-source" name="issue_original_source" placeholder="https://...">
     </div>
   </div>
 
@@ -43,25 +43,25 @@
 
     <div class="form-field">
       <label for="issue-current-stance">বর্তমান অবস্থান (Current Stance)<span class="required-mark">*</span></label>
-      <textarea id="issue-current-stance" rows="3"
+      <textarea id="issue-current-stance" name="issue_current_stance" rows="3"
                 placeholder="এখন এই ইস্যুতে কী অবস্থান... (What is the current stance on this issue...)"></textarea>
     </div>
 
     <div class="form-field">
       <label for="issue-current-date">বর্তমান অবস্থানের তারিখ (Current Stance Date)</label>
-      <input type="date" id="issue-current-date">
+      <input type="date" id="issue-current-date" name="issue_current_date">
     </div>
 
     <div class="form-field">
       <label for="issue-current-source">বর্তমান সূত্র/লিঙ্ক (Current Source/Link)</label>
-      <input type="url" id="issue-current-source" placeholder="https://...">
+      <input type="url" id="issue-current-source" name="issue_current_source" placeholder="https://...">
     </div>
   </div>
 
   {# ---- Impact ---- #}
   <div class="form-field">
     <label for="issue-impact">জনগণের উপর প্রভাব (Impact on Public)</label>
-    <textarea id="issue-impact" rows="2"
+    <textarea id="issue-impact" name="issue_impact" rows="2"
               placeholder="এই অবস্থান পরিবর্তনে জনগণের কী প্রভাব পড়েছে... (How has this stance change impacted the public...)"></textarea>
   </div>
 </div>

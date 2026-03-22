@@ -12,7 +12,7 @@
 
   <div class="form-field">
     <label for="women-fixer-incident-type">ঘটনার ধরন (Incident Type)<span class="required-mark">*</span></label>
-    <select id="women-fixer-incident-type">
+    <select id="women-fixer-incident-type" name="women_fixer_incident_type">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       <option value="trafficking">নারী পাচার (Trafficking)</option>
       <option value="escort_providing">এসকর্ট সরবরাহ (Escort Providing)</option>
@@ -24,35 +24,35 @@
 
   <div class="form-field">
     <label for="women-fixer-incident-description">ঘটনার বিবরণ (Incident Description)<span class="required-mark">*</span></label>
-    <textarea id="women-fixer-incident-description" rows="3"
+    <textarea id="women-fixer-incident-description" name="women_fixer_incident_description" rows="3"
               placeholder="ঘটনার বিস্তারিত বিবরণ... (Detailed description of the incident...)"></textarea>
   </div>
 
   <div class="form-field">
     <label for="women-fixer-incident-date">ঘটনার তারিখ (Incident Date)</label>
-    <input type="date" id="women-fixer-incident-date">
+    <input type="date" id="women-fixer-incident-date" name="women_fixer_incident_date">
   </div>
 
   <div class="form-field">
     <label for="women-fixer-victim-count">ক্ষতিগ্রস্ত ব্যক্তির সংখ্যা (Number of Victims)</label>
-    <input type="number" id="women-fixer-victim-count" min="0"
+    <input type="number" id="women-fixer-victim-count" name="women_fixer_victim_count" min="0"
            placeholder="সংখ্যা... (Number...)">
   </div>
 
   <div class="form-field">
     <label for="women-fixer-network-description">নেটওয়ার্কের বিবরণ (Network Description)</label>
-    <textarea id="women-fixer-network-description" rows="2"
+    <textarea id="women-fixer-network-description" name="women_fixer_network_description" rows="2"
               placeholder="জড়িত নেটওয়ার্কের বিবরণ... (Description of the involved network...)"></textarea>
   </div>
 
   <div class="form-field">
     <label for="women-fixer-legal-action">আইনি পদক্ষেপ (Legal Action Taken)</label>
-    <textarea id="women-fixer-legal-action" rows="2"
+    <textarea id="women-fixer-legal-action" name="women_fixer_legal_action" rows="2"
               placeholder="কী আইনি পদক্ষেপ নেওয়া হয়েছে... (What legal action has been taken...)"></textarea>
   </div>
 
   <div class="form-field">
     <label for="women-fixer-source">সূত্র/প্রমাণ লিঙ্ক (Source/Proof Link)</label>
-    <input type="url" id="women-fixer-source" placeholder="https://...">
+    <input type="url" id="women-fixer-source" name="women_fixer_source" placeholder="https://...">
   </div>
 </div>

@@ -15,11 +15,11 @@
     <div class="weapon-type-checkboxes" id="weapon-type-checkboxes">
       {% for wt in weapon_types %}
       <label class="checkbox-label">
-        <input type="checkbox" class="weapon-type-cb" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">
+        <input type="checkbox" id="crime-weapon-type-{{ wt.status_id }}" class="weapon-type-cb" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">
         {{ wt.status_name_bn }} ({{ wt.status_name_en }})
       </label>
       {% endfor %}
-      <input type="text" id="weapon-other-text" class="weapon-other-input" maxlength="100"
+      <input type="text" id="weapon-other-text" name="weapon_other_text" class="weapon-other-input" maxlength="100"
              placeholder="অন্যান্য অস্ত্রের বিবরণ দিন (Describe other weapon)" style="display:none;">
     </div>
   </div>

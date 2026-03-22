@@ -26,7 +26,7 @@
   <div class="form-field" id="wcv-other-type-row" style="display: none;">
     <label for="wcv-other-type"
            data-bn="সহিংসতার ধরন লিখুন" data-en="Describe Type of Violence">সহিংসতার ধরন লিখুন</label>
-    <input type="text" id="wcv-other-type"
+    <input type="text" id="wcv-other-type" name="wcv_other_type"
            data-ph-bn="সহিংসতার ধরন বিস্তারিত লিখুন..."
            data-ph-en="Describe the type of violence in detail..."
            placeholder="সহিংসতার ধরন বিস্তারিত লিখুন...">
@@ -35,7 +35,7 @@
   <div class="form-field">
     <label for="wcv-location-type"
            data-bn="ঘটনাস্থলের ধরন" data-en="Incident Location Type">ঘটনাস্থলের ধরন</label>
-    <select id="wcv-location-type">
+    <select id="wcv-location-type" name="wcv_location_type">
       <option value=""
               data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন --</option>
       {# Populated by JS from wcv-location-types-data #}
@@ -53,7 +53,7 @@
   <div class="form-field" id="wcv-duration-row" style="display: none;">
     <label for="wcv-duration"
            data-bn="নির্যাতনের সময়কাল" data-en="Duration of Abuse">নির্যাতনের সময়কাল</label>
-    <input type="text" id="wcv-duration"
+    <input type="text" id="wcv-duration" name="wcv_duration"
            data-ph-bn="যেমন: ৬ মাস ধরে, ৩ বছর, বিয়ের পর থেকে..."
            data-ph-en="e.g. 6 months, 3 years, since marriage..."
            placeholder="যেমন: ৬ মাস ধরে, ৩ বছর, বিয়ের পর থেকে...">

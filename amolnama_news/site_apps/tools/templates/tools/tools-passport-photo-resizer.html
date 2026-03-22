@@ -24,7 +24,7 @@
   <!-- ===== Preset Selector ===== -->
   <div class="photo-resizer-presets" id="photo-resizer-presets">
     <label class="photo-resizer-label" for="photo-resizer-preset-select" data-en="Select Preset">প্রিসেট নির্বাচন করুন (Select Preset)</label>
-    <select id="photo-resizer-preset-select" class="photo-resizer-select">
+    <select id="photo-resizer-preset-select" name="photo_resizer_preset_select" class="photo-resizer-select">
       <option value="" data-en="— Custom Size —">— কাস্টম সাইজ (Custom Size) —</option>
       <optgroup label="সরকারি চাকরি (Government Jobs — Teletalk)" data-en="Government Jobs — Teletalk">
         <option value="teletalk_photo" data-en="Teletalk Photo — 300×300px (≤100KB)">Teletalk ছবি — 300×300px (≤100KB)</option>
@@ -54,23 +54,23 @@
     <div class="photo-resizer-custom-row">
       <div class="photo-resizer-field">
         <label for="photo-resizer-width" data-en="Width (px)">প্রস্থ (Width px)</label>
-        <input type="number" id="photo-resizer-width" min="1" max="5000" value="300" placeholder="300">
+        <input type="number" id="photo-resizer-width" name="photo_resizer_width" min="1" max="5000" value="300" placeholder="300">
       </div>
       <span class="photo-resizer-times">&times;</span>
       <div class="photo-resizer-field">
         <label for="photo-resizer-height" data-en="Height (px)">উচ্চতা (Height px)</label>
-        <input type="number" id="photo-resizer-height" min="1" max="5000" value="300" placeholder="300">
+        <input type="number" id="photo-resizer-height" name="photo_resizer_height" min="1" max="5000" value="300" placeholder="300">
       </div>
     </div>
     <div class="photo-resizer-size-row">
       <div class="photo-resizer-field">
         <label for="photo-resizer-min-kb" data-en="Min KB">সর্বনিম্ন (Min KB)</label>
-        <input type="number" id="photo-resizer-min-kb" min="0" max="10000" value="0" placeholder="0">
+        <input type="number" id="photo-resizer-min-kb" name="photo_resizer_min_kb" min="0" max="10000" value="0" placeholder="0">
       </div>
       <span class="photo-resizer-size-sep">&mdash;</span>
       <div class="photo-resizer-field">
         <label for="photo-resizer-max-kb" data-en="Max KB">সর্বোচ্চ (Max KB)</label>
-        <input type="number" id="photo-resizer-max-kb" min="1" max="10000" value="100" placeholder="100">
+        <input type="number" id="photo-resizer-max-kb" name="photo_resizer_max_kb" min="1" max="10000" value="100" placeholder="100">
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@
 
   <!-- ===== Drop Zone ===== -->
   <div class="photo-resizer-dropzone" id="photo-resizer-dropzone">
-    <input type="file" id="photo-resizer-file-input" accept="image/*" hidden>
+    <input type="file" id="photo-resizer-file-input" name="photo_resizer_file_input" accept="image/*" hidden>
     <div class="photo-resizer-dropzone-icon">📷</div>
     <p class="photo-resizer-dropzone-text" data-en="Drag &amp; drop image here">ছবি এখানে টেনে আনুন (Drag &amp; drop image here)</p>
     <p class="photo-resizer-dropzone-or" data-en="or">অথবা (or)</p>
@@ -112,7 +112,7 @@
         </div>
         <div class="photo-resizer-zoom">
           <label for="photo-resizer-zoom-range" data-en="Zoom">জুম (Zoom)</label>
-          <input type="range" id="photo-resizer-zoom-range" min="0.2" max="3" step="0.05" value="1">
+          <input type="range" id="photo-resizer-zoom-range" name="photo_resizer_zoom_range" min="0.2" max="3" step="0.05" value="1">
           <span id="photo-resizer-zoom-value">100%</span>
         </div>
       </div>

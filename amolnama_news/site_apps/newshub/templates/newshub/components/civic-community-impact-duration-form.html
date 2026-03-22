@@ -18,13 +18,13 @@
 
   <div class="form-field">
     <label for="civic-people-affected">ক্ষতিগ্রস্ত মানুষের সংখ্যা (People Affected)</label>
-    <input type="number" id="civic-people-affected" min="0"
+    <input type="number" id="civic-people-affected" name="civic_people_affected" min="0"
            placeholder="আনুমানিক সংখ্যা... (Estimated number...)">
   </div>
 
   <div class="form-field">
     <label for="civic-impact-type">প্রভাবের ধরন (Impact Type)</label>
-    <select id="civic-impact-type">
+    <select id="civic-impact-type" name="civic_impact_type">
       <option value="">-- নির্বাচন করুন --</option>
       {# Options populated by JS from impact-categories-data #}
     </select>
@@ -32,7 +32,7 @@
 
   <div class="form-field">
     <label for="civic-duration-unit">সময়ের একক (Duration Unit)</label>
-    <select id="civic-duration-unit">
+    <select id="civic-duration-unit" name="civic_duration_unit">
       <option value="">-- নির্বাচন করুন --</option>
       {# Options populated by JS from duration-units-data #}
     </select>
@@ -40,7 +40,7 @@
 
   <div class="form-field">
     <label for="civic-duration-value">সমস্যার সময়কাল (Duration)</label>
-    <input type="number" id="civic-duration-value" min="0" step="1"
+    <input type="number" id="civic-duration-value" name="civic_duration_value" min="0" step="1"
            placeholder="সংখ্যা... (Number...)">
   </div>
 
@@ -53,13 +53,13 @@
 
   <div class="form-field" id="civic-complaint-details-row" style="display: none;">
     <label for="civic-complaint-details">পূর্বের অভিযোগের বিবরণ (Previous Complaint Details)</label>
-    <textarea id="civic-complaint-details" rows="3"
+    <textarea id="civic-complaint-details" name="civic_complaint_details" rows="3"
               placeholder="কবে, কোথায় অভিযোগ করা হয়েছিল, কী পদক্ষেপ নেওয়া হয়েছিল... (When, where was the complaint filed, what action was taken...)"></textarea>
   </div>
 
   <div class="form-field">
     <label for="civic-budget-info">বাজেট/প্রকল্প তথ্য (Budget/Project Info)</label>
-    <textarea id="civic-budget-info" rows="3"
+    <textarea id="civic-budget-info" name="civic_budget_info" rows="3"
               placeholder="সংশ্লিষ্ট প্রকল্প/বাজেটের তথ্য থাকলে লিখুন... (Any related project/budget info...)"></textarea>
   </div>
 </div>

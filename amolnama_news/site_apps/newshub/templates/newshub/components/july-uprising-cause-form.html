@@ -14,7 +14,7 @@
 
   <div class="form-field">
     <label for="july-weapon-type">অস্ত্রের ধরন (Weapon Type)</label>
-    <select id="july-weapon-type">
+    <select id="july-weapon-type" name="july_weapon_type">
       <option value="">-- নির্বাচন করুন --</option>
       {% for wt in weapon_types %}
       <option value="{{ wt.status_id }}">{{ wt.status_name_bn }} ({{ wt.status_name_en }})</option>
@@ -24,7 +24,7 @@
 
   <div class="form-field">
     <label for="july-injury-site">শরীরে আঘাতের স্থান (Body Injury Site)</label>
-    <select id="july-injury-site">
+    <select id="july-injury-site" name="july_injury_site">
       <option value="">-- নির্বাচন করুন --</option>
       {% for bp in injury_sites %}
       <option value="{{ bp.status_id }}">{{ bp.status_name_bn }} ({{ bp.status_name_en }})</option>
@@ -34,19 +34,19 @@
 
   <div class="form-field">
     <label for="july-time-of-injury">আঘাতের সময় (Time of Injury)</label>
-    <input type="text" id="july-time-of-injury"
+    <input type="text" id="july-time-of-injury" name="july_time_of_injury"
            placeholder="যেমন: ১৬ জুলাই বিকাল ৫:৩০, July 20 afternoon...">
   </div>
 
   <div class="form-field">
     <label for="july-hospital">হাসপাতালের নাম (Hospital Name)</label>
-    <input type="text" id="july-hospital"
+    <input type="text" id="july-hospital" name="july_hospital"
            placeholder="যেমন: ঢাকা মেডিকেল কলেজ, রংপুর মেডিকেল...">
   </div>
 
   <div class="form-field">
     <label for="july-time-of-death">মৃত্যুর সময় (Time of Death — if applicable)</label>
-    <input type="text" id="july-time-of-death"
+    <input type="text" id="july-time-of-death" name="july_time_of_death"
            placeholder="যেমন: ১৬ জুলাই সন্ধ্যা ৭:০০, হাসপাতালে নেওয়ার পথে...">
   </div>
 
@@ -54,11 +54,7 @@
     <div class="checkbox-group">
       {% for de in july_death_evidence %}
       <label class="checkbox-inline">
-        <input type="checkbox" name="july-death-evidence"
-          {% if de.status_code == 'AUTOPSY_DONE' %}id="july-autopsy-done"
-          {% elif de.status_code == 'DEATH_CERTIFICATE_AVAILABLE' %}id="july-death-certificate"
-          {% elif de.status_code == 'MEDICAL_DOCUMENTS_AVAILABLE' %}id="july-medical-docs"
-          {% endif %}
+        <input type="checkbox" id="{% if de.status_code == 'AUTOPSY_DONE' %}july-autopsy-done{% elif de.status_code == 'DEATH_CERTIFICATE_AVAILABLE' %}july-death-certificate{% elif de.status_code == 'MEDICAL_DOCUMENTS_AVAILABLE' %}july-medical-docs{% else %}july-death-evidence-{{ de.status_id }}{% endif %}" name="july-death-evidence"
           value="{{ de.status_id }}">
         {{ de.status_name_bn }} ({{ de.status_name_en }})
       </label>

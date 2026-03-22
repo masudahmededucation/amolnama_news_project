@@ -13,7 +13,7 @@
 
   <div class="form-field">
     <label for="entertainment-platform">প্ল্যাটফর্ম (Platform)</label>
-    <select id="entertainment-platform">
+    <select id="entertainment-platform" name="entertainment_platform">
       <option value="">-- নির্বাচন করুন --</option>
       <option value="netflix">নেটফ্লিক্স (Netflix)</option>
       <option value="youtube">ইউটিউব (YouTube)</option>
@@ -30,7 +30,7 @@
 
   <div class="form-field">
     <label for="entertainment-project-stage">প্রকল্পের ধাপ (Project Stage)</label>
-    <select id="entertainment-project-stage">
+    <select id="entertainment-project-stage" name="entertainment_project_stage">
       <option value="">-- নির্বাচন করুন --</option>
       <option value="announcement">ঘোষণা (Announcement)</option>
       <option value="pre_production">প্রি-প্রোডাকশন (Pre-Production)</option>
@@ -47,19 +47,19 @@
     <label>মেধাস্বত্ব (Intellectual Property Type)</label>
     <div class="radio-inline-group">
       <label class="radio-inline">
-        <input type="radio" name="entertainment_ip_type" value="original" checked>
+        <input type="radio" id="entertainment-ip-type-original" name="entertainment_ip_type" value="original" checked>
         মৌলিক (Original)
       </label>
       <label class="radio-inline">
-        <input type="radio" name="entertainment_ip_type" value="remake">
+        <input type="radio" id="entertainment-ip-type-remake" name="entertainment_ip_type" value="remake">
         রিমেক (Remake)
       </label>
       <label class="radio-inline">
-        <input type="radio" name="entertainment_ip_type" value="sequel">
+        <input type="radio" id="entertainment-ip-type-sequel" name="entertainment_ip_type" value="sequel">
         সিক্যুয়েল (Sequel)
       </label>
       <label class="radio-inline">
-        <input type="radio" name="entertainment_ip_type" value="adaptation">
+        <input type="radio" id="entertainment-ip-type-adaptation" name="entertainment_ip_type" value="adaptation">
         রূপান্তর (Adaptation)
       </label>
     </div>

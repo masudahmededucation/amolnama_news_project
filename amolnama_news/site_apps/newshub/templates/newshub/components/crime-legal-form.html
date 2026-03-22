@@ -36,7 +36,7 @@
 
   <div class="form-field">
     <label for="crime-case-status">মামলার অবস্থা (Case Status)</label>
-    <select id="crime-case-status">
+    <select id="crime-case-status" name="crime_case_status">
       <option value="">-- নির্বাচন করুন --</option>
       {# Populated by news-crime-legal.js from #crime-case-status-data #}
     </select>
@@ -58,7 +58,7 @@
 
   <div class="form-field">
     <label for="crime-remarks">অতিরিক্ত তথ্য / মন্তব্য (Additional Information / Remarks)</label>
-    <textarea id="crime-remarks" rows="4"
+    <textarea id="crime-remarks" name="crime_remarks" rows="4"
               placeholder="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."></textarea>
   </div>
 </div>

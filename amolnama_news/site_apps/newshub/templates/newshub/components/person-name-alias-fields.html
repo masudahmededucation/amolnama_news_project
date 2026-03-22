@@ -17,7 +17,7 @@
 <div class="form-field">
   <label for="{{ prefix }}-alias"
          data-bn="ডাকনাম বা পরিচিত নাম" data-en="Alias / Nickname">ডাকনাম বা পরিচিত নাম (Alias / Nickname)</label>
-  <input type="text" id="{{ prefix }}-alias" maxlength="100"
+  <input type="text" id="{{ prefix }}-alias" name="{{ prefix }}_alias" maxlength="100"
          data-ph-bn="{{ alias_placeholder|default:'ডাকনাম (বাংলা)...' }}" data-ph-en="Alias..."
          placeholder="{{ alias_placeholder|default:'ডাকনাম (বাংলা)...' }}">
 </div>

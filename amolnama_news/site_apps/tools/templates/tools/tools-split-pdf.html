@@ -16,7 +16,7 @@
 
   <!-- ===== Drop Zone ===== -->
   <div class="spl-dropzone" id="spl-dropzone">
-    <input type="file" id="spl-file-input" accept=".pdf" hidden>
+    <input type="file" id="spl-file-input" name="spl_file_input" accept=".pdf" hidden>
     <div class="spl-dropzone-icon">✂️</div>
     <p class="spl-dropzone-text" data-en="Drag &amp; drop a PDF here">PDF ফাইল এখানে টেনে আনুন (Drag &amp; drop a PDF here)</p>
     <p class="spl-dropzone-or" data-en="or">অথবা (or)</p>
@@ -60,7 +60,7 @@
       <div class="spl-range-section">
         <label class="spl-label" for="spl-range-input" data-en="Enter Ranges — e.g.: 1-3, 5, 8-10">পরিসীমা দিন (Enter Ranges) — যেমন: <strong>1-3, 5, 8-10</strong></label>
         <div class="spl-range-row">
-          <input type="text" id="spl-range-input" class="spl-input" placeholder="যেমন: 1-3, 4-7, 8-10" data-no-bangla>
+          <input type="text" id="spl-range-input" name="spl_range_input" class="spl-input" placeholder="যেমন: 1-3, 4-7, 8-10" data-no-bangla>
         </div>
         <p class="spl-range-hint" id="spl-range-hint"></p>
       </div>
@@ -77,7 +77,7 @@
     <div class="spl-options">
       <div class="spl-option-row">
         <label class="spl-label" for="spl-output-name" data-en="Output Filename">ফাইলের নাম (Output Filename)</label>
-        <input type="text" id="spl-output-name" class="spl-input" value="split-document" placeholder="split-document" data-no-bangla>
+        <input type="text" id="spl-output-name" name="spl_output_name" class="spl-input" value="split-document" placeholder="split-document" data-no-bangla>
       </div>
     </div>
 

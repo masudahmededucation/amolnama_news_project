@@ -16,7 +16,7 @@
   <div class="radio-card-grid" id="july-sub-type-grid">
     {% for itype in july_incident_types %}
     <label class="radio-card">
-      <input type="radio" name="july_sub_type_radio" value="{{ itype.status_id }}">
+      <input type="radio" id="july-sub-type-radio-{{ itype.status_id }}" name="july_sub_type_radio" value="{{ itype.status_id }}">
       <span class="radio-card-icon">{{ itype.status_icon }}</span>
       <span class="radio-card-label">{{ itype.status_name_bn }} ({{ itype.status_name_en }})</span>
     </label>
@@ -34,7 +34,7 @@
 
   <div class="form-field">
     <label for="july-scale">আন্দোলনের মাত্রা (Protest Scale)</label>
-    <select id="july-scale">
+    <select id="july-scale" name="july_scale">
       <option value="">-- নির্বাচন করুন --</option>
       {% for opt in july_protest_scales %}
       <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>
@@ -44,7 +44,7 @@
 
   <div class="form-field">
     <label for="july-internet-status">ইন্টারনেট অবস্থা (Internet Status)</label>
-    <select id="july-internet-status">
+    <select id="july-internet-status" name="july_internet_status">
       <option value="">-- নির্বাচন করুন --</option>
       {% for opt in july_internet_statuses %}
       <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>
@@ -54,7 +54,7 @@
 
   <div class="form-field">
     <label for="july-curfew-status">কারফিউ অবস্থা (Curfew Status)</label>
-    <select id="july-curfew-status">
+    <select id="july-curfew-status" name="july_curfew_status">
       <option value="">-- নির্বাচন করুন --</option>
       {% for opt in july_curfew_statuses %}
       <option value="{{ opt.status_id }}">{{ opt.status_name_bn }} ({{ opt.status_name_en }})</option>

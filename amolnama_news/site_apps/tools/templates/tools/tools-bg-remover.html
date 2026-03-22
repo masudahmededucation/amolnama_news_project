@@ -16,7 +16,7 @@
 
   <!-- ===== Drop Zone ===== -->
   <div class="bgr-dropzone" id="bgr-dropzone">
-    <input type="file" id="bgr-file-input" accept="image/*" hidden>
+    <input type="file" id="bgr-file-input" name="bgr_file_input" accept="image/*" hidden>
     <div class="bgr-dropzone-icon">🖼️</div>
     <p class="bgr-dropzone-text" data-en="Drag &amp; drop image here">ছবি এখানে টেনে আনুন (Drag &amp; drop image here)</p>
     <p class="bgr-dropzone-or" data-en="or">অথবা (or)</p>
@@ -88,7 +88,7 @@
           <button type="button" class="bgr-brush-btn" id="bgr-brush-restore" data-mode="restore" data-en="🔄 Restore">🔄 রিস্টোর (Restore)</button>
           <span class="bgr-toolbar-sep"></span>
           <label class="bgr-brush-size-inline" for="bgr-brush-size" data-en="Size">সাইজ</label>
-          <input type="range" id="bgr-brush-size" min="3" max="80" step="1" value="20" class="bgr-brush-size-range">
+          <input type="range" id="bgr-brush-size" name="bgr_brush_size" min="3" max="80" step="1" value="20" class="bgr-brush-size-range">
           <span id="bgr-brush-size-value" class="bgr-brush-size-val">20px</span>
           <span class="bgr-toolbar-sep"></span>
           <button type="button" class="bgr-brush-btn bgr-brush-btn--undo" id="bgr-brush-undo" disabled>↩️ Undo</button>
@@ -107,7 +107,7 @@
           <button type="button" class="bgr-swatch" data-bg="#2ECC71" style="background:#2ECC71" title="সবুজ (Green)"></button>
           <div class="bgr-swatch-custom-wrap">
             <label class="bgr-swatch bgr-swatch--custom" title="কাস্টম রঙ (Custom Color)">
-              <input type="color" id="bgr-custom-color" value="#cccccc">
+              <input type="color" id="bgr-custom-color" name="bgr_custom_color" value="#cccccc">
               <span>🎨</span>
             </label>
           </div>
@@ -118,15 +118,15 @@
       <div class="bgr-sliders-grid">
         <div class="bgr-slider-col">
           <label data-en="Smooth">মসৃণ (Smooth) <span id="bgr-edge-value">3</span></label>
-          <input type="range" id="bgr-edge-slider" min="0" max="10" step="1" value="3">
+          <input type="range" id="bgr-edge-slider" name="bgr_edge_slider" min="0" max="10" step="1" value="3">
         </div>
         <div class="bgr-slider-col">
           <label data-en="Shift">শিফট (Shift) <span id="bgr-edge-shift-value">0</span></label>
-          <input type="range" id="bgr-edge-shift" min="-5" max="5" step="1" value="0">
+          <input type="range" id="bgr-edge-shift" name="bgr_edge_shift" min="-5" max="5" step="1" value="0">
         </div>
         <div class="bgr-slider-col">
           <label data-en="Shadow">ছায়া (Shadow) <span id="bgr-shadow-blur-value">0</span></label>
-          <input type="range" id="bgr-shadow-blur" min="0" max="40" step="1" value="0">
+          <input type="range" id="bgr-shadow-blur" name="bgr_shadow_blur" min="0" max="40" step="1" value="0">
         </div>
       </div>
 

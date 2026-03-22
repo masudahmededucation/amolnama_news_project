@@ -34,12 +34,12 @@
   <div id="{{ fir_prefix }}-fir-details-row" style="display: none;">
     <div class="form-field form-field-thana-search">
       <label for="{{ fir_prefix }}-police-station">🔍 থানার নাম অনুসন্ধান করুন (Search Police Station)</label>
-      <input type="text" id="{{ fir_prefix }}-police-station"
+      <input type="text" id="{{ fir_prefix }}-police-station" name="{{ fir_prefix }}_police_station"
              placeholder="যেমন: মিরপুর মডেল... লিখে খুঁজুন অথবা সরাসরি নাম লিখুন">
     </div>
     <div class="form-field">
       <label for="{{ fir_prefix }}-case-number">মামলা/জিডি নম্বর (Case / GD Number)</label>
-      <input type="text" id="{{ fir_prefix }}-case-number"
+      <input type="text" id="{{ fir_prefix }}-case-number" name="{{ fir_prefix }}_case_number"
              placeholder="যেমন: জিডি নং ১২৩, মামলা নং ৪৫৬...">
     </div>
   </div>
@@ -48,7 +48,7 @@
   <div id="{{ fir_prefix }}-police-refused-row" style="display: none;">
     <div class="form-field">
       <label for="{{ fir_prefix }}-police-refusal-statement">পুলিশের অস্বীকারের বিবৃতি (Police Refusal Statement)</label>
-      <textarea id="{{ fir_prefix }}-police-refusal-statement" rows="3"
+      <textarea id="{{ fir_prefix }}-police-refusal-statement" name="{{ fir_prefix }}_police_refusal_statement" rows="3"
                 placeholder="পুলিশ কী কারণে মামলা নিতে অস্বীকার করেছে তা লিখুন..."></textarea>
     </div>
   </div>
@@ -57,7 +57,7 @@
   <div id="{{ fir_prefix }}-no-fir-row" style="display: none;">
     <div class="form-field">
       <label for="{{ fir_prefix }}-no-fir-reason">মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (Reason for Not Filing & Plans)</label>
-      <textarea id="{{ fir_prefix }}-no-fir-reason" rows="3"
+      <textarea id="{{ fir_prefix }}-no-fir-reason" name="{{ fir_prefix }}_no_fir_reason" rows="3"
                 placeholder="কেন মামলা হয়নি এবং ভুক্তভোগীর ভবিষ্যৎ পরিকল্পনা কী তা লিখুন..."></textarea>
     </div>
   </div>

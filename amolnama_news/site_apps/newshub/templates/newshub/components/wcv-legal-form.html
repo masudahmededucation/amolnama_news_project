@@ -26,7 +26,7 @@
   <div class="form-field">
     <label for="wcv-case-status"
            data-bn="মামলার অবস্থা" data-en="Case Status">মামলার অবস্থা</label>
-    <select id="wcv-case-status">
+    <select id="wcv-case-status" name="wcv_case_status">
       <option value=""
               data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন --</option>
       {# Populated by JS from wcv-case-status-data #}
@@ -52,7 +52,7 @@
   <div class="form-field">
     <label for="wcv-legal-remarks"
            data-bn="অতিরিক্ত তথ্য / মন্তব্য" data-en="Additional Information / Remarks">অতিরিক্ত তথ্য / মন্তব্য</label>
-    <textarea id="wcv-legal-remarks" rows="4"
+    <textarea id="wcv-legal-remarks" name="wcv_legal_remarks" rows="4"
               data-ph-bn="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."
               data-ph-en="Enter any additional information about legal actions or support..."
               placeholder="আইনি পদক্ষেপ বা সহায়তা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন..."></textarea>

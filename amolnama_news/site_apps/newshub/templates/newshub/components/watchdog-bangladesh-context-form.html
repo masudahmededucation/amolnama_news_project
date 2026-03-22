@@ -15,23 +15,23 @@
     <label>কারণ/চাপ (Motive/Pressure)</label>
     <div class="checkbox-group" id="political-motive-checkboxes">
       <label class="checkbox-card">
-        <input type="checkbox" name="political_motive" value="fear">
+        <input type="checkbox" id="political-motive-fear" name="political_motive" value="fear">
         <span class="checkbox-card-label">গ্রেপ্তার/মামলার ভয় (Fear of Arrest/Case)</span>
       </label>
       <label class="checkbox-card">
-        <input type="checkbox" name="political_motive" value="greed">
+        <input type="checkbox" id="political-motive-greed" name="political_motive" value="greed">
         <span class="checkbox-card-label">পদ/পদবির লোভ (Greed for Position)</span>
       </label>
       <label class="checkbox-card">
-        <input type="checkbox" name="political_motive" value="election">
+        <input type="checkbox" id="political-motive-election" name="political_motive" value="election">
         <span class="checkbox-card-label">নির্বাচনী মনোনয়ন (Election Nomination)</span>
       </label>
       <label class="checkbox-card">
-        <input type="checkbox" name="political_motive" value="pressure">
+        <input type="checkbox" id="political-motive-pressure" name="political_motive" value="pressure">
         <span class="checkbox-card-label">বাহ্যিক চাপ (External Pressure)</span>
       </label>
       <label class="checkbox-card">
-        <input type="checkbox" name="political_motive" value="other">
+        <input type="checkbox" id="political-motive-other" name="political_motive" value="other">
         <span class="checkbox-card-label">অন্যান্য (Other)</span>
       </label>
     </div>
@@ -39,7 +39,7 @@
 
   <div class="form-field">
     <label for="political-context-description">প্রেক্ষাপটের বিবরণ (Context Description)</label>
-    <textarea id="political-context-description" rows="4"
+    <textarea id="political-context-description" name="political_context_description" rows="4"
               placeholder="কেন তিনি দল/অবস্থান পরিবর্তন করলেন তার বিস্তারিত বিবরণ... (Describe why they changed party/position...)"></textarea>
   </div>
 </div>

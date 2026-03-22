@@ -13,7 +13,7 @@
 
   <div class="form-field">
     <label for="global-territory-status">ভূখণ্ডের অবস্থা (Territory Status)</label>
-    <select id="global-territory-status">
+    <select id="global-territory-status" name="global_territory_status">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       {# Options populated by JS from territory-statuses-data #}
     </select>
@@ -21,13 +21,13 @@
 
   <div class="form-field">
     <label for="global-territory-description">ভূখণ্ড/অঞ্চলের নাম (Territory/Region Name)</label>
-    <input type="text" id="global-territory-description"
+    <input type="text" id="global-territory-description" name="global_territory_description"
            placeholder="যেমন: খেরসন, গাজা, তাইওয়ান প্রণালী...">
   </div>
 
   <div class="form-field">
     <label for="global-conflict-intensity">সংঘাতের তীব্রতা (Conflict Intensity)</label>
-    <select id="global-conflict-intensity">
+    <select id="global-conflict-intensity" name="global_conflict_intensity">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       {# Options populated by JS from conflict-intensity-data #}
     </select>
@@ -35,7 +35,7 @@
 
   <div class="form-field">
     <label for="global-weapon-class">অস্ত্রের ধরন (Weapon Class)</label>
-    <select id="global-weapon-class">
+    <select id="global-weapon-class" name="global_weapon_class">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       {# Options populated by JS from weapon-classes-data #}
     </select>
@@ -43,7 +43,7 @@
 
   <div class="form-field">
     <label for="global-involvement-level">অংশগ্রহণের মাত্রা (Involvement Level)</label>
-    <select id="global-involvement-level">
+    <select id="global-involvement-level" name="global_involvement_level">
       <option value="">-- নির্বাচন করুন (Select) --</option>
       {# Options populated by JS from involvement-levels-data #}
     </select>

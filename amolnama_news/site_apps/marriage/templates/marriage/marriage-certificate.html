@@ -35,7 +35,7 @@
         {% if user.is_authenticated %}
         <div class="saved-office-bar" id="saved-office-bar">
           <div class="saved-office-select-row">
-            <select id="saved-office-select">
+            <select id="saved-office-select" name="saved_office_select">
               <option value="">-- সংরক্ষিত অফিস নির্বাচন করুন (Select Saved Office) --</option>
             </select>
             <button type="button" class="btn-saved-office btn-saved-office--load" id="btn-load-office" disabled>
@@ -46,9 +46,9 @@
             </button>
           </div>
           <div class="saved-office-save-row">
-            <input type="text" id="save-office-label" placeholder="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-bn="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-en="Office label (e.g. Dhaka Office)">
+            <input type="text" id="save-office-label" name="save_office_label" placeholder="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-bn="অফিসের লেবেল (যেমন: ঢাকা অফিস)" data-placeholder-en="Office label (e.g. Dhaka Office)">
             <label class="saved-office-default-label">
-              <input type="checkbox" id="save-office-default"> <span class="lbl-bn">ডিফল্ট</span><span class="lbl-en" style="display:none">Default</span>
+              <input type="checkbox" id="save-office-default" name="save_office_default"> <span class="lbl-bn">ডিফল্ট</span><span class="lbl-en" style="display:none">Default</span>
             </label>
             <button type="button" class="btn-saved-office btn-saved-office--save" id="btn-save-office">
               <span class="lbl-bn">সংরক্ষণ করুন</span><span class="lbl-en" style="display:none">Save Office</span>
@@ -62,7 +62,7 @@
             <span class="lbl-bn">সরকারের শিরোনাম</span>
             <span class="lbl-en" style="display:none">Government Title</span>
           </label>
-          <input type="text" id="cert-govt-title" value="Government Of The People's Republic Of Bangladesh">
+          <input type="text" id="cert-govt-title" name="cert_govt_title" value="Government Of The People's Republic Of Bangladesh">
         </div>
 
         <div class="form-row">
@@ -70,7 +70,7 @@
             <span class="lbl-bn">অফিসের নাম</span>
             <span class="lbl-en" style="display:none">Office Name</span>
           </label>
-          <input type="text" id="cert-office-name" value="Office of the Muslim Marriage Register &amp; Kazi">
+          <input type="text" id="cert-office-name" name="cert_office_name" value="Office of the Muslim Marriage Register &amp; Kazi">
         </div>
 
         <div class="form-row">
@@ -78,7 +78,7 @@
             <span class="lbl-bn">অফিসের ঠিকানা</span>
             <span class="lbl-en" style="display:none">Office Address</span>
           </label>
-          <input type="text" id="cert-office-address" placeholder="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full office address">
+          <input type="text" id="cert-office-address" name="cert_office_address" placeholder="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="অফিসের সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full office address">
         </div>
 
         <div class="form-row-half">
@@ -88,7 +88,7 @@
               <span class="lbl-en" style="display:none">REGD NO</span>
               <span class="required-mark">*</span>
             </label>
-            <input type="text" id="cert-reg-no" placeholder="নিবন্ধন নম্বর" data-placeholder-bn="নিবন্ধন নম্বর" data-placeholder-en="Registration number">
+            <input type="text" id="cert-reg-no" name="cert_reg_no" placeholder="নিবন্ধন নম্বর" data-placeholder-bn="নিবন্ধন নম্বর" data-placeholder-en="Registration number">
           </div>
           <div>
             <label for="cert-date">
@@ -96,7 +96,7 @@
               <span class="lbl-en" style="display:none">Date</span>
               <span class="required-mark">*</span>
             </label>
-            <input type="date" id="cert-date">
+            <input type="date" id="cert-date" name="cert_date">
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@
             <span class="lbl-en" style="display:none">Groom's Full Name</span>
             <span class="required-mark">*</span>
           </label>
-          <input type="text" id="cert-groom-name" placeholder="বরের পূর্ণ নাম লিখুন" data-placeholder-bn="বরের পূর্ণ নাম লিখুন" data-placeholder-en="Enter groom's full name">
+          <input type="text" id="cert-groom-name" name="cert_groom_name" placeholder="বরের পূর্ণ নাম লিখুন" data-placeholder-bn="বরের পূর্ণ নাম লিখুন" data-placeholder-en="Enter groom's full name">
         </div>
 
         <div class="form-row-half">
@@ -128,14 +128,14 @@
               <span class="lbl-bn">জন্ম তারিখ</span>
               <span class="lbl-en" style="display:none">Date of Birth</span>
             </label>
-            <input type="date" id="cert-groom-dob">
+            <input type="date" id="cert-groom-dob" name="cert_groom_dob">
           </div>
           <div>
             <label for="cert-groom-religion">
               <span class="lbl-bn">ধর্ম</span>
               <span class="lbl-en" style="display:none">Religion</span>
             </label>
-            <input type="text" id="cert-groom-religion" value="Islam">
+            <input type="text" id="cert-groom-religion" name="cert_groom_religion" value="Islam">
           </div>
         </div>
 
@@ -145,14 +145,14 @@
               <span class="lbl-bn">পিতার নাম</span>
               <span class="lbl-en" style="display:none">Father's Name</span>
             </label>
-            <input type="text" id="cert-groom-father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
+            <input type="text" id="cert-groom-father" name="cert_groom_father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
           </div>
           <div>
             <label for="cert-groom-mother">
               <span class="lbl-bn">মাতার নাম</span>
               <span class="lbl-en" style="display:none">Mother's Name</span>
             </label>
-            <input type="text" id="cert-groom-mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
+            <input type="text" id="cert-groom-mother" name="cert_groom_mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
           </div>
         </div>
 
@@ -161,7 +161,7 @@
             <span class="lbl-bn">বরের ঠিকানা</span>
             <span class="lbl-en" style="display:none">Groom's Address</span>
           </label>
-          <textarea id="cert-groom-address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
+          <textarea id="cert-groom-address" name="cert_groom_address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
         </div>
 
         <div class="form-row">
@@ -169,7 +169,7 @@
             <span class="lbl-bn">NID নং</span>
             <span class="lbl-en" style="display:none">NID Number</span>
           </label>
-          <input type="text" id="cert-groom-nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
+          <input type="text" id="cert-groom-nid" name="cert_groom_nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
         </div>
       </div>
 
@@ -191,7 +191,7 @@
             <span class="lbl-en" style="display:none">Bride's Full Name</span>
             <span class="required-mark">*</span>
           </label>
-          <input type="text" id="cert-bride-name" placeholder="কনের পূর্ণ নাম লিখুন" data-placeholder-bn="কনের পূর্ণ নাম লিখুন" data-placeholder-en="Enter bride's full name">
+          <input type="text" id="cert-bride-name" name="cert_bride_name" placeholder="কনের পূর্ণ নাম লিখুন" data-placeholder-bn="কনের পূর্ণ নাম লিখুন" data-placeholder-en="Enter bride's full name">
         </div>
 
         <div class="form-row-half">
@@ -200,14 +200,14 @@
               <span class="lbl-bn">জন্ম তারিখ</span>
               <span class="lbl-en" style="display:none">Date of Birth</span>
             </label>
-            <input type="date" id="cert-bride-dob">
+            <input type="date" id="cert-bride-dob" name="cert_bride_dob">
           </div>
           <div>
             <label for="cert-bride-religion">
               <span class="lbl-bn">ধর্ম</span>
               <span class="lbl-en" style="display:none">Religion</span>
             </label>
-            <input type="text" id="cert-bride-religion" value="Islam">
+            <input type="text" id="cert-bride-religion" name="cert_bride_religion" value="Islam">
           </div>
         </div>
 
@@ -217,14 +217,14 @@
               <span class="lbl-bn">পিতার নাম</span>
               <span class="lbl-en" style="display:none">Father's Name</span>
             </label>
-            <input type="text" id="cert-bride-father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
+            <input type="text" id="cert-bride-father" name="cert_bride_father" placeholder="পিতার পূর্ণ নাম" data-placeholder-bn="পিতার পূর্ণ নাম" data-placeholder-en="Father's full name">
           </div>
           <div>
             <label for="cert-bride-mother">
               <span class="lbl-bn">মাতার নাম</span>
               <span class="lbl-en" style="display:none">Mother's Name</span>
             </label>
-            <input type="text" id="cert-bride-mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
+            <input type="text" id="cert-bride-mother" name="cert_bride_mother" placeholder="মাতার পূর্ণ নাম" data-placeholder-bn="মাতার পূর্ণ নাম" data-placeholder-en="Mother's full name">
           </div>
         </div>
 
@@ -233,7 +233,7 @@
             <span class="lbl-bn">কনের ঠিকানা</span>
             <span class="lbl-en" style="display:none">Bride's Address</span>
           </label>
-          <textarea id="cert-bride-address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
+          <textarea id="cert-bride-address" name="cert_bride_address" rows="2" placeholder="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-bn="সম্পূর্ণ ঠিকানা লিখুন" data-placeholder-en="Enter full address"></textarea>
         </div>
 
         <div class="form-row">
@@ -241,7 +241,7 @@
             <span class="lbl-bn">NID নং</span>
             <span class="lbl-en" style="display:none">NID Number</span>
           </label>
-          <input type="text" id="cert-bride-nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
+          <input type="text" id="cert-bride-nid" name="cert_bride_nid" placeholder="NID নম্বর" data-placeholder-bn="NID নম্বর" data-placeholder-en="NID number">
         </div>
       </div>
 
@@ -263,7 +263,7 @@
             <span class="lbl-en" style="display:none">Marriage Date</span>
             <span class="required-mark">*</span>
           </label>
-          <input type="date" id="cert-marriage-date">
+          <input type="date" id="cert-marriage-date" name="cert_marriage_date">
         </div>
 
         <div class="form-row-half">
@@ -272,14 +272,14 @@
               <span class="lbl-bn">বই নং</span>
               <span class="lbl-en" style="display:none">Book No.</span>
             </label>
-            <input type="text" id="cert-book-no" placeholder="বই নম্বর" data-placeholder-bn="বই নম্বর" data-placeholder-en="Book number">
+            <input type="text" id="cert-book-no" name="cert_book_no" placeholder="বই নম্বর" data-placeholder-bn="বই নম্বর" data-placeholder-en="Book number">
           </div>
           <div>
             <label for="cert-volume-no">
               <span class="lbl-bn">খণ্ড নং</span>
               <span class="lbl-en" style="display:none">Volume No.</span>
             </label>
-            <input type="text" id="cert-volume-no" placeholder="খণ্ড নম্বর" data-placeholder-bn="খণ্ড নম্বর" data-placeholder-en="Volume number">
+            <input type="text" id="cert-volume-no" name="cert_volume_no" placeholder="খণ্ড নম্বর" data-placeholder-bn="খণ্ড নম্বর" data-placeholder-en="Volume number">
           </div>
         </div>
 
@@ -289,14 +289,14 @@
               <span class="lbl-bn">পৃষ্ঠা নং</span>
               <span class="lbl-en" style="display:none">Page No.</span>
             </label>
-            <input type="text" id="cert-page-no" placeholder="পৃষ্ঠা নম্বর" data-placeholder-bn="পৃষ্ঠা নম্বর" data-placeholder-en="Page number">
+            <input type="text" id="cert-page-no" name="cert_page_no" placeholder="পৃষ্ঠা নম্বর" data-placeholder-bn="পৃষ্ঠা নম্বর" data-placeholder-en="Page number">
           </div>
           <div>
             <label for="cert-entry-no">
               <span class="lbl-bn">এন্ট্রি নং</span>
               <span class="lbl-en" style="display:none">Entry No.</span>
             </label>
-            <input type="text" id="cert-entry-no" placeholder="এন্ট্রি নম্বর" data-placeholder-bn="এন্ট্রি নম্বর" data-placeholder-en="Entry number">
+            <input type="text" id="cert-entry-no" name="cert_entry_no" placeholder="এন্ট্রি নম্বর" data-placeholder-bn="এন্ট্রি নম্বর" data-placeholder-en="Entry number">
           </div>
         </div>
 
@@ -305,7 +305,7 @@
             <span class="lbl-bn">নিবন্ধনের সন</span>
             <span class="lbl-en" style="display:none">Registration Year</span>
           </label>
-          <input type="text" id="cert-reg-year" placeholder="যেমন: ২০২৬" data-placeholder-bn="যেমন: ২০২৬" data-placeholder-en="e.g. 2026">
+          <input type="text" id="cert-reg-year" name="cert_reg_year" placeholder="যেমন: ২০২৬" data-placeholder-bn="যেমন: ২০২৬" data-placeholder-en="e.g. 2026">
         </div>
       </div>
 
@@ -327,7 +327,7 @@
             <span class="lbl-bn">ইস্যু তারিখ</span>
             <span class="lbl-en" style="display:none">Issue Date</span>
           </label>
-          <input type="date" id="cert-issue-date">
+          <input type="date" id="cert-issue-date" name="cert_issue_date">
         </div>
 
         <div class="cert-subsection">
@@ -341,14 +341,14 @@
               <span class="lbl-bn">নাম</span>
               <span class="lbl-en" style="display:none">Name</span>
             </label>
-            <input type="text" id="cert-attested-name" placeholder="সত্যায়নকারীর নাম" data-placeholder-bn="সত্যায়নকারীর নাম" data-placeholder-en="Attester's name">
+            <input type="text" id="cert-attested-name" name="cert_attested_name" placeholder="সত্যায়নকারীর নাম" data-placeholder-bn="সত্যায়নকারীর নাম" data-placeholder-en="Attester's name">
           </div>
           <div>
             <label for="cert-attested-qualification">
               <span class="lbl-bn">যোগ্যতা</span>
               <span class="lbl-en" style="display:none">Qualification</span>
             </label>
-            <input type="text" id="cert-attested-qualification" placeholder="যেমন: B.A., LL.B." data-placeholder-bn="যেমন: B.A., LL.B." data-placeholder-en="e.g. B.A., LL.B.">
+            <input type="text" id="cert-attested-qualification" name="cert_attested_qualification" placeholder="যেমন: B.A., LL.B." data-placeholder-bn="যেমন: B.A., LL.B." data-placeholder-en="e.g. B.A., LL.B.">
           </div>
         </div>
 
@@ -358,14 +358,14 @@
               <span class="lbl-bn">পদবি</span>
               <span class="lbl-en" style="display:none">Designation</span>
             </label>
-            <input type="text" id="cert-attested-designation" placeholder="যেমন: নোটারি পাবলিক" data-placeholder-bn="যেমন: নোটারি পাবলিক" data-placeholder-en="e.g. Notary Public">
+            <input type="text" id="cert-attested-designation" name="cert_attested_designation" placeholder="যেমন: নোটারি পাবলিক" data-placeholder-bn="যেমন: নোটারি পাবলিক" data-placeholder-en="e.g. Notary Public">
           </div>
           <div>
             <label for="cert-attested-place">
               <span class="lbl-bn">স্থান</span>
               <span class="lbl-en" style="display:none">Place</span>
             </label>
-            <input type="text" id="cert-attested-place" placeholder="স্থান লিখুন" data-placeholder-bn="স্থান লিখুন" data-placeholder-en="Enter place">
+            <input type="text" id="cert-attested-place" name="cert_attested_place" placeholder="স্থান লিখুন" data-placeholder-bn="স্থান লিখুন" data-placeholder-en="Enter place">
           </div>
         </div>
 
@@ -374,7 +374,7 @@
             <span class="lbl-bn">সত্যায়নের তারিখ</span>
             <span class="lbl-en" style="display:none">Attestation Date</span>
           </label>
-          <input type="date" id="cert-attested-date">
+          <input type="date" id="cert-attested-date" name="cert_attested_date">
         </div>
 
         <div class="form-row">
@@ -384,8 +384,8 @@
           </label>
           <div class="sig-zone" data-sig-key="attested">
             <div class="sig-mode-toggle">
-              <label><input type="radio" name="sig-mode-attested" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
-              <label><input type="radio" name="sig-mode-attested" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
+              <label><input type="radio" id="sig-mode-attested-draw" name="sig-mode-attested" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
+              <label><input type="radio" id="sig-mode-attested-upload" name="sig-mode-attested" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
             </div>
             <div class="sig-draw-area">
               <canvas class="sig-canvas" width="400" height="120"></canvas>
@@ -395,7 +395,7 @@
               <span class="sig-icon">✍️</span>
               <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
               <span class="sig-text lbl-en" style="display:none">Upload signature image</span>
-              <input type="file" id="cert-attested-sig" accept="image/*">
+              <input type="file" id="cert-attested-sig" name="cert_attested_sig" accept="image/*">
             </div>
           </div>
         </div>
@@ -411,14 +411,14 @@
               <span class="lbl-bn">নাম</span>
               <span class="lbl-en" style="display:none">Name</span>
             </label>
-            <input type="text" id="cert-registrar-name" placeholder="কাজীর নাম" data-placeholder-bn="কাজীর নাম" data-placeholder-en="Kazi's name">
+            <input type="text" id="cert-registrar-name" name="cert_registrar_name" placeholder="কাজীর নাম" data-placeholder-bn="কাজীর নাম" data-placeholder-en="Kazi's name">
           </div>
           <div>
             <label for="cert-registrar-designation">
               <span class="lbl-bn">পদবি</span>
               <span class="lbl-en" style="display:none">Designation</span>
             </label>
-            <input type="text" id="cert-registrar-designation" placeholder="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-bn="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-en="e.g. Muslim Marriage Register & Kazi">
+            <input type="text" id="cert-registrar-designation" name="cert_registrar_designation" placeholder="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-bn="যেমন: মুসলিম বিবাহ নিবন্ধক ও কাজী" data-placeholder-en="e.g. Muslim Marriage Register & Kazi">
           </div>
         </div>
 
@@ -428,14 +428,14 @@
               <span class="lbl-bn">অফিস</span>
               <span class="lbl-en" style="display:none">Office</span>
             </label>
-            <input type="text" id="cert-registrar-office" placeholder="অফিসের নাম" data-placeholder-bn="অফিসের নাম" data-placeholder-en="Office name">
+            <input type="text" id="cert-registrar-office" name="cert_registrar_office" placeholder="অফিসের নাম" data-placeholder-bn="অফিসের নাম" data-placeholder-en="Office name">
           </div>
           <div>
             <label for="cert-registrar-date">
               <span class="lbl-bn">স্বাক্ষরের তারিখ</span>
               <span class="lbl-en" style="display:none">Signature Date</span>
             </label>
-            <input type="date" id="cert-registrar-date">
+            <input type="date" id="cert-registrar-date" name="cert_registrar_date">
           </div>
         </div>
 
@@ -446,8 +446,8 @@
           </label>
           <div class="sig-zone" data-sig-key="registrar">
             <div class="sig-mode-toggle">
-              <label><input type="radio" name="sig-mode-registrar" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
-              <label><input type="radio" name="sig-mode-registrar" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
+              <label><input type="radio" id="sig-mode-registrar-draw" name="sig-mode-registrar" value="draw" checked> <span class="lbl-bn">মাউসে আঁকুন</span><span class="lbl-en" style="display:none">Draw</span></label>
+              <label><input type="radio" id="sig-mode-registrar-upload" name="sig-mode-registrar" value="upload"> <span class="lbl-bn">ছবি আপলোড</span><span class="lbl-en" style="display:none">Upload</span></label>
             </div>
             <div class="sig-draw-area">
               <canvas class="sig-canvas" width="400" height="120"></canvas>
@@ -457,7 +457,7 @@
               <span class="sig-icon">✍️</span>
               <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
               <span class="sig-text lbl-en" style="display:none">Upload signature image</span>
-              <input type="file" id="cert-registrar-sig" accept="image/*">
+              <input type="file" id="cert-registrar-sig" name="cert_registrar_sig" accept="image/*">
             </div>
           </div>
         </div>

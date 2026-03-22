@@ -48,7 +48,7 @@
     {# ---- Marital status ---- #}
     <div class="form-field">
       <label for="wcv-victim-marital" data-bn="বৈবাহিক অবস্থা" data-en="Marital Status">বৈবাহিক অবস্থা (Marital Status)</label>
-      <select id="wcv-victim-marital">
+      <select id="wcv-victim-marital" name="wcv_victim_marital">
         <option value=""
                 data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
         {# Options populated by JS from wcv-marital-statuses-data #}
@@ -63,14 +63,14 @@
           <div>
             <label for="wcv-victim-husband-firstname" class="form-name-sublabel"
                    data-bn="প্রথম নাম" data-en="First Name">প্রথম নাম <span class="field-required">*</span></label>
-            <input type="text" id="wcv-victim-husband-firstname"
+            <input type="text" id="wcv-victim-husband-firstname" name="wcv_victim_husband_firstname"
                    data-ph-bn="স্বামীর প্রথম নাম (বাংলা)..." data-ph-en="Husband's first name..."
                    placeholder="স্বামীর প্রথম নাম (বাংলা)...">
           </div>
           <div>
             <label for="wcv-victim-husband-lastname" class="form-name-sublabel"
                    data-bn="শেষ নাম" data-en="Last Name">শেষ নাম <span class="field-required">*</span></label>
-            <input type="text" id="wcv-victim-husband-lastname"
+            <input type="text" id="wcv-victim-husband-lastname" name="wcv_victim_husband_lastname"
                    data-ph-bn="স্বামীর শেষ নাম (বাংলা)..." data-ph-en="Husband's last name..."
                    placeholder="স্বামীর শেষ নাম (বাংলা)...">
           </div>
@@ -78,7 +78,7 @@
         <div style="margin-top: 0.75rem;">
           <label for="wcv-victim-marriage-date" class="form-name-sublabel"
                  data-bn="বিয়ের তারিখ" data-en="Marriage Date">বিয়ের তারিখ (Marriage Date)</label>
-          <input type="date" id="wcv-victim-marriage-date" style="max-width: 200px;">
+          <input type="date" id="wcv-victim-marriage-date" name="wcv_victim_marriage_date" style="max-width: 200px;">
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@
     {# ---- Occupation ---- #}
     <div class="form-field">
       <label for="wcv-victim-occupation" data-bn="পেশা" data-en="Occupation">পেশা (Occupation)</label>
-      <select id="wcv-victim-occupation">
+      <select id="wcv-victim-occupation" name="wcv_victim_occupation">
         <option value=""
                 data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
         {# Options populated by JS from wcv-victim-occupations-data #}
@@ -97,7 +97,7 @@
     <div class="form-field">
       <label for="wcv-victim-institution"
              data-bn="প্রতিষ্ঠান / কর্মস্থল" data-en="Institution / Workplace">প্রতিষ্ঠান / কর্মস্থল (Institution / Workplace)</label>
-      <input type="text" id="wcv-victim-institution"
+      <input type="text" id="wcv-victim-institution" name="wcv_victim_institution"
              data-ph-bn="প্রতিষ্ঠান / কর্মস্থল (বাংলা)..."
              data-ph-en="Institution / Workplace..."
              placeholder="প্রতিষ্ঠান / কর্মস্থল (বাংলা)...">

@@ -28,20 +28,20 @@
     <div class="radio-card-grid" id="extortion-category-grid">
       {% for sector in extortion_sectors %}
       <label class="radio-card">
-        <input type="radio" name="extortion_category_radio"
+        <input type="radio" id="extortion-category-radio-{{ sector.status_id }}" name="extortion_category_radio"
                value="{{ sector.status_id }}" data-code="{{ sector.status_code }}">
         {% if sector.status_icon %}<span class="radio-card-icon">{{ sector.status_icon }}</span>{% endif %}
         <span class="radio-card-label">{{ sector.status_name_bn }} ({{ sector.status_name_en }})</span>
       </label>
       {% endfor %}
     </div>
-    <input type="hidden" id="extortion-category" value="">
+    <input type="hidden" id="extortion-category" name="extortion_category" value="">
   </div>
 
   {# Other sector detail (shown when sector = OTHER) #}
   <div class="form-field" id="extortion-other-sector-row" style="display:none;">
     <label for="extortion-other-sector-detail">অন্যান্য ক্ষেত্রের বিবরণ দিন (Please describe the sector)</label>
-    <input type="text" id="extortion-other-sector-detail" maxlength="300"
+    <input type="text" id="extortion-other-sector-detail" name="extortion_other_sector_detail" maxlength="300"
            placeholder="চাঁদাবাজির ক্ষেত্র উল্লেখ করুন (Specify the extortion sector)">
   </div>
 
@@ -49,23 +49,23 @@
   <div class="form-field" id="extortion-transport-location-row" style="display:none;">
     <label>পরিবহনে চাঁদা কোথায় নেওয়া হয়? (Where is transport toll collected?)</label>
     <div class="radio-inline-group" id="extortion-transport-location-group">
-      <label class="radio-inline"><input type="radio" name="extortion_transport_location_radio" value="terminal"> টার্মিনালে (Bus terminal)</label>
-      <label class="radio-inline"><input type="radio" name="extortion_transport_location_radio" value="road_checkpoint"> রাস্তায়/চেকপয়েন্টে (Roadside checkpoint)</label>
-      <label class="radio-inline"><input type="radio" name="extortion_transport_location_radio" value="depot_garage"> গ্যারেজ/ডিপোতে (Garage / depot)</label>
-      <label class="radio-inline"><input type="radio" name="extortion_transport_location_radio" value="highway"> মহাসড়কে (Highway)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-terminal" name="extortion_transport_location_radio" value="terminal"> টার্মিনালে (Bus terminal)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-road-checkpoint" name="extortion_transport_location_radio" value="road_checkpoint"> রাস্তায়/চেকপয়েন্টে (Roadside checkpoint)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-depot-garage" name="extortion_transport_location_radio" value="depot_garage"> গ্যারেজ/ডিপোতে (Garage / depot)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-highway" name="extortion_transport_location_radio" value="highway"> মহাসড়কে (Highway)</label>
     </div>
-    <input type="hidden" id="extortion-transport-location" value="">
+    <input type="hidden" id="extortion-transport-location" name="extortion_transport_location" value="">
   </div>
 
   {# Garment sub-detail (shown when sector = GARMENT_FACTORY) #}
   <div class="form-field" id="extortion-garment-type-row" style="display:none;">
     <label>কারখানায় চাঁদাবাজির ধরন (Garment Extortion Type)</label>
     <div class="radio-inline-group" id="extortion-garment-type-group">
-      <label class="radio-inline"><input type="radio" name="extortion_garment_type_radio" value="cash_demand"> নগদ অর্থ দাবি (Cash demand)</label>
-      <label class="radio-inline"><input type="radio" name="extortion_garment_type_radio" value="jhut_forced"> ঝুট জোর করে কম দামে কেনা (Jhut — forced below-market purchase)</label>
-      <label class="radio-inline"><input type="radio" name="extortion_garment_type_radio" value="abduction_ransom"> অপহরণ করে মুক্তিপণ (Abduction for ransom)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-cash-demand" name="extortion_garment_type_radio" value="cash_demand"> নগদ অর্থ দাবি (Cash demand)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-jhut-forced" name="extortion_garment_type_radio" value="jhut_forced"> ঝুট জোর করে কম দামে কেনা (Jhut — forced below-market purchase)</label>
+      <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-abduction-ransom" name="extortion_garment_type_radio" value="abduction_ransom"> অপহরণ করে মুক্তিপণ (Abduction for ransom)</label>
     </div>
-    <input type="hidden" id="extortion-garment-type" value="">
+    <input type="hidden" id="extortion-garment-type" name="extortion_garment_type" value="">
   </div>
 
   {# ======== 2. FINANCIAL DEMAND ======== #}
@@ -73,7 +73,7 @@
   <div class="form-field">
     <label for="extortion-amount-demanded">দাবিকৃত অর্থ (Amount Demanded) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <div class="input-suffix-group">
-      <input type="number" id="extortion-amount-demanded"
+      <input type="number" id="extortion-amount-demanded" name="extortion_amount_demanded"
              min="0" step="0.01" placeholder="দাবিকৃত পরিমাণ লিখুন">
       <span class="input-suffix">টাকা (BDT)</span>
     </div>
@@ -81,7 +81,7 @@
   <div class="form-field">
     <label for="extortion-amount-taken">আদায়কৃত অর্থ (Amount Collected) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <div class="input-suffix-group">
-      <input type="number" id="extortion-amount-taken"
+      <input type="number" id="extortion-amount-taken" name="extortion_amount_taken"
              min="0" step="0.01" placeholder="আদায়কৃত পরিমাণ লিখুন">
       <span class="input-suffix">টাকা (BDT)</span>
     </div>
@@ -91,13 +91,13 @@
     <div class="radio-inline-group" id="extortion-frequency-group">
       {% for freq in extortion_demand_frequencies %}
       <label class="radio-inline">
-        <input type="radio" name="extortion_frequency_radio"
+        <input type="radio" id="extortion-frequency-radio-{{ freq.status_id }}" name="extortion_frequency_radio"
                value="{{ freq.status_id }}" data-code="{{ freq.status_code }}">
         {{ freq.status_name_bn }} ({{ freq.status_name_en }})
       </label>
       {% endfor %}
     </div>
-    <input type="hidden" id="extortion-frequency" value="">
+    <input type="hidden" id="extortion-frequency" name="extortion_frequency" value="">
   </div>
 
   {# ======== 3. PERPETRATOR AFFILIATION ======== #}
@@ -119,7 +119,7 @@
   {# Party name field (shown when POLITICAL_PARTY_STUDENT_YOUTH_WING affiliation checked) #}
   <div class="form-field" id="extortion-party-name-row" style="display:none;">
     <label for="extortion-party-name">রাজনৈতিক দল বা সংগঠনের নাম (Party / Organization Name) <em class="field-optional">(ঐচ্ছিক)</em></label>
-    <input type="text" id="extortion-party-name" maxlength="300"
+    <input type="text" id="extortion-party-name" name="extortion_party_name" maxlength="300"
            placeholder="দলের নাম বা সংগঠনের নাম লিখুন (Enter party or organization name)">
     <small class="field-hint">যদি জানা থাকে — সম্পাদকীয় যাচাইয়ে ব্যবহার করা হবে (Only if known — for editorial verification)</small>
   </div>
@@ -158,12 +158,12 @@
   <div class="form-field" id="extortion-damage-rows" style="display:none;">
     <label for="extortion-damage-amount">ক্ষয়ক্ষতির আনুমানিক মূল্য (Estimated Damage Value) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <div class="input-suffix-group">
-      <input type="number" id="extortion-damage-amount" min="0" step="0.01"
+      <input type="number" id="extortion-damage-amount" name="extortion_damage_amount" min="0" step="0.01"
              placeholder="ক্ষতির পরিমাণ (Damage amount)">
       <span class="input-suffix">টাকা (BDT)</span>
     </div>
     <label for="extortion-prop-damage-desc" style="margin-top:8px;">ক্ষয়ক্ষতির বিবরণ (Damage Description)</label>
-    <textarea id="extortion-prop-damage-desc" rows="2" maxlength="2000"
+    <textarea id="extortion-prop-damage-desc" name="extortion_prop_damage_desc" rows="2" maxlength="2000"
               placeholder="দোকান ভাংচুর, যানবাহনে অগ্নিসংযোগ, মালামাল নষ্ট ইত্যাদির বিবরণ দিন"></textarea>
   </div>
 
@@ -183,7 +183,7 @@
 
   <div class="form-field">
     <label for="extortion-incident-remarks">অতিরিক্ত তথ্য / মন্তব্য (Additional Information / Remarks)</label>
-    <textarea id="extortion-incident-remarks" rows="3" maxlength="2000"
+    <textarea id="extortion-incident-remarks" name="extortion_incident_remarks" rows="3" maxlength="2000"
               placeholder="চাঁদাবাজির ঘটনা সম্পর্কে যেকোনো অতিরিক্ত তথ্য লিখুন (Any additional information about the extortion incident)"></textarea>
   </div>
 

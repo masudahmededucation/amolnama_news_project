@@ -15,25 +15,25 @@
 
   <div class="form-field">
     <label for="entertainment-lead-cast">মূল অভিনেতা/অভিনেত্রী (Lead Cast)</label>
-    <textarea id="entertainment-lead-cast" rows="2"
+    <textarea id="entertainment-lead-cast" name="entertainment_lead_cast" rows="2"
               placeholder="কমা দিয়ে আলাদা করুন — যেমন: শাকিব খান, বুবলী, মিশা সওদাগর · Shakib Khan, Bubly, Misha Sawdagor"></textarea>
   </div>
 
   <div class="form-field">
     <label for="entertainment-supporting-cast">সহ-অভিনেতা/অভিনেত্রী (Supporting Cast) <span class="field-optional">(ঐচ্ছিক)</span></label>
-    <textarea id="entertainment-supporting-cast" rows="2"
+    <textarea id="entertainment-supporting-cast" name="entertainment_supporting_cast" rows="2"
               placeholder="কমা দিয়ে আলাদা করুন (comma-separated)"></textarea>
   </div>
 
   <div class="form-grid-2col">
     <div class="form-field">
       <label for="entertainment-release-date">মুক্তির তারিখ (Release Date)</label>
-      <input type="date" id="entertainment-release-date">
+      <input type="date" id="entertainment-release-date" name="entertainment_release_date">
     </div>
 
     <div class="form-field">
       <label for="entertainment-platform-select">প্ল্যাটফর্ম / চ্যানেল (Platform / Channel)</label>
-      <select id="entertainment-platform-select">
+      <select id="entertainment-platform-select" name="entertainment_platform_select">
         <option value="">-- নির্বাচন করুন --</option>
         <option value="cinema_hall">সিনেমা হল (Cinema Hall)</option>
         <option value="hoichoi">হইচই (Hoichoi)</option>
@@ -61,7 +61,7 @@
   {# ---- Genre (single select) ---- #}
   <div class="form-field">
     <label for="entertainment-genre-select">ঘরানা (Genre)</label>
-    <select id="entertainment-genre-select">
+    <select id="entertainment-genre-select" name="entertainment_genre_select">
       <option value="">-- নির্বাচন করুন --</option>
       <option value="action">অ্যাকশন (Action)</option>
       <option value="comedy">কমেডি (Comedy)</option>

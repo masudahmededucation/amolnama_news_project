@@ -12,7 +12,7 @@
 <div class="form-field">
   <label for="{{ prefix }}-occupation"
          data-bn="পেশা" data-en="Occupation">পেশা (Occupation)</label>
-  <select id="{{ prefix }}-occupation">
+  <select id="{{ prefix }}-occupation" name="{{ prefix }}_occupation">
     <option value="" data-bn="-- নির্বাচন করুন --" data-en="-- Select --">-- নির্বাচন করুন (Select) --</option>
     {% for occ in occupations %}
     <option value="{{ occ.status_id }}">{{ occ.status_name_bn }} ({{ occ.status_name_en }})</option>
@@ -23,7 +23,7 @@
 <div class="form-field">
   <label for="{{ prefix }}-institution"
          data-bn="প্রতিষ্ঠান / কর্মস্থল" data-en="Institution / Workplace">প্রতিষ্ঠান / কর্মস্থল (Institution / Workplace)</label>
-  <input type="text" id="{{ prefix }}-institution"
+  <input type="text" id="{{ prefix }}-institution" name="{{ prefix }}_institution"
          data-ph-bn="প্রতিষ্ঠান / কর্মস্থল (বাংলা)..." data-ph-en="Institution / Workplace..."
          placeholder="প্রতিষ্ঠান / কর্মস্থল (বাংলা)...">
 </div>

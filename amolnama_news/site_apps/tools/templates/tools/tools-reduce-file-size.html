@@ -16,7 +16,7 @@
 
   <!-- ===== Drop Zone ===== -->
   <div class="compress-dropzone" id="compress-dropzone">
-    <input type="file" id="compress-file-input" multiple hidden>
+    <input type="file" id="compress-file-input" name="compress_file_input" multiple hidden>
     <div class="compress-dropzone-icon">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="6" y="10" width="36" height="28" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -46,7 +46,7 @@
 
     <div class="compress-slider-wrap">
       <div class="compress-slider-value" id="compress-slider-value">Compression: 50%</div>
-      <input type="range" id="compress-slider" class="compress-slider" min="0" max="100" value="50" step="1">
+      <input type="range" id="compress-slider" name="compress_slider" class="compress-slider" min="0" max="100" value="50" step="1">
       <div class="compress-slider-labels">
         <span class="compress-slider-label" data-pos="low">
           <span class="compress-slider-dot compress-slider-dot--green"></span>
@@ -79,7 +79,7 @@
     <div class="compress-advanced">
       <div class="compress-option-row">
         <label class="compress-option-label" for="compress-format" data-en="Output Format">আউটপুট ফরম্যাট (Output Format)</label>
-        <select id="compress-format" class="compress-select">
+        <select id="compress-format" name="compress_format" class="compress-select">
           <option value="original" selected data-en="Keep Original">মূল ফরম্যাট (Keep Original)</option>
           <option value="auto" data-en="Auto (smallest)">স্বয়ংক্রিয় — সবচেয়ে ছোট (Auto)</option>
           <option value="image/jpeg">JPEG</option>
@@ -91,16 +91,16 @@
     <!-- Resize & metadata controls -->
     <div class="compress-advanced">
       <label class="compress-checkbox-label">
-        <input type="checkbox" id="compress-resize-check">
+        <input type="checkbox" id="compress-resize-check" name="compress_resize_check">
         <span data-en="Resize if wider than">রিসাইজ করুন যদি প্রস্থ বেশি হয় (Resize if wider than)</span>
-        <input type="number" id="compress-resize-width" value="1920" min="100" max="10000" step="10" class="compress-resize-input">
+        <input type="number" id="compress-resize-width" name="compress_resize_width" value="1920" min="100" max="10000" step="10" class="compress-resize-input">
         <span>px</span>
       </label>
     </div>
 
     <div class="compress-advanced">
       <label class="compress-checkbox-label">
-        <input type="checkbox" id="compress-strip-meta" checked>
+        <input type="checkbox" id="compress-strip-meta" name="compress_strip_meta" checked>
         <span data-en="Strip metadata (EXIF, GPS, camera info)">মেটাডেটা মুছুন — EXIF, GPS, ক্যামেরা তথ্য (Strip metadata)</span>
       </label>
     </div>
@@ -139,7 +139,7 @@
           <img id="compress-compare-after-img" alt="Compressed">
           <span class="compress-compare-label compress-compare-label--after" data-en="Compressed">কম্প্রেসড (Compressed)</span>
         </div>
-        <input type="range" class="compress-compare-slider" id="compress-compare-slider" min="0" max="100" value="50">
+        <input type="range" class="compress-compare-slider" id="compress-compare-slider" name="compress_compare_slider" min="0" max="100" value="50">
         <div class="compress-compare-divider" id="compress-compare-divider"></div>
       </div>
       <div class="compress-compare-info" id="compress-compare-info"></div>
