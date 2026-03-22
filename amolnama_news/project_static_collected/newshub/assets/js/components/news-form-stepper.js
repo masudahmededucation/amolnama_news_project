@@ -499,26 +499,14 @@
           /* Redirect to success page */
           window.location.href = result.data.redirect || (window.location.pathname + '?submitted=1');
         } else {
-          /* Show error inline — no page reload */
-          errorBanner.textContent = result.data.error || 'জমা দেওয়া সম্ভব হয়নি। (Submission failed.)';
-          errorBanner.style.display = 'block';
-          errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'সংবাদ জমা দিন (Submit News) →';
-          }
+          /* Save error message, reload page — persist restores all fields from localStorage */
+          try { sessionStorage.setItem('newshub_submit_error', result.data.error || 'জমা দেওয়া সম্ভব হয়নি। (Submission failed.)'); } catch (ex) {}
+          window.location.reload();
         }
       })
-      .catch(function (err) {
-        errorBanner.textContent = 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন। (Network error. Please try again.)';
-        errorBanner.style.display = 'block';
-        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'সংবাদ জমা দিন (Submit News) →';
-        }
+      .catch(function () {
+        try { sessionStorage.setItem('newshub_submit_error', 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন। (Network error. Please try again.)'); } catch (ex) {}
+        window.location.reload();
       });
     });
   }
@@ -549,4 +537,22 @@
   } catch (e) {}
 
   isInitialLoad = false;
+
+  /* Show submission error from previous attempt (stored in sessionStorage before reload) */
+  try {
+    var savedError = sessionStorage.getItem('newshub_submit_error');
+    if (savedError) {
+      sessionStorage.removeItem('newshub_submit_error');
+      var errorBanner = document.createElement('div');
+      errorBanner.id = 'ajax-submit-error';
+      errorBanner.style.cssText = 'background:#fde8e8;color:#c0392b;padding:12px 16px;border-radius:6px;margin:10px 0;font-size:.9rem;font-weight:600;border:1px solid #f5c6cb;';
+      errorBanner.textContent = savedError;
+      var submitWidget = document.getElementById('widget-submit');
+      if (submitWidget) {
+        submitWidget.insertBefore(errorBanner, submitWidget.firstChild);
+      }
+      /* Navigate to the last step (submit step) so user sees the error */
+      showStep(totalSteps);
+    }
+  } catch (ex) {}
 })();
