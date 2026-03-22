@@ -52,6 +52,23 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (incidentType && data.incidentType)              incidentType.value = data.incidentType;
+      if (description && data.incidentDescription)        description.value  = data.incidentDescription;
+      if (incidentDate && data.incidentDate)              incidentDate.value = data.incidentDate;
+      if (victimCount && data.victimCount)                victimCount.value  = data.victimCount;
+      if (network && data.networkDescription)             network.value      = data.networkDescription;
+      if (legalAction && data.legalAction)                legalAction.value  = data.legalAction;
+      if (source && data.source)                          source.value       = data.source;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubWatchdogWomenFixer = {
     reset: function () {
       fields.forEach(function (el) {

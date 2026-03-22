@@ -443,6 +443,86 @@
     registerStepValidator: registerStepValidator
   };
 
+  /* ========== AJAX Form Submit (no page reload on error) ========== */
+
+  var mainForm = document.querySelector('form.multistep-form') || document.querySelector('form');
+  if (mainForm) {
+    mainForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var submitBtn = document.getElementById('news-submit-btn');
+      var errorBanner = document.getElementById('ajax-submit-error');
+
+      /* Create error banner if it doesn't exist */
+      if (!errorBanner) {
+        errorBanner = document.createElement('div');
+        errorBanner.id = 'ajax-submit-error';
+        errorBanner.style.cssText = 'display:none;background:#fde8e8;color:#c0392b;padding:12px 16px;border-radius:6px;margin:10px 0;font-size:.9rem;font-weight:600;border:1px solid #f5c6cb;';
+        var submitWidget = document.getElementById('widget-submit');
+        if (submitWidget) {
+          submitWidget.insertBefore(errorBanner, submitWidget.firstChild);
+        }
+      }
+
+      /* Hide previous error */
+      errorBanner.style.display = 'none';
+
+      /* Disable submit button */
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'জমা হচ্ছে... (Submitting...)';
+      }
+
+      var formData = new FormData(mainForm);
+
+      fetch(mainForm.action || window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { status: response.status, data: data };
+        });
+      })
+      .then(function (result) {
+        if (result.data.success) {
+          /* Clear localStorage draft */
+          try {
+            var storageKey = 'newshub_draft_' + (window.location.pathname.replace(/\//g, '_'));
+            localStorage.removeItem(storageKey);
+            localStorage.removeItem('newshub_draft_tags');
+          } catch (ex) {}
+
+          /* Redirect to success page */
+          window.location.href = result.data.redirect || (window.location.pathname + '?submitted=1');
+        } else {
+          /* Show error inline — no page reload */
+          errorBanner.textContent = result.data.error || 'জমা দেওয়া সম্ভব হয়নি। (Submission failed.)';
+          errorBanner.style.display = 'block';
+          errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'সংবাদ জমা দিন (Submit News) →';
+          }
+        }
+      })
+      .catch(function (err) {
+        errorBanner.textContent = 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন। (Network error. Please try again.)';
+        errorBanner.style.display = 'block';
+        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'সংবাদ জমা দিন (Submit News) →';
+        }
+      });
+    });
+  }
+
   /* ========== Init ========== */
 
   buildStepper();

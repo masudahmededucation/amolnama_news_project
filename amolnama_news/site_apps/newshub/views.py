@@ -7,6 +7,7 @@ from datetime import date as _date
 
 from django.conf import settings
 from django.db import connection as db_conn, DatabaseError, IntegrityError, transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
@@ -2903,6 +2904,11 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         traceback.print_exc()
         print("=== END ERROR ===")
         error_msg = 'সংবাদ জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন। (Submission failed. Please try again.)'
+
+        # AJAX request — return JSON error (no page reload)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': error_msg}, status=400)
+
         ctx = _build_form_context(
             contributor_form, news_entry_form, attachment_form, social_source_form,
             extra={
@@ -2919,6 +2925,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             },
         )
         return render(request, template_name, ctx)
+
+    # AJAX request — return JSON success (no page reload)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'redirect': request.path + '?submitted=1'})
 
     # PRG: redirect to GET so browser refresh won't re-submit the form
     return redirect(request.path + '?submitted=1')
