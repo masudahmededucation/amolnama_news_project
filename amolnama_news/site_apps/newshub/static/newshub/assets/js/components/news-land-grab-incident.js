@@ -275,6 +275,81 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    /* Property type radio */
+    if (data.propertyTypeId) {
+      var propRadios = document.querySelectorAll('input[name="land_grab_property_type_radio"]');
+      for (var i = 0; i < propRadios.length; i++) {
+        if (parseInt(propRadios[i].value, 10) === data.propertyTypeId) {
+          propRadios[i].checked = true;
+          break;
+        }
+      }
+      if (propertyTypeHidden) propertyTypeHidden.value = data.propertyTypeId;
+      var isOther = (data.propertyTypeId === propertyTypeOtherId);
+      if (propertyTypeOtherRow) propertyTypeOtherRow.style.display = isOther ? '' : 'none';
+      if (isOther && propertyTypeOtherEl && data.propertyTypeOther) {
+        propertyTypeOtherEl.value = data.propertyTypeOther;
+      }
+    }
+
+    /* Land record fields */
+    if (mouzaEl && data.mouza)            mouzaEl.value      = data.mouza;
+    if (daagEl && data.daag)              daagEl.value       = data.daag;
+    if (khatianEl && data.khatian)        khatianEl.value    = data.khatian;
+    if (areaAmountEl && data.areaAmount)  areaAmountEl.value = data.areaAmount;
+    if (areaUnitEl && data.areaUnitId)    areaUnitEl.value   = data.areaUnitId;
+
+    /* Document title status checkboxes */
+    if (data.documentIds && data.documentIds.length) {
+      var docCbs = document.querySelectorAll('input[name="land_doc_title_status"]');
+      for (var d = 0; d < docCbs.length; d++) {
+        if (data.documentIds.indexOf(parseInt(docCbs[d].value, 10)) !== -1) {
+          docCbs[d].checked = true;
+        }
+      }
+    }
+
+    /* Grabbing method checkboxes */
+    if (data.methodIds && data.methodIds.length) {
+      var methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
+      for (var m = 0; m < methCbs.length; m++) {
+        if (data.methodIds.indexOf(parseInt(methCbs[m].value, 10)) !== -1) {
+          methCbs[m].checked = true;
+        }
+      }
+      /* Show "other method" row if OTHER_METHOD is among saved methods */
+      if (methodOtherId && data.methodIds.indexOf(methodOtherId) !== -1) {
+        if (methodOtherRow) methodOtherRow.style.display = '';
+        if (methodOtherDetailEl && data.methodOther) methodOtherDetailEl.value = data.methodOther;
+      }
+    }
+
+    /* Current status radio */
+    if (data.currentStatusId) {
+      var statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
+      for (var s = 0; s < statusRadios.length; s++) {
+        if (parseInt(statusRadios[s].value, 10) === data.currentStatusId) {
+          statusRadios[s].checked = true;
+          break;
+        }
+      }
+      if (currentStatusHidden) currentStatusHidden.value = data.currentStatusId;
+    }
+
+    /* Human impact */
+    if (familiesEl && data.familiesEvicted)  familiesEl.value   = data.familiesEvicted;
+    if (violenceEl) violenceEl.checked = !!data.violenceOccurred;
+    if (violenceDescRow) violenceDescRow.style.display = data.violenceOccurred ? '' : 'none';
+    if (violenceDescEl && data.violenceDesc) violenceDescEl.value = data.violenceDesc;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubLandGrabIncident = {
     reset: function () {

@@ -56,6 +56,20 @@
     form.addEventListener('submit', syncToHiddenInput);
   }
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    if (deathCountEl && data.deathCount)   deathCountEl.value   = data.deathCount;
+    if (injuryCountEl && data.injuryCount) injuryCountEl.value  = data.injuryCount;
+    if (propertyDestructionEl && data.propertyDestruction) propertyDestructionEl.value = data.propertyDestruction;
+    if (damageAmountEl && data.damageAmount) damageAmountEl.value = data.damageAmount;
+    if (isOngoingEl) isOngoingEl.checked = !!data.isOngoing;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear.js */
   window.newshubCrimeCasualties = {
     reset: function () {

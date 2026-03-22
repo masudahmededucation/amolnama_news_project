@@ -253,6 +253,79 @@
   /* ---- Auto-add first row on init ---- */
   addRow();
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+    var commodities = data.commodities;
+    if (!commodities || !commodities.length) return;
+
+    /* Clear the auto-added first row */
+    for (var key in tomInstances) {
+      if (tomInstances[key]) tomInstances[key].destroy();
+    }
+    tomInstances = {};
+    container.innerHTML = '';
+    rowCounter = 0;
+
+    for (var i = 0; i < commodities.length; i++) {
+      var item = commodities[i];
+      var index = rowCounter++;
+      var clone = template.content.cloneNode(true);
+      var rowEl = clone.querySelector('.commodity-price-row');
+      rowEl.setAttribute('data-row-index', index);
+
+      var numberLabel = rowEl.querySelector('.commodity-row-number');
+      if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
+
+      var removeBtn = rowEl.querySelector('.btn-remove-commodity');
+      if (removeBtn) {
+        (function (el, idx) {
+          removeBtn.addEventListener('click', function () { removeRow(el, idx); });
+        })(rowEl, index);
+      }
+
+      /* Set price inputs */
+      var govtInput = rowEl.querySelector('.commodity-govt-rate');
+      var marketInput = rowEl.querySelector('.commodity-market-rate');
+      var impactEl = rowEl.querySelector('.commodity-consumer-impact');
+      if (govtInput && item.govtRate) govtInput.value = item.govtRate;
+      if (marketInput && item.marketRate) marketInput.value = item.marketRate;
+      if (impactEl && item.consumerImpact) impactEl.value = item.consumerImpact;
+
+      if (govtInput) govtInput.addEventListener('input', (function (r) { return function () { calculateRow(r); serialize(); }; })(rowEl));
+      if (marketInput) marketInput.addEventListener('input', (function (r) { return function () { calculateRow(r); serialize(); }; })(rowEl));
+      if (impactEl) impactEl.addEventListener('input', serialize);
+
+      container.appendChild(rowEl);
+
+      /* Init Tom Select and restore commodity */
+      var selectEl = rowEl.querySelector('.commodity-select');
+      if (selectEl && item.commodityId) {
+        var ts = createTomSelect(selectEl, index);
+        var opt = {
+          id: item.commodityId,
+          label: item.commodityNameBn || '',
+          name_bn: item.commodityNameBn || '',
+          name_en: '',
+          group_bn: '',
+          variant_bn: '',
+          unit: item.unit || '',
+        };
+        ts.addOption(opt);
+        ts.setValue(item.commodityId, true);
+      } else if (selectEl) {
+        createTomSelect(selectEl, index);
+      }
+
+      calculateRow(rowEl);
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear ---- */
   window.newshubPriceGap = {
     reset: function () {

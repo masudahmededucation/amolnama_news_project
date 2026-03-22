@@ -151,6 +151,47 @@
   toggleOtherType();
   toggleDuration();
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Violence type checkboxes */
+    if (data.violenceTypeIds && data.violenceTypeIds.length) {
+      for (var c = 0; c < violenceTypeCheckboxes.length; c++) {
+        var val = parseInt(violenceTypeCheckboxes[c].value, 10);
+        violenceTypeCheckboxes[c].checked = data.violenceTypeIds.indexOf(val) !== -1;
+      }
+    }
+
+    /* Other type text */
+    if (otherTypeInput && data.otherType) otherTypeInput.value = data.otherType;
+
+    /* Sub-type hidden */
+    if (subTypeHidden && data.violenceTypeIds && data.violenceTypeIds.length) {
+      subTypeHidden.value = String(data.violenceTypeIds[0]);
+    }
+
+    /* Location type select */
+    if (locationType && data.locationTypeId) {
+      locationType.value = String(data.locationTypeId);
+      if (locationType.tomselect) locationType.tomselect.setValue(String(data.locationTypeId), true);
+    }
+
+    /* Recurring checkbox */
+    if (recurringCb && data.recurring) recurringCb.checked = true;
+
+    /* Duration */
+    if (duration && data.duration) duration.value = data.duration;
+
+    toggleOtherType();
+    toggleDuration();
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ========== Public API ========== */
 
   window.newshubWcvType = {

@@ -54,6 +54,24 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (topic && data.topic)              topic.value      = data.topic;
+      if (origStance && data.originalStance) origStance.value = data.originalStance;
+      if (origDate && data.originalDate)    origDate.value    = data.originalDate;
+      if (origSource && data.originalSource) origSource.value = data.originalSource;
+      if (curStance && data.currentStance)  curStance.value   = data.currentStance;
+      if (curDate && data.currentDate)      curDate.value     = data.currentDate;
+      if (curSource && data.currentSource)  curSource.value   = data.currentSource;
+      if (impact && data.impact)            impact.value      = data.impact;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubWatchdogIssue = {
     reset: function () {
       fields.forEach(function (el) { if (el) el.value = ''; });

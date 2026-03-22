@@ -293,6 +293,20 @@
 
   render();
 
+  /* ========== Restore from saved hidden input JSON ========== */
+
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    try {
+      var saved = JSON.parse(hiddenInput.value);
+      if (!Array.isArray(saved) || !saved.length) return;
+      parties = saved;
+      render();
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ========== Public API ========== */
 
   window.newshubGlobalConflictParties = {

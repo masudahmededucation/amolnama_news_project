@@ -61,6 +61,22 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    if (titleEl && data.title)               titleEl.value        = data.title;
+    if (languageSelect && data.language)     languageSelect.value = data.language;
+    if (industrySelect && data.industry)     industrySelect.value = data.industry;
+    if (directorEl && data.director)         directorEl.value     = data.director;
+    if (producerEl && data.producer)         producerEl.value     = data.producer;
+    if (writerEl && data.writer)             writerEl.value       = data.writer;
+    if (musicEl && data.musicDirector)       musicEl.value        = data.musicDirector;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubEntertainmentProduction = {
     reset: function () {

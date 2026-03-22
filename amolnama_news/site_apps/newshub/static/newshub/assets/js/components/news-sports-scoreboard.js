@@ -74,6 +74,29 @@
     form.addEventListener('submit', serialize);
   }
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (sportType && data.sportType)           sportType.value       = data.sportType;
+    if (data.competitionType) {
+      for (var j = 0; j < competitionRadios.length; j++) {
+        if (competitionRadios[j].value === data.competitionType) {
+          competitionRadios[j].checked = true;
+          break;
+        }
+      }
+    }
+    if (matchStatus && data.matchStatus)       matchStatus.value     = data.matchStatus;
+    if (tournamentLevel && data.tournamentLevel) tournamentLevel.value = data.tournamentLevel;
+    if (scoreA && data.scoreA)                 scoreA.value          = data.scoreA;
+    if (scoreB && data.scoreB)                 scoreB.value          = data.scoreB;
+    if (keyPerformance && data.keyPerformance) keyPerformance.value  = data.keyPerformance;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubSportsScoreboard = {
     reset: function () {

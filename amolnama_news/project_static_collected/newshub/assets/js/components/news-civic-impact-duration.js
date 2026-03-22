@@ -114,6 +114,23 @@
   /* Initial state */
   toggleComplaintRow();
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (peopleAffected && data.peopleAffected)     peopleAffected.value = data.peopleAffected;
+    if (impactType && data.impactCategoryId)        impactType.value     = data.impactCategoryId;
+    if (durationValue && data.durationValue)        durationValue.value  = data.durationValue;
+    if (durationUnit && data.durationUnitId)        durationUnit.value   = data.durationUnitId;
+    if (prevComplaint)                              prevComplaint.checked = !!data.previousComplaint;
+    if (complaintDetails && data.complaintDetails)  complaintDetails.value = data.complaintDetails;
+    if (budgetInfo && data.budgetInfo)              budgetInfo.value     = data.budgetInfo;
+    toggleComplaintRow();
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubCivicImpact = {
     reset: function () {

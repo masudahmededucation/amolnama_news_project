@@ -51,6 +51,23 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (master && data.puppetMaster)            master.value       = data.puppetMaster;
+      if (frontPerson && data.frontPerson)        frontPerson.value  = data.frontPerson;
+      if (relationship && data.relationship)      relationship.value = data.relationship;
+      if (evidence && data.evidenceDescription)   evidence.value     = data.evidenceDescription;
+      if (incidentDate && data.incidentDate)      incidentDate.value = data.incidentDate;
+      if (benefit && data.benefitExchange)        benefit.value      = data.benefitExchange;
+      if (source && data.source)                  source.value       = data.source;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubWatchdogProxyPuppet = {
     reset: function () {
       fields.forEach(function (el) { if (el) el.value = ''; });

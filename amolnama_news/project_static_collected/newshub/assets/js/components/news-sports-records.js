@@ -104,6 +104,24 @@
   /* Initial state */
   toggleSections();
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (tournamentName && data.tournamentName)     tournamentName.value   = data.tournamentName;
+    if (milestones && data.milestones)             milestones.value       = data.milestones;
+    if (transferFrom && data.transferFrom)         transferFrom.value     = data.transferFrom;
+    if (transferTo && data.transferTo)             transferTo.value       = data.transferTo;
+    if (transferFee && data.transferFee)           transferFee.value      = data.transferFee;
+    if (transferDuration && data.transferDuration) transferDuration.value = data.transferDuration;
+    if (injuryType && data.injuryType)             injuryType.value      = data.injuryType;
+    if (injuryRecovery && data.injuryRecovery)     injuryRecovery.value  = data.injuryRecovery;
+    toggleSections();
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubSportsRecords = {
     reset: function () {

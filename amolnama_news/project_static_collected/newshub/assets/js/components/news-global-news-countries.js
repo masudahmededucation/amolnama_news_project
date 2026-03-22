@@ -89,6 +89,25 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    try {
+      var data = JSON.parse(hiddenInput.value);
+      if (primaryCountryEl && data.primaryCountry)       primaryCountryEl.value    = data.primaryCountry;
+      if (countriesInvolvedEl && data.involvedCountries)  countriesInvolvedEl.value = data.involvedCountries;
+      if (orgOtherNameEl && data.otherOrgName)            orgOtherNameEl.value      = data.otherOrgName;
+      var keys = Object.keys(orgMap);
+      for (var i = 0; i < keys.length; i++) {
+        var el = document.getElementById(keys[i]);
+        if (el) el.checked = !!data[orgMap[keys[i]]];
+      }
+      if (orgOtherCb && orgOtherRow) orgOtherRow.style.display = orgOtherCb.checked ? '' : 'none';
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubGlobalNewsCountries = {
     reset: function () {
       if (primaryCountryEl)    primaryCountryEl.value    = '';

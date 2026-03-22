@@ -63,6 +63,20 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    if (competitionNameEl && data.competitionName) competitionNameEl.value = data.competitionName;
+    if (stageSelect && data.stage)                 stageSelect.value      = data.stage;
+    if (venueEl && data.venue)                     venueEl.value          = data.venue;
+    if (matchDateEl && data.matchDate)             matchDateEl.value      = data.matchDate;
+    if (statusSelect && data.matchStatus)          statusSelect.value     = data.matchStatus;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubSportsMatchEvent = {
     reset: function () {

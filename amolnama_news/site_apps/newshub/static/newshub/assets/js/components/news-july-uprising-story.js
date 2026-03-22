@@ -69,6 +69,25 @@
 
   toggleDependentsRow();
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    if (lastWords && data.lastWords) lastWords.value = data.lastWords;
+    if (lifeStory && data.lifeStory) lifeStory.value = data.lifeStory;
+    if (howJoined && data.howJoined) howJoined.value = data.howJoined;
+    if (breadwinner && data.breadwinner) breadwinner.checked = true;
+    if (dependents && data.dependents) dependents.value = data.dependents;
+    if (familyImpact && data.familyImpact) familyImpact.value = data.familyImpact;
+
+    toggleDependentsRow();
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubJulyStory = {
     reset: function () {
       if (lastWords) lastWords.value = '';

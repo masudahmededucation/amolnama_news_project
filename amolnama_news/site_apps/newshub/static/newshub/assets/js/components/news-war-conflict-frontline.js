@@ -95,6 +95,21 @@
     form.addEventListener('submit', serialize);
   }
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (territoryStatus && data.territoryStatusId)   territoryStatus.value = data.territoryStatusId;
+      if (territoryDesc && data.territoryDescription)   territoryDesc.value   = data.territoryDescription;
+      if (intensity && data.conflictIntensityId)        intensity.value       = data.conflictIntensityId;
+      if (weaponClass && data.weaponClassId)            weaponClass.value     = data.weaponClassId;
+      if (involvement && data.involvementLevelId)       involvement.value     = data.involvementLevelId;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubGlobalFrontline = {
     reset: function () {

@@ -59,6 +59,28 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Force checkboxes */
+    if (data.forces && data.forces.length) {
+      for (var f = 0; f < forceCheckboxes.length; f++) {
+        forceCheckboxes[f].checked = data.forces.indexOf(forceCheckboxes[f].value) !== -1;
+      }
+    }
+
+    if (unitBadge && data.unitBadge) unitBadge.value = data.unitBadge;
+    if (commandingOfficer && data.commandingOfficer) commandingOfficer.value = data.commandingOfficer;
+    if (ocDc && data.ocDc) ocDc.value = data.ocDc;
+    if (directives && data.directives) directives.value = data.directives;
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubJulyOppressors = {
     reset: function () {
       for (var j = 0; j < forceCheckboxes.length; j++) {

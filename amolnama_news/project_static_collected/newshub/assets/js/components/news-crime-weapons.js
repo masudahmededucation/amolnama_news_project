@@ -102,6 +102,36 @@
     }});
   }
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    /* Re-check weapon type checkboxes */
+    if (data.weaponTypeIds && data.weaponTypeIds.length) {
+      var allCbs = document.querySelectorAll('.weapon-type-cb');
+      for (var i = 0; i < allCbs.length; i++) {
+        var cbId = parseInt(allCbs[i].value, 10);
+        if (data.weaponTypeIds.indexOf(cbId) !== -1) {
+          allCbs[i].checked = true;
+        }
+      }
+    }
+
+    /* Restore other weapon detail */
+    if (otherText && data.otherWeaponDetail) {
+      otherText.value = data.otherWeaponDetail;
+    }
+    updateOtherTextVisibility();
+
+    /* Restore recovered evidence */
+    if (recoveredEl && data.recoveredEvidence) {
+      recoveredEl.value = data.recoveredEvidence;
+    }
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear.js */
   window.newshubCrimeWeapons = {
     reset: function () {

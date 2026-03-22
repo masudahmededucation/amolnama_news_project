@@ -261,6 +261,69 @@
   toggleChildren();
   toggleDisability();
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Section A: Condition attributes */
+    if (pregnantCb && data.pregnant) pregnantCb.checked = true;
+    if (pregnantMonths && data.pregnantMonths) pregnantMonths.value = data.pregnantMonths;
+    if (childrenCb && data.hasChildren) childrenCb.checked = true;
+    if (childrenCount && data.childrenCount) childrenCount.value = data.childrenCount;
+    if (dependentCb && data.dependent) dependentCb.checked = true;
+    if (disabilityCb && data.disability) disabilityCb.checked = true;
+    if (disabilityType && data.disabilityType) disabilityType.value = data.disabilityType;
+
+    togglePregnancy();
+    toggleChildren();
+    toggleDisability();
+
+    /* Section B: Injury types (checkboxes) */
+    if (data.injuryTypeIds && data.injuryTypeIds.length) {
+      for (var i = 0; i < injuryTypeCheckboxes.length; i++) {
+        var val = parseInt(injuryTypeCheckboxes[i].value, 10);
+        injuryTypeCheckboxes[i].checked = data.injuryTypeIds.indexOf(val) !== -1;
+      }
+    }
+
+    /* Severity radio */
+    if (data.severityId) {
+      for (var s = 0; s < severityRadios.length; s++) {
+        severityRadios[s].checked = (parseInt(severityRadios[s].value, 10) === data.severityId);
+      }
+    }
+
+    /* Psych symptoms (checkboxes) */
+    if (data.psychSymptoms && data.psychSymptoms.length) {
+      for (var p = 0; p < psychSymptoms.length; p++) {
+        var pVal = parseInt(psychSymptoms[p].value, 10);
+        psychSymptoms[p].checked = data.psychSymptoms.indexOf(pVal) !== -1;
+      }
+    }
+
+    /* Section C: Medical, Safety, Consent (radios) */
+    if (data.conditionId) {
+      for (var ci = 0; ci < conditionRadios.length; ci++) {
+        conditionRadios[ci].checked = (parseInt(conditionRadios[ci].value, 10) === data.conditionId);
+      }
+    }
+    if (data.safetyStatusId) {
+      for (var si = 0; si < safetyRadios.length; si++) {
+        safetyRadios[si].checked = (parseInt(safetyRadios[si].value, 10) === data.safetyStatusId);
+      }
+    }
+    if (data.consentId) {
+      for (var cn = 0; cn < consentRadios.length; cn++) {
+        consentRadios[cn].checked = (parseInt(consentRadios[cn].value, 10) === data.consentId);
+      }
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ========== Public API ========== */
 
   window.newshubWcvConditionInjury = {

@@ -121,6 +121,25 @@
   /* Initial state */
   toggleLocalImpactRow();
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (globalReaction && data.globalReactionId)             globalReaction.value        = data.globalReactionId;
+      if (globalReactionDetails && data.globalReactionDetails) globalReactionDetails.value = data.globalReactionDetails;
+      if (strategicCurrencyEconomy) strategicCurrencyEconomy.checked = !!data.strategicCurrencyEconomy;
+      if (strategicFoodSupply)      strategicFoodSupply.checked      = !!data.strategicFoodSupply;
+      if (strategicOilEnergy)       strategicOilEnergy.checked       = !!data.strategicOilEnergy;
+      if (strategicShippingLanes)   strategicShippingLanes.checked   = !!data.strategicShippingLanes;
+      if (localImpact)              localImpact.checked              = !!data.localImpact;
+      if (localImpactDesc && data.localImpactDescription) localImpactDesc.value = data.localImpactDescription;
+      toggleLocalImpactRow();
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubGlobalGeopolitics = {
     reset: function () {

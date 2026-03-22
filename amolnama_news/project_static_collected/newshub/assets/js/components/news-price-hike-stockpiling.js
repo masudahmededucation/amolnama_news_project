@@ -199,6 +199,80 @@
   /* ---- Auto-add first row on init ---- */
   addRow();
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+    var commodities = data.commodities;
+    if (!commodities || !commodities.length) return;
+
+    /* Clear the auto-added first row */
+    for (var key in tomInstances) {
+      if (tomInstances[key]) tomInstances[key].destroy();
+    }
+    tomInstances = {};
+    container.innerHTML = '';
+    rowCounter = 0;
+
+    for (var i = 0; i < commodities.length; i++) {
+      var item = commodities[i];
+      var index = rowCounter++;
+      var clone = template.content.cloneNode(true);
+      var rowEl = clone.querySelector('.stockpile-row');
+      rowEl.setAttribute('data-row-index', index);
+
+      var numberLabel = rowEl.querySelector('.stockpile-row-number');
+      if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
+
+      var removeBtn = rowEl.querySelector('.btn-remove-stockpile');
+      if (removeBtn) {
+        (function (el, idx) {
+          removeBtn.addEventListener('click', function () { removeRow(el, idx); });
+        })(rowEl, index);
+      }
+
+      /* Set field values */
+      var crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
+      var descEl = rowEl.querySelector('.stockpile-description');
+      var qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
+      var chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
+
+      if (crisisEl && item.artificialCrisis) crisisEl.checked = true;
+      if (descEl && item.description) descEl.value = item.description;
+      if (qtyEl && item.estimatedQuantity) qtyEl.value = item.estimatedQuantity;
+      if (chainEl && item.supplyChainIssue) chainEl.value = item.supplyChainIssue;
+
+      if (crisisEl) crisisEl.addEventListener('change', serialize);
+      if (descEl) descEl.addEventListener('input', serialize);
+      if (qtyEl) qtyEl.addEventListener('input', serialize);
+      if (chainEl) chainEl.addEventListener('input', serialize);
+
+      container.appendChild(rowEl);
+
+      /* Init Tom Select and restore commodity */
+      var selectEl = rowEl.querySelector('.stockpile-commodity-select');
+      if (selectEl && item.commodityId) {
+        var ts = createTomSelect(selectEl, index);
+        ts.addOption({
+          id: item.commodityId,
+          label: item.commodityId,
+          name_bn: '',
+          name_en: '',
+          group_bn: '',
+          variant_bn: '',
+          unit: '',
+        });
+        ts.setValue(item.commodityId, true);
+      } else if (selectEl) {
+        createTomSelect(selectEl, index);
+      }
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear ---- */
   window.newshubStockpiling = {
     reset: function () {

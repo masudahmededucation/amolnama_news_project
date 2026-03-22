@@ -54,6 +54,19 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    if (boxOfficeEl && data.boxOffice)         boxOfficeEl.value    = data.boxOffice;
+    if (viewsStreamsEl && data.viewsStreams)    viewsStreamsEl.value = data.viewsStreams;
+    if (ratingEl && data.rating)               ratingEl.value       = data.rating;
+    if (audienceSelect && data.audienceResponse) audienceSelect.value = data.audienceResponse;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubEntertainmentPerformance = {
     reset: function () {

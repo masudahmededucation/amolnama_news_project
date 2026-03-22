@@ -94,6 +94,29 @@
   /* Initial state */
   togglePlagiarismRow();
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (data.sentiment) {
+      for (var j = 0; j < sentimentRadios.length; j++) {
+        if (sentimentRadios[j].value === data.sentiment) {
+          sentimentRadios[j].checked = true;
+          break;
+        }
+      }
+    }
+    if (trendingHashtag && data.trendingHashtag) trendingHashtag.value = data.trendingHashtag;
+    if (memeFactor && data.memeFactor)           memeFactor.value      = data.memeFactor;
+    if (plagiarismCheck)                         plagiarismCheck.checked = !!data.plagiarism;
+    if (plagiarismSource && data.plagiarismSource) plagiarismSource.value = data.plagiarismSource;
+    if (boycottLevel && data.boycottLevel)       boycottLevel.value    = data.boycottLevel;
+    togglePlagiarismRow();
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubEntertainmentBuzz = {
     reset: function () {

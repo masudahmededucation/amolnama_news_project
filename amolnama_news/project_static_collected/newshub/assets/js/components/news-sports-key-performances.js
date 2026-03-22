@@ -70,6 +70,23 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    var data;
+    try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
+
+    if (p1NameEl && data.performer1Name)     p1NameEl.value   = data.performer1Name;
+    if (p1DetEl && data.performer1Detail)     p1DetEl.value    = data.performer1Detail;
+    if (p2NameEl && data.performer2Name)     p2NameEl.value   = data.performer2Name;
+    if (p2DetEl && data.performer2Detail)     p2DetEl.value    = data.performer2Detail;
+    if (p3NameEl && data.performer3Name)     p3NameEl.value   = data.performer3Name;
+    if (p3DetEl && data.performer3Detail)     p3DetEl.value    = data.performer3Detail;
+    if (recordsEl && data.records)            recordsEl.value  = data.records;
+    if (standingEl && data.standing)          standingEl.value = data.standing;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubSportsKeyPerformances = {
     reset: function () {

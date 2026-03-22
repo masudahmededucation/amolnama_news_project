@@ -101,6 +101,30 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    try {
+      var data = JSON.parse(hiddenInput.value);
+      if (data.relevanceId && relevanceHidden) {
+        relevanceHidden.value = data.relevanceId;
+        var relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');
+        for (var i = 0; i < relRadios.length; i++) {
+          relRadios[i].checked = (relRadios[i].value == data.relevanceId);
+        }
+      }
+      if (stakeEl && data.stake)                   stakeEl.value          = data.stake;
+      if (expatCbEl)                               expatCbEl.checked      = !!data.expatAffected;
+      if (expatRow)                                expatRow.style.display = expatCbEl && expatCbEl.checked ? '' : 'none';
+      if (expatCountEl && data.expatCount)         expatCountEl.value     = data.expatCount;
+      if (expatDescEl && data.expatDesc)           expatDescEl.value      = data.expatDesc;
+      if (economicImpactEl && data.economicImpact) economicImpactEl.value = data.economicImpact;
+      if (govtPositionEl && data.govtPosition)     govtPositionEl.value   = data.govtPosition;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubGlobalNewsBangladesh = {
     reset: function () {
       var relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');

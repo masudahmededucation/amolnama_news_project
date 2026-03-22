@@ -51,6 +51,22 @@
     form.addEventListener('submit', serialize);
   }
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (data.motives && Array.isArray(data.motives)) {
+        for (var i = 0; i < checkboxes.length; i++) {
+          checkboxes[i].checked = data.motives.indexOf(checkboxes[i].value) !== -1;
+        }
+      }
+      if (descriptionEl && data.description) descriptionEl.value = data.description;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubPoliticalContext = {
     reset: function () {

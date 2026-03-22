@@ -143,6 +143,37 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    try {
+      var data = JSON.parse(hiddenInput.value);
+      if (data.worldReactionId && worldReactionHidden) {
+        worldReactionHidden.value = data.worldReactionId;
+        var reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');
+        for (var i = 0; i < reactionRadios.length; i++) {
+          reactionRadios[i].checked = (reactionRadios[i].value == data.worldReactionId);
+        }
+      }
+      if (intlStatementEl && data.intlStatement)   intlStatementEl.value     = data.intlStatement;
+      if (sanctionsCbEl)                           sanctionsCbEl.checked     = !!data.sanctionsImposed;
+      if (sanctionsRow)                            sanctionsRow.style.display = sanctionsCbEl && sanctionsCbEl.checked ? '' : 'none';
+      if (sanctionsDescEl && data.sanctionsDesc)   sanctionsDescEl.value     = data.sanctionsDesc;
+      if (agreementCbEl)                           agreementCbEl.checked     = !!data.agreementReached;
+      if (agreementRow)                            agreementRow.style.display = agreementCbEl && agreementCbEl.checked ? '' : 'none';
+      if (agreementDescEl && data.agreementDesc)   agreementDescEl.value     = data.agreementDesc;
+      if (data.mediaCoverageId && mediaCoverageHidden) {
+        mediaCoverageHidden.value = data.mediaCoverageId;
+        var coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');
+        for (var c = 0; c < coverageRadios.length; c++) {
+          coverageRadios[c].checked = (coverageRadios[c].value == data.mediaCoverageId);
+        }
+      }
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubGlobalNewsReaction = {
     reset: function () {
       var reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');

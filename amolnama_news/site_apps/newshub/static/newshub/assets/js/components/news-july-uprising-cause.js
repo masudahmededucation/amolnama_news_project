@@ -65,6 +65,31 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    if (weaponType && data.weaponType) {
+      weaponType.value = data.weaponType;
+      if (weaponType.tomselect) weaponType.tomselect.setValue(data.weaponType, true);
+    }
+    if (injurySite && data.injurySite) {
+      injurySite.value = data.injurySite;
+      if (injurySite.tomselect) injurySite.tomselect.setValue(data.injurySite, true);
+    }
+    if (timeOfInjury && data.timeOfInjury) timeOfInjury.value = data.timeOfInjury;
+    if (hospital && data.hospital) hospital.value = data.hospital;
+    if (timeOfDeath && data.timeOfDeath) timeOfDeath.value = data.timeOfDeath;
+    if (autopsyDone && data.autopsyDone) autopsyDone.checked = true;
+    if (deathCertificate && data.deathCertificate) deathCertificate.checked = true;
+    if (medicalDocs && data.medicalDocs) medicalDocs.checked = true;
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubJulyCause = {
     reset: function () {
       if (weaponType) weaponType.selectedIndex = 0;

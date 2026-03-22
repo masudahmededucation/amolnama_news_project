@@ -72,6 +72,22 @@
   /* Initial state */
   toggleWarCrimesRow();
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    try {
+      var data = JSON.parse(hiddenJson.value);
+      if (militaryCasualties && data.militaryCasualties) militaryCasualties.value = data.militaryCasualties;
+      if (civilianCasualties && data.civilianCasualties) civilianCasualties.value = data.civilianCasualties;
+      if (refugees && data.refugees)                     refugees.value           = data.refugees;
+      if (warCrimes)                                     warCrimes.checked        = !!data.warCrimes;
+      if (warCrimesDesc && data.warCrimesDescription)    warCrimesDesc.value      = data.warCrimesDescription;
+      toggleWarCrimesRow();
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubGlobalHumanitarian = {
     reset: function () {

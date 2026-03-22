@@ -82,6 +82,38 @@
 
   toggleEyewitnessCount();
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Verification status radios */
+    if (data.verificationStatus) {
+      for (var r = 0; r < verificationRadios.length; r++) {
+        verificationRadios[r].checked = (verificationRadios[r].value === String(data.verificationStatus));
+      }
+    }
+
+    /* Evidence type checkboxes */
+    if (data.evidenceTypes && data.evidenceTypes.length) {
+      for (var c = 0; c < evidenceCheckboxes.length; c++) {
+        evidenceCheckboxes[c].checked = data.evidenceTypes.indexOf(evidenceCheckboxes[c].value) !== -1;
+      }
+    }
+
+    /* Eyewitness count */
+    if (eyewitnessCount && data.eyewitnessCount) eyewitnessCount.value = data.eyewitnessCount;
+
+    /* Memorial ref */
+    if (memorialRef && data.memorialRef) memorialRef.value = data.memorialRef;
+
+    toggleEyewitnessCount();
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubJulyEvidence = {
     reset: function () {
       for (var k = 0; k < verificationRadios.length; k++) {

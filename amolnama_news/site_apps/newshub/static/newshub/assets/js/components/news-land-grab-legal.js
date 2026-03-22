@@ -158,6 +158,57 @@
     }});
   }
 
+  /* ========== Restore from saved data ========== */
+
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var saved;
+    try { saved = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!saved) return;
+
+    if (saved.firStatusId) {
+      var firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
+      if (firRadio) {
+        firRadio.checked = true;
+        firRadio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    if (saved.applicableLawIds && saved.applicableLawIds.length) {
+      for (var i = 0; i < lawCheckboxes.length; i++) {
+        if (saved.applicableLawIds.indexOf(parseInt(lawCheckboxes[i].value, 10)) !== -1) {
+          lawCheckboxes[i].checked = true;
+        }
+      }
+    }
+
+    if (saved.caseStatusId && caseStatus) {
+      caseStatus.value = saved.caseStatusId;
+    }
+
+    if (saved.supportServiceIds && saved.supportServiceIds.length) {
+      for (var j = 0; j < supportCheckboxes.length; j++) {
+        if (saved.supportServiceIds.indexOf(parseInt(supportCheckboxes[j].value, 10)) !== -1) {
+          supportCheckboxes[j].checked = true;
+        }
+      }
+    }
+
+    if (saved.retaliationIds && saved.retaliationIds.length) {
+      for (var k = 0; k < retaliationCheckboxes.length; k++) {
+        if (saved.retaliationIds.indexOf(parseInt(retaliationCheckboxes[k].value, 10)) !== -1) {
+          retaliationCheckboxes[k].checked = true;
+        }
+      }
+    }
+
+    if (saved.remarks && remarks) {
+      remarks.value = saved.remarks;
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ========== Public API ========== */
 
   window.newshubLandGrabLegal = {

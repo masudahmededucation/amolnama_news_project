@@ -85,6 +85,25 @@
     form.addEventListener('submit', serialize);
   }
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (data.issueStatusId) {
+      var radios = document.querySelectorAll('input[name="civic_status_radio"]');
+      for (var i = 0; i < radios.length; i++) {
+        if (parseInt(radios[i].value, 10) === data.issueStatusId) {
+          radios[i].checked = true;
+          break;
+        }
+      }
+    }
+    if (descriptionEl && data.description) descriptionEl.value = data.description;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubCivicStatus = {
     reset: function () {

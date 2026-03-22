@@ -64,6 +64,26 @@
     form.addEventListener('submit', serialize);
   }
 
+  /* ---- Restore from saved data ---- */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+
+    if (platform && data.platform)         platform.value     = data.platform;
+    if (projectStage && data.projectStage) projectStage.value = data.projectStage;
+    if (data.ipType) {
+      for (var j = 0; j < ipRadios.length; j++) {
+        if (ipRadios[j].value === data.ipType) {
+          ipRadios[j].checked = true;
+          break;
+        }
+      }
+    }
+    if (rumorCheckbox) rumorCheckbox.checked = !!data.isRumor;
+  }
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubEntertainmentProject = {
     reset: function () {

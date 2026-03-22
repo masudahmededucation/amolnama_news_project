@@ -48,6 +48,37 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Injury type checkboxes */
+    if (data.injuryTypes && data.injuryTypes.length) {
+      for (var i = 0; i < injuryTypes.length; i++) {
+        injuryTypes[i].checked = data.injuryTypes.indexOf(injuryTypes[i].value) !== -1;
+      }
+    }
+
+    /* Severity radio */
+    if (data.severity) {
+      for (var s = 0; s < severityRadios.length; s++) {
+        severityRadios[s].checked = (severityRadios[s].value === String(data.severity));
+      }
+    }
+
+    /* Psychological symptoms checkboxes */
+    if (data.psychSymptoms && data.psychSymptoms.length) {
+      for (var p = 0; p < psychSymptoms.length; p++) {
+        psychSymptoms[p].checked = data.psychSymptoms.indexOf(psychSymptoms[p].value) !== -1;
+      }
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubWcvInjury = {
     reset: function () {
       [injuryTypes, psychSymptoms].forEach(function (group) {

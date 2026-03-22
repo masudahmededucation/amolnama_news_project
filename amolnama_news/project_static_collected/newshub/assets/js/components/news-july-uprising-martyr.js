@@ -135,6 +135,70 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
+  /* ========== Restore from saved data ========== */
+  function restoreFromSavedData() {
+    if (!hiddenJson.value) return;
+    var data;
+    try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
+    if (!data || typeof data !== 'object') return;
+
+    /* Name fields via person-name module */
+    if (window.newshubPersonName) {
+      window.newshubPersonName.restore('july-martyr', {
+        firstNameEn: data.firstNameEn || '',
+        lastNameEn: data.lastNameEn || '',
+        firstNameBn: data.firstNameBn || '',
+        lastNameBn: data.lastNameBn || '',
+        fatherFirstName: data.fatherFirstName || '',
+        fatherLastName: data.fatherLastName || '',
+      });
+    }
+
+    if (alias && data.alias) alias.value = data.alias;
+    if (gender && data.genderId) {
+      gender.value = data.genderId;
+      if (gender.tomselect) gender.tomselect.setValue(data.genderId, true);
+    }
+    if (religion && data.religionId) {
+      religion.value = data.religionId;
+      if (religion.tomselect) religion.tomselect.setValue(data.religionId, true);
+    }
+    if (age && data.age) age.value = data.age;
+    if (dob && data.dob) dob.value = data.dob;
+    if (district && data.districtId) {
+      district.value = data.districtId;
+      if (district.tomselect) district.tomselect.setValue(data.districtId, true);
+    }
+    if (contact && data.contact) contact.value = data.contact;
+    if (occupation && data.occupation) {
+      occupation.value = data.occupation;
+      if (occupation.tomselect) occupation.tomselect.setValue(data.occupation, true);
+    }
+    if (institution && data.institution) institution.value = data.institution;
+
+    /* Status radios */
+    if (data.status) {
+      for (var r = 0; r < statusRadios.length; r++) {
+        statusRadios[r].checked = (statusRadios[r].value === data.status);
+      }
+    }
+
+    if (motherFirst && data.motherFirstName) motherFirst.value = data.motherFirstName;
+    if (motherLast && data.motherLastName) motherLast.value = data.motherLastName;
+
+    /* Home location via location module */
+    if (window.julyMartyrHomeLocation && window.julyMartyrHomeLocation.restore) {
+      window.julyMartyrHomeLocation.restore({
+        districtId: data.homeDistrictId || 0,
+        upazilaId: data.homeUpazilaId || 0,
+        localBodyId: data.homeLocalBodyId || 0,
+        wardId: data.homeWardId || 0,
+      });
+    }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* Public API for form-clear */
   window.newshubJulyMartyr = {
     reset: function () {

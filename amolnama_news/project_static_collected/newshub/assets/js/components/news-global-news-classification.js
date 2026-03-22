@@ -85,6 +85,26 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore UI from saved hidden input JSON ---- */
+  function restoreFromSavedData() {
+    if (!hiddenInput.value) return;
+    try {
+      var data = JSON.parse(hiddenInput.value);
+      if (data.significanceId && significanceHidden) {
+        significanceHidden.value = data.significanceId;
+        var sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
+        for (var s = 0; s < sigRadios.length; s++) {
+          sigRadios[s].checked = (sigRadios[s].value == data.significanceId);
+        }
+      }
+      if (isDevelopingEl) isDevelopingEl.checked = !!data.isDeveloping;
+      if (isBreakingEl)   isBreakingEl.checked   = !!data.isBreaking;
+      if (hasBdAngleEl)   hasBdAngleEl.checked   = !!data.hasBangladeshAngle;
+    } catch (e) { /* ignore parse errors */ }
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   window.newshubGlobalNewsClassification = {
     reset: function () {
       var sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
