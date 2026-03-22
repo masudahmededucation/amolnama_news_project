@@ -75,7 +75,7 @@
     if (matchDateEl && data.matchDate)             matchDateEl.value      = data.matchDate;
     if (statusSelect && data.matchStatus)          statusSelect.value     = data.matchStatus;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubSportsMatchEvent = {

@@ -95,7 +95,7 @@
     if (scoreB && data.scoreB)                 scoreB.value          = data.scoreB;
     if (keyPerformance && data.keyPerformance) keyPerformance.value  = data.keyPerformance;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear */
   window.newshubSportsScoreboard = {

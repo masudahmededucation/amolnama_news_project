@@ -86,7 +86,7 @@
     toggleDependentsRow();
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   window.newshubJulyStory = {
     reset: function () {

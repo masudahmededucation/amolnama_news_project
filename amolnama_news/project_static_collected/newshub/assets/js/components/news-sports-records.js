@@ -120,7 +120,7 @@
     if (injuryRecovery && data.injuryRecovery)     injuryRecovery.value  = data.injuryRecovery;
     toggleSections();
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear */
   window.newshubSportsRecords = {

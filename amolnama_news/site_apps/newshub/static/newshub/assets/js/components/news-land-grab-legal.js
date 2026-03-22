@@ -137,8 +137,8 @@
   var form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
-  /* Initial state */
-  serialize();
+  /* Initial state — skip if persist already restored a value */
+  if (!hiddenJson.value) serialize();
 
   /* ========== Step validator ========== */
 
@@ -207,7 +207,7 @@
     }
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ========== Public API ========== */
 

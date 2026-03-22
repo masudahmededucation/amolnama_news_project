@@ -68,7 +68,7 @@
     if (damageAmountEl && data.damageAmount) damageAmountEl.value = data.damageAmount;
     if (isOngoingEl) isOngoingEl.checked = !!data.isOngoing;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear.js */
   window.newshubCrimeCasualties = {

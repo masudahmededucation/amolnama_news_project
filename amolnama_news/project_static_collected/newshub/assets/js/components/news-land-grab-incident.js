@@ -348,7 +348,7 @@
     if (violenceDescRow) violenceDescRow.style.display = data.violenceOccurred ? '' : 'none';
     if (violenceDescEl && data.violenceDesc) violenceDescEl.value = data.violenceDesc;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubLandGrabIncident = {

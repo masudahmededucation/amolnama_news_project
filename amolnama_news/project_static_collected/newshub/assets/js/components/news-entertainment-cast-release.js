@@ -66,7 +66,7 @@
     if (platformSelect && data.platform)     platformSelect.value = data.platform;
     if (genreSelect && data.genre)           genreSelect.value    = data.genre;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubEntertainmentCastRelease = {

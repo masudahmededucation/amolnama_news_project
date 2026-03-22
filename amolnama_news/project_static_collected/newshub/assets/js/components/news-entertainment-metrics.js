@@ -65,7 +65,7 @@
     if (revenue && data.revenue)                 revenue.value      = data.revenue;
     if (openingWeekend && data.openingWeekend)   openingWeekend.value = data.openingWeekend;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear */
   window.newshubEntertainmentMetrics = {

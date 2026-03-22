@@ -65,7 +65,7 @@
     if (ratingEl && data.rating)               ratingEl.value       = data.rating;
     if (audienceSelect && data.audienceResponse) audienceSelect.value = data.audienceResponse;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubEntertainmentPerformance = {

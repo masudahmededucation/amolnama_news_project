@@ -112,7 +112,7 @@
     toggleEyewitnessCount();
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   window.newshubJulyEvidence = {
     reset: function () {

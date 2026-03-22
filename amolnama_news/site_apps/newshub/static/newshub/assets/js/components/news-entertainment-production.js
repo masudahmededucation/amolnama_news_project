@@ -75,7 +75,7 @@
     if (writerEl && data.writer)             writerEl.value       = data.writer;
     if (musicEl && data.musicDirector)       musicEl.value        = data.musicDirector;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubEntertainmentProduction = {

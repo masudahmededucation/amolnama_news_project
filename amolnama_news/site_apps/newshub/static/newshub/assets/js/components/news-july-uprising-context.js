@@ -60,7 +60,7 @@
     }
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   window.newshubJulyContext = {
     reset: function () {

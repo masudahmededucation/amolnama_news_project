@@ -79,7 +79,7 @@
     if (directives && data.directives) directives.value = data.directives;
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   window.newshubJulyOppressors = {
     reset: function () {

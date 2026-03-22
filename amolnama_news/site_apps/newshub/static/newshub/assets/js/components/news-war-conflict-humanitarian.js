@@ -86,7 +86,7 @@
     } catch (e) { /* ignore parse errors */ }
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear */
   window.newshubGlobalHumanitarian = {

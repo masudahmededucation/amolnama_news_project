@@ -88,7 +88,7 @@
     if (medicalDocs && data.medicalDocs) medicalDocs.checked = true;
   }
 
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   window.newshubJulyCause = {
     reset: function () {

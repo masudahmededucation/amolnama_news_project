@@ -78,7 +78,7 @@
     if (tossDecisionEl && data.tossDecision) tossDecisionEl.value = data.tossDecision;
     if (potmEl && data.playerOfMatch)        potmEl.value         = data.playerOfMatch;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubSportsTeamsResult = {

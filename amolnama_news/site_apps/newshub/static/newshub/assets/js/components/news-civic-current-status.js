@@ -102,7 +102,7 @@
     }
     if (descriptionEl && data.description) descriptionEl.value = data.description;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* Public API for form-clear */
   window.newshubCivicStatus = {

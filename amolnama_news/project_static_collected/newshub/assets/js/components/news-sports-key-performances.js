@@ -85,7 +85,7 @@
     if (recordsEl && data.records)            recordsEl.value  = data.records;
     if (standingEl && data.standing)          standingEl.value = data.standing;
   }
-  setTimeout(restoreFromSavedData, 350);
+  setTimeout(restoreFromSavedData, 100);
 
   /* ---- Public API for form-clear.js ---- */
   window.newshubSportsKeyPerformances = {
