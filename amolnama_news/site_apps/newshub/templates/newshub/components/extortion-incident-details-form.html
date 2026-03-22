@@ -108,7 +108,7 @@
     <div class="checkbox-group" id="extortion-affiliation-checkboxes">
       {% for affil in extortion_accused_affiliations %}
       <label class="checkbox-label">
-        <input type="checkbox" id="extortion-affil-{{ affil.status_id }}"
+        <input type="checkbox" id="extortion-affil-{{ affil.status_id }}" name="extortion_affiliation"
                value="{{ affil.status_id }}" data-code="{{ affil.status_code }}">
         {% if affil.status_icon %}{{ affil.status_icon }} {% endif %}{{ affil.status_name_bn }} ({{ affil.status_name_en }})
       </label>
@@ -131,7 +131,7 @@
     <div class="checkbox-group" id="extortion-threat-checkboxes">
       {% for threat in extortion_threat_methods %}
       <label class="checkbox-label">
-        <input type="checkbox" id="extortion-threat-{{ threat.status_id }}"
+        <input type="checkbox" id="extortion-threat-{{ threat.status_id }}" name="extortion_threat"
                value="{{ threat.status_id }}" data-code="{{ threat.status_code }}">
         {% if threat.status_icon %}{{ threat.status_icon }} {% endif %}{{ threat.status_name_bn }} ({{ threat.status_name_en }})
       </label>
@@ -146,7 +146,7 @@
     <div class="checkbox-group" id="extortion-consequence-checkboxes">
       {% for cons in extortion_victim_consequences %}
       <label class="checkbox-label">
-        <input type="checkbox" id="extortion-cons-{{ cons.status_id }}"
+        <input type="checkbox" id="extortion-cons-{{ cons.status_id }}" name="extortion_consequence"
                value="{{ cons.status_id }}" data-code="{{ cons.status_code }}">
         {% if cons.status_icon %}{{ cons.status_icon }} {% endif %}{{ cons.status_name_bn }} ({{ cons.status_name_en }})
       </label>
@@ -173,7 +173,7 @@
     <div class="checkbox-group" id="extortion-context-checkboxes">
       {% for ctx in extortion_bangladesh_contexts %}
       <label class="checkbox-label">
-        <input type="checkbox" id="extortion-ctx-{{ ctx.status_id }}"
+        <input type="checkbox" id="extortion-ctx-{{ ctx.status_id }}" name="extortion_context"
                value="{{ ctx.status_id }}" data-code="{{ ctx.status_code }}">
         {% if ctx.status_icon %}{{ ctx.status_icon }} {% endif %}{{ ctx.status_name_bn }} ({{ ctx.status_name_en }})
       </label>
