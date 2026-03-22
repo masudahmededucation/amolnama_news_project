@@ -15,7 +15,8 @@
  */
 (function () {
   var STORAGE_KEY = 'newshub_draft';
-  var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status'];
+  var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status',
+    'accused_json', 'victim_json', 'witness_json'];
   var form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
 

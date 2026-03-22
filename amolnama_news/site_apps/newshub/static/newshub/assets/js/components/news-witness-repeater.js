@@ -284,15 +284,7 @@
   /* ========== Init ========== */
 
   restoreFromHiddenInput();
-  if (!actors.length) {
-    /* Pre-add one witness card so fields are visible without a button click */
-    actors.push(Object.assign({
-      role: 'witness',
-      involvementTypeId: roleToInvolvementId['witness'] || 0,
-      actorTypeId: 0,
-      actorTypeDetail: ''
-    }, nameDefaults(), identityDefaults(), partyDefaults()));
-  }
+  /* Do NOT auto-add a blank card — witness is optional */
   render();
 
 })();

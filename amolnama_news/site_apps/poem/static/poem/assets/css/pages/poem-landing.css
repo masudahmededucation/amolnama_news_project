@@ -144,6 +144,38 @@
   border-color: #5b6abf;
 }
 
+/* কবিতা — teal */
+.poem-type-tab[data-type="poem"] {
+  color: #0d7377;
+  background: #e6f7f7;
+  border-color: #b2dfdb;
+}
+.poem-type-tab[data-type="poem"]:hover {
+  border-color: #0d7377;
+  background: #d0efef;
+}
+.poem-type-tab[data-type="poem"].poem-type-tab--active {
+  background: #0d7377;
+  color: #fff;
+  border-color: #0d7377;
+}
+
+/* গানের কথা — purple */
+.poem-type-tab[data-type="song"] {
+  color: #7c3aed;
+  background: #f3eefe;
+  border-color: #d4bffc;
+}
+.poem-type-tab[data-type="song"]:hover {
+  border-color: #7c3aed;
+  background: #e8dcfd;
+}
+.poem-type-tab[data-type="song"].poem-type-tab--active {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+}
+
 .poem-filter-pills {
   display: flex;
   flex-wrap: wrap;

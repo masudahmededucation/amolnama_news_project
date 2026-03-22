@@ -26,4 +26,8 @@ LOGGING = {
     "root": {"handlers": ["console"], "level": "INFO"},
 }
 
+# Disable browser caching for static files in development
+# Forces browser to always fetch fresh JS/CSS without manual cache clear
+MIDDLEWARE += ["amolnama_news.middleware.no_cache_static.NoCacheStaticMiddleware"]
+
 # Keep dev.py minimal; rely on environment variables or local.py for local-only defaults.

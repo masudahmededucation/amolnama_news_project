@@ -10,7 +10,7 @@
   {% endif %}
 
   {% if current_elections %}
-    <h3>নির্বাচন নির্বাচন করুন (Select Election)</h3>
+    <h3>নির্বাচন বাছাই করুন (Select Election)</h3>
     <ul class="selection-list">
       {% for election in current_elections %}
         <li onclick="handleElectionSelection({{ election.election_evaluation_id }}, {{ election.link_election_id }}, '{{ election.evaluation_name_en }}', '{{ election.evaluation_name_bn }}')">

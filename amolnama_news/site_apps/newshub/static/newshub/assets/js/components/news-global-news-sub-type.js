@@ -36,7 +36,7 @@
     option.dataset.statusCode = st.status_code || '';
     selectEl.appendChild(option);
 
-    if (st.status_code === 'other') {
+    if ((st.status_code || '').toLowerCase() === 'other') {
       otherStatusId = String(st.status_id);
     }
   });

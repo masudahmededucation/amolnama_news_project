@@ -102,9 +102,9 @@
       return null;
     }
 
-    function isFirYes()           { var r = getSelectedFirRadio(); return r ? r.dataset.code === 'YES'            : false; }
-    function isFirPoliceRefused() { var r = getSelectedFirRadio(); return r ? r.dataset.code === 'POLICE_REFUSED' : false; }
-    function isFirNo()            { var r = getSelectedFirRadio(); return r ? r.dataset.code === 'NO'             : false; }
+    function isFirYes()           { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '').toUpperCase() === 'YES'            : false; }
+    function isFirPoliceRefused() { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '').toUpperCase() === 'POLICE_REFUSED' : false; }
+    function isFirNo()            { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '').toUpperCase() === 'NO'             : false; }
 
     /* ---- Conditional row toggling ---- */
 

@@ -449,7 +449,70 @@
       }
     });
 
+    /* ---- Photo pages (from Step 8) ---- */
+    var photoHtml = buildPhotoPages(totalPages);
+    html += photoHtml;
+
     previewBody.innerHTML = html;
+  }
+
+  /* Build photo preview pages from marriagePhotos store — one photo per page at 5"x7" */
+  function buildPhotoPages(startPageNum) {
+    if (typeof window.marriagePhotos === 'undefined') return '';
+    var store = window.marriagePhotos.getStore();
+
+    var SECTION_LABELS = {
+      first_meet:       '💕 প্রথম দেখা',
+      gaye_holud:       '🌼 গায়ে হলুদ',
+      bor_jatra:        '🎺 বরযাত্রা',
+      wedding_ceremony: '💍 বিয়ের অনুষ্ঠান',
+      bou_bhat:         '🍽️ বৌভাত',
+      other:            '📸 অন্যান্য',
+    };
+
+    // Collect all photos with section labels
+    var allPhotos = [];
+    for (var section in SECTION_LABELS) {
+      if (!store[section]) continue;
+      for (var i = 0; i < store[section].length; i++) {
+        allPhotos.push({ url: store[section][i].url, label: SECTION_LABELS[section], num: i + 1 });
+      }
+    }
+    if (allPhotos.length === 0) return '';
+
+    var html = '';
+    var pageNum = startPageNum;
+
+    for (var p = 0; p < allPhotos.length; p++) {
+      pageNum++;
+      var photo = allPhotos[p];
+      var isFirst = (p === 0);
+
+      html += '<div class="preview-page-gap"></div>';
+      html += '<div class="preview-a4-page">';
+      html += '<div class="preview-page-top-space"></div>';
+      html += '<div class="preview-a4-page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">';
+
+      // Title only on first photo page
+      if (isFirst) {
+        html += '<h3 style="text-align:center;font-size:1.1rem;margin:0 0 .75rem;color:#8a6d3b;">বিবাহের কিছু স্মৃতি</h3>';
+      }
+
+      // Section label
+      html += '<p style="font-size:.85rem;font-weight:600;color:#5a4a2a;margin:0 0 .5rem;">' + photo.label + '</p>';
+
+      // Photo frame 5"x7" (480x672px) — image fits inside without stretching
+      html += '<div style="width:480px;height:672px;border:2px solid #d4c9a8;border-radius:4px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.15);background:#f8f6f0;display:flex;align-items:center;justify-content:center;">'
+        + '<img src="' + photo.url + '" style="max-width:100%;max-height:100%;object-fit:contain;" alt="' + photo.label + ' ' + photo.num + '">'
+        + '</div>';
+
+      html += '</div>';
+      html += '<div class="preview-page-bottom-space"></div>';
+      html += '<div class="preview-a4-page-footer"><span>Page ' + pageNum + '</span></div>';
+      html += '</div>';
+    }
+
+    return html;
   }
 
   /* ---- Pre-printed form toggle ---- */
@@ -511,9 +574,20 @@
         if (idx > 0) pdf.addPage();
         html2canvas(pageEls[idx], { scale: 2, useCORS: true }).then(function (canvas) {
           var imgData = canvas.toDataURL('image/jpeg', 0.95);
-          var imgHeight = (canvas.height * imgWidth) / canvas.width;
-          if (imgHeight > pageHeight - margin * 2) imgHeight = pageHeight - margin * 2;
-          pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
+          var maxW = pageWidth - margin * 2;
+          var maxH = pageHeight - margin * 2;
+          var ratio = canvas.width / canvas.height;
+          var fitW = maxW;
+          var fitH = fitW / ratio;
+          // If too tall, scale down by height instead
+          if (fitH > maxH) {
+            fitH = maxH;
+            fitW = fitH * ratio;
+          }
+          // Center on page
+          var offsetX = margin + (maxW - fitW) / 2;
+          var offsetY = margin + (maxH - fitH) / 2;
+          pdf.addImage(imgData, 'JPEG', offsetX, offsetY, fitW, fitH);
           captureNext(idx + 1);
         });
       };

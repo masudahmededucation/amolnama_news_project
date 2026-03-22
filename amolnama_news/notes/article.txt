@@ -1,0 +1,25 @@
+I want to have a two-column layout for my news article. 
+On the left column, I want to highlight key words, date, place, and key figures. 
+On the right column, I want the main news content including the headline. 
+For every paragraph on the right, if there are any keywords, date, 
+or place found in that paragraph, they should appear on the left. 
+How can I approach this in the UI, database, and article view?
+
+
+This is a high-end editorial design often used by premium news outlets like 
+The New York Times or The Economist. It’s called a "Sidenote" or "Margin Data" architecture.
+
+To keep it "light and fast" for your Django/MS SQL app, 
+you need a way to link specific metadata to specific paragraphs.
+
+
+To structure your news article with a two-column layout, 
+store the article content in your database as a single block of text, 
+then split it into paragraphs when displaying it. On the right column, 
+show the full article with its headline and paragraphs. On the left column, a
+nalyze each corresponding paragraph to automatically extract and highlight any dates, 
+places, or key names—you can do this in the user interface using JavaScript,
+ or beforehand in the database by saving metadata like keywords per paragraph. 
+ When rendering the article view, loop through the paragraphs, display each one on the right, 
+ and on the left show only the extracted keywords, date, and person for that same paragraph.
+

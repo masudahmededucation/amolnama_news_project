@@ -332,20 +332,7 @@
   /* ========== Init ========== */
 
   restoreFromHiddenInput();
-  if (!actors.length) {
-    /* Pre-add one victim card so fields are visible without a button click */
-    var defaultVictim = Object.assign({
-      role: 'victim',
-      involvementTypeId: roleToInvolvementId['victim'] || 0,
-      actorTypeId: 0,
-      actorTypeDetail: ''
-    }, nameDefaults(), identityDefaults(), partyDefaults());
-    if (showVictimCondition) {
-      defaultVictim.conditionId = 0;
-      defaultVictim.medicalLocation = '';
-    }
-    actors.push(defaultVictim);
-  }
+  /* Do NOT auto-add a blank card — victim is optional */
   render();
 
 })();

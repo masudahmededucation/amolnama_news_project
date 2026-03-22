@@ -1,0 +1,88 @@
+Shared / Modular Components — Newshub Forms
+=============================================
+Last updated: 2026-03-22
+
+RULE: Never duplicate these. Always reuse via include or factory call.
+RULE: Case-insensitive comparison — always use .toUpperCase() or .toLowerCase() when comparing status_code or dataset.code.
+
+1. GD/FIR Toggle (General Diary / First Information Report)
+   Template: law-gd-fir-section.html (include with fir_prefix="legal" or "wcv")
+   JS:       news-law-gd-fir.js (factory: window.newshubLawGdFir.initLawGdFirSection({ prefix, onChange }))
+   Used by:  crime-legal-form, extortion-legal-form, land-grab-legal-form, wcv-legal-form
+   Data:     Each form provides <script id="{prefix}-fir-status-data"> with fir_statuses_json
+   IDs:      {prefix}-fir-status-radios, {prefix}-fir-details-row, {prefix}-case-number,
+             {prefix}-police-station, {prefix}-police-refused-row, {prefix}-no-fir-row
+
+2. Thana Search (Police Station)
+   JS:       news-thana-search-select.js (Tom Select with API search)
+   Used by:  GD/FIR section (auto-initialized inside law-gd-fir-section)
+   API:      /newshub/api/thana-search/?q=
+
+3. Person Name Fields
+   Templates: person-name-core-fields.html, person-name-alias-fields.html,
+              person-name-father-fields.html, person-family-name-fields.html,
+              person-occupation-fields.html, person-personal-info-fields.html
+   JS:        news-person-name.js, news-person-identity.js
+   Used by:   All forms with person data (victims, accused, witnesses)
+
+4. Involved Parties (Actor Type Dropdown)
+   JS:       news-involved-parties.js
+   Rule:     "অজ্ঞাতনামা ব্যক্তি" (unidentified_anonymous) always at TOP with separator
+   Used by:  All forms with actor/party selection
+
+5. Accused Repeater
+   Template: accused-form.html
+   JS:       news-accused-repeater.js
+   Rule:     "অজ্ঞাতনামা ব্যক্তি" at TOP with separator
+   Used by:  crime, extortion
+
+6. Victim Repeater
+   Template: victim-form.html, victim-form-crime.html
+   JS:       news-victim-repeater.js
+   Used by:  crime, WCV
+
+7. Witness Repeater
+   Template: witness-form.html
+   JS:       news-witness-repeater.js
+   Used by:  crime, extortion
+
+8. News Entry (Step 1 — headline, body, summary)
+   Template: news-entry-form.html
+   Used by:  ALL forms
+
+9. Location (Administrative Cascade + Map)
+   Templates: news-location-administrative-cascade.html, news-location-map-pinpoint.html
+   JS:        news-location-cascade.js, news-location-search.js, news-map-pinpoint.js,
+              news-map-search.js, news-map-reverse-geocode.js, news-map-location-autofill.js
+   Used by:   ALL forms
+
+10. File Upload & Compression
+    Template: file-upload-section.html
+    JS:       news-file-compressor.js, news-attachment-upload.js
+    Used by:  ALL forms
+
+11. Form Infrastructure (Stepper, Persist, Clear, Validate, Language)
+    JS:       news-form-stepper.js — step navigation
+              news-form-persist.js — auto-save draft to localStorage
+              news-form-clear.js — reset form
+              news-form-validate.js — step validation
+              news-form-lang.js — BN/EN language toggle (loaded globally via base.html)
+    Used by:  ALL forms
+
+12. Social Source Repeater
+    JS:       news-social-source-repeater.js
+    Used by:  ALL forms (Step: Source & Evidence)
+
+13. Category/Tag Cascade
+    JS:       news-category-tag-cascade.js, news-tag-search.js, news-auto-tag.js
+    Used by:  ALL forms (sidebar)
+
+Form-Specific Legal Modules (each wraps shared GD/FIR + own fields):
+  - news-crime-legal.js      → crime applicable laws, case status, support, retaliation
+  - news-extortion-legal.js  → extortion applicable laws, case status, support, retaliation
+  - news-land-grab-legal.js  → land-grab applicable laws, case status, support, retaliation
+  - news-wcv-legal.js        → WCV applicable laws, case status, support, retaliation
+
+DELETED ORPHAN FILES (do not recreate):
+  - legal-fir-section.html (replaced by law-gd-fir-section.html)
+  - news-legal-fir.js (replaced by news-law-gd-fir.js)

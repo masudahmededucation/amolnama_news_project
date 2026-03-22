@@ -31,38 +31,36 @@
 
   /* ========== Apply language to all labelled elements ========== */
 
-  /* Save original text on first run — so we can restore when switching back to BN */
+  /* Save original mixed text as data-bn for elements that only have data-en */
   var defaultsSaved = false;
   function saveDefaults() {
     if (defaultsSaved) return;
     defaultsSaved = true;
-    document.querySelectorAll('[data-en]').forEach(function (el) {
-      if (!el.hasAttribute('data-bn')) {
-        // Extract only text content (not child element text)
+    try {
+      document.querySelectorAll('[data-en]:not([data-bn])').forEach(function (el) {
         var textOnly = '';
         for (var c = 0; c < el.childNodes.length; c++) {
           if (el.childNodes[c].nodeType === Node.TEXT_NODE) textOnly += el.childNodes[c].textContent;
         }
         el.setAttribute('data-bn', textOnly.trim());
-      }
-    });
-    document.querySelectorAll('[data-ph-en]').forEach(function (el) {
-      if (!el.hasAttribute('data-ph-bn')) {
+      });
+      document.querySelectorAll('[data-ph-en]:not([data-ph-bn])').forEach(function (el) {
         el.setAttribute('data-ph-bn', el.placeholder || '');
-      }
-    });
+      });
+    } catch (e) { /* prevent breaking other scripts */ }
   }
 
   function applyLanguage(lang) {
     if (lang !== 'bn' && lang !== 'en') return;
     saveDefaults();
 
-    /* Static labels, headings, option text */
-    var labelled = document.querySelectorAll('[data-en]');
+    /* Static labels, headings, option text — only elements with BOTH data-bn AND data-en */
+    var labelled = document.querySelectorAll('[data-bn][data-en]');
     for (var i = 0; i < labelled.length; i++) {
       var el = labelled[i];
       var text = el.getAttribute('data-' + lang);
       if (text !== null) {
+        /* Preserve non-text child nodes (e.g. .field-mandatory-star spans, checkboxes) */
         var kids = Array.prototype.slice.call(el.childNodes).filter(function (n) {
           return n.nodeType !== Node.TEXT_NODE;
         });
@@ -72,7 +70,7 @@
     }
 
     /* Input / textarea placeholders */
-    var inputs = document.querySelectorAll('[data-ph-en]');
+    var inputs = document.querySelectorAll('[data-ph-bn][data-ph-en]');
     for (var j = 0; j < inputs.length; j++) {
       var ph = inputs[j].getAttribute('data-ph-' + lang);
       if (ph !== null) inputs[j].placeholder = ph;
@@ -171,9 +169,13 @@
   // Attach on initial load
   setTimeout(attachBanglaInput, 300);
 
-  // Re-attach when DOM changes (dynamic cards, new form sections)
+  // Re-attach when DOM changes (debounced to prevent excessive calls)
+  var mutationTimer = null;
   var observer = new MutationObserver(function () {
-    attachBanglaInput();
+    if (mutationTimer) clearTimeout(mutationTimer);
+    mutationTimer = setTimeout(function () {
+      try { attachBanglaInput(); } catch (e) { /* ignore */ }
+    }, 500);
   });
   observer.observe(document.body, { childList: true, subtree: true });
 

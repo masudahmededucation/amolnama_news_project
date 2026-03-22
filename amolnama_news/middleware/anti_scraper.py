@@ -83,9 +83,14 @@ class AntiScraperMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Skip static files and admin
+        # Skip static files, admin, and localhost dev
         path = request.path
         if path.startswith("/static/") or path.startswith("/admin/") or path.startswith("/__debug__/") or path.endswith("/og-image.png"):
+            return self.get_response(request)
+
+        # Skip rate limiting in development (localhost)
+        remote = request.META.get("REMOTE_ADDR", "")
+        if remote in ("127.0.0.1", "::1", "localhost"):
             return self.get_response(request)
 
         ua = request.META.get("HTTP_USER_AGENT", "")

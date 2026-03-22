@@ -148,7 +148,7 @@
     var unknownType = null;
     var otherTypes = [];
     for (var i = 0; i < types.length; i++) {
-      if (types[i].status_code === UNKNOWN_TYPE_CODE) {
+      if ((types[i].status_code || '').toLowerCase() === UNKNOWN_TYPE_CODE) {
         unknownType = types[i];
       } else {
         otherTypes.push(types[i]);

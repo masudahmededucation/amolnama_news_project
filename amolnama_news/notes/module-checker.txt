@@ -121,5 +121,13 @@ with a built-in feature to easily interchange picture positions between the boxe
 কাজ: চাকরির ফরমে অনেক সময় "অমুক তারিখে বয়স কত দিন, মাস, বছর" তা জানতে চায়, এটি দ্রুত সেই হিসাব করে দেবে।
 
 
+আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)
+এফআইআর/জিডি দায়ের হয়েছে? *
+না (No)
+পুলিশ নিতে অস্বীকার (Police Refused)
 
+
+
+
+সংবাদ জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন। (Submission failed. Please try again.)
 

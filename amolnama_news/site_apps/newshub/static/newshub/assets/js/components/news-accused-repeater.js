@@ -117,10 +117,27 @@
   function buildActorTypeOptions(selectedId) {
     var types = getAccusedActorTypes();
     var html = '<option value="">-- \u09A7\u09B0\u09A8 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select Type) --</option>';
+    /* Put অজ্ঞাতনামা ব্যক্তি (unknown_person) first, separated from others */
+    var unknownItem = null;
+    var otherItems = [];
     for (var i = 0; i < types.length; i++) {
-      var t = types[i];
-      var sel = (t.status_id === selectedId) ? ' selected' : '';
-      html += '<option value="' + t.status_id + '"' + sel + '>'
+      var code = (types[i].status_code || '').toLowerCase();
+      if (code === 'unidentified_anonymous' || code === 'unknown_person' || code === 'unknown') {
+        unknownItem = types[i];
+      } else {
+        otherItems.push(types[i]);
+      }
+    }
+    if (unknownItem) {
+      var sel = (unknownItem.status_id === selectedId) ? ' selected' : '';
+      html += '<option value="' + unknownItem.status_id + '"' + sel + '>'
+        + (unknownItem.status_name_bn || unknownItem.status_name_en || '') + '</option>';
+      html += '<option disabled>\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500</option>';
+    }
+    for (var j = 0; j < otherItems.length; j++) {
+      var t = otherItems[j];
+      var s = (t.status_id === selectedId) ? ' selected' : '';
+      html += '<option value="' + t.status_id + '"' + s + '>'
         + (t.status_name_bn || t.status_name_en || '') + '</option>';
     }
     return html;
@@ -327,15 +344,7 @@
   /* ========== Init ========== */
 
   restoreFromHiddenInput();
-  if (!actors.length) {
-    /* Pre-add one accused card so fields are visible without a button click */
-    actors.push(Object.assign({
-      role: 'accused',
-      involvementTypeId: roleToInvolvementId['accused'] || 0,
-      actorTypeId: 0,
-      actorTypeDetail: ''
-    }, nameDefaults(), identityDefaults(), partyDefaults()));
-  }
+  /* Do NOT auto-add a blank card — accused is optional */
   render();
 
 })();

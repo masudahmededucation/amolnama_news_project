@@ -1104,9 +1104,109 @@
     </div>
 
     {# ================================================================ #}
-    {# Step 8: প্রিভিউ (Preview) — Full preview + Print/PDF            #}
+    {# Step 8: ছবি সংযুক্ত (Attach Photographs)                        #}
     {# ================================================================ #}
-    <div class="step-panel" data-step="8" data-step-label-bn="প্রিভিউ">
+    <div class="step-panel" data-step="8" data-step-label-bn="ছবি সংযুক্ত">
+
+      <h2>
+        <span class="lbl-bn">ছবি সংযুক্ত করুন (ঐচ্ছিক)</span>
+        <span class="lbl-en" style="display:none">Attach Photographs (Optional)</span>
+      </h2>
+      <p class="marriage-photo-hint">
+        <span class="lbl-bn">বিয়ের স্মৃতি সংরক্ষণ করুন — প্রতিটি বিভাগে সর্বোচ্চ ৫টি ছবি আপলোড করতে পারবেন</span>
+        <span class="lbl-en" style="display:none">Preserve your wedding memories — upload up to 5 photos per section</span>
+      </p>
+
+      {# Section 1: প্রথম দেখা (First Meet) #}
+      <div class="marriage-photo-section" data-section="first_meet">
+        <h3>
+          <span class="lbl-bn">💕 প্রথম দেখা (First Meet)</span>
+          <span class="lbl-en" style="display:none">💕 First Meet</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-first-meet"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="first_meet" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+      {# Section 2: গায়ে হলুদ (Turmeric Celebration) #}
+      <div class="marriage-photo-section" data-section="gaye_holud">
+        <h3>
+          <span class="lbl-bn">🌼 গায়ে হলুদ (Turmeric Celebration)</span>
+          <span class="lbl-en" style="display:none">🌼 Turmeric Celebration</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-gaye-holud"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="gaye_holud" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+      {# Section 3: বরযাত্রা (Groom's Procession) #}
+      <div class="marriage-photo-section" data-section="bor_jatra">
+        <h3>
+          <span class="lbl-bn">🎺 বরযাত্রা (Groom's Procession)</span>
+          <span class="lbl-en" style="display:none">🎺 Groom's Procession</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-bor-jatra"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="bor_jatra" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+      {# Section 4: বিয়ের অনুষ্ঠান (Wedding Ceremony) #}
+      <div class="marriage-photo-section" data-section="wedding_ceremony">
+        <h3>
+          <span class="lbl-bn">💍 বিয়ের অনুষ্ঠান (Wedding Ceremony)</span>
+          <span class="lbl-en" style="display:none">💍 Wedding Ceremony</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-wedding-ceremony"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="wedding_ceremony" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+      {# Section 5: বৌভাত (Reception at Groom's House) #}
+      <div class="marriage-photo-section" data-section="bou_bhat">
+        <h3>
+          <span class="lbl-bn">🍽️ বৌভাত (Reception at Groom's House)</span>
+          <span class="lbl-en" style="display:none">🍽️ Reception at Groom's House</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-bou-bhat"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="bou_bhat" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+      {# Section 6: অন্যান্য (Other) #}
+      <div class="marriage-photo-section" data-section="other">
+        <h3>
+          <span class="lbl-bn">📸 অন্যান্য (Other)</span>
+          <span class="lbl-en" style="display:none">📸 Other</span>
+        </h3>
+        <div class="marriage-photo-grid" id="photos-other"></div>
+        <label class="marriage-photo-upload-btn">
+          <input type="file" accept="image/*" multiple data-section="other" class="marriage-photo-input" hidden>
+          <span class="lbl-bn">+ ছবি যোগ করুন</span>
+          <span class="lbl-en" style="display:none">+ Add Photos</span>
+        </label>
+      </div>
+
+    </div>
+
+    {# ================================================================ #}
+    {# Step 9: প্রিভিউ (Preview) — Full preview + Print/PDF            #}
+    {# ================================================================ #}
+    <div class="step-panel" data-step="9" data-step-label-bn="প্রিভিউ">
 
       <div class="marriage-preview">
         <div class="marriage-preview-header">
@@ -1151,4 +1251,5 @@
   <script src="{% static 'marriage/assets/js/pages/marriage-form-stepper.js' %}"></script>
   <script src="{% static 'marriage/assets/js/components/marriage-sigpad.js' %}"></script>
   <script src="{% static 'marriage/assets/js/pages/marriage-form-preview.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/pages/marriage-photo-upload.js' %}"></script>
 {% endblock %}

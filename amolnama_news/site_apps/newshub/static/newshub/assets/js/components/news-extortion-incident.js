@@ -94,7 +94,7 @@
     if (!container) return false;
     var checked = container.querySelectorAll('input[type="checkbox"]:checked');
     for (var i = 0; i < checked.length; i++) {
-      if (checked[i].dataset.code === code) return true;
+      if ((checked[i].dataset.code || '').toUpperCase() === (code || '').toUpperCase()) return true;
     }
     return false;
   }

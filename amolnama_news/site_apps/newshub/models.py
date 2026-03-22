@@ -180,10 +180,8 @@ class CollNewsEntry(models.Model):
     news_headline_bn = models.CharField(max_length=100)
     news_summary_bn = models.CharField(max_length=400, blank=True, null=True)
     news_content_body_bn = models.TextField()
-    # SQL column is news__headline_en (double underscore); db_column needed
-    news_headline_en = models.CharField(max_length=1000, blank=True, null=True, db_column='news__headline_en')
-    # SQL column is news__summary_en (double underscore); db_column needed
-    news_summary_en = models.CharField(max_length=2000, blank=True, null=True, db_column='news__summary_en')
+    news_headline_en = models.CharField(max_length=1000, blank=True, null=True)
+    news_summary_en = models.CharField(max_length=2000, blank=True, null=True)
     news_content_body_en = models.TextField(blank=True, null=True)
     coll_news_entry_latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     coll_news_entry_longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)

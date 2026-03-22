@@ -30,3 +30,15 @@ because some bengali text maybe confusing due to translation issue
 --
 did you plan your work how to achieve it? you have done it for register marriage forms.
 simply follow the same steps. i gave you hint
+
+--check again
+
+now under tools/software nav menu.
+all cards.
+when bangla language is selected it should be mixed how it is. 
+when english language is selected then it should be one part english label only. 
+remember in bengali we user bengali and english sometimes in bracket sometimes without. 
+also think about placeholder and buttons value. 
+one by one.
+
+done one card/form at a time. once done, checked then move to the next option. are you clear?

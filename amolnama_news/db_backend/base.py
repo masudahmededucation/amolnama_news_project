@@ -39,7 +39,7 @@ class CursorWrapper(MSSQLCursorWrapper):
                     sizes.append((Database.SQL_WVARCHAR, max(len(p), 1), 0))
                     needs = True
                 else:
-                    sizes.append(0)
+                    sizes.append(None)
             if needs:
                 self.cursor.setinputsizes(sizes)
 
