@@ -158,6 +158,55 @@
     }});
   }
 
+  /* ========== Restore from saved hidden input (for form-persist) ========== */
+  function restoreFromSavedData() {
+    var raw = hiddenJson.value;
+    if (!raw) return;
+    var saved;
+    try { saved = JSON.parse(raw); } catch (e) { return; }
+
+    /* FIR status radio */
+    if (saved.firStatusId) {
+      var firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
+      if (firRadio) {
+        firRadio.checked = true;
+        firRadio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+
+    /* Applicable law checkboxes */
+    if (saved.applicableLawIds && saved.applicableLawIds.length) {
+      saved.applicableLawIds.forEach(function (id) {
+        var cb = lawContainer && lawContainer.querySelector('input[value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+
+    /* Case status select */
+    if (saved.caseStatusId && caseStatus) caseStatus.value = saved.caseStatusId;
+
+    /* Support service checkboxes */
+    if (saved.supportServiceIds && saved.supportServiceIds.length) {
+      saved.supportServiceIds.forEach(function (id) {
+        var cb = supportContainer && supportContainer.querySelector('input[value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+
+    /* Retaliation checkboxes */
+    if (saved.retaliationIds && saved.retaliationIds.length) {
+      saved.retaliationIds.forEach(function (id) {
+        var cb = retaliationContainer && retaliationContainer.querySelector('input[value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+
+    /* Remarks */
+    if (saved.remarks && remarks) remarks.value = saved.remarks;
+  }
+
+  setTimeout(restoreFromSavedData, 350);
+
   /* ========== Public API ========== */
 
   window.newshubExtortionLegal = {

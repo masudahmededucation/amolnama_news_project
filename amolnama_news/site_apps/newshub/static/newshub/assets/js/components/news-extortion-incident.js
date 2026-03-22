@@ -159,6 +159,93 @@
   var form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
+  /* ---- Restore from saved hidden input (for form-persist) ---- */
+  function restoreFromSavedData() {
+    var raw = hiddenInput.value;
+    if (!raw) return;
+    var saved;
+    try { saved = JSON.parse(raw); } catch (e) { return; }
+
+    /* 1. Sector radio */
+    if (saved.sectorId) {
+      var sectorRadio = document.querySelector('input[name="extortion_category_radio"][value="' + saved.sectorId + '"]');
+      if (sectorRadio) {
+        sectorRadio.checked = true;
+        if (categoryHidden) categoryHidden.value = saved.sectorId;
+        var code = (sectorRadio.dataset.code || '').toUpperCase();
+        if (otherSectorRow) otherSectorRow.style.display = (code === 'OTHER') ? '' : 'none';
+        if (transportLocRow) transportLocRow.style.display = (code === 'TRANSPORT_VEHICLE') ? '' : 'none';
+        if (garmentTypeRow) garmentTypeRow.style.display = (code === 'GARMENT_FACTORY') ? '' : 'none';
+      }
+    }
+    if (saved.sectorOther && otherSectorDetail) otherSectorDetail.value = saved.sectorOther;
+
+    /* Transport location radio */
+    if (saved.transportLocation) {
+      var tlRadio = document.querySelector('input[name="extortion_transport_location_radio"][value="' + saved.transportLocation + '"]');
+      if (tlRadio) { tlRadio.checked = true; if (transportLocHidden) transportLocHidden.value = saved.transportLocation; }
+    }
+    /* Garment type radio */
+    if (saved.garmentType) {
+      var gtRadio = document.querySelector('input[name="extortion_garment_type_radio"][value="' + saved.garmentType + '"]');
+      if (gtRadio) { gtRadio.checked = true; if (garmentTypeHidden) garmentTypeHidden.value = saved.garmentType; }
+    }
+
+    /* 2. Financial */
+    if (saved.amountDemanded && amountDemanded) amountDemanded.value = saved.amountDemanded;
+    if (saved.amountTaken && amountTaken) amountTaken.value = saved.amountTaken;
+    if (saved.frequencyId) {
+      var freqRadio = document.querySelector('input[name="extortion_frequency_radio"][value="' + saved.frequencyId + '"]');
+      if (freqRadio) { freqRadio.checked = true; if (frequencyHidden) frequencyHidden.value = saved.frequencyId; }
+    }
+
+    /* 3. Affiliation checkboxes */
+    if (saved.affiliationIds && saved.affiliationIds.length && affiliationContainer) {
+      saved.affiliationIds.forEach(function (id) {
+        var cb = affiliationContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+      /* Show party name row if political affiliation checked */
+      var hasPolitic = containerHasCode(affiliationContainer, 'POLITICAL_PARTY_STUDENT_YOUTH_WING');
+      if (partyNameRow) partyNameRow.style.display = hasPolitic ? '' : 'none';
+    }
+    if (saved.partyName && partyNameEl) partyNameEl.value = saved.partyName;
+
+    /* 4. Threat method checkboxes */
+    if (saved.threatMethodIds && saved.threatMethodIds.length && threatContainer) {
+      saved.threatMethodIds.forEach(function (id) {
+        var cb = threatContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+
+    /* 5. Consequence checkboxes */
+    if (saved.consequenceIds && saved.consequenceIds.length && consequenceContainer) {
+      saved.consequenceIds.forEach(function (id) {
+        var cb = consequenceContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+      var hasDamage = containerHasCode(consequenceContainer, 'PROPERTY_VANDALIZED_ARSON');
+      if (damageRows) damageRows.style.display = hasDamage ? '' : 'none';
+    }
+    if (saved.damageAmount && damageAmount) damageAmount.value = saved.damageAmount;
+    if (saved.damageDesc && damageDesc) damageDesc.value = saved.damageDesc;
+
+    /* 6. Bangladesh context checkboxes */
+    if (saved.bangladeshContextIds && saved.bangladeshContextIds.length && contextContainer) {
+      saved.bangladeshContextIds.forEach(function (id) {
+        var cb = contextContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+
+    /* 7. Remarks */
+    if (saved.remarks && incidentRemarks) incidentRemarks.value = saved.remarks;
+  }
+
+  /* Run restore after a short delay to let DB-driven checkboxes render first */
+  setTimeout(restoreFromSavedData, 300);
+
   /* ---- Public API for form-clear.js ---- */
   window.newshubExtortionIncident = {
     reset: function () {
