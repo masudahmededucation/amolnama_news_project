@@ -37,10 +37,11 @@ Displays after a vote is cast, including:
       <!-- Voting reason textarea -->
       <div class="form-group">
         <label for="vote-reason" id="reason-label">এই দলটিকে বেছে নেওয়ার মূল কারণ কী?</label>
-        <textarea 
-          id="vote-reason" 
-          class="form-textarea" 
-          maxlength="500" 
+        <textarea
+          id="vote-reason"
+          name="vote-reason"
+          class="form-textarea"
+          maxlength="500"
           rows="3"
           placeholder="আপনার মতামত লিখুন..."
         ></textarea>
@@ -53,7 +54,7 @@ Displays after a vote is cast, including:
       <!-- Upazila selection -->
       <div class="form-group">
         <label for="upazila">উপজেলা / Upazila</label>
-        <select id="upazila" class="form-select" onchange="loadUnions()">
+        <select id="upazila" name="upazila" class="form-select" onchange="loadUnions()">
           <option value="">-- নির্বাচন করুন / Select --</option>
         </select>
       </div>
@@ -61,7 +62,7 @@ Displays after a vote is cast, including:
       <!-- Union Parishad selection -->
       <div class="form-group">
         <label for="union">ইউনিয়ন পরিষদ / Union Parishad</label>
-        <select id="union" class="form-select" disabled>
+        <select id="union" name="union" class="form-select" disabled>
           <option value="">-- নির্বাচন করুন / Select --</option>
         </select>
       </div>

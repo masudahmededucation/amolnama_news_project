@@ -97,7 +97,12 @@
       "Bash(cp \"amolnama_news/site_apps/tools/static/tools/assets/js/pages/tools-split-pdf.js\" \"amolnama_news/project_static_collected/tools/assets/js/pages/tools-split-pdf.js\")",
       "Bash(cp \"amolnama_news/site_apps/tools/static/tools/assets/css/pages/tools-split-pdf.css\" \"amolnama_news/project_static_collected/tools/assets/css/pages/tools-split-pdf.css\")",
       "Bash(grep -rn \"<input\\\\|<select\\\\|<textarea\" 'd:/GoogleDrive/personal folder/Apps/amolnama_news/amolnama_news_project/amolnama_news/site_apps' --include=*.html)",
-      "Bash(curl -s \"https://raw.githubusercontent.com/OpenBangla/OpenBangla-Keyboard/master/data/dictionary.json\")"
+      "Bash(curl -s \"https://raw.githubusercontent.com/OpenBangla/OpenBangla-Keyboard/master/data/dictionary.json\")",
+      "Bash(python -X utf8 /d/audit.py)",
+      "Read(//d//**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\mehfil\\.claude\\projects\\d--GoogleDrive-personal-folder-Apps-amolnama-news-amolnama-news-project\\b8ebc047-2223-42a8-9cca-35b8e28357d1\\tool-results"
     ]
   }
 }
