@@ -1,13 +1,32 @@
 Article View — Field Mapping
 ============================
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
-URL: /newshub/article/<slug>/
-View: article_detail(request, slug)
-Template: newshub/pages/article-detail.html
-CSS: newshub/assets/css/pages/article-detail.css
-JS: newshub/assets/js/pages/article-detail.js
-Helper: newshub/helpers.py
+== URLs ==
+Landing: /newshub/articles/   → news_article_landing(request)
+Detail:  /newshub/article/<slug>/  → article_detail(request, slug)
+
+== Files ==
+Views:     newshub/views.py (news_article_landing, article_detail)
+Helper:    newshub/helpers.py (build_sidenote_data, _extortion_sidenotes, etc.)
+Templates: newshub/pages/article-landing.html, newshub/pages/article-detail.html
+CSS:       newshub/assets/css/pages/article-landing.css, newshub/assets/css/pages/article-detail.css
+JS:        newshub/assets/js/pages/article-detail.js
+
+== Models (newshub/models.py) ==
+PubArticle              → [newshub].[pub_article]
+EngComment              → [newshub].[eng_comment]
+EngArticleStat          → [newshub].[eng_article_stat]
+ArticleEditHistory      → [newshub].[article_edit_history]
+ArticleCommunityAddition → [newshub].[article_community_addition]
+CommunityUserReputation  → [account].[community_user_reputation]
+RefCommunityPrivilegeLevel → [account].[ref_community_privilege_level]
+
+== Models NOT in Django (intentionally omitted) ==
+[newshub].[coll_news_entry].news_sub_title_bn — not used in article view
+[newshub].[coll_news_entry].news_sub_title_en — not used in article view
+[newshub].[coll_news_entry].coll_news_entry_geo_location — geography type, unsupported
+[newshub].[coll_news_entry].hash_headline_check — computed column, must not be in model
 
 == Data Flow ==
 

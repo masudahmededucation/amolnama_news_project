@@ -1,0 +1,116 @@
+/* article-landing.css — News article listing page */
+
+.article-landing-header {
+  max-width: 1100px;
+  margin: 1.5rem auto 1rem;
+  padding: 0 1rem;
+}
+
+.article-landing-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .3rem 0;
+}
+
+.article-landing-header p {
+  font-size: .88rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.article-landing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.article-landing-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow .2s, transform .15s;
+}
+
+.article-landing-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+}
+
+.article-landing-card-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .6rem;
+}
+
+.article-landing-card-category {
+  font-size: .68rem;
+  font-weight: 600;
+  background: var(--primary);
+  color: #fff;
+  padding: .15rem .5rem;
+  border-radius: 12px;
+}
+
+.article-landing-card-breaking {
+  font-size: .7rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.article-landing-card-headline {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 .5rem 0;
+  color: var(--text);
+}
+
+.article-landing-card-summary {
+  font-size: .85rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 0 .75rem 0;
+  flex: 1;
+}
+
+.article-landing-card-meta {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .72rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: .5rem;
+}
+
+.article-landing-card-contributor {
+  font-weight: 600;
+}
+
+.article-landing-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+@media (max-width: 768px) {
+  .article-landing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .article-landing-header h1 {
+    font-size: 1.3rem;
+  }
+}

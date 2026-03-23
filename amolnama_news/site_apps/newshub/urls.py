@@ -5,6 +5,9 @@ from . import views_api
 app_name = 'newshub'
 
 urlpatterns = [
+    # Article landing page (public)
+    path('articles/', views.news_article_landing, name='news_article_landing'),
+
     path('news-collection/', views.news_collection, name='news_collection'),
     path('news-collection/multistep/', views.news_collection_multistep, name='news_collection_multistep'),
     path('news-collection/multistep/extortion/', views.news_collection_multistep_extortion, name='news_collection_multistep_extortion'),

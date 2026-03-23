@@ -1089,6 +1089,55 @@ def news_collection_multistep_women_child_violence(request):
     return render(request, template, ctx)
 
 
+def news_article_landing(request):
+    """Public landing page — list of published articles."""
+    from .models import PubArticle
+
+    published_articles = PubArticle.objects.filter(
+        is_published=True
+    ).order_by('-published_at')[:50]
+
+    # Enrich with news entry data (category, contributor, occurrence date)
+    articles_with_meta = []
+    for published_article in published_articles:
+        try:
+            entry = CollNewsEntry.objects.get(
+                coll_news_entry_id=published_article.link_news_entry_id
+            )
+        except CollNewsEntry.DoesNotExist:
+            continue
+
+        category = None
+        if entry.link_news_category_id:
+            try:
+                category = RefNewsCategory.objects.get(
+                    news_category_id=entry.link_news_category_id
+                )
+            except RefNewsCategory.DoesNotExist:
+                pass
+
+        contributor = None
+        if entry.link_contributor_id:
+            try:
+                contributor = CollContributor.objects.get(
+                    coll_contributor_id=entry.link_contributor_id
+                )
+            except CollContributor.DoesNotExist:
+                pass
+
+        articles_with_meta.append({
+            'published_article': published_article,
+            'entry': entry,
+            'category': category,
+            'contributor': contributor,
+        })
+
+    context = {
+        'articles': articles_with_meta,
+    }
+    return render(request, 'newshub/pages/article-landing.html', context)
+
+
 def article_detail(request, slug):
     """Public article detail view — two-column sidenote layout via pub_article slug."""
     from .helpers import build_sidenote_data
@@ -1141,7 +1190,7 @@ def article_detail(request, slug):
 
     # Tags
     tag_ids = CollNewsEntryTag.objects.filter(
-        link_coll_news_entry_id=entry_id
+        link_coll_news_entry_id=entry.coll_news_entry_id
     ).values_list('link_news_category_tag_id', flat=True)
     tags = []
     if tag_ids:
@@ -1339,7 +1388,7 @@ def _save_evidence_files(request, entry_id, file_field, desc_field, max_count, n
             file_desc = (descs[i] or '').strip() or None
         asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
         CollNewsAsset.objects.create(
-            link_coll_news_entry_id=entry_id,
+            link_coll_news_entry_id=entry.coll_news_entry_id,
             link_asset_id=asset.asset_id,
             is_featured=False,
             sort_order=i,
@@ -1548,7 +1597,7 @@ def _save_actor_profile(entry_id, person_id, actor_data, form_type_id, group_cod
             resolved_id, resolved_code = None, None
 
     return IncidentInvolvedActorProfile.objects.create(
-        link_coll_news_entry_id=entry_id,
+        link_coll_news_entry_id=entry.coll_news_entry_id,
         link_person_id=person_id,
         link_person_marriage_id=marriage_id,
         link_ref_status_incident_involved_actor_role_id=resolved_id,

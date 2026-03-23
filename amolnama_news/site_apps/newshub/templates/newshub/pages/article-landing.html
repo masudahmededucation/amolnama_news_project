@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}সংবাদ — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'newshub/assets/css/pages/article-landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="article-landing-header">
+  <h1 data-en="News Articles">সংবাদ</h1>
+  <p data-en="Latest citizen journalism reports from across Bangladesh">বাংলাদেশ জুড়ে সর্বশেষ নাগরিক সাংবাদিকতার প্রতিবেদন</p>
+</section>
+
+<div class="article-landing-grid">
+  {% for article_item in articles %}
+  <a href="{% url 'newshub:article_detail' slug=article_item.published_article.pub_article_slug %}" class="article-landing-card">
+    <div class="article-landing-card-header">
+      {% if article_item.category %}
+      <span class="article-landing-card-category">{{ article_item.category.news_category_name_bn }}</span>
+      {% endif %}
+      {% if article_item.entry.is_breaking %}
+      <span class="article-landing-card-breaking">🔴 ব্রেকিং</span>
+      {% endif %}
+    </div>
+
+    <h2 class="article-landing-card-headline">{{ article_item.published_article.pub_article_headline_bn|default:article_item.entry.news_headline_bn }}</h2>
+
+    {% if article_item.entry.news_summary_bn %}
+    <p class="article-landing-card-summary">{{ article_item.entry.news_summary_bn|truncatewords:25 }}</p>
+    {% endif %}
+
+    <div class="article-landing-card-meta">
+      {% if article_item.contributor %}
+      <span class="article-landing-card-contributor">{{ article_item.contributor.coll_contributor_full_name_bn }}</span>
+      {% endif %}
+      {% if article_item.published_article.published_at %}
+      <span class="article-landing-card-date">{{ article_item.published_article.published_at|date:"d M Y" }}</span>
+      {% endif %}
+    </div>
+  </a>
+  {% empty %}
+  <div class="article-landing-empty">
+    <p data-en="No published articles yet">এখনো কোনো প্রকাশিত সংবাদ নেই</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
