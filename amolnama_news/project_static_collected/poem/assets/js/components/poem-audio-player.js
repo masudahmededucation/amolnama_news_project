@@ -415,10 +415,10 @@
     // Scroll to audio player bar so user sees the new poem's player
     if (container) container.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-    // Update related poems section
+    // Update related poems section — uses same smart helper as autoplay
     var relatedSection = document.querySelector(".poem-detail-related");
-    if (relatedSection && next.category_id) {
-      fetch("/poem/api/poems/?category=" + next.category_id + "&limit=4&exclude=" + next.id)
+    if (relatedSection) {
+      fetch("/poem/api/poems/" + next.id + "/related/")
         .then(function(r) { return r.json(); })
         .then(function(data) {
           var grid = relatedSection.querySelector(".poem-detail-related-grid");

@@ -399,3 +399,34 @@ def api_poem_category_list(request):
             for c in cats
         ]
     })
+
+
+@require_GET
+def api_poem_related(request, poem_id):
+    """GET /poem/api/poems/<id>/related/ — smart related poems using shared helper."""
+    try:
+        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
+    except CollPoemEntry.DoesNotExist:
+        return JsonResponse({"success": False, "poems": []}, status=404)
+
+    related = get_smart_related_poems(poem, limit=4)
+    cats = _categories_map()
+
+    result = []
+    for p in related:
+        cat = cats.get(p.link_poem_ref_poem_category_id)
+        body = p.poem_body_bn or p.poem_body_en or ""
+        result.append({
+            "id": p.poem_coll_poem_entry_id,
+            "display_title": p.poem_title_bn or p.poem_title_en or "শিরোনামহীন",
+            "body_preview": body[:120].strip(),
+            "category_name": cat.poem_category_name_bn if cat else "",
+            "author_display_name": p.poem_author_display_name,
+            "like_count": p.like_count,
+            "language": p.poem_language_code,
+            "type": p.poem_type_code,
+            "time_ago": _time_ago(p.created_at),
+            "url": "/poem/" + str(p.poem_coll_poem_entry_id) + "/",
+        })
+
+    return JsonResponse({"success": True, "poems": result})
