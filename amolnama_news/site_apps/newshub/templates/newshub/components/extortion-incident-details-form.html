@@ -47,7 +47,7 @@
 
   {# Transport sub-type (shown when sector = TRANSPORT_VEHICLE) #}
   <div class="form-field" id="extortion-transport-location-row" style="display:none;">
-    <label>পরিবহনে চাঁদা কোথায় নেওয়া হয়? (Where is transport toll collected?)</label>
+    <span class="form-label">পরিবহনে চাঁদা কোথায় নেওয়া হয়? (Where is transport toll collected?)</span>
     <div class="radio-inline-group" id="extortion-transport-location-group">
       <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-terminal" name="extortion_transport_location_radio" value="terminal"> টার্মিনালে (Bus terminal)</label>
       <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-road-checkpoint" name="extortion_transport_location_radio" value="road_checkpoint"> রাস্তায়/চেকপয়েন্টে (Roadside checkpoint)</label>
@@ -59,7 +59,7 @@
 
   {# Garment sub-detail (shown when sector = GARMENT_FACTORY) #}
   <div class="form-field" id="extortion-garment-type-row" style="display:none;">
-    <label>কারখানায় চাঁদাবাজির ধরন (Garment Extortion Type)</label>
+    <span class="form-label">কারখানায় চাঁদাবাজির ধরন (Garment Extortion Type)</span>
     <div class="radio-inline-group" id="extortion-garment-type-group">
       <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-cash-demand" name="extortion_garment_type_radio" value="cash_demand"> নগদ অর্থ দাবি (Cash demand)</label>
       <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-jhut-forced" name="extortion_garment_type_radio" value="jhut_forced"> ঝুট জোর করে কম দামে কেনা (Jhut — forced below-market purchase)</label>
@@ -87,7 +87,7 @@
     </div>
   </div>
   <div class="form-field">
-    <label>দাবির ঘনত্ব (Demand Frequency)</label>
+    <span class="form-label">দাবির ঘনত্ব (Demand Frequency)</span>
     <div class="radio-inline-group" id="extortion-frequency-group">
       {% for freq in extortion_demand_frequencies %}
       <label class="radio-inline">
@@ -103,7 +103,7 @@
   {# ======== 3. PERPETRATOR AFFILIATION ======== #}
   <h4 class="form-subsection-title">অভিযুক্তের পরিচয় (Perpetrator Profile)</h4>
   <div class="form-field">
-    <label>অভিযুক্তের সম্পৃক্ততা (Affiliation / Background)</label>
+    <span class="form-label">অভিযুক্তের সম্পৃক্ততা (Affiliation / Background)</span>
     <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
     <div class="checkbox-group" id="extortion-affiliation-checkboxes">
       {% for affil in extortion_accused_affiliations %}

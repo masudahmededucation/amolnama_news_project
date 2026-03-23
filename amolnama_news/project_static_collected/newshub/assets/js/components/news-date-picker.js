@@ -29,27 +29,33 @@
     locale:        { firstDayOfWeek: 0 },
     disableMobile: false,               /* native picker on mobile */
     onReady: function (selectedDates, dateStr, instance) {
+      var origId = instance.input.id || '';
+      var nameBase = origId.replace(/-/g, '_');
+
+      /* Alt input (desktop) — visible formatted input */
       if (instance.altInput) {
         instance.altInput.placeholder = 'DD/MM/YYYY';
-        /* Give alt input a visible id so <label for="..."> works.
-           Original hidden input keeps its id for JS value reads.
-           Flatpickr alt input gets id + '-visible' suffix, and we
-           update any matching label's `for` attribute. */
-        var origId = instance.input.id;
         if (origId) {
           var altId = origId + '-visible';
           instance.altInput.id = altId;
-          instance.altInput.setAttribute('name', origId.replace(/-/g, '_') + '_visible');
+          instance.altInput.setAttribute('name', nameBase + '_visible');
           var label = document.querySelector('label[for="' + origId + '"]');
           if (label) label.setAttribute('for', altId);
         }
       }
-      /* Flatpickr mobile input — add id/name to suppress browser warnings */
-      if (instance.mobileInput) {
-        var mOrigId = instance.input.id;
-        if (mOrigId) {
-          instance.mobileInput.id = mOrigId + '-mobile';
-          instance.mobileInput.setAttribute('name', mOrigId.replace(/-/g, '_') + '_mobile');
+
+      /* Mobile input — native date picker fallback */
+      if (instance.mobileInput && origId) {
+        instance.mobileInput.id = origId + '-mobile';
+        instance.mobileInput.setAttribute('name', nameBase + '_mobile');
+      }
+
+      /* Month dropdown inside calendar — Flatpickr internal element */
+      if (instance.calendarContainer && origId) {
+        var monthDropdown = instance.calendarContainer.querySelector('.flatpickr-monthDropdown-months');
+        if (monthDropdown) {
+          monthDropdown.id = origId + '-flatpickr-month';
+          monthDropdown.setAttribute('name', nameBase + '_flatpickr_month');
         }
       }
     },
