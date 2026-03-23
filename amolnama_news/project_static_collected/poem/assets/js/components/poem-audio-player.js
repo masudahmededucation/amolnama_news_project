@@ -426,7 +426,7 @@
           if (!data.poems.length) { relatedSection.style.display = "none"; return; }
           relatedSection.style.display = "";
           var html = "";
-          data.poems.forEach(function(p) {
+          data.poems.forEach(function(p, index) {
             var title = p.display_title || p.title_bn || p.title || "";
             var snippet = p.body_preview || (p.body || "").substring(0, 120);
             var category = p.category_name || p.category || "";
@@ -436,6 +436,7 @@
             var timeAgo = p.time_ago || "";
             var url = p.url || "/poem/" + p.id + "/";
             html += '<a href="' + url + '" class="poem-card">'
+              + '<span class="poem-card-queue-number">' + (index + 1) + '</span>'
               + '<div class="poem-card-body">'
               + '<div class="poem-card-header">'
               + '<span class="poem-card-category-badge">' + category + '</span>'

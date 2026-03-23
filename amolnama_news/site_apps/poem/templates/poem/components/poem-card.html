@@ -1,4 +1,5 @@
 <a href="{% url 'poem:poem_detail' poem_id=poem.poem_coll_poem_entry_id %}" class="poem-card">
+  <span class="poem-card-queue-number">{{ forloop.counter }}</span>
   <div class="poem-card-body">
     <div class="poem-card-header">
       <span class="poem-card-category-badge">{{ poem.category_name }}</span>
