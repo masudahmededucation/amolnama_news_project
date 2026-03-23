@@ -172,9 +172,8 @@
 
 </article>
 
-{# ── Related Poems ── #}
-{% if related_poems %}
-<section class="poem-detail-related">
+{# ── Related Poems — always in DOM so radio autoplay JS can update it ── #}
+<section class="poem-detail-related"{% if not related_poems %} style="display:none;"{% endif %}>
   <h2 class="poem-detail-related-title">একই ধরনের কবিতা (Related Poems)</h2>
   <div class="poem-detail-related-grid">
     {% for poem in related_poems %}
@@ -182,7 +181,6 @@
     {% endfor %}
   </div>
 </section>
-{% endif %}
 
 {% endblock %}
 
