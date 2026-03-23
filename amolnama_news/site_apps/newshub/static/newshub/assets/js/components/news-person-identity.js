@@ -138,8 +138,17 @@
   function makeDomFormField(labelBn, labelEn, inputEl) {
     var wrap = document.createElement('div');
     wrap.className = 'form-field';
-    var label = document.createElement('label');
-    if (inputEl.id) label.setAttribute('for', inputEl.id);
+    var isDate = inputEl.type === 'date';
+    var label = document.createElement(isDate ? 'span' : 'label');
+    if (isDate) {
+      label.className = 'form-field-label';
+      if (inputEl.id) {
+        label.id = inputEl.id + '-label';
+        inputEl.setAttribute('aria-labelledby', inputEl.id + '-label');
+      }
+    } else {
+      if (inputEl.id) label.setAttribute('for', inputEl.id);
+    }
     label.setAttribute('data-bn', labelBn);
     label.setAttribute('data-en', labelEn);
     label.textContent = labelBn + ' (' + labelEn + ')';
