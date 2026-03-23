@@ -81,6 +81,7 @@
       label.className = 'radio-inline';
       var input = document.createElement('input');
       input.type = 'radio';
+      input.id = radioName + '-' + s.status_id;
       input.name = radioName;
       input.value = s.status_id;
       input.dataset.code = s.status_code || '';

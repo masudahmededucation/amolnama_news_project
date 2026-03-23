@@ -72,6 +72,7 @@
       label.className = 'checkbox-inline';
       var input = document.createElement('input');
       input.type = 'checkbox';
+      input.id = checkboxName + '-' + s.status_id;
       input.name = checkboxName;
       input.value = s.status_id;
       var text = document.createTextNode(
@@ -92,6 +93,7 @@
       label.className = 'radio-inline';
       var input = document.createElement('input');
       input.type = 'radio';
+      input.id = radioName + '-' + s.status_id;
       input.name = radioName;
       input.value = s.status_id;
       var text = document.createTextNode(

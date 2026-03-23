@@ -97,6 +97,7 @@
       inp.type  = 'radio';
       inp.name  = 'land_grab_property_type_radio';
       inp.value = pt.status_id;
+      inp.id    = 'land_grab_property_type_radio-' + pt.status_id;
       var iconSpan  = document.createElement('span');
       iconSpan.className = 'radio-card-icon';
       iconSpan.textContent = pt.status_icon || '';
@@ -132,6 +133,7 @@
       dinp.type  = 'checkbox';
       dinp.name  = 'land_doc_title_status';
       dinp.value = ds.status_id;
+      dinp.id    = 'land_doc_title_status-' + ds.status_id;
       dlabel.appendChild(dinp);
       dlabel.appendChild(document.createTextNode(
         ' ' + (ds.status_name_bn || '') + ' (' + (ds.status_name_en || '') + ')'
@@ -152,6 +154,7 @@
       ginp.type  = 'checkbox';
       ginp.name  = 'land_grabbing_method';
       ginp.value = gm.status_id;
+      ginp.id    = 'land_grabbing_method-' + gm.status_id;
       glabel.appendChild(ginp);
       glabel.appendChild(document.createTextNode(
         ' ' + (gm.status_name_bn || '') + ' (' + (gm.status_name_en || '') + ')'
@@ -181,6 +184,7 @@
       sinp.type  = 'radio';
       sinp.name  = 'land_grab_status_radio';
       sinp.value = cs.status_id;
+      sinp.id    = 'land_grab_status_radio-' + cs.status_id;
       slabel.appendChild(sinp);
       slabel.appendChild(document.createTextNode(
         ' ' + (cs.status_name_bn || '') + ' (' + (cs.status_name_en || '') + ')'

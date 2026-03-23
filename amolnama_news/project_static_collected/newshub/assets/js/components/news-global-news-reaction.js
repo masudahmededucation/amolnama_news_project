@@ -49,6 +49,7 @@
         radio.type = 'radio';
         radio.name = 'global_news_world_reaction_radio';
         radio.value = opt.status_id;
+        radio.id = 'global_news_world_reaction_radio-' + opt.status_id;
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + opt.status_name_bn + ' (' + opt.status_name_en + ')'));
         reactionGroup.appendChild(label);
@@ -70,6 +71,7 @@
         radio.type = 'radio';
         radio.name = 'global_news_media_coverage_radio';
         radio.value = opt.status_id;
+        radio.id = 'global_news_media_coverage_radio-' + opt.status_id;
         var icon = opt.status_icon ? opt.status_icon + ' ' : '';
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + icon + opt.status_name_bn + ' (' + opt.status_name_en + ')'));

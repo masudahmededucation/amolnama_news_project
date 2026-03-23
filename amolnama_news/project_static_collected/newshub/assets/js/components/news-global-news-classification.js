@@ -40,6 +40,7 @@
         radio.type = 'radio';
         radio.name = 'global_news_significance_radio';
         radio.value = opt.status_id;
+        radio.id = 'global_news_significance_radio-' + opt.status_id;
         var icon = opt.status_icon ? opt.status_icon + ' ' : '';
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + icon + opt.status_name_bn + ' (' + opt.status_name_en + ')'));

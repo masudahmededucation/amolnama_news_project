@@ -83,6 +83,7 @@
     var wrap = document.createElement('div');
     wrap.className = 'form-field';
     var label = document.createElement('label');
+    if (inputEl.id) label.setAttribute('for', inputEl.id);
     label.setAttribute('data-bn', labelBn);
     label.setAttribute('data-en', labelEn);
     label.textContent = labelBn + ' (' + labelEn + ')';
@@ -94,6 +95,8 @@
   function makeDomInput(classPrefix, field) {
     var input = document.createElement('input');
     input.type = 'text';
+    input.id = classPrefix + '-' + field.key;
+    input.name = classPrefix.replace(/-/g, '_') + '_' + field.key;
     input.className = classPrefix + '-' + field.key;
     if (field.maxlength) input.maxLength = field.maxlength;
     if (field.phBn) {
@@ -106,6 +109,8 @@
 
   function makeDomTextarea(classPrefix, field) {
     var textarea = document.createElement('textarea');
+    textarea.id = classPrefix + '-' + field.key;
+    textarea.name = classPrefix.replace(/-/g, '_') + '_' + field.key;
     textarea.className = classPrefix + '-' + field.key;
     textarea.rows = field.rows || 2;
     if (field.maxlength) textarea.maxLength = field.maxlength;

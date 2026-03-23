@@ -77,13 +77,15 @@
     }
   }
 
-  function populateCheckboxes(containerEl, items) {
+  function populateCheckboxes(containerEl, items, cardIndex) {
     for (var i = 0; i < items.length; i++) {
       var s = items[i];
       var label = document.createElement('label');
       label.className = 'checkbox-inline';
       var input = document.createElement('input');
       input.type = 'checkbox';
+      input.id = 'wcv_accused_attr-' + cardIndex + '-' + s.status_id;
+      input.name = 'wcv_accused_attr_' + cardIndex;
       input.className = 'wcv-attr-cb';
       input.value = s.status_id;
       input.dataset.code = s.status_code || '';
@@ -101,6 +103,7 @@
     var field = document.createElement('div');
     field.className = 'form-field';
     var lbl = document.createElement('label');
+    if (inputEl.id) lbl.setAttribute('for', inputEl.id);
     lbl.textContent = labelText;
     field.appendChild(lbl);
     field.appendChild(inputEl);
@@ -167,6 +170,8 @@
 
     /* --- Occupation --- */
     var occSelect = document.createElement('select');
+    occSelect.id = 'wcv-accused-occupation-' + n;
+    occSelect.name = 'wcv_accused_occupation';
     occSelect.className = 'wcv-accused-occupation';
     var occDefault = document.createElement('option');
     occDefault.value = '';
@@ -180,6 +185,8 @@
     /* --- Institution / Workplace --- */
     var institutionInput = document.createElement('input');
     institutionInput.type = 'text';
+    institutionInput.id = 'wcv-accused-institution-' + n;
+    institutionInput.name = 'wcv_accused_institution';
     institutionInput.className = 'wcv-accused-institution';
     institutionInput.setAttribute('data-ph-bn', '\u09AA\u09CD\u09B0\u09A4\u09BF\u09B7\u09CD\u09A0\u09BE\u09A8 / \u0995\u09B0\u09CD\u09AE\u09B8\u09CD\u09A5\u09B2 (\u09AC\u09BE\u0982\u09B2\u09BE)...');
     institutionInput.setAttribute('data-ph-en', 'Institution / Workplace...');
@@ -193,6 +200,8 @@
 
     /* --- Relationship select --- */
     var relSelect = document.createElement('select');
+    relSelect.id = 'wcv-rel-select-' + n;
+    relSelect.name = 'wcv_accused_relationship';
     relSelect.className = 'wcv-rel-select';
     var relDefault = document.createElement('option');
     relDefault.value = '';
@@ -208,9 +217,12 @@
     relOtherRow.className = 'form-field wcv-rel-other-row';
     relOtherRow.style.display = 'none';
     var relOtherLabel = document.createElement('label');
+    relOtherLabel.setAttribute('for', 'wcv-rel-other-' + n);
     relOtherLabel.textContent = 'অন্য সম্পর্কের বিবরণ (Specify Other Relationship)';
     var relOtherInput = document.createElement('input');
     relOtherInput.type = 'text';
+    relOtherInput.id = 'wcv-rel-other-' + n;
+    relOtherInput.name = 'wcv_accused_relationship_other';
     relOtherInput.className = 'wcv-rel-other';
     relOtherInput.maxLength = 200;
     relOtherInput.setAttribute('data-ph-bn', 'সম্পর্ক বিস্তারিত লিখুন...');
@@ -223,6 +235,8 @@
     /* --- Count --- */
     var countInput = document.createElement('input');
     countInput.type = 'number';
+    countInput.id = 'wcv-accused-count-' + n;
+    countInput.name = 'wcv_accused_count';
     countInput.className = 'wcv-accused-count';
     countInput.min = '1';
     countInput.max = '999';
@@ -234,6 +248,8 @@
 
     /* --- Position select --- */
     var posSelect = document.createElement('select');
+    posSelect.id = 'wcv-pos-select-' + n;
+    posSelect.name = 'wcv_accused_position';
     posSelect.className = 'wcv-pos-select';
     var posDefault = document.createElement('option');
     posDefault.value = '';
@@ -246,6 +262,8 @@
 
     /* --- Position remarks --- */
     var posRemarks = document.createElement('textarea');
+    posRemarks.id = 'wcv-pos-remarks-' + n;
+    posRemarks.name = 'wcv_accused_pos_remarks';
     posRemarks.className = 'wcv-pos-remarks';
     posRemarks.rows = 3;
     posRemarks.setAttribute('data-ph-bn', 'ক্ষমতার অবস্থান সম্পর্কে বিস্তারিত লিখুন...');
@@ -257,10 +275,12 @@
     var attrField = document.createElement('div');
     attrField.className = 'form-field';
     var attrLabel = document.createElement('label');
+    attrLabel.setAttribute('for', 'wcv-attr-checkboxes-' + n);
     attrLabel.textContent = 'অতিরিক্ত তথ্য (Additional Information)';
     var attrBox = document.createElement('div');
+    attrBox.id = 'wcv-attr-checkboxes-' + n;
     attrBox.className = 'checkbox-group wcv-attr-checkboxes';
-    populateCheckboxes(attrBox, attributes);
+    populateCheckboxes(attrBox, attributes, n);
     attrField.appendChild(attrLabel);
     attrField.appendChild(attrBox);
     grpRelationship.appendChild(attrField);
@@ -270,8 +290,11 @@
     histRow.className = 'form-field wcv-prev-history-row';
     histRow.style.display = 'none';
     var histLabel = document.createElement('label');
+    histLabel.setAttribute('for', 'wcv-prev-history-details-' + n);
     histLabel.textContent = 'পূর্ববর্তী নির্যাতনের বিবরণ (Previous Violence Details)';
     var histDetails = document.createElement('textarea');
+    histDetails.id = 'wcv-prev-history-details-' + n;
+    histDetails.name = 'wcv_accused_prev_history';
     histDetails.className = 'wcv-prev-history-details';
     histDetails.rows = 3;
     histDetails.setAttribute('data-ph-bn', 'আগের ঘটনার তারিখ, ধরন ও বিস্তারিত লিখুন...');
@@ -283,6 +306,8 @@
 
     /* --- General remarks --- */
     var remarksInput = document.createElement('textarea');
+    remarksInput.id = 'wcv-accused-remarks-' + n;
+    remarksInput.name = 'wcv_accused_remarks';
     remarksInput.className = 'wcv-remarks';
     remarksInput.rows = 2;
     remarksInput.setAttribute('data-ph-bn', 'অভিযুক্ত পক্ষ সম্পর্কে অতিরিক্ত তথ্য...');

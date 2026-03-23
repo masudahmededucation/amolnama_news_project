@@ -67,6 +67,7 @@
       label.className = 'checkbox-inline';
       var input = document.createElement('input');
       input.type = 'checkbox';
+      input.id = 'wcv_violence_type-' + s.status_id;
       input.name = 'wcv_violence_type';
       input.value = s.status_id;
       input.dataset.code = s.status_code || '';

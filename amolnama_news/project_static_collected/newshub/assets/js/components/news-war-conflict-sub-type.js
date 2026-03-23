@@ -29,6 +29,7 @@
     input.type = 'radio';
     input.name = 'global_sub_type_radio';
     input.value = st.status_id;
+    input.id = 'global_sub_type_radio-' + st.status_id;
 
     var iconSpan = document.createElement('span');
     iconSpan.className = 'radio-card-icon';

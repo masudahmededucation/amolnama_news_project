@@ -71,6 +71,7 @@
       input.type = 'checkbox';
       input.name = checkboxName;
       input.value = s.status_id;
+      input.id = checkboxName + '-' + s.status_id;
       label.appendChild(input);
       label.appendChild(document.createTextNode(
         ' ' + (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')'

@@ -39,6 +39,7 @@
     input.type = 'radio';
     input.name = 'civic_status_radio';
     input.value = status.status_id;
+    input.id = 'civic_status_radio-' + status.status_id;
 
     var iconSpan = document.createElement('span');
     iconSpan.className = 'radio-list-icon';

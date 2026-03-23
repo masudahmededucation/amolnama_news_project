@@ -69,6 +69,7 @@
       label.className = 'checkbox-inline';
       var input = document.createElement('input');
       input.type = 'checkbox';
+      input.id = checkboxName + '-' + s.status_id;
       input.name = checkboxName;
       input.value = s.status_id;
       var text = document.createTextNode(

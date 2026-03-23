@@ -141,13 +141,18 @@
     for (var i = 0; i < fieldDefs.length; i++) {
       var f = fieldDefs[i];
       var wrap = document.createElement('div');
+      var inputId = classPrefix + '-' + (KEY_TO_CLASS_SUFFIX[f.key] || f.key) + '-' + i;
+      var inputName = inputId.replace(/-/g, '_');
       var sublabel = document.createElement('label');
       sublabel.className = 'form-name-sublabel';
+      sublabel.setAttribute('for', inputId);
       sublabel.setAttribute('data-bn', f.labelBn);
       sublabel.setAttribute('data-en', f.labelEn);
       sublabel.textContent = f.labelBn;
       var input = document.createElement('input');
       input.type = 'text';
+      input.id = inputId;
+      input.name = inputName;
       input.className = classPrefix + '-' + (KEY_TO_CLASS_SUFFIX[f.key] || f.key);
       input.setAttribute('data-ph-bn', f.phBn);
       input.setAttribute('data-ph-en', f.phEn);
@@ -272,8 +277,8 @@
         var formField = document.createElement('div');
         formField.className = 'form-field';
         var rl = ROW_LABELS[r] || { bn: '', en: '' };
-        var rowLabel = document.createElement('label');
-        rowLabel.className = 'field-label-block';
+        var rowLabel = document.createElement('span');
+        rowLabel.className = 'field-label-block form-field-label';
         rowLabel.setAttribute('data-bn', rl.bn);
         rowLabel.setAttribute('data-en', rl.en);
         rowLabel.textContent = rl.bn + ' (' + rl.en + ')';
@@ -292,13 +297,17 @@
       /* Alias (before Father) */
       var aliasField = document.createElement('div');
       aliasField.className = 'form-field';
+      var aliasId = classPrefix + '-alias';
       var aliasLabel = document.createElement('label');
+      aliasLabel.setAttribute('for', aliasId);
       aliasLabel.setAttribute('data-bn', ALIAS_FIELD.labelBn);
       aliasLabel.setAttribute('data-en', ALIAS_FIELD.labelEn);
       aliasLabel.textContent = ALIAS_FIELD.labelBn + ' (' + ALIAS_FIELD.labelEn + ')';
       aliasField.appendChild(aliasLabel);
       var aliasInput = document.createElement('input');
       aliasInput.type = 'text';
+      aliasInput.id = aliasId;
+      aliasInput.name = aliasId.replace(/-/g, '_');
       aliasInput.className = classPrefix + '-' + (KEY_TO_CLASS_SUFFIX[ALIAS_FIELD.key] || ALIAS_FIELD.key);
       aliasInput.setAttribute('data-ph-bn', ALIAS_FIELD.phBn);
       aliasInput.setAttribute('data-ph-en', ALIAS_FIELD.phEn);

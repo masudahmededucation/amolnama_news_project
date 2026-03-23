@@ -139,6 +139,7 @@
     var wrap = document.createElement('div');
     wrap.className = 'form-field';
     var label = document.createElement('label');
+    if (inputEl.id) label.setAttribute('for', inputEl.id);
     label.setAttribute('data-bn', labelBn);
     label.setAttribute('data-en', labelEn);
     label.textContent = labelBn + ' (' + labelEn + ')';
@@ -149,7 +150,10 @@
 
   function makeDomSelect(classPrefix, field, items, isDistrict) {
     var select = document.createElement('select');
-    select.className = classPrefix + '-' + field.key.replace(/Id$/, '').replace(/([A-Z])/g, function (m) { return '-' + m.toLowerCase(); });
+    var selectSuffix = field.key.replace(/Id$/, '').replace(/([A-Z])/g, function (m) { return '-' + m.toLowerCase(); });
+    select.className = classPrefix + '-' + selectSuffix;
+    select.id = classPrefix + '-' + selectSuffix;
+    select.name = (classPrefix + '_' + selectSuffix).replace(/-/g, '_');
     var def = document.createElement('option');
     def.value = '';
     def.setAttribute('data-bn', '-- ' + field.defaultBn + ' --');
@@ -175,6 +179,8 @@
     var input = document.createElement('input');
     input.type = field.type;
     input.className = classPrefix + '-' + field.key;
+    input.id = classPrefix + '-' + field.key;
+    input.name = (classPrefix + '_' + field.key).replace(/-/g, '_');
     if (field.type === 'number') {
       input.min = String(field.min || 0);
       input.max = String(field.max || 999);
