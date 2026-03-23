@@ -52,12 +52,17 @@
         instance.mobileInput.setAttribute('name', nameBase + '_mobile');
       }
 
-      /* Month dropdown inside calendar — Flatpickr internal element */
+      /* Flatpickr internal calendar elements — add id/name to suppress browser warnings */
       if (instance.calendarContainer && origId) {
         var monthDropdown = instance.calendarContainer.querySelector('.flatpickr-monthDropdown-months');
-        if (monthDropdown) {
+        if (monthDropdown && !monthDropdown.id) {
           monthDropdown.id = origId + '-flatpickr-month';
           monthDropdown.setAttribute('name', nameBase + '_flatpickr_month');
+        }
+        var yearInput = instance.calendarContainer.querySelector('.cur-year');
+        if (yearInput && !yearInput.id) {
+          yearInput.id = origId + '-flatpickr-year';
+          yearInput.setAttribute('name', nameBase + '_flatpickr_year');
         }
       }
     },
