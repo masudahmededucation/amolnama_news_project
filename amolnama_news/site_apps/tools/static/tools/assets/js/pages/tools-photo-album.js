@@ -304,6 +304,8 @@
 
     var fileInput = document.createElement('input');
     fileInput.type = 'file';
+    fileInput.id = 'album-frame-file-' + idx;
+    fileInput.name = 'album_frame_file_' + idx;
     fileInput.accept = 'image/*';
     frame.appendChild(fileInput);
 
