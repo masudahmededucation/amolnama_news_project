@@ -423,11 +423,15 @@
           relatedSection.style.display = "";
           var html = "";
           data.poems.forEach(function(p) {
-            var snippet = (p.body || "").substring(0, 80) + (p.body && p.body.length > 80 ? "..." : "");
-            html += '<a href="' + (p.url || "/poem/" + p.id + "/") + '" class="poem-card">'
-              + '<div class="poem-card-category">' + (p.category || "") + '</div>'
-              + '<div class="poem-card-lang">' + ((p.language || "BN").toUpperCase()) + '</div>'
-              + '<h3 class="poem-card-title">' + (p.title || "") + '</h3>'
+            var title = p.display_title || p.title_bn || p.title || "";
+            var snippet = p.body_preview || (p.body || "").substring(0, 80);
+            var category = p.category_name || p.category || "";
+            var lang = (p.language || "BN").toUpperCase();
+            var url = p.url || "/poem/" + p.id + "/";
+            html += '<a href="' + url + '" class="poem-card">'
+              + '<div class="poem-card-category">' + category + '</div>'
+              + '<div class="poem-card-lang">' + lang + '</div>'
+              + '<h3 class="poem-card-title">' + title + '</h3>'
               + '<p class="poem-card-snippet">' + snippet + '</p>'
               + '</a>';
           });
