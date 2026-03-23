@@ -39,8 +39,17 @@
         if (origId) {
           var altId = origId + '-visible';
           instance.altInput.id = altId;
+          instance.altInput.setAttribute('name', origId.replace(/-/g, '_') + '_visible');
           var label = document.querySelector('label[for="' + origId + '"]');
           if (label) label.setAttribute('for', altId);
+        }
+      }
+      /* Flatpickr mobile input — add id/name to suppress browser warnings */
+      if (instance.mobileInput) {
+        var mOrigId = instance.input.id;
+        if (mOrigId) {
+          instance.mobileInput.id = mOrigId + '-mobile';
+          instance.mobileInput.setAttribute('name', mOrigId.replace(/-/g, '_') + '_mobile');
         }
       }
     },
