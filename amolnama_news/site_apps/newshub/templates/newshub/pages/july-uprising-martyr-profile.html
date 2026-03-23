@@ -241,19 +241,19 @@
       {% endif %}
       {% if profile.district %}
         <div class="info-item">
-          <label>জেলা (District)</label>
+          <span class="form-field-label">জেলা (District)</span>
           <span>{{ profile.district }}</span>
         </div>
       {% endif %}
       {% if profile.father %}
         <div class="info-item">
-          <label>পিতা (Father)</label>
+          <span class="form-field-label">পিতা (Father)</span>
           <span>{{ profile.father }}</span>
         </div>
       {% endif %}
       {% if profile.mother %}
         <div class="info-item">
-          <label>মাতা (Mother)</label>
+          <span class="form-field-label">মাতা (Mother)</span>
           <span>{{ profile.mother }}</span>
         </div>
       {% endif %}
@@ -304,7 +304,7 @@
     <div class="info-grid">
       {% if cause.weaponType %}
         <div class="info-item">
-          <label>অস্ত্র (Weapon)</label>
+          <span class="form-field-label">অস্ত্র (Weapon)</span>
           <span>
             {% if cause.weaponType == 'military_rifle_762' %}৭.৬২মিমি রাইফেল
             {% elif cause.weaponType == 'shotgun_pellets' %}শটগান পেলেট
@@ -324,7 +324,7 @@
       {% endif %}
       {% if cause.injurySite %}
         <div class="info-item">
-          <label>আঘাতের স্থান (Injury Site)</label>
+          <span class="form-field-label">আঘাতের স্থান (Injury Site)</span>
           <span>
             {% if cause.injurySite == 'head' %}মাথা
             {% elif cause.injurySite == 'eye' %}চোখ
@@ -341,19 +341,19 @@
       {% endif %}
       {% if cause.timeOfInjury %}
         <div class="info-item">
-          <label>আঘাতের সময় (Time of Injury)</label>
+          <span class="form-field-label">আঘাতের সময় (Time of Injury)</span>
           <span>{{ cause.timeOfInjury }}</span>
         </div>
       {% endif %}
       {% if cause.hospital %}
         <div class="info-item">
-          <label>হাসপাতাল (Hospital)</label>
+          <span class="form-field-label">হাসপাতাল (Hospital)</span>
           <span>{{ cause.hospital }}</span>
         </div>
       {% endif %}
       {% if cause.timeOfDeath %}
         <div class="info-item">
-          <label>মৃত্যুর সময় (Time of Death)</label>
+          <span class="form-field-label">মৃত্যুর সময় (Time of Death)</span>
           <span>{{ cause.timeOfDeath }}</span>
         </div>
       {% endif %}
@@ -393,19 +393,19 @@
     <div class="info-grid">
       {% if oppressors.unitBadge %}
         <div class="info-item">
-          <label>ইউনিট/ব্যাজ (Unit/Badge)</label>
+          <span class="form-field-label">ইউনিট/ব্যাজ (Unit/Badge)</span>
           <span>{{ oppressors.unitBadge }}</span>
         </div>
       {% endif %}
       {% if oppressors.commandingOfficer %}
         <div class="info-item">
-          <label>কমান্ডিং অফিসার (Commanding Officer)</label>
+          <span class="form-field-label">কমান্ডিং অফিসার (Commanding Officer)</span>
           <span>{{ oppressors.commandingOfficer }}</span>
         </div>
       {% endif %}
       {% if oppressors.ocDc %}
         <div class="info-item">
-          <label>ওসি/ডিসি (OC/DC)</label>
+          <span class="form-field-label">ওসি/ডিসি (OC/DC)</span>
           <span>{{ oppressors.ocDc }}</span>
         </div>
       {% endif %}
@@ -452,13 +452,13 @@
     <div class="info-grid">
       {% if evidence.gazetteListed %}
         <div class="info-item">
-          <label>সরকারি গেজেটে তালিকাভুক্ত</label>
+          <span class="form-field-label">সরকারি গেজেটে তালিকাভুক্ত</span>
           <span>হ্যাঁ</span>
         </div>
       {% endif %}
       {% if evidence.memorialRef %}
         <div class="info-item">
-          <label>স্মৃতি ডাটাবেস রেফারেন্স</label>
+          <span class="form-field-label">স্মৃতি ডাটাবেস রেফারেন্স</span>
           <span>{{ evidence.memorialRef }}</span>
         </div>
       {% endif %}

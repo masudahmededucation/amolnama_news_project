@@ -98,7 +98,7 @@
 
       <!-- Background swatches -->
       <div class="bgr-settings-row">
-        <label class="bgr-label-sm" data-en="Background (BG)">ব্যাকগ্রাউন্ড (BG)</label>
+        <span class="bgr-label-sm form-field-label" data-en="Background (BG)">ব্যাকগ্রাউন্ড (BG)</span>
         <div class="bgr-swatches">
           <button type="button" class="bgr-swatch bgr-swatch--transparent active" data-bg="transparent" title="স্বচ্ছ (Transparent)"></button>
           <button type="button" class="bgr-swatch" data-bg="#FFFFFF" style="background:#FFFFFF" title="সাদা (White)"></button>
@@ -117,15 +117,15 @@
       <!-- Three sliders in one row -->
       <div class="bgr-sliders-grid">
         <div class="bgr-slider-col">
-          <label data-en="Smooth">মসৃণ (Smooth) <span id="bgr-edge-value">3</span></label>
+          <label for="bgr-edge-slider" data-en="Smooth">মসৃণ (Smooth) <span id="bgr-edge-value">3</span></label>
           <input type="range" id="bgr-edge-slider" name="bgr_edge_slider" min="0" max="10" step="1" value="3">
         </div>
         <div class="bgr-slider-col">
-          <label data-en="Shift">শিফট (Shift) <span id="bgr-edge-shift-value">0</span></label>
+          <label for="bgr-edge-shift" data-en="Shift">শিফট (Shift) <span id="bgr-edge-shift-value">0</span></label>
           <input type="range" id="bgr-edge-shift" name="bgr_edge_shift" min="-5" max="5" step="1" value="0">
         </div>
         <div class="bgr-slider-col">
-          <label data-en="Shadow">ছায়া (Shadow) <span id="bgr-shadow-blur-value">0</span></label>
+          <label for="bgr-shadow-blur" data-en="Shadow">ছায়া (Shadow) <span id="bgr-shadow-blur-value">0</span></label>
           <input type="range" id="bgr-shadow-blur" name="bgr_shadow_blur" min="0" max="40" step="1" value="0">
         </div>
       </div>
