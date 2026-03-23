@@ -39,7 +39,9 @@
           var altId = origId + '-visible';
           instance.altInput.id = altId;
           instance.altInput.setAttribute('name', nameBase + '_visible');
-          var label = document.querySelector('label[for="' + origId + '"]');
+          /* Update label — check both for="origId" and id="origId-label" patterns */
+          var label = document.querySelector('label[for="' + origId + '"]')
+                   || document.getElementById(origId + '-label');
           if (label) label.setAttribute('for', altId);
         }
       }
