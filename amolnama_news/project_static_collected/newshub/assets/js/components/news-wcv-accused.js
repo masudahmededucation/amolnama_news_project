@@ -274,8 +274,8 @@
     /* --- Attribute checkboxes --- */
     var attrField = document.createElement('div');
     attrField.className = 'form-field';
-    var attrLabel = document.createElement('label');
-    attrLabel.setAttribute('for', 'wcv-attr-checkboxes-' + n);
+    var attrLabel = document.createElement('span');
+    attrLabel.className = 'form-field-label';
     attrLabel.textContent = 'অতিরিক্ত তথ্য (Additional Information)';
     var attrBox = document.createElement('div');
     attrBox.id = 'wcv-attr-checkboxes-' + n;
@@ -402,6 +402,8 @@
     updateCardNumbers();
     updateRemoveButtons();
     serialize();
+    /* Init Flatpickr on any date inputs in the new card */
+    if (window.newshubDatePicker) window.newshubDatePicker.init();
   }
 
   /* ========== Serialize ========== */
