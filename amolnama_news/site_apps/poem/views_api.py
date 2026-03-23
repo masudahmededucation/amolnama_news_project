@@ -346,49 +346,89 @@ def api_poem_next(request, poem_id):
         poem_audio_url="",
     )
 
-    # Step 1: Try same category (not exhausted)
     current_cat = current.link_poem_ref_poem_category_id
-    qs = base_qs.filter(
-        link_poem_ref_poem_category_id=current_cat,
-    ).order_by("?")[:1]
+    current_author = current.poem_author_display_name
+    current_type = current.poem_type_code or 'poem'
 
-    # Step 2: If same category exhausted, try similar categories first (not in exhausted list)
     # Category similarity map — ordered by thematic closeness
     # IDs: 1=Love, 2=Nature, 3=Patriotic, 4=Sad, 5=Spiritual, 6=Political,
     #       7=Children, 9=Free Verse, 10=Romantic, 11=Humorous, 12=Protest, 13=Life
     SIMILAR_CATEGORIES = {
-        1:  [10, 4, 13, 9, 2],       # Love → Romantic, Sad, Life, Free Verse, Nature
-        2:  [13, 9, 5, 1, 7],        # Nature → Life, Free Verse, Spiritual, Love, Children
-        3:  [12, 6, 13, 9, 4],       # Patriotic → Protest, Political, Life, Free Verse, Sad
-        4:  [1, 10, 13, 9, 5],       # Sad → Love, Romantic, Life, Free Verse, Spiritual
-        5:  [13, 2, 9, 4, 1],        # Spiritual → Life, Nature, Free Verse, Sad, Love
-        6:  [12, 3, 13, 9, 4],       # Political → Protest, Patriotic, Life, Free Verse, Sad
-        7:  [11, 2, 13, 9, 1],       # Children → Humorous, Nature, Life, Free Verse, Love
-        9:  [13, 4, 1, 2, 10],       # Free Verse → Life, Sad, Love, Nature, Romantic
-        10: [1, 4, 13, 9, 2],        # Romantic → Love, Sad, Life, Free Verse, Nature
-        11: [7, 9, 13, 2, 1],        # Humorous → Children, Free Verse, Life, Nature, Love
-        12: [6, 3, 13, 9, 4],        # Protest → Political, Patriotic, Life, Free Verse, Sad
-        13: [9, 4, 2, 5, 1],         # Life → Free Verse, Sad, Nature, Spiritual, Love
+        1:  [10, 4, 13, 9, 2],
+        2:  [13, 9, 5, 1, 7],
+        3:  [12, 6, 13, 9, 4],
+        4:  [1, 10, 13, 9, 5],
+        5:  [13, 2, 9, 4, 1],
+        6:  [12, 3, 13, 9, 4],
+        7:  [11, 2, 13, 9, 1],
+        9:  [13, 4, 1, 2, 10],
+        10: [1, 4, 13, 9, 2],
+        11: [7, 9, 13, 2, 1],
+        12: [6, 3, 13, 9, 4],
+        13: [9, 4, 2, 5, 1],
     }
+
+    qs = None
+
+    # Priority 1: Same author + same category + same type (best match)
+    if current_author:
+        qs = base_qs.filter(
+            poem_author_display_name=current_author,
+            link_poem_ref_poem_category_id=current_cat,
+            poem_type_code=current_type,
+        ).order_by("-like_count")[:1]
+
+    # Priority 2: Same author + any category + same type
+    if not qs and current_author:
+        qs = base_qs.filter(
+            poem_author_display_name=current_author,
+            poem_type_code=current_type,
+        ).order_by("-like_count")[:1]
+
+    # Priority 3: Same category + same type, sorted by popularity
+    if not qs:
+        qs = base_qs.filter(
+            link_poem_ref_poem_category_id=current_cat,
+            poem_type_code=current_type,
+        ).order_by("-like_count", "-view_count")[:1]
+
+    # Priority 4: Same category, any type, sorted by popularity
+    if not qs:
+        qs = base_qs.filter(
+            link_poem_ref_poem_category_id=current_cat,
+        ).order_by("-like_count", "-view_count")[:1]
+
+    # Priority 5: Similar categories + same type, in order of closeness
     if not qs:
         exhausted_cats.add(current_cat)
-        similar_order = SIMILAR_CATEGORIES.get(current_cat, [])
-        # Try similar categories in order of closeness
-        for similar_cat_id in similar_order:
+        for similar_cat_id in SIMILAR_CATEGORIES.get(current_cat, []):
             if similar_cat_id in exhausted_cats:
                 continue
             qs = base_qs.filter(
                 link_poem_ref_poem_category_id=similar_cat_id,
-            ).order_by("?")[:1]
+                poem_type_code=current_type,
+            ).order_by("-like_count", "-view_count")[:1]
             if qs:
                 break
-        # If no similar category has poems, try any non-exhausted category
-        if not qs:
-            qs = base_qs.exclude(
-                link_poem_ref_poem_category_id__in=exhausted_cats,
-            ).order_by("?")[:1]
 
-    # Step 3: If all categories exhausted, reset — play any poem with audio
+    # Priority 6: Similar categories, any type
+    if not qs:
+        for similar_cat_id in SIMILAR_CATEGORIES.get(current_cat, []):
+            if similar_cat_id in exhausted_cats:
+                continue
+            qs = base_qs.filter(
+                link_poem_ref_poem_category_id=similar_cat_id,
+            ).order_by("-like_count", "-view_count")[:1]
+            if qs:
+                break
+
+    # Priority 7: Any remaining category, sorted by popularity
+    if not qs:
+        qs = base_qs.exclude(
+            link_poem_ref_poem_category_id__in=exhausted_cats,
+        ).order_by("-like_count", "-view_count")[:1]
+
+    # Priority 8: All exhausted — reset and play any poem with audio
     if not qs:
         qs = CollPoemEntry.objects.exclude(
             poem_coll_poem_entry_id=poem_id,
@@ -396,8 +436,7 @@ def api_poem_next(request, poem_id):
             poem_audio_url__isnull=True,
         ).exclude(
             poem_audio_url="",
-        ).order_by("?")[:1]
-        # Signal to client to reset played/exhausted lists
+        ).order_by("-like_count", "-view_count")[:1]
         exhausted_cats = set()
 
     if not qs:
