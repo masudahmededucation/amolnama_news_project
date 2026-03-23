@@ -33,7 +33,7 @@
 
     <div class="article-landing-card-meta">
       {% if article_item.contributor %}
-      <span class="article-landing-card-contributor">{{ article_item.contributor.coll_contributor_full_name_bn }}</span>
+      <span class="article-landing-card-contributor">{{ article_item.contributor_display_name }}</span>
       {% endif %}
       {% if article_item.published_article.published_at %}
       <span class="article-landing-card-date">{{ article_item.published_article.published_at|date:"d M Y" }}</span>

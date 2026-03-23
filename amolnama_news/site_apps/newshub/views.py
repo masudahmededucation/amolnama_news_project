@@ -1125,11 +1125,31 @@ def news_article_landing(request):
             except CollContributor.DoesNotExist:
                 pass
 
+        # Resolve contributor display name
+        contributor_display_name = ''
+        if contributor:
+            contributor_display_name = contributor.coll_contributor_full_name_bn or ''
+            if '@' in contributor_display_name and contributor.link_user_profile_id:
+                try:
+                    profile = UserProfile.objects.get(
+                        user_profile_id=contributor.link_user_profile_id
+                    )
+                    if profile.link_person_id:
+                        person = Person.objects.get(person_id=profile.link_person_id)
+                        real_name = f"{person.first_name_bn or ''} {person.last_name_bn or ''}".strip()
+                        if not real_name:
+                            real_name = f"{person.first_name_en or ''} {person.last_name_en or ''}".strip()
+                        if real_name:
+                            contributor_display_name = real_name
+                except (UserProfile.DoesNotExist, Person.DoesNotExist):
+                    pass
+
         articles_with_meta.append({
             'published_article': published_article,
             'entry': entry,
             'category': category,
             'contributor': contributor,
+            'contributor_display_name': contributor_display_name,
         })
 
     context = {
@@ -1178,13 +1198,30 @@ def article_detail(request, slug):
         except RefStatus.DoesNotExist:
             pass
 
-    # Contributor
+    # Contributor — resolve display name (fallback to person name if email stored)
     contributor = None
+    contributor_display_name = ''
     if entry.link_contributor_id:
         try:
             contributor = CollContributor.objects.get(
                 coll_contributor_id=entry.link_contributor_id
             )
+            contributor_display_name = contributor.coll_contributor_full_name_bn or ''
+            # If display name looks like an email, try to get real name from user profile → person
+            if '@' in contributor_display_name and contributor.link_user_profile_id:
+                try:
+                    profile = UserProfile.objects.get(
+                        user_profile_id=contributor.link_user_profile_id
+                    )
+                    if profile.link_person_id:
+                        person = Person.objects.get(person_id=profile.link_person_id)
+                        real_name = f"{person.first_name_bn or ''} {person.last_name_bn or ''}".strip()
+                        if not real_name:
+                            real_name = f"{person.first_name_en or ''} {person.last_name_en or ''}".strip()
+                        if real_name:
+                            contributor_display_name = real_name
+                except (UserProfile.DoesNotExist, Person.DoesNotExist):
+                    pass
         except CollContributor.DoesNotExist:
             pass
 
@@ -1274,6 +1311,7 @@ def article_detail(request, slug):
         'sidenotes': sidenotes,
         'publication_status': publication_status,
         'contributor': contributor,
+        'contributor_display_name': contributor_display_name,
         'tags': tags,
         'category': category,
         'body_paragraphs': body_paragraphs,
