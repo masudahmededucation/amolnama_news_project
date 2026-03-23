@@ -75,6 +75,11 @@
 .article-sidenote-item[data-type="status"] { border-left: 3px solid #6b7280; }
 .article-sidenote-item[data-type="info"]   { border-left: 3px solid #06b6d4; }
 
+/* ---- Remove underline on all text hover ---- */
+.article-detail-container a {
+  text-decoration: none;
+}
+
 /* ---- Right column: Article content ---- */
 .article-content {
   min-width: 0;

@@ -1211,17 +1211,17 @@ def article_detail(request, slug):
             # If display name looks like an email, try to get real name from user profile → person
             if '@' in contributor_display_name and contributor.link_user_profile_id:
                 try:
-                    profile = UserProfile.objects.get(
+                    contributor_profile = UserProfile.objects.get(
                         user_profile_id=contributor.link_user_profile_id
                     )
-                    if profile.link_person_id:
-                        person = Person.objects.get(person_id=profile.link_person_id)
-                        real_name = f"{person.first_name_bn or ''} {person.last_name_bn or ''}".strip()
+                    if contributor_profile.link_person_id:
+                        contributor_person = Person.objects.get(person_id=contributor_profile.link_person_id)
+                        real_name = f"{contributor_person.first_name_bn or ''} {contributor_person.last_name_bn or ''}".strip()
                         if not real_name:
-                            real_name = f"{person.first_name_en or ''} {person.last_name_en or ''}".strip()
+                            real_name = f"{contributor_person.first_name_en or ''} {contributor_person.last_name_en or ''}".strip()
                         if real_name:
                             contributor_display_name = real_name
-                except (UserProfile.DoesNotExist, Person.DoesNotExist):
+                except Exception:
                     pass
         except CollContributor.DoesNotExist:
             pass
@@ -1256,13 +1256,14 @@ def article_detail(request, slug):
     if request.user.is_authenticated:
         if request.user.is_staff or request.user.is_superuser:
             can_edit = True
-        elif contributor and hasattr(request.user, 'userprofile'):
+        elif contributor and contributor.link_user_profile_id:
             try:
-                from amolnama_news.site_apps.user_account.models import UserProfile
-                profile = UserProfile.objects.get(user=request.user)
-                if contributor.link_user_profile_id == profile.user_profile_id:
+                user_profile = UserProfile.objects.get(
+                    link_user_account_user_id=request.user.pk
+                )
+                if contributor.link_user_profile_id == user_profile.user_profile_id:
                     can_edit = True
-            except Exception:
+            except UserProfile.DoesNotExist:
                 pass
 
     # Build edit URL based on form type

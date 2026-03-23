@@ -28,6 +28,11 @@
   padding: 0 1rem 2rem;
 }
 
+.article-landing-card,
+.article-landing-card:hover {
+  text-decoration: none;
+}
+
 .article-landing-card {
   display: flex;
   flex-direction: column;
