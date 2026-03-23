@@ -38,7 +38,16 @@
         .then(function (data) {
           if (!data.success) {
             if (data.error === "Login required") {
-              window.location.href = "/user-account/login/?next=" + encodeURIComponent(window.location.pathname);
+              /* Show friendly login prompt instead of redirecting */
+              var loginMsg = document.getElementById("poem-login-prompt");
+              if (!loginMsg) {
+                loginMsg = document.createElement("div");
+                loginMsg.id = "poem-login-prompt";
+                loginMsg.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#fff3cd;color:#856404;padding:12px 24px;border-radius:8px;font-size:.9rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:9999;border:1px solid #ffc107;";
+                loginMsg.innerHTML = 'লাইক করতে <a href="/account/login/?next=' + encodeURIComponent(window.location.pathname) + '" style="color:#0d6efd;text-decoration:underline;">লগইন করুন</a> (Please login to like)';
+                document.body.appendChild(loginMsg);
+                setTimeout(function() { loginMsg.remove(); }, 5000);
+              }
             }
             return;
           }
