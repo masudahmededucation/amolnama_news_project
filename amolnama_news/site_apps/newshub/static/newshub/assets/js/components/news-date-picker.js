@@ -39,9 +39,8 @@
           var altId = origId + '-visible';
           instance.altInput.id = altId;
           instance.altInput.setAttribute('name', nameBase + '_visible');
-          /* Update label — check both for="origId" and id="origId-label" patterns */
-          var label = document.querySelector('label[for="' + origId + '"]')
-                   || document.getElementById(origId + '-label');
+          /* Update any label that still references the original hidden input */
+          var label = document.querySelector('label[for="' + origId + '"]');
           if (label) label.setAttribute('for', altId);
         }
       }
