@@ -1196,7 +1196,7 @@ def article_detail(request, slug):
     if tag_ids:
         tags = list(RefNewsCategoryTag.objects.filter(
             news_category_tag_id__in=tag_ids
-        ).values('tag_name_bn', 'tag_name_en'))
+        ).values('news_tag_name_bn', 'news_tag_name_en'))
 
     # Category
     category = None
