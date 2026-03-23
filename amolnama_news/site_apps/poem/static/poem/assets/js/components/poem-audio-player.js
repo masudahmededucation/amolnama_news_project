@@ -408,8 +408,8 @@
       }
     }
 
-    // Scroll to top smoothly
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Scroll to audio player bar so user sees the new poem's player
+    if (container) container.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
   // Start loading
