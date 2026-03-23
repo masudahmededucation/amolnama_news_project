@@ -410,6 +410,31 @@
 
     // Scroll to audio player bar so user sees the new poem's player
     if (container) container.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    // Update related poems section
+    var relatedSection = document.querySelector(".poem-detail-related");
+    if (relatedSection && next.category_id) {
+      fetch("/poem/api/poems/?category=" + next.category_id + "&limit=4&exclude=" + next.id)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var grid = relatedSection.querySelector(".poem-detail-related-grid");
+          if (!grid || !data.poems) return;
+          if (!data.poems.length) { relatedSection.style.display = "none"; return; }
+          relatedSection.style.display = "";
+          var html = "";
+          data.poems.forEach(function(p) {
+            var snippet = (p.body || "").substring(0, 80) + (p.body && p.body.length > 80 ? "..." : "");
+            html += '<a href="' + (p.url || "/poem/" + p.id + "/") + '" class="poem-card">'
+              + '<div class="poem-card-category">' + (p.category || "") + '</div>'
+              + '<div class="poem-card-lang">' + ((p.language || "BN").toUpperCase()) + '</div>'
+              + '<h3 class="poem-card-title">' + (p.title || "") + '</h3>'
+              + '<p class="poem-card-snippet">' + snippet + '</p>'
+              + '</a>';
+          });
+          grid.innerHTML = html;
+        })
+        .catch(function() {});
+    }
   }
 
   // Start loading

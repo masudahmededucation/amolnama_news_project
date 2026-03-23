@@ -62,6 +62,8 @@ def api_poem_entry_list(request):
     category = request.GET.get("category", "").strip()
     q = request.GET.get("q", "").strip()
     poem_type = request.GET.get("type", "").strip()
+    exclude_id = request.GET.get("exclude", "").strip()
+    custom_limit = request.GET.get("limit", "").strip()
 
     qs = CollPoemEntry.objects.order_by("-created_at")
 
@@ -70,6 +72,9 @@ def api_poem_entry_list(request):
 
     if category:
         qs = qs.filter(link_poem_ref_poem_category_id=int(category))
+
+    if exclude_id and exclude_id.isdigit():
+        qs = qs.exclude(poem_coll_poem_entry_id=int(exclude_id))
 
     if q:
         qs = qs.filter(
@@ -80,10 +85,11 @@ def api_poem_entry_list(request):
             | Q(poem_author_display_name__icontains=q)
         )
 
-    offset = (page - 1) * PAGE_SIZE
-    poems = list(qs[offset: offset + PAGE_SIZE + 1])
-    has_next = len(poems) > PAGE_SIZE
-    poems = poems[:PAGE_SIZE]
+    page_size = int(custom_limit) if custom_limit and custom_limit.isdigit() else PAGE_SIZE
+    offset = (page - 1) * page_size
+    poems = list(qs[offset: offset + page_size + 1])
+    has_next = len(poems) > page_size
+    poems = poems[:page_size]
 
     cats = _categories_map()
     result = []
