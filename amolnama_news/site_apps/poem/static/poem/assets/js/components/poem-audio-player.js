@@ -398,6 +398,10 @@
     var newVideoId = extractYouTubeId(next.audio_url);
     if (newVideoId && player && player.loadVideoById) {
       player.loadVideoById(newVideoId);
+      // Force play after a short delay (Chrome autoplay policy workaround)
+      setTimeout(function() {
+        if (player && player.playVideo) player.playVideo();
+      }, 500);
       // Reset progress
       progressFill.style.width = "0%";
       timeEl.textContent = "0:00 / 0:00";
