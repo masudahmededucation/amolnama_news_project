@@ -52,6 +52,9 @@ urlpatterns = [
     # API endpoints — WCV form helpers
     path('api/thana/search/', views_api.api_wcv_thana_search, name='api_wcv_thana_search'),
 
+    # API endpoints — article interactions
+    path('api/article/<int:pub_article_id>/comment/', views_api.api_article_comment_create, name='api_article_comment_create'),
+
     # API endpoints — organisations
     path('api/organisations/search/', views_api.api_organisation_search, name='api_organisation_search'),
     path('api/organisations/<int:type_id>/', views_api.api_organisations_by_type, name='api_organisations_by_type'),

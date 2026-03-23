@@ -149,6 +149,23 @@
     <section class="article-comments">
       <h2 class="article-section-title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
 
+      {# Comment form — any logged-in user can comment, no points required #}
+      {% if user.is_authenticated %}
+      <div class="article-comment-form">
+        <textarea id="article-comment-text" name="article_comment_text" rows="3"
+                  placeholder="আপনার মন্তব্য লিখুন... (Write your comment...)"
+                  aria-labelledby="article-comments-title"
+                  style="width:100%;padding:.6rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.88rem;resize:vertical;"></textarea>
+        <button type="button" id="article-comment-submit" class="article-action-btn"
+                data-article-id="{{ published_article.pub_article_id }}"
+                style="margin-top:.5rem;">
+          💬 মন্তব্য করুন
+        </button>
+      </div>
+      {% else %}
+      <p style="font-size:.82rem;color:var(--muted);">মন্তব্য করতে <a href="{% url 'user_account:login' %}?next={{ request.path }}">লগইন</a> করুন</p>
+      {% endif %}
+
       {% if comments %}
       <div class="article-comments-list">
         {% for comment in comments %}

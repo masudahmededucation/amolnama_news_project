@@ -696,3 +696,41 @@ def api_organisation_search(request):
         })
 
     return JsonResponse({'organisations': data})
+
+
+def api_article_comment_create(request, pub_article_id):
+    """Create a comment on a published article. Login required, 0 points minimum."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST only'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'লগইন প্রয়োজন'}, status=401)
+
+    import json
+    from django.utils import timezone
+    from .models import EngComment, PubArticle
+
+    try:
+        published_article = PubArticle.objects.get(
+            pub_article_id=pub_article_id, is_published=True
+        )
+    except PubArticle.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Article not found'}, status=404)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    comment_text = (body.get('comment_text') or '').strip()
+    if not comment_text:
+        return JsonResponse({'success': False, 'error': 'মন্তব্য খালি রাখা যাবে না'})
+
+    EngComment.objects.create(
+        link_pub_article_id=published_article.pub_article_id,
+        link_user_id=request.user.pk,
+        eng_comment_text_bn=comment_text,
+        is_approved=True,
+        created_at=timezone.now(),
+    )
+
+    return JsonResponse({'success': True})

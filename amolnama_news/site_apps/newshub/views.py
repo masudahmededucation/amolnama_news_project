@@ -87,8 +87,9 @@ def _get_user_contributor_info(user):
         return info
     try:
         profile = UserProfile.objects.get(link_user_account_user_id=user.pk)
-        # Name: prefer display_name from user_profile
-        info['name'] = (profile.display_name or '').strip()
+        # Name: prefer display_name from user_profile (skip if it looks like an email)
+        display_name = (profile.display_name or '').strip()
+        info['name'] = display_name if '@' not in display_name else ''
         if profile.link_person_id:
             person = Person.objects.get(person_id=profile.link_person_id)
             # Fallback to Person Bengali name if display_name is empty
@@ -1847,12 +1848,22 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
     try:
         with transaction.atomic():
+            # Resolve user profile ID for logged-in users
+            contributor_user_profile_id = None
+            if request.user.is_authenticated:
+                try:
+                    user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+                    contributor_user_profile_id = user_profile.user_profile_id
+                except UserProfile.DoesNotExist:
+                    pass
+
             contributor = CollContributor.objects.create(
                 coll_contributor_full_name_bn=cd['contributor_full_name_bn'],
                 coll_contributor_organization_bn=org_name_bn,
                 coll_contributor_contact_email=cd['contributor_contact_email'] or None,
                 coll_contributor_contact_phone=cd['contributor_contact_phone'] or None,
                 link_contributor_type_id=cd['contributor_type_id'],
+                link_user_profile_id=contributor_user_profile_id,
                 is_verified=False,
                 created_at=now,
             )

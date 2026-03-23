@@ -112,40 +112,8 @@ orientation on a single page. there will also other kind of size orientation.
 These three frames will be displayed as dotted-line boxes where users can drag and drop their images, 
 with a built-in feature to easily interchange picture positions between the boxes.
 
-📶 ইন্টারনেট স্পিড মিটার (Speed Test):
-
-কাজ: ব্যবহারকারী তার বর্তমান ডাটা স্পিড কত তা পরীক্ষা করতে পারবে।
-
-📅 বয়স ক্যালকুলেটর (Age Calculator):
-
-কাজ: চাকরির ফরমে অনেক সময় "অমুক তারিখে বয়স কত দিন, মাস, বছর" তা জানতে চায়, এটি দ্রুত সেই হিসাব করে দেবে।
 
 
-আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)
-এফআইআর/জিডি দায়ের হয়েছে? *
-না (No)
-পুলিশ নিতে অস্বীকার (Police Refused)
-
-
-
-
-
-
-if there is any error submission - it has been able to restore it. 
-but i have found that i have to come out of the form, 
-then entering the form again works. 
-if i am for example inside extortion form - submission error then go to the step 7/8 then the fields 
-are funny messy. but if i come out of the form and on the landing page of 
-civic journalist then refresh then it is able to restore all the fields. 
-i think this is too much to ask to user, 
-that go out of the form then refresh then come back. 
-because error is found to happen due to many reason. 
-we need a permanent fix without user even realising it.
-
-step 8 - same issue
-এফআইআর/জিডি দায়ের হয়েছে? *
-প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)
-মামলার অবস্থা (Case Status)
 
 --whole project 
 all attributes should have its id and name 
@@ -178,3 +146,8 @@ The label's for attribute doesn't match any element id. This might prevent the b
 To fix this issue, make sure the label's for attribute references the correct id of a form field.
 
 4 resources
+
+--news article
+did you check you have implemented everything planned?
+i can't comment. 
+i don't see edit article option - i am admin and owner of the article. 
