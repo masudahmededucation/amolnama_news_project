@@ -1,0 +1,109 @@
+Article View — Field Mapping
+============================
+Last updated: 2026-03-23
+
+URL: /newshub/article/<slug>/
+View: article_detail(request, slug)
+Template: newshub/pages/article-detail.html
+CSS: newshub/assets/css/pages/article-detail.css
+JS: newshub/assets/js/pages/article-detail.js
+Helper: newshub/helpers.py
+
+== Data Flow ==
+
+1. pub_article (slug lookup)
+   [newshub].[pub_article]
+   - pub_article_slug → URL slug
+   - link_news_entry_id → FK to coll_news_entry
+   - pub_article_headline_bn → displayed headline (overrides news entry headline)
+   - is_published → must be 1 for public view
+   - is_premium → premium badge display
+   - published_at → display date
+
+2. coll_news_entry (via pub_article.link_news_entry_id)
+   [newshub].[coll_news_entry]
+   - news_headline_bn → fallback headline
+   - news_summary_bn → summary section
+   - news_content_body_bn → body paragraphs (split by newline)
+   - occurrence_at → occurrence date in sidenote
+   - is_breaking → breaking badge
+   - link_form_type_id → determines which investigation table to query
+   - link_news_category_id → category badge
+   - link_contributor_id → contributor info
+   - link_district_id, upazila_city_corporation_name, full_address_bn → location sidenote
+   - link_ref_status_article_publication_status_id → publication status badge (818-823)
+
+3. Investigation tables (per form type, via helpers.py)
+   Extortion: [investigation].[extortion_form_impact]
+   - demand_amount_demanded_bdt → 💰 amount sidenote
+   - demand_amount_collected_bdt → 💸 amount sidenote
+   - sector_is_* flags → 🏢 sector sidenote
+   - accused_is_* flags → 👥 perpetrator affiliation sidenote
+   - threat_is_* flags → ⚠️ threat method sidenote
+   - consequence_is_* flags → 📋 consequence sidenote
+
+   Extortion Legal: [investigation].[extortion_form_victim_legal_action]
+   - link_ref_status_law_gd_fir_status_id → ⚖️ FIR status sidenote
+   - gd_fir_case_gd_number → 📝 case number sidenote
+
+4. Actors (shared across all form types)
+   [investigation].[incident_involved_actor_profile]
+   - incident_involved_actor_role_group_code → ACCUSED/VICTIM/WITNESS
+   - link_person_id → FK to person for name lookup
+   - actor_organization_name → org name fallback
+
+5. Tags
+   [newshub].[coll_news_entry_tag] + [newshub].[ref_news_category_tag]
+   - tag_name_bn → tag badges
+
+6. Comments
+   [newshub].[eng_comment]
+   - link_pub_article_id → FK to pub_article
+   - eng_comment_text_bn → comment text
+   - is_approved → only approved shown publicly
+   - parent_comment_id → threaded replies
+
+7. Community Additions
+   [newshub].[article_community_addition]
+   - community_addition_type_code → type (correction, additional_info, source_link)
+   - community_addition_title_bn → title
+   - community_addition_body_bn → body
+   - community_addition_source_url → source link
+   - status_code → pending/approved/rejected (pending+approved shown, rejected hidden)
+
+8. Article Stats
+   [newshub].[eng_article_stat]
+   - view_count → display count
+   - share_count → share count
+
+== New Tables (created 2026-03-23) ==
+
+[newshub].[article_edit_history] — edit audit trail
+[newshub].[article_community_addition] — community information additions
+[account].[community_user_reputation] — user points/reputation
+[account].[ref_community_privilege_level] — privilege levels and thresholds
+
+== New Column ==
+
+[newshub].[coll_news_entry].[link_ref_status_article_publication_status_id] INT NOT NULL DEFAULT 818
+  → FK to [investigation].[ref_status] where group_code = 'article_publication_status'
+  → 818=pending, 819=approved, 820=scheduled, 821=merged, 822=archived, 823=rejected
+
+== Publication Status (ref_status) ==
+
+status_id | status_code | status_name_bn
+818       | pending     | অযাচাইকৃত (Awaiting Verification)
+819       | approved    | যাচাইকৃত (Verified)
+820       | scheduled   | নির্ধারিত (Future Publish)
+821       | merged      | একীভূত (Incorporated)
+822       | archived    | আর্কাইভ (Formerly Live)
+823       | rejected    | প্রত্যাখ্যাত (ভুল/স্প্যাম)
+
+== Permissions ==
+
+View: Public (no login)
+Edit own: Login required (privilege level 1+)
+Suggest edits: Login required (privilege level 2, 50+ points)
+Edit others: Login required (privilege level 3, 200+ points)
+Approve: Login required (privilege level 4, 500+ points)
+Delete: Admin only (privilege level 5)

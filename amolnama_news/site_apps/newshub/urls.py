@@ -19,6 +19,10 @@ urlpatterns = [
     path('news-collection/multistep/entertainment/', views.news_collection_multistep_entertainment, name='news_collection_multistep_entertainment'),
     path('news-collection/multistep/july-uprising/', views.news_collection_multistep_july_uprising, name='news_collection_multistep_july_uprising'),
     path('news-collection/multistep/women-child-violence/', views.news_collection_multistep_women_child_violence, name='news_collection_multistep_women_child_violence'),
+
+    # Article detail view (public, slug-based via pub_article)
+    path('article/<slug:slug>/', views.article_detail, name='article_detail'),
+
     # API endpoints — location cascade (original)
     path('api/constituencies/<int:district_id>/', views_api.api_constituencies_by_district, name='api_constituencies_by_district'),
     path('api/upazilas/<int:district_id>/', views_api.api_upazilas_by_district, name='api_upazilas_by_district'),

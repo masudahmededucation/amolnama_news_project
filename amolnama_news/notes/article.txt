@@ -16,8 +16,8 @@ you need a way to link specific metadata to specific paragraphs.
 To structure your news article with a two-column layout, 
 store the article content in your database as a single block of text, 
 then split it into paragraphs when displaying it. On the right column, 
-show the full article with its headline and paragraphs. On the left column, a
-nalyze each corresponding paragraph to automatically extract and highlight any dates, 
+show the full article with its headline and paragraphs. On the left column, 
+analyze each corresponding paragraph to automatically extract and highlight any dates, 
 places, or key names—you can do this in the user interface using JavaScript,
  or beforehand in the database by saving metadata like keywords per paragraph. 
  When rendering the article view, loop through the paragraphs, display each one on the right, 

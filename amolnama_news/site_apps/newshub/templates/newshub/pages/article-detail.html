@@ -1,0 +1,172 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|default:"সংবাদ" }} — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'newshub/assets/css/pages/article-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="article-detail-container">
+
+  {# ======== LEFT COLUMN: Sidenote Sidebar ======== #}
+  <aside class="article-sidenote">
+    <span class="article-sidenote-title" data-en="Key Information">মূল তথ্য</span>
+
+    {% for item in sidenotes %}
+    <div class="article-sidenote-item" data-type="{{ item.type }}">
+      <span class="article-sidenote-icon">{{ item.icon }}</span>
+      <div class="article-sidenote-content">
+        <span class="article-sidenote-label">{{ item.label }}</span>
+        <span class="article-sidenote-value">{{ item.value }}</span>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if not sidenotes %}
+    <div style="font-size:.8rem;color:var(--muted);font-style:italic;">
+      কোনো অতিরিক্ত তথ্য নেই
+    </div>
+    {% endif %}
+
+    {% if stats %}
+    <div class="article-sidenote-stats">
+      <span>👁️ {{ stats.view_count }} বার দেখা হয়েছে</span>
+      {% if stats.share_count %}
+      <span>📤 {{ stats.share_count }} বার শেয়ার</span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </aside>
+
+  {# ======== RIGHT COLUMN: Article Content ======== #}
+  <main class="article-content">
+
+    {# ---- Header ---- #}
+    <div class="article-header">
+
+      {# Publication status badge #}
+      {% if publication_status %}
+      <div class="article-publication-badge {{ publication_status.status_code }}">
+        {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
+      </div>
+      {% endif %}
+
+      {# Headline #}
+      <h1 class="article-headline">{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn }}</h1>
+
+      {# Meta bar #}
+      <div class="article-meta">
+        {% if contributor %}
+        <span class="article-meta-contributor">{{ contributor.coll_contributor_full_name_bn }}</span>
+        <span>·</span>
+        {% endif %}
+
+        {% if published_article.published_at %}
+        <span>{{ published_article.published_at|date:"d M Y, h:i A" }}</span>
+        {% elif entry.occurrence_at %}
+        <span>{{ entry.occurrence_at|date:"d M Y, h:i A" }}</span>
+        {% endif %}
+
+        {% if category %}
+        <span class="article-meta-category">{{ category.news_category_name_bn }}</span>
+        {% endif %}
+
+        {% if entry.is_breaking %}
+        <span class="article-meta-breaking">🔴 ব্রেকিং</span>
+        {% endif %}
+
+        {% if published_article.is_premium %}
+        <span class="article-meta-premium">⭐ প্রিমিয়াম</span>
+        {% endif %}
+      </div>
+
+      {# Tags #}
+      {% if tags %}
+      <div class="article-tags">
+        {% for tag in tags %}
+        <span class="article-tag">{{ tag.tag_name_bn }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    {# ---- Summary ---- #}
+    {% if entry.news_summary_bn %}
+    <div class="article-summary">
+      {{ entry.news_summary_bn }}
+    </div>
+    {% endif %}
+
+    {# ---- Body paragraphs ---- #}
+    <div class="article-body">
+      {% for paragraph in body_paragraphs %}
+      <p>{{ paragraph }}</p>
+      {% endfor %}
+    </div>
+
+    {# ---- Actions ---- #}
+    <div class="article-actions">
+      <button class="article-action-btn" id="article-share-btn" data-title="{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|escapejs }}">
+        📤 শেয়ার
+      </button>
+
+      {% if can_edit and edit_url %}
+      <a href="{{ edit_url }}?edit={{ entry.coll_news_entry_id }}" class="article-action-btn edit-btn">
+        ✏️ সম্পাদনা
+      </a>
+      {% endif %}
+    </div>
+
+    {# ======== COMMUNITY ADDITIONS ======== #}
+    {% if additions %}
+    <section class="article-additions">
+      <h2 class="article-section-title" data-en="Community Information">তথ্য সংযোজন</h2>
+      {% for addition in additions %}
+      <div class="article-addition-card {% if addition.status_code == 'approved' %}verified{% else %}unverified{% endif %}">
+        <div class="article-addition-badge">
+          {% if addition.status_code == 'approved' %}
+          <span class="badge-verified">✅ যাচাইকৃত</span>
+          {% else %}
+          <span class="badge-unverified">⏳ অযাচাইকৃত</span>
+          {% endif %}
+        </div>
+        {% if addition.community_addition_title_bn %}
+        <h3 class="article-addition-title">{{ addition.community_addition_title_bn }}</h3>
+        {% endif %}
+        <p class="article-addition-body">{{ addition.community_addition_body_bn }}</p>
+        {% if addition.community_addition_source_url %}
+        <a href="{{ addition.community_addition_source_url }}" class="article-addition-source" target="_blank" rel="noopener">🔗 সূত্র</a>
+        {% endif %}
+        <span class="article-addition-meta">{{ addition.created_at|date:"d M Y" }}</span>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {# ======== COMMENTS ======== #}
+    <section class="article-comments">
+      <h2 class="article-section-title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
+
+      {% if comments %}
+      <div class="article-comments-list">
+        {% for comment in comments %}
+        <div class="article-comment-card" {% if comment.parent_comment_id %}style="margin-left:2rem;"{% endif %}>
+          <p class="article-comment-text">{{ comment.eng_comment_text_bn }}</p>
+          <span class="article-comment-meta">{{ comment.created_at|date:"d M Y, h:i A" }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="font-size:.85rem;color:var(--muted);font-style:italic;">এখনো কোনো মন্তব্য নেই</p>
+      {% endif %}
+    </section>
+
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'newshub/assets/js/pages/article-detail.js' %}"></script>
+{% endblock %}

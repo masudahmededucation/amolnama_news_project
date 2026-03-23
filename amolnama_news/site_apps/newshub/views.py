@@ -1089,6 +1089,155 @@ def news_collection_multistep_women_child_violence(request):
     return render(request, template, ctx)
 
 
+def article_detail(request, slug):
+    """Public article detail view — two-column sidenote layout via pub_article slug."""
+    from .helpers import build_sidenote_data
+    from .models import PubArticle, EngComment, EngArticleStat
+    from django.http import Http404
+
+    # Find published article by slug
+    try:
+        published_article = PubArticle.objects.get(pub_article_slug=slug, is_published=True)
+    except PubArticle.DoesNotExist:
+        raise Http404("Article not found")
+
+    # Get the underlying news entry
+    try:
+        entry = CollNewsEntry.objects.get(coll_news_entry_id=published_article.link_news_entry_id)
+    except CollNewsEntry.DoesNotExist:
+        raise Http404("Article not found")
+
+    # Determine form type
+    form_type_code = ''
+    if entry.link_form_type_id:
+        try:
+            form_type = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
+            form_type_code = form_type.group_code
+        except RefNewsFormType.DoesNotExist:
+            pass
+
+    # Build sidenote data
+    sidenotes = build_sidenote_data(entry, form_type_code)
+
+    # Publication status
+    publication_status = None
+    if entry.link_ref_status_article_publication_status_id:
+        try:
+            publication_status = RefStatus.objects.get(
+                status_id=entry.link_ref_status_article_publication_status_id
+            )
+        except RefStatus.DoesNotExist:
+            pass
+
+    # Contributor
+    contributor = None
+    if entry.link_contributor_id:
+        try:
+            contributor = CollContributor.objects.get(
+                coll_contributor_id=entry.link_contributor_id
+            )
+        except CollContributor.DoesNotExist:
+            pass
+
+    # Tags
+    tag_ids = CollNewsEntryTag.objects.filter(
+        link_coll_news_entry_id=entry_id
+    ).values_list('link_news_category_tag_id', flat=True)
+    tags = []
+    if tag_ids:
+        tags = list(RefNewsCategoryTag.objects.filter(
+            news_category_tag_id__in=tag_ids
+        ).values('tag_name_bn', 'tag_name_en'))
+
+    # Category
+    category = None
+    if entry.link_news_category_id:
+        try:
+            category = RefNewsCategory.objects.get(
+                news_category_id=entry.link_news_category_id
+            )
+        except RefNewsCategory.DoesNotExist:
+            pass
+
+    # Split body into paragraphs
+    body_paragraphs = []
+    if entry.news_content_body_bn:
+        body_paragraphs = [p.strip() for p in entry.news_content_body_bn.split('\n') if p.strip()]
+
+    # Check edit permissions
+    can_edit = False
+    if request.user.is_authenticated:
+        if request.user.is_staff or request.user.is_superuser:
+            can_edit = True
+        elif contributor and hasattr(request.user, 'userprofile'):
+            try:
+                from amolnama_news.site_apps.user_account.models import UserProfile
+                profile = UserProfile.objects.get(user=request.user)
+                if contributor.link_user_profile_id == profile.user_profile_id:
+                    can_edit = True
+            except Exception:
+                pass
+
+    # Build edit URL based on form type
+    edit_url = ''
+    form_type_url_map = {
+        'general_news': 'newshub:news_collection_multistep',
+        'extortion': 'newshub:news_collection_multistep_extortion',
+        'crime_violence': 'newshub:news_collection_multistep_crime_violence',
+        'land_grabbing': 'newshub:news_collection_multistep_land_grabbing',
+        'price_hike_syndicate': 'newshub:news_collection_multistep_price_hike',
+        'watchdog_bangladesh': 'newshub:news_collection_multistep_watchdog_bangladesh',
+        'civic_community': 'newshub:news_collection_multistep_civic_community',
+        'global_news': 'newshub:news_collection_multistep_global_news',
+        'war_conflict': 'newshub:news_collection_multistep_war_conflict',
+        'sports': 'newshub:news_collection_multistep_sports',
+        'entertainment': 'newshub:news_collection_multistep_entertainment',
+        'july_uprising_2024': 'newshub:news_collection_multistep_july_uprising',
+        'women_child_violence': 'newshub:news_collection_multistep_women_child_violence',
+    }
+    url_name = form_type_url_map.get(form_type_code)
+    if url_name:
+        from django.urls import reverse
+        edit_url = reverse(url_name)
+
+    # Comments (approved only for public view)
+    comments = list(EngComment.objects.filter(
+        link_pub_article_id=published_article.pub_article_id,
+        is_approved=True,
+    ).order_by('created_at'))
+
+    # Article stats (view count, share count)
+    stats = None
+    try:
+        stats = EngArticleStat.objects.get(link_pub_article_id=published_article.pub_article_id)
+    except EngArticleStat.DoesNotExist:
+        pass
+
+    # Community additions (visible: pending + approved)
+    from .models import ArticleCommunityAddition
+    additions = list(ArticleCommunityAddition.objects.filter(
+        link_coll_news_entry_id=entry.coll_news_entry_id,
+    ).exclude(status_code='rejected').order_by('-created_at'))
+
+    context = {
+        'published_article': published_article,
+        'entry': entry,
+        'sidenotes': sidenotes,
+        'publication_status': publication_status,
+        'contributor': contributor,
+        'tags': tags,
+        'category': category,
+        'body_paragraphs': body_paragraphs,
+        'form_type_code': form_type_code,
+        'can_edit': can_edit,
+        'edit_url': edit_url,
+        'comments': comments,
+        'stats': stats,
+        'additions': additions,
+    }
+    return render(request, 'newshub/pages/article-detail.html', context)
+
+
 def _save_or_reuse_asset(uploaded_file, file_desc, now):
     """Hash → dedup check → create Asset if new → save file to disk.
 

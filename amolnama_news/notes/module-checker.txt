@@ -129,5 +129,52 @@ with a built-in feature to easily interchange picture positions between the boxe
 
 
 
-সংবাদ জমা দেওয়া সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন। (Submission failed. Please try again.)
 
+
+if there is any error submission - it has been able to restore it. 
+but i have found that i have to come out of the form, 
+then entering the form again works. 
+if i am for example inside extortion form - submission error then go to the step 7/8 then the fields 
+are funny messy. but if i come out of the form and on the landing page of 
+civic journalist then refresh then it is able to restore all the fields. 
+i think this is too much to ask to user, 
+that go out of the form then refresh then come back. 
+because error is found to happen due to many reason. 
+we need a permanent fix without user even realising it.
+
+step 8 - same issue
+এফআইআর/জিডি দায়ের হয়েছে? *
+প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)
+মামলার অবস্থা (Case Status)
+
+--whole project 
+all attributes should have its id and name 
+check all pages, all forms, all steps
+give descriptive name not partial or short name
+
+can you make a note, so that in future no attribute gets created like this?
+A <label> isn't associated with a form field.
+
+To fix this issue, nest the <input> in the <label> or provide a for attribute on the <label> that matches a form field id.
+
+--can you make a note, so that in future it never happens
+fix forms and attribute issues dynamic or static does not matter. 
+check all files including js, ajax, html, views, models
+you keep avoiding dynamic issues.
+A form field element has neither an id nor a name attribute.
+This might prevent the browser from correctly autofilling the form.
+
+To fix this issue, add a unique id or name attribute to a form field. 
+This is not strictly needed, 
+but still recommended even if you have an autocomplete attribute on the same element.
+
+stop telling me work is done just after fixing a few lines of codes or files.
+stop lying to me. 
+
+
+Incorrect use of <label for=FORM_ELEMENT>
+The label's for attribute doesn't match any element id. This might prevent the browser from correctly autofilling the form and accessibility tools from working correctly.
+
+To fix this issue, make sure the label's for attribute references the correct id of a form field.
+
+4 resources

@@ -190,6 +190,7 @@ class CollNewsEntry(models.Model):
     map_formatted_address_bn = models.CharField(max_length=500, blank=True, null=True)
     full_address_bn = models.CharField(max_length=300, blank=True, null=True)
     # news_status — omitted so DB default ('pending') applies on INSERT
+    link_ref_status_article_publication_status_id = models.IntegerField(db_column='link_ref_status_article_publication_status_id')
     coll_news_entry_verification_notes = models.TextField(blank=True, null=True)
     is_breaking = models.BooleanField()
     coll_news_entry_external_source_url = models.CharField(max_length=1000, blank=True, null=True)
@@ -378,3 +379,152 @@ class VlogVerification(models.Model):
 
     def __str__(self):
         return f"Verification({self.vlog_verification_id})"
+
+
+# ========== Publishing & Engagement Tables ==========
+
+class PubArticle(models.Model):
+    pub_article_id = models.BigAutoField(primary_key=True)
+    link_news_entry_id = models.BigIntegerField()
+    pub_article_slug = models.CharField(max_length=500)
+    pub_article_headline_bn = models.CharField(max_length=1000)
+    pub_article_content_bn = models.CharField(max_length=8000)
+    is_published = models.BooleanField()
+    is_premium = models.BooleanField()
+    published_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[pub_article]'
+
+    def __str__(self):
+        return self.pub_article_headline_bn or f"Article({self.pub_article_id})"
+
+
+class EngComment(models.Model):
+    eng_comment_id = models.BigAutoField(primary_key=True)
+    link_pub_article_id = models.BigIntegerField()
+    link_user_id = models.IntegerField()
+    parent_comment_id = models.BigIntegerField(blank=True, null=True)
+    eng_comment_text_bn = models.CharField(max_length=8000)
+    is_approved = models.BooleanField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[eng_comment]'
+
+    def __str__(self):
+        return f"Comment({self.eng_comment_id})"
+
+
+class EngArticleStat(models.Model):
+    eng_article_stat_id = models.BigAutoField(primary_key=True)
+    link_pub_article_id = models.BigIntegerField()
+    view_count = models.IntegerField()
+    share_count = models.IntegerField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[eng_article_stat]'
+
+    def __str__(self):
+        return f"Stat(article={self.link_pub_article_id})"
+
+
+# ========== Article View Tables ==========
+
+class ArticleEditHistory(models.Model):
+    article_edit_history_id = models.BigAutoField(primary_key=True)
+    link_coll_news_entry_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    article_edit_type_code = models.CharField(max_length=50)
+    article_edit_summary_bn = models.CharField(max_length=500, blank=True, null=True)
+    article_edit_summary_en = models.CharField(max_length=500, blank=True, null=True)
+    target_field_name = models.CharField(max_length=200, blank=True, null=True)
+    target_field_old_value = models.CharField(max_length=8000, blank=True, null=True)
+    target_field_new_value = models.CharField(max_length=8000, blank=True, null=True)
+    is_approved = models.BooleanField()
+    link_approved_by_user_profile_id = models.BigIntegerField(blank=True, null=True)
+    approved_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[article_edit_history]'
+
+    def __str__(self):
+        return f"EditHistory({self.article_edit_history_id})"
+
+
+class ArticleCommunityAddition(models.Model):
+    article_community_addition_id = models.BigAutoField(primary_key=True)
+    link_coll_news_entry_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    community_addition_type_code = models.CharField(max_length=50)
+    community_addition_title_bn = models.CharField(max_length=200, blank=True, null=True)
+    community_addition_body_bn = models.CharField(max_length=8000, blank=True, null=True)
+    community_addition_body_en = models.CharField(max_length=8000, blank=True, null=True)
+    community_addition_source_url = models.CharField(max_length=1000, blank=True, null=True)
+    status_code = models.CharField(max_length=50)
+    link_reviewed_by_user_profile_id = models.BigIntegerField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+    review_note = models.CharField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[article_community_addition]'
+
+    def __str__(self):
+        return f"Addition({self.article_community_addition_id})"
+
+
+class CommunityUserReputation(models.Model):
+    community_user_reputation_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    total_points_count = models.IntegerField()
+    articles_submitted_count = models.IntegerField()
+    articles_approved_count = models.IntegerField()
+    edits_made_count = models.IntegerField()
+    edits_approved_count = models.IntegerField()
+    additions_submitted_count = models.IntegerField()
+    additions_approved_count = models.IntegerField()
+    current_privilege_level_count = models.IntegerField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[account].[community_user_reputation]'
+
+    def __str__(self):
+        return f"Reputation(user={self.link_user_profile_id}, points={self.total_points_count})"
+
+
+class RefCommunityPrivilegeLevel(models.Model):
+    ref_community_privilege_level_id = models.IntegerField(primary_key=True)
+    privilege_level_code = models.CharField(max_length=50)
+    name_bn = models.CharField(max_length=100)
+    name_en = models.CharField(max_length=100)
+    min_points_required_count = models.IntegerField()
+    is_can_edit_own_article = models.BooleanField()
+    is_can_suggest_edits = models.BooleanField()
+    is_can_edit_others_article = models.BooleanField()
+    is_can_approve_additions = models.BooleanField()
+    is_can_approve_edits = models.BooleanField()
+    is_can_delete_article = models.BooleanField()
+    sort_order = models.IntegerField()
+    is_active = models.BooleanField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[account].[ref_community_privilege_level]'
+
+    def __str__(self):
+        return f"{self.name_en} (level {self.ref_community_privilege_level_id})"
