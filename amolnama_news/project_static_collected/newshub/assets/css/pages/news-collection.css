@@ -110,7 +110,8 @@
   margin-bottom: 0;
 }
 
-.form-field label {
+.form-field label,
+.form-field .form-field-label {
   display: block;
   font-size: .875rem;
   font-weight: 600;

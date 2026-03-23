@@ -293,7 +293,8 @@
   margin-bottom: .85rem;
 }
 
-.cert-form label {
+.cert-form label,
+.cert-form .form-field-label {
   display: block;
   font-weight: 600;
   font-size: .85rem;

@@ -17,7 +17,7 @@
 
 <form id="thAddForm" novalidate style="max-width:700px;">
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
+    <label for="th-category" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
     <select id="th-category" name="th_category" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" required>
       <option value="" data-en="-- Select --">-- বাছাই করুন --</option>
       {% for cat in categories %}
@@ -27,28 +27,28 @@
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Place Name *">স্থানের নাম *</label>
+    <label for="th-name-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Place Name *">স্থানের নাম *</label>
     <input type="text" id="th-name-bn" name="th_name_bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার সমুদ্র সৈকত" data-ph-en="e.g. Cox's Bazar Sea Beach">
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Name (English)">Name (English)</label>
+    <label for="th-name-en" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Name (English)">Name (English)</label>
     <input type="text" id="th-name-en" name="th_name_en" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="e.g. Cox's Bazar Sea Beach" data-no-bangla>
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Short Description">সংক্ষিপ্ত বিবরণ</label>
+    <label for="th-short-desc-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Short Description">সংক্ষিপ্ত বিবরণ</label>
     <textarea id="th-short-desc-bn" name="th_short_desc_bn" rows="2" maxlength="500" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="সংক্ষেপে বর্ণনা করুন..." data-ph-en="Brief description..."></textarea>
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Detailed Description">বিস্তারিত বিবরণ</label>
+    <label for="th-desc-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Detailed Description">বিস্তারিত বিবরণ</label>
     <textarea id="th-desc-bn" name="th_desc_bn" rows="5" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="দর্শনীয় স্থানের বিস্তারিত বর্ণনা..." data-ph-en="Detailed description of the destination..."></textarea>
   </div>
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Best Season">সেরা ঋতু (Best Season)</label>
+      <label for="th-season" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Best Season">সেরা ঋতু (Best Season)</label>
       <select id="th-season" name="th_season" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         {% for s in seasons %}
@@ -57,7 +57,7 @@
       </select>
     </div>
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Difficulty">কঠিনতা (Difficulty)</label>
+      <label for="th-difficulty" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Difficulty">কঠিনতা (Difficulty)</label>
       <select id="th-difficulty" name="th_difficulty" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         <option value="easy" data-en="Easy">সহজ (Easy)</option>
@@ -69,11 +69,11 @@
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Entry Fee (৳)">প্রবেশ মূল্য (৳)</label>
+      <label for="th-entry-fee" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Entry Fee (৳)">প্রবেশ মূল্য (৳)</label>
       <input type="number" id="th-entry-fee" name="th_entry_fee" step="0.01" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: 200" data-ph-en="e.g. 200">
     </div>
     <div style="flex:1;">
-      <label style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Visiting Hours">পরিদর্শন সময়</label>
+      <label for="th-visiting-hours" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Visiting Hours">পরিদর্শন সময়</label>
       <input type="text" id="th-visiting-hours" name="th_visiting_hours" maxlength="200" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সকাল ৮টা - সন্ধ্যা ৬টা" data-ph-en="e.g. 8:00 AM - 6:00 PM">
     </div>
   </div>

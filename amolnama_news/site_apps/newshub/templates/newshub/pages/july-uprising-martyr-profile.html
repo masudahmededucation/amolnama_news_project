@@ -68,7 +68,8 @@
     grid-template-columns: 1fr 1fr;
     gap: .5rem .75rem;
   }
-  .info-item label {
+  .info-item label,
+  .info-item .form-field-label {
     display: block;
     font-size: .75rem;
     color: #6b7280;
@@ -208,13 +209,13 @@
     <div class="info-grid">
       {% if profile.age %}
         <div class="info-item">
-          <label>বয়স (Age)</label>
+          <span class="form-field-label">বয়স (Age)</span>
           <span>{{ profile.age }}</span>
         </div>
       {% endif %}
       {% if profile.occupation %}
         <div class="info-item">
-          <label>পেশা (Occupation)</label>
+          <span class="form-field-label">পেশা (Occupation)</span>
           <span>
             {% if profile.occupation == 'student' %}শিক্ষার্থী
             {% elif profile.occupation == 'teacher' %}শিক্ষক
@@ -234,7 +235,7 @@
       {% endif %}
       {% if profile.institution %}
         <div class="info-item">
-          <label>প্রতিষ্ঠান (Institution)</label>
+          <span class="form-field-label">প্রতিষ্ঠান (Institution)</span>
           <span>{{ profile.institution }}</span>
         </div>
       {% endif %}
