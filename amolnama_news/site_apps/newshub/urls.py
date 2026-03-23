@@ -54,6 +54,7 @@ urlpatterns = [
 
     # API endpoints — article interactions
     path('api/article/<int:pub_article_id>/comment/', views_api.api_article_comment_create, name='api_article_comment_create'),
+    path('api/article/<int:entry_id>/status/', views_api.api_article_update_publication_status, name='api_article_update_publication_status'),
 
     # API endpoints — organisations
     path('api/organisations/search/', views_api.api_organisation_search, name='api_organisation_search'),

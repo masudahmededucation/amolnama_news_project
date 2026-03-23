@@ -734,3 +734,57 @@ def api_article_comment_create(request, pub_article_id):
     )
 
     return JsonResponse({'success': True})
+
+
+def api_article_update_publication_status(request, entry_id):
+    """Update article publication status. Admin/editor only."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST only'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'লগইন প্রয়োজন'}, status=401)
+
+    import json
+    from django.utils import timezone
+    from .models import CollNewsEntry
+
+    try:
+        entry = CollNewsEntry.objects.get(coll_news_entry_id=entry_id)
+    except CollNewsEntry.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Article not found'}, status=404)
+
+    # Permission check — admin or editor
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    new_status_id = body.get('status_id')
+    if not new_status_id:
+        return JsonResponse({'success': False, 'error': 'Status ID required'})
+
+    # Verify status exists
+    from amolnama_news.site_apps.investigation.models import RefStatus
+    try:
+        new_status = RefStatus.objects.get(
+            status_id=new_status_id,
+            group_code='article_publication_status',
+            is_active=True
+        )
+    except RefStatus.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Invalid status'})
+
+    # Update
+    old_status_id = entry.link_ref_status_article_publication_status_id
+    entry.link_ref_status_article_publication_status_id = int(new_status_id)
+    entry.updated_at = timezone.now()
+    entry.save(update_fields=['link_ref_status_article_publication_status_id', 'updated_at'])
+
+    return JsonResponse({
+        'success': True,
+        'new_status_code': new_status.status_code,
+        'new_status_name_bn': new_status.status_name_bn,
+        'new_status_icon': new_status.status_icon or '',
+    })

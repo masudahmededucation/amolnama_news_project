@@ -1307,11 +1307,19 @@ def article_detail(request, slug):
         link_coll_news_entry_id=entry.coll_news_entry_id,
     ).exclude(status_code='rejected').order_by('-created_at'))
 
+    # Publication status options (for admin/editor dropdown)
+    publication_status_options = []
+    if can_edit:
+        publication_status_options = list(RefStatus.objects.filter(
+            group_code='article_publication_status', is_active=True
+        ).order_by('sort_order').values('status_id', 'status_code', 'status_name_bn', 'status_icon'))
+
     context = {
         'published_article': published_article,
         'entry': entry,
         'sidenotes': sidenotes,
         'publication_status': publication_status,
+        'publication_status_options': publication_status_options,
         'contributor': contributor,
         'contributor_display_name': contributor_display_name,
         'tags': tags,

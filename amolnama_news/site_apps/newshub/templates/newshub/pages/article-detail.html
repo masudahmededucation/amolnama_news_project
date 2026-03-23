@@ -53,6 +53,24 @@
       </div>
       {% endif %}
 
+      {# Publication status changer — admin/editors only #}
+      {% if can_edit %}
+      <div class="article-status-changer">
+        <select id="article-publication-status-select" name="article_publication_status"
+                data-entry-id="{{ entry.coll_news_entry_id }}"
+                data-current="{{ entry.link_ref_status_article_publication_status_id }}"
+                aria-labelledby="article-status-label">
+          {% for status_option in publication_status_options %}
+          <option value="{{ status_option.status_id }}"
+                  {% if status_option.status_id == entry.link_ref_status_article_publication_status_id %}selected{% endif %}>
+            {{ status_option.status_icon }} {{ status_option.status_name_bn }}
+          </option>
+          {% endfor %}
+        </select>
+        <span id="article-status-label" class="article-status-label" data-en="Change Status">স্থিতি পরিবর্তন</span>
+      </div>
+      {% endif %}
+
       {# Headline #}
       <h1 class="article-headline">{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn }}</h1>
 

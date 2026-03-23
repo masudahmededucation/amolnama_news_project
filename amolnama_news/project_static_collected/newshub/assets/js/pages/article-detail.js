@@ -86,4 +86,49 @@
         });
     });
   }
+
+  /* Publication status changer */
+  var publicationStatusSelect = document.getElementById("article-publication-status-select");
+  if (publicationStatusSelect) {
+    var originalStatusId = publicationStatusSelect.getAttribute("data-current");
+    publicationStatusSelect.addEventListener("change", function () {
+      var newStatusId = publicationStatusSelect.value;
+      if (newStatusId === originalStatusId) return;
+
+      var entryId = publicationStatusSelect.getAttribute("data-entry-id");
+
+      function getCookieValue(name) {
+        var cookieMatch = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+        return cookieMatch ? cookieMatch.pop() : "";
+      }
+
+      fetch("/newshub/api/article/" + entryId + "/status/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookieValue("csrftoken"),
+        },
+        body: JSON.stringify({ status_id: parseInt(newStatusId, 10) }),
+      })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.success) {
+            /* Update badge */
+            var badge = document.querySelector(".article-publication-badge");
+            if (badge) {
+              badge.className = "article-publication-badge " + data.new_status_code;
+              badge.textContent = data.new_status_icon + " " + data.new_status_name_bn;
+            }
+            originalStatusId = newStatusId;
+          } else {
+            alert(data.error || "স্থিতি পরিবর্তন করা যায়নি");
+            publicationStatusSelect.value = originalStatusId;
+          }
+        })
+        .catch(function () {
+          alert("নেটওয়ার্ক ত্রুটি");
+          publicationStatusSelect.value = originalStatusId;
+        });
+    });
+  }
 })();
