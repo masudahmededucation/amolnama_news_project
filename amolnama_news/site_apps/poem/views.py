@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from .helpers import get_smart_related_poems
 from .models import CollPoemEntry, RefPoemCategory
 
 
@@ -109,55 +110,8 @@ def poem_detail(request, poem_id):
         except UserProfile.DoesNotExist:
             pass
 
-    # Related poems — smart selection: same author, same category, similar categories, popular
-    # Never show empty — always find something to recommend
-    SIMILAR_CATEGORIES = {
-        1: [10, 4, 13, 9, 2], 2: [13, 9, 5, 1, 7], 3: [12, 6, 13, 9, 4],
-        4: [1, 10, 13, 9, 5], 5: [13, 2, 9, 4, 1], 6: [12, 3, 13, 9, 4],
-        7: [11, 2, 13, 9, 1], 9: [13, 4, 1, 2, 10], 10: [1, 4, 13, 9, 2],
-        11: [7, 9, 13, 2, 1], 12: [6, 3, 13, 9, 4], 13: [9, 4, 2, 5, 1],
-    }
-    current_cat = poem.link_poem_ref_poem_category_id
-    base_related = CollPoemEntry.objects.exclude(poem_coll_poem_entry_id=poem_id)
-    related_ids = set()
-    related = []
-
-    # Priority 1: Same author + same category
-    for r in base_related.filter(
-        poem_author_display_name=poem.poem_author_display_name,
-        link_poem_ref_poem_category_id=current_cat,
-    ).order_by("-like_count")[:4]:
-        if r.poem_coll_poem_entry_id not in related_ids:
-            related.append(r)
-            related_ids.add(r.poem_coll_poem_entry_id)
-
-    # Priority 2: Same category
-    if len(related) < 4:
-        for r in base_related.filter(
-            link_poem_ref_poem_category_id=current_cat,
-        ).exclude(poem_coll_poem_entry_id__in=related_ids).order_by("-like_count")[:4 - len(related)]:
-            related.append(r)
-            related_ids.add(r.poem_coll_poem_entry_id)
-
-    # Priority 3: Similar categories
-    if len(related) < 4:
-        for similar_cat in SIMILAR_CATEGORIES.get(current_cat, []):
-            if len(related) >= 4:
-                break
-            for r in base_related.filter(
-                link_poem_ref_poem_category_id=similar_cat,
-            ).exclude(poem_coll_poem_entry_id__in=related_ids).order_by("-like_count")[:4 - len(related)]:
-                related.append(r)
-                related_ids.add(r.poem_coll_poem_entry_id)
-
-    # Priority 4: Any remaining by popularity
-    if len(related) < 4:
-        for r in base_related.exclude(
-            poem_coll_poem_entry_id__in=related_ids,
-        ).order_by("-like_count", "-view_count")[:4 - len(related)]:
-            related.append(r)
-            related_ids.add(r.poem_coll_poem_entry_id)
-
+    # Related poems — shared smart logic (same function used by autoplay API)
+    related = get_smart_related_poems(poem, limit=4)
     for r in related:
         _annotate_poem(r, categories_map)
 

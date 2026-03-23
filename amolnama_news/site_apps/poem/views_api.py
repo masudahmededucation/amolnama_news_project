@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
+from .helpers import get_smart_related_poems
 from .models import CollPoemEntry, EngPoemLike, RefPoemCategory
 
 
@@ -337,112 +338,25 @@ def api_poem_next(request, poem_id):
         if x.isdigit():
             exhausted_cats.add(int(x))
 
-    # Base filter: has audio, not already played
-    base_qs = CollPoemEntry.objects.exclude(
-        poem_coll_poem_entry_id__in=played_ids,
-    ).exclude(
-        poem_audio_url__isnull=True,
-    ).exclude(
-        poem_audio_url="",
+    # Use shared smart selection — same logic as related poems section
+    # Returns poems in priority order: same author, same category, similar, popular
+    smart_list = get_smart_related_poems(
+        current, limit=1, exclude_ids=played_ids, require_audio=True,
     )
 
     current_cat = current.link_poem_ref_poem_category_id
-    current_author = current.poem_author_display_name
-    current_type = current.poem_type_code or 'poem'
 
-    # Category similarity map — ordered by thematic closeness
-    # IDs: 1=Love, 2=Nature, 3=Patriotic, 4=Sad, 5=Spiritual, 6=Political,
-    #       7=Children, 9=Free Verse, 10=Romantic, 11=Humorous, 12=Protest, 13=Life
-    SIMILAR_CATEGORIES = {
-        1:  [10, 4, 13, 9, 2],
-        2:  [13, 9, 5, 1, 7],
-        3:  [12, 6, 13, 9, 4],
-        4:  [1, 10, 13, 9, 5],
-        5:  [13, 2, 9, 4, 1],
-        6:  [12, 3, 13, 9, 4],
-        7:  [11, 2, 13, 9, 1],
-        9:  [13, 4, 1, 2, 10],
-        10: [1, 4, 13, 9, 2],
-        11: [7, 9, 13, 2, 1],
-        12: [6, 3, 13, 9, 4],
-        13: [9, 4, 2, 5, 1],
-    }
-
-    qs = None
-
-    # Priority 1: Same author + same category + same type (best match)
-    if current_author:
-        qs = base_qs.filter(
-            poem_author_display_name=current_author,
-            link_poem_ref_poem_category_id=current_cat,
-            poem_type_code=current_type,
-        ).order_by("-like_count")[:1]
-
-    # Priority 2: Same author + any category + same type
-    if not qs and current_author:
-        qs = base_qs.filter(
-            poem_author_display_name=current_author,
-            poem_type_code=current_type,
-        ).order_by("-like_count")[:1]
-
-    # Priority 3: Same category + same type, sorted by popularity
-    if not qs:
-        qs = base_qs.filter(
-            link_poem_ref_poem_category_id=current_cat,
-            poem_type_code=current_type,
-        ).order_by("-like_count", "-view_count")[:1]
-
-    # Priority 4: Same category, any type, sorted by popularity
-    if not qs:
-        qs = base_qs.filter(
-            link_poem_ref_poem_category_id=current_cat,
-        ).order_by("-like_count", "-view_count")[:1]
-
-    # Priority 5: Similar categories + same type, in order of closeness
-    if not qs:
-        exhausted_cats.add(current_cat)
-        for similar_cat_id in SIMILAR_CATEGORIES.get(current_cat, []):
-            if similar_cat_id in exhausted_cats:
-                continue
-            qs = base_qs.filter(
-                link_poem_ref_poem_category_id=similar_cat_id,
-                poem_type_code=current_type,
-            ).order_by("-like_count", "-view_count")[:1]
-            if qs:
-                break
-
-    # Priority 6: Similar categories, any type
-    if not qs:
-        for similar_cat_id in SIMILAR_CATEGORIES.get(current_cat, []):
-            if similar_cat_id in exhausted_cats:
-                continue
-            qs = base_qs.filter(
-                link_poem_ref_poem_category_id=similar_cat_id,
-            ).order_by("-like_count", "-view_count")[:1]
-            if qs:
-                break
-
-    # Priority 7: Any remaining category, sorted by popularity
-    if not qs:
-        qs = base_qs.exclude(
-            link_poem_ref_poem_category_id__in=exhausted_cats,
-        ).order_by("-like_count", "-view_count")[:1]
-
-    # Priority 8: All exhausted — reset and play any poem with audio
-    if not qs:
-        qs = CollPoemEntry.objects.exclude(
-            poem_coll_poem_entry_id=poem_id,
-        ).exclude(
-            poem_audio_url__isnull=True,
-        ).exclude(
-            poem_audio_url="",
-        ).order_by("-like_count", "-view_count")[:1]
+    # If smart list is empty, reset exhausted and try again with no exclusions
+    if not smart_list:
+        smart_list = get_smart_related_poems(
+            current, limit=1, exclude_ids={poem_id}, require_audio=True,
+        )
         exhausted_cats = set()
 
-    if not qs:
+    if not smart_list:
         return JsonResponse({"success": False, "next": None})
 
-    p = qs[0]
+    p = smart_list[0]
     cats = _categories_map()
     cat = cats.get(p.link_poem_ref_poem_category_id)
 
