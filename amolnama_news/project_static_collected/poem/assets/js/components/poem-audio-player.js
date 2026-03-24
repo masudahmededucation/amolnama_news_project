@@ -425,6 +425,8 @@
           if (!grid || !data.poems) return;
           if (!data.poems.length) { relatedSection.style.display = "none"; return; }
           relatedSection.style.display = "";
+          /* Mark as autoplay-active so queue numbers become visible */
+          relatedSection.classList.add("poem-detail-related-autoplay-active");
           var html = "";
           data.poems.forEach(function(p, index) {
             var title = p.display_title || p.title_bn || p.title || "";

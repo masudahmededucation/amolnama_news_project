@@ -35,8 +35,8 @@
   font-family: 'Noto Sans Bengali', sans-serif;
 }
 
-/* Show queue numbers only in the related poems section (autoplay context) */
-.poem-detail-related .poem-card-queue-number {
+/* Show queue numbers only when autoplay is active (JS adds this class) */
+.poem-detail-related-autoplay-active .poem-card-queue-number {
   display: flex;
 }
 
