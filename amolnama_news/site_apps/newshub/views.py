@@ -1405,7 +1405,7 @@ def article_detail(request, slug):
     canonical_url = request.build_absolute_uri(
         reverse('newshub:article_detail', kwargs={'slug': slug})
     )
-    form_type_label = form_type_obj.form_type_name_bn if form_type_obj else ""
+    form_type_label = form_type_obj.form_name_bn if form_type_obj else ""
     category_label = category.news_category_name_bn if category else ""
 
     # JSON-LD: NewsArticle schema
