@@ -15,7 +15,7 @@
   position: relative;
 }
 
-/* Queue number badge — shows play order in top-right corner */
+/* Queue number badge — hidden by default, only visible during autoplay */
 .poem-card-queue-number {
   position: absolute;
   top: 6px;
@@ -25,7 +25,7 @@
   background: rgba(80, 55, 20, .85);
   color: #f6eee0;
   border-radius: 50%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-size: .68rem;
@@ -33,6 +33,11 @@
   z-index: 2;
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
   font-family: 'Noto Sans Bengali', sans-serif;
+}
+
+/* Show queue numbers only in the related poems section (autoplay context) */
+.poem-detail-related .poem-card-queue-number {
+  display: flex;
 }
 
 .poem-card:hover {
