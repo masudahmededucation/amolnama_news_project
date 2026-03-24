@@ -37,15 +37,17 @@
   display: flex;
   flex-direction: column;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 2.5px solid transparent;
   border-radius: 10px;
   padding: 1.2rem;
   text-decoration: none;
   color: var(--text);
-  transition: box-shadow .2s, transform .15s;
+  cursor: pointer;
+  transition: border-color .25s, box-shadow .25s, transform .2s;
 }
 
 .article-landing-card:hover {
+  border-color: var(--primary);
   box-shadow: 0 4px 16px rgba(0,0,0,.08);
   transform: translateY(-2px);
 }
