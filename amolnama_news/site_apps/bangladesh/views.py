@@ -197,6 +197,18 @@ def travel_hub_detail_by_id(request, destination_id):
 
 def travel_hub_detail_by_slug(request, destination_slug):
     """Destination detail page — SEO-friendly slug URL."""
+    # If slug is numeric (old ID-based URL), look up by ID and redirect to slug
+    if destination_slug.isdigit():
+        try:
+            dest = CollDestination.objects.get(
+                bangladesh_coll_destination_id=int(destination_slug),
+                destination_status="published",
+            )
+        except CollDestination.DoesNotExist:
+            raise Http404
+        _ensure_destination_slug(dest)
+        return redirect("bangladesh:travel_hub_detail", destination_slug=dest.destination_slug, permanent=True)
+
     try:
         dest = CollDestination.objects.get(
             destination_slug=destination_slug,

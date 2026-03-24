@@ -60,6 +60,15 @@ def poem_detail_by_id(request, poem_id):
 
 def poem_detail_by_slug(request, poem_slug):
     """Poem detail — SEO-friendly Bengali slug URL."""
+    # If slug is numeric (old ID-based URL), look up by ID and redirect to slug
+    if poem_slug.isdigit():
+        try:
+            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+        except CollPoemEntry.DoesNotExist:
+            raise Http404
+        _ensure_poem_slug(poem)
+        return redirect("poem:poem_detail", poem_slug=poem.poem_slug, permanent=True)
+
     try:
         poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
     except CollPoemEntry.DoesNotExist:
