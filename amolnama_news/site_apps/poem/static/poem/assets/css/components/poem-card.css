@@ -1,14 +1,15 @@
 /* ========== Poem Card Component ========== */
 
 .poem-card {
-  border: none;
+  border: 1.5px solid transparent;
   border-radius: 2px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow .2s, transform .2s;
+  cursor: pointer;
+  transition: border-color .25s, box-shadow .25s, transform .2s;
   box-shadow:
     0 2px 8px rgba(0,0,0,.08),
     0 0 1px rgba(0,0,0,.06);
@@ -41,11 +42,14 @@
 }
 
 .poem-card:hover {
+  border-color: #8b6d3f;
   box-shadow:
     0 4px 16px rgba(0,0,0,.12),
     0 0 2px rgba(0,0,0,.08);
   transform: translateY(-2px);
 }
+
+.poem-card:hover, .poem-card:focus { text-decoration: none; }
 
 .poem-card-body {
   padding: 1.1rem 1.25rem;
