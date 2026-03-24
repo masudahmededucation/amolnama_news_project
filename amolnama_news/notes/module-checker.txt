@@ -118,5 +118,30 @@ with a built-in feature to easily interchange picture positions between the boxe
 --whole project 
 all attributes should have its id and name 
 check all pages, all forms, all steps
-give descriptive name not partial or short name
 
+--naming conventions
+give descriptive name not partial or short name 
+- variables, filename, functions, features - all js ajax html
+update documents
+update troubleshooting documents
+
+
+
+
+--now the travel hub article preview, full view, editing options all working. 
+
+--only for summary and details text section. 
+now implement this features for beauty of bangladesh. 
+now implement this features for newshub - all forms - all cards 
+nothing should silently fall, we need to catch errors. otherwise we waste lots of time. 
+catch error and show helpful reliable relevent warning without breaking page
+
+maybe we could modularise the summary and details text box? just having different lable and size?
+
+
+--case comparison issue
+casing issue is a hidden bug. it is hard to determine and fix. 
+solve this case issue for all forms, cards, js, ajax, html file.
+you neeed to fix this casing issue once for all
+same rule everywhere, either lowercase or uppercase not both
+document this rule regarding casing that you are using lowercase/uppercase for comparision.

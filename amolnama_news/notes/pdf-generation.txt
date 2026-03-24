@@ -1,0 +1,6 @@
+--pdf file
+previewing the picture correctly. 
+font and picture seems slightly stretched when pdf file is generated - mean inside the pdf file.
+
+The stretch happens because html2canvas captures at scale: 2 but the PDF adds the image to fit the full page width, which can distort the aspect ratio. Let me fix the PDF generation to preserve aspect ratio:
+

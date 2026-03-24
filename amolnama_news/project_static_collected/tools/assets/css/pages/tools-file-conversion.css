@@ -98,6 +98,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   color: #fff;
+  text-transform: uppercase;
   flex-shrink: 0;
   text-transform: uppercase;
 }
@@ -189,6 +190,7 @@
   padding: .5rem 1rem;
   font-size: .85rem;
   font-weight: 600;
+  text-transform: uppercase;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);

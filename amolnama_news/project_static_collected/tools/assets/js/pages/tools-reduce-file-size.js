@@ -745,7 +745,7 @@ if (typeof pdfjsLib !== 'undefined') {
       // Format badge with "best" indicator for auto mode
       var formatBadge = '';
       if (r.category === 'image') {
-        var ext = getExtFromType(r.outputFormat).replace('.', '').toUpperCase() || '?';
+        var ext = getExtFromType(r.outputFormat).replace('.', '') || '?';
         var isBest = (formatSelect.value === 'auto');
         formatBadge = '<span class="compress-result-format ' + (isBest ? 'compress-result-format--best' : 'compress-result-format--other') + '">'
           + (isBest ? '✓ ' : '') + ext + '</span> ';

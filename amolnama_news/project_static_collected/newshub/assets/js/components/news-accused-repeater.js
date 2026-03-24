@@ -56,7 +56,7 @@
   /* Map actorTypeId → status_code (for dynamic placeholder) */
   var actorTypeIdToCode = {};
   for (var i = 0; i < actorTypes.length; i++) {
-    actorTypeIdToCode[actorTypes[i].status_id] = (actorTypes[i].status_code || '').toUpperCase();
+    actorTypeIdToCode[actorTypes[i].status_id] = (actorTypes[i].status_code || '');
   }
 
   /* Context-appropriate placeholder per incident_involved_actor_type code (lowercase) */
@@ -85,9 +85,9 @@
     var hasGroupCodes = false;
     var filtered = [];
     for (var i = 0; i < actorTypes.length; i++) {
-      var g = (actorTypes[i].actor_group_code || '').toUpperCase();
+      var g = (actorTypes[i].actor_group_code || '');
       if (g) hasGroupCodes = true;
-      if (g !== 'VICTIM') filtered.push(actorTypes[i]);
+      if (g !== 'victim') filtered.push(actorTypes[i]);
     }
     return hasGroupCodes ? filtered : actorTypes;
   }
@@ -240,7 +240,7 @@
   /* Text / number input */
   listContainer.addEventListener('input', function (e) {
     var field = e.target.closest('.accused-field');
-    if (!field || field.tagName === 'SELECT') return;
+    if (!field || field.tagName === 'select') return;
     var idx = parseInt(field.getAttribute('data-index'), 10);
     var key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
@@ -255,7 +255,7 @@
     var idx = parseInt(field.getAttribute('data-index'), 10);
     var key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
-    if (field.tagName === 'SELECT') {
+    if (field.tagName === 'select') {
       /* All selects now store numeric IDs (actorTypeId, genderId, religionId) */
       var parsed = parseInt(field.value, 10);
       actors[idx][key] = isNaN(parsed) ? 0 : parsed;

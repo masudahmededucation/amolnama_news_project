@@ -65,8 +65,8 @@
 
   var marriedStatusIds = [];
   for (var m = 0; m < maritalStatuses.length; m++) {
-    var code = (maritalStatuses[m].status_code || '').toUpperCase();
-    if (code === 'MARRIED' || code === 'DIVORCED' || code === 'WIDOWED' || code === 'SEPARATED') {
+    var code = (maritalStatuses[m].status_code || '');
+    if (code === 'married' || code === 'divorced' || code === 'widowed' || code === 'separated') {
       marriedStatusIds.push(String(maritalStatuses[m].status_id));
     }
   }

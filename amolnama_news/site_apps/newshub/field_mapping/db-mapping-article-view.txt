@@ -177,6 +177,13 @@ Sync: auto on text-change + explicit on form submit.
 Sanitization: _sanitize_rich_html() in views.py strips script/style/iframe/on*/javascript: URLs.
 Article detail renders body paragraphs with |safe (block <p> tags stripped, inline HTML preserved).
 
+== Case Standardisation (2026-03-24) ==
+
+All code comparisons use lowercase. Zero .upper()/.toUpperCase() in project.
+Actor roles: 'accused', 'victim', 'witness' (not UPPERCASE).
+BIT-to-code maps: lowercase ('family_pressure' not 'FAMILY_PRESSURE').
+Display uppercase: CSS text-transform: uppercase.
+
 == Permissions ==
 
 View: Public (no login)

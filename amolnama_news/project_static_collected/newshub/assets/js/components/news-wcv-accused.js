@@ -39,7 +39,7 @@
   var attributes = [];
   var prevHistAttr = null;
   for (var ai = 0; ai < attributesRaw.length; ai++) {
-    if ((attributesRaw[ai].status_code || '').toUpperCase() === 'HAS_PREVIOUS_HISTORY_OF_VIOLENCE') {
+    if ((attributesRaw[ai].status_code || '') === 'has_previous_history_of_violence') {
       prevHistAttr = attributesRaw[ai];
     } else {
       attributes.push(attributesRaw[ai]);
@@ -57,7 +57,7 @@
   /* ID of the "OTHER" relationship option — used to toggle free-text row */
   var otherRelId = '';
   for (var ri = 0; ri < relationships.length; ri++) {
-    if ((relationships[ri].status_code || '').toUpperCase() === 'OTHER') {
+    if ((relationships[ri].status_code || '') === 'other') {
       otherRelId = String(relationships[ri].status_id);
       break;
     }

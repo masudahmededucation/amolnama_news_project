@@ -235,7 +235,7 @@
     var preview = escHtml(poem.body_preview);
     var cat = escHtml(poem.category_name);
     var author = escHtml(poem.author_display_name);
-    var lang = escHtml((poem.language || "bn").toUpperCase());
+    var lang = escHtml(poem.language || "bn");
 
     return (
       '<a href="/poem/' + poem.id + '/" class="poem-card">' +

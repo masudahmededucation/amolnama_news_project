@@ -71,10 +71,10 @@
 
   /* Category → show/hide sub-rows (uses data-code since value is a status_id) */
   bindRadioCardGroup('extortion-category-grid', categoryHidden, function (val, code) {
-    if (otherSectorRow)  otherSectorRow.style.display  = (code === 'OTHER')             ? '' : 'none';
-    if (code !== 'OTHER' && otherSectorDetail) otherSectorDetail.value = '';
-    if (transportLocRow) transportLocRow.style.display = (code === 'TRANSPORT_VEHICLE') ? '' : 'none';
-    if (garmentTypeRow)  garmentTypeRow.style.display  = (code === 'GARMENT_FACTORY')   ? '' : 'none';
+    if (otherSectorRow)  otherSectorRow.style.display  = (code === 'other')             ? '' : 'none';
+    if (code !== 'other' && otherSectorDetail) otherSectorDetail.value = '';
+    if (transportLocRow) transportLocRow.style.display = (code === 'transport_vehicle') ? '' : 'none';
+    if (garmentTypeRow)  garmentTypeRow.style.display  = (code === 'garment_factory')   ? '' : 'none';
   });
 
   bindInlineRadioGroup('extortion-transport-location-group', transportLocHidden);
@@ -94,7 +94,7 @@
     if (!container) return false;
     var checked = container.querySelectorAll('input[type="checkbox"]:checked');
     for (var i = 0; i < checked.length; i++) {
-      if ((checked[i].dataset.code || '').toUpperCase() === (code || '').toUpperCase()) return true;
+      if ((checked[i].dataset.code || '') === (code || '')) return true;
     }
     return false;
   }
@@ -172,10 +172,10 @@
       if (sectorRadio) {
         sectorRadio.checked = true;
         if (categoryHidden) categoryHidden.value = saved.sectorId;
-        var code = (sectorRadio.dataset.code || '').toUpperCase();
-        if (otherSectorRow) otherSectorRow.style.display = (code === 'OTHER') ? '' : 'none';
-        if (transportLocRow) transportLocRow.style.display = (code === 'TRANSPORT_VEHICLE') ? '' : 'none';
-        if (garmentTypeRow) garmentTypeRow.style.display = (code === 'GARMENT_FACTORY') ? '' : 'none';
+        var code = (sectorRadio.dataset.code || '');
+        if (otherSectorRow) otherSectorRow.style.display = (code === 'other') ? '' : 'none';
+        if (transportLocRow) transportLocRow.style.display = (code === 'transport_vehicle') ? '' : 'none';
+        if (garmentTypeRow) garmentTypeRow.style.display = (code === 'garment_factory') ? '' : 'none';
       }
     }
     if (saved.sectorOther && otherSectorDetail) otherSectorDetail.value = saved.sectorOther;

@@ -387,5 +387,18 @@ When ?edit=<coll_news_entry_id> is in GET params:
 Performance: 11 RefStatus queries batched into 1. N+1 actor/social queries eliminated.
 
 ================================================================================
+CASE STANDARDISATION RULE (2026-03-24)
+================================================================================
+
+All status_code comparisons use LOWERCASE. No .upper() or .toUpperCase() anywhere.
+  Python: 'family_pressure' in codes (NOT 'FAMILY_PRESSURE')
+  JS: code === 'yes' (NOT code.toUpperCase() === 'YES')
+  BIT-to-code maps: 'family_pressure' (NOT 'FAMILY_PRESSURE')
+  Actor roles: 'accused', 'victim', 'witness' (NOT UPPERCASE)
+  Display uppercase: CSS text-transform: uppercase (NOT JS conversion)
+
+Zero exceptions. Entire project standardised.
+
+================================================================================
 END OF FILE
 ================================================================================
