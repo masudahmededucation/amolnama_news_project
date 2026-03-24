@@ -457,7 +457,13 @@
     var contributionId = saveButton.getAttribute('data-id');
     var destinationId = saveButton.getAttribute('data-dest-id');
     var editForm = saveButton.closest('.travel-hub-detail-contribution-edit-form');
-    var parentCard = editForm.parentNode;
+    /* For photos, the edit form is a sibling of the thumb — find the thumb by data-photo-id */
+    var parentCard;
+    if (contributionType === 'photo') {
+      parentCard = document.querySelector('.travel-hub-detail-photo-thumb[data-photo-id="' + contributionId + '"]');
+    } else {
+      parentCard = editForm.parentNode;
+    }
     var apiUrl = '';
     var payload = {};
 
@@ -589,8 +595,14 @@
     var contributionId = confirmYesButton.getAttribute('data-id');
     var destinationId = confirmYesButton.getAttribute('data-dest-id');
     var confirmBar = confirmYesButton.closest('.travel-hub-detail-contribution-delete-confirm');
-    var parentCard = confirmBar.parentNode;
-    var section = parentCard.closest('.travel-hub-detail-section');
+    /* For photos, the confirm bar is a sibling of the thumb — find the thumb by data-photo-id */
+    var parentCard;
+    if (contributionType === 'photo') {
+      parentCard = document.querySelector('.travel-hub-detail-photo-thumb[data-photo-id="' + contributionId + '"]');
+    } else {
+      parentCard = confirmBar.parentNode;
+    }
+    var section = (parentCard || confirmBar).closest('.travel-hub-detail-section');
 
     var apiUrl = '';
     if (contributionType === 'photo') {
@@ -611,7 +623,8 @@
       .then(function (response) { return response.json(); })
       .then(function (data) {
         if (data.success) {
-          parentCard.remove();
+          confirmBar.remove();
+          if (parentCard) parentCard.remove();
           if (contributionType === 'photo') reindexPhotoThumbs();
           showInlineMessage(section, 'মুছে ফেলা হয়েছে', false);
         } else {
