@@ -9,12 +9,12 @@
   if (!form) return;
 
   /* ---- Init Quill editors ---- */
-  var shortDescEditor = window.initQuillEditor('quill-short-desc', 'th-short-desc-bn', {
+  var shortDescEditor = window.initQuillEditor('quill-short-desc', 'travel-hub-short-desc-bn', {
     placeholder: 'সংক্ষেপে বর্ণনা করুন... (Brief description...)',
     minHeight: '100px',
   });
 
-  var descEditor = window.initQuillEditor('quill-desc', 'th-desc-bn', {
+  var descEditor = window.initQuillEditor('quill-desc', 'travel-hub-desc-bn', {
     placeholder: 'দর্শনীয় স্থানের বিস্তারিত বর্ণনা... (Detailed description...)',
     minHeight: '250px',
   });
