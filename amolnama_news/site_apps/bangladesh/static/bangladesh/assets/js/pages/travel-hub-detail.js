@@ -107,6 +107,31 @@
     })(shareButtons[s]);
   }
 
+  /* ========== BanglaInput on all caption/title/description fields ========== */
+
+  function attachBanglaInputToElement(element) {
+    if (typeof BanglaInput === 'undefined') return;
+    if (element.getAttribute('data-bangla-attached')) return;
+    BanglaInput.attach(element);
+    element.setAttribute('data-bangla-attached', '1');
+  }
+
+  function attachBanglaInputToAllCaptionFields() {
+    var captionFields = document.querySelectorAll(
+      '#travel-hub-detail-photo-caption, '
+      + '#travel-hub-detail-youtube-title, '
+      + '#travel-hub-detail-youtube-description, '
+      + '#travel-hub-detail-link-title, '
+      + '#travel-hub-detail-link-description-input'
+    );
+    for (var i = 0; i < captionFields.length; i++) {
+      attachBanglaInputToElement(captionFields[i]);
+    }
+  }
+
+  /* Attach on page load */
+  attachBanglaInputToAllCaptionFields();
+
   /* ========== Helpers ========== */
 
   function getCsrfToken() {
@@ -414,6 +439,12 @@
       parentCard.after(editForm);
     } else {
       parentCard.appendChild(editForm);
+    }
+
+    /* Attach BanglaInput to the new edit form inputs */
+    var editInputs = editForm.querySelectorAll('input[type="text"]');
+    for (var i = 0; i < editInputs.length; i++) {
+      attachBanglaInputToElement(editInputs[i]);
     }
   }
 
