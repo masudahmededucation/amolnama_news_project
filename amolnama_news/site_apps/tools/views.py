@@ -67,9 +67,10 @@ def tools(request):
 def tools_reduce_file_size(request):
     context = {
         "seo": {
-            "title": "ফাইল কম্প্রেশন — ফাইলের সাইজ কমান | Reduce File Size — Free Online Tool",
+            "title": "ফাইলের সাইজ কমান — ছবি, PDF কম্প্রেস করুন বিনামূল্যে | Reduce File Size",
             "description": (
-                "ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "ছবির সাইজ কমান, PDF ছোট করুন, ডকুমেন্ট কম্প্রেস করুন — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "কোনো আপলোড নেই, সব কাজ আপনার ডিভাইসে। "
                 "Reduce image, PDF, and document file sizes online for free. No upload required."
             ),
             "og_type": "website",
@@ -116,10 +117,11 @@ def tools_passport_photo_resizer(request):
     """Passport photo & signature resizer tool page."""
     context = {
         "seo": {
-            "title": "পাসপোর্ট ফটো রিসাইজার — ছবির সাইজ পরিবর্তন | Passport Photo Resizer",
+            "title": "পাসপোর্ট ফটো রিসাইজার — পাসপোর্ট সাইজ ছবি ও স্বাক্ষর | Passport Photo Resizer",
             "description": (
-                "পাসপোর্ট, ভিসা ও সরকারি ফর্মের জন্য ছবির সাইজ পরিবর্তন করুন। "
-                "Resize photos for passport, visa, and government forms. Free online tool."
+                "পাসপোর্ট সাইজ ছবি, ভিসা ফটো, NID ছবি, সরকারি ফর্মের ছবি ও স্বাক্ষর রিসাইজ করুন। "
+                "300x300, 600x600 পিক্সেল। সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
+                "Resize photos for passport, visa, NID, government forms. Free online tool."
             ),
             "og_type": "website",
             "json_ld": _tool_json_ld(request, "পাসপোর্ট ফটো রিসাইজার", "Passport Photo Resizer", "পাসপোর্ট, ভিসা ও সরকারি ফর্মের জন্য ছবির সাইজ পরিবর্তন করুন।", "Resize photos for passport, visa, and government forms.", "/tools/passport-photo-resizer/"),
@@ -133,10 +135,11 @@ def tools_bg_remover(request):
     """AI background remover tool page."""
     context = {
         "seo": {
-            "title": "ছবির ব্যাকগ্রাউন্ড রিমুভার — AI দিয়ে ব্যাকগ্রাউন্ড সরান | Background Remover",
+            "title": "ছবির ব্যাকগ্রাউন্ড রিমুভ — AI দিয়ে ব্যাকগ্রাউন্ড মুছুন বিনামূল্যে | Background Remover",
             "description": (
-                "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
-                "Remove image backgrounds with AI — free, runs entirely in your browser."
+                "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — পাসপোর্ট ছবি, প্রোডাক্ট ফটো, প্রোফাইল পিকচার। "
+                "সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই, কোনো আপলোড নেই। "
+                "Remove image backgrounds with AI — passport photos, product images, profile pictures. Free."
             ),
             "og_type": "website",
             "json_ld": _tool_json_ld(request, "ব্যাকগ্রাউন্ড রিমুভার", "Background Remover", "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান।", "Remove image backgrounds with AI — free, runs entirely in your browser.", "/tools/background-remover/"),
@@ -201,11 +204,11 @@ def tools_gpa_calculator(request):
     """GPA/CGPA Calculator tool page."""
     context = {
         "seo": {
-            "title": "জিপিএ/সিজিপিএ ক্যালকুলেটর | GPA/CGPA Calculator — Free Tool",
+            "title": "জিপিএ ক্যালকুলেটর — এসএসসি এইচএসসি জিপিএ ও সিজিপিএ হিসাব | GPA Calculator",
             "description": (
-                "এসএসসি/এইচএসসি জিপিএ এবং বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন। "
-                "টার্গেট সিজিপিএ প্ল্যানার সহ। "
-                "Calculate SSC/HSC GPA and University CGPA with target planner. Free online tool."
+                "এসএসসি জিপিএ, এইচএসসি জিপিএ, বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন। "
+                "গ্রেড পয়েন্ট গণনা, টার্গেট সিজিপিএ প্ল্যানার, সেমিস্টার ভিত্তিক ফলাফল। "
+                "Calculate SSC/HSC GPA, University CGPA with target planner. Bangladesh grading system."
             ),
             "og_type": "website",
             "json_ld": _tool_json_ld(request, "জিপিএ/সিজিপিএ ক্যালকুলেটর", "GPA/CGPA Calculator", "এসএসসি/এইচএসসি জিপিএ এবং বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন।", "Calculate SSC/HSC GPA and University CGPA with target planner.", "/tools/gpa-calculator/"),
@@ -219,13 +222,14 @@ def tools_age_calculator(request):
     """Age Calculator — 100% client-side."""
     context = {
         "seo": {
-            "title": "বয়স ক্যালকুলেটর — জন্মতারিখ থেকে বয়স হিসাব | Age Calculator — Free Tool",
+            "title": "বয়স ক্যালকুলেটর — আপনার রাশি জেনে নিন, বয়স হিসাব ও মজার তথ্য | Age Calculator",
             "description": (
-                "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন, পরবর্তী জন্মদিন ও মজার তথ্য। "
-                "Calculate your exact age in years, months, days. Free online tool."
+                "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন, পরবর্তী জন্মদিন, জন্মের দিন, "
+                "রাশি (Zodiac), চীনা রাশি, হৃদপিণ্ডের স্পন্দন, শ্বাসের সংখ্যা, ঘুমের সময় ও মজার তথ্য। "
+                "Calculate exact age, zodiac sign, Chinese zodiac, heartbeats, breaths since birth. Free tool."
             ),
             "og_type": "website",
-            "json_ld": _tool_json_ld(request, "বয়স ক্যালকুলেটর", "Age Calculator", "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন।", "Calculate your exact age in years, months, days.", "/tools/age-calculator/"),
+            "json_ld": _tool_json_ld(request, "বয়স ক্যালকুলেটর", "Age Calculator", "জন্মতারিখ থেকে বয়স, রাশি, চীনা রাশি, হৃদপিণ্ডের স্পন্দন, শ্বাসের সংখ্যা ও মজার তথ্য জানুন।", "Calculate exact age, zodiac sign, heartbeats, breaths, moon orbits since birth.", "/tools/age-calculator/"),
             "breadcrumbs": _tools_breadcrumbs("বয়স ক্যালকুলেটর", "/tools/age-calculator/"),
         },
     }
