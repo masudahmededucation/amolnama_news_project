@@ -3,18 +3,18 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 /* ========== Bangladesh Landing Page ========== */
 
-.bd-header {
+.bangladesh-header {
   padding: 1.25rem 0 .75rem;
 }
 
-.bd-header h1 {
+.bangladesh-header h1 {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text);
   margin: 0 0 .2rem;
 }
 
-.bd-header p {
+.bangladesh-header p {
   margin: 0;
   font-size: .88rem;
   color: var(--muted);
@@ -22,7 +22,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 /* ---- Hub cards grid ---- */
 
-.bd-hub-grid {
+.bangladesh-hub-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
@@ -31,7 +31,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 /* ---- Base hub card ---- */
 
-.bd-hub-card {
+.bangladesh-hub-card {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -44,11 +44,11 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   transition: border-color .2s, box-shadow .2s;
 }
 
-.bd-hub-card:hover {
+.bangladesh-hub-card:hover {
   border-color: var(--primary);
 }
 
-.bd-hub-card::after {
+.bangladesh-hub-card::after {
   content: '✓';
   position: absolute;
   top: .5rem;
@@ -68,17 +68,17 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   z-index: 1;
 }
 
-.bd-hub-card:hover::after {
+.bangladesh-hub-card:hover::after {
   opacity: 1;
 }
 
-.bd-hub-card:active {
+.bangladesh-hub-card:active {
   transform: scale(.98);
   transition: transform .1s ease;
 }
 
 /* Arrow indicator — slides in on hover */
-.bd-hub-card-arrow {
+.bangladesh-hub-card-arrow {
   position: absolute;
   top: 50%;
   right: 1rem;
@@ -90,20 +90,20 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   pointer-events: none;
 }
 
-.bd-hub-card:hover .bd-hub-card-arrow {
+.bangladesh-hub-card:hover .bangladesh-hub-card-arrow {
   opacity: .6;
   transform: translateY(-50%) translateX(0);
 }
 
 /* Card icon */
-.bd-hub-card-icon {
+.bangladesh-hub-card-icon {
   font-size: 2rem;
   line-height: 1;
   margin-bottom: .6rem;
 }
 
 /* Card title */
-.bd-hub-card h3 {
+.bangladesh-hub-card h3 {
   margin: 0 0 .35rem;
   font-size: 1.05rem;
   font-weight: 700;
@@ -111,7 +111,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 /* Card description */
-.bd-hub-card p {
+.bangladesh-hub-card p {
   margin: 0;
   font-size: .82rem;
   line-height: 1.55;
@@ -119,14 +119,14 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 /* Card tag pills */
-.bd-hub-card-tags {
+.bangladesh-hub-card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: .35rem;
   margin-top: .7rem;
 }
 
-.bd-hub-card-tag {
+.bangladesh-hub-card-tag {
   font-size: .65rem;
   font-weight: 600;
   padding: .15rem .5rem;
@@ -138,7 +138,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
    Travel Hub card — warm sunset / golden
    ======================================== */
 
-.bd-hub-card--travel {
+.bangladesh-hub-card--travel {
   background: linear-gradient(135deg, #fffbf0 0%, #fff5e0 40%, #fffcf5 100%);
   border: 1.5px solid rgba(234, 160, 28, .2);
   box-shadow:
@@ -147,27 +147,27 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   border-left: 3.5px solid #e89a1e;
 }
 
-.bd-hub-card--travel:hover {
+.bangladesh-hub-card--travel:hover {
   border-color: #e89a1e;
   box-shadow:
     0 4px 16px rgba(234, 160, 28, .14),
     0 0 0 1px rgba(234, 160, 28, .08);
 }
 
-.bd-hub-card--travel h3 {
+.bangladesh-hub-card--travel h3 {
   color: #92600a;
 }
 
-.bd-hub-card--travel .bd-hub-card-arrow {
+.bangladesh-hub-card--travel .bangladesh-hub-card-arrow {
   color: #e89a1e;
 }
 
-.bd-hub-card--travel .bd-hub-card-tag {
+.bangladesh-hub-card--travel .bangladesh-hub-card-tag {
   background: rgba(234, 160, 28, .12);
   color: #92600a;
 }
 
-.bd-hub-card--travel .bd-hub-card-map-icon {
+.bangladesh-hub-card--travel .bangladesh-hub-card-map-icon {
   fill: #e89a1e;
 }
 
@@ -175,7 +175,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
    Beauty of Bangladesh — warm emerald / nature
    ======================================== */
 
-.bd-hub-card--beauty {
+.bangladesh-hub-card--beauty {
   background: linear-gradient(135deg, #f0fdf4 0%, #e8f8ec 40%, #f5fdf7 100%);
   border: 1.5px solid rgba(34, 197, 94, .18);
   box-shadow:
@@ -184,35 +184,35 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   border-left: 3.5px solid #22c55e;
 }
 
-.bd-hub-card--beauty:hover {
+.bangladesh-hub-card--beauty:hover {
   border-color: #22c55e;
   box-shadow:
     0 4px 16px rgba(34, 197, 94, .12),
     0 0 0 1px rgba(34, 197, 94, .08);
 }
 
-.bd-hub-card--beauty h3 {
+.bangladesh-hub-card--beauty h3 {
   color: #15803d;
 }
 
-.bd-hub-card--beauty .bd-hub-card-arrow {
+.bangladesh-hub-card--beauty .bangladesh-hub-card-arrow {
   color: #22c55e;
 }
 
-.bd-hub-card--beauty .bd-hub-card-tag {
+.bangladesh-hub-card--beauty .bangladesh-hub-card-tag {
   background: rgba(34, 197, 94, .1);
   color: #15803d;
 }
 
 /* Logo icon inside card */
-.bd-hub-card-logo {
+.bangladesh-hub-card-logo {
   max-width: 100%;
   height: auto;
 }
 
 /* ---- Card featured highlights ---- */
 
-.bd-hub-card-highlights {
+.bangladesh-hub-card-highlights {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
@@ -221,7 +221,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   border-top: 1px solid rgba(0,0,0,.05);
 }
 
-.bd-hub-card-highlight {
+.bangladesh-hub-card-highlight {
   display: flex;
   align-items: center;
   gap: .3rem;
@@ -229,62 +229,62 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: var(--muted);
 }
 
-.bd-hub-card-highlight-icon {
+.bangladesh-hub-card-highlight-icon {
   font-size: .82rem;
   line-height: 1;
 }
 
 /* Stats row */
-.bd-hub-card-stats {
+.bangladesh-hub-card-stats {
   display: flex;
   gap: 1rem;
   margin-top: .6rem;
 }
 
-.bd-hub-card-stat {
+.bangladesh-hub-card-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: .1rem;
 }
 
-.bd-hub-card-stat-value {
+.bangladesh-hub-card-stat-value {
   font-size: 1.1rem;
   font-weight: 800;
   line-height: 1;
 }
 
-.bd-hub-card-stat-label {
+.bangladesh-hub-card-stat-label {
   font-size: .6rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .03em;
 }
 
-.bd-hub-card--travel .bd-hub-card-stat-value { color: #b07810; }
-.bd-hub-card--travel .bd-hub-card-stat-label { color: #c4922e; }
-.bd-hub-card--beauty .bd-hub-card-stat-value { color: #15803d; }
-.bd-hub-card--beauty .bd-hub-card-stat-label { color: #22c55e; }
+.bangladesh-hub-card--travel .bangladesh-hub-card-stat-value { color: #b07810; }
+.bangladesh-hub-card--travel .bangladesh-hub-card-stat-label { color: #c4922e; }
+.bangladesh-hub-card--beauty .bangladesh-hub-card-stat-value { color: #15803d; }
+.bangladesh-hub-card--beauty .bangladesh-hub-card-stat-label { color: #22c55e; }
 
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {
-  .bd-hub-grid {
+  .bangladesh-hub-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
-  .bd-hub-card {
+  .bangladesh-hub-card {
     padding: 1.15rem 1.1rem 1rem;
   }
 
-  .bd-header h1 {
+  .bangladesh-header h1 {
     font-size: 1.25rem;
   }
 }
 
 /* Touch optimization */
-.bd-hub-card {
+.bangladesh-hub-card {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

@@ -2,23 +2,23 @@
 (function() {
   "use strict";
 
-  const form = document.getElementById("bhUploadForm");
-  const fileInput = document.getElementById("bh-file");
-  const categorySelect = document.getElementById("bh-category");
-  const festivalFields = document.getElementById("bhFestivalFields");
-  const previewWrap = document.getElementById("bhFilePreview");
-  const imgPreview = document.getElementById("bhImgPreview");
-  const vidPreview = document.getElementById("bhVidPreview");
-  const errorEl = document.getElementById("bhUploadError");
-  const progressWrap = document.getElementById("bhUploadProgress");
-  const progressBar = document.getElementById("bhProgressBar");
-  const progressText = document.getElementById("bhProgressText");
-  const submitBtn = document.getElementById("bhUploadSubmit");
+  const uploadForm = document.getElementById("beauty-hub-upload-Form");
+  const fileInput = document.getElementById("beauty-hub-file");
+  const categorySelect = document.getElementById("beauty-hub-category");
+  const festivalFields = document.getElementById("beauty-hub-festival-fields");
+  const filePreviewWrapper = document.getElementById("beauty-hub-file-preview");
+  const imagePreview = document.getElementById("beauty-hub-image-preview");
+  const videoPreview = document.getElementById("beauty-hub-video-preview");
+  const uploadError = document.getElementById("beauty-hub-upload-Error");
+  const uploadProgress = document.getElementById("beauty-hub-upload-Progress");
+  const progressBar = document.getElementById("beauty-hub-progress-bar");
+  const progressText = document.getElementById("beauty-hub-progress-text");
+  const submitButton = document.getElementById("beauty-hub-upload-Submit");
 
-  if (!form) return;
+  if (!uploadForm) return;
 
   // Init Quill rich text editor for description
-  var descEditor = window.initQuillEditor ? window.initQuillEditor('quill-bh-desc', 'bh-desc-bn', {
+  var descriptionEditor = window.initQuillEditor ? window.initQuillEditor('quill-beauty-hub-description', 'beauty-hub-description-bn', {
     placeholder: 'ছবি বা ভিডিওর বিবরণ... (Describe the photo or video...)',
     minHeight: '120px',
   }) : null;
@@ -32,69 +32,69 @@
   // File preview
   fileInput.addEventListener("change", function() {
     var file = fileInput.files[0];
-    if (!file) { previewWrap.style.display = "none"; return; }
+    if (!file) { filePreviewWrapper.style.display = "none"; return; }
 
-    previewWrap.style.display = "block";
-    imgPreview.style.display = "none";
-    vidPreview.style.display = "none";
-    errorEl.style.display = "none";
+    filePreviewWrapper.style.display = "block";
+    imagePreview.style.display = "none";
+    videoPreview.style.display = "none";
+    uploadError.style.display = "none";
 
     if (file.type.startsWith("image/")) {
-      var url = URL.createObjectURL(file);
-      imgPreview.src = url;
-      imgPreview.style.display = "block";
+      var objectUrl = URL.createObjectURL(file);
+      imagePreview.src = objectUrl;
+      imagePreview.style.display = "block";
     } else if (file.type.startsWith("video/")) {
       if (file.size > 50 * 1024 * 1024) {
-        errorEl.textContent = "ভিডিও ৫০MB এর বেশি হতে পারবে না।";
-        errorEl.style.display = "block";
+        uploadError.textContent = "ভিডিও ৫০MB এর বেশি হতে পারবে না।";
+        uploadError.style.display = "block";
         return;
       }
-      var vUrl = URL.createObjectURL(file);
-      vidPreview.src = vUrl;
-      vidPreview.style.display = "block";
-      vidPreview.onloadedmetadata = function() {
-        if (vidPreview.duration > 40) {
-          errorEl.textContent = "ভিডিও সর্বোচ্চ ৪০ সেকেন্ড হতে পারবে।";
-          errorEl.style.display = "block";
+      var videoObjectUrl = URL.createObjectURL(file);
+      videoPreview.src = videoObjectUrl;
+      videoPreview.style.display = "block";
+      videoPreview.onloadedmetadata = function() {
+        if (videoPreview.duration > 40) {
+          uploadError.textContent = "ভিডিও সর্বোচ্চ ৪০ সেকেন্ড হতে পারবে।";
+          uploadError.style.display = "block";
         }
       };
     }
   });
 
   // Upload
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    errorEl.style.display = "none";
+  uploadForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    uploadError.style.display = "none";
 
     var file = fileInput.files[0];
-    if (!file) { errorEl.textContent = "ফাইল নির্বাচন করুন"; errorEl.style.display = "block"; return; }
-    if (!document.getElementById("bh-category").value) { errorEl.textContent = "ধরন নির্বাচন করুন"; errorEl.style.display = "block"; return; }
+    if (!file) { uploadError.textContent = "ফাইল নির্বাচন করুন"; uploadError.style.display = "block"; return; }
+    if (!categorySelect.value) { uploadError.textContent = "ধরন নির্বাচন করুন"; uploadError.style.display = "block"; return; }
 
     // Sync Quill content to hidden textarea
-    if (descEditor) descEditor.syncToHidden();
+    if (descriptionEditor) descriptionEditor.syncToHidden();
 
-    var fd = new FormData();
-    fd.append("file", file);
-    fd.append("link_media_category_id", document.getElementById("bh-category").value);
-    fd.append("media_title_bn", (document.getElementById("bh-title-bn").value || "").trim());
-    fd.append("media_description_bn", (document.getElementById("bh-desc-bn").value || "").trim());
-    fd.append("location_name_bn", (document.getElementById("bh-location-bn").value || "").trim());
-    fd.append("link_season_id", document.getElementById("bh-season").value);
-    fd.append("exif_camera_model", (document.getElementById("bh-camera").value || "").trim());
-    fd.append("time_of_day", document.getElementById("bh-time-of-day").value);
-    fd.append("event_date_from", document.getElementById("bh-event-date-from").value);
-    fd.append("event_date_to", document.getElementById("bh-event-date-to").value);
-    fd.append("is_yearly_event", document.getElementById("bh-yearly-event").checked ? "1" : "0");
+    var formData = new FormData();
+    formData.append("file", file);
+    formData.append("link_media_category_id", categorySelect.value);
+    formData.append("media_title_bn", (document.getElementById("beauty-hub-title-bn").value || "").trim());
+    formData.append("media_description_bn", (document.getElementById("beauty-hub-description-bn").value || "").trim());
+    formData.append("location_name_bn", (document.getElementById("beauty-hub-location-bn").value || "").trim());
+    formData.append("link_season_id", document.getElementById("beauty-hub-season").value);
+    formData.append("exif_camera_model", (document.getElementById("beauty-hub-camera").value || "").trim());
+    formData.append("time_of_day", document.getElementById("beauty-hub-time-of-day").value);
+    formData.append("event_date_from", document.getElementById("beauty-hub-event-date-from").value);
+    formData.append("event_date_to", document.getElementById("beauty-hub-event-date-to").value);
+    formData.append("is_yearly_event", document.getElementById("beauty-hub-yearly-event").checked ? "1" : "0");
 
-    submitBtn.disabled = true;
-    progressWrap.style.display = "block";
+    submitButton.disabled = true;
+    uploadProgress.style.display = "block";
 
     var xhr = new XMLHttpRequest();
-    xhr.upload.addEventListener("progress", function(ev) {
-      if (ev.lengthComputable) {
-        var pct = Math.round((ev.loaded / ev.total) * 100);
-        progressBar.style.width = pct + "%";
-        progressText.textContent = pct + "% আপলোড হচ্ছে...";
+    xhr.upload.addEventListener("progress", function(progressEvent) {
+      if (progressEvent.lengthComputable) {
+        var percentage = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+        progressBar.style.width = percentage + "%";
+        progressText.textContent = percentage + "% আপলোড হচ্ছে...";
       }
     });
     xhr.addEventListener("load", function() {
@@ -104,32 +104,32 @@
           progressText.textContent = "সফল! পুনঃনির্দেশ হচ্ছে...";
           window.location.href = "/bangladesh/beauty/";
         } else {
-          errorEl.textContent = data.error;
-          errorEl.style.display = "block";
-          submitBtn.disabled = false;
-          progressWrap.style.display = "none";
+          uploadError.textContent = data.error;
+          uploadError.style.display = "block";
+          submitButton.disabled = false;
+          uploadProgress.style.display = "none";
         }
-      } catch (err) {
-        errorEl.textContent = "সার্ভার ত্রুটি";
-        errorEl.style.display = "block";
-        submitBtn.disabled = false;
-        progressWrap.style.display = "none";
+      } catch (parseError) {
+        uploadError.textContent = "সার্ভার ত্রুটি";
+        uploadError.style.display = "block";
+        submitButton.disabled = false;
+        uploadProgress.style.display = "none";
       }
     });
     xhr.addEventListener("error", function() {
-      errorEl.textContent = "নেটওয়ার্ক ত্রুটি";
-      errorEl.style.display = "block";
-      submitBtn.disabled = false;
-      progressWrap.style.display = "none";
+      uploadError.textContent = "নেটওয়ার্ক ত্রুটি";
+      uploadError.style.display = "block";
+      submitButton.disabled = false;
+      uploadProgress.style.display = "none";
     });
 
     xhr.open("POST", "/bangladesh/api/media/upload/");
-    xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
-    xhr.send(fd);
+    xhr.setRequestHeader("X-CSRFToken", getCsrfToken("csrftoken"));
+    xhr.send(formData);
   });
 
-  function getCookie(name) {
-    var v = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
-    return v ? v.pop() : "";
+  function getCsrfToken(name) {
+    var match = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+    return match ? match.pop() : "";
   }
 })();

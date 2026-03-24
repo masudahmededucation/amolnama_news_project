@@ -98,9 +98,10 @@
   populateCheckboxes(retaliationContainer, 'ext_retaliation',      retaliationData);
 
   /* Re-query after dynamic population */
-  var lawCheckboxes         = document.querySelectorAll('input[name="ext_applicable_law"]');
-  var supportCheckboxes     = document.querySelectorAll('input[name="ext_support_service"]');
-  var retaliationCheckboxes = document.querySelectorAll('input[name="ext_retaliation"]');
+  /* Query checkboxes fresh each time — they're created dynamically by populateCheckboxes() */
+  function getLawCheckboxes()         { return document.querySelectorAll('input[name="ext_applicable_law"]'); }
+  function getSupportCheckboxes()     { return document.querySelectorAll('input[name="ext_support_service"]'); }
+  function getRetaliationCheckboxes() { return document.querySelectorAll('input[name="ext_retaliation"]'); }
 
   /* ========== Helpers ========== */
 
@@ -121,10 +122,10 @@
       caseNumber:             firApi ? firApi.getCaseNumber()             : '',
       policeRefusalStatement: firApi ? firApi.getPoliceRefusalStatement() : '',
       noFirReason:            firApi ? firApi.getNoFirReason()            : '',
-      applicableLawIds:       getCheckedIds(lawCheckboxes),
+      applicableLawIds:       getCheckedIds(getLawCheckboxes()),
       caseStatusId:           caseStatus ? (parseInt(caseStatus.value, 10) || 0) : 0,
-      supportServiceIds:      getCheckedIds(supportCheckboxes),
-      retaliationIds:         getCheckedIds(retaliationCheckboxes),
+      supportServiceIds:      getCheckedIds(getSupportCheckboxes()),
+      retaliationIds:         getCheckedIds(getRetaliationCheckboxes()),
       remarks:                remarks ? remarks.value.trim() : ''
     };
     hiddenJson.value = JSON.stringify(data);
@@ -212,9 +213,10 @@
 
   window.newshubExtortionLegal = {
     reset: function () {
-      for (var i = 0; i < lawCheckboxes.length; i++)         lawCheckboxes[i].checked         = false;
-      for (var j = 0; j < supportCheckboxes.length; j++)     supportCheckboxes[j].checked     = false;
-      for (var k = 0; k < retaliationCheckboxes.length; k++) retaliationCheckboxes[k].checked = false;
+      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (var i = 0; i < lc.length; i++) lc[i].checked = false;
+      for (var j = 0; j < sc.length; j++) sc[j].checked = false;
+      for (var k = 0; k < rc.length; k++) rc[k].checked = false;
       if (caseStatus) caseStatus.selectedIndex = 0;
       if (remarks)    remarks.value = '';
       if (firApi) firApi.resetFir();

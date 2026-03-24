@@ -98,9 +98,9 @@
   populateCheckboxes(retaliationContainer, 'land_retaliation',     retaliationData);
 
   /* Re-query after dynamic population */
-  var lawCheckboxes         = document.querySelectorAll('input[name="land_applicable_law"]');
-  var supportCheckboxes     = document.querySelectorAll('input[name="land_support_service"]');
-  var retaliationCheckboxes = document.querySelectorAll('input[name="land_retaliation"]');
+  function getLawCheckboxes()         { return document.querySelectorAll('input[name="land_applicable_law"]'); }
+  function getSupportCheckboxes()     { return document.querySelectorAll('input[name="land_support_service"]'); }
+  function getRetaliationCheckboxes() { return document.querySelectorAll('input[name="land_retaliation"]'); }
 
   /* ========== Helpers ========== */
 
@@ -121,10 +121,10 @@
       caseNumber:             firApi ? firApi.getCaseNumber()             : '',
       policeRefusalStatement: firApi ? firApi.getPoliceRefusalStatement() : '',
       noFirReason:            firApi ? firApi.getNoFirReason()            : '',
-      applicableLawIds:       getCheckedIds(lawCheckboxes),
+      applicableLawIds:       getCheckedIds(getLawCheckboxes()),
       caseStatusId:           caseStatus ? (parseInt(caseStatus.value, 10) || 0) : 0,
-      supportServiceIds:      getCheckedIds(supportCheckboxes),
-      retaliationIds:         getCheckedIds(retaliationCheckboxes),
+      supportServiceIds:      getCheckedIds(getSupportCheckboxes()),
+      retaliationIds:         getCheckedIds(getRetaliationCheckboxes()),
       remarks:                remarks ? remarks.value.trim() : ''
     };
     hiddenJson.value = JSON.stringify(data);
@@ -176,9 +176,10 @@
     }
 
     if (saved.applicableLawIds && saved.applicableLawIds.length) {
-      for (var i = 0; i < lawCheckboxes.length; i++) {
-        if (saved.applicableLawIds.indexOf(parseInt(lawCheckboxes[i].value, 10)) !== -1) {
-          lawCheckboxes[i].checked = true;
+      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (var i = 0; i < lc.length; i++) {
+        if (saved.applicableLawIds.indexOf(parseInt(lc[i].value, 10)) !== -1) {
+          lc[i].checked = true;
         }
       }
     }
@@ -188,17 +189,17 @@
     }
 
     if (saved.supportServiceIds && saved.supportServiceIds.length) {
-      for (var j = 0; j < supportCheckboxes.length; j++) {
-        if (saved.supportServiceIds.indexOf(parseInt(supportCheckboxes[j].value, 10)) !== -1) {
-          supportCheckboxes[j].checked = true;
+      for (var j = 0; j < sc.length; j++) {
+        if (saved.supportServiceIds.indexOf(parseInt(sc[j].value, 10)) !== -1) {
+          sc[j].checked = true;
         }
       }
     }
 
     if (saved.retaliationIds && saved.retaliationIds.length) {
-      for (var k = 0; k < retaliationCheckboxes.length; k++) {
-        if (saved.retaliationIds.indexOf(parseInt(retaliationCheckboxes[k].value, 10)) !== -1) {
-          retaliationCheckboxes[k].checked = true;
+      for (var k = 0; k < rc.length; k++) {
+        if (saved.retaliationIds.indexOf(parseInt(rc[k].value, 10)) !== -1) {
+          rc[k].checked = true;
         }
       }
     }
@@ -214,9 +215,10 @@
 
   window.newshubLandGrabLegal = {
     reset: function () {
-      for (var i = 0; i < lawCheckboxes.length; i++)         lawCheckboxes[i].checked         = false;
-      for (var j = 0; j < supportCheckboxes.length; j++)     supportCheckboxes[j].checked     = false;
-      for (var k = 0; k < retaliationCheckboxes.length; k++) retaliationCheckboxes[k].checked = false;
+      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (var i = 0; i < lc.length; i++)         lc[i].checked         = false;
+      for (var j = 0; j < sc.length; j++)     sc[j].checked     = false;
+      for (var k = 0; k < rc.length; k++) rc[k].checked = false;
       if (caseStatus) caseStatus.selectedIndex = 0;
       if (remarks)    remarks.value = '';
       if (firApi) firApi.resetFir();

@@ -88,28 +88,28 @@ _EXTORTION_CONTEXT_BIT_TO_ID = {
 
 # Legal action BIT → status_id maps (code-based, need to resolve codes→IDs from DB)
 _EXTORTION_LAW_BIT_TO_CODE = {
-    'is_law_penal_code_383_389': 'PENAL_CODE_383_389',
-    'is_law_anti_terrorism_act': 'ANTI_TERRORISM_ACT',
-    'is_law_prevention_of_corruption_act': 'PREVENTION_OF_CORRUPTION_ACT',
-    'is_law_money_laundering_prevention_act': 'MONEY_LAUNDERING_PREVENTION_ACT',
+    'is_law_penal_code_383_389': 'penal_code_383_389',
+    'is_law_anti_terrorism_act': 'anti_terrorism_act',
+    'is_law_prevention_of_corruption_act': 'prevention_of_corruption_act',
+    'is_law_money_laundering_prevention_act': 'money_laundering_prevention_act',
 }
 
 _EXTORTION_SUPPORT_BIT_TO_CODE = {
-    'is_support_gov_legal_aid': 'GOV_LEGAL_AID',
-    'is_support_acc_complaint': 'ACC_COMPLAINT',
-    'is_support_business_association': 'BUSINESS_ASSOCIATION',
-    'is_support_ngo_aid': 'NGO_AID',
+    'is_support_gov_legal_aid': 'gov_legal_aid',
+    'is_support_acc_complaint': 'acc_complaint',
+    'is_support_business_association': 'business_association',
+    'is_support_ngo_aid': 'ngo_aid',
 }
 
 _EXTORTION_RETALIATION_BIT_TO_CODE = {
-    'is_risk_threat_family_pressure': 'FAMILY_PRESSURE',
-    'is_risk_threat_settlement_pressure': 'SETTLEMENT_PRESSURE',
-    'is_risk_threat_case_withdrawal_pressure': 'CASE_WITHDRAWAL_PRESSURE',
-    'is_risk_threat_business_loss_threat': 'BUSINESS_LOSS_THREAT',
-    'is_risk_threat_witness_victim_threat': 'WITNESS_VICTIM_THREAT',
-    'is_risk_threat_eviction_threat': 'EVICTION_THREAT',
-    'is_risk_threat_retaliation_threat': 'RETALIATION_THREAT',
-    'is_risk_threat_death_or_physical_harm_threat': 'DEATH_OR_PHYSICAL_HARM_THREAT',
+    'is_risk_threat_family_pressure': 'family_pressure',
+    'is_risk_threat_settlement_pressure': 'settlement_pressure',
+    'is_risk_threat_case_withdrawal_pressure': 'case_withdrawal_pressure',
+    'is_risk_threat_business_loss_threat': 'business_loss_threat',
+    'is_risk_threat_witness_victim_threat': 'witness_victim_threat',
+    'is_risk_threat_eviction_threat': 'eviction_threat',
+    'is_risk_threat_retaliation_threat': 'retaliation_threat',
+    'is_risk_threat_death_or_physical_harm_threat': 'death_or_physical_harm_threat',
 }
 
 
@@ -392,7 +392,7 @@ def _bit_flags_to_ids_by_code(obj, bit_to_code_map, group_code):
             active_codes.append(code)
     if not active_codes:
         return []
-    # Bulk resolve codes → IDs
+    # Bulk resolve codes → IDs (all codes stored lowercase in DB and maps)
     code_to_id = dict(
         RefStatus.objects.filter(
             group_code=group_code,

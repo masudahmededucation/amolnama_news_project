@@ -1,4 +1,4 @@
-<div class="step-panel{% if step == 1 %} active{% endif %}"
+<div class="step-panel{% if step == 1 and not edit_entry_id %} active{% elif step == 3 and edit_entry_id %} active{% endif %}"
      data-step="{{ step }}"
      data-step-label-bn="ঘটনা"
      data-step-label-en="Incident">

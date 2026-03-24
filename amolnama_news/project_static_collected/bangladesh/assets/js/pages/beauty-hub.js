@@ -2,26 +2,26 @@
 (function () {
   "use strict";
 
-  const gallery = document.getElementById("bhGallery");
-  const searchInput = document.getElementById("bhSearchInput");
-  const pillsContainer = document.getElementById("bhFilterPills");
-  const loadMoreBtn = document.getElementById("bhLoadMoreBtn");
+  const mediaGallery = document.getElementById("beauty-hub-gallery");
+  const searchInput = document.getElementById("beauty-hub-search-input");
+  const filterPillsContainer = document.getElementById("beauty-hub-filter-pills");
+  const loadMoreButton = document.getElementById("beauty-hub-load-more-button");
 
-  if (!gallery) return;
+  if (!mediaGallery) return;
 
   let currentPage = 1;
   let currentCategory = "";
   let currentType = "";
   let currentQuery = "";
-  let loading = false;
+  let isLoading = false;
 
   // Filter pills
-  if (pillsContainer) {
-    pillsContainer.addEventListener("click", (e) => {
-      const pill = e.target.closest(".bh-filter-pill");
+  if (filterPillsContainer) {
+    filterPillsContainer.addEventListener("click", (event) => {
+      const pill = event.target.closest(".beauty-hub-filter-pill");
       if (!pill) return;
-      pillsContainer.querySelectorAll(".bh-filter-pill").forEach((p) => p.classList.remove("bh-filter-pill--active"));
-      pill.classList.add("bh-filter-pill--active");
+      filterPillsContainer.querySelectorAll(".beauty-hub-filter-pill").forEach((pillElement) => pillElement.classList.remove("beauty-hub-filter-pill--active"));
+      pill.classList.add("beauty-hub-filter-pill--active");
 
       if (pill.dataset.type) {
         currentType = pill.dataset.type;
@@ -31,7 +31,7 @@
         currentType = "";
       }
       currentPage = 1;
-      fetchMedia(true);
+      fetchMediaEntries(true);
     });
   }
 
@@ -43,22 +43,22 @@
       searchTimer = setTimeout(() => {
         currentQuery = searchInput.value.trim();
         currentPage = 1;
-        fetchMedia(true);
+        fetchMediaEntries(true);
       }, 350);
     });
   }
 
   // Load more
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", () => {
+  if (loadMoreButton) {
+    loadMoreButton.addEventListener("click", () => {
       currentPage++;
-      fetchMedia(false);
+      fetchMediaEntries(false);
     });
   }
 
-  async function fetchMedia(replace) {
-    if (loading) return;
-    loading = true;
+  async function fetchMediaEntries(replaceExisting) {
+    if (isLoading) return;
+    isLoading = true;
 
     const params = new URLSearchParams({ page: currentPage });
     if (currentCategory) params.set("category", currentCategory);
@@ -66,45 +66,45 @@
     if (currentQuery) params.set("q", currentQuery);
 
     try {
-      const res = await fetch(`/bangladesh/api/media/?${params}`);
-      const data = await res.json();
+      const response = await fetch(`/bangladesh/api/media/?${params}`);
+      const data = await response.json();
 
-      if (replace) gallery.innerHTML = "";
+      if (replaceExisting) mediaGallery.innerHTML = "";
 
-      if (data.entries.length === 0 && replace) {
-        gallery.innerHTML = `<div class="bh-empty-state"><p>কোনো ছবি বা ভিডিও পাওয়া যায়নি</p><p>No media found</p></div>`;
+      if (data.entries.length === 0 && replaceExisting) {
+        mediaGallery.innerHTML = `<div class="beauty-hub-empty-state"><p>কোনো ছবি বা ভিডিও পাওয়া যায়নি</p><p>No media found</p></div>`;
       }
 
-      data.entries.forEach((e) => {
+      data.entries.forEach((entry) => {
         const card = document.createElement("div");
-        card.className = "bh-card";
-        card.dataset.id = e.id;
-        const videoBadge = e.media_type === "video" ? '<span class="bh-card-video-badge">▶ ভিডিও</span>' : "";
+        card.className = "beauty-hub-card";
+        card.dataset.id = entry.id;
+        const videoBadge = entry.media_type === "video" ? '<span class="beauty-hub-card-video-badge">▶ ভিডিও</span>' : "";
         card.innerHTML = `
-          <div class="bh-card-img" style="background-image:url('${e.thumbnail_url}');">
+          <div class="beauty-hub-card-img" style="background-image:url('${entry.thumbnail_url}');">
             ${videoBadge}
           </div>
-          <div class="bh-card-body">
-            <h3 class="bh-card-title">${e.display_title}</h3>
-            <div class="bh-card-meta">
-              <span class="bh-card-category">${e.category_name_bn}</span>
-              ${e.location_bn ? `<span class="bh-card-location">📍 ${e.location_bn}</span>` : ""}
+          <div class="beauty-hub-card-body">
+            <h3 class="beauty-hub-card-title">${entry.display_title}</h3>
+            <div class="beauty-hub-card-meta">
+              <span class="beauty-hub-card-category">${entry.category_name_bn}</span>
+              ${entry.location_bn ? `<span class="beauty-hub-card-location">📍 ${entry.location_bn}</span>` : ""}
             </div>
-            <div class="bh-card-footer">
-              <span class="bh-card-stat">❤️ ${e.like_count}</span>
-              <span class="bh-card-stat">👁 ${e.view_count}</span>
-              <span class="bh-card-time">${e.time_ago}</span>
+            <div class="beauty-hub-card-footer">
+              <span class="beauty-hub-card-stat">❤️ ${entry.like_count}</span>
+              <span class="beauty-hub-card-stat">👁 ${entry.view_count}</span>
+              <span class="beauty-hub-card-time">${entry.time_ago}</span>
             </div>
           </div>`;
-        gallery.appendChild(card);
+        mediaGallery.appendChild(card);
       });
 
-      const loadMoreWrap = document.getElementById("bhLoadMore");
-      if (loadMoreWrap) loadMoreWrap.style.display = data.has_next ? "" : "none";
-    } catch (err) {
-      console.error("Failed to load media:", err);
+      const loadMoreWrapper = document.getElementById("beauty-hub-load-more");
+      if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
+    } catch (error) {
+      console.error("Failed to load media:", error);
     } finally {
-      loading = false;
+      isLoading = false;
     }
   }
 })();

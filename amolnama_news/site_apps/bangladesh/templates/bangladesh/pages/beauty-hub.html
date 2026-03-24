@@ -10,22 +10,22 @@
 
 {% block content %}
 
-<section class="bh-header">
-  <div class="bh-header-left">
+<section class="beauty-hub-header">
+  <div class="beauty-hub-header-left">
     <h1>বাংলার রূপ (Beauty of Bangladesh)</h1>
     <p>বাংলাদেশের প্রাকৃতিক সৌন্দর্য — ছবি ও ভিডিও শেয়ার করুন</p>
   </div>
-  <div class="bh-header-search">
-    <svg class="bh-header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" class="bh-header-search-input" id="bhSearchInput" name="bh_search_query" placeholder="ছবি খুঁজুন... (Search photos...)" autocomplete="off">
+  <div class="beauty-hub-header-search">
+    <svg class="beauty-hub-header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="beauty-hub-header-search-input" id="beauty-hub-search-input" name="beauty_hub_search_query" placeholder="ছবি খুঁজুন... (Search photos...)" autocomplete="off">
   </div>
   {% if user.is_authenticated %}
-    <a href="{% url 'bangladesh:beauty_hub_upload' %}" class="bh-header-cta">
+    <a href="{% url 'bangladesh:beauty_hub_upload' %}" class="beauty-hub-header-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       আপলোড করুন
     </a>
   {% else %}
-    <a href="{% url 'user_account:login' %}?next={% url 'bangladesh:beauty_hub_upload' %}" class="bh-header-cta">
+    <a href="{% url 'user_account:login' %}?next={% url 'bangladesh:beauty_hub_upload' %}" class="beauty-hub-header-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       লগইন করুন
     </a>
@@ -33,13 +33,13 @@
 </section>
 
 {# ── Filter Bar ── #}
-<div class="bh-filter-bar">
-  <div class="bh-filter-pills" id="bhFilterPills">
-    <button type="button" class="bh-filter-pill bh-filter-pill--active" data-category="">সব</button>
-    <button type="button" class="bh-filter-pill" data-type="photo">📷 ছবি</button>
-    <button type="button" class="bh-filter-pill" data-type="video">🎬 ভিডিও</button>
+<div class="beauty-hub-filter-bar">
+  <div class="beauty-hub-filter-pills" id="beauty-hub-filter-pills">
+    <button type="button" class="beauty-hub-filter-pill bh-filter-pill--active" data-category="">সব</button>
+    <button type="button" class="beauty-hub-filter-pill" data-type="photo">📷 ছবি</button>
+    <button type="button" class="beauty-hub-filter-pill" data-type="video">🎬 ভিডিও</button>
     {% for cat in categories %}
-      <button type="button" class="bh-filter-pill" data-category="{{ cat.bangladesh_ref_media_category_id }}">
+      <button type="button" class="beauty-hub-filter-pill" data-category="{{ cat.bangladesh_ref_media_category_id }}">
         {{ cat.media_category_name_bn }}
       </button>
     {% endfor %}
@@ -47,31 +47,31 @@
 </div>
 
 {# ── Gallery Grid ── #}
-<div class="bh-gallery" id="bhGallery">
+<div class="beauty-hub-gallery" id="beauty-hub-gallery">
   {% for e in entries %}
-    <div class="bh-card" data-id="{{ e.bangladesh_coll_media_entry_id }}">
+    <div class="beauty-hub-card" data-id="{{ e.bangladesh_coll_media_entry_id }}">
       {% if e.media_type == "video" %}
-        <div class="bh-card-img" style="background-image:url('{{ e.file_thumbnail_url|default:e.file_display_url }}');">
-          <span class="bh-card-video-badge">▶ ভিডিও</span>
+        <div class="beauty-hub-card-img" style="background-image:url('{{ e.file_thumbnail_url|default:e.file_display_url }}');">
+          <span class="beauty-hub-card-video-badge">▶ ভিডিও</span>
         </div>
       {% else %}
-        <div class="bh-card-img" style="background-image:url('{{ e.file_thumbnail_url|default:e.file_display_url|default:e.file_original_url }}');"></div>
+        <div class="beauty-hub-card-img" style="background-image:url('{{ e.file_thumbnail_url|default:e.file_display_url|default:e.file_original_url }}');"></div>
       {% endif %}
-      <div class="bh-card-body">
-        <h3 class="bh-card-title">{{ e.media_title_bn|default:e.media_title_en|default:"" }}</h3>
-        <div class="bh-card-meta">
-          <span class="bh-card-category">{{ e.category_name_bn }}</span>
-          {% if e.location_name_bn %}<span class="bh-card-location">📍 {{ e.location_name_bn }}</span>{% endif %}
+      <div class="beauty-hub-card-body">
+        <h3 class="beauty-hub-card-title">{{ e.media_title_bn|default:e.media_title_en|default:"" }}</h3>
+        <div class="beauty-hub-card-meta">
+          <span class="beauty-hub-card-category">{{ e.category_name_bn }}</span>
+          {% if e.location_name_bn %}<span class="beauty-hub-card-location">📍 {{ e.location_name_bn }}</span>{% endif %}
         </div>
-        <div class="bh-card-footer">
-          <span class="bh-card-stat">❤️ {{ e.like_count }}</span>
-          <span class="bh-card-stat">👁 {{ e.view_count }}</span>
-          <span class="bh-card-time">{{ e.time_ago }}</span>
+        <div class="beauty-hub-card-footer">
+          <span class="beauty-hub-card-stat">❤️ {{ e.like_count }}</span>
+          <span class="beauty-hub-card-stat">👁 {{ e.view_count }}</span>
+          <span class="beauty-hub-card-time">{{ e.time_ago }}</span>
         </div>
       </div>
     </div>
   {% empty %}
-    <div class="bh-empty-state">
+    <div class="beauty-hub-empty-state">
       <p>এখনো কোনো ছবি বা ভিডিও আপলোড করা হয়নি। প্রথম আপলোডটি আপনার হোক!</p>
       <p>No photos or videos uploaded yet. Be the first to share!</p>
     </div>
@@ -79,8 +79,8 @@
 </div>
 
 {% if has_next %}
-<div class="bh-load-more" id="bhLoadMore">
-  <button type="button" class="bh-load-more-btn" id="bhLoadMoreBtn">আরও দেখুন (Load More)</button>
+<div class="beauty-hub-load-more" id="beauty-hub-load-more">
+  <button type="button" class="beauty-hub-load-more-btn" id="beauty-hub-load-more-button">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

@@ -129,7 +129,7 @@
     {# ---- Summary ---- #}
     {% if entry.news_summary_bn %}
     <div class="article-summary">
-      {{ entry.news_summary_bn }}
+      {{ entry.news_summary_bn|striptags }}
     </div>
     {% endif %}
 
