@@ -30,6 +30,8 @@
   var progressTimer = null;
   var isMuted = false;
   var isVideoExpanded = false;
+  var isTransitioning = false;  // true while loading a new video after autoplay transition
+  var transitionRetryCount = 0;
 
   // Extract YouTube video ID from various URL formats
   function extractYouTubeId(url) {
@@ -89,14 +91,31 @@
     if (event.data === YT.PlayerState.PLAYING) {
       iconPlay.style.display = "none";
       iconPause.style.display = "block";
+      isTransitioning = false;
+      transitionRetryCount = 0;
       startProgressUpdate();
-    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    } else if (event.data === YT.PlayerState.PAUSED) {
       iconPlay.style.display = "block";
       iconPause.style.display = "none";
       stopProgressUpdate();
-    }
-    if (event.data === YT.PlayerState.ENDED) {
+
+      /* If we just loaded a new video (transition) and it paused immediately,
+         retry playVideo. YouTube sometimes pauses after loadVideoById due to
+         ads, buffering, or autoplay policy. Max 3 retries to avoid infinite loop. */
+      if (isTransitioning && transitionRetryCount < 3) {
+        transitionRetryCount++;
+        setTimeout(function() {
+          if (player && player.getPlayerState && player.getPlayerState() !== YT.PlayerState.PLAYING) {
+            player.playVideo();
+          }
+        }, 800 * transitionRetryCount);
+      }
+    } else if (event.data === YT.PlayerState.ENDED) {
+      iconPlay.style.display = "block";
+      iconPause.style.display = "none";
+      stopProgressUpdate();
       progressFill.style.width = "100%";
+      isTransitioning = false;
       // Trigger radio autoplay — fetch next poem
       fetchNextPoem();
     }
@@ -397,11 +416,9 @@
     // Load new YouTube video
     var newVideoId = extractYouTubeId(next.audio_url);
     if (newVideoId && player && player.loadVideoById) {
+      isTransitioning = true;
+      transitionRetryCount = 0;
       player.loadVideoById(newVideoId);
-      // Force play after a short delay (Chrome autoplay policy workaround)
-      setTimeout(function() {
-        if (player && player.playVideo) player.playVideo();
-      }, 500);
       // Reset progress
       progressFill.style.width = "0%";
       timeEl.textContent = "0:00 / 0:00";
