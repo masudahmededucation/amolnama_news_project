@@ -56,10 +56,13 @@
 
   if (photoGrid) {
     photoGrid.addEventListener('click', function (event) {
-      /* Don't open lightbox when clicking edit/delete buttons */
+      /* Don't open lightbox when clicking edit/delete/meta elements */
       if (event.target.closest('.travel-hub-detail-contribution-actions')) return;
       if (event.target.closest('.travel-hub-detail-contribution-edit-button')) return;
       if (event.target.closest('.travel-hub-detail-contribution-delete-button')) return;
+      if (event.target.closest('.travel-hub-detail-contribution-edit-form')) return;
+      if (event.target.closest('.travel-hub-detail-contribution-delete-confirm')) return;
+      if (event.target.closest('.travel-hub-detail-contribution-meta')) return;
 
       var thumb = event.target.closest('.travel-hub-detail-photo-thumb[data-photo-url]');
       if (!thumb) return;
@@ -367,11 +370,15 @@
     var parentCard = actionsContainer.closest('.travel-hub-detail-photo-thumb, .travel-hub-detail-youtube-card, .travel-hub-detail-link-card');
     if (!parentCard) return;
 
+    /* For photos: place edit form AFTER the thumb (not inside) to avoid lightbox conflicts */
+    var editFormContainer = (contributionType === 'photo') ? parentCard.parentNode : parentCard;
+
     /* Check if edit form already open */
-    if (parentCard.querySelector('.travel-hub-detail-contribution-edit-form')) return;
+    if (editFormContainer.querySelector('.travel-hub-detail-contribution-edit-form')) return;
 
     var editForm = document.createElement('div');
     editForm.className = 'travel-hub-detail-contribution-edit-form';
+    editForm.setAttribute('data-for-card', contributionId);
 
     if (contributionType === 'photo') {
       var currentCaption = parentCard.getAttribute('data-photo-caption') || '';
@@ -402,7 +409,12 @@
         + '<button type="button" class="travel-hub-detail-contribution-cancel-button">বাতিল</button>';
     }
 
-    parentCard.appendChild(editForm);
+    if (contributionType === 'photo') {
+      /* Place after the photo thumb, not inside it */
+      parentCard.after(editForm);
+    } else {
+      parentCard.appendChild(editForm);
+    }
   }
 
   function handleContributionDelete(button) {
@@ -415,15 +427,24 @@
     var parentCard = actionsContainer.closest('.travel-hub-detail-photo-thumb, .travel-hub-detail-youtube-card, .travel-hub-detail-link-card');
     if (!parentCard) return;
 
+    /* For photos: place confirm bar outside thumb to avoid lightbox conflict */
+    var confirmContainer = (contributionType === 'photo') ? parentCard.parentNode : parentCard;
+
     /* Show inline confirmation instead of popup */
-    if (parentCard.querySelector('.travel-hub-detail-contribution-delete-confirm')) return;
+    if (confirmContainer.querySelector('.travel-hub-detail-contribution-delete-confirm')) return;
 
     var confirmBar = document.createElement('div');
     confirmBar.className = 'travel-hub-detail-contribution-delete-confirm';
+    confirmBar.setAttribute('data-for-card', contributionId);
     confirmBar.innerHTML = '<span>মুছে ফেলতে চান?</span>'
       + '<button type="button" class="travel-hub-detail-contribution-confirm-yes-button" data-type="' + contributionType + '" data-id="' + contributionId + '" data-dest-id="' + destinationId + '">হ্যাঁ</button>'
       + '<button type="button" class="travel-hub-detail-contribution-confirm-no-button">না</button>';
-    parentCard.appendChild(confirmBar);
+
+    if (contributionType === 'photo') {
+      parentCard.after(confirmBar);
+    } else {
+      parentCard.appendChild(confirmBar);
+    }
   }
 
   /* Save edit */
