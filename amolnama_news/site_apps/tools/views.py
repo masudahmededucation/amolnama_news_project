@@ -13,7 +13,38 @@ def _tools_breadcrumbs(name, url):
     ]
 
 
+def _tool_json_ld(request, name_bn, name_en, description_bn, description_en, url_path):
+    """Build SoftwareApplication JSON-LD schema for a tool page."""
+    return {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": f"{name_bn} | {name_en}",
+        "description": f"{description_bn} {description_en}",
+        "url": request.build_absolute_uri(url_path),
+        "applicationCategory": "BrowserApplication",
+        "operatingSystem": "Any (Browser-based)",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BDT",
+        },
+        "provider": {
+            "@type": "Organization",
+            "name": "আমলনামা নিউজ",
+            "url": request.build_absolute_uri("/"),
+        },
+    }
+
+
 def tools(request):
+    tools_list_json_ld = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "ফ্রি অনলাইন টুলস | Free Online Tools",
+        "description": "ফ্রি অনলাইন সফটওয়্যার টুলস — ফাইল কম্প্রেশন, রূপান্তর, ব্যাকগ্রাউন্ড রিমুভার। Free online software tools.",
+        "url": request.build_absolute_uri("/tools/"),
+        "provider": {"@type": "Organization", "name": "আমলনামা নিউজ"},
+    }
     context = {
         "seo": {
             "title": "ফ্রি অনলাইন টুলস — আমলনামা নিউজ | Free Online Tools",
@@ -22,6 +53,8 @@ def tools(request):
                 "ফটো অ্যালবাম মেকার, পাসপোর্ট ফটো রিসাইজার এবং আরও অনেক কিছু। সম্পূর্ণ বিনামূল্যে। "
                 "Free online tools: file compression, format conversion, background remover, photo album maker."
             ),
+            "og_type": "website",
+            "json_ld": tools_list_json_ld,
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
                 {"name": "টুলস", "url": "/tools/"},
@@ -39,6 +72,8 @@ def tools_reduce_file_size(request):
                 "ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
                 "Reduce image, PDF, and document file sizes online for free. No upload required."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "ফাইল কম্প্রেশন", "Reduce File Size", "ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান।", "Reduce image, PDF, and document file sizes online for free.", "/tools/reduce-file-size/"),
             "breadcrumbs": _tools_breadcrumbs("ফাইল কম্প্রেশন", "/tools/reduce-file-size/"),
         },
     }
@@ -53,6 +88,8 @@ def tools_file_conversion(request):
                 "ফাইল ফরম্যাট রূপান্তর করুন — ছবি, ডকুমেন্ট, অডিও, ভিডিও। সম্পূর্ণ বিনামূল্যে। "
                 "Convert between file formats — images, documents, audio, video. Free, client-side."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "ফাইল রূপান্তর", "File Conversion", "ফাইল ফরম্যাট রূপান্তর করুন — ছবি, ডকুমেন্ট, অডিও, ভিডিও।", "Convert between file formats — images, documents, audio, video.", "/tools/file-conversion/"),
             "breadcrumbs": _tools_breadcrumbs("ফাইল রূপান্তর", "/tools/file-conversion/"),
         },
     }
@@ -67,6 +104,8 @@ def tools_zip_creator(request):
                 "একাধিক ফাইল একটি ZIP আর্কাইভে বান্ডেল করুন — সম্পূর্ণ বিনামূল্যে। "
                 "Bundle multiple files into a ZIP archive online for free."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "জিপ ক্রিয়েটর", "ZIP Creator", "একাধিক ফাইল একটি ZIP আর্কাইভে বান্ডেল করুন।", "Bundle multiple files into a ZIP archive online for free.", "/tools/zip-creator/"),
             "breadcrumbs": _tools_breadcrumbs("জিপ ক্রিয়েটর", "/tools/zip-creator/"),
         },
     }
@@ -82,6 +121,8 @@ def tools_passport_photo_resizer(request):
                 "পাসপোর্ট, ভিসা ও সরকারি ফর্মের জন্য ছবির সাইজ পরিবর্তন করুন। "
                 "Resize photos for passport, visa, and government forms. Free online tool."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "পাসপোর্ট ফটো রিসাইজার", "Passport Photo Resizer", "পাসপোর্ট, ভিসা ও সরকারি ফর্মের জন্য ছবির সাইজ পরিবর্তন করুন।", "Resize photos for passport, visa, and government forms.", "/tools/passport-photo-resizer/"),
             "breadcrumbs": _tools_breadcrumbs("পাসপোর্ট ফটো", "/tools/passport-photo-resizer/"),
         },
     }
@@ -97,6 +138,8 @@ def tools_bg_remover(request):
                 "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
                 "Remove image backgrounds with AI — free, runs entirely in your browser."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "ব্যাকগ্রাউন্ড রিমুভার", "Background Remover", "AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান।", "Remove image backgrounds with AI — free, runs entirely in your browser.", "/tools/background-remover/"),
             "breadcrumbs": _tools_breadcrumbs("ব্যাকগ্রাউন্ড রিমুভার", "/tools/background-remover/"),
         },
     }
@@ -112,6 +155,8 @@ def tools_merge_documents(request):
                 "একাধিক PDF ও ছবি একটি PDF-এ একত্রিত করুন — সম্পূর্ণ বিনামূল্যে। "
                 "Merge multiple PDFs and images into one PDF. Free, client-side."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "ডকুমেন্ট মার্জ", "Merge Documents", "একাধিক PDF ও ছবি একটি PDF-এ একত্রিত করুন।", "Merge multiple PDFs and images into one PDF.", "/tools/merge-documents/"),
             "breadcrumbs": _tools_breadcrumbs("ডকুমেন্ট মার্জ", "/tools/merge-documents/"),
         },
     }
@@ -127,6 +172,8 @@ def tools_photo_album(request):
                 "ফটো অ্যালবাম পেজ তৈরি করুন — NID কার্ড, পাসপোর্ট ফটো শীট, পারিবারিক অ্যালবাম। "
                 "Create printable photo album pages — NID cards, passport sheets, family albums. Free tool."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "ফটো অ্যালবাম মেকার", "Photo Album Maker", "ফটো অ্যালবাম পেজ তৈরি করুন — NID কার্ড, পাসপোর্ট ফটো শীট।", "Create printable photo album pages — NID cards, passport sheets, family albums.", "/tools/photo-album/"),
             "breadcrumbs": _tools_breadcrumbs("ফটো অ্যালবাম", "/tools/photo-album/"),
         },
     }
@@ -142,6 +189,8 @@ def tools_split_pdf(request):
                 "বড় পিডিএফ ফাইল থেকে নির্দিষ্ট পাতা আলাদা করুন — সম্পূর্ণ বিনামূল্যে, ব্রাউজারেই। "
                 "Extract specific pages from a PDF file. Free, client-side, no upload required."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "পিডিএফ স্প্লিট", "Split PDF", "পিডিএফ থেকে নির্দিষ্ট পাতা আলাদা করুন।", "Extract specific pages from a PDF file.", "/tools/split-pdf/"),
             "breadcrumbs": _tools_breadcrumbs("পিডিএফ স্প্লিট", "/tools/split-pdf/"),
         },
     }
@@ -158,6 +207,8 @@ def tools_gpa_calculator(request):
                 "টার্গেট সিজিপিএ প্ল্যানার সহ। "
                 "Calculate SSC/HSC GPA and University CGPA with target planner. Free online tool."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "জিপিএ/সিজিপিএ ক্যালকুলেটর", "GPA/CGPA Calculator", "এসএসসি/এইচএসসি জিপিএ এবং বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন।", "Calculate SSC/HSC GPA and University CGPA with target planner.", "/tools/gpa-calculator/"),
             "breadcrumbs": _tools_breadcrumbs("জিপিএ ক্যালকুলেটর", "/tools/gpa-calculator/"),
         },
     }
@@ -173,6 +224,8 @@ def tools_age_calculator(request):
                 "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন, পরবর্তী জন্মদিন ও মজার তথ্য। "
                 "Calculate your exact age in years, months, days. Free online tool."
             ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(request, "বয়স ক্যালকুলেটর", "Age Calculator", "জন্মতারিখ দিন, বয়স জানুন — বছর, মাস, দিন।", "Calculate your exact age in years, months, days.", "/tools/age-calculator/"),
             "breadcrumbs": _tools_breadcrumbs("বয়স ক্যালকুলেটর", "/tools/age-calculator/"),
         },
     }
