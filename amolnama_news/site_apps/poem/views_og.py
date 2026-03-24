@@ -108,10 +108,16 @@ def _esc(text):
 @cache_control(public=True, max_age=86400)
 def poem_og_image(request, poem_slug):
     """Generate a dynamic OG share image for a poem using Chrome headless."""
-    try:
-        poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
-    except CollPoemEntry.DoesNotExist:
-        raise Http404
+    if poem_slug.isdigit():
+        try:
+            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+        except CollPoemEntry.DoesNotExist:
+            raise Http404
+    else:
+        try:
+            poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
+        except CollPoemEntry.DoesNotExist:
+            raise Http404
     return _render_og_image(poem)
 
 

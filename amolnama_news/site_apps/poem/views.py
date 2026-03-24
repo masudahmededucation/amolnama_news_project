@@ -255,6 +255,15 @@ def _render_poem_detail(request, poem):
 @ensure_csrf_cookie
 def poem_edit(request, poem_slug):
     """Poem edit form — only the author or admin can edit."""
+    # Handle numeric slug (old ID-based URL)
+    if poem_slug.isdigit():
+        try:
+            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+        except CollPoemEntry.DoesNotExist:
+            raise Http404
+        _ensure_poem_slug(poem)
+        return redirect("poem:poem_edit", poem_slug=poem.poem_slug, permanent=True)
+
     try:
         poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
     except CollPoemEntry.DoesNotExist:
