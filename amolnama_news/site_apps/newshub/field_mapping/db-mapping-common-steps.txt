@@ -362,5 +362,30 @@ KEY CODING RULES (apply to ALL forms)
    in link column names. link_issue_sub_type_id → [ref_issue_sub_type] table.
 
 ================================================================================
+EDIT MODE (added 2026-03-24)
+================================================================================
+
+When ?edit=<coll_news_entry_id> is in GET params:
+
+1. View fetches existing CollNewsEntry + related data
+2. helpers.py:build_edit_data() reconstructs all form JSON from DB:
+   - _build_shared_edit_data(entry) — contributor, news content, location, social, tags
+   - _build_actor_edit_data(entry_id) — bulk Person fetch (no N+1)
+   - _build_extortion_edit_data(entry_id) — BIT flag → status_id reverse mapping
+3. JSON passed to template as edit_data_json context variable
+4. news-form-edit-load.js runs BEFORE component scripts:
+   - Sets hidden JSON inputs (#accused-json, #extortion-incident-json, etc.)
+   - Sets window.__EDIT_MODE__ = true
+   - Components call restoreFromHiddenInput() on init, find the data
+5. news-form-persist.js skips localStorage restore when __EDIT_MODE__ is true
+6. On submit: _handle_news_submission() detects edit_entry_id in POST:
+   - UPDATE existing entry (not CREATE)
+   - DELETE + re-INSERT junction tables (tags, actors, form-specific)
+   - Skip duplicate headline check for own entry
+   - Redirect to article view page
+
+Performance: 11 RefStatus queries batched into 1. N+1 actor/social queries eliminated.
+
+================================================================================
 END OF FILE
 ================================================================================

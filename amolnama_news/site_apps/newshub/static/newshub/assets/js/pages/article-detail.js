@@ -2,21 +2,37 @@
 (function () {
   "use strict";
 
-  /* Share button */
-  var shareButton = document.getElementById("article-share-btn");
-  if (shareButton) {
-    shareButton.addEventListener("click", function () {
-      var articleTitle = shareButton.getAttribute("data-title") || "";
-      var articleUrl = window.location.href;
+  /* ---- Inline message helper (no popups) ---- */
+  function showInlineMessage(nearEl, text, isError) {
+    /* Remove any existing message near this element */
+    var existing = nearEl.parentNode.querySelector(".inline-msg");
+    if (existing) existing.remove();
 
-      if (navigator.share) {
-        navigator.share({ title: articleTitle, url: articleUrl });
-      } else {
-        navigator.clipboard.writeText(articleUrl).then(function () {
-          alert("লিংক কপি হয়েছে!");
-        });
-      }
-    });
+    var msg = document.createElement("div");
+    msg.className = "inline-msg " + (isError ? "inline-msg-error" : "inline-msg-success");
+    msg.textContent = text;
+    nearEl.parentNode.insertBefore(msg, nearEl.nextSibling);
+
+    /* Auto-remove after 5 seconds */
+    setTimeout(function () { if (msg.parentNode) msg.remove(); }, 5000);
+  }
+
+  /* Share buttons (top + bottom) */
+  var shareButtons = document.querySelectorAll("#article-share-btn, .article-share-btn-top");
+  for (var i = 0; i < shareButtons.length; i++) {
+    (function (btn) {
+      btn.addEventListener("click", function () {
+        var articleTitle = btn.getAttribute("data-title") || "";
+        var articleUrl = window.location.href;
+        if (navigator.share) {
+          navigator.share({ title: articleTitle, url: articleUrl });
+        } else {
+          navigator.clipboard.writeText(articleUrl).then(function () {
+            showInlineMessage(btn, "লিংক কপি হয়েছে!", false);
+          });
+        }
+      });
+    })(shareButtons[i]);
   }
   /* Comment submit */
   var commentSubmitButton = document.getElementById("article-comment-submit");
@@ -74,28 +90,60 @@
               commentHeading.innerHTML = '<span data-en="Comments">মন্তব্য</span> (' + (currentCount + 1) + ")";
             }
           } else {
-            alert(data.error || "মন্তব্য জমা দিতে সমস্যা হয়েছে");
+            showInlineMessage(commentSubmitButton, data.error || "মন্তব্য জমা দিতে সমস্যা হয়েছে", true);
           }
           commentSubmitButton.disabled = false;
           commentSubmitButton.textContent = "💬 মন্তব্য করুন";
         })
         .catch(function () {
-          alert("নেটওয়ার্ক ত্রুটি");
+          showInlineMessage(commentSubmitButton, "নেটওয়ার্ক ত্রুটি", true);
           commentSubmitButton.disabled = false;
           commentSubmitButton.textContent = "💬 মন্তব্য করুন";
         });
     });
   }
 
-  /* Publication status changer */
-  var publicationStatusSelect = document.getElementById("article-publication-status-select");
-  if (publicationStatusSelect) {
-    var originalStatusId = publicationStatusSelect.getAttribute("data-current");
-    publicationStatusSelect.addEventListener("change", function () {
-      var newStatusId = publicationStatusSelect.value;
-      if (newStatusId === originalStatusId) return;
+  /* Publication status — toggle between badge and dropdown */
+  var statusBadge = document.getElementById("article-status-badge");
+  var statusEditBtn = document.getElementById("article-status-edit-btn");
+  var statusSelect = document.getElementById("article-publication-status-select");
 
-      var entryId = publicationStatusSelect.getAttribute("data-entry-id");
+  if (statusEditBtn && statusSelect && statusBadge) {
+    var originalStatusId = statusSelect.getAttribute("data-current");
+    var isEditing = false;
+
+    function showBadgeMode() {
+      statusBadge.style.display = "";
+      statusEditBtn.style.display = "";
+      statusSelect.style.display = "none";
+      isEditing = false;
+    }
+
+    function showDropdownMode() {
+      statusBadge.style.display = "none";
+      statusEditBtn.style.display = "none";
+      statusSelect.style.display = "";
+      statusSelect.focus();
+      isEditing = true;
+    }
+
+    /* Click edit pencil → show dropdown */
+    statusEditBtn.addEventListener("click", showDropdownMode);
+
+    /* Click away from dropdown → revert to badge */
+    statusSelect.addEventListener("blur", function () {
+      setTimeout(showBadgeMode, 150);
+    });
+
+    /* On change → save new status */
+    statusSelect.addEventListener("change", function () {
+      var newStatusId = statusSelect.value;
+      if (!newStatusId || newStatusId === originalStatusId) {
+        showBadgeMode();
+        return;
+      }
+
+      var entryId = statusSelect.getAttribute("data-entry-id");
 
       function getCookieValue(name) {
         var cookieMatch = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
@@ -113,21 +161,20 @@
         .then(function (response) { return response.json(); })
         .then(function (data) {
           if (data.success) {
-            /* Update badge */
-            var badge = document.querySelector(".article-publication-badge");
-            if (badge) {
-              badge.className = "article-publication-badge " + data.new_status_code;
-              badge.textContent = data.new_status_icon + " " + data.new_status_name_bn;
-            }
+            /* Update badge text and class */
+            statusBadge.className = "article-status-badge " + data.new_status_code;
+            statusBadge.textContent = data.new_status_icon + " " + data.new_status_name_bn;
             originalStatusId = newStatusId;
+            showBadgeMode();
+            showInlineMessage(statusSelect.parentNode, "স্থিতি পরিবর্তন হয়েছে", false);
           } else {
-            alert(data.error || "স্থিতি পরিবর্তন করা যায়নি");
-            publicationStatusSelect.value = originalStatusId;
+            showBadgeMode();
+            showInlineMessage(statusSelect.parentNode, data.error || "স্থিতি পরিবর্তন করা যায়নি", true);
           }
         })
         .catch(function () {
-          alert("নেটওয়ার্ক ত্রুটি");
-          publicationStatusSelect.value = originalStatusId;
+          showBadgeMode();
+          showInlineMessage(statusSelect.parentNode, "নেটওয়ার্ক ত্রুটি", true);
         });
     });
   }

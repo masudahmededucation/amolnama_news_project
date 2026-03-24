@@ -46,20 +46,20 @@
     {# ---- Header ---- #}
     <div class="article-header">
 
-      {# Publication status badge #}
+      {# Publication status — single element: badge with optional edit toggle #}
       {% if publication_status %}
-      <div class="article-publication-badge {{ publication_status.status_code }}">
-        {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
-      </div>
-      {% endif %}
-
-      {# Publication status changer — admin/editors only #}
-      {% if can_edit %}
-      <div class="article-status-changer">
-        <select id="article-publication-status-select" name="article_publication_status"
+      <div class="article-status-widget" id="article-status-widget">
+        <span class="article-status-badge {{ publication_status.status_code }}" id="article-status-badge">
+          {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
+        </span>
+        {% if can_edit %}
+        <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
+        <select class="article-status-select" id="article-publication-status-select"
+                name="article_publication_status"
                 data-entry-id="{{ entry.coll_news_entry_id }}"
                 data-current="{{ entry.link_ref_status_article_publication_status_id }}"
-                aria-labelledby="article-status-label">
+                aria-label="Change publication status"
+                style="display:none;">
           {% for status_option in publication_status_options %}
           <option value="{{ status_option.status_id }}"
                   {% if status_option.status_id == entry.link_ref_status_article_publication_status_id %}selected{% endif %}>
@@ -67,7 +67,7 @@
           </option>
           {% endfor %}
         </select>
-        <span id="article-status-label" class="article-status-label" data-en="Change Status">স্থিতি পরিবর্তন</span>
+        {% endif %}
       </div>
       {% endif %}
 
@@ -85,6 +85,10 @@
         <span>{{ published_article.published_at|date:"d M Y, h:i A" }}</span>
         {% elif entry.occurrence_at %}
         <span>{{ entry.occurrence_at|date:"d M Y, h:i A" }}</span>
+        {% endif %}
+
+        {% if form_type %}
+        <span class="article-meta-form-type">{{ form_type.form_name_bn }}</span>
         {% endif %}
 
         {% if category %}
@@ -110,6 +114,18 @@
       {% endif %}
     </div>
 
+    {# ---- Top Actions (share + edit) ---- #}
+    <div class="article-actions article-actions-top">
+      <button id="article-share-btn-top" class="article-action-btn article-share-btn-top" data-title="{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|escapejs }}">
+        📤 শেয়ার
+      </button>
+      {% if can_edit and edit_url %}
+      <a href="{{ edit_url }}" class="article-action-btn edit-btn">
+        ✏️ সম্পাদনা
+      </a>
+      {% endif %}
+    </div>
+
     {# ---- Summary ---- #}
     {% if entry.news_summary_bn %}
     <div class="article-summary">
@@ -117,10 +133,10 @@
     </div>
     {% endif %}
 
-    {# ---- Body paragraphs ---- #}
+    {# ---- Body paragraphs (may contain inline HTML from Quill editor) ---- #}
     <div class="article-body">
       {% for paragraph in body_paragraphs %}
-      <p>{{ paragraph }}</p>
+      <p>{{ paragraph|safe }}</p>
       {% endfor %}
     </div>
 
@@ -131,7 +147,7 @@
       </button>
 
       {% if can_edit and edit_url %}
-      <a href="{{ edit_url }}?edit={{ entry.coll_news_entry_id }}" class="article-action-btn edit-btn">
+      <a href="{{ edit_url }}" class="article-action-btn edit-btn">
         ✏️ সম্পাদনা
       </a>
       {% endif %}
@@ -165,7 +181,7 @@
 
     {# ======== COMMENTS ======== #}
     <section class="article-comments">
-      <h2 class="article-section-title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
+      <h2 class="article-section-title" id="article-comments-title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
 
       {# Comment form — any logged-in user can comment, no points required #}
       {% if user.is_authenticated %}

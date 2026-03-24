@@ -1,3 +1,6 @@
+/* No underline on hover — all links */
+main a, main a:hover, main a:focus { text-decoration: none; }
+
 /* ========== Beauty of Bangladesh Page ========== */
 
 .bh-header { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:1rem 0 .75rem; }
@@ -21,8 +24,10 @@
 /* Masonry gallery grid */
 .bh-gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem; padding:.5rem 0 2rem; }
 
-.bh-card { border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); cursor:pointer; transition:box-shadow .2s, transform .2s; }
-.bh-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.bh-card { position:relative; border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); cursor:pointer; transition:box-shadow .2s, border-color .2s; }
+.bh-card:hover { box-shadow:var(--shadow-md); border-color:var(--primary); }
+.bh-card::after { content:'✓'; position:absolute; top:.5rem; right:.5rem; width:24px; height:24px; border-radius:50%; background:var(--primary); color:#fff; font-size:.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; z-index:1; }
+.bh-card:hover::after { opacity:1; }
 
 .bh-card-img { height:200px; background-size:cover; background-position:center; background-color:var(--surface); position:relative; }
 .bh-card-video-badge { position:absolute; top:.5rem; left:.5rem; background:rgba(0,0,0,.7); color:#fff; font-size:.65rem; font-weight:600; padding:.2rem .5rem; border-radius:3px; }

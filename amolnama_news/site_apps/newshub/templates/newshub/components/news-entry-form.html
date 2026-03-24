@@ -17,17 +17,19 @@
     {% endif %}
   </div>
 
-  {# Summary (Bengali) #}
+  {# Summary (Bengali) — Quill editor #}
   <div class="form-field">
-    <label for="news-summary-bn">{{ news_entry_form.summary_bn.label }}</label>
+    <span class="form-field-label">{{ news_entry_form.summary_bn.label }}</span>
+    <div id="quill-news-summary"></div>
     {{ news_entry_form.summary_bn }}
   </div>
 
-  {# Content body (Bengali) #}
+  {# Content body (Bengali) — Quill editor #}
   <div class="form-field">
-    <label for="news-content-body-bn">
+    <span class="form-field-label">
       {{ news_entry_form.content_body_bn.label }}<span class="required-mark">*</span>
-    </label>
+    </span>
+    <div id="quill-news-body"></div>
     {{ news_entry_form.content_body_bn }}
     {% if news_entry_form.content_body_bn.errors %}
       <ul class="field-errors">{% for e in news_entry_form.content_body_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>

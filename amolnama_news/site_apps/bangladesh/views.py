@@ -9,6 +9,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import (
     CollDestination, CollDestinationPhoto, CollAccommodation,
     CollTransportRoute, CollTravelTip, EngDestinationReview,
+    CollDestinationYoutubeLink, CollDestinationReferenceLink,
     RefDestinationCategory, RefSeason, RefMediaCategory,
     CollMediaEntry,
 )
@@ -112,7 +113,7 @@ def travel_hub(request):
 @login_required
 @ensure_csrf_cookie
 def travel_hub_add(request):
-    """Add a new destination."""
+    """Add or edit a destination."""
     categories = list(
         RefDestinationCategory.objects.filter(is_active=True)
         .order_by("sort_order", "destination_category_name_en")
@@ -120,14 +121,39 @@ def travel_hub_add(request):
     seasons = list(
         RefSeason.objects.filter(is_active=True).order_by("sort_order")
     )
-    return render(request, "bangladesh/pages/travel-hub-add.html", {
+
+    context = {
         "categories": categories,
         "seasons": seasons,
         "seo": {
             "title": "দর্শনীয় স্থান যোগ করুন | Add Destination",
             "description": "নতুন দর্শনীয় স্থান যোগ করুন।",
         },
-    })
+    }
+
+    # Edit mode — pre-populate from existing destination
+    edit_id = request.GET.get("edit")
+    if edit_id:
+        try:
+            dest = CollDestination.objects.get(bangladesh_coll_destination_id=int(edit_id))
+            import json
+            context["edit_entry_id"] = int(edit_id)
+            context["edit_data_json"] = json.dumps({
+                "category_id": dest.link_destination_category_id,
+                "name_bn": dest.destination_name_bn or "",
+                "name_en": dest.destination_name_en or "",
+                "short_desc_bn": dest.destination_short_description_bn or "",
+                "desc_bn": dest.destination_description_bn or "",
+                "season_id": dest.link_best_season_id,
+                "difficulty": dest.difficulty_level or "",
+                "entry_fee": float(dest.entry_fee_bdt) if dest.entry_fee_bdt else "",
+                "visiting_hours": dest.visiting_hours_bn or "",
+            }, default=str)
+            context["seo"]["title"] = "সম্পাদনা | Edit Destination"
+        except (ValueError, CollDestination.DoesNotExist):
+            pass
+
+    return render(request, "bangladesh/pages/travel-hub-add.html", context)
 
 
 def travel_hub_detail(request, destination_id):
@@ -196,6 +222,16 @@ def travel_hub_detail(request, destination_id):
         EngDestinationReview.objects.filter(link_coll_destination_id=destination_id)
         .order_by("-created_at")[:20]
     )
+    youtube_links = list(
+        CollDestinationYoutubeLink.objects.filter(
+            link_coll_destination_id=destination_id, is_active=True
+        ).order_by("-created_at")
+    )
+    reference_links = list(
+        CollDestinationReferenceLink.objects.filter(
+            link_coll_destination_id=destination_id, is_active=True
+        ).order_by("-created_at")
+    )
 
     # Can edit
     can_edit = False
@@ -212,14 +248,24 @@ def travel_hub_detail(request, destination_id):
             except UserProfile.DoesNotExist:
                 pass
 
+    # Split description into paragraphs, keep inline formatting (bold, color, etc.)
+    import re
+    desc_raw = dest.destination_description_bn or dest.destination_description_en or ''
+    # Remove block-level <p> and </p> tags so we can re-split by \n
+    desc_cleaned = re.sub(r'</?p[^>]*>', '\n', desc_raw) if desc_raw else ''
+    desc_paragraphs = [p.strip() for p in desc_cleaned.split('\n') if p.strip()]
+
     title = dest.destination_name_bn or dest.destination_name_en
     return render(request, "bangladesh/pages/travel-hub-detail.html", {
         "dest": dest,
+        "desc_paragraphs": desc_paragraphs,
         "photos": photos,
         "accommodations": accommodations,
         "transport": transport,
         "tips": tips,
         "reviews": reviews,
+        "youtube_links": youtube_links,
+        "reference_links": reference_links,
         "can_edit": can_edit,
         "seo": {
             "title": f"{title} — ভ্রমণ কেন্দ্র | Travel Hub",

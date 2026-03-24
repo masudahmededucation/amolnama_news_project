@@ -120,34 +120,3 @@ all attributes should have its id and name
 check all pages, all forms, all steps
 give descriptive name not partial or short name
 
-can you make a note, so that in future no attribute gets created like this?
-A <label> isn't associated with a form field.
-
-To fix this issue, nest the <input> in the <label> or provide a for attribute on the <label> that matches a form field id.
-
---can you make a note, so that in future it never happens
-fix forms and attribute issues dynamic or static does not matter. 
-check all files including js, ajax, html, views, models
-you keep avoiding dynamic issues.
-A form field element has neither an id nor a name attribute.
-This might prevent the browser from correctly autofilling the form.
-
-To fix this issue, add a unique id or name attribute to a form field. 
-This is not strictly needed, 
-but still recommended even if you have an autocomplete attribute on the same element.
-
-stop telling me work is done just after fixing a few lines of codes or files.
-stop lying to me. 
-
-
-Incorrect use of <label for=FORM_ELEMENT>
-The label's for attribute doesn't match any element id. This might prevent the browser from correctly autofilling the form and accessibility tools from working correctly.
-
-To fix this issue, make sure the label's for attribute references the correct id of a form field.
-
-4 resources
-
---news article
-did you check you have implemented everything planned?
-i can't comment. 
-i don't see edit article option - i am admin and owner of the article. 

@@ -1,6 +1,7 @@
 """Bangladesh app models — mapped to SQL Server [bangladesh] schema (managed=False)."""
 
 from django.db import models
+from django.utils import timezone
 
 
 # ============================================================================
@@ -243,6 +244,43 @@ class EngDestinationBookmark(models.Model):
     class Meta:
         managed = False
         db_table = "[bangladesh].[eng_destination_bookmark]"
+
+
+class CollDestinationYoutubeLink(models.Model):
+    bangladesh_coll_destination_youtube_link_id = models.BigAutoField(primary_key=True)
+    link_coll_destination_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    youtube_url = models.CharField(max_length=500)
+    youtube_video_id = models.CharField(max_length=20, blank=True, null=True)
+    video_title_bn = models.CharField(max_length=300, blank=True, null=True)
+    video_title_en = models.CharField(max_length=300, blank=True, null=True)
+    description_bn = models.CharField(max_length=1000, blank=True, null=True)
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = "[bangladesh].[coll_destination_youtube_link]"
+
+
+class CollDestinationReferenceLink(models.Model):
+    bangladesh_coll_destination_reference_link_id = models.BigAutoField(primary_key=True)
+    link_coll_destination_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    reference_url = models.CharField(max_length=1000)
+    reference_title_bn = models.CharField(max_length=300, blank=True, null=True)
+    reference_title_en = models.CharField(max_length=300, blank=True, null=True)
+    description_bn = models.CharField(max_length=1000, blank=True, null=True)
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = "[bangladesh].[coll_destination_reference_link]"
 
 
 # ============================================================================

@@ -524,6 +524,11 @@
     startStep = errorStepNumbers[0];
   }
 
+  /* Edit mode — skip to step 3 (news content: headline, summary, body) */
+  if (window.__EDIT_MODE__ && startStep === 1) {
+    startStep = 3;
+  }
+
   showStep(startStep);
 
   /* Auto-advance past step 1 after a form-type redirect */

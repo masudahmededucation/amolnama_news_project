@@ -17,6 +17,9 @@
   {% for article_item in articles %}
   <a href="{% url 'newshub:article_detail' slug=article_item.published_article.pub_article_slug %}" class="article-landing-card">
     <div class="article-landing-card-header">
+      {% if article_item.form_type %}
+      <span class="article-landing-card-form-type">{{ article_item.form_type.form_name_bn }}</span>
+      {% endif %}
       {% if article_item.category %}
       <span class="article-landing-card-category">{{ article_item.category.news_category_name_bn }}</span>
       {% endif %}
@@ -28,7 +31,7 @@
     <h2 class="article-landing-card-headline">{{ article_item.published_article.pub_article_headline_bn|default:article_item.entry.news_headline_bn }}</h2>
 
     {% if article_item.entry.news_summary_bn %}
-    <p class="article-landing-card-summary">{{ article_item.entry.news_summary_bn|truncatewords:25 }}</p>
+    <p class="article-landing-card-summary">{{ article_item.entry.news_summary_bn|striptags|truncatewords:25 }}</p>
     {% endif %}
 
     <div class="article-landing-card-meta">

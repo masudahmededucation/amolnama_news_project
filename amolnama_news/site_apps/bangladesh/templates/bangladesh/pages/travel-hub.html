@@ -10,22 +10,22 @@
 
 {% block content %}
 
-<section class="th-header">
-  <div class="th-header-left">
+<section class="travel-hub-header">
+  <div class="travel-hub-header-left">
     <h1>ভ্রমণ কেন্দ্র (Travel Hub)</h1>
     <p>বাংলাদেশের দর্শনীয় স্থান খুঁজুন, রিভিউ পড়ুন ও ভ্রমণ পরিকল্পনা করুন</p>
   </div>
-  <div class="th-header-search">
-    <svg class="th-header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" class="th-header-search-input" id="thSearchInput" placeholder="দর্শনীয় স্থান খুঁজুন... (Search destinations...)" autocomplete="off">
+  <div class="travel-hub-header-search">
+    <svg class="travel-hub-header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="travel-hub-header-search-input" id="travel-hub-search-input" name="travel_hub_search_query" placeholder="দর্শনীয় স্থান খুঁজুন... (Search destinations...)" autocomplete="off">
   </div>
   {% if user.is_authenticated %}
-    <a href="{% url 'bangladesh:travel_hub_add' %}" class="th-header-cta">
+    <a href="{% url 'bangladesh:travel_hub_add' %}" class="travel-hub-header-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       স্থান যোগ করুন
     </a>
   {% else %}
-    <a href="{% url 'user_account:login' %}?next={% url 'bangladesh:travel_hub_add' %}" class="th-header-cta">
+    <a href="{% url 'user_account:login' %}?next={% url 'bangladesh:travel_hub_add' %}" class="travel-hub-header-cta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       লগইন করুন
     </a>
@@ -33,11 +33,11 @@
 </section>
 
 {# ── Category Filter ── #}
-<div class="th-filter-bar">
-  <div class="th-filter-pills" id="thFilterPills">
-    <button type="button" class="th-filter-pill th-filter-pill--active" data-category="">সব (All)</button>
+<div class="travel-hub-filter-bar">
+  <div class="travel-hub-filter-pills" id="travel-hub-filter-pills">
+    <button type="button" class="travel-hub-filter-pill travel-hub-filter-pill--active" data-category="">সব (All)</button>
     {% for cat in categories %}
-      <button type="button" class="th-filter-pill" data-category="{{ cat.bangladesh_ref_destination_category_id }}">
+      <button type="button" class="travel-hub-filter-pill" data-category="{{ cat.bangladesh_ref_destination_category_id }}">
         {{ cat.destination_category_name_bn }}
       </button>
     {% endfor %}
@@ -45,34 +45,34 @@
 </div>
 
 {# ── Destination Grid ── #}
-<div class="th-dest-grid" id="thDestGrid">
+<div class="travel-hub-destination-grid" id="travel-hub-destination-grid">
   {% for d in destinations %}
-    <a href="{% url 'bangladesh:travel_hub_detail' d.bangladesh_coll_destination_id %}" class="th-dest-card">
+    <a href="{% url 'bangladesh:travel_hub_detail' d.bangladesh_coll_destination_id %}" class="travel-hub-destination-card">
       {% if d.cover_image_url %}
-        <div class="th-dest-card-img" style="background-image:url('{{ d.cover_image_url }}');"></div>
+        <div class="travel-hub-destination-card-img" style="background-image:url('{{ d.cover_image_url }}');"></div>
       {% else %}
-        <div class="th-dest-card-img th-dest-card-img--placeholder">
+        <div class="travel-hub-destination-card-img travel-hub-destination-card-img--placeholder">
           <span>📍</span>
         </div>
       {% endif %}
-      <div class="th-dest-card-body">
-        <div class="th-dest-card-meta">
-          <span class="th-dest-card-category">{{ d.category_name_bn }}</span>
-          {% if d.is_featured %}<span class="th-dest-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>{% endif %}
+      <div class="travel-hub-destination-card-body">
+        <div class="travel-hub-destination-card-meta">
+          <span class="travel-hub-destination-card-category">{{ d.category_name_bn }}</span>
+          {% if d.is_featured %}<span class="travel-hub-destination-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>{% endif %}
         </div>
-        <h3 class="th-dest-card-title">{{ d.destination_name_bn }}</h3>
-        <p class="th-dest-card-desc">{{ d.destination_short_description_bn|default:d.destination_short_description_en|default:"" }}</p>
-        <div class="th-dest-card-footer">
+        <h3 class="travel-hub-destination-card-title">{{ d.destination_name_bn }}</h3>
+        <p class="travel-hub-destination-card-desc">{{ d.destination_short_description_bn|default:d.destination_short_description_en|default:""|striptags|truncatewords:25 }}</p>
+        <div class="travel-hub-destination-card-footer">
           {% if d.avg_rating %}
-            <span class="th-dest-card-rating">★ {{ d.avg_rating }}</span>
+            <span class="travel-hub-destination-card-rating">★ {{ d.avg_rating }}</span>
           {% endif %}
-          <span class="th-dest-card-views">👁 {{ d.view_count }}</span>
-          <span class="th-dest-card-time">{{ d.time_ago }}</span>
+          <span class="travel-hub-destination-card-views">👁 {{ d.view_count }}</span>
+          <span class="travel-hub-destination-card-time">{{ d.time_ago }}</span>
         </div>
       </div>
     </a>
   {% empty %}
-    <div class="th-empty-state">
+    <div class="travel-hub-empty-state">
       <p>এখনো কোনো দর্শনীয় স্থান যোগ করা হয়নি। প্রথম স্থানটি আপনি যোগ করুন!</p>
       <p>No destinations added yet. Be the first to add one!</p>
     </div>
@@ -80,8 +80,8 @@
 </div>
 
 {% if has_next %}
-<div class="th-load-more" id="thLoadMore">
-  <button type="button" class="th-load-more-btn" id="thLoadMoreBtn">আরও দেখুন (Load More)</button>
+<div class="travel-hub-load-more" id="travel-hub-load-more">
+  <button type="button" class="travel-hub-load-more-btn" id="travel-hub-load-more-button">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

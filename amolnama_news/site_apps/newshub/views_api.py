@@ -752,8 +752,20 @@ def api_article_update_publication_status(request, entry_id):
     except CollNewsEntry.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Article not found'}, status=404)
 
-    # Permission check — admin or editor
-    if not (request.user.is_staff or request.user.is_superuser):
+    # Permission check — admin, staff, or article owner
+    is_owner = False
+    if entry.link_contributor_id:
+        from .models import CollContributor
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        try:
+            contrib = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
+            if contrib.link_user_profile_id:
+                up = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+                if contrib.link_user_profile_id == up.user_profile_id:
+                    is_owner = True
+        except (CollContributor.DoesNotExist, UserProfile.DoesNotExist):
+            pass
+    if not (request.user.is_staff or request.user.is_superuser or is_owner):
         return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
 
     try:

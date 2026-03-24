@@ -55,6 +55,7 @@ class NewsEntryForm(forms.Form):
             'id': 'news-summary-bn',
             'rows': 3,
             'placeholder': 'সংক্ষেপে সংবাদটি বর্ণনা করুন (ঐচ্ছিক)',
+            'style': 'display:none;',
         }),
     )
     content_body_bn = forms.CharField(
@@ -63,6 +64,7 @@ class NewsEntryForm(forms.Form):
             'id': 'news-content-body-bn',
             'rows': 10,
             'placeholder': 'সংবাদের বিস্তারিত বিবরণ লিখুন',
+            'style': 'display:none;',
         }),
     )
     occurrence_at = forms.DateTimeField(

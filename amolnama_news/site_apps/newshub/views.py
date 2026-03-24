@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import re
 import unicodedata
 import uuid
 from datetime import date as _date
@@ -9,6 +10,7 @@ from django.conf import settings
 from django.db import connection as db_conn, DatabaseError, IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from amolnama_news.site_apps.sports.models import SportsFormFact
@@ -63,6 +65,24 @@ from .models import (
 
 
 # ========== Helpers ==========
+
+def _sanitize_rich_html(html):
+    """Strip dangerous tags/attributes from Quill rich text HTML."""
+    if not html:
+        return html
+    # Remove dangerous tags and their content (matched pairs)
+    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    # Remove self-closing dangerous tags
+    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*/>', '', html, flags=re.IGNORECASE)
+    # Remove orphaned opening/closing dangerous tags
+    html = re.sub(r'</?(?:script|style|iframe|object|embed|form)[^>]*>', '', html, flags=re.IGNORECASE)
+    # Remove on* event handler attributes
+    html = re.sub(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'\s+on\w+\s*=\s*\S+', '', html, flags=re.IGNORECASE)
+    # Remove javascript: URLs
+    html = re.sub(r'href\s*=\s*["\']javascript:[^"\']*["\']', 'href="#"', html, flags=re.IGNORECASE)
+    return html.strip()
+
 
 def _unique_news_category_tags():
     """Return deduplicated tag list from ref_news_category_tag (unique by tag name pair).
@@ -237,42 +257,86 @@ def news_collection_multistep_extortion(request):
 
     extra['self_info'] = _get_user_contributor_info(request.user)
 
-    # Extortion Step 7 — Incident Details (all DB-driven reference data)
-    def _extortion_ref(gc):
-        return list(
-            RefStatus.objects.filter(group_code=gc, is_active=True)
-            .order_by('sort_order')
-            .values('status_id', 'status_code', 'status_name_bn', 'status_name_en', 'status_icon')
-        )
-    extra['extortion_sectors']              = _extortion_ref('extortion_form_extortion_sector')
-    extra['extortion_demand_frequencies']   = _extortion_ref('extortion_form_extortion_demand_frequency')
-    extra['extortion_accused_affiliations'] = _extortion_ref('extortion_form_extortion_accused_affiliation')
-    extra['extortion_threat_methods']       = _extortion_ref('extortion_form_extortion_threat_pressure_method')
-    extra['extortion_victim_consequences']  = _extortion_ref('extortion_form_extortion_victim_consequence')
-    extra['extortion_bangladesh_contexts']  = _extortion_ref('extortion_form_extortion_bangladesh_context')
+    # ---- Edit mode: pre-populate form from existing entry ----
+    edit_entry_id = request.GET.get('edit')
+    if edit_entry_id:
+        try:
+            edit_entry_id = int(edit_entry_id)
+            edit_entry = CollNewsEntry.objects.get(coll_news_entry_id=edit_entry_id)
+            # Permission check: owner or admin
+            can_edit = False
+            if request.user.is_authenticated:
+                if request.user.is_staff or request.user.is_superuser:
+                    can_edit = True
+                elif edit_entry.link_contributor_id:
+                    try:
+                        contributor = CollContributor.objects.get(
+                            coll_contributor_id=edit_entry.link_contributor_id
+                        )
+                        if contributor.link_user_profile_id:
+                            user_profile = UserProfile.objects.get(
+                                link_user_account_user_id=request.user.pk
+                            )
+                            if contributor.link_user_profile_id == user_profile.user_profile_id:
+                                can_edit = True
+                    except (CollContributor.DoesNotExist, UserProfile.DoesNotExist):
+                        pass
+            if can_edit:
+                from .helpers import build_edit_data
+                # Resolve form type code from entry
+                _edit_form_code = 'extortion'
+                if edit_entry.link_form_type_id:
+                    _ft = RefNewsFormType.objects.filter(
+                        ref_news_form_type_id=edit_entry.link_form_type_id
+                    ).values_list('group_code', flat=True).first()
+                    if _ft:
+                        _edit_form_code = _ft
+                edit_data = build_edit_data(edit_entry_id, _edit_form_code)
+                extra['edit_entry_id'] = edit_entry_id
+                extra['edit_data_json'] = json.dumps(edit_data, default=str)
+            else:
+                extra['error_message'] = 'এই সংবাদ সম্পাদনার অনুমতি নেই (No permission to edit this article)'
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
+            extra['error_message'] = f'সম্পাদনা তথ্য লোড করতে সমস্যা: {exc}'
 
-    # Extortion Step 8 — Legal Action reference data (JSON for <script type="application/json"> blocks)
-    _rv_legal = ('status_id', 'status_code', 'status_name_bn', 'status_name_en')
-    extra['fir_statuses_json'] = json.dumps(list(
-        RefStatus.objects.filter(group_code='law_gd_fir_status', is_active=True)
-        .order_by('sort_order').values(*_rv_legal)
-    ))
-    extra['ext_applicable_laws_json']  = json.dumps(list(
-        RefStatus.objects.filter(group_code='extortion_form_law_applicable', is_active=True)
-        .order_by('sort_order').values(*_rv_legal)
-    ))
-    extra['ext_case_status_json'] = json.dumps(list(
-        RefStatus.objects.filter(group_code='law_case_status', is_active=True)
-        .order_by('sort_order').values(*_rv_legal)
-    ))
-    extra['ext_support_services_json'] = json.dumps(list(
-        RefStatus.objects.filter(group_code='extortion_form_law_support_service', is_active=True)
-        .order_by('sort_order').values(*_rv_legal)
-    ))
-    extra['ext_retaliation_json'] = json.dumps(list(
-        RefStatus.objects.filter(group_code='common_victim_risk_threat_pressure_retaliation', is_active=True)
-        .order_by('sort_order').values(*_rv_legal)
-    ))
+    # Extortion Steps 7 & 8 — All reference data in ONE query, then split by group_code
+    _ext_group_codes = [
+        'extortion_form_extortion_sector',
+        'extortion_form_extortion_demand_frequency',
+        'extortion_form_extortion_accused_affiliation',
+        'extortion_form_extortion_threat_pressure_method',
+        'extortion_form_extortion_victim_consequence',
+        'extortion_form_extortion_bangladesh_context',
+        'law_gd_fir_status',
+        'extortion_form_law_applicable',
+        'law_case_status',
+        'extortion_form_law_support_service',
+        'common_victim_risk_threat_pressure_retaliation',
+    ]
+    _all_ext_statuses = list(
+        RefStatus.objects.filter(group_code__in=_ext_group_codes, is_active=True)
+        .order_by('group_code', 'sort_order')
+        .values('status_id', 'status_code', 'status_name_bn', 'status_name_en', 'status_icon', 'group_code')
+    )
+    _ext_by_group = {}
+    for row in _all_ext_statuses:
+        _ext_by_group.setdefault(row['group_code'], []).append(row)
+
+    extra['extortion_sectors']              = _ext_by_group.get('extortion_form_extortion_sector', [])
+    extra['extortion_demand_frequencies']   = _ext_by_group.get('extortion_form_extortion_demand_frequency', [])
+    extra['extortion_accused_affiliations'] = _ext_by_group.get('extortion_form_extortion_accused_affiliation', [])
+    extra['extortion_threat_methods']       = _ext_by_group.get('extortion_form_extortion_threat_pressure_method', [])
+    extra['extortion_victim_consequences']  = _ext_by_group.get('extortion_form_extortion_victim_consequence', [])
+    extra['extortion_bangladesh_contexts']  = _ext_by_group.get('extortion_form_extortion_bangladesh_context', [])
+
+    # Legal action reference data (JSON for <script type="application/json"> blocks)
+    extra['fir_statuses_json']          = json.dumps(_ext_by_group.get('law_gd_fir_status', []))
+    extra['ext_applicable_laws_json']   = json.dumps(_ext_by_group.get('extortion_form_law_applicable', []))
+    extra['ext_case_status_json']       = json.dumps(_ext_by_group.get('law_case_status', []))
+    extra['ext_support_services_json']  = json.dumps(_ext_by_group.get('extortion_form_law_support_service', []))
+    extra['ext_retaliation_json']       = json.dumps(_ext_by_group.get('common_victim_risk_threat_pressure_retaliation', []))
 
     # Reference data for involved parties repeater
     extra['actor_involvement_types_json'] = json.dumps(list(
@@ -1145,12 +1209,20 @@ def news_article_landing(request):
                 except (UserProfile.DoesNotExist, Person.DoesNotExist):
                     pass
 
+        form_type_obj = None
+        if entry.link_form_type_id:
+            try:
+                form_type_obj = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
+            except RefNewsFormType.DoesNotExist:
+                pass
+
         articles_with_meta.append({
             'published_article': published_article,
             'entry': entry,
             'category': category,
             'contributor': contributor,
             'contributor_display_name': contributor_display_name,
+            'form_type': form_type_obj,
         })
 
     context = {
@@ -1179,10 +1251,11 @@ def article_detail(request, slug):
 
     # Determine form type
     form_type_code = ''
+    form_type_obj = None
     if entry.link_form_type_id:
         try:
-            form_type = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
-            form_type_code = form_type.group_code
+            form_type_obj = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
+            form_type_code = form_type_obj.group_code
         except RefNewsFormType.DoesNotExist:
             pass
 
@@ -1246,10 +1319,11 @@ def article_detail(request, slug):
         except RefNewsCategory.DoesNotExist:
             pass
 
-    # Split body into paragraphs
+    # Split body into paragraphs — strip block <p> tags, keep inline formatting
     body_paragraphs = []
     if entry.news_content_body_bn:
-        body_paragraphs = [p.strip() for p in entry.news_content_body_bn.split('\n') if p.strip()]
+        body_cleaned = re.sub(r'</?p[^>]*>', '\n', entry.news_content_body_bn)
+        body_paragraphs = [p.strip() for p in body_cleaned.split('\n') if p.strip()]
 
     # Check edit permissions
     can_edit = False
@@ -1285,8 +1359,7 @@ def article_detail(request, slug):
     }
     url_name = form_type_url_map.get(form_type_code)
     if url_name:
-        from django.urls import reverse
-        edit_url = reverse(url_name)
+        edit_url = reverse(url_name) + '?edit=' + str(entry.coll_news_entry_id)
 
     # Comments (approved only for public view)
     comments = list(EngComment.objects.filter(
@@ -1326,6 +1399,7 @@ def article_detail(request, slug):
         'category': category,
         'body_paragraphs': body_paragraphs,
         'form_type_code': form_type_code,
+        'form_type': form_type_obj,
         'can_edit': can_edit,
         'edit_url': edit_url,
         'comments': comments,
@@ -1805,9 +1879,14 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         has_length_errors = True
 
     # Duplicate check: same headline (case-insensitive, trimmed) already exists
-    duplicate_exists = CollNewsEntry.objects.filter(
+    # In edit mode, exclude the entry being edited from the duplicate check
+    edit_entry_id = request.POST.get('edit_entry_id')
+    duplicate_qs = CollNewsEntry.objects.filter(
         news_headline_bn__iexact=headline_normalized,
-    ).exists()
+    )
+    if edit_entry_id:
+        duplicate_qs = duplicate_qs.exclude(coll_news_entry_id=int(edit_entry_id))
+    duplicate_exists = duplicate_qs.exists()
     if duplicate_exists:
         news_entry_form.add_error(
             'headline_bn',
@@ -1855,6 +1934,15 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         else:
             org_name_bn = org_custom
 
+    # ---- Detect edit mode ----
+    is_edit_mode = bool(edit_entry_id)
+    existing_entry = None
+    if is_edit_mode:
+        try:
+            existing_entry = CollNewsEntry.objects.get(coll_news_entry_id=int(edit_entry_id))
+        except CollNewsEntry.DoesNotExist:
+            is_edit_mode = False
+
     try:
         with transaction.atomic():
             # Resolve user profile ID for logged-in users
@@ -1866,41 +1954,123 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 except UserProfile.DoesNotExist:
                     pass
 
-            contributor = CollContributor.objects.create(
-                coll_contributor_full_name_bn=cd['contributor_full_name_bn'],
-                coll_contributor_organization_bn=org_name_bn,
-                coll_contributor_contact_email=cd['contributor_contact_email'] or None,
-                coll_contributor_contact_phone=cd['contributor_contact_phone'] or None,
-                link_contributor_type_id=cd['contributor_type_id'],
-                link_user_profile_id=contributor_user_profile_id,
-                is_verified=False,
-                created_at=now,
-            )
+            if is_edit_mode:
+                # UPDATE existing contributor
+                contributor = CollContributor.objects.get(
+                    coll_contributor_id=existing_entry.link_contributor_id
+                )
+                contributor.coll_contributor_full_name_bn = cd['contributor_full_name_bn']
+                contributor.coll_contributor_organization_bn = org_name_bn
+                contributor.coll_contributor_contact_email = cd['contributor_contact_email'] or None
+                contributor.coll_contributor_contact_phone = cd['contributor_contact_phone'] or None
+                contributor.link_contributor_type_id = cd['contributor_type_id']
+                contributor.save()
+            else:
+                contributor = CollContributor.objects.create(
+                    coll_contributor_full_name_bn=cd['contributor_full_name_bn'],
+                    coll_contributor_organization_bn=org_name_bn,
+                    coll_contributor_contact_email=cd['contributor_contact_email'] or None,
+                    coll_contributor_contact_phone=cd['contributor_contact_phone'] or None,
+                    link_contributor_type_id=cd['contributor_type_id'],
+                    link_user_profile_id=contributor_user_profile_id,
+                    is_verified=False,
+                    created_at=now,
+                )
 
             # ---- Save news entry (using NFKC-normalized headline/summary) ----
-            content_body = unicodedata.normalize('NFKC', nd['content_body_bn'])
+            content_body = _sanitize_rich_html(unicodedata.normalize('NFKC', nd['content_body_bn']))
+            if summary_normalized:
+                summary_normalized = _sanitize_rich_html(summary_normalized)
 
-            entry = CollNewsEntry.objects.create(
-                link_form_type_id=form_type_id,
-                news_headline_bn=headline_normalized,
-                news_summary_bn=summary_normalized or None,
-                news_content_body_bn=content_body,
-                link_news_category_id=int(category_id) if category_id else 12,
-                link_contributor_id=contributor.coll_contributor_id,
-                link_constituency_id=int(constituency_id) if constituency_id else None,
-                link_district_id=int(district_id) if district_id else None,
-                upazila_city_corporation_name=upazila_city_corporation_name,
-                link_union_parishad_id=int(union_parishad_id) if union_parishad_id else None,
-                link_ward_name=ward_name,
-                link_village_moholla_name=village_moholla_name,
-                coll_news_entry_latitude=latitude,
-                coll_news_entry_longitude=longitude,
-                map_formatted_address_bn=formatted_address_bn,
-                full_address_bn=full_address_bn,
-                is_breaking=is_breaking,
-                occurrence_at=nd['occurrence_at'],
-                created_at=now,
-            )
+            if is_edit_mode:
+                # UPDATE existing entry
+                entry = existing_entry
+                entry.news_headline_bn = headline_normalized
+                entry.news_summary_bn = summary_normalized or None
+                entry.news_content_body_bn = content_body
+                entry.link_news_category_id = int(category_id) if category_id else 12
+                entry.link_constituency_id = int(constituency_id) if constituency_id else None
+                entry.link_district_id = int(district_id) if district_id else None
+                entry.upazila_city_corporation_name = upazila_city_corporation_name
+                entry.link_union_parishad_id = int(union_parishad_id) if union_parishad_id else None
+                entry.link_ward_name = ward_name
+                entry.link_village_moholla_name = village_moholla_name
+                entry.coll_news_entry_latitude = latitude
+                entry.coll_news_entry_longitude = longitude
+                entry.map_formatted_address_bn = formatted_address_bn
+                entry.full_address_bn = full_address_bn
+                entry.is_breaking = is_breaking
+                entry.occurrence_at = nd['occurrence_at']
+                entry.save()
+
+                # Delete old junction records for re-insertion
+                CollNewsEntryTag.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+                CollNewsSocialMediaSource.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+
+                # Delete old actors (person records are NOT deleted — they may be shared)
+                IncidentInvolvedActorProfile.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+
+                # Delete old form-specific records for re-insertion
+                from amolnama_news.site_apps.investigation.models import (
+                    ExtortionFormImpact as _ExtImpact,
+                    ExtortionFormVictimLegalAction as _ExtLegal,
+                    CrimeFormImpactCasualty as _CrimeCas,
+                    CrimeFormWeapon as _CrimeWpn,
+                    CrimeFormVictimLegalAction as _CrimeLegal,
+                    LandGrabbingFormFact as _LandFact,
+                    LandGrabbingFormVictimLegalAction as _LandLegal,
+                    PriceHikingFormCommodityPrice as _PricePrice,
+                    PriceHikingFormCommodityStockSupplyChain as _PriceStock,
+                    CivicFormImpact as _CivicImpact,
+                    GlobalNewsFormFact as _GlobalFact,
+                    ConflictFormImpact as _ConflictImpact,
+                    ConflictFormActorCountry as _ConflictCountry,
+                    July2024FactProtest as _JulyFact,
+                    WomenFormVictimProfileFact as _WcvVictim,
+                    WomenFormPerpetrator as _WcvPerp,
+                    WomenFormVictimLegalAction as _WcvLegal,
+                )
+                _eid = entry.coll_news_entry_id
+                _ExtImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _ExtLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _CrimeCas.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _CrimeWpn.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _CrimeLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _LandFact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _LandLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _PricePrice.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _PriceStock.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _CivicImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _GlobalFact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _ConflictImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _ConflictCountry.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _JulyFact.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _WcvVictim.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _WcvPerp.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _WcvLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
+                # NOTE: Attachments (CollNewsAsset) are NOT deleted — existing files kept
+            else:
+                entry = CollNewsEntry.objects.create(
+                    link_form_type_id=form_type_id,
+                    news_headline_bn=headline_normalized,
+                    news_summary_bn=summary_normalized or None,
+                    news_content_body_bn=content_body,
+                    link_news_category_id=int(category_id) if category_id else 12,
+                    link_contributor_id=contributor.coll_contributor_id,
+                    link_constituency_id=int(constituency_id) if constituency_id else None,
+                    link_district_id=int(district_id) if district_id else None,
+                    upazila_city_corporation_name=upazila_city_corporation_name,
+                    link_union_parishad_id=int(union_parishad_id) if union_parishad_id else None,
+                    link_ward_name=ward_name,
+                    link_village_moholla_name=village_moholla_name,
+                    coll_news_entry_latitude=latitude,
+                    coll_news_entry_longitude=longitude,
+                    map_formatted_address_bn=formatted_address_bn,
+                    full_address_bn=full_address_bn,
+                    is_breaking=is_breaking,
+                    occurrence_at=nd['occurrence_at'],
+                    created_at=now,
+                )
 
             # ---- Save attachments (multiple files supported, max 4) ----
             ad = attachment_form.cleaned_data
@@ -3181,6 +3351,19 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             },
         )
         return render(request, template_name, ctx)
+
+    # ---- Success redirect ----
+    # In edit mode, redirect back to the article view page if pub_article exists
+    if is_edit_mode:
+        from .models import PubArticle
+        try:
+            pub = PubArticle.objects.get(link_news_entry_id=entry.coll_news_entry_id)
+            article_url = reverse('newshub:article_detail', kwargs={'slug': pub.pub_article_slug})
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'redirect': article_url})
+            return redirect(article_url)
+        except PubArticle.DoesNotExist:
+            pass  # Fall through to normal redirect
 
     # AJAX request — return JSON success (no page reload)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

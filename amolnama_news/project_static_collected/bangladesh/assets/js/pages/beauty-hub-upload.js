@@ -17,6 +17,12 @@
 
   if (!form) return;
 
+  // Init Quill rich text editor for description
+  var descEditor = window.initQuillEditor ? window.initQuillEditor('quill-bh-desc', 'bh-desc-bn', {
+    placeholder: 'ছবি বা ভিডিওর বিবরণ... (Describe the photo or video...)',
+    minHeight: '120px',
+  }) : null;
+
   // Show/hide festival fields based on category
   categorySelect.addEventListener("change", function() {
     var selectedText = categorySelect.options[categorySelect.selectedIndex]?.text || "";
@@ -63,6 +69,9 @@
     var file = fileInput.files[0];
     if (!file) { errorEl.textContent = "ফাইল নির্বাচন করুন"; errorEl.style.display = "block"; return; }
     if (!document.getElementById("bh-category").value) { errorEl.textContent = "ধরন নির্বাচন করুন"; errorEl.style.display = "block"; return; }
+
+    // Sync Quill content to hidden textarea
+    if (descEditor) descEditor.syncToHidden();
 
     var fd = new FormData();
     fd.append("file", file);

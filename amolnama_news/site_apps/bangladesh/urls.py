@@ -20,6 +20,12 @@ urlpatterns = [
     # APIs
     path("api/destinations/", views_api.api_destination_list, name="api_destination_list"),
     path("api/destinations/create/", views_api.api_destination_create, name="api_destination_create"),
+    path("api/destinations/<int:destination_id>/update/", views_api.api_destination_update, name="api_destination_update"),
     path("api/media/", views_api.api_media_list, name="api_media_list"),
     path("api/media/upload/", views_api.api_media_upload, name="api_media_upload"),
+
+    # Destination community contributions
+    path("api/destination/<int:destination_id>/photo/", views_api.api_destination_photo_upload, name="api_destination_photo_upload"),
+    path("api/destination/<int:destination_id>/youtube/", views_api.api_destination_youtube_link_add, name="api_destination_youtube_link_add"),
+    path("api/destination/<int:destination_id>/link/", views_api.api_destination_reference_link_add, name="api_destination_reference_link_add"),
 ]

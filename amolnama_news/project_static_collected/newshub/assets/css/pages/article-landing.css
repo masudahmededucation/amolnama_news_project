@@ -57,6 +57,15 @@
   margin-bottom: .6rem;
 }
 
+.article-landing-card-form-type {
+  font-size: .68rem;
+  font-weight: 600;
+  background: #6d5e9b;
+  color: #fff;
+  padding: .15rem .5rem;
+  border-radius: 12px;
+}
+
 .article-landing-card-category {
   font-size: .68rem;
   font-weight: 600;

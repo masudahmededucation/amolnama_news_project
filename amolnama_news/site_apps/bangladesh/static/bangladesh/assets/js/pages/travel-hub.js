@@ -2,25 +2,25 @@
 (function () {
   "use strict";
 
-  const grid = document.getElementById("thDestGrid");
-  const searchInput = document.getElementById("thSearchInput");
-  const pillsContainer = document.getElementById("thFilterPills");
-  const loadMoreBtn = document.getElementById("thLoadMoreBtn");
+  const destinationGrid = document.getElementById("travel-hub-destination-grid");
+  const searchInput = document.getElementById("travel-hub-search-input");
+  const filterPillsContainer = document.getElementById("travel-hub-filter-pills");
+  const loadMoreButton = document.getElementById("travel-hub-load-more-button");
 
-  if (!grid) return;
+  if (!destinationGrid) return;
 
   let currentPage = 1;
   let currentCategory = "";
   let currentQuery = "";
-  let loading = false;
+  let isLoading = false;
 
   // Filter pills
-  if (pillsContainer) {
-    pillsContainer.addEventListener("click", (e) => {
-      const pill = e.target.closest(".th-filter-pill");
+  if (filterPillsContainer) {
+    filterPillsContainer.addEventListener("click", (e) => {
+      const pill = e.target.closest(".travel-hub-filter-pill");
       if (!pill) return;
-      pillsContainer.querySelectorAll(".th-filter-pill").forEach((p) => p.classList.remove("th-filter-pill--active"));
-      pill.classList.add("th-filter-pill--active");
+      filterPillsContainer.querySelectorAll(".travel-hub-filter-pill").forEach((p) => p.classList.remove("travel-hub-filter-pill--active"));
+      pill.classList.add("travel-hub-filter-pill--active");
       currentCategory = pill.dataset.category || "";
       currentPage = 1;
       fetchDestinations(true);
@@ -41,62 +41,62 @@
   }
 
   // Load more
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", () => {
+  if (loadMoreButton) {
+    loadMoreButton.addEventListener("click", () => {
       currentPage++;
       fetchDestinations(false);
     });
   }
 
-  async function fetchDestinations(replace) {
-    if (loading) return;
-    loading = true;
+  async function fetchDestinations(replaceExisting) {
+    if (isLoading) return;
+    isLoading = true;
 
     const params = new URLSearchParams({ page: currentPage });
     if (currentCategory) params.set("category", currentCategory);
     if (currentQuery) params.set("q", currentQuery);
 
     try {
-      const res = await fetch(`/bangladesh/api/destinations/?${params}`);
-      const data = await res.json();
+      const response = await fetch(`/bangladesh/api/destinations/?${params}`);
+      const data = await response.json();
 
-      if (replace) grid.innerHTML = "";
+      if (replaceExisting) destinationGrid.innerHTML = "";
 
-      if (data.destinations.length === 0 && replace) {
-        grid.innerHTML = `<div class="th-empty-state"><p>কোনো দর্শনীয় স্থান পাওয়া যায়নি</p><p>No destinations found</p></div>`;
+      if (data.destinations.length === 0 && replaceExisting) {
+        destinationGrid.innerHTML = `<div class="travel-hub-empty-state"><p>কোনো দর্শনীয় স্থান পাওয়া যায়নি</p><p>No destinations found</p></div>`;
       }
 
-      data.destinations.forEach((d) => {
+      data.destinations.forEach((destination) => {
         const card = document.createElement("a");
-        card.href = `/bangladesh/travel/${d.id}/`;
-        card.className = "th-dest-card";
-        const imgHtml = d.cover_image
-          ? `<div class="th-dest-card-img" style="background-image:url('${d.cover_image}');"></div>`
-          : `<div class="th-dest-card-img th-dest-card-img--placeholder"><span>📍</span></div>`;
+        card.href = `/bangladesh/travel/${destination.id}/`;
+        card.className = "travel-hub-destination-card";
+        const imageHtml = destination.cover_image
+          ? `<div class="travel-hub-destination-card-img" style="background-image:url('${destination.cover_image}');"></div>`
+          : `<div class="travel-hub-destination-card-img travel-hub-destination-card-img--placeholder"><span>📍</span></div>`;
         card.innerHTML = `
-          ${imgHtml}
-          <div class="th-dest-card-body">
-            <div class="th-dest-card-meta">
-              <span class="th-dest-card-category">${d.category_name_bn}</span>
-              ${d.is_featured ? '<span class="th-dest-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>' : ""}
+          ${imageHtml}
+          <div class="travel-hub-destination-card-body">
+            <div class="travel-hub-destination-card-meta">
+              <span class="travel-hub-destination-card-category">${destination.category_name_bn}</span>
+              ${destination.is_featured ? '<span class="travel-hub-destination-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>' : ""}
             </div>
-            <h3 class="th-dest-card-title">${d.name_bn}</h3>
-            <p class="th-dest-card-desc">${d.short_desc_bn || d.short_desc_en || ""}</p>
-            <div class="th-dest-card-footer">
-              ${d.avg_rating ? `<span class="th-dest-card-rating">★ ${d.avg_rating}</span>` : ""}
-              <span class="th-dest-card-views">👁 ${d.view_count}</span>
-              <span class="th-dest-card-time">${d.time_ago}</span>
+            <h3 class="travel-hub-destination-card-title">${destination.name_bn}</h3>
+            <p class="travel-hub-destination-card-desc">${destination.short_desc_bn || destination.short_desc_en || ""}</p>
+            <div class="travel-hub-destination-card-footer">
+              ${destination.avg_rating ? `<span class="travel-hub-destination-card-rating">★ ${destination.avg_rating}</span>` : ""}
+              <span class="travel-hub-destination-card-views">👁 ${destination.view_count}</span>
+              <span class="travel-hub-destination-card-time">${destination.time_ago}</span>
             </div>
           </div>`;
-        grid.appendChild(card);
+        destinationGrid.appendChild(card);
       });
 
-      const loadMoreWrap = document.getElementById("thLoadMore");
-      if (loadMoreWrap) loadMoreWrap.style.display = data.has_next ? "" : "none";
-    } catch (err) {
-      console.error("Failed to load destinations:", err);
+      const loadMoreWrapper = document.getElementById("travel-hub-load-more");
+      if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
+    } catch (error) {
+      console.error("Failed to load destinations:", error);
     } finally {
-      loading = false;
+      isLoading = false;
     }
   }
 })();

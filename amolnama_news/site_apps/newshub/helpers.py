@@ -1,14 +1,8 @@
 """
-newshub/helpers.py — Article view helper functions.
+newshub/helpers.py — Article view helper functions + edit pre-population.
 
-build_sidenote_data(news_entry) returns a list of sidenote items for the
-two-column article view. Each item is a dict:
-  { 'type': 'date|place|person|amount|legal|status|info',
-    'icon': emoji,
-    'label': display label,
-    'value': display value }
-
-Form-type-specific functions extract structured data from investigation tables.
+build_sidenote_data(news_entry) — sidenote items for two-column article view.
+build_edit_data(entry_id, form_type_code) — reconstruct all form data from DB for edit mode.
 """
 
 from django.utils import timezone
@@ -34,6 +28,89 @@ from amolnama_news.site_apps.investigation.models import (
     IncidentInvolvedActorProfile,
 )
 # SportsFormFact and EntertainmentFormFact models not yet created — add when Phase 2 is implemented
+
+
+# ========== BIT flag → status_id reverse maps (extortion) ==========
+
+_EXTORTION_SECTOR_BIT_TO_ID = {
+    'sector_is_shop_market': 427,
+    'sector_is_transport_vehicle': 428,
+    'sector_is_construction_site': 429,
+    'sector_is_contract_tender': 430,
+    'sector_is_garment_factory': 431,
+    'sector_is_crops_produce': 432,
+    'sector_is_school_college': 433,
+    'sector_is_healthcare_clinic': 434,
+    'sector_is_phone_digital': 435,
+    'sector_is_other': 436,
+}
+
+_EXTORTION_AFFILIATION_BIT_TO_ID = {
+    'accused_is_political_student_wing': 444,
+    'accused_is_transport_association': 445,
+    'accused_is_business_trade_association': 446,
+    'accused_is_professional_gang': 447,
+    'accused_is_law_enforcement': 448,
+    'accused_is_teen_gang': 449,
+    'accused_is_disguised_association_fee': 450,
+    'accused_is_unknown': 451,
+}
+
+_EXTORTION_THREAT_BIT_TO_ID = {
+    'threat_is_in_person': 452,
+    'threat_is_phone_sms': 453,
+    'threat_is_online_social_media': 454,
+    'threat_is_written_letter': 455,
+    'threat_is_blocking_supply': 456,
+    'threat_is_physical_assault': 457,
+    'threat_is_vandalism_arson': 458,
+    'threat_is_abduction_hostage': 459,
+    'threat_is_false_case_threat': 460,
+}
+
+_EXTORTION_CONSEQUENCE_BIT_TO_ID = {
+    'consequence_is_paid_full': 461,
+    'consequence_is_paid_partial': 462,
+    'consequence_is_business_disrupted': 463,
+    'consequence_is_physically_injured': 464,
+    'consequence_is_abducted_hostage': 465,
+    'consequence_is_shot_critically_injured': 466,
+    'consequence_is_killed': 467,
+    'consequence_is_false_case_filed': 468,
+    'consequence_is_property_vandalized': 469,
+    'consequence_is_none_yet': 470,
+}
+
+_EXTORTION_CONTEXT_BIT_TO_ID = {
+    'context_is_law_enforcement_direct_participation': 472,
+    'context_is_systematic_extortion_pattern': 473,
+}
+
+# Legal action BIT → status_id maps (code-based, need to resolve codes→IDs from DB)
+_EXTORTION_LAW_BIT_TO_CODE = {
+    'is_law_penal_code_383_389': 'PENAL_CODE_383_389',
+    'is_law_anti_terrorism_act': 'ANTI_TERRORISM_ACT',
+    'is_law_prevention_of_corruption_act': 'PREVENTION_OF_CORRUPTION_ACT',
+    'is_law_money_laundering_prevention_act': 'MONEY_LAUNDERING_PREVENTION_ACT',
+}
+
+_EXTORTION_SUPPORT_BIT_TO_CODE = {
+    'is_support_gov_legal_aid': 'GOV_LEGAL_AID',
+    'is_support_acc_complaint': 'ACC_COMPLAINT',
+    'is_support_business_association': 'BUSINESS_ASSOCIATION',
+    'is_support_ngo_aid': 'NGO_AID',
+}
+
+_EXTORTION_RETALIATION_BIT_TO_CODE = {
+    'is_risk_threat_family_pressure': 'FAMILY_PRESSURE',
+    'is_risk_threat_settlement_pressure': 'SETTLEMENT_PRESSURE',
+    'is_risk_threat_case_withdrawal_pressure': 'CASE_WITHDRAWAL_PRESSURE',
+    'is_risk_threat_business_loss_threat': 'BUSINESS_LOSS_THREAT',
+    'is_risk_threat_witness_victim_threat': 'WITNESS_VICTIM_THREAT',
+    'is_risk_threat_eviction_threat': 'EVICTION_THREAT',
+    'is_risk_threat_retaliation_threat': 'RETALIATION_THREAT',
+    'is_risk_threat_death_or_physical_harm_threat': 'DEATH_OR_PHYSICAL_HARM_THREAT',
+}
 
 
 def _resolve_status(status_id):
@@ -88,7 +165,7 @@ def _shared_sidenotes(entry):
     elif entry.map_formatted_address_bn:
         addr_parts.append(entry.map_formatted_address_bn)
     if addr_parts:
-        items.append(_build_sidenote_item('place', '📍', 'অবস্থান', ', '.join(addr_parts)))
+        items.append(_build_sidenote_item('place', '📍', 'স্থান', ', '.join(addr_parts)))
 
     # Breaking news
     if entry.is_breaking:
@@ -99,10 +176,21 @@ def _shared_sidenotes(entry):
 
 def _actor_sidenotes(entry_id):
     """Sidenotes from involved actors (accused, victims, witnesses)."""
+    from amolnama_news.site_apps.user_account.models import Person
+
     items = []
-    actors = IncidentInvolvedActorProfile.objects.filter(
+    actors = list(IncidentInvolvedActorProfile.objects.filter(
         link_coll_news_entry_id=entry_id
-    ).select_related()
+    ))
+
+    # Bulk fetch persons
+    person_ids = [a.link_person_id for a in actors if a.link_person_id]
+    persons_map = {}
+    if person_ids:
+        persons_map = {
+            p.person_id: p
+            for p in Person.objects.filter(person_id__in=person_ids)
+        }
 
     accused_names = []
     victim_names = []
@@ -111,16 +199,11 @@ def _actor_sidenotes(entry_id):
     for actor in actors:
         role = (actor.incident_involved_actor_role_group_code or '').upper()
         name = actor.actor_organization_name or ''
-        if actor.link_person_id:
-            # Try to get person name from person table
-            try:
-                from amolnama_news.site_apps.person.models import Person
-                person = Person.objects.get(person_id=actor.link_person_id)
-                name = f"{person.first_name_bn or ''} {person.last_name_bn or ''}".strip()
-                if not name:
-                    name = f"{person.first_name_en or ''} {person.last_name_en or ''}".strip()
-            except Exception:
-                pass
+        person = persons_map.get(actor.link_person_id)
+        if person:
+            name = f"{person.first_name_bn or ''} {person.last_name_bn or ''}".strip()
+            if not name:
+                name = f"{person.first_name_en or ''} {person.last_name_en or ''}".strip()
 
         if not name:
             continue
@@ -282,3 +365,311 @@ def build_sidenote_data(news_entry, form_type_code):
 
     # Remove None items
     return [i for i in items if i is not None]
+
+
+# ==========================================================================
+# EDIT PRE-POPULATION — reconstruct form data from DB for edit mode
+# ==========================================================================
+
+def _bit_flags_to_ids(obj, bit_to_id_map):
+    """Convert BIT flag fields to list of status_ids where flag is True."""
+    ids = []
+    for field_name, status_id in bit_to_id_map.items():
+        if getattr(obj, field_name, False):
+            ids.append(status_id)
+    return ids
+
+
+def _bit_flags_to_ids_by_code(obj, bit_to_code_map, group_code):
+    """Convert BIT flag fields to list of status_ids via code lookup.
+
+    Used for legal action fields where BIT columns map to status_codes (not direct IDs).
+    Resolves codes → IDs from ref_status in one query.
+    """
+    active_codes = []
+    for field_name, code in bit_to_code_map.items():
+        if getattr(obj, field_name, False):
+            active_codes.append(code)
+    if not active_codes:
+        return []
+    # Bulk resolve codes → IDs
+    code_to_id = dict(
+        RefStatus.objects.filter(
+            group_code=group_code,
+            status_code__in=active_codes,
+            is_active=True,
+        ).values_list('status_code', 'status_id')
+    )
+    return [code_to_id[c] for c in active_codes if c in code_to_id]
+
+
+def _build_shared_edit_data(entry):
+    """Build shared edit data from CollNewsEntry (steps 2-3, 9-11)."""
+    from amolnama_news.site_apps.newshub.models import (
+        CollContributor, CollNewsEntryTag, CollNewsSocialMediaSource,
+    )
+    from amolnama_news.site_apps.multimedia.models import SocialUrlLibrary
+
+    data = {}
+
+    # Contributor (Step 2)
+    contributor = {}
+    if entry.link_contributor_id:
+        try:
+            c = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
+            contributor = {
+                'full_name_bn': c.coll_contributor_full_name_bn or '',
+                'type_id': c.link_contributor_type_id,
+                'email': c.coll_contributor_contact_email or '',
+                'phone': c.coll_contributor_contact_phone or '',
+                'organization_bn': c.coll_contributor_organization_bn or '',
+            }
+        except CollContributor.DoesNotExist:
+            pass
+    data['contributor'] = contributor
+
+    # News content (Step 3)
+    data['news_entry'] = {
+        'headline_bn': entry.news_headline_bn or '',
+        'summary_bn': entry.news_summary_bn or '',
+        'content_body_bn': entry.news_content_body_bn or '',
+        'occurrence_at': entry.occurrence_at.strftime('%Y-%m-%dT%H:%M') if entry.occurrence_at else '',
+    }
+
+    # Location (Step 9)
+    data['location'] = {
+        'district_id': entry.link_district_id,
+        'constituency_id': entry.link_constituency_id,
+        'upazila_id': None,  # stored as upazila_city_corporation_name, not FK
+        'upazila_city_corporation_name': entry.upazila_city_corporation_name or '',
+        'union_parishad_id': entry.link_union_parishad_id,
+        'ward_name': entry.link_ward_name or '',
+        'village_moholla_name': entry.link_village_moholla_name or '',
+        'latitude': str(entry.coll_news_entry_latitude) if entry.coll_news_entry_latitude else '',
+        'longitude': str(entry.coll_news_entry_longitude) if entry.coll_news_entry_longitude else '',
+        'formatted_address_bn': entry.map_formatted_address_bn or '',
+        'full_address_bn': entry.full_address_bn or '',
+    }
+
+    # Social sources (Step 10) — bulk fetch to avoid N+1
+    social_sources = []
+    social_links = list(CollNewsSocialMediaSource.objects.filter(
+        link_coll_news_entry_id=entry.coll_news_entry_id
+    ).values_list('link_social_media_url_library_id', flat=True))
+    if social_links:
+        url_recs = {
+            r.social_media_url_library_id: r
+            for r in SocialUrlLibrary.objects.filter(social_media_url_library_id__in=social_links)
+        }
+        for url_id in social_links:
+            url_rec = url_recs.get(url_id)
+            if url_rec:
+                social_sources.append({
+                    'platformId': url_rec.link_social_media_platform_type_id,
+                    'url': url_rec.social_url or '',
+                    'embedCode': url_rec.social_embed_code or '',
+                })
+    data['social_sources'] = social_sources
+
+    # Category & Tags (Step 11)
+    data['category_id'] = entry.link_news_category_id
+    tag_entries = CollNewsEntryTag.objects.filter(
+        link_coll_news_entry_id=entry.coll_news_entry_id
+    ).values_list('link_news_category_tag_id', flat=True)
+    tag_ids = list(tag_entries)
+    # Fetch tag names for JS chip rendering
+    from amolnama_news.site_apps.newshub.models import RefNewsCategoryTag
+    tags_with_names = []
+    if tag_ids:
+        for tag in RefNewsCategoryTag.objects.filter(news_category_tag_id__in=tag_ids):
+            tags_with_names.append({
+                'id': tag.news_category_tag_id,
+                'name_bn': tag.news_tag_name_bn or '',
+                'name_en': tag.news_tag_name_en or '',
+            })
+    data['tag_ids'] = tag_ids
+    data['tags'] = tags_with_names
+    data['is_breaking'] = bool(entry.is_breaking)
+
+    return data
+
+
+def _build_actor_edit_data(entry_id):
+    """Build accused/victim/witness edit data from actor profiles + person table."""
+    from amolnama_news.site_apps.user_account.models import Person
+
+    actors = list(IncidentInvolvedActorProfile.objects.filter(
+        link_coll_news_entry_id=entry_id
+    ))
+
+    # Bulk fetch all persons in one query
+    person_ids = [a.link_person_id for a in actors if a.link_person_id]
+    persons_map = {}
+    if person_ids:
+        persons_map = {
+            p.person_id: p
+            for p in Person.objects.filter(person_id__in=person_ids)
+        }
+
+    accused = []
+    victims = []
+    witnesses = []
+
+    for actor in actors:
+        role = (actor.incident_involved_actor_role_group_code or '').upper()
+
+        # Get person from pre-fetched map
+        first_name_en = ''
+        last_name_en = ''
+        first_name_bn = ''
+        last_name_bn = ''
+        alias = ''
+        father_first_name = ''
+        father_last_name = ''
+        gender_id = 0
+        religion_id = 0
+        age = ''
+        dob = ''
+        district_id = 0
+        person = persons_map.get(actor.link_person_id)
+        if person:
+            first_name_en = person.first_name_en or ''
+            last_name_en = person.last_name_en or ''
+            first_name_bn = person.first_name_bn or ''
+            last_name_bn = person.last_name_bn or ''
+            alias = person.name_alias_bn or person.name_alias_en or ''
+            father_first_name = person.father_first_name_bn or ''
+            father_last_name = person.father_last_name_bn or ''
+            gender_id = person.link_gender_id or 0
+            religion_id = person.link_religion_id or 0
+            if person.date_of_birth:
+                dob = person.date_of_birth.strftime('%Y-%m-%d')
+            district_id = person.link_birth_district_id or 0
+
+        actor_data = {
+            'role': role.lower(),
+            'involvementTypeId': actor.link_ref_status_incident_involved_actor_role_id,
+            'actorTypeId': actor.link_ref_status_incident_involved_actor_type_id,
+            'actorTypeDetail': actor.incident_involved_actor_type_details or '',
+            'firstNameEn': first_name_en,
+            'lastNameEn': last_name_en,
+            'firstNameBn': first_name_bn,
+            'lastNameBn': last_name_bn,
+            'fatherFirstName': father_first_name,
+            'fatherLastName': father_last_name,
+            'genderId': gender_id,
+            'religionId': religion_id,
+            'age': age,
+            'dob': dob,
+            'districtId': district_id,
+            'alias': alias,
+            'designation': actor.actor_designation or '',
+            'organization': actor.actor_organization_name or '',
+            'patron': actor.actor_patron_name or '',
+            'contact': '',
+            'statement': actor.actor_statement or '',
+        }
+
+        if role == 'ACCUSED':
+            accused.append(actor_data)
+        elif role == 'VICTIM':
+            victims.append(actor_data)
+        elif role == 'WITNESS':
+            witnesses.append(actor_data)
+
+    return accused, victims, witnesses
+
+
+def _build_extortion_edit_data(entry_id):
+    """Build extortion-specific edit data (Steps 7 & 8)."""
+    result = {}
+
+    # Step 7 — Extortion incident details
+    try:
+        impact = ExtortionFormImpact.objects.get(link_coll_news_entry_id=entry_id)
+
+        # Sector: exactly one BIT is True → find the status_id
+        sector_id = None
+        for field_name, sid in _EXTORTION_SECTOR_BIT_TO_ID.items():
+            if getattr(impact, field_name, False):
+                sector_id = sid
+                break
+
+        result['extortion_incident'] = {
+            'sectorId': sector_id,
+            'sectorOther': impact.sector_other_description or '',
+            'transportLocation': impact.sector_transport_location_code or '',
+            'garmentType': impact.sector_garment_extortion_type_code or '',
+            'amountDemanded': float(impact.demand_amount_demanded_bdt) if impact.demand_amount_demanded_bdt else 0,
+            'amountTaken': float(impact.demand_amount_collected_bdt) if impact.demand_amount_collected_bdt else 0,
+            'frequencyId': impact.link_ref_status_extortion_form_extortion_demand_frequency_id or 0,
+            'affiliationIds': _bit_flags_to_ids(impact, _EXTORTION_AFFILIATION_BIT_TO_ID),
+            'partyName': impact.accused_political_party_org_name or '',
+            'threatMethodIds': _bit_flags_to_ids(impact, _EXTORTION_THREAT_BIT_TO_ID),
+            'consequenceIds': _bit_flags_to_ids(impact, _EXTORTION_CONSEQUENCE_BIT_TO_ID),
+            'damageAmount': 0,  # consequence damage amount stored in separate field
+            'damageDesc': impact.consequence_property_damage_description or '',
+            'bangladeshContextIds': _bit_flags_to_ids(impact, _EXTORTION_CONTEXT_BIT_TO_ID),
+            'remarks': impact.additional_remarks or '',
+        }
+    except ExtortionFormImpact.DoesNotExist:
+        pass
+
+    # Step 8 — Legal action
+    try:
+        legal = ExtortionFormVictimLegalAction.objects.get(link_coll_news_entry_id=entry_id)
+        result['ext_legal'] = {
+            'firStatusId': legal.link_ref_status_law_gd_fir_status_id,
+            'policeStation': legal.gd_fir_location_display_title_en or '',
+            'caseNumber': legal.gd_fir_case_gd_number or '',
+            'policeRefusalStatement': legal.gd_fir_police_refusal_statement or '',
+            'noFirReason': legal.gd_fir_reason_not_filing_and_plans or '',
+            'applicableLawIds': _bit_flags_to_ids_by_code(
+                legal, _EXTORTION_LAW_BIT_TO_CODE, 'extortion_form_law_applicable'
+            ),
+            'caseStatusId': legal.link_ref_status_law_case_status_id or 0,
+            'supportServiceIds': _bit_flags_to_ids_by_code(
+                legal, _EXTORTION_SUPPORT_BIT_TO_CODE, 'extortion_form_law_support_service'
+            ),
+            'retaliationIds': _bit_flags_to_ids_by_code(
+                legal, _EXTORTION_RETALIATION_BIT_TO_CODE, 'common_victim_risk_threat_pressure_retaliation'
+            ),
+            'remarks': legal.legal_action_additional_remarks or '',
+        }
+    except ExtortionFormVictimLegalAction.DoesNotExist:
+        pass
+
+    return result
+
+
+# Map form_type → edit data builder
+_FORM_TYPE_EDIT_BUILDERS = {
+    'extortion': _build_extortion_edit_data,
+    # Phase 2: add more form types here
+}
+
+
+def build_edit_data(entry_id, form_type_code):
+    """
+    Reconstruct all form data from DB for edit pre-population.
+    Returns a dict suitable for JSON serialization → client-side JS.
+    """
+    from amolnama_news.site_apps.newshub.models import CollNewsEntry
+
+    entry = CollNewsEntry.objects.get(coll_news_entry_id=entry_id)
+
+    # Shared data (all form types)
+    data = _build_shared_edit_data(entry)
+
+    # Actors (all form types)
+    accused, victims, witnesses = _build_actor_edit_data(entry_id)
+    data['accused'] = accused
+    data['victims'] = victims
+    data['witnesses'] = witnesses
+
+    # Form-type-specific data
+    builder = _FORM_TYPE_EDIT_BUILDERS.get(form_type_code)
+    if builder:
+        data.update(builder(entry_id))
+
+    return data

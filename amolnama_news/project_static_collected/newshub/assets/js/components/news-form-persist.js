@@ -71,6 +71,9 @@
 
   /* ========== RESTORE ========== */
 
+  /* Skip localStorage restore in edit mode — server data takes priority */
+  if (window.__EDIT_MODE__) return;
+
   var raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return;
 

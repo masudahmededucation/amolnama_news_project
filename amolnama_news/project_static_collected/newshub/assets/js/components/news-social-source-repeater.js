@@ -197,8 +197,40 @@
     addBtn.addEventListener('click', function () { addRow(); });
   }
 
-  /* ---- Init: add first row ---- */
-  addRow();
+  /* ---- Restore from hidden input (for edit mode pre-population) ---- */
+  function restoreFromHiddenInput() {
+    var raw = hiddenJson.value;
+    if (!raw) return false;
+    var parsed;
+    try { parsed = JSON.parse(raw); } catch (e) { return false; }
+    var sources = parsed.sources || parsed;
+    if (!Array.isArray(sources) || !sources.length) return false;
+
+    container.innerHTML = '';
+    rowCounter = 0;
+
+    for (var i = 0; i < sources.length; i++) {
+      addRow();
+      var rows = container.querySelectorAll('.social-source-row');
+      var rowEl = rows[rows.length - 1];
+      var platformSelect = rowEl.querySelector('.social-row-platform');
+      var urlInput = rowEl.querySelector('.social-row-url');
+      var embedInput = rowEl.querySelector('.social-row-embed');
+
+      if (urlInput) urlInput.value = sources[i].url || '';
+      if (embedInput) embedInput.value = sources[i].embedCode || '';
+      if (platformSelect && sources[i].platformId) {
+        platformSelect.value = String(sources[i].platformId);
+      }
+      checkUrlMatch(rowEl);
+    }
+    return true;
+  }
+
+  /* ---- Init: restore saved data or add first empty row ---- */
+  if (!restoreFromHiddenInput()) {
+    addRow();
+  }
 
   /* ---- Expose API ---- */
   window.newshubSocialSource = {

@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import uuid
 
 from django.conf import settings
@@ -13,6 +14,7 @@ from django.views.decorators.http import require_GET, require_POST
 from .models import (
     CollDestination, RefDestinationCategory, RefSeason,
     CollMediaEntry, RefMediaCategory,
+    CollDestinationPhoto, CollDestinationYoutubeLink, CollDestinationReferenceLink,
 )
 
 
@@ -22,6 +24,21 @@ ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_VIDEO_TYPES = {"video/mp4", "video/quicktime", "video/webm"}
 MAX_VIDEO_SIZE = 50 * 1024 * 1024  # 50MB
 MAX_VIDEO_DURATION = 40  # seconds
+
+
+def _sanitize_html(html):
+    """Strip dangerous tags/attributes from rich text HTML. Allow safe formatting only."""
+    if not html:
+        return html
+    # Remove script/style/iframe/object/embed tags and their content
+    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*/>', '', html, flags=re.IGNORECASE)
+    # Remove on* event attributes (onclick, onerror, etc.)
+    html = re.sub(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'\s+on\w+\s*=\s*\S+', '', html, flags=re.IGNORECASE)
+    # Remove javascript: URLs
+    html = re.sub(r'href\s*=\s*["\']javascript:[^"\']*["\']', 'href="#"', html, flags=re.IGNORECASE)
+    return html.strip()
 
 
 def _get_user_profile_id(request):
@@ -148,10 +165,10 @@ def api_destination_create(request):
         link_upazila_id=data.get("link_upazila_id") or None,
         destination_name_en=name_en or name_bn,
         destination_name_bn=name_bn or name_en,
-        destination_description_en=(data.get("destination_description_en") or "").strip() or None,
-        destination_description_bn=(data.get("destination_description_bn") or "").strip() or None,
-        destination_short_description_en=(data.get("destination_short_description_en") or "").strip() or None,
-        destination_short_description_bn=(data.get("destination_short_description_bn") or "").strip() or None,
+        destination_description_en=_sanitize_html((data.get("destination_description_en") or "").strip()) or None,
+        destination_description_bn=_sanitize_html((data.get("destination_description_bn") or "").strip()) or None,
+        destination_short_description_en=_sanitize_html((data.get("destination_short_description_en") or "").strip()) or None,
+        destination_short_description_bn=_sanitize_html((data.get("destination_short_description_bn") or "").strip()) or None,
         destination_latitude=data.get("destination_latitude") or None,
         destination_longitude=data.get("destination_longitude") or None,
         map_formatted_address_bn=(data.get("map_formatted_address_bn") or "").strip() or None,
@@ -168,6 +185,54 @@ def api_destination_create(request):
         review_count=0,
         created_at=timezone.now(),
     )
+
+    return JsonResponse({"success": True, "destination_id": dest.bangladesh_coll_destination_id})
+
+
+@require_POST
+def api_destination_update(request, destination_id):
+    """POST /bangladesh/api/destinations/<id>/update/ — update a destination."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    try:
+        dest = CollDestination.objects.get(bangladesh_coll_destination_id=destination_id)
+    except CollDestination.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    # Permission: owner or staff
+    if not (request.user.is_staff or request.user.is_superuser or dest.link_user_profile_id == profile_id):
+        return JsonResponse({"success": False, "error": "অনুমতি নেই"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    name_bn = (data.get("destination_name_bn") or "").strip()
+    name_en = (data.get("destination_name_en") or "").strip()
+    if not name_bn and not name_en:
+        return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
+
+    category_id = data.get("link_destination_category_id")
+    if not category_id:
+        return JsonResponse({"success": False, "error": "Category is required"}, status=400)
+
+    dest.link_destination_category_id = category_id
+    dest.link_best_season_id = data.get("link_best_season_id") or None
+    dest.destination_name_bn = name_bn or name_en
+    dest.destination_name_en = name_en or name_bn
+    dest.destination_description_bn = _sanitize_html((data.get("destination_description_bn") or "").strip()) or None
+    dest.destination_short_description_bn = _sanitize_html((data.get("destination_short_description_bn") or "").strip()) or None
+    dest.difficulty_level = (data.get("difficulty_level") or "").strip() or None
+    dest.entry_fee_bdt = data.get("entry_fee_bdt") or None
+    dest.visiting_hours_bn = (data.get("visiting_hours_bn") or "").strip() or None
+    dest.updated_at = timezone.now()
+    dest.save()
 
     return JsonResponse({"success": True, "destination_id": dest.bangladesh_coll_destination_id})
 
@@ -278,7 +343,7 @@ def api_media_upload(request):
         link_season_id=int(request.POST.get("link_season_id")) if request.POST.get("link_season_id") else None,
         media_title_bn=(request.POST.get("media_title_bn") or "").strip() or None,
         media_title_en=(request.POST.get("media_title_en") or "").strip() or None,
-        media_description_bn=(request.POST.get("media_description_bn") or "").strip() or None,
+        media_description_bn=_sanitize_html((request.POST.get("media_description_bn") or "").strip()) or None,
         media_type=media_type,
         file_original_url=file_url,
         file_display_url=file_url,
@@ -302,3 +367,173 @@ def api_media_upload(request):
     )
 
     return JsonResponse({"success": True, "media_id": entry.bangladesh_coll_media_entry_id})
+
+
+# ============================================================================
+# TRAVEL HUB — DESTINATION COMMUNITY CONTRIBUTIONS
+# ============================================================================
+
+@require_POST
+def api_destination_photo_upload(request, destination_id):
+    """POST — upload a photo for a destination."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    # Verify destination exists
+    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    uploaded_file = request.FILES.get("file")
+    if not uploaded_file:
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+
+    mime = uploaded_file.content_type
+    if mime not in ALLOWED_IMAGE_TYPES:
+        return JsonResponse({"success": False, "error": "Only JPEG, PNG, WebP images allowed."}, status=400)
+
+    # Save file
+    ext = os.path.splitext(uploaded_file.name)[1].lower()
+    filename = f"{uuid.uuid4().hex}{ext}"
+    upload_dir = os.path.join(settings.MEDIA_ROOT, "upload", "bangladesh", "destination-photo")
+    os.makedirs(upload_dir, exist_ok=True)
+    filepath = os.path.join(upload_dir, filename)
+
+    with open(filepath, "wb") as f:
+        for chunk in uploaded_file.chunks():
+            f.write(chunk)
+
+    file_url = f"/media/upload/bangladesh/destination-photo/{filename}"
+    caption = (request.POST.get("caption_bn") or "").strip() or None
+
+    # Get next sort_order
+    last_order = CollDestinationPhoto.objects.filter(
+        link_coll_destination_id=destination_id
+    ).order_by("-sort_order").values_list("sort_order", flat=True).first()
+    next_order = (last_order or 0) + 1
+
+    photo = CollDestinationPhoto.objects.create(
+        link_coll_destination_id=destination_id,
+        link_user_profile_id=profile_id,
+        photo_url=file_url,
+        caption_bn=caption,
+        sort_order=next_order,
+        is_cover=False,
+        created_at=timezone.now(),
+    )
+
+    return JsonResponse({
+        "success": True,
+        "photo_id": photo.bangladesh_coll_destination_photo_id,
+        "photo_url": file_url,
+        "caption_bn": caption or "",
+    })
+
+
+@require_POST
+def api_destination_youtube_link_add(request, destination_id):
+    """POST — add a YouTube link for a destination."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    youtube_url = (data.get("youtube_url") or "").strip()
+    if not youtube_url:
+        return JsonResponse({"success": False, "error": "YouTube URL is required"}, status=400)
+
+    # Extract video ID from URL
+    video_id = _extract_youtube_video_id(youtube_url)
+
+    title = (data.get("video_title_bn") or "").strip() or None
+    description = (data.get("description_bn") or "").strip() or None
+
+    link = CollDestinationYoutubeLink.objects.create(
+        link_coll_destination_id=destination_id,
+        link_user_profile_id=profile_id,
+        youtube_url=youtube_url,
+        youtube_video_id=video_id,
+        video_title_bn=title,
+        description_bn=description,
+        sort_order=0,
+        is_active=True,
+        created_at=timezone.now(),
+    )
+
+    return JsonResponse({
+        "success": True,
+        "link_id": link.bangladesh_coll_destination_youtube_link_id,
+        "youtube_video_id": video_id or "",
+        "video_title_bn": title or "",
+    })
+
+
+@require_POST
+def api_destination_reference_link_add(request, destination_id):
+    """POST — add a reference link for a destination."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    ref_url = (data.get("reference_url") or "").strip()
+    if not ref_url:
+        return JsonResponse({"success": False, "error": "URL is required"}, status=400)
+
+    title = (data.get("reference_title_bn") or "").strip() or None
+    description = (data.get("description_bn") or "").strip() or None
+
+    link = CollDestinationReferenceLink.objects.create(
+        link_coll_destination_id=destination_id,
+        link_user_profile_id=profile_id,
+        reference_url=ref_url,
+        reference_title_bn=title,
+        description_bn=description,
+        sort_order=0,
+        is_active=True,
+        created_at=timezone.now(),
+    )
+
+    return JsonResponse({
+        "success": True,
+        "link_id": link.bangladesh_coll_destination_reference_link_id,
+        "reference_title_bn": title or "",
+        "reference_url": ref_url,
+    })
+
+
+def _extract_youtube_video_id(url):
+    """Extract YouTube video ID from various URL formats."""
+    import re
+    patterns = [
+        r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})',
+        r'youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, url)
+        if m:
+            return m.group(1)
+    return None
