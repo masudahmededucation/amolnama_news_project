@@ -1664,26 +1664,26 @@ def _save_actor_occupation(person_id, actor_data, now, occ_key='occupationId'):
 def _resolve_actor_role(role_code=None, role_id=None):
     """Resolve actor role to (status_id, status_code) tuple.
 
-    Accepts either role_code (e.g. 'VICTIM') or role_id (e.g. 39).
+    Accepts either role_code (e.g. 'victim') or role_id (e.g. 39).
     Returns (status_id, status_code) or (None, None).
-    Cached to avoid repeated DB hits.
+    Cached to avoid repeated DB hits. All codes lowercase.
     """
     if not hasattr(_resolve_actor_role, '_by_code'):
         _resolve_actor_role._by_code = {}
         _resolve_actor_role._by_id = {}
 
     if role_code:
-        code_upper = role_code.upper()
-        if code_upper not in _resolve_actor_role._by_code:
+        code_lower = role_code.lower()
+        if code_lower not in _resolve_actor_role._by_code:
             row = RefStatus.objects.filter(
-                group_code='incident_involved_actor_role', status_code=code_upper, is_active=True,
+                group_code='incident_involved_actor_role', status_code=code_lower, is_active=True,
             ).values('status_id', 'status_code').first()
             if row:
-                _resolve_actor_role._by_code[code_upper] = (row['status_id'], row['status_code'])
+                _resolve_actor_role._by_code[code_lower] = (row['status_id'], row['status_code'])
                 _resolve_actor_role._by_id[row['status_id']] = (row['status_id'], row['status_code'])
             else:
-                _resolve_actor_role._by_code[code_upper] = (None, None)
-        return _resolve_actor_role._by_code[code_upper]
+                _resolve_actor_role._by_code[code_lower] = (None, None)
+        return _resolve_actor_role._by_code[code_lower]
 
     if role_id:
         if role_id not in _resolve_actor_role._by_id:
@@ -1704,7 +1704,7 @@ def _save_actor_profile(entry_id, person_id, actor_data, form_type_id, group_cod
     """Save Actor Type + Party Details → [investigation].[incident_involved_actor_profile].
 
     This is the SINGLE save operation for actor profile data — used by all forms.
-    role_code: explicit role override (e.g. 'VICTIM', 'ACCUSED'). When set, takes
+    role_code: explicit role override (e.g. 'victim', 'accused'). When set, takes
                precedence over actor_data['involvementTypeId'].
     Stores BOTH the role status_id (FK) and the role status_code (denormalised) for
     query performance.
@@ -1741,9 +1741,9 @@ def _save_actor_profile(entry_id, person_id, actor_data, form_type_id, group_cod
 
 # Map JSON field names → server-side role codes (safety net if JS doesn't send involvementTypeId)
 _FIELD_TO_ROLE = {
-    'accused_json': 'ACCUSED',
-    'victim_json': 'VICTIM',
-    'witness_json': 'WITNESS',
+    'accused_json': 'accused',
+    'victim_json': 'victim',
+    'witness_json': 'witness',
 }
 
 
@@ -2224,16 +2224,16 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     wpn_code_map = {}
                     if wpn_ids:
                         for row in RefStatus.objects.filter(status_id__in=wpn_ids).values('status_id', 'status_code'):
-                            wpn_code_map[row['status_id']] = (row['status_code'] or '').upper()
+                            wpn_code_map[row['status_id']] = row['status_code'] or ''
                     wpn_codes = {wpn_code_map[i] for i in wpn_ids if i in wpn_code_map}
 
                     CrimeFormWeapon.objects.create(
                         link_coll_news_entry_id=entry.coll_news_entry_id,
-                        weapon_is_firearms_used='FIREARMS' in wpn_codes,
-                        weapon_is_explosives_used='EXPLOSIVES' in wpn_codes,
-                        weapon_is_sharp_weapon_used='SHARP_WEAPON' in wpn_codes,
-                        weapon_is_sticks_rods_used='STICKS_RODS' in wpn_codes,
-                        weapon_is_poison_chemical_used='POISON_CHEMICAL' in wpn_codes,
+                        weapon_is_firearms_used='firearms' in wpn_codes,
+                        weapon_is_explosives_used='explosives' in wpn_codes,
+                        weapon_is_sharp_weapon_used='sharp_weapon' in wpn_codes,
+                        weapon_is_sticks_rods_used='sticks_rods' in wpn_codes,
+                        weapon_is_poison_chemical_used='poison_chemical' in wpn_codes,
                         weapon_other_description=(wpn.get('otherWeaponDetail') or '').strip() or None,
                         evidence_recovered_description=(wpn.get('recoveredEvidence') or '').strip() or None,
                         created_at=now,
@@ -2259,7 +2259,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         code_map = {}
                         if all_ids:
                             for row in RefStatus.objects.filter(status_id__in=all_ids).values('status_id', 'status_code'):
-                                code_map[row['status_id']] = (row['status_code'] or '').upper()
+                                code_map[row['status_id']] = row['status_code'] or ''
                         law_codes = {code_map[i] for i in law_ids if i in code_map}
                         support_codes = {code_map[i] for i in support_ids if i in code_map}
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
@@ -2271,27 +2271,27 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             reason_not_filing_and_plans=(cl.get('noFirReason') or '').strip() or None,
                             police_refusal_statement=(cl.get('policeRefusalStatement') or '').strip() or None,
                             location_display_title_en=(cl.get('policeStation') or '').strip() or None,
-                            is_law_penal_302_murder='PENAL_302_MURDER' in law_codes,
-                            is_law_penal_307_attempt_murder='PENAL_307_ATTEMPT_MURDER' in law_codes,
-                            is_law_penal_323_325_hurt='PENAL_323_325_HURT' in law_codes,
-                            is_law_penal_392_394_robbery='PENAL_392_394_ROBBERY' in law_codes,
-                            is_law_arms_act='ARMS_ACT' in law_codes,
-                            is_law_anti_terrorism_act='ANTI_TERRORISM_ACT' in law_codes,
-                            is_law_narcotics_control_act='NARCOTICS_CONTROL_ACT' in law_codes,
-                            is_law_special_powers_act='SPECIAL_POWERS_ACT' in law_codes,
+                            is_law_penal_302_murder='penal_302_murder' in law_codes,
+                            is_law_penal_307_attempt_murder='penal_307_attempt_murder' in law_codes,
+                            is_law_penal_323_325_hurt='penal_323_325_hurt' in law_codes,
+                            is_law_penal_392_394_robbery='penal_392_394_robbery' in law_codes,
+                            is_law_arms_act='arms_act' in law_codes,
+                            is_law_anti_terrorism_act='anti_terrorism_act' in law_codes,
+                            is_law_narcotics_control_act='narcotics_control_act' in law_codes,
+                            is_law_special_powers_act='special_powers_act' in law_codes,
                             link_ref_status_law_case_status_id=case_status_id,
-                            is_victim_support_govt_legal_aid='GOVT_LEGAL_AID' in support_codes,
-                            is_victim_support_victim_support_center='VICTIM_SUPPORT_CENTER' in support_codes,
-                            is_victim_support_ngo_support='NGO_SUPPORT' in support_codes,
-                            is_victim_support_family_community_support='FAMILY_COMMUNITY_SUPPORT' in support_codes,
-                            is_risk_threat_family_pressure='FAMILY_PRESSURE' in retaliation_codes,
-                            is_risk_threat_settlement_pressure='SETTLEMENT_PRESSURE' in retaliation_codes,
-                            is_risk_threat_case_withdrawal_pressure='CASE_WITHDRAWAL_PRESSURE' in retaliation_codes,
-                            is_risk_threat_business_loss_threat='BUSINESS_LOSS_THREAT' in retaliation_codes,
-                            is_risk_threat_witness_victim_threat='WITNESS_VICTIM_THREAT' in retaliation_codes,
-                            is_risk_threat_eviction_threat='EVICTION_THREAT' in retaliation_codes,
-                            is_risk_threat_retaliation_threat='RETALIATION_THREAT' in retaliation_codes,
-                            is_risk_threat_death_or_physical_harm_threat='DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes,
+                            is_victim_support_govt_legal_aid='govt_legal_aid' in support_codes,
+                            is_victim_support_victim_support_center='victim_support_center' in support_codes,
+                            is_victim_support_ngo_support='ngo_support' in support_codes,
+                            is_victim_support_family_community_support='family_community_support' in support_codes,
+                            is_risk_threat_family_pressure='family_pressure' in retaliation_codes,
+                            is_risk_threat_settlement_pressure='settlement_pressure' in retaliation_codes,
+                            is_risk_threat_case_withdrawal_pressure='case_withdrawal_pressure' in retaliation_codes,
+                            is_risk_threat_business_loss_threat='business_loss_threat' in retaliation_codes,
+                            is_risk_threat_witness_victim_threat='witness_victim_threat' in retaliation_codes,
+                            is_risk_threat_eviction_threat='eviction_threat' in retaliation_codes,
+                            is_risk_threat_retaliation_threat='retaliation_threat' in retaliation_codes,
+                            is_risk_threat_death_or_physical_harm_threat='death_or_physical_harm_threat' in retaliation_codes,
                             legal_action_additional_remarks=(cl.get('remarks') or '').strip() or None,
                             created_at=now,
                         )
@@ -2397,7 +2397,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         code_map = {}
                         if all_ids:
                             for row in RefStatus.objects.filter(status_id__in=all_ids).values('status_id', 'status_code'):
-                                code_map[row['status_id']] = (row['status_code'] or '').upper()
+                                code_map[row['status_id']] = row['status_code'] or ''
                         law_codes = {code_map[i] for i in law_ids if i in code_map}
                         support_codes = {code_map[i] for i in support_ids if i in code_map}
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
@@ -2410,22 +2410,22 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             gd_fir_police_refusal_statement=(el.get('policeRefusalStatement') or '').strip() or None,
                             gd_fir_location_display_title_en=(el.get('policeStation') or '').strip() or None,
                             link_ref_status_law_case_status_id=case_status_id,
-                            is_law_penal_code_383_389='PENAL_CODE_383_389' in law_codes,
-                            is_law_anti_terrorism_act='ANTI_TERRORISM_ACT' in law_codes,
-                            is_law_prevention_of_corruption_act='PREVENTION_OF_CORRUPTION_ACT' in law_codes,
-                            is_law_money_laundering_prevention_act='MONEY_LAUNDERING_PREVENTION_ACT' in law_codes,
-                            is_support_gov_legal_aid='GOV_LEGAL_AID' in support_codes,
-                            is_support_acc_complaint='ACC_COMPLAINT' in support_codes,
-                            is_support_business_association='BUSINESS_ASSOCIATION' in support_codes,
-                            is_support_ngo_aid='NGO_AID' in support_codes,
-                            is_risk_threat_family_pressure='FAMILY_PRESSURE' in retaliation_codes,
-                            is_risk_threat_settlement_pressure='SETTLEMENT_PRESSURE' in retaliation_codes,
-                            is_risk_threat_case_withdrawal_pressure='CASE_WITHDRAWAL_PRESSURE' in retaliation_codes,
-                            is_risk_threat_business_loss_threat='BUSINESS_LOSS_THREAT' in retaliation_codes,
-                            is_risk_threat_witness_victim_threat='WITNESS_VICTIM_THREAT' in retaliation_codes,
-                            is_risk_threat_eviction_threat='EVICTION_THREAT' in retaliation_codes,
-                            is_risk_threat_retaliation_threat='RETALIATION_THREAT' in retaliation_codes,
-                            is_risk_threat_death_or_physical_harm_threat='DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes,
+                            is_law_penal_code_383_389='penal_code_383_389' in law_codes,
+                            is_law_anti_terrorism_act='anti_terrorism_act' in law_codes,
+                            is_law_prevention_of_corruption_act='prevention_of_corruption_act' in law_codes,
+                            is_law_money_laundering_prevention_act='money_laundering_prevention_act' in law_codes,
+                            is_support_gov_legal_aid='gov_legal_aid' in support_codes,
+                            is_support_acc_complaint='acc_complaint' in support_codes,
+                            is_support_business_association='business_association' in support_codes,
+                            is_support_ngo_aid='ngo_aid' in support_codes,
+                            is_risk_threat_family_pressure='family_pressure' in retaliation_codes,
+                            is_risk_threat_settlement_pressure='settlement_pressure' in retaliation_codes,
+                            is_risk_threat_case_withdrawal_pressure='case_withdrawal_pressure' in retaliation_codes,
+                            is_risk_threat_business_loss_threat='business_loss_threat' in retaliation_codes,
+                            is_risk_threat_witness_victim_threat='witness_victim_threat' in retaliation_codes,
+                            is_risk_threat_eviction_threat='eviction_threat' in retaliation_codes,
+                            is_risk_threat_retaliation_threat='retaliation_threat' in retaliation_codes,
+                            is_risk_threat_death_or_physical_harm_threat='death_or_physical_harm_threat' in retaliation_codes,
                             legal_action_additional_remarks=(el.get('remarks') or '').strip() or None,
                             created_at=now,
                         )
@@ -2510,7 +2510,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         code_map = {}
                         if all_ids:
                             for row in RefStatus.objects.filter(status_id__in=all_ids).values('status_id', 'status_code'):
-                                code_map[row['status_id']] = (row['status_code'] or '').upper()
+                                code_map[row['status_id']] = row['status_code'] or ''
                         law_codes = {code_map[i] for i in law_ids if i in code_map}
                         support_codes = {code_map[i] for i in support_ids if i in code_map}
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
@@ -2522,25 +2522,25 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             legal_action_reason_not_filing_desc=(ll.get('noFirReason') or '').strip() or None,
                             legal_action_police_refusal_statement=(ll.get('policeRefusalStatement') or '').strip() or None,
                             legal_action_thana_name_en=(ll.get('policeStation') or '').strip() or None,
-                            is_law_crpc_145='CRPC_145' in law_codes,
-                            is_law_civil_suit='CIVIL_SUIT' in law_codes,
-                            is_law_injunction='INJUNCTION' in law_codes,
-                            is_law_penal_code_fraud='PENAL_CODE_FRAUD' in law_codes,
-                            is_law_land_reform_act='LAND_REFORM_ACT' in law_codes,
-                            is_law_land_acquisition_act='LAND_ACQUISITION_ACT' in law_codes,
+                            is_law_crpc_145='crpc_145' in law_codes,
+                            is_law_civil_suit='civil_suit' in law_codes,
+                            is_law_injunction='injunction' in law_codes,
+                            is_law_penal_code_fraud='penal_code_fraud' in law_codes,
+                            is_law_land_reform_act='land_reform_act' in law_codes,
+                            is_law_land_acquisition_act='land_acquisition_act' in law_codes,
                             link_ref_status_law_case_status_id=case_status_id,
-                            is_support_service_govt_legal_aid='GOVT_LEGAL_AID' in support_codes,
-                            is_support_service_land_center='LAND_CENTER' in support_codes,
-                            is_support_service_dc_office='DC_OFFICE' in support_codes,
-                            is_support_service_ngo_support='NGO_SUPPORT' in support_codes,
-                            is_risk_threat_family_pressure='FAMILY_PRESSURE' in retaliation_codes,
-                            is_risk_threat_settlement_pressure='SETTLEMENT_PRESSURE' in retaliation_codes,
-                            is_risk_threat_case_withdrawal_pressure='CASE_WITHDRAWAL_PRESSURE' in retaliation_codes,
-                            is_risk_threat_business_loss_threat='BUSINESS_LOSS_THREAT' in retaliation_codes,
-                            is_risk_threat_witness_victim_threat='WITNESS_VICTIM_THREAT' in retaliation_codes,
-                            is_risk_threat_eviction_threat='EVICTION_THREAT' in retaliation_codes,
-                            is_risk_threat_retaliation_threat='RETALIATION_THREAT' in retaliation_codes,
-                            is_risk_threat_death_or_physical_harm_threat='DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes,
+                            is_support_service_govt_legal_aid='govt_legal_aid' in support_codes,
+                            is_support_service_land_center='land_center' in support_codes,
+                            is_support_service_dc_office='dc_office' in support_codes,
+                            is_support_service_ngo_support='ngo_support' in support_codes,
+                            is_risk_threat_family_pressure='family_pressure' in retaliation_codes,
+                            is_risk_threat_settlement_pressure='settlement_pressure' in retaliation_codes,
+                            is_risk_threat_case_withdrawal_pressure='case_withdrawal_pressure' in retaliation_codes,
+                            is_risk_threat_business_loss_threat='business_loss_threat' in retaliation_codes,
+                            is_risk_threat_witness_victim_threat='witness_victim_threat' in retaliation_codes,
+                            is_risk_threat_eviction_threat='eviction_threat' in retaliation_codes,
+                            is_risk_threat_retaliation_threat='retaliation_threat' in retaliation_codes,
+                            is_risk_threat_death_or_physical_harm_threat='death_or_physical_harm_threat' in retaliation_codes,
                             legal_action_additional_remarks=(ll.get('remarks') or '').strip() or None,
                             created_at=now,
                         )
@@ -2841,7 +2841,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     actor_profile = _save_actor_profile(
                         entry.coll_news_entry_id, victim_person_id, vp,
                         form_type_id, 'women_child_violence', now,
-                        marriage_id=marriage_id, role_code='VICTIM',
+                        marriage_id=marriage_id, role_code='victim',
                     )
 
                     # Collect all ref_status IDs that need code lookups (Steps 3 + 5)
@@ -2861,7 +2861,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         for row in RefStatus.objects.filter(
                             status_id__in=all_ref_ids
                         ).values('status_id', 'status_code'):
-                            code_map[row['status_id']] = (row['status_code'] or '').upper()
+                            code_map[row['status_id']] = row['status_code'] or ''
 
                     vt_codes = {code_map[i] for i in vt_ids if i in code_map}
                     ij_codes = {code_map[i] for i in ij_ids if i in code_map}
@@ -2975,7 +2975,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                 for row in RefStatus.objects.filter(
                                     status_id__in=all_attr_ids
                                 ).values('status_id', 'status_code'):
-                                    attr_code_map[row['status_id']] = (row['status_code'] or '').upper()
+                                    attr_code_map[row['status_id']] = row['status_code'] or ''
 
                             for acc in perps_list:
                                 # ① Shared: Name + Identity → [person].[person]
@@ -2990,7 +2990,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                 _save_actor_profile(
                                     entry.coll_news_entry_id, person.person_id, acc,
                                     form_type_id, 'women_child_violence', now,
-                                    role_code='ACCUSED',
+                                    role_code='accused',
                                 )
                                 # ③ WCV-specific: perpetrator details → women_form_perpetrator
                                 attr_id_set = set(int(x) for x in (acc.get('attributeIds') or []) if x)
@@ -3004,9 +3004,9 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                     perp_number_of_perpetrators=int(acc.get('accusedCount') or 0) or None,
                                     link_ref_status_women_form_attacker_power_position_id=int(acc.get('positionId') or 0) or None,
                                     perp_power_position_details_bn=(acc.get('positionRemarks') or '').strip() or None,
-                                    is_perp_threatened_victim_or_family='HAS_THREATENED_VICTIM_OR_FAMILY' in attr_codes,
-                                    is_perp_used_drugs_or_intoxication='HAS_USED_DRUGS_OR_INTOXICATION' in attr_codes,
-                                    is_perp_history_previous_violence='HAS_PREVIOUS_HISTORY_OF_VIOLENCE' in attr_codes,
+                                    is_perp_threatened_victim_or_family='has_threatened_victim_or_family' in attr_codes,
+                                    is_perp_used_drugs_or_intoxication='has_used_drugs_or_intoxication' in attr_codes,
+                                    is_perp_history_previous_violence='has_previous_history_of_violence' in attr_codes,
                                     perp_history_previous_details_bn=(acc.get('previousHistoryDetails') or '').strip() or None,
                                     remarks_about_perpetrator_bn=(acc.get('remarks') or '').strip() or None,
                                     created_at=now,
@@ -3040,7 +3040,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     code_map = {}
                     if all_ids:
                         for row in RefStatus.objects.filter(status_id__in=all_ids).values('status_id', 'status_code'):
-                            code_map[row['status_id']] = (row['status_code'] or '').upper()
+                            code_map[row['status_id']] = row['status_code'] or ''
 
                     # Only save legal action if FIR status was selected (NOT NULL column)
                     if fir_status_id:
@@ -3061,27 +3061,27 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             reason_for_not_filing_and_plans=((lg.get('noFirReason') or '').strip() or None) if fir_no else None,
                             police_refusal_statement=((lg.get('policeRefusalStatement') or '').strip() or None) if fir_refused else None,
                             police_station_name=((lg.get('policeStation') or '').strip() or None) if fir_yes else None,
-                            is_law_women_children_repression_2000='WOMEN_CHILD_REPRESSION_ACT_2000' in law_codes,
-                            is_law_penal_code_375_376_rape='PENAL_CODE_375_376_RAPE' in law_codes,
-                            is_law_domestic_violence_2010='DOMESTIC_VIOLENCE_ACT_2010' in law_codes,
-                            is_law_acid_control_2002='ACID_CONTROL_ACT_2002' in law_codes,
-                            is_law_digital_security='DIGITAL_SECURITY_ACT' in law_codes,
-                            is_law_dowry_prohibition_2018='DOWRY_PROHIBITION_ACT_2018' in law_codes,
-                            is_law_child_marriage_restraint_2017='CHILD_MARRIAGE_RESTRAINT_ACT_2017' in law_codes,
-                            is_law_human_trafficking_2012='HUMAN_TRAFFICKING_PREVENTION_ACT_2012' in law_codes,
+                            is_law_women_children_repression_2000='women_child_repression_act_2000' in law_codes,
+                            is_law_penal_code_375_376_rape='penal_code_375_376_rape' in law_codes,
+                            is_law_domestic_violence_2010='domestic_violence_act_2010' in law_codes,
+                            is_law_acid_control_2002='acid_control_act_2002' in law_codes,
+                            is_law_digital_security='digital_security_act' in law_codes,
+                            is_law_dowry_prohibition_2018='dowry_prohibition_act_2018' in law_codes,
+                            is_law_child_marriage_restraint_2017='child_marriage_restraint_act_2017' in law_codes,
+                            is_law_human_trafficking_2012='human_trafficking_prevention_act_2012' in law_codes,
                             link_ref_status_law_case_status_id=case_status_id or None,
-                            is_support_shelter_accessed='HAS_SHELTER_ACCESSED' in support_codes,
-                            is_support_legal_aid='HAS_LEGAL_AID' in support_codes,
-                            is_support_counseling_provided='HAS_COUNSELING_PROVIDED' in support_codes,
-                            is_support_one_stop_crisis_centre='HAS_ONE_STOP_CRISIS_CENTRE' in support_codes,
-                            is_risk_threat_family_pressure='FAMILY_PRESSURE' in retaliation_codes,
-                            is_risk_threat_settlement_pressure='SETTLEMENT_PRESSURE' in retaliation_codes,
-                            is_risk_threat_case_withdrawal_pressure='CASE_WITHDRAWAL_PRESSURE' in retaliation_codes,
-                            is_risk_threat_business_loss_threat='BUSINESS_LOSS_THREAT' in retaliation_codes,
-                            is_risk_threat_witness_victim_threat='WITNESS_VICTIM_THREAT' in retaliation_codes,
-                            is_risk_threat_eviction_threat='EVICTION_THREAT' in retaliation_codes,
-                            is_risk_threat_retaliation_threat='RETALIATION_THREAT' in retaliation_codes,
-                            is_risk_threat_death_or_physical_harm_threat='DEATH_OR_PHYSICAL_HARM_THREAT' in retaliation_codes,
+                            is_support_shelter_accessed='has_shelter_accessed' in support_codes,
+                            is_support_legal_aid='has_legal_aid' in support_codes,
+                            is_support_counseling_provided='has_counseling_provided' in support_codes,
+                            is_support_one_stop_crisis_centre='has_one_stop_crisis_centre' in support_codes,
+                            is_risk_threat_family_pressure='family_pressure' in retaliation_codes,
+                            is_risk_threat_settlement_pressure='settlement_pressure' in retaliation_codes,
+                            is_risk_threat_case_withdrawal_pressure='case_withdrawal_pressure' in retaliation_codes,
+                            is_risk_threat_business_loss_threat='business_loss_threat' in retaliation_codes,
+                            is_risk_threat_witness_victim_threat='witness_victim_threat' in retaliation_codes,
+                            is_risk_threat_eviction_threat='eviction_threat' in retaliation_codes,
+                            is_risk_threat_retaliation_threat='retaliation_threat' in retaliation_codes,
+                            is_risk_threat_death_or_physical_harm_threat='death_or_physical_harm_threat' in retaliation_codes,
                             legal_action_additional_remarks=(lg.get('remarks') or '').strip() or None,
                             created_at=now,
                         )
@@ -3245,7 +3245,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     _save_actor_profile(
                         entry.coll_news_entry_id, martyr_person_id, jm,
                         form_type_id, 'july_uprising_2024', now,
-                        role_code='VICTIM',
+                        role_code='victim',
                     )
 
                     # ---- Forces: status_ids → status_codes → BIT columns ----
@@ -3253,14 +3253,14 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     force_codes = set()
                     if _force_ids:
                         for _row in RefStatus.objects.filter(status_id__in=_force_ids).values('status_code'):
-                            force_codes.add((_row['status_code'] or '').upper())
+                            force_codes.add(_row['status_code'] or '')
 
                     # ---- Evidence types: status_ids → status_codes → BIT columns ----
                     _evid_ids = [int(x) for x in (je.get('evidenceTypes') or []) if x]
                     evid_codes = set()
                     if _evid_ids:
                         for _row in RefStatus.objects.filter(status_id__in=_evid_ids).values('status_code'):
-                            evid_codes.add((_row['status_code'] or '').upper())
+                            evid_codes.add(_row['status_code'] or '')
 
                     # ---- INSERT [investigation].[july2024_fact_protest] ----
                     July2024FactProtest.objects.create(
@@ -3293,25 +3293,25 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         link_home_union_parishad_id=int(jm.get('homeLocalBodyId') or 0) or None,
                         link_home_ward_id=int(jm.get('homeWardId') or 0) or None,
                         # Step 7: forces — hardcoded status_code → BIT mapping
-                        force_involved_is_police='POLICE' in force_codes,
-                        force_involved_is_rab='RAB' in force_codes,
-                        force_involved_is_bgb='BGB' in force_codes,
-                        force_involved_is_army='ARMY' in force_codes,
-                        force_involved_is_db_police='DB_POLICE' in force_codes,
-                        force_involved_is_bcl='BCL' in force_codes,
-                        force_involved_is_jubo_league='JUBO_LEAGUE' in force_codes,
-                        force_involved_is_unknown_plainclothes='UNKNOWN_PLAINCLOTHES' in force_codes,
+                        force_involved_is_police='police' in force_codes,
+                        force_involved_is_rab='rab' in force_codes,
+                        force_involved_is_bgb='bgb' in force_codes,
+                        force_involved_is_army='army' in force_codes,
+                        force_involved_is_db_police='db_police' in force_codes,
+                        force_involved_is_bcl='bcl' in force_codes,
+                        force_involved_is_jubo_league='jubo_league' in force_codes,
+                        force_involved_is_unknown_plainclothes='unknown_plainclothes' in force_codes,
                         force_details_unit_or_badge_number=(jo.get('unitBadge') or '').strip() or None,
                         force_details_commanding_officer_name=(jo.get('commandingOfficer') or '').strip() or None,
                         force_details_area_oc_or_dc_name=(jo.get('ocDc') or '').strip() or None,
                         force_details_orders_or_directives=(jo.get('directives') or '').strip() or None,
                         # Step 8: evidence — hardcoded status_code → BIT mapping
                         link_ref_status_verification_status_id=int(je.get('verificationStatus') or 0) or None,
-                        verification_has_video_evidence='VIDEO_EVIDENCE' in evid_codes,
-                        verification_has_photo_evidence='PHOTO_EVIDENCE' in evid_codes,
-                        verification_has_cctv_footage='CCTV_FOOTAGE' in evid_codes,
-                        verification_has_eyewitness_testimony='EYEWITNESS_TESTIMONY' in evid_codes,
-                        verification_is_listed_in_official_gazette='LISTED_IN_GAZETTE' in evid_codes,
+                        verification_has_video_evidence='video_evidence' in evid_codes,
+                        verification_has_photo_evidence='photo_evidence' in evid_codes,
+                        verification_has_cctv_footage='cctv_footage' in evid_codes,
+                        verification_has_eyewitness_testimony='eyewitness_testimony' in evid_codes,
+                        verification_is_listed_in_official_gazette='listed_in_gazette' in evid_codes,
                         verification_eyewitness_count=int(je.get('eyewitnessCount') or 0) or None,
                         verification_memorial_reference=(je.get('memorialRef') or '').strip() or None,
                         # Metadata

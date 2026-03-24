@@ -181,7 +181,7 @@
     hideSection(resultSection);
 
     // Icon
-    var extLabel = currentExt.toUpperCase();
+    var extLabel = currentExt;
     if (extLabel.length > 4) extLabel = extLabel.substring(0, 4);
     fileIcon.textContent = extLabel;
     fileIcon.style.background = getExtColor(currentExt);
@@ -189,7 +189,7 @@
 
     // Details
     fileName.textContent = file.name;
-    fileMeta.textContent = formatSize(file.size) + ' · ' + (currentExt.toUpperCase() || 'Unknown');
+    fileMeta.textContent = formatSize(file.size) + ' · ' + (currentExt || 'Unknown');
 
     // Build format buttons
     formatGrid.innerHTML = '';
@@ -204,7 +204,7 @@
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'convert-format-btn';
-      btn.textContent = ext.toUpperCase();
+      btn.textContent = ext;
       btn.dataset.ext = ext;
       btn.addEventListener('click', function () {
         // Toggle selection
@@ -212,7 +212,7 @@
         btn.classList.add('active');
         selectedTarget = ext;
         actionBtn.disabled = false;
-        actionLabel.textContent = 'Convert to ' + ext.toUpperCase();
+        actionLabel.textContent = 'Convert to ' + ext;
       });
       formatGrid.appendChild(btn);
     });
@@ -283,7 +283,7 @@
 
     if (!promise) {
       promise = Promise.reject(new Error(
-        currentExt.toUpperCase() + ' → ' + selectedTarget.toUpperCase() +
+        currentExt + ' → ' + selectedTarget +
         ' conversion is not yet supported in the browser. Server-side processing coming soon.'
       ));
     }
@@ -295,7 +295,7 @@
       alert('Conversion failed: ' + err.message);
     }).finally(function () {
       actionBtn.disabled = false;
-      actionLabel.textContent = 'Convert to ' + selectedTarget.toUpperCase();
+      actionLabel.textContent = 'Convert to ' + selectedTarget;
       actionSpinner.style.display = 'none';
     });
   }

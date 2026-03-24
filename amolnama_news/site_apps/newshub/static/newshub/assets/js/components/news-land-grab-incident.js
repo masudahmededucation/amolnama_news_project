@@ -74,13 +74,13 @@
   var propertyTypeOtherId = 0;
   var methodOtherId       = 0;
   for (var pi = 0; pi < propertyTypeData.length; pi++) {
-    if ((propertyTypeData[pi].status_code || '').toUpperCase() === 'OTHER') {
+    if ((propertyTypeData[pi].status_code || '') === 'other') {
       propertyTypeOtherId = propertyTypeData[pi].status_id;
       break;
     }
   }
   for (var mi = 0; mi < grabbingMethodData.length; mi++) {
-    if ((grabbingMethodData[mi].status_code || '').toUpperCase() === 'OTHER_METHOD') {
+    if ((grabbingMethodData[mi].status_code || '') === 'other_method') {
       methodOtherId = grabbingMethodData[mi].status_id;
       break;
     }

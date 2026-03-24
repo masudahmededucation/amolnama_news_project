@@ -345,7 +345,7 @@
 
     // Update meta bar
     var langEl = document.querySelector(".poem-detail-lang");
-    if (langEl) langEl.textContent = (next.language || "BN").toUpperCase();
+    if (langEl) { langEl.textContent = next.language || "bn"; langEl.style.textTransform = 'uppercase'; }
 
     var timeEl2 = document.querySelector(".poem-detail-time");
     if (timeEl2) timeEl2.textContent = "এইমাত্র";
@@ -430,7 +430,7 @@
             var title = p.display_title || p.title_bn || p.title || "";
             var snippet = p.body_preview || (p.body || "").substring(0, 120);
             var category = p.category_name || p.category || "";
-            var lang = (p.language || "BN").toUpperCase();
+            var lang = p.language || "bn";
             var author = p.author_display_name || p.author || "";
             var likes = p.like_count || 0;
             var timeAgo = p.time_ago || "";

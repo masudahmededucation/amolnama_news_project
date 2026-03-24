@@ -155,7 +155,7 @@
     files.forEach(function (file, idx) {
       totalSize += file.size;
       var ext = getExt(file.name);
-      var extLabel = ext.toUpperCase();
+      var extLabel = ext;
       if (extLabel.length > 4) extLabel = extLabel.substring(0, 4);
 
       var item = document.createElement('div');
@@ -176,7 +176,7 @@
 
       var meta = document.createElement('div');
       meta.className = 'zip-file-item-meta';
-      meta.textContent = formatSize(file.size) + ' \u00B7 ' + (ext.toUpperCase() || 'Unknown') +
+      meta.textContent = formatSize(file.size) + ' \u00B7 ' + (ext || 'Unknown') +
         ' \u00B7 ' + formatDate(file.lastModified);
 
       info.appendChild(name);
@@ -465,7 +465,7 @@
     // Count file types
     var typeCounts = {};
     files.forEach(function (f) {
-      var ext = getExt(f.name).toUpperCase() || 'OTHER';
+      var ext = getExt(f.name) || 'OTHER';
       typeCounts[ext] = (typeCounts[ext] || 0) + 1;
     });
     var typeBreakdown = Object.keys(typeCounts).map(function (ext) {

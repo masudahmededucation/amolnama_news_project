@@ -197,7 +197,7 @@ def _actor_sidenotes(entry_id):
     witness_names = []
 
     for actor in actors:
-        role = (actor.incident_involved_actor_role_group_code or '').upper()
+        role = (actor.incident_involved_actor_role_group_code or '').lower()
         name = actor.actor_organization_name or ''
         person = persons_map.get(actor.link_person_id)
         if person:
@@ -208,11 +208,11 @@ def _actor_sidenotes(entry_id):
         if not name:
             continue
 
-        if role == 'ACCUSED':
+        if role == 'accused':
             accused_names.append(name)
-        elif role == 'VICTIM':
+        elif role == 'victim':
             victim_names.append(name)
-        elif role == 'WITNESS':
+        elif role == 'witness':
             witness_names.append(name)
 
     if accused_names:
@@ -516,7 +516,7 @@ def _build_actor_edit_data(entry_id):
     witnesses = []
 
     for actor in actors:
-        role = (actor.incident_involved_actor_role_group_code or '').upper()
+        role = (actor.incident_involved_actor_role_group_code or '').lower()
 
         # Get person from pre-fetched map
         first_name_en = ''
@@ -570,11 +570,11 @@ def _build_actor_edit_data(entry_id):
             'statement': actor.actor_statement or '',
         }
 
-        if role == 'ACCUSED':
+        if role == 'accused':
             accused.append(actor_data)
-        elif role == 'VICTIM':
+        elif role == 'victim':
             victims.append(actor_data)
-        elif role == 'WITNESS':
+        elif role == 'witness':
             witnesses.append(actor_data)
 
     return accused, victims, witnesses

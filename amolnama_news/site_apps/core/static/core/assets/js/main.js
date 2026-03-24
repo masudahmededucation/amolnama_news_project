@@ -34,7 +34,9 @@
       saved = saved === 'light' ? 'dark' : saved === 'dark' ? 'auto' : 'light';
       localStorage.setItem('theme', saved);
       apply(saved);
-      themeBtn.querySelector('span').textContent = saved.toUpperCase();
+      var label = themeBtn.querySelector('span');
+      label.textContent = saved;
+      label.style.textTransform = 'uppercase';
     });
   }
 

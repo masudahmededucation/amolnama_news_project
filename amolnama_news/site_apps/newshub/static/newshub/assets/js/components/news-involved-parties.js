@@ -90,8 +90,8 @@
 
   function getFilteredActorTypes(role) {
     if (!actorTypes.length) return [];
-    var roleUpper = (role || '').toUpperCase();
-    if (roleUpper === 'ACCUSED' || roleUpper === 'POLITICIAN') return actorTypes;
+    var roleUpper = (role || '');
+    if (roleUpper === 'accused' || roleUpper === 'politician') return actorTypes;
     /* Victim / Witness: exclude accused-only types */
     var filtered = [];
     for (var i = 0; i < actorTypes.length; i++) {
@@ -427,7 +427,7 @@
     var key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
 
-    if (field.tagName === 'SELECT') {
+    if (field.tagName === 'select') {
       actors[idx][key] = parseInt(field.value, 10) || 0;
     } else {
       actors[idx][key] = field.value;
@@ -439,7 +439,7 @@
   var integerSelectFields = { actorTypeId: true, conditionId: true };
   listContainer.addEventListener('change', function (e) {
     var field = e.target.closest('.actor-field');
-    if (!field || field.tagName !== 'SELECT') return;
+    if (!field || field.tagName !== 'select') return;
     var idx = parseInt(field.getAttribute('data-index'), 10);
     var key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
