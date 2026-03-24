@@ -4,14 +4,24 @@ import json
 
 from django.db.models import F, Q
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from .helpers import get_smart_related_poems
 from .models import CollPoemEntry, EngPoemLike, RefPoemCategory
+from .views import _ensure_poem_slug
 
 
 PAGE_SIZE = 12
+
+
+def _poem_url(poem):
+    """Get SEO-friendly URL for a poem. Falls back to ID-based URL if no slug."""
+    if poem.poem_slug:
+        return reverse("poem:poem_detail", kwargs={"poem_slug": poem.poem_slug})
+    # No slug yet — return ID-based redirect URL (avoids DB write during list API)
+    return reverse("poem:poem_detail_by_id", kwargs={"poem_id": poem.poem_coll_poem_entry_id})
 
 
 def _time_ago(dt):
@@ -99,6 +109,7 @@ def api_poem_entry_list(request):
         body = p.poem_body_bn or p.poem_body_en or ""
         result.append({
             "id": p.poem_coll_poem_entry_id,
+            "url": _poem_url(p),
             "title_bn": p.poem_title_bn or "",
             "title_en": p.poem_title_en or "",
             "display_title": p.poem_title_bn or p.poem_title_en or "শিরোনামহীন",
@@ -194,7 +205,8 @@ def api_poem_entry_create(request):
             created_at=timezone.now(),
         )
 
-        return JsonResponse({"success": True, "poem_id": poem.poem_coll_poem_entry_id})
+        _ensure_poem_slug(poem)
+        return JsonResponse({"success": True, "poem_id": poem.poem_coll_poem_entry_id, "poem_url": _poem_url(poem)})
     except Exception:
         return JsonResponse({"success": False, "error": traceback.format_exc()}, status=500)
 
@@ -378,7 +390,7 @@ def api_poem_next(request, poem_id):
             "like_count": p.like_count,
             "view_count": p.view_count,
             "category_id": p.link_poem_ref_poem_category_id,
-            "url": "/poem/" + str(p.poem_coll_poem_entry_id) + "/",
+            "url": _poem_url(p),
         },
         "exhausted_categories": sorted(exhausted_cats),
         "category_changed": p.link_poem_ref_poem_category_id != current_cat,
@@ -426,7 +438,7 @@ def api_poem_related(request, poem_id):
             "language": p.poem_language_code,
             "type": p.poem_type_code,
             "time_ago": _time_ago(p.created_at),
-            "url": "/poem/" + str(p.poem_coll_poem_entry_id) + "/",
+            "url": _poem_url(p),
         })
 
     return JsonResponse({"success": True, "poems": result})

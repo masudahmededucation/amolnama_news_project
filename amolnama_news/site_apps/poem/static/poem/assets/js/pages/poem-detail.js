@@ -26,7 +26,7 @@
       var poemId = likeBtn.dataset.poemId;
       var csrf = getCsrf();
 
-      fetch("/poem/api/poems/" + poemId + "/like/", {
+      fetch("/bangla-kobita-gaan/api/poems/" + poemId + "/like/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

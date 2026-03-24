@@ -28,6 +28,7 @@ class CollPoemEntry(models.Model):
     poem_coll_poem_entry_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
     link_poem_ref_poem_category_id = models.IntegerField()
+    poem_slug = models.CharField(max_length=500, blank=True, null=True)
     poem_title_bn = models.CharField(max_length=200, blank=True, null=True)
     poem_title_en = models.CharField(max_length=200, blank=True, null=True)
     poem_body_bn = models.TextField(blank=True, null=True)

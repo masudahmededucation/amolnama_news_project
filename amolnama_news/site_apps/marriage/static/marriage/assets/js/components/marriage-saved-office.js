@@ -25,9 +25,9 @@
     'office_date':    'cert-date'
   };
 
-  var API_LIST   = '/marriage/api/saved-offices/';
-  var API_SAVE   = '/marriage/api/saved-offices/save/';
-  var API_DELETE  = '/marriage/api/saved-offices/delete/';
+  var API_LIST   = '/bangladesh-marriage-registration/api/saved-offices/';
+  var API_SAVE   = '/bangladesh-marriage-registration/api/saved-offices/save/';
+  var API_DELETE  = '/bangladesh-marriage-registration/api/saved-offices/delete/';
 
   /* ── CSRF ── */
   function getCsrf() {

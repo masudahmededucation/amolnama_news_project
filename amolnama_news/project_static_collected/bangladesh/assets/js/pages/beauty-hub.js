@@ -66,7 +66,7 @@
     if (currentQuery) params.set("q", currentQuery);
 
     try {
-      const response = await fetch(`/bangladesh/api/media/?${params}`);
+      const response = await fetch(`/bangladesh-tourist-destinations/api/media/?${params}`);
       const data = await response.json();
 
       if (replaceExisting) mediaGallery.innerHTML = "";

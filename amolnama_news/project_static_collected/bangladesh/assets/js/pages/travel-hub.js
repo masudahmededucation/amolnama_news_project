@@ -57,7 +57,7 @@
     if (currentQuery) params.set("q", currentQuery);
 
     try {
-      const response = await fetch(`/bangladesh/api/destinations/?${params}`);
+      const response = await fetch(`/bangladesh-tourist-destinations/api/destinations/?${params}`);
       const data = await response.json();
 
       if (replaceExisting) destinationGrid.innerHTML = "";
@@ -68,7 +68,7 @@
 
       data.destinations.forEach((destination) => {
         const card = document.createElement("a");
-        card.href = `/bangladesh/travel/${destination.id}/`;
+        card.href = destination.slug ? `/bangladesh-tourist-destinations/travel/${destination.slug}/` : `/bangladesh-tourist-destinations/travel/id/${destination.id}/`;
         card.className = "travel-hub-destination-card";
         const imageHtml = destination.cover_image
           ? `<div class="travel-hub-destination-card-img" style="background-image:url('${destination.cover_image}');"></div>`

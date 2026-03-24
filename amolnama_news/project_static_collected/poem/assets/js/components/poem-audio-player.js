@@ -252,7 +252,7 @@
     var params = "?played=" + playedIds.join(",") +
                  "&exhausted=" + exhaustedCategories.join(",");
 
-    fetch("/poem/api/poems/" + poemId + "/next/" + params)
+    fetch("/bangla-kobita-gaan/api/poems/" + poemId + "/next/" + params)
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.success || !data.next) return;
@@ -331,7 +331,7 @@
 
     // Update edit button link
     var editBtn = document.querySelector(".poem-detail-edit-btn");
-    if (editBtn) editBtn.href = "/poem/" + next.id + "/edit/";
+    if (editBtn) editBtn.href = (next.url || "/bangla-kobita-gaan/id/" + next.id + "/").replace(/\/$/, "/edit/");
 
     // Update like button
     var likeBtn = document.getElementById("poemLikeBtn");
@@ -418,7 +418,7 @@
     // Update related poems section — uses same smart helper as autoplay
     var relatedSection = document.querySelector(".poem-detail-related");
     if (relatedSection) {
-      fetch("/poem/api/poems/" + next.id + "/related/")
+      fetch("/bangla-kobita-gaan/api/poems/" + next.id + "/related/")
         .then(function(r) { return r.json(); })
         .then(function(data) {
           var grid = relatedSection.querySelector(".poem-detail-related-grid");
@@ -434,7 +434,7 @@
             var author = p.author_display_name || p.author || "";
             var likes = p.like_count || 0;
             var timeAgo = p.time_ago || "";
-            var url = p.url || "/poem/" + p.id + "/";
+            var url = p.url || "/bangla-kobita-gaan/id/" + p.id + "/";
             html += '<a href="' + url + '" class="poem-card">'
               + '<span class="poem-card-queue-number">' + (index + 1) + '</span>'
               + '<div class="poem-card-body">'

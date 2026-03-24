@@ -20,14 +20,17 @@ def robots_txt(request):
         "Disallow: /account/",
         "Disallow: /accounts/",
         "Disallow: /api/",
+        "",
+        "# Newshub: blocked to prevent content copying",
         "Disallow: /newshub/",
         "",
         "# Disallow API endpoints within apps",
         "Disallow: /evaluation_vote/api/",
         "Disallow: /election_vote/api/",
-        "Disallow: /marriage/api/",
+        "Disallow: /bangladesh-marriage-registration/api/",
         "Disallow: /tools/api/",
         "Disallow: /market/api/",
+        "Disallow: /bangladesh-tourist-destinations/api/",
         "",
         f"Sitemap: {host}sitemap.xml",
         "",
@@ -76,7 +79,19 @@ The platform operates in both Bengali (বাংলা) and English.
 - [Election Vote]({host}election_vote/)
 - [Tools]({host}tools/)
 - [Marriage Services]({host}marriage/)
-- [Poetry]({host}poem/)
+- [বাংলা কবিতা ও গান (Poetry & Songs)]({host}bangla-kobita-gaan/)
+- [Bangladesh Tourist Destinations]({host}bangladesh-tourist-destinations/) — Tourist attractions, destinations, and travel guides across Bangladesh
+- [Bangladesh Photo Gallery]({host}bangladesh-tourist-destinations/beauty/) — Photo and video gallery of Bangladesh's natural beauty
+- [Bangladesh Marriage Registration]({host}bangladesh-marriage-registration/) — Marriage registration services
+
+## Bangladesh Travel Hub
+
+Community-driven travel guide for Bangladesh. Destinations include:
+- Historical sites, natural landmarks, and scenic spots
+- Transport routes, accommodation options, and travel tips
+- User-uploaded photos, YouTube videos, and reference links
+- Ratings and reviews from travellers
+- Bengali (বাংলা) and English content for each destination
 
 ## Tools (Free, Client-Side)
 
@@ -156,7 +171,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v60';
+var CACHE_NAME = 'amolnama-v66';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

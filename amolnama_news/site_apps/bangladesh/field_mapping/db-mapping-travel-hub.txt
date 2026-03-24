@@ -1,22 +1,35 @@
 Travel Hub — Field Mapping & Feature Documentation
 =====================================================
-Last updated: 2026-03-24
+Last updated: 2026-03-25
 
-== URLs ==
-Landing:        /bangladesh/travel/                        → travel_hub(request)
-Add:            /bangladesh/travel/add/                    → travel_hub_add(request) [login required]
-Edit:           /bangladesh/travel/add/?edit=<dest_id>     → travel_hub_add(request) [same view, edit mode]
-Detail:         /bangladesh/travel/<destination_id>/        → travel_hub_detail(request, destination_id)
+== URLs (prefix: /bangladesh-tourist-destinations/) ==
+Landing:        /bangladesh-tourist-destinations/                          → bangladesh_landing(request)
+Travel Hub:     /bangladesh-tourist-destinations/travel/                   → travel_hub(request)
+Add:            /bangladesh-tourist-destinations/travel/add/               → travel_hub_add(request) [login required]
+Edit:           /bangladesh-tourist-destinations/travel/add/?edit=<id>     → travel_hub_add(request) [same view, edit mode]
+Detail (slug):  /bangladesh-tourist-destinations/travel/<slug>/            → travel_hub_detail_by_slug(request, destination_slug)
+Detail (ID):    /bangladesh-tourist-destinations/travel/id/<id>/           → travel_hub_detail_by_id → 301 redirect to slug URL
+Beauty Hub:     /bangladesh-tourist-destinations/beauty/                   → beauty_hub(request)
+
+Old URLs (/bangladesh/*) → 301 redirect to /bangladesh-tourist-destinations/* via project urls.py
 
 API — Destinations:
   GET  /bangladesh/api/destinations/                       → api_destination_list (paginated)
   POST /bangladesh/api/destinations/create/                → api_destination_create
   POST /bangladesh/api/destinations/<id>/update/           → api_destination_update
 
-API — Community Contributions:
-  POST /bangladesh/api/destination/<id>/photo/             → api_destination_photo_upload (multipart)
-  POST /bangladesh/api/destination/<id>/youtube/           → api_destination_youtube_link_add (JSON)
-  POST /bangladesh/api/destination/<id>/link/              → api_destination_reference_link_add (JSON)
+API — Community Contributions (add):
+  POST   /bangladesh/api/destination/<id>/photo/             → api_destination_photo_upload (multipart)
+  POST   /bangladesh/api/destination/<id>/youtube/           → api_destination_youtube_link_add (JSON)
+  POST   /bangladesh/api/destination/<id>/link/              → api_destination_reference_link_add (JSON)
+
+API — Community Contributions (edit/delete):
+  PATCH  /bangladesh/api/destination/<id>/photo/<photo_id>/           → api_destination_photo_update (JSON: caption_bn)
+  DELETE /bangladesh/api/destination/<id>/photo/<photo_id>/delete/    → api_destination_photo_delete
+  PATCH  /bangladesh/api/destination/<id>/youtube/<yt_id>/            → api_destination_youtube_link_update (JSON: video_title_bn, description_bn)
+  DELETE /bangladesh/api/destination/<id>/youtube/<yt_id>/delete/     → api_destination_youtube_link_delete
+  PATCH  /bangladesh/api/destination/<id>/link/<ref_id>/              → api_destination_reference_link_update (JSON: reference_title_bn, description_bn)
+  DELETE /bangladesh/api/destination/<id>/link/<ref_id>/delete/       → api_destination_reference_link_delete
 
 == Files ==
 Views:      bangladesh/views.py (travel_hub, travel_hub_add, travel_hub_detail)
@@ -86,9 +99,9 @@ New (added 2026-03-24):
 5. Stats bar: rating, view count, time ago
 6. Description: paragraphs (split by \n, inline HTML formatting preserved via |safe)
 7. Practical info: entry fee, visiting hours
-8. Photos section + upload form (logged-in users)
-9. YouTube videos section + add form (thumbnail + play → opens YouTube in new tab)
-10. Reference links section + add form
+8. Photos section + upload/edit/delete (logged-in users) + uploader attribution
+9. YouTube videos section + add/edit/delete (thumbnail + play → opens YouTube in new tab) + uploader attribution
+10. Reference links section + add/edit/delete + uploader attribution
 11. Transport routes
 12. Accommodations
 13. Travel tips
@@ -160,6 +173,28 @@ _sanitize_html(html) in views_api.py:
 
 == Inline Messages (No Popups) ==
 
-All user feedback via .thd-inline-msg elements (no alert/confirm/prompt).
+All user feedback via .travel-hub-detail-inline-msg elements (no alert/confirm/prompt).
 Auto-dismiss after 5 seconds.
-Classes: .thd-inline-msg-success (green), .thd-inline-msg-error (red).
+Classes: .travel-hub-detail-inline-msg-success (green), .travel-hub-detail-inline-msg-error (red).
+
+== Community Contribution Permissions ==
+
+Permission matrix for community contributions (photos, YouTube links, reference links):
+  Add:         Any authenticated user can upload/add to any destination
+  Edit:        Contribution owner + destination owner + staff/admin
+  Delete:      Contribution owner + destination owner + staff/admin
+  Edit main:   Destination owner + staff/admin only (can_edit flag)
+
+Permission check function: _can_manage_contribution() in views_api.py
+Template: can_manage flag annotated per contribution in views.py travel_hub_detail()
+
+Uploader attribution: display_name from UserProfile, bulk-fetched to avoid N+1.
+Edit: inline form appears inside the contribution card (photo/youtube/link).
+Delete: inline confirmation bar (red) — no popups.
+
+== Naming Convention ==
+
+All CSS classes use travel-hub-detail- prefix (no abbreviations like thd-).
+All DOM IDs and name attributes are fully descriptive.
+All JS variables use full words (photoUploadButton not photoBtn).
+All Python variables use full words (search_query not q, destination not d).

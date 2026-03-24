@@ -167,7 +167,7 @@
       link_poem_category_id: parseInt(category, 10),
     };
 
-    fetch("/poem/api/poems/" + poemId + "/update/", {
+    fetch("/bangla-kobita-gaan/api/poems/" + poemId + "/update/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -188,7 +188,10 @@
       })
       .then(function (data) {
         if (data.success) {
-          window.location.href = "/poem/" + poemId + "/";
+          /* Navigate to poem detail — extract slug from current edit URL */
+          var currentPath = window.location.pathname;
+          var poemSlug = currentPath.replace(/\/edit\/$/, "/").replace(/^\/bangla-kobita-gaan\//, "");
+          window.location.href = "/bangla-kobita-gaan/" + poemSlug;
         } else {
           showError(data.error || "কিছু ভুল হয়েছে (Something went wrong)");
           submitBtn.disabled = false;

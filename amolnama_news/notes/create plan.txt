@@ -1,0 +1,15 @@
+--create implementation plan
+can you create a robust plan. 
+then check for bugs in the plan again. 
+then continue implementing it. 
+you should be writing plan and implementing step 1 to... and mark them once done. 
+this way you know what is done and not.
+
+--compare the plan
+now check one more time that you have completed the task properly
+
+
+
+why do you keep asking about next session. 
+what does it really mean? 
+how does it help you? what is the issue? 

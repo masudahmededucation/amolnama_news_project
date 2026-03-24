@@ -1,0 +1,17 @@
+--naming conventions
+give descriptive name not partial or short name.
+check variables, filename, functions, features - all js ajax html
+update documents
+update troubleshooting documents
+
+
+--check for bugs
+check for bugs and bad code. 
+
+
+--attribute naming convention 
+all attributes should have its id and name 
+
+
+📷 ছবি (Photos) (2) to স্মৃতিগুলো ধরে রাখুন: ছবি ও ভিডিও আপলোড করুন 
+to something encouraging. let user know they can upload photos and video here. 

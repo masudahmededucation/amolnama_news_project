@@ -102,7 +102,7 @@
         var data = JSON.parse(xhr.responseText);
         if (data.success) {
           progressText.textContent = "সফল! পুনঃনির্দেশ হচ্ছে...";
-          window.location.href = "/bangladesh/beauty/";
+          window.location.href = "/bangladesh-tourist-destinations/beauty/";
         } else {
           uploadError.textContent = data.error;
           uploadError.style.display = "block";
@@ -123,7 +123,7 @@
       uploadProgress.style.display = "none";
     });
 
-    xhr.open("POST", "/bangladesh/api/media/upload/");
+    xhr.open("POST", "/bangladesh-tourist-destinations/api/media/upload/");
     xhr.setRequestHeader("X-CSRFToken", getCsrfToken("csrftoken"));
     xhr.send(formData);
   });

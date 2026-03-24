@@ -313,6 +313,8 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: var(--text);
 }
 
+.travel-hub-detail-transport-mode-label { text-transform: uppercase; }
+
 .travel-hub-detail-card-text {
   font-size: .9rem;
   color: var(--text);
@@ -469,6 +471,203 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-detail-inline-msg-success { background: #dcfce7; color: #166534; }
 .travel-hub-detail-inline-msg-error   { background: #fef2f2; color: #991b1b; }
 
+/* Contribution meta (uploader name + edit/delete) */
+.travel-hub-detail-contribution-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .3rem;
+  margin-top: .25rem;
+  font-size: .68rem;
+}
+
+.travel-hub-detail-contribution-uploader {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.travel-hub-detail-contribution-actions {
+  display: flex;
+  gap: .2rem;
+  flex-shrink: 0;
+}
+
+.travel-hub-detail-contribution-edit-button,
+.travel-hub-detail-contribution-delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .72rem;
+  padding: .1rem .25rem;
+  border-radius: 3px;
+  color: var(--muted);
+  transition: color .15s, background .15s;
+  line-height: 1;
+}
+
+.travel-hub-detail-contribution-edit-button:hover {
+  color: var(--primary);
+  background: rgba(0,0,0,.05);
+}
+
+.travel-hub-detail-contribution-delete-button:hover {
+  color: #dc2626;
+  background: rgba(220,38,38,.08);
+}
+
+/* Photo thumb — position meta overlay at bottom */
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-meta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: .15rem .4rem;
+  background: rgba(0,0,0,.6);
+  border-radius: 0 0 6px 6px;
+  color: #fff;
+}
+
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-uploader {
+  color: rgba(255,255,255,.8);
+}
+
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-edit-button,
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-delete-button {
+  color: rgba(255,255,255,.7);
+}
+
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-edit-button:hover {
+  color: #fff;
+  background: rgba(255,255,255,.15);
+}
+
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-delete-button:hover {
+  color: #fca5a5;
+  background: rgba(255,255,255,.15);
+}
+
+/* Photo thumb with caption + meta: shift caption up above meta */
+.travel-hub-detail-photo-thumb .travel-hub-detail-photo-caption {
+  bottom: 20px;
+}
+
+/* Inline edit form */
+.travel-hub-detail-contribution-edit-form {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: .4rem;
+  margin-top: .3rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.travel-hub-detail-contribution-edit-form .travel-hub-detail-text-input {
+  flex: 1;
+  min-width: 100px;
+}
+
+.travel-hub-detail-contribution-save-button,
+.travel-hub-detail-contribution-cancel-button {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .3rem .6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.travel-hub-detail-contribution-save-button {
+  background: var(--primary);
+  color: #fff;
+}
+
+.travel-hub-detail-contribution-save-button:hover { opacity: .85; }
+
+.travel-hub-detail-contribution-save-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.travel-hub-detail-contribution-cancel-button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.travel-hub-detail-contribution-cancel-button:hover { background: var(--border); }
+
+/* Delete confirmation bar */
+.travel-hub-detail-contribution-delete-confirm {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+  padding: .35rem .5rem;
+  margin-top: .3rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: .75rem;
+  color: #991b1b;
+}
+
+.travel-hub-detail-contribution-confirm-yes-button,
+.travel-hub-detail-contribution-confirm-no-button {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.travel-hub-detail-contribution-confirm-yes-button {
+  background: #dc2626;
+  color: #fff;
+}
+
+.travel-hub-detail-contribution-confirm-yes-button:hover { opacity: .85; }
+
+.travel-hub-detail-contribution-confirm-yes-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.travel-hub-detail-contribution-confirm-no-button {
+  background: #fff;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.travel-hub-detail-contribution-confirm-no-button:hover { background: #fef2f2; }
+
+/* Photo thumb edit form — absolute positioned */
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-edit-form {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  margin-top: 0;
+  border-radius: 0 0 6px 6px;
+  background: rgba(255,255,255,.95);
+}
+
+.travel-hub-detail-photo-thumb .travel-hub-detail-contribution-delete-confirm {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  margin-top: 0;
+  border-radius: 0 0 6px 6px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .travel-hub-detail-hero { height: 200px; }
@@ -477,4 +676,101 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   .travel-hub-detail-youtube-grid { grid-template-columns: 1fr; }
   .travel-hub-detail-add-form-row { flex-direction: column; }
   .travel-hub-detail-text-input-wide { min-width: auto; }
+}
+
+/* Photo Lightbox */
+.photo-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-lightbox-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .9);
+}
+
+.photo-lightbox-content {
+  position: relative;
+  z-index: 1;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.photo-lightbox-image {
+  max-width: 90vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.photo-lightbox-caption {
+  color: #fff;
+  font-size: .88rem;
+  margin-top: .5rem;
+  text-align: center;
+  max-width: 600px;
+}
+
+.photo-lightbox-counter {
+  color: rgba(255, 255, 255, .6);
+  font-size: .75rem;
+  margin-top: .3rem;
+}
+
+.photo-lightbox-close,
+.photo-lightbox-prev,
+.photo-lightbox-next {
+  position: absolute;
+  z-index: 2;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+
+.photo-lightbox-close:hover,
+.photo-lightbox-prev:hover,
+.photo-lightbox-next:hover { opacity: .7; }
+
+.photo-lightbox-close {
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.photo-lightbox-prev {
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  font-weight: 300;
+}
+
+.photo-lightbox-next {
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  font-weight: 300;
+}
+
+@media (max-width: 768px) {
+  .photo-lightbox-prev { left: .3rem; font-size: 2rem; }
+  .photo-lightbox-next { right: .3rem; font-size: 2rem; }
 }

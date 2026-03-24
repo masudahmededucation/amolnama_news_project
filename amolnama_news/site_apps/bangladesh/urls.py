@@ -11,7 +11,8 @@ urlpatterns = [
     # Travel Hub
     path("travel/", views.travel_hub, name="travel_hub"),
     path("travel/add/", views.travel_hub_add, name="travel_hub_add"),
-    path("travel/<int:destination_id>/", views.travel_hub_detail, name="travel_hub_detail"),
+    path("travel/<str:destination_slug>/", views.travel_hub_detail_by_slug, name="travel_hub_detail"),
+    path("travel/id/<int:destination_id>/", views.travel_hub_detail_by_id, name="travel_hub_detail_by_id"),
 
     # Beauty of Bangladesh
     path("beauty/", views.beauty_hub, name="beauty_hub"),
@@ -24,8 +25,16 @@ urlpatterns = [
     path("api/media/", views_api.api_media_list, name="api_media_list"),
     path("api/media/upload/", views_api.api_media_upload, name="api_media_upload"),
 
-    # Destination community contributions
+    # Destination community contributions — add
     path("api/destination/<int:destination_id>/photo/", views_api.api_destination_photo_upload, name="api_destination_photo_upload"),
     path("api/destination/<int:destination_id>/youtube/", views_api.api_destination_youtube_link_add, name="api_destination_youtube_link_add"),
     path("api/destination/<int:destination_id>/link/", views_api.api_destination_reference_link_add, name="api_destination_reference_link_add"),
+
+    # Destination community contributions — edit / delete
+    path("api/destination/<int:destination_id>/photo/<int:photo_id>/", views_api.api_destination_photo_update, name="api_destination_photo_update"),
+    path("api/destination/<int:destination_id>/photo/<int:photo_id>/delete/", views_api.api_destination_photo_delete, name="api_destination_photo_delete"),
+    path("api/destination/<int:destination_id>/youtube/<int:youtube_link_id>/", views_api.api_destination_youtube_link_update, name="api_destination_youtube_link_update"),
+    path("api/destination/<int:destination_id>/youtube/<int:youtube_link_id>/delete/", views_api.api_destination_youtube_link_delete, name="api_destination_youtube_link_delete"),
+    path("api/destination/<int:destination_id>/link/<int:reference_link_id>/", views_api.api_destination_reference_link_update, name="api_destination_reference_link_update"),
+    path("api/destination/<int:destination_id>/link/<int:reference_link_id>/delete/", views_api.api_destination_reference_link_delete, name="api_destination_reference_link_delete"),
 ]

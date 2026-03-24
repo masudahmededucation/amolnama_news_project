@@ -1,4 +1,4 @@
-<a href="{% url 'poem:poem_detail' poem_id=poem.poem_coll_poem_entry_id %}" class="poem-card">
+<a href="{% if poem.poem_slug %}{% url 'poem:poem_detail' poem_slug=poem.poem_slug %}{% else %}{% url 'poem:poem_detail_by_id' poem_id=poem.poem_coll_poem_entry_id %}{% endif %}" class="poem-card">
   <span class="poem-card-queue-number">{{ forloop.counter }}</span>
   <div class="poem-card-body">
     <div class="poem-card-header">

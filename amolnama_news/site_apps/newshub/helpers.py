@@ -673,3 +673,75 @@ def build_edit_data(entry_id, form_type_code):
         data.update(builder(entry_id))
 
     return data
+
+
+# ========== SEO Slug Enrichment ==========
+
+# Form type code → Bengali keyword for URL
+_FORM_TYPE_SLUG_KEYWORD = {
+    'extortion': 'chandabaji',
+    'crime_violence': 'crime',
+    'land_grabbing': 'land-grabbing',
+    'price_hike_syndicate': 'price-hike',
+    'watchdog_bangladesh': 'watchdog',
+    'civic_community': 'civic',
+    'global_news': 'global-news',
+    'war_conflict': 'war-conflict',
+    'sports': 'sports',
+    'entertainment': 'entertainment',
+    'july_uprising_2024': 'july-uprising',
+    'women_child_violence': 'women-child-violence',
+    'general_news': 'news',
+}
+
+
+def build_article_seo_slug(entry, form_type_code):
+    """Build a keyword-rich SEO slug for a news article.
+
+    Pattern: form_type-district-headline_keywords-year
+    Example: chandabaji-sylhet-shahjalal-university-student-union-2026
+
+    Args:
+        entry: CollNewsEntry instance
+        form_type_code: e.g. 'extortion', 'crime_violence'
+
+    Returns:
+        str: slug suitable for URL
+    """
+    from django.utils.text import slugify
+
+    parts = []
+
+    # 1. Form type keyword
+    form_keyword = _FORM_TYPE_SLUG_KEYWORD.get(form_type_code, 'news')
+    parts.append(form_keyword)
+
+    # 2. District name (English for URL readability)
+    if entry.link_district_id:
+        try:
+            from amolnama_news.site_apps.locations.models import District
+            district = District.objects.only('district_name_en').get(
+                district_id=entry.link_district_id
+            )
+            if district.district_name_en:
+                parts.append(district.district_name_en.lower())
+        except Exception:
+            pass
+
+    # 3. Headline keywords (first ~6 words from Bengali headline, transliterated)
+    headline = entry.news_headline_bn or entry.news_headline_en or ""
+    if headline:
+        headline_slug = slugify(headline, allow_unicode=True)
+        # Take first ~80 chars to keep URL reasonable
+        if len(headline_slug) > 80:
+            headline_slug = headline_slug[:80].rsplit('-', 1)[0]
+        parts.append(headline_slug)
+
+    # 4. Year
+    if entry.occurrence_datetime:
+        parts.append(str(entry.occurrence_datetime.year))
+    elif entry.created_at:
+        parts.append(str(entry.created_at.year))
+
+    slug = '-'.join(part for part in parts if part)
+    return slug[:450] if slug else str(entry.coll_news_entry_id)

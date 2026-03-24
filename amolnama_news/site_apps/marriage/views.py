@@ -21,7 +21,7 @@ def marriage_form(request):
             'description': 'বিবাহ নিবন্ধনের জন্য ফর্ম পূরণ করুন। Fill out the marriage registration form.',
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
-                {'name': 'বিবাহ', 'url': '/marriage/'},
+                {'name': 'বিবাহ', 'url': '/bangladesh-marriage-registration/'},
                 {'name': 'বিবাহ ফর্ম', 'url': None},
             ],
         },
@@ -35,7 +35,7 @@ def register_marriage(request):
             'description': 'বিবাহ নিবন্ধন করুন। Register your marriage.',
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
-                {'name': 'বিবাহ', 'url': '/marriage/'},
+                {'name': 'বিবাহ', 'url': '/bangladesh-marriage-registration/'},
                 {'name': 'বিবাহ নিবন্ধন', 'url': None},
             ],
         },
@@ -49,7 +49,7 @@ def marriage_certificate(request):
             'description': 'বিবাহ সনদ দেখুন ও ডাউনলোড করুন। View and download your marriage certificate.',
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
-                {'name': 'বিবাহ', 'url': '/marriage/'},
+                {'name': 'বিবাহ', 'url': '/bangladesh-marriage-registration/'},
                 {'name': 'বিবাহ সনদ', 'url': None},
             ],
         },

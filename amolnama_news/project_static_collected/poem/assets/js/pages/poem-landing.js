@@ -191,7 +191,7 @@
     if (currentCategory) params.set("category", currentCategory);
     if (currentQuery) params.set("q", currentQuery);
 
-    fetch("/poem/api/poems/?" + params.toString())
+    fetch("/bangla-kobita-gaan/api/poems/?" + params.toString())
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (replace) {
@@ -238,7 +238,7 @@
     var lang = escHtml(poem.language || "bn");
 
     return (
-      '<a href="/poem/' + poem.id + '/" class="poem-card">' +
+      '<a href="' + (poem.url || '/bangla-kobita-gaan/id/' + poem.id + '/') + '" class="poem-card">' +
         '<div class="poem-card-body">' +
           '<div class="poem-card-header">' +
             '<span class="poem-card-category-badge">' + cat + "</span>" +

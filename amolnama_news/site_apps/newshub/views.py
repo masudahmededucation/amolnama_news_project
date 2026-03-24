@@ -1227,6 +1227,15 @@ def news_article_landing(request):
 
     context = {
         'articles': articles_with_meta,
+        'seo': {
+            'title': 'সংবাদ — আমলনামা নিউজ | Bangladesh News',
+            'description': 'বাংলাদেশের সর্বশেষ খবর ও তদন্ত প্রতিবেদন। Latest news and investigation reports from Bangladesh.',
+            'og_type': 'website',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'সংবাদ', 'url': None},
+            ],
+        },
     }
     return render(request, 'newshub/pages/article-landing.html', context)
 
@@ -1387,6 +1396,59 @@ def article_detail(request, slug):
             group_code='article_publication_status', is_active=True
         ).order_by('sort_order').values('status_id', 'status_code', 'status_name_bn', 'status_icon'))
 
+    # ---- SEO ----
+    headline = published_article.pub_article_headline_bn or entry.news_headline_bn or "সংবাদ"
+    seo_description = (entry.news_summary_bn or "")[:160]
+    if not seo_description and body_paragraphs:
+        # Strip HTML tags from first paragraph for meta description
+        seo_description = re.sub(r'<[^>]+>', '', body_paragraphs[0])[:160]
+    canonical_url = request.build_absolute_uri(
+        reverse('newshub:article_detail', kwargs={'slug': slug})
+    )
+    form_type_label = form_type_obj.form_type_name_bn if form_type_obj else ""
+    category_label = category.news_category_name_bn if category else ""
+
+    # JSON-LD: NewsArticle schema
+    json_ld_article = {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": headline,
+        "description": seo_description,
+        "url": canonical_url,
+        "inLanguage": "bn",
+        "publisher": {
+            "@type": "NewsMediaOrganization",
+            "name": "আমলনামা নিউজ",
+            "url": request.build_absolute_uri("/"),
+        },
+    }
+    if contributor_display_name:
+        json_ld_article["author"] = {"@type": "Person", "name": contributor_display_name}
+    if published_article.published_at:
+        json_ld_article["datePublished"] = published_article.published_at.isoformat()
+    if entry.updated_at:
+        json_ld_article["dateModified"] = entry.updated_at.isoformat()
+    if form_type_label:
+        json_ld_article["articleSection"] = form_type_label
+
+    # Breadcrumbs
+    breadcrumbs = [
+        {"name": "হোম", "url": "/"},
+        {"name": "সংবাদ", "url": reverse('newshub:news_article_landing')},
+    ]
+    if category_label:
+        breadcrumbs.append({"name": category_label, "url": None})
+    breadcrumbs.append({"name": headline[:60], "url": None})
+
+    seo_context = {
+        "title": f"{headline} — আমলনামা নিউজ",
+        "description": seo_description,
+        "og_type": "article",
+        "canonical": canonical_url,
+        "json_ld": json_ld_article,
+        "breadcrumbs": breadcrumbs,
+    }
+
     context = {
         'published_article': published_article,
         'entry': entry,
@@ -1405,6 +1467,7 @@ def article_detail(request, slug):
         'comments': comments,
         'stats': stats,
         'additions': additions,
+        'seo': seo_context,
     }
     return render(request, 'newshub/pages/article-detail.html', context)
 

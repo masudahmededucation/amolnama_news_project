@@ -1,15 +1,15 @@
 {% load static %}
-<nav class="nav" aria-label="Primary">
-  <a href="{% url 'core:home' %}" {% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'core' %}class="active"{% endif %}>Home</a>
-  
+<nav class="nav" aria-label="প্রধান মেনু (Primary Navigation)">
+  <a href="{% url 'core:home' %}" title="হোম পেজ — আমলনামা নিউজ" {% if request.resolver_match.url_name == 'home' and request.resolver_match.namespace == 'core' %}class="active"{% endif %}>Home</a>
+
   {% comment %} <a href="{% url 'evaluation_vote:home' %}" {% if request.resolver_match.namespace == 'evaluation_vote' %}class="active"{% endif %}>Evaluation Vote</a> {% endcomment %}
-  <a href="{% url 'election_vote:home' %}" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>Election Vote</a>
-  <a href="{% url 'newshub:news_article_landing' %}" {% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'news_article_landing' or request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'article_detail' %}class="active"{% endif %}>সংবাদ</a>
-  <a href="{% url 'newshub:news_collection_multistep' %}" {% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name != 'news_article_landing' and request.resolver_match.url_name != 'article_detail' %}class="active"{% endif %}>নাগরিক সংবাদ কেন্দ্র (সাংবাদিকতা)</a>
-  <a href="{% url 'tools:tools' %}" {% if request.resolver_match.namespace == 'tools' %}class="active"{% endif %}>সফটওয়্যার</a>
-  <a href="{% url 'marriage:marriage' %}" {% if request.resolver_match.namespace == 'marriage' %}class="active"{% endif %}>বিবাহ</a>
-  <a href="{% url 'poem:poem_landing' %}" {% if request.resolver_match.namespace == 'poem' %}class="active"{% endif %}>কবিতা ও গান</a>
-  <a href="{% url 'bangladesh:bangladesh_landing' %}" {% if request.resolver_match.namespace == 'bangladesh' %}class="active"{% endif %}>বাংলাদেশ</a>
+  <a href="{% url 'election_vote:home' %}" title="নির্বাচনী ভোট — Election Vote" {% if request.resolver_match.namespace == 'election_vote' %}class="active"{% endif %}>Election Vote</a>
+  <a href="{% url 'newshub:news_article_landing' %}" title="বাংলাদেশের সর্বশেষ খবর — Latest Bangladesh News" {% if request.resolver_match.namespace == 'newshub' and (request.resolver_match.url_name == 'news_article_landing' or request.resolver_match.url_name == 'article_detail') %}class="active"{% endif %}>সংবাদ</a>
+  <a href="{% url 'newshub:news_collection_multistep' %}" title="নাগরিক সাংবাদিকতা — Citizen Journalism" {% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name != 'news_article_landing' and request.resolver_match.url_name != 'article_detail' %}class="active"{% endif %}>নাগরিক সংবাদ কেন্দ্র (সাংবাদিকতা)</a>
+  <a href="{% url 'tools:tools' %}" title="বিনামূল্যে সফটওয়্যার টুলস — Free Online Tools" {% if request.resolver_match.namespace == 'tools' %}class="active"{% endif %}>সফটওয়্যার</a>
+  <a href="{% url 'marriage:marriage' %}" title="বিবাহ নিবন্ধন সেবা — Marriage Registration" {% if request.resolver_match.namespace == 'marriage' %}class="active"{% endif %}>বিবাহ</a>
+  <a href="{% url 'poem:poem_landing' %}" title="বাংলা কবিতা ও গান — Bengali Poetry and Songs" {% if request.resolver_match.namespace == 'poem' %}class="active"{% endif %}>কবিতা ও গান</a>
+  <a href="{% url 'bangladesh:bangladesh_landing' %}" title="বাংলাদেশ ভ্রমণ ও সৌন্দর্য — Bangladesh Travel and Beauty" {% if request.resolver_match.namespace == 'bangladesh' %}class="active"{% endif %}>বাংলাদেশ</a>
 
   {% comment %} <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a> {% endcomment %}
   {% comment %} <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>

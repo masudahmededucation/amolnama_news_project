@@ -106,12 +106,27 @@ def _esc(text):
 
 
 @cache_control(public=True, max_age=86400)
-def poem_og_image(request, poem_id):
+def poem_og_image(request, poem_slug):
     """Generate a dynamic OG share image for a poem using Chrome headless."""
+    try:
+        poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
+    except CollPoemEntry.DoesNotExist:
+        raise Http404
+    return _render_og_image(poem)
+
+
+@cache_control(public=True, max_age=86400)
+def poem_og_image_by_id(request, poem_id):
+    """Legacy ID-based OG image endpoint."""
     try:
         poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
     except CollPoemEntry.DoesNotExist:
         raise Http404
+    return _render_og_image(poem)
+
+
+def _render_og_image(poem):
+    """Shared OG image renderer."""
 
     cat_name = ""
     try:

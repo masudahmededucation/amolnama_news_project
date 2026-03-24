@@ -1,9 +1,14 @@
 """Poem app — page views."""
 
+import re
+
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .helpers import get_smart_related_poems
@@ -11,6 +16,55 @@ from .models import CollPoemEntry, RefPoemCategory
 
 
 PAGE_SIZE = 12
+
+
+def _ensure_poem_slug(poem):
+    """Generate Bengali slug from author + title if missing."""
+    if poem.poem_slug:
+        return
+    # Build slug: author-name + poem-title (Bengali preferred)
+    parts = []
+    if poem.poem_author_display_name:
+        parts.append(poem.poem_author_display_name)
+    title = poem.poem_title_bn or poem.poem_title_en or ""
+    if title:
+        parts.append(title)
+    if not parts:
+        parts.append(str(poem.poem_coll_poem_entry_id))
+
+    slug = slugify("-".join(parts), allow_unicode=True)
+    if not slug:
+        slug = str(poem.poem_coll_poem_entry_id)
+
+    # Ensure uniqueness
+    candidate = slug[:450]  # Leave room for counter suffix
+    counter = 1
+    while CollPoemEntry.objects.filter(poem_slug=candidate).exclude(
+        poem_coll_poem_entry_id=poem.poem_coll_poem_entry_id
+    ).exists():
+        candidate = f"{slug[:445]}-{counter}"
+        counter += 1
+    poem.poem_slug = candidate
+    poem.save(update_fields=["poem_slug"])
+
+
+def poem_detail_by_id(request, poem_id):
+    """Old ID-based URL → redirect to Bengali slug URL."""
+    try:
+        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
+    except CollPoemEntry.DoesNotExist:
+        raise Http404
+    _ensure_poem_slug(poem)
+    return redirect("poem:poem_detail", poem_slug=poem.poem_slug, permanent=True)
+
+
+def poem_detail_by_slug(request, poem_slug):
+    """Poem detail — SEO-friendly Bengali slug URL."""
+    try:
+        poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
+    except CollPoemEntry.DoesNotExist:
+        raise Http404
+    return _render_poem_detail(request, poem)
 
 
 def _time_ago(dt):
@@ -76,16 +130,13 @@ def poem_landing(request):
     })
 
 
-def poem_detail(request, poem_id):
-    """Poem detail page — full poem with backstory and interpretation."""
-    try:
-        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
-    except CollPoemEntry.DoesNotExist:
-        raise Http404
+def _render_poem_detail(request, poem):
+    """Render poem detail page — shared by slug and ID views."""
+    poem_id = poem.poem_coll_poem_entry_id
 
-    # Increment view count
+    # Increment view count (atomic)
     CollPoemEntry.objects.filter(poem_coll_poem_entry_id=poem_id).update(
-        view_count=poem.view_count + 1
+        view_count=F('view_count') + 1
     )
 
     categories_map = {
@@ -130,9 +181,38 @@ def poem_detail(request, poem_id):
             except UserProfile.DoesNotExist:
                 pass
 
+    # Ensure slug exists for URL generation
+    _ensure_poem_slug(poem)
+
     title = poem.display_title
     body_preview = (poem.poem_body_bn or poem.poem_body_en or "")[:160]
-    og_image_path = f"/poem/{poem_id}/og-image.png"
+    poem_detail_path = reverse("poem:poem_detail", kwargs={"poem_slug": poem.poem_slug})
+    og_image_path = reverse("poem:poem_og_image", kwargs={"poem_slug": poem.poem_slug})
+    canonical_url = request.build_absolute_uri(poem_detail_path)
+    poem_landing_path = reverse("poem:poem_landing")
+
+    # JSON-LD: CreativeWork schema for search engines
+    json_ld_poem = {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": title,
+        "headline": title,
+        "description": body_preview,
+        "url": canonical_url,
+        "image": request.build_absolute_uri(og_image_path),
+        "inLanguage": "bn",
+        "genre": "Poetry",
+        "author": {
+            "@type": "Person",
+            "name": poem.poem_author_display_name,
+        },
+    }
+    if poem.created_at:
+        json_ld_poem["datePublished"] = poem.created_at.isoformat()
+    if poem.updated_at:
+        json_ld_poem["dateModified"] = poem.updated_at.isoformat()
+    if hasattr(poem, 'category_name_bn') and poem.category_name_bn:
+        json_ld_poem["genre"] = poem.category_name_bn
 
     return render(request, "poem/pages/poem-detail.html", {
         "poem": poem,
@@ -143,15 +223,19 @@ def poem_detail(request, poem_id):
             "title": title + " — " + poem.poem_author_display_name,
             "description": body_preview,
             "image": og_image_path,
-            "url": f"/poem/{poem_id}/",
+            "url": poem_detail_path,
             "type": "article",
         },
         "seo": {
             "title": f"{title} — আমলনামা নিউজ | Poem",
             "description": body_preview,
+            "og_image": request.build_absolute_uri(og_image_path),
+            "og_type": "article",
+            "canonical": canonical_url,
+            "json_ld": json_ld_poem,
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
-                {"name": "কবিতা", "url": "/poem/"},
+                {"name": "কবিতা ও গান", "url": poem_landing_path},
                 {"name": title, "url": None},
             ],
         },
@@ -160,12 +244,13 @@ def poem_detail(request, poem_id):
 
 @login_required
 @ensure_csrf_cookie
-def poem_edit(request, poem_id):
+def poem_edit(request, poem_slug):
     """Poem edit form — only the author or admin can edit."""
     try:
-        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
+        poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
     except CollPoemEntry.DoesNotExist:
         raise Http404
+    poem_id = poem.poem_coll_poem_entry_id
 
     # Permission check: admin or owner
     from amolnama_news.site_apps.user_account.models import UserProfile
@@ -192,8 +277,8 @@ def poem_edit(request, poem_id):
             "description": "কবিতা সম্পাদনা করুন। Edit your poem.",
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
-                {"name": "কবিতা", "url": "/poem/"},
-                {"name": title, "url": f"/poem/{poem_id}/"},
+                {"name": "কবিতা ও গান", "url": reverse("poem:poem_landing")},
+                {"name": title, "url": reverse("poem:poem_detail", kwargs={"poem_slug": poem.poem_slug})},
                 {"name": "সম্পাদনা", "url": None},
             ],
         },
@@ -214,7 +299,7 @@ def poem_create(request):
             "description": "আপনার কবিতা বা গানের কথা শেয়ার করুন। Share your poem or song lyrics.",
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
-                {"name": "কবিতা", "url": "/poem/"},
+                {"name": "কবিতা ও গান", "url": reverse("poem:poem_landing")},
                 {"name": "কবিতা লিখুন", "url": None},
             ],
         },

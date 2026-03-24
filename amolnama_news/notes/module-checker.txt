@@ -119,12 +119,6 @@ with a built-in feature to easily interchange picture positions between the boxe
 all attributes should have its id and name 
 check all pages, all forms, all steps
 
---naming conventions
-give descriptive name not partial or short name 
-- variables, filename, functions, features - all js ajax html
-update documents
-update troubleshooting documents
-
 
 
 

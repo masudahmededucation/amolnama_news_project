@@ -184,7 +184,7 @@
       link_poem_category_id: parseInt(category, 10),
     };
 
-    fetch("/poem/api/poems/create/", {
+    fetch("/bangla-kobita-gaan/api/poems/create/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -207,7 +207,7 @@
         if (data.success) {
           // Clear draft
           try { localStorage.removeItem("poem_draft"); } catch (e) {}
-          window.location.href = "/poem/" + data.poem_id + "/";
+          window.location.href = data.poem_url || "/bangla-kobita-gaan/id/" + data.poem_id + "/";
         } else {
           showError(data.error || "কিছু ভুল হয়েছে (Something went wrong)");
           submitBtn.disabled = false;

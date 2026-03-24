@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path("", include("amolnama_news.site_apps.seo.urls")),  # SEO: robots.txt, sitemap.xml, llms.txt
@@ -16,10 +17,20 @@ urlpatterns = [
     path("market/", include("amolnama_news.site_apps.market.urls")),  # Market app
     path("investigation/", include("amolnama_news.site_apps.investigation.urls")),  # Investigation app
     path("tools/", include("amolnama_news.site_apps.tools.urls")),  # Tools app
-    path("marriage/", include("amolnama_news.site_apps.marriage.urls")),  # Marriage app
-    path("poem/", include("amolnama_news.site_apps.poem.urls")),  # Poem app
-    path("bangladesh/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh app
+
+    # SEO-friendly URL prefixes
+    path("bangla-kobita-gaan/", include("amolnama_news.site_apps.poem.urls")),  # Poetry & Songs
+    path("bangladesh-marriage-registration/", include("amolnama_news.site_apps.marriage.urls")),  # Marriage
+    path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     path("englishtobangla/", include("amolnama_news.site_apps.englishtobangla.urls")),  # English to Bangla transliteration
+
+    # 301 redirects from old URLs (preserve bookmarks + Google index)
+    path("poem/", RedirectView.as_view(url="/bangla-kobita-gaan/", permanent=True)),
+    path("poem/<path:rest>", RedirectView.as_view(url="/bangla-kobita-gaan/%(rest)s", permanent=True)),
+    path("marriage/", RedirectView.as_view(url="/bangladesh-marriage-registration/", permanent=True)),
+    path("marriage/<path:rest>", RedirectView.as_view(url="/bangladesh-marriage-registration/%(rest)s", permanent=True)),
+    path("bangladesh/", RedirectView.as_view(url="/bangladesh-tourist-destinations/", permanent=True)),
+    path("bangladesh/<path:rest>", RedirectView.as_view(url="/bangladesh-tourist-destinations/%(rest)s", permanent=True)),
 
 ]
 

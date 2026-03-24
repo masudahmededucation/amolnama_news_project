@@ -98,7 +98,7 @@
       {% if edit_entry_id %}হালনাগাদ করুন (Update){% else %}প্রকাশ করুন (Publish){% endif %}
     </button>
     {% if edit_entry_id %}
-    <a href="{% url 'bangladesh:travel_hub_detail' destination_id=edit_entry_id %}" id="thAddCancel" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;cursor:pointer;">
+    <a href="{% url 'bangladesh:travel_hub_detail_by_id' edit_entry_id %}" id="travel-hub-add-cancel-link" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;cursor:pointer;">
       বাতিল (Cancel)
     </a>
     {% endif %}

@@ -1,7 +1,8 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}সংবাদ — আমলনামা নিউজ{% endblock %}
+{% block title %}{{ seo.title }}{% endblock %}
+{% block meta_description %}{{ seo.description }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'newshub/assets/css/pages/article-landing.css' %}">

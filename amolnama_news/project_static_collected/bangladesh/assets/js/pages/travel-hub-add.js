@@ -63,8 +63,8 @@
     };
 
     var url = editEntryId
-      ? "/bangladesh/api/destinations/" + editEntryId + "/update/"
-      : "/bangladesh/api/destinations/create/";
+      ? "/bangladesh-tourist-destinations/api/destinations/" + editEntryId + "/update/"
+      : "/bangladesh-tourist-destinations/api/destinations/create/";
 
     fetch(url, {
       method: "POST",
@@ -77,7 +77,7 @@
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.success) {
-        window.location.href = "/bangladesh/travel/" + data.destination_id + "/";
+        window.location.href = data.destination_slug ? "/bangladesh-tourist-destinations/travel/" + data.destination_slug + "/" : "/bangladesh-tourist-destinations/travel/id/" + data.destination_id + "/";
       } else {
         errorEl.textContent = data.error;
         errorEl.style.display = "block";

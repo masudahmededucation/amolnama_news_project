@@ -47,7 +47,7 @@
 {# ── Destination Grid ── #}
 <div class="travel-hub-destination-grid" id="travel-hub-destination-grid">
   {% for d in destinations %}
-    <a href="{% url 'bangladesh:travel_hub_detail' d.bangladesh_coll_destination_id %}" class="travel-hub-destination-card">
+    <a href="{% if d.destination_slug %}{% url 'bangladesh:travel_hub_detail' d.destination_slug %}{% else %}{% url 'bangladesh:travel_hub_detail_by_id' d.bangladesh_coll_destination_id %}{% endif %}" class="travel-hub-destination-card">
       {% if d.cover_image_url %}
         <div class="travel-hub-destination-card-img" style="background-image:url('{{ d.cover_image_url }}');"></div>
       {% else %}
