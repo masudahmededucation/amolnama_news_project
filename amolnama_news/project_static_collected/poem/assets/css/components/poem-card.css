@@ -1,7 +1,7 @@
 /* ========== Poem Card Component ========== */
 
 .poem-card {
-  border: 1.5px solid transparent;
+  border: 2.5px solid transparent;
   border-radius: 2px;
   overflow: hidden;
   display: flex;
