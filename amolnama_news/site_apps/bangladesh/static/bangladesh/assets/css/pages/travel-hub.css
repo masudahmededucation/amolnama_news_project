@@ -31,6 +31,10 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-destination-card-img { transition:box-shadow .2s; }
 .travel-hub-destination-card:hover .travel-hub-destination-card-img { box-shadow:inset 0 0 0 2.5px var(--primary); }
 
+/* Tick on hover */
+.travel-hub-destination-card::after { content:'✓'; position:absolute; top:.5rem; right:.5rem; width:24px; height:24px; border-radius:50%; background:var(--primary); color:#fff; font-size:.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; z-index:1; }
+.travel-hub-destination-card:hover::after { opacity:1; }
+
 .travel-hub-destination-card-img { height:180px; background-size:cover; background-position:center; background-color:var(--surface); }
 .travel-hub-destination-card-img--placeholder { display:flex; align-items:center; justify-content:center; font-size:3rem; }
 
