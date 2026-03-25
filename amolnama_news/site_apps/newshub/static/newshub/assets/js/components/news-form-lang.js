@@ -182,6 +182,115 @@
   });
   observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
 
+  /* ========== Quill ↔ Bengali textarea swap on language toggle ========== */
+
+  var quillBanglaOverlays = [];  // track created overlays
+
+  function setupQuillBanglaOverlay(quillContainerId, quillWindowKey) {
+    var quillContainer = document.getElementById(quillContainerId);
+    if (!quillContainer) return;
+
+    // Create the Bengali typing textarea overlay
+    var overlay = document.createElement('textarea');
+    overlay.className = 'quill-bangla-overlay';
+    overlay.id = quillContainerId + '-bangla-overlay';
+    overlay.name = quillContainerId + '_bangla_overlay';
+    overlay.placeholder = 'বাংলায় টাইপ করুন — Avro ফোনেটিক (Type in Bengali)';
+    overlay.style.display = 'none';
+    overlay.style.width = '100%';
+    overlay.style.minHeight = '150px';
+    overlay.style.padding = '.6rem';
+    overlay.style.fontSize = '.9rem';
+    overlay.style.lineHeight = '1.7';
+    overlay.style.border = '1.5px solid var(--border)';
+    overlay.style.borderRadius = '6px';
+    overlay.style.resize = 'vertical';
+    overlay.style.fontFamily = "'Noto Sans Bengali', sans-serif";
+    quillContainer.parentNode.insertBefore(overlay, quillContainer.nextSibling);
+
+    quillBanglaOverlays.push({
+      quillContainerId: quillContainerId,
+      quillWindowKey: quillWindowKey,
+      overlay: overlay,
+      quillContainer: quillContainer,
+    });
+  }
+
+  function switchQuillMode(lang) {
+    for (var i = 0; i < quillBanglaOverlays.length; i++) {
+      var item = quillBanglaOverlays[i];
+      var quillEditor = window[item.quillWindowKey];
+
+      if (lang === 'bn') {
+        // Bengali mode: copy Quill text → textarea, hide Quill, show textarea
+        if (quillEditor && quillEditor.quill) {
+          item.overlay.value = quillEditor.quill.getText().trim();
+        }
+        item.quillContainer.style.display = 'none';
+        // Also hide the Quill toolbar
+        var toolbar = item.quillContainer.previousElementSibling;
+        if (toolbar && toolbar.classList.contains('ql-toolbar')) {
+          toolbar.style.display = 'none';
+        }
+        item.overlay.style.display = 'block';
+        // Attach BanglaInput
+        if (typeof BanglaInput !== 'undefined' && !item.overlay.getAttribute('data-bangla-attached')) {
+          BanglaInput.attach(item.overlay);
+          item.overlay.setAttribute('data-bangla-attached', '1');
+        }
+      } else {
+        // English mode: copy textarea text → Quill, hide textarea, show Quill
+        if (item.overlay.value.trim() && quillEditor && quillEditor.quill) {
+          // Preserve existing Quill content if textarea was edited
+          var currentQuillText = quillEditor.quill.getText().trim();
+          var overlayText = item.overlay.value.trim();
+          if (overlayText !== currentQuillText && overlayText) {
+            quillEditor.quill.setText(overlayText);
+            quillEditor.syncToHidden();
+          }
+        }
+        item.overlay.style.display = 'none';
+        item.quillContainer.style.display = '';
+        var toolbar2 = item.quillContainer.previousElementSibling;
+        if (toolbar2 && toolbar2.classList.contains('ql-toolbar')) {
+          toolbar2.style.display = '';
+        }
+      }
+    }
+  }
+
+  // Sync overlay → Quill before form submit (in case user submits while in Bengali mode)
+  var forms = document.querySelectorAll('form');
+  for (var fi = 0; fi < forms.length; fi++) {
+    forms[fi].addEventListener('submit', function () {
+      if (currentLang === 'bn') {
+        switchQuillMode('en');  // copy overlay text into Quill + sync to hidden textarea
+      }
+    });
+  }
+
+  // Setup overlays for known Quill editors (if they exist on the page)
+  setTimeout(function () {
+    setupQuillBanglaOverlay('quill-news-summary', '__quillNewsSummary');
+    setupQuillBanglaOverlay('quill-news-body', '__quillNewsBody');
+    // Also for bangladesh travel hub Quill editors
+    setupQuillBanglaOverlay('quill-short-desc', '__quillShortDesc');
+    setupQuillBanglaOverlay('quill-desc', '__quillDesc');
+
+    // Apply initial mode
+    if (currentLang === 'bn') {
+      switchQuillMode('bn');
+    }
+  }, 500);
+
+  // Hook into language toggle
+  var originalApply = applyLanguage;
+  applyLanguage = function (lang) {
+    originalApply(lang);
+    currentLang = lang;
+    switchQuillMode(lang);
+  };
+
   /* ========== Public API ========== */
 
   window.newshubFormLang = {
