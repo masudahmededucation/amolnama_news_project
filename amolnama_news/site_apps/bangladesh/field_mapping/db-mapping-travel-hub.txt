@@ -192,9 +192,36 @@ Uploader attribution: display_name from UserProfile, bulk-fetched to avoid N+1.
 Edit: inline form appears inside the contribution card (photo/youtube/link).
 Delete: inline confirmation bar (red) — no popups.
 
+== Media Card Layout (Photos + Videos) ==
+
+Photos and videos use unified card layout (not background-image thumbnails):
+  Image at top → caption → footer bar (like, views, uploader, time ago, edit/delete)
+
+DB tables:
+  eng_destination_photo_like — photo like toggle (unique per user+photo)
+  eng_destination_video_like — video like toggle (unique per user+video)
+  coll_destination_photo.view_count, like_count — counters
+  coll_destination_youtube_link.view_count, like_count — counters
+  coll_destination_youtube_link.video_platform — 'youtube', 'tiktok', 'instagram', etc.
+  coll_destination_youtube_link.video_thumbnail_url — fetched from oEmbed (TikTok) or i.ytimg.com
+
+API endpoints:
+  POST .../photo/<id>/view/   — increment view (fires on lightbox open)
+  POST .../photo/<id>/like/   — toggle like
+  POST .../video/<id>/view/   — increment view (fires on video click)
+  POST .../video/<id>/like/   — toggle like
+  POST .../destination/<id>/review/ — add review (1 per user per destination)
+
+Multi-platform video support:
+  YouTube: auto-thumbnail from i.ytimg.com, clean URL stored
+  TikTok: thumbnail fetched via oEmbed API server-side
+  Instagram/Facebook: placeholder icon
+  Platform auto-detected from URL
+
 == Naming Convention ==
 
 All CSS classes use travel-hub-detail- prefix (no abbreviations like thd-).
 All DOM IDs and name attributes are fully descriptive.
 All JS variables use full words (photoUploadButton not photoBtn).
 All Python variables use full words (search_query not q, destination not d).
+SEO-friendly URL paths with keyword-rich prefixes.
