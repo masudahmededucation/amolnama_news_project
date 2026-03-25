@@ -489,10 +489,9 @@
       })
       .then(function (result) {
         if (result.data.success) {
-          /* Clear localStorage draft */
+          /* Clear localStorage draft — must match key in news-form-persist.js */
           try {
-            var storageKey = 'newshub_draft_' + (window.location.pathname.replace(/\//g, '_'));
-            localStorage.removeItem(storageKey);
+            localStorage.removeItem('newshub_draft');
             localStorage.removeItem('newshub_draft_tags');
           } catch (ex) {}
 
