@@ -110,13 +110,19 @@
   /* ========== BanglaInput on all caption/title/description fields ========== */
 
   function attachBanglaInputToElement(element) {
-    if (typeof BanglaInput === 'undefined') return;
-    if (element.getAttribute('data-bangla-attached')) return;
+    if (typeof BanglaInput === 'undefined') return false;
+    if (element.getAttribute('data-bangla-attached')) return true;
     BanglaInput.attach(element);
     element.setAttribute('data-bangla-attached', '1');
+    return true;
   }
 
   function attachBanglaInputToAllCaptionFields() {
+    if (typeof BanglaInput === 'undefined') {
+      /* BanglaInput not loaded yet — retry after all scripts load */
+      setTimeout(attachBanglaInputToAllCaptionFields, 300);
+      return;
+    }
     var captionFields = document.querySelectorAll(
       '#travel-hub-detail-photo-caption, '
       + '#travel-hub-detail-youtube-title, '
@@ -129,7 +135,7 @@
     }
   }
 
-  /* Attach on page load */
+  /* Attach after all scripts load (bangla-input.js loads after extra_js block) */
   attachBanglaInputToAllCaptionFields();
 
   /* ========== Helpers ========== */
