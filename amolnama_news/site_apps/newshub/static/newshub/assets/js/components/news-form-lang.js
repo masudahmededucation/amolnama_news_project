@@ -180,7 +180,7 @@
       try { attachBanglaInput(); } catch (e) { /* ignore */ }
     }, 500);
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
 
   /* ========== Public API ========== */
 
