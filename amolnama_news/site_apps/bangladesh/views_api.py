@@ -483,6 +483,10 @@ def api_destination_youtube_link_add(request, destination_id):
     # Extract video ID from URL
     video_id = _extract_youtube_video_id(youtube_url)
 
+    # Store a clean short URL (tracking params make URLs very long, exceeding 500 char limit)
+    if video_id:
+        youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+
     title = (data.get("video_title_bn") or "").strip() or None
     description = (data.get("description_bn") or "").strip() or None
 
