@@ -26,16 +26,25 @@
     lightbox.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    /* Track photo view */
+    /* Track photo view + update count in DOM */
     var thumb = thumbs[index];
-    var photoId = thumb ? thumb.getAttribute('data-photo-id') : null;
-    var destIdElement = document.querySelector('[data-dest-id]');
-    var destId = destIdElement ? destIdElement.getAttribute('data-dest-id') : null;
+    var card = thumb ? thumb.closest('.travel-hub-detail-media-card') : null;
+    var photoId = card ? card.getAttribute('data-photo-id') : null;
+    var destId = card ? card.getAttribute('data-dest-id') : null;
     if (photoId && destId) {
       fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/photo/' + photoId + '/view/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfToken() },
-      }).catch(function() {});
+      })
+        .then(function () {
+          /* Increment displayed view count */
+          var viewsElement = card.querySelector('.travel-hub-detail-media-card-views');
+          if (viewsElement) {
+            var currentCount = parseInt(viewsElement.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+            viewsElement.textContent = '👁 ' + (currentCount + 1);
+          }
+        })
+        .catch(function() {});
     }
   }
 
@@ -114,7 +123,15 @@
       fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/video/' + videoLinkId + '/view/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfToken() },
-      }).catch(function() {});
+      })
+        .then(function () {
+          var viewsElement = card.querySelector('.travel-hub-detail-media-card-views');
+          if (viewsElement) {
+            var currentCount = parseInt(viewsElement.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+            viewsElement.textContent = '👁 ' + (currentCount + 1);
+          }
+        })
+        .catch(function() {});
     }
   });
 
