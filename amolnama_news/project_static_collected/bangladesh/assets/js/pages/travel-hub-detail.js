@@ -281,7 +281,16 @@
             }
             html += '<div class="travel-hub-detail-youtube-info">';
             if (data.video_title_bn) html += '<a href="' + videoUrl + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">' + data.video_title_bn + '</a>';
+            html += '<div class="travel-hub-detail-contribution-meta">';
+            html += '<span class="travel-hub-detail-contribution-uploader">আমি</span>';
+            html += '<span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="' + data.link_id + '" data-dest-id="' + destinationId + '">';
+            html += '<button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>';
+            html += '<button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>';
+            html += '</span>';
             html += '</div>';
+            html += '</div>';
+            card.setAttribute('data-youtube-link-id', data.link_id);
+            card.setAttribute('data-dest-id', destinationId);
             card.innerHTML = html;
             list.appendChild(card);
 
@@ -357,6 +366,17 @@
               descriptionElement.textContent = descriptionInput.value.trim();
               card.appendChild(descriptionElement);
             }
+
+            /* Add edit/delete buttons */
+            var metaHtml = '<div class="travel-hub-detail-contribution-meta">'
+              + '<span class="travel-hub-detail-contribution-uploader">আমি</span>'
+              + '<span class="travel-hub-detail-contribution-actions" data-type="link" data-id="' + data.link_id + '" data-dest-id="' + destinationId + '">'
+              + '<button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>'
+              + '<button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>'
+              + '</span></div>';
+            card.insertAdjacentHTML('beforeend', metaHtml);
+            card.setAttribute('data-reference-link-id', data.link_id);
+            card.setAttribute('data-dest-id', destinationId);
             list.appendChild(card);
 
             urlInput.value = '';
