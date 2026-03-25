@@ -711,7 +711,7 @@
     /* For photos, the edit form is a sibling of the thumb — find the thumb by data-photo-id */
     var parentCard;
     if (contributionType === 'photo') {
-      parentCard = document.querySelector('.travel-hub-detail-photo-thumb[data-photo-id="' + contributionId + '"]');
+      parentCard = document.querySelector('.travel-hub-detail-media-card[data-photo-id="' + contributionId + '"]');
     } else {
       parentCard = editForm.parentNode;
     }
@@ -856,7 +856,7 @@
     /* For photos, the confirm bar is a sibling of the thumb — find the thumb by data-photo-id */
     var parentCard;
     if (contributionType === 'photo') {
-      parentCard = document.querySelector('.travel-hub-detail-photo-thumb[data-photo-id="' + contributionId + '"]');
+      parentCard = document.querySelector('.travel-hub-detail-media-card[data-photo-id="' + contributionId + '"]');
     } else {
       parentCard = confirmBar.parentNode;
     }
