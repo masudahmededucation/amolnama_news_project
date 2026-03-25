@@ -657,6 +657,12 @@ def api_destination_review_add(request, destination_id):
     if not rating or int(rating) < 1 or int(rating) > 5:
         return JsonResponse({"success": False, "error": "রেটিং দিন (1-5)"}, status=400)
 
+    # Prevent duplicate reviews from same user
+    if EngDestinationReview.objects.filter(
+        link_coll_destination_id=destination_id, link_user_profile_id=profile_id
+    ).exists():
+        return JsonResponse({"success": False, "error": "আপনি ইতিমধ্যে এই গন্তব্যের জন্য রিভিউ দিয়েছেন"}, status=400)
+
     review_title = (data.get("review_title_bn") or "").strip() or None
     review_body = (data.get("review_body_bn") or "").strip() or None
     visited_at = data.get("visited_at") or None
@@ -708,7 +714,7 @@ def api_destination_photo_like_toggle(request, destination_id, photo_id):
     )
     if existing.exists():
         existing.delete()
-        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).update(like_count=F('like_count') - 1)
+        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
         EngDestinationPhotoLike.objects.create(
@@ -740,7 +746,7 @@ def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
     )
     if existing.exists():
         existing.delete()
-        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') - 1)
+        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
         EngDestinationVideoLike.objects.create(
