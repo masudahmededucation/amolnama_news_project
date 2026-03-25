@@ -610,6 +610,32 @@ def _fetch_tiktok_thumbnail(url):
 
 
 @require_POST
+def api_destination_photo_view(request, destination_id, photo_id):
+    """POST — increment photo view count (called when lightbox opens)."""
+    from django.db.models import F
+    updated = CollDestinationPhoto.objects.filter(
+        bangladesh_coll_destination_photo_id=photo_id,
+        link_coll_destination_id=destination_id,
+    ).update(view_count=F('view_count') + 1)
+    if not updated:
+        return JsonResponse({"success": False}, status=404)
+    return JsonResponse({"success": True})
+
+
+@require_POST
+def api_destination_video_view(request, destination_id, youtube_link_id):
+    """POST — increment video view count (called when video link is clicked)."""
+    from django.db.models import F
+    updated = CollDestinationYoutubeLink.objects.filter(
+        bangladesh_coll_destination_youtube_link_id=youtube_link_id,
+        link_coll_destination_id=destination_id,
+    ).update(view_count=F('view_count') + 1)
+    if not updated:
+        return JsonResponse({"success": False}, status=404)
+    return JsonResponse({"success": True})
+
+
+@require_POST
 def api_destination_review_add(request, destination_id):
     """POST — add a review for a destination."""
     if not request.user.is_authenticated:

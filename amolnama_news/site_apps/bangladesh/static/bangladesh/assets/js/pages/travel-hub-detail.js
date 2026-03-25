@@ -25,6 +25,18 @@
     showPhoto();
     lightbox.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+
+    /* Track photo view */
+    var thumb = thumbs[index];
+    var photoId = thumb ? thumb.getAttribute('data-photo-id') : null;
+    var destIdElement = document.querySelector('[data-dest-id]');
+    var destId = destIdElement ? destIdElement.getAttribute('data-dest-id') : null;
+    if (photoId && destId) {
+      fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/photo/' + photoId + '/view/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() },
+      }).catch(function() {});
+    }
   }
 
   function closeLightbox() {
@@ -87,6 +99,23 @@
     if (event.key === 'Escape') closeLightbox();
     else if (event.key === 'ArrowRight') nextPhoto();
     else if (event.key === 'ArrowLeft') previousPhoto();
+  });
+
+  /* ========== Video view tracking — fire when video link is clicked ========== */
+  document.addEventListener('click', function (event) {
+    var videoThumb = event.target.closest('.travel-hub-detail-youtube-thumb');
+    if (!videoThumb) return;
+    var card = videoThumb.closest('.travel-hub-detail-youtube-card');
+    if (!card) return;
+    var videoLinkId = card.getAttribute('data-youtube-link-id');
+    var destIdElement = card.getAttribute('data-dest-id') ? card : document.querySelector('[data-dest-id]');
+    var destId = destIdElement ? destIdElement.getAttribute('data-dest-id') : null;
+    if (videoLinkId && destId) {
+      fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/video/' + videoLinkId + '/view/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() },
+      }).catch(function() {});
+    }
   });
 
   /* ========== Share buttons ========== */

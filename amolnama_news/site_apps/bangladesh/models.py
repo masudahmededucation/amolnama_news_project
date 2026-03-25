@@ -127,6 +127,7 @@ class CollDestinationPhoto(models.Model):
     caption_bn = models.CharField(max_length=500, blank=True, null=True)
     sort_order = models.IntegerField()
     is_cover = models.BooleanField()
+    view_count = models.IntegerField(default=0)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -258,6 +259,7 @@ class CollDestinationYoutubeLink(models.Model):
     video_title_en = models.CharField(max_length=300, blank=True, null=True)
     description_bn = models.CharField(max_length=1000, blank=True, null=True)
     sort_order = models.IntegerField(default=0)
+    view_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)

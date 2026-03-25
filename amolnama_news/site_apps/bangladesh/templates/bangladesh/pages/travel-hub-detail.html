@@ -86,7 +86,7 @@
         <div class="travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" data-photo-id="{{ p.bangladesh_coll_destination_photo_id }}" style="background-image:url('{{ p.photo_url }}');cursor:pointer;">
           {% if p.caption_bn %}<span class="travel-hub-detail-photo-caption">{{ p.caption_bn }}</span>{% endif %}
           <div class="travel-hub-detail-contribution-meta">
-            <span class="travel-hub-detail-contribution-uploader">{{ p.uploader_name }}</span>
+            <span class="travel-hub-detail-contribution-uploader">{{ p.uploader_name }}{% if p.view_count %} · 👁 {{ p.view_count }}{% endif %}</span>
             {% if p.can_manage %}
             <span class="travel-hub-detail-contribution-actions" data-type="photo" data-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" title="ক্যাপশন সম্পাদনা">✎</button>
@@ -136,7 +136,7 @@
           {% if yt.video_title_bn %}<a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">{{ yt.video_title_bn }}</a>{% endif %}
           {% if yt.description_bn %}<span class="travel-hub-detail-youtube-desc">{{ yt.description_bn }}</span>{% endif %}
           <div class="travel-hub-detail-contribution-meta">
-            <span class="travel-hub-detail-contribution-uploader">{{ yt.uploader_name }}</span>
+            <span class="travel-hub-detail-contribution-uploader">{{ yt.uploader_name }}{% if yt.view_count %} · 👁 {{ yt.view_count }}{% endif %}</span>
             {% if yt.can_manage %}
             <span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>
