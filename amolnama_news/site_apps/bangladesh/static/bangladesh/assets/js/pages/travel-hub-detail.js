@@ -216,12 +216,12 @@
             showInlineMessage(photoUploadButton.parentNode.parentNode, data.error || 'আপলোড ব্যর্থ', true);
           }
           photoUploadButton.disabled = false;
-          photoUploadButton.textContent = '📷 আপলোড';
+          photoUploadButton.textContent = '+ আপলোড 📷';
         })
         .catch(function () {
           showInlineMessage(photoUploadButton.parentNode.parentNode, 'নেটওয়ার্ক ত্রুটি', true);
           photoUploadButton.disabled = false;
-          photoUploadButton.textContent = '📷 আপলোড';
+          photoUploadButton.textContent = '+ আপলোড 📷';
         });
     });
   }
@@ -302,12 +302,12 @@
             showInlineMessage(youtubeAddButton.parentNode.parentNode, data.error || 'যোগ করা ব্যর্থ', true);
           }
           youtubeAddButton.disabled = false;
-          youtubeAddButton.textContent = '+ যোগ করুন';
+          youtubeAddButton.textContent = '+ যোগ করুন 🎬';
         })
         .catch(function () {
           showInlineMessage(youtubeAddButton.parentNode.parentNode, 'নেটওয়ার্ক ত্রুটি', true);
           youtubeAddButton.disabled = false;
-          youtubeAddButton.textContent = '+ যোগ করুন';
+          youtubeAddButton.textContent = '+ যোগ করুন 🎬';
         });
     });
   }
@@ -387,12 +387,12 @@
             showInlineMessage(referenceLinkAddButton.parentNode.parentNode, data.error || 'যোগ করা ব্যর্থ', true);
           }
           referenceLinkAddButton.disabled = false;
-          referenceLinkAddButton.textContent = '+ যোগ করুন';
+          referenceLinkAddButton.textContent = '+ যোগ করুন 🔗';
         })
         .catch(function () {
           showInlineMessage(referenceLinkAddButton.parentNode.parentNode, 'নেটওয়ার্ক ত্রুটি', true);
           referenceLinkAddButton.disabled = false;
-          referenceLinkAddButton.textContent = '+ যোগ করুন';
+          referenceLinkAddButton.textContent = '+ যোগ করুন 🔗';
         });
     });
   }
