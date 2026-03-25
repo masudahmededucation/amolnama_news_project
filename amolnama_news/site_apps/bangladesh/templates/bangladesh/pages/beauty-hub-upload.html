@@ -123,16 +123,5 @@
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script src="{% static 'bangladesh/assets/js/components/quill-editor.js' %}"></script>
 <script src="{% static 'bangladesh/assets/js/pages/beauty-hub-upload.js' %}"></script>
-<script>
-/* Attach BanglaInput to all text inputs except URL and data-no-bangla */
-(function attachBangla() {
-  if (typeof BanglaInput === 'undefined') { setTimeout(attachBangla, 300); return; }
-  document.querySelectorAll('input[type="text"]:not([data-no-bangla])').forEach(function(el) {
-    if (!el.getAttribute('data-bangla-attached')) {
-      BanglaInput.attach(el);
-      el.setAttribute('data-bangla-attached', '1');
-    }
-  });
-})();
-</script>
+<script src="{% static 'bangladesh/assets/js/components/bangladesh-bangla-input-hook.js' %}"></script>
 {% endblock %}

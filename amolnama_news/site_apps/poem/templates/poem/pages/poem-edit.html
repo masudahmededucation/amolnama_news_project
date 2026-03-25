@@ -115,21 +115,5 @@
 
 {% block extra_js %}
 <script src="{% static 'poem/assets/js/pages/poem-edit.js' %}"></script>
-<script>
-/* Attach BanglaInput to all Bengali text fields (skip _en fields) */
-(function attachBangla() {
-  if (typeof BanglaInput === 'undefined') { setTimeout(attachBangla, 300); return; }
-  var fields = document.querySelectorAll(
-    '#poem-author-name, #poem-title-bn, #poem-body-bn, '
-    + '#poem-backstory-bn, #poem-interpretation-bn, '
-    + '#poem-audio-reciter-name, #poem-audio-description'
-  );
-  fields.forEach(function(element) {
-    if (!element.getAttribute('data-bangla-attached')) {
-      BanglaInput.attach(element);
-      element.setAttribute('data-bangla-attached', '1');
-    }
-  });
-})();
-</script>
+<script src="{% static 'poem/assets/js/components/poem-bangla-input-hook.js' %}"></script>
 {% endblock %}
