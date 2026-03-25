@@ -16,6 +16,7 @@ from .models import (
     CollDestination, RefDestinationCategory, RefSeason,
     CollMediaEntry, RefMediaCategory,
     CollDestinationPhoto, CollDestinationYoutubeLink, CollDestinationReferenceLink,
+    EngDestinationReview,
 )
 
 
@@ -606,6 +607,62 @@ def _fetch_tiktok_thumbnail(url):
             return data.get("thumbnail_url") or None
     except Exception:
         return None
+
+
+@require_POST
+def api_destination_review_add(request, destination_id):
+    """POST — add a review for a destination."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    rating = data.get("rating_overall")
+    if not rating or int(rating) < 1 or int(rating) > 5:
+        return JsonResponse({"success": False, "error": "রেটিং দিন (1-5)"}, status=400)
+
+    review_title = (data.get("review_title_bn") or "").strip() or None
+    review_body = (data.get("review_body_bn") or "").strip() or None
+    visited_at = data.get("visited_at") or None
+
+    review = EngDestinationReview.objects.create(
+        link_coll_destination_id=destination_id,
+        link_user_profile_id=profile_id,
+        rating_overall=int(rating),
+        review_title_bn=review_title,
+        review_body_bn=review_body,
+        visited_at=visited_at,
+        helpful_count=0,
+        created_at=timezone.now(),
+    )
+
+    # Update destination avg_rating and review_count
+    from django.db.models import Avg, Count
+    stats = EngDestinationReview.objects.filter(
+        link_coll_destination_id=destination_id
+    ).aggregate(avg=Avg("rating_overall"), count=Count("bangladesh_eng_destination_review_id"))
+    CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).update(
+        avg_rating=stats["avg"],
+        review_count=stats["count"],
+    )
+
+    return JsonResponse({
+        "success": True,
+        "review_id": review.bangladesh_eng_destination_review_id,
+        "rating_overall": int(rating),
+        "review_title_bn": review_title or "",
+        "review_body_bn": review_body or "",
+    })
 
 
 def _can_manage_contribution(request, contribution_profile_id, destination_id):

@@ -269,6 +269,33 @@
     {% empty %}
       <p class="travel-hub-detail-empty">এখনো কোনো রিভিউ নেই। প্রথম রিভিউটি আপনি লিখুন!</p>
     {% endfor %}
+
+    {% if user.is_authenticated %}
+    <div class="travel-hub-detail-add-form" id="travel-hub-detail-review-form">
+      <div class="travel-hub-detail-add-form-row">
+        <span style="font-size:.8rem;font-weight:600;color:var(--text);">আপনার রেটিং দিন ★</span>
+        <select id="travel-hub-detail-review-rating" name="travel-hub-detail-review-rating" class="travel-hub-detail-text-input" style="max-width:120px;">
+          <option value="">রেটিং</option>
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★ (4)</option>
+          <option value="3">★★★ (3)</option>
+          <option value="2">★★ (2)</option>
+          <option value="1">★ (1)</option>
+        </select>
+      </div>
+      <div class="travel-hub-detail-add-form-row">
+        <input type="text" id="travel-hub-detail-review-title" name="travel-hub-detail-review-title" placeholder="রিভিউর শিরোনাম (Review Title)" class="travel-hub-detail-text-input" maxlength="200">
+      </div>
+      <div class="travel-hub-detail-add-form-row">
+        <textarea id="travel-hub-detail-review-body" name="travel-hub-detail-review-body" placeholder="আপনার অভিজ্ঞতা শেয়ার করুন... (Share your experience...)" class="travel-hub-detail-text-input" rows="3" maxlength="2000" style="min-width:100%;resize:vertical;"></textarea>
+      </div>
+      <div class="travel-hub-detail-add-form-row">
+        <input type="date" id="travel-hub-detail-review-visited-at" name="travel-hub-detail-review-visited-at" class="travel-hub-detail-text-input" style="max-width:180px;">
+        <span style="font-size:.72rem;color:var(--muted);">ভ্রমণের তারিখ (Date visited)</span>
+        <button type="button" id="travel-hub-detail-review-submit-button" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">+ রিভিউ দিন ⭐</button>
+      </div>
+    </div>
+    {% endif %}
   </div>
 
   {# ── Bottom Actions (share + edit) ── #}

@@ -128,7 +128,9 @@
       + '#travel-hub-detail-youtube-title, '
       + '#travel-hub-detail-youtube-description, '
       + '#travel-hub-detail-link-title, '
-      + '#travel-hub-detail-link-description-input'
+      + '#travel-hub-detail-link-description-input, '
+      + '#travel-hub-detail-review-title, '
+      + '#travel-hub-detail-review-body'
     );
     for (var i = 0; i < captionFields.length; i++) {
       attachBanglaInputToElement(captionFields[i]);
@@ -399,6 +401,80 @@
           showInlineMessage(referenceLinkAddButton.parentNode.parentNode, 'নেটওয়ার্ক ত্রুটি', true);
           referenceLinkAddButton.disabled = false;
           referenceLinkAddButton.textContent = '+ যোগ করুন 🔗';
+        });
+    });
+  }
+
+  /* ========== Review Submit ========== */
+
+  var reviewSubmitButton = document.getElementById('travel-hub-detail-review-submit-button');
+  if (reviewSubmitButton) {
+    reviewSubmitButton.addEventListener('click', function () {
+      var ratingSelect = document.getElementById('travel-hub-detail-review-rating');
+      var titleInput = document.getElementById('travel-hub-detail-review-title');
+      var bodyInput = document.getElementById('travel-hub-detail-review-body');
+      var visitedInput = document.getElementById('travel-hub-detail-review-visited-at');
+      var destinationId = reviewSubmitButton.getAttribute('data-dest-id');
+      var formContainer = document.getElementById('travel-hub-detail-review-form');
+
+      var rating = ratingSelect.value;
+      if (!rating) {
+        showInlineMessage(formContainer, 'রেটিং দিন', true);
+        return;
+      }
+
+      reviewSubmitButton.disabled = true;
+      reviewSubmitButton.textContent = 'জমা হচ্ছে...';
+
+      fetch('/bangladesh-tourist-destinations/api/destination/' + destinationId + '/review/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify({
+          rating_overall: parseInt(rating),
+          review_title_bn: (titleInput.value || '').trim(),
+          review_body_bn: (bodyInput.value || '').trim(),
+          visited_at: visitedInput.value || null,
+        }),
+      })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.success) {
+            /* Add review card to the list */
+            var section = document.querySelector('.travel-hub-detail-section:last-of-type');
+            var emptyMessage = section.querySelector('.travel-hub-detail-empty');
+            if (emptyMessage) emptyMessage.remove();
+
+            var card = document.createElement('div');
+            card.className = 'travel-hub-detail-card';
+            var html = '<div class="travel-hub-detail-review-header">';
+            html += '<span class="travel-hub-detail-stat-rating">★ ' + data.rating_overall + '/5</span>';
+            if (data.review_title_bn) html += '<span class="travel-hub-detail-card-title">' + data.review_title_bn + '</span>';
+            html += '</div>';
+            if (data.review_body_bn) html += '<p class="travel-hub-detail-card-text">' + data.review_body_bn + '</p>';
+            html += '<div class="travel-hub-detail-card-meta">👍 0 সহায়ক</div>';
+            card.innerHTML = html;
+
+            /* Insert before the form */
+            formContainer.before(card);
+
+            ratingSelect.value = '';
+            titleInput.value = '';
+            bodyInput.value = '';
+            visitedInput.value = '';
+            showInlineMessage(formContainer, 'রিভিউ যোগ হয়েছে, ধন্যবাদ!', false);
+          } else {
+            showInlineMessage(formContainer, data.error || 'রিভিউ জমা ব্যর্থ', true);
+          }
+          reviewSubmitButton.disabled = false;
+          reviewSubmitButton.textContent = '+ রিভিউ দিন ⭐';
+        })
+        .catch(function () {
+          showInlineMessage(formContainer, 'নেটওয়ার্ক ত্রুটি', true);
+          reviewSubmitButton.disabled = false;
+          reviewSubmitButton.textContent = '+ রিভিউ দিন ⭐';
         });
     });
   }
