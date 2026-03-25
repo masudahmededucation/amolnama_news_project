@@ -1,4 +1,5 @@
 --naming conventions
+seo friendly name 
 give descriptive name not partial or short name.
 check variables, filename, functions, features - all js ajax html
 update documents
@@ -13,5 +14,7 @@ check for bugs and bad code.
 all attributes should have its id and name 
 
 
-📷 ছবি (Photos) (2) to স্মৃতিগুলো ধরে রাখুন: ছবি ও ভিডিও আপলোড করুন 
-to something encouraging. let user know they can upload photos and video here. 
+--hook englishtobangla keyboard 
+when bengali option is chosen, hook the englishtobangla keyboard to 
+all captions fields
+
