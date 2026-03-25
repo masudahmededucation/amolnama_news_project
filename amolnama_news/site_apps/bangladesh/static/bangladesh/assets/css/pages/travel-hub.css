@@ -24,10 +24,12 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 /* Destination grid */
 .travel-hub-destination-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem; padding:.5rem 0 2rem; }
 
-.travel-hub-destination-card { position:relative; display:flex; flex-direction:column; border-radius:var(--radius); overflow:hidden; background:var(--card); border:2.5px solid transparent; box-shadow:var(--shadow); text-decoration:none; color:inherit; cursor:pointer; transition:border-color .25s, box-shadow .25s; }
-.travel-hub-destination-card:hover { box-shadow:var(--shadow-md); border-color:var(--primary); }
-.travel-hub-destination-card::after { content:'✓'; position:absolute; top:.5rem; right:.5rem; width:24px; height:24px; border-radius:50%; background:var(--primary); color:#fff; font-size:.75rem; font-weight:700; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; z-index:1; }
-.travel-hub-destination-card:hover::after { opacity:1; }
+.travel-hub-destination-card { position:relative; display:flex; flex-direction:column; border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); text-decoration:none; color:inherit; cursor:pointer; }
+.travel-hub-destination-card:hover { box-shadow:var(--shadow-md); }
+
+/* Thick border on image only on hover */
+.travel-hub-destination-card-img { transition:box-shadow .2s; }
+.travel-hub-destination-card:hover .travel-hub-destination-card-img { box-shadow:inset 0 0 0 2.5px var(--primary); }
 
 .travel-hub-destination-card-img { height:180px; background-size:cover; background-position:center; background-color:var(--surface); }
 .travel-hub-destination-card-img--placeholder { display:flex; align-items:center; justify-content:center; font-size:3rem; }
