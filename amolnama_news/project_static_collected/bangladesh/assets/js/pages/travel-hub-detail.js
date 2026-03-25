@@ -118,6 +118,44 @@
     }
   });
 
+  /* ========== Like toggle for photos and videos ========== */
+  document.addEventListener('click', function (event) {
+    var likeButton = event.target.closest('.travel-hub-detail-media-like-button');
+    if (!likeButton) return;
+    event.stopPropagation();
+
+    var mediaType = likeButton.getAttribute('data-type');
+    var mediaId = likeButton.getAttribute('data-id');
+    var destinationId = likeButton.getAttribute('data-dest-id');
+    if (!mediaType || !mediaId || !destinationId) return;
+
+    var apiUrl = '';
+    if (mediaType === 'photo') {
+      apiUrl = '/bangladesh-tourist-destinations/api/destination/' + destinationId + '/photo/' + mediaId + '/like/';
+    } else if (mediaType === 'video') {
+      apiUrl = '/bangladesh-tourist-destinations/api/destination/' + destinationId + '/video/' + mediaId + '/like/';
+    }
+    if (!apiUrl) return;
+
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrfToken() },
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          var countElement = likeButton.querySelector('.travel-hub-detail-media-like-count');
+          if (countElement) countElement.textContent = data.like_count;
+          if (data.liked) {
+            likeButton.classList.add('travel-hub-detail-media-like-button-active');
+          } else {
+            likeButton.classList.remove('travel-hub-detail-media-like-button-active');
+          }
+        }
+      })
+      .catch(function() {});
+  });
+
   /* ========== Share buttons ========== */
   var shareButtons = document.querySelectorAll('.travel-hub-detail-share-btn');
   for (var s = 0; s < shareButtons.length; s++) {

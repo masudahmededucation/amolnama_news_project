@@ -25,9 +25,11 @@ urlpatterns = [
     path("api/media/", views_api.api_media_list, name="api_media_list"),
     path("api/media/upload/", views_api.api_media_upload, name="api_media_upload"),
 
-    # Destination — view tracking
+    # Destination — view tracking + likes
     path("api/destination/<int:destination_id>/photo/<int:photo_id>/view/", views_api.api_destination_photo_view, name="api_destination_photo_view"),
+    path("api/destination/<int:destination_id>/photo/<int:photo_id>/like/", views_api.api_destination_photo_like_toggle, name="api_destination_photo_like_toggle"),
     path("api/destination/<int:destination_id>/video/<int:youtube_link_id>/view/", views_api.api_destination_video_view, name="api_destination_video_view"),
+    path("api/destination/<int:destination_id>/video/<int:youtube_link_id>/like/", views_api.api_destination_video_like_toggle, name="api_destination_video_like_toggle"),
 
     # Destination community contributions — add
     path("api/destination/<int:destination_id>/review/", views_api.api_destination_review_add, name="api_destination_review_add"),

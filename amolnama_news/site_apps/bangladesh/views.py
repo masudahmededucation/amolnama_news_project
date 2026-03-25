@@ -17,6 +17,7 @@ from .models import (
     CollDestination, CollDestinationPhoto, CollAccommodation,
     CollTransportRoute, CollTravelTip, EngDestinationReview,
     CollDestinationYoutubeLink, CollDestinationReferenceLink,
+    EngDestinationPhotoLike, EngDestinationVideoLike,
     RefDestinationCategory, RefSeason, RefMediaCategory,
     CollMediaEntry,
 )
@@ -318,16 +319,38 @@ def travel_hub_detail_by_slug(request, destination_slug):
         for user_profile in UserProfile.objects.filter(user_profile_id__in=contributor_profile_ids).only("user_profile_id", "display_name"):
             profile_display_names[user_profile.user_profile_id] = user_profile.display_name or "ব্যবহারকারী"
 
-    # Annotate contributions with uploader name and can_manage flag
+    # Bulk-fetch user likes for photos and videos (avoid N+1)
+    user_liked_photo_ids = set()
+    user_liked_video_ids = set()
+    if current_user_profile_id:
+        user_liked_photo_ids = set(
+            EngDestinationPhotoLike.objects.filter(
+                link_user_profile_id=current_user_profile_id,
+                link_coll_destination_photo_id__in=[p.bangladesh_coll_destination_photo_id for p in photos],
+            ).values_list("link_coll_destination_photo_id", flat=True)
+        )
+        user_liked_video_ids = set(
+            EngDestinationVideoLike.objects.filter(
+                link_user_profile_id=current_user_profile_id,
+                link_coll_destination_youtube_link_id__in=[v.bangladesh_coll_destination_youtube_link_id for v in youtube_links],
+            ).values_list("link_coll_destination_youtube_link_id", flat=True)
+        )
+
+    # Annotate contributions with uploader name, can_manage, time_ago, user_liked
     for photo in photos:
         photo.uploader_name = profile_display_names.get(photo.link_user_profile_id, "ব্যবহারকারী")
         photo.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and photo.link_user_profile_id == current_user_profile_id)
+        photo.time_ago = _time_ago(photo.created_at)
+        photo.user_liked = photo.bangladesh_coll_destination_photo_id in user_liked_photo_ids
     for youtube_link in youtube_links:
         youtube_link.uploader_name = profile_display_names.get(youtube_link.link_user_profile_id, "ব্যবহারকারী")
         youtube_link.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and youtube_link.link_user_profile_id == current_user_profile_id)
+        youtube_link.time_ago = _time_ago(youtube_link.created_at)
+        youtube_link.user_liked = youtube_link.bangladesh_coll_destination_youtube_link_id in user_liked_video_ids
     for reference_link in reference_links:
         reference_link.uploader_name = profile_display_names.get(reference_link.link_user_profile_id, "ব্যবহারকারী")
         reference_link.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and reference_link.link_user_profile_id == current_user_profile_id)
+        reference_link.time_ago = _time_ago(reference_link.created_at)
 
     # Split description into paragraphs, keep inline formatting (bold, color, etc.)
     description_raw = dest.destination_description_bn or dest.destination_description_en or ''

@@ -81,20 +81,30 @@
   <div class="travel-hub-detail-section" id="travel-hub-detail-photos-section">
     <h3>📷 স্মৃতি ধরে রাখুন — ছবি আপলোড করুন {% if photos %}({{ photos|length }}টি ছবি){% endif %}</h3>
     {% if photos %}
-    <div class="travel-hub-detail-photo-grid" id="travel-hub-detail-photo-grid">
+    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-photo-grid">
       {% for p in photos %}
-        <div class="travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" data-photo-id="{{ p.bangladesh_coll_destination_photo_id }}" style="background-image:url('{{ p.photo_url }}');cursor:pointer;">
-          {% if p.caption_bn %}<span class="travel-hub-detail-photo-caption">{{ p.caption_bn }}</span>{% endif %}
-          <div class="travel-hub-detail-contribution-meta">
-            <span class="travel-hub-detail-contribution-uploader">{{ p.uploader_name }}{% if p.view_count %} · 👁 {{ p.view_count }}{% endif %}</span>
-            {% if p.can_manage %}
+      <div class="travel-hub-detail-media-card" data-photo-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
+        <div class="travel-hub-detail-media-card-image travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" style="background-image:url('{{ p.photo_url }}');cursor:pointer;"></div>
+        {% if p.caption_bn %}<div class="travel-hub-detail-media-card-caption">{{ p.caption_bn }}</div>{% endif %}
+        <div class="travel-hub-detail-media-card-footer">
+          <div class="travel-hub-detail-media-card-stats">
+            <button type="button" class="travel-hub-detail-media-like-button{% if p.user_liked %} travel-hub-detail-media-like-button-active{% endif %}" data-type="photo" data-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}" title="পছন্দ">❤ <span class="travel-hub-detail-media-like-count">{{ p.like_count }}</span></button>
+            <span class="travel-hub-detail-media-card-views">👁 {{ p.view_count }}</span>
+          </div>
+          <div class="travel-hub-detail-media-card-meta">
+            <span class="travel-hub-detail-media-card-uploader">{{ p.uploader_name }}</span>
+            <span class="travel-hub-detail-media-card-time">{{ p.time_ago }}</span>
+          </div>
+          {% if p.can_manage %}
+          <div class="travel-hub-detail-media-card-actions">
             <span class="travel-hub-detail-contribution-actions" data-type="photo" data-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" title="ক্যাপশন সম্পাদনা">✎</button>
               <button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>
             </span>
-            {% endif %}
           </div>
+          {% endif %}
         </div>
+      </div>
       {% endfor %}
     </div>
     {% else %}
@@ -116,34 +126,41 @@
   {# ── YouTube Videos ── #}
   <div class="travel-hub-detail-section" id="travel-hub-detail-youtube-section">
     <h3>🎬 ভিডিও শেয়ার করুন {% if youtube_links %}({{ youtube_links|length }}টি ভিডিও){% endif %}</h3>
-    <div class="travel-hub-detail-youtube-grid" id="travel-hub-detail-youtube-list">
+    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-youtube-list">
       {% for yt in youtube_links %}
-      <div class="travel-hub-detail-youtube-card" data-youtube-link-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
+      <div class="travel-hub-detail-media-card travel-hub-detail-youtube-card" data-youtube-link-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
         {% if yt.video_thumbnail_url %}
-        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url('{{ yt.video_thumbnail_url }}');">
+        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-media-card-image travel-hub-detail-youtube-thumb" style="background-image:url('{{ yt.video_thumbnail_url }}');">
           <span class="travel-hub-detail-youtube-play">▶</span>
         </a>
         {% elif yt.youtube_video_id %}
-        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url('https://i.ytimg.com/vi/{{ yt.youtube_video_id }}/mqdefault.jpg');">
+        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-media-card-image travel-hub-detail-youtube-thumb" style="background-image:url('https://i.ytimg.com/vi/{{ yt.youtube_video_id }}/mqdefault.jpg');">
           <span class="travel-hub-detail-youtube-play">▶</span>
         </a>
         {% else %}
-        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb travel-hub-detail-youtube-thumb-placeholder">
+        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-media-card-image travel-hub-detail-youtube-thumb travel-hub-detail-youtube-thumb-placeholder">
           <span class="travel-hub-detail-youtube-play">🎬</span>
         </a>
         {% endif %}
-        <div class="travel-hub-detail-youtube-info">
-          {% if yt.video_title_bn %}<a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">{{ yt.video_title_bn }}</a>{% endif %}
-          {% if yt.description_bn %}<span class="travel-hub-detail-youtube-desc">{{ yt.description_bn }}</span>{% endif %}
-          <div class="travel-hub-detail-contribution-meta">
-            <span class="travel-hub-detail-contribution-uploader">{{ yt.uploader_name }}{% if yt.view_count %} · 👁 {{ yt.view_count }}{% endif %}</span>
-            {% if yt.can_manage %}
+        {% if yt.video_title_bn %}<div class="travel-hub-detail-media-card-caption"><a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">{{ yt.video_title_bn }}</a></div>{% endif %}
+        <div class="travel-hub-detail-media-card-footer">
+          <div class="travel-hub-detail-media-card-stats">
+            <button type="button" class="travel-hub-detail-media-like-button{% if yt.user_liked %} travel-hub-detail-media-like-button-active{% endif %}" data-type="video" data-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}" title="পছন্দ">❤ <span class="travel-hub-detail-media-like-count">{{ yt.like_count }}</span></button>
+            <span class="travel-hub-detail-media-card-views">👁 {{ yt.view_count }}</span>
+            {% if yt.video_platform %}<span class="travel-hub-detail-media-card-platform">{{ yt.video_platform }}</span>{% endif %}
+          </div>
+          <div class="travel-hub-detail-media-card-meta">
+            <span class="travel-hub-detail-media-card-uploader">{{ yt.uploader_name }}</span>
+            <span class="travel-hub-detail-media-card-time">{{ yt.time_ago }}</span>
+          </div>
+          {% if yt.can_manage %}
+          <div class="travel-hub-detail-media-card-actions">
             <span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>
               <button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>
             </span>
-            {% endif %}
           </div>
+          {% endif %}
         </div>
       </div>
       {% empty %}

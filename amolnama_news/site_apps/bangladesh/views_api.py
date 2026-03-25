@@ -16,7 +16,7 @@ from .models import (
     CollDestination, RefDestinationCategory, RefSeason,
     CollMediaEntry, RefMediaCategory,
     CollDestinationPhoto, CollDestinationYoutubeLink, CollDestinationReferenceLink,
-    EngDestinationReview,
+    EngDestinationReview, EngDestinationPhotoLike, EngDestinationVideoLike,
 )
 
 
@@ -689,6 +689,70 @@ def api_destination_review_add(request, destination_id):
         "review_title_bn": review_title or "",
         "review_body_bn": review_body or "",
     })
+
+
+@require_POST
+def api_destination_photo_like_toggle(request, destination_id, photo_id):
+    """POST — toggle like on a destination photo."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    from django.db.models import F
+    existing = EngDestinationPhotoLike.objects.filter(
+        link_coll_destination_photo_id=photo_id,
+        link_user_profile_id=profile_id,
+    )
+    if existing.exists():
+        existing.delete()
+        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).update(like_count=F('like_count') - 1)
+        liked = False
+    else:
+        EngDestinationPhotoLike.objects.create(
+            link_coll_destination_photo_id=photo_id,
+            link_user_profile_id=profile_id,
+            created_at=timezone.now(),
+        )
+        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
+        liked = True
+
+    new_count = CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).values_list('like_count', flat=True).first() or 0
+    return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
+
+
+@require_POST
+def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
+    """POST — toggle like on a destination video."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Login required"}, status=401)
+
+    profile_id = _get_user_profile_id(request)
+    if not profile_id:
+        return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
+
+    from django.db.models import F
+    existing = EngDestinationVideoLike.objects.filter(
+        link_coll_destination_youtube_link_id=youtube_link_id,
+        link_user_profile_id=profile_id,
+    )
+    if existing.exists():
+        existing.delete()
+        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') - 1)
+        liked = False
+    else:
+        EngDestinationVideoLike.objects.create(
+            link_coll_destination_youtube_link_id=youtube_link_id,
+            link_user_profile_id=profile_id,
+            created_at=timezone.now(),
+        )
+        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
+        liked = True
+
+    new_count = CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).values_list('like_count', flat=True).first() or 0
+    return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
 def _can_manage_contribution(request, contribution_profile_id, destination_id):

@@ -128,6 +128,7 @@ class CollDestinationPhoto(models.Model):
     sort_order = models.IntegerField()
     is_cover = models.BooleanField()
     view_count = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -247,6 +248,30 @@ class EngDestinationBookmark(models.Model):
         db_table = "[bangladesh].[eng_destination_bookmark]"
 
 
+class EngDestinationPhotoLike(models.Model):
+    bangladesh_eng_destination_photo_like_id = models.BigAutoField(primary_key=True)
+    link_coll_destination_photo_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = "[bangladesh].[eng_destination_photo_like]"
+        unique_together = [["link_coll_destination_photo_id", "link_user_profile_id"]]
+
+
+class EngDestinationVideoLike(models.Model):
+    bangladesh_eng_destination_video_like_id = models.BigAutoField(primary_key=True)
+    link_coll_destination_youtube_link_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = "[bangladesh].[eng_destination_video_like]"
+        unique_together = [["link_coll_destination_youtube_link_id", "link_user_profile_id"]]
+
+
 class CollDestinationYoutubeLink(models.Model):
     bangladesh_coll_destination_youtube_link_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
@@ -260,6 +285,7 @@ class CollDestinationYoutubeLink(models.Model):
     description_bn = models.CharField(max_length=1000, blank=True, null=True)
     sort_order = models.IntegerField(default=0)
     view_count = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)

@@ -176,32 +176,119 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: var(--text);
 }
 
-/* Photo grid */
-.travel-hub-detail-photo-grid {
+/* ========== Media Card Grid (photos + videos — unified card layout) ========== */
+.travel-hub-detail-media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: .5rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: .75rem;
   margin-bottom: .75rem;
 }
 
-.travel-hub-detail-photo-thumb {
-  position: relative;
-  height: 120px;
-  background-position: center;
-  background-size: cover;
-  border-radius: 6px;
+.travel-hub-detail-media-card {
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.travel-hub-detail-photo-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: .2rem .4rem;
-  font-size: .65rem;
-  color: #fff;
-  background: rgba(0,0,0,.55);
-  border-radius: 0 0 6px 6px;
+.travel-hub-detail-media-card-image {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background-position: center;
+  background-size: cover;
+  background-color: var(--surface);
+  cursor: pointer;
+}
+
+.travel-hub-detail-media-card-caption {
+  padding: .4rem .6rem;
+  font-size: .78rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.travel-hub-detail-media-card-caption a {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.travel-hub-detail-media-card-footer {
+  padding: .4rem .6rem;
+  border-top: 1px solid var(--border);
+  font-size: .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-top: auto;
+}
+
+.travel-hub-detail-media-card-stats {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.travel-hub-detail-media-like-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .72rem;
+  color: var(--muted);
+  padding: .1rem .3rem;
+  border-radius: 4px;
+  transition: color .15s;
+}
+
+.travel-hub-detail-media-like-button:hover { color: #e74c3c; }
+.travel-hub-detail-media-like-button-active { color: #e74c3c; }
+
+.travel-hub-detail-media-card-views {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.travel-hub-detail-media-card-platform {
+  font-size: .62rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.travel-hub-detail-media-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.travel-hub-detail-media-card-uploader { font-weight: 600; color: var(--text); }
+.travel-hub-detail-media-card-time { color: var(--muted); }
+
+.travel-hub-detail-media-card-actions {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding-top: .2rem;
+}
+
+/* Legacy photo thumb inside card */
+.travel-hub-detail-photo-thumb {
+  position: relative;
+  height: 160px;
+  background-position: center;
+  background-size: cover;
+}
+
+/* Photo caption overlay removed — now in card-caption div below image */
+
+@media (max-width: 768px) {
+  .travel-hub-detail-media-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .travel-hub-detail-media-card-image { height: 130px; }
 }
 
 /* YouTube grid */
