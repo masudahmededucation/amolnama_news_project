@@ -143,7 +143,10 @@
   var SKIP_TYPES = { date: 1, number: 1, email: 1, url: 1, password: 1, hidden: 1, file: 1 };
 
   function attachBanglaInput() {
-    if (typeof BanglaInput === 'undefined') return;
+    if (typeof BanglaInput === 'undefined') {
+      setTimeout(attachBanglaInput, 300);
+      return;
+    }
     // All text inputs and textareas on the page
     var fields = document.querySelectorAll('input[type="text"], textarea');
     for (var i = 0; i < fields.length; i++) {
