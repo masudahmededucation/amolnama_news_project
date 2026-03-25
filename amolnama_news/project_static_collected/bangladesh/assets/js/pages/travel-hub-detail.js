@@ -738,43 +738,50 @@
           editForm.remove();
           /* Update displayed content */
           if (contributionType === 'photo') {
-            parentCard.setAttribute('data-photo-caption', data.caption_bn || '');
-            var captionSpan = parentCard.querySelector('.travel-hub-detail-photo-caption');
+            /* Update data attribute on the thumb inside the card */
+            var photoThumb = parentCard.querySelector('.travel-hub-detail-photo-thumb');
+            if (photoThumb) photoThumb.setAttribute('data-photo-caption', data.caption_bn || '');
+            /* Update the caption div in the card */
+            var captionDiv = parentCard.querySelector('.travel-hub-detail-media-card-caption');
             if (data.caption_bn) {
-              if (!captionSpan) {
-                captionSpan = document.createElement('span');
-                captionSpan.className = 'travel-hub-detail-photo-caption';
-                /* Insert before the meta div */
-                var metaDiv = parentCard.querySelector('.travel-hub-detail-contribution-meta');
-                if (metaDiv) {
-                  parentCard.insertBefore(captionSpan, metaDiv);
+              if (!captionDiv) {
+                captionDiv = document.createElement('div');
+                captionDiv.className = 'travel-hub-detail-media-card-caption';
+                var footer = parentCard.querySelector('.travel-hub-detail-media-card-footer');
+                if (footer) {
+                  parentCard.insertBefore(captionDiv, footer);
                 } else {
-                  parentCard.appendChild(captionSpan);
+                  parentCard.appendChild(captionDiv);
                 }
               }
-              captionSpan.textContent = data.caption_bn;
-            } else if (captionSpan) {
-              captionSpan.remove();
+              captionDiv.textContent = data.caption_bn;
+            } else if (captionDiv) {
+              captionDiv.remove();
             }
           } else if (contributionType === 'youtube') {
+            /* Update title in the caption div */
             var youtubeTitle = parentCard.querySelector('.travel-hub-detail-youtube-title');
-            var youtubeDescription = parentCard.querySelector('.travel-hub-detail-youtube-desc');
-            if (youtubeTitle) youtubeTitle.textContent = data.video_title_bn || '';
-            if (data.description_bn) {
-              if (!youtubeDescription) {
-                youtubeDescription = document.createElement('span');
-                youtubeDescription.className = 'travel-hub-detail-youtube-desc';
-                var youtubeInfo = parentCard.querySelector('.travel-hub-detail-youtube-info');
-                var youtubeMeta = youtubeInfo.querySelector('.travel-hub-detail-contribution-meta');
-                if (youtubeMeta) {
-                  youtubeInfo.insertBefore(youtubeDescription, youtubeMeta);
-                } else {
-                  youtubeInfo.appendChild(youtubeDescription);
+            if (youtubeTitle && data.video_title_bn) youtubeTitle.textContent = data.video_title_bn;
+            /* Update or create caption div if title changed */
+            var videoCaptionDiv = parentCard.querySelector('.travel-hub-detail-media-card-caption');
+            if (data.video_title_bn) {
+              if (!videoCaptionDiv) {
+                videoCaptionDiv = document.createElement('div');
+                videoCaptionDiv.className = 'travel-hub-detail-media-card-caption';
+                var videoFooter = parentCard.querySelector('.travel-hub-detail-media-card-footer');
+                if (videoFooter) {
+                  parentCard.insertBefore(videoCaptionDiv, videoFooter);
                 }
               }
-              youtubeDescription.textContent = data.description_bn;
-            } else if (youtubeDescription) {
-              youtubeDescription.remove();
+              if (!youtubeTitle) {
+                var titleLink = document.createElement('a');
+                titleLink.className = 'travel-hub-detail-youtube-title';
+                titleLink.target = '_blank';
+                titleLink.rel = 'noopener';
+                videoCaptionDiv.appendChild(titleLink);
+                youtubeTitle = titleLink;
+              }
+              youtubeTitle.textContent = data.video_title_bn;
             }
           } else if (contributionType === 'link') {
             var linkUrl = parentCard.querySelector('.travel-hub-detail-link-url');
