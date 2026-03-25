@@ -119,9 +119,17 @@
     <div class="travel-hub-detail-youtube-grid" id="travel-hub-detail-youtube-list">
       {% for yt in youtube_links %}
       <div class="travel-hub-detail-youtube-card" data-youtube-link-id="{{ yt.bangladesh_coll_destination_youtube_link_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">
-        {% if yt.youtube_video_id %}
+        {% if yt.video_thumbnail_url %}
+        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url('{{ yt.video_thumbnail_url }}');">
+          <span class="travel-hub-detail-youtube-play">▶</span>
+        </a>
+        {% elif yt.youtube_video_id %}
         <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url('https://i.ytimg.com/vi/{{ yt.youtube_video_id }}/mqdefault.jpg');">
           <span class="travel-hub-detail-youtube-play">▶</span>
+        </a>
+        {% else %}
+        <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb travel-hub-detail-youtube-thumb-placeholder">
+          <span class="travel-hub-detail-youtube-play">🎬</span>
         </a>
         {% endif %}
         <div class="travel-hub-detail-youtube-info">
@@ -146,7 +154,10 @@
     {% if user.is_authenticated %}
     <div class="travel-hub-detail-add-form" id="travel-hub-detail-youtube-form">
       <div class="travel-hub-detail-add-form-row">
-        <input type="url" id="travel-hub-detail-youtube-url" name="travel-hub-detail-youtube-url" placeholder="YouTube লিংক (https://youtube.com/...)" class="travel-hub-detail-text-input travel-hub-detail-text-input-wide">
+        <input type="url" id="travel-hub-detail-youtube-url" name="travel-hub-detail-youtube-url" placeholder="ভিডিও লিংক — YouTube, TikTok, Instagram, Facebook" class="travel-hub-detail-text-input travel-hub-detail-text-input-wide">
+      </div>
+      <div style="font-size:.7rem;color:var(--muted);margin-bottom:.4rem;line-height:1.4;">
+        💡 YouTube: youtube.com/watch?v=... বা youtu.be/... &nbsp;·&nbsp; TikTok: tiktok.com/@user/video/... &nbsp;·&nbsp; যেকোনো ভিডিও লিংক যোগ করুন
       </div>
       <div class="travel-hub-detail-add-form-row">
         <input type="text" id="travel-hub-detail-youtube-title" name="travel-hub-detail-youtube-title" placeholder="ভিডিওর শিরোনাম (Video Title)" class="travel-hub-detail-text-input" maxlength="300">

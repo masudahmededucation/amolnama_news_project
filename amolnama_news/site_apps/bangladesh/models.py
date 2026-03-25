@@ -252,6 +252,8 @@ class CollDestinationYoutubeLink(models.Model):
     link_user_profile_id = models.BigIntegerField()
     youtube_url = models.CharField(max_length=1000)
     youtube_video_id = models.CharField(max_length=20, blank=True, null=True)
+    video_platform = models.CharField(max_length=20, blank=True, null=True)
+    video_thumbnail_url = models.CharField(max_length=1000, blank=True, null=True)
     video_title_bn = models.CharField(max_length=300, blank=True, null=True)
     video_title_en = models.CharField(max_length=300, blank=True, null=True)
     description_bn = models.CharField(max_length=1000, blank=True, null=True)

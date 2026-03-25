@@ -264,16 +264,23 @@
             var emptyMessage = list.querySelector('.travel-hub-detail-empty');
             if (emptyMessage) emptyMessage.remove();
 
+            var videoUrl = data.video_url || url;
             var card = document.createElement('div');
             card.className = 'travel-hub-detail-youtube-card';
             var html = '';
-            if (data.youtube_video_id) {
-              html += '<a href="' + url + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url(\'https://i.ytimg.com/vi/' + data.youtube_video_id + '/mqdefault.jpg\');">';
+            if (data.thumbnail_url) {
+              html += '<a href="' + videoUrl + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb" style="background-image:url(\'' + data.thumbnail_url + '\');">';
               html += '<span class="travel-hub-detail-youtube-play">▶</span>';
+              html += '</a>';
+            } else {
+              /* No thumbnail available — show platform icon placeholder */
+              var platformIcon = data.platform === 'tiktok' ? '🎵' : data.platform === 'instagram' ? '📷' : data.platform === 'facebook' ? '📘' : '🎬';
+              html += '<a href="' + videoUrl + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-thumb travel-hub-detail-youtube-thumb-placeholder">';
+              html += '<span class="travel-hub-detail-youtube-play">' + platformIcon + '</span>';
               html += '</a>';
             }
             html += '<div class="travel-hub-detail-youtube-info">';
-            if (data.video_title_bn) html += '<a href="' + url + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">' + data.video_title_bn + '</a>';
+            if (data.video_title_bn) html += '<a href="' + videoUrl + '" target="_blank" rel="noopener" class="travel-hub-detail-youtube-title">' + data.video_title_bn + '</a>';
             html += '</div>';
             card.innerHTML = html;
             list.appendChild(card);

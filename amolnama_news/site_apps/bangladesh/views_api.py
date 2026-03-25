@@ -476,16 +476,22 @@ def api_destination_youtube_link_add(request, destination_id):
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 
-    youtube_url = (data.get("youtube_url") or "").strip()
-    if not youtube_url:
-        return JsonResponse({"success": False, "error": "YouTube URL is required"}, status=400)
+    video_url = (data.get("youtube_url") or "").strip()
+    if not video_url:
+        return JsonResponse({"success": False, "error": "ভিডিও লিংক দিন"}, status=400)
 
-    # Extract video ID from URL
-    video_id = _extract_youtube_video_id(youtube_url)
+    # Detect platform and extract video ID / thumbnail
+    platform = _detect_video_platform(video_url)
+    video_id = None
+    thumbnail_url = None
 
-    # Store a clean short URL (tracking params make URLs very long, exceeding 500 char limit)
-    if video_id:
-        youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+    if platform == "youtube":
+        video_id = _extract_youtube_video_id(video_url)
+        if video_id:
+            video_url = f"https://www.youtube.com/watch?v={video_id}"
+            thumbnail_url = f"https://i.ytimg.com/vi/{video_id}/mqdefault.jpg"
+    elif platform == "tiktok":
+        thumbnail_url = _fetch_tiktok_thumbnail(video_url)
 
     title = (data.get("video_title_bn") or "").strip() or None
     description = (data.get("description_bn") or "").strip() or None
@@ -493,8 +499,10 @@ def api_destination_youtube_link_add(request, destination_id):
     link = CollDestinationYoutubeLink.objects.create(
         link_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
-        youtube_url=youtube_url,
+        youtube_url=video_url,
         youtube_video_id=video_id,
+        video_platform=platform,
+        video_thumbnail_url=thumbnail_url,
         video_title_bn=title,
         description_bn=description,
         sort_order=0,
@@ -507,6 +515,9 @@ def api_destination_youtube_link_add(request, destination_id):
         "link_id": link.bangladesh_coll_destination_youtube_link_id,
         "youtube_video_id": video_id or "",
         "video_title_bn": title or "",
+        "platform": platform,
+        "thumbnail_url": thumbnail_url or "",
+        "video_url": video_url,
     })
 
 
@@ -565,6 +576,36 @@ def _extract_youtube_video_id(url):
         if m:
             return m.group(1)
     return None
+
+
+def _detect_video_platform(url):
+    """Detect video platform from URL. Returns: 'youtube', 'tiktok', 'instagram', or 'other'."""
+    if not url:
+        return "other"
+    url_lower = url.lower()
+    if "youtube.com" in url_lower or "youtu.be" in url_lower:
+        return "youtube"
+    if "tiktok.com" in url_lower:
+        return "tiktok"
+    if "instagram.com" in url_lower:
+        return "instagram"
+    if "facebook.com" in url_lower or "fb.watch" in url_lower:
+        return "facebook"
+    return "other"
+
+
+def _fetch_tiktok_thumbnail(url):
+    """Fetch TikTok video thumbnail via oEmbed API. Returns thumbnail URL or None."""
+    import urllib.request
+    import urllib.parse
+    try:
+        oembed_url = "https://www.tiktok.com/oembed?url=" + urllib.parse.quote(url, safe="")
+        request = urllib.request.Request(oembed_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(request, timeout=5) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            return data.get("thumbnail_url") or None
+    except Exception:
+        return None
 
 
 def _can_manage_contribution(request, contribution_profile_id, destination_id):
