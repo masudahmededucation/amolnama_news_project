@@ -5,6 +5,10 @@
   var arenaElement = document.getElementById('debate-arena');
   if (!arenaElement) return;
 
+  /* Force scroll to top on page load — prevent browser restoring bottom position */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
   var topicId = arenaElement.getAttribute('data-topic-id');
   var topicStatus = arenaElement.getAttribute('data-topic-status');
   var userSide = arenaElement.getAttribute('data-user-side');
@@ -534,6 +538,22 @@
         if (blueBar && redBar && totalVotes > 0) {
           blueBar.style.width = Math.round(data.audience_blue_vote_count / totalVotes * 100) + '%';
           redBar.style.width = Math.round(data.audience_red_vote_count / totalVotes * 100) + '%';
+        }
+
+        /* Tick circle — show on voted button, remove from other */
+        var allVoteButtons = document.querySelectorAll('.debate-audience-vote-button');
+        allVoteButtons.forEach(function (button) {
+          var existingTick = button.querySelector('.debate-audience-vote-tick');
+          if (existingTick) existingTick.remove();
+          button.classList.remove('debate-audience-vote-button-voted');
+        });
+
+        if (data.action === 'voted' || data.action === 'flipped') {
+          audienceVoteButton.classList.add('debate-audience-vote-button-voted');
+          var tickElement = document.createElement('span');
+          tickElement.className = 'debate-audience-vote-tick';
+          tickElement.textContent = '✓';
+          audienceVoteButton.appendChild(tickElement);
         }
       }
       audienceVoteButton.disabled = false;

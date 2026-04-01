@@ -219,12 +219,34 @@
 /* Audience voting */
 .debate-audience-vote { text-align: center; padding: .5rem .75rem; margin-top: .3rem; border-top: 1px solid rgba(255,255,255,.1); }
 .debate-audience-vote-title { font-size: .72rem; font-weight: 700; color: #fbbf24; margin-bottom: .4rem; }
-.debate-audience-vote-buttons { display: flex; align-items: center; gap: .4rem; }
-.debate-audience-vote-button { flex: 1; padding: .35rem .5rem; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; background: rgba(255,255,255,.05); color: #fff; font-size: .72rem; font-weight: 600; cursor: pointer; transition: all .15s; }
-.debate-audience-vote-button:hover { background: rgba(255,255,255,.15); }
-.debate-audience-vote-button-blue:hover { border-color: #60a5fa; }
-.debate-audience-vote-button-red:hover { border-color: #f87171; }
-.debate-audience-vote-count { font-weight: 800; margin-left: .3rem; }
+.debate-audience-vote-buttons { display: flex; align-items: center; gap: .5rem; }
+.debate-audience-vote-button {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem;
+  padding: .5rem .4rem; border: 2px solid rgba(255,255,255,.15); border-radius: 12px;
+  background: rgba(255,255,255,.05); font-size: .68rem; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.debate-audience-vote-button-blue, .debate-audience-vote-button-blue .debate-audience-vote-arrow, .debate-audience-vote-button-blue .debate-audience-vote-count { color: #60a5fa; }
+.debate-audience-vote-button-red, .debate-audience-vote-button-red .debate-audience-vote-arrow, .debate-audience-vote-button-red .debate-audience-vote-count { color: #f87171; }
+.debate-audience-vote-button:hover { transform: scale(1.03); }
+.debate-audience-vote-button:active { transform: scale(0.97); }
+.debate-audience-vote-button-blue { border-color: #2563eb; background: #fffbeb; }
+.debate-audience-vote-button-blue:hover { background: #fef3c7; border-color: #60a5fa; box-shadow: 0 0 12px rgba(37,99,235,.4); }
+.debate-audience-vote-button-red { border-color: #dc2626; background: #fffbeb; }
+.debate-audience-vote-button-red:hover { background: #fef3c7; border-color: #f87171; box-shadow: 0 0 12px rgba(239,68,68,.4); }
+.debate-audience-vote-arrow { line-height: 1; }
+.debate-audience-vote-arrow svg { width: 2.4rem; height: 2.4rem; }
+.debate-audience-vote-count { font-size: 1.1rem; font-weight: 900; }
+.debate-audience-vote-button-voted { position: relative; }
+.debate-audience-vote-tick {
+  position: absolute; top: 4px; right: 4px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #059669; color: #fff; font-size: .6rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.debate-audience-vote-action-label { font-size: .65rem; font-weight: 600; color: #94a3b8; }
+.debate-audience-vote-side-label { font-size: .85rem; font-weight: 800; color: #1e293b; text-align: center; line-height: 1.3; }
 .debate-audience-vote-bar { flex: 0 0 80px; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: #334155; }
 .debate-audience-vote-bar-blue { background: #2563eb; height: 100%; min-width: 2px; }
 .debate-audience-vote-bar-red { background: #ef4444; height: 100%; min-width: 2px; }
