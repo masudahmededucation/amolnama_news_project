@@ -272,6 +272,53 @@
     });
   }
 
+  /* ---- SHARE — toggle dropdown, copy link, native share ---- */
+  var shareToggleButton = document.getElementById('debate-arena-share-toggle');
+  var shareDropdown = document.getElementById('debate-arena-share-dropdown');
+
+  if (shareToggleButton && shareDropdown) {
+    shareToggleButton.addEventListener('click', function (event) {
+      event.stopPropagation();
+      shareDropdown.classList.toggle('debate-arena-share-dropdown-open');
+    });
+
+    /* Close dropdown on outside click */
+    document.addEventListener('click', function () {
+      shareDropdown.classList.remove('debate-arena-share-dropdown-open');
+    });
+
+    /* Copy Link */
+    var copyLinkButton = document.getElementById('debate-arena-share-copy-link');
+    if (copyLinkButton) {
+      copyLinkButton.addEventListener('click', function () {
+        var debateUrl = window.location.origin + '/debate/topic/' + topicId + '/';
+        navigator.clipboard.writeText(debateUrl).then(function () {
+          copyLinkButton.textContent = '✓ Copied!';
+          setTimeout(function () {
+            copyLinkButton.innerHTML = '<svg class="debate-arena-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Copy Link';
+          }, 2000);
+        });
+        shareDropdown.classList.remove('debate-arena-share-dropdown-open');
+      });
+    }
+
+    /* Native Share API */
+    var nativeShareButton = document.getElementById('debate-arena-share-native');
+    if (nativeShareButton) {
+      if (navigator.share) {
+        nativeShareButton.addEventListener('click', function () {
+          navigator.share({
+            title: document.querySelector('.debate-arena-topic-title').textContent,
+            url: window.location.origin + '/debate/topic/' + topicId + '/',
+          });
+          shareDropdown.classList.remove('debate-arena-share-dropdown-open');
+        });
+      } else {
+        nativeShareButton.style.display = 'none';
+      }
+    }
+  }
+
   /* ---- PDF Download — server-side Edge headless, fetch once → preview + auto-download ---- */
   var downloadButton = document.getElementById('debate-arena-download-button');
   if (downloadButton) {

@@ -161,10 +161,21 @@
 .debate-arena-download-button { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; margin-left: .5rem; }
 .debate-arena-download-button:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
+/* Share button + dropdown */
+.debate-arena-share-wrapper { position: relative; display: inline-block; margin-left: .3rem; }
+.debate-arena-share-toggle { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; }
+.debate-arena-share-toggle:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.debate-arena-share-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: .3rem; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 180px; z-index: 200; overflow: hidden; }
+.debate-arena-share-dropdown-open { display: block; }
+.debate-arena-share-item { display: flex; align-items: center; gap: .4rem; width: 100%; padding: .5rem .75rem; border: none; background: none; font-size: .75rem; font-weight: 500; cursor: pointer; color: #333; text-decoration: none; transition: background .1s; }
+.debate-arena-share-item:hover { background: #f3f4f6; text-decoration: none; }
+.debate-arena-share-icon { width: .9rem; height: .9rem; flex-shrink: 0; }
+
 /* Print styles — retain full UI in PDF */
 @media print {
   /* Hide non-content elements */
   .debate-arena-download-button,
+  .debate-arena-share-wrapper,
   .debate-arena-composer,
   .debate-arena-join-panel,
   .debate-arena-reply-drawer,
