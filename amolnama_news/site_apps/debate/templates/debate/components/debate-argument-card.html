@@ -72,6 +72,16 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
     </button>
   </div>
 
+  <!-- Argument strength indicator -->
+  {% if post.post_argument_strength %}
+  <div class="debate-argument-strength" id="debate-argument-strength-{{ post.debate_coll_post_id }}" title="যুক্তির শক্তি: {{ post.post_argument_strength }}">
+    {% with strength_pct=post.post_argument_strength|floatformat:0 %}
+    <span class="debate-argument-strength-label">যুক্তির শক্তি</span>
+    <div class="debate-argument-strength-bar"><div class="debate-argument-strength-fill" style="width: {{ post.post_argument_strength_pct }}%;"></div></div>
+    {% endwith %}
+  </div>
+  {% endif %}
+
   <!-- Link embed preview container (populated by JS) -->
   <div class="debate-argument-link-embeds" id="debate-argument-link-embeds-{{ post.debate_coll_post_id }}"></div>
 

@@ -31,6 +31,19 @@
     {% endif %}
     <div class="debate-arena-header-stats">
       <span class="debate-arena-stat">🔥 {{ topic.blue_participant_count|add:topic.red_participant_count }} জন যুদ্ধে নেমেছেন · {{ topic.total_post_count }}টি যুক্তি চলছে — আপনিও যোগ দিন!</span>
+      {% if request.user.is_authenticated and notification_unread_count > 0 %}
+      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper">
+        <button type="button" class="debate-arena-notification-bell" id="debate-arena-notification-bell" name="debate_arena_notification_bell" title="বিজ্ঞপ্তি (Notifications)">
+          🔔 <span class="debate-arena-notification-count" id="debate-arena-notification-count">{{ notification_unread_count }}</span>
+        </button>
+        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown"></div>
+      </div>
+      {% elif request.user.is_authenticated %}
+      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper">
+        <button type="button" class="debate-arena-notification-bell debate-arena-notification-bell-empty" id="debate-arena-notification-bell" name="debate_arena_notification_bell" title="বিজ্ঞপ্তি (Notifications)">🔔</button>
+        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown"></div>
+      </div>
+      {% endif %}
       <button type="button" class="debate-arena-download-button" id="debate-arena-download-button" name="debate_arena_download_button" data-filename="{{ topic.topic_title }}">📥 PDF ডাউনলোড</button>
       <div class="debate-arena-share-wrapper" id="debate-arena-share-wrapper">
         <button type="button" class="debate-arena-share-toggle" id="debate-arena-share-toggle" name="debate_arena_share_toggle" title="শেয়ার করুন (Share)">
@@ -122,6 +135,26 @@
         <span class="debate-passion-value debate-passion-value-red">{{ topic.red_sentence_count }}</span>
       </div>
     </div>
+
+    <!-- Audience Voting — spectators vote on who's winning -->
+    {% if request.user.is_authenticated %}
+    <div class="debate-audience-vote" id="debate-audience-vote">
+      <div class="debate-audience-vote-title" id="debate-audience-vote-title">🗳️ দর্শক ভোট — কে জিতছে?</div>
+      <div class="debate-audience-vote-buttons" id="debate-audience-vote-buttons">
+        <button type="button" class="debate-audience-vote-button debate-audience-vote-button-blue" id="debate-audience-vote-blue" name="debate_audience_vote_blue" data-vote-side="blue">
+          🔵 {{ topic.blue_side_label }} <span class="debate-audience-vote-count" id="debate-audience-vote-blue-count">{{ topic.audience_blue_vote_count }}</span>
+        </button>
+        <div class="debate-audience-vote-bar" id="debate-audience-vote-bar">
+          <div class="debate-audience-vote-bar-blue" id="debate-audience-vote-bar-blue" style="width: {{ topic.audience_blue_pct }}%;"></div>
+          <div class="debate-audience-vote-bar-red" id="debate-audience-vote-bar-red" style="width: {{ topic.audience_red_pct }}%;"></div>
+        </div>
+        <button type="button" class="debate-audience-vote-button debate-audience-vote-button-red" id="debate-audience-vote-red" name="debate_audience_vote_red" data-vote-side="red">
+          🔴 {{ topic.red_side_label }} <span class="debate-audience-vote-count" id="debate-audience-vote-red-count">{{ topic.audience_red_vote_count }}</span>
+        </button>
+      </div>
+      <div class="debate-audience-vote-total" id="debate-audience-vote-total">{{ topic.audience_total_votes }} জন ভোট দিয়েছেন</div>
+    </div>
+    {% endif %}
   </div>
 
   <!-- JOIN PANEL — shown if user hasn't joined yet -->

@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .models import (
-    CollPost, CollTopic, CollTopicParticipant, CollVote,
+    CollNotification, CollPost, CollTopic, CollTopicParticipant, CollVote,
     FactPostModeration, RefTeamSide, RefTopicStatus, RefVoteTargetType,
 )
 
@@ -414,9 +414,9 @@ def api_post_argument(request, topic_id):
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
              [is_emoji_only], [post_content_hash],
-             [citation_source_url], [citation_source_text])
+             [citation_source_url], [citation_source_text], [post_argument_strength])
         OUTPUT INSERTED.debate_coll_post_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
         post_guid, topic_id, participant.debate_coll_topic_participant_id,
         user_profile_id, participant.link_team_side_id,
@@ -425,6 +425,7 @@ def api_post_argument(request, topic_id):
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
         metrics['post_non_language_ratio'], 1 if metrics['is_emoji_only'] else 0,
         metrics['post_content_hash'], citation_source_url, citation_source_text,
+        _calculate_argument_strength(post_content, citation_source_url, metrics['post_sentence_count'], metrics['post_character_count']),
     ])
     post_id = cursor.fetchone()[0]
 
@@ -534,9 +535,9 @@ def api_post_reply(request, topic_id):
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
              [is_emoji_only], [post_content_hash],
-             [citation_source_url], [citation_source_text])
+             [citation_source_url], [citation_source_text], [post_argument_strength])
         OUTPUT INSERTED.debate_coll_post_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
         post_guid, topic_id, participant.debate_coll_topic_participant_id,
         user_profile_id, participant.link_team_side_id,
@@ -548,6 +549,7 @@ def api_post_reply(request, topic_id):
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
         metrics['post_non_language_ratio'], 1 if metrics['is_emoji_only'] else 0,
         metrics['post_content_hash'], citation_source_url, citation_source_text,
+        _calculate_argument_strength(post_content, citation_source_url, metrics['post_sentence_count'], metrics['post_character_count']),
     ])
     post_id = cursor.fetchone()[0]
 
@@ -573,6 +575,26 @@ def api_post_reply(request, topic_id):
         SET [participant_rebuttal_count] = [participant_rebuttal_count] + 1, [updated_at] = ?
         WHERE [debate_coll_topic_participant_id] = ?
     """, [now, participant.debate_coll_topic_participant_id])
+
+    # Notify parent post author about the reply (background)
+    import threading
+    def _notify_reply():
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        author_name = ''
+        try:
+            profile = UserProfile.objects.get(user_profile_id=user_profile_id)
+            author_name = profile.display_name or 'কেউ'
+        except UserProfile.DoesNotExist:
+            author_name = 'কেউ'
+        _create_notification(
+            recipient_user_profile_id=parent_post.link_author_user_profile_id,
+            actor_user_profile_id=user_profile_id,
+            event_code='reply',
+            topic_id=topic_id,
+            post_id=post_id,
+            message=f'{author_name} আপনার যুক্তির উত্তর দিয়েছেন',
+        )
+    threading.Thread(target=_notify_reply, daemon=True).start()
 
     return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
 
@@ -855,3 +877,187 @@ def api_link_preview(request):
         'image': og_data.get('image', ''),
         'url': target_url,
     })
+
+
+# =========================================================
+# AUDIENCE VOTING — spectators vote on which side is winning
+# =========================================================
+
+@login_required
+@require_POST
+def api_audience_vote(request, topic_id):
+    """Spectator votes on which side they think is winning (blue or red)."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    vote_side = (data.get('vote_side') or '').strip().lower()
+    if vote_side not in ('blue', 'red'):
+        return JsonResponse({'success': False, 'error': 'blue বা red নির্বাচন করুন'}, status=400)
+
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Check if user already voted on this topic (using vote_target_type = topic)
+    vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='topic').first()
+    if not vote_target_type:
+        return JsonResponse({'success': False, 'error': 'Vote target type not found'}, status=500)
+
+    existing_vote = CollVote.objects.filter(
+        link_voter_user_profile_id=user_profile_id,
+        link_vote_target_type_id=vote_target_type.debate_ref_vote_target_type_id,
+        target_row_id=topic_id,
+    ).first()
+
+    now = timezone.now()
+    vote_value = 1 if vote_side == 'blue' else -1  # 1=blue, -1=red
+
+    if existing_vote:
+        if existing_vote.vote_value == vote_value:
+            # Same vote — remove (toggle off)
+            existing_vote.delete()
+            column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
+            _raw_execute(f"""
+                UPDATE [debate].[coll_topic]
+                SET [{column}] = CASE WHEN [{column}] > 0 THEN [{column}] - 1 ELSE 0 END, [updated_at] = ?
+                WHERE [debate_coll_topic_id] = ?
+            """, [now, topic_id])
+            topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+            return JsonResponse({'success': True, 'action': 'removed',
+                                 'audience_blue_vote_count': topic.audience_blue_vote_count,
+                                 'audience_red_vote_count': topic.audience_red_vote_count})
+        else:
+            # Flip vote
+            old_column = 'audience_blue_vote_count' if existing_vote.vote_value == 1 else 'audience_red_vote_count'
+            new_column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
+            existing_vote.vote_value = vote_value
+            existing_vote.voted_at = now
+            existing_vote.save(update_fields=['vote_value', 'voted_at'])
+            _raw_execute(f"""
+                UPDATE [debate].[coll_topic]
+                SET [{old_column}] = CASE WHEN [{old_column}] > 0 THEN [{old_column}] - 1 ELSE 0 END,
+                    [{new_column}] = [{new_column}] + 1, [updated_at] = ?
+                WHERE [debate_coll_topic_id] = ?
+            """, [now, topic_id])
+            topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+            return JsonResponse({'success': True, 'action': 'flipped',
+                                 'audience_blue_vote_count': topic.audience_blue_vote_count,
+                                 'audience_red_vote_count': topic.audience_red_vote_count})
+    else:
+        # New vote
+        _raw_execute("""
+            INSERT INTO [debate].[coll_vote]
+                ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
+            VALUES (?, ?, ?, ?)
+        """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id, vote_value])
+        column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
+        _raw_execute(f"""
+            UPDATE [debate].[coll_topic]
+            SET [{column}] = [{column}] + 1, [updated_at] = ?
+            WHERE [debate_coll_topic_id] = ?
+        """, [now, topic_id])
+        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+        return JsonResponse({'success': True, 'action': 'voted',
+                             'audience_blue_vote_count': topic.audience_blue_vote_count,
+                             'audience_red_vote_count': topic.audience_red_vote_count})
+
+
+# =========================================================
+# NOTIFICATIONS
+# =========================================================
+
+@login_required
+def api_notifications_list(request):
+    """Get latest 20 notifications for the current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    notifications = CollNotification.objects.filter(
+        link_recipient_user_profile_id=user_profile_id,
+        is_active=True,
+    ).order_by('-created_at')[:20]
+
+    items = []
+    for notification in notifications:
+        items.append({
+            'notification_id': notification.debate_coll_notification_id,
+            'event_code': notification.notification_event_code,
+            'message': notification.notification_message,
+            'topic_id': notification.link_topic_id,
+            'post_id': notification.link_post_id,
+            'is_read': notification.is_read,
+            'created_at': notification.created_at.strftime('%d %b %Y, %I:%M %p') if notification.created_at else '',
+        })
+
+    unread_count = CollNotification.objects.filter(
+        link_recipient_user_profile_id=user_profile_id,
+        is_read=False, is_active=True,
+    ).count()
+
+    return JsonResponse({'success': True, 'notifications': items, 'unread_count': unread_count})
+
+
+@login_required
+@require_POST
+def api_notifications_mark_read(request):
+    """Mark all notifications as read for current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    now = timezone.now()
+    CollNotification.objects.filter(
+        link_recipient_user_profile_id=user_profile_id,
+        is_read=False, is_active=True,
+    ).update(is_read=True, read_at=now)
+
+    return JsonResponse({'success': True})
+
+
+def _create_notification(recipient_user_profile_id, actor_user_profile_id, event_code, topic_id, post_id, message):
+    """Create a notification record. Called from argument/reply/vote handlers."""
+    if recipient_user_profile_id == actor_user_profile_id:
+        return  # Don't notify yourself
+    try:
+        _raw_execute("""
+            INSERT INTO [debate].[coll_notification]
+                ([link_recipient_user_profile_id], [link_actor_user_profile_id],
+                 [notification_event_code], [link_topic_id], [link_post_id], [notification_message])
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, [recipient_user_profile_id, actor_user_profile_id, event_code, topic_id, post_id, message])
+    except Exception:
+        logger.exception('Failed to create notification')
+
+
+# =========================================================
+# ARGUMENT STRENGTH SCORING — pure Python, no external API
+# =========================================================
+
+def _calculate_argument_strength(post_content, citation_source_url, sentence_count, character_count):
+    """Score argument strength 0.0–1.0 based on local metrics only.
+    Factors: sentence count, vocabulary diversity, character length, citation bonus."""
+    score = 0.0
+
+    # Sentence count (more structured = stronger, capped at 5)
+    sentence_score = min(sentence_count, 5) / 5.0
+    score += sentence_score * 0.3
+
+    # Character count (longer = more effort, capped at 500)
+    char_score = min(character_count, 500) / 500.0
+    score += char_score * 0.2
+
+    # Vocabulary diversity (unique words / total words)
+    words = post_content.split()
+    if len(words) > 3:
+        unique_words = set(words)
+        diversity = len(unique_words) / len(words)
+        score += diversity * 0.3
+
+    # Citation bonus
+    if citation_source_url:
+        score += 0.2
+
+    return round(min(score, 1.0), 4)

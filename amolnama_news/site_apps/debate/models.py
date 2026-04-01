@@ -146,6 +146,8 @@ class CollTopic(models.Model):
     red_character_count = models.IntegerField()
     link_created_by_user_profile_id = models.BigIntegerField()
     winning_side_code = models.CharField(max_length=10, blank=True, null=True)
+    audience_blue_vote_count = models.IntegerField(default=0)
+    audience_red_vote_count = models.IntegerField(default=0)
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
@@ -284,3 +286,22 @@ class CollPostEditHistory(models.Model):
     class Meta:
         managed = False
         db_table = '[debate].[coll_post_edit_history]'
+
+
+class CollNotification(models.Model):
+    """In-app notification for debate events — reply, vote, champion, fact-check."""
+    debate_coll_notification_id = models.BigAutoField(primary_key=True)
+    link_recipient_user_profile_id = models.BigIntegerField()
+    link_actor_user_profile_id = models.BigIntegerField()
+    notification_event_code = models.CharField(max_length=30)
+    link_topic_id = models.BigIntegerField()
+    link_post_id = models.BigIntegerField(blank=True, null=True)
+    notification_message = models.CharField(max_length=300)
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[debate].[coll_notification]'

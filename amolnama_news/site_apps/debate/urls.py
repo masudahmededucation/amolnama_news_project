@@ -33,4 +33,9 @@ urlpatterns = [
     # APIs — fact-check + link preview
     path('api/post/<int:post_id>/fact-check-flag/', views_api.api_post_fact_check_flag, name='api_post_fact_check_flag'),
     path('api/link-preview/', views_api.api_link_preview, name='api_link_preview'),
+
+    # APIs — audience voting + notifications
+    path('api/topic/<int:topic_id>/audience-vote/', views_api.api_audience_vote, name='api_audience_vote'),
+    path('api/notifications/', views_api.api_notifications_list, name='api_notifications_list'),
+    path('api/notifications/mark-read/', views_api.api_notifications_mark_read, name='api_notifications_mark_read'),
 ]

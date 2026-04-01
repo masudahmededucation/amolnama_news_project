@@ -235,6 +235,7 @@ def topic_detail(request, topic_id):
             'reply_count': post.reply_count,
             'post_impact_score': post.post_impact_score,
             'post_argument_strength': post.post_argument_strength,
+            'post_argument_strength_pct': int(float(post.post_argument_strength or 0) * 100),
             'is_champion': post.debate_coll_post_id in champion_post_ids,
             'is_suppressed': post.is_suppressed,
             'citation_source_url': post.citation_source_url or '',
@@ -296,7 +297,23 @@ def topic_detail(request, topic_id):
             blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
             red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
         ),
+        # Audience voting
+        'audience_blue_vote_count': topic.audience_blue_vote_count,
+        'audience_red_vote_count': topic.audience_red_vote_count,
+        'audience_total_votes': topic.audience_blue_vote_count + topic.audience_red_vote_count,
+        'audience_blue_pct': _safe_percent(topic.audience_blue_vote_count, topic.audience_blue_vote_count + topic.audience_red_vote_count),
+        'audience_red_pct': _safe_percent(topic.audience_red_vote_count, topic.audience_blue_vote_count + topic.audience_red_vote_count),
     }
+
+    # Notification count for authenticated users
+    notification_unread_count = 0
+    if current_user_profile_id:
+        from .models import CollNotification
+        notification_unread_count = CollNotification.objects.filter(
+            link_recipient_user_profile_id=current_user_profile_id,
+            link_topic_id=topic_id,
+            is_read=False, is_active=True,
+        ).count()
 
     context = {
         'topic': topic_item,
@@ -305,6 +322,7 @@ def topic_detail(request, topic_id):
         'current_user_side': current_user_side,
         'current_user_profile_id': current_user_profile_id,
         'current_participant': current_participant,
+        'notification_unread_count': notification_unread_count,
         'team_sides': list(team_side_map.values()),
         'seo': {
             'title': f'{topic.topic_title} — তর্ক-বিতর্ক | আমলনামা নিউজ',

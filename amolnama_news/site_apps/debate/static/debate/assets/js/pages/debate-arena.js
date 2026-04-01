@@ -502,4 +502,126 @@
         .catch(function () {});
     });
   });
+
+  /* ---- AUDIENCE VOTING — spectators vote on which side is winning ---- */
+  document.addEventListener('click', function (event) {
+    var audienceVoteButton = event.target.closest('.debate-audience-vote-button');
+    if (!audienceVoteButton) return;
+
+    var voteSide = audienceVoteButton.getAttribute('data-vote-side');
+    audienceVoteButton.disabled = true;
+
+    fetch('/debate/api/topic/' + topicId + '/audience-vote/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ vote_side: voteSide }),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        var blueCount = document.getElementById('debate-audience-vote-blue-count');
+        var redCount = document.getElementById('debate-audience-vote-red-count');
+        var totalElement = document.getElementById('debate-audience-vote-total');
+        if (blueCount) blueCount.textContent = data.audience_blue_vote_count;
+        if (redCount) redCount.textContent = data.audience_red_vote_count;
+
+        var totalVotes = data.audience_blue_vote_count + data.audience_red_vote_count;
+        if (totalElement) totalElement.textContent = totalVotes + ' জন ভোট দিয়েছেন';
+
+        /* Update bar */
+        var blueBar = document.getElementById('debate-audience-vote-bar-blue');
+        var redBar = document.getElementById('debate-audience-vote-bar-red');
+        if (blueBar && redBar && totalVotes > 0) {
+          blueBar.style.width = Math.round(data.audience_blue_vote_count / totalVotes * 100) + '%';
+          redBar.style.width = Math.round(data.audience_red_vote_count / totalVotes * 100) + '%';
+        }
+      }
+      audienceVoteButton.disabled = false;
+    })
+    .catch(function () { audienceVoteButton.disabled = false; });
+  });
+
+  /* ---- NOTIFICATION BELL — toggle dropdown, fetch notifications, mark read ---- */
+  var notificationBell = document.getElementById('debate-arena-notification-bell');
+  var notificationDropdown = document.getElementById('debate-arena-notification-dropdown');
+
+  if (notificationBell && notificationDropdown) {
+    notificationBell.addEventListener('click', function (event) {
+      event.stopPropagation();
+      var isHidden = notificationDropdown.classList.contains('debate-arena-notification-dropdown-hidden');
+
+      if (isHidden) {
+        /* Fetch and show notifications */
+        notificationDropdown.innerHTML = '<div class="debate-arena-notification-empty">লোড হচ্ছে...</div>';
+        notificationDropdown.classList.remove('debate-arena-notification-dropdown-hidden');
+
+        fetch('/debate/api/notifications/')
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.success || data.notifications.length === 0) {
+              notificationDropdown.innerHTML = '<div class="debate-arena-notification-empty">কোনো বিজ্ঞপ্তি নেই</div>';
+              return;
+            }
+
+            var html = '';
+            data.notifications.forEach(function (notification) {
+              var readClass = notification.is_read ? '' : ' debate-arena-notification-item-unread';
+              html += '<div class="debate-arena-notification-item' + readClass + '">';
+              html += '<div>' + notification.message + '</div>';
+              html += '<div class="debate-arena-notification-item-time">' + notification.created_at + '</div>';
+              html += '</div>';
+            });
+
+            if (data.unread_count > 0) {
+              html += '<div class="debate-arena-notification-mark-read" id="debate-arena-notification-mark-read">সব পড়া হয়েছে</div>';
+            }
+
+            notificationDropdown.innerHTML = html;
+
+            /* Mark read handler */
+            var markReadButton = document.getElementById('debate-arena-notification-mark-read');
+            if (markReadButton) {
+              markReadButton.addEventListener('click', function () {
+                fetch('/debate/api/notifications/mark-read/', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+                  body: JSON.stringify({}),
+                }).then(function () {
+                  var countBadge = document.getElementById('debate-arena-notification-count');
+                  if (countBadge) countBadge.style.display = 'none';
+                  notificationDropdown.classList.add('debate-arena-notification-dropdown-hidden');
+                });
+              });
+            }
+          })
+          .catch(function () {
+            notificationDropdown.innerHTML = '<div class="debate-arena-notification-empty">লোড ব্যর্থ</div>';
+          });
+      } else {
+        notificationDropdown.classList.add('debate-arena-notification-dropdown-hidden');
+      }
+    });
+
+    /* Close on outside click */
+    document.addEventListener('click', function () {
+      notificationDropdown.classList.add('debate-arena-notification-dropdown-hidden');
+    });
+
+    /* Poll for new notifications every 60s */
+    setInterval(function () {
+      if (document.visibilityState === 'hidden') return;
+      fetch('/debate/api/notifications/')
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.success) {
+            var countBadge = document.getElementById('debate-arena-notification-count');
+            if (countBadge && data.unread_count > 0) {
+              countBadge.textContent = data.unread_count;
+              countBadge.style.display = '';
+            }
+          }
+        })
+        .catch(function () {});
+    }, 60000);
+  }
 })();
