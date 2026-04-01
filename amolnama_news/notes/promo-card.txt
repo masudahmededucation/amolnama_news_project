@@ -1,0 +1,40 @@
+--promo card
+can we somehow advertise this on the home wall post? 
+this debate section with details feature with snapshot of example - including for and against message. 
+it will encourage user to join?
+so everynew debate post should be available on the wall. 
+on user's click it will redirect or on the same page.
+just make it feel like inside of that topic but still on the home page?
+
+this promo card needs to be latest and on the very top.
+latest item means it was created as latest after the latest post. 
+so naturally it should be on the topl
+because it was posted as latest item.
+we need similar promo card for every kind of article.
+for example: news article, travel hub, poem, everything etc. 
+even whatever is added in future.
+it should display and promote in the home wall post.
+every user should see it.
+all future articles or item should be automatically promoted on the home wall post.
+
+
+--tools promotion
+we need to promote tools.
+we may need to promote tools card randomly.
+need share options. 
+share on facebook/twitter/whatsapp/social media. 
+same share options like home wall posts have.
+
+
+--not organic home post
+promo should have happen for all kind of article, cards, tools.
+it should happen automatically.
+there should be as i said before.
+once when published.
+and may times, randomly to promote. 
+not just the latest 2.
+sometimes random 2. 
+this way we can expose all our features through home wall. 
+people can just stay there and watch the show.
+so kind of 3 different way - published time, latest, and random.
+
