@@ -909,8 +909,44 @@ def api_audience_vote(request, topic_id):
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    # Protection: one vote per user per topic (enforced below), login required, CSRF, parameterized SQL
-    # No rate limit — legitimate debates can have millions of voters
+    # Protection: one vote per user per topic + one vote per IP per topic
+    # Get voter IP
+    voter_ip_address = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR', '')
+
+    # Check if another user from the same IP or same device already voted on this topic
+    if voter_ip_address:
+        from amolnama_news.site_apps.user_account.models import UserDevice, UserSession
+
+        # Find other user_profile_ids from same IP (via sessions)
+        same_ip_profile_ids = set(UserSession.objects.filter(
+            session_ip_address=voter_ip_address,
+        ).exclude(
+            link_user_profile_id=user_profile_id,
+        ).values_list('link_user_profile_id', flat=True))
+
+        # Also find other user_profile_ids from same IP (via devices)
+        same_device_ids = UserDevice.objects.filter(
+            last_ip_address=voter_ip_address,
+        ).values_list('user_device_id', flat=True)
+        if same_device_ids:
+            device_session_profile_ids = set(UserSession.objects.filter(
+                link_user_device_id__in=list(same_device_ids),
+            ).exclude(
+                link_user_profile_id=user_profile_id,
+            ).values_list('link_user_profile_id', flat=True))
+            same_ip_profile_ids.update(device_session_profile_ids)
+
+        if same_ip_profile_ids:
+            vote_target_type_check = RefVoteTargetType.objects.filter(vote_target_type_code='topic').first()
+            if vote_target_type_check:
+                placeholders = ','.join('?' * len(same_ip_profile_ids))
+                duplicate_ip_vote = _raw_execute(f"""
+                    SELECT TOP 1 [debate_coll_vote_id] FROM [debate].[coll_vote]
+                    WHERE [link_voter_user_profile_id] IN ({placeholders})
+                      AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
+                """, list(same_ip_profile_ids) + [vote_target_type_check.debate_ref_vote_target_type_id, topic_id])
+                if duplicate_ip_vote.fetchone():
+                    return JsonResponse({'success': False, 'error': 'এই নেটওয়ার্ক/ডিভাইস থেকে ইতিমধ্যে ভোট দেওয়া হয়েছে'}, status=400)
 
     # Check if user already voted on this topic (using vote_target_type = topic)
     vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='topic').first()
