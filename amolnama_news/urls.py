@@ -34,6 +34,7 @@ urlpatterns = [
     path("stories-for-kids/", include("amolnama_news.site_apps.stories.urls")),  # Stories for Kids
     path("bangladesh-marriage-registration/", include("amolnama_news.site_apps.marriage.urls")),  # Marriage
     path("health/", include("amolnama_news.site_apps.health.urls")),  # Health
+    path("debate/", include("amolnama_news.site_apps.debate.urls")),  # Debate — discussion & argumentation platform
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     path("englishtobangla/", include("amolnama_news.site_apps.englishtobangla.urls")),  # English to Bangla transliteration

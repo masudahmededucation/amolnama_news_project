@@ -1,0 +1,131 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'debate/assets/css/pages/debate-arena.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="debate-arena" id="debate-arena"
+     data-topic-id="{{ topic.debate_coll_topic_id }}"
+     data-topic-status="{{ topic.topic_status_code }}"
+     data-user-side="{{ current_user_side|default:'' }}"
+     data-user-profile-id="{{ current_user_profile_id|default:'' }}"
+     data-min-chars="{{ topic.minimum_post_character_count }}"
+     data-max-depth="{{ topic.maximum_reply_depth }}"
+     data-scheduled-start="{{ topic.scheduled_start_at_iso }}">
+
+  <!-- HEADER — Topic + Status + Timer -->
+  <div class="debate-arena-header" id="debate-arena-header">
+    <div class="debate-arena-header-status">
+      <span class="debate-arena-status-badge debate-arena-status-badge-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
+      {% if topic.time_remaining %}
+      <span class="debate-arena-countdown" id="debate-arena-countdown">⏰ {{ topic.time_remaining }}</span>
+      {% endif %}
+    </div>
+    <h1 class="debate-arena-topic-title">{{ topic.topic_title }}</h1>
+    {% if topic.topic_description %}
+    <p class="debate-arena-topic-description">{{ topic.topic_description }}</p>
+    {% endif %}
+    <div class="debate-arena-header-stats">
+      <span class="debate-arena-stat debate-arena-stat-blue">🔵 {{ topic.blue_participant_count }} জন</span>
+      <span class="debate-arena-stat">💬 {{ topic.total_post_count }}</span>
+      <span class="debate-arena-stat debate-arena-stat-red">🔴 {{ topic.red_participant_count }} জন</span>
+    </div>
+  </div>
+
+  <!-- JOIN PANEL — shown if user hasn't joined yet -->
+  {% if not current_user_side and request.user.is_authenticated %}
+  <div class="debate-arena-join-panel" id="debate-arena-join-panel">
+    <p class="debate-arena-join-prompt">আপনি কোন পক্ষে?</p>
+    <div class="debate-arena-join-buttons">
+      <button type="button" class="debate-arena-join-button debate-arena-join-button-blue" id="debate-arena-join-blue" name="debate_arena_join_blue" data-side="blue">
+        🔵 পক্ষে (Pro)
+      </button>
+      <button type="button" class="debate-arena-join-button debate-arena-join-button-red" id="debate-arena-join-red" name="debate_arena_join_red" data-side="red">
+        🔴 বিপক্ষে (Against)
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- THREE-COLUMN ARENA — Blue | Center | Red -->
+  <div class="debate-arena-boards" id="debate-arena-boards">
+
+    <!-- BLUE BOARD (Pro / In Favor) -->
+    <div class="debate-arena-board debate-arena-board-blue" id="debate-arena-board-blue">
+      <div class="debate-arena-board-header debate-arena-board-header-blue">
+        <span class="debate-arena-board-label">🔵 পক্ষে (Pro)</span>
+        <span class="debate-arena-board-count" id="debate-arena-blue-count">{{ blue_threads|length }}</span>
+      </div>
+
+      {% if current_user_side == 'blue' and topic.is_live %}
+      <div class="debate-arena-composer debate-arena-composer-blue" id="debate-arena-composer-blue">
+        <textarea class="debate-arena-composer-textarea" id="debate-arena-composer-blue-textarea" name="debate_arena_composer_blue_textarea" placeholder="আপনার যুক্তি লিখুন..." rows="3"></textarea>
+        <div class="debate-arena-composer-footer">
+          <span class="debate-arena-composer-char-count" id="debate-arena-composer-blue-char-count">0</span>
+          <button type="button" class="debate-arena-composer-submit debate-arena-composer-submit-blue" id="debate-arena-composer-blue-submit" name="debate_arena_composer_blue_submit">যুক্তি দিন</button>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="debate-arena-thread-list" id="debate-arena-blue-threads">
+        {% for thread in blue_threads %}
+        {% include "debate/components/debate-argument-card.html" with post=thread board_side="blue" %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CENTER RAIL (mobile: hidden, shown as header instead) -->
+    <div class="debate-arena-center-rail" id="debate-arena-center-rail">
+      <div class="debate-arena-center-topic-sticky">
+        <span class="debate-arena-center-vs">VS</span>
+      </div>
+    </div>
+
+    <!-- RED BOARD (Against) -->
+    <div class="debate-arena-board debate-arena-board-red" id="debate-arena-board-red">
+      <div class="debate-arena-board-header debate-arena-board-header-red">
+        <span class="debate-arena-board-label">🔴 বিপক্ষে (Against)</span>
+        <span class="debate-arena-board-count" id="debate-arena-red-count">{{ red_threads|length }}</span>
+      </div>
+
+      {% if current_user_side == 'red' and topic.is_live %}
+      <div class="debate-arena-composer debate-arena-composer-red" id="debate-arena-composer-red">
+        <textarea class="debate-arena-composer-textarea" id="debate-arena-composer-red-textarea" name="debate_arena_composer_red_textarea" placeholder="আপনার যুক্তি লিখুন..." rows="3"></textarea>
+        <div class="debate-arena-composer-footer">
+          <span class="debate-arena-composer-char-count" id="debate-arena-composer-red-char-count">0</span>
+          <button type="button" class="debate-arena-composer-submit debate-arena-composer-submit-red" id="debate-arena-composer-red-submit" name="debate_arena_composer_red_submit">যুক্তি দিন</button>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="debate-arena-thread-list" id="debate-arena-red-threads">
+        {% for thread in red_threads %}
+        {% include "debate/components/debate-argument-card.html" with post=thread board_side="red" %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- REPLY COMPOSER DRAWER (bottom of page, opens when Reply clicked) -->
+  <div class="debate-arena-reply-drawer debate-arena-reply-drawer-hidden" id="debate-arena-reply-drawer">
+    <div class="debate-arena-reply-drawer-header">
+      <span class="debate-arena-reply-drawer-label" id="debate-arena-reply-drawer-label">খণ্ডন লিখুন</span>
+      <button type="button" class="debate-arena-reply-drawer-close" id="debate-arena-reply-drawer-close" name="debate_arena_reply_drawer_close">✕</button>
+    </div>
+    <div class="debate-arena-reply-drawer-parent" id="debate-arena-reply-drawer-parent"></div>
+    <textarea class="debate-arena-reply-drawer-textarea" id="debate-arena-reply-drawer-textarea" name="debate_arena_reply_drawer_textarea" placeholder="খণ্ডন লিখুন..." rows="4"></textarea>
+    <div class="debate-arena-reply-drawer-footer">
+      <span class="debate-arena-reply-drawer-char-count" id="debate-arena-reply-drawer-char-count">0</span>
+      <button type="button" class="debate-arena-reply-drawer-submit" id="debate-arena-reply-drawer-submit" name="debate_arena_reply_drawer_submit" data-parent-post-id="">খণ্ডন দিন</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'debate/assets/js/pages/debate-arena.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,185 @@
+================================================================
+DEBATE APP — Production Database Schema & Architecture
+Source: ChatGPT analysis, April 2026
+Status: SPECIFICATION ONLY — not yet implemented
+================================================================
+
+## What the prototype schema was missing
+- Scheduled debate lifecycle
+- Per-topic team assignment
+- Deterministic thread routing without expensive recalculation
+- Moderation pipeline
+- Vote normalization
+- Auditability
+- Support for pinned / ranked arguments
+- Clean split between topic, participation, post, moderation, and vote data
+
+## Core Routing Model
+
+### Columns on post table that enforce routing:
+- link_author_team_side_id = the side of the person who wrote the post
+- parent_post_id = null for new argument, filled for reply
+- root_post_id = the top-level post of the thread
+- link_thread_board_side_id = which board owns the thread visually
+- link_post_kind_id = argument or rebuttal
+- reply_depth = 0 for top-level, 1+ for replies
+
+### Rules:
+
+NEW ARGUMENT:
+- parent_post_id = null
+- root_post_id = self
+- link_author_team_side_id = participant side
+- link_thread_board_side_id = participant side
+- link_post_kind_id = argument
+
+REPLY:
+- parent must exist
+- reply author must belong to OPPOSITE side of parent author
+- root_post_id = parent.root_post_id
+- link_thread_board_side_id = parent.link_thread_board_side_id
+- link_post_kind_id = rebuttal
+- reply_depth = parent.reply_depth + 1
+
+### Visual Result:
+- Blue board shows Blue root arguments
+- Red rebuttals appear nested under Blue roots
+- Red board shows Red root arguments
+- Blue rebuttals appear nested under Red roots
+- Thread stays on one board, reply card color reflects opposing side
+
+## Database Tables (SQL Server, [debate] schema)
+
+### Reference Tables:
+1. debate.ref_team_side — blue (pro), red (against)
+2. debate.ref_topic_status — draft, scheduled, live, paused, closed, archived
+3. debate.ref_post_kind — argument, rebuttal
+4. debate.ref_moderation_status — pending, approved, rejected, hidden, flagged
+5. debate.ref_vote_target_type — topic, post
+
+### Core Tables:
+6. debate.coll_topic — debate event with scheduling, rules, vote counts
+7. debate.link_topic_participant — user joins topic on exactly one side
+8. debate.coll_post — argument or rebuttal with routing columns
+9. debate.fact_post_moderation — separate moderation audit trail
+10. debate.coll_vote — one vote per user per target
+11. debate.coll_post_edit_history — edit audit trail
+
+### Key Topic Columns:
+- topic_title, topic_description
+- link_topic_status_id (draft → scheduled → live → closed → archived)
+- scheduled_start_at, scheduled_end_at
+- actual_started_at, actual_closed_at
+- minimum_post_character_count (default 60)
+- minimum_sentence_count (default 1)
+- allow_nested_replies, maximum_reply_depth (default 1)
+- is_ai_moderation_enabled, minimum_logic_score (default 0.3)
+- topic_upvote_count, topic_downvote_count, topic_score
+
+### Key Post Columns:
+- link_topic_id, link_topic_participant_id, author_user_id
+- link_author_team_side_id, link_post_kind_id, link_thread_board_side_id
+- parent_post_id (null = root argument), root_post_id
+- reply_depth, sibling_sort_order
+- post_content (VARCHAR MAX UTF8)
+- character_count, sentence_count
+- emoji_ratio, repeated_character_ratio, non_language_ratio
+- logic_score (AI coherence 0-1)
+- is_emoji_only, is_auto_rejected, is_deleted, is_edited
+- upvote_count, downvote_count, score
+
+### Key Indexes:
+- IX_debate_coll_post_topic_board_root — board rendering
+- IX_debate_coll_post_parent — thread nesting
+- UX_debate_link_topic_participant_topic_user — one side per user per topic
+- UX_debate_coll_vote_voter_target — one vote per user per target
+
+## Business Rules (Stored Procedure Level)
+
+### Create Topic:
+- Status starts as 'scheduled' or 'draft'
+- Users cannot post before 'live'
+
+### Join Topic:
+- One user joins once per topic
+- One participant has exactly one side
+
+### Create Top-Level Argument:
+- Topic must be 'live'
+- Participant belongs to topic
+- parent_post_id = null
+- link_author_team_side_id = participant side
+- link_thread_board_side_id = participant side
+- reply_depth = 0
+
+### Create Reply:
+- Topic must be 'live'
+- Parent exists and not deleted
+- Participant side MUST be opposite of parent author side
+- link_thread_board_side_id = parent.link_thread_board_side_id
+- root_post_id = parent.root_post_id
+- reply_depth = parent.reply_depth + 1
+- Reject if reply_depth > topic.maximum_reply_depth
+
+### Moderate Post:
+- Keep moderation row in fact_post_moderation
+- Never physically delete — mark as hidden/rejected
+
+### Vote:
+- One vote row per user + target
+- Update cached score after insert/update/delete
+
+## Key Queries
+
+### Blue board root arguments:
+SELECT p.* FROM debate.coll_post p
+WHERE p.link_topic_id = @topic_id
+  AND p.parent_post_id IS NULL
+  AND p.link_thread_board_side_id = 1
+  AND p.is_deleted = 0 AND p.is_auto_rejected = 0
+ORDER BY p.score DESC, p.posted_at ASC;
+
+### Replies for one thread:
+SELECT p.* FROM debate.coll_post p
+WHERE p.root_post_id = @root_post_id
+  AND p.is_deleted = 0 AND p.is_auto_rejected = 0
+ORDER BY p.reply_depth ASC, p.posted_at ASC;
+
+## UI Component Tree
+DebatePage
+├─ DebateHeader (topic title, status badge, countdown timer, topic vote)
+├─ DebateArenaLayout (3-column grid)
+│  ├─ DebateBoard side="blue"
+│  │  ├─ BoardHeader
+│  │  ├─ NewArgumentComposer (only if user is blue + topic is live)
+│  │  └─ ArgumentThreadList
+│  │     └─ ArgumentThreadCard
+│  │        ├─ ArgumentCard (large blue)
+│  │        └─ RebuttalList
+│  │           └─ RebuttalCard (smaller red, indented)
+│  ├─ DebateCenterRail (sticky topic, rules, live stats)
+│  └─ DebateBoard side="red"
+│     └─ (mirror of blue board)
+└─ ReplyComposerDrawer (shows parent, forced reply side color)
+
+## Mobile Layout
+- Segmented control: Blue | Topic | Red tabs
+- Or two board tabs + sticky topic drawer
+- Never force 3 columns on phone
+
+## API Endpoints (Proposed)
+- GET /debate/<topicId>/ — topic detail
+- POST /debate/create/ — create topic
+- POST /debate/<topicId>/join/ — join with side
+- POST /debate/<topicId>/go-live/ — admin start
+- POST /debate/<topicId>/close/ — admin close
+- GET /debate/<topicId>/boards/blue/ — blue threads
+- GET /debate/<topicId>/boards/red/ — red threads
+- POST /debate/<topicId>/posts/argument/ — new argument
+- POST /debate/<topicId>/posts/reply/ — new reply (routing enforced server-side)
+- POST /debate/votes/topic/<topicId>/ — vote on topic
+- POST /debate/votes/post/<postId>/ — vote on post
+
+## SQL Script Location
+Full CREATE TABLE script saved in: amolnama_news/notes/debate-db-script.sql
+(To be created when user approves the schema)

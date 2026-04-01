@@ -17,6 +17,11 @@
       <span class="sidebar-navigation-item-label">হোম</span>
     </a>
 
+    <a href="{% url 'debate:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'debate' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-debate" name="sidebar_navigation_item_debate" title="তর্ক-বিতর্ক (Debate)">
+      <span class="sidebar-navigation-item-icon">⚖️</span>
+      <span class="sidebar-navigation-item-label">তর্ক-বিতর্ক</span>
+    </a>
+
     <a href="{% url 'search:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'search' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-search" name="sidebar_navigation_item_search" title="অনুসন্ধান (Search)">
       <span class="sidebar-navigation-item-icon">🔍</span>
       <span class="sidebar-navigation-item-label">অনুসন্ধান</span>

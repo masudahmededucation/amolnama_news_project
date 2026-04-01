@@ -1,0 +1,162 @@
+================================================================
+DEBATE APP — Architecture & Features (SPECIFICATION)
+App: site_apps/debate/
+URL prefix: /debate/
+Status: Empty app created, not yet implemented
+================================================================
+
+## Concept
+Scheduled, text-based debate platform — "Digital Colosseum".
+Structured argument arena, NOT a comment section.
+Each debate is a timed event with two opposing sides.
+
+## Core Layout
+- Center (Sticky): Topic + Timer (countdown / live status)
+- Left (Blue): Pro / In Favor arguments
+- Right (Red): Against arguments
+- Nested rebuttals under each argument (opponent's color)
+
+## The "Crossing-Over" Routing Logic (Core Feature)
+| Action       | User Team | Target Side   | Logic                              |
+|-------------|-----------|---------------|------------------------------------|
+| New Argument | Pro       | Pro Board     | Starts a new Pro argument          |
+| New Argument | Against   | Against Board | Starts a new Against argument      |
+| Reply        | Pro       | Against Board | Replying to opponent = rebuttal    |
+| Reply        | Against   | Pro Board     | Replying to opponent = rebuttal    |
+
+Key Rule: A reply NEVER stays on the same side. A reply always represents opposition.
+No AI needed for routing — this is deterministic based on parent_id.
+
+## Reply UX Behavior
+- When user clicks Reply, system auto-assigns team_side = opposite of parent
+- Input box changes color (Blue <-> Red)
+- Label shown: "Submitting Rebuttal to Pro Argument" / "Submitting Rebuttal to Against Argument"
+
+## Visual Display
+- Left (Blue): Main Pro arguments as large blue cards
+  - Nested Red rebuttals underneath each
+- Right (Red): Main Against arguments as large red cards
+  - Nested Blue rebuttals underneath each
+- Creates argument + counter-argument pairing
+
+## Garbage Control (Non-Negotiable)
+- Minimum 60 characters per post
+- Reject emoji-only, repeated characters, non-language strings
+- Optional AI coherence check (score 0-1, reject < 0.3)
+- No spam, no noise, no low-effort garbage
+
+## Voting System
+- Users can upvote: topic, arguments, rebuttals
+- Strongest arguments rise to top
+- Debate quality increases organically
+
+## Live Debate System
+- Topics are pre-scheduled with specific start time
+- Before start: read-only (preview topic)
+- At start time: posting unlocked, timer visible
+- Optional: time limit for debate
+
+## Database Schema (Proposed)
+
+### Key Table: comments
+| Column                | Type        | Description                          |
+|-----------------------|-------------|--------------------------------------|
+| id                    | UUID PK     | Unique comment ID                    |
+| topic_id              | UUID FK     | Links to debate topic                |
+| author_id             | UUID FK     | User who posted                      |
+| team_side             | VARCHAR(10) | 'blue' (pro) or 'red' (against)     |
+| parent_id             | UUID FK     | NULL = new argument, ID = rebuttal   |
+| root_side             | VARCHAR(10) | Which board this thread belongs to   |
+| content               | TEXT        | The argument text (min 60 chars)     |
+| logic_score           | FLOAT       | AI coherence score (0.0 to 1.0)     |
+| contains_emoji_only   | BOOLEAN     | Garbage detection flag               |
+| is_flagged_as_garbage | BOOLEAN     | Blocked content flag                 |
+| upvotes               | INTEGER     | Vote count                           |
+| created_at            | TIMESTAMP   | When posted                          |
+
+### Key Table: topics
+| Column         | Type      | Description                    |
+|----------------|-----------|--------------------------------|
+| id             | UUID PK   | Unique topic ID                |
+| title          | TEXT      | Debate topic title             |
+| description    | TEXT      | Topic description/context      |
+| scheduled_time | TIMESTAMP | When debate goes live          |
+| is_live        | BOOLEAN   | Currently active               |
+| upvotes        | INTEGER   | Topic-level voting             |
+| created_at     | TIMESTAMP | When created                   |
+
+### Key Table: voting_log
+| Column         | Type        | Description                    |
+|----------------|-------------|--------------------------------|
+| id             | SERIAL PK   | Vote record ID                |
+| user_id        | UUID FK     | Who voted                      |
+| target_id      | UUID        | Topic ID or Comment ID         |
+| target_type    | VARCHAR(10) | 'topic' or 'comment'          |
+| vote_direction | INTEGER     | 1 (up) or -1 (down)           |
+| UNIQUE(user_id, target_id)                                   |
+
+### Indexes
+- idx_topic_scheduled ON topics(scheduled_time)
+- idx_debate_flow ON comments(topic_id, parent_id, team_side)
+- idx_logic_filter ON comments(is_flagged_as_garbage)
+
+## Rendering Logic
+Left Board (Blue):
+  SELECT * FROM comments WHERE topic_id = ? AND parent_id IS NULL AND team_side = 'blue'
+Nested replies:
+  SELECT * FROM comments WHERE parent_id = ?
+
+## Product Definition
+"A scheduled, text-based debate platform designed as a structured argument arena.
+The interface presents a central topic with two mirrored display boards: Blue (Favor) and Red (Against).
+New arguments appear on the author's own side. Replies are treated as rebuttals and displayed
+under the opponent's argument. This creates a clear, structured 'ping-pong' exchange where each
+argument is directly paired with its counter-argument. The system blocks low-effort content,
+requiring each post to meet a minimum logical and structural standard. Users can vote on both
+topics and individual arguments, allowing the most effective reasoning to surface naturally."
+
+## Competitive Features (from Kialo analysis)
+
+### Default Mode (everyone — easy, friendly):
+1. **Champion Argument** — highest-scored argument auto-pinned at top of each board (is_champion flag)
+2. **Duplicate Detection** — post_content_hash (SHA-256) checked before submission. "This point already exists — support it or rebut it instead."
+3. **Connection Highlight on Hover** — tap/hover a rebuttal → subtle SVG curved line shows which argument it attacks. Not always visible — only on interaction. Lines curve around center topic column.
+4. **Impact Badge** — posts with high impact_score show "High Impact" badge
+
+### Intellectual Mode (opt-in for deep debates):
+5. **Impact Score** — `upvote_count × post_logic_score`. Calculated field (post_impact_score). High-impact rebuttals visually suppress the attacked argument.
+6. **Argument Strength** — 1.0 = full strength, decreases as high-impact rebuttals accumulate (post_argument_strength). Visual fade/dim effect + "Challenged" badge when strength < 0.5. "Suppressed" badge when strength < 0.2 (is_suppressed flag).
+7. **Multi-level Threading** — deeper reply chains with breadcrumb navigation. Controlled by topic.maximum_reply_depth (default 1 for simple, higher for intellectual).
+
+### Visual UX (Logic Threads):
+- Default state: connection lines invisible (clean UI)
+- Hover/tap state: solid colored "laser line" from rebuttal to target argument
+- High-impact state: line stays permanently lit, target argument visually dims
+- Blue-to-Red lines curve OVER the center topic
+- Red-to-Blue lines curve UNDER the center topic
+- Volume indicator: if an argument has 20+ rebuttals, it's clearly "under heavy fire"
+
+### Unique Features (no competitor has all of these):
+1. Crossing-over reply routing (deterministic, DB-enforced)
+2. AI logic score garbage gate (blocks before publishing)
+3. Scheduled live events (countdown, timed access)
+4. Impact-weighted scoring (not just popularity)
+5. Visual argument strength (fading/suppression)
+6. Duplicate detection (hash-based)
+7. Two-mode design (casual + intellectual)
+
+## Implementation Status
+- [x] App created with folder structure
+- [x] Registered in settings + urls
+- [x] Sidebar nav link added
+- [x] DB schema reviewed and finalized (debate-db-script.sql)
+- [x] Production schema documented (app-debate-production-schema.txt)
+- [ ] Models (managed=False, map to [debate].* tables)
+- [ ] Views + APIs
+- [ ] Templates + CSS + JS
+- [ ] Garbage detection (length, emoji, duplicate, AI logic)
+- [ ] Voting system (impact score calculation)
+- [ ] Live timer / scheduling
+- [ ] Connection lines (SVG curved paths)
+- [ ] Champion argument auto-pinning
+- [ ] Real-time updates (WebSocket vs polling)

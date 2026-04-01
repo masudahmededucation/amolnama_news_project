@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'debate/assets/css/pages/debate-home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="debate-home" id="debate-home">
+  <div class="debate-home-header">
+    <h1 class="debate-home-title">⚖️ তর্ক-বিতর্ক</h1>
+    <p class="debate-home-subtitle">যুক্তি দিয়ে জিতুন — Blue vs Red</p>
+    {% if request.user.is_staff %}
+    <button type="button" class="debate-home-create-button" id="debate-home-create-button" name="debate_home_create_button">+ নতুন বিতর্ক তৈরি করুন</button>
+    {% endif %}
+  </div>
+
+  {% if topic_items %}
+  <div class="debate-topic-list" id="debate-topic-list">
+    {% for topic in topic_items %}
+    <a href="{% url 'debate:topic_detail' topic_id=topic.debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.debate_coll_topic_id }}">
+      <div class="debate-topic-card-header">
+        <h2 class="debate-topic-card-title">{{ topic.topic_title }}</h2>
+        <span class="debate-topic-card-status debate-topic-card-status-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
+      </div>
+
+      {% if topic.topic_description %}
+      <p class="debate-topic-card-description">{{ topic.topic_description|truncatewords:30 }}</p>
+      {% endif %}
+
+      <div class="debate-topic-card-meta">
+        <span class="debate-topic-card-meta-item debate-topic-card-meta-blue">🔵 {{ topic.blue_participant_count }}</span>
+        <span class="debate-topic-card-meta-item debate-topic-card-meta-red">🔴 {{ topic.red_participant_count }}</span>
+        <span class="debate-topic-card-meta-item">💬 {{ topic.total_post_count }}</span>
+        {% if topic.time_remaining %}
+        <span class="debate-topic-card-meta-item debate-topic-card-meta-countdown">⏰ {{ topic.time_remaining }}</span>
+        {% endif %}
+        <span class="debate-topic-card-meta-item">📅 {{ topic.scheduled_start_at_formatted }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="debate-empty-state" id="debate-empty-state">
+    <p>কোনো বিতর্ক নেই — শীঘ্রই আসছে</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'debate/assets/js/pages/debate-home.js' %}"></script>
+{% endblock %}

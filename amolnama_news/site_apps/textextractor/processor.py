@@ -1,4 +1,5 @@
-"""Text Extractor job processor — shared logic for web upload and folder watcher."""
+"""Text Extractor job processor — shared logic for web upload and folder watcher.
+Writes output incrementally (per page) so partial results survive crashes."""
 
 import logging
 import os
@@ -12,11 +13,12 @@ from .engines import extract_text, get_engine_code_for_extension
 
 logger = logging.getLogger(__name__)
 
+# Jobs stuck in 'processing' longer than this are considered crashed
+STUCK_JOB_TIMEOUT_SECONDS = 1800  # 30 minutes
+
 
 def _raw_execute(sql, params):
-    """Execute raw SQL via Django cursor (which uses our custom db_backend with ntext fix).
-    Uses ? placeholders (pyodbc native). Returns cursor for fetchone() if needed."""
-    # Convert ? placeholders to %s for Django cursor
+    """Execute raw SQL via Django cursor. Uses ? placeholders → converted to %s."""
     django_sql = sql.replace('?', '%s')
     cursor = connection.cursor()
     cursor.execute(django_sql, params)
@@ -38,7 +40,7 @@ def _format_duration(total_seconds):
 
 
 def _mark_job_failed(job, error_message, start_time):
-    """Mark a job as failed with error message and processing time. Uses raw SQL to avoid ODBC precision bug."""
+    """Mark a job as failed with error message and processing time."""
     processing_time = int((time.time() - start_time) * 1000)
     truncated_error = (error_message[:2000] if error_message else 'Unknown error')
     now = timezone.now()
@@ -52,6 +54,62 @@ def _mark_job_failed(job, error_message, start_time):
     logger.error('Job %s failed: %s', job.textextractor_coll_extraction_job_id, error_message)
 
 
+def _append_page_to_output_file(output_file_path, page_number, page_text):
+    """Append one page's text to the output file immediately. Survives crashes."""
+    if not output_file_path or not page_text:
+        return
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+    with open(output_file_path, 'a', encoding='utf-8') as output_file:
+        if page_number > 1:
+            output_file.write('\n\n')
+        output_file.write(f'--- Page {page_number} ---\n')
+        output_file.write(page_text)
+        output_file.flush()
+        os.fsync(output_file.fileno())
+
+
+def _clear_output_file(output_file_path):
+    """Clear/create empty output file at start of extraction."""
+    if not output_file_path:
+        return
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+    with open(output_file_path, 'w', encoding='utf-8') as output_file:
+        output_file.write('')
+
+
+def recover_stuck_jobs():
+    """Find jobs stuck in 'processing' for too long and mark them as failed.
+    Call this on server startup to clean up after crashes."""
+    from .models import CollExtractionJob
+
+    cutoff_time = timezone.now() - timezone.timedelta(seconds=STUCK_JOB_TIMEOUT_SECONDS)
+    stuck_jobs = CollExtractionJob.objects.filter(
+        status_code='processing',
+        updated_at__lt=cutoff_time,
+        is_active=True,
+    )
+
+    stuck_count = 0
+    for job in stuck_jobs:
+        _raw_execute("""
+            UPDATE [textextractor].[coll_extraction_job]
+            SET [status_code] = ?, [error_message] = ?, [updated_at] = ?, [completed_at] = ?
+            WHERE [textextractor_coll_extraction_job_id] = ?
+        """, [
+            'failed',
+            'Server crashed or restarted during processing. Partial output may be available in the output file.',
+            timezone.now(), timezone.now(),
+            job.textextractor_coll_extraction_job_id,
+        ])
+        stuck_count += 1
+        logger.warning('Recovered stuck job %s — marked as failed', job.textextractor_coll_extraction_job_id)
+
+    if stuck_count:
+        logger.info('Recovered %d stuck extraction jobs', stuck_count)
+
+    return stuck_count
+
+
 def process_extraction_job(job_id):
     """Process a single extraction job. Called from background thread or management command."""
     from .models import CollExtractionJob, CollExtractionPage, RefExtractionEngine
@@ -62,7 +120,7 @@ def process_extraction_job(job_id):
         logger.error('Extraction job %s not found', job_id)
         return
 
-    # Mark as processing — use raw execute for consistency
+    # Mark as processing
     _raw_execute("""
         UPDATE [textextractor].[coll_extraction_job]
         SET [status_code] = ?, [updated_at] = ?
@@ -99,6 +157,12 @@ def _process_extraction_job_inner(job, job_id, start_time):
     if engine:
         job.link_extraction_engine_id = engine.textextractor_ref_extraction_engine_id
 
+    # Clear output file — start fresh, write incrementally per page
+    _clear_output_file(job.output_file_path)
+
+    # Track total words across pages (incremental)
+    incremental_word_count = [0]
+
     # Accumulate per-page log lines for live display
     progress_log_lines = []
 
@@ -110,15 +174,15 @@ def _process_extraction_job_inner(job, job_id, start_time):
             progress_log_lines.append(log_line)
 
         # Build progress message: latest log lines + elapsed time
-        recent_lines = progress_log_lines[-10:]  # Keep last 10 lines
+        recent_lines = progress_log_lines[-10:]
         progress_text = '\n'.join(recent_lines)
         progress_text += f'\n\n⏱️ Elapsed: {elapsed_display} | {current_page}/{total_pages} pages'
 
         _raw_execute("""
             UPDATE [textextractor].[coll_extraction_job]
-            SET [page_count] = ?, [error_message] = ?, [updated_at] = ?
+            SET [page_count] = ?, [word_count] = ?, [error_message] = ?, [updated_at] = ?
             WHERE [textextractor_coll_extraction_job_id] = ?
-        """, [total_pages, progress_text, timezone.now(), job_id])
+        """, [total_pages, incremental_word_count[0], progress_text, timezone.now(), job_id])
 
     # Update progress before extraction starts
     _raw_execute("""
@@ -136,24 +200,23 @@ def _process_extraction_job_inner(job, job_id, start_time):
         _mark_job_failed(job, result.get('error', 'Unknown extraction error'), start_time)
         return
 
-    # Update progress: saving results
-    _raw_execute("""
-        UPDATE [textextractor].[coll_extraction_job]
-        SET [error_message] = ?, [updated_at] = ?
-        WHERE [textextractor_coll_extraction_job_id] = ?
-    """, ['Saving results...', timezone.now(), job_id])
-
-    # Save results
-    processing_time = int((time.time() - start_time) * 1000)
-    extracted_text = result.get('text', '')
+    # Write output file incrementally — page by page
     pages = result.get('pages', [])
+    for page_data in pages:
+        page_text = page_data.get('text', '')
+        page_number = page_data.get('page_number', 1)
+        page_word_count = page_data.get('word_count', 0)
 
-    job.word_count = result.get('word_count', 0)
-    job.page_count = result.get('page_count', len(pages) if pages else 1)
-    job.confidence_score = result.get('confidence')
-    job.detected_language_code = result.get('detected_language') or None
+        _append_page_to_output_file(job.output_file_path, page_number, page_text)
+        incremental_word_count[0] += page_word_count
 
-    # Save metadata only — extracted text goes to .txt file, not DB
+    # Save final metadata
+    processing_time = int((time.time() - start_time) * 1000)
+    total_word_count = incremental_word_count[0]
+    total_page_count = result.get('page_count', len(pages) if pages else 1)
+    confidence_score = result.get('confidence')
+    detected_language_code = result.get('detected_language') or None
+
     now = timezone.now()
     _raw_execute("""
         UPDATE [textextractor].[coll_extraction_job]
@@ -164,22 +227,16 @@ def _process_extraction_job_inner(job, job_id, start_time):
             [error_message] = NULL
         WHERE [textextractor_coll_extraction_job_id] = ?
     """, [
-        'completed', job.word_count, job.page_count,
-        float(job.confidence_score) if job.confidence_score else None,
+        'completed', total_word_count, total_page_count,
+        float(confidence_score) if confidence_score else None,
         processing_time, now, now,
-        job.link_extraction_engine_id, job.detected_language_code,
+        job.link_extraction_engine_id, detected_language_code,
         job_id,
     ])
 
-    # Write output file
-    if job.output_file_path and extracted_text:
-        os.makedirs(os.path.dirname(job.output_file_path), exist_ok=True)
-        with open(job.output_file_path, 'w', encoding='utf-8') as output_file:
-            output_file.write(extracted_text)
-
     logger.info('Job %s completed: %s words, %.1f%% confidence, %dms',
-                job_id, job.word_count,
-                float(job.confidence_score or 0) * 100,
+                job_id, total_word_count,
+                float(confidence_score or 0) * 100,
                 processing_time)
 
 

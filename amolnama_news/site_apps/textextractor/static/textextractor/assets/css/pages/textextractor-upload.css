@@ -29,3 +29,11 @@
 
 /* Error */
 .textextractor-upload-error { margin-top: 1.5rem; padding: .75rem 1rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: .85rem; }
+
+/* Mobile */
+@media (max-width: 600px) {
+  .textextractor-upload-container { padding: 1rem .5rem; }
+  .textextractor-upload-dropzone { padding: 1.5rem 1rem; }
+  .textextractor-upload-dropzone-icon { font-size: 2rem; }
+  .textextractor-upload-dropzone-text { font-size: .85rem; }
+}

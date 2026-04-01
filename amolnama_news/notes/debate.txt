@@ -1,0 +1,9 @@
+we need to make a score also based on total accumulated upvotes on each side. 
+
+so count the all the up-votes for all the comments for each side. 
+we can use this for one kind of score of statistics.
+we also need to count the total number of comments on each side.
+the total number of sentences made on each side. 
+these stats will give the people's passion for their side.
+we can call these stats passion board. 
+what do you think?

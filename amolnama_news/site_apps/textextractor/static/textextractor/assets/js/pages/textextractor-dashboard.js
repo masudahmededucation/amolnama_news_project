@@ -43,11 +43,14 @@
     });
   }
 
-  /* ---- Live Progress Polling for processing jobs ---- */
+  /* ---- Live Progress Polling — ONLY when processing jobs exist ---- */
   var processingJobElements = document.querySelectorAll('.textextractor-job-progress-row');
+  var pollingActive = processingJobElements.length > 0;
 
   function pollProcessingJobs() {
-    if (processingJobElements.length === 0) return;
+    if (!pollingActive) return;
+
+    var stillProcessing = false;
 
     processingJobElements.forEach(function (progressRowElement) {
       var processingJobId = progressRowElement.getAttribute('data-job-id');
@@ -57,11 +60,12 @@
         .then(function (data) {
           if (!data.success) return;
 
-          var progressBarElement = document.getElementById('textextractor-job-progress-bar-' + processingJobId);
-          var progressTextElement = document.getElementById('textextractor-job-progress-text-' + processingJobId);
-          var progressLogElement = document.getElementById('textextractor-job-progress-log-' + processingJobId);
-
           if (data.status_code === 'processing') {
+            stillProcessing = true;
+
+            var progressBarElement = document.getElementById('textextractor-job-progress-bar-' + processingJobId);
+            var progressLogElement = document.getElementById('textextractor-job-progress-log-' + processingJobId);
+
             /* Update progress bar */
             if (data.page_count && data.page_count > 0 && data.progress_message) {
               var currentPageMatch = data.progress_message.match(/(\d+)\/(\d+) pages/);
@@ -78,24 +82,25 @@
             /* Update log display */
             if (progressLogElement && data.progress_message) {
               progressLogElement.textContent = data.progress_message;
-            } else if (progressTextElement && data.progress_message) {
-              /* Fallback: show in the progress text area */
-              var firstLine = data.progress_message.split('\n').pop();
-              progressTextElement.textContent = firstLine;
+              progressLogElement.scrollTop = progressLogElement.scrollHeight;
             }
           }
 
           if (data.status_code === 'completed' || data.status_code === 'failed') {
+            pollingActive = false;
             window.location.href = '/text-extractor/';
           }
         })
         .catch(function () {});
     });
 
-    setTimeout(pollProcessingJobs, 3000);
+    /* Only schedule next poll if still processing */
+    if (pollingActive) {
+      setTimeout(pollProcessingJobs, 3000);
+    }
   }
 
-  if (processingJobElements.length > 0) {
+  if (pollingActive) {
     pollProcessingJobs();
   }
 

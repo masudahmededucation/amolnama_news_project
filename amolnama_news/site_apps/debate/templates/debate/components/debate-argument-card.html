@@ -1,0 +1,95 @@
+{% comment %}
+Debate argument card — shows one argument with nested rebuttals.
+Used on both blue and red boards.
+Variables: post (dict with post data + replies list), board_side ('blue'/'red')
+{% endcomment %}
+
+<div class="debate-argument-card debate-argument-card-{{ post.author_team_side_code }}"
+     id="debate-argument-card-{{ post.debate_coll_post_id }}"
+     data-post-id="{{ post.debate_coll_post_id }}"
+     data-author-side="{{ post.author_team_side_code }}">
+
+  {% if post.is_champion %}
+  <div class="debate-argument-champion-badge">🏆 Champion</div>
+  {% endif %}
+
+  <div class="debate-argument-card-header">
+    <span class="debate-argument-card-author">{{ post.author_display_name }}</span>
+    <span class="debate-argument-card-time">{{ post.posted_at_formatted }}</span>
+  </div>
+
+  <div class="debate-argument-card-content {% if post.is_suppressed %}debate-argument-card-suppressed{% endif %}">
+    {{ post.post_content }}
+  </div>
+
+  {% if post.is_suppressed %}
+  <div class="debate-argument-suppressed-badge">⚠️ Challenged</div>
+  {% endif %}
+
+  <div class="debate-argument-card-actions">
+    <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
+            id="debate-argument-upvote-{{ post.debate_coll_post_id }}"
+            name="debate_argument_upvote_{{ post.debate_coll_post_id }}"
+            data-post-id="{{ post.debate_coll_post_id }}" data-vote-value="1">
+      ▲ <span class="debate-argument-vote-count">{{ post.score }}</span>
+    </button>
+    <button type="button" class="debate-argument-vote-button debate-argument-downvote-button"
+            id="debate-argument-downvote-{{ post.debate_coll_post_id }}"
+            name="debate_argument_downvote_{{ post.debate_coll_post_id }}"
+            data-post-id="{{ post.debate_coll_post_id }}" data-vote-value="-1">
+      ▼
+    </button>
+    <span class="debate-argument-reply-count">💬 {{ post.reply_count }}</span>
+    <button type="button" class="debate-argument-reply-button"
+            id="debate-argument-reply-{{ post.debate_coll_post_id }}"
+            name="debate_argument_reply_{{ post.debate_coll_post_id }}"
+            data-post-id="{{ post.debate_coll_post_id }}"
+            data-author-side="{{ post.author_team_side_code }}">
+      খণ্ডন
+    </button>
+  </div>
+
+  <!-- Nested rebuttals -->
+  {% if post.replies %}
+  <div class="debate-rebuttal-list" id="debate-rebuttal-list-{{ post.debate_coll_post_id }}">
+    {% for reply in post.replies %}
+    <div class="debate-rebuttal-card debate-rebuttal-card-{{ reply.author_team_side_code }}"
+         id="debate-rebuttal-card-{{ reply.debate_coll_post_id }}"
+         data-post-id="{{ reply.debate_coll_post_id }}"
+         data-author-side="{{ reply.author_team_side_code }}"
+         style="margin-left: {{ reply.post_reply_depth|add:0 }}rem;">
+
+      <div class="debate-rebuttal-card-header">
+        <span class="debate-rebuttal-card-side-indicator debate-rebuttal-card-side-indicator-{{ reply.author_team_side_code }}"></span>
+        <span class="debate-rebuttal-card-author">{{ reply.author_display_name }}</span>
+        <span class="debate-rebuttal-card-time">{{ reply.posted_at_formatted }}</span>
+      </div>
+
+      <div class="debate-rebuttal-card-content">{{ reply.post_content }}</div>
+
+      <div class="debate-rebuttal-card-actions">
+        <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
+                id="debate-rebuttal-upvote-{{ reply.debate_coll_post_id }}"
+                name="debate_rebuttal_upvote_{{ reply.debate_coll_post_id }}"
+                data-post-id="{{ reply.debate_coll_post_id }}" data-vote-value="1">
+          ▲ <span class="debate-argument-vote-count">{{ reply.score }}</span>
+        </button>
+        <button type="button" class="debate-argument-vote-button debate-argument-downvote-button"
+                id="debate-rebuttal-downvote-{{ reply.debate_coll_post_id }}"
+                name="debate_rebuttal_downvote_{{ reply.debate_coll_post_id }}"
+                data-post-id="{{ reply.debate_coll_post_id }}" data-vote-value="-1">
+          ▼
+        </button>
+        <button type="button" class="debate-argument-reply-button"
+                id="debate-rebuttal-reply-{{ reply.debate_coll_post_id }}"
+                name="debate_rebuttal_reply_{{ reply.debate_coll_post_id }}"
+                data-post-id="{{ reply.debate_coll_post_id }}"
+                data-author-side="{{ reply.author_team_side_code }}">
+          খণ্ডন
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
