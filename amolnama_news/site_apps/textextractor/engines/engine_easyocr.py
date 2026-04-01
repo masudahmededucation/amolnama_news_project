@@ -132,6 +132,33 @@ def _merge_lines_into_paragraphs(lines):
     return '\n'.join(paragraphs)
 
 
+def extract_fast(file_path):
+    """Fast OCR — detail=0, paragraph=True. Used by PDF engine for garbled pages.
+    Skips bounding box math and groups text into paragraphs. ~2x faster than full extract."""
+    if not os.path.exists(file_path):
+        return {'success': False, 'error': 'File not found'}
+
+    try:
+        reader = _get_reader()
+    except ImportError as import_error:
+        return {'success': False, 'error': str(import_error)}
+
+    try:
+        results = reader.readtext(file_path, detail=0, paragraph=True)
+    except Exception as ocr_error:
+        return {'success': False, 'error': f'OCR failed: {str(ocr_error)}'}
+
+    combined_text = '\n'.join(results) if results else ''
+    word_count = len(combined_text.split()) if combined_text.strip() else 0
+
+    return {
+        'success': True,
+        'text': combined_text,
+        'word_count': word_count,
+        'confidence': 0.85,  # No per-line confidence in detail=0 mode
+    }
+
+
 def extract(file_path):
     """Extract text from image using EasyOCR with full preprocessing pipeline."""
     if not os.path.exists(file_path):

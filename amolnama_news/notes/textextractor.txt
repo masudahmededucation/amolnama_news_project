@@ -72,3 +72,6 @@ i should be able to see the log details.
 --multiple files?
 should we have options for multiple files?
 all type of files upload all-together? 
+
+multi file upload - option 1. 
+user should be able to upload mixture of png pdf text audio video all together.
