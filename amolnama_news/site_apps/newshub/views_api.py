@@ -758,10 +758,10 @@ def api_article_update_publication_status(request, entry_id):
         from .models import CollContributor
         from amolnama_news.site_apps.user_account.models import UserProfile
         try:
-            contrib = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
-            if contrib.link_user_profile_id:
-                up = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-                if contrib.link_user_profile_id == up.user_profile_id:
+            contributor = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
+            if contributor.link_user_profile_id:
+                user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+                if contributor.link_user_profile_id == user_profile.user_profile_id:
                     is_owner = True
         except (CollContributor.DoesNotExist, UserProfile.DoesNotExist):
             pass
@@ -800,3 +800,265 @@ def api_article_update_publication_status(request, entry_id):
         'new_status_name_bn': new_status.status_name_bn,
         'new_status_icon': new_status.status_icon or '',
     })
+
+
+# ============================================================================
+# Article Photo Management (cover, edit caption, delete)
+# ============================================================================
+
+from django.views.decorators.http import require_http_methods
+from django.db import connection
+
+from .models import CollNewsEntry, CollNewsAsset
+
+
+def _can_manage_article(request, coll_news_entry_id):
+    """Check if user can manage an article's photos.
+
+    Allowed: contributor owner, staff, admin.
+    Returns (is_allowed: bool, entry: CollNewsEntry | None).
+    """
+    if not request.user.is_authenticated:
+        return False, None
+
+    try:
+        entry = CollNewsEntry.objects.get(coll_news_entry_id=coll_news_entry_id)
+    except CollNewsEntry.DoesNotExist:
+        return False, None
+
+    if request.user.is_staff or request.user.is_superuser:
+        return True, entry
+
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from .models import CollContributor
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+        contributor = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
+        if contributor.link_user_profile_id == user_profile.user_profile_id:
+            return True, entry
+    except (UserProfile.DoesNotExist, CollContributor.DoesNotExist):
+        pass
+
+    return False, entry
+
+
+def _get_asset_file_url(asset_id):
+    """Get file URL for an asset via raw SQL (file_storage_path is computed column)."""
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT '/media/' + [media].[asset].file_storage_path "
+            "FROM [media].[asset] "
+            "WHERE [media].[asset].asset_id = %s",
+            [asset_id],
+        )
+        row = cursor.fetchone()
+        return row[0] if row else ''
+
+
+@require_http_methods(["PATCH"])
+def api_article_cover_image_set(request, coll_news_entry_id, asset_id):
+    """PATCH — set a photo as the article cover/featured image.
+
+    Toggles is_featured on CollNewsAsset: clears all, sets the target.
+    Only article contributor owner + staff/admin can change.
+    """
+    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    if entry is None:
+        return JsonResponse({"success": False, "error": "Article not found"}, status=404)
+    if not is_allowed:
+        return JsonResponse({"success": False, "error": "লগইন প্রয়োজন বা অনুমতি নেই"}, status=403)
+
+    # Verify the asset belongs to this entry
+    if not CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).exists():
+        return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
+
+    # Clear all featured flags for this entry, then set the target
+    CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id
+    ).update(is_featured=False)
+
+    CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).update(is_featured=True)
+
+    cover_image_url = _get_asset_file_url(asset_id)
+    return JsonResponse({"success": True, "cover_image_url": cover_image_url})
+
+
+@require_http_methods(["PATCH"])
+def api_article_photo_caption_update(request, coll_news_entry_id, asset_id):
+    """PATCH — edit an article photo caption.
+
+    Only article contributor owner + staff/admin can edit.
+    """
+    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    if entry is None:
+        return JsonResponse({"success": False, "error": "Article not found"}, status=404)
+    if not is_allowed:
+        return JsonResponse({"success": False, "error": "লগইন প্রয়োজন বা অনুমতি নেই"}, status=403)
+
+    # Verify the asset belongs to this entry
+    if not CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).exists():
+        return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
+
+    import json
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    new_caption = (body.get("caption_bn") or "").strip() or None
+
+    CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).update(coll_news_asset_caption_bn=new_caption)
+
+    return JsonResponse({"success": True, "caption_bn": new_caption or ""})
+
+
+@require_http_methods(["DELETE"])
+def api_article_photo_delete(request, coll_news_entry_id, asset_id):
+    """DELETE — remove a photo from an article.
+
+    Deletes the CollNewsAsset junction record (keeps the Asset file).
+    Only article contributor owner + staff/admin can delete.
+    """
+    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    if entry is None:
+        return JsonResponse({"success": False, "error": "Article not found"}, status=404)
+    if not is_allowed:
+        return JsonResponse({"success": False, "error": "লগইন প্রয়োজন বা অনুমতি নেই"}, status=403)
+
+    deleted_count, _ = CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).delete()
+
+    if not deleted_count:
+        return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
+
+    return JsonResponse({"success": True})
+
+
+# ============================================================================
+# Article Photo Engagement (view count, like toggle)
+# ============================================================================
+
+from django.views.decorators.http import require_POST
+
+
+@require_POST
+def api_article_photo_view(request, coll_news_entry_id, asset_id):
+    """POST — increment photo view count (called when lightbox opens)."""
+    from django.db.models import F
+    updated_count = CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).update(view_count=F('view_count') + 1)
+
+    if not updated_count:
+        return JsonResponse({"success": False}, status=404)
+    return JsonResponse({"success": True})
+
+
+@require_POST
+def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
+    """POST — toggle like on an article photo.
+
+    Simple increment/decrement on CollNewsAsset.like_count.
+    Uses session to track whether user already liked (no separate like table).
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "লগইন প্রয়োজন"}, status=401)
+
+    # Verify photo exists
+    if not CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).exists():
+        return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
+
+    from django.db.models import F
+
+    # Track likes in session (no separate engagement table for now)
+    session_like_key = 'article_photo_likes'
+    liked_photos = request.session.get(session_like_key, [])
+    photo_key = str(coll_news_entry_id) + '_' + str(asset_id)
+
+    if photo_key in liked_photos:
+        # Unlike
+        liked_photos.remove(photo_key)
+        CollNewsAsset.objects.filter(
+            link_coll_news_entry_id=coll_news_entry_id,
+            link_asset_id=asset_id,
+            like_count__gt=0,
+        ).update(like_count=F('like_count') - 1)
+        liked = False
+    else:
+        # Like
+        liked_photos.append(photo_key)
+        CollNewsAsset.objects.filter(
+            link_coll_news_entry_id=coll_news_entry_id,
+            link_asset_id=asset_id,
+        ).update(like_count=F('like_count') + 1)
+        liked = True
+
+    request.session[session_like_key] = liked_photos
+
+    new_like_count = CollNewsAsset.objects.filter(
+        link_coll_news_entry_id=coll_news_entry_id,
+        link_asset_id=asset_id,
+    ).values_list('like_count', flat=True).first() or 0
+
+    return JsonResponse({"success": True, "liked": liked, "like_count": new_like_count})
+
+
+# ========== Article Like ==========
+
+@require_POST
+def api_article_like_toggle(request, pub_article_id):
+    """Toggle like on an article. Session-based tracking."""
+    from django.db.models import F
+    from .models import EngArticleStat
+
+    # Get or create the stat row
+    stat, _created = EngArticleStat.objects.get_or_create(
+        link_pub_article_id=pub_article_id,
+        defaults={'view_count': 0, 'share_count': 0, 'like_count': 0},
+    )
+
+    session_like_key = 'article_likes'
+    liked_articles = request.session.get(session_like_key, [])
+    article_key = str(pub_article_id)
+
+    if article_key in liked_articles:
+        # Unlike
+        liked_articles.remove(article_key)
+        EngArticleStat.objects.filter(
+            link_pub_article_id=pub_article_id,
+            like_count__gt=0,
+        ).update(like_count=F('like_count') - 1)
+        liked = False
+    else:
+        # Like
+        liked_articles.append(article_key)
+        EngArticleStat.objects.filter(
+            link_pub_article_id=pub_article_id,
+        ).update(like_count=F('like_count') + 1)
+        liked = True
+
+    request.session[session_like_key] = liked_articles
+
+    new_like_count = EngArticleStat.objects.filter(
+        link_pub_article_id=pub_article_id,
+    ).values_list('like_count', flat=True).first() or 0
+
+    return JsonResponse({"success": True, "liked": liked, "like_count": new_like_count})

@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-submit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="stories-submit-container" id="stories-submit-container">
+  <h1 class="stories-submit-title">📚 গল্প জমা দিন</h1>
+
+  <form class="stories-submit-form" id="stories-submit-form" name="stories_submit_form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-title-bn" class="stories-submit-label">গল্পের নাম (বাংলা) <span class="field-mandatory-star">*</span></label>
+      <input type="text" class="stories-submit-input" id="stories-submit-title-bn" name="story_title_bn" data-bangla-input="true" maxlength="300" required>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-title-en" class="stories-submit-label">Title (English)</label>
+      <input type="text" class="stories-submit-input" id="stories-submit-title-en" name="story_title_en" maxlength="300" data-no-bangla>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-category" class="stories-submit-label">বিভাগ <span class="field-mandatory-star">*</span></label>
+      <select class="stories-submit-select" id="stories-submit-category" name="link_story_category_id" required>
+        <option value="">বিভাগ নির্বাচন করুন</option>
+        {% for category in categories %}
+        <option value="{{ category.stories_ref_story_category_id }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }} ({{ category.story_category_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-age-group" class="stories-submit-label">বয়সভিত্তিক শ্রেণী <span class="field-mandatory-star">*</span></label>
+      <select class="stories-submit-select" id="stories-submit-age-group" name="link_age_group_id" required>
+        <option value="">বয়স নির্বাচন করুন</option>
+        {% for age_group in age_groups %}
+        <option value="{{ age_group.stories_ref_story_age_group_id }}">{{ age_group.age_group_name_bn }} ({{ age_group.age_group_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-summary" class="stories-submit-label">সারসংক্ষেপ</label>
+      <textarea class="stories-submit-textarea" id="stories-submit-summary" name="story_summary_bn" data-bangla-input="true" rows="2" maxlength="500" placeholder="সংক্ষেপে গল্পের বিষয়বস্তু..."></textarea>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-content" class="stories-submit-label">গল্প <span class="field-mandatory-star">*</span></label>
+      <textarea class="stories-submit-textarea stories-submit-content-textarea" id="stories-submit-content" name="story_content_html_bn" data-bangla-input="true" rows="15" required placeholder="এখানে গল্প লিখুন..."></textarea>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-source" class="stories-submit-label">সূত্র / রচয়িতা</label>
+      <input type="text" class="stories-submit-input" id="stories-submit-source" name="story_source_attribution_bn" data-bangla-input="true" maxlength="500" placeholder="যেমন: ঠাকুরমার ঝুলি — দক্ষিণারঞ্জন মিত্র মজুমদার">
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-reading-time" class="stories-submit-label">পড়ার সময় (মিনিট)</label>
+      <input type="number" class="stories-submit-input stories-submit-input-small" id="stories-submit-reading-time" name="reading_time_minutes" value="5" min="1" max="60" data-no-bangla>
+    </div>
+
+    <div class="stories-submit-field">
+      <label for="stories-submit-cover" class="stories-submit-label">কভার ছবি</label>
+      <input type="file" class="stories-submit-file-input" id="stories-submit-cover" name="story_cover_image" accept="image/*">
+      <p class="stories-submit-hint">গল্পের কভার ছবি আপলোড করুন (ঐচ্ছিক)</p>
+    </div>
+
+    <div class="stories-submit-actions">
+      <button type="submit" class="stories-submit-button" id="stories-submit-button" name="stories_submit_button">জমা দিন</button>
+    </div>
+
+    <div class="stories-submit-error-message" id="stories-submit-error-message" style="display:none;"></div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'stories/assets/js/pages/stories-submit.js' %}"></script>
+{% endblock %}

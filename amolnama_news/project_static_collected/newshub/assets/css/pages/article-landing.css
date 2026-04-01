@@ -39,11 +39,37 @@
   background: var(--surface);
   border: 2.5px solid transparent;
   border-radius: 10px;
-  padding: 1.2rem;
+  overflow: hidden;
   text-decoration: none;
   color: var(--text);
   cursor: pointer;
   transition: border-color .25s, box-shadow .25s, transform .2s;
+}
+
+/* Card image — edge-to-edge at top */
+.article-landing-card-image {
+  width: 100%;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--border);
+}
+
+/* Card body padding — applied to children, not the card itself */
+.article-landing-card-header,
+.article-landing-card-headline,
+.article-landing-card-summary,
+.article-landing-card-meta {
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+
+.article-landing-card-header {
+  padding-top: 1rem;
+}
+
+.article-landing-card-meta {
+  padding-bottom: .5rem;
 }
 
 .article-landing-card:hover {
@@ -111,6 +137,22 @@
 
 .article-landing-card-contributor {
   font-weight: 600;
+}
+
+.article-landing-card-stats {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .4rem 1.2rem .8rem;
+  font-size: .68rem;
+  color: var(--muted);
+}
+
+.article-landing-card-like-count,
+.article-landing-card-view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .15rem;
 }
 
 .article-landing-empty {

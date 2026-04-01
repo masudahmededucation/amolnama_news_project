@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'art/assets/css/pages/art-landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="art-landing-header">
+  <h1 class="art-landing-title">🎨 শিল্পকলা <span class="art-landing-title-english">Art & Craft</span></h1>
+  <p class="art-landing-subtitle">বাংলাদেশের ঐতিহ্যবাহী ও আধুনিক শিল্পকলা সংগ্রহ</p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'art:upload' %}" class="art-landing-upload-button" id="art-landing-upload-button" name="art_landing_upload_button">+ শিল্পকর্ম আপলোড</a>
+  {% endif %}
+</div>
+
+<div class="art-category-filter" id="art-category-filter">
+  <a href="{% url 'art:home' %}" class="art-category-pill{% if not active_category %} art-category-pill-active{% endif %}" id="art-category-pill-all" name="art_category_pill_all">সব</a>
+  {% for category in categories %}
+  <a href="{% url 'art:home' %}?category={{ category.art_ref_art_category_id }}" class="art-category-pill{% if active_category == category.art_ref_art_category_id|stringformat:'d' %} art-category-pill-active{% endif %}" id="art-category-pill-{{ category.art_category_code }}" name="art_category_pill_{{ category.art_category_code }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }}</a>
+  {% endfor %}
+</div>
+
+{% if artwork_items %}
+<div class="art-gallery-grid" id="art-gallery-grid">
+  {% for item in artwork_items %}
+  <a href="{% url 'art:detail' artwork_slug=item.slug %}" class="art-gallery-card" id="art-gallery-card-{{ item.artwork_id }}" name="art_gallery_card_{{ item.artwork_id }}">
+    <div class="art-gallery-card-image-wrapper">
+      {% if item.cover_url %}
+      <img src="{{ item.cover_url }}" alt="{{ item.title_bn }}" class="art-gallery-card-image" loading="lazy">
+      {% else %}
+      <div class="art-gallery-card-image-placeholder">🎨</div>
+      {% endif %}
+      {% if item.is_tutorial %}
+      <span class="art-gallery-card-tutorial-badge">📖 টিউটোরিয়াল</span>
+      {% endif %}
+    </div>
+    <div class="art-gallery-card-body">
+      <h3 class="art-gallery-card-title">{{ item.title_bn }}</h3>
+      <div class="art-gallery-card-meta">
+        <span class="art-gallery-card-category">{{ item.category_icon }} {{ item.category_name_bn }}</span>
+        <span class="art-gallery-card-author">{{ item.author_name }}</span>
+      </div>
+      <div class="art-gallery-card-stats">
+        <span class="art-gallery-card-stat">❤️ {{ item.like_count }}</span>
+        <span class="art-gallery-card-stat">👁️ {{ item.view_count }}</span>
+        <span class="art-gallery-card-stat">{{ item.time_ago }}</span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="art-empty-state">
+  <p>এখনো কোনো শিল্পকর্ম নেই। প্রথম শিল্পকর্ম আপলোড করুন!</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,61 @@
+Media & Image Storage Strategy
+===============================
+Decided: 2026-03-26
+
+
+1. USER-UPLOADED IMAGES (photos, evidence, documents)
+-----------------------------------------------------
+Storage:    media/ folder on disk (GUID-based sharded path)
+DB table:   [media].[asset]
+Key column: file_storage_path (computed column from asset_guid + file_extension)
+Path format: first 2 chars of GUID / next 2 chars / full GUID + extension
+             e.g. 6f/19/6f19a3b2-...-4c8d.jpg
+Reference:  Junction tables link via asset_id
+             - [newshub].[coll_news_asset] (news article photos)
+             - [bangladesh].[coll_destination_photo] (travel hub photos)
+Django:     file_storage_path excluded from model (computed column)
+             Always use raw SQL: '/media/' + [media].[asset].file_storage_path
+Dedup:      SHA-256 hash + file_size_bytes unique constraint
+
+
+2. CODE-LEVEL STATIC IMAGES (logos, favicons, PWA icons, placeholders)
+----------------------------------------------------------------------
+Storage:    static/<app_name>/assets/img/ — served by whitenoise
+DB table:   [media].[app_asset] as REGISTRY/INVENTORY only (not file storage)
+Purpose:    app_asset tracks what static files exist, their path, purpose,
+             and owning app. Easy to find/audit/replace via SQL query.
+Why hybrid: Files must render even if DB is down. Logos are infrastructure.
+
+Registry query example:
+  SELECT asset_key, file_name, file_path FROM [media].[app_asset] WHERE is_active = 1
+
+
+3. CURRENT STATIC IMAGE INVENTORY (9 files)
+--------------------------------------------
+asset_key                  file_name              file_path                              app
+core_logo                  logo.png               core/assets/img/logo.png               core
+core_pwa_icon_192          pwa-icon-192.png       core/assets/img/pwa-icon-192.png       core
+core_pwa_icon_512          pwa-icon-512.png       core/assets/img/pwa-icon-512.png       core
+core_hero_placeholder      hero.svg               core/assets/img/hero.svg               core
+core_thumb_placeholder_1   thumb-1.svg            core/assets/img/thumb-1.svg            core
+core_thumb_placeholder_2   thumb-2.svg            core/assets/img/thumb-2.svg            core
+core_thumb_placeholder_3   thumb-3.svg            core/assets/img/thumb-3.svg            core
+core_thumb_placeholder_4   thumb-4.svg            core/assets/img/thumb-4.svg            core
+marriage_card_background   marriage-card-bg.jpg   marriage/assets/img/marriage-card-bg.jpg marriage
+
+
+4. RULES
+--------
+- NEVER store user uploads in static/ — always media/ + [media].[asset]
+- NEVER require DB for logo/favicon rendering — keep in static/
+- New apps do NOT get img/ folder unless they have code-level static images
+- All user photos served via: /media/ + file_storage_path
+- All static images served via: {% static 'app/assets/img/filename' %}
+- When adding a new static image: add file to static/ AND insert row in [media].[app_asset]
+- Removed images: delete file + UPDATE [media].[app_asset] SET is_active = 0
+
+
+5. DJANGO MODELS
+-----------------
+User uploads:   multimedia.models.Asset       → [media].[asset]
+Static registry: multimedia.models.AppAsset   → [media].[app_asset]

@@ -114,6 +114,11 @@ class UserProfile(models.Model):
     last_login_at = models.DateTimeField(blank=True, null=True)
     is_verified = models.BooleanField(blank=True, null=True)
     verification_date = models.DateField(blank=True, null=True)
+    username_handle = models.CharField(max_length=50, blank=True, null=True)
+    profile_location = models.CharField(max_length=100, blank=True, null=True)
+    profile_website_url = models.CharField(max_length=300, blank=True, null=True)
+    contribution_score_count = models.IntegerField(default=0)
+    link_avatar_asset_id = models.BigIntegerField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 

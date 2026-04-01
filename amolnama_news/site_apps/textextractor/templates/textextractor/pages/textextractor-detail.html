@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'textextractor/assets/css/pages/textextractor-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="textextractor-detail">
+  <div class="textextractor-detail-header">
+    <a href="{% url 'textextractor:home' %}" class="textextractor-detail-back">← Dashboard</a>
+    <h1 class="textextractor-detail-title">{{ job.file_name }}</h1>
+    <div class="textextractor-detail-meta">
+      <span class="textextractor-detail-status textextractor-detail-status-{{ job.status_code }}">{{ job.status_code }}</span>
+      {% if job.engine_name %}<span class="textextractor-detail-engine">🔧 {{ job.engine_name }}</span>{% endif %}
+      {% if job.word_count %}<span class="textextractor-detail-words">📊 {{ job.word_count }} words</span>{% endif %}
+      {% if job.page_count %}<span class="textextractor-detail-pages">📄 {{ job.page_count }} page{{ job.page_count|pluralize }}</span>{% endif %}
+      {% if job.confidence_percent %}<span class="textextractor-detail-confidence">🎯 {{ job.confidence_percent }}%</span>{% endif %}
+      {% if job.processing_time_seconds %}<span class="textextractor-detail-time">⚡ {{ job.processing_time_seconds }}s</span>{% endif %}
+      {% if job.detected_language_code %}<span class="textextractor-detail-language">🌐 {{ job.detected_language_code }}</span>{% endif %}
+    </div>
+  </div>
+
+  {% if job.status_code == 'completed' and job.extracted_text_plain %}
+  <div class="textextractor-detail-actions">
+    <button type="button" class="textextractor-detail-copy-button" id="textextractor-detail-copy-button" name="textextractor_detail_copy_button">📋 Copy Text</button>
+    <button type="button" class="textextractor-detail-download-button" id="textextractor-detail-download-button" name="textextractor_detail_download_button" data-filename="{{ job.file_name }}.txt">💾 Download .txt</button>
+  </div>
+
+  <div class="textextractor-detail-text-container">
+    <div class="textextractor-detail-text-header">
+      <span>Extracted Text</span>
+      <span class="textextractor-detail-text-count">{{ job.word_count }} words</span>
+    </div>
+    <div class="textextractor-detail-text-content" id="textextractor-detail-text-content">{{ job.extracted_text_plain }}</div>
+  </div>
+
+  {% if job.pages and job.pages|length > 1 %}
+  <div class="textextractor-detail-pages-section">
+    <h2 class="textextractor-detail-section-title">Pages</h2>
+    {% for page in job.pages %}
+    <div class="textextractor-detail-page" id="textextractor-detail-page-{{ page.page_number }}">
+      <div class="textextractor-detail-page-header">
+        <span class="textextractor-detail-page-number">Page {{ page.page_number }}</span>
+        {% if page.word_count %}<span class="textextractor-detail-page-words">{{ page.word_count }} words</span>{% endif %}
+      </div>
+      <div class="textextractor-detail-page-text">{{ page.page_text_plain }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% elif job.status_code == 'failed' %}
+  <div class="textextractor-detail-error">
+    <span class="textextractor-detail-error-icon">❌</span>
+    <p class="textextractor-detail-error-message">{{ job.error_message }}</p>
+  </div>
+
+  {% elif job.status_code == 'processing' or job.status_code == 'queued' %}
+  <div class="textextractor-detail-processing" id="textextractor-detail-processing" data-job-id="{{ job.job_id }}">
+    <div class="textextractor-detail-processing-spinner"></div>
+    <p>Processing... This page will update automatically.</p>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'textextractor/assets/js/pages/textextractor-detail.js' %}"></script>
+{% endblock %}

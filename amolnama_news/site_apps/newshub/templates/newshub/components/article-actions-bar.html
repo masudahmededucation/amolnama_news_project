@@ -1,0 +1,16 @@
+{# Article actions bar — like, view, share, edit. Include at top and bottom of article. Context: published_article, article_like_count, article_view_count, article_user_liked, can_edit, edit_url, action_bar_position (top/bottom) #}
+<div class="article-actions" id="article-actions-{{ action_bar_position }}" name="article_actions_{{ action_bar_position }}">
+  {% include "core/components/like-button.html" with like_button_entity_id=published_article.pub_article_id like_button_count=article_like_count like_button_user_liked=article_user_liked like_button_position=action_bar_position %}
+
+  <span class="article-view-count" id="article-view-count-{{ action_bar_position }}" title="ভিউ (View)">👁️ ভিউ {{ article_view_count|default:0 }}</span>
+
+  <button type="button" class="article-action-button article-share-button" id="article-share-button-{{ action_bar_position }}" name="article_share_button_{{ action_bar_position }}" data-title="{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|escapejs }}">
+    📤 শেয়ার
+  </button>
+
+  {% if can_edit and edit_url %}
+  <a href="{{ edit_url }}" class="article-action-button article-edit-button" id="article-edit-button-{{ action_bar_position }}" name="article_edit_button_{{ action_bar_position }}">
+    ✏️ সম্পাদনা
+  </a>
+  {% endif %}
+</div>

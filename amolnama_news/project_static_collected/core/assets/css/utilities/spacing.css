@@ -6,6 +6,10 @@
   gap: var(--gap);
 }
 
+@media (max-width: 480px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
 .hr {
   height: 1px;
   background: var(--border);

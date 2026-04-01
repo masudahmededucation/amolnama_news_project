@@ -1,0 +1,113 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'textextractor/assets/css/pages/textextractor-dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="textextractor-dashboard">
+  <div class="textextractor-dashboard-header">
+    <h1 class="textextractor-dashboard-title">📄 Text Extractor</h1>
+    <p class="textextractor-dashboard-subtitle">Extract text from images, PDFs, audio, and video — Bengali + English</p>
+  </div>
+
+  <div class="textextractor-dashboard-dropzone" id="textextractor-dashboard-dropzone">
+    <div class="textextractor-dashboard-dropzone-content" id="textextractor-dashboard-dropzone-content">
+      <span class="textextractor-dashboard-dropzone-icon">📂</span>
+      <p class="textextractor-dashboard-dropzone-text">Drag & drop files here or <label for="textextractor-dashboard-file-input" class="textextractor-dashboard-dropzone-browse">browse</label></p>
+      <p class="textextractor-dashboard-dropzone-hint">Multiple files supported — Images, PDF, Audio, Video, Text — Max 50MB each</p>
+    </div>
+    <input type="file" class="textextractor-dashboard-file-input" id="textextractor-dashboard-file-input" name="textextractor_dashboard_file_input" accept="image/*,.pdf,.mp3,.mp4,.wav,.mkv,.txt,.csv,.md,.html" multiple>
+  </div>
+
+
+  {% if job_items %}
+  <div class="textextractor-job-list" id="textextractor-job-list">
+    {% for job in job_items %}
+    <a href="{% url 'textextractor:job_detail' job_id=job.job_id %}" class="textextractor-job-card" id="textextractor-job-card-{{ job.job_id }}">
+      <div class="textextractor-job-icon">
+        {% if '.jpg' in job.file_extension or '.png' in job.file_extension or '.jpeg' in job.file_extension %}🖼️
+        {% elif '.pdf' in job.file_extension %}📄
+        {% elif '.mp3' in job.file_extension or '.mp4' in job.file_extension or '.wav' in job.file_extension %}🎙️
+        {% elif '.txt' in job.file_extension %}📝
+        {% else %}📁{% endif %}
+      </div>
+      <div class="textextractor-job-info">
+        <div class="textextractor-job-header-row">
+          <h3 class="textextractor-job-filename">{{ job.file_name }}</h3>
+          <div class="textextractor-job-status textextractor-job-status-{{ job.status_code }}">{{ job.status_code }}</div>
+        </div>
+
+        <div class="textextractor-job-meta">
+          <span class="textextractor-job-meta-pill">{{ job.file_extension }}</span>
+          {% if job.file_size_display %}<span class="textextractor-job-meta-pill">{{ job.file_size_display }}</span>{% endif %}
+          <span class="textextractor-job-meta-pill">{{ job.source_type_code }}</span>
+          {% if job.engine_name %}<span class="textextractor-job-meta-pill">🔧 {{ job.engine_name }}</span>{% endif %}
+          {% if job.detected_language_code %}<span class="textextractor-job-meta-pill">🌐 {{ job.detected_language_code }}</span>{% endif %}
+        </div>
+
+        <div class="textextractor-job-timestamps">
+          <span class="textextractor-job-timestamp-item">📅 Submitted: {{ job.created_at_formatted }}</span>
+          {% if job.completed_at_formatted %}<span class="textextractor-job-timestamp-item">✅ Completed: {{ job.completed_at_formatted }}</span>{% endif %}
+          {% if job.processing_time_seconds %}<span class="textextractor-job-timestamp-item">⚡ Duration: {{ job.processing_time_seconds }}s</span>{% endif %}
+        </div>
+
+        {% if job.status_code == 'processing' %}
+        <div class="textextractor-job-progress-row" id="textextractor-job-progress-row-{{ job.job_id }}" data-job-id="{{ job.job_id }}">
+          <div class="textextractor-job-progress-bar-wrapper">
+            <div class="textextractor-job-progress-bar" id="textextractor-job-progress-bar-{{ job.job_id }}"></div>
+            <span class="textextractor-job-progress-text" id="textextractor-job-progress-text-{{ job.job_id }}">{{ job.error_message|default:"Processing..." }}</span>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if job.word_count or job.page_count or job.confidence_percent or job.processing_time_milliseconds %}
+        <div class="textextractor-job-results">
+          {% if job.word_count %}<span>📊 {{ job.word_count }} words</span>{% endif %}
+          {% if job.page_count %}<span>📄 {{ job.page_count }} pages</span>{% endif %}
+          {% if job.confidence_percent %}<span>🎯 {{ job.confidence_percent }}%</span>{% endif %}
+          {% if job.processing_time_seconds %}<span>⚡ {{ job.processing_time_seconds }}s</span>{% endif %}
+        </div>
+        {% endif %}
+
+        <div class="textextractor-job-io-section">
+          {% if job.input_file_path %}
+          <div class="textextractor-job-io-row">
+            <span class="textextractor-job-io-label">📥 Input</span>
+            <span class="textextractor-job-io-path">{{ job.input_file_path }}</span>
+          </div>
+          {% endif %}
+          {% if job.output_file_path %}
+          <div class="textextractor-job-io-row">
+            <span class="textextractor-job-io-label">📤 Output</span>
+            <span class="textextractor-job-io-path">{{ job.output_file_path }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if job.error_message %}<div class="textextractor-job-error-inline">❌ {{ job.error_message }}</div>{% endif %}
+
+        <div class="textextractor-job-action-buttons">
+          {% if job.status_code == 'processing' or job.status_code == 'queued' %}
+          <button type="button" class="textextractor-job-cancel-button" data-job-id="{{ job.job_id }}" id="textextractor-job-cancel-{{ job.job_id }}" name="textextractor_job_cancel_{{ job.job_id }}">✕ Cancel</button>
+          {% endif %}
+          <button type="button" class="textextractor-job-delete-button" data-job-id="{{ job.job_id }}" id="textextractor-job-delete-{{ job.job_id }}" name="textextractor_job_delete_{{ job.job_id }}">🗑️ Remove</button>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="textextractor-empty-state" id="textextractor-empty-state">
+    <p>Drag & drop a file above or click to browse</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'textextractor/assets/js/pages/textextractor-dashboard.js' %}"></script>
+{% endblock %}

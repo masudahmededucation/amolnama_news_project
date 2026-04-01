@@ -1,0 +1,46 @@
+================================================================
+LOCATIONS APP — Architecture & Features
+App: site_apps/locations/
+No URL prefix (data-only, no views)
+================================================================
+
+## Introduction
+Read-only location reference data. Maps to SQL Server [location] schema.
+Provides Bangladesh's administrative division hierarchy used by
+election_vote, evaluation_vote, newshub, and bangladesh apps.
+
+## Models (16 models, all managed=False, read-only)
+
+Administrative hierarchy (top to bottom):
+1. Division (বিভাগ) — 8 divisions
+2. District (জেলা) — 64 districts
+3. Constituency (নির্বাচনী এলাকা) — parliamentary seats
+4. Upazila (উপজেলা) — sub-districts
+5. Union Parishad (ইউনিয়ন পরিষদ) — rural local gov
+6. Municipality (পৌরসভা) — urban local gov
+7. City Corporation (সিটি কর্পোরেশন) — metro areas
+8. Ward — municipal/city corporation wards
+9. Village — rural settlements
+
+Plus mapping tables for hierarchical relationships.
+
+## URL Patterns
+None — data accessed via other apps' APIs.
+
+## How It's Used
+- evaluation_vote: cascade dropdowns (division → district → constituency)
+- election_vote: voter location, results drillthrough
+- newshub: news entry location tagging, location search APIs
+- bangladesh: destination district filtering
+
+## Key Relationships
+- Division → District (1:many)
+- District → Upazila (1:many)
+- District → Constituency (many:many via mapping)
+- Upazila → Union Parishad (1:many)
+- All models have _en and _bn name fields
+
+## Troubleshooting
+- All models are unmanaged (managed=False) — never modify schema from Django
+- Bengali columns: use _en for order_by(), _bn for display only
+- For search: use Q(_en__icontains=q) | Q(_bn__icontains=q)

@@ -571,6 +571,28 @@
   background: var(--primary-hover);
 }
 
+/* ---- Clear form button (multistep) ---- */
+
+/* ---- Heading row — title + clear button ---- */
+
+.news-multistep-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: .5rem;
+}
+
+.news-multistep-heading-row h2 {
+  margin: 0;
+}
+
+/* Hidden by default — stepper JS shows it on step 2+ */
+.news-multistep-heading-row .news-clear-form-button {
+  display: none;
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {

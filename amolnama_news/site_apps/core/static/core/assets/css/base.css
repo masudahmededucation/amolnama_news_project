@@ -8,6 +8,11 @@
   --accent: #0077cc;
 }
 
+/* Always show scrollbar to prevent layout shift when navigating between pages */
+html {
+  overflow-y: scroll;
+}
+
 /* Reset, box-sizing, and Bengali ligature fix for every element */
 *,
 *::before,

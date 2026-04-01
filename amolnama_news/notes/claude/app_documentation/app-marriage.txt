@@ -1,0 +1,57 @@
+================================================================
+MARRIAGE APP — Architecture & Features
+App: site_apps/marriage/
+URL prefix: /bangladesh-marriage-registration/
+(Old URL /marriage/ has 301 redirect)
+================================================================
+
+## Introduction
+Marriage registration and certificate management system for Bangladesh.
+Multi-step form for registering marriages with both parties' information.
+
+## Models (1 model)
+
+| Model                | DB Table                         | Purpose                |
+|----------------------|----------------------------------|------------------------|
+| EntertainmentFormFact| [marriage].[entertainment_form_fact] | Marriage form data  |
+
+## URL Patterns (7 total)
+
+| URL                                             | View              |
+|-------------------------------------------------|-------------------|
+| /bangladesh-marriage-registration/              | marriage          |
+| /bangladesh-marriage-registration/form/         | marriage_form     |
+| /bangladesh-marriage-registration/register/     | register_marriage |
+| /bangladesh-marriage-registration/certificate/  | marriage_certificate |
+| Plus API endpoints for form submission          |                   |
+
+## Features
+
+### Marriage Registration Form
+- Multi-step form with both parties' personal information
+- Document upload (photos, certificates)
+- Form validation and submission
+- Marriage certificate generation
+
+## Key Functions
+
+### Views (views.py)
+- marriage() — landing page
+- marriage_form() — registration form
+- register_marriage() — form submission handler
+- marriage_certificate() — certificate display/download
+
+## Templates (3)
+- marriage.html (landing), marriage-form.html (registration), certificate template
+
+## Static Files
+- CSS: marriage-form.css
+- JS: marriage-form-clear.js
+
+## SEO
+- Listed in llms.txt
+- URL: /bangladesh-marriage-registration/ (SEO-friendly Bengali prefix)
+- Sitemap entry
+
+## Troubleshooting
+- URL migrated from /marriage/ — 301 redirect in place

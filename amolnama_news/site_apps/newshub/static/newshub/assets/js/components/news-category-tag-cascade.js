@@ -23,7 +23,9 @@
 
   if (!categorySelect || !availableList || !selectedArea) return;
 
-  var STORAGE_KEY = 'newshub_draft_tags';
+  var formTypeInput = document.getElementById('news-form-type');
+  var formTypeCode = formTypeInput ? formTypeInput.value : '';
+  var STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
   var MAX_BOX_SIZE = 6;   // max tags per box — larger groups get split
   var MERGE_THRESHOLD = 2; // groups with ≤2 tags get combined with others
 

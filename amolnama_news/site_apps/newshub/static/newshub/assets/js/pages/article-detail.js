@@ -2,39 +2,75 @@
 (function () {
   "use strict";
 
-  /* ---- Inline message helper (no popups) ---- */
-  function showInlineMessage(nearEl, text, isError) {
-    /* Remove any existing message near this element */
-    var existing = nearEl.parentNode.querySelector(".inline-msg");
+  /* ---- Inline message helper (for non-photo features) ---- */
+  function showInlineMessage(nearElement, text, isError) {
+    var existing = nearElement.parentNode.querySelector(".inline-message");
     if (existing) existing.remove();
 
-    var msg = document.createElement("div");
-    msg.className = "inline-msg " + (isError ? "inline-msg-error" : "inline-msg-success");
-    msg.textContent = text;
-    nearEl.parentNode.insertBefore(msg, nearEl.nextSibling);
+    var messageElement = document.createElement("div");
+    messageElement.className = "inline-message " + (isError ? "inline-message-error" : "inline-message-success");
+    messageElement.textContent = text;
+    nearElement.parentNode.insertBefore(messageElement, nearElement.nextSibling);
 
-    /* Auto-remove after 5 seconds */
-    setTimeout(function () { if (msg.parentNode) msg.remove(); }, 5000);
+    setTimeout(function () { if (messageElement.parentNode) messageElement.remove(); }, 5000);
   }
 
-  /* Share buttons (top + bottom) */
-  var shareButtons = document.querySelectorAll("#article-share-btn, .article-share-btn-top");
-  for (var i = 0; i < shareButtons.length; i++) {
-    (function (btn) {
-      btn.addEventListener("click", function () {
-        var articleTitle = btn.getAttribute("data-title") || "";
-        var articleUrl = window.location.href;
-        if (navigator.share) {
-          navigator.share({ title: articleTitle, url: articleUrl });
-        } else {
-          navigator.clipboard.writeText(articleUrl).then(function () {
-            showInlineMessage(btn, "লিংক কপি হয়েছে!", false);
-          });
+  /* ---- Shared actions bar init (like + share) ---- */
+  if (typeof window.actionsBar !== 'undefined') {
+    window.actionsBar.init({
+      buildLikeApiUrl: function (entityId) {
+        return '/newshub/api/article/' + entityId + '/like/';
+      },
+    });
+  }
+
+  /* ---- Shared photo card init (cover, like, view, edit, delete) ---- */
+  if (typeof window.photoCard !== 'undefined') {
+    window.photoCard.init({
+      cardSelector: '.photo-card',
+      imageSelector: '.photo-card-image',
+      idAttribute: 'data-photo-id',
+      parentIdAttribute: 'data-parent-id',
+      heroElementId: 'article-detail-hero',
+      buildApiUrl: function (parentId, photoId, action) {
+        return '/newshub/api/article/' + parentId + '/photo/' + photoId + '/' + action + '/';
+      },
+      onDeleteCard: function () {
+        /* Clean up empty groups after card deletion */
+        var allPhotoGrids = document.querySelectorAll('.photo-card-grid');
+        for (var gridIndex = 0; gridIndex < allPhotoGrids.length; gridIndex++) {
+          if (allPhotoGrids[gridIndex].querySelectorAll('.photo-card').length === 0) {
+            var groupElement = allPhotoGrids[gridIndex].closest('.article-detail-photo-group');
+            if (groupElement) groupElement.remove();
+          }
         }
-      });
-    })(shareButtons[i]);
+        /* If all groups gone, remove the entire section */
+        var photosSection = document.querySelector('.article-detail-photos');
+        if (photosSection && photosSection.querySelectorAll('.photo-card').length === 0) {
+          photosSection.remove();
+        }
+      },
+    });
   }
-  /* Comment submit */
+
+  /* ---- Photo lightbox init (shared component) ---- */
+  if (typeof window.photoLightbox !== 'undefined') {
+    window.photoLightbox.init({
+      thumbSelector: '.photo-card-image[data-photo-url]',
+      excludeSelectors: [
+        '.photo-card-set-cover-button',
+        '.photo-card-edit-button',
+        '.photo-card-delete-button',
+        '.photo-card-like-button',
+        '.photo-card-actions',
+        '.photo-card-footer',
+        '.photo-card-edit-form',
+        '.photo-card-delete-confirm',
+      ],
+    });
+  }
+
+  /* ---- Comment submit ---- */
   var commentSubmitButton = document.getElementById("article-comment-submit");
   var commentTextarea = document.getElementById("article-comment-text");
 
@@ -66,7 +102,6 @@
         .then(function (response) { return response.json(); })
         .then(function (data) {
           if (data.success) {
-            /* Add comment to list */
             var commentsList = document.querySelector(".article-comments-list");
             if (!commentsList) {
               commentsList = document.createElement("div");
@@ -83,7 +118,6 @@
             commentsList.appendChild(newComment);
             commentTextarea.value = "";
 
-            /* Update comment count in heading */
             var commentHeading = document.querySelector(".article-comments .article-section-title");
             if (commentHeading) {
               var currentCount = parseInt(commentHeading.textContent.match(/\d+/) || "0", 10);
@@ -103,7 +137,7 @@
     });
   }
 
-  /* Publication status — toggle between badge and dropdown */
+  /* ---- Publication status — toggle between badge and dropdown ---- */
   var statusBadge = document.getElementById("article-status-badge");
   var statusEditBtn = document.getElementById("article-status-edit-btn");
   var statusSelect = document.getElementById("article-publication-status-select");
@@ -127,15 +161,11 @@
       isEditing = true;
     }
 
-    /* Click edit pencil → show dropdown */
     statusEditBtn.addEventListener("click", showDropdownMode);
-
-    /* Click away from dropdown → revert to badge */
     statusSelect.addEventListener("blur", function () {
       setTimeout(showBadgeMode, 150);
     });
 
-    /* On change → save new status */
     statusSelect.addEventListener("change", function () {
       var newStatusId = statusSelect.value;
       if (!newStatusId || newStatusId === originalStatusId) {
@@ -161,7 +191,6 @@
         .then(function (response) { return response.json(); })
         .then(function (data) {
           if (data.success) {
-            /* Update badge text and class */
             statusBadge.className = "article-status-badge " + data.new_status_code;
             statusBadge.textContent = data.new_status_icon + " " + data.new_status_name_bn;
             originalStatusId = newStatusId;

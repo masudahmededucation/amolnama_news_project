@@ -1,0 +1,5 @@
+--newspaper daily edition
+ability to move around article, 
+
+
+How it looks in your Layout:If you go with newsdesk, your project structure becomes very intuitive:App FolderPurposeKey Models/LogicsecurityThe LockCustom User, MS SQL Auth, Permissions.newsdeskThe CMSArticles, Categories, Drafts, Media Library.broadcasterThe EngineSocial APIs, RSS Feeds, Push Notifications.

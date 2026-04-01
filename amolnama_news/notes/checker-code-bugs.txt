@@ -1,0 +1,76 @@
+--permission request
+ask for blanket permission once only.
+it is annoying to accept too many permission request.
+rather than individual file or small section
+
+
+----database
+whenever you need to create db table or column.
+give me script, i will check and run myself.
+never user alias when there is no collision among names
+never user shortcut alias name.
+use full name when possible
+
+--create styling rule
+make professional
+do some research
+minimal
+fast
+attractive
+gen z proof
+competitive styling
+full of life
+good feel
+make it responsive for all kind of devices
+
+--naming conventions
+seo friendly name 
+give descriptive name not partial or short name.
+check variables, filename, functions, features - all js ajax html
+update documents
+update troubleshooting documents
+
+--check for bugs
+check for bugs and bad code. 
+
+--attribute naming convention 
+all attributes should have its id and name 
+
+--check code for faster and efficiency. 
+Optimize code for speed and efficiency.
+Avoid unnecessary or long logic for small tasks.
+Ensure efficiency does not sacrifice the goal.
+Achieve objectives without breaking the code.
+Ensure the code is future bug-proof.
+Keep the code burden-less and maintainable.
+Deliver the same results through cleaner paths.
+Eliminate waste without changing functionality or removing features.
+Handle edge cases without leaving technical landmines.
+Write simple code that is easy to read and maintain.
+
+--immediate load
+Show UI immediately, load data in background"
+apply this to all interactions.
+
+--faster load
+load UI immediate, load data in the background
+keep loading related data in the background.
+ready to show the data once user asks.
+proactive prefetch.
+
+--modularise code
+Write once, reuse everywhere. 
+no copy cat, duplicate code.
+it stops bugs and reduces effort.
+
+--create or update documents
+
+create or update documentation
+architecture, features, functions, and troubleshooting.
+folders
+\notes\claude\app_documentation\
+\notes\claude\memory-training\
+
+--bump cache + Collect-static + service worker cache
+
+

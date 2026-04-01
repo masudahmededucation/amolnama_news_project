@@ -135,52 +135,7 @@
 
   applyLanguage(currentLang);
 
-  /* ========== BanglaInput auto-attach to ALL text fields ========== */
-
-  var banglaAttached = new WeakSet();
-
-  // Fields to SKIP — search boxes handled separately, date/number/email/url fields
-  var SKIP_TYPES = { date: 1, number: 1, email: 1, url: 1, password: 1, hidden: 1, file: 1 };
-
-  function attachBanglaInput() {
-    if (typeof BanglaInput === 'undefined') {
-      setTimeout(attachBanglaInput, 300);
-      return;
-    }
-    // All text inputs and textareas on the page
-    var fields = document.querySelectorAll('input[type="text"], textarea');
-    for (var i = 0; i < fields.length; i++) {
-      var el = fields[i];
-      // Skip if already attached
-      if (banglaAttached.has(el)) continue;
-      // Skip English-only fields (id/name contains _en but not _bn)
-      var id = (el.id || '').toLowerCase();
-      var name = (el.name || '').toLowerCase();
-      if ((id.indexOf('-en') > -1 || name.indexOf('_en') > -1) &&
-          id.indexOf('-bn') === -1 && name.indexOf('_bn') === -1) continue;
-      // Skip fields explicitly marked as no-transliterate
-      if (el.hasAttribute('data-no-bangla')) continue;
-      // Skip search inputs that already have BanglaInput (e.g. poem search)
-      if (el.hasAttribute('data-bangla-attached')) continue;
-
-      banglaAttached.add(el);
-      el.setAttribute('data-bangla-attached', '1');
-      BanglaInput.attach(el);
-    }
-  }
-
-  // Attach on initial load
-  setTimeout(attachBanglaInput, 300);
-
-  // Re-attach when DOM changes (debounced to prevent excessive calls)
-  var mutationTimer = null;
-  var observer = new MutationObserver(function () {
-    if (mutationTimer) clearTimeout(mutationTimer);
-    mutationTimer = setTimeout(function () {
-      try { attachBanglaInput(); } catch (e) { /* ignore */ }
-    }, 500);
-  });
-  observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  /* BanglaInput auto-attach moved to englishtobangla/bangla-input-auto-attach.js (global, modularised) */
 
   /* ========== QuillAvro — Bengali typing directly inside Quill ========== */
 
@@ -209,6 +164,9 @@
   applyLanguage = function (lang) {
     originalApplyForQuill(lang);
     currentLang = lang;
+    if (typeof BanglaInput !== 'undefined' && BanglaInput.setEnabled) {
+      BanglaInput.setEnabled(lang === 'bn');
+    }
     if (typeof QuillAvro !== 'undefined') {
       QuillAvro.setEnabled(lang === 'bn');
     }
@@ -219,7 +177,6 @@
   window.newshubFormLang = {
     apply: applyLanguage,
     current: function () { return currentLang; },
-    attachBangla: attachBanglaInput,
   };
 
 })();

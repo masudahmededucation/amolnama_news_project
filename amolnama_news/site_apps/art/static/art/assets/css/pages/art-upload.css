@@ -1,0 +1,120 @@
+/* Art Upload Page */
+
+.art-upload-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.art-upload-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+}
+
+.art-upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.art-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.art-upload-label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.field-mandatory-star {
+  color: #dc2626;
+}
+
+.art-upload-input,
+.art-upload-textarea,
+.art-upload-select {
+  padding: .5rem .6rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: .88rem;
+  color: var(--text);
+  background: var(--card, #fff);
+  transition: border-color .15s;
+}
+
+.art-upload-input:focus,
+.art-upload-textarea:focus,
+.art-upload-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, .1);
+}
+
+.art-upload-textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.art-upload-file-input {
+  font-size: .85rem;
+}
+
+.art-upload-hint {
+  font-size: .72rem;
+  color: var(--muted);
+  margin: .15rem 0 0;
+}
+
+.art-upload-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .4rem;
+}
+
+.art-upload-preview-item {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.art-upload-actions {
+  padding-top: .5rem;
+}
+
+.art-upload-submit-button {
+  padding: .6rem 1.5rem;
+  border: none;
+  border-radius: 25px;
+  background: var(--primary);
+  color: #fff;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+
+.art-upload-submit-button:hover {
+  background: #1565c0;
+  transform: scale(1.02);
+}
+
+.art-upload-submit-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.art-upload-error-message {
+  padding: .5rem .75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: .82rem;
+}

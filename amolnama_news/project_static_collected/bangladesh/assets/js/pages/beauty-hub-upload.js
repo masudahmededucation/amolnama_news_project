@@ -2,18 +2,18 @@
 (function() {
   "use strict";
 
-  const uploadForm = document.getElementById("beauty-hub-upload-Form");
+  const uploadForm = document.getElementById("beauty-hub-upload-form");
   const fileInput = document.getElementById("beauty-hub-file");
   const categorySelect = document.getElementById("beauty-hub-category");
   const festivalFields = document.getElementById("beauty-hub-festival-fields");
   const filePreviewWrapper = document.getElementById("beauty-hub-file-preview");
   const imagePreview = document.getElementById("beauty-hub-image-preview");
   const videoPreview = document.getElementById("beauty-hub-video-preview");
-  const uploadError = document.getElementById("beauty-hub-upload-Error");
-  const uploadProgress = document.getElementById("beauty-hub-upload-Progress");
+  const uploadError = document.getElementById("beauty-hub-upload-error");
+  const uploadProgress = document.getElementById("beauty-hub-upload-progress");
   const progressBar = document.getElementById("beauty-hub-progress-bar");
   const progressText = document.getElementById("beauty-hub-progress-text");
-  const submitButton = document.getElementById("beauty-hub-upload-Submit");
+  const submitButton = document.getElementById("beauty-hub-upload-submit-button");
 
   if (!uploadForm) return;
 

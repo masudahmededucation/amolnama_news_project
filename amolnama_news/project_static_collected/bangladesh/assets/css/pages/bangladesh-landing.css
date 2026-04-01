@@ -1,6 +1,13 @@
 /* No underline on hover — all links */
 main a, main a:hover, main a:focus { text-decoration: none; }
 
+/* Breadcrumb */
+.travel-hub-detail-breadcrumb { margin:.75rem 0 .5rem; font-size:.88rem; color:var(--muted); }
+.travel-hub-detail-breadcrumb a { color:var(--primary); text-decoration:none; }
+.travel-hub-detail-breadcrumb a:hover { color:var(--text); }
+.travel-hub-detail-breadcrumb-sep { margin:0 .3rem; color:var(--border); }
+.travel-hub-detail-breadcrumb-current { color:var(--text); font-weight:600; }
+
 /* ========== Bangladesh Landing Page ========== */
 
 .bangladesh-header {
@@ -72,10 +79,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   opacity: 1;
 }
 
-.bangladesh-hub-card:active {
-  transform: scale(.98);
-  transition: transform .1s ease;
-}
+/* No scale on click — removed to prevent jump/shrink effect */
 
 /* Arrow indicator — slides in on hover */
 .bangladesh-hub-card-arrow {

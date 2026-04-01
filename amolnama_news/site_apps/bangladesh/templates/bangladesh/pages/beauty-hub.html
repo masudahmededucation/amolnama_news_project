@@ -10,6 +10,18 @@
 
 {% block content %}
 
+{% if seo.breadcrumbs %}
+<nav class="travel-hub-detail-breadcrumb" aria-label="Breadcrumb">
+  {% for bc in seo.breadcrumbs %}
+    {% if bc.url %}
+      <a href="{{ bc.url }}">{{ bc.name }}</a><span class="travel-hub-detail-breadcrumb-sep">/</span>
+    {% else %}
+      <span class="travel-hub-detail-breadcrumb-current">{{ bc.name }}</span>
+    {% endif %}
+  {% endfor %}
+</nav>
+{% endif %}
+
 <section class="beauty-hub-header">
   <div class="beauty-hub-header-left">
     <h1>বাংলার রূপ (Beauty of Bangladesh)</h1>

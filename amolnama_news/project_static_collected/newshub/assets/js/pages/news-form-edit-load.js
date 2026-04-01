@@ -23,7 +23,15 @@
   /* Signal to news-form-persist.js: skip localStorage restore */
   window.__EDIT_MODE__ = true;
 
-  /* Clear any saved draft so it doesn't interfere with edit data */
+  /* Clear any saved draft so it doesn't interfere with edit data.
+     Use per-form-type keys if available (set by news-form-persist.js),
+     but also clear legacy key in case old drafts exist. */
+  var formTypeInput = document.getElementById('news-form-type');
+  var formTypeCode = formTypeInput ? formTypeInput.value : '';
+  if (formTypeCode) {
+    localStorage.removeItem('newshub_draft_' + formTypeCode);
+    localStorage.removeItem('newshub_draft_tags_' + formTypeCode);
+  }
   localStorage.removeItem('newshub_draft');
   localStorage.removeItem('newshub_draft_tags');
 
@@ -96,36 +104,36 @@
     var loc = data.location || {};
 
     /* --- Step 9: Location cascade --- */
-    var districtSel = document.getElementById('news-district-id');
-    if (districtSel && loc.district_id) {
+    var districtSelect = document.getElementById('news-district-id');
+    if (districtSelect && loc.district_id) {
       /* Use Tom Select if available */
-      if (districtSel.tomselect) {
-        districtSel.tomselect.setValue(String(loc.district_id), true);
+      if (districtSelect.tomselect) {
+        districtSelect.tomselect.setValue(String(loc.district_id), true);
       } else {
-        districtSel.value = String(loc.district_id);
+        districtSelect.value = String(loc.district_id);
       }
-      districtSel.dispatchEvent(new Event('change', { bubbles: true }));
+      districtSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
       /* Constituency (hidden input) */
-      var constSel = document.getElementById('news-constituency-id');
-      if (constSel && loc.constituency_id) {
-        constSel.value = String(loc.constituency_id);
+      var constituencySelect = document.getElementById('news-constituency-id');
+      if (constituencySelect && loc.constituency_id) {
+        constituencySelect.value = String(loc.constituency_id);
       }
 
       /* Subdistrict (upazila) — wait for cascade to load options */
-      var upazilaSel = document.getElementById('news-upazila-id');
-      if (upazilaSel && loc.upazila_city_corporation_name) {
-        waitForOptions(upazilaSel, function () {
+      var upazilaSelect = document.getElementById('news-upazila-id');
+      if (upazilaSelect && loc.upazila_city_corporation_name) {
+        waitForOptions(upazilaSelect, function () {
           /* Try to find option by text match since we store name, not ID */
-          selectOptionByText(upazilaSel, loc.upazila_city_corporation_name);
-          upazilaSel.dispatchEvent(new Event('change', { bubbles: true }));
+          selectOptionByText(upazilaSelect, loc.upazila_city_corporation_name);
+          upazilaSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
           /* Union parishad */
-          var unionSel = document.getElementById('news-union-parishad-id');
-          if (unionSel && loc.union_parishad_id) {
-            waitForOptions(unionSel, function () {
-              unionSel.value = String(loc.union_parishad_id);
-              unionSel.dispatchEvent(new Event('change', { bubbles: true }));
+          var unionSelect = document.getElementById('news-union-parishad-id');
+          if (unionSelect && loc.union_parishad_id) {
+            waitForOptions(unionSelect, function () {
+              unionSelect.value = String(loc.union_parishad_id);
+              unionSelect.dispatchEvent(new Event('change', { bubbles: true }));
             });
           }
         });

@@ -1,0 +1,97 @@
+================================================================
+USER ACCOUNT APP — Architecture & Features
+App: site_apps/user_account/
+URL prefix: /account/ and /accounts/
+================================================================
+
+## Introduction
+User authentication and profile management. Custom User model (email-based,
+no username). Person + UserProfile + contact models. Device/session tracking.
+
+## Models (11 models, all managed=False)
+
+| Model                   | DB Table                            | Purpose                    |
+|-------------------------|-------------------------------------|----------------------------|
+| UserProfile             | [account].[user_profile]            | User profile data          |
+| Person                  | [person].[person]                   | Person names (en/bn)       |
+| PersonAddress           | [person].[person_address]           | Address records            |
+| Phone                   | [person].[phone]                    | Phone numbers              |
+| Email                   | [person].[email]                    | Email addresses            |
+| RefContactType          | [person].[ref_contact_type]         | Contact type reference     |
+| RefUserAuthMethodType   | [account].[ref_user_auth_method_type]| Auth method types         |
+| UserDevice              | [account].[user_device]             | Device tracking            |
+| UserSession             | [account].[user_session]            | Session tracking           |
+| OrganisationType        | [person].[organisation_type]        | Organization types         |
+| Organisation            | [person].[organisation]             | Organizations              |
+
+### Key Fields on UserProfile
+- user_profile_id (PK), link_user_account_user_id (FK → auth User)
+- display_name, username_handle (@username)
+- bio, about, profile_location, profile_website_url
+- avatar_file_path, contribution_score_count
+- is_verified, is_active
+
+### Key Fields on Person
+- first_name_en, last_name_en, first_name_bn, last_name_bn
+- name_alias_en, name_alias_bn (display alias)
+- father/mother names (bn)
+- date_of_birth, gender_code, religion_code, nid_number
+
+## URL Patterns (16+ total)
+
+### Auth Pages
+| URL                    | View              |
+|------------------------|-------------------|
+| /account/login/        | login_view        |
+| /account/signup/       | signup_view       |
+| /account/logout/       | logout_view       |
+| /accounts/login/       | login_view (alias)|
+
+### APIs
+| URL                           | View                  |
+|-------------------------------|-----------------------|
+| /account/api/language-pref/   | api_language_pref     |
+| /account/api/check-email/     | api_check_email       |
+| /account/api/check-phone/     | api_check_phone       |
+
+## Features
+
+### Authentication
+- Email-based login (no username field on User model)
+- Signup: creates User + Person + UserProfile atomically (transaction.atomic)
+- Device/session tracking on login
+- django-axes for brute-force protection
+
+### User Profile
+- display_name: shown everywhere in the UI
+- username_handle: auto-generated @username from display name (core/utils.py)
+- bio: short description for hover popup
+- about: longer description for profile page
+- contribution_score_count: +10 per upvote received on posts
+- is_verified: verified badge on all posts
+- avatar: uploaded via portal app
+
+### Context Processors
+- user_display_name: injects display_name from UserProfile into all templates
+- user_avatar_url: injects avatar URL into all templates
+
+## Key Functions
+
+### Views
+- login_view() — email + password authentication
+- signup_view() — atomic User + Person + UserProfile creation
+- logout_view() — session cleanup
+
+### APIs
+- api_language_pref() — save BN/EN preference (called by language toggle)
+
+## Templates (13)
+- login.html, signup.html, password reset forms, etc.
+
+## Troubleshooting
+- Custom User model: email-based, first_name/last_name removed from User — names in Person only
+- Signup: MUST be in transaction.atomic() — prevents orphan records
+- Person creation: check all NOT NULL columns (first_name_en, modified_at)
+- Phone storage: contact.phone stores country_code + phone_number separately; account.user.phone stores full number
+- normalize_phone: regex bug was fixed — don't re-add regex
+- Non-mandatory text columns: use `or None` not empty string

@@ -1,0 +1,70 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-landing.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="stories-landing-header">
+  <h1 class="stories-landing-title">📚 গল্পের ঝুলি <span class="stories-landing-title-english">Stories for Kids</span></h1>
+  <p class="stories-landing-subtitle">ঠাকুরমার ঝুলি, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প — বাংলা ছোটদের গল্প সংগ্রহ</p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'stories:submit' %}" class="stories-landing-submit-button" id="stories-landing-submit-button" name="stories_landing_submit_button">+ গল্প জমা দিন</a>
+  {% endif %}
+</div>
+
+<div class="stories-filter-row" id="stories-filter-row">
+  <div class="stories-age-filter" id="stories-age-filter">
+    <a href="{% url 'stories:home' %}{% if active_category %}?category={{ active_category }}{% endif %}" class="stories-age-pill{% if not active_age %} stories-age-pill-active{% endif %}" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স</a>
+    {% for age_group in age_groups %}
+    <a href="{% url 'stories:home' %}?age={{ age_group.stories_ref_story_age_group_id }}{% if active_category %}&category={{ active_category }}{% endif %}" class="stories-age-pill{% if active_age == age_group.stories_ref_story_age_group_id|stringformat:'d' %} stories-age-pill-active{% endif %}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="stories-category-filter" id="stories-category-filter">
+    <a href="{% url 'stories:home' %}{% if active_age %}?age={{ active_age }}{% endif %}" class="stories-category-pill{% if not active_category %} stories-category-pill-active{% endif %}" id="stories-category-pill-all" name="stories_category_pill_all">সব বিভাগ</a>
+    {% for category in categories %}
+    <a href="{% url 'stories:home' %}?category={{ category.stories_ref_story_category_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="stories-category-pill{% if active_category == category.stories_ref_story_category_id|stringformat:'d' %} stories-category-pill-active{% endif %}" id="stories-category-pill-{{ category.story_category_code }}" name="stories_category_pill_{{ category.story_category_code }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if story_items %}
+<div class="stories-grid" id="stories-grid">
+  {% for item in story_items %}
+  <a href="{% url 'stories:detail' story_slug=item.slug %}" class="stories-card" id="stories-card-{{ item.story_id }}" name="stories_card_{{ item.story_id }}">
+    <div class="stories-card-image-wrapper">
+      {% if item.cover_url %}
+      <img src="{{ item.cover_url }}" alt="{{ item.title_bn }}" class="stories-card-image" loading="lazy">
+      {% else %}
+      <div class="stories-card-image-placeholder">{{ item.category_icon|default:"📖" }}</div>
+      {% endif %}
+      {% if item.is_daily_pick %}
+      <span class="stories-card-daily-badge">⭐ আজকের গল্প</span>
+      {% endif %}
+      <span class="stories-card-age-badge">{{ item.age_group_name_bn }}</span>
+    </div>
+    <div class="stories-card-body">
+      <h3 class="stories-card-title">{{ item.title_bn }}</h3>
+      {% if item.summary_bn %}<p class="stories-card-summary">{{ item.summary_bn|truncatewords:15 }}</p>{% endif %}
+      <div class="stories-card-meta">
+        <span class="stories-card-category">{{ item.category_icon }} {{ item.category_name_bn }}</span>
+        <span class="stories-card-reading-time">📖 {{ item.reading_time_minutes }} মিনিট</span>
+      </div>
+      <div class="stories-card-footer">
+        <span class="stories-card-author">{{ item.source_attribution_bn|default:item.author_name }}</span>
+        <span class="stories-card-stats">❤️ {{ item.like_count }} · 👁️ {{ item.view_count }}</span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="stories-empty-state">
+  <p>এখনো কোনো গল্প নেই। প্রথম গল্প জমা দিন!</p>
+</div>
+{% endif %}
+{% endblock %}

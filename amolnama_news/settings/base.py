@@ -63,6 +63,20 @@ LOCAL_APPS = [
     "amolnama_news.site_apps.seo",
     "amolnama_news.site_apps.bangladesh",
     "amolnama_news.site_apps.englishtobangla",
+    "amolnama_news.site_apps.newsroom",
+    "amolnama_news.site_apps.search",
+    "amolnama_news.site_apps.newsengine",
+    "amolnama_news.site_apps.portal",
+    "amolnama_news.site_apps.security",
+    "amolnama_news.site_apps.social",
+    "amolnama_news.site_apps.pulse",
+    "amolnama_news.site_apps.messenger",
+    "amolnama_news.site_apps.live",
+    "amolnama_news.site_apps.post",
+    "amolnama_news.site_apps.art",
+    "amolnama_news.site_apps.stories",
+    "amolnama_news.site_apps.health",
+    "amolnama_news.site_apps.textextractor",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

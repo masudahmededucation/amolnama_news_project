@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'textextractor/assets/css/pages/textextractor-upload.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="textextractor-upload-container" id="textextractor-upload-container">
+  <h1 class="textextractor-upload-title">📄 Upload File for Extraction</h1>
+  <p class="textextractor-upload-subtitle">Supported: Images (JPG, PNG), PDF, Audio (MP3, WAV), Video (MP4), Text files</p>
+
+  <div class="textextractor-upload-dropzone" id="textextractor-upload-dropzone">
+    <div class="textextractor-upload-dropzone-content" id="textextractor-upload-dropzone-content">
+      <span class="textextractor-upload-dropzone-icon">📂</span>
+      <p class="textextractor-upload-dropzone-text">Drag & drop file here or click to browse</p>
+      <p class="textextractor-upload-dropzone-hint">Max 50MB • Bengali + English OCR</p>
+    </div>
+    <input type="file" class="textextractor-upload-file-input" id="textextractor-upload-file-input" name="extraction_file" accept="image/*,.pdf,.mp3,.mp4,.wav,.mkv,.txt,.csv,.md,.html">
+  </div>
+
+  <div class="textextractor-upload-progress" id="textextractor-upload-progress" style="display:none;">
+    <div class="textextractor-upload-progress-filename" id="textextractor-upload-progress-filename"></div>
+    <div class="textextractor-upload-progress-bar-wrapper">
+      <div class="textextractor-upload-progress-bar" id="textextractor-upload-progress-bar"></div>
+      <div class="textextractor-upload-progress-status" id="textextractor-upload-progress-status">Uploading...</div>
+    </div>
+  </div>
+
+  <div class="textextractor-upload-result" id="textextractor-upload-result" style="display:none;">
+    <div class="textextractor-upload-result-header">
+      <span class="textextractor-upload-result-icon">✅</span>
+      <span class="textextractor-upload-result-text">Extraction complete!</span>
+    </div>
+    <div class="textextractor-upload-result-preview" id="textextractor-upload-result-preview"></div>
+    <a href="" class="textextractor-upload-result-view-button" id="textextractor-upload-result-view-button">View Full Result</a>
+  </div>
+
+  <div class="textextractor-upload-error" id="textextractor-upload-error" style="display:none;"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'textextractor/assets/js/pages/textextractor-upload.js' %}"></script>
+{% endblock %}

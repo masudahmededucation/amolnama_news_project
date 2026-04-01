@@ -1,0 +1,108 @@
+================================================================
+NEWSHUB APP — Architecture & Features
+App: site_apps/newshub/
+URL prefix: /newshub/
+(Blocked in robots.txt — anti-copy protection)
+================================================================
+
+## Introduction
+Main news collection hub — the largest app in the project.
+Multi-step forms for 10+ news categories (extortion, crime, land grabbing,
+price hike, sports, entertainment, war/conflict, July uprising, etc.).
+Article publishing with sidenote layout, contributor management, engagement tracking.
+
+## Models (27 models, all managed=False)
+
+### Reference Tables
+| Model                    | DB Table                              |
+|--------------------------|---------------------------------------|
+| RefNewsFormType          | [newshub].[ref_news_form_type]        |
+| RefNewsCategory          | [newshub].[ref_news_category]         |
+| RefNewsCategoryTag       | [newshub].[ref_news_category_tag]     |
+| RefActorType             | [newshub].[ref_actor_type]            |
+| RefContributorType       | [newshub].[ref_contributor_type]      |
+| RefSocialMediaPlatformType| [newshub].[ref_social_media_platform_type] |
+| RefAdPlacement           | [newshub].[ref_ad_placement]          |
+
+### Collection Tables
+| Model                    | DB Table                              |
+|--------------------------|---------------------------------------|
+| CollNewsEntry            | [newshub].[coll_news_entry]           |
+| CollNewsAsset            | [newshub].[coll_news_asset]           |
+| CollNewsSocialMediaSource| [newshub].[coll_news_social_media_source] |
+| CollNewsEntryTag         | [newshub].[coll_news_entry_tag]       |
+| CollContributor          | [newshub].[coll_contributor]          |
+
+### Publishing & Engagement
+| Model                    | DB Table                              |
+|--------------------------|---------------------------------------|
+| PubArticle               | [newshub].[pub_article]               |
+| EngArticleStat           | [newshub].[eng_article_stat]          |
+| EngComment               | [newshub].[eng_comment]               |
+
+## URL Patterns (44 total)
+
+### Pages
+- /newshub/ — news collection landing
+- /newshub/news-collection/ — single-page form
+- /newshub/news-collection/multistep/<form_type>/ — multi-step form (10+ types)
+- /newshub/article/<slug>/ — article detail (sidenote layout)
+- /newshub/articles/ — article listing
+
+### APIs (30+ endpoints)
+Location cascades, category/tag search, contributor management, article engagement,
+photo upload/like/view/delete/caption/set-cover, news entry CRUD.
+
+## Features
+
+### News Collection Forms
+- 10+ form types: extortion, crime, land grabbing, price hike, sports, entertainment,
+  war/conflict, July uprising, civic/community, watchdog, global news
+- Multi-step wizard with stepper navigation
+- Form persistence (localStorage auto-save between steps)
+- Category → tag cascade (dependent dropdowns)
+- Location cascade (division → district → upazila → union)
+- Photo upload with asset_group_code (evidence, impact, accused, victim, witness, general)
+- Edit pre-population from DB via helpers.py:build_edit_data()
+
+### Article Display
+- Two-column sidenote layout at /newshub/article/<slug>/
+- Form type badge in meta bar
+- Photo gallery grouped by asset_group_code
+- Session-based likes, view count
+- Shared actions-bar component
+
+### Status Management
+- Badge + pencil edit toggle → dropdown
+- Owner/admin can change article status
+- Inline messages, no popups
+
+## Key Functions
+
+### Views (views.py)
+- news_collection_multistep_*() — 10+ form type handlers
+- _build_common_extra() — shared context for all form types
+- _finalize_form_context() — final context assembly
+
+### APIs (views_api.py)
+- api_news_category_tags_by_category() — cascade tags by category
+- api_unified_location_search() — unified location lookup
+- api_location_resolve_ancestry() — resolve full location hierarchy
+
+### Helpers (helpers.py)
+- build_edit_data() — reconstruct all form data from DB for edit pre-population
+- build_article_seo_slug() — Bengali-safe slug via bangla_slugify()
+
+## Templates (177 total)
+Multi-step form templates, article templates, component partials.
+
+## Static Files
+- 15+ CSS files (form steps, article detail, article landing, etc.)
+- 15+ JS files (form components, stepper, persist, clear, edit-load, etc.)
+
+## Troubleshooting
+- CollNewsAsset composite PK — use raw SQL for file URLs (file_storage_path is computed column)
+- Edit pre-population: news-form-edit-load.js sets hidden inputs BEFORE component scripts init
+- Category → tag cascade: both _en and _bn in option text for Tom Select search
+- hash_headline_check is computed column — remove from Django model, never include in INSERT
+- Form persistence: localStorage key per form type, cleared on successful submit

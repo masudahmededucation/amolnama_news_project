@@ -17,6 +17,9 @@
 <div class="article-landing-grid">
   {% for article_item in articles %}
   <a href="{% url 'newshub:article_detail' slug=article_item.published_article.pub_article_slug %}" class="article-landing-card">
+    {% if article_item.cover_image_url %}
+    <div class="article-landing-card-image" style="background-image:url('{{ article_item.cover_image_url }}');"></div>
+    {% endif %}
     <div class="article-landing-card-header">
       {% if article_item.form_type %}
       <span class="article-landing-card-form-type">{{ article_item.form_type.form_name_bn }}</span>
@@ -42,6 +45,10 @@
       {% if article_item.published_article.published_at %}
       <span class="article-landing-card-date">{{ article_item.published_article.published_at|date:"d M Y" }}</span>
       {% endif %}
+    </div>
+    <div class="article-landing-card-stats">
+      <span class="article-landing-card-like-count" title="পছন্দ (Like)">👍 {{ article_item.like_count|default:0 }}</span>
+      <span class="article-landing-card-view-count" title="ভিউ (View)">👁️ {{ article_item.view_count|default:0 }}</span>
     </div>
   </a>
   {% empty %}

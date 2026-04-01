@@ -1,0 +1,74 @@
+--textextractor
+i want to preserve the text formatting from the file. 
+would that be possible?
+
+this should be admin feature only at the moment. 
+add at the end another group and separation. 
+label it as admin panel
+add nav menu option "Text Extractor".
+it should show all the processing details for input and output file details and process details.
+
+
+actually found out page is not responsive.
+i splitted the window that was forcing to overlay some of the box 
+not just on text extractor for also on other pages. 
+if the cards cannot fit in one row, they should flow to the next row. 
+this is simple feature needed for all website. are you clear?
+
+you have massive work ready. 
+you should check every app, every functions, 
+every forms, every card. 
+
+put different section for input and output details. 
+label should say input and output distinctively.
+it should show full path and name not partial with ...
+
+📄
+fa57d1a5-8032-4cd2-92af-454e1ab2fd89_bangladesh constitution law-v03.pdf
+.pdf
+5.0 MB
+web_upload
+📥 D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_…
+📤 D:\GoogleDrive\personal folder\Apps\amolnama_news\amolnama_…
+
+it needs a progress bar.
+
+discussion, does compression makes the processing harder. 
+for example, the file i am trying is large. 
+maybe we need to try reduce the file size first.
+then start processing the file. 
+it will reduce the load.
+what do you think?
+
+need a option to clear or cancel jobs. no broken process. 
+nothing should get stuck.
+
+you are not putting processing date time. 
+this is important. 
+also showing the multiple logs. 
+show only the latest files log on dashboard.
+
+the extractor process should not freeze mouse.
+i should be able to freely move around other nav options
+and still come back and check the result.
+
+no progress bar possible. we have one animated bar. 
+i think, it is better to have like 1%, 2%,3% ... 
+processed type of progress bar right?
+
+it seems goes 92% then stuck. 
+will try again. not cancelling. 
+why cancelling is taking so long?
+
+i cannot see any log details. 
+when new file is uploaded. 
+it should not show any more old log details. 
+this is simple logic. 
+do you understand that?
+even if a job fails. 
+i should be able to see the log details. 
+
+
+--multiple files?
+should we have options for multiple files?
+all type of files upload all-together? 

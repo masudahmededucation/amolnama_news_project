@@ -1,20 +1,40 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from .models import Article
 
 
 def home(request):
-    context = {
-        "seo": {
-            "title": "আমলনামা নিউজ — সত্যই আমাদের শক্তি | Amolnama News",
-            "description": (
-                "আমলনামা নিউজ — বাংলাদেশের স্বাধীন সংবাদ মাধ্যম। রাজনীতি, অপরাধ, খেলাধুলা, "
-                "বিনোদন, তদন্ত ও জনকণ্ঠ। Amolnama News — Bangladesh's independent news platform."
-            ),
-            "og_type": "website",
-            "breadcrumbs": [{"name": "হোম", "url": "/"}],
+    """Homepage — pulse feed with tabs (For You / Following / My Posts)."""
+    from amolnama_news.site_apps.post.views import build_post_feed_items, _build_my_posts
+
+    active_tab = request.GET.get('tab', 'for_you')
+
+    if active_tab == 'my_posts' and request.user.is_authenticated:
+        post_items, current_user_avatar_url = _build_my_posts(request)
+    elif active_tab == 'following' and request.user.is_authenticated:
+        from amolnama_news.site_apps.post.views import _build_following_posts
+        from amolnama_news.site_apps.social.models import UserFollow
+        from amolnama_news.site_apps.user_account.models import UserProfile as FollowUserProfile
+        post_items, current_user_avatar_url = _build_following_posts(request)
+        try:
+            follow_profile = FollowUserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            following_count = UserFollow.objects.filter(link_follower_user_profile_id=follow_profile.user_profile_id, is_active=True).count()
+        except FollowUserProfile.DoesNotExist:
+            following_count = 0
+    else:
+        active_tab = 'for_you'
+        post_items, current_user_avatar_url = build_post_feed_items(request)
+
+    return render(request, 'pulse/pages/pulse-home.html', {
+        'posts': post_items,
+        'current_user_avatar_url': current_user_avatar_url,
+        'active_tab': active_tab,
+        'following_count': following_count if active_tab == 'following' else 0,
+        'seo': {
+            'title': 'আমলনামা নিউজ — সত্যই আমাদের শক্তি | Amolnama News',
+            'description': 'আমলনামা নিউজ — বাংলাদেশের স্বাধীন সংবাদ মাধ্যম।',
+            'og_type': 'website',
         },
-    }
-    return render(request, "core/home.html", context)
+    })
 
 
 def article_detail(request, slug):

@@ -23,3 +23,114 @@ places, or key names—you can do this in the user interface using JavaScript,
  When rendering the article view, loop through the paragraphs, display each one on the right, 
  and on the left show only the extracted keywords, date, and person for that same paragraph.
 
+
+
+#######################
+
+
+
+--news article
+after uploading the picture.
+we need to display it in the news article right?
+you are not showing that in the news article preview?
+
+--implement news article cover photo and small preview photo only if photo available.
+take the example from travel hub.
+
+--when photo is uploaded for accused/witness/victim/impact.
+show them similar way like travel hub. 
+all photo options should be same.
+just group the photos according to victim/accused/witness/impact.
+just tag the photos for victim/accused/witness
+
+
+--news article photo 
+when i click on the photo attached section, like travel hub user should be able to view picture in large full mode. 
+they are just grouped and tagged differently.
+all the options of travel hub photo i want here. maybe modularise the travel hub photo options. 
+then it would be easy to see and copy or reuse.
+
+--create implementation plan
+can you create a robust plan. 
+then check for bugs in the plan again. 
+then continue implementing it. 
+you should be writing plan and implementing step 1 to... and mark them once done. 
+this way you know what is done and not.
+one thing may change - is add like, or view text label with icon. what do you think?
+
+--create or update documents
+
+
+--like for article
+we need modularise mechanism to like article.
+then reuse it every article view
+
+
+
+#########################
+news article - like share edit should be available on the top and bottom - should be same - modularise - reuse. 
+
+news article small preview  should have like count, view count like travel hub picture. 
+
+are you clear?
+
+
+
+###############
+url for poem title is jibrish, why? for example: বসন্ত নয় অবহেলা.	✅ Fixed
+regenerate - slugify/url.	✅ All 6 poems + 1 article regenerated
+you need to check on news article, bangladesh, poem.	✅ All 4 call sites updated to bangla_slugify()
+Root cause: Django slugify NFKD strips Bengali matras. Fix: core/utils.py bangla_slugify() uses NFC.
+
+#####
+--news article
+side not is occupying too much space
+make the slim. maybe large text flow them in multiple lines?
+সাভার, পৌরসভা (Municipality): সাভার (Savar), জেলা (District): ঢাকা (Dhaka)
+remove english part
+
+
+
+#############################
+
+--publication admin panel
+-dont' need it self publication like stackoverflow.
+should we build like stackoverflow because it is a newshub website. 
+rather than edit, edit the same post or comment to add information, right?
+i think, lets repost only. if any edited needed then it should be on the main post. 
+when main post is edited, it should reflect on the shared post. 
+we need people to have the ability to repost or share on the wall to give them
+sense of involvement who does not want to write anything. 
+we will have hybrid of twitter and stackoverflow. 
+
+####################
+Good direction. The hybrid makes sense for a news platform:
+
+From X/Twitter:
+
+Post feed (timeline) ✅
+Repost (silent amplify) ✅
+Like, bookmark, share ✅
+Follow/followers (future — social app)
+From StackOverflow:
+
+Comments add value, not just chat ✅
+Original post is the source of truth — edits reflect everywhere ✅
+Keywords/tags for discoverability ✅
+View count as quality signal ✅
+Upvote = like (credibility, not popularity)
+Unique to আমলনামা:
+
+NER entity highlighting (person, location, religious, book) ✅
+Bengali-first with Avro phonetic ✅
+Citizen journalism (newshub) feeds into the post system
+News verification through community engagement
+The foundation is built. 
+The StackOverflow influence will become stronger 
+when we build reputation scores, verified answers, and community moderation.
+#######################
+
+
+--search app
+
+--like notification?

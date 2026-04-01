@@ -214,6 +214,9 @@ class CollNewsAsset(models.Model):
     link_asset_id = models.BigIntegerField()
     coll_news_asset_caption_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_featured = models.BooleanField()
+    asset_group_code = models.CharField(max_length=50, blank=True, null=True)
+    view_count = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
     sort_order = models.IntegerField()
     created_at = models.DateTimeField()
 
@@ -283,6 +286,7 @@ class EngArticleStat(models.Model):
     link_pub_article_id = models.BigIntegerField()
     view_count = models.IntegerField()
     share_count = models.IntegerField()
+    like_count = models.IntegerField(default=0)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -424,6 +428,7 @@ class EngArticleStat(models.Model):
     link_pub_article_id = models.BigIntegerField()
     view_count = models.IntegerField()
     share_count = models.IntegerField()
+    like_count = models.IntegerField(default=0)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

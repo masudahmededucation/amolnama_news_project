@@ -24,7 +24,7 @@ urlpatterns = [
     path('news-collection/multistep/women-child-violence/', views.news_collection_multistep_women_child_violence, name='news_collection_multistep_women_child_violence'),
 
     # Article detail view (public, slug-based via pub_article)
-    path('article/<slug:slug>/', views.article_detail, name='article_detail'),
+    path('article/<str:slug>/', views.article_detail, name='article_detail'),
 
     # API endpoints — location cascade (original)
     path('api/constituencies/<int:district_id>/', views_api.api_constituencies_by_district, name='api_constituencies_by_district'),
@@ -55,6 +55,12 @@ urlpatterns = [
     # API endpoints — article interactions
     path('api/article/<int:pub_article_id>/comment/', views_api.api_article_comment_create, name='api_article_comment_create'),
     path('api/article/<int:entry_id>/status/', views_api.api_article_update_publication_status, name='api_article_update_publication_status'),
+    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/set-cover/', views_api.api_article_cover_image_set, name='api_article_cover_image_set'),
+    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/caption/', views_api.api_article_photo_caption_update, name='api_article_photo_caption_update'),
+    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/delete/', views_api.api_article_photo_delete, name='api_article_photo_delete'),
+    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/view/', views_api.api_article_photo_view, name='api_article_photo_view'),
+    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/like/', views_api.api_article_photo_like_toggle, name='api_article_photo_like_toggle'),
+    path('api/article/<int:pub_article_id>/like/', views_api.api_article_like_toggle, name='api_article_like_toggle'),
 
     # API endpoints — organisations
     path('api/organisations/search/', views_api.api_organisation_search, name='api_organisation_search'),

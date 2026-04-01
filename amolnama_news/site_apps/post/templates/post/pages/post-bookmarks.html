@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="post-bookmarks-header" id="post-bookmarks-header">
+  <h1 class="post-bookmarks-title" id="post-bookmarks-title">💜 সংরক্ষিত পোস্ট (Bookmarks)</h1>
+  <p class="post-bookmarks-subtitle" id="post-bookmarks-subtitle">আপনার পছন্দের পোস্টগুলো এখানে সংরক্ষিত আছে</p>
+</div>
+
+<div class="post-feed" id="post-bookmarks-feed">
+  {% for post_item in posts %}
+  {% include "post/components/post-card.html" %}
+  {% empty %}
+  <div class="post-feed-empty" id="post-bookmarks-empty">
+    <p>এখনো কোনো পোস্ট সংরক্ষণ করা হয়নি</p>
+    <p><a href="{% url 'post:home' %}">পোস্ট দেখুন →</a></p>
+  </div>
+  {% endfor %}
+</div>
+
+{% include "core/components/photo-lightbox.html" %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
+{% endblock %}

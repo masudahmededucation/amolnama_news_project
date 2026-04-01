@@ -6,9 +6,16 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'newshub/assets/css/pages/article-detail.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-card.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 {% endblock %}
 
 {% block content %}
+
+{# ======== Hero Cover Image ======== #}
+<div class="article-detail-hero" id="article-detail-hero" style="{% if cover_image_url %}background-image:url('{{ cover_image_url }}');{% else %}display:none;{% endif %}"></div>
+
 <div class="article-detail-container">
 
   {# ======== LEFT COLUMN: Sidenote Sidebar ======== #}
@@ -54,7 +61,7 @@
           {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
         </span>
         {% if can_edit %}
-        <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
+        <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" name="article_status_edit" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
         <select class="article-status-select" id="article-publication-status-select"
                 name="article_publication_status"
                 data-entry-id="{{ entry.coll_news_entry_id }}"
@@ -115,17 +122,8 @@
       {% endif %}
     </div>
 
-    {# ---- Top Actions (share + edit) ---- #}
-    <div class="article-actions article-actions-top">
-      <button id="article-share-btn-top" class="article-action-btn article-share-btn-top" data-title="{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|escapejs }}">
-        📤 শেয়ার
-      </button>
-      {% if can_edit and edit_url %}
-      <a href="{{ edit_url }}" class="article-action-btn edit-btn">
-        ✏️ সম্পাদনা
-      </a>
-      {% endif %}
-    </div>
+    {# ---- Top Actions (like + share + edit) ---- #}
+    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="top" %}
 
     {# ---- Summary ---- #}
     {% if entry.news_summary_bn %}
@@ -141,18 +139,81 @@
       {% endfor %}
     </div>
 
-    {# ---- Actions ---- #}
-    <div class="article-actions">
-      <button class="article-action-btn" id="article-share-btn" data-title="{{ published_article.pub_article_headline_bn|default:entry.news_headline_bn|escapejs }}">
-        📤 শেয়ার
-      </button>
+    {# ======== PHOTO GALLERY (grouped by role) ======== #}
+    {% if all_photos %}
+    <section class="article-detail-photos">
 
-      {% if can_edit and edit_url %}
-      <a href="{{ edit_url }}" class="article-action-btn edit-btn">
-        ✏️ সম্পাদনা
-      </a>
+      {% if photo_groups.evidence %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">📷 প্রমাণ ও সংযুক্তি (Evidence & Attachments)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.evidence %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
       {% endif %}
-    </div>
+
+      {% if photo_groups.impact %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">📸 প্রভাব (Impact)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.impact %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if photo_groups.accused %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">👤 অভিযুক্ত (Accused)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.accused %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if photo_groups.victim %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">👤 ভুক্তভোগী (Victim)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.victim %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if photo_groups.witness %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">👤 সাক্ষী (Witness)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.witness %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if photo_groups.general %}
+      <div class="article-detail-photo-group">
+        <h3 class="article-detail-photo-group-heading">📎 সংযুক্তি (Attachments)</h3>
+        <div class="photo-card-grid">
+          {% for photo in photo_groups.general %}
+          {% include "core/components/photo-card.html" with photo_card=photo.photo_card photo_card_can_edit=can_edit %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </section>
+    {% endif %}
+
+    {# ---- Bottom Actions (like + share + edit) ---- #}
+    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="bottom" %}
 
     {# ======== COMMUNITY ADDITIONS ======== #}
     {% if additions %}
@@ -191,7 +252,7 @@
                   placeholder="আপনার মন্তব্য লিখুন... (Write your comment...)"
                   aria-labelledby="article-comments-title"
                   style="width:100%;padding:.6rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.88rem;resize:vertical;"></textarea>
-        <button type="button" id="article-comment-submit" class="article-action-btn"
+        <button type="button" id="article-comment-submit" name="article_comment_submit" class="article-action-btn"
                 data-article-id="{{ published_article.pub_article_id }}"
                 style="margin-top:.5rem;">
           💬 মন্তব্য করুন
@@ -217,8 +278,15 @@
 
   </main>
 </div>
+
+{% if all_photos %}
+{% include "core/components/photo-lightbox.html" %}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}"></script>
+<script src="{% static 'core/assets/js/components/photo-card.js' %}"></script>
+<script src="{% static 'core/assets/js/components/actions-bar.js' %}"></script>
 <script src="{% static 'newshub/assets/js/pages/article-detail.js' %}"></script>
 {% endblock %}

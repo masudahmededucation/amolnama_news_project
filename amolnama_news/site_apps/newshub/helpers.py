@@ -5,6 +5,8 @@ build_sidenote_data(news_entry) — sidenote items for two-column article view.
 build_edit_data(entry_id, form_type_code) — reconstruct all form data from DB for edit mode.
 """
 
+import re
+
 from django.utils import timezone
 from amolnama_news.site_apps.investigation.models import (
     RefStatus,
@@ -156,16 +158,20 @@ def _shared_sidenotes(entry):
     if entry.occurrence_at:
         items.append(_build_sidenote_item('date', '📅', 'ঘটনার তারিখ', entry.occurrence_at.strftime('%d/%m/%Y %H:%M')))
 
-    # Location
+    # Location — strip English parenthetical parts for cleaner Bengali display
     addr_parts = []
     if entry.upazila_city_corporation_name:
-        addr_parts.append(entry.upazila_city_corporation_name)
+        addr_parts.append(re.sub(r'\s*\([^)]*\)', '', entry.upazila_city_corporation_name).strip())
     if entry.full_address_bn:
-        addr_parts.append(entry.full_address_bn)
+        addr_parts.append(re.sub(r'\s*\([^)]*\)', '', entry.full_address_bn).strip())
     elif entry.map_formatted_address_bn:
-        addr_parts.append(entry.map_formatted_address_bn)
+        addr_parts.append(re.sub(r'\s*\([^)]*\)', '', entry.map_formatted_address_bn).strip())
     if addr_parts:
-        items.append(_build_sidenote_item('place', '📍', 'স্থান', ', '.join(addr_parts)))
+        # Also strip English labels like "Municipality:", "District:"
+        location_text = ', '.join(addr_parts)
+        location_text = re.sub(r'\b[A-Za-z]+:\s*', '', location_text).strip()
+        location_text = re.sub(r',\s*,', ',', location_text).strip(', ')
+        items.append(_build_sidenote_item('place', '📍', 'স্থান', location_text))
 
     # Breaking news
     if entry.is_breaking:
@@ -708,7 +714,7 @@ def build_article_seo_slug(entry, form_type_code):
     Returns:
         str: slug suitable for URL
     """
-    from django.utils.text import slugify
+    from amolnama_news.site_apps.core.utils import bangla_slugify
 
     parts = []
 
@@ -731,17 +737,160 @@ def build_article_seo_slug(entry, form_type_code):
     # 3. Headline keywords (first ~6 words from Bengali headline, transliterated)
     headline = entry.news_headline_bn or entry.news_headline_en or ""
     if headline:
-        headline_slug = slugify(headline, allow_unicode=True)
+        headline_slug = bangla_slugify(headline)
         # Take first ~80 chars to keep URL reasonable
         if len(headline_slug) > 80:
             headline_slug = headline_slug[:80].rsplit('-', 1)[0]
         parts.append(headline_slug)
 
     # 4. Year
-    if entry.occurrence_datetime:
-        parts.append(str(entry.occurrence_datetime.year))
+    if getattr(entry, 'occurrence_at', None):
+        parts.append(str(entry.occurrence_at.year))
     elif entry.created_at:
         parts.append(str(entry.created_at.year))
 
     slug = '-'.join(part for part in parts if part)
     return slug[:450] if slug else str(entry.coll_news_entry_id)
+
+
+# ---------------------------------------------------------------------------
+# Article photos — fetch file URLs via raw SQL (file_storage_path is computed)
+# ---------------------------------------------------------------------------
+
+def get_article_photos(coll_news_entry_id):
+    """Fetch all photos for a news article, grouped by asset_group_code.
+
+    Returns a dict:
+        {
+            'all': [photo_dict, ...],             — flat list, sorted by sort_order
+            'cover_image_url': str or None,       — featured photo URL (or first photo)
+            'groups': {                            — grouped by asset_group_code
+                'evidence': [photo_dict, ...],
+                'impact': [...],
+                'accused': [...],
+                ...
+            }
+        }
+
+    Each photo_dict:
+        {
+            'link_asset_id': int,
+            'file_url': str,                     — '/media/...' URL path
+            'coll_news_asset_caption_bn': str,
+            'is_featured': bool,
+            'asset_group_code': str or None,
+            'view_count': int,
+            'like_count': int,
+            'sort_order': int,
+            'file_mime_type': str,
+        }
+    """
+    from django.db import connection
+
+    sql = """
+        SELECT [newshub].[coll_news_asset].link_asset_id,
+               [newshub].[coll_news_asset].coll_news_asset_caption_bn,
+               [newshub].[coll_news_asset].is_featured,
+               [newshub].[coll_news_asset].asset_group_code,
+               [newshub].[coll_news_asset].view_count,
+               [newshub].[coll_news_asset].like_count,
+               [newshub].[coll_news_asset].sort_order,
+               '/media/' + [media].[asset].file_storage_path AS file_url,
+               [media].[asset].file_mime_type
+        FROM [newshub].[coll_news_asset]
+        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[coll_news_asset].link_asset_id
+        WHERE [newshub].[coll_news_asset].link_coll_news_entry_id = %s
+          AND [media].[asset].is_active = 1
+        ORDER BY [newshub].[coll_news_asset].sort_order
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [coll_news_entry_id])
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+
+    photos = [dict(zip(columns, row)) for row in rows]
+
+    # Only include image files (not PDFs, docs, etc.)
+    image_photos = [
+        photo for photo in photos
+        if photo.get('file_mime_type', '').startswith('image/')
+    ]
+
+    # Determine cover image URL
+    cover_image_url = None
+    for photo in image_photos:
+        if photo.get('is_featured'):
+            cover_image_url = photo['file_url']
+            break
+    if not cover_image_url and image_photos:
+        cover_image_url = image_photos[0]['file_url']
+
+    # Build photo_card dicts for shared template component
+    for photo in image_photos:
+        photo['photo_card'] = {
+            'id': photo['link_asset_id'],
+            'parent_id': coll_news_entry_id,
+            'file_url': photo['file_url'],
+            'caption': photo.get('coll_news_asset_caption_bn') or None,
+            'like_count': photo.get('like_count', 0),
+            'view_count': photo.get('view_count', 0),
+            'user_liked': photo.get('user_liked', False),
+            'is_cover': bool(cover_image_url and cover_image_url == photo['file_url']),
+        }
+
+    # Group by asset_group_code
+    groups = {}
+    for photo in image_photos:
+        group_code = photo.get('asset_group_code') or 'general'
+        if group_code not in groups:
+            groups[group_code] = []
+        groups[group_code].append(photo)
+
+    return {
+        'all': image_photos,
+        'cover_image_url': cover_image_url,
+        'groups': groups,
+    }
+
+
+def get_article_cover_urls_bulk(coll_news_entry_ids):
+    """Bulk fetch cover image URLs for multiple articles (for listing page).
+
+    Returns dict: { coll_news_entry_id: file_url, ... }
+    Uses is_featured=1 first, falls back to first photo (lowest sort_order).
+    """
+    if not coll_news_entry_ids:
+        return {}
+
+    from django.db import connection
+
+    placeholders = ','.join(['%s'] * len(coll_news_entry_ids))
+    sql = f"""
+        SELECT [newshub].[coll_news_asset].link_coll_news_entry_id,
+               '/media/' + [media].[asset].file_storage_path AS file_url,
+               [newshub].[coll_news_asset].is_featured,
+               [newshub].[coll_news_asset].sort_order
+        FROM [newshub].[coll_news_asset]
+        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[coll_news_asset].link_asset_id
+        WHERE [newshub].[coll_news_asset].link_coll_news_entry_id IN ({placeholders})
+          AND [media].[asset].is_active = 1
+          AND [media].[asset].file_mime_type LIKE 'image/%%'
+        ORDER BY [newshub].[coll_news_asset].link_coll_news_entry_id,
+                 [newshub].[coll_news_asset].is_featured DESC,
+                 [newshub].[coll_news_asset].sort_order
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, list(coll_news_entry_ids))
+        rows = cursor.fetchall()
+
+    # Pick first row per entry (featured first due to ORDER BY)
+    cover_map = {}
+    for row in rows:
+        entry_id = row[0]
+        file_url = row[1]
+        if entry_id not in cover_map:
+            cover_map[entry_id] = file_url
+
+    return cover_map

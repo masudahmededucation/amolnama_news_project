@@ -1002,7 +1002,7 @@
           </div>
           <div class="sig-draw-area">
             <canvas class="sig-canvas" width="400" height="120"></canvas>
-            <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            <button type="button" class="sig-clear-btn" id="signature-clear-groom" name="signature_clear_groom"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
           </div>
           <div class="marriage-sig-upload" id="sig-groom-drop" style="display:none">
             <input type="file" id="sig-groom-file" name="sig_groom_file" accept="image/*">
@@ -1024,7 +1024,7 @@
           </div>
           <div class="sig-draw-area">
             <canvas class="sig-canvas" width="400" height="120"></canvas>
-            <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            <button type="button" class="sig-clear-btn" id="signature-clear-bride" name="signature_clear_bride"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
           </div>
           <div class="marriage-sig-upload" id="sig-bride-drop" style="display:none">
             <input type="file" id="sig-bride-file" name="sig_bride_file" accept="image/*">
@@ -1046,7 +1046,7 @@
           </div>
           <div class="sig-draw-area">
             <canvas class="sig-canvas" width="400" height="120"></canvas>
-            <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            <button type="button" class="sig-clear-btn" id="signature-clear-bride-advocate" name="signature_clear_bride_advocate"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
           </div>
           <div class="marriage-sig-upload" id="sig-bride-advocate-drop" style="display:none">
             <input type="file" id="sig-bride-advocate-file" name="sig_bride_advocate_file" accept="image/*">
@@ -1068,7 +1068,7 @@
           </div>
           <div class="sig-draw-area">
             <canvas class="sig-canvas" width="400" height="120"></canvas>
-            <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            <button type="button" class="sig-clear-btn" id="signature-clear-groom-advocate" name="signature_clear_groom_advocate"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
           </div>
           <div class="marriage-sig-upload" id="sig-groom-advocate-drop" style="display:none">
             <input type="file" id="sig-groom-advocate-file" name="sig_groom_advocate_file" accept="image/*">
@@ -1090,7 +1090,7 @@
           </div>
           <div class="sig-draw-area">
             <canvas class="sig-canvas" width="400" height="120"></canvas>
-            <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
+            <button type="button" class="sig-clear-btn" id="signature-clear-kazi" name="signature_clear_kazi"><span class="lbl-bn">মুছুন</span><span class="lbl-en" style="display:none">Clear</span></button>
           </div>
           <div class="marriage-sig-upload" id="sig-kazi-drop" style="display:none">
             <input type="file" id="sig-kazi-file" name="sig_kazi_file" accept="image/*">
@@ -1240,6 +1240,14 @@
     <button type="button" class="btn-step-next" id="btn-step-next">পরবর্তী (Next) &rarr;</button>
   </div>
 
+  {# Clear form button #}
+  <div class="marriage-clear-form-row">
+    <button type="button" id="marriage-clear-form-button" name="marriage_clear_form" class="marriage-clear-form-button">
+      <span class="lbl-bn">তথ্য মুছুন (Clear Form)</span>
+      <span class="lbl-en" style="display:none">Clear Form</span>
+    </button>
+  </div>
+
 </section>
 {% endblock %}
 
@@ -1252,4 +1260,5 @@
   <script src="{% static 'marriage/assets/js/components/marriage-sigpad.js' %}"></script>
   <script src="{% static 'marriage/assets/js/pages/marriage-form-preview.js' %}"></script>
   <script src="{% static 'marriage/assets/js/pages/marriage-photo-upload.js' %}"></script>
+  <script src="{% static 'marriage/assets/js/pages/marriage-form-clear.js' %}"></script>
 {% endblock %}

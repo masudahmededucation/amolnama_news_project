@@ -1,0 +1,66 @@
+================================================================
+ENGLISHTOBANGLA APP — Architecture & Features
+App: site_apps/englishtobangla/
+URL prefix: /tools/ (transliteration tool page)
+================================================================
+
+## Overview
+Bengali transliteration system — type English, get Bengali suggestions.
+Two components: BanglaInput (regular fields) + QuillAvro (Quill editors).
+Global auto-attach via MutationObserver — works on ALL pages, ALL dynamic fields.
+
+## Models
+None.
+
+## Static Files (loaded globally in base.html)
+
+| File                           | Purpose                              | Load Order |
+|--------------------------------|--------------------------------------|------------|
+| js/utilities/avro-phonetic.js  | Avro Phonetic engine (client-side)   | 1          |
+| js/utilities/bangla-input.js   | BanglaInput module + suggestion UI   | 2          |
+| js/utilities/bangla-input-auto-attach.js | MutationObserver auto-attach | 3          |
+| js/utilities/quill-avro.js     | Quill editor Bengali integration     | 4          |
+| js/utilities/bangla-dictionary.json | 159K Bengali words (offline)    | lazy load  |
+| js/utilities/bangla-suffix.json | Bengali suffix patterns             | lazy load  |
+
+## BanglaInput Module (bangla-input.js)
+
+### Public API
+- BanglaInput.attach(inputEl, options) — attach transliteration to a field
+- BanglaInput.setEnabled(bool) — enable/disable globally (language toggle)
+- BanglaInput.isEnabled() — check current state
+
+### How It Works
+1. User types English in any textarea/input
+2. Avro Phonetic converts to Bengali instantly (zero latency)
+3. Dictionary lookup enriches suggestions (159K words)
+4. Google transliterate API fetches additional suggestions (background, 80ms debounce)
+5. Suggestion dropdown appears with keyboard navigation
+6. Space = auto-pick best suggestion
+7. Arrow keys = browse alternatives
+8. Escape = dismiss
+
+### Auto-Attach (bangla-input-auto-attach.js)
+- On page load: attaches to ALL input[type="text"] and textarea elements
+- Skips: fields with data-no-bangla attribute, fields with _en suffix only
+- MutationObserver: watches for dynamically created fields (reply forms, edit forms)
+- Safety: data-bangla-attached="1" prevents double-attach
+
+### Language Toggle Integration
+- news-form-lang.js calls BanglaInput.setEnabled(lang === 'bn')
+- When EN selected: globalEnabled=false, input/keydown handlers bail out
+- When BN selected: globalEnabled=true, normal transliteration
+- Same toggle controls QuillAvro.setEnabled()
+
+## QuillAvro Module (quill-avro.js)
+- Integrates Avro Phonetic directly into Quill rich text editors
+- Attached to Quill instances via QuillAvro.attach(quillInstance)
+- Enabled/disabled via QuillAvro.setEnabled(bool)
+- Used in: travel hub short desc + description editors
+
+## Troubleshooting
+- If Bengali typing doesn't work on a new page: check base.html loads the 4 JS files
+- If it works but EN toggle doesn't switch: check news-form-lang.js is loaded
+- If dynamic fields don't get it: MutationObserver should pick up — check data-bangla-attached
+- CSP requires external JS files, NOT inline scripts
+- Filenames must NOT contain "bangla-input" in the path (CSP filename filter issue — legacy)

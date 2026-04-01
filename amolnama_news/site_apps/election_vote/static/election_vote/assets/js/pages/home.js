@@ -55,3 +55,18 @@ function getCSRFToken() {
   }
   return cookieValue;
 }
+
+/* --- Election selection via event delegation (no inline onclick) --- */
+document.addEventListener('click', function (event) {
+  var electionOption = event.target.closest('.election-selection-option');
+  if (!electionOption) return;
+
+  var electionEvaluationId = parseInt(electionOption.getAttribute('data-election-evaluation-id'), 10);
+  var electionId = parseInt(electionOption.getAttribute('data-election-id'), 10);
+  var nameEn = electionOption.getAttribute('data-name-en');
+  var nameBn = electionOption.getAttribute('data-name-bn');
+
+  if (typeof handleElectionSelection === 'function') {
+    handleElectionSelection(electionEvaluationId, electionId, nameEn, nameBn);
+  }
+});

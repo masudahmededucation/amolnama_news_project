@@ -17,11 +17,6 @@ urlpatterns = [
     path("password/forgot/phone/", views.forgot_password_phone_view, name="forgot_password_phone"),
     path("password/forgot/verify/", views.forgot_password_verify_view, name="forgot_password_verify"),
     path("password/forgot/reset/", views.forgot_password_reset_view, name="forgot_password_reset"),
-    path("profile/", views.profile_redirect_view, name="profile"),
-    path("profile/personal/", views.profile_personal_view, name="profile_personal"),
-    path("profile/contact/", views.profile_contact_view, name="profile_contact"),
-    path("profile/address/", views.profile_address_view, name="profile_address"),
-    path("profile/settings/", views.profile_settings_view, name="profile_settings"),
     path("logout/", views.logout_view, name="logout"),
     # JSON APIs for cascading location dropdowns
     path("api/upazilas/", views.api_upazilas, name="api_upazilas"),

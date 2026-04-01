@@ -525,7 +525,7 @@
   margin-bottom: 0;
 }
 
-.btn-clear-form {
+.news-clear-form-button {
   padding: .35rem .85rem;
   font-size: .85rem;
   font-weight: 600;
@@ -537,25 +537,25 @@
   transition: all .2s;
 }
 
-.btn-clear-form:hover {
+.news-clear-form-button:hover {
   color: #fff;
   background: var(--danger);
   border-color: var(--danger);
 }
 
-.btn-clear-form-confirm {
+.news-clear-form-button-confirm {
   color: #fff;
   background: var(--danger);
   border-color: var(--danger);
 }
 
-.btn-clear-form-confirm:hover {
+.news-clear-form-button-confirm:hover {
   background: #8b1a1a;
   border-color: #8b1a1a;
   color: #fff;
 }
 
-.clear-form-msg {
+.news-clear-form-message {
   font-size: .75rem;
   color: var(--muted);
   white-space: nowrap;

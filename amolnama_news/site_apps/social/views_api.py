@@ -1,0 +1,67 @@
+"""Social API views — follow/unfollow."""
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+from .models import UserFollow
+
+
+@require_POST
+@login_required
+def api_follow_toggle(request, user_profile_id):
+    """Toggle follow/unfollow a user. Cannot follow yourself."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Cannot follow yourself
+    if current_profile.user_profile_id == user_profile_id:
+        return JsonResponse({'success': False, 'error': 'নিজেকে ফলো করা যায় না'}, status=400)
+
+    # Check target exists
+    if not UserProfile.objects.filter(user_profile_id=user_profile_id).exists():
+        return JsonResponse({'success': False, 'error': 'ব্যবহারকারী পাওয়া যায়নি'}, status=404)
+
+    # Check existing follow (active or inactive)
+    existing_follow = UserFollow.objects.filter(
+        link_follower_user_profile_id=current_profile.user_profile_id,
+        link_following_user_profile_id=user_profile_id,
+    ).first()
+
+    if existing_follow and existing_follow.is_active:
+        # Unfollow
+        existing_follow.is_active = False
+        existing_follow.updated_at = timezone.now()
+        existing_follow.save(update_fields=['is_active', 'updated_at'])
+        following = False
+    elif existing_follow and not existing_follow.is_active:
+        # Re-follow
+        existing_follow.is_active = True
+        existing_follow.updated_at = timezone.now()
+        existing_follow.save(update_fields=['is_active', 'updated_at'])
+        following = True
+    else:
+        # First-time follow
+        UserFollow.objects.create(
+            link_follower_user_profile_id=current_profile.user_profile_id,
+            link_following_user_profile_id=user_profile_id,
+            is_active=True,
+        )
+        following = True
+
+    # Count followers for the target user (from actual data)
+    follower_count = UserFollow.objects.filter(
+        link_following_user_profile_id=user_profile_id,
+        is_active=True,
+    ).count()
+
+    return JsonResponse({
+        'success': True,
+        'following': following,
+        'follower_count': follower_count,
+    })

@@ -1,0 +1,50 @@
+/* ========== Like Button — shared component ========== */
+/* Used by: article detail, destination detail, and any page with a like button.
+   Each page includes this CSS. Like state managed by like-button.js. */
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .8rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card, #fff);
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color .2s, background .2s, border-color .2s;
+  user-select: none;
+}
+
+.like-button:hover {
+  color: #1877f2;
+  background: #e7f3ff;
+  border-color: #1877f2;
+}
+
+.like-button-active {
+  color: #1877f2;
+  background: #e7f3ff;
+  border-color: #1877f2;
+}
+
+.like-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.like-button-icon {
+  font-size: .9rem;
+  line-height: 1;
+}
+
+.like-button-label {
+  font-size: .78rem;
+}
+
+.like-button-count {
+  font-size: .78rem;
+  font-weight: 700;
+}

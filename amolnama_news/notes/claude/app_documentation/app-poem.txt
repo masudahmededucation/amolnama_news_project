@@ -1,0 +1,83 @@
+================================================================
+POEM APP — Architecture & Features
+App: site_apps/poem/
+URL prefix: /bangla-kobita-gaan/
+(Old URL /poem/ has 301 redirect)
+================================================================
+
+## Introduction
+Bengali poetry and song collection platform. Users can create, edit,
+browse, like, and share poems/songs with category tagging.
+
+## Models (3 models, all managed=False)
+
+| Model            | DB Table                         | Purpose            |
+|------------------|----------------------------------|--------------------|
+| RefPoemCategory  | [poem].[ref_poem_category]       | Poem categories    |
+| CollPoemEntry    | [poem].[coll_poem_entry]         | Poem/song entries  |
+| EngPoemLike      | [poem].[eng_poem_like]           | User likes         |
+
+### Key Fields on CollPoemEntry
+- poem_entry_id (PK), poem_slug (Bengali-safe via bangla_slugify)
+- title_bn, body_bn, poet_name_bn
+- link_poem_category_id, link_user_profile_id
+- poem_type_code (poem/song)
+- like_count, view_count
+- is_published, is_active
+
+## URL Patterns (14 total)
+
+### Pages
+| URL                                    | View           |
+|----------------------------------------|----------------|
+| /bangla-kobita-gaan/                   | poem_home      |
+| /bangla-kobita-gaan/create/            | poem_create    |
+| /bangla-kobita-gaan/edit/<id>/         | poem_edit      |
+| /bangla-kobita-gaan/<slug>/            | poem_detail    |
+
+### APIs (11 endpoints)
+- api_poem_list — listing with filters
+- api_poem_create — create new poem
+- api_poem_detail — single poem data
+- api_poem_like_toggle — like/unlike
+- Plus category listing, search, etc.
+
+## Features
+
+### Create/Edit Poem
+- Title, body, poet name (Bengali input via BanglaInput)
+- Category selection
+- Type: poem or song
+- Bengali slug auto-generated from title
+
+### Browse & Discovery
+- Listing page with category filters
+- Detail page with full poem text
+- Like button (session-based)
+- View count tracking
+- Share functionality
+
+## Key Functions
+
+### Views (views.py)
+- poem_home() — listing page with category filtering
+- poem_create() — create form
+- poem_edit() — edit form with pre-population
+- poem_detail() — detail page with SEO meta tags
+- _ensure_poem_slug() — generates Bengali-safe slug
+
+### APIs (views_api.py)
+- api_poem_create() — validates and saves poem
+- api_poem_like_toggle() — session-based like toggle
+
+## Templates (5)
+- poem-home.html, poem-create.html, poem-edit.html, poem-detail.html, poem-landing.html
+
+## Static Files
+- CSS: poem-create.css
+- JS: poem-create.js, poem-edit.js, poem-create-clear.js
+
+## Troubleshooting
+- Bengali slugs: uses bangla_slugify() from core/utils.py (NFC normalization)
+- URL uses <str:slug> not <slug:slug> to support Bengali Unicode
+- SEO: JSON-LD schema, og meta tags, sitemap entry

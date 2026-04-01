@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
-from django.utils.text import slugify
+from amolnama_news.site_apps.core.utils import bangla_slugify
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from .models import (
@@ -198,7 +198,7 @@ def api_destination_create(request):
 def _generate_destination_slug(dest):
     """Generate URL slug from destination name. Called on create and update."""
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
-    slug = slugify(base_name, allow_unicode=True)
+    slug = bangla_slugify(base_name)
     if not slug:
         slug = str(dest.bangladesh_coll_destination_id)
     candidate = slug
@@ -450,6 +450,17 @@ def api_destination_photo_upload(request, destination_id):
         is_cover=False,
         created_at=timezone.now(),
     )
+
+    # Auto-set as cover image if the destination doesn't have one yet
+    CollDestination.objects.filter(
+        bangladesh_coll_destination_id=destination_id,
+        cover_image_url__isnull=True,
+    ).update(cover_image_url=file_url)
+    # Also cover empty string
+    CollDestination.objects.filter(
+        bangladesh_coll_destination_id=destination_id,
+        cover_image_url="",
+    ).update(cover_image_url=file_url)
 
     return JsonResponse({
         "success": True,
@@ -761,6 +772,41 @@ def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
     return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
+@require_POST
+def api_destination_like_toggle(request, destination_id):
+    """POST — toggle like on a destination. Session-based tracking."""
+    from django.db.models import F
+
+    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    session_like_key = 'destination_likes'
+    liked_destinations = request.session.get(session_like_key, [])
+    destination_key = str(destination_id)
+
+    if destination_key in liked_destinations:
+        liked_destinations.remove(destination_key)
+        CollDestination.objects.filter(
+            bangladesh_coll_destination_id=destination_id,
+            like_count__gt=0,
+        ).update(like_count=F('like_count') - 1)
+        liked = False
+    else:
+        liked_destinations.append(destination_key)
+        CollDestination.objects.filter(
+            bangladesh_coll_destination_id=destination_id,
+        ).update(like_count=F('like_count') + 1)
+        liked = True
+
+    request.session[session_like_key] = liked_destinations
+
+    new_like_count = CollDestination.objects.filter(
+        bangladesh_coll_destination_id=destination_id,
+    ).values_list('like_count', flat=True).first() or 0
+
+    return JsonResponse({"success": True, "liked": liked, "like_count": new_like_count})
+
+
 def _can_manage_contribution(request, contribution_profile_id, destination_id):
     """Check if user can edit/delete a community contribution.
 
@@ -842,6 +888,49 @@ def api_destination_photo_delete(request, destination_id, photo_id):
 
     photo.delete()
     return JsonResponse({"success": True})
+
+
+@require_http_methods(["PATCH"])
+def api_destination_cover_image_set(request, destination_id, photo_id):
+    """PATCH — set a photo as the destination cover/thumbnail image.
+
+    Only destination owner + staff/admin can change the cover image.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "লগইন প্রয়োজন"}, status=401)
+
+    try:
+        destination = CollDestination.objects.get(
+            bangladesh_coll_destination_id=destination_id
+        )
+    except CollDestination.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
+
+    # Permission: destination owner + staff/admin only
+    profile_id = _get_user_profile_id(request)
+    is_allowed = (
+        request.user.is_staff
+        or request.user.is_superuser
+        or (profile_id and destination.link_user_profile_id == profile_id)
+    )
+    if not is_allowed:
+        return JsonResponse({"success": False, "error": "অনুমতি নেই"}, status=403)
+
+    try:
+        photo = CollDestinationPhoto.objects.get(
+            bangladesh_coll_destination_photo_id=photo_id,
+            link_coll_destination_id=destination_id,
+        )
+    except CollDestinationPhoto.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
+
+    # Always use photo_url for consistency — auto-cover on upload also uses photo_url,
+    # and the template comparison checks photo_url as the primary match.
+    cover_url = photo.photo_url or ""
+    destination.cover_image_url = cover_url
+    destination.save(update_fields=["cover_image_url"])
+
+    return JsonResponse({"success": True, "cover_image_url": cover_url})
 
 
 @require_http_methods(["PATCH"])

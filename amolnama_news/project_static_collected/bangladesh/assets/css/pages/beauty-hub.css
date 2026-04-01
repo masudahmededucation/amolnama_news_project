@@ -1,6 +1,13 @@
 /* No underline on hover — all links */
 main a, main a:hover, main a:focus { text-decoration: none; }
 
+/* Breadcrumb */
+.travel-hub-detail-breadcrumb { margin:.75rem 0 .5rem; font-size:.88rem; color:var(--muted); }
+.travel-hub-detail-breadcrumb a { color:var(--primary); text-decoration:none; }
+.travel-hub-detail-breadcrumb a:hover { color:var(--text); }
+.travel-hub-detail-breadcrumb-sep { margin:0 .3rem; color:var(--border); }
+.travel-hub-detail-breadcrumb-current { color:var(--text); font-weight:600; }
+
 /* ========== Beauty of Bangladesh Page ========== */
 
 .beauty-hub-header { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:1rem 0 .75rem; }
@@ -15,8 +22,8 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .beauty-hub-header-cta svg { width:14px; height:14px; }
 
 /* Filter pills */
-.beauty-hub-filter-bar { padding:.25rem 0 .75rem; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-.beauty-hub-filter-pills { display:flex; gap:.4rem; }
+.beauty-hub-filter-bar { padding:.25rem 0 .75rem; }
+.beauty-hub-filter-pills { display:flex; gap:.4rem; flex-wrap:wrap; }
 .beauty-hub-filter-pill { padding:.3rem .7rem; font-size:.72rem; font-weight:600; border:1.5px solid var(--border); border-radius:20px; background:var(--card); color:var(--muted); cursor:pointer; white-space:nowrap; transition:all .15s; }
 .beauty-hub-filter-pill:hover { border-color:var(--primary); color:var(--primary); }
 .beauty-hub-filter-pill--active { background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -47,6 +54,12 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .beauty-hub-load-more { text-align:center; padding:1rem 0 2rem; }
 .beauty-hub-load-more-btn { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
 .beauty-hub-load-more-btn:hover { background:var(--primary); color:#fff; }
+
+/* ---- Clear form button (beauty hub upload) ---- */
+.beauty-hub-clear-form-button { padding:.35rem .85rem; font-size:.85rem; font-weight:600; color:var(--danger); background:#FFF5F5; border:1.5px solid var(--danger); border-radius:var(--radius); cursor:pointer; transition:all .2s; }
+.beauty-hub-clear-form-button:hover { color:#fff; background:var(--danger); border-color:var(--danger); }
+.beauty-hub-clear-form-button-confirm { color:#fff; background:var(--danger); border-color:var(--danger); }
+.beauty-hub-clear-form-message { font-size:.75rem; color:var(--muted); white-space:nowrap; }
 
 @media (max-width:640px) {
   .beauty-hub-gallery { grid-template-columns:1fr 1fr; gap:.6rem; }

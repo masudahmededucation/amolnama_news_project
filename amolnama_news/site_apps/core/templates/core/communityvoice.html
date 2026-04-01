@@ -117,9 +117,14 @@
           <p id="externalPreviewText" class="muted"></p>
         </div>
 
-        <button class="btn primary" type="submit" style="margin-top:1rem;">
-          Submit Story
-        </button>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn primary communityvoice-submit-button" type="submit" id="communityvoice-submit-button" name="communityvoice_submit">
+            Submit Story
+          </button>
+          <button type="button" id="communityvoice-clear-form-button" name="communityvoice_clear_form" class="communityvoice-clear-form-button">
+            Clear Form
+          </button>
+        </div>
       </form>
     </article>
 
@@ -169,4 +174,5 @@
 
 {% block extra_js %}
   <script src="{% static 'core/assets/js/pages/communityvoice.js' %}"></script>
+  <script src="{% static 'core/assets/js/pages/communityvoice-clear.js' %}"></script>
 {% endblock %}

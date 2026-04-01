@@ -2,9 +2,9 @@
 (function() {
   "use strict";
 
-  var form = document.getElementById("thAddForm");
-  var errorEl = document.getElementById("thAddError");
-  var submitBtn = document.getElementById("thAddSubmit");
+  var form = document.getElementById("travel-hub-add-form");
+  var errorElement = document.getElementById("travel-hub-add-error");
+  var submitButton = document.getElementById("travel-hub-add-submit-button");
 
   if (!form) return;
 
@@ -61,9 +61,9 @@
   /* ---- Submit: create or update ---- */
   form.addEventListener("submit", function(e) {
     e.preventDefault();
-    errorEl.style.display = "none";
-    submitBtn.disabled = true;
-    submitBtn.textContent = editEntryId ? "হালনাগাদ হচ্ছে..." : "প্রকাশ হচ্ছে...";
+    errorElement.style.display = "none";
+    submitButton.disabled = true;
+    submitButton.textContent = editEntryId ? "পরিবর্তন হচ্ছে..." : "প্রকাশ হচ্ছে...";
 
     /* Sync Quill content to hidden textareas */
     if (shortDescEditor) shortDescEditor.syncToHidden();
@@ -98,17 +98,17 @@
       if (data.success) {
         window.location.href = data.destination_slug ? "/bangladesh-tourist-destinations/travel/" + data.destination_slug + "/" : "/bangladesh-tourist-destinations/travel/id/" + data.destination_id + "/";
       } else {
-        errorEl.textContent = data.error;
-        errorEl.style.display = "block";
-        submitBtn.disabled = false;
-        submitBtn.textContent = editEntryId ? "হালনাগাদ করুন (Update)" : "প্রকাশ করুন (Publish)";
+        errorElement.textContent = data.error;
+        errorElement.style.display = "block";
+        submitButton.disabled = false;
+        submitButton.textContent = editEntryId ? "পরিবর্তন করুন (Update)" : "প্রকাশ করুন (Publish)";
       }
     })
     .catch(function() {
-      errorEl.textContent = "সার্ভার ত্রুটি। আবার চেষ্টা করুন।";
-      errorEl.style.display = "block";
-      submitBtn.disabled = false;
-      submitBtn.textContent = editEntryId ? "হালনাগাদ করুন (Update)" : "প্রকাশ করুন (Publish)";
+      errorElement.textContent = "সার্ভার ত্রুটি। আবার চেষ্টা করুন।";
+      errorElement.style.display = "block";
+      submitButton.disabled = false;
+      submitButton.textContent = editEntryId ? "পরিবর্তন করুন (Update)" : "প্রকাশ করুন (Publish)";
     });
   });
 

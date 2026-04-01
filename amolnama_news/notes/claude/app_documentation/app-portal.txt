@@ -1,0 +1,90 @@
+================================================================
+PORTAL APP — Architecture & Features
+App: site_apps/portal/
+URL prefix: /portal/
+================================================================
+
+## Overview
+User profile management hub. Edit public profile, personal details, contact, address, settings.
+Avatar upload with Cropper.js.
+
+## Models
+None — uses UserProfile + Person from user_account app.
+
+## URL Patterns
+
+| URL                          | View                  | Name                   |
+|------------------------------|-----------------------|------------------------|
+| /portal/                     | home                  | portal:home            |
+| /portal/profile/             | profile_redirect_view | portal:profile         |
+| /portal/profile/public/      | profile_public_view   | portal:profile_public  |
+| /portal/profile/personal/    | profile_personal_view | portal:profile_personal|
+| /portal/profile/contact/     | profile_contact_view  | portal:profile_contact |
+| /portal/profile/address/     | profile_address_view  | portal:profile_address |
+| /portal/profile/settings/    | profile_settings_view | portal:profile_settings|
+| /portal/api/avatar/upload/   | api_avatar_upload     | portal:api_avatar_upload|
+
+## Views
+
+### profile_public_view
+Editable fields: display_name, username_handle (@username), bio (short), about (long), profile_location, profile_website_url.
+- @username auto-generated from display name if not set
+- Username uniqueness check via generate_username_handle() in core/utils.py
+- @ prefix shown in UI via CSS wrapper
+
+### profile_personal_view
+Editable fields: first/last name (en/bn), alias (en/bn), father/mother names, DOB, gender, religion, NID.
+
+### profile_contact_view
+Editable fields: phone (country code + number), email.
+
+### profile_address_view
+Editable fields: home address fields.
+
+### api_avatar_upload
+POST with multipart file. Validates image type/size. Stores in media/avatars/. Updates UserProfile.avatar_file_path.
+
+## Templates
+
+| Template                     | Purpose                            |
+|------------------------------|------------------------------------|
+| profile_base.html            | Layout with sidebar + content area |
+| profile_public.html          | Public profile form                |
+| profile_personal.html        | Personal details form              |
+| profile_contact.html         | Contact info form                  |
+| profile_address.html         | Address form                       |
+| profile_settings.html        | Settings page                      |
+| partials/profile_sidebar.html| Navigation sidebar                 |
+
+## Static Files
+
+| File                         | Purpose                            |
+|------------------------------|------------------------------------|
+| css/pages/profile.css        | Profile page styles                |
+| css/components/avatar-upload.css | Avatar upload + crop styles     |
+| js/pages/profile.js          | Profile form interactions          |
+| js/components/avatar-upload.js | Cropper.js avatar upload          |
+
+## Key Functions
+
+### Views (views.py)
+- home() — landing page, redirects authenticated users to profile
+- profile_redirect_view() — redirects /portal/profile/ → /portal/profile/public/
+- profile_public_view() — GET: render form with current data. POST: validate + save display_name, username_handle, bio, about, location, website to UserProfile
+- profile_personal_view() — GET/POST: edit Person fields (names en/bn, DOB, gender, religion, NID)
+- profile_contact_view() — GET/POST: edit Phone + Email records
+- profile_address_view() — GET/POST: edit PersonAddress
+- profile_settings_view() — account settings management
+
+### APIs (views_api.py)
+- api_avatar_upload() — accepts multipart file, validates image type (JPEG/PNG/WebP) and size (<5MB), stores in media/avatars/<user_profile_id>/, updates UserProfile.avatar_file_path
+
+### Utilities Used
+- generate_username_handle(display_name) from core/utils.py — auto-generates @username, ensures uniqueness
+
+## Troubleshooting
+- @username auto-generated silently on first profile save — no warning needed
+- Avatar upload uses Cropper.js for client-side crop before upload
+- Profile sidebar highlights current section via URL matching
+- display_name updates propagate everywhere via user_display_name context processor
+- Person model: import as `from user_account.models import Person` (not person.models)

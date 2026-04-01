@@ -83,6 +83,24 @@ The platform operates in both Bengali (বাংলা) and English.
 - [Bangladesh Tourist Destinations]({host}bangladesh-tourist-destinations/) — Tourist attractions, destinations, and travel guides across Bangladesh
 - [Bangladesh Photo Gallery]({host}bangladesh-tourist-destinations/beauty/) — Photo and video gallery of Bangladesh's natural beauty
 - [Bangladesh Marriage Registration]({host}bangladesh-marriage-registration/) — Marriage registration services
+- [শিল্পকলা (Art & Craft)]({host}art-and-craft/) — Bengali traditional and contemporary art gallery, tutorials, community uploads
+- [গল্পের ঝুলি (Stories for Kids)]({host}stories-for-kids/) — Bengali children's stories — ঠাকুরমার ঝুলি, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প
+
+## শিল্পকলা (Art & Craft)
+
+Bengali art and craft platform featuring:
+- Traditional forms: নকশি কাঁথা, পটচিত্র, আলপনা, মৃৎশিল্প, রিকশা আর্ট, জামদানি
+- Contemporary: painting, drawing, calligraphy, digital art, sculpture
+- Community uploads with tutorials, materials, and backstories
+- 21 categories covering Bengali heritage and modern art
+
+## গল্পের ঝুলি (Stories for Kids)
+
+Bengali children's story collection featuring:
+- Heritage stories: ঠাকুরমার ঝুলি, পঞ্চতন্ত্র, জাতক কাহিনী, গোপাল ভাঁড়, টুনটুনির গল্প
+- Categories: রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প, হাসির গল্প, অ্যাডভেঞ্চার
+- Age groups: 3-5, 6-8, 9-12
+- Paginated reading with illustrations
 
 ## Bangladesh Travel Hub
 
@@ -171,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v79';
+var CACHE_NAME = 'amolnama-v267';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

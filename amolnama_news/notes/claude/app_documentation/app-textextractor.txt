@@ -1,0 +1,126 @@
+================================================================
+TEXT EXTRACTOR APP — Architecture & Features
+App: site_apps/textextractor/
+URL prefix: /text-extractor/
+Access: Admin/Staff only (@staff_member_required)
+================================================================
+
+## Introduction
+Professional text extraction tool — OCR for images, PDF text extraction,
+audio/video transcription. Bengali + English. Supports folder watcher
+(auto-process files dropped into input folder) and web upload.
+
+## Models (7 models, all managed=False)
+
+| Model                    | DB Table                                      | Purpose                    |
+|--------------------------|-----------------------------------------------|----------------------------|
+| ConfigFolderWatcher      | [textextractor].[config_folder_watcher]       | Input/output folder config |
+| RefExtractionEngine      | [textextractor].[ref_extraction_engine]        | 7 engines (EasyOCR, Whisper, etc.) |
+| RefDocumentType          | [textextractor].[ref_document_type]            | 14 document types          |
+| CollExtractionJob        | [textextractor].[coll_extraction_job]          | Main job record            |
+| CollExtractionPage       | [textextractor].[coll_extraction_page]         | Per-page results           |
+| CollExtractionTable      | [textextractor].[coll_extraction_table]        | Detected tables            |
+| CollExtractionTableCell  | [textextractor].[coll_extraction_table_cell]   | Table cell data            |
+
+## URL Patterns
+
+| URL                              | View                    | Method |
+|----------------------------------|-------------------------|--------|
+| /text-extractor/                 | home (dashboard)        | GET    |
+| /text-extractor/job/<id>/        | job_detail              | GET    |
+| /text-extractor/api/upload/      | api_extraction_upload   | POST   |
+| /text-extractor/api/status/<id>/ | api_extraction_status   | GET    |
+| /text-extractor/api/cancel/<id>/ | api_extraction_cancel   | POST   |
+| /text-extractor/api/delete/<id>/ | api_extraction_delete   | POST   |
+| /text-extractor/api/dashboard-status/ | api_dashboard_status | GET   |
+
+## Extraction Engines
+
+| Engine     | File Types               | Library        | Output                    | Preprocessing              |
+|------------|--------------------------|----------------|---------------------------|----------------------------|
+| easyocr    | JPG, PNG, BMP, TIFF, WebP| EasyOCR        | Text + bounding boxes + confidence | Auto-resize >2000px (Pillow LANCZOS) |
+| whisper    | MP3, MP4, WAV, MKV, FLAC | OpenAI Whisper | Text + timestamps + language | Auto-extract audio from video (ffmpeg) |
+| pymupdf    | PDF                      | PyMuPDF (fitz) | Text + page structure + font info | OCR fallback for scanned pages (<5 words) |
+| plaintext  | TXT, CSV, LOG, MD, HTML  | Python stdlib  | Raw text                  | Encoding auto-detect (UTF-8 → latin-1) |
+| tesseract  | Images (future)          | Tesseract      | Text + hOCR               | — |
+| camelot    | PDF tables (future)      | Camelot        | Table data as CSV         | — |
+| latex_ocr  | Math equations (future)  | LaTeX-OCR      | LaTeX markup              | — |
+
+## Architecture
+
+### Processing Flow
+1. File arrives (web upload or folder watcher)
+2. Upload API hides all previous jobs (is_active=False) so dashboard shows only new batch
+3. Job created in DB (status: queued) — metadata only
+4. Background thread (daemon) starts processing (status: processing)
+5. Engine extracts text → metadata saved to DB, full text saved to .txt file
+6. Output .txt file written to media/textextractor/output/
+7. Frontend reloads page after upload to see results
+
+### Data Storage Strategy
+- **DB stores ONLY metadata**: status, word count, page count, confidence, processing time, file paths
+- **Extracted text goes to .txt file**: media/textextractor/output/EXTRACTED_{filename}.txt
+- **Detail page reads from .txt file**: _read_output_file() in views.py
+- **NEVER store large text in DB**: pyodbc sends >4000 char strings as ntext which breaks UTF-8 collation
+
+### Key Modules
+- engines/__init__.py — routes file to correct engine by extension
+- engines/engine_easyocr.py — Bengali+English OCR, lazy-loads model once, auto-resize large images
+- engines/engine_whisper.py — audio/video transcription, lazy-loads model once, auto-extract audio from video via ffmpeg
+- engines/engine_pymupdf.py — PDF text + page structure + font metadata, OCR fallback for scanned pages
+- engines/engine_plaintext.py — plain file reader with encoding fallback (UTF-8 → latin-1)
+- processor.py — shared job processing logic (create job, process, save metadata, write output file)
+- views.py — dashboard + detail pages, reads extracted text from .txt file
+- views_api.py — upload, cancel (sets is_active=False), delete, status APIs
+
+### Smart Preprocessing (built into each engine)
+- Images: auto-resize to max 2000x2000px before OCR (2-4x speed improvement, no accuracy loss)
+- Video: auto-extract audio track via ffmpeg before Whisper (500MB video → 5MB WAV)
+- PDF: detect scanned pages (<5 words), render to 200 DPI image, OCR via EasyOCR fallback
+- Text: auto-detect encoding (UTF-8, UTF-8 BOM, latin-1 fallback)
+- All temp files cleaned up after processing
+
+### Folder Watcher
+- Run: python manage.py run_textextractor
+- Config from DB: config_folder_watcher table
+- Uses watchdog library to monitor input folder
+- wait_for_file_copy() prevents reading incomplete files
+- Processes in background thread per file
+
+## Features
+
+### Dashboard (/text-extractor/)
+- Job list: file name, extension, size, engine, language, confidence
+- Processing details: word count, pages, processing time
+- Status badges: queued (yellow), processing (blue), completed (green), failed (red)
+- Error messages shown inline
+- Cancel button: hides job (sets is_active=False)
+- Delete button: hides job (sets is_active=False)
+- Upload via drag & drop (file-dropzone component) — multi-file supported
+- Upload hides all previous jobs automatically
+
+### Job Detail (/text-extractor/job/<id>/)
+- Full extracted text read from .txt output file (pre-wrap formatting)
+- Copy to clipboard button
+- Download as .txt button
+- Confidence %, word count, processing time, detected language
+
+## Security
+- All views + APIs: @staff_member_required
+- Nav menu: only visible to staff/superuser
+- Under "Admin Panel" section in sidebar
+
+## Dependencies
+- pip install easyocr openai-whisper PyMuPDF watchdog Pillow
+- ffmpeg required for video-to-audio extraction
+
+## Troubleshooting
+- EasyOCR first load: 2-3 seconds to load model (lazy-loaded, cached after)
+- Whisper first load: downloads model on first use (~150MB for base)
+- File copy detection: wait_for_file_copy() polls file size every 0.5s
+- UUID in raw SQL: same pattern as post app (Django ORM UUID conversion bug)
+- Bengali OCR accuracy: EasyOCR ~85-90% for printed text, poor for handwriting
+- ffmpeg required for video-to-audio extraction: install via choco install ffmpeg (Windows)
+- NEVER store large text (>4000 chars) in DB — causes ntext/UTF-8 collation error
+- NEVER modify db_backend encoding — corrupts ALL Bengali data to ????
+- For NVARCHAR(MAX) columns, use CAST(%s AS NVARCHAR(MAX)) in raw SQL

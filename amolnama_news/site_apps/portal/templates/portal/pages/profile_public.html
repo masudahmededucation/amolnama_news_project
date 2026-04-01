@@ -1,0 +1,61 @@
+{% extends "portal/pages/profile_base.html" %}
+{% load static %}
+
+{% block profile_title %}Public Profile{% endblock %}
+
+{% block profile_content %}
+
+<form method="post" class="profile-form" id="profile-public-form" name="profile_public_form">
+  {% csrf_token %}
+
+  {% if messages %}
+  <div class="profile-messages">
+    {% for message in messages %}
+    <div class="profile-message profile-message-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="profile-field-group">
+    <label for="profile-public-display-name" class="profile-field-label">Display Name</label>
+    <input type="text" id="profile-public-display-name" name="display_name" value="{{ profile.display_name|default:'' }}" maxlength="200" class="profile-field-input" placeholder="আপনার প্রদর্শন নাম">
+    <span class="profile-field-hint">এই নাম আপনার সব পোস্টে দেখা যাবে</span>
+  </div>
+
+  <div class="profile-field-group">
+    <label for="profile-public-username-handle" class="profile-field-label">@Username</label>
+    <div class="profile-field-input-prefix-wrapper">
+      <span class="profile-field-input-prefix">@</span>
+      <input type="text" id="profile-public-username-handle" name="username_handle" value="{{ profile.username_handle|default:'' }}" maxlength="30" class="profile-field-input profile-field-input-with-prefix" placeholder="username" data-no-bangla>
+    </div>
+    <span class="profile-field-hint">ইউনিক — শুধু ইংরেজি অক্ষর ও সংখ্যা (a-z, 0-9)</span>
+  </div>
+
+  <div class="profile-field-group">
+    <label for="profile-public-bio-summary" class="profile-field-label">Bio</label>
+    <input type="text" id="profile-public-bio-summary" name="professional_bio_summary_bn" value="{{ profile.professional_bio_summary_bn|default:'' }}" maxlength="200" class="profile-field-input" placeholder="সংক্ষিপ্ত পরিচয় — যেমন: সাংবাদিক, ঢাকা">
+    <span class="profile-field-hint">সংক্ষিপ্ত বায়ো — হোভার প্রোফাইল কার্ডে দেখা যাবে</span>
+  </div>
+
+  <div class="profile-field-group">
+    <label for="profile-public-bio-description" class="profile-field-label">About</label>
+    <textarea id="profile-public-bio-description" name="professional_bio_description_bn" maxlength="1000" class="profile-field-textarea" rows="3" placeholder="বিস্তারিত পরিচয়...">{{ profile.professional_bio_description_bn|default:'' }}</textarea>
+    <span class="profile-field-hint">বিস্তারিত বর্ণনা — আপনার প্রোফাইল পেজে দেখা যাবে</span>
+  </div>
+
+  <div class="profile-field-group">
+    <label for="profile-public-location" class="profile-field-label">Location</label>
+    <input type="text" id="profile-public-location" name="profile_location" value="{{ profile.profile_location|default:'' }}" maxlength="100" class="profile-field-input" placeholder="ঢাকা, বাংলাদেশ">
+  </div>
+
+  <div class="profile-field-group">
+    <label for="profile-public-website-url" class="profile-field-label">Website</label>
+    <input type="url" id="profile-public-website-url" name="profile_website_url" value="{{ profile.profile_website_url|default:'' }}" maxlength="300" class="profile-field-input" placeholder="https://yoursite.com" data-no-bangla>
+  </div>
+
+  <div class="profile-form-actions">
+    <button type="submit" class="profile-save-button" id="profile-public-save-button" name="profile_public_save_button">Save Profile</button>
+  </div>
+</form>
+
+{% endblock %}

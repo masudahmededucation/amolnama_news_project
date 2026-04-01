@@ -1,0 +1,31 @@
+create app "textextractor". follow the app structure in core. 
+app location site_apps/<app_name>
+copy all the folder structure only strictly. 
+don't copy files.
+create all the necessary files including urls, views, and etc.
+don't miss a thing and make me work manually.
+add the app the appropriate setting file as local app.
+
+
+
+#facebook post image
+create image from text for facebook post.
+
+
+
+
+#job circular
+#bcs live - similar apps
+
+
+#songbidhan
+question answer format
+https://xeroxtree.com/pdf/modina_sonod_o_bangladesher_songbidhan.pdf
+
+
+#hadi
+-collect all videos
+-transcribe app first 
+-print a book with text
+-put a QR code for video
+https://www.icsbook.info/audio

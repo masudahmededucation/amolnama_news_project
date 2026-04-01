@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.http import Http404
 from django.shortcuts import redirect, render
-from django.utils.text import slugify
+from amolnama_news.site_apps.core.utils import bangla_slugify
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -93,6 +93,31 @@ def travel_hub(request):
     has_next = len(destinations) > PAGE_SIZE
     destinations = destinations[:PAGE_SIZE]
 
+    # Backfill cover images: for destinations without a cover, use their first photo
+    destinations_without_cover = [
+        d for d in destinations if not d.cover_image_url
+    ]
+    if destinations_without_cover:
+        destination_ids_without_cover = [d.bangladesh_coll_destination_id for d in destinations_without_cover]
+        # Get the first photo per destination (lowest sort_order)
+        first_photos = (
+            CollDestinationPhoto.objects
+            .filter(link_coll_destination_id__in=destination_ids_without_cover)
+            .order_by("link_coll_destination_id", "sort_order")
+        )
+        first_photo_map = {}
+        for photo in first_photos:
+            if photo.link_coll_destination_id not in first_photo_map:
+                first_photo_map[photo.link_coll_destination_id] = photo.photo_url
+        # Update in-memory objects + DB
+        for destination in destinations_without_cover:
+            photo_url = first_photo_map.get(destination.bangladesh_coll_destination_id)
+            if photo_url:
+                destination.cover_image_url = photo_url
+                CollDestination.objects.filter(
+                    bangladesh_coll_destination_id=destination.bangladesh_coll_destination_id,
+                ).update(cover_image_url=photo_url)
+
     category_map = {c.bangladesh_ref_destination_category_id: c for c in categories}
     for destination in destinations:
         category = category_map.get(destination.link_destination_category_id)
@@ -136,6 +161,12 @@ def travel_hub_add(request):
         "seo": {
             "title": "দর্শনীয় স্থান যোগ করুন | Add Destination",
             "description": "নতুন দর্শনীয় স্থান যোগ করুন।",
+            "breadcrumbs": [
+                {"name": "হোম", "url": "/"},
+                {"name": "বাংলাদেশ", "url": "/bangladesh-tourist-destinations/"},
+                {"name": "ভ্রমণ কেন্দ্র", "url": "/bangladesh-tourist-destinations/travel/"},
+                {"name": "স্থান যোগ করুন", "url": None},
+            ],
         },
     }
 
@@ -168,7 +199,7 @@ def _ensure_destination_slug(dest):
     if dest.destination_slug:
         return
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
-    slug = slugify(base_name, allow_unicode=True)
+    slug = bangla_slugify(base_name)
     if not slug:
         slug = str(dest.bangladesh_coll_destination_id)
     # Ensure uniqueness
@@ -196,6 +227,7 @@ def travel_hub_detail_by_id(request, destination_id):
     return redirect("bangladesh:travel_hub_detail", destination_slug=dest.destination_slug, permanent=True)
 
 
+@ensure_csrf_cookie
 def travel_hub_detail_by_slug(request, destination_slug):
     """Destination detail page — SEO-friendly slug URL."""
     # If slug is numeric (old ID-based URL), look up by ID and redirect to slug
@@ -256,6 +288,16 @@ def travel_hub_detail_by_slug(request, destination_slug):
         CollDestinationPhoto.objects.filter(link_coll_destination_id=dest.bangladesh_coll_destination_id)
         .order_by("sort_order")
     )
+
+    # Auto-set cover image from first photo if destination has none
+    if photos and not dest.cover_image_url:
+        first_photo_url = photos[0].photo_url
+        if first_photo_url:
+            dest.cover_image_url = first_photo_url
+            CollDestination.objects.filter(
+                bangladesh_coll_destination_id=dest.bangladesh_coll_destination_id
+            ).update(cover_image_url=first_photo_url)
+
     accommodations = list(
         CollAccommodation.objects.filter(
             link_coll_destination_id=dest.bangladesh_coll_destination_id, is_active=True
@@ -403,6 +445,17 @@ def travel_hub_detail_by_slug(request, destination_slug):
             "bestRating": 5,
         }
 
+    # Destination like/view counts for actions bar
+    destination_like_count = dest.like_count or 0
+    destination_view_count = dest.view_count or 0
+    destination_user_liked = str(dest.bangladesh_coll_destination_id) in request.session.get('destination_likes', [])
+
+    # Edit URL for actions bar
+    edit_url = ''
+    if can_edit:
+        from django.urls import reverse
+        edit_url = reverse('bangladesh:travel_hub_add') + '?edit=' + str(dest.bangladesh_coll_destination_id)
+
     return render(request, "bangladesh/pages/travel-hub-detail.html", {
         "dest": dest,
         "description_paragraphs": description_paragraphs,
@@ -414,6 +467,10 @@ def travel_hub_detail_by_slug(request, destination_slug):
         "youtube_links": youtube_links,
         "reference_links": reference_links,
         "can_edit": can_edit,
+        "edit_url": edit_url,
+        "destination_like_count": destination_like_count,
+        "destination_view_count": destination_view_count,
+        "destination_user_liked": destination_user_liked,
         "seo": {
             "title": f"{title} — ভ্রমণ কেন্দ্র | Travel Hub",
             "description": seo_description_clean,
@@ -494,5 +551,11 @@ def beauty_hub_upload(request):
         "seo": {
             "title": "ছবি / ভিডিও আপলোড | Upload Photo / Video",
             "description": "বাংলাদেশের সৌন্দর্য শেয়ার করুন।",
+            "breadcrumbs": [
+                {"name": "হোম", "url": "/"},
+                {"name": "বাংলাদেশ", "url": "/bangladesh-tourist-destinations/"},
+                {"name": "বাংলার রূপ", "url": "/bangladesh-tourist-destinations/beauty/"},
+                {"name": "আপলোড", "url": None},
+            ],
         },
     })

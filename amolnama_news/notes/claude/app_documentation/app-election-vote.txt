@@ -1,0 +1,73 @@
+================================================================
+ELECTION VOTE APP — Architecture & Features
+App: site_apps/election_vote/
+URL prefix: /election_vote/
+================================================================
+
+## Introduction
+Election voting system with digital ballot management, candidate nomination,
+voter eligibility checking, and multi-level results drillthrough
+(national → division → district → constituency).
+
+## Models (22 models, all managed=False)
+
+### Reference Tables
+- RefElectionType, RefElectionStatus, RefElection
+- RefVoteMethod, RefCandidateNominationRulebook, RefCandidateNominationStatus
+- RefVoterEligibilityStatus
+
+### Core Voting
+- DigitalBallotRegistryBook, DigitalBallot, DigitalBallotVoteEntry
+- DigitalSecurityConfig
+- ElectoralRoll, ElectoralRollPollBook
+- Ballot, BallotVoteEntry
+
+### Candidates
+- CandidateNomination, Candidate, CandidateRuleComplianceRecord
+- ElectionContestSeat, ElectionResultCertification
+
+### App Views (SQL Server views)
+- AppGetCurrentElection, AppGetPastResults
+
+## URL Patterns (5 total)
+
+| URL                              | View                              |
+|----------------------------------|-----------------------------------|
+| /election_vote/                  | home                              |
+| /election_vote/check-eligibility/| check_eligibility                 |
+| /election_vote/cast-vote/        | cast_vote                         |
+| /election_vote/results/          | past_results_drillthrough         |
+| /election_vote/api/results/      | api_national_results              |
+
+## Features
+
+### Voting
+- Check voter eligibility before casting
+- Digital ballot with candidate list
+- One vote per eligible voter
+
+### Results Drillthrough
+- National → Division → District → Constituency hierarchy
+- Party-wise vote counts with percentages
+- Past election results browsing
+
+## Key Functions
+
+### Views (views.py)
+- home() — landing with current election info
+- check_eligibility() — voter eligibility verification
+- cast_vote() — ballot submission
+- past_results_drillthrough() — multi-level results navigation
+- _build_national_results() — aggregate national vote counts
+- _build_division_results() — division-level breakdown
+- _build_district_results() — district-level breakdown
+- _build_constituency_results() — constituency-level breakdown
+- _calculate_percentages() — vote percentage calculation
+- _group_by_location() — group results by location hierarchy
+
+## Templates (13)
+Home, eligibility check, ballot, results pages with location drillthrough.
+
+## Troubleshooting
+- Location hierarchy: uses locations app reference data
+- Results drillthrough: _determine_back_url() builds breadcrumb-style navigation

@@ -4,7 +4,7 @@ function toBanglaNumber(num) {
 }
 
 function updateLiveClock() {
-    const el = document.getElementById("liveDateTime");
+    const el = document.getElementById("right-panel-live-date-time") || document.getElementById("liveDateTime");
     if (!el) return;
 
     const now = new Date();

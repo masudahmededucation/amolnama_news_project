@@ -1,0 +1,409 @@
+
+post app would hold the post creation and displaying logic. 
+research, x.com, facebook.com, check other social news app and mirco blogging and including chinese weichat. then design the app. make it modern, gen z design, attractive. 
+choose a placeholder like x.com has - what is happening. research, make plan, implement
+lets add post in the nav menu as well. where is appropriat place - top or after profile?
+
+--post placeholder value
+Spill the news/What are you witnessing/Drop the news/"What's the people's pulse?"/what is happening?
+তুমি কি দেখছো?/নিউজটা ড্রপ করেন/জনতার পালস কী/ কি ঘটছে?
+
+2000 character is too long for post. 
+can't we make it more short and precise. lets think about the best size for news post. 
+so that a story can be describe and it does not take lots of time to read a story.
+
+need a option for user to upload picture - circle picture and similar options to move around picture and modify, crop and upload. 
+also use intelligence to position the circle into right place of the picture.
+check facebook
+
+
+i can see only in the place portal. 
+it should be part of the user's profile display name and logo. 
+always everywhere, it should carry like that, right?
+
+
+##########
+facebook post section - i like it. have you checked it? 
+just discussion. 
+
+we need the options to upload picture, video, emoji - need a range of emojies. 
+
+share with public/private/with specific people.
+
+#############
+
+check for home/post/portal
+--modularise
+modularise every section or feature where possible
+modularise where it can be reused 
+
+####
+reorder the icons view,like,repost,comment,bookmark,share
+
+also put labels for icon underneath
+
+can't see archive or delete option
+this should have hover over effect 
+👁️
+21
+ভিউ
+
+👍
+0
+পছন্দ
+
+🔄
+0
+রিপোস্ট
+
+💬
+0
+মন্তব্য
+
+💾
+সংরক্ষণ
+
+↗️
+শেয়ার
+
+
+########
+comments are not visible for posts. 
+make it visible once clicked on the posts or on the comments.
+
+use the index finger icon  
+while hovering over posts or action button, right? good idea?
+
+
+
+##
+--nav menu
+still occupying same fix length width when collapsed.
+as a result, article is overflowing
+
+
+Clue	Status
+Post creation + displaying logic	✅ Done
+Research X, Facebook, WeChat	✅ Done
+Modern Gen Z design	✅ Done
+Rotating placeholder (Bengali)	✅ 6 placeholders
+Post in nav menu	✅ 🖋️ পোস্ট
+Character limit 1000, min 150 text-only	✅ Done
+Profile picture upload + crop (Cropper.js)	✅ Done in portal
+Intelligence positioning (face detection)	❌ Not built — Cropper.js manual only
+Avatar everywhere (context processor)	✅ user_avatar_url global
+Photo/video upload option	✅ 🖼️🎥 ছবি/ভিডিও button working
+Emoji picker with range	✅ 6 categories, 300+ emojis
+Public/private/specific audience	✅ Dropdown: public/followers/private
+Modularise post/pulse/portal	✅ Shared functions, templates, JS
+Icon order: view, like, repost, comment, bookmark, share	✅ Done
+Labels underneath icons	✅ Bengali labels
+Delete/archive option	✅ 🗑️ মুছুন soft delete
+Hover effects on all icons	✅ Unique colors per action
+Comments visible on click	✅ Click post or 💬 expands replies
+Pointer cursor on hover	✅ Post cards + all buttons
+Only remaining: Face detection for auto-positioning avatar crop. This uses browser FaceDetector API — experimental, not supported in all browsers. 
+Want me to add it as a fallback (works in Chrome, manual crop for others)?
+
+AI keywords from post (YAKE)	✅ Done — max 5 keywords, bigram + unigram
+Free Python version	✅ YAKE installed
+Keywords as tags underneath post	✅ Blue pill tags below post text
+DB column post_keywords_json	✅ Added
+Max 5 keywords	✅ Done
+Double word keywords	✅ Bigrams extracted
+Draft auto-save	✅ localStorage, restored on return
+Warning before leaving	✅ beforeunload prompt
+BanglaInput on posts + comments	✅ Global auto-attach
+Modularise englishtobangla	✅ bangla-input-auto-attach.js in englishtobangla app
+Troubleshooting doc updated	✅ Entry #13 added
+Speed improvement	✅ Removed delays, instant attach
+Punctuation marks fix	✅ , . ; : ! ? - ' " () handled
+Dash handling	✅ Included in punctuation list
+
+
+
+is it possible to use AI to create summary keywords from post?
+free python version.
+For Bengali, the best free option is YAKE (Yet Another Keyword Extractor) — 
+language-agnostic, no training needed, works on Bengali text, pure Python:
+
+lets integrate whatever free version available 
+and add the keyword stack somewhere as tag?
+so when showing post, add the keywords somewhere.
+we may need db column.
+
+we should limit the max number of keywords. suggest yours
+show the keywors, just underneath post?
+
+keyword could be double word sometimes.
+
+post should be saved as draft and show as draft. 
+so by mistake if the user visit other pages, it should be there or
+at least give warning. 
+
+--englishtobangla
+hook englishtobangla keyboard on posts, comments.
+portal 
+
+
+you should have modularise the englishtobangla and reuse it anywhere. 
+you have done it so many times, you still have issue using it?
+
+you are supposed to have a list of troubleshooting issues and solution. 
+
+it is little bit slow. check if somehow can be made it faster.
+
+bug fix - just realised if i add punctuation marks then it is not able to transliterate it. 
+people will use , . ; and other marks.
+
+i think you can list the punctuation marks easily 
+and make the decision and help to transliterate.
+
+also should be careful about dash -
+
+##############
+
+nav menu - should have selected active menu color?
+why the nav bar move when some option selected? 
+text size or something like that. 
+make it fixed, it shoudn't move or jerk
+
+
+#########
+travel hub article should have like 	✅ Done — session-based like + view count
+and view count as well like the news article. check news article
+
+can't you modularise this action bar for article and reuse?	✅ Done — core/components/actions-bar (HTML+CSS+JS)
+Shared actions bar: like + view + share + edit. Used by newshub + travel hub.
+Filter pills overflow fix (travel hub + beauty hub)	✅ flex-wrap:wrap
+Breadcrumbs added to ALL bangladesh pages	✅ 6 pages
+Destination like API	✅ POST /api/destination/<id>/like/ (session-based)
+
+
+####
+--post
+should be able to copy images from any sources, paste, and post.	✅ Done — clipboard paste event
+even from online sources	✅ Screenshots, browser images, file explorer
+it can be done in facebook	✅ Same behavior
+
+attached pictures should have lightbox style full preview options.	✅ Done — shared photo-lightbox
+display the picture in full. 	✅ background-size: contain (no crop)
+don't stretch to match the width of the post. 	✅ Facebook-style sizing
+check facebook default width and height. 	✅ 400-600px height, contain, responsive
+another thing facebook doing is matching background color of the picture's dominant surrounding.	✅ Done
+we have fixed background color for pictures box. 	✅ Dominant color extraction via canvas
+it gives user less distraction from actual picture.	✅ Fallback to --surface for cross-origin
+Image size: width 100% (~660px), max-height 700px, natural aspect ratio, <img> tag for single images.
+
+####
+--post icons
+i like the x share icon. it is universal.	✅ Done — SVG arrow-up-from-box (X/Twitter style)
+Replaced emoji 📤 with clean SVG in actions bar + post cards.
+
+--top right section
+add ... three dots. 	✅ Done — ⋯ more menu with dropdown
+inside of ... three dots bookmark, and delete option	✅ Moved to dropdown
+left side of ... three dots, show view count	✅ 👁️ count in header
+there are too much space between icons 	✅ Bottom bar: 4 items only (like, repost, reply, share)
+
+--
+share as embed
+
+
+####
+--keywords
+maybe rather than making a separate list of keywords.
+just highlight the keywords iline using color or bold or italic. 
+would it be a better option?
+suggest
+--keywords
+maybe rather than making a separate list of keywords.
+just highlight the keywords using color or bold or italic. 
+would it be a better option?
+suggest
+start processing this on already posted posts
+
+does your ai or intelligent can separate between person names, 
+location, date, books, religion, and words?	
+does your ai highlight country name?
+
+✅ Done
+highlight them 	✅ NER — post/text_highlight.py
+Person (blue), Location (green), Date (orange), Book (purple italic), Religious (teal), Keyword (bold)
+Pure Python regex + dictionary — no ML, fast execution.
+
+don't delay people from post due to your highlighting keywords.
+you can do it in the background.
+lets users post the post immediately, then do it later while idle or in the background.
+don't rush to consume the process or resource higher. because this is ornamental feature.
+it does not really hamper the real post. 
+are you clear on this?
+
+
+
+how do you count the views of text kinds of posts. 
+it is tricky isn't it? picture is easy picture people may click on it. 
+but just for post wall how is it possible to count view? 
+is view count idea is wrong?
+
+
+--icons
+heart should be empty empty heart 
+then on click it should be filled heart. 
+make it animated fill if possible?
+lots of delay of changing icon after click. 
+make the empty heart border bit thicker.
+
+for like button also need different icon.
+liked like should be different. 
+
+
+--share 	✅ All done
+should post have a preview when shared?	✅ OG tags on /post/<id>/
+copy link?	✅ Direct button — instant clipboard copy
+embed?	✅ /post/<id>/embed/ + oEmbed API + ⋯ menu
+copy link, embed, share via	✅ Three separate actions
+
+we need a way to see our bookmarks - nav menu?
+
+copy link, embed, whatsapp, facebook, twitter, and share via.. 
+should be options under share icon.
+
+
+
+--post
+repost should have undo repost.
+it should change color once posted. 
+maybe blue if reposted.
+repost maybe become undo repost. 
+should repost have repost with edit and just repost?
+
+
+
+it should definitely show and focus on the repost. 
+should i be able to repost my own posts?
+--no block it self repost.
+
+does repost and delete posts needs jumping screen. 
+can't it be done in smooth transistions. 
+like just appear and disappear? 
+it is also making me jump.
+
+
+
+--reposted
+orignal post and reposted post should be co-related. 
+deleted and cancel repost should have same effect.
+reposted post label with background color?
+if reposted post is from the same user. 
+like original and reposted user are same, then don't show the follow options. 
+this is happening because i am testing at the moment. 
+but stll maybe better to have logic.
+
+###########
+i need to able see all my posts. 
+do i need i separated url for that?
+maybe show three tables on the top permanently always - for you - following - my posts? 
+just like twitter with one addition
+
+
+
+
+--follow 	✅ Done
+one user should be able to follow other users.	✅ DB table + API + UI
+Follow button on posts, অনুসরণ tab feeds followed users' posts.
+DB: [social].[user_follow], API: POST /social/api/follow/<id>/
+
+
+
+
+####
+stackoverflow effect
+
+Refining the StackOverflow-style interaction for your NewsHub in 2026.
+Rename the comment label to "Suggest an improvement or add info."
+This ensures the "Spill the News" vibe stays high-quality and verified.
+Add a voting tooltip: "This update is useful and shows research effort."
+Add a downvote tooltip: "This update is unclear or lacks research effort."
+Include a clear "Edit" option to allow for crowdsourced accuracy.
+Include a "Follow" button to get notifications on developing stories.
+Include a "Flag" option for serious moderation or misinformation.
+Optimize the logic to use a single event listener for all post actions.
+Ensure the code is lightweight and avoids per-keystroke database writes.
+Keep the paths clean and the logic future bug-proof for your developers.
+
+remove downvote. but give options for suggesstions to make improvement.
+we need to give user score for contribution
+
+
+--verified
+when a user is verified. 
+not near to profile picture.
+make it to the top right. this way, 
+verified logo is far way to stop user upload picture 
+or something in the profile image to show verified text or logo. 
+all his posts should show verified icon on the top right.
+this way fake user may have fake same name and picture but not verified logo.
+this would happen in all posts. 
+as a result, people don't need to check the profile 
+if it is posted by real user or not real user. 
+verified logo will tell the story.
+because it is attached to every posts.
+
+
+--user profile
+on hover over user profile. 
+show user profile description
+show number of following, followers.
+profile summary. 
+like how x shows it.
+we are not asking for username. 
+so what we can we can create username or whatever appropriate to call it
+with @ sign. for example. if the user choose the Middle East Eye. 
+we can give the username or whatever @middleeasteye. 
+which can be used to search a user quickly. 
+it needs to be unique.
+our algorithm should check if already exists, 
+then make it unique by adding, character and numbers.
+don't use email address as part of it. 
+because it can lead to spam. 
+so it should display on profile,
+Middle East Eye
+@middleeastey.
+
+in portal,
+we need UI option to put profile summary.
+give real user profile summary UI fields option. 
+at the moment we have only technical fields which is more like personal.
+about username handle you don't give warning, because it is made silently.
+for profile display name - are we suppossed to give warning?
+
+are we supposed to show the original user profile display name with the original post?
+we should show both users profile details right?
+
+it should have options to upvote comment as well. 
+what is the point of comment drop down, 
+it all leads to comment. do we really need them. 
+those were the intentions. maybe in the comment placeholder, 
+we suggests this but not as drop down list.
+what do you think?
+
+--comments loading
+loading one comments is taking so much time.
+i am surprised. 
+is there any chance we can do some background work of 
+loading this automatically in the background, 
+while user just came without freezing or over-killing it. 
+maybe while scrolling and stops for 3 secs then load some comments. 
+when twitter load comments, it is not visible of sudden appearance. 
+how do they do it? 
+it seems continuous. no jumping in transition.
+we need to be clever about this.
+This is what Twitter does — comments are prefetched as posts scroll into view, 
+so when user clicks Suggest, replies are already loaded.
+
+--flagging posts
+admin or user with post editor privilege should be able to flag posts.
+flag posts that does not add any values.
+
+

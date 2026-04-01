@@ -1,0 +1,13 @@
+--hook englishtobangla keyboard 
+when bengali option is chosen, 
+hook the englishtobangla keyboard to all possible fields. 
+check for exception
+
+
+
+--give people to write it any language from whereever they are.
+but translate them automatically from wherever country they are reading from.
+choose the national language as the translated language.
+and also keep the option to choose bangla and english keyboard.
+
+so for bangladesh, people will have default option to write in bangla.

@@ -7,7 +7,7 @@ import uuid
 from datetime import date as _date
 
 from django.conf import settings
-from django.db import connection as db_conn, DatabaseError, IntegrityError, transaction
+from django.db import connection, DatabaseError, IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -795,7 +795,7 @@ def news_collection_multistep_war_conflict(request):
         .values('status_id', 'status_code', 'status_name_bn', 'status_name_en')
     ))
 
-    cursor = db_conn.cursor()
+    cursor = connection.cursor()
     cursor.execute(
         "SELECT country_id, country_name_en, country_name_bn, country_iso_code "
         "FROM [location].[country] WHERE is_active=1 ORDER BY country_name_en"
@@ -1156,7 +1156,7 @@ def news_collection_multistep_women_child_violence(request):
 
 def news_article_landing(request):
     """Public landing page — list of published articles."""
-    from .models import PubArticle
+    from .models import PubArticle, EngArticleStat
 
     published_articles = PubArticle.objects.filter(
         is_published=True
@@ -1224,6 +1224,26 @@ def news_article_landing(request):
             'contributor_display_name': contributor_display_name,
             'form_type': form_type_obj,
         })
+
+    # Bulk-fetch cover image URLs for all articles
+    from .helpers import get_article_cover_urls_bulk
+    entry_ids = [a['entry'].coll_news_entry_id for a in articles_with_meta]
+    cover_url_map = get_article_cover_urls_bulk(entry_ids)
+    for article_meta in articles_with_meta:
+        article_meta['cover_image_url'] = cover_url_map.get(
+            article_meta['entry'].coll_news_entry_id
+        )
+
+    # Bulk-fetch engagement stats (like_count, view_count) for all articles
+    pub_article_ids = [a['published_article'].pub_article_id for a in articles_with_meta]
+    stats_map = {}
+    if pub_article_ids:
+        for stat in EngArticleStat.objects.filter(link_pub_article_id__in=pub_article_ids):
+            stats_map[stat.link_pub_article_id] = stat
+    for article_meta in articles_with_meta:
+        stat = stats_map.get(article_meta['published_article'].pub_article_id)
+        article_meta['like_count'] = stat.like_count if stat else 0
+        article_meta['view_count'] = stat.view_count if stat else 0
 
     context = {
         'articles': articles_with_meta,
@@ -1376,7 +1396,21 @@ def article_detail(request, slug):
         is_approved=True,
     ).order_by('created_at'))
 
-    # Article stats (view count, share count)
+    # Article stats (view count, share count) — increment view count on each page load
+    from django.db.models import F
+    stats_updated = EngArticleStat.objects.filter(
+        link_pub_article_id=published_article.pub_article_id,
+    ).update(view_count=F('view_count') + 1)
+
+    if not stats_updated:
+        # No stat row yet — create one with view_count=1
+        EngArticleStat.objects.create(
+            link_pub_article_id=published_article.pub_article_id,
+            view_count=1,
+            share_count=0,
+            like_count=0,
+        )
+
     stats = None
     try:
         stats = EngArticleStat.objects.get(link_pub_article_id=published_article.pub_article_id)
@@ -1395,6 +1429,23 @@ def article_detail(request, slug):
         publication_status_options = list(RefStatus.objects.filter(
             group_code='article_publication_status', is_active=True
         ).order_by('sort_order').values('status_id', 'status_code', 'status_name_bn', 'status_icon'))
+
+    # ---- Article like (session-based) ----
+    article_like_count = stats.like_count if stats else 0
+    article_view_count = stats.view_count if stats else 0
+    article_user_liked = str(published_article.pub_article_id) in request.session.get('article_likes', [])
+
+    # ---- Article photos (evidence, impact, accused, victim, witness, general) ----
+    from .helpers import get_article_photos
+    article_photos = get_article_photos(entry.coll_news_entry_id)
+    cover_image_url = article_photos['cover_image_url']
+    photo_groups = article_photos['groups']
+
+    # Annotate each photo with user_liked flag (session-based)
+    liked_photo_keys = set(request.session.get('article_photo_likes', []))
+    for photo in article_photos['all']:
+        photo_key = str(entry.coll_news_entry_id) + '_' + str(photo['link_asset_id'])
+        photo['user_liked'] = photo_key in liked_photo_keys
 
     # ---- SEO ----
     headline = published_article.pub_article_headline_bn or entry.news_headline_bn or "সংবাদ"
@@ -1443,11 +1494,14 @@ def article_detail(request, slug):
     seo_context = {
         "title": f"{headline} — আমলনামা নিউজ",
         "description": seo_description,
+        "og_image": request.build_absolute_uri(cover_image_url) if cover_image_url else "",
         "og_type": "article",
         "canonical": canonical_url,
         "json_ld": json_ld_article,
         "breadcrumbs": breadcrumbs,
     }
+    if cover_image_url:
+        json_ld_article["image"] = request.build_absolute_uri(cover_image_url)
 
     context = {
         'published_article': published_article,
@@ -1467,6 +1521,12 @@ def article_detail(request, slug):
         'comments': comments,
         'stats': stats,
         'additions': additions,
+        'cover_image_url': cover_image_url,
+        'photo_groups': photo_groups,
+        'all_photos': article_photos['all'],
+        'article_like_count': article_like_count,
+        'article_view_count': article_view_count,
+        'article_user_liked': article_user_liked,
         'seo': seo_context,
     }
     return render(request, 'newshub/pages/article-detail.html', context)
@@ -1518,7 +1578,7 @@ def _save_or_reuse_asset(uploaded_file, file_desc, now):
         )
 
         # Read back the computed file_storage_path from the inserted record
-        with db_conn.cursor() as cur:
+        with connection.cursor() as cur:
             cur.execute(
                 "SELECT file_storage_path FROM [media].[asset] WHERE asset_id = %s",
                 [asset.asset_id],
@@ -1544,16 +1604,18 @@ def _save_or_reuse_asset(uploaded_file, file_desc, now):
 # General attachments (with caption + featured) have their own block because
 # of the extra caption/featured logic.
 
-def _save_evidence_files(request, entry_id, file_field, desc_field, max_count, now):
+def _save_evidence_files(request, coll_news_entry_id, file_field, desc_field, max_count, now,
+                         asset_group_code=None):
     """Save evidence/form-specific file uploads → media.asset + newshub.coll_news_asset.
 
     Args:
-        request     — Django request object
-        entry_id    — coll_news_entry_id
-        file_field  — POST file field name, e.g. 'crime_evidence_file'
-        desc_field  — POST field name for descriptions JSON, e.g. 'crime_evidence_descriptions_json'
-        max_count   — max files to save (typically 4)
-        now         — datetime for created_at
+        request              — Django request object
+        coll_news_entry_id   — primary key of the news entry
+        file_field           — POST file field name, e.g. 'crime_evidence_file'
+        desc_field           — POST field name for descriptions JSON, e.g. 'crime_evidence_descriptions_json'
+        max_count            — max files to save (typically 4)
+        now                  — datetime for created_at
+        asset_group_code     — photo group tag: 'evidence', 'impact', 'accused', 'victim', 'witness', 'general'
     """
     uploaded_files = request.FILES.getlist(file_field)
     if not uploaded_files:
@@ -1573,9 +1635,10 @@ def _save_evidence_files(request, entry_id, file_field, desc_field, max_count, n
             file_desc = (descs[i] or '').strip() or None
         asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
         CollNewsAsset.objects.create(
-            link_coll_news_entry_id=entry.coll_news_entry_id,
+            link_coll_news_entry_id=coll_news_entry_id,
             link_asset_id=asset.asset_id,
             is_featured=False,
+            asset_group_code=asset_group_code,
             sort_order=i,
             created_at=now,
         )
@@ -1762,7 +1825,7 @@ def _resolve_actor_role(role_code=None, role_id=None):
     return (None, None)
 
 
-def _save_actor_profile(entry_id, person_id, actor_data, form_type_id, group_code, now,
+def _save_actor_profile(coll_news_entry_id, person_id, actor_data, form_type_id, group_code, now,
                         marriage_id=None, role_code=None):
     """Save Actor Type + Party Details → [investigation].[incident_involved_actor_profile].
 
@@ -1782,7 +1845,7 @@ def _save_actor_profile(entry_id, person_id, actor_data, form_type_id, group_cod
             resolved_id, resolved_code = None, None
 
     return IncidentInvolvedActorProfile.objects.create(
-        link_coll_news_entry_id=entry.coll_news_entry_id,
+        link_coll_news_entry_id=coll_news_entry_id,
         link_person_id=person_id,
         link_person_marriage_id=marriage_id,
         link_ref_status_incident_involved_actor_role_id=resolved_id,
@@ -1810,7 +1873,7 @@ _FIELD_TO_ROLE = {
 }
 
 
-def _save_actors_from_json(request, entry_id, form_type_id, group_code, now,
+def _save_actors_from_json(request, coll_news_entry_id, form_type_id, group_code, now,
                            json_fields=('accused_json', 'victim_json', 'witness_json')):
     """Parse actor JSON from POST and save each actor using the shared helpers.
 
@@ -1832,7 +1895,7 @@ def _save_actors_from_json(request, entry_id, form_type_id, group_code, now,
                 if not person:
                     continue  # skip actors with no name
                 _save_actor_profile(
-                    entry_id, person.person_id, actor_data,
+                    coll_news_entry_id, person.person_id, actor_data,
                     form_type_id, group_code, now,
                     role_code=role_code,
                 )
@@ -2162,6 +2225,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     link_asset_id=asset.asset_id,
                     coll_news_asset_caption_bn=caption if i == 0 else None,
                     is_featured=(i == featured_idx),
+                    asset_group_code='general',
                     sort_order=i,
                     created_at=now,
                 )
@@ -2239,6 +2303,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         link_asset_id=_asset.asset_id,
                         coll_news_asset_caption_bn=_user_desc or _code,
                         is_featured=False,
+                        asset_group_code=_code,
                         sort_order=_sort_base + _j,
                         created_at=now,
                     )
@@ -2500,6 +2565,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             _save_evidence_files(
                 request, entry.coll_news_entry_id,
                 'evidence_file', 'evidence_descriptions_json', 4, now,
+                asset_group_code='evidence',
             )
 
             # ---- Save land grabbing incident data (land grabbing form Step 7) ----
@@ -2615,6 +2681,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             _save_evidence_files(
                 request, entry.coll_news_entry_id,
                 'crime_evidence_file', 'crime_evidence_descriptions_json', 4, now,
+                asset_group_code='evidence',
             )
 
             # ---- Save commodity price impact (price hike form Step 7) ----

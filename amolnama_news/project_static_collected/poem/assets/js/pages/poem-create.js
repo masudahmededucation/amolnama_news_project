@@ -24,7 +24,7 @@
       "labelAudioDesc":        { bn: "গানের বিবরণ (ঐচ্ছিক)", en: "Song Description (optional)" },
       "hintAuthor":            { bn: "গীতিকার বা শিল্পীর নাম", en: "Lyricist or artist name" },
       "hintAudioUrl":          { bn: "YouTube, SoundCloud বা গানের লিংক", en: "YouTube, SoundCloud, or song link" },
-      "poemSubmitBtn":         { bn: "প্রকাশ করুন", en: "Publish" },
+      "poem-submit-button":    { bn: "প্রকাশ করুন", en: "Publish" },
       "poemDraftBadge":        { bn: "খসড়া সংরক্ষিত", en: "Draft saved" },
     };
 
@@ -58,7 +58,7 @@
   }
 
   var form = document.getElementById("poemCreateForm");
-  var submitBtn = document.getElementById("poemSubmitBtn");
+  var submitButton = document.getElementById("poem-submit-button");
   var errorBox = document.getElementById("poemCreateError");
   if (!form) return;
 
@@ -159,8 +159,8 @@
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "প্রকাশ হচ্ছে... (Publishing...)";
+    submitButton.disabled = true;
+    submitButton.textContent = "প্রকাশ হচ্ছে... (Publishing...)";
 
     // Read type from URL query param (?type=poem or ?type=song)
     var urlParams = new URLSearchParams(window.location.search);
@@ -210,14 +210,14 @@
           window.location.href = data.poem_url || "/bangla-kobita-gaan/id/" + data.poem_id + "/";
         } else {
           showError(data.error || "কিছু ভুল হয়েছে (Something went wrong)");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "প্রকাশ করুন (Publish)";
+          submitButton.disabled = false;
+          submitButton.textContent = "প্রকাশ করুন (Publish)";
         }
       })
       .catch(function (err) {
         showError(err.message || "সার্ভারে সমস্যা হয়েছে (Server error)");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "প্রকাশ করুন (Publish)";
+        submitButton.disabled = false;
+        submitButton.textContent = "প্রকাশ করুন (Publish)";
       });
   });
 })();

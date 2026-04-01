@@ -1,0 +1,338 @@
+/* ========== Photo Card — shared component ========== */
+/* Used by: travel hub detail, article detail, and any page with photo card grids.
+   Each page includes this CSS and may override grid/image sizing via page-specific CSS. */
+
+/* ---- Grid ---- */
+
+.photo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+
+/* ---- Card ---- */
+
+.photo-card {
+  position: relative;
+  background: var(--card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-card-image {
+  display: block;
+  width: 100%;
+  height: 160px;
+  background-position: center;
+  background-size: cover;
+  background-color: var(--surface);
+  cursor: pointer;
+}
+
+.photo-card-caption {
+  padding: .4rem .6rem;
+  font-size: .78rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* ---- Set as cover photo button (full-width, below image) ---- */
+
+.photo-card-set-cover-button {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  width: 100%;
+  padding: .35rem .6rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface, #f8f9fa);
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.photo-card-set-cover-button:hover {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.photo-card-set-cover-button-active {
+  background: #fff8e1;
+  color: #b8860b;
+  cursor: default;
+}
+
+.photo-card-set-cover-button-active .photo-card-set-cover-label {
+  font-weight: 700;
+}
+
+.photo-card-set-cover-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+/* ---- Footer (stats + meta + actions, stacked vertically) ---- */
+
+.photo-card-footer {
+  padding: .4rem .6rem;
+  border-top: 1px solid var(--border);
+  font-size: .7rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-top: auto;
+}
+
+.photo-card-stats {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+/* ---- Like button ---- */
+
+.photo-card-like-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .72rem;
+  color: var(--muted);
+  padding: .1rem .3rem;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+
+.photo-card-like-button:hover {
+  color: #1877f2;
+  background: #e7f3ff;
+}
+
+.photo-card-like-button-active {
+  color: #1877f2;
+}
+
+.photo-card-like-button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+/* ---- Like / View text labels ---- */
+
+.photo-card-like-label,
+.photo-card-view-label {
+  font-size: .65rem;
+  font-weight: 600;
+}
+
+/* ---- View count ---- */
+
+.photo-card-view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .15rem;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+/* ---- Meta (uploader + time) ---- */
+
+.photo-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.photo-card-uploader {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.photo-card-time {
+  color: var(--muted);
+}
+
+/* ---- Edit / Delete icon buttons ---- */
+
+.photo-card-actions {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding-top: .2rem;
+}
+
+.photo-card-edit-button,
+.photo-card-delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .72rem;
+  padding: .1rem .25rem;
+  border-radius: 3px;
+  color: var(--muted);
+  transition: color .15s, background .15s;
+  line-height: 1;
+}
+
+.photo-card-edit-button:hover {
+  color: var(--primary);
+  background: rgba(0, 0, 0, .05);
+}
+
+.photo-card-delete-button:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, .08);
+}
+
+/* ---- Inline edit form ---- */
+
+.photo-card-edit-form {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: .4rem;
+  margin-top: .3rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.photo-card-edit-form input[type="text"] {
+  flex: 1;
+  min-width: 100px;
+  padding: .3rem .5rem;
+  font-size: .75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.photo-card-save-button,
+.photo-card-cancel-button {
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .3rem .6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.photo-card-save-button {
+  background: var(--primary);
+  color: #fff;
+}
+
+.photo-card-save-button:hover {
+  opacity: .85;
+}
+
+.photo-card-save-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.photo-card-cancel-button {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.photo-card-cancel-button:hover {
+  background: var(--border);
+}
+
+/* ---- Delete confirmation bar ---- */
+
+.photo-card-delete-confirm {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
+  padding: .35rem .5rem;
+  margin-top: .3rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: .75rem;
+  color: #991b1b;
+}
+
+.photo-card-confirm-delete-button,
+.photo-card-cancel-delete-button {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .2rem .5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.photo-card-confirm-delete-button {
+  background: #dc2626;
+  color: #fff;
+}
+
+.photo-card-confirm-delete-button:hover {
+  opacity: .85;
+}
+
+.photo-card-confirm-delete-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.photo-card-cancel-delete-button {
+  background: #fff;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.photo-card-cancel-delete-button:hover {
+  background: #fef2f2;
+}
+
+/* Edit/delete forms placed as grid siblings span full width */
+.photo-card-grid > .photo-card-edit-form,
+.photo-card-grid > .photo-card-delete-confirm {
+  grid-column: 1 / -1;
+}
+
+/* ---- Inline message ---- */
+
+.photo-card-inline-message {
+  font-size: .72rem;
+  padding: .25rem .5rem;
+  border-radius: 4px;
+  margin-top: .2rem;
+}
+
+.photo-card-inline-message-success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.photo-card-inline-message-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .photo-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .photo-card-image {
+    height: 130px;
+  }
+}

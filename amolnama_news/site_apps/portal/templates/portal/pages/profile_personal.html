@@ -1,0 +1,152 @@
+{% extends "portal/pages/profile_base.html" %}
+{% load static %}
+
+{% block profile_title %}Personal Details{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+  <link rel="stylesheet" href="{% static 'portal/assets/css/components/avatar-upload.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'user_account/assets/js/transliterate.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+  <script src="{% static 'portal/assets/js/components/avatar-upload.js' %}"></script>
+{% endblock %}
+
+{% block profile_content %}
+
+{# ---- Avatar Upload Section ---- #}
+<div class="avatar-upload-section" id="avatar-upload-section">
+  <div class="avatar-upload-preview" id="avatar-upload-preview">
+    {% if avatar_url %}
+    <img src="{{ avatar_url }}" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image">
+    {% else %}
+    <svg class="avatar-upload-default-icon" id="avatar-upload-default-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+    {% endif %}
+  </div>
+  <div class="avatar-upload-controls" id="avatar-upload-controls">
+    <label class="avatar-upload-button" id="avatar-upload-button" name="avatar_upload_button">
+      📷 ছবি আপলোড করুন
+      <input type="file" id="avatar-upload-file-input" name="avatar_upload_file_input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+    </label>
+    <span class="avatar-upload-hint">JPG, PNG বা WebP — সর্বোচ্চ 5MB</span>
+  </div>
+</div>
+
+{# ---- Cropper Modal ---- #}
+<div class="avatar-cropper-modal" id="avatar-cropper-modal" style="display:none;">
+  <div class="avatar-cropper-modal-content" id="avatar-cropper-modal-content">
+    <h3 class="avatar-cropper-modal-title">ছবি ক্রপ করুন (Crop your photo)</h3>
+    <div class="avatar-cropper-container" id="avatar-cropper-container">
+      <img id="avatar-cropper-image" alt="Crop preview">
+    </div>
+    <div class="avatar-cropper-actions" id="avatar-cropper-actions">
+      <button type="button" class="avatar-cropper-save-button" id="avatar-cropper-save-button" name="avatar_cropper_save_button">সংরক্ষণ করুন (Save)</button>
+      <button type="button" class="avatar-cropper-cancel-button" id="avatar-cropper-cancel-button" name="avatar_cropper_cancel_button">বাতিল (Cancel)</button>
+    </div>
+    <div class="avatar-cropper-message" id="avatar-cropper-message"></div>
+  </div>
+</div>
+
+<form method="post" class="profile-form" novalidate>
+  {% csrf_token %}
+
+  <!-- Name (English) -->
+  <h2 class="profile-section-title">Name (English)</h2>
+  <div class="profile-form-row">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.first_name_en.id_for_label }}">First name *</label>
+      {{ form.first_name_en }}
+      {% if form.first_name_en.errors %}
+        <ul class="signup-field-errors">{% for e in form.first_name_en.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.last_name_en.id_for_label }}">Last name *</label>
+      {{ form.last_name_en }}
+      {% if form.last_name_en.errors %}
+        <ul class="signup-field-errors">{% for e in form.last_name_en.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Name (Bengali) -->
+  <h2 class="profile-section-title">নাম (বাংলা)</h2>
+  <div class="profile-form-row">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.first_name_bn.id_for_label }}">প্রথম নাম</label>
+      {{ form.first_name_bn }}
+      {% if form.first_name_bn.errors %}
+        <ul class="signup-field-errors">{% for e in form.first_name_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.last_name_bn.id_for_label }}">শেষ নাম</label>
+      {{ form.last_name_bn }}
+      {% if form.last_name_bn.errors %}
+        <ul class="signup-field-errors">{% for e in form.last_name_bn.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Personal Details -->
+  <h2 class="profile-section-title">Personal Details</h2>
+  <div class="profile-form-row profile-form-row--two">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.date_of_birth.id_for_label }}">Date of birth *</label>
+      {{ form.date_of_birth }}
+      {% if form.date_of_birth.errors %}
+        <ul class="signup-field-errors">{% for e in form.date_of_birth.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+  <div class="profile-form-row profile-form-row--two">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.link_gender_id.id_for_label }}">Gender</label>
+      {{ form.link_gender_id }}
+      {% if form.link_gender_id.errors %}
+        <ul class="signup-field-errors">{% for e in form.link_gender_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.link_marital_status_id.id_for_label }}">Marital Status</label>
+      {{ form.link_marital_status_id }}
+      {% if form.link_marital_status_id.errors %}
+        <ul class="signup-field-errors">{% for e in form.link_marital_status_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+  <div class="profile-form-row profile-form-row--two">
+    <div class="signup-form-group">
+      <label class="signup-form-label" for="{{ form.link_religion_id.id_for_label }}">Religion</label>
+      {{ form.link_religion_id }}
+      {% if form.link_religion_id.errors %}
+        <ul class="signup-field-errors">{% for e in form.link_religion_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+    <div class="signup-form-group"></div>
+  </div>
+
+  <!-- NID -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.nid_number.id_for_label }}">NID Number</label>
+    {{ form.nid_number }}
+    {% if form.nid_number.errors %}
+      <ul class="signup-field-errors">{% for e in form.nid_number.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <!-- Notes -->
+  <div class="signup-form-group">
+    <label class="signup-form-label" for="{{ form.notes.id_for_label }}">Notes</label>
+    {{ form.notes }}
+    {% if form.notes.errors %}
+      <ul class="signup-field-errors">{% for e in form.notes.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn primary signup-submit-button">Save Personal Details</button>
+</form>
+{% endblock %}

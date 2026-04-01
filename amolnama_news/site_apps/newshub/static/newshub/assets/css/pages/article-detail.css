@@ -2,8 +2,8 @@
 
 .article-detail-container {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 2rem;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
   max-width: 1100px;
   margin: 1.5rem auto;
   padding: 0 1rem;
@@ -32,12 +32,12 @@
 .article-sidenote-item {
   display: flex;
   align-items: flex-start;
-  gap: .5rem;
-  margin-bottom: .65rem;
-  padding: .4rem .5rem;
+  gap: .3rem;
+  margin-bottom: .5rem;
+  padding: .3rem .4rem;
   border-radius: 6px;
   background: var(--surface);
-  font-size: .8rem;
+  font-size: .72rem;
   line-height: 1.4;
 }
 
@@ -219,6 +219,7 @@
   color: var(--text);
   background: var(--surface);
   padding: 1rem;
+  margin-top: 1rem;
   border-radius: 8px;
   border-left: 4px solid var(--primary);
   margin-bottom: 1.5rem;
@@ -237,22 +238,23 @@
 
 .article-actions {
   display: flex;
+  align-items: center;
   gap: .75rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--border);
 }
 
 .article-actions-top {
-  margin-top: 0;
-  margin-bottom: 1rem;
+  margin-top: .5rem;
+  margin-bottom: 2rem;
   padding-top: 0;
   border-top: none;
-  padding-bottom: .75rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--border);
 }
 
-.article-action-btn {
+.article-action-button {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -266,11 +268,20 @@
   text-decoration: none;
 }
 
-.article-action-btn:hover {
+.article-action-button:hover {
   background: var(--border);
 }
 
-.article-action-btn.edit-btn {
+.article-view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .78rem;
+  color: var(--muted);
+  padding: .4rem .5rem;
+}
+
+.article-edit-button {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
@@ -318,19 +329,65 @@
 }
 
 /* ---- Inline messages (no popups) ---- */
-.inline-msg {
+.inline-message {
   font-size: .78rem;
   padding: .3rem .6rem;
   border-radius: 4px;
   margin-top: .3rem;
 }
 
-.inline-msg-success {
+.inline-message-success {
   background: #dcfce7;
   color: #166534;
 }
 
-.inline-msg-error {
+.inline-message-error {
   background: #fef2f2;
   color: #991b1b;
 }
+
+/* ======== Hero Cover Image ======== */
+
+.article-detail-hero {
+  width: 100%;
+  height: 320px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .article-detail-hero {
+    height: 200px;
+    border-radius: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
+  }
+}
+
+/* ======== Photo Gallery (grouped) ======== */
+
+.article-detail-photos {
+  margin: 2rem 0;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+
+.article-detail-photo-group {
+  margin-bottom: 1.5rem;
+}
+
+.article-detail-photo-group-heading {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+/* Photo card grid/image/footer/buttons now provided by shared photo-card.css */

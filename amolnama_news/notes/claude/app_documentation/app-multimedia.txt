@@ -1,0 +1,41 @@
+================================================================
+MULTIMEDIA APP — Architecture & Features
+App: site_apps/multimedia/
+No URL prefix (data-only, no views)
+================================================================
+
+## Introduction
+Media asset management — data models for file storage tracking.
+No views — models are used by other apps (newshub, bangladesh, portal) for
+media uploads and file path references.
+
+## Models (5 models, all managed=False)
+
+| Model               | DB Table                          | Purpose                    |
+|---------------------|-----------------------------------|----------------------------|
+| Asset               | [media].[asset]                   | Main file asset record     |
+| AppAsset            | [media].[app_asset]               | Static app assets registry |
+| SocialUrlLibrary    | [media].[social_url_library]      | Social media URL patterns  |
+| AssetType           | [media].[ref_asset_type]          | Asset type reference       |
+| AssetCategory       | [media].[ref_asset_category]      | Asset category reference   |
+
+### Key Fields on Asset
+- asset_id (PK), asset_guid (UUID)
+- file_storage_path (COMPUTED COLUMN — never include in INSERT/UPDATE)
+- original_file_name, file_extension, file_size_bytes
+- is_active
+
+## How It's Used
+- newshub: CollNewsAsset junction table links to Asset for article photos
+- bangladesh: destination photos stored as Asset records
+- portal: avatar upload creates Asset record
+
+## Important Rules
+- file_storage_path is a COMPUTED COLUMN — use raw SQL to read it, never define as model field
+- Import SocialUrlLibrary as: `from multimedia.models import SocialUrlLibrary`
+- Media strategy: user uploads → media/ + [media].[asset]; static images → static/ + [media].[app_asset]
+
+## Troubleshooting
+- file_storage_path: SQL Server computed column. Django ORM will include it in INSERT causing error.
+  Remove from model definition entirely (leave comment). Use raw SQL to read.
+- See project_media_strategy.md for full media storage architecture.

@@ -24,7 +24,7 @@
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4"/></svg>
       </button>
       <div class="header-user-menu-dropdown">
-        <a href="{% url 'user_account:profile' %}" class="header-user-menu-dropdown-item">Profile</a>
+        <a href="{% url 'portal:profile' %}" class="header-user-menu-dropdown-item">Profile</a>
         <form method="post" action="{% url 'user_account:logout' %}" onsubmit="try{localStorage.removeItem('newshub_draft');localStorage.removeItem('newshub_draft_tags')}catch(e){}">
           {% csrf_token %}
           <button type="submit" class="header-user-menu-dropdown-item header-user-menu-logout-button">Logout</button>

@@ -14,7 +14,11 @@
  * fetches from overwriting saved values with empty strings.
  */
 (function () {
-  var STORAGE_KEY = 'newshub_draft';
+  var formTypeInput = document.getElementById('news-form-type');
+  var formTypeCode = formTypeInput ? formTypeInput.value : '';
+  var STORAGE_KEY = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
+  var TAGS_STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
+
   var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status',
     'accused_json', 'victim_json', 'witness_json'];
   var form = document.querySelector('.news-collection-form, .news-multistep-form');
@@ -24,7 +28,7 @@
   var isSuccessPage = !!document.querySelector('.form-message-success');
   if (isSuccessPage) {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem('newshub_draft_tags');
+    localStorage.removeItem(TAGS_STORAGE_KEY);
   }
 
   /* ========== SAVE ========== */
@@ -143,58 +147,58 @@
   }
 
   /* 3. Organisation type → org name cascade */
-  var orgTypeSel = document.getElementById('contributor-org-type');
-  var orgNameSel = document.getElementById('contributor-organization');
+  var organizationTypeSelect = document.getElementById('contributor-org-type');
+  var organizationNameSelect = document.getElementById('contributor-organization');
 
-  if (orgTypeSel && saved.organisation_type_id) {
-    orgTypeSel.value = saved.organisation_type_id;
-    orgTypeSel.dispatchEvent(new Event('change'));
+  if (organizationTypeSelect && saved.organisation_type_id) {
+    organizationTypeSelect.value = saved.organisation_type_id;
+    organizationTypeSelect.dispatchEvent(new Event('change'));
 
     if (saved.contributor_organization_id) {
-      waitForOptions(orgNameSel, function () {
-        orgNameSel.value = saved.contributor_organization_id;
+      waitForOptions(organizationNameSelect, function () {
+        organizationNameSelect.value = saved.contributor_organization_id;
       });
     }
   }
 
   /* 4. Location cascade: district → constituency + subdistrict → local body → ward → village */
-  var districtSel = document.getElementById('news-district-id');
-  var constSel = document.getElementById('news-constituency-id');
-  var upazilaSel = document.getElementById('news-upazila-id');
-  var unionSel = document.getElementById('news-union-parishad-id');
-  var wardSel = document.getElementById('news-ward-id');
-  var villageSel = document.getElementById('news-village-id');
+  var districtSelect = document.getElementById('news-district-id');
+  var constituencySelect = document.getElementById('news-constituency-id');
+  var upazilaSelect = document.getElementById('news-upazila-id');
+  var unionSelect = document.getElementById('news-union-parishad-id');
+  var wardSelect = document.getElementById('news-ward-id');
+  var villageSelect = document.getElementById('news-village-id');
 
-  if (districtSel && saved.district_id) {
-    districtSel.value = saved.district_id;
-    if (districtSel.tomselect) {
-      districtSel.tomselect.setValue(saved.district_id, true);
+  if (districtSelect && saved.district_id) {
+    districtSelect.value = saved.district_id;
+    if (districtSelect.tomselect) {
+      districtSelect.tomselect.setValue(saved.district_id, true);
     }
-    districtSel.dispatchEvent(new Event('change'));
+    districtSelect.dispatchEvent(new Event('change'));
 
     /* Constituency is a hidden input — set directly */
-    if (saved.constituency_id && constSel) {
-      constSel.value = saved.constituency_id;
+    if (saved.constituency_id && constituencySelect) {
+      constituencySelect.value = saved.constituency_id;
     }
 
-    if (saved.upazila_id && upazilaSel) {
-      waitForOptions(upazilaSel, function () {
-        upazilaSel.value = saved.upazila_id;
+    if (saved.upazila_id && upazilaSelect) {
+      waitForOptions(upazilaSelect, function () {
+        upazilaSelect.value = saved.upazila_id;
 
-        if (saved.union_parishad_id && unionSel) {
-          upazilaSel.dispatchEvent(new Event('change'));
-          waitForOptions(unionSel, function () {
-            unionSel.value = saved.union_parishad_id;
+        if (saved.union_parishad_id && unionSelect) {
+          upazilaSelect.dispatchEvent(new Event('change'));
+          waitForOptions(unionSelect, function () {
+            unionSelect.value = saved.union_parishad_id;
 
-            if (saved.ward_id && wardSel) {
-              unionSel.dispatchEvent(new Event('change'));
-              waitForOptions(wardSel, function () {
-                wardSel.value = saved.ward_id;
+            if (saved.ward_id && wardSelect) {
+              unionSelect.dispatchEvent(new Event('change'));
+              waitForOptions(wardSelect, function () {
+                wardSelect.value = saved.ward_id;
 
-                if (saved.village_id && villageSel) {
-                  wardSel.dispatchEvent(new Event('change'));
-                  waitForOptions(villageSel, function () {
-                    villageSel.value = saved.village_id;
+                if (saved.village_id && villageSelect) {
+                  wardSelect.dispatchEvent(new Event('change'));
+                  waitForOptions(villageSelect, function () {
+                    villageSelect.value = saved.village_id;
                   });
                 }
               });

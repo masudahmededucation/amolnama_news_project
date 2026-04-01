@@ -265,6 +265,12 @@
       btnPrev.style.display = currentStep === 1 ? 'none' : '';
     }
 
+    /* Clear form button — hide on step 1 (form type selection), show on step 2+ */
+    var clearFormButton = document.getElementById('news-clear-form-button');
+    if (clearFormButton) {
+      clearFormButton.style.display = currentStep === 1 ? 'none' : 'inline-block';
+    }
+
     /* Next button — hide on last step (use real total when in preview, user is on step 1) */
     if (btnNext) {
       var effectiveTotal = isPreviewMode ? realTotalSteps : totalSteps;
@@ -489,10 +495,12 @@
       })
       .then(function (result) {
         if (result.data.success) {
-          /* Clear localStorage draft — must match key in news-form-persist.js */
+          /* Clear localStorage draft (per-form-type) */
           try {
-            localStorage.removeItem('newshub_draft');
-            localStorage.removeItem('newshub_draft_tags');
+            var ftInput = document.getElementById('news-form-type');
+            var ftCode = ftInput ? ftInput.value : '';
+            localStorage.removeItem(ftCode ? ('newshub_draft_' + ftCode) : 'newshub_draft');
+            localStorage.removeItem(ftCode ? ('newshub_draft_tags_' + ftCode) : 'newshub_draft_tags');
           } catch (ex) {}
 
           /* Redirect to success page */

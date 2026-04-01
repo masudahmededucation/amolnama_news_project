@@ -1,0 +1,28 @@
+{# Right panel — clock, breaking ticker, trending. Included in base.html. Hidden on mobile. #}
+<aside class="right-panel" id="right-panel" aria-label="পাশের প্যানেল (Side Panel)">
+
+  {# ---- Clock ---- #}
+  <div class="right-panel-section" id="right-panel-clock-section">
+    <div class="right-panel-clock" id="right-panel-live-date-time"></div>
+  </div>
+
+  {# ---- Breaking News Ticker ---- #}
+  <div class="right-panel-section" id="right-panel-ticker-section">
+    <span class="right-panel-ticker-label">ব্রেকিং</span>
+    <div class="right-panel-ticker" aria-live="polite" id="right-panel-ticker">
+      <div class="right-panel-ticker-marquee">
+        <span>The website is under construction. The website is under construction. The website is under construction.</span>
+      </div>
+    </div>
+  </div>
+
+  {# ---- Trending ---- #}
+  <div class="right-panel-section" id="right-panel-trending-section">
+    <h3 class="right-panel-section-title" id="right-panel-trending-title">ট্রেন্ডিং</h3>
+    <div class="right-panel-trending-list" id="right-panel-trending-list">
+      <span class="right-panel-trending-empty">শীঘ্রই আসছে</span>
+    </div>
+  </div>
+
+
+</aside>

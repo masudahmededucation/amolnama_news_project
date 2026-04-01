@@ -1,0 +1,69 @@
+================================================================
+SEO APP — Architecture & Features
+App: site_apps/seo/
+URLs served at root level (no prefix)
+================================================================
+
+## Overview
+SEO infrastructure: robots.txt, llms.txt, PWA manifest, service worker, sitemaps, template tags.
+No models — all views return dynamic text/JSON responses.
+
+## URL Patterns (root level, defined in main urls.py)
+
+| URL              | View              | Cache  | Name               |
+|------------------|-------------------|--------|--------------------|
+| /robots.txt      | robots_txt        | 24h    | seo:robots_txt     |
+| /llms.txt        | llms_txt          | 24h    | seo:llms_txt       |
+| /manifest.json   | manifest_json     | 24h    | seo:manifest_json  |
+| /sw.js           | service_worker_js | 1h     | seo:service_worker_js |
+| /sitemap.xml     | Django SitemapView | —     | —                  |
+
+## Views (views.py)
+
+### robots_txt
+- Allow all crawlers on /
+- Disallow: /admin/, /account/, /accounts/, /api/, /newshub/ (anti-copy)
+- Disallow app-specific /api/ endpoints
+- Points to sitemap.xml
+- References llms.txt for AI crawlers
+
+### llms_txt
+- AI-readable site description (2025/2026 standard)
+- Sections: About, Sections (with URLs), Travel Hub, Tools
+- Dynamic host via request.build_absolute_uri
+
+### manifest_json
+- PWA manifest: name, icons (192+512, any+maskable), theme color, categories
+- Icon URLs point to static files
+
+### service_worker_js
+- CACHE_NAME: 'amolnama-v221' (BUMP after every JS/CSS change!)
+- Install: pre-cache home page
+- Activate: purge old caches
+- Fetch: network-first, cache static assets, offline fallback to cached home
+
+## Additional Modules
+
+### sitemaps.py
+Custom Django sitemaps for all public pages.
+
+### templatetags/seo_tags.py
+- seo_meta_tags — renders <meta> tags from seo dict (title, description, og_image, etc.)
+- seo_json_ld — renders JSON-LD schema from seo dict
+
+### context_processors.py
+Template context helpers for SEO data.
+
+## Service Worker Cache — CRITICAL RULE
+After ANY JS/CSS change anywhere in the project:
+1. Bump CACHE_NAME version in seo/views.py (e.g. v221 → v222)
+2. Run collectstatic --noinput
+3. Never blame "browser cache" — always check service worker first
+
+## SEO Pattern for New Pages
+When creating any new page/app, auto-apply:
+1. Pass seo dict in view context (title, description, og_image, canonical)
+2. Use {% seo_meta_tags seo %} and {% seo_json_ld seo %} in template
+3. Add to sitemaps.py
+4. Add to robots.txt (unless blocked like newshub)
+5. Add to llms.txt sections

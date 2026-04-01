@@ -242,6 +242,38 @@
   font-size: .88rem;
 }
 
+/* ---- Clear form button ---- */
+
+.poem-clear-form-button {
+  padding: .35rem .85rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: #FFF5F5;
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.poem-clear-form-button:hover {
+  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.poem-clear-form-button-confirm {
+  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.poem-clear-form-message {
+  font-size: .75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .poem-create {

@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}পোস্ট — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="post-feed-tabs" id="post-feed-tabs">
+  <a href="{% url 'post:home' %}" class="post-feed-tab{% if active_tab == 'for_you' %} post-feed-tab-active{% endif %}" id="post-feed-tab-for-you" name="post_feed_tab_for_you">আপনার জন্য</a>
+  <a href="{% url 'post:home' %}?tab=following" class="post-feed-tab{% if active_tab == 'following' %} post-feed-tab-active{% endif %}" id="post-feed-tab-following" name="post_feed_tab_following">অনুসরণ</a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'post:home' %}?tab=my_posts" class="post-feed-tab{% if active_tab == 'my_posts' %} post-feed-tab-active{% endif %}" id="post-feed-tab-my-posts" name="post_feed_tab_my_posts">আমার পোস্ট</a>
+  {% endif %}
+</div>
+
+{% if user.is_authenticated %}
+{% include "post/components/post-composer.html" %}
+{% else %}
+<div class="post-login-prompt" id="post-login-prompt">
+  <p>পোস্ট করতে <a href="{% url 'user_account:login' %}?next={% url 'post:home' %}">লগইন</a> করুন</p>
+</div>
+{% endif %}
+
+<div class="post-feed" id="post-feed">
+  {% for post_item in posts %}
+  {% include "post/components/post-card.html" %}
+  {% empty %}
+  <div class="post-feed-empty" id="post-feed-empty">
+    {% if active_tab == 'my_posts' %}
+    <p>আপনি এখনো কোনো পোস্ট করেননি। আপনার প্রথম পোস্ট লিখুন!</p>
+    {% elif active_tab == 'following' %}
+    <p>অনুসরণ ফিড শীঘ্রই আসছে</p>
+    {% else %}
+    <p>এখনো কোনো পোস্ট নেই। প্রথম পোস্ট করুন!</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% include "core/components/photo-lightbox.html" %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
+<script src="{% static 'post/assets/js/pages/post-home.js' %}"></script>
+{% endblock %}

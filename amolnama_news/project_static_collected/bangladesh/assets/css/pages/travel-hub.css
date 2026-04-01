@@ -1,6 +1,13 @@
 /* No underline on hover — all links */
 main a, main a:hover, main a:focus { text-decoration: none; }
 
+/* Breadcrumb (shared with detail page) */
+.travel-hub-detail-breadcrumb { margin:.75rem 0 .5rem; font-size:.88rem; color:var(--muted); }
+.travel-hub-detail-breadcrumb a { color:var(--primary); text-decoration:none; }
+.travel-hub-detail-breadcrumb a:hover { color:var(--text); }
+.travel-hub-detail-breadcrumb-sep { margin:0 .3rem; color:var(--border); }
+.travel-hub-detail-breadcrumb-current { color:var(--text); font-weight:600; }
+
 /* ========== Travel Hub Page ========== */
 
 .travel-hub-header { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:1rem 0 .75rem; }
@@ -15,8 +22,8 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-header-cta svg { width:14px; height:14px; }
 
 /* Filter pills */
-.travel-hub-filter-bar { padding:.25rem 0 .75rem; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-.travel-hub-filter-pills { display:flex; gap:.4rem; }
+.travel-hub-filter-bar { padding:.25rem 0 .75rem; }
+.travel-hub-filter-pills { display:flex; gap:.4rem; flex-wrap:wrap; }
 .travel-hub-filter-pill { padding:.3rem .7rem; font-size:.72rem; font-weight:600; border:1.5px solid var(--border); border-radius:20px; background:var(--card); color:var(--muted); cursor:pointer; white-space:nowrap; transition:all .15s; }
 .travel-hub-filter-pill:hover { border-color:var(--primary); color:var(--primary); }
 .travel-hub-filter-pill--active { background:var(--primary); color:#fff; border-color:var(--primary); }
@@ -24,7 +31,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 /* Destination grid */
 .travel-hub-destination-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem; padding:.5rem 0 2rem; }
 
-.travel-hub-destination-card { position:relative; display:flex; flex-direction:column; border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); text-decoration:none; color:inherit; cursor:pointer; }
+.travel-hub-destination-card { position:relative; display:flex; flex-direction:column; border-radius:var(--radius); overflow:hidden; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow); text-decoration:none; color:inherit; cursor:pointer; transition:box-shadow .2s; }
 .travel-hub-destination-card:hover { box-shadow:var(--shadow-md); }
 
 /* Thick border on image only on hover */
@@ -55,6 +62,12 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-load-more { text-align:center; padding:1rem 0 2rem; }
 .travel-hub-load-more-btn { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
 .travel-hub-load-more-btn:hover { background:var(--primary); color:#fff; }
+
+/* ---- Clear form button (travel hub add) ---- */
+.travel-hub-clear-form-button { padding:.35rem .85rem; font-size:.85rem; font-weight:600; color:var(--danger); background:#FFF5F5; border:1.5px solid var(--danger); border-radius:var(--radius); cursor:pointer; transition:all .2s; }
+.travel-hub-clear-form-button:hover { color:#fff; background:var(--danger); border-color:var(--danger); }
+.travel-hub-clear-form-button-confirm { color:#fff; background:var(--danger); border-color:var(--danger); }
+.travel-hub-clear-form-message { font-size:.75rem; color:var(--muted); white-space:nowrap; }
 
 @media (max-width:640px) {
   .travel-hub-destination-grid { grid-template-columns:1fr; }

@@ -1,0 +1,36 @@
+{# Shared photo card component. Context: photo_card (dict), photo_card_can_edit (bool) #}
+{# photo_card keys: id, parent_id, file_url, caption, like_count, view_count, user_liked, is_cover, uploader_name (optional), time_ago (optional) #}
+<div class="photo-card" data-photo-id="{{ photo_card.id }}" data-parent-id="{{ photo_card.parent_id }}">
+  <div class="photo-card-image" data-photo-url="{{ photo_card.file_url }}" data-photo-caption="{{ photo_card.caption|default:'' }}" style="background-image:url('{{ photo_card.file_url }}');cursor:pointer;"></div>
+
+  {% if photo_card_can_edit %}
+  <button type="button" class="photo-card-set-cover-button{% if photo_card.is_cover %} photo-card-set-cover-button-active{% endif %}" id="photo-card-set-cover-{{ photo_card.id }}" name="photo_card_set_cover_{{ photo_card.id }}">
+    <span class="photo-card-set-cover-label">{% if photo_card.is_cover %}✓ কভার ছবি (Cover photo){% else %}☆ কভার ছবি সেট করুন (Set as cover){% endif %}</span>
+  </button>
+  {% endif %}
+
+  {% if photo_card.caption %}<div class="photo-card-caption">{{ photo_card.caption }}</div>{% endif %}
+
+  <div class="photo-card-footer">
+    <div class="photo-card-stats">
+      <button type="button" class="photo-card-like-button{% if photo_card.user_liked %} photo-card-like-button-active{% endif %}" id="photo-card-like-{{ photo_card.id }}" name="photo_card_like_{{ photo_card.id }}" title="পছন্দ (Like)">
+        <span class="photo-card-like-icon">{% if photo_card.user_liked %}👍{% else %}👍{% endif %}</span>
+        <span class="photo-card-like-label">পছন্দ</span>
+        <span class="photo-card-like-count">{{ photo_card.like_count|default:0 }}</span>
+      </button>
+      <span class="photo-card-view-count">👁️ <span class="photo-card-view-label">ভিউ</span> {{ photo_card.view_count|default:0 }}</span>
+    </div>
+    {% if photo_card.uploader_name %}
+    <div class="photo-card-meta">
+      <span class="photo-card-uploader">{{ photo_card.uploader_name }}</span>
+      {% if photo_card.time_ago %}<span class="photo-card-time">{{ photo_card.time_ago }}</span>{% endif %}
+    </div>
+    {% endif %}
+    {% if photo_card_can_edit %}
+    <div class="photo-card-actions">
+      <button type="button" class="photo-card-edit-button" id="photo-card-edit-{{ photo_card.id }}" name="photo_card_edit_{{ photo_card.id }}" data-caption="{{ photo_card.caption|default:'' }}" title="ক্যাপশন পরিবর্তন করুন (Edit caption)">✎</button>
+      <button type="button" class="photo-card-delete-button" id="photo-card-delete-{{ photo_card.id }}" name="photo_card_delete_{{ photo_card.id }}" title="ছবি মুছুন (Delete photo)">✕</button>
+    </div>
+    {% endif %}
+  </div>
+</div>

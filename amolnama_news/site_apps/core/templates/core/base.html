@@ -18,7 +18,7 @@
 
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
-                 script-src 'self' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdn.quilljs.com https://www.youtube.com https://s.ytimg.com;
+                 script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://cdn.quilljs.com https://www.youtube.com https://s.ytimg.com;
                  worker-src 'self' https://cdn.jsdelivr.net blob:;
                  style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdn.quilljs.com https://fonts.googleapis.com;
                  font-src 'self' https://fonts.gstatic.com;
@@ -38,6 +38,8 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/header.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/grid.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/sidebar.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/layout/sidebar-navigation.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/layout/right-panel.css' %}">
 
   <link rel="stylesheet" href="{% static 'core/assets/css/components/navigation.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/cards.css' %}">
@@ -54,43 +56,32 @@
   {% seo_json_ld %}
 </head>
 <body>
-  <div class="page-wrapper">
-    <div class="topbar">
-      <div class="container">
-        <!-- Row 1: Live clock -->
-        <div class="topbar-clock">
-          <div class="muted" id="liveDateTime"></div>
+  <div class="app-layout" id="app-layout">
+    {% include "core/partials/sidebar-navigation.html" %}
+
+    <div class="page-wrapper">
+      <header class="header">
+        <div class="header-grid">
+          {% include "core/partials/header_auth_controls.html" %}
         </div>
-        <!-- Row 2: Full-width marquee ticker -->
-        <div class="ticker" aria-label="Breaking news">
-          <span class="ticker-breaking-label">Breaking</span>
-          <div class="marquee" aria-live="polite">
-            <span>The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. The website is under construction. </span>
-          </div>
-        </div>
-      </div>
+      </header>
+
+      <main>
+        {% block content %}{% endblock %}
+      </main>
     </div>
 
-    <header class="header">
-      <div class="container header-grid">
-        {% include "core/partials/header_auth_controls.html" %}
-        {% include "core/logo.html" %}
-        {% include "core/menu.html" with slug=slug %}
-      </div>
-    </header>
-
-    <main class="container">
-      {% block content %}{% endblock %}
-    </main>
-
-    {% comment %} {% include "core/partials/footer.html" %} {% endcomment %}
+    {% include "core/partials/right-panel.html" %}
   </div>
 
+  <script src="{% static 'core/assets/js/components/file-dropzone.js' %}"></script>
   {% block extra_js %}{% endblock %}
+  <script src="{% static 'core/assets/js/components/sidebar-navigation.js' %}"></script>
   <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
   <script src="{% static 'user_account/assets/js/header-user-menu.js' %}"></script>
   <script src="{% static 'englishtobangla/assets/js/utilities/avro-phonetic.js' %}"></script>
   <script src="{% static 'englishtobangla/assets/js/utilities/bangla-input.js' %}"></script>
+  <script src="{% static 'englishtobangla/assets/js/utilities/bangla-input-auto-attach.js' %}"></script>
   <script src="{% static 'englishtobangla/assets/js/utilities/quill-avro.js' %}"></script>
   <script src="{% static 'newshub/assets/js/components/news-form-lang.js' %}"></script>
   <script src="{% static 'core/assets/js/pwa-register-sw.js' %}"></script>

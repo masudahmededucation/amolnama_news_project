@@ -9,11 +9,24 @@
 {% endblock %}
 
 {% block content %}
+
+{% if seo.breadcrumbs %}
+<nav class="travel-hub-detail-breadcrumb" aria-label="Breadcrumb">
+  {% for bc in seo.breadcrumbs %}
+    {% if bc.url %}
+      <a href="{{ bc.url }}">{{ bc.name }}</a><span class="travel-hub-detail-breadcrumb-sep">/</span>
+    {% else %}
+      <span class="travel-hub-detail-breadcrumb-current">{{ bc.name }}</span>
+    {% endif %}
+  {% endfor %}
+</nav>
+{% endif %}
+
 <section class="travel-hub-header">
   <div class="travel-hub-header-left">
     {% if edit_entry_id %}
     <h1 data-en="Edit Destination">দর্শনীয় স্থান সম্পাদনা (Edit Destination)</h1>
-    <p data-en="Update destination information">দর্শনীয় স্থানের তথ্য হালনাগাদ করুন</p>
+    <p data-en="Update destination information">দর্শনীয় স্থানের তথ্য পরিবর্তন করুন</p>
     {% else %}
     <h1 data-en="Add Destination">দর্শনীয় স্থান যোগ করুন (Add Destination)</h1>
     <p data-en="Share information about a new destination">নতুন দর্শনীয় স্থানের তথ্য শেয়ার করুন</p>
@@ -21,12 +34,12 @@
   </div>
 </section>
 
-<form id="thAddForm" novalidate style="max-width:700px;">
+<form id="travel-hub-add-form" novalidate style="max-width:700px;">
   {% if edit_entry_id %}
     <input type="hidden" id="travel-hub-edit-entry-id" name="travel_hub_edit_entry_id" value="{{ edit_entry_id }}">
   {% endif %}
   <div style="margin-bottom:1rem;">
-    <label for="th-category" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
+    <label for="travel-hub-category" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
     <select id="travel-hub-category" name="travel_hub_category" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" required>
       <option value="" data-en="-- Select --">-- বাছাই করুন --</option>
       {% for cat in categories %}
@@ -36,12 +49,12 @@
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label for="th-name-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Place Name *">স্থানের নাম *</label>
+    <label for="travel-hub-name-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Place Name *">স্থানের নাম *</label>
     <input type="text" id="travel-hub-name-bn" name="travel_hub_name_bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার সমুদ্র সৈকত" data-ph-en="e.g. Cox's Bazar Sea Beach">
   </div>
 
   <div style="margin-bottom:1rem;">
-    <label for="th-name-en" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Name (English)">Name (English)</label>
+    <label for="travel-hub-name-en" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Name (English)">Name (English)</label>
     <input type="text" id="travel-hub-name-en" name="travel_hub_name_en" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="e.g. Cox's Bazar Sea Beach" data-no-bangla>
   </div>
 
@@ -61,7 +74,7 @@
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label for="th-season" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Best Season">সেরা ঋতু (Best Season)</label>
+      <label for="travel-hub-season" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Best Season">সেরা ঋতু (Best Season)</label>
       <select id="travel-hub-season" name="travel_hub_season" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         {% for s in seasons %}
@@ -70,7 +83,7 @@
       </select>
     </div>
     <div style="flex:1;">
-      <label for="th-difficulty" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Difficulty">কঠিনতা (Difficulty)</label>
+      <label for="travel-hub-difficulty" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Difficulty">কঠিনতা (Difficulty)</label>
       <select id="travel-hub-difficulty" name="travel_hub_difficulty" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         <option value="easy" data-en="Easy">সহজ (Easy)</option>
@@ -82,25 +95,27 @@
 
   <div style="display:flex;gap:1rem;margin-bottom:1rem;">
     <div style="flex:1;">
-      <label for="th-entry-fee" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Entry Fee (৳)">প্রবেশ মূল্য (৳)</label>
+      <label for="travel-hub-entry-fee" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Entry Fee (৳)">প্রবেশ মূল্য (৳)</label>
       <input type="number" id="travel-hub-entry-fee" name="travel_hub_entry_fee" step="0.01" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: 200" data-ph-en="e.g. 200">
     </div>
     <div style="flex:1;">
-      <label for="th-visiting-hours" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Visiting Hours">পরিদর্শন সময়</label>
+      <label for="travel-hub-visiting-hours" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Visiting Hours">পরিদর্শন সময়</label>
       <input type="text" id="travel-hub-visiting-hours" name="travel_hub_visiting_hours" maxlength="200" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সকাল ৮টা - সন্ধ্যা ৬টা" data-ph-en="e.g. 8:00 AM - 6:00 PM">
     </div>
   </div>
 
-  <div id="thAddError" style="color:#e74c3c;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
+  <div id="travel-hub-add-error" style="color:#e74c3c;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
 
-  <div style="display:flex;gap:.75rem;align-items:center;">
-    <button type="submit" id="thAddSubmit" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;" data-en="{% if edit_entry_id %}Update{% else %}Publish{% endif %}">
-      {% if edit_entry_id %}হালনাগাদ করুন (Update){% else %}প্রকাশ করুন (Publish){% endif %}
+  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+    <button type="submit" id="travel-hub-add-submit-button" name="travel_hub_add_submit" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;" data-en="{% if edit_entry_id %}Update{% else %}Publish{% endif %}">
+      {% if edit_entry_id %}পরিবর্তন করুন (Update){% else %}প্রকাশ করুন (Publish){% endif %}
     </button>
     {% if edit_entry_id %}
     <a href="{% url 'bangladesh:travel_hub_detail_by_id' edit_entry_id %}" id="travel-hub-add-cancel-link" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;cursor:pointer;">
       বাতিল (Cancel)
     </a>
+    {% else %}
+    <button type="button" id="travel-hub-clear-form-button" name="travel_hub_clear_form" class="travel-hub-clear-form-button" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>
     {% endif %}
   </div>
 </form>
@@ -114,5 +129,6 @@
   <script type="application/json" id="travel-hub-edit-data">{{ edit_data_json|safe }}</script>
 {% endif %}
 <script src="{% static 'bangladesh/assets/js/pages/travel-hub-add.js' %}"></script>
+<script src="{% static 'bangladesh/assets/js/pages/travel-hub-add-clear.js' %}"></script>
 <script src="{% static 'bangladesh/assets/js/components/bangladesh-avro-hook.js' %}"></script>
 {% endblock %}

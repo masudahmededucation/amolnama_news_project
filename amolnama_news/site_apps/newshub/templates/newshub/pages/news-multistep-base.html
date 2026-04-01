@@ -13,7 +13,10 @@
 {% endblock %}
 
 {% block content %}
-<h2>{% block multistep_heading %}সংবাদ জমা দিন (Submit News){% endblock %}</h2>
+<div class="news-multistep-heading-row">
+  <h2>{% block multistep_heading %}সংবাদ জমা দিন (Submit News){% endblock %}</h2>
+  <button type="button" id="news-clear-form-button" name="news_clear_form" class="news-clear-form-button" data-bn="তথ্য মুছুন (Clear Form)" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>
+</div>
 
 {% if not user.is_authenticated %}
 <div class="auth-warning">
@@ -53,6 +56,7 @@
     <span class="step-counter" id="step-counter"></span>
     <button type="button" class="btn-step-next" id="btn-step-next">পরবর্তী (Next) →</button>
   </div>
+
 
 </form>
 {% endblock %}

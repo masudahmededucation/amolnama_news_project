@@ -1,0 +1,67 @@
+================================================================
+EVALUATION VOTE APP — Architecture & Features
+App: site_apps/evaluation_vote/
+URL prefix: /evaluation_vote/
+================================================================
+
+## Introduction
+Community evaluation voting system. Citizens evaluate officials,
+parties, and institutions. Results drill down by location hierarchy.
+Location-based cascade: division → district → constituency → upazila → union parishad.
+
+## Models (14 models, all managed=False)
+Evaluation definitions, vote entries, result aggregations, location-based filtering.
+
+## URL Patterns (13 total)
+
+| URL                                    | View                                |
+|----------------------------------------|-------------------------------------|
+| /evaluation_vote/                      | home                                |
+| /evaluation_vote/vote/<id>/            | get_evaluation                      |
+| /evaluation_vote/vote/<id>/submit/     | submit_vote                         |
+| /evaluation_vote/vote/<id>/update/     | update_vote                         |
+| /evaluation_vote/results/<id>/         | vote_results                        |
+| /evaluation_vote/api/divisions/        | get_divisions                       |
+| /evaluation_vote/api/districts/        | get_districts                       |
+| /evaluation_vote/api/constituencies/   | get_constituencies                  |
+| /evaluation_vote/api/upazilas/         | get_upazilas                        |
+| /evaluation_vote/api/union-parishads/  | get_union_parishads                 |
+| /evaluation_vote/api/parties/          | get_parties                         |
+| /evaluation_vote/results/past/<id>/    | past_election_results_drillthrough  |
+| /evaluation_vote/results/current/<id>/ | vote_cast_current_results           |
+
+## Features
+
+### Voting
+- Browse active evaluations
+- Location-based cascade dropdowns for voter registration
+- Submit/update evaluation vote
+- Party selection
+
+### Results
+- National → Division → District → Constituency drillthrough
+- Past evaluation results browsing
+- Current vote tally display
+- Sidebar with past evaluations
+
+## Key Functions
+
+### Views (views.py)
+- home() — list active evaluations
+- get_evaluation() — show evaluation details + vote form
+- submit_vote() — process new vote
+- update_vote() — update existing vote
+- vote_results() — current results display
+- past_election_results_drillthrough() — multi-level results
+- _build_national/division/district/constituency_results() — aggregation helpers
+- _get_sidebar_evaluations() — sidebar data
+
+### Location APIs
+- get_divisions/districts/constituencies/upazilas/union_parishads() — cascade data
+
+## Templates (10)
+Home, vote form, results pages, drillthrough views.
+
+## Troubleshooting
+- Location cascade: AJAX calls return filtered options based on parent selection
+- CSS :root hijacking: evaluation_vote CSS had its own :root that overwrote global --primary. Fixed by removing duplicate :root. See troubleshooting doc.

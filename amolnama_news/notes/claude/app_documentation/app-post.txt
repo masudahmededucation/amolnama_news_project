@@ -1,0 +1,183 @@
+================================================================
+POST APP — Architecture & Features
+App: site_apps/post/
+URL prefix: /post/
+Homepage served via core:home at /
+================================================================
+
+## Overview
+X/Twitter + StackOverflow hybrid micro-blogging platform.
+Shared feed via build_post_feed_items() used by both post and pulse.
+
+## Models (all managed=False, SQL Server)
+
+| Model       | DB Table               | Purpose                        |
+|-------------|------------------------|--------------------------------|
+| Post        | [post].[post]          | Posts, replies, reposts        |
+| PostMedia   | [post].[post_media]    | Photo attachments (max 4)      |
+| PostLike    | [post].[post_like]     | Legacy like (pre-upvote)       |
+| PostBookmark| [post].[post_bookmark] | Saved/bookmarked posts         |
+| PostVote    | [post].[post_vote]     | StackOverflow-style upvote     |
+| PostFollow  | [post].[post_follow]   | Follow post for notifications  |
+| PostFlag    | [post].[post_flag]     | Flag post for moderation       |
+
+## Key Fields on Post
+- post_post_id (PK), post_guid (UUID)
+- link_user_profile_id (FK → user_profile)
+- link_parent_post_id (FK → self, for replies)
+- link_original_post_id (FK → self, for reposts)
+- post_text_bn, post_type_code (post/reply/repost)
+- vote_score_count, like_count, reply_count, repost_count, view_count
+- post_keywords_json (auto-extracted, background thread)
+- suggestion_type_code (on replies — legacy, no longer set from UI)
+- visibility_code (public/followers/private)
+- is_published, is_active (soft delete)
+
+## URL Patterns
+
+### Pages
+| URL                          | View                | Name              |
+|------------------------------|---------------------|-------------------|
+| /post/                       | home                | post:home         |
+| /post/bookmarks/             | bookmarks           | post:bookmarks    |
+| /post/<id>/                  | post_detail         | post:post_detail  |
+| /post/<id>/embed/            | post_embed          | post:post_embed   |
+
+### APIs (all POST except replies GET, oembed GET)
+| URL                          | View                    | Method |
+|------------------------------|-------------------------|--------|
+| /post/api/create/            | api_post_create         | POST   |
+| /post/api/<id>/like/         | api_post_like_toggle    | POST   |
+| /post/api/<id>/vote/         | api_post_vote_toggle    | POST   |
+| /post/api/<id>/follow-post/  | api_post_follow_toggle  | POST   |
+| /post/api/<id>/flag/         | api_post_flag_create    | POST   |
+| /post/api/<id>/bookmark/     | api_post_bookmark_toggle| POST   |
+| /post/api/<id>/view/         | api_post_view_increment | POST   |
+| /post/api/<id>/repost/       | api_post_repost         | POST   |
+| /post/api/<id>/reply/        | api_post_reply          | POST   |
+| /post/api/<id>/edit/         | api_post_edit           | POST   |
+| /post/api/<id>/delete/       | api_post_delete         | POST   |
+| /post/api/<id>/replies/      | api_post_replies        | GET    |
+| /post/api/oembed/            | api_post_oembed         | GET    |
+
+## Views (views.py)
+
+### Feed Builders (MODULARISED — single source of truth)
+- build_post_feed_items(request, posts=None) — SHARED enricher for ALL tabs. Handles:
+  profiles, avatars, follow state, reposts, media, votes, bookmarks, keywords, NER, verified badges,
+  follower/following counts, profile popup data. Accepts optional pre-filtered queryset.
+- _build_following_posts(request) — queries followed users' posts, delegates to build_post_feed_items()
+- _build_my_posts(request) — queries current user's posts, delegates to build_post_feed_items()
+  NOTE: All 3 tabs (For You, Following, My Posts) go through build_post_feed_items().
+  Never duplicate enrichment logic — always extend the shared function.
+
+### Page Views
+- home() — redirects to /
+- _post_feed_view(request, tab) — renders feed with tab filtering
+- bookmarks(request) — user's bookmarked posts
+- post_detail(request, post_post_id) — single post + OG meta tags
+- post_embed(request, post_post_id) — embeddable iframe version
+- api_post_oembed(request) — oEmbed discovery endpoint
+
+### Helpers
+- _calculate_time_ago(dt) — "5 মিনিট আগে" style
+- _parse_keywords_json(json_str) — parse keyword tags
+- _highlight_text_with_entities(text) — NER highlighting via text_highlight.py
+- _get_post_media_urls_bulk(post_ids) — batch media URL lookup
+- _get_avatar_urls_bulk(profile_map) — batch avatar URL lookup
+
+## API Views (views_api.py)
+
+### Post Creation
+- api_post_create — FormData or JSON, max 4 images, min 150 chars text-only
+  - Background thread: keyword extraction + NER highlighting
+  - Raw SQL INSERT (Django ORM UUID bug with custom db_backend)
+
+### Interactions
+- api_post_vote_toggle — upvote/un-upvote, recalculate score, update contribution score (background thread)
+- api_post_like_toggle — legacy like toggle
+- api_post_bookmark_toggle — save/unsave
+- api_post_view_increment — increment view count (no auth required)
+- api_post_repost — toggle with soft-delete/re-activate, count from actual data
+- api_post_reply — create child post, increment parent reply_count
+- api_post_edit — update post text, re-extract keywords (background thread)
+- api_post_delete — soft delete (is_active=False)
+- api_post_follow_toggle — follow/unfollow post (⋯ menu)
+- api_post_flag_create — one-way flag creation with reason_code
+
+### Helpers
+- _extract_keywords(text) — frequency-based Bengali/English theme extraction
+- _update_contribution_score_background(author_id) — +10 per upvote, daemon thread
+
+## Templates
+
+| Template                           | Purpose                          |
+|------------------------------------|----------------------------------|
+| post/pages/post-home.html          | Feed page (tabs + composer + feed)|
+| post/pages/post-detail.html        | Single post view with OG tags    |
+| post/pages/post-embed.html         | Embeddable iframe card           |
+| post/pages/post-bookmarks.html     | Bookmarks page                   |
+| post/components/post-composer.html  | Expandable composer with emoji   |
+| post/components/post-card.html      | Post card with all interactions  |
+
+## Static Files
+
+### JavaScript
+| File                              | Purpose                           |
+|-----------------------------------|-----------------------------------|
+| js/pages/post-home.js             | Composer: expand/collapse, emoji picker, draft save, image paste, character counter |
+| js/components/post-feed-interactions.js | Single delegated click handler for ALL post actions. Shared by post + pulse. |
+
+### CSS
+| File                              | Purpose                           |
+|-----------------------------------|-----------------------------------|
+| css/pages/post-home.css           | All post styles: composer, cards, actions, replies, flags, embed, lightbox, mobile responsive |
+
+### Additional Module
+| File                              | Purpose                           |
+|-----------------------------------|-----------------------------------|
+| text_highlight.py                 | Bengali NER: person, location, date, book, religious terms via pre-compiled regex |
+
+## Features Summary
+
+### Composer
+- Rotating Bengali placeholders (44 social problem/talent prompts)
+- Character counter (max 1000, min 150 text-only)
+- Emoji picker (6 categories, 300+ emojis)
+- Clipboard image paste (screenshots, browser images)
+- Max 4 images (picker + paste combined)
+- Draft auto-save (localStorage, debounced 500ms)
+- beforeunload warning for unsaved drafts
+- Collapse/expand: click to expand, blur/scroll to collapse
+
+### Post Card
+- Header: author name + hover profile popup + verified badge + view count + ⋯ menu
+- Profile popup: avatar, @handle, bio, follower/following counts, follow button
+- Action bar: Upvote | Suggest | Repost | Bookmark | Share
+- Share dropdown: Copy Link, Embed, WhatsApp, Facebook, X/Twitter, More
+- ⋯ menu: Follow Post, Edit (owner), Flag (others), Delete (owner)
+- Single image: full-width <img>, dominant color background (canvas extraction)
+- Multi-image: CSS grid thumbnails with lightbox
+
+### StackOverflow Features
+- Upvote (orange #f48024 arrow, toggle)
+- Suggest Improvement (rotating placeholder prompts, no dropdown)
+- Follow Post (⋯ menu toggle)
+- Flag Post (inline radio form: misinformation, spam, harassment, hate speech, other)
+- Contribution Score (+10 per upvote, background thread)
+- Comment/reply upvote (same API — replies are posts)
+
+### Interactions
+- View count: IntersectionObserver with 3-second dwell time
+- Repost: toggle with undo, soft-delete/re-activate, count from actual data
+- Bookmark: heart animation on save
+- Share: Web Share API + clipboard fallback
+- Embed: iframe + oEmbed API
+- NER: Bengali text highlighting (person blue, location green, date orange, book purple, religious teal)
+- Keywords: frequency-based extraction, background thread
+
+## Troubleshooting
+- Post creation uses raw SQL INSERT (Django ORM UUID conversion bug)
+- Repost count: always recalculate from actual data, never increment/decrement
+- BanglaInput on reply textareas: auto-attached by MutationObserver (bangla-input-auto-attach.js)
+- Service worker cache: bump seo/views.py CACHE_NAME after any JS/CSS change

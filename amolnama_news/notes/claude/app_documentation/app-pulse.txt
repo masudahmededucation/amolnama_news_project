@@ -1,0 +1,109 @@
+================================================================
+PULSE APP — Architecture & Features
+App: site_apps/pulse/
+URL prefix: /pulse/ (redirects to /)
+================================================================
+
+## Overview
+Public-facing feed display. The homepage (/) serves pulse content.
+Pulse is the "display" layer — post is the "create" layer.
+
+## Models
+None — reads from post models via build_post_feed_items().
+
+## URL Patterns
+
+| URL       | View   | Name        |
+|-----------|--------|-------------|
+| /pulse/   | home   | pulse:home  |
+
+Note: /pulse/ redirects to / (core:home). The actual feed is served by core:home.
+
+## How It Works
+1. User visits / → core/views.py:home()
+2. home() calls build_post_feed_items() from post app
+3. Renders pulse/pages/pulse-home.html with 3 tabs:
+   - For You: all public posts, newest first
+   - Following: posts from followed users only
+   - My Posts: user's own posts
+4. Post interactions handled by post-feed-interactions.js (shared)
+
+## Templates
+
+| Template                    | Purpose                     |
+|-----------------------------|-----------------------------|
+| pulse/pages/pulse-home.html | Homepage with feed tabs + composer + post cards |
+
+Includes:
+- post/components/post-composer.html — the compose box
+- post/components/post-card.html — each post card (loop)
+
+## Static Files
+None — uses post app's CSS/JS files:
+- post/assets/css/pages/post-home.css — all feed styling
+- post/assets/js/pages/post-home.js — composer logic
+- post/assets/js/components/post-feed-interactions.js — all interaction handlers
+
+## Key Functions
+
+### core/views.py:home()
+The actual homepage view that serves pulse content:
+- Reads ?tab= parameter (for_you / following / my_posts)
+- Calls build_post_feed_items() from post/views.py for "For You" tab
+- Calls _build_following_posts() for "Following" tab
+- Calls _build_my_posts() for "My Posts" tab
+- Passes: post_items, active_tab, following_count, user auth state
+
+### post/views.py:build_post_feed_items(posts, request)
+Shared feed builder — bulk-fetches ALL state in one pass:
+- user_liked_post_ids, user_bookmarked_post_ids, user_reposted_post_ids
+- user_voted_post_ids, user_followed_post_ids
+- author follower/following counts, user_following state for each author
+- author profiles: display_name, avatar, username_handle, bio, is_verified
+- media URLs (post photos), keywords, NER-highlighted text
+
+### pulse/views.py:home()
+Simple redirect to / (core:home). Pulse has no independent views.
+
+## Architecture
+
+### Separation of Concerns
+| Layer       | App      | Purpose                          |
+|-------------|----------|----------------------------------|
+| Create      | post     | Post creation, APIs, models      |
+| Display     | pulse    | Homepage template, feed tabs     |
+| Interact    | post     | Upvote, reply, share, repost     |
+| Follow      | social   | User follow/unfollow             |
+| Profile     | portal   | User profile management          |
+
+### Template Hierarchy
+```
+core/base.html
+  └── pulse/pages/pulse-home.html
+        ├── post/components/post-composer.html
+        └── post/components/post-card.html (for each post_item)
+```
+
+## Data Flow
+newshub (collect) → newsroom (edit) → newsengine (rank) → **pulse (display)**
+
+## Troubleshooting
+
+### Empty feed on "Following" tab
+User hasn't followed anyone. Check: UserFollow records exist with is_active=True
+for the current user's link_follower_user_profile_id.
+
+### Feed not updating after post/repost
+Some actions trigger window.location.reload() (repost, undo repost).
+New post creation inserts HTML dynamically without reload.
+If feed seems stale, check service worker cache version.
+
+### Tab state not persisting
+Tabs use ?tab= URL parameter. Active tab determined server-side from query param.
+No localStorage persistence for tab selection.
+
+## Future
+- Algorithmic ranking (newsengine integration)
+- Topic-based feeds
+- Breaking news alerts
+- Infinite scroll / pagination

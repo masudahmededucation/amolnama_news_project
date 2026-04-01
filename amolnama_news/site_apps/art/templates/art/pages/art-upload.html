@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'art/assets/css/pages/art-upload.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="art-upload-container" id="art-upload-container">
+  <h1 class="art-upload-title">🎨 শিল্পকর্ম আপলোড</h1>
+
+  <form class="art-upload-form" id="art-upload-form" name="art_upload_form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="art-upload-field">
+      <label for="art-upload-title-bn" class="art-upload-label">শিল্পকর্মের নাম (বাংলা) <span class="field-mandatory-star">*</span></label>
+      <input type="text" class="art-upload-input" id="art-upload-title-bn" name="artwork_title_bn" data-bangla-input="true" maxlength="300" required>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-title-en" class="art-upload-label">Title (English)</label>
+      <input type="text" class="art-upload-input" id="art-upload-title-en" name="artwork_title_en" maxlength="300" data-no-bangla>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-category" class="art-upload-label">বিভাগ <span class="field-mandatory-star">*</span></label>
+      <select class="art-upload-select" id="art-upload-category" name="link_art_category_id" required>
+        <option value="">বিভাগ নির্বাচন করুন</option>
+        {% for category in categories %}
+        <option value="{{ category.art_ref_art_category_id }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }} ({{ category.art_category_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-medium" class="art-upload-label">মাধ্যম</label>
+      <select class="art-upload-select" id="art-upload-medium" name="link_art_medium_id">
+        <option value="">মাধ্যম নির্বাচন করুন</option>
+        {% for medium in mediums %}
+        <option value="{{ medium.art_ref_art_medium_id }}">{{ medium.art_medium_name_bn }} ({{ medium.art_medium_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-difficulty" class="art-upload-label">কঠিনতার মাত্রা</label>
+      <select class="art-upload-select" id="art-upload-difficulty" name="link_art_difficulty_id">
+        <option value="">কঠিনতার মাত্রা</option>
+        {% for difficulty in difficulties %}
+        <option value="{{ difficulty.art_ref_art_difficulty_id }}">{{ difficulty.art_difficulty_name_bn }} ({{ difficulty.art_difficulty_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-description" class="art-upload-label">বিবরণ</label>
+      <textarea class="art-upload-textarea" id="art-upload-description" name="artwork_description_bn" data-bangla-input="true" rows="4" maxlength="5000"></textarea>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-backstory" class="art-upload-label">পেছনের গল্প</label>
+      <textarea class="art-upload-textarea" id="art-upload-backstory" name="artwork_backstory_bn" data-bangla-input="true" rows="3" maxlength="5000"></textarea>
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-materials" class="art-upload-label">উপকরণ (বাংলা)</label>
+      <input type="text" class="art-upload-input" id="art-upload-materials" name="artwork_materials_bn" data-bangla-input="true" maxlength="1000" placeholder="যেমন: তুলা, সুতা, কাপড়">
+    </div>
+
+    <div class="art-upload-field">
+      <label for="art-upload-photos" class="art-upload-label">ছবি আপলোড <span class="field-mandatory-star">*</span></label>
+      <input type="file" class="art-upload-file-input" id="art-upload-photos" name="artwork_media_files" accept="image/*" multiple required>
+      <p class="art-upload-hint">প্রথম ছবিটি কভার হিসেবে ব্যবহৃত হবে। সর্বোচ্চ ১০টি ছবি।</p>
+      <div class="art-upload-preview" id="art-upload-preview"></div>
+    </div>
+
+    <div class="art-upload-actions">
+      <button type="submit" class="art-upload-submit-button" id="art-upload-submit-button" name="art_upload_submit_button">আপলোড করুন</button>
+    </div>
+
+    <div class="art-upload-error-message" id="art-upload-error-message" style="display:none;"></div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'art/assets/js/pages/art-upload.js' %}"></script>
+{% endblock %}

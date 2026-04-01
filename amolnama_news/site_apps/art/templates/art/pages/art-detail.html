@@ -1,0 +1,124 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'art/assets/css/pages/art-detail.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="art-detail" id="art-detail-{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
+
+  <div class="art-detail-header">
+    <h1 class="art-detail-title">{{ artwork.title_bn }}</h1>
+    {% if artwork.title_en %}<p class="art-detail-title-english">{{ artwork.title_en }}</p>{% endif %}
+    <div class="art-detail-meta">
+      <span class="art-detail-meta-category">{{ artwork.category_icon }} {{ artwork.category_name_bn }}</span>
+      {% if artwork.medium_name_bn %}<span class="art-detail-meta-medium">🎨 {{ artwork.medium_name_bn }}</span>{% endif %}
+      {% if artwork.difficulty_name_bn %}<span class="art-detail-meta-difficulty">📊 {{ artwork.difficulty_name_bn }}</span>{% endif %}
+      {% if artwork.is_tutorial %}<span class="art-detail-meta-tutorial">📖 টিউটোরিয়াল</span>{% endif %}
+      {% if artwork.estimated_time_minutes %}<span class="art-detail-meta-time">⏱️ {{ artwork.estimated_time_minutes }} মিনিট</span>{% endif %}
+    </div>
+    <div class="art-detail-author-row">
+      <span class="art-detail-author-name">{{ artwork.author_name }}</span>
+      <span class="art-detail-timestamp">{{ artwork.time_ago }} · {{ artwork.created_at_formatted }}</span>
+    </div>
+  </div>
+
+  {% if artwork.photos %}
+  <div class="art-detail-gallery" id="art-detail-gallery">
+    {% for photo in artwork.photos %}
+    <div class="art-detail-gallery-item{% if photo.is_cover %} art-detail-gallery-item-cover{% endif %}" data-photo-url="{{ photo.file_url }}">
+      <img src="{{ photo.file_url }}" alt="{{ photo.caption_bn|default:artwork.title_bn }}" class="art-detail-gallery-image" loading="lazy">
+      {% if photo.caption_bn %}<p class="art-detail-gallery-caption">{{ photo.caption_bn }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if artwork.description_bn %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">বিবরণ</h2>
+    <div class="art-detail-description">{{ artwork.description_bn|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if artwork.backstory_bn %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">পেছনের গল্প</h2>
+    <div class="art-detail-backstory">{{ artwork.backstory_bn|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if artwork.materials_bn %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">উপকরণ</h2>
+    <p class="art-detail-materials">{{ artwork.materials_bn }}</p>
+    {% if artwork.materials_en %}<p class="art-detail-materials-english">{{ artwork.materials_en }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if artwork.dimensions_en %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">মাপ</h2>
+    <p class="art-detail-dimensions">{{ artwork.dimensions_en }}</p>
+  </div>
+  {% endif %}
+
+  {% if artwork.steps %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">📖 ধাপে ধাপে নির্দেশনা</h2>
+    <div class="art-detail-steps">
+      {% for step in artwork.steps %}
+      <div class="art-detail-step" id="art-detail-step-{{ step.step_number }}">
+        <span class="art-detail-step-number">{{ step.step_number }}</span>
+        <div class="art-detail-step-content">{{ step.step_instruction_bn|safe }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if artwork.youtube_links %}
+  <div class="art-detail-section">
+    <h2 class="art-detail-section-title">🎬 ভিডিও</h2>
+    <div class="art-detail-youtube-list">
+      {% for youtube_link in artwork.youtube_links %}
+      <a href="{{ youtube_link.youtube_url }}" target="_blank" rel="noopener" class="art-detail-youtube-item" id="art-detail-youtube-{{ youtube_link.art_coll_artwork_youtube_link_id }}">
+        <span class="art-detail-youtube-play">▶</span>
+        <span class="art-detail-youtube-title">{{ youtube_link.youtube_title_bn|default:"ভিডিও দেখুন" }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="art-detail-actions" id="art-detail-actions">
+    <button type="button" class="art-detail-action-button art-detail-like-button{% if artwork.user_liked %} art-detail-like-button-active{% endif %}" id="art-detail-like-{{ artwork.artwork_id }}" name="art_detail_like_{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
+      <span class="art-detail-action-icon">{% if artwork.user_liked %}❤️{% else %}🤍{% endif %}</span>
+      <span class="art-detail-action-count art-detail-like-count">{{ artwork.like_count }}</span>
+      <span class="art-detail-action-label">পছন্দ</span>
+    </button>
+    <button type="button" class="art-detail-action-button art-detail-bookmark-button{% if artwork.user_bookmarked %} art-detail-bookmark-button-active{% endif %}" id="art-detail-bookmark-{{ artwork.artwork_id }}" name="art_detail_bookmark_{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
+      <span class="art-detail-action-icon">{% if artwork.user_bookmarked %}🔖{% else %}📑{% endif %}</span>
+      <span class="art-detail-action-count art-detail-bookmark-count">{{ artwork.bookmark_count }}</span>
+      <span class="art-detail-action-label">সংরক্ষণ</span>
+    </button>
+    <span class="art-detail-action-button art-detail-view-count">
+      <span class="art-detail-action-icon">👁️</span>
+      <span class="art-detail-action-count">{{ artwork.view_count }}</span>
+      <span class="art-detail-action-label">দেখা হয়েছে</span>
+    </span>
+  </div>
+
+</article>
+
+{% include "core/components/photo-lightbox.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}"></script>
+<script src="{% static 'art/assets/js/pages/art-detail.js' %}"></script>
+{% endblock %}

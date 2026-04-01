@@ -1,0 +1,119 @@
+{# X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile. #}
+{% load static %}
+<nav class="sidebar-navigation" id="sidebar-navigation" aria-label="প্রধান নেভিগেশন (Primary Navigation)">
+
+  <div class="sidebar-navigation-header" id="sidebar-navigation-header">
+    <a href="{% url 'core:home' %}" title="আমলনামা নিউজ — হোম" class="sidebar-navigation-logo" id="sidebar-navigation-logo">
+      <img src="{% static 'core/assets/img/logo.png' %}" alt="আমলনামা নিউজ" class="sidebar-navigation-logo-image" id="sidebar-navigation-logo-image">
+    </a>
+    <button type="button" class="sidebar-navigation-toggle" id="sidebar-navigation-toggle" name="sidebar_navigation_toggle" title="মেনু বড়/ছোট করুন (Toggle menu)" aria-label="Toggle sidebar">
+      <span class="sidebar-navigation-toggle-icon" id="sidebar-navigation-toggle-icon">«</span>
+    </button>
+  </div>
+
+  <div class="sidebar-navigation-menu" id="sidebar-navigation-menu">
+    <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if request.path == '/' or request.resolver_match.namespace == 'post' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
+      <span class="sidebar-navigation-item-icon">🏠</span>
+      <span class="sidebar-navigation-item-label">হোম</span>
+    </a>
+
+    <a href="{% url 'search:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'search' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-search" name="sidebar_navigation_item_search" title="অনুসন্ধান (Search)">
+      <span class="sidebar-navigation-item-icon">🔍</span>
+      <span class="sidebar-navigation-item-label">অনুসন্ধান</span>
+    </a>
+
+    <a href="{% url 'messenger:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'messenger' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-messenger" name="sidebar_navigation_item_messenger" title="মেসেঞ্জার (Messenger)">
+      <span class="sidebar-navigation-item-icon">📩</span>
+      <span class="sidebar-navigation-item-label">মেসেঞ্জার</span>
+    </a>
+
+    <a href="{% url 'social:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'social' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-social" name="sidebar_navigation_item_social" title="সামাজিক (Social)">
+      <span class="sidebar-navigation-item-icon">👥</span>
+      <span class="sidebar-navigation-item-label">সামাজিক</span>
+    </a>
+
+    <a href="{% url 'live:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'live' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-live" name="sidebar_navigation_item_live" title="সরাসরি (Live)">
+      <span class="sidebar-navigation-item-icon">🔴</span>
+      <span class="sidebar-navigation-item-label">সরাসরি</span>
+    </a>
+
+    <a href="{% url 'tools:tools' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'tools' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-tools" name="sidebar_navigation_item_tools" title="সফটওয়্যার (Tools)">
+      <span class="sidebar-navigation-item-icon">🔧</span>
+      <span class="sidebar-navigation-item-label">সফটওয়্যার</span>
+    </a>
+
+    {% if user.is_authenticated %}
+    <a href="{% url 'post:bookmarks' %}" class="sidebar-navigation-item{% if request.resolver_match.url_name == 'bookmarks' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookmarks" name="sidebar_navigation_item_bookmarks" title="সংরক্ষিত (Bookmarks)">
+      <span class="sidebar-navigation-item-icon">💜</span>
+      <span class="sidebar-navigation-item-label">সংরক্ষিত</span>
+    </a>
+    {% endif %}
+
+    <a href="{% url 'portal:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'portal' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-portal" name="sidebar_navigation_item_portal" title="পোর্টাল — প্রোফাইল (Portal)">
+      <span class="sidebar-navigation-item-icon">👤</span>
+      <span class="sidebar-navigation-item-label">পোর্টাল</span>
+    </a>
+
+    <div class="sidebar-navigation-divider"></div>
+
+    <a href="{% url 'newshub:news_article_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'news_article_landing' or request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'article_detail' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-news" name="sidebar_navigation_item_news" title="সংবাদ (News)">
+      <span class="sidebar-navigation-item-icon">📰</span>
+      <span class="sidebar-navigation-item-label">নাগরিক সংবাদ</span>
+    </a>
+
+    <a href="{% url 'newshub:news_collection_multistep' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name != 'news_article_landing' and request.resolver_match.url_name != 'article_detail' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-citizen-journalism" name="sidebar_navigation_item_citizen_journalism" title="নাগরিক সাংবাদিকতা (Citizen Journalism)">
+      <span class="sidebar-navigation-item-icon">🗞️</span>
+      <span class="sidebar-navigation-item-label">নাগরিক সাংবাদিকতা</span>
+    </a>
+
+    <a href="{% url 'election_vote:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'election_vote' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-election" name="sidebar_navigation_item_election" title="নির্বাচন (Election)">
+      <span class="sidebar-navigation-item-icon">🗳️</span>
+      <span class="sidebar-navigation-item-label">নির্বাচন</span>
+    </a>
+
+    <div class="sidebar-navigation-divider"></div>
+
+    <a href="{% url 'poem:poem_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'poem' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-poetry" name="sidebar_navigation_item_poetry" title="কবিতা ও গান (Poetry & Songs)">
+      <span class="sidebar-navigation-item-icon">📝</span>
+      <span class="sidebar-navigation-item-label">কবিতা ও গান</span>
+    </a>
+
+    <a href="{% url 'art:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'art' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-art" name="sidebar_navigation_item_art" title="শিল্পকলা (Art & Craft)">
+      <span class="sidebar-navigation-item-icon">🎨</span>
+      <span class="sidebar-navigation-item-label">শিল্পকলা</span>
+    </a>
+
+    <a href="{% url 'stories:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'stories' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-stories" name="sidebar_navigation_item_stories" title="গল্পের ঝুলি (Stories for Kids)">
+      <span class="sidebar-navigation-item-icon">📚</span>
+      <span class="sidebar-navigation-item-label">গল্পের ঝুলি</span>
+    </a>
+
+    <a href="{% url 'bangladesh:bangladesh_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'bangladesh' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bangladesh" name="sidebar_navigation_item_bangladesh" title="বাংলাদেশ (Bangladesh)">
+      <span class="sidebar-navigation-item-icon">🇧🇩</span>
+      <span class="sidebar-navigation-item-label">বাংলাদেশ</span>
+    </a>
+
+    <div class="sidebar-navigation-divider"></div>
+
+    <a href="{% url 'marriage:marriage' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'marriage' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-marriage" name="sidebar_navigation_item_marriage" title="বিবাহ (Marriage)">
+      <span class="sidebar-navigation-item-icon">💍</span>
+      <span class="sidebar-navigation-item-label">বিবাহ</span>
+    </a>
+
+    <a href="{% url 'health:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'health' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-health" name="sidebar_navigation_item_health" title="স্বাস্থ্য (Health)">
+      <span class="sidebar-navigation-item-icon">🏥</span>
+      <span class="sidebar-navigation-item-label">স্বাস্থ্য</span>
+    </a>
+
+    {% if user.is_staff or user.is_superuser %}
+    <div class="sidebar-navigation-divider"></div>
+
+    <span class="sidebar-navigation-section-label">Admin Panel</span>
+
+    <a href="{% url 'textextractor:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'textextractor' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-textextractor" name="sidebar_navigation_item_textextractor" title="Text Extractor">
+      <span class="sidebar-navigation-item-icon">📄</span>
+      <span class="sidebar-navigation-item-label">Text Extractor</span>
+    </a>
+    {% endif %}
+  </div>
+</nav>

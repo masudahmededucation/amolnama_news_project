@@ -1,0 +1,108 @@
+================================================================
+BANGLADESH APP — Architecture & Features
+App: site_apps/bangladesh/
+URL prefix: /bangladesh-tourist-destinations/
+(Old URL /bangladesh/ has 301 redirect)
+================================================================
+
+## Introduction
+Travel Hub & Beauty of Bangladesh — community-driven destination guide
+with photo/video galleries, reviews, accommodations, transport routes,
+and travel tips. Two main sections: Travel Hub (destinations) and
+Beauty Hub (photo/video gallery).
+
+## Models (19 models, all managed=False)
+
+| Model                        | DB Table                                  | Purpose                         |
+|------------------------------|-------------------------------------------|---------------------------------|
+| RefDestinationCategory       | [bangladesh].[ref_destination_category]    | Destination categories          |
+| RefSeason                    | [bangladesh].[ref_season]                  | Travel seasons                  |
+| RefMediaCategory             | [bangladesh].[ref_media_category]          | Media categories                |
+| CollDestination              | [bangladesh].[coll_destination]            | Main destination records        |
+| CollDestinationPhoto         | [bangladesh].[coll_destination_photo]      | Destination photos              |
+| CollAccommodation            | [bangladesh].[coll_accommodation]          | Hotels/accommodation            |
+| CollTransportRoute           | [bangladesh].[coll_transport_route]        | Transport routes                |
+| CollTravelTip                | [bangladesh].[coll_travel_tip]             | Travel tips/advice              |
+| CollDestinationYoutubeLink   | [bangladesh].[coll_destination_youtube_link]| YouTube video links            |
+| CollDestinationReferenceLink | [bangladesh].[coll_destination_reference_link]| Reference/external links     |
+| CollMediaEntry               | [bangladesh].[coll_media_entry]            | Beauty hub media entries        |
+| CollMediaAlbum               | [bangladesh].[coll_media_album]            | Media albums                    |
+| MapMediaTag                  | [bangladesh].[map_media_tag]               | Media tag mapping               |
+| EngDestinationReview         | [bangladesh].[eng_destination_review]       | User reviews                   |
+| EngDestinationBookmark       | [bangladesh].[eng_destination_bookmark]     | User bookmarks                 |
+| EngDestinationPhotoLike      | [bangladesh].[eng_destination_photo_like]   | Photo likes                    |
+| EngDestinationVideoLike      | [bangladesh].[eng_destination_video_like]   | Video likes                    |
+| EngMediaLike                 | [bangladesh].[eng_media_like]              | Beauty hub media likes          |
+| EngMediaComment              | [bangladesh].[eng_media_comment]           | Beauty hub comments             |
+
+## URL Patterns (28 total)
+
+### Pages
+| URL                                          | View                          |
+|----------------------------------------------|-------------------------------|
+| /bangladesh-tourist-destinations/            | bangladesh_landing            |
+| /bangladesh-tourist-destinations/travel/     | travel_hub                    |
+| /bangladesh-tourist-destinations/travel/add/ | travel_hub_add                |
+| /bangladesh-tourist-destinations/travel/<id>/| travel_hub_detail_by_id       |
+| /bangladesh-tourist-destinations/travel/<slug>/| travel_hub_detail_by_slug   |
+| /bangladesh-tourist-destinations/beauty/     | beauty_hub                    |
+| /bangladesh-tourist-destinations/beauty/upload/| beauty_hub_upload           |
+
+### APIs (29 endpoints)
+Destination CRUD, photo/video upload, like/view toggles, review management,
+YouTube/reference link CRUD, cover image set, community contribution edit/delete.
+
+## Features
+
+### Travel Hub
+- Destination listing with district/category filters (Tom Select dropdowns)
+- Add/edit destination with Quill.js rich text editor (Bengali typing via QuillAvro)
+- Detail page with: description, photos, YouTube videos, reference links, accommodations, transport, tips, reviews
+- Community contributions: anyone can add photos, YouTube links, reference links
+- Edit/delete by: contribution owner + destination owner + staff/admin
+- Leaflet map with Nominatim search for location (Dhaka-center default)
+- Session-based likes on destinations, photos, videos
+
+### Beauty Hub
+- Photo/video gallery with category filters
+- Upload with title, description, category tagging
+- Like and comment system
+
+### Shared Components Used
+- actions-bar (like + view + share + edit)
+- photo-lightbox (full-screen preview)
+
+## Key Functions
+
+### Views (views.py)
+- bangladesh_landing() — landing page with featured destinations
+- travel_hub() — listing with district/category filtering
+- travel_hub_add() — add/edit form with Quill editors
+- travel_hub_detail_by_slug() — detail page with community contributions
+- beauty_hub() — photo/video gallery grid
+- beauty_hub_upload() — upload form
+
+### APIs (views_api.py)
+- api_destination_create/update — full destination CRUD
+- api_destination_photo_upload — photo with asset_group_code tagging
+- api_destination_youtube_link_add/update/delete — YouTube link CRUD
+- api_destination_reference_link_add/update/delete — reference link CRUD
+- api_destination_like_toggle — session-based like
+- api_destination_photo_like_toggle — photo like
+- api_destination_cover_image_set — set cover photo
+
+## Templates (6)
+- bangladesh-landing.html, travel-hub.html, travel-hub-add.html
+- travel-hub-detail.html, beauty-hub.html, beauty-hub-upload.html
+
+## Static Files
+- CSS: bangladesh-landing.css, travel-hub.css, travel-hub-detail.css, beauty-hub.css
+- JS: travel-hub-add.js, travel-hub-detail.js, beauty-hub-upload.js + clear scripts
+
+## Troubleshooting
+- Tom Select on district/category: use element.tomselect.setValue(value, true) not .value=
+- Quill editor: HTML sanitized server-side via _sanitize_html()
+- YouTube: thumbnail + play button → new tab (no iframe due to restriction errors)
+- Map search Enter key: must preventDefault() inside <form>
+- Bengali slugs: use bangla_slugify() from core/utils.py
+- Nominatim: state_district=district, county=upazila. Use extractNameBefore() for parsing

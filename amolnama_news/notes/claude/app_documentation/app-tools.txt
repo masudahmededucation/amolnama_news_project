@@ -1,0 +1,76 @@
+================================================================
+TOOLS APP — Architecture & Features
+App: site_apps/tools/
+URL prefix: /tools/
+================================================================
+
+## Introduction
+Free client-side utility tools — file compression, conversion, image processing,
+PDF operations, and calculators. All processing done in browser (no server upload).
+
+## Models
+None — all tools are client-side JavaScript.
+
+## URL Patterns (13 total)
+
+| URL                              | View                       |
+|----------------------------------|----------------------------|
+| /tools/                          | tools (landing page)       |
+| /tools/reduce-file-size/         | tools_reduce_file_size     |
+| /tools/file-conversion/          | tools_file_conversion      |
+| /tools/zip-creator/              | tools_zip_creator          |
+| /tools/passport-photo-resizer/   | tools_passport_photo_resizer|
+| /tools/background-remover/       | tools_bg_remover           |
+| /tools/merge-documents/          | tools_merge_documents      |
+| /tools/split-pdf/                | tools_split_pdf            |
+| /tools/photo-album/              | tools_photo_album          |
+| /tools/gpa-calculator/           | tools_gpa_calculator       |
+| /tools/age-calculator/           | tools_age_calculator       |
+| /tools/api/transliterate/        | api_transliterate          |
+| /tools/api/file-conversion-map/  | api_file_conversion_map    |
+
+## Features
+
+### File Tools
+- **File Compression** — Reduce image, PDF, document sizes (client-side)
+- **File Conversion** — Convert between formats
+- **ZIP Creator** — Bundle files into ZIP archives
+- **Document Merger** — Merge PDFs and images into one PDF
+- **PDF Splitter** — Extract specific pages from PDF
+
+### Image Tools
+- **Passport Photo Resizer** — Resize for passport/visa specifications
+- **Background Remover** — AI-powered background removal
+
+### Photo Tools
+- **Photo Album Maker** — Create printable photo album pages
+
+### Calculators
+- **GPA Calculator** — Academic GPA calculation
+- **Age Calculator** — Calculate age from DOB
+
+### APIs
+- **api_transliterate** — Google transliterate proxy for Bengali suggestions (used by BanglaInput)
+- **api_file_conversion_map** — Returns supported conversion formats
+
+## Key Functions
+
+### Views (views.py)
+- _tools_breadcrumbs(current_name, current_url) — breadcrumb builder
+- _tool_json_ld(name, description, url) — JSON-LD schema for each tool
+- tools() — landing page listing all tools
+- Individual tool views — each renders dedicated template with SEO
+
+## Templates (11)
+One per tool + landing page. Each is self-contained with client-side JS.
+
+## SEO
+- Each tool has JSON-LD SoftwareApplication schema
+- Breadcrumbs: Home > Tools > [Tool Name]
+- Listed in llms.txt
+- Sitemap entries for all tools
+
+## Troubleshooting
+- All processing is client-side — no file uploads to server
+- api_transliterate is a proxy to Google's transliteration API — may rate-limit
+- CSP allows required CDNs for PDF.js, JSZip, etc.

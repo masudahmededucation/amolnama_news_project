@@ -1,0 +1,94 @@
+================================================================
+SOCIAL APP — Architecture & Features
+App: site_apps/social/
+URL prefix: /social/
+================================================================
+
+## Overview
+User-to-user follow/unfollow system. Lightweight — just one model and one API.
+
+## Models
+
+| Model       | DB Table                | Purpose                     |
+|-------------|-------------------------|-----------------------------|
+| UserFollow  | [social].[user_follow]  | Follower/following tracking |
+
+### Key Fields on UserFollow
+- user_follow_id (PK)
+- link_follower_user_profile_id (FK → user_profile, the follower)
+- link_following_user_profile_id (FK → user_profile, being followed)
+- is_active (soft toggle — re-activate on re-follow, deactivate on unfollow)
+- created_at
+
+## URL Patterns
+
+| URL                              | View               | Method | Name                     |
+|----------------------------------|---------------------|--------|--------------------------|
+| /social/                         | home                | GET    | social:home              |
+| /social/api/follow/<id>/         | api_follow_toggle   | POST   | social:api_follow_toggle |
+
+## API: api_follow_toggle
+
+POST /social/api/follow/<user_profile_id>/
+- Self-follow blocked (returns error)
+- 3-way toggle: create new / re-activate / deactivate
+- Follower count recalculated from actual data (not increment/decrement)
+- Returns: { success, following (bool), follower_count }
+
+## Integration Points
+- post-feed-interactions.js calls this API via Follow buttons on post cards
+- Profile hover popup shows follower/following counts + follow button
+- Feed "Following" tab filters posts by followed user IDs
+- All follow buttons for same user update simultaneously (querySelectorAll by data-user-profile-id)
+
+## Features
+
+### Follow/Unfollow Users
+- Click "Follow" button on any post card → follows the post author
+- Button changes to "Following" (checkmark icon, filled blue)
+- Click again → unfollows (reverts to "Follow" with person+ icon)
+- All instances of the same user's follow button update simultaneously across the feed
+
+### Profile Hover Popup
+- Hover over author name → popup shows avatar, @handle, bio, follower/following counts
+- Follow button inside popup works identically to inline button
+
+### Following Feed Tab
+- "Following" tab on homepage shows only posts from followed users
+- Empty state: "আপনি এখনো কাউকে অনুসরণ করেননি" with count display
+
+### Follower/Following Counts
+- Counts recalculated from actual DB data (COUNT WHERE is_active=True)
+- Displayed in profile popup and portal profile page
+
+## Functions
+
+### api_follow_toggle(request, user_profile_id) — views_api.py
+Handles follow/unfollow toggle with 3-way pattern:
+1. No existing record → creates new UserFollow (is_active=True)
+2. Existing active record → deactivates (is_active=False) = unfollow
+3. Existing inactive record → re-activates (is_active=True) = re-follow
+Self-follow blocked with error response. Returns actual follower count.
+
+### home(request) — views.py
+Placeholder landing page. Redirects or renders base template.
+
+## Static Files
+None — all UI is in post-card.html template and post-feed-interactions.js.
+
+## Troubleshooting
+
+### Follow button not updating all instances
+All follow buttons for the same user use `data-user-profile-id` attribute.
+The JS handler queries ALL buttons with matching attribute and updates them.
+If a new post card is added dynamically (e.g., after repost), its follow button
+may not be in sync — page reload resolves this.
+
+### Self-follow appearing
+The template hides follow buttons when `can_edit` is true (own posts).
+For reposts, `original_is_same_user` flag hides follow on self-reposts.
+If follow button appears on own content, check these template conditions.
+
+### Count drift
+Follower counts are always recalculated from actual data (not increment/decrement).
+If counts seem wrong, check for orphan records where is_active logic may have been bypassed.

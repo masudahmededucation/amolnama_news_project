@@ -530,6 +530,7 @@ class ContactInfoForm(forms.Form):
         widget=forms.TextInput(attrs={
             "placeholder": "01XXXXXXXXX",
             "inputmode": "tel",
+            "autocomplete": "tel-national",
         }),
     )
     email_address = forms.CharField(
@@ -538,6 +539,7 @@ class ContactInfoForm(forms.Form):
         validators=[_validate_email_address],
         widget=forms.EmailInput(attrs={
             "placeholder": "Update with your real email address",
+            "autocomplete": "email",
         }),
     )
 

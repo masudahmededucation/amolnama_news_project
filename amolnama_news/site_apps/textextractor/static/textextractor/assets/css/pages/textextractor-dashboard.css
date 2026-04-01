@@ -1,0 +1,96 @@
+/* Text Extractor Dashboard */
+
+.textextractor-dashboard { max-width: 900px; margin: 0 auto; }
+
+.textextractor-dashboard-header { text-align: center; padding: 1.5rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.textextractor-dashboard-title { font-size: 1.5rem; font-weight: 800; margin: 0; }
+.textextractor-dashboard-subtitle { font-size: .85rem; color: var(--muted); margin: .3rem 0 .8rem; }
+
+/* Dashboard Dropzone */
+.textextractor-dashboard-dropzone { position: relative; border: 2px dashed var(--border); border-radius: 16px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s, box-shadow .2s; margin-bottom: 1rem; overflow: hidden; }
+.textextractor-dashboard-dropzone:hover { border-color: #059669; background: #f0fdf4; box-shadow: 0 2px 12px rgba(5, 150, 105, .1); }
+.textextractor-dashboard-dropzone-icon { font-size: 2.2rem; display: block; margin-bottom: .3rem; }
+.textextractor-dashboard-dropzone-text { font-size: .9rem; font-weight: 600; color: var(--text); margin: 0 0 .2rem; }
+.textextractor-dashboard-dropzone-browse { color: #059669; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.textextractor-dashboard-dropzone-browse:hover { color: #047857; }
+.textextractor-dashboard-dropzone-hint { font-size: .72rem; color: var(--muted); margin: 0; }
+.textextractor-dashboard-file-input { display: none; }
+.textextractor-dashboard-dropzone-active { border-color: #059669; background: #ecfdf5; box-shadow: 0 0 0 3px rgba(5, 150, 105, .2); }
+
+/* Stats Row */
+.textextractor-stats-row { display: flex; gap: .75rem; margin-bottom: 1.2rem; }
+.textextractor-stat-card { flex: 1; padding: .75rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--card, #fff); text-align: center; }
+.textextractor-stat-label { display: block; font-size: .7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.textextractor-stat-count { display: block; font-size: 1.8rem; font-weight: 800; margin-top: .2rem; }
+.textextractor-stat-queued .textextractor-stat-count { color: #d97706; }
+.textextractor-stat-processing .textextractor-stat-count { color: #2563eb; }
+.textextractor-stat-completed .textextractor-stat-count { color: #059669; }
+
+/* Job List */
+.textextractor-job-list { display: flex; flex-direction: column; gap: .5rem; }
+.textextractor-job-card { display: flex; gap: .75rem; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card, #fff); text-decoration: none; color: inherit; transition: box-shadow .2s, transform .15s; }
+.textextractor-job-card, .textextractor-job-card:hover, .textextractor-job-card:visited { color: inherit; text-decoration: none; }
+.textextractor-job-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+
+.textextractor-job-icon { font-size: 1.5rem; flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface); border-radius: 10px; margin-top: .2rem; }
+.textextractor-job-info { flex: 1; min-width: 0; }
+.textextractor-job-header-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.textextractor-job-filename { font-size: .88rem; font-weight: 700; margin: 0; word-break: break-all; }
+.textextractor-job-meta { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
+
+.textextractor-job-status { padding: .15rem .5rem; border-radius: 12px; font-size: .65rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+.textextractor-job-status-queued { background: #fef3c7; color: #92400e; }
+.textextractor-job-status-processing { background: #dbeafe; color: #1e40af; }
+.textextractor-job-status-completed { background: #d1fae5; color: #065f46; }
+.textextractor-job-status-failed { background: #fee2e2; color: #991b1b; }
+
+.textextractor-job-meta-pill { display: inline-block; padding: .1rem .4rem; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-size: .62rem; font-weight: 600; color: var(--muted); }
+.textextractor-job-results { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .3rem; font-size: .72rem; color: var(--text); font-weight: 600; }
+
+/* Timestamps */
+.textextractor-job-timestamps { display: flex; flex-direction: column; gap: .15rem; margin-top: .3rem; }
+.textextractor-job-timestamp-item { font-size: .65rem; color: var(--muted); }
+
+/* Progress bar — solid chunky bar like Windows progress control */
+.textextractor-job-progress-row { margin-top: .5rem; }
+.textextractor-job-progress-bar-wrapper { position: relative; height: 24px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden; }
+.textextractor-job-progress-bar { height: 100%; width: 5%; background: linear-gradient(180deg, #6ee7b7, #059669, #047857); border-radius: 3px; transition: width .5s ease-out; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+@keyframes textextractorJobProgressSweep { 0% { width: 20%; } 50% { width: 80%; } 100% { width: 20%; } }
+.textextractor-job-progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: #1f2937; pointer-events: none; }
+
+/* Input / Output sections */
+.textextractor-job-io-section { margin-top: .4rem; display: flex; flex-direction: column; gap: .2rem; }
+.textextractor-job-io-row { display: flex; align-items: flex-start; gap: .4rem; }
+.textextractor-job-io-label { font-size: .62rem; font-weight: 700; color: var(--muted); white-space: nowrap; min-width: 55px; }
+.textextractor-job-io-path { font-size: .62rem; color: var(--muted); font-family: monospace; word-break: break-all; line-height: 1.4; }
+
+.textextractor-job-error-inline { font-size: .7rem; color: #991b1b; margin-top: .3rem; padding: .3rem .5rem; background: #fef2f2; border-radius: 6px; border: 1px solid #fecaca; }
+
+/* Action buttons */
+.textextractor-job-action-buttons { display: flex; gap: .4rem; margin-top: .4rem; }
+.textextractor-job-cancel-button, .textextractor-job-delete-button { padding: .2rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--card, #fff); font-size: .65rem; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s; }
+.textextractor-job-cancel-button:hover { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+.textextractor-job-delete-button:hover { background: #fee2e2; border-color: #f87171; color: #991b1b; }
+
+/* Drop Overlay — full page */
+.textextractor-drop-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(5, 150, 105, .15); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
+.textextractor-drop-overlay-content { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 2rem 3rem; background: #fff; border: 3px dashed #059669; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+.textextractor-drop-overlay-icon { font-size: 3rem; }
+.textextractor-drop-overlay-text { font-size: 1.1rem; font-weight: 700; color: #059669; }
+
+/* Dashboard Notification */
+.textextractor-dashboard-notification { padding: .6rem 1rem; border-radius: 10px; font-size: .82rem; font-weight: 600; margin-bottom: .75rem; animation: repliesSectionSlideIn .2s ease-out; }
+.textextractor-dashboard-notification-processing { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.textextractor-dashboard-notification-completed { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+.textextractor-dashboard-notification-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+@keyframes repliesSectionSlideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+.textextractor-empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+
+@media (max-width: 600px) {
+  .textextractor-stats-row { flex-direction: row; gap: .4rem; }
+  .textextractor-stat-count { font-size: 1.3rem; }
+  .textextractor-job-card { padding: .5rem .75rem; }
+  .textextractor-job-filename { font-size: .8rem; }
+}

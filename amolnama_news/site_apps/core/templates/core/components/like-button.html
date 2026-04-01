@@ -1,0 +1,6 @@
+{# Shared like button. Context: like_button_entity_id (int), like_button_count (int), like_button_user_liked (bool), like_button_position (optional, for unique id) #}
+<button type="button" class="like-button{% if like_button_user_liked %} like-button-active{% endif %}" id="like-button-{{ like_button_entity_id }}{% if like_button_position %}-{{ like_button_position }}{% endif %}" name="like_button_{{ like_button_entity_id }}{% if like_button_position %}_{{ like_button_position }}{% endif %}" data-entity-id="{{ like_button_entity_id }}" title="পছন্দ (Like)">
+  <span class="like-button-icon">👍</span>
+  <span class="like-button-label">পছন্দ</span>
+  <span class="like-button-count">{{ like_button_count|default:0 }}</span>
+</button>

@@ -1,0 +1,89 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="stories-detail" id="stories-detail-{{ story.story_id }}" data-story-id="{{ story.story_id }}">
+
+  {% if story.cover_url %}
+  <div class="stories-detail-cover">
+    <img src="{{ story.cover_url }}" alt="{{ story.title_bn }}" class="stories-detail-cover-image">
+  </div>
+  {% endif %}
+
+  <div class="stories-detail-header">
+    <h1 class="stories-detail-title">{{ story.title_bn }}</h1>
+    {% if story.title_en %}<p class="stories-detail-title-english">{{ story.title_en }}</p>{% endif %}
+    <div class="stories-detail-meta">
+      <span class="stories-detail-meta-pill">{{ story.category_icon }} {{ story.category_name_bn }}</span>
+      <span class="stories-detail-meta-pill">👶 {{ story.age_group_name_bn }}</span>
+      <span class="stories-detail-meta-pill">📖 {{ story.reading_time_minutes }} মিনিট</span>
+    </div>
+    <div class="stories-detail-author-row">
+      <span class="stories-detail-author-name">{{ story.source_attribution_bn|default:story.author_name }}</span>
+      <span class="stories-detail-timestamp">{{ story.time_ago }} · {{ story.created_at_formatted }}</span>
+    </div>
+  </div>
+
+  {% if story.summary_bn %}
+  <div class="stories-detail-summary">
+    <p>{{ story.summary_bn }}</p>
+  </div>
+  {% endif %}
+
+  <div class="stories-detail-content" id="stories-detail-content">
+    {{ story.content_html_bn|safe }}
+  </div>
+
+  {% if story.pages %}
+  <div class="stories-detail-pages" id="stories-detail-pages">
+    {% for page in story.pages %}
+    <div class="stories-detail-page" id="stories-detail-page-{{ page.page_number }}" data-page-number="{{ page.page_number }}" {% if not forloop.first %}style="display:none;"{% endif %}>
+      <div class="stories-detail-page-content">{{ page.page_content_html_bn|safe }}</div>
+    </div>
+    {% endfor %}
+    {% if story.total_pages > 1 %}
+    <div class="stories-detail-page-nav">
+      <button type="button" class="stories-detail-page-prev-button" id="stories-detail-page-prev-button" name="stories_detail_page_prev_button" disabled>◀ আগের পাতা</button>
+      <span class="stories-detail-page-counter" id="stories-detail-page-counter">পাতা ১ / {{ story.total_pages }}</span>
+      <button type="button" class="stories-detail-page-next-button" id="stories-detail-page-next-button" name="stories_detail_page_next_button">পরের পাতা ▶</button>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if story.source_attribution_bn %}
+  <div class="stories-detail-attribution">
+    <span>সূত্র: {{ story.source_attribution_bn }}</span>
+  </div>
+  {% endif %}
+
+  <div class="stories-detail-actions" id="stories-detail-actions">
+    <button type="button" class="stories-detail-action-button stories-detail-like-button{% if story.user_liked %} stories-detail-like-button-active{% endif %}" id="stories-detail-like-{{ story.story_id }}" name="stories_detail_like_{{ story.story_id }}" data-story-id="{{ story.story_id }}">
+      <span class="stories-detail-action-icon">{% if story.user_liked %}❤️{% else %}🤍{% endif %}</span>
+      <span class="stories-detail-action-count stories-detail-like-count">{{ story.like_count }}</span>
+      <span class="stories-detail-action-label">পছন্দ</span>
+    </button>
+    <button type="button" class="stories-detail-action-button stories-detail-bookmark-button{% if story.user_bookmarked %} stories-detail-bookmark-button-active{% endif %}" id="stories-detail-bookmark-{{ story.story_id }}" name="stories_detail_bookmark_{{ story.story_id }}" data-story-id="{{ story.story_id }}">
+      <span class="stories-detail-action-icon">{% if story.user_bookmarked %}🔖{% else %}📑{% endif %}</span>
+      <span class="stories-detail-action-count stories-detail-bookmark-count">{{ story.bookmark_count }}</span>
+      <span class="stories-detail-action-label">আমার তাকে রাখুন</span>
+    </button>
+    <span class="stories-detail-action-button stories-detail-view-count-display">
+      <span class="stories-detail-action-icon">👁️</span>
+      <span class="stories-detail-action-count">{{ story.view_count }}</span>
+      <span class="stories-detail-action-label">পড়েছে</span>
+    </span>
+  </div>
+
+</article>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'stories/assets/js/pages/stories-detail.js' %}"></script>
+{% endblock %}

@@ -6,6 +6,15 @@
 (function () {
   'use strict';
 
+  /* ========== Shared Actions Bar (like + share) ========== */
+  if (typeof window.actionsBar !== 'undefined') {
+    window.actionsBar.init({
+      buildLikeApiUrl: function (entityId) {
+        return '/bangladesh-tourist-destinations/api/destination/' + entityId + '/like/';
+      },
+    });
+  }
+
   /* ========== Photo Lightbox ========== */
   var lightbox = document.getElementById('photo-lightbox');
   var lightboxImage = document.getElementById('photo-lightbox-image');
@@ -41,7 +50,7 @@
           var viewsElement = card.querySelector('.travel-hub-detail-media-card-views');
           if (viewsElement) {
             var currentCount = parseInt(viewsElement.textContent.replace(/[^0-9]/g, ''), 10) || 0;
-            viewsElement.textContent = '👁 ' + (currentCount + 1);
+            viewsElement.innerHTML = '👁️ <span class="travel-hub-detail-media-view-label">ভিউ</span> ' + (currentCount + 1);
           }
         })
         .catch(function() {});
@@ -77,13 +86,14 @@
 
   if (photoGrid) {
     photoGrid.addEventListener('click', function (event) {
-      /* Don't open lightbox when clicking edit/delete/meta elements */
+      /* Don't open lightbox when clicking edit/delete/meta/cover elements */
       if (event.target.closest('.travel-hub-detail-contribution-actions')) return;
       if (event.target.closest('.travel-hub-detail-contribution-edit-button')) return;
       if (event.target.closest('.travel-hub-detail-contribution-delete-button')) return;
       if (event.target.closest('.travel-hub-detail-contribution-edit-form')) return;
       if (event.target.closest('.travel-hub-detail-contribution-delete-confirm')) return;
       if (event.target.closest('.travel-hub-detail-contribution-meta')) return;
+      if (event.target.closest('.travel-hub-detail-set-cover-button')) return;
 
       var thumb = event.target.closest('.travel-hub-detail-photo-thumb[data-photo-url]');
       if (!thumb) return;
@@ -128,7 +138,7 @@
           var viewsElement = card.querySelector('.travel-hub-detail-media-card-views');
           if (viewsElement) {
             var currentCount = parseInt(viewsElement.textContent.replace(/[^0-9]/g, ''), 10) || 0;
-            viewsElement.textContent = '👁 ' + (currentCount + 1);
+            viewsElement.innerHTML = '👁️ <span class="travel-hub-detail-media-view-label">ভিউ</span> ' + (currentCount + 1);
           }
         })
         .catch(function() {});
@@ -176,24 +186,6 @@
       .catch(function() { likeButton.disabled = false; });
   });
 
-  /* ========== Share buttons ========== */
-  var shareButtons = document.querySelectorAll('.travel-hub-detail-share-btn');
-  for (var s = 0; s < shareButtons.length; s++) {
-    (function (button) {
-      button.addEventListener('click', function () {
-        var title = button.getAttribute('data-title') || '';
-        var url = window.location.href;
-        if (navigator.share) {
-          navigator.share({ title: title, url: url });
-        } else {
-          navigator.clipboard.writeText(url).then(function () {
-            showInlineMessage(button.parentNode, 'লিংক কপি হয়েছে!', false);
-          });
-        }
-      });
-    })(shareButtons[s]);
-  }
-
   /* ========== BanglaInput on all caption/title/description fields ========== */
 
   function attachBanglaInputToElement(element) {
@@ -235,10 +227,10 @@
   }
 
   function showInlineMessage(parent, text, isError) {
-    var old = parent.querySelector('.travel-hub-detail-inline-msg');
+    var old = parent.querySelector('.travel-hub-detail-inline-message');
     if (old) old.remove();
     var element = document.createElement('div');
-    element.className = 'travel-hub-detail-inline-msg ' + (isError ? 'travel-hub-detail-inline-msg-error' : 'travel-hub-detail-inline-msg-success');
+    element.className = 'travel-hub-detail-inline-message ' + (isError ? 'travel-hub-detail-inline-message-error' : 'travel-hub-detail-inline-message-success');
     element.textContent = text;
     parent.appendChild(element);
     setTimeout(function () { if (element.parentNode) element.remove(); }, 5000);
@@ -295,6 +287,9 @@
             cardElement.setAttribute('data-photo-id', data.photo_id);
             cardElement.setAttribute('data-dest-id', destinationId);
 
+            cardElement.setAttribute('data-photo-url', data.photo_url);
+            cardElement.setAttribute('data-photo-thumbnail-url', data.photo_thumbnail_url || data.photo_url);
+
             var thumbElement = document.createElement('div');
             thumbElement.className = 'travel-hub-detail-media-card-image travel-hub-detail-photo-thumb';
             thumbElement.setAttribute('data-photo-url', data.photo_url);
@@ -302,6 +297,17 @@
             thumbElement.style.backgroundImage = "url('" + data.photo_url + "')";
             thumbElement.style.cursor = 'pointer';
             cardElement.appendChild(thumbElement);
+
+            /* Add set-cover button if user has edit permissions */
+            if (document.querySelector('.travel-hub-detail-set-cover-button')) {
+              var setCoverHtml = '<button type="button" class="travel-hub-detail-set-cover-button"'
+                + ' id="travel-hub-detail-set-cover-' + data.photo_id + '"'
+                + ' name="travel_hub_set_cover_' + data.photo_id + '"'
+                + ' data-photo-id="' + data.photo_id + '"'
+                + ' data-dest-id="' + destinationId + '">'
+                + '<span class="travel-hub-detail-set-cover-label">' + COVER_LABEL_SET + '</span></button>';
+              cardElement.insertAdjacentHTML('beforeend', setCoverHtml);
+            }
 
             if (data.caption_bn) {
               var captionDiv = document.createElement('div');
@@ -313,8 +319,8 @@
             /* Footer: like + views + uploader + edit/delete */
             var footerHtml = '<div class="travel-hub-detail-media-card-footer">'
               + '<div class="travel-hub-detail-media-card-stats">'
-              + '<button type="button" class="travel-hub-detail-media-like-button" data-type="photo" data-id="' + data.photo_id + '" data-dest-id="' + destinationId + '" title="পছন্দ">❤ <span class="travel-hub-detail-media-like-count">0</span></button>'
-              + '<span class="travel-hub-detail-media-card-views">👁 0</span>'
+              + '<button type="button" class="travel-hub-detail-media-like-button" id="travel-hub-detail-photo-like-' + data.photo_id + '" name="travel_hub_photo_like_' + data.photo_id + '" data-type="photo" data-id="' + data.photo_id + '" data-dest-id="' + destinationId + '" title="পছন্দ (Like)">👍 <span class="travel-hub-detail-media-like-label">পছন্দ</span> <span class="travel-hub-detail-media-like-count">0</span></button>'
+              + '<span class="travel-hub-detail-media-card-views">👁️ <span class="travel-hub-detail-media-view-label">ভিউ</span> 0</span>'
               + '</div>'
               + '<div class="travel-hub-detail-media-card-meta">'
               + '<span class="travel-hub-detail-media-card-uploader">আমি</span>'
@@ -322,8 +328,8 @@
               + '</div>'
               + '<div class="travel-hub-detail-media-card-actions">'
               + '<span class="travel-hub-detail-contribution-actions" data-type="photo" data-id="' + data.photo_id + '" data-dest-id="' + destinationId + '">'
-              + '<button type="button" class="travel-hub-detail-contribution-edit-button" title="ক্যাপশন সম্পাদনা">✎</button>'
-              + '<button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>'
+              + '<button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-photo-edit-' + data.photo_id + '" name="travel_hub_photo_edit_' + data.photo_id + '" title="ক্যাপশন সম্পাদনা">✎</button>'
+              + '<button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-photo-delete-' + data.photo_id + '" name="travel_hub_photo_delete_' + data.photo_id + '" title="মুছুন">✕</button>'
               + '</span></div></div>';
             cardElement.insertAdjacentHTML('beforeend', footerHtml);
             grid.appendChild(cardElement);
@@ -403,8 +409,8 @@
             html += '<div class="travel-hub-detail-contribution-meta">';
             html += '<span class="travel-hub-detail-contribution-uploader">আমি</span>';
             html += '<span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="' + data.link_id + '" data-dest-id="' + destinationId + '">';
-            html += '<button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>';
-            html += '<button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>';
+            html += '<button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-youtube-edit-' + data.link_id + '" name="travel_hub_youtube_edit_' + data.link_id + '" title="সম্পাদনা">✎</button>';
+            html += '<button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-youtube-delete-' + data.link_id + '" name="travel_hub_youtube_delete_' + data.link_id + '" title="মুছুন">✕</button>';
             html += '</span>';
             html += '</div>';
             html += '</div>';
@@ -490,8 +496,8 @@
             var metaHtml = '<div class="travel-hub-detail-contribution-meta">'
               + '<span class="travel-hub-detail-contribution-uploader">আমি</span>'
               + '<span class="travel-hub-detail-contribution-actions" data-type="link" data-id="' + data.link_id + '" data-dest-id="' + destinationId + '">'
-              + '<button type="button" class="travel-hub-detail-contribution-edit-button" title="সম্পাদনা">✎</button>'
-              + '<button type="button" class="travel-hub-detail-contribution-delete-button" title="মুছুন">✕</button>'
+              + '<button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-link-edit-' + data.link_id + '" name="travel_hub_link_edit_' + data.link_id + '" title="সম্পাদনা">✎</button>'
+              + '<button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-link-delete-' + data.link_id + '" name="travel_hub_link_delete_' + data.link_id + '" title="মুছুন">✕</button>'
               + '</span></div>';
             card.insertAdjacentHTML('beforeend', metaHtml);
             card.setAttribute('data-reference-link-id', data.link_id);
@@ -688,8 +694,8 @@
     confirmBar.className = 'travel-hub-detail-contribution-delete-confirm';
     confirmBar.setAttribute('data-for-card', contributionId);
     confirmBar.innerHTML = '<span>মুছে ফেলতে চান?</span>'
-      + '<button type="button" class="travel-hub-detail-contribution-confirm-yes-button" data-type="' + contributionType + '" data-id="' + contributionId + '" data-dest-id="' + destinationId + '">হ্যাঁ</button>'
-      + '<button type="button" class="travel-hub-detail-contribution-confirm-no-button">না</button>';
+      + '<button type="button" class="travel-hub-detail-contribution-confirm-yes-button" id="travel-hub-detail-confirm-delete-' + contributionType + '-' + contributionId + '" name="travel_hub_confirm_delete_' + contributionType + '_' + contributionId + '" data-type="' + contributionType + '" data-id="' + contributionId + '" data-dest-id="' + destinationId + '">হ্যাঁ</button>'
+      + '<button type="button" class="travel-hub-detail-contribution-confirm-no-button" id="travel-hub-detail-cancel-delete-' + contributionType + '-' + contributionId + '" name="travel_hub_cancel_delete_' + contributionType + '_' + contributionId + '">না</button>';
 
     if (contributionType === 'photo') {
       parentCard.after(confirmBar);
@@ -910,5 +916,72 @@
   function escapeAttribute(text) {
     return text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
+  /* ========== Set photo as destination cover image ========== */
+
+  var COVER_LABEL_ACTIVE = '\u2713 \u0995\u09AD\u09BE\u09B0 \u099B\u09AC\u09BF (Cover photo)';
+  var COVER_LABEL_SET = '\u2606 \u0995\u09AD\u09BE\u09B0 \u099B\u09AC\u09BF \u09B8\u09C7\u099F \u0995\u09B0\u09C1\u09A8 (Set as cover)';
+
+  document.addEventListener('click', function (event) {
+    var setCoverButton = event.target.closest('.travel-hub-detail-set-cover-button');
+    if (!setCoverButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    /* Already the active cover — do nothing */
+    if (setCoverButton.classList.contains('travel-hub-detail-set-cover-button-active')) return;
+
+    var photoId = setCoverButton.getAttribute('data-photo-id');
+    var destinationId = setCoverButton.getAttribute('data-dest-id');
+    if (!photoId || !destinationId) return;
+
+    /* Disable button during request */
+    setCoverButton.disabled = true;
+
+    var apiUrl = '/bangladesh-tourist-destinations/api/destination/' + destinationId + '/photo/' + photoId + '/set-cover/';
+    fetch(apiUrl, {
+      method: 'PATCH',
+      headers: { 'X-CSRFToken': getCsrfToken() },
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      setCoverButton.disabled = false;
+      var cardElement = setCoverButton.closest('.travel-hub-detail-media-card');
+
+      if (!data.success) {
+        showInlineMessage(cardElement, data.error || '\u0995\u09AD\u09BE\u09B0 \u09B8\u09C7\u099F \u0995\u09B0\u09BE \u09AF\u09BE\u09AF\u09BC\u09A8\u09BF', true);
+        return;
+      }
+
+      /* Remove active class and reset labels on all cover buttons */
+      var allCoverButtons = document.querySelectorAll('.travel-hub-detail-set-cover-button');
+      for (var i = 0; i < allCoverButtons.length; i++) {
+        allCoverButtons[i].classList.remove('travel-hub-detail-set-cover-button-active');
+        var labelElement = allCoverButtons[i].querySelector('.travel-hub-detail-set-cover-label');
+        if (labelElement) labelElement.textContent = COVER_LABEL_SET;
+      }
+
+      /* Mark this one as active */
+      setCoverButton.classList.add('travel-hub-detail-set-cover-button-active');
+      var activeLabel = setCoverButton.querySelector('.travel-hub-detail-set-cover-label');
+      if (activeLabel) activeLabel.textContent = COVER_LABEL_ACTIVE;
+
+      /* Update hero image at the top of the page */
+      var heroElement = document.getElementById('travel-hub-detail-hero');
+      if (heroElement && data.cover_image_url) {
+        heroElement.style.backgroundImage = "url('" + data.cover_image_url + "')";
+        heroElement.style.display = '';
+      }
+
+      showInlineMessage(cardElement, '\u0995\u09AD\u09BE\u09B0 \u099B\u09AC\u09BF \u09B8\u09C7\u099F \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 (Cover set)', false);
+    })
+    .catch(function () {
+      setCoverButton.disabled = false;
+      var cardElement = setCoverButton.closest('.travel-hub-detail-media-card');
+      showInlineMessage(cardElement, '\u09A8\u09C7\u099F\u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u0995 \u09A4\u09CD\u09B0\u09C1\u099F\u09BF (Network error)', true);
+    });
+  });
+
 
 })();

@@ -18,6 +18,7 @@ var BanglaInput = (function() {
   var dictLoading = false;
   var dictCallbacks = [];
   var avroAvailable = typeof OmicronLab !== "undefined" && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
+  var globalEnabled = true;    // toggled by setEnabled() — when false, typing stays English
 
   // ---- Load dictionary ----
   function loadDictionary(cb) {
@@ -180,6 +181,7 @@ var BanglaInput = (function() {
     var wordBuffer = "";
     var wordStart = 0;
     var bestSuggestion = "";
+    var trailingPunctuation = "";
 
     // Create suggest dropdown
     function ensureSuggestBox() {
@@ -240,14 +242,17 @@ var BanglaInput = (function() {
     function pickSuggestion(bangla) {
       var val = inputEl.value;
       var before = val.substring(0, wordStart);
-      var after = val.substring(wordStart + wordBuffer.length);
-      inputEl.value = before + bangla + " " + after;
-      var newPos = before.length + bangla.length + 1;
+      var replaceLength = wordBuffer.length + trailingPunctuation.length;
+      var after = val.substring(wordStart + replaceLength);
+      var insertText = bangla + trailingPunctuation + ' ';
+      inputEl.value = before + insertText + after;
+      var newPos = before.length + insertText.length;
       inputEl.setSelectionRange(newPos, newPos);
       inputEl.focus();
-      wordBuffer = "";
+      wordBuffer = '';
+      trailingPunctuation = '';
       hideSuggestions();
-      inputEl.dispatchEvent(new Event("bangla-input-change", { bubbles: true }));
+      inputEl.dispatchEvent(new Event('bangla-input-change', { bubbles: true }));
     }
 
     var suggestTimer = null;
@@ -306,6 +311,7 @@ var BanglaInput = (function() {
 
     // ---- Event handlers ----
     inputEl.addEventListener("input", function() {
+      if (!globalEnabled) { wordBuffer = ''; hideSuggestions(); return; }
       var val = inputEl.value;
       var cursor = inputEl.selectionStart;
       var textUpToCursor = val.substring(0, cursor);
@@ -313,20 +319,44 @@ var BanglaInput = (function() {
       wordStart = lastSpace + 1;
       var currentWord = textUpToCursor.substring(wordStart);
 
-      if (/^[a-zA-Z]+$/.test(currentWord)) {
-        wordBuffer = currentWord;
-        updateSuggestions(currentWord);
+      /* Strip trailing punctuation — let transliteration work with commas, periods, etc. */
+      var punctuationMatch = currentWord.match(/^([a-zA-Z]+)([,.\-;:!?।\u0964\u0965'"()]+)$/);
+      var cleanWord = punctuationMatch ? punctuationMatch[1] : currentWord;
+      trailingPunctuation = punctuationMatch ? punctuationMatch[2] : '';
+
+      if (/^[a-zA-Z]+$/.test(cleanWord)) {
+        wordBuffer = cleanWord;
+        updateSuggestions(cleanWord);
       } else {
         wordBuffer = "";
+        trailingPunctuation = '';
         hideSuggestions();
       }
     });
 
+    var PUNCTUATION_KEYS = { ',': 1, '.': 1, ';': 1, ':': 1, '!': 1, '?': 1, '-': 1, "'": 1, '"': 1, '(': 1, ')': 1 };
+
     inputEl.addEventListener("keydown", function(e) {
-      // Space — auto-pick best suggestion
-      if (e.key === " " && wordBuffer.length > 0 && bestSuggestion) {
-        e.preventDefault();
-        pickSuggestion(bestSuggestion);
+      if (!globalEnabled) return;
+      // Space or punctuation — auto-pick best suggestion then let punctuation through
+      if ((e.key === " " || PUNCTUATION_KEYS[e.key]) && wordBuffer.length > 0 && bestSuggestion) {
+        if (e.key === ' ') {
+          e.preventDefault();
+          pickSuggestion(bestSuggestion);
+        } else {
+          /* Punctuation: pick suggestion, let the punctuation character be typed naturally */
+          trailingPunctuation = '';
+          var val = inputEl.value;
+          var before = val.substring(0, wordStart);
+          var after = val.substring(wordStart + wordBuffer.length);
+          inputEl.value = before + bestSuggestion + after;
+          var newPos = before.length + bestSuggestion.length;
+          inputEl.setSelectionRange(newPos, newPos);
+          wordBuffer = '';
+          hideSuggestions();
+          inputEl.dispatchEvent(new Event('bangla-input-change', { bubbles: true }));
+          /* Let the punctuation key event continue naturally */
+        }
         return;
       }
 
@@ -385,6 +415,12 @@ var BanglaInput = (function() {
       loadDictionary(function() {
         attach(inputEl, options);
       });
+    },
+    setEnabled: function(enabled) {
+      globalEnabled = !!enabled;
+    },
+    isEnabled: function() {
+      return globalEnabled;
     }
   };
 })();

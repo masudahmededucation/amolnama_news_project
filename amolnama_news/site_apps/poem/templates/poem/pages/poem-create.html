@@ -110,7 +110,10 @@
         <input type="text" class="poem-create-input" id="poem-audio-description" name="poem-audio-description" maxlength="500" autocomplete="off" placeholder="যেমন: সুবর্ণা মুস্তাফার কণ্ঠে আবৃত্তি...">
       </div>
 
-      <button type="submit" class="poem-create-submit" id="poemSubmitBtn" data-bn="প্রকাশ করুন" data-en="Publish">প্রকাশ করুন (Publish)</button>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+        <button type="submit" class="poem-create-submit" id="poem-submit-button" name="poem_submit" data-bn="প্রকাশ করুন" data-en="Publish">প্রকাশ করুন (Publish)</button>
+        <button type="button" id="poem-clear-form-button" name="poem_clear_form" class="poem-clear-form-button" data-bn="তথ্য মুছুন (Clear Form)" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>
+      </div>
     </form>
   </div>
 
@@ -140,5 +143,6 @@
 <script src="{% static 'poem/assets/js/pages/poem-create.js' %}"></script>
 <script src="{% static 'poem/assets/js/pages/poem-create-preview.js' %}"></script>
 <script src="{% static 'poem/assets/js/pages/poem-create-persist.js' %}"></script>
+<script src="{% static 'poem/assets/js/pages/poem-create-clear.js' %}"></script>
 <script src="{% static 'poem/assets/js/components/poem-avro-hook.js' %}"></script>
 {% endblock %}

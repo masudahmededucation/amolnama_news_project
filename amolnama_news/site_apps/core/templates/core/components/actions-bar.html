@@ -1,0 +1,21 @@
+{# Shared actions bar — like, view, share, edit. Context: actions_bar_entity_id (int), actions_bar_like_count (int), actions_bar_view_count (int), actions_bar_user_liked (bool), actions_bar_share_title (str), actions_bar_edit_url (str|None), actions_bar_can_edit (bool), actions_bar_position (top/bottom) #}
+<div class="actions-bar{% if actions_bar_position == 'top' %} actions-bar-top{% endif %}" id="actions-bar-{{ actions_bar_position }}" name="actions_bar_{{ actions_bar_position }}">
+  <button type="button" class="actions-bar-like-button{% if actions_bar_user_liked %} actions-bar-like-button-active{% endif %}" id="actions-bar-like-{{ actions_bar_entity_id }}-{{ actions_bar_position }}" name="actions_bar_like_{{ actions_bar_entity_id }}_{{ actions_bar_position }}" data-entity-id="{{ actions_bar_entity_id }}" data-no-bangla title="পছন্দ (Like)">
+    <span class="actions-bar-like-icon">👍</span>
+    <span class="actions-bar-like-label">পছন্দ</span>
+    <span class="actions-bar-like-count">{{ actions_bar_like_count|default:0 }}</span>
+  </button>
+
+  <span class="actions-bar-view-count" id="actions-bar-view-count-{{ actions_bar_position }}" title="ভিউ (View)">👁️ ভিউ {{ actions_bar_view_count|default:0 }}</span>
+
+  <button type="button" class="actions-bar-button actions-bar-share-button" id="actions-bar-share-{{ actions_bar_position }}" name="actions_bar_share_{{ actions_bar_position }}" data-no-bangla data-title="{{ actions_bar_share_title|escapejs }}">
+    <svg class="actions-bar-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    শেয়ার
+  </button>
+
+  {% if actions_bar_can_edit and actions_bar_edit_url %}
+  <a href="{{ actions_bar_edit_url }}" class="actions-bar-button actions-bar-edit-button" id="actions-bar-edit-{{ actions_bar_position }}" name="actions_bar_edit_{{ actions_bar_position }}">
+    ✏️ সম্পাদনা
+  </a>
+  {% endif %}
+</div>

@@ -1,0 +1,20 @@
+================================================================
+HEALTH APP — Architecture & Features
+App: site_apps/health/
+URL prefix: /health/
+================================================================
+
+## Introduction
+Health information platform. Placeholder — not yet built.
+Nav: 🏥 স্বাস্থ্য, under marriage section.
+
+## Models
+None yet.
+
+## URL Patterns
+| URL       | View   | Name         |
+|-----------|--------|--------------|
+| /health/  | home   | health:home  |
+
+## Status
+Empty placeholder. Landing page renders base.html.

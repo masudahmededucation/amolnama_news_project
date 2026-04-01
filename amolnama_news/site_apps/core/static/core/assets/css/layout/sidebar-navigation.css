@@ -1,0 +1,295 @@
+/* ========== X-style Left Sidebar Navigation ========== */
+/* Part of the 3-column grid layout inside .app-layout.
+   Desktop: text labels visible by default (220px), toggle to collapse (60px).
+   Mobile: bottom tab bar with icons + small labels. */
+
+/* ---- 3-Column App Layout (max-width centered) ---- */
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 300px;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.app-layout-collapsed {
+  grid-template-columns: 60px minmax(0, 1fr) 300px;
+}
+
+/* ---- Sidebar container ---- */
+
+.sidebar-navigation {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: var(--card, #fff);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: width .25s ease;
+  width: 220px;
+}
+
+.app-layout-collapsed .sidebar-navigation {
+  width: 60px;
+}
+
+/* ---- Header (logo + toggle) ---- */
+
+.sidebar-navigation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .75rem;
+  border-bottom: 1px solid var(--border);
+  min-height: 56px;
+}
+
+.sidebar-navigation-logo {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.sidebar-navigation-logo-image {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  transition: width .25s ease;
+}
+
+.app-layout-collapsed .sidebar-navigation-logo-image {
+  width: 32px;
+  height: 32px;
+}
+
+/* ---- Menu items ---- */
+
+.sidebar-navigation-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .5rem .4rem;
+  overflow-y: auto;
+}
+
+.sidebar-navigation-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .6rem .7rem;
+  border-left: 3px solid transparent;
+  border-radius: 0 25px 25px 0;
+  color: var(--text);
+  text-decoration: none;
+  font-size: .88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+  min-height: 2.5rem;
+}
+
+.sidebar-navigation-item:hover {
+  background: var(--surface, #f0f0f0);
+}
+
+.sidebar-navigation-item-active {
+  font-weight: 500;
+  color: #0d47a1;
+  background: rgba(13, 71, 161, .12);
+  border-left: 3px solid #0d47a1;
+}
+
+.sidebar-navigation-item-active .sidebar-navigation-item-icon {
+  transform: scale(1.15);
+}
+
+.sidebar-navigation-item-active:hover {
+  background: rgba(13, 71, 161, .18);
+}
+
+/* ---- Divider between primary nav and content sections ---- */
+
+.sidebar-navigation-divider {
+  border: none;
+  border-top: 1px solid #bbb;
+  margin: .75rem .5rem;
+}
+
+.sidebar-navigation-section-label {
+  display: block;
+  padding: .2rem .75rem;
+  font-size: .6rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.app-layout-collapsed .sidebar-navigation-section-label {
+  display: none;
+}
+
+/* ---- Icon ---- */
+
+.sidebar-navigation-pen-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: currentColor;
+}
+
+.sidebar-navigation-item-icon {
+  font-size: 1.25rem;
+  width: 1.5rem;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+
+/* ---- Label (visible by default, hidden when collapsed) ---- */
+
+.sidebar-navigation-item-label {
+  opacity: 1;
+  transition: opacity .2s ease;
+}
+
+.app-layout-collapsed .sidebar-navigation-item-label {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* ---- Toggle button ---- */
+
+.sidebar-navigation-toggle-icon {
+  line-height: 1;
+}
+
+.sidebar-navigation-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid var(--primary, #1877f2);
+  background: var(--primary, #1877f2);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  transition: background .15s, transform .15s;
+  flex-shrink: 0;
+}
+
+.sidebar-navigation-toggle:hover {
+  background: var(--primary-dark, #1565c0);
+  transform: scale(1.1);
+}
+
+/* ---- Page wrapper (center column) ---- */
+
+.page-wrapper {
+  min-height: 100vh;
+  border-right: 1px solid var(--border);
+  padding: 1.25rem;
+}
+
+.page-wrapper main {
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ---- Mobile: bottom tab bar ---- */
+
+@media (max-width: 768px) {
+  .app-layout {
+    display: block;
+  }
+
+  .sidebar-navigation {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    background: var(--card, #fff);
+  }
+
+  .sidebar-navigation-logo {
+    display: none;
+  }
+
+  .sidebar-navigation-menu {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0;
+    gap: 0;
+    width: 100%;
+  }
+
+  .sidebar-navigation-item {
+    flex-direction: column;
+    gap: .1rem;
+    padding: .4rem .3rem;
+    border-radius: 0;
+    font-size: .6rem;
+  }
+
+  .sidebar-navigation-item-icon {
+    font-size: 1.15rem;
+  }
+
+  .sidebar-navigation-item-label {
+    opacity: 1;
+    width: auto;
+    font-size: .58rem;
+  }
+
+  .app-layout-collapsed .sidebar-navigation-item-label {
+    opacity: 1;
+    width: auto;
+  }
+
+  .sidebar-navigation-divider {
+    display: none;
+  }
+
+  .sidebar-navigation-item-content-section {
+    display: none;
+  }
+
+  .sidebar-navigation-toggle {
+    display: none;
+  }
+
+  .page-wrapper {
+    padding-bottom: 60px;
+    border-right: none;
+  }
+}
+
+/* ---- Tablet: collapsed sidebar, no right panel ---- */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .sidebar-navigation-item-label {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+  }
+}

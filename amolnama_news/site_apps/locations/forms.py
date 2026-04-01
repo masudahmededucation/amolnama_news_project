@@ -94,6 +94,7 @@ class AddressFieldsMixin:
             initial="+880",
             required=False,
             label="Country",
+            widget=forms.Select(attrs={"autocomplete": "tel-country-code"}),
         )
         self.fields["link_district_id"] = forms.ChoiceField(
             label="District", required=False,
@@ -109,6 +110,7 @@ class AddressFieldsMixin:
             validators=[validate_no_html],
             widget=forms.TextInput(attrs={
                 "placeholder": "Building, floor, unit, house no.",
+                "autocomplete": "address-line1",
             }),
         )
         self.fields["address_line_two"] = forms.CharField(
@@ -116,28 +118,39 @@ class AddressFieldsMixin:
             validators=[validate_no_html],
             widget=forms.TextInput(attrs={
                 "placeholder": "Street name",
+                "autocomplete": "address-line2",
             }),
         )
         self.fields["local_area_name"] = forms.CharField(
             max_length=100, required=False,
             validators=[validate_no_html],
-            widget=forms.TextInput(attrs={"placeholder": "Local area / Village"}),
+            widget=forms.TextInput(attrs={
+                "placeholder": "Local area / Village",
+                "autocomplete": "address-level3",
+            }),
         )
         self.fields["city_town"] = forms.CharField(
             max_length=100, required=False,
             validators=[validate_no_html],
-            widget=forms.TextInput(attrs={"placeholder": "City / Town"}),
+            widget=forms.TextInput(attrs={
+                "placeholder": "City / Town",
+                "autocomplete": "address-level2",
+            }),
         )
         self.fields["postal_code"] = forms.CharField(
             max_length=20, required=False,
             validators=[validate_postal_code],
-            widget=forms.TextInput(attrs={"placeholder": "Postal code"}),
+            widget=forms.TextInput(attrs={
+                "placeholder": "Postal code",
+                "autocomplete": "postal-code",
+            }),
         )
         self.fields["region_province_state_division"] = forms.CharField(
             max_length=100, required=False,
             validators=[validate_no_html],
             widget=forms.TextInput(attrs={
                 "placeholder": "Region / Province / State / Division",
+                "autocomplete": "address-level1",
             }),
         )
 

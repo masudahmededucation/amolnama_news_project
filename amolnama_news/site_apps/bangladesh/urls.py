@@ -25,6 +25,9 @@ urlpatterns = [
     path("api/media/", views_api.api_media_list, name="api_media_list"),
     path("api/media/upload/", views_api.api_media_upload, name="api_media_upload"),
 
+    # Destination — like
+    path("api/destination/<int:destination_id>/like/", views_api.api_destination_like_toggle, name="api_destination_like_toggle"),
+
     # Destination — view tracking + likes
     path("api/destination/<int:destination_id>/photo/<int:photo_id>/view/", views_api.api_destination_photo_view, name="api_destination_photo_view"),
     path("api/destination/<int:destination_id>/photo/<int:photo_id>/like/", views_api.api_destination_photo_like_toggle, name="api_destination_photo_like_toggle"),
@@ -36,6 +39,9 @@ urlpatterns = [
     path("api/destination/<int:destination_id>/photo/", views_api.api_destination_photo_upload, name="api_destination_photo_upload"),
     path("api/destination/<int:destination_id>/youtube/", views_api.api_destination_youtube_link_add, name="api_destination_youtube_link_add"),
     path("api/destination/<int:destination_id>/link/", views_api.api_destination_reference_link_add, name="api_destination_reference_link_add"),
+
+    # Destination — set cover image
+    path("api/destination/<int:destination_id>/photo/<int:photo_id>/set-cover/", views_api.api_destination_cover_image_set, name="api_destination_cover_image_set"),
 
     # Destination community contributions — edit / delete
     path("api/destination/<int:destination_id>/photo/<int:photo_id>/", views_api.api_destination_photo_update, name="api_destination_photo_update"),

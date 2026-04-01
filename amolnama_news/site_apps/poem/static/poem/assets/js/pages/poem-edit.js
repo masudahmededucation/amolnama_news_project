@@ -5,7 +5,7 @@
   "use strict";
 
   var form = document.getElementById("poemEditForm");
-  var submitBtn = document.getElementById("poemSubmitBtn");
+  var submitButton = document.getElementById("poem-submit-button");
   var errorBox = document.getElementById("poemCreateError");
   if (!form) return;
 
@@ -45,8 +45,8 @@
         lbl.textContent = lbls[forAttr].bn;
       }
     }
-    var submitEl = document.getElementById("poemSubmitBtn");
-    if (submitEl) { submitEl.setAttribute("data-bn", "আপডেট করুন"); submitEl.setAttribute("data-en", "Update"); submitEl.textContent = "আপডেট করুন"; }
+    var submitElement = document.getElementById("poem-submit-button");
+    if (submitElement) { submitElement.setAttribute("data-bn", "আপডেট করুন"); submitElement.setAttribute("data-en", "Update"); submitElement.textContent = "আপডেট করুন"; }
   }
 
   /* ── Language toggle — uses universal body[data-lang] system ── */
@@ -147,8 +147,8 @@
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "সংরক্ষণ হচ্ছে... (Saving...)";
+    submitButton.disabled = true;
+    submitButton.textContent = "সংরক্ষণ হচ্ছে... (Saving...)";
 
     var payload = {
       poem_author_display_name: authorName,
@@ -194,14 +194,14 @@
           window.location.href = "/bangla-kobita-gaan/" + poemSlug;
         } else {
           showError(data.error || "কিছু ভুল হয়েছে (Something went wrong)");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "সংরক্ষণ করুন (Save Changes)";
+          submitButton.disabled = false;
+          submitButton.textContent = "সংরক্ষণ করুন (Save Changes)";
         }
       })
       .catch(function (err) {
         showError(err.message || "সার্ভারে সমস্যা হয়েছে (Server error)");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "সংরক্ষণ করুন (Save Changes)";
+        submitButton.disabled = false;
+        submitButton.textContent = "সংরক্ষণ করুন (Save Changes)";
       });
   });
 })();

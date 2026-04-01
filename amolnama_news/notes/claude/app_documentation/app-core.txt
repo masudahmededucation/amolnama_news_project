@@ -1,0 +1,140 @@
+================================================================
+CORE APP — Architecture & Features
+App: site_apps/core/
+URL prefix: / (root)
+================================================================
+
+## Overview
+Foundation app — base template, homepage, shared components, layout, utilities.
+Every other app extends core/base.html.
+
+## Models
+
+| Model    | DB Table            | Purpose              |
+|----------|---------------------|----------------------|
+| Article  | [article].[article] | News articles (CMS)  |
+
+## URL Patterns
+
+| URL                    | View            | Name                |
+|------------------------|-----------------|---------------------|
+| /                      | home            | core:home           |
+| /article/<slug>/       | article_detail  | core:article_detail |
+| /category/<slug>/      | category        | core:category       |
+| /about/                | about           | core:about          |
+| /contact/              | contact         | core:contact        |
+| /communityvoice/       | communityvoice  | core:communityvoice |
+
+## Views
+
+### home()
+- Serves the pulse feed directly at /
+- 3 tabs: For You, Following, My Posts (?tab= parameter)
+- Uses build_post_feed_items() from post app
+- Renders pulse/pages/pulse-home.html template
+- Passes following_count for empty state messages
+
+### article_detail()
+- Article detail with JSON-LD NewsArticle schema
+- SEO meta tags via seo context dict
+
+## Shared Components (templates/core/components/)
+
+| Component          | Files (HTML + CSS + JS)    | Used By              |
+|--------------------|----------------------------|----------------------|
+| actions-bar        | actions-bar.html/css/js    | newshub, travel hub  |
+| photo-card         | photo-card.html/css/js     | newshub, travel hub  |
+| photo-lightbox     | photo-lightbox.html/css/js | newshub, travel, post|
+| like-button        | like-button.html/css/js    | newshub, travel hub  |
+
+### actions-bar
+Like (session-based) + view count + share (Web Share API + clipboard) + edit link.
+SVG share icon (X/Twitter style). JS flag instead of disabled attribute (cursor jump fix).
+Init: window.actionsBar.init()
+
+### photo-card
+Image card with like/view/edit/delete/set-cover actions.
+Init: window.photoCard.init()
+
+### photo-lightbox
+Full-screen image preview with arrow nav + keyboard navigation.
+Init: window.photoLightbox.init()
+
+## Utilities
+
+### core/utils.py
+- bangla_slugify(text) — NFC normalization (preserves Bengali matras). NEVER use Django slugify.
+- generate_username_handle(display_name) — auto @username from display name, unique check.
+
+## Base Template (core/base.html)
+- HTML skeleton with nav, sidebar, main content, footer
+- Loads all global CSS/JS: colors.css, base.css, navigation.css, header.css, etc.
+- Loads Bengali input system: avro-phonetic.js → bangla-input.js → bangla-input-auto-attach.js → quill-avro.js → news-form-lang.js
+- PWA: manifest link, service worker registration
+- CSP headers for external CDNs (Quill, Tom Select, Cropper.js, Leaflet)
+
+## Layout Structure (partials/)
+
+| Partial                    | Purpose                          |
+|----------------------------|----------------------------------|
+| header_auth_controls.html  | Login/signup + language toggle   |
+| sidebar-navigation.html    | Left sidebar nav (pulse, search, etc.) |
+| right-panel.html           | Right sidebar (trending, newsletter) |
+| footer.html                | Site footer                      |
+| hero.html                  | Hero banner                      |
+
+## CSS Architecture (static/core/assets/css/)
+
+| Category    | Files                                        |
+|-------------|----------------------------------------------|
+| Base        | base.css                                     |
+| Utilities   | colors.css (SINGLE :root source), spacing.css, typography.css |
+| Layout      | grid.css, header.css, sidebar.css, sidebar-navigation.css, right-panel.css |
+| Components  | buttons.css, cards.css, forms.css, modals.css, navigation.css, footer.css, pwa-install-banner.css |
+| Shared      | actions-bar.css, like-button.css, photo-card.css, photo-lightbox.css |
+| Pages       | home.css, article-detail.css, communityvoice.css, tools.css |
+
+### CRITICAL: colors.css is the ONLY file with :root variables
+No other CSS file should define :root. If colors misbehave, check for duplicate :root definitions.
+
+## JS Architecture (static/core/assets/js/)
+
+| File                       | Purpose                          |
+|----------------------------|----------------------------------|
+| main.js                    | Global initialization            |
+| header-user-menu.js        | User dropdown menu               |
+| sidebar-navigation.js      | Sidebar collapse/expand          |
+| pwa-register-sw.js         | Service worker registration      |
+| pwa-install-prompt.js      | PWA install banner               |
+| liveclock.js               | Live clock utility               |
+| actions-bar.js             | Shared actions bar component     |
+| like-button.js             | Shared like button component     |
+| photo-card.js              | Shared photo card component      |
+| photo-lightbox.js          | Shared photo lightbox component  |
+
+## Troubleshooting
+
+### CSS :root hijacking
+colors.css is the ONLY file with :root variables. App-specific CSS files (evaluation_vote, etc.)
+had their own :root blocks that overwrote --primary. Always check for duplicate :root definitions
+across all apps when colors misbehave.
+
+### Global `a` color rule
+Changed from `a { color: var(--accent) }` to `a { color: inherit }` + `main a { color: var(--accent) }`
+to prevent blue bleed into header/nav/ticker.
+
+### Sidebar not collapsing
+width: 220px + min-width: 220px hardcoded. Fixed by removing min-width, adding
+`.app-layout-collapsed .sidebar-navigation { width: 60px; }`.
+
+### Static file caching
+collectstatic --noinput after any static file edit. Dev server restart after settings changes.
+Browser cache (Ctrl+Shift+Delete) is separate from server cache. But always check service worker first.
+
+### Bengali slugify
+NEVER use Django's slugify(allow_unicode=True) for Bengali. Always use bangla_slugify() from
+core/utils.py. NFC normalization preserves matras unlike NFKD.
+
+### Shared component init
+All shared components require explicit init: window.actionsBar.init(), window.photoCard.init(),
+window.photoLightbox.init(). Must be called after DOM ready in each page that uses them.
