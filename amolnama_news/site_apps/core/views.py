@@ -26,9 +26,9 @@ def home(request):
 
     # Inject promo cards from ALL content apps
     # Two types: (1) all published items at top sorted by date, (2) promotional boost lower in feed
-    # To add a new app: add a builder function in core/promo_builders.py
+    # To add a new app: add a builder function in newsengine/promo_builders.py
     if active_tab == 'for_you':
-        from .promo_builders import build_all_promo_items, build_promotional_boost_items
+        from amolnama_news.site_apps.newsengine.promo_builders import build_all_promo_items, build_promotional_boost_items
 
         # (1) All published items — appear at top, sorted by date (latest first)
         all_promo_items = build_all_promo_items()
