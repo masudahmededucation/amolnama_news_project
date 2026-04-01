@@ -909,11 +909,8 @@ def api_audience_vote(request, topic_id):
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    # Rate limit — prevent bot/rapid voting
-    from amolnama_news.site_apps.newsengine.rate_limiter import check_rate_limit
-    is_allowed, rate_limit_error = check_rate_limit(user_profile_id, 'vote')
-    if not is_allowed:
-        return JsonResponse({'success': False, 'error': rate_limit_error}, status=429)
+    # Protection: one vote per user per topic (enforced below), login required, CSRF, parameterized SQL
+    # No rate limit — legitimate debates can have millions of voters
 
     # Check if user already voted on this topic (using vote_target_type = topic)
     vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='topic').first()
