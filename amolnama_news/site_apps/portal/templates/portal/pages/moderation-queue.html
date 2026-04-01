@@ -30,7 +30,7 @@
 {% block content %}
 <div class="moderation-queue" id="moderation-queue">
   <h1 class="moderation-queue-title" id="moderation-queue-title">Moderation Queue</h1>
-  <p class="moderation-queue-subtitle" id="moderation-queue-subtitle">পতাকাঙ্কিত কন্টেন্ট পর্যালোচনা করুন — Approve বা Reject করুন</p>
+  <p class="moderation-queue-subtitle" id="moderation-queue-subtitle">রিপোর্ট করা কন্টেন্ট দেখুন — গ্রহণ বা বাতিল করুন</p>
 
   {% for item in flagged_items %}
   <div class="moderation-item" id="moderation-item-{{ item.content_type }}-{{ item.content_id }}" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">
@@ -53,7 +53,7 @@
   </div>
   {% empty %}
   <div class="moderation-empty" id="moderation-empty">
-    <p>কোনো পতাকাঙ্কিত কন্টেন্ট নেই — সব পরিষ্কার!</p>
+    <p>কোনো রিপোর্ট করা কন্টেন্ট নেই — সব ঠিক আছে!</p>
   </div>
   {% endfor %}
 </div>
