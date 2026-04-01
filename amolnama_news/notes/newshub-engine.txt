@@ -1,0 +1,22 @@
+--twitter like posting, menu, options, chatting
+X functions like a digital newspaper or ticker tape where you go to work on staying informed
+Exposure Type-Intentional: Searching for specific news
+
+what about newshubengine?
+what is missing?
+i know we just started. but it is better to compare and find the best features and implement it.
+how would you rate my <app_name> app now 
+comparing with other real world debate app 
+after making those improvements?
+
+
+Cross-App Search — live search across 7 content types with Bengali NFC normalization
+Content Recommendations — category-based collaborative filtering from view history
+User Blocking — toggle block, feed auto-excludes blocked user content
+Hashtags/Topics — models + trending API ready, auto-extraction pending
+Newsengine is now at 9/10. The only gap to 10/10 is ML-level intelligence 
+and scale infrastructure (WebSocket, push notifications).
+
+scale infrastructure (WebSocket, push notifications).
+
+home wall video posting not working.
