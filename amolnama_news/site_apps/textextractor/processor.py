@@ -23,6 +23,20 @@ def _raw_execute(sql, params):
     return cursor
 
 
+def _format_duration(total_seconds):
+    """Format seconds as human-readable duration: 1h 30m 5s."""
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    parts = []
+    if hours > 0:
+        parts.append(f'{hours}h')
+    if minutes > 0:
+        parts.append(f'{minutes}m')
+    parts.append(f'{seconds}s')
+    return ' '.join(parts)
+
+
 def _mark_job_failed(job, error_message, start_time):
     """Mark a job as failed with error message and processing time. Uses raw SQL to avoid ODBC precision bug."""
     processing_time = int((time.time() - start_time) * 1000)
@@ -85,22 +99,33 @@ def _process_extraction_job_inner(job, job_id, start_time):
     if engine:
         job.link_extraction_engine_id = engine.textextractor_ref_extraction_engine_id
 
-    # Progress callback — updates DB so frontend can see page progress
-    def on_extraction_progress(current_page, total_pages):
-        percent = int((current_page / total_pages) * 100) if total_pages > 0 else 0
-        progress_message = f'Processing page {current_page} of {total_pages} ({percent}%)'
+    # Accumulate per-page log lines for live display
+    progress_log_lines = []
+
+    def on_extraction_progress(current_page, total_pages, log_line=None):
+        elapsed_seconds = int(time.time() - start_time)
+        elapsed_display = _format_duration(elapsed_seconds)
+
+        if log_line:
+            progress_log_lines.append(log_line)
+
+        # Build progress message: latest log lines + elapsed time
+        recent_lines = progress_log_lines[-10:]  # Keep last 10 lines
+        progress_text = '\n'.join(recent_lines)
+        progress_text += f'\n\n⏱️ Elapsed: {elapsed_display} | {current_page}/{total_pages} pages'
+
         _raw_execute("""
             UPDATE [textextractor].[coll_extraction_job]
             SET [page_count] = ?, [error_message] = ?, [updated_at] = ?
             WHERE [textextractor_coll_extraction_job_id] = ?
-        """, [total_pages, progress_message, timezone.now(), job_id])
+        """, [total_pages, progress_text, timezone.now(), job_id])
 
     # Update progress before extraction starts
     _raw_execute("""
         UPDATE [textextractor].[coll_extraction_job]
         SET [error_message] = ?, [link_extraction_engine_id] = ?, [updated_at] = ?
         WHERE [textextractor_coll_extraction_job_id] = ?
-    """, ['Extracting text...',
+    """, ['Starting extraction...',
           engine.textextractor_ref_extraction_engine_id if engine else None,
           timezone.now(), job_id])
 

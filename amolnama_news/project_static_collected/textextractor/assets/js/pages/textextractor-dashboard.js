@@ -1,4 +1,4 @@
-/* textextractor-dashboard.js — Upload files, redirect to dashboard. No polling. */
+/* textextractor-dashboard.js — Upload files, live progress polling, cancel/delete. */
 (function () {
   'use strict';
 
@@ -33,7 +33,6 @@
             .finally(function () {
               uploadedCount++;
               if (uploadedCount >= totalFiles) {
-                /* All uploaded — reload to show jobs with current status from DB */
                 window.location.href = '/text-extractor/';
               }
             });
@@ -42,6 +41,62 @@
       },
       onError: function () {},
     });
+  }
+
+  /* ---- Live Progress Polling for processing jobs ---- */
+  var processingJobElements = document.querySelectorAll('.textextractor-job-progress-row');
+
+  function pollProcessingJobs() {
+    if (processingJobElements.length === 0) return;
+
+    processingJobElements.forEach(function (progressRowElement) {
+      var processingJobId = progressRowElement.getAttribute('data-job-id');
+
+      fetch('/text-extractor/api/status/' + processingJobId + '/')
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (!data.success) return;
+
+          var progressBarElement = document.getElementById('textextractor-job-progress-bar-' + processingJobId);
+          var progressTextElement = document.getElementById('textextractor-job-progress-text-' + processingJobId);
+          var progressLogElement = document.getElementById('textextractor-job-progress-log-' + processingJobId);
+
+          if (data.status_code === 'processing') {
+            /* Update progress bar */
+            if (data.page_count && data.page_count > 0 && data.progress_message) {
+              var currentPageMatch = data.progress_message.match(/(\d+)\/(\d+) pages/);
+              if (currentPageMatch) {
+                var currentPage = parseInt(currentPageMatch[1], 10);
+                var totalPages = parseInt(currentPageMatch[2], 10);
+                var percent = Math.round((currentPage / totalPages) * 100);
+                if (progressBarElement) {
+                  progressBarElement.style.width = percent + '%';
+                }
+              }
+            }
+
+            /* Update log display */
+            if (progressLogElement && data.progress_message) {
+              progressLogElement.textContent = data.progress_message;
+            } else if (progressTextElement && data.progress_message) {
+              /* Fallback: show in the progress text area */
+              var firstLine = data.progress_message.split('\n').pop();
+              progressTextElement.textContent = firstLine;
+            }
+          }
+
+          if (data.status_code === 'completed' || data.status_code === 'failed') {
+            window.location.href = '/text-extractor/';
+          }
+        })
+        .catch(function () {});
+    });
+
+    setTimeout(pollProcessingJobs, 3000);
+  }
+
+  if (processingJobElements.length > 0) {
+    pollProcessingJobs();
   }
 
   /* ---- Cancel / Delete ---- */

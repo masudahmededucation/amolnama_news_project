@@ -10,6 +10,23 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import CollExtractionJob, CollExtractionPage, RefExtractionEngine
 
 
+def _format_duration_display(processing_time_milliseconds):
+    """Format milliseconds as human-readable: 1h 30m 5s."""
+    if not processing_time_milliseconds:
+        return None
+    total_seconds = int(processing_time_milliseconds / 1000)
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    parts = []
+    if hours > 0:
+        parts.append(f'{hours}h')
+    if minutes > 0:
+        parts.append(f'{minutes}m')
+    parts.append(f'{seconds}s')
+    return ' '.join(parts)
+
+
 def _read_output_file(file_path):
     """Read extracted text from .txt output file."""
     if not file_path or not os.path.exists(file_path):
@@ -61,6 +78,7 @@ def home(request):
             'confidence_percent': round(float(job.confidence_score or 0) * 100, 1),
             'processing_time_milliseconds': job.processing_time_milliseconds,
             'processing_time_seconds': round(job.processing_time_milliseconds / 1000, 1) if job.processing_time_milliseconds else None,
+            'processing_time_display': _format_duration_display(job.processing_time_milliseconds),
             'created_at': job.created_at,
             'created_at_formatted': job.created_at.strftime('%d %b %Y, %I:%M:%S %p') if job.created_at else '',
             'updated_at_formatted': job.updated_at.strftime('%d %b %Y, %I:%M:%S %p') if job.updated_at else '',

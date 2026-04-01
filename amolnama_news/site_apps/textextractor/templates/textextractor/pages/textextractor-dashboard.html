@@ -52,15 +52,16 @@
         <div class="textextractor-job-timestamps">
           <span class="textextractor-job-timestamp-item">📅 Submitted: {{ job.created_at_formatted }}</span>
           {% if job.completed_at_formatted %}<span class="textextractor-job-timestamp-item">✅ Completed: {{ job.completed_at_formatted }}</span>{% endif %}
-          {% if job.processing_time_seconds %}<span class="textextractor-job-timestamp-item">⚡ Duration: {{ job.processing_time_seconds }}s</span>{% endif %}
+          {% if job.processing_time_display %}<span class="textextractor-job-timestamp-item">⚡ Duration: {{ job.processing_time_display }}</span>{% endif %}
         </div>
 
         {% if job.status_code == 'processing' %}
         <div class="textextractor-job-progress-row" id="textextractor-job-progress-row-{{ job.job_id }}" data-job-id="{{ job.job_id }}">
           <div class="textextractor-job-progress-bar-wrapper">
             <div class="textextractor-job-progress-bar" id="textextractor-job-progress-bar-{{ job.job_id }}"></div>
-            <span class="textextractor-job-progress-text" id="textextractor-job-progress-text-{{ job.job_id }}">{{ job.error_message|default:"Processing..." }}</span>
+            <span class="textextractor-job-progress-text" id="textextractor-job-progress-text-{{ job.job_id }}">Processing...</span>
           </div>
+          <pre class="textextractor-job-progress-log" id="textextractor-job-progress-log-{{ job.job_id }}">{{ job.error_message|default:"Starting extraction..." }}</pre>
         </div>
         {% endif %}
 
@@ -69,7 +70,7 @@
           {% if job.word_count %}<span>📊 {{ job.word_count }} words</span>{% endif %}
           {% if job.page_count %}<span>📄 {{ job.page_count }} pages</span>{% endif %}
           {% if job.confidence_percent %}<span>🎯 {{ job.confidence_percent }}%</span>{% endif %}
-          {% if job.processing_time_seconds %}<span>⚡ {{ job.processing_time_seconds }}s</span>{% endif %}
+          {% if job.processing_time_display %}<span>⚡ {{ job.processing_time_display }}</span>{% endif %}
         </div>
         {% endif %}
 
