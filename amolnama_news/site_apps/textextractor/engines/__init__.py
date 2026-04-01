@@ -35,17 +35,19 @@ def extract_text(file_path, engine_code=None, on_progress=None):
 
     try:
         if engine_code == 'tesseract':
-            from .engine_tesseract import extract as engine_extract
+            from .textextractor_engine_image_tesseract_simple import extract as engine_extract
         elif engine_code == 'easyocr':
-            from .engine_easyocr import extract as engine_extract
+            from .textextractor_engine_image_easyocr import extract as engine_extract
         elif engine_code == 'tesseract_image':
-            from .engine_tesseract_image import extract as engine_extract
+            from .textextractor_engine_image_tesseract import extract as engine_extract
         elif engine_code == 'whisper':
-            from .engine_whisper import extract as engine_extract
+            from .textextractor_engine_audio_whisper import extract as engine_extract
         elif engine_code == 'pymupdf':
-            from .engine_pymupdf import extract as engine_extract
+            from .textextractor_engine_pdf_pymupdf import extract as engine_extract
+        elif engine_code == 'paddleocr':
+            from .textextractor_engine_pdf_paddleocr import extract as engine_extract
         elif engine_code == 'plaintext':
-            from .engine_plaintext import extract as engine_extract
+            from .textextractor_engine_plaintext import extract as engine_extract
         else:
             return {'success': False, 'error': f'Unknown engine: {engine_code}'}
 
