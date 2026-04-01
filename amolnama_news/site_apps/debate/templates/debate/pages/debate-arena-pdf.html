@@ -81,12 +81,19 @@
   .pdf-center-vs { text-align: center; font-size: 14pt; font-weight: 900; color: #ccc; padding-top: 8mm; min-width: 12mm; }
 
   /* Footer */
+  .pdf-generated-at { font-size: 8pt; color: #888; margin-top: 2mm; }
   .pdf-footer { text-align: center; font-size: 7pt; color: #999; margin-top: 8mm; padding-top: 3mm; border-top: 1px solid #e5e7eb; }
+
+  /* Running footer — repeats on every printed page (bottom-right) */
+  .pdf-running-footer { position: fixed; bottom: 3mm; right: 5mm; font-size: 7pt; color: #aaa; }
 
   @page { size: A4 landscape; margin: 0; }
 </style>
 </head>
 <body>
+
+<!-- Running footer — shows on every page bottom-right -->
+<div class="pdf-running-footer">amolnamanews.com · {{ generated_at }}</div>
 
 <!-- Header -->
 <div class="pdf-header">
@@ -98,6 +105,7 @@
   <div class="pdf-header-stats">
     {{ topic.blue_participant_count|add:topic.red_participant_count }} জন অংশগ্রহণকারী · {{ topic.total_post_count }}টি যুক্তি
   </div>
+  <div class="pdf-generated-at">PDF তৈরি: {{ generated_at }}</div>
 </div>
 
 <!-- Passion Board -->
@@ -200,7 +208,7 @@
   </div>
 </div>
 
-<div class="pdf-footer">আমলনামা নিউজ — তর্ক-বিতর্ক | amolnamanews.com</div>
+<div class="pdf-footer">আমলনামা নিউজ — তর্ক-বিতর্ক | amolnamanews.com · PDF তৈরি: {{ generated_at }}</div>
 
 </body>
 </html>

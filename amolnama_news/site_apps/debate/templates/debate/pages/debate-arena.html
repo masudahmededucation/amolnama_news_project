@@ -33,6 +33,7 @@
       <span class="debate-arena-stat">🔥 {{ topic.blue_participant_count|add:topic.red_participant_count }} জন যুদ্ধে নেমেছেন · {{ topic.total_post_count }}টি যুক্তি চলছে — আপনিও যোগ দিন!</span>
       <button type="button" class="debate-arena-download-button" id="debate-arena-download-button" name="debate_arena_download_button" data-filename="{{ topic.topic_title }}">📥 PDF ডাউনলোড</button>
     </div>
+    <div class="debate-arena-header-date">📅 {{ topic.scheduled_start_at_formatted }}</div>
   </div>
 
   <!-- PASSION BOARD — live tug-of-war stats -->

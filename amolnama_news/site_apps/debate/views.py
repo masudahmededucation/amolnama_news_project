@@ -403,6 +403,7 @@ def topic_download_pdf(request, topic_id):
         'topic': topic_item,
         'blue_threads': blue_thread_items,
         'red_threads': red_thread_items,
+        'generated_at': timezone.now().strftime('%d %b %Y, %I:%M %p'),
     })
 
     html_temp_path = os.path.join(tempfile.gettempdir(), f'_debate_pdf_{topic_id}.html')

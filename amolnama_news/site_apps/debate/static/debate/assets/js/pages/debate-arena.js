@@ -272,7 +272,7 @@
     });
   }
 
-  /* ---- PDF Download — server-side WeasyPrint, direct download ---- */
+  /* ---- PDF Download — server-side Edge headless, fetch once → preview + auto-download ---- */
   var downloadButton = document.getElementById('debate-arena-download-button');
   if (downloadButton) {
     downloadButton.addEventListener('click', function () {
@@ -280,18 +280,55 @@
       downloadButton.textContent = '⏳ তৈরি হচ্ছে...';
       downloadButton.disabled = true;
 
-      var downloadLink = document.createElement('a');
-      downloadLink.href = '/debate/topic/' + topicId + '/download-pdf/';
-      downloadLink.style.display = 'none';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      /* Build filename from topic title */
+      var rawFilename = downloadButton.getAttribute('data-filename') || 'debate';
+      var cleanedFilename = rawFilename.replace(/[?!।:;'"\/\\<>|*]/g, '').trim();
+      var filenameWords = cleanedFilename.split(/\s+/).slice(0, 5).join(' ');
+      if (filenameWords.length > 50) filenameWords = filenameWords.substring(0, 50).trim();
+      var pdfFilename = filenameWords + '.pdf';
 
-      /* Restore button after a short delay (download starts in background) */
-      setTimeout(function () {
-        downloadButton.textContent = originalText;
-        downloadButton.disabled = false;
-      }, 3000);
+      /* Open preview window immediately (user gesture context — won't be blocked) */
+      var previewWindow = window.open('', '_blank');
+      if (previewWindow) {
+        previewWindow.document.write('<html><head><title>' + pdfFilename + '</title></head><body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#666;"><p>⏳ PDF তৈরি হচ্ছে...</p></body></html>');
+      }
+
+      fetch('/debate/topic/' + topicId + '/download-pdf/')
+        .then(function (response) {
+          if (!response.ok) throw new Error('PDF generation failed');
+          return response.blob();
+        })
+        .then(function (pdfBlob) {
+          var blobUrl = URL.createObjectURL(pdfBlob);
+
+          /* Update preview window with actual PDF */
+          if (previewWindow && !previewWindow.closed) {
+            previewWindow.location.href = blobUrl;
+          }
+
+          /* Auto-download with proper filename after a short delay */
+          setTimeout(function () {
+            var autoDownloadLink = document.createElement('a');
+            autoDownloadLink.href = blobUrl;
+            autoDownloadLink.download = pdfFilename;
+            autoDownloadLink.style.display = 'none';
+            document.body.appendChild(autoDownloadLink);
+            autoDownloadLink.click();
+            document.body.removeChild(autoDownloadLink);
+          }, 1500);
+
+          /* Clean up blob URL after a delay */
+          setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 60000);
+
+          downloadButton.textContent = originalText;
+          downloadButton.disabled = false;
+        })
+        .catch(function () {
+          if (previewWindow && !previewWindow.closed) previewWindow.close();
+          showInlineMessage(downloadButton.parentElement, 'PDF তৈরি ব্যর্থ হয়েছে', 'error');
+          downloadButton.textContent = originalText;
+          downloadButton.disabled = false;
+        });
     });
   }
 })();

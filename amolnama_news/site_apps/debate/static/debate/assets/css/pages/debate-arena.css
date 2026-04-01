@@ -15,7 +15,8 @@
 .debate-arena-countdown { font-size: .78rem; font-weight: 700; color: #d97706; }
 .debate-arena-topic-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .3rem; }
 .debate-arena-topic-description { font-size: .82rem; color: var(--muted); margin: 0 0 .5rem; line-height: 1.5; }
-.debate-arena-header-stats { display: flex; justify-content: center; gap: 1rem; font-size: .78rem; font-weight: 600; }
+.debate-arena-header-stats { display: flex; justify-content: center; align-items: center; gap: 1rem; font-size: .78rem; font-weight: 600; }
+.debate-arena-header-date { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
 .debate-arena-stat-blue { color: #2563eb; }
 .debate-arena-stat-red { color: #dc2626; }
 
