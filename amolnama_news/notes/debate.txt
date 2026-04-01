@@ -1,3 +1,9 @@
+আপনি নিজের পক্ষের যুক্তির খণ্ডন করতে পারবেন না- this is correct. 
+can you allow it for admin only at the moment. 
+we need to remove it before production. make a note. we need to test to at this moment. 
+login in with two different account is difficult to maintain.
+
+
 we need to make a score also based on total accumulated upvotes on each side. 
 
 so count the all the up-votes for all the comments for each side. 
@@ -7,3 +13,37 @@ the total number of sentences made on each side.
 these stats will give the people's passion for their side.
 we can call these stats passion board. 
 what do you think?
+
+আন্দালিব রহমান পার্থ ৩০/০৩/২০২৬ মার্চ সংসদে বলেছেন - যারা 72 এর সংবিধান ছুড়ে ফেলতে চায় তারা স্বাধীনতা বিরোধী? 
+আপনি কি আন্দালিব রহমান পার্থ এর পক্ষে? 
+তারেক জিয়া উনার বক্তব্যে তাবিল চাপড়ে সাপোর্ট করেছেন. আপনারা এর পক্ষে বিপক্ষে যুক্তি দেখাবেন. 
+কোনো গালিগালাজ করবেন না. 
+
+৭২ এর সংবিধান ক্ষমতাকে ধরে রাখার জন্য বানানো হয়েছে। 
+
+
+
+can we somehow advertise this on the home wall post? 
+this debate section with details feature with snapshot of example - including for and against message. 
+it will encourage user to join?
+
+we need to also mark the winner maybe after one day. 
+mark them with crown. like blue crown? 
+what do you think? 
+it should be ongoing and dynamic.
+it means winner may change in future.
+
+if anyone tries to post the same logic. 
+then can we just redirect them to that message and upvote it dynamiclly.
+warn the user, since you have posted same message, 
+we have recorded your vote successfully.
+check here. something like this?
+
+
+user should to be able do download this in pdf file.
+including topic, details, stats, messages everything.
+the display should retain its UI. 
+is that possible?
+
+
+pepole should be able to search debate topic

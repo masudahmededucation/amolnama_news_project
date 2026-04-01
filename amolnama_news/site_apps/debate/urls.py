@@ -9,6 +9,7 @@ urlpatterns = [
     # Pages
     path('', views.home, name='home'),
     path('topic/<int:topic_id>/', views.topic_detail, name='topic_detail'),
+    path('topic/<int:topic_id>/download-pdf/', views.topic_download_pdf, name='topic_download_pdf'),
 
     # APIs — topic management
     path('api/topic/create/', views_api.api_topic_create, name='api_topic_create'),

@@ -1,6 +1,29 @@
-/* debate-home.js — Create topic inline form (staff only). No popups. */
+/* debate-home.js — Search filter + Create topic inline form (staff only). No popups. */
 (function () {
   'use strict';
+
+  /* ---- Search / Filter topics ---- */
+  var searchInput = document.getElementById('debate-home-search-input');
+  if (searchInput) {
+    function normalizeBengali(text) {
+      /* NFC normalize + strip optional Bengali marks (chandrabindu, anusvara, visarga) for fuzzy match + lowercase */
+      return (text || '').normalize('NFC').replace(/[\u0981\u0982\u0983]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    searchInput.addEventListener('input', function () {
+      var query = normalizeBengali(searchInput.value);
+      var topicCards = document.querySelectorAll('.debate-topic-card');
+      topicCards.forEach(function (card) {
+        var title = normalizeBengali((card.querySelector('.debate-topic-card-title') || {}).textContent);
+        var description = normalizeBengali((card.querySelector('.debate-topic-card-description') || {}).textContent);
+        /* Each word in query must match somewhere (title OR description) */
+        var combined = title + ' ' + description;
+        var queryWords = query.split(' ').filter(function (word) { return word.length > 0; });
+        var match = queryWords.length === 0 || queryWords.every(function (word) { return combined.indexOf(word) !== -1; });
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  }
 
   var createButton = document.getElementById('debate-home-create-button');
   if (!createButton) return;
@@ -22,12 +45,22 @@
     formContainer.className = 'debate-home-create-form';
     formContainer.id = 'debate-home-create-form';
 
+    var titleLabel = document.createElement('label');
+    titleLabel.setAttribute('for', 'debate-home-create-title-input');
+    titleLabel.className = 'debate-home-create-label';
+    titleLabel.textContent = 'বিতর্কের বিষয়';
+
     var titleInput = document.createElement('input');
     titleInput.type = 'text';
     titleInput.className = 'debate-home-create-input';
     titleInput.id = 'debate-home-create-title-input';
     titleInput.name = 'debate_home_create_title_input';
-    titleInput.placeholder = 'বিতর্কের বিষয় লিখুন (কমপক্ষে ১০ অক্ষর)';
+    titleInput.placeholder = 'কমপক্ষে ১০ অক্ষর লিখুন';
+
+    var timeLabel = document.createElement('label');
+    timeLabel.setAttribute('for', 'debate-home-create-time-input');
+    timeLabel.className = 'debate-home-create-label';
+    timeLabel.textContent = 'সময়সূচী (Scheduled Date)';
 
     var timeInput = document.createElement('input');
     timeInput.type = 'datetime-local';
@@ -35,12 +68,41 @@
     timeInput.id = 'debate-home-create-time-input';
     timeInput.name = 'debate_home_create_time_input';
 
+    var descriptionLabel = document.createElement('label');
+    descriptionLabel.setAttribute('for', 'debate-home-create-description-textarea');
+    descriptionLabel.className = 'debate-home-create-label';
+    descriptionLabel.textContent = 'বিস্তারিত বিবরণ (ঐচ্ছিক)';
+
     var descriptionTextarea = document.createElement('textarea');
     descriptionTextarea.className = 'debate-home-create-textarea';
     descriptionTextarea.id = 'debate-home-create-description-textarea';
     descriptionTextarea.name = 'debate_home_create_description_textarea';
-    descriptionTextarea.placeholder = 'বিস্তারিত বিবরণ (ঐচ্ছিক)';
-    descriptionTextarea.rows = 2;
+    descriptionTextarea.placeholder = 'বিষয়ের পটভূমি ও প্রসঙ্গ লিখুন...';
+    descriptionTextarea.rows = 6;
+
+    var blueSideLabelLabel = document.createElement('label');
+    blueSideLabelLabel.setAttribute('for', 'debate-home-create-blue-side-label-input');
+    blueSideLabelLabel.className = 'debate-home-create-label';
+    blueSideLabelLabel.textContent = '🔵 পক্ষের নাম (ঐচ্ছিক)';
+
+    var blueSideLabelInput = document.createElement('input');
+    blueSideLabelInput.type = 'text';
+    blueSideLabelInput.className = 'debate-home-create-input';
+    blueSideLabelInput.id = 'debate-home-create-blue-side-label-input';
+    blueSideLabelInput.name = 'debate_home_create_blue_side_label_input';
+    blueSideLabelInput.placeholder = 'যেমন: পার্থ সাহেবের পক্ষে, সংবিধান রক্ষার পক্ষে';
+
+    var redSideLabelLabel = document.createElement('label');
+    redSideLabelLabel.setAttribute('for', 'debate-home-create-red-side-label-input');
+    redSideLabelLabel.className = 'debate-home-create-label';
+    redSideLabelLabel.textContent = '🔴 বিপক্ষের নাম (ঐচ্ছিক)';
+
+    var redSideLabelInput = document.createElement('input');
+    redSideLabelInput.type = 'text';
+    redSideLabelInput.className = 'debate-home-create-input';
+    redSideLabelInput.id = 'debate-home-create-red-side-label-input';
+    redSideLabelInput.name = 'debate_home_create_red_side_label_input';
+    redSideLabelInput.placeholder = 'যেমন: পার্থ সাহেবের বিপক্ষে, সংবিধান পরিবর্তনের পক্ষে';
 
     var buttonRow = document.createElement('div');
     buttonRow.className = 'debate-home-create-button-row';
@@ -62,9 +124,16 @@
     buttonRow.appendChild(submitButton);
     buttonRow.appendChild(cancelButton);
 
+    formContainer.appendChild(titleLabel);
     formContainer.appendChild(titleInput);
-    formContainer.appendChild(timeInput);
+    formContainer.appendChild(descriptionLabel);
     formContainer.appendChild(descriptionTextarea);
+    formContainer.appendChild(blueSideLabelLabel);
+    formContainer.appendChild(blueSideLabelInput);
+    formContainer.appendChild(redSideLabelLabel);
+    formContainer.appendChild(redSideLabelInput);
+    formContainer.appendChild(timeLabel);
+    formContainer.appendChild(timeInput);
     formContainer.appendChild(buttonRow);
 
     createButton.parentElement.appendChild(formContainer);
@@ -82,6 +151,8 @@
       var topicTitle = titleInput.value.trim();
       var scheduledTime = timeInput.value;
       var topicDescription = descriptionTextarea.value.trim() || null;
+      var blueSideLabel = blueSideLabelInput.value.trim() || null;
+      var redSideLabel = redSideLabelInput.value.trim() || null;
 
       if (!topicTitle || topicTitle.length < 10) {
         titleInput.style.borderColor = '#dc2626';
@@ -100,6 +171,8 @@
         body: JSON.stringify({
           topic_title: topicTitle,
           topic_description: topicDescription,
+          blue_side_label: blueSideLabel,
+          red_side_label: redSideLabel,
           scheduled_start_at: scheduledTime,
         }),
       })

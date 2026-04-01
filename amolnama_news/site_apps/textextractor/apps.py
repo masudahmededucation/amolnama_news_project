@@ -10,13 +10,14 @@ class TextextractorConfig(AppConfig):
     def ready(self):
         """Recover jobs stuck in 'processing' from server crash on startup."""
         import threading
+        import time
 
         def _recover_on_startup():
+            time.sleep(5)  # Wait for Django to fully initialize
             try:
                 from .processor import recover_stuck_jobs
                 recover_stuck_jobs()
             except Exception:
                 pass
 
-        # Run recovery in background thread to avoid blocking startup
         threading.Thread(target=_recover_on_startup, daemon=True).start()

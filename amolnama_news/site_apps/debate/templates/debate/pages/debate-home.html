@@ -17,6 +17,11 @@
     {% endif %}
   </div>
 
+  <div class="debate-home-search" id="debate-home-search">
+    <label for="debate-home-search-input" class="debate-home-search-label">🔍 বিতর্ক খুঁজুন</label>
+    <input type="text" class="debate-home-search-input" id="debate-home-search-input" name="debate_home_search_input" placeholder="বিষয় লিখে খুঁজুন...">
+  </div>
+
   {% if topic_items %}
   <div class="debate-topic-list" id="debate-topic-list">
     {% for topic in topic_items %}
@@ -31,13 +36,14 @@
       {% endif %}
 
       <div class="debate-topic-card-meta">
-        <span class="debate-topic-card-meta-item debate-topic-card-meta-blue">🔵 {{ topic.blue_participant_count }}</span>
-        <span class="debate-topic-card-meta-item debate-topic-card-meta-red">🔴 {{ topic.red_participant_count }}</span>
-        <span class="debate-topic-card-meta-item">💬 {{ topic.total_post_count }}</span>
-        {% if topic.time_remaining %}
-        <span class="debate-topic-card-meta-item debate-topic-card-meta-countdown">⏰ {{ topic.time_remaining }}</span>
+        {% if topic.total_post_count > 0 %}
+        <span class="debate-topic-card-meta-item debate-topic-card-meta-hot">🔥 {{ topic.blue_participant_count|add:topic.red_participant_count }} জন লড়ছেন · {{ topic.total_post_count }}টি যুক্তি</span>
+        {% else %}
+        <span class="debate-topic-card-meta-item">🆕 প্রথম যুক্তি দেওয়ার সুযোগ — এখনই যোগ দিন!</span>
         {% endif %}
-        <span class="debate-topic-card-meta-item">📅 {{ topic.scheduled_start_at_formatted }}</span>
+        {% if topic.time_remaining %}
+        <span class="debate-topic-card-meta-item debate-topic-card-meta-countdown">⏰ শুরু হবে {{ topic.time_remaining }} পরে</span>
+        {% endif %}
       </div>
     </a>
     {% endfor %}

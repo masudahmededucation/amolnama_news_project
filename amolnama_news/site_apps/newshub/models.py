@@ -385,60 +385,6 @@ class VlogVerification(models.Model):
         return f"Verification({self.vlog_verification_id})"
 
 
-# ========== Publishing & Engagement Tables ==========
-
-class PubArticle(models.Model):
-    pub_article_id = models.BigAutoField(primary_key=True)
-    link_news_entry_id = models.BigIntegerField()
-    pub_article_slug = models.CharField(max_length=500)
-    pub_article_headline_bn = models.CharField(max_length=1000)
-    pub_article_content_bn = models.CharField(max_length=8000)
-    is_published = models.BooleanField()
-    is_premium = models.BooleanField()
-    published_at = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = '[newshub].[pub_article]'
-
-    def __str__(self):
-        return self.pub_article_headline_bn or f"Article({self.pub_article_id})"
-
-
-class EngComment(models.Model):
-    eng_comment_id = models.BigAutoField(primary_key=True)
-    link_pub_article_id = models.BigIntegerField()
-    link_user_id = models.IntegerField()
-    parent_comment_id = models.BigIntegerField(blank=True, null=True)
-    eng_comment_text_bn = models.CharField(max_length=8000)
-    is_approved = models.BooleanField()
-    created_at = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = '[newshub].[eng_comment]'
-
-    def __str__(self):
-        return f"Comment({self.eng_comment_id})"
-
-
-class EngArticleStat(models.Model):
-    eng_article_stat_id = models.BigAutoField(primary_key=True)
-    link_pub_article_id = models.BigIntegerField()
-    view_count = models.IntegerField()
-    share_count = models.IntegerField()
-    like_count = models.IntegerField(default=0)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[newshub].[eng_article_stat]'
-
-    def __str__(self):
-        return f"Stat(article={self.link_pub_article_id})"
-
-
 # ========== Article View Tables ==========
 
 class ArticleEditHistory(models.Model):

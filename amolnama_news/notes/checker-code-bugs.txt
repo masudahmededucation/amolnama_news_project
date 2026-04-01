@@ -30,11 +30,13 @@ check variables, filename, functions, features - all js ajax html
 update documents
 update troubleshooting documents
 
---check for bugs
-check for bugs and bad code. 
 
 --attribute naming convention 
 all attributes should have its id and name 
+
+--check for bugs
+check for bugs and bad code. 
+
 
 --check code for faster and efficiency. 
 Optimize code for speed and efficiency.
@@ -63,9 +65,8 @@ Write once, reuse everywhere.
 no copy cat, duplicate code.
 it stops bugs and reduces effort.
 
---create or update documents
 
-create or update documentation
+--create or update documentation
 architecture, features, functions, and troubleshooting.
 folders
 \notes\claude\app_documentation\

@@ -160,30 +160,43 @@ def api_topic_create(request):
 
     topic_title = (data.get('topic_title') or '').strip()
     topic_description = (data.get('topic_description') or '').strip() or None
-    scheduled_start_at = data.get('scheduled_start_at')
+    blue_side_label = (data.get('blue_side_label') or '').strip() or None
+    red_side_label = (data.get('red_side_label') or '').strip() or None
+    scheduled_start_at_raw = data.get('scheduled_start_at')
 
     if not topic_title or len(topic_title) < 10:
         return JsonResponse({'success': False, 'error': 'বিষয় কমপক্ষে ১০ অক্ষর হতে হবে'}, status=400)
-    if not scheduled_start_at:
+    if not scheduled_start_at_raw:
         return JsonResponse({'success': False, 'error': 'সময়সূচী প্রয়োজন'}, status=400)
+
+    # Parse datetime-local string (e.g. "2026-04-01T14:00") to proper datetime
+    from datetime import datetime
+    try:
+        scheduled_start_at = datetime.fromisoformat(scheduled_start_at_raw)
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'তারিখ ফরম্যাট সঠিক নয়'}, status=400)
 
     user_profile_id = _get_user_profile_id(request)
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    scheduled_status = RefTopicStatus.objects.filter(topic_status_code='scheduled').first()
-    if not scheduled_status:
+    live_status = RefTopicStatus.objects.filter(topic_status_code='live').first()
+    if not live_status:
         return JsonResponse({'success': False, 'error': 'Status not configured'}, status=500)
 
+    now = timezone.now()
     topic_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
         INSERT INTO [debate].[coll_topic]
-            ([topic_guid], [topic_title], [topic_description], [link_topic_status_id],
-             [scheduled_start_at], [link_created_by_user_profile_id])
+            ([topic_guid], [topic_title], [topic_description],
+             [blue_side_label], [red_side_label],
+             [link_topic_status_id],
+             [scheduled_start_at], [actual_started_at], [link_created_by_user_profile_id])
         OUTPUT INSERTED.debate_coll_topic_id
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [topic_guid, topic_title, topic_description,
-          scheduled_status.debate_ref_topic_status_id, scheduled_start_at, user_profile_id])
+          blue_side_label, red_side_label,
+          live_status.debate_ref_topic_status_id, scheduled_start_at, now, user_profile_id])
     topic_id = cursor.fetchone()[0]
 
     return JsonResponse({'success': True, 'debate_coll_topic_id': topic_id})
@@ -314,13 +327,40 @@ def api_post_argument(request, topic_id):
     if not is_valid:
         return JsonResponse({'success': False, 'error': error_message}, status=400)
 
-    # Check duplicate
+    # Check duplicate — if exists, auto-upvote and redirect to it
     existing_duplicate = CollPost.objects.filter(
         link_topic_id=topic_id, post_content_hash=metrics['post_content_hash'],
         is_deleted=False, is_active=True,
     ).first()
     if existing_duplicate:
-        return JsonResponse({'success': False, 'error': 'এই যুক্তিটি ইতিমধ্যে আছে — সমর্থন করুন বা খণ্ডন করুন'}, status=400)
+        # Auto-upvote the existing post for this user
+        vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='post').first()
+        if vote_target_type:
+            existing_vote = CollVote.objects.filter(
+                link_voter_user_profile_id=user_profile_id,
+                link_vote_target_type_id=vote_target_type.debate_ref_vote_target_type_id,
+                target_row_id=existing_duplicate.debate_coll_post_id,
+            ).first()
+            if not existing_vote:
+                _raw_execute("""
+                    INSERT INTO [debate].[coll_vote]
+                        ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
+                    VALUES (?, ?, ?, ?)
+                """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id,
+                      existing_duplicate.debate_coll_post_id, 1])
+                # Update cached score
+                _raw_execute("""
+                    UPDATE [debate].[coll_post]
+                    SET [upvote_count] = [upvote_count] + 1, [score] = [score] + 1, [updated_at] = ?
+                    WHERE [debate_coll_post_id] = ?
+                """, [timezone.now(), existing_duplicate.debate_coll_post_id])
+
+        return JsonResponse({
+            'success': False,
+            'duplicate': True,
+            'duplicate_post_id': existing_duplicate.debate_coll_post_id,
+            'error': 'আপনার মতামত ইতিমধ্যে আছে — আপনার সমর্থন রেকর্ড করা হয়েছে! 👇',
+        }, status=200)
 
     # INSERT argument — board side = author's own side
     post_guid = str(uuid.uuid4())
@@ -417,8 +457,9 @@ def api_post_reply(request, topic_id):
         return JsonResponse({'success': False, 'error': 'আপনি এই বিতর্কে যোগ দেননি'}, status=403)
 
     # CROSSING-OVER RULE: reply author MUST be opposite side of parent author
-    if participant.link_team_side_id == parent_post.link_author_team_side_id:
-        return JsonResponse({'success': False, 'error': 'আপনি নিজের পক্ষের যুক্তির খণ্ডন করতে পারবেন না'}, status=400)
+    # TODO: Remove admin bypass before production — only here for testing with single account
+    if participant.link_team_side_id == parent_post.link_author_team_side_id and not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'আপনি নিজের পক্ষের যুক্তির উত্তর দিতে পারবেন না'}, status=400)
 
     new_depth = parent_post.post_reply_depth + 1
     if new_depth > topic.maximum_reply_depth:

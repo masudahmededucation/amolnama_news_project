@@ -100,6 +100,15 @@ footer {
   font-weight: bold;
 }
 
+/* Print — hide chrome, show only content */
+@media print {
+  .site-header, .sidebar-navigation, .right-panel, footer,
+  .pwa-install-banner, .debug-toolbar { display: none !important; }
+  .page-wrapper { display: block; }
+  main { margin: 0; padding: 0; }
+  .grid-layout { display: block; }
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .container {

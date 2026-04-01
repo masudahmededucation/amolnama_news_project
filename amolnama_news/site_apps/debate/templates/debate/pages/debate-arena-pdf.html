@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>{{ topic.topic_title }}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap');
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    font-family: 'Noto Sans Bengali', 'Noto Sans', sans-serif;
+    text-rendering: optimizeLegibility;
+    font-variant-ligatures: common-ligatures;
+  }
+
+  body { margin: 0; padding: 12mm 10mm; color: #222; font-size: 10pt; line-height: 1.5; }
+
+  /* Header */
+  .pdf-header { text-align: center; margin-bottom: 8mm; padding-bottom: 4mm; border-bottom: 1px solid #ccc; }
+  .pdf-status-badge { font-size: 8pt; font-weight: 700; padding: 1pt 6pt; border-radius: 8px; text-transform: uppercase; }
+  .pdf-status-badge-live { background: #dcfce7; color: #166534; }
+  .pdf-status-badge-closed { background: #f3f4f6; color: #374151; }
+  .pdf-status-badge-scheduled { background: #fef3c7; color: #92400e; }
+  .pdf-status-badge-draft { background: #f3f4f6; color: #6b7280; }
+  .pdf-status-badge-paused { background: #fef9c3; color: #854d0e; }
+  .pdf-topic-title { font-size: 14pt; font-weight: 800; margin: 4mm 0 2mm; }
+  .pdf-topic-description { font-size: 9pt; color: #555; margin: 0 0 2mm; }
+  .pdf-header-stats { font-size: 8pt; font-weight: 600; color: #666; }
+
+  /* Passion Board */
+  .pdf-passion-board { background: #0f172a; color: #fff; border-radius: 8px; padding: 6mm 8mm; margin-bottom: 6mm; }
+  .pdf-passion-title { text-align: center; font-size: 10pt; font-weight: 800; color: #fbbf24; margin-bottom: 3mm; text-transform: uppercase; }
+  .pdf-passion-winner { text-align: center; font-size: 9pt; font-weight: 800; padding: 2pt 4pt; border-radius: 6px; margin-bottom: 4mm; }
+  .pdf-passion-winner-blue { background: rgba(37,99,235,.2); color: #93c5fd; }
+  .pdf-passion-winner-red { background: rgba(239,68,68,.2); color: #fca5a5; }
+  .pdf-passion-winner-tie { background: rgba(251,191,36,.15); color: #fbbf24; }
+  .pdf-passion-row { display: flex; align-items: center; margin-bottom: 2mm; }
+  .pdf-passion-left { width: 80pt; text-align: right; padding-right: 4mm; }
+  .pdf-passion-right { width: 80pt; text-align: left; padding-left: 4mm; }
+  .pdf-passion-bar-track { flex: 1; height: 10pt; background: #334155; border-radius: 5pt; overflow: hidden; display: flex; }
+  .pdf-passion-bar-blue { background: #2563eb; height: 100%; }
+  .pdf-passion-bar-red { background: #ef4444; height: 100%; }
+  .pdf-passion-value { font-size: 10pt; font-weight: 900; }
+  .pdf-passion-value-blue { color: #60a5fa; }
+  .pdf-passion-value-red { color: #f87171; }
+  .pdf-passion-label { font-size: 7pt; color: #94a3b8; }
+
+  /* Boards — two columns side by side */
+  .pdf-boards { display: flex; gap: 6mm; }
+  .pdf-board { flex: 1; }
+  .pdf-board-header { padding: 2mm 4mm; border-radius: 6px; font-size: 9pt; font-weight: 700; margin-bottom: 3mm; display: flex; justify-content: space-between; align-items: center; }
+  .pdf-board-header-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .pdf-board-header-red { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .pdf-board-count { font-size: 8pt; background: rgba(0,0,0,.08); padding: 0 4pt; border-radius: 4px; }
+  .pdf-crown { font-size: 14pt; }
+
+  /* Argument Card */
+  .pdf-argument-card { padding: 3mm; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 3mm; page-break-inside: avoid; }
+  .pdf-argument-card-blue { border-left: 3px solid #2563eb; }
+  .pdf-argument-card-red { border-left: 3px solid #dc2626; }
+  .pdf-argument-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1mm; }
+  .pdf-argument-author { font-size: 8pt; font-weight: 700; }
+  .pdf-argument-time { font-size: 7pt; color: #888; }
+  .pdf-argument-content { font-size: 9pt; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .pdf-argument-score { font-size: 7pt; color: #666; margin-top: 1mm; }
+
+  /* Rebuttal */
+  .pdf-rebuttal-list { margin-top: 2mm; padding-left: 3mm; border-left: 2px solid #e5e7eb; }
+  .pdf-rebuttal-card { padding: 2mm 3mm; border-radius: 5px; margin-bottom: 2mm; font-size: 8pt; page-break-inside: avoid; }
+  .pdf-rebuttal-card-blue { background: #eff6ff; border-left: 2px solid #2563eb; }
+  .pdf-rebuttal-card-red { background: #fef2f2; border-left: 2px solid #dc2626; }
+  .pdf-rebuttal-header { display: flex; align-items: center; gap: 2mm; margin-bottom: 1mm; font-size: 7pt; }
+  .pdf-rebuttal-side-dot { width: 6pt; height: 6pt; border-radius: 50%; display: inline-block; }
+  .pdf-rebuttal-side-dot-blue { background: #2563eb; }
+  .pdf-rebuttal-side-dot-red { background: #dc2626; }
+  .pdf-rebuttal-author { font-weight: 700; }
+  .pdf-rebuttal-time { color: #888; }
+  .pdf-rebuttal-content { line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+
+  /* VS divider */
+  .pdf-center-vs { text-align: center; font-size: 14pt; font-weight: 900; color: #ccc; padding-top: 8mm; min-width: 12mm; }
+
+  /* Footer */
+  .pdf-footer { text-align: center; font-size: 7pt; color: #999; margin-top: 8mm; padding-top: 3mm; border-top: 1px solid #e5e7eb; }
+
+  @page { size: A4 landscape; margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="pdf-header">
+  <span class="pdf-status-badge pdf-status-badge-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
+  <h1 class="pdf-topic-title">{{ topic.topic_title }}</h1>
+  {% if topic.topic_description %}
+  <p class="pdf-topic-description">{{ topic.topic_description }}</p>
+  {% endif %}
+  <div class="pdf-header-stats">
+    {{ topic.blue_participant_count|add:topic.red_participant_count }} জন অংশগ্রহণকারী · {{ topic.total_post_count }}টি যুক্তি
+  </div>
+</div>
+
+<!-- Passion Board -->
+<div class="pdf-passion-board">
+  <div class="pdf-passion-title">Passion Board</div>
+  {% if topic.winning_side == 'blue' %}
+  <div class="pdf-passion-winner pdf-passion-winner-blue">{{ topic.blue_side_label }} এগিয়ে আছেন!</div>
+  {% elif topic.winning_side == 'red' %}
+  <div class="pdf-passion-winner pdf-passion-winner-red">{{ topic.red_side_label }} এগিয়ে আছেন!</div>
+  {% else %}
+  <div class="pdf-passion-winner pdf-passion-winner-tie">সমান সমান — লড়াই চলছে!</div>
+  {% endif %}
+
+  <div class="pdf-passion-row">
+    <div class="pdf-passion-left"><span class="pdf-passion-value pdf-passion-value-blue">{{ topic.blue_participant_count }}</span> <span class="pdf-passion-label">যোদ্ধা</span></div>
+    <div class="pdf-passion-bar-track"><div class="pdf-passion-bar-blue" style="width: {{ topic.passion_participants_blue_pct }}%;"></div><div class="pdf-passion-bar-red" style="width: {{ topic.passion_participants_red_pct }}%;"></div></div>
+    <div class="pdf-passion-right"><span class="pdf-passion-label">যোদ্ধা</span> <span class="pdf-passion-value pdf-passion-value-red">{{ topic.red_participant_count }}</span></div>
+  </div>
+  <div class="pdf-passion-row">
+    <div class="pdf-passion-left"><span class="pdf-passion-value pdf-passion-value-blue">{{ topic.blue_post_count }}</span> <span class="pdf-passion-label">যুক্তি</span></div>
+    <div class="pdf-passion-bar-track"><div class="pdf-passion-bar-blue" style="width: {{ topic.passion_posts_blue_pct }}%;"></div><div class="pdf-passion-bar-red" style="width: {{ topic.passion_posts_red_pct }}%;"></div></div>
+    <div class="pdf-passion-right"><span class="pdf-passion-label">যুক্তি</span> <span class="pdf-passion-value pdf-passion-value-red">{{ topic.red_post_count }}</span></div>
+  </div>
+  <div class="pdf-passion-row">
+    <div class="pdf-passion-left"><span class="pdf-passion-value pdf-passion-value-blue">{{ topic.blue_upvote_count }}</span> <span class="pdf-passion-label">সমর্থন</span></div>
+    <div class="pdf-passion-bar-track"><div class="pdf-passion-bar-blue" style="width: {{ topic.passion_upvotes_blue_pct }}%;"></div><div class="pdf-passion-bar-red" style="width: {{ topic.passion_upvotes_red_pct }}%;"></div></div>
+    <div class="pdf-passion-right"><span class="pdf-passion-label">সমর্থন</span> <span class="pdf-passion-value pdf-passion-value-red">{{ topic.red_upvote_count }}</span></div>
+  </div>
+  <div class="pdf-passion-row">
+    <div class="pdf-passion-left"><span class="pdf-passion-value pdf-passion-value-blue">{{ topic.blue_sentence_count }}</span> <span class="pdf-passion-label">বাক্য</span></div>
+    <div class="pdf-passion-bar-track"><div class="pdf-passion-bar-blue" style="width: {{ topic.passion_sentences_blue_pct }}%;"></div><div class="pdf-passion-bar-red" style="width: {{ topic.passion_sentences_red_pct }}%;"></div></div>
+    <div class="pdf-passion-right"><span class="pdf-passion-label">বাক্য</span> <span class="pdf-passion-value pdf-passion-value-red">{{ topic.red_sentence_count }}</span></div>
+  </div>
+</div>
+
+<!-- Two-Column Boards -->
+<div class="pdf-boards">
+  <!-- Blue Board -->
+  <div class="pdf-board">
+    <div class="pdf-board-header pdf-board-header-blue">
+      <span>{% if topic.winning_side == 'blue' %}<span class="pdf-crown">&#x1F451;</span> {% endif %}{{ topic.blue_side_label }}</span>
+      <span class="pdf-board-count">{{ blue_threads|length }}</span>
+    </div>
+    {% for post in blue_threads %}
+    <div class="pdf-argument-card pdf-argument-card-blue">
+      <div class="pdf-argument-header">
+        <span class="pdf-argument-author">{{ post.author_display_name }}</span>
+        <span class="pdf-argument-time">{{ post.posted_at_formatted }}</span>
+      </div>
+      <div class="pdf-argument-content">{{ post.post_content }}</div>
+      <div class="pdf-argument-score">&#x25B2; {{ post.score }} · &#x1F4AC; {{ post.reply_count }}</div>
+      {% if post.replies %}
+      <div class="pdf-rebuttal-list">
+        {% for reply in post.replies %}
+        <div class="pdf-rebuttal-card pdf-rebuttal-card-{{ reply.author_team_side_code }}">
+          <div class="pdf-rebuttal-header">
+            <span class="pdf-rebuttal-side-dot pdf-rebuttal-side-dot-{{ reply.author_team_side_code }}"></span>
+            <span class="pdf-rebuttal-author">{{ reply.author_display_name }}</span>
+            <span class="pdf-rebuttal-time">{{ reply.posted_at_formatted }}</span>
+          </div>
+          <div class="pdf-rebuttal-content">{{ reply.post_content }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Red Board -->
+  <div class="pdf-board">
+    <div class="pdf-board-header pdf-board-header-red">
+      <span>{% if topic.winning_side == 'red' %}<span class="pdf-crown">&#x1F451;</span> {% endif %}{{ topic.red_side_label }}</span>
+      <span class="pdf-board-count">{{ red_threads|length }}</span>
+    </div>
+    {% for post in red_threads %}
+    <div class="pdf-argument-card pdf-argument-card-red">
+      <div class="pdf-argument-header">
+        <span class="pdf-argument-author">{{ post.author_display_name }}</span>
+        <span class="pdf-argument-time">{{ post.posted_at_formatted }}</span>
+      </div>
+      <div class="pdf-argument-content">{{ post.post_content }}</div>
+      <div class="pdf-argument-score">&#x25B2; {{ post.score }} · &#x1F4AC; {{ post.reply_count }}</div>
+      {% if post.replies %}
+      <div class="pdf-rebuttal-list">
+        {% for reply in post.replies %}
+        <div class="pdf-rebuttal-card pdf-rebuttal-card-{{ reply.author_team_side_code }}">
+          <div class="pdf-rebuttal-header">
+            <span class="pdf-rebuttal-side-dot pdf-rebuttal-side-dot-{{ reply.author_team_side_code }}"></span>
+            <span class="pdf-rebuttal-author">{{ reply.author_display_name }}</span>
+            <span class="pdf-rebuttal-time">{{ reply.posted_at_formatted }}</span>
+          </div>
+          <div class="pdf-rebuttal-content">{{ reply.post_content }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="pdf-footer">আমলনামা নিউজ — তর্ক-বিতর্ক | amolnamanews.com</div>
+
+</body>
+</html>

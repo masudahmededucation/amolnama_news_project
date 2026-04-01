@@ -292,6 +292,8 @@ CREATE TABLE [debate].[coll_topic]
     [topic_guid]                               UNIQUEIDENTIFIER NOT NULL,
     [topic_title]                              NVARCHAR(300) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
     [topic_description]                        NVARCHAR(MAX) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL,
+    [blue_side_label]                          NVARCHAR(200) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL,
+    [red_side_label]                           NVARCHAR(200) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NULL,
     [link_topic_status_id]                     INT NOT NULL,
     [scheduled_start_at]                       DATETIME2(0) NOT NULL,
     [scheduled_end_at]                         DATETIME2(0) NULL,
@@ -347,7 +349,7 @@ GO
 
 ALTER TABLE [debate].[coll_topic]
     ADD CONSTRAINT [DF_debate_coll_topic_minimum_post_character_count]
-    DEFAULT ((60)) FOR [minimum_post_character_count];
+    DEFAULT ((20)) FOR [minimum_post_character_count];
 GO
 
 ALTER TABLE [debate].[coll_topic]

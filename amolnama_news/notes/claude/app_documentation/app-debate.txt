@@ -1,22 +1,59 @@
 ================================================================
-DEBATE APP — Architecture & Features (SPECIFICATION)
+DEBATE APP — Architecture & Features
 App: site_apps/debate/
 URL prefix: /debate/
-Status: Empty app created, not yet implemented
+Nav: ⚖️ তর্ক-বিতর্ক (below Home in sidebar)
 ================================================================
 
 ## Concept
 Scheduled, text-based debate platform — "Digital Colosseum".
 Structured argument arena, NOT a comment section.
-Each debate is a timed event with two opposing sides.
+Blue (Pro) vs Red (Against) with crossing-over rebuttals.
 
 ## Core Layout
-- Center (Sticky): Topic + Timer (countdown / live status)
-- Left (Blue): Pro / In Favor arguments
-- Right (Red): Against arguments
-- Nested rebuttals under each argument (opponent's color)
+- Header (sticky): Topic title + description + status badge + countdown
+- Stats line: "🔥 X জন যুদ্ধে নেমেছেন · Xটি যুক্তি চলছে — আপনিও যোগ দিন!"
+- Passion Board: 4 tug-of-war bars (যোদ্ধা, যুক্তি, সমর্থন, বাক্য)
+- Join Panel: Custom side labels (e.g. "পার্থ সাহেবের পক্ষে" / "পার্থ সাহেবের বিপক্ষে")
+- Three-column arena: Blue board | VS | Red board
+- Reply Drawer: centered bottom panel (max-width 600px) with crossing-over color
+- Mobile: stacked boards (no forced 3 columns)
 
-## The "Crossing-Over" Routing Logic (Core Feature)
+## Models (11 tables, all managed=False)
+
+| Model                  | DB Table                                  | Purpose                    |
+|------------------------|-------------------------------------------|----------------------------|
+| RefTeamSide            | [debate].[ref_team_side]                 | Blue (Pro) vs Red (Against) |
+| RefTopicStatus         | [debate].[ref_topic_status]              | draft/scheduled/live/paused/closed/archived |
+| RefPostKind            | [debate].[ref_post_kind]                 | argument vs rebuttal       |
+| RefModerationStatus    | [debate].[ref_moderation_status]         | pending/approved/rejected/hidden/flagged |
+| RefVoteTargetType      | [debate].[ref_vote_target_type]          | topic or post              |
+| CollTopic              | [debate].[coll_topic]                    | Debate event + rules + passion board stats |
+| CollTopicParticipant   | [debate].[coll_topic_participant]         | User joins topic on one side |
+| CollPost               | [debate].[coll_post]                     | Argument or rebuttal with routing |
+| FactPostModeration     | [debate].[fact_post_moderation]           | Moderation audit trail     |
+| CollVote               | [debate].[coll_vote]                     | One vote per user per target |
+| CollPostEditHistory    | [debate].[coll_post_edit_history]         | Edit audit trail           |
+
+## URL Patterns (14)
+
+| URL                                      | View/API                | Method |
+|------------------------------------------|-------------------------|--------|
+| /debate/                                 | home (topic list)       | GET    |
+| /debate/topic/<id>/                      | topic_detail (arena)    | GET    |
+| /debate/api/topic/create/                | api_topic_create        | POST   |
+| /debate/api/topic/<id>/join/             | api_topic_join          | POST   |
+| /debate/api/topic/<id>/go-live/          | api_topic_go_live       | POST   |
+| /debate/api/topic/<id>/close/            | api_topic_close         | POST   |
+| /debate/api/topic/<id>/argument/         | api_post_argument       | POST   |
+| /debate/api/topic/<id>/reply/            | api_post_reply          | POST   |
+| /debate/api/post/<id>/edit/              | api_post_edit           | POST   |
+| /debate/api/post/<id>/delete/            | api_post_delete         | POST   |
+| /debate/api/vote/topic/<id>/             | api_vote_topic          | POST   |
+| /debate/api/vote/post/<id>/              | api_vote_post           | POST   |
+| /debate/api/topic/<id>/boards/           | api_topic_boards        | GET    |
+
+## The Crossing-Over Routing Logic (Core Feature)
 | Action       | User Team | Target Side   | Logic                              |
 |-------------|-----------|---------------|------------------------------------|
 | New Argument | Pro       | Pro Board     | Starts a new Pro argument          |
@@ -24,139 +61,120 @@ Each debate is a timed event with two opposing sides.
 | Reply        | Pro       | Against Board | Replying to opponent = rebuttal    |
 | Reply        | Against   | Pro Board     | Replying to opponent = rebuttal    |
 
-Key Rule: A reply NEVER stays on the same side. A reply always represents opposition.
-No AI needed for routing — this is deterministic based on parent_id.
+Key Rule: A reply NEVER stays on the same side. Reply always = opposition.
+Server-enforced: `participant.link_team_side_id == parent_post.link_author_team_side_id` → rejected.
+Admin bypass for testing (TODO: remove before production).
 
-## Reply UX Behavior
-- When user clicks Reply, system auto-assigns team_side = opposite of parent
-- Input box changes color (Blue <-> Red)
-- Label shown: "Submitting Rebuttal to Pro Argument" / "Submitting Rebuttal to Against Argument"
+## Custom Side Labels
+- `blue_side_label` / `red_side_label` on coll_topic (NVARCHAR 200, nullable)
+- If empty, falls back to "পক্ষে (Pro)" / "বিপক্ষে (Against)"
+- Used in: join panel, board headers, stats bar, passion board
+- Set during topic creation with example placeholders
 
-## Visual Display
-- Left (Blue): Main Pro arguments as large blue cards
-  - Nested Red rebuttals underneath each
-- Right (Red): Main Against arguments as large red cards
-  - Nested Blue rebuttals underneath each
-- Creates argument + counter-argument pairing
-
-## Garbage Control (Non-Negotiable)
-- Minimum 60 characters per post
-- Reject emoji-only, repeated characters, non-language strings
-- Optional AI coherence check (score 0-1, reject < 0.3)
-- No spam, no noise, no low-effort garbage
+## Garbage Detection (Server-side)
+- Minimum character count (default 20, configurable per topic)
+- Minimum sentence count (default 1)
+- Emoji-only blocked (single emojis in text OK, emoji-only posts blocked)
+- Emoji spam blocked (>50% emoji ratio)
+- Repeated character spam blocked (>50% ratio)
+- Non-language content blocked (>50% ratio)
+- Duplicate detection via SHA-256 content hash
+- All metrics stored on post: post_character_count, post_sentence_count, post_emoji_ratio, etc.
 
 ## Voting System
-- Users can upvote: topic, arguments, rebuttals
-- Strongest arguments rise to top
-- Debate quality increases organically
+- Upvote (+1) / Downvote (-1) toggle
+- One vote per user per target (unique constraint)
+- Same vote again = remove (toggle off)
+- Different vote = flip
+- Cached counts on post: upvote_count, downvote_count, score
+- Cached counts on topic: topic_upvote_count, topic_downvote_count, topic_score
 
-## Live Debate System
-- Topics are pre-scheduled with specific start time
-- Before start: read-only (preview topic)
-- At start time: posting unlocked, timer visible
-- Optional: time limit for debate
+## Passion Board (Live Stats Dashboard)
+Per-side cached aggregates on coll_topic:
+- blue/red_participant_count — যোদ্ধা (Fighters)
+- blue/red_post_count — যুক্তি (Arguments)
+- blue/red_upvote_count — সমর্থন (Support)
+- blue/red_sentence_count — বাক্য (Sentences)
+- blue/red_character_count — (stored but not displayed yet)
 
-## Database Schema (Proposed)
+Visual: dark gradient background, tug-of-war bars with blue/red glow.
+Bars pulse when one side dominates (>70%).
 
-### Key Table: comments
-| Column                | Type        | Description                          |
-|-----------------------|-------------|--------------------------------------|
-| id                    | UUID PK     | Unique comment ID                    |
-| topic_id              | UUID FK     | Links to debate topic                |
-| author_id             | UUID FK     | User who posted                      |
-| team_side             | VARCHAR(10) | 'blue' (pro) or 'red' (against)     |
-| parent_id             | UUID FK     | NULL = new argument, ID = rebuttal   |
-| root_side             | VARCHAR(10) | Which board this thread belongs to   |
-| content               | TEXT        | The argument text (min 60 chars)     |
-| logic_score           | FLOAT       | AI coherence score (0.0 to 1.0)     |
-| contains_emoji_only   | BOOLEAN     | Garbage detection flag               |
-| is_flagged_as_garbage | BOOLEAN     | Blocked content flag                 |
-| upvotes               | INTEGER     | Vote count                           |
-| created_at            | TIMESTAMP   | When posted                          |
+## Search
+- Client-side instant filter on debate home page
+- NFC normalization for Bengali text comparison
+- Strips chandrabindu (ঁ), anusvara (ং), visarga (ঃ) for fuzzy matching
+- Multi-word search: each word must match somewhere in title or description
+- Partial match: typing সংবি finds সংবিধান
 
-### Key Table: topics
-| Column         | Type      | Description                    |
-|----------------|-----------|--------------------------------|
-| id             | UUID PK   | Unique topic ID                |
-| title          | TEXT      | Debate topic title             |
-| description    | TEXT      | Topic description/context      |
-| scheduled_time | TIMESTAMP | When debate goes live          |
-| is_live        | BOOLEAN   | Currently active               |
-| upvotes        | INTEGER   | Topic-level voting             |
-| created_at     | TIMESTAMP | When created                   |
+## Rotating Placeholders
+- 12 Bengali respect/quality reminders rotate on focus
+- Applied to: blue composer, red composer, reply drawer
+- Examples: "সবাইকে সম্মান দিয়ে কথা বলুন", "ব্যক্তি আক্রমণ নয়, যুক্তি দিন"
 
-### Key Table: voting_log
-| Column         | Type        | Description                    |
-|----------------|-------------|--------------------------------|
-| id             | SERIAL PK   | Vote record ID                |
-| user_id        | UUID FK     | Who voted                      |
-| target_id      | UUID        | Topic ID or Comment ID         |
-| target_type    | VARCHAR(10) | 'topic' or 'comment'          |
-| vote_direction | INTEGER     | 1 (up) or -1 (down)           |
-| UNIQUE(user_id, target_id)                                   |
+## Key Files
+- models.py — 11 models (managed=False)
+- urls.py — 14 URL patterns
+- views.py — home (topic list + search) + topic_detail (arena + passion board)
+- views_api.py — topic CRUD, join, argument, reply (crossing-over), vote, edit, delete, boards polling
+- templates/debate/pages/debate-home.html — topic list with search
+- templates/debate/pages/debate-arena.html — three-column arena + passion board + reply drawer
+- templates/debate/components/debate-argument-card.html — reusable post card with nested rebuttals
+- static/debate/assets/css/pages/debate-home.css
+- static/debate/assets/css/pages/debate-arena.css
+- static/debate/assets/js/pages/debate-home.js — search filter + inline topic create
+- static/debate/assets/js/pages/debate-arena.js — join, compose, reply, vote, rotating placeholders
 
-### Indexes
-- idx_topic_scheduled ON topics(scheduled_time)
-- idx_debate_flow ON comments(topic_id, parent_id, team_side)
-- idx_logic_filter ON comments(is_flagged_as_garbage)
+## DB Scripts
+- notes/debate-db-script.sql — full schema (11 tables, 19 FKs, seed data, passion board columns)
+- notes/debate-example-full-data.sql — 90 test posts with real Bengali political arguments
+- notes/debate-alter-passion-board.sql — ALTER script (deprecated, merged into main script)
 
-## Rendering Logic
-Left Board (Blue):
-  SELECT * FROM comments WHERE topic_id = ? AND parent_id IS NULL AND team_side = 'blue'
-Nested replies:
-  SELECT * FROM comments WHERE parent_id = ?
-
-## Product Definition
-"A scheduled, text-based debate platform designed as a structured argument arena.
-The interface presents a central topic with two mirrored display boards: Blue (Favor) and Red (Against).
-New arguments appear on the author's own side. Replies are treated as rebuttals and displayed
-under the opponent's argument. This creates a clear, structured 'ping-pong' exchange where each
-argument is directly paired with its counter-argument. The system blocks low-effort content,
-requiring each post to meet a minimum logical and structural standard. Users can vote on both
-topics and individual arguments, allowing the most effective reasoning to surface naturally."
+## Security
+- @login_required on all write APIs
+- Staff-only: topic create, go-live, close
+- Author or staff: post edit, post delete
+- Public: topic list, topic detail (read-only), boards polling
 
 ## Competitive Features (from Kialo analysis)
 
 ### Default Mode (everyone — easy, friendly):
-1. **Champion Argument** — highest-scored argument auto-pinned at top of each board (is_champion flag)
-2. **Duplicate Detection** — post_content_hash (SHA-256) checked before submission. "This point already exists — support it or rebut it instead."
-3. **Connection Highlight on Hover** — tap/hover a rebuttal → subtle SVG curved line shows which argument it attacks. Not always visible — only on interaction. Lines curve around center topic column.
-4. **Impact Badge** — posts with high impact_score show "High Impact" badge
+1. Champion Argument — highest-scored auto-pinned (is_champion flag) — DB ready, UI pending
+2. Duplicate Detection — SHA-256 hash check before submission — DONE
+3. Connection Highlight on Hover — SVG curved lines — pending
+4. Impact Badge — high impact_score posts — DB ready, UI pending
 
 ### Intellectual Mode (opt-in for deep debates):
-5. **Impact Score** — `upvote_count × post_logic_score`. Calculated field (post_impact_score). High-impact rebuttals visually suppress the attacked argument.
-6. **Argument Strength** — 1.0 = full strength, decreases as high-impact rebuttals accumulate (post_argument_strength). Visual fade/dim effect + "Challenged" badge when strength < 0.5. "Suppressed" badge when strength < 0.2 (is_suppressed flag).
-7. **Multi-level Threading** — deeper reply chains with breadcrumb navigation. Controlled by topic.maximum_reply_depth (default 1 for simple, higher for intellectual).
+5. Impact Score — upvotes × logic_score (post_impact_score) — DB ready, calculation pending
+6. Argument Strength — 1.0 = full, decreases with rebuttals (post_argument_strength) — DB ready
+7. Multi-level Threading — controlled by maximum_reply_depth — DONE
 
-### Visual UX (Logic Threads):
-- Default state: connection lines invisible (clean UI)
-- Hover/tap state: solid colored "laser line" from rebuttal to target argument
-- High-impact state: line stays permanently lit, target argument visually dims
-- Blue-to-Red lines curve OVER the center topic
-- Red-to-Blue lines curve UNDER the center topic
-- Volume indicator: if an argument has 20+ rebuttals, it's clearly "under heavy fire"
-
-### Unique Features (no competitor has all of these):
-1. Crossing-over reply routing (deterministic, DB-enforced)
-2. AI logic score garbage gate (blocks before publishing)
-3. Scheduled live events (countdown, timed access)
-4. Impact-weighted scoring (not just popularity)
-5. Visual argument strength (fading/suppression)
-6. Duplicate detection (hash-based)
-7. Two-mode design (casual + intellectual)
+## Production Checklist (TODO before launch)
+- [ ] Remove admin crossing-over bypass (views_api.py — search "TODO: Remove admin bypass")
+- [ ] Add real-time updates (WebSocket or SSE for live post/vote updates)
+- [ ] Connection lines (SVG curved paths on hover)
+- [ ] Champion argument auto-pinning logic
+- [ ] Impact score background calculation
+- [ ] AI logic score integration (optional)
+- [ ] Passion Board live polling (auto-refresh bars)
 
 ## Implementation Status
 - [x] App created with folder structure
 - [x] Registered in settings + urls
-- [x] Sidebar nav link added
-- [x] DB schema reviewed and finalized (debate-db-script.sql)
-- [x] Production schema documented (app-debate-production-schema.txt)
-- [ ] Models (managed=False, map to [debate].* tables)
-- [ ] Views + APIs
-- [ ] Templates + CSS + JS
-- [ ] Garbage detection (length, emoji, duplicate, AI logic)
-- [ ] Voting system (impact score calculation)
-- [ ] Live timer / scheduling
-- [ ] Connection lines (SVG curved paths)
-- [ ] Champion argument auto-pinning
-- [ ] Real-time updates (WebSocket vs polling)
+- [x] Sidebar nav link (⚖️ তর্ক-বিতর্ক)
+- [x] DB schema (11 tables, 19 FKs, passion board columns, custom side labels)
+- [x] Models (11, all managed=False)
+- [x] Views (home + arena)
+- [x] APIs (14 endpoints — topic CRUD, join, argument, reply, vote, edit, delete, boards)
+- [x] Templates (home, arena, argument card component)
+- [x] CSS (home + arena, responsive, dark passion board, tug-of-war bars)
+- [x] JS (search, create topic form, join, compose, reply crossing-over, vote, rotating placeholders)
+- [x] Garbage detection (char count, sentences, emoji, duplicates, repeated chars)
+- [x] Voting (upvote/downvote toggle with cached scores)
+- [x] Passion Board (4 metric bars with glow effects)
+- [x] Custom side labels
+- [x] Search (NFC + fuzzy Bengali matching)
+- [x] Test data (90 real Bengali political arguments)
+- [x] No underline rule enforced
+- [x] No popups (inline forms only)
+- [x] Mobile responsive

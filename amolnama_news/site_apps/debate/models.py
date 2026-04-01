@@ -113,6 +113,8 @@ class CollTopic(models.Model):
     topic_guid = models.UUIDField()
     topic_title = models.CharField(max_length=300)
     topic_description = models.TextField(blank=True, null=True)
+    blue_side_label = models.CharField(max_length=200, blank=True, null=True)
+    red_side_label = models.CharField(max_length=200, blank=True, null=True)
     link_topic_status_id = models.IntegerField()
     scheduled_start_at = models.DateTimeField()
     scheduled_end_at = models.DateTimeField(blank=True, null=True)

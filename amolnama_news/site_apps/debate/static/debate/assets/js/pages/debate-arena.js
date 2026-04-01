@@ -8,11 +8,57 @@
   var topicId = arenaElement.getAttribute('data-topic-id');
   var topicStatus = arenaElement.getAttribute('data-topic-status');
   var userSide = arenaElement.getAttribute('data-user-side');
+
+  /* ---- Rotating Placeholders — warn users with respect reminders ---- */
+  var debatePlaceholderMessages = [
+    'আপনারা এর পক্ষে বিপক্ষে যুক্তি দেখাবেন।',
+    'সবাইকে সম্মান দিয়ে কথা বলুন।',
+    'কোনো গালিগালাজ করবেন না।',
+    'তথ্য ও যুক্তি দিয়ে আপনার মতামত প্রকাশ করুন।',
+    'ব্যক্তি আক্রমণ নয়, যুক্তি দিন।',
+    'প্রতিপক্ষের কথা মনোযোগ দিয়ে পড়ুন।',
+    'ভিন্নমত মানেই শত্রু নয়।',
+    'আপনার যুক্তিই আপনার শক্তি।',
+    'সত্য ও ন্যায়ের পক্ষে দাঁড়ান।',
+    'গঠনমূলক সমালোচনা করুন, ধ্বংসাত্মক নয়।',
+    'একটি ভালো যুক্তি হাজার গালির চেয়ে শক্তিশালী।',
+    'আপনার লেখা অন্যকে চিন্তা করাবে — দায়িত্ব নিয়ে লিখুন।',
+  ];
+
+  function initRotatingPlaceholders() {
+    var rotatingTextareas = document.querySelectorAll('[data-rotating-placeholder]');
+    rotatingTextareas.forEach(function (textarea) {
+      var randomIndex = Math.floor(Math.random() * debatePlaceholderMessages.length);
+      textarea.placeholder = debatePlaceholderMessages[randomIndex];
+
+      textarea.addEventListener('focus', function () {
+        var nextIndex = Math.floor(Math.random() * debatePlaceholderMessages.length);
+        textarea.placeholder = debatePlaceholderMessages[nextIndex];
+      });
+    });
+  }
+
+  initRotatingPlaceholders();
   var minimumCharacterCount = parseInt(arenaElement.getAttribute('data-min-chars') || '60', 10);
 
   function getCsrfTokenValue() {
     var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
     return cookieMatch ? cookieMatch.pop() : '';
+  }
+
+  function scrollToAndHighlightPost(postId) {
+    var postElement = document.getElementById('debate-argument-card-' + postId) ||
+                      document.getElementById('debate-rebuttal-card-' + postId);
+    if (postElement) {
+      postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      postElement.style.transition = 'box-shadow .3s, outline .3s';
+      postElement.style.outline = '3px solid #fbbf24';
+      postElement.style.boxShadow = '0 0 20px rgba(251,191,36,.4)';
+      setTimeout(function () {
+        postElement.style.outline = '';
+        postElement.style.boxShadow = '';
+      }, 3000);
+    }
   }
 
   function showInlineMessage(parentElement, message, messageType) {
@@ -108,11 +154,11 @@
       if (replySide === 'blue') {
         drawerTextarea.style.borderColor = '#93c5fd';
         drawerSubmit.style.background = '#2563eb';
-        drawerLabel.textContent = '🔵 পক্ষে খণ্ডন দিন (Rebuttal to Against)';
+        drawerLabel.textContent = '🔵 পক্ষে উত্তর দিন (Reply to Against)';
       } else {
         drawerTextarea.style.borderColor = '#fca5a5';
         drawerSubmit.style.background = '#dc2626';
-        drawerLabel.textContent = '🔴 বিপক্ষে খণ্ডন দিন (Rebuttal to Pro)';
+        drawerLabel.textContent = '🔴 বিপক্ষে উত্তর দিন (Reply to Pro)';
       }
 
       drawerSubmit.setAttribute('data-parent-post-id', parentPostId);
@@ -197,6 +243,12 @@
       .then(function (data) {
         if (data.success) {
           window.location.reload();
+        } else if (data.duplicate && data.duplicate_post_id) {
+          /* Duplicate found — auto-upvoted, scroll to existing post */
+          showInlineMessage(submitButton.parentElement, data.error, 'success');
+          textarea.value = '';
+          submitButton.disabled = false;
+          scrollToAndHighlightPost(data.duplicate_post_id);
         } else {
           showInlineMessage(submitButton.parentElement, data.error, 'error');
           submitButton.disabled = false;
@@ -217,6 +269,29 @@
   if (replyDrawerTextarea && replyDrawerCharCount) {
     replyDrawerTextarea.addEventListener('input', function () {
       replyDrawerCharCount.textContent = replyDrawerTextarea.value.length;
+    });
+  }
+
+  /* ---- PDF Download — server-side WeasyPrint, direct download ---- */
+  var downloadButton = document.getElementById('debate-arena-download-button');
+  if (downloadButton) {
+    downloadButton.addEventListener('click', function () {
+      var originalText = downloadButton.textContent;
+      downloadButton.textContent = '⏳ তৈরি হচ্ছে...';
+      downloadButton.disabled = true;
+
+      var downloadLink = document.createElement('a');
+      downloadLink.href = '/debate/topic/' + topicId + '/download-pdf/';
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      /* Restore button after a short delay (download starts in background) */
+      setTimeout(function () {
+        downloadButton.textContent = originalText;
+        downloadButton.disabled = false;
+      }, 3000);
     });
   }
 })();
