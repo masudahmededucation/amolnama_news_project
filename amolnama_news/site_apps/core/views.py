@@ -3,53 +3,17 @@ from .models import Article
 
 
 def home(request):
-    """Homepage — pulse feed with tabs (For You / Following / My Posts)."""
-    from amolnama_news.site_apps.post.views import build_post_feed_items, _build_my_posts
+    """Homepage — pulse feed with tabs (For You / Following / My Posts).
+    Feed assembly delegated to newsengine.feed_builder."""
+    from amolnama_news.site_apps.newsengine.feed_builder import build_home_feed
 
-    active_tab = request.GET.get('tab', 'for_you')
-
-    if active_tab == 'my_posts' and request.user.is_authenticated:
-        post_items, current_user_avatar_url = _build_my_posts(request)
-    elif active_tab == 'following' and request.user.is_authenticated:
-        from amolnama_news.site_apps.post.views import _build_following_posts
-        from amolnama_news.site_apps.social.models import UserFollow
-        from amolnama_news.site_apps.user_account.models import UserProfile as FollowUserProfile
-        post_items, current_user_avatar_url = _build_following_posts(request)
-        try:
-            follow_profile = FollowUserProfile.objects.get(link_user_account_user_id=request.user.pk)
-            following_count = UserFollow.objects.filter(link_follower_user_profile_id=follow_profile.user_profile_id, is_active=True).count()
-        except FollowUserProfile.DoesNotExist:
-            following_count = 0
-    else:
-        active_tab = 'for_you'
-        post_items, current_user_avatar_url = build_post_feed_items(request)
-
-    # Inject promo cards from ALL content apps
-    # Two types: (1) all published items at top sorted by date, (2) promotional boost lower in feed
-    # To add a new app: add a builder function in newsengine/promo_builders.py
-    if active_tab == 'for_you':
-        from amolnama_news.site_apps.newsengine.promo_builders import build_all_promo_items, build_promotional_boost_items
-
-        # (1) All published items — appear at top, sorted by date (latest first)
-        all_promo_items = build_all_promo_items()
-        for index, promo in enumerate(all_promo_items):
-            post_items.insert(index, promo)
-
-        # (2) Promotional boost — 2 per category, re-surfaced lower in feed
-        promo_boost_items = build_promotional_boost_items()
-        boost_start_position = max(len(all_promo_items) + 5, 10)
-        for index, promo in enumerate(promo_boost_items):
-            position = boost_start_position + (index * 5)
-            if position < len(post_items):
-                post_items.insert(position, promo)
-            else:
-                post_items.append(promo)
+    feed_items, current_user_avatar_url, active_tab, following_count = build_home_feed(request)
 
     return render(request, 'pulse/pages/pulse-home.html', {
-        'posts': post_items,
+        'posts': feed_items,
         'current_user_avatar_url': current_user_avatar_url,
         'active_tab': active_tab,
-        'following_count': following_count if active_tab == 'following' else 0,
+        'following_count': following_count,
         'seo': {
             'title': 'আমলনামা নিউজ — সত্যই আমাদের শক্তি | Amolnama News',
             'description': 'আমলনামা নিউজ — বাংলাদেশের স্বাধীন সংবাদ মাধ্যম।',
