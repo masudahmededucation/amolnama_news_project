@@ -497,7 +497,7 @@ def analytics_dashboard_view(request):
     from amolnama_news.site_apps.post.models import Post
 
     # Post engagement totals
-    post_stats = Post.objects.filter(is_published=True, is_deleted=False).aggregate(
+    post_stats = Post.objects.filter(is_published=True, is_active=True).aggregate(
         total_posts=Sum('post_post_id'),
         total_likes=Sum('like_count'),
         total_views=Sum('view_count'),
@@ -526,12 +526,12 @@ def analytics_dashboard_view(request):
     from amolnama_news.site_apps.debate.models import CollTopic
     content_counts.append({'label': 'Debates', 'color': 'amber', 'count': CollTopic.objects.filter(is_active=True).count()})
 
-    post_count = Post.objects.filter(is_published=True, is_deleted=False).count()
+    post_count = Post.objects.filter(is_published=True, is_active=True).count()
     content_counts.append({'label': 'User Posts', 'color': 'blue', 'count': post_count})
 
     # Top performing posts
     top_posts = Post.objects.filter(
-        is_published=True, is_deleted=False,
+        is_published=True, is_active=True,
     ).order_by('-like_count')[:10]
 
     top_post_items = []
