@@ -39,23 +39,38 @@ audio/video transcription. Bengali + English. Supports folder watcher
 | Engine     | File Types               | Library        | Output                    | Preprocessing              |
 |------------|--------------------------|----------------|---------------------------|----------------------------|
 | easyocr    | JPG, PNG, BMP, TIFF, WebP| EasyOCR        | Text + bounding boxes + confidence | Auto-resize >2000px (Pillow LANCZOS) |
+| tesseract  | PDF (garbled/scanned)    | Tesseract 5.5  | Bengali+English text (ben+eng) | Crop margins, grayscale, light sharpen |
 | whisper    | MP3, MP4, WAV, MKV, FLAC | OpenAI Whisper | Text + timestamps + language | Auto-extract audio from video (ffmpeg) |
-| pymupdf    | PDF                      | PyMuPDF (fitz) | Text + page structure + font info | OCR fallback for scanned pages (<5 words) |
+| pymupdf    | PDF                      | PyMuPDF (fitz) | Text + page structure      | Direct extraction first, Tesseract OCR fallback |
 | plaintext  | TXT, CSV, LOG, MD, HTML  | Python stdlib  | Raw text                  | Encoding auto-detect (UTF-8 → latin-1) |
-| tesseract  | Images (future)          | Tesseract      | Text + hOCR               | — |
-| camelot    | PDF tables (future)      | Camelot        | Table data as CSV         | — |
-| latex_ocr  | Math equations (future)  | LaTeX-OCR      | LaTeX markup              | — |
 
 ## Architecture
 
-### Processing Flow
-1. File arrives (web upload or folder watcher)
-2. Upload API hides all previous jobs (is_active=False) so dashboard shows only new batch
-3. Job created in DB (status: queued) — metadata only
-4. Background thread (daemon) starts processing (status: processing)
-5. Engine extracts text → metadata saved to DB, full text saved to .txt file
-6. Output .txt file written to media/textextractor/output/
-7. Frontend reloads page after upload to see results
+### PDF Processing Flow (Smart Decision Engine)
+1. PyMuPDF opens PDF, extracts text directly (instant for digital PDFs)
+2. Per-page validation: checks if text is real Bengali or garbled font encoding
+3. **Garbled detection**: corruption markers (঳, ঱, ৞া etc.) + common Bengali word check
+4. If garbled or scanned (<5 words): Tesseract OCR at 300 DPI with ben+eng
+5. Light preprocessing: crop margins → grayscale → sharpen (no aggressive threshold)
+6. If OCR fails but direct text exists: use direct text as fallback
+7. Output .txt file written to media/textextractor/output/
+
+### Why Tesseract (not EasyOCR/PaddleOCR for PDFs)
+- **EasyOCR**: 60+ seconds per page on CPU — too slow for multi-page documents (PyTorch CRAFT+ResNet)
+- **PaddleOCR**: Does NOT support Bengali language. Also has PIR/oneDNN crash on Windows CPU.
+- **Tesseract**: ~4.5 seconds per page. Official ben.traineddata model. Stable on all Python versions.
+- EasyOCR still used for standalone image files (JPG, PNG etc.) where it provides bounding boxes.
+
+### Garbled Bengali Detection
+PDFs with subsetted/non-standard fonts produce garbled text (mojibake). Example:
+- Garbled: `ফাাংরাদেদ঱য ঳াংবফধান`
+- Correct: `বাংলাদেশের সংবিধান`
+
+Detection logic:
+1. Count Bengali characters (U+0980-U+09FF)
+2. If >25% Bengali chars, check for corruption markers: `঳`, `঱`, `৞া`, `ফাাং` etc.
+3. Also check if ANY common Bengali words appear (এবং, করা, হবে, বাংলাদেশ etc.)
+4. If corruption markers >8 or zero common words found → garbled → use Tesseract OCR
 
 ### Data Storage Strategy
 - **DB stores ONLY metadata**: status, word count, page count, confidence, processing time, file paths
@@ -65,19 +80,22 @@ audio/video transcription. Bengali + English. Supports folder watcher
 
 ### Key Modules
 - engines/__init__.py — routes file to correct engine by extension
-- engines/engine_easyocr.py — Bengali+English OCR, lazy-loads model once, auto-resize large images
-- engines/engine_whisper.py — audio/video transcription, lazy-loads model once, auto-extract audio from video via ffmpeg
-- engines/engine_pymupdf.py — PDF text + page structure + font metadata, OCR fallback for scanned pages
+- engines/engine_pymupdf.py — PDF smart extractor: direct text → validate Bengali → Tesseract OCR fallback
+- engines/engine_easyocr.py — Bengali+English OCR for images, lazy-loads model once. extract_fast() for detail=0 mode.
+- engines/engine_tesseract.py — Tesseract OCR wrapper (ben+eng), light preprocessing
+- engines/engine_whisper.py — audio/video transcription, lazy-loads model once
 - engines/engine_plaintext.py — plain file reader with encoding fallback (UTF-8 → latin-1)
+- engines/engine_paddleocr.py — PaddleOCR sidecar (NOT USED — Bengali not supported)
+- ocr_worker.py — PaddleOCR subprocess worker (NOT USED — Bengali not supported)
 - processor.py — shared job processing logic (create job, process, save metadata, write output file)
 - views.py — dashboard + detail pages, reads extracted text from .txt file
 - views_api.py — upload, cancel (sets is_active=False), delete, status APIs
 
 ### Smart Preprocessing (built into each engine)
-- Images: auto-resize to max 2000x2000px before OCR (2-4x speed improvement, no accuracy loss)
-- Video: auto-extract audio track via ffmpeg before Whisper (500MB video → 5MB WAV)
-- PDF: detect scanned pages (<5 words), render to 200 DPI image, OCR via EasyOCR fallback
-- Text: auto-detect encoding (UTF-8, UTF-8 BOM, latin-1 fallback)
+- **Images (EasyOCR)**: auto-resize to max 2000x2000px before OCR
+- **PDF pages (Tesseract)**: crop-to-content → grayscale → light sharpen. 300 DPI rendering. No aggressive threshold.
+- **Video**: auto-extract audio track via ffmpeg before Whisper
+- **Text**: auto-detect encoding (UTF-8, UTF-8 BOM, latin-1 fallback)
 - All temp files cleaned up after processing
 
 ### Folder Watcher
@@ -111,16 +129,21 @@ audio/video transcription. Bengali + English. Supports folder watcher
 - Under "Admin Panel" section in sidebar
 
 ## Dependencies
-- pip install easyocr openai-whisper PyMuPDF watchdog Pillow
-- ffmpeg required for video-to-audio extraction
+- pip install pytesseract easyocr openai-whisper PyMuPDF watchdog Pillow opencv-python numpy
+- Tesseract OCR 5.x installed (choco install tesseract on Windows)
+- Bengali model: ben.traineddata (included with Tesseract standard install)
+- ffmpeg for video-to-audio extraction (choco install ffmpeg on Windows)
+
+## Performance (64-page Bengali PDF benchmark)
+- EasyOCR on CPU: ~60 seconds/page (64 pages = ~64 minutes) — UNACCEPTABLE
+- PaddleOCR: Bengali NOT SUPPORTED, plus PIR/oneDNN crash on Windows
+- Tesseract ben+eng: ~4.5 seconds/page (64 pages = ~291 seconds / ~5 minutes) — PRODUCTION READY
 
 ## Troubleshooting
-- EasyOCR first load: 2-3 seconds to load model (lazy-loaded, cached after)
-- Whisper first load: downloads model on first use (~150MB for base)
-- File copy detection: wait_for_file_copy() polls file size every 0.5s
-- UUID in raw SQL: same pattern as post app (Django ORM UUID conversion bug)
-- Bengali OCR accuracy: EasyOCR ~85-90% for printed text, poor for handwriting
-- ffmpeg required for video-to-audio extraction: install via choco install ffmpeg (Windows)
-- NEVER store large text (>4000 chars) in DB — causes ntext/UTF-8 collation error
-- NEVER modify db_backend encoding — corrupts ALL Bengali data to ????
-- For NVARCHAR(MAX) columns, use CAST(%s AS NVARCHAR(MAX)) in raw SQL
+- **Garbled Bengali from PDF**: Font encoding issue. Auto-detected by corruption markers + common word check. Falls back to Tesseract OCR.
+- **Tesseract not found**: Install via `choco install tesseract` (Windows) or `apt install tesseract-ocr` (Linux). Verify: `tesseract --list-langs` should show `ben`.
+- **EasyOCR first load**: 2-3 seconds to load model (lazy-loaded, cached after). Only used for image files, NOT PDFs.
+- **Whisper first load**: downloads model on first use (~150MB for base)
+- **NEVER store large text in DB**: pyodbc sends >4000 char strings as ntext which breaks UTF-8 collation
+- **NEVER modify db_backend encoding**: corrupts ALL Bengali data to ????
+- **PaddleOCR does NOT support Bengali**: Tested PP-OCRv3/v4/v5 — `lang='bn'` throws ValueError. Also has ConvertPirAttribute2RuntimeAttribute crash on Windows CPU. Do not use.
