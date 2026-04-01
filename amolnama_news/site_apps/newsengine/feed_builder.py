@@ -66,6 +66,13 @@ def _build_intelligent_feed(request, feed_items, category_filter):
         except Exception:
             logger.exception('Personalization failed — continuing without boost')
 
+    # Step 3b: Apply user feed preferences (hide categories user turned off)
+    if user_profile_id:
+        try:
+            feed_items = _apply_user_feed_preferences(feed_items, user_profile_id)
+        except Exception:
+            logger.exception('Feed preferences filter failed — showing all content')
+
     # Step 4: Remove content user has already viewed (read history)
     if user_profile_id:
         try:
@@ -185,6 +192,49 @@ def _filter_by_category(feed_items, category_filter):
                 filtered_items.append(item)
             elif not target_badge:
                 filtered_items.append(item)
+
+    return filtered_items
+
+
+def _apply_user_feed_preferences(feed_items, user_profile_id):
+    """Filter out promo categories the user has disabled in their feed preferences."""
+    try:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        profile = UserProfile.objects.get(user_profile_id=user_profile_id)
+    except Exception:
+        return feed_items
+
+    # Map preference fields to promo badge/type
+    preference_map = {
+        'NEWS': profile.feed_preference_news,
+        'POEM': profile.feed_preference_poem,
+        'STORY': profile.feed_preference_story,
+        'ART': profile.feed_preference_art,
+        'TRAVEL': profile.feed_preference_travel,
+    }
+    debate_enabled = profile.feed_preference_debate
+    tools_enabled = profile.feed_preference_tools
+
+    filtered_items = []
+    for item in feed_items:
+        item_type = item.get('item_type', '')
+        badge = item.get('promo_badge', '')
+
+        # Regular posts always pass
+        if item_type not in ('debate_promo', 'content_promo', 'tools_promo'):
+            filtered_items.append(item)
+            continue
+
+        # Check preferences
+        if item_type == 'debate_promo' and not debate_enabled:
+            continue
+        if item_type == 'tools_promo' and not tools_enabled:
+            continue
+        if item_type == 'content_promo' and badge in preference_map:
+            if not preference_map[badge]:
+                continue
+
+        filtered_items.append(item)
 
     return filtered_items
 

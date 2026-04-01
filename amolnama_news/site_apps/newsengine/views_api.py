@@ -1,1 +1,148 @@
+"""Newsengine API views — global notifications, universal bookmarks, feed pagination."""
+
+import json
+import logging
+
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
+
+logger = logging.getLogger(__name__)
+
+
+def _get_user_profile_id(request):
+    """Get current user's profile ID or None."""
+    if not request.user.is_authenticated:
+        return None
+    try:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
+    except Exception:
+        return None
+
+
+# =========================================================
+# GLOBAL NOTIFICATIONS
+# =========================================================
+
+@login_required
+def api_notifications_list(request):
+    """GET — latest 20 notifications + unread count for current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    from .notifications import get_notifications_list, get_unread_count
+    notifications = get_notifications_list(user_profile_id)
+    unread_count = get_unread_count(user_profile_id)
+
+    return JsonResponse({'success': True, 'notifications': notifications, 'unread_count': unread_count})
+
+
+@login_required
+@require_POST
+def api_notifications_mark_read(request):
+    """POST — mark all notifications as read for current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    from .notifications import mark_all_read
+    mark_all_read(user_profile_id)
+
+    return JsonResponse({'success': True})
+
+
+# =========================================================
+# UNIVERSAL BOOKMARKS
+# =========================================================
+
+@login_required
+@require_POST
+def api_bookmark_toggle(request):
+    """Toggle bookmark for any content type. POST {content_type_code, content_id, content_title, content_url}."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    content_type_code = data.get('content_type_code', '')
+    content_id = data.get('content_id')
+    content_title = data.get('content_title', '') or None
+    content_url = data.get('content_url', '') or None
+
+    if not content_type_code or not content_id:
+        return JsonResponse({'success': False, 'error': 'Missing content_type_code or content_id'}, status=400)
+
+    from .models import CollContentBookmark
+
+    existing = CollContentBookmark.objects.filter(
+        link_user_profile_id=user_profile_id,
+        content_type_code=content_type_code,
+        content_id=content_id,
+        is_active=True,
+    ).first()
+
+    if existing:
+        existing.delete()
+        return JsonResponse({'success': True, 'action': 'removed'})
+    else:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO [newsengine].[coll_content_bookmark]
+                    ([link_user_profile_id], [content_type_code], [content_id], [content_title], [content_url])
+                VALUES (?, ?, ?, ?, ?)
+            """, [user_profile_id, content_type_code, content_id, content_title, content_url])
+        return JsonResponse({'success': True, 'action': 'bookmarked'})
+
+
+# =========================================================
+# FEED PAGINATION
+# =========================================================
+
+@login_required
+def api_feed_page(request):
+    """GET — paginated feed items. ?page=2&page_size=20&category=poem."""
+    page = int(request.GET.get('page', 1))
+    page_size = min(int(request.GET.get('page_size', 20)), 50)
+    category_filter = request.GET.get('category', '')
+
+    from .feed_builder import build_home_feed
+    feed_items, current_user_avatar_url, active_tab, following_count = build_home_feed(request)
+
+    # Paginate
+    start_index = (page - 1) * page_size
+    end_index = start_index + page_size
+    page_items = feed_items[start_index:end_index]
+    has_more = end_index < len(feed_items)
+
+    # Render each item to HTML for infinite scroll
+    from django.template.loader import render_to_string
+    rendered_items = []
+    for item in page_items:
+        item_type = item.get('item_type', '')
+        try:
+            if item_type == 'debate_promo':
+                html = render_to_string('debate/components/debate-promo-card.html', {'promo': item, 'request': request})
+            elif item_type == 'content_promo':
+                html = render_to_string('core/components/content-promo-card.html', {'promo': item, 'request': request})
+            elif item_type == 'tools_promo':
+                html = render_to_string('tools/components/tools-promo-card.html', {'promo': item, 'request': request})
+            else:
+                html = render_to_string('post/components/post-card.html', {'post_item': item, 'request': request})
+            rendered_items.append(html)
+        except Exception:
+            logger.exception('Failed to render feed item')
+
+    return JsonResponse({
+        'success': True,
+        'items_html': rendered_items,
+        'has_more': has_more,
+        'page': page,
+    })

@@ -1,0 +1,25 @@
+/* Global notification bell — shown in header on all pages for authenticated users */
+
+.global-notification-wrapper { position: relative; display: inline-flex; align-items: center; }
+.global-notification-bell { background: none; border: none; font-size: 1.1rem; cursor: pointer; position: relative; padding: .2rem .4rem; transition: opacity .15s; }
+.global-notification-bell:hover { opacity: .8; }
+.global-notification-count { position: absolute; top: -2px; right: -2px; background: #ef4444; color: #fff; font-size: .5rem; font-weight: 800; min-width: 14px; height: 14px; border-radius: 7px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+.global-notification-count-hidden { display: none; }
+
+.global-notification-dropdown { position: absolute; top: 100%; right: 0; margin-top: .4rem; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 300px; max-height: 400px; overflow-y: auto; z-index: 1000; }
+.global-notification-dropdown-hidden { display: none; }
+
+.global-notification-item { display: block; padding: .6rem .8rem; border-bottom: 1px solid #f3f4f6; font-size: .78rem; cursor: pointer; transition: background .1s; text-decoration: none; color: inherit; }
+.global-notification-item:hover { background: #f8fafc; text-decoration: none; }
+.global-notification-item-unread { background: #eff6ff; }
+.global-notification-item-message { line-height: 1.4; }
+.global-notification-item-time { font-size: .62rem; color: var(--muted); margin-top: .15rem; }
+.global-notification-item-source { font-size: .55rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-right: .3rem; }
+
+.global-notification-empty { padding: 1rem; text-align: center; font-size: .78rem; color: var(--muted); }
+.global-notification-mark-read { display: block; padding: .5rem; text-align: center; font-size: .7rem; font-weight: 600; color: var(--primary); cursor: pointer; border-top: 1px solid #e5e7eb; }
+.global-notification-mark-read:hover { background: #f8fafc; }
+
+@media (max-width: 480px) {
+  .global-notification-dropdown { min-width: 260px; right: -40px; }
+}

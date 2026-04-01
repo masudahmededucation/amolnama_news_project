@@ -731,6 +731,11 @@
 .post-feed-category-filter-active { background: var(--primary, #2563eb); color: #fff; border-color: var(--primary, #2563eb); }
 .post-feed-category-filter-active:hover { text-decoration: none; }
 
+/* Infinite scroll loading */
+.pulse-feed-load-more { padding: 1rem; text-align: center; }
+.pulse-feed-loading-spinner { font-size: .8rem; color: var(--muted); padding: .5rem; }
+.pulse-feed-loading-spinner-hidden { display: none; }
+
 .post-feed-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);

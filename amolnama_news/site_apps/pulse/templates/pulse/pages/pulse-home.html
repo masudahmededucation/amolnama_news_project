@@ -65,6 +65,11 @@
   {% endfor %}
 </div>
 
+<!-- Infinite scroll sentinel -->
+<div class="pulse-feed-load-more" id="pulse-feed-load-more" data-page="2" data-has-more="true">
+  <div class="pulse-feed-loading-spinner pulse-feed-loading-spinner-hidden" id="pulse-feed-loading-spinner">লোড হচ্ছে...</div>
+</div>
+
 {% include "core/components/photo-lightbox.html" %}
 
 {% endblock %}
@@ -73,4 +78,51 @@
 <script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
 <script src="{% static 'post/assets/js/pages/post-home.js' %}"></script>
 <script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}"></script>
+<script>
+(function () {
+  'use strict';
+  var sentinel = document.getElementById('pulse-feed-load-more');
+  var feed = document.getElementById('pulse-feed');
+  var spinner = document.getElementById('pulse-feed-loading-spinner');
+  if (!sentinel || !feed) return;
+
+  var isLoading = false;
+
+  var observer = new IntersectionObserver(function (entries) {
+    if (!entries[0].isIntersecting || isLoading) return;
+    var currentPage = parseInt(sentinel.getAttribute('data-page'), 10);
+    var hasMore = sentinel.getAttribute('data-has-more') === 'true';
+    if (!hasMore) return;
+
+    isLoading = true;
+    spinner.classList.remove('pulse-feed-loading-spinner-hidden');
+
+    var categoryParam = new URLSearchParams(window.location.search).get('category') || '';
+    var url = '/newsengine/api/feed/?page=' + currentPage + '&page_size=20';
+    if (categoryParam) url += '&category=' + categoryParam;
+
+    fetch(url)
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success && data.items_html && data.items_html.length > 0) {
+          data.items_html.forEach(function (itemHtml) {
+            feed.insertAdjacentHTML('beforeend', itemHtml);
+          });
+          sentinel.setAttribute('data-page', currentPage + 1);
+          sentinel.setAttribute('data-has-more', data.has_more ? 'true' : 'false');
+        } else {
+          sentinel.setAttribute('data-has-more', 'false');
+        }
+        spinner.classList.add('pulse-feed-loading-spinner-hidden');
+        isLoading = false;
+      })
+      .catch(function () {
+        spinner.classList.add('pulse-feed-loading-spinner-hidden');
+        isLoading = false;
+      });
+  }, { rootMargin: '200px' });
+
+  observer.observe(sentinel);
+})();
+</script>
 {% endblock %}

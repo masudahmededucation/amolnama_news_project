@@ -31,6 +31,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{% static 'core/assets/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/notification-bell.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/colors.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/typography.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/spacing.css' %}">
@@ -63,6 +64,14 @@
       <header class="header">
         <div class="header-grid">
           {% include "core/partials/header_auth_controls.html" %}
+          {% if user.is_authenticated %}
+          <div class="global-notification-wrapper" id="global-notification-wrapper">
+            <button type="button" class="global-notification-bell" id="global-notification-bell" name="global_notification_bell" title="বিজ্ঞপ্তি (Notifications)">
+              🔔 <span class="global-notification-count global-notification-count-hidden" id="global-notification-count">0</span>
+            </button>
+            <div class="global-notification-dropdown global-notification-dropdown-hidden" id="global-notification-dropdown"></div>
+          </div>
+          {% endif %}
         </div>
       </header>
 
@@ -75,6 +84,7 @@
   </div>
 
   <script src="{% static 'core/assets/js/components/file-dropzone.js' %}"></script>
+  <script src="{% static 'core/assets/js/components/notification-bell.js' %}"></script>
   {% block extra_js %}{% endblock %}
   <script src="{% static 'core/assets/js/components/sidebar-navigation.js' %}"></script>
   <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>

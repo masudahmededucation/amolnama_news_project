@@ -32,3 +32,51 @@ class FactContentScore(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[fact_content_score]'
+
+
+class CollNotification(models.Model):
+    """Global notification — covers all apps (post, debate, social, etc.)."""
+    newsengine_coll_notification_id = models.BigAutoField(primary_key=True)
+    link_recipient_user_profile_id = models.BigIntegerField()
+    link_actor_user_profile_id = models.BigIntegerField(blank=True, null=True)
+    notification_event_code = models.CharField(max_length=30)
+    notification_source_app = models.CharField(max_length=30)
+    link_content_id = models.BigIntegerField(blank=True, null=True)
+    notification_message = models.CharField(max_length=300)
+    notification_url = models.CharField(max_length=500, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[coll_notification]'
+
+
+class CollContentBookmark(models.Model):
+    """Universal bookmark — any content type from any app."""
+    newsengine_coll_content_bookmark_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    content_type_code = models.CharField(max_length=30)
+    content_id = models.BigIntegerField()
+    content_title = models.CharField(max_length=300, blank=True, null=True)
+    content_url = models.CharField(max_length=500, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[coll_content_bookmark]'
+
+
+class FactRateLimitLog(models.Model):
+    """Rate limit tracking — logs each action for rate limit checks."""
+    newsengine_fact_rate_limit_log_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    action_code = models.CharField(max_length=30)
+    action_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_rate_limit_log]'
