@@ -1,11 +1,12 @@
-"""Social API views — follow/unfollow."""
+"""Social API views — follow/unfollow, block/unblock."""
 
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .models import UserFollow
+from .models import CollUserBlock, UserFollow
 
 
 @require_POST
@@ -65,3 +66,38 @@ def api_follow_toggle(request, user_profile_id):
         'following': following,
         'follower_count': follower_count,
     })
+
+
+@require_POST
+@login_required
+def api_block_toggle(request, user_profile_id):
+    """Toggle block/unblock a user. Blocked user's content hidden from feed."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    if current_profile.user_profile_id == user_profile_id:
+        return JsonResponse({'success': False, 'error': 'নিজেকে ব্লক করা যায় না'}, status=400)
+
+    existing_block = CollUserBlock.objects.filter(
+        link_blocker_user_profile_id=current_profile.user_profile_id,
+        link_blocked_user_profile_id=user_profile_id,
+        is_active=True,
+    ).first()
+
+    if existing_block:
+        existing_block.delete()
+        blocked = False
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO [social].[coll_user_block]
+                    ([link_blocker_user_profile_id], [link_blocked_user_profile_id])
+                VALUES (?, ?)
+            """, [current_profile.user_profile_id, user_profile_id])
+        blocked = True
+
+    return JsonResponse({'success': True, 'blocked': blocked})

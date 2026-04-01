@@ -15,4 +15,8 @@ urlpatterns = [
 
     # APIs — feed pagination
     path('api/feed/', views_api.api_feed_page, name='api_feed_page'),
+
+    # APIs — recommendations + hashtags
+    path('api/recommendations/', views_api.api_recommendations, name='api_recommendations'),
+    path('api/hashtags/trending/', views_api.api_trending_hashtags, name='api_trending_hashtags'),
 ]

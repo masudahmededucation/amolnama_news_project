@@ -146,3 +146,38 @@ def api_feed_page(request):
         'has_more': has_more,
         'page': page,
     })
+
+
+# =========================================================
+# CONTENT RECOMMENDATIONS
+# =========================================================
+
+@login_required
+def api_recommendations(request):
+    """GET — personalized content recommendations for current user."""
+    user_profile_id = _get_user_profile_id(request)
+
+    from .recommendations import get_recommendations_for_user
+    items = get_recommendations_for_user(user_profile_id, limit=5)
+
+    return JsonResponse({'success': True, 'recommendations': items})
+
+
+# =========================================================
+# TRENDING HASHTAGS
+# =========================================================
+
+def api_trending_hashtags(request):
+    """GET — top 10 hashtags by post count."""
+    from .models import CollHashtag
+    hashtags = CollHashtag.objects.filter(
+        is_active=True, post_count__gt=0,
+    ).order_by('-post_count')[:10]
+
+    items = [{
+        'hashtag_id': hashtag.newsengine_coll_hashtag_id,
+        'hashtag_text': hashtag.hashtag_text,
+        'post_count': hashtag.post_count,
+    } for hashtag in hashtags]
+
+    return JsonResponse({'success': True, 'hashtags': items})

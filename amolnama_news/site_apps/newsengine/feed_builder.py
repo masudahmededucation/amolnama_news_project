@@ -80,6 +80,13 @@ def _build_intelligent_feed(request, feed_items, category_filter):
         except Exception:
             logger.exception('Read history filter failed — showing all content')
 
+    # Step 4b: Exclude content from blocked users
+    if user_profile_id:
+        try:
+            feed_items = _exclude_blocked_users(feed_items, user_profile_id)
+        except Exception:
+            logger.exception('Blocked user filter failed — showing all content')
+
     # Step 5: Deduplicate content (same content as published promo + boost)
     feed_items = _deduplicate_feed(feed_items)
 
@@ -194,6 +201,23 @@ def _filter_by_category(feed_items, category_filter):
                 filtered_items.append(item)
 
     return filtered_items
+
+
+def _exclude_blocked_users(feed_items, user_profile_id):
+    """Remove posts from users that the current user has blocked."""
+    from amolnama_news.site_apps.social.models import CollUserBlock
+
+    blocked_ids = set(CollUserBlock.objects.filter(
+        link_blocker_user_profile_id=user_profile_id, is_active=True,
+    ).values_list('link_blocked_user_profile_id', flat=True))
+
+    if not blocked_ids:
+        return feed_items
+
+    return [
+        item for item in feed_items
+        if item.get('author_user_profile_id') not in blocked_ids
+    ]
 
 
 def _apply_user_feed_preferences(feed_items, user_profile_id):

@@ -1,0 +1,39 @@
+/* Search page — cross-app search with live results */
+
+.search-page { max-width: 700px; margin: 0 auto; padding: 1rem; }
+.search-page-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .75rem; }
+
+.search-page-input-wrapper { margin-bottom: 1rem; }
+.search-page-input {
+  width: 100%; padding: .65rem 1rem; border: 2px solid var(--border); border-radius: 24px;
+  font-size: .9rem; font-family: inherit; outline: none; transition: border-color .15s;
+  box-sizing: border-box;
+}
+.search-page-input:focus { border-color: var(--primary); }
+
+/* Results */
+.search-page-results { display: flex; flex-direction: column; gap: .4rem; }
+.search-page-results-loading { text-align: center; padding: 1rem; color: var(--muted); font-size: .82rem; }
+.search-page-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
+.search-page-results-count { font-size: .72rem; color: var(--muted); margin-bottom: .5rem; }
+
+/* Result item */
+.search-result-item {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .55rem .75rem; border: 1px solid var(--border); border-radius: 8px;
+  text-decoration: none; color: inherit; transition: border-color .15s;
+}
+.search-result-item:hover { border-color: var(--primary); text-decoration: none; }
+.search-result-badge {
+  font-size: .5rem; font-weight: 800; color: #fff; padding: .1rem .35rem;
+  border-radius: 6px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
+}
+.search-result-badge-blue { background: #2563eb; }
+.search-result-badge-purple { background: #7c3aed; }
+.search-result-badge-rose { background: #e11d48; }
+.search-result-badge-amber { background: #d97706; }
+.search-result-badge-green { background: #059669; }
+.search-result-title { flex: 1; font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.search-result-date { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
+
+.search-page-no-results { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .82rem; }

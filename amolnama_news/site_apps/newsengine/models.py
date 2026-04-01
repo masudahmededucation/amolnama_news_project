@@ -80,3 +80,30 @@ class FactRateLimitLog(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[fact_rate_limit_log]'
+
+
+class CollHashtag(models.Model):
+    """Hashtag extracted from posts — tracks usage count."""
+    newsengine_coll_hashtag_id = models.BigAutoField(primary_key=True)
+    hashtag_text = models.CharField(max_length=100)
+    hashtag_text_normalized = models.CharField(max_length=100)
+    post_count = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[coll_hashtag]'
+
+
+class CollPostHashtag(models.Model):
+    """Junction: post ↔ hashtag."""
+    newsengine_coll_post_hashtag_id = models.BigAutoField(primary_key=True)
+    link_post_id = models.BigIntegerField()
+    link_hashtag_id = models.BigIntegerField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[coll_post_hashtag]'
