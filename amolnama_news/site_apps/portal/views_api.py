@@ -145,3 +145,73 @@ def api_content_toggle_publish(request):
 
     status_label = 'Published' if publish else 'Draft'
     return JsonResponse({'success': True, 'is_published': publish, 'status_label': status_label})
+
+
+@require_POST
+@login_required
+def api_moderation_approve(request):
+    """Approve flagged content — clear flag counts. Staff only."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    content_type = data.get('content_type', '')
+    content_id = data.get('content_id')
+
+    try:
+        if content_type == 'debate_post':
+            from amolnama_news.site_apps.debate.models import CollPost as DebatePost
+            post = DebatePost.objects.get(debate_coll_post_id=content_id)
+            post.fact_check_flag_count = 0
+            post.is_fact_check_needed = False
+            post.save(update_fields=['fact_check_flag_count', 'is_fact_check_needed'])
+        elif content_type == 'post_flag':
+            from amolnama_news.site_apps.post.models import PostFlag
+            PostFlag.objects.filter(link_post_id=content_id, is_active=True).update(is_active=False)
+        else:
+            return JsonResponse({'success': False, 'error': 'Unknown content type'}, status=400)
+    except Exception as error:
+        logger.exception('Moderation approve failed: %s', error)
+        return JsonResponse({'success': False, 'error': 'Approve failed'}, status=500)
+
+    return JsonResponse({'success': True})
+
+
+@require_POST
+@login_required
+def api_moderation_reject(request):
+    """Reject flagged content — soft delete. Staff only."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    content_type = data.get('content_type', '')
+    content_id = data.get('content_id')
+
+    try:
+        if content_type == 'debate_post':
+            from amolnama_news.site_apps.debate.models import CollPost as DebatePost
+            post = DebatePost.objects.get(debate_coll_post_id=content_id)
+            post.is_deleted = True
+            post.deleted_at = timezone.now()
+            post.save(update_fields=['is_deleted', 'deleted_at'])
+        elif content_type == 'post_flag':
+            from amolnama_news.site_apps.post.models import Post
+            post = Post.objects.get(post_post_id=content_id)
+            post.is_deleted = True
+            post.save(update_fields=['is_deleted'])
+        else:
+            return JsonResponse({'success': False, 'error': 'Unknown content type'}, status=400)
+    except Exception as error:
+        logger.exception('Moderation reject failed: %s', error)
+        return JsonResponse({'success': False, 'error': 'Reject failed'}, status=500)
+
+    return JsonResponse({'success': True})

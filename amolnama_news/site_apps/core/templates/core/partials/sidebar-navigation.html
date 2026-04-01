@@ -124,6 +124,16 @@
       <span class="sidebar-navigation-item-icon">📋</span>
       <span class="sidebar-navigation-item-label">Content Dashboard</span>
     </a>
+
+    <a href="{% url 'portal:analytics_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/analytics/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-analytics-dashboard" name="sidebar_navigation_item_analytics_dashboard" title="Analytics Dashboard">
+      <span class="sidebar-navigation-item-icon">📊</span>
+      <span class="sidebar-navigation-item-label">Analytics</span>
+    </a>
+
+    <a href="{% url 'portal:moderation_queue' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/moderation/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-moderation-queue" name="sidebar_navigation_item_moderation_queue" title="Moderation Queue">
+      <span class="sidebar-navigation-item-icon">🛡️</span>
+      <span class="sidebar-navigation-item-label">Moderation</span>
+    </a>
     {% endif %}
   </div>
 </nav>

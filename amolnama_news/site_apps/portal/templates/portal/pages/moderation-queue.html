@@ -1,0 +1,100 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Moderation Queue — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'portal/assets/css/pages/content-dashboard.css' %}">
+<style>
+  .moderation-queue { max-width: 900px; margin: 0 auto; padding: 1rem; }
+  .moderation-queue-title { font-size: 1.3rem; font-weight: 800; margin: 0 0 .2rem; }
+  .moderation-queue-subtitle { font-size: .8rem; color: var(--muted); margin: 0 0 1rem; }
+  .moderation-item { display: flex; justify-content: space-between; align-items: center; padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: .4rem; background: #fff; }
+  .moderation-item-left { display: flex; align-items: center; gap: .5rem; flex: 1; min-width: 0; }
+  .moderation-item-badge { font-size: .55rem; font-weight: 800; color: #fff; padding: .1rem .4rem; border-radius: 6px; text-transform: uppercase; }
+  .moderation-item-badge-amber { background: #d97706; }
+  .moderation-item-badge-rose { background: #e11d48; }
+  .moderation-item-preview { font-size: .78rem; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .moderation-item-flag-count { font-size: .7rem; font-weight: 700; color: #d97706; margin-left: .3rem; }
+  .moderation-item-right { display: flex; gap: .3rem; flex-shrink: 0; }
+  .moderation-item-button { font-size: .68rem; font-weight: 700; padding: .25rem .6rem; border-radius: 12px; cursor: pointer; border: 1px solid; transition: all .15s; }
+  .moderation-item-approve { border-color: #059669; color: #059669; background: transparent; }
+  .moderation-item-approve:hover { background: #059669; color: #fff; }
+  .moderation-item-reject { border-color: #dc2626; color: #dc2626; background: transparent; }
+  .moderation-item-reject:hover { background: #dc2626; color: #fff; }
+  .moderation-item-view { border-color: var(--border); color: var(--muted); background: transparent; text-decoration: none; display: inline-flex; align-items: center; }
+  .moderation-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="moderation-queue" id="moderation-queue">
+  <h1 class="moderation-queue-title" id="moderation-queue-title">Moderation Queue</h1>
+  <p class="moderation-queue-subtitle" id="moderation-queue-subtitle">পতাকাঙ্কিত কন্টেন্ট পর্যালোচনা করুন — Approve বা Reject করুন</p>
+
+  {% for item in flagged_items %}
+  <div class="moderation-item" id="moderation-item-{{ item.content_type }}-{{ item.content_id }}" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">
+    <div class="moderation-item-left">
+      <span class="moderation-item-badge moderation-item-badge-{{ item.content_type_color }}">{{ item.content_type_label }}</span>
+      <span class="moderation-item-preview">{{ item.content_preview }}</span>
+      <span class="moderation-item-flag-count">⚠️ {{ item.flag_count }} flags</span>
+    </div>
+    <div class="moderation-item-right">
+      <a href="{{ item.content_url }}" target="_blank" class="moderation-item-button moderation-item-view">View</a>
+      <button type="button" class="moderation-item-button moderation-item-approve moderation-action-button"
+              id="moderation-approve-{{ item.content_type }}-{{ item.content_id }}"
+              name="moderation_approve_{{ item.content_type }}_{{ item.content_id }}"
+              data-action="approve" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">Approve</button>
+      <button type="button" class="moderation-item-button moderation-item-reject moderation-action-button"
+              id="moderation-reject-{{ item.content_type }}-{{ item.content_id }}"
+              name="moderation_reject_{{ item.content_type }}_{{ item.content_id }}"
+              data-action="reject" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">Reject</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="moderation-empty" id="moderation-empty">
+    <p>কোনো পতাকাঙ্কিত কন্টেন্ট নেই — সব পরিষ্কার!</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  'use strict';
+  function getCsrfTokenValue() {
+    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return cookieMatch ? cookieMatch.pop() : '';
+  }
+  document.addEventListener('click', function (event) {
+    var actionButton = event.target.closest('.moderation-action-button');
+    if (!actionButton) return;
+    var action = actionButton.getAttribute('data-action');
+    var contentType = actionButton.getAttribute('data-content-type');
+    var contentId = parseInt(actionButton.getAttribute('data-content-id'), 10);
+    actionButton.disabled = true;
+    actionButton.textContent = '...';
+    fetch('/portal/api/moderation/' + action + '/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ content_type: contentType, content_id: contentId }),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        var itemRow = actionButton.closest('.moderation-item');
+        if (itemRow) itemRow.style.display = 'none';
+      } else {
+        actionButton.textContent = action === 'approve' ? 'Approve' : 'Reject';
+        actionButton.disabled = false;
+      }
+    })
+    .catch(function () {
+      actionButton.textContent = action === 'approve' ? 'Approve' : 'Reject';
+      actionButton.disabled = false;
+    });
+  });
+})();
+</script>
+{% endblock %}

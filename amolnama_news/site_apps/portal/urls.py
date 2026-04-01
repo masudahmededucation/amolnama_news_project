@@ -15,5 +15,9 @@ urlpatterns = [
     path('profile/settings/', views.profile_settings_view, name='profile_settings'),
     path('api/avatar/upload/', views_api.api_avatar_upload, name='api_avatar_upload'),
     path('content/', views.content_dashboard_view, name='content_dashboard'),
+    path('analytics/', views.analytics_dashboard_view, name='analytics_dashboard'),
+    path('moderation/', views.moderation_queue_view, name='moderation_queue'),
     path('api/content/toggle-publish/', views_api.api_content_toggle_publish, name='api_content_toggle_publish'),
+    path('api/moderation/approve/', views_api.api_moderation_approve, name='api_moderation_approve'),
+    path('api/moderation/reject/', views_api.api_moderation_reject, name='api_moderation_reject'),
 ]

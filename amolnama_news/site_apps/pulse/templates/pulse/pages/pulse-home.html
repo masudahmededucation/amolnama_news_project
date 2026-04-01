@@ -23,6 +23,19 @@
 {% include "post/components/post-composer.html" %}
 {% endif %}
 
+{% if active_tab == 'for_you' or not active_tab %}
+<div class="post-feed-category-filters" id="post-feed-category-filters">
+  <a href="/" class="post-feed-category-filter{% if not request.GET.category %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-all" name="post_feed_category_filter_all">All</a>
+  <a href="/?category=news" class="post-feed-category-filter{% if request.GET.category == 'news' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-news" name="post_feed_category_filter_news">News</a>
+  <a href="/?category=poem" class="post-feed-category-filter{% if request.GET.category == 'poem' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-poem" name="post_feed_category_filter_poem">Poem</a>
+  <a href="/?category=story" class="post-feed-category-filter{% if request.GET.category == 'story' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-story" name="post_feed_category_filter_story">Story</a>
+  <a href="/?category=art" class="post-feed-category-filter{% if request.GET.category == 'art' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-art" name="post_feed_category_filter_art">Art</a>
+  <a href="/?category=travel" class="post-feed-category-filter{% if request.GET.category == 'travel' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-travel" name="post_feed_category_filter_travel">Travel</a>
+  <a href="/?category=debate" class="post-feed-category-filter{% if request.GET.category == 'debate' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-debate" name="post_feed_category_filter_debate">Debate</a>
+  <a href="/?category=tools" class="post-feed-category-filter{% if request.GET.category == 'tools' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-tools" name="post_feed_category_filter_tools">Tools</a>
+</div>
+{% endif %}
+
 <div class="post-feed" id="pulse-feed">
   {% for post_item in posts %}
   {% if post_item.item_type == 'debate_promo' %}

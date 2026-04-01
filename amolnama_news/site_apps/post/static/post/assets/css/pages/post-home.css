@@ -724,6 +724,13 @@
 .post-card-edit-cancel-button:hover { background: var(--border); transform: scale(1.02); }
 
 /* ---- Feed Tabs (For You / Following / My Posts) ---- */
+/* Category filter tabs */
+.post-feed-category-filters { display: flex; gap: .3rem; padding: .4rem .5rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.post-feed-category-filter { font-size: .65rem; font-weight: 600; padding: .2rem .5rem; border: 1px solid var(--border); border-radius: 14px; color: var(--muted); text-decoration: none; transition: all .15s; }
+.post-feed-category-filter:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+.post-feed-category-filter-active { background: var(--primary, #2563eb); color: #fff; border-color: var(--primary, #2563eb); }
+.post-feed-category-filter-active:hover { text-decoration: none; }
+
 .post-feed-tabs {
   display: flex;
   border-bottom: 1px solid var(--border);

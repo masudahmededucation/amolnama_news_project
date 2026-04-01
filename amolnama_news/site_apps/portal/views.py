@@ -485,3 +485,121 @@ def content_dashboard_view(request):
         'content_items': content_items,
         'seo': {'noindex': True},
     })
+
+
+@login_required
+def analytics_dashboard_view(request):
+    """Analytics dashboard — engagement stats across all content. Staff only."""
+    if not request.user.is_staff:
+        return redirect('portal:home')
+
+    from django.db.models import Sum
+    from amolnama_news.site_apps.post.models import Post
+
+    # Post engagement totals
+    post_stats = Post.objects.filter(is_published=True, is_deleted=False).aggregate(
+        total_posts=Sum('post_post_id'),
+        total_likes=Sum('like_count'),
+        total_views=Sum('view_count'),
+        total_replies=Sum('reply_count'),
+        total_reposts=Sum('repost_count'),
+    )
+
+    # Content counts per app
+    content_counts = []
+
+    from amolnama_news.site_apps.newshub.models import PubArticle
+    content_counts.append({'label': 'News Articles', 'color': 'rose', 'count': PubArticle.objects.filter(is_published=True).count()})
+
+    from amolnama_news.site_apps.poem.models import CollPoemEntry
+    content_counts.append({'label': 'Poems', 'color': 'purple', 'count': CollPoemEntry.objects.filter(poem_status_code='published').count()})
+
+    from amolnama_news.site_apps.stories.models import CollStory
+    content_counts.append({'label': 'Stories', 'color': 'amber', 'count': CollStory.objects.filter(is_published=True, is_active=True).count()})
+
+    from amolnama_news.site_apps.art.models import CollArtwork
+    content_counts.append({'label': 'Artworks', 'color': 'blue', 'count': CollArtwork.objects.filter(is_published=True, is_active=True).count()})
+
+    from amolnama_news.site_apps.bangladesh.models import CollDestination
+    content_counts.append({'label': 'Travel Destinations', 'color': 'green', 'count': CollDestination.objects.filter(destination_status='published').count()})
+
+    from amolnama_news.site_apps.debate.models import CollTopic
+    content_counts.append({'label': 'Debates', 'color': 'amber', 'count': CollTopic.objects.filter(is_active=True).count()})
+
+    post_count = Post.objects.filter(is_published=True, is_deleted=False).count()
+    content_counts.append({'label': 'User Posts', 'color': 'blue', 'count': post_count})
+
+    # Top performing posts
+    top_posts = Post.objects.filter(
+        is_published=True, is_deleted=False,
+    ).order_by('-like_count')[:10]
+
+    top_post_items = []
+    for post in top_posts:
+        top_post_items.append({
+            'post_post_id': post.post_post_id,
+            'post_text_preview': (post.post_text_bn or '')[:80],
+            'like_count': post.like_count or 0,
+            'view_count': post.view_count or 0,
+            'reply_count': post.reply_count or 0,
+        })
+
+    return render(request, 'portal/pages/analytics-dashboard.html', {
+        'post_stats': post_stats,
+        'content_counts': content_counts,
+        'top_posts': top_post_items,
+        'seo': {'noindex': True},
+    })
+
+
+@login_required
+def moderation_queue_view(request):
+    """Moderation queue — flagged content for staff review. Staff only."""
+    if not request.user.is_staff:
+        return redirect('portal:home')
+
+    flagged_items = []
+
+    # Debate posts with fact-check flags
+    from amolnama_news.site_apps.debate.models import CollPost as DebatePost
+    flagged_debate_posts = DebatePost.objects.filter(
+        fact_check_flag_count__gt=0, is_deleted=False, is_active=True,
+    ).order_by('-fact_check_flag_count')[:20]
+
+    for post in flagged_debate_posts:
+        flagged_items.append({
+            'content_type': 'debate_post',
+            'content_type_label': 'DEBATE',
+            'content_type_color': 'amber',
+            'content_id': post.debate_coll_post_id,
+            'content_preview': (post.post_content or '')[:100],
+            'flag_count': post.fact_check_flag_count,
+            'is_fact_check_needed': post.is_fact_check_needed,
+            'content_url': f'/debate/topic/{post.link_topic_id}/',
+        })
+
+    # Post flags (if PostFlag model exists)
+    try:
+        from amolnama_news.site_apps.post.models import PostFlag
+        flagged_posts = PostFlag.objects.filter(
+            is_active=True,
+        ).order_by('-created_at')[:20]
+
+        for flag in flagged_posts:
+            flagged_items.append({
+                'content_type': 'post_flag',
+                'content_type_label': 'POST',
+                'content_type_color': 'rose',
+                'content_id': flag.link_post_id,
+                'content_preview': flag.flag_reason_code or 'Flagged',
+                'flag_count': 1,
+                'is_fact_check_needed': False,
+                'content_url': f'/post/{flag.link_post_id}/',
+            })
+    except Exception:
+        pass  # PostFlag model may not exist yet
+
+    return render(request, 'portal/pages/moderation-queue.html', {
+        'flagged_items': flagged_items,
+        'seo': {'noindex': True},
+    })
