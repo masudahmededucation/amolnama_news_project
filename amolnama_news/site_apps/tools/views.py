@@ -131,7 +131,7 @@ def tools_passport_photo_resizer(request):
     return render(request, "tools/tools-passport-photo-resizer.html", context)
 
 
-def tools_bg_remover(request):
+def tools_background_remover(request):
     """AI background remover tool page."""
     context = {
         "seo": {

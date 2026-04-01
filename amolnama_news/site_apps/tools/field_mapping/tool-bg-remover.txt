@@ -3,10 +3,10 @@ TOOL: Background Remover (ছবির ব্যাকগ্রাউন্ড �
 ================================================================================
 
 URL:        /tools/background-remover/
-View:       tools_bg_remover
+View:       tools_background_remover
 Template:   tools/tools-bg-remover.html
-JS:         tools/assets/js/pages/tools-bg-remover.js
-CSS:        tools/assets/css/pages/tools-bg-remover.css
+JS:         tools/assets/js/pages/tools-background-remover.js
+CSS:        tools/assets/css/pages/tools-background-remover.css
 
 External Libraries (CDN):
   - @mediapipe/selfie_segmentation 0.1.1675465747 — AI segmentation model
