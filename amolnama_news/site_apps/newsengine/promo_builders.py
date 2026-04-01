@@ -4,6 +4,7 @@ Add new apps by creating a build_*_promo_items() function and registering it in 
 """
 
 import logging
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +72,12 @@ def build_promotional_boost_items():
     for builder in builders:
         try:
             items = builder()
-            # Sort by engagement (likes + views), pick top 2
-            items.sort(key=lambda item: (item.get('promo_like_count') or 0) + (item.get('promo_view_count') or 0), reverse=True)
-            for promo in items[:2]:
-                promo['is_promotional_boost'] = True
-                boost_items.append(promo)
+            if items:
+                # Randomly pick 2 from all published items — exposes all content over time
+                selected = random.sample(items, min(2, len(items)))
+                for promo in selected:
+                    promo['is_promotional_boost'] = True
+                    boost_items.append(promo)
         except Exception:
             logger.exception('Failed to build promotional boost')
 
@@ -89,7 +91,107 @@ def build_promotional_boost_items():
     except Exception:
         logger.exception('Failed to build debate promotional boost')
 
+    # Tools — randomly pick 2 tools to promote
+    try:
+        boost_items.extend(_build_tools_promo_items())
+    except Exception:
+        logger.exception('Failed to build tools promotional boost')
+
     return boost_items
+
+
+# =========================================================
+# TOOLS — static tool pages, randomly promoted
+# =========================================================
+
+TOOLS_CATALOG = [
+    {
+        'tool_name_bn': 'ফাইল কম্প্রেশন',
+        'tool_name_en': 'Reduce File Size',
+        'tool_description': 'ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান — সম্পূর্ণ বিনামূল্যে।',
+        'tool_url': '/tools/reduce-file-size/',
+        'tool_icon': '📦',
+    },
+    {
+        'tool_name_bn': 'ফাইল রূপান্তর',
+        'tool_name_en': 'File Conversion',
+        'tool_description': 'ছবি, ডকুমেন্ট, অডিও, ভিডিও ফরম্যাট রূপান্তর করুন।',
+        'tool_url': '/tools/file-conversion/',
+        'tool_icon': '🔄',
+    },
+    {
+        'tool_name_bn': 'জিপ ক্রিয়েটর',
+        'tool_name_en': 'ZIP Creator',
+        'tool_description': 'একাধিক ফাইল একটি ZIP আর্কাইভে বান্ডেল করুন।',
+        'tool_url': '/tools/zip-creator/',
+        'tool_icon': '🗜️',
+    },
+    {
+        'tool_name_bn': 'পাসপোর্ট ফটো রিসাইজার',
+        'tool_name_en': 'Passport Photo Resizer',
+        'tool_description': 'পাসপোর্ট, ভিসা, NID ছবি ও স্বাক্ষর রিসাইজ করুন।',
+        'tool_url': '/tools/passport-photo-resizer/',
+        'tool_icon': '📷',
+    },
+    {
+        'tool_name_bn': 'ব্যাকগ্রাউন্ড রিমুভার',
+        'tool_name_en': 'Background Remover',
+        'tool_description': 'AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — ব্রাউজারেই।',
+        'tool_url': '/tools/background-remover/',
+        'tool_icon': '🪄',
+    },
+    {
+        'tool_name_bn': 'ডকুমেন্ট মার্জ',
+        'tool_name_en': 'Merge Documents',
+        'tool_description': 'একাধিক PDF ও ছবি একটি PDF-এ একত্রিত করুন।',
+        'tool_url': '/tools/merge-documents/',
+        'tool_icon': '📑',
+    },
+    {
+        'tool_name_bn': 'পিডিএফ স্প্লিট',
+        'tool_name_en': 'Split PDF',
+        'tool_description': 'পিডিএফ থেকে নির্দিষ্ট পাতা আলাদা করুন।',
+        'tool_url': '/tools/split-pdf/',
+        'tool_icon': '✂️',
+    },
+    {
+        'tool_name_bn': 'ফটো অ্যালবাম মেকার',
+        'tool_name_en': 'Photo Album Maker',
+        'tool_description': 'প্রিন্ট-রেডি ফটো অ্যালবাম পেজ তৈরি করুন।',
+        'tool_url': '/tools/photo-album/',
+        'tool_icon': '🖼️',
+    },
+    {
+        'tool_name_bn': 'জিপিএ ক্যালকুলেটর',
+        'tool_name_en': 'GPA Calculator',
+        'tool_description': 'এসএসসি, এইচএসসি জিপিএ ও বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন।',
+        'tool_url': '/tools/gpa-calculator/',
+        'tool_icon': '🎓',
+    },
+    {
+        'tool_name_bn': 'বয়স ক্যালকুলেটর',
+        'tool_name_en': 'Age Calculator',
+        'tool_description': 'জন্মতারিখ থেকে বয়স, রাশি, হৃদপিণ্ডের স্পন্দন ও মজার তথ্য জানুন।',
+        'tool_url': '/tools/age-calculator/',
+        'tool_icon': '🎂',
+    },
+]
+
+
+def _build_tools_promo_items():
+    """Randomly pick 2 tools to promote in the feed."""
+    selected_tools = random.sample(TOOLS_CATALOG, min(2, len(TOOLS_CATALOG)))
+    items = []
+    for tool in selected_tools:
+        items.append({
+            'item_type': 'tools_promo',
+            'tool_icon': tool['tool_icon'],
+            'tool_name_bn': tool['tool_name_bn'],
+            'tool_name_en': tool['tool_name_en'],
+            'tool_description': tool['tool_description'],
+            'tool_url': tool['tool_url'],
+        })
+    return items
 
 
 def _build_newshub_promo_items():

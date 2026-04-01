@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 <link rel="stylesheet" href="{% static 'debate/assets/css/components/debate-promo-card.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/components/tools-promo-card.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -28,6 +29,8 @@
   {% include "debate/components/debate-promo-card.html" with promo=post_item %}
   {% elif post_item.item_type == 'content_promo' %}
   {% include "core/components/content-promo-card.html" with promo=post_item %}
+  {% elif post_item.item_type == 'tools_promo' %}
+  {% include "tools/components/tools-promo-card.html" with promo=post_item %}
   {% else %}
   {% include "post/components/post-card.html" %}
   {% endif %}
@@ -56,4 +59,5 @@
 {% block extra_js %}
 <script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
 <script src="{% static 'post/assets/js/pages/post-home.js' %}"></script>
+<script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}"></script>
 {% endblock %}

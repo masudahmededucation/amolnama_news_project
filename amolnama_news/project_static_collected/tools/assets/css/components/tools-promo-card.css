@@ -1,0 +1,59 @@
+/* Tools Promo Card — promotes free tools in the home feed */
+
+.tools-promo-card {
+  border: 1px solid var(--border);
+  border-left: 3px solid #0ea5e9;
+  border-radius: 12px;
+  padding: .75rem 1rem;
+  margin-bottom: .5rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+  transition: border-color .15s, box-shadow .15s;
+}
+.tools-promo-card:hover { border-color: #0ea5e9; box-shadow: 0 2px 12px rgba(14,165,233,.12); }
+
+.tools-promo-card-link { display: block; text-decoration: none; color: inherit; }
+.tools-promo-card-link:hover { text-decoration: none; }
+
+/* Header */
+.tools-promo-card-header { margin-bottom: .3rem; }
+.tools-promo-card-badge {
+  font-size: .55rem; font-weight: 800; letter-spacing: .08em;
+  background: #0ea5e9; color: #fff; padding: .1rem .45rem; border-radius: 8px;
+  text-transform: uppercase;
+}
+
+/* Body — icon + info */
+.tools-promo-card-body { display: flex; align-items: flex-start; gap: .6rem; }
+.tools-promo-card-icon { font-size: 1.6rem; flex-shrink: 0; }
+.tools-promo-card-info { flex: 1; min-width: 0; }
+.tools-promo-card-title { font-size: .92rem; font-weight: 700; margin: 0 0 .15rem; line-height: 1.3; }
+.tools-promo-card-description { font-size: .75rem; color: #555; margin: 0; line-height: 1.4; }
+
+/* Footer — CTA + share */
+.tools-promo-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
+.tools-promo-card-cta {
+  font-size: .72rem; font-weight: 700; color: #fff;
+  background: #0ea5e9; padding: .2rem .6rem; border-radius: 12px;
+}
+
+/* Share */
+.tools-promo-card-share-wrapper { position: relative; }
+.tools-promo-card-share-toggle {
+  background: none; border: 1px solid #cbd5e1; border-radius: 50%; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted);
+  transition: all .15s;
+}
+.tools-promo-card-share-toggle:hover { border-color: #0ea5e9; color: #0ea5e9; }
+.tools-promo-card-share-dropdown {
+  display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: .3rem;
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 170px; z-index: 200; overflow: hidden;
+}
+.tools-promo-card-share-dropdown-open { display: block; }
+.tools-promo-card-share-item {
+  display: flex; align-items: center; gap: .4rem; width: 100%; padding: .45rem .7rem;
+  border: none; background: none; font-size: .72rem; font-weight: 500;
+  cursor: pointer; color: #333; text-decoration: none; transition: background .1s;
+}
+.tools-promo-card-share-item:hover { background: #f3f4f6; text-decoration: none; }
+.tools-promo-card-share-icon { width: .85rem; height: .85rem; flex-shrink: 0; }
