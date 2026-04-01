@@ -305,7 +305,7 @@ def build_debate_promo_items():
 
     topics = list(CollTopic.objects.filter(
         is_active=True,
-    ).order_by('-scheduled_start_at')[:3])
+    ).order_by('-scheduled_start_at'))
 
     if not topics:
         return []

@@ -1,5 +1,3 @@
-{# Universal content promo card — promotes articles, poems, stories, art, destinations in the home feed.
-   Context: promo (dict with item_type, promo_badge, promo_badge_color, title, description, url, stats, date) #}
 <a href="{{ promo.promo_url }}" class="content-promo-card content-promo-card-{{ promo.promo_color }}" id="content-promo-card-{{ promo.item_type }}-{{ promo.promo_id }}">
   <div class="content-promo-card-header" id="content-promo-card-header-{{ promo.item_type }}-{{ promo.promo_id }}">
     <span class="content-promo-card-badge content-promo-card-badge-{{ promo.promo_color }}" id="content-promo-card-badge-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_badge }}</span>
@@ -12,7 +10,7 @@
   <h3 class="content-promo-card-title" id="content-promo-card-title-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_title }}</h3>
 
   {% if promo.promo_description %}
-  <p class="content-promo-card-description" id="content-promo-card-description-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_description|truncatewords:30 }}</p>
+  <p class="content-promo-card-description" id="content-promo-card-description-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_description|striptags|truncatewords:30 }}</p>
   {% endif %}
 
   <div class="content-promo-card-footer" id="content-promo-card-footer-{{ promo.item_type }}-{{ promo.promo_id }}">

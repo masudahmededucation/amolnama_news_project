@@ -39,15 +39,15 @@
         <span class="content-dashboard-item-status {% if item.is_published %}content-dashboard-item-status-published{% else %}content-dashboard-item-status-draft{% endif %}" id="content-dashboard-item-status-{{ item.content_type }}-{{ item.content_id }}">
           {% if item.is_published %}Published{% else %}Draft{% endif %}
         </span>
-        <button type="button"
-                class="content-dashboard-item-toggle {% if item.is_published %}content-dashboard-item-toggle-unpublish{% else %}content-dashboard-item-toggle-publish{% endif %}"
-                id="content-dashboard-item-toggle-{{ item.content_type }}-{{ item.content_id }}"
-                name="content_dashboard_item_toggle_{{ item.content_type }}_{{ item.content_id }}"
-                data-content-type="{{ item.content_type }}"
-                data-content-id="{{ item.content_id }}"
-                data-is-published="{% if item.is_published %}true{% else %}false{% endif %}">
-          {% if item.is_published %}Unpublish{% else %}Publish{% endif %}
-        </button>
+        <label class="content-dashboard-toggle-switch" id="content-dashboard-toggle-switch-{{ item.content_type }}-{{ item.content_id }}">
+          <input type="checkbox" class="content-dashboard-toggle-input"
+                 id="content-dashboard-toggle-input-{{ item.content_type }}-{{ item.content_id }}"
+                 name="content_dashboard_toggle_input_{{ item.content_type }}_{{ item.content_id }}"
+                 data-content-type="{{ item.content_type }}"
+                 data-content-id="{{ item.content_id }}"
+                 {% if item.is_published %}checked{% endif %}>
+          <span class="content-dashboard-toggle-slider" id="content-dashboard-toggle-slider-{{ item.content_type }}-{{ item.content_id }}"></span>
+        </label>
       </div>
     </div>
     {% empty %}

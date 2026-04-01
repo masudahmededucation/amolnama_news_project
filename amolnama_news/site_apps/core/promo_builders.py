@@ -54,16 +54,66 @@ def build_all_promo_items():
     return all_promos
 
 
+def build_promotional_boost_items():
+    """Promotional boost — picks 2 best items per category for periodic re-surfacing.
+    Uses engagement (likes, views) to pick the most popular content.
+    These appear lower in the feed, separate from the chronological published items."""
+    boost_items = []
+
+    builders = [
+        _build_newshub_promo_items,
+        _build_poem_promo_items,
+        _build_stories_promo_items,
+        _build_art_promo_items,
+        _build_travel_promo_items,
+    ]
+
+    for builder in builders:
+        try:
+            items = builder()
+            # Sort by engagement (likes + views), pick top 2
+            items.sort(key=lambda item: (item.get('promo_like_count') or 0) + (item.get('promo_view_count') or 0), reverse=True)
+            for promo in items[:2]:
+                promo['is_promotional_boost'] = True
+                boost_items.append(promo)
+        except Exception:
+            logger.exception('Failed to build promotional boost')
+
+    # Also boost top debate
+    try:
+        from amolnama_news.site_apps.debate.views import build_debate_promo_items
+        debate_items = build_debate_promo_items()
+        for promo in debate_items[:2]:
+            promo['is_promotional_boost'] = True
+            boost_items.append(promo)
+    except Exception:
+        logger.exception('Failed to build debate promotional boost')
+
+    return boost_items
+
+
 def _build_newshub_promo_items():
-    """Latest published news articles."""
-    from amolnama_news.site_apps.newshub.models import PubArticle
+    """Latest published news articles — pulls summary from linked CollNewsEntry."""
+    from amolnama_news.site_apps.newshub.models import PubArticle, CollNewsEntry
 
     articles = PubArticle.objects.filter(
         is_published=True,
-    ).order_by('-created_at')[:2]
+    ).order_by('-created_at')
+
+    # Bulk-fetch linked news entries for summaries
+    entry_ids = [article.link_news_entry_id for article in articles if article.link_news_entry_id]
+    entry_map = {}
+    if entry_ids:
+        for entry in CollNewsEntry.objects.filter(coll_news_entry_id__in=entry_ids):
+            entry_map[entry.coll_news_entry_id] = entry
 
     items = []
     for article in articles:
+        entry = entry_map.get(article.link_news_entry_id)
+        description = ''
+        if entry:
+            description = entry.news_summary_bn or entry.news_content_body_bn or ''
+
         items.append({
             'item_type': 'content_promo',
             'promo_sort_date': article.created_at.isoformat() if article.created_at else '',
@@ -71,7 +121,7 @@ def _build_newshub_promo_items():
             'promo_badge': 'NEWS',
             'promo_color': 'rose',
             'promo_title': article.pub_article_headline_bn or '',
-            'promo_description': (article.pub_article_content_bn or '')[:200],
+            'promo_description': description[:300],
             'promo_url': f'/newshub/article/{article.pub_article_slug}/',
             'promo_author': None,
             'promo_date_formatted': article.created_at.strftime('%d %b %Y') if article.created_at else '',
@@ -89,7 +139,7 @@ def _build_poem_promo_items():
 
     poems = CollPoemEntry.objects.filter(
         poem_status_code='published',
-    ).order_by('-created_at')[:2]
+    ).order_by('-created_at')
 
     items = []
     for poem in poems:
@@ -118,7 +168,7 @@ def _build_stories_promo_items():
 
     stories = CollStory.objects.filter(
         is_published=True, is_active=True,
-    ).order_by('-created_at')[:2]
+    ).order_by('-created_at')
 
     items = []
     for story in stories:
@@ -148,7 +198,7 @@ def _build_art_promo_items():
 
     artworks = CollArtwork.objects.filter(
         is_published=True, is_active=True,
-    ).order_by('-created_at')[:2]
+    ).order_by('-created_at')
 
     items = []
     for artwork in artworks:
@@ -177,7 +227,7 @@ def _build_travel_promo_items():
 
     destinations = CollDestination.objects.filter(
         destination_status='published',
-    ).order_by('-created_at')[:2]
+    ).order_by('-created_at')
 
     items = []
     for destination in destinations:

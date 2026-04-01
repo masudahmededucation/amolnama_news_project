@@ -34,18 +34,16 @@
     });
   });
 
-  /* ---- PUBLISH/UNPUBLISH TOGGLE ---- */
-  document.addEventListener('click', function (event) {
-    var toggleButton = event.target.closest('.content-dashboard-item-toggle');
-    if (!toggleButton) return;
+  /* ---- PUBLISH/UNPUBLISH TOGGLE (checkbox slider) ---- */
+  document.addEventListener('change', function (event) {
+    var toggleInput = event.target.closest('.content-dashboard-toggle-input');
+    if (!toggleInput) return;
 
-    var contentType = toggleButton.getAttribute('data-content-type');
-    var contentId = parseInt(toggleButton.getAttribute('data-content-id'), 10);
-    var currentlyPublished = toggleButton.getAttribute('data-is-published') === 'true';
-    var newPublishState = !currentlyPublished;
+    var contentType = toggleInput.getAttribute('data-content-type');
+    var contentId = parseInt(toggleInput.getAttribute('data-content-id'), 10);
+    var newPublishState = toggleInput.checked;
 
-    toggleButton.disabled = true;
-    toggleButton.textContent = '...';
+    toggleInput.disabled = true;
 
     fetch('/portal/api/content/toggle-publish/', {
       method: 'POST',
@@ -59,14 +57,8 @@
     .then(function (response) { return response.json(); })
     .then(function (data) {
       if (data.success) {
-        /* Update button */
-        toggleButton.setAttribute('data-is-published', newPublishState ? 'true' : 'false');
-        toggleButton.textContent = newPublishState ? 'Unpublish' : 'Publish';
-        toggleButton.className = 'content-dashboard-item-toggle ' +
-          (newPublishState ? 'content-dashboard-item-toggle-unpublish' : 'content-dashboard-item-toggle-publish');
-
         /* Update status badge */
-        var itemRow = toggleButton.closest('.content-dashboard-item');
+        var itemRow = toggleInput.closest('.content-dashboard-item');
         var statusBadge = itemRow.querySelector('.content-dashboard-item-status');
         if (statusBadge) {
           statusBadge.textContent = newPublishState ? 'Published' : 'Draft';
@@ -74,13 +66,14 @@
             (newPublishState ? 'content-dashboard-item-status-published' : 'content-dashboard-item-status-draft');
         }
       } else {
-        toggleButton.textContent = currentlyPublished ? 'Unpublish' : 'Publish';
+        /* Revert toggle on failure */
+        toggleInput.checked = !newPublishState;
       }
-      toggleButton.disabled = false;
+      toggleInput.disabled = false;
     })
     .catch(function () {
-      toggleButton.textContent = currentlyPublished ? 'Unpublish' : 'Publish';
-      toggleButton.disabled = false;
+      toggleInput.checked = !newPublishState;
+      toggleInput.disabled = false;
     });
   });
 })();
