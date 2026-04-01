@@ -65,12 +65,17 @@
   <div class="debate-passion-board" id="debate-passion-board">
     <div class="debate-passion-board-title">🔥 Passion Board</div>
     {% if topic.winning_side == 'blue' %}
-    <div class="debate-passion-winner debate-passion-winner-blue">👑 {{ topic.blue_side_label }} এগিয়ে আছেন!</div>
+    <div class="debate-passion-winner debate-passion-winner-blue">🏆 {{ topic.blue_side_label }} — এগিয়ে আছেন!</div>
     {% elif topic.winning_side == 'red' %}
-    <div class="debate-passion-winner debate-passion-winner-red">👑 {{ topic.red_side_label }} এগিয়ে আছেন!</div>
+    <div class="debate-passion-winner debate-passion-winner-red">🏆 {{ topic.red_side_label }} — এগিয়ে আছেন!</div>
     {% else %}
-    <div class="debate-passion-winner debate-passion-winner-tie">⚔️ সমান সমান — লড়াই চলছে!</div>
+    <div class="debate-passion-winner debate-passion-winner-tie">⚔️ টাই! সমান সমান — আপনার ভোট দিয়ে টাই ভাঙুন!</div>
     {% endif %}
+    <div class="debate-passion-score-display" id="debate-passion-score-display">
+      <span class="debate-passion-score-blue">🔵 {{ topic.blue_total_score }} পয়েন্ট</span>
+      <span class="debate-passion-score-vs">vs</span>
+      <span class="debate-passion-score-red">🔴 {{ topic.red_total_score }} পয়েন্ট</span>
+    </div>
 
     <!-- Participants -->
     <div class="debate-passion-row">
@@ -185,7 +190,6 @@
     <div class="debate-arena-board debate-arena-board-blue" id="debate-arena-board-blue">
       <div class="debate-arena-board-header debate-arena-board-header-blue">
         <span class="debate-arena-board-label">
-          {% if topic.winning_side == 'blue' %}<span class="debate-arena-crown debate-arena-crown-blue">👑</span>{% endif %}
           🔵 {{ topic.blue_side_label }}
         </span>
         <span class="debate-arena-board-count" id="debate-arena-blue-count">{{ blue_threads|length }}</span>
@@ -240,7 +244,6 @@
     <div class="debate-arena-board debate-arena-board-red" id="debate-arena-board-red">
       <div class="debate-arena-board-header debate-arena-board-header-red">
         <span class="debate-arena-board-label">
-          {% if topic.winning_side == 'red' %}<span class="debate-arena-crown debate-arena-crown-red">👑</span>{% endif %}
           🔴 {{ topic.red_side_label }}
         </span>
         <span class="debate-arena-board-count" id="debate-arena-red-count">{{ red_threads|length }}</span>

@@ -38,13 +38,14 @@ def _get_team_side_map():
 def _calculate_winning_side(blue_participants, blue_posts, blue_upvotes, blue_sentences,
                             red_participants, red_posts, red_upvotes, red_sentences,
                             audience_blue_votes=0, audience_red_votes=0):
-    """Calculate which side is winning. Returns 'blue', 'red', or 'tie'.
+    """Calculate which side is winning. Returns (side, blue_score, red_score).
     Formula: (audience_votes × 4) + (upvotes × 3) + (posts × 2) + participants + sentences."""
     blue_score = (audience_blue_votes * 4) + (blue_upvotes * 3) + (blue_posts * 2) + blue_participants + blue_sentences
     red_score = (audience_red_votes * 4) + (red_upvotes * 3) + (red_posts * 2) + red_participants + red_sentences
     if blue_score == red_score:
-        return 'tie'
-    return 'blue' if blue_score > red_score else 'red'
+        return 'tie', blue_score, red_score
+    winner = 'blue' if blue_score > red_score else 'red'
+    return winner, blue_score, red_score
 
 
 def _safe_percent(value, total):
@@ -204,16 +205,13 @@ def topic_detail(request, topic_id):
                 'debate_argument_count': profile.debate_argument_count,
             }
 
-    # Champion badge — find top-scored root argument per side
-    champion_post_ids = set()
-    if blue_root_arguments:
-        blue_champion = max(blue_root_arguments, key=lambda post: post.score)
-        if blue_champion.score > 0:
-            champion_post_ids.add(blue_champion.debate_coll_post_id)
-    if red_root_arguments:
-        red_champion = max(red_root_arguments, key=lambda post: post.score)
-        if red_champion.score > 0:
-            champion_post_ids.add(red_champion.debate_coll_post_id)
+    # Champion badge — ONE highest-scored argument across BOTH sides
+    champion_post_id = None
+    all_root_arguments = blue_root_arguments + red_root_arguments
+    if all_root_arguments:
+        top_argument = max(all_root_arguments, key=lambda post: post.score)
+        if top_argument.score > 0:
+            champion_post_id = top_argument.debate_coll_post_id
 
     # Build post items with author info, reputation, citation, fact-check
     def _build_post_item(post):
@@ -237,7 +235,7 @@ def topic_detail(request, topic_id):
             'post_impact_score': post.post_impact_score,
             'post_argument_strength': post.post_argument_strength,
             'post_argument_strength_pct': int(float(post.post_argument_strength or 0) * 100),
-            'is_champion': post.debate_coll_post_id in champion_post_ids,
+            'is_champion': post.debate_coll_post_id == champion_post_id,
             'is_suppressed': post.is_suppressed,
             'citation_source_url': post.citation_source_url or '',
             'citation_source_text': post.citation_source_text or '',
@@ -297,19 +295,26 @@ def topic_detail(request, topic_id):
         'passion_upvotes_red_pct': _safe_percent(topic.red_upvote_count, topic.blue_upvote_count + topic.red_upvote_count),
         'passion_sentences_blue_pct': _safe_percent(topic.blue_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
         'passion_sentences_red_pct': _safe_percent(topic.red_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
-        # Dynamic winner — calculated live, no DB column needed
-        'winning_side': _calculate_winning_side(
-            blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
-            red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
-            topic.audience_blue_vote_count, topic.audience_red_vote_count,
-        ),
+        # Dynamic winner — calculated live with scores visible to users
+    }
+
+    winning_side, blue_total_score, red_total_score = _calculate_winning_side(
+        blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
+        red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+        topic.audience_blue_vote_count, topic.audience_red_vote_count,
+    )
+    topic_item['winning_side'] = winning_side
+    topic_item['blue_total_score'] = blue_total_score
+    topic_item['red_total_score'] = red_total_score
+
+    topic_item.update({
         # Audience voting
         'audience_blue_vote_count': topic.audience_blue_vote_count,
         'audience_red_vote_count': topic.audience_red_vote_count,
         'audience_total_votes': topic.audience_blue_vote_count + topic.audience_red_vote_count,
         'audience_blue_pct': _safe_percent(topic.audience_blue_vote_count, topic.audience_blue_vote_count + topic.audience_red_vote_count),
         'audience_red_pct': _safe_percent(topic.audience_red_vote_count, topic.audience_blue_vote_count + topic.audience_red_vote_count),
-    }
+    })
 
     # Notification count for authenticated users
     notification_unread_count = 0
@@ -544,12 +549,16 @@ def topic_download_pdf(request, topic_id):
         'passion_upvotes_red_pct': _safe_percent(topic.red_upvote_count, topic.blue_upvote_count + topic.red_upvote_count),
         'passion_sentences_blue_pct': _safe_percent(topic.blue_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
         'passion_sentences_red_pct': _safe_percent(topic.red_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
-        'winning_side': _calculate_winning_side(
-            blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
-            red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
-            topic.audience_blue_vote_count, topic.audience_red_vote_count,
-        ),
     }
+
+    pdf_winning_side, pdf_blue_score, pdf_red_score = _calculate_winning_side(
+        blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
+        red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+        topic.audience_blue_vote_count, topic.audience_red_vote_count,
+    )
+    topic_item['winning_side'] = pdf_winning_side
+    topic_item['blue_total_score'] = pdf_blue_score
+    topic_item['red_total_score'] = pdf_red_score
 
     html_content = render_to_string('debate/pages/debate-arena-pdf.html', {
         'topic': topic_item,

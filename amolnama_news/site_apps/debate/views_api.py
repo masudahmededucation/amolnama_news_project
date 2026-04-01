@@ -301,7 +301,7 @@ def api_topic_close(request, topic_id):
     from amolnama_news.site_apps.debate.views import _calculate_winning_side
     blue_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=1, is_active=True).count()
     red_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=2, is_active=True).count()
-    winning_side_code = _calculate_winning_side(
+    winning_side_code, _, _ = _calculate_winning_side(
         blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
         red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
         topic.audience_blue_vote_count, topic.audience_red_vote_count,
