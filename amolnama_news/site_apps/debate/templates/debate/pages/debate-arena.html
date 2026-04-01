@@ -185,6 +185,19 @@
         <span class="debate-arena-board-count" id="debate-arena-blue-count">{{ blue_threads|length }}</span>
       </div>
 
+      {% if topic.blue_side_video_url or topic.blue_side_image_url %}
+      <div class="debate-arena-board-media" id="debate-arena-board-media-blue">
+        {% if topic.blue_side_image_url %}
+        <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-blue">
+        {% endif %}
+        {% if topic.blue_side_video_url %}
+        <a href="{{ topic.blue_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-blue">
+          <span class="debate-arena-board-media-video-play">▶</span> ভিডিও দেখুন
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
       {% if current_user_side == 'blue' and topic.is_live %}
       <div class="debate-arena-composer debate-arena-composer-blue" id="debate-arena-composer-blue">
         <label for="debate-arena-composer-blue-textarea" class="debate-arena-composer-label">🔵 আপনার যুক্তি লিখুন (New Argument)</label>
@@ -226,6 +239,19 @@
         </span>
         <span class="debate-arena-board-count" id="debate-arena-red-count">{{ red_threads|length }}</span>
       </div>
+
+      {% if topic.red_side_video_url or topic.red_side_image_url %}
+      <div class="debate-arena-board-media" id="debate-arena-board-media-red">
+        {% if topic.red_side_image_url %}
+        <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-red">
+        {% endif %}
+        {% if topic.red_side_video_url %}
+        <a href="{{ topic.red_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-red">
+          <span class="debate-arena-board-media-video-play">▶</span> ভিডিও দেখুন
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
 
       {% if current_user_side == 'red' and topic.is_live %}
       <div class="debate-arena-composer debate-arena-composer-red" id="debate-arena-composer-red">

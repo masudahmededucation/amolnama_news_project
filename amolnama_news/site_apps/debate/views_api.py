@@ -162,6 +162,10 @@ def api_topic_create(request):
     topic_description = (data.get('topic_description') or '').strip() or None
     blue_side_label = (data.get('blue_side_label') or '').strip() or None
     red_side_label = (data.get('red_side_label') or '').strip() or None
+    blue_side_video_url = (data.get('blue_side_video_url') or '').strip() or None
+    red_side_video_url = (data.get('red_side_video_url') or '').strip() or None
+    blue_side_image_url = (data.get('blue_side_image_url') or '').strip() or None
+    red_side_image_url = (data.get('red_side_image_url') or '').strip() or None
     scheduled_start_at_raw = data.get('scheduled_start_at')
 
     if not topic_title or len(topic_title) < 10:
@@ -190,12 +194,16 @@ def api_topic_create(request):
         INSERT INTO [debate].[coll_topic]
             ([topic_guid], [topic_title], [topic_description],
              [blue_side_label], [red_side_label],
+             [blue_side_video_url], [red_side_video_url],
+             [blue_side_image_url], [red_side_image_url],
              [link_topic_status_id],
              [scheduled_start_at], [actual_started_at], [link_created_by_user_profile_id])
         OUTPUT INSERTED.debate_coll_topic_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [topic_guid, topic_title, topic_description,
           blue_side_label, red_side_label,
+          blue_side_video_url, red_side_video_url,
+          blue_side_image_url, red_side_image_url,
           live_status.debate_ref_topic_status_id, scheduled_start_at, now, user_profile_id])
     topic_id = cursor.fetchone()[0]
 

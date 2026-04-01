@@ -132,6 +132,83 @@
     formContainer.appendChild(blueSideLabelInput);
     formContainer.appendChild(redSideLabelLabel);
     formContainer.appendChild(redSideLabelInput);
+
+    /* Media URL fields — video + image per side */
+    var mediaSection = document.createElement('div');
+    mediaSection.className = 'debate-home-create-media-section';
+
+    var mediaSectionToggle = document.createElement('button');
+    mediaSectionToggle.type = 'button';
+    mediaSectionToggle.className = 'debate-home-create-media-toggle';
+    mediaSectionToggle.id = 'debate-home-create-media-toggle';
+    mediaSectionToggle.name = 'debate_home_create_media_toggle';
+    mediaSectionToggle.textContent = '📎 ভিডিও/ছবি যোগ করুন (ঐচ্ছিক)';
+
+    var mediaFields = document.createElement('div');
+    mediaFields.className = 'debate-home-create-media-fields debate-home-create-media-fields-hidden';
+    mediaFields.id = 'debate-home-create-media-fields';
+
+    var blueVideoLabel = document.createElement('label');
+    blueVideoLabel.setAttribute('for', 'debate-home-create-blue-video-url');
+    blueVideoLabel.className = 'debate-home-create-label';
+    blueVideoLabel.textContent = '🔵 পক্ষের ভিডিও URL (YouTube)';
+    var blueVideoInput = document.createElement('input');
+    blueVideoInput.type = 'url';
+    blueVideoInput.className = 'debate-home-create-input';
+    blueVideoInput.id = 'debate-home-create-blue-video-url';
+    blueVideoInput.name = 'debate_home_create_blue_video_url';
+    blueVideoInput.placeholder = 'https://youtube.com/watch?v=...';
+
+    var redVideoLabel = document.createElement('label');
+    redVideoLabel.setAttribute('for', 'debate-home-create-red-video-url');
+    redVideoLabel.className = 'debate-home-create-label';
+    redVideoLabel.textContent = '🔴 বিপক্ষের ভিডিও URL (YouTube)';
+    var redVideoInput = document.createElement('input');
+    redVideoInput.type = 'url';
+    redVideoInput.className = 'debate-home-create-input';
+    redVideoInput.id = 'debate-home-create-red-video-url';
+    redVideoInput.name = 'debate_home_create_red_video_url';
+    redVideoInput.placeholder = 'https://youtube.com/watch?v=...';
+
+    var blueImageLabel = document.createElement('label');
+    blueImageLabel.setAttribute('for', 'debate-home-create-blue-image-url');
+    blueImageLabel.className = 'debate-home-create-label';
+    blueImageLabel.textContent = '🔵 পক্ষের ছবি URL';
+    var blueImageInput = document.createElement('input');
+    blueImageInput.type = 'url';
+    blueImageInput.className = 'debate-home-create-input';
+    blueImageInput.id = 'debate-home-create-blue-image-url';
+    blueImageInput.name = 'debate_home_create_blue_image_url';
+    blueImageInput.placeholder = 'https://example.com/image.jpg';
+
+    var redImageLabel = document.createElement('label');
+    redImageLabel.setAttribute('for', 'debate-home-create-red-image-url');
+    redImageLabel.className = 'debate-home-create-label';
+    redImageLabel.textContent = '🔴 বিপক্ষের ছবি URL';
+    var redImageInput = document.createElement('input');
+    redImageInput.type = 'url';
+    redImageInput.className = 'debate-home-create-input';
+    redImageInput.id = 'debate-home-create-red-image-url';
+    redImageInput.name = 'debate_home_create_red_image_url';
+    redImageInput.placeholder = 'https://example.com/image.jpg';
+
+    mediaFields.appendChild(blueVideoLabel);
+    mediaFields.appendChild(blueVideoInput);
+    mediaFields.appendChild(redVideoLabel);
+    mediaFields.appendChild(redVideoInput);
+    mediaFields.appendChild(blueImageLabel);
+    mediaFields.appendChild(blueImageInput);
+    mediaFields.appendChild(redImageLabel);
+    mediaFields.appendChild(redImageInput);
+
+    mediaSectionToggle.addEventListener('click', function () {
+      mediaFields.classList.toggle('debate-home-create-media-fields-hidden');
+    });
+
+    mediaSection.appendChild(mediaSectionToggle);
+    mediaSection.appendChild(mediaFields);
+    formContainer.appendChild(mediaSection);
+
     formContainer.appendChild(timeLabel);
     formContainer.appendChild(timeInput);
     formContainer.appendChild(buttonRow);
@@ -173,6 +250,10 @@
           topic_description: topicDescription,
           blue_side_label: blueSideLabel,
           red_side_label: redSideLabel,
+          blue_side_video_url: blueVideoInput.value.trim() || null,
+          red_side_video_url: redVideoInput.value.trim() || null,
+          blue_side_image_url: blueImageInput.value.trim() || null,
+          red_side_image_url: redImageInput.value.trim() || null,
           scheduled_start_at: scheduledTime,
         }),
       })
