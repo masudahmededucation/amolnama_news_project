@@ -54,7 +54,7 @@
     </a>
     {% endif %}
 
-    <a href="{% url 'portal:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'portal' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-portal" name="sidebar_navigation_item_portal" title="পোর্টাল — প্রোফাইল (Portal)">
+    <a href="{% url 'portal:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'portal' and '/portal/content/' not in request.path and '/portal/analytics/' not in request.path and '/portal/moderation/' not in request.path %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-portal" name="sidebar_navigation_item_portal" title="পোর্টাল — প্রোফাইল (Portal)">
       <span class="sidebar-navigation-item-icon">👤</span>
       <span class="sidebar-navigation-item-label">পোর্টাল</span>
     </a>
