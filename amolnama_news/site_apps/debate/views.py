@@ -290,6 +290,108 @@ def topic_detail(request, topic_id):
     return render(request, 'debate/pages/debate-arena.html', context)
 
 
+def build_debate_promo_items():
+    """Build promo card data for active debates — injected into the home feed.
+    Returns a list of dicts, one per live/recent debate (max 3)."""
+    status_map = _get_topic_status_map()
+    team_side_map = _get_team_side_map()
+
+    # Find live topics first, then recent scheduled/closed (max 3 total)
+    live_status_id = None
+    for status_id, status in status_map.items():
+        if status.topic_status_code == 'live':
+            live_status_id = status_id
+            break
+
+    topics = list(CollTopic.objects.filter(
+        is_active=True,
+    ).order_by('-scheduled_start_at')[:3])
+
+    if not topics:
+        return []
+
+    # Bulk-fetch top arguments (highest score) for each topic, per side
+    topic_ids = [topic.debate_coll_topic_id for topic in topics]
+    blue_side_id = 1
+    red_side_id = 2
+
+    top_blue_posts = {}
+    top_red_posts = {}
+    for post in CollPost.objects.filter(
+        link_topic_id__in=topic_ids,
+        link_parent_post_id__isnull=True,
+        is_deleted=False, is_auto_rejected=False, is_active=True,
+    ).order_by('-score', '-posted_at'):
+        topic_id = post.link_topic_id
+        if post.link_thread_board_side_id == blue_side_id and topic_id not in top_blue_posts:
+            top_blue_posts[topic_id] = post
+        elif post.link_thread_board_side_id == red_side_id and topic_id not in top_red_posts:
+            top_red_posts[topic_id] = post
+
+    # Bulk-fetch author names
+    author_ids = set()
+    for post in list(top_blue_posts.values()) + list(top_red_posts.values()):
+        author_ids.add(post.link_author_user_profile_id)
+
+    author_display_name_map = {}
+    if author_ids:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        for profile in UserProfile.objects.filter(user_profile_id__in=author_ids):
+            author_display_name_map[profile.user_profile_id] = profile.display_name or 'ব্যবহারকারী'
+
+    # Participant counts per topic
+    from django.db.models import Count
+    participant_counts = {}
+    for row in CollTopicParticipant.objects.filter(
+        link_topic_id__in=topic_ids, is_active=True,
+    ).values('link_topic_id').annotate(total=Count('debate_coll_topic_participant_id')):
+        participant_counts[row['link_topic_id']] = row['total']
+
+    promo_items = []
+    for topic in topics:
+        status = status_map.get(topic.link_topic_status_id)
+        topic_id = topic.debate_coll_topic_id
+
+        blue_post = top_blue_posts.get(topic_id)
+        red_post = top_red_posts.get(topic_id)
+
+        blue_top_argument = None
+        if blue_post:
+            blue_top_argument = {
+                'post_content': blue_post.post_content,
+                'author_display_name': author_display_name_map.get(blue_post.link_author_user_profile_id, 'ব্যবহারকারী'),
+            }
+
+        red_top_argument = None
+        if red_post:
+            red_top_argument = {
+                'post_content': red_post.post_content,
+                'author_display_name': author_display_name_map.get(red_post.link_author_user_profile_id, 'ব্যবহারকারী'),
+            }
+
+        total_posts = topic.blue_post_count + topic.red_post_count
+
+        promo_items.append({
+            'item_type': 'debate_promo',
+            'promo_sort_date': topic.scheduled_start_at.isoformat() if topic.scheduled_start_at else '',
+            'debate_coll_topic_id': topic_id,
+            'topic_title': topic.topic_title,
+            'topic_description': topic.topic_description,
+            'topic_status_code': status.topic_status_code if status else '',
+            'topic_status_name_bn': status.topic_status_name_bn if status else '',
+            'blue_side_label': topic.blue_side_label or 'পক্ষে (Pro)',
+            'red_side_label': topic.red_side_label or 'বিপক্ষে (Against)',
+            'total_participants': participant_counts.get(topic_id, 0),
+            'total_post_count': topic.total_post_count,
+            'passion_posts_blue_pct': _safe_percent(topic.blue_post_count, total_posts),
+            'passion_posts_red_pct': _safe_percent(topic.red_post_count, total_posts),
+            'blue_top_argument': blue_top_argument,
+            'red_top_argument': red_top_argument,
+        })
+
+    return promo_items
+
+
 def _sanitize_pdf_filename(raw_title):
     """Clean Bengali title for safe PDF filename — max 5 words, 50 chars."""
     cleaned = re.sub(r'[?!।:;\'"\/\\<>|*\n\r\t]', '', raw_title).strip()

@@ -6,6 +6,8 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+<link rel="stylesheet" href="{% static 'debate/assets/css/components/debate-promo-card.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -22,7 +24,13 @@
 
 <div class="post-feed" id="pulse-feed">
   {% for post_item in posts %}
+  {% if post_item.item_type == 'debate_promo' %}
+  {% include "debate/components/debate-promo-card.html" with promo=post_item %}
+  {% elif post_item.item_type == 'content_promo' %}
+  {% include "core/components/content-promo-card.html" with promo=post_item %}
+  {% else %}
   {% include "post/components/post-card.html" %}
+  {% endif %}
   {% empty %}
   <div class="post-feed-empty" id="pulse-feed-empty">
     {% if active_tab == 'following' %}

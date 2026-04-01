@@ -386,3 +386,102 @@ def profile_settings_view(request):
         "form": form,
         "seo": {"noindex": True},
     })
+
+
+@login_required
+def content_dashboard_view(request):
+    """Content dashboard — list all content from all apps with publish status toggle."""
+    if not request.user.is_staff:
+        return redirect('portal:home')
+
+    content_items = []
+
+    # Newshub articles
+    from amolnama_news.site_apps.newshub.models import PubArticle
+    for article in PubArticle.objects.all().order_by('-created_at')[:50]:
+        content_items.append({
+            'content_type': 'newshub',
+            'content_type_label': 'NEWS',
+            'content_type_color': 'rose',
+            'content_id': article.pub_article_id,
+            'content_title': article.pub_article_headline_bn or '(no title)',
+            'content_slug': article.pub_article_slug or '',
+            'content_url': f'/newshub/article/{article.pub_article_slug}/' if article.pub_article_slug else '',
+            'is_published': article.is_published,
+            'created_at': article.created_at,
+            'created_at_formatted': article.created_at.strftime('%d %b %Y, %I:%M %p') if article.created_at else '',
+        })
+
+    # Poems
+    from amolnama_news.site_apps.poem.models import CollPoemEntry
+    for poem in CollPoemEntry.objects.all().order_by('-created_at')[:50]:
+        is_published = getattr(poem, 'poem_status_code', '') == 'published'
+        content_items.append({
+            'content_type': 'poem',
+            'content_type_label': 'POEM',
+            'content_type_color': 'purple',
+            'content_id': poem.poem_coll_poem_entry_id,
+            'content_title': poem.poem_title_bn or '(no title)',
+            'content_slug': poem.poem_slug or '',
+            'content_url': f'/bangla-kobita-gaan/{poem.poem_slug}/' if poem.poem_slug else '',
+            'is_published': is_published,
+            'created_at': poem.created_at,
+            'created_at_formatted': poem.created_at.strftime('%d %b %Y, %I:%M %p') if poem.created_at else '',
+        })
+
+    # Stories
+    from amolnama_news.site_apps.stories.models import CollStory
+    for story in CollStory.objects.all().order_by('-created_at')[:50]:
+        content_items.append({
+            'content_type': 'stories',
+            'content_type_label': 'STORY',
+            'content_type_color': 'amber',
+            'content_id': story.stories_coll_story_id,
+            'content_title': story.story_title_bn or '(no title)',
+            'content_slug': story.story_slug or '',
+            'content_url': f'/stories-for-kids/{story.story_slug}/' if story.story_slug else '',
+            'is_published': story.is_published,
+            'created_at': story.created_at,
+            'created_at_formatted': story.created_at.strftime('%d %b %Y, %I:%M %p') if story.created_at else '',
+        })
+
+    # Art
+    from amolnama_news.site_apps.art.models import CollArtwork
+    for artwork in CollArtwork.objects.all().order_by('-created_at')[:50]:
+        content_items.append({
+            'content_type': 'art',
+            'content_type_label': 'ART',
+            'content_type_color': 'blue',
+            'content_id': artwork.art_coll_artwork_id,
+            'content_title': artwork.artwork_title_bn or '(no title)',
+            'content_slug': artwork.artwork_slug or '',
+            'content_url': f'/art-and-craft/{artwork.artwork_slug}/' if artwork.artwork_slug else '',
+            'is_published': artwork.is_published,
+            'created_at': artwork.created_at,
+            'created_at_formatted': artwork.created_at.strftime('%d %b %Y, %I:%M %p') if artwork.created_at else '',
+        })
+
+    # Travel destinations
+    from amolnama_news.site_apps.bangladesh.models import CollDestination
+    for destination in CollDestination.objects.all().order_by('-created_at')[:50]:
+        is_published = getattr(destination, 'destination_status', '') == 'published'
+        content_items.append({
+            'content_type': 'travel',
+            'content_type_label': 'TRAVEL',
+            'content_type_color': 'green',
+            'content_id': destination.bangladesh_coll_destination_id,
+            'content_title': destination.destination_name_bn or destination.destination_name_en or '(no title)',
+            'content_slug': destination.destination_slug or '',
+            'content_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/' if destination.destination_slug else '',
+            'is_published': is_published,
+            'created_at': destination.created_at,
+            'created_at_formatted': destination.created_at.strftime('%d %b %Y, %I:%M %p') if destination.created_at else '',
+        })
+
+    # Sort all by date — latest first
+    content_items.sort(key=lambda item: item.get('created_at') or timezone.now(), reverse=True)
+
+    return render(request, 'portal/pages/content-dashboard.html', {
+        'content_items': content_items,
+        'seo': {'noindex': True},
+    })

@@ -14,4 +14,6 @@ urlpatterns = [
     path('profile/address/', views.profile_address_view, name='profile_address'),
     path('profile/settings/', views.profile_settings_view, name='profile_settings'),
     path('api/avatar/upload/', views_api.api_avatar_upload, name='api_avatar_upload'),
+    path('content/', views.content_dashboard_view, name='content_dashboard'),
+    path('api/content/toggle-publish/', views_api.api_content_toggle_publish, name='api_content_toggle_publish'),
 ]

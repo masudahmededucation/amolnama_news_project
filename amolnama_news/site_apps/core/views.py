@@ -24,6 +24,14 @@ def home(request):
         active_tab = 'for_you'
         post_items, current_user_avatar_url = build_post_feed_items(request)
 
+    # Inject promo cards from ALL content apps — sorted by date, latest on top
+    # To add a new app: add a builder function in core/promo_builders.py
+    if active_tab == 'for_you':
+        from .promo_builders import build_all_promo_items
+        all_promo_items = build_all_promo_items()
+        for index, promo in enumerate(all_promo_items):
+            post_items.insert(index, promo)
+
     return render(request, 'pulse/pages/pulse-home.html', {
         'posts': post_items,
         'current_user_avatar_url': current_user_avatar_url,

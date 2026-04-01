@@ -1,0 +1,62 @@
+/* Universal Content Promo Card — promotes articles, poems, stories, art, destinations in home feed */
+
+.content-promo-card {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .85rem 1rem;
+  margin-bottom: .5rem;
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.content-promo-card:hover { text-decoration: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+
+/* Color variants — left border accent */
+.content-promo-card-blue { border-left: 3px solid #2563eb; }
+.content-promo-card-blue:hover { border-color: #2563eb; }
+.content-promo-card-green { border-left: 3px solid #059669; }
+.content-promo-card-green:hover { border-color: #059669; }
+.content-promo-card-purple { border-left: 3px solid #7c3aed; }
+.content-promo-card-purple:hover { border-color: #7c3aed; }
+.content-promo-card-amber { border-left: 3px solid #d97706; }
+.content-promo-card-amber:hover { border-color: #d97706; }
+.content-promo-card-rose { border-left: 3px solid #e11d48; }
+.content-promo-card-rose:hover { border-color: #e11d48; }
+
+/* Header */
+.content-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; flex-wrap: wrap; }
+.content-promo-card-badge {
+  font-size: .58rem; font-weight: 800; letter-spacing: .06em;
+  color: #fff; padding: .1rem .45rem; border-radius: 8px;
+  text-transform: uppercase;
+}
+.content-promo-card-badge-blue { background: #2563eb; }
+.content-promo-card-badge-green { background: #059669; }
+.content-promo-card-badge-purple { background: #7c3aed; }
+.content-promo-card-badge-amber { background: #d97706; }
+.content-promo-card-badge-rose { background: #e11d48; }
+.content-promo-card-author { font-size: .72rem; font-weight: 600; color: #555; }
+.content-promo-card-date { font-size: .65rem; color: var(--muted); margin-left: auto; }
+
+/* Title + Description */
+.content-promo-card-title { font-size: .95rem; font-weight: 700; margin: 0 0 .25rem; line-height: 1.4; }
+.content-promo-card-description { font-size: .78rem; color: #555; margin: 0 0 .4rem; line-height: 1.5; }
+
+/* Footer */
+.content-promo-card-footer { display: flex; justify-content: space-between; align-items: center; }
+.content-promo-card-stats { display: flex; gap: .6rem; font-size: .7rem; color: var(--muted); }
+.content-promo-card-stat { white-space: nowrap; }
+.content-promo-card-cta {
+  font-size: .72rem; font-weight: 700; color: #fff;
+  padding: .2rem .6rem; border-radius: 12px;
+  transition: opacity .15s;
+}
+.content-promo-card-cta-blue { background: #2563eb; }
+.content-promo-card-cta-green { background: #059669; }
+.content-promo-card-cta-purple { background: #7c3aed; }
+.content-promo-card-cta-amber { background: #d97706; }
+.content-promo-card-cta-rose { background: #e11d48; }
+.content-promo-card:hover .content-promo-card-cta { opacity: .9; }

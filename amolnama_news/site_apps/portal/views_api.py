@@ -1,6 +1,8 @@
-"""Portal API views — avatar upload."""
+"""Portal API views — avatar upload, content status management."""
 
 import hashlib
+import json
+import logging
 import os
 import uuid
 
@@ -10,6 +12,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.user_account.models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 
 @require_POST
@@ -80,3 +84,64 @@ def api_avatar_upload(request):
     avatar_url = '/media/' + file_storage_path
 
     return JsonResponse({'success': True, 'avatar_url': avatar_url})
+
+
+@require_POST
+@login_required
+def api_content_toggle_publish(request):
+    """Toggle publish status of any content item. Staff only."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    content_type = data.get('content_type', '')
+    content_id = data.get('content_id')
+    publish = data.get('publish', False)
+
+    if not content_type or not content_id:
+        return JsonResponse({'success': False, 'error': 'Missing content_type or content_id'}, status=400)
+
+    try:
+        if content_type == 'newshub':
+            from amolnama_news.site_apps.newshub.models import PubArticle
+            item = PubArticle.objects.get(pub_article_id=content_id)
+            item.is_published = publish
+            item.save(update_fields=['is_published'])
+
+        elif content_type == 'poem':
+            from amolnama_news.site_apps.poem.models import CollPoemEntry
+            item = CollPoemEntry.objects.get(poem_coll_poem_entry_id=content_id)
+            item.poem_status_code = 'published' if publish else 'draft'
+            item.save(update_fields=['poem_status_code'])
+
+        elif content_type == 'stories':
+            from amolnama_news.site_apps.stories.models import CollStory
+            item = CollStory.objects.get(stories_coll_story_id=content_id)
+            item.is_published = publish
+            item.save(update_fields=['is_published'])
+
+        elif content_type == 'art':
+            from amolnama_news.site_apps.art.models import CollArtwork
+            item = CollArtwork.objects.get(art_coll_artwork_id=content_id)
+            item.is_published = publish
+            item.save(update_fields=['is_published'])
+
+        elif content_type == 'travel':
+            from amolnama_news.site_apps.bangladesh.models import CollDestination
+            item = CollDestination.objects.get(bangladesh_coll_destination_id=content_id)
+            item.destination_status = 'published' if publish else 'draft'
+            item.save(update_fields=['destination_status'])
+
+        else:
+            return JsonResponse({'success': False, 'error': f'Unknown content type: {content_type}'}, status=400)
+
+    except Exception as error:
+        logger.exception('Failed to toggle publish for %s/%s: %s', content_type, content_id, error)
+        return JsonResponse({'success': False, 'error': 'Failed to update status'}, status=500)
+
+    status_label = 'Published' if publish else 'Draft'
+    return JsonResponse({'success': True, 'is_published': publish, 'status_label': status_label})

@@ -119,6 +119,11 @@
       <span class="sidebar-navigation-item-icon">📄</span>
       <span class="sidebar-navigation-item-label">Text Extractor</span>
     </a>
+
+    <a href="{% url 'portal:content_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/content/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-content-dashboard" name="sidebar_navigation_item_content_dashboard" title="Content Dashboard">
+      <span class="sidebar-navigation-item-icon">📋</span>
+      <span class="sidebar-navigation-item-label">Content Dashboard</span>
+    </a>
     {% endif %}
   </div>
 </nav>
