@@ -75,13 +75,17 @@ COMMON_BENGALI_WORDS = {
 # =========================================================
 
 def _normalize_whitespace(text):
-    """Clean whitespace: BOM, soft hyphens, multiple blank lines."""
+    """Clean whitespace: BOM, soft hyphens, join mid-paragraph line breaks."""
     text = text.replace('\ufeff', '')
     text = text.replace('\u00ad', '')
     text = text.replace('\xa0', ' ')
     text = re.sub(r'[ \t]+', ' ', text)
-    text = re.sub(r'\n[ \t]+\n', '\n\n', text)
+    # Collapse 3+ newlines to paragraph break
     text = re.sub(r'\n{3,}', '\n\n', text)
+    # Join mid-paragraph line breaks: single \n → space (preserve \n\n as paragraph break)
+    text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
+    # Clean up any resulting double spaces
+    text = re.sub(r'  +', ' ', text)
     return text.strip()
 
 

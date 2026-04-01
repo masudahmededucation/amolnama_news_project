@@ -38,6 +38,8 @@ def extract_text(file_path, engine_code=None, on_progress=None):
             from .engine_tesseract import extract as engine_extract
         elif engine_code == 'easyocr':
             from .engine_easyocr import extract as engine_extract
+        elif engine_code == 'tesseract_image':
+            from .engine_tesseract_image import extract as engine_extract
         elif engine_code == 'whisper':
             from .engine_whisper import extract as engine_extract
         elif engine_code == 'pymupdf':
