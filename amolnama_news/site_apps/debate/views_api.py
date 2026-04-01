@@ -7,7 +7,7 @@ import re
 import uuid
 
 from django.contrib.auth.decorators import login_required
-from django.db import connection
+from django.db import connection, models
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -247,6 +247,15 @@ def api_topic_join(request, topic_id):
         WHERE [debate_coll_topic_id] = ?
     """, [timezone.now(), topic_id])
 
+    # Update user debate_count (background)
+    import threading
+    def _update_debate_join_count():
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        UserProfile.objects.filter(user_profile_id=user_profile_id).update(
+            debate_count=models.F('debate_count') + 1,
+        )
+    threading.Thread(target=_update_debate_join_count, daemon=True).start()
+
     return JsonResponse({'success': True, 'team_side_code': team_side_code})
 
 
@@ -271,19 +280,50 @@ def api_topic_go_live(request, topic_id):
 @login_required
 @require_POST
 def api_topic_close(request, topic_id):
-    """Set topic status to 'closed'. Staff only."""
+    """Set topic status to 'closed', calculate winner, update participant win/loss counts. Staff only."""
     if not request.user.is_staff:
         return JsonResponse({'success': False, 'error': 'Staff only'}, status=403)
+
+    try:
+        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+    except CollTopic.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Topic not found'}, status=404)
+
+    # Calculate winner
+    from amolnama_news.site_apps.debate.views import _calculate_winning_side
+    blue_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=1, is_active=True).count()
+    red_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=2, is_active=True).count()
+    winning_side_code = _calculate_winning_side(
+        blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
+        red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+    )
 
     closed_status = RefTopicStatus.objects.filter(topic_status_code='closed').first()
     now = timezone.now()
     _raw_execute("""
         UPDATE [debate].[coll_topic]
-        SET [link_topic_status_id] = ?, [actual_closed_at] = ?, [updated_at] = ?
+        SET [link_topic_status_id] = ?, [actual_closed_at] = ?, [winning_side_code] = ?, [updated_at] = ?
         WHERE [debate_coll_topic_id] = ?
-    """, [closed_status.debate_ref_topic_status_id, now, now, topic_id])
+    """, [closed_status.debate_ref_topic_status_id, now, winning_side_code, now, topic_id])
 
-    return JsonResponse({'success': True})
+    # Update win/loss counts for participants — background thread
+    import threading
+    def _update_participant_win_loss():
+        winning_side_id = 1 if winning_side_code == 'blue' else 2 if winning_side_code == 'red' else None
+        if winning_side_id:
+            winning_participants = CollTopicParticipant.objects.filter(
+                link_topic_id=topic_id, link_team_side_id=winning_side_id, is_active=True,
+            ).values_list('link_user_profile_id', flat=True)
+            if winning_participants:
+                from amolnama_news.site_apps.user_account.models import UserProfile
+                UserProfile.objects.filter(user_profile_id__in=list(winning_participants)).update(
+                    debate_win_count=models.F('debate_win_count') + 1,
+                )
+
+    thread = threading.Thread(target=_update_participant_win_loss, daemon=True)
+    thread.start()
+
+    return JsonResponse({'success': True, 'winning_side_code': winning_side_code})
 
 
 # =========================================================
@@ -300,6 +340,8 @@ def api_post_argument(request, topic_id):
         return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
 
     post_content = (data.get('post_content') or '').strip()
+    citation_source_url = (data.get('citation_source_url') or '').strip() or None
+    citation_source_text = (data.get('citation_source_text') or '').strip() or None
     if not post_content:
         return JsonResponse({'success': False, 'error': 'পোস্ট খালি রাখা যাবে না'}, status=400)
 
@@ -371,9 +413,10 @@ def api_post_argument(request, topic_id):
              [link_post_kind_id], [link_thread_board_side_id],
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
-             [is_emoji_only], [post_content_hash])
+             [is_emoji_only], [post_content_hash],
+             [citation_source_url], [citation_source_text])
         OUTPUT INSERTED.debate_coll_post_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
         post_guid, topic_id, participant.debate_coll_topic_participant_id,
         user_profile_id, participant.link_team_side_id,
@@ -381,7 +424,7 @@ def api_post_argument(request, topic_id):
         post_content, metrics['post_character_count'], metrics['post_sentence_count'],
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
         metrics['post_non_language_ratio'], 1 if metrics['is_emoji_only'] else 0,
-        metrics['post_content_hash'],
+        metrics['post_content_hash'], citation_source_url, citation_source_text,
     ])
     post_id = cursor.fetchone()[0]
 
@@ -408,6 +451,15 @@ def api_post_argument(request, topic_id):
         WHERE [debate_coll_topic_participant_id] = ?
     """, [now, participant.debate_coll_topic_participant_id])
 
+    # Update user debate reputation (background)
+    import threading
+    def _update_argument_reputation():
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        UserProfile.objects.filter(user_profile_id=user_profile_id).update(
+            debate_argument_count=models.F('debate_argument_count') + 1,
+        )
+    threading.Thread(target=_update_argument_reputation, daemon=True).start()
+
     return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
 
 
@@ -422,6 +474,8 @@ def api_post_reply(request, topic_id):
 
     post_content = (data.get('post_content') or '').strip()
     parent_post_id = data.get('parent_post_id')
+    citation_source_url = (data.get('citation_source_url') or '').strip() or None
+    citation_source_text = (data.get('citation_source_text') or '').strip() or None
 
     if not post_content:
         return JsonResponse({'success': False, 'error': 'পোস্ট খালি রাখা যাবে না'}, status=400)
@@ -479,9 +533,10 @@ def api_post_reply(request, topic_id):
              [link_parent_post_id], [link_root_post_id], [post_reply_depth],
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
-             [is_emoji_only], [post_content_hash])
+             [is_emoji_only], [post_content_hash],
+             [citation_source_url], [citation_source_text])
         OUTPUT INSERTED.debate_coll_post_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
         post_guid, topic_id, participant.debate_coll_topic_participant_id,
         user_profile_id, participant.link_team_side_id,
@@ -492,7 +547,7 @@ def api_post_reply(request, topic_id):
         post_content, metrics['post_character_count'], metrics['post_sentence_count'],
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
         metrics['post_non_language_ratio'], 1 if metrics['is_emoji_only'] else 0,
-        metrics['post_content_hash'],
+        metrics['post_content_hash'], citation_source_url, citation_source_text,
     ])
     post_id = cursor.fetchone()[0]
 
@@ -705,4 +760,98 @@ def api_topic_boards(request, topic_id):
         'blue_participant_count': topic.blue_participant_count,
         'red_participant_count': topic.red_participant_count,
         'topic_score': topic.topic_score,
+    })
+
+
+# =========================================================
+# FACT-CHECK FLAG
+# =========================================================
+
+@login_required
+@require_POST
+def api_post_fact_check_flag(request, post_id):
+    """Flag a post for fact-checking. Increments count, marks as needing fact-check at 3+ flags."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        post = CollPost.objects.get(debate_coll_post_id=post_id, is_deleted=False, is_active=True)
+    except CollPost.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
+
+    now = timezone.now()
+    new_count = post.fact_check_flag_count + 1
+    is_needed = 1 if new_count >= 3 else 0
+
+    _raw_execute("""
+        UPDATE [debate].[coll_post]
+        SET [fact_check_flag_count] = ?, [is_fact_check_needed] = ?, [updated_at] = ?
+        WHERE [debate_coll_post_id] = ?
+    """, [new_count, is_needed, now, post_id])
+
+    return JsonResponse({
+        'success': True,
+        'fact_check_flag_count': new_count,
+        'is_fact_check_needed': bool(is_needed),
+    })
+
+
+# =========================================================
+# LINK PREVIEW (og:tags proxy)
+# =========================================================
+
+def api_link_preview(request):
+    """Fetch og:title, og:description, og:image for a URL. GET ?url=..."""
+    import urllib.request
+    import urllib.parse
+    from html.parser import HTMLParser
+
+    target_url = request.GET.get('url', '').strip()
+    if not target_url or not target_url.startswith('http'):
+        return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
+
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (compatible; AmolnamaBot/1.0)'}
+        url_request = urllib.request.Request(target_url, headers=headers)
+        response = urllib.request.urlopen(url_request, timeout=5)
+        html_content = response.read(50000).decode('utf-8', errors='ignore')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Could not fetch URL'}, status=400)
+
+    # Simple og:tag parser
+    og_data = {}
+    title_text = ''
+
+    class OgParser(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            nonlocal title_text
+            if tag == 'meta':
+                attr_dict = dict(attrs)
+                property_name = attr_dict.get('property', '').lower()
+                content_value = attr_dict.get('content', '')
+                if property_name == 'og:title':
+                    og_data['title'] = content_value
+                elif property_name == 'og:description':
+                    og_data['description'] = content_value
+                elif property_name == 'og:image':
+                    og_data['image'] = content_value
+
+        def handle_data(self, data):
+            nonlocal title_text
+            if self.lasttag == 'title' and not title_text:
+                title_text = data.strip()
+
+    try:
+        parser = OgParser()
+        parser.feed(html_content)
+    except Exception:
+        pass
+
+    return JsonResponse({
+        'success': True,
+        'title': og_data.get('title', title_text or ''),
+        'description': og_data.get('description', '')[:300],
+        'image': og_data.get('image', ''),
+        'url': target_url,
     })

@@ -10,23 +10,39 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
      data-author-side="{{ post.author_team_side_code }}">
 
   {% if post.is_champion %}
-  <div class="debate-argument-champion-badge">🏆 Champion</div>
+  <div class="debate-argument-champion-badge" id="debate-argument-champion-badge-{{ post.debate_coll_post_id }}">🏆 Champion</div>
   {% endif %}
 
-  <div class="debate-argument-card-header">
-    <span class="debate-argument-card-author">{{ post.author_display_name }}</span>
-    <span class="debate-argument-card-time">{{ post.posted_at_formatted }}</span>
+  {% if post.is_fact_check_needed %}
+  <div class="debate-argument-fact-check-badge" id="debate-argument-fact-check-badge-{{ post.debate_coll_post_id }}">⚠️ তথ্য যাচাই প্রয়োজন</div>
+  {% endif %}
+
+  <div class="debate-argument-card-header" id="debate-argument-card-header-{{ post.debate_coll_post_id }}">
+    <div class="debate-argument-card-author-info" id="debate-argument-card-author-info-{{ post.debate_coll_post_id }}">
+      <span class="debate-argument-card-author" id="debate-argument-card-author-{{ post.debate_coll_post_id }}">{{ post.author_display_name }}</span>
+      {% if post.author_debate_count > 0 %}
+      <span class="debate-argument-card-reputation" id="debate-argument-card-reputation-{{ post.debate_coll_post_id }}">🏅 {{ post.author_debate_count }} debates{% if post.author_debate_win_count > 0 %} · {{ post.author_debate_win_count }} wins{% endif %}</span>
+      {% endif %}
+    </div>
+    <span class="debate-argument-card-time" id="debate-argument-card-time-{{ post.debate_coll_post_id }}">{{ post.posted_at_formatted }}</span>
   </div>
 
-  <div class="debate-argument-card-content {% if post.is_suppressed %}debate-argument-card-suppressed{% endif %}">
+  <div class="debate-argument-card-content {% if post.is_suppressed %}debate-argument-card-suppressed{% endif %}" id="debate-argument-card-content-{{ post.debate_coll_post_id }}">
     {{ post.post_content }}
   </div>
 
-  {% if post.is_suppressed %}
-  <div class="debate-argument-suppressed-badge">⚠️ Challenged</div>
+  {% if post.citation_source_url %}
+  <div class="debate-argument-citation" id="debate-argument-citation-{{ post.debate_coll_post_id }}">
+    <span class="debate-argument-citation-label">📎 সূত্র:</span>
+    <a href="{{ post.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-argument-citation-link-{{ post.debate_coll_post_id }}">{{ post.citation_source_text|default:post.citation_source_url }}</a>
+  </div>
   {% endif %}
 
-  <div class="debate-argument-card-actions">
+  {% if post.is_suppressed %}
+  <div class="debate-argument-suppressed-badge" id="debate-argument-suppressed-badge-{{ post.debate_coll_post_id }}">⚠️ Challenged</div>
+  {% endif %}
+
+  <div class="debate-argument-card-actions" id="debate-argument-card-actions-{{ post.debate_coll_post_id }}">
     <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
             id="debate-argument-upvote-{{ post.debate_coll_post_id }}"
             name="debate_argument_upvote_{{ post.debate_coll_post_id }}"
@@ -39,7 +55,7 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
             data-post-id="{{ post.debate_coll_post_id }}" data-vote-value="-1">
       ▼
     </button>
-    <span class="debate-argument-reply-count">💬 {{ post.reply_count }}</span>
+    <span class="debate-argument-reply-count" id="debate-argument-reply-count-{{ post.debate_coll_post_id }}">💬 {{ post.reply_count }}</span>
     <button type="button" class="debate-argument-reply-button"
             id="debate-argument-reply-{{ post.debate_coll_post_id }}"
             name="debate_argument_reply_{{ post.debate_coll_post_id }}"
@@ -47,7 +63,17 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
             data-author-side="{{ post.author_team_side_code }}">
       উত্তর দিন
     </button>
+    <button type="button" class="debate-argument-fact-check-button"
+            id="debate-argument-fact-check-{{ post.debate_coll_post_id }}"
+            name="debate_argument_fact_check_{{ post.debate_coll_post_id }}"
+            data-post-id="{{ post.debate_coll_post_id }}"
+            title="তথ্য যাচাই করুন (Fact-check)">
+      ⚠️ <span class="debate-argument-fact-check-count">{{ post.fact_check_flag_count }}</span>
+    </button>
   </div>
+
+  <!-- Link embed preview container (populated by JS) -->
+  <div class="debate-argument-link-embeds" id="debate-argument-link-embeds-{{ post.debate_coll_post_id }}"></div>
 
   <!-- Nested rebuttals -->
   {% if post.replies %}
@@ -59,15 +85,22 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
          data-author-side="{{ reply.author_team_side_code }}"
          style="margin-left: {{ reply.post_reply_depth|add:0 }}rem;">
 
-      <div class="debate-rebuttal-card-header">
-        <span class="debate-rebuttal-card-side-indicator debate-rebuttal-card-side-indicator-{{ reply.author_team_side_code }}"></span>
-        <span class="debate-rebuttal-card-author">{{ reply.author_display_name }}</span>
-        <span class="debate-rebuttal-card-time">{{ reply.posted_at_formatted }}</span>
+      <div class="debate-rebuttal-card-header" id="debate-rebuttal-card-header-{{ reply.debate_coll_post_id }}">
+        <span class="debate-rebuttal-card-side-indicator debate-rebuttal-card-side-indicator-{{ reply.author_team_side_code }}" id="debate-rebuttal-card-side-indicator-{{ reply.debate_coll_post_id }}"></span>
+        <span class="debate-rebuttal-card-author" id="debate-rebuttal-card-author-{{ reply.debate_coll_post_id }}">{{ reply.author_display_name }}</span>
+        <span class="debate-rebuttal-card-time" id="debate-rebuttal-card-time-{{ reply.debate_coll_post_id }}">{{ reply.posted_at_formatted }}</span>
       </div>
 
-      <div class="debate-rebuttal-card-content">{{ reply.post_content }}</div>
+      <div class="debate-rebuttal-card-content" id="debate-rebuttal-card-content-{{ reply.debate_coll_post_id }}">{{ reply.post_content }}</div>
 
-      <div class="debate-rebuttal-card-actions">
+      {% if reply.citation_source_url %}
+      <div class="debate-argument-citation" id="debate-rebuttal-citation-{{ reply.debate_coll_post_id }}">
+        <span class="debate-argument-citation-label">📎 সূত্র:</span>
+        <a href="{{ reply.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-rebuttal-citation-link-{{ reply.debate_coll_post_id }}">{{ reply.citation_source_text|default:reply.citation_source_url }}</a>
+      </div>
+      {% endif %}
+
+      <div class="debate-rebuttal-card-actions" id="debate-rebuttal-card-actions-{{ reply.debate_coll_post_id }}">
         <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
                 id="debate-rebuttal-upvote-{{ reply.debate_coll_post_id }}"
                 name="debate_rebuttal_upvote_{{ reply.debate_coll_post_id }}"
@@ -86,6 +119,13 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
                 data-post-id="{{ reply.debate_coll_post_id }}"
                 data-author-side="{{ reply.author_team_side_code }}">
           উত্তর দিন
+        </button>
+        <button type="button" class="debate-argument-fact-check-button"
+                id="debate-rebuttal-fact-check-{{ reply.debate_coll_post_id }}"
+                name="debate_rebuttal_fact_check_{{ reply.debate_coll_post_id }}"
+                data-post-id="{{ reply.debate_coll_post_id }}"
+                title="তথ্য যাচাই করুন">
+          ⚠️ <span class="debate-argument-fact-check-count">{{ reply.fact_check_flag_count }}</span>
         </button>
       </div>
     </div>

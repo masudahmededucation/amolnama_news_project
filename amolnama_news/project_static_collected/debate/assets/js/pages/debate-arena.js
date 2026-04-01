@@ -234,10 +234,15 @@
 
       submitButton.disabled = true;
 
+      var citationUrlInput = document.getElementById('debate-arena-composer-' + composerSide + '-citation-url');
+      var citationTextInput = document.getElementById('debate-arena-composer-' + composerSide + '-citation-text');
+      var citationSourceUrl = citationUrlInput ? citationUrlInput.value.trim() : '';
+      var citationSourceText = citationTextInput ? citationTextInput.value.trim() : '';
+
       fetch('/debate/api/topic/' + topicId + '/argument/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-        body: JSON.stringify({ post_content: content }),
+        body: JSON.stringify({ post_content: content, citation_source_url: citationSourceUrl, citation_source_text: citationSourceText }),
       })
       .then(function (response) { return response.json(); })
       .then(function (data) {
@@ -378,4 +383,123 @@
         });
     });
   }
+  /* ---- CITATION TOGGLE — show/hide citation fields in composer ---- */
+  document.addEventListener('click', function (event) {
+    var citationToggle = event.target.closest('.debate-arena-composer-citation-toggle');
+    if (citationToggle) {
+      var fieldsContainer = citationToggle.nextElementSibling;
+      if (fieldsContainer) {
+        fieldsContainer.classList.toggle('debate-arena-composer-citation-fields-hidden');
+      }
+      return;
+    }
+
+    /* ---- FACT-CHECK FLAG ---- */
+    var factCheckButton = event.target.closest('.debate-argument-fact-check-button');
+    if (factCheckButton) {
+      var factCheckPostId = factCheckButton.getAttribute('data-post-id');
+      factCheckButton.disabled = true;
+
+      fetch('/debate/api/post/' + factCheckPostId + '/fact-check-flag/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+        body: JSON.stringify({}),
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          var countElement = factCheckButton.querySelector('.debate-argument-fact-check-count');
+          if (countElement) countElement.textContent = data.fact_check_flag_count;
+          if (data.is_fact_check_needed) {
+            var cardElement = factCheckButton.closest('.debate-argument-card, .debate-rebuttal-card');
+            if (cardElement && !cardElement.querySelector('.debate-argument-fact-check-badge')) {
+              var badge = document.createElement('div');
+              badge.className = 'debate-argument-fact-check-badge';
+              badge.textContent = '⚠️ তথ্য যাচাই প্রয়োজন';
+              cardElement.insertBefore(badge, cardElement.firstChild);
+            }
+          }
+        }
+        factCheckButton.disabled = false;
+      })
+      .catch(function () { factCheckButton.disabled = false; });
+      return;
+    }
+  });
+
+  /* ---- AUTO-REFRESH PASSION BOARD — poll every 30s, update bars without reload ---- */
+  if (topicStatus === 'live') {
+    var passionBoard = document.getElementById('debate-passion-board');
+    if (passionBoard) {
+      var refreshIntervalId = setInterval(function () {
+        if (document.visibilityState === 'hidden') return;
+
+        fetch('/debate/api/topic/' + topicId + '/boards/')
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.success) return;
+            /* Update passion bar values */
+            var updateBar = function (selector, value) {
+              var element = passionBoard.querySelector(selector);
+              if (element) element.style.width = value + '%';
+            };
+            var updateText = function (selector, value) {
+              var element = passionBoard.querySelector(selector);
+              if (element) element.textContent = value;
+            };
+
+            if (data.blue_post_count !== undefined && data.red_post_count !== undefined) {
+              var totalPosts = data.blue_post_count + data.red_post_count;
+              if (totalPosts > 0) {
+                updateBar('.debate-passion-bar-blue', Math.round(data.blue_post_count / totalPosts * 100));
+                updateBar('.debate-passion-bar-red', Math.round(data.red_post_count / totalPosts * 100));
+              }
+            }
+          })
+          .catch(function () {});
+      }, 30000);
+
+      /* Stop polling when page is unloaded */
+      window.addEventListener('beforeunload', function () { clearInterval(refreshIntervalId); });
+    }
+  }
+
+  /* ---- LINK EMBED PREVIEW — detect URLs in arguments, fetch og:tags ---- */
+  var argumentCards = document.querySelectorAll('.debate-argument-card-content, .debate-rebuttal-card-content');
+  argumentCards.forEach(function (contentElement) {
+    var textContent = contentElement.textContent || '';
+    var urlMatches = textContent.match(/https?:\/\/[^\s]+/g);
+    if (!urlMatches || urlMatches.length === 0) return;
+
+    var embedContainer = contentElement.parentElement.querySelector('.debate-argument-link-embeds');
+    if (!embedContainer) return;
+
+    urlMatches.slice(0, 2).forEach(function (detectedUrl) {
+      fetch('/debate/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (!data.success || !data.title) return;
+
+          var embedCard = document.createElement('a');
+          embedCard.href = data.url;
+          embedCard.target = '_blank';
+          embedCard.rel = 'noopener';
+          embedCard.className = 'debate-argument-link-embed-card';
+
+          var embedHtml = '';
+          if (data.image) {
+            embedHtml += '<img src="' + data.image + '" alt="" class="debate-argument-link-embed-image" onerror="this.style.display=\'none\'">';
+          }
+          embedHtml += '<div class="debate-argument-link-embed-info">';
+          embedHtml += '<span class="debate-argument-link-embed-title">' + data.title + '</span>';
+          if (data.description) {
+            embedHtml += '<span class="debate-argument-link-embed-description">' + data.description + '</span>';
+          }
+          embedHtml += '</div>';
+          embedCard.innerHTML = embedHtml;
+          embedContainer.appendChild(embedCard);
+        })
+        .catch(function () {});
+    });
+  });
 })();

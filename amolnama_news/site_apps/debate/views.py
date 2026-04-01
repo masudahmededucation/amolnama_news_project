@@ -190,15 +190,34 @@ def topic_detail(request, topic_id):
     for post in blue_root_arguments + red_root_arguments + all_replies:
         all_post_author_ids.add(post.link_author_user_profile_id)
 
+    # Bulk-fetch author display names + debate reputation
     author_display_name_map = {}
+    author_reputation_map = {}
     if all_post_author_ids:
         from amolnama_news.site_apps.user_account.models import UserProfile
         for profile in UserProfile.objects.filter(user_profile_id__in=all_post_author_ids):
             author_display_name_map[profile.user_profile_id] = profile.display_name or 'ব্যবহারকারী'
+            author_reputation_map[profile.user_profile_id] = {
+                'debate_count': profile.debate_count,
+                'debate_win_count': profile.debate_win_count,
+                'debate_argument_count': profile.debate_argument_count,
+            }
 
-    # Build post items with author info
+    # Champion badge — find top-scored root argument per side
+    champion_post_ids = set()
+    if blue_root_arguments:
+        blue_champion = max(blue_root_arguments, key=lambda post: post.score)
+        if blue_champion.score > 0:
+            champion_post_ids.add(blue_champion.debate_coll_post_id)
+    if red_root_arguments:
+        red_champion = max(red_root_arguments, key=lambda post: post.score)
+        if red_champion.score > 0:
+            champion_post_ids.add(red_champion.debate_coll_post_id)
+
+    # Build post items with author info, reputation, citation, fact-check
     def _build_post_item(post):
         side = team_side_map.get(post.link_author_team_side_id)
+        reputation = author_reputation_map.get(post.link_author_user_profile_id, {})
         return {
             'debate_coll_post_id': post.debate_coll_post_id,
             'post_content': post.post_content,
@@ -207,6 +226,8 @@ def topic_detail(request, topic_id):
             'author_team_side_color_hex': side.team_side_color_hex if side else '',
             'author_display_name': author_display_name_map.get(post.link_author_user_profile_id, 'ব্যবহারকারী'),
             'link_author_user_profile_id': post.link_author_user_profile_id,
+            'author_debate_count': reputation.get('debate_count', 0),
+            'author_debate_win_count': reputation.get('debate_win_count', 0),
             'post_reply_depth': post.post_reply_depth,
             'upvote_count': post.upvote_count,
             'downvote_count': post.downvote_count,
@@ -214,8 +235,12 @@ def topic_detail(request, topic_id):
             'reply_count': post.reply_count,
             'post_impact_score': post.post_impact_score,
             'post_argument_strength': post.post_argument_strength,
-            'is_champion': post.is_champion,
+            'is_champion': post.debate_coll_post_id in champion_post_ids,
             'is_suppressed': post.is_suppressed,
+            'citation_source_url': post.citation_source_url or '',
+            'citation_source_text': post.citation_source_text or '',
+            'fact_check_flag_count': post.fact_check_flag_count,
+            'is_fact_check_needed': post.is_fact_check_needed,
             'posted_at': post.posted_at,
             'posted_at_formatted': post.posted_at.strftime('%d %b %Y, %I:%M %p') if post.posted_at else '',
             'replies': [_build_post_item(reply) for reply in reply_map.get(post.debate_coll_post_id, [])],

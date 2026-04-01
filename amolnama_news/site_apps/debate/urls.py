@@ -29,4 +29,8 @@ urlpatterns = [
 
     # APIs — live polling
     path('api/topic/<int:topic_id>/boards/', views_api.api_topic_boards, name='api_topic_boards'),
+
+    # APIs — fact-check + link preview
+    path('api/post/<int:post_id>/fact-check-flag/', views_api.api_post_fact_check_flag, name='api_post_fact_check_flag'),
+    path('api/link-preview/', views_api.api_link_preview, name='api_link_preview'),
 ]
