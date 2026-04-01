@@ -36,11 +36,12 @@ def _get_team_side_map():
 
 
 def _calculate_winning_side(blue_participants, blue_posts, blue_upvotes, blue_sentences,
-                            red_participants, red_posts, red_upvotes, red_sentences):
+                            red_participants, red_posts, red_upvotes, red_sentences,
+                            audience_blue_votes=0, audience_red_votes=0):
     """Calculate which side is winning. Returns 'blue', 'red', or 'tie'.
-    Formula: (upvotes × 3) + (posts × 2) + participants + sentences."""
-    blue_score = (blue_upvotes * 3) + (blue_posts * 2) + blue_participants + blue_sentences
-    red_score = (red_upvotes * 3) + (red_posts * 2) + red_participants + red_sentences
+    Formula: (audience_votes × 4) + (upvotes × 3) + (posts × 2) + participants + sentences."""
+    blue_score = (audience_blue_votes * 4) + (blue_upvotes * 3) + (blue_posts * 2) + blue_participants + blue_sentences
+    red_score = (audience_red_votes * 4) + (red_upvotes * 3) + (red_posts * 2) + red_participants + red_sentences
     if blue_score == red_score:
         return 'tie'
     return 'blue' if blue_score > red_score else 'red'
@@ -300,6 +301,7 @@ def topic_detail(request, topic_id):
         'winning_side': _calculate_winning_side(
             blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
             red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+            topic.audience_blue_vote_count, topic.audience_red_vote_count,
         ),
         # Audience voting
         'audience_blue_vote_count': topic.audience_blue_vote_count,
@@ -545,6 +547,7 @@ def topic_download_pdf(request, topic_id):
         'winning_side': _calculate_winning_side(
             blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
             red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+            topic.audience_blue_vote_count, topic.audience_red_vote_count,
         ),
     }
 

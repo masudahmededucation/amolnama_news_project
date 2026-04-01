@@ -304,6 +304,7 @@ def api_topic_close(request, topic_id):
     winning_side_code = _calculate_winning_side(
         blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
         red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+        topic.audience_blue_vote_count, topic.audience_red_vote_count,
     )
 
     closed_status = RefTopicStatus.objects.filter(topic_status_code='closed').first()
@@ -908,51 +909,55 @@ def api_audience_vote(request, topic_id):
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
+    # Rate limit — prevent bot/rapid voting
+    from amolnama_news.site_apps.newsengine.rate_limiter import check_rate_limit
+    is_allowed, rate_limit_error = check_rate_limit(user_profile_id, 'vote')
+    if not is_allowed:
+        return JsonResponse({'success': False, 'error': rate_limit_error}, status=429)
+
     # Check if user already voted on this topic (using vote_target_type = topic)
     vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='topic').first()
     if not vote_target_type:
         return JsonResponse({'success': False, 'error': 'Vote target type not found'}, status=500)
 
-    existing_vote = CollVote.objects.filter(
-        link_voter_user_profile_id=user_profile_id,
-        link_vote_target_type_id=vote_target_type.debate_ref_vote_target_type_id,
-        target_row_id=topic_id,
-    ).first()
-
+    # Use raw SQL for consistent read/write — ORM had sync issues with raw INSERT
     now = timezone.now()
-    vote_value = 1 if vote_side == 'blue' else -1  # 1=blue, -1=red
+    vote_value = 1 if vote_side == 'blue' else -1
 
-    if existing_vote:
-        if existing_vote.vote_value == vote_value:
-            # Same vote — remove (toggle off)
-            existing_vote.delete()
+    # Check existing vote via raw SQL
+    cursor = _raw_execute("""
+        SELECT [debate_coll_vote_id], [vote_value] FROM [debate].[coll_vote]
+        WHERE [link_voter_user_profile_id] = ? AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
+    """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id])
+    existing_row = cursor.fetchone()
+
+    if existing_row:
+        existing_vote_id = existing_row[0]
+        existing_vote_value = existing_row[1]
+
+        if existing_vote_value == vote_value:
+            # Same vote — toggle off
+            _raw_execute("DELETE FROM [debate].[coll_vote] WHERE [debate_coll_vote_id] = ?", [existing_vote_id])
             column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
             _raw_execute(f"""
                 UPDATE [debate].[coll_topic]
                 SET [{column}] = CASE WHEN [{column}] > 0 THEN [{column}] - 1 ELSE 0 END, [updated_at] = ?
                 WHERE [debate_coll_topic_id] = ?
             """, [now, topic_id])
-            topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
-            return JsonResponse({'success': True, 'action': 'removed',
-                                 'audience_blue_vote_count': topic.audience_blue_vote_count,
-                                 'audience_red_vote_count': topic.audience_red_vote_count})
+            action = 'removed'
         else:
             # Flip vote
-            old_column = 'audience_blue_vote_count' if existing_vote.vote_value == 1 else 'audience_red_vote_count'
+            _raw_execute("UPDATE [debate].[coll_vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_coll_vote_id] = ?",
+                         [vote_value, now, existing_vote_id])
+            old_column = 'audience_blue_vote_count' if existing_vote_value == 1 else 'audience_red_vote_count'
             new_column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
-            existing_vote.vote_value = vote_value
-            existing_vote.voted_at = now
-            existing_vote.save(update_fields=['vote_value', 'voted_at'])
             _raw_execute(f"""
                 UPDATE [debate].[coll_topic]
                 SET [{old_column}] = CASE WHEN [{old_column}] > 0 THEN [{old_column}] - 1 ELSE 0 END,
                     [{new_column}] = [{new_column}] + 1, [updated_at] = ?
                 WHERE [debate_coll_topic_id] = ?
             """, [now, topic_id])
-            topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
-            return JsonResponse({'success': True, 'action': 'flipped',
-                                 'audience_blue_vote_count': topic.audience_blue_vote_count,
-                                 'audience_red_vote_count': topic.audience_red_vote_count})
+            action = 'flipped'
     else:
         # New vote
         _raw_execute("""
@@ -966,10 +971,14 @@ def api_audience_vote(request, topic_id):
             SET [{column}] = [{column}] + 1, [updated_at] = ?
             WHERE [debate_coll_topic_id] = ?
         """, [now, topic_id])
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
-        return JsonResponse({'success': True, 'action': 'voted',
-                             'audience_blue_vote_count': topic.audience_blue_vote_count,
-                             'audience_red_vote_count': topic.audience_red_vote_count})
+        action = 'voted'
+
+    topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+    return JsonResponse({
+        'success': True, 'action': action,
+        'audience_blue_vote_count': topic.audience_blue_vote_count,
+        'audience_red_vote_count': topic.audience_red_vote_count,
+    })
 
 
 # =========================================================
