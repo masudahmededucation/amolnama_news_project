@@ -334,7 +334,7 @@ def bookmarks(request):
         from amolnama_news.site_apps.poem.models import EngPoemLike, CollPoemEntry
         poem_like_ids = list(EngPoemLike.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_poem_entry_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_poem_coll_poem_entry_id', flat=True)[:20])
         if poem_like_ids:
             poems_map = {p.poem_coll_poem_entry_id: p for p in CollPoemEntry.objects.filter(poem_coll_poem_entry_id__in=poem_like_ids)}
             for poem_id in poem_like_ids:
@@ -388,7 +388,7 @@ def bookmarks(request):
         from amolnama_news.site_apps.bangladesh.models import EngDestinationBookmark, CollDestination
         travel_bookmark_ids = list(EngDestinationBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_destination_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_coll_destination_id', flat=True)[:20])
         if travel_bookmark_ids:
             destinations_map = {d.bangladesh_coll_destination_id: d for d in CollDestination.objects.filter(bangladesh_coll_destination_id__in=travel_bookmark_ids)}
             for dest_id in travel_bookmark_ids:
