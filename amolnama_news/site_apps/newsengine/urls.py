@@ -20,6 +20,9 @@ urlpatterns = [
     path('api/recommendations/', views_api.api_recommendations, name='api_recommendations'),
     path('api/hashtags/trending/', views_api.api_trending_hashtags, name='api_trending_hashtags'),
 
+    # APIs — link preview (shared by post + debate)
+    path('api/link-preview/', views_api.api_link_preview, name='api_link_preview'),
+
     # APIs — muted words
     path('api/muted-words/', views_api.api_muted_words_list, name='api_muted_words_list'),
     path('api/muted-words/add/', views_api.api_muted_word_add, name='api_muted_word_add'),

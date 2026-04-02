@@ -257,3 +257,60 @@ def api_muted_words_list(request):
     ).values_list('muted_word', flat=True))
 
     return JsonResponse({'success': True, 'muted_words': words})
+
+
+# =========================================================
+# LINK PREVIEW (shared — used by post + debate)
+# =========================================================
+
+def api_link_preview(request):
+    """Fetch og:title, og:description, og:image for a URL. GET ?url=..."""
+    import urllib.request
+    from html.parser import HTMLParser
+
+    target_url = request.GET.get('url', '').strip()
+    if not target_url or not target_url.startswith('http'):
+        return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
+
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (compatible; AmolnamaBot/1.0)'}
+        url_request = urllib.request.Request(target_url, headers=headers)
+        response = urllib.request.urlopen(url_request, timeout=5)
+        html_content = response.read(50000).decode('utf-8', errors='ignore')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Could not fetch URL'}, status=400)
+
+    og_data = {}
+    title_text = ''
+
+    class OgParser(HTMLParser):
+        def handle_starttag(self, tag, attrs):
+            nonlocal title_text
+            if tag == 'meta':
+                attr_dict = dict(attrs)
+                property_name = attr_dict.get('property', '').lower()
+                content_value = attr_dict.get('content', '')
+                if property_name == 'og:title':
+                    og_data['title'] = content_value
+                elif property_name == 'og:description':
+                    og_data['description'] = content_value
+                elif property_name == 'og:image':
+                    og_data['image'] = content_value
+
+        def handle_data(self, data):
+            nonlocal title_text
+            if self.lasttag == 'title' and not title_text:
+                title_text = data.strip()
+
+    try:
+        OgParser().feed(html_content)
+    except Exception:
+        pass
+
+    return JsonResponse({
+        'success': True,
+        'title': og_data.get('title', title_text or ''),
+        'description': og_data.get('description', '')[:300],
+        'image': og_data.get('image', ''),
+        'url': target_url,
+    })

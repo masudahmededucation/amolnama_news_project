@@ -1034,7 +1034,7 @@
     if (!previewContainer) return;
 
     urlMatches.slice(0, 2).forEach(function (detectedUrl) {
-      fetch('/debate/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
+      fetch('/newsengine/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
         .then(function (response) { return response.json(); })
         .then(function (data) {
           if (!data.success || !data.title) return;

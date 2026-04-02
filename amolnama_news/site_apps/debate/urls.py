@@ -31,9 +31,9 @@ urlpatterns = [
     # APIs — live polling
     path('api/topic/<int:topic_id>/boards/', views_api.api_topic_boards, name='api_topic_boards'),
 
-    # APIs — fact-check + link preview
+    # APIs — fact-check
     path('api/post/<int:post_id>/fact-check-flag/', views_api.api_post_fact_check_flag, name='api_post_fact_check_flag'),
-    path('api/link-preview/', views_api.api_link_preview, name='api_link_preview'),
+    # Link preview moved to newsengine — /newsengine/api/link-preview/
 
     # APIs — audience voting + notifications
     path('api/topic/<int:topic_id>/audience-vote/', views_api.api_audience_vote, name='api_audience_vote'),
