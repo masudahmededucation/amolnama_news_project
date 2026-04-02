@@ -114,12 +114,14 @@ def seo_json_ld(context):
             "itemListElement": [],
         }
         for i, crumb in enumerate(breadcrumbs, 1):
-            bc_schema["itemListElement"].append({
+            list_item = {
                 "@type": "ListItem",
                 "position": i,
                 "name": crumb["name"],
-                "item": request.build_absolute_uri(crumb["url"]) if request else crumb["url"],
-            })
+            }
+            if crumb.get("url"):
+                list_item["item"] = request.build_absolute_uri(crumb["url"]) if request else crumb["url"]
+            bc_schema["itemListElement"].append(list_item)
         schemas.append(bc_schema)
 
     # Custom JSON-LD from view (Article, FAQPage, etc.)
