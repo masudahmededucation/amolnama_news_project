@@ -149,5 +149,43 @@ Analytics Dashboard:
 
 Moderation Queue:
 - /portal/moderation/ — staff only
-- Flagged debate posts (fact_check_flag_count > 0) + post flags
-- Approve (clear flags) or reject (soft delete)
+- Flagged debate posts (fact_check_flag_count > 0) + post flags + auto-flagged posts
+- Approve: removes flag, re-publishes post
+- Reject: sets is_active=False, is_published=False
+
+================================================================================
+CONTENT CLASSIFICATION ENGINE (2026-04-02)
+================================================================================
+
+content_classifier.py — keyword-based auto-categorisation of posts and arguments.
+
+classify_text(text):
+- NFC normalize Bengali text
+- Match against ref_flagged_keyword per category (keyword × weight)
+- Pattern matching: phone numbers, URLs, money, repeated chars, excessive emojis
+- Returns list of (category_code, score, action) sorted by score
+- Threshold: score > 0.5 = auto-flag for harmful categories
+
+classify_and_store(content_source_app, content_id, text):
+- Classifies text
+- Stores audit in fact_content_classification
+- Updates post: content_category_code, is_auto_flagged
+- If action = 'auto_hide' and score > 0.5: sets is_published = False
+
+Hooked into:
+- post/views_api.py api_post_create() — background thread
+- debate/views_api.py api_post_argument() — background thread
+
+18 Categories:
+- Allow + label: safe, religion, politics, education, business, news, entertainment
+- Auto-hide + flag: spam, adult, violence, hate_speech, harassment, scam, self_harm, drugs
+- Label only: misinformation, copyright, advertisement
+
+DB Tables:
+- [newsengine].[ref_content_category] — 18 seed categories with action + severity
+- [newsengine].[ref_flagged_keyword] — Bengali + English keywords per category
+- [newsengine].[fact_content_classification] — audit trail
+
+Link Preview API (shared):
+- /newsengine/api/link-preview/?url=... — fetches og:title, og:description, og:image
+- Used by post + debate (moved from debate to newsengine for zero duplication)

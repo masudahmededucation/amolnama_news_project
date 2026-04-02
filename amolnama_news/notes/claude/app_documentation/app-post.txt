@@ -176,8 +176,50 @@ Shared feed via build_post_feed_items() used by both post and pulse.
 - NER: Bengali text highlighting (person blue, location green, date orange, book purple, religious teal)
 - Keywords: frequency-based extraction, background thread
 
+## Phase 2 Features (2026-04-02)
+
+- [x] Edit Post — visible ✏️ button on header, inline edit form, "edited" label, is_edited tracked
+- [x] Edit Reply — same inline edit on reply cards, can_edit in reply API
+- [x] @Mention — @username rendered as blue clickable link in post text
+- [x] Link Preview — URLs in post text auto-fetch og:tags via newsengine/api/link-preview/
+- [x] Polls — 2-4 options, one vote per user, bar chart results with percentages
+- [x] Pin Post — 📌 badge, pin/unpin in ⋯ menu, one pinned per user
+- [x] Quote Repost — 💬 button, inline form with original preview, quote_comment_text stored
+- [x] Scheduled Post — 🕐 button, datetime picker, auto-publish in feed_builder
+- [x] Post Analytics — 📊 inline card in ⋯ menu (views, likes, replies, engagement rate)
+- [x] Image Alt Text — ALT input overlay on media preview, saved to PostMedia.alt_text
+- [x] Video Upload — mp4/webm/mov support, native <video> player, #t=1 thumbnail
+- [x] Video Thumbnail — browser seeks to 1s for preview frame
+- [x] Draft Mode — composer won't collapse when text/files present, file picker tracked
+- [x] Leave Warning — beforeunload when draft content exists
+- [x] Smooth Post Insertion — fade-in animation (opacity + translateY 0.4s), no page reload
+- [x] Content Classification — auto-categorise via newsengine/content_classifier.py
+- [x] Category Labels — color-coded badges on posts (politics, religion, education, etc.)
+- [x] Fact-Check Banner — "⚠️ তথ্য যাচাই প্রয়োজন" on misinformation posts
+- [x] Auto-Flag — harmful posts auto-hidden, appear in moderation queue
+- [x] Delete Restricted — only post owner can delete (admin uses moderation queue)
+
+## New DB Columns (Phase 2)
+
+is_edited, edited_at, is_pinned, scheduled_publish_at, quote_comment_text, content_category_code, is_auto_flagged on [post].[post]
+alt_text on [post].[post_media]
+
+## New Models (Phase 2)
+
+CollPoll, CollPollVote (post app)
+
+## New APIs (Phase 2)
+
+POST /post/api/<id>/poll-vote/
+POST /post/api/<id>/pin/
+
 ## Troubleshooting
 - Post creation uses raw SQL INSERT (Django ORM UUID conversion bug)
 - Repost count: always recalculate from actual data, never increment/decrement
 - BanglaInput on reply textareas: auto-attached by MutationObserver (bangla-input-auto-attach.js)
 - Service worker cache: bump seo/views.py CACHE_NAME after any JS/CSS change
+- Video upload: MEDIA_EXTENSION_MAP must include video/ types (was missing, caused silent drop)
+- timezone import: must be at top of views_api.py (NameError on edit save)
+- Post ordering: created_at_raw must be in post item dict for ranking/promo injection to work
+- Edit targeting: use #post-card-text-{id} for posts, .post-card-reply-text for replies (not querySelector on parent)
+- Media post: build card in JS with video support, no page reload (was causing visible jump)
