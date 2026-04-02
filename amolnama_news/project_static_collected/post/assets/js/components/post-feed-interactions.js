@@ -1087,14 +1087,9 @@
   videoElements.forEach(function (videoElement) {
     if (videoElement.poster) return;
 
-    videoElement.addEventListener('loadeddata', function () {
+    function extractThumbnail() {
       try {
-        videoElement.currentTime = 1;
-      } catch (error) {}
-    }, { once: true });
-
-    videoElement.addEventListener('seeked', function () {
-      try {
+        if (videoElement.videoWidth === 0) return;
         var canvas = document.createElement('canvas');
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
@@ -1113,14 +1108,25 @@
         });
 
         if (darkPixelCount >= 4 && videoElement.currentTime < 3) {
-          /* Too dark — try 2 seconds later */
           videoElement.currentTime = Math.min(videoElement.currentTime + 2, videoElement.duration - 0.5);
           return;
         }
 
         videoElement.poster = canvas.toDataURL('image/jpeg', 0.7);
-      } catch (error) {}
-    }, { once: false });
+        videoElement.currentTime = 0;
+      } catch (thumbnailError) {}
+    }
+
+    videoElement.addEventListener('seeked', extractThumbnail);
+
+    /* Try to seek — works if video is already loaded or has metadata */
+    if (videoElement.readyState >= 1) {
+      videoElement.currentTime = 1;
+    } else {
+      videoElement.addEventListener('loadedmetadata', function () {
+        videoElement.currentTime = 1;
+      }, { once: true });
+    }
   });
 
 })();
