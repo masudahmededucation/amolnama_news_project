@@ -178,3 +178,44 @@ Bars pulse when one side dominates (>70%).
 - [x] No underline rule enforced
 - [x] No popups (inline forms only)
 - [x] Mobile responsive
+
+## Phase 2 Features (2026-04-01)
+
+- [x] Champion Badge — ONE highest-scored argument gets 🏆, gold pill badge
+- [x] Source Citations — optional URL+label on arguments, expandable "Add Source" in composer
+- [x] User Reputation — 🏅 badge showing debate_count + debate_win_count
+- [x] Link Embeds — URLs in arguments auto-fetch og:tags via /api/link-preview/, render preview cards
+- [x] Mobile Swipe — CSS scroll-snap on boards below 768px
+- [x] Auto-refresh Passion Board — polls /api/topic/<id>/boards/ every 30s, DOM update
+- [x] Fact-check Flag — ⚠️ button per argument, is_fact_check_needed at 3+ flags
+- [x] Win/Loss Record — winning_side_code stored on close, participant win counts updated
+- [x] Audience Voting — spectators vote Blue/Red, SVG thumbs-up, IP/device duplicate detection
+- [x] In-App Notifications — bell icon, 60s polling, reply triggers notification
+- [x] Argument Strength — Python scoring (sentence count, vocab diversity, citation bonus)
+- [x] PDF Download — Edge headless, preview + auto-download, Bengali filename, timestamp
+- [x] Share Dropdown — Copy Link, WhatsApp, Facebook, X/Twitter, native share
+- [x] Topic Edit — inline form for staff/creator, pre-populated fields, grouped media section
+- [x] Media URLs — blue/red side video + image URLs, collapsible media section
+- [x] Score Transparency — both side scores visible (🔵 X পয়েন্ট vs 🔴 Y পয়েন্ট)
+- [x] Winner Formula — (audience×4) + (upvotes×3) + (posts×2) + participants + sentences
+- [x] Bot Protection — one vote per user per topic, IP/device check via UserSession + UserDevice
+- [x] Rate Limiting — via newsengine rate_limiter (debate_argument: 20/hr, debate_reply: 30/hr)
+
+## DB Tables Added (Phase 2)
+
+[debate].[coll_notification] — in-app notifications
+citation_source_url, citation_source_text on coll_post
+fact_check_flag_count, is_fact_check_needed on coll_post
+winning_side_code on coll_topic
+audience_blue_vote_count, audience_red_vote_count on coll_topic
+blue/red_side_video_url, blue/red_side_image_url on coll_topic
+debate_count, debate_win_count, debate_argument_count on user_profile
+
+## API Routes Added (Phase 2)
+
+POST /debate/api/topic/<id>/edit/
+POST /debate/api/topic/<id>/audience-vote/
+POST /debate/api/post/<id>/fact-check-flag/
+GET  /debate/api/link-preview/?url=...
+GET  /debate/api/notifications/
+POST /debate/api/notifications/mark-read/

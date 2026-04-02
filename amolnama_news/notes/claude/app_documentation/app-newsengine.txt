@@ -99,3 +99,55 @@ POST /newsengine/api/bookmark/toggle/         — toggle bookmark for any conten
 GET  /newsengine/api/feed/?page=2&page_size=20 — paginated feed
 GET  /newsengine/api/recommendations/         — personalized recommendations
 GET  /newsengine/api/hashtags/trending/       — top 10 hashtags
+
+================================================================================
+PHASE 2 FEATURES (2026-04-01)
+================================================================================
+
+Global Notification Center:
+- Bell icon in core/base.html header (ALL pages)
+- notification-bell.js: poll every 60s, dropdown, mark-all-read
+- notifications.py: create_notification() helper used by any app
+
+Infinite Scroll:
+- IntersectionObserver on sentinel element at bottom of feed
+- Loads 20 more items via /api/feed/?page=N
+- Server renders HTML, JS inserts into DOM
+
+User Feed Preferences:
+- 7 toggle fields on UserProfile (news/poem/story/art/travel/debate/tools)
+- feed_builder._apply_user_feed_preferences() filters promo cards
+
+Content Scheduling:
+- scheduled_publish_at column on post table (DB ready, UI pending)
+
+Universal Bookmarks:
+- CollContentBookmark model — any content type
+- Merged into post bookmarks page using content-promo-card.html template
+- Also pulls from: EngPoemLike, EngArtworkBookmark, EngStoryBookmark, EngDestinationBookmark
+
+Cross-App Search:
+- search/views_api.py: queries posts, poems, news, debates, travel, stories, art
+- Bengali NFC normalization, 300ms debounce live search
+- /search/ page + /search/api/search/?q=...
+
+Content Recommendations:
+- recommendations.py: category-based collaborative filtering from view history
+- Fallback to globally popular for new users
+
+User Blocking:
+- social/models.py: CollUserBlock
+- feed_builder._exclude_blocked_users()
+
+Category Filtering:
+- Tabs: All | News | Poem | Story | Art | Travel | Debate | Tools
+- Server-side: ?category=poem query param
+
+Analytics Dashboard:
+- /portal/analytics/ — staff only
+- Post engagement totals, content counts by type, top performing posts
+
+Moderation Queue:
+- /portal/moderation/ — staff only
+- Flagged debate posts (fact_check_flag_count > 0) + post flags
+- Approve (clear flags) or reject (soft delete)

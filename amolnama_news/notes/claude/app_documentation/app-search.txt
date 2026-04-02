@@ -1,0 +1,47 @@
+================================================================================
+APP: SEARCH — Cross-App Search
+================================================================================
+
+URL Prefix: /search/
+App Name: search
+
+================================================================================
+FEATURES
+================================================================================
+
+Cross-App Live Search:
+- Single search bar queries ALL content apps simultaneously
+- Bengali NFC normalization on query
+- 300ms debounce on input (JS)
+- Results grouped by content type with color-coded badges
+
+Content Types Searched:
+- Posts (post_text_bn)
+- Poems (poem_title_bn + poem_body_bn)
+- News articles (pub_article_headline_bn)
+- Debates (topic_title)
+- Travel destinations (destination_name_bn + destination_name_en)
+- Stories (story_title_bn)
+- Art (artwork_title_bn)
+
+Hashtag Search:
+- /search/?hashtag=সংবিধান — shows posts with that hashtag
+
+================================================================================
+FILES
+================================================================================
+
+views.py          — search page view
+views_api.py      — api_search() — cross-app query
+urls.py           — / (page) + /api/search/ (API)
+templates/search/pages/search-home.html — search page with results
+static/search/assets/js/pages/search-home.js — live search with debounce
+static/search/assets/css/pages/search-home.css — search styles
+
+================================================================================
+API ROUTES
+================================================================================
+
+GET /search/api/search/?q=...       — search across all apps
+GET /search/?q=...                  — search page with pre-filled query
+GET /search/?hashtag=...            — hashtag search
