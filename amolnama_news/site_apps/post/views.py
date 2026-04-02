@@ -159,6 +159,7 @@ def build_post_feed_items(request, posts=None):
             'author_following_count': following_counts.get(post.link_user_profile_id, 0),
             'user_following': post.link_user_profile_id in user_following_profile_ids,
             'time_ago': time_ago,
+            'created_at_raw': post.created_at,
             'created_at_formatted': post.created_at.strftime('%d %b %Y, %I:%M %p') if post.created_at else '',
             'like_count': post.like_count,
             'reply_count': post.reply_count,
