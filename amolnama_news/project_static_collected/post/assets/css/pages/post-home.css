@@ -16,7 +16,7 @@
 .post-composer:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
 .post-composer:focus-within { border-color: var(--primary, #1877f2); box-shadow: 0 2px 16px rgba(24,119,242,.1); }
 
-/* Elements that expand/collapse smoothly */
+/* Elements that expand/collapse — no animation to avoid jank on file picker */
 .post-composer-media-bar,
 .post-composer-emoji-picker,
 .post-composer-media-preview,
@@ -25,15 +25,6 @@
   max-height: 200px;
   opacity: 1;
   overflow: hidden;
-  transition: max-height .3s ease, opacity .2s ease, margin .3s ease, padding .3s ease;
-}
-
-.post-composer-textarea {
-  transition: height .3s ease, min-height .3s ease, padding .3s ease, border-color .3s ease;
-}
-
-.post-composer-footer {
-  transition: margin .3s ease, padding .3s ease;
 }
 
 .post-composer-body {

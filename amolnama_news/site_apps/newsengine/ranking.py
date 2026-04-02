@@ -107,6 +107,16 @@ def calculate_total_score(post_item):
         content_quality * WEIGHT_CONTENT_QUALITY
     )
 
+    # Brand-new posts (< 5 minutes old) get massive boost — always on top
+    created_at = post_item.get('created_at_raw')
+    if created_at:
+        from django.utils import timezone as tz
+        if tz.is_naive(created_at):
+            created_at = tz.make_aware(created_at)
+        age_seconds = max((tz.now() - created_at).total_seconds(), 0)
+        if age_seconds < 300:
+            total += 10.0
+
     return round(total, 4)
 
 

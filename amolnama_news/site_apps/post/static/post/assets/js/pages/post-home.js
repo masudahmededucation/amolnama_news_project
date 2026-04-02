@@ -400,6 +400,16 @@
         submitButton.textContent = 'পোস্ট';
 
         if (data.success) {
+          /* If media was attached, reload page for proper rendering (video player, etc.) */
+          if (selectedMediaFiles.length > 0) {
+            selectedMediaFiles = [];
+            if (mediaPreviewContainer) mediaPreviewContainer.innerHTML = '';
+            composerTextarea.value = '';
+            localStorage.removeItem(draftStorageKey);
+            window.location.reload();
+            return;
+          }
+
           var feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
           var emptyElement = document.getElementById('post-feed-empty');
           if (emptyElement) emptyElement.remove();
