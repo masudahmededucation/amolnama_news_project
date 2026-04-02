@@ -284,20 +284,33 @@
       form.className = 'debate-arena-edit-form';
       form.id = 'debate-arena-edit-form';
 
-      var titleElement = document.querySelector('.debate-arena-topic-title');
-      var descriptionElement = document.querySelector('.debate-arena-topic-description');
-      var currentTitle = titleElement ? titleElement.textContent.replace('✏️', '').trim() : '';
-      var currentDescription = descriptionElement ? descriptionElement.textContent.trim() : '';
+      /* Pre-populate from data attributes */
+      var currentTitle = arenaElement.querySelector('.debate-arena-topic-title') ? arenaElement.querySelector('.debate-arena-topic-title').textContent.trim() : '';
+      var currentDescription = arenaElement.getAttribute('data-topic-description') || '';
+      var currentBlueLabel = arenaElement.getAttribute('data-blue-side-label') || '';
+      var currentRedLabel = arenaElement.getAttribute('data-red-side-label') || '';
+      var currentBlueVideo = arenaElement.getAttribute('data-blue-side-video-url') || '';
+      var currentRedVideo = arenaElement.getAttribute('data-red-side-video-url') || '';
+      var currentBlueImage = arenaElement.getAttribute('data-blue-side-image-url') || '';
+      var currentRedImage = arenaElement.getAttribute('data-red-side-image-url') || '';
 
       form.innerHTML =
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-title">বিষয়</label>' +
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-title" name="debate_arena_edit_title" value="' + currentTitle.replace(/"/g, '&quot;') + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-description">বিবরণ</label>' +
         '<textarea class="debate-arena-edit-form-textarea" id="debate-arena-edit-description" name="debate_arena_edit_description" rows="3">' + currentDescription + '</textarea>' +
-        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 পক্ষের নাম</label>' +
-        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + (arenaElement.getAttribute('data-blue-label') || '') + '">' +
-        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 বিপক্ষের নাম</label>' +
-        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + (arenaElement.getAttribute('data-red-label') || '') + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 Blue Team এর নাম</label>' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + currentBlueLabel.replace(/"/g, '&quot;') + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 Red Team এর নাম</label>' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + currentRedLabel.replace(/"/g, '&quot;') + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-video">🔵 Blue Team ভিডিও URL</label>' +
+        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-video" name="debate_arena_edit_blue_video" value="' + currentBlueVideo + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-video">🔴 Red Team ভিডিও URL</label>' +
+        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-red-video" name="debate_arena_edit_red_video" value="' + currentRedVideo + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-image">🔵 Blue Team ছবি URL</label>' +
+        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-image" name="debate_arena_edit_blue_image" value="' + currentBlueImage + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-image">🔴 Red Team ছবি URL</label>' +
+        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-red-image" name="debate_arena_edit_red_image" value="' + currentRedImage + '">' +
         '<div class="debate-arena-edit-form-buttons">' +
         '<button type="button" class="debate-arena-edit-form-save" id="debate-arena-edit-save" name="debate_arena_edit_save">সংরক্ষণ করুন</button>' +
         '<button type="button" class="debate-arena-edit-form-cancel" id="debate-arena-edit-cancel" name="debate_arena_edit_cancel">বাতিল</button>' +
@@ -320,6 +333,10 @@
             topic_description: document.getElementById('debate-arena-edit-description').value.trim(),
             blue_side_label: document.getElementById('debate-arena-edit-blue-label').value.trim(),
             red_side_label: document.getElementById('debate-arena-edit-red-label').value.trim(),
+            blue_side_video_url: document.getElementById('debate-arena-edit-blue-video').value.trim(),
+            red_side_video_url: document.getElementById('debate-arena-edit-red-video').value.trim(),
+            blue_side_image_url: document.getElementById('debate-arena-edit-blue-image').value.trim(),
+            red_side_image_url: document.getElementById('debate-arena-edit-red-image').value.trim(),
           }),
         })
         .then(function (response) { return response.json(); })

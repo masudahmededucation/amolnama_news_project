@@ -15,7 +15,14 @@
      data-user-profile-id="{{ current_user_profile_id|default:'' }}"
      data-min-chars="{{ topic.minimum_post_character_count }}"
      data-max-depth="{{ topic.maximum_reply_depth }}"
-     data-scheduled-start="{{ topic.scheduled_start_at_iso }}">
+     data-scheduled-start="{{ topic.scheduled_start_at_iso }}"
+     data-blue-side-label="{{ topic.blue_side_label }}"
+     data-red-side-label="{{ topic.red_side_label }}"
+     data-topic-description="{{ topic.topic_description|default:'' }}"
+     data-blue-side-video-url="{{ topic.blue_side_video_url }}"
+     data-red-side-video-url="{{ topic.red_side_video_url }}"
+     data-blue-side-image-url="{{ topic.blue_side_image_url }}"
+     data-red-side-image-url="{{ topic.red_side_image_url }}">
 
   <!-- HEADER — Topic + Status + Timer -->
   <div class="debate-arena-header" id="debate-arena-header">
