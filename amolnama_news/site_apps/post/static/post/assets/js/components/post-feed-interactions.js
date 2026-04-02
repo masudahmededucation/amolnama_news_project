@@ -878,13 +878,15 @@
 
     var postId = quickEditButton.getAttribute('data-post-id');
     var currentText = quickEditButton.getAttribute('data-post-text');
-    var postCard = quickEditButton.closest('.post-card');
-    var textElement = postCard.querySelector('.post-card-text');
+
+    /* Works for both post cards and reply items */
+    var container = quickEditButton.closest('.post-card-reply-item') || quickEditButton.closest('.post-card');
+    var textElement = container ? (container.querySelector('.post-card-reply-text') || container.querySelector('.post-card-text')) : null;
 
     if (!textElement) return;
 
     /* Check if already editing */
-    if (postCard.querySelector('.post-card-inline-edit-form')) return;
+    if (container.querySelector('.post-card-inline-edit-form')) return;
 
     var originalHtml = textElement.innerHTML;
     var editForm = document.createElement('div');
