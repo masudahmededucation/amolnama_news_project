@@ -1,4 +1,6 @@
-"""Social API views — follow/unfollow, block/unblock."""
+"""Social API views — follow/unfollow, block/unblock, lists."""
+
+import json
 
 from django.contrib.auth.decorators import login_required
 from django.db import connection
@@ -6,7 +8,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .models import CollUserBlock, UserFollow
+from .models import CollUserBlock, CollUserList, CollUserListMember, UserFollow
 
 
 @require_POST
@@ -101,3 +103,86 @@ def api_block_toggle(request, user_profile_id):
         blocked = True
 
     return JsonResponse({'success': True, 'blocked': blocked})
+
+
+# =========================================================
+# USER LISTS
+# =========================================================
+
+@require_POST
+@login_required
+def api_list_create(request):
+    """Create a new user list."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    list_name = (data.get('list_name') or '').strip()
+    list_description = (data.get('list_description') or '').strip() or None
+
+    if not list_name or len(list_name) < 2:
+        return JsonResponse({'success': False, 'error': 'তালিকার নাম কমপক্ষে ২ অক্ষর হতে হবে'}, status=400)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [social].[coll_user_list] ([link_owner_user_profile_id], [list_name], [list_description])
+            OUTPUT INSERTED.social_coll_user_list_id
+            VALUES (?, ?, ?)
+        """, [current_profile.user_profile_id, list_name, list_description])
+        list_id = cursor.fetchone()[0]
+
+    return JsonResponse({'success': True, 'list_id': list_id})
+
+
+@require_POST
+@login_required
+def api_list_member_toggle(request):
+    """Add or remove a user from a list."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    list_id = data.get('list_id')
+    member_user_profile_id = data.get('member_user_profile_id')
+
+    if not list_id or not member_user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Missing list_id or member_user_profile_id'}, status=400)
+
+    # Verify ownership
+    from .models import CollUserList, CollUserListMember
+    user_list = CollUserList.objects.filter(
+        social_coll_user_list_id=list_id, link_owner_user_profile_id=current_profile.user_profile_id, is_active=True,
+    ).first()
+    if not user_list:
+        return JsonResponse({'success': False, 'error': 'তালিকা পাওয়া যায়নি'}, status=404)
+
+    existing_member = CollUserListMember.objects.filter(
+        link_list_id=list_id, link_user_profile_id=member_user_profile_id, is_active=True,
+    ).first()
+
+    if existing_member:
+        existing_member.delete()
+        return JsonResponse({'success': True, 'action': 'removed'})
+    else:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO [social].[coll_user_list_member] ([link_list_id], [link_user_profile_id])
+                VALUES (?, ?)
+            """, [list_id, member_user_profile_id])
+        return JsonResponse({'success': True, 'action': 'added'})

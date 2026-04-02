@@ -924,6 +924,39 @@
     });
   });
 
+  /* ---- POST ANALYTICS — inline card ---- */
+  document.addEventListener('click', function (event) {
+    var analyticsButton = event.target.closest('.post-card-analytics-button');
+    if (!analyticsButton) return;
+
+    var postCard = analyticsButton.closest('.post-card');
+    var existingCard = postCard.querySelector('.post-card-analytics-card');
+    if (existingCard) { existingCard.remove(); return; }
+
+    var views = parseInt(analyticsButton.getAttribute('data-views') || '0', 10);
+    var likes = parseInt(analyticsButton.getAttribute('data-likes') || '0', 10);
+    var replies = parseInt(analyticsButton.getAttribute('data-replies') || '0', 10);
+    var reposts = parseInt(analyticsButton.getAttribute('data-reposts') || '0', 10);
+    var engagementRate = views > 0 ? ((likes + replies + reposts) / views * 100).toFixed(1) : '0.0';
+
+    var analyticsCard = document.createElement('div');
+    analyticsCard.className = 'post-card-analytics-card';
+    analyticsCard.innerHTML =
+      '<div class="post-card-analytics-card-title">📊 পোস্ট Analytics</div>' +
+      '<div class="post-card-analytics-card-stats">' +
+      '<div class="post-card-analytics-card-stat"><span class="post-card-analytics-card-stat-value">' + views + '</span><span class="post-card-analytics-card-stat-label">Views</span></div>' +
+      '<div class="post-card-analytics-card-stat"><span class="post-card-analytics-card-stat-value">' + likes + '</span><span class="post-card-analytics-card-stat-label">Likes</span></div>' +
+      '<div class="post-card-analytics-card-stat"><span class="post-card-analytics-card-stat-value">' + replies + '</span><span class="post-card-analytics-card-stat-label">Replies</span></div>' +
+      '<div class="post-card-analytics-card-stat"><span class="post-card-analytics-card-stat-value">' + reposts + '</span><span class="post-card-analytics-card-stat-label">Reposts</span></div>' +
+      '</div>' +
+      '<div class="post-card-analytics-card-engagement">Engagement Rate: ' + engagementRate + '%</div>';
+
+    var actionsBar = postCard.querySelector('.post-card-actions');
+    if (actionsBar) actionsBar.parentNode.insertBefore(analyticsCard, actionsBar);
+
+    closeAllDropdowns();
+  });
+
   /* ---- POLL VOTE ---- */
   document.addEventListener('click', function (event) {
     var pollOption = event.target.closest('.post-card-poll-option');

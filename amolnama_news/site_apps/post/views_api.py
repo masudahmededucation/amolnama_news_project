@@ -30,16 +30,26 @@ def api_post_create(request):
     from amolnama_news.site_apps.user_account.models import UserProfile
 
     # Support both JSON and FormData
+    scheduled_publish_at = None
     if request.content_type and 'multipart' in request.content_type:
         post_text_bn = (request.POST.get('post_text_bn') or '').strip()
         visibility_code = request.POST.get('visibility_code') or 'public'
+        scheduled_publish_at_raw = request.POST.get('scheduled_publish_at') or ''
     else:
         try:
             data = json.loads(request.body)
             post_text_bn = (data.get('post_text_bn') or '').strip()
             visibility_code = data.get('visibility_code') or 'public'
+            scheduled_publish_at_raw = data.get('scheduled_publish_at') or ''
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    if scheduled_publish_at_raw:
+        from datetime import datetime as dt
+        try:
+            scheduled_publish_at = dt.fromisoformat(scheduled_publish_at_raw)
+        except (ValueError, TypeError):
+            scheduled_publish_at = None
 
     if visibility_code not in ('public', 'followers', 'private'):
         visibility_code = 'public'
@@ -75,10 +85,11 @@ def api_post_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [post].[post]
-                ([post_guid], [link_user_profile_id], [post_text_bn], [post_type_code], [visibility_code], [post_keywords_json], [is_published], [is_active])
+                ([post_guid], [link_user_profile_id], [post_text_bn], [post_type_code], [visibility_code], [post_keywords_json], [scheduled_publish_at], [is_published], [is_active])
             OUTPUT INSERTED.post_post_id
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, [post_guid, user_profile.user_profile_id, post_text_bn or None, post_type_code, visibility_code, None, 1, 1])
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, [post_guid, user_profile.user_profile_id, post_text_bn or None, post_type_code, visibility_code, None,
+              scheduled_publish_at, 0 if scheduled_publish_at else 1, 1])
         post_post_id = cursor.fetchone()[0]
 
     post = Post.objects.get(post_post_id=post_post_id)
@@ -364,8 +375,16 @@ def api_post_view_increment(request, post_post_id):
 @require_POST
 @login_required
 def api_post_repost(request, post_post_id):
-    """Toggle repost — creates repost if not reposted, removes if already reposted."""
+    """Toggle repost or quote repost — creates repost if not reposted, removes if already reposted."""
     from amolnama_news.site_apps.user_account.models import UserProfile
+
+    # Accept optional quote comment
+    quote_comment_text = None
+    try:
+        data = json.loads(request.body)
+        quote_comment_text = (data.get('quote_comment_text') or '').strip() or None
+    except (json.JSONDecodeError, ValueError):
+        pass
 
     try:
         user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
@@ -406,10 +425,13 @@ def api_post_repost(request, post_post_id):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [post].[post]
-                    ([post_guid], [link_user_profile_id], [link_repost_of_post_id], [post_type_code], [is_published], [is_active])
+                    ([post_guid], [link_user_profile_id], [link_repost_of_post_id], [post_type_code],
+                     [quote_comment_text], [is_published], [is_active])
                 OUTPUT INSERTED.post_post_id
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, [repost_guid, user_profile.user_profile_id, post_post_id, 'repost', 1, 1])
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, [repost_guid, user_profile.user_profile_id, post_post_id,
+                  'quote_repost' if quote_comment_text else 'repost',
+                  quote_comment_text, 1, 1])
             cursor.fetchone()
         reposted = True
 

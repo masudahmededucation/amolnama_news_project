@@ -107,3 +107,16 @@ class CollPostHashtag(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[coll_post_hashtag]'
+
+
+class CollMutedWord(models.Model):
+    """User's muted words — posts containing these words are hidden from feed."""
+    newsengine_coll_muted_word_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    muted_word = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[coll_muted_word]'

@@ -181,3 +181,79 @@ def api_trending_hashtags(request):
     } for hashtag in hashtags]
 
     return JsonResponse({'success': True, 'hashtags': items})
+
+
+# =========================================================
+# MUTED WORDS
+# =========================================================
+
+@login_required
+@require_POST
+def api_muted_word_add(request):
+    """Add a muted word for the current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    muted_word = (data.get('muted_word') or '').strip().lower()
+    if not muted_word or len(muted_word) < 2:
+        return JsonResponse({'success': False, 'error': 'শব্দটি কমপক্ষে ২ অক্ষর হতে হবে'}, status=400)
+
+    from .models import CollMutedWord
+    existing = CollMutedWord.objects.filter(
+        link_user_profile_id=user_profile_id, muted_word=muted_word, is_active=True,
+    ).first()
+    if existing:
+        return JsonResponse({'success': False, 'error': 'এই শব্দটি ইতিমধ্যে মিউট করা আছে'}, status=400)
+
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [newsengine].[coll_muted_word] ([link_user_profile_id], [muted_word])
+            VALUES (?, ?)
+        """, [user_profile_id, muted_word])
+
+    return JsonResponse({'success': True})
+
+
+@login_required
+@require_POST
+def api_muted_word_remove(request):
+    """Remove a muted word for the current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    muted_word = (data.get('muted_word') or '').strip().lower()
+
+    from .models import CollMutedWord
+    CollMutedWord.objects.filter(
+        link_user_profile_id=user_profile_id, muted_word=muted_word, is_active=True,
+    ).delete()
+
+    return JsonResponse({'success': True})
+
+
+@login_required
+def api_muted_words_list(request):
+    """Get all muted words for current user."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': True, 'muted_words': []})
+
+    from .models import CollMutedWord
+    words = list(CollMutedWord.objects.filter(
+        link_user_profile_id=user_profile_id, is_active=True,
+    ).values_list('muted_word', flat=True))
+
+    return JsonResponse({'success': True, 'muted_words': words})

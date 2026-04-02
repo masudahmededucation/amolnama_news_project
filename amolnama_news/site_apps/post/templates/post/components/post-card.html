@@ -54,6 +54,7 @@
             {% endif %}
             {% if post_item.can_edit %}
             <button type="button" class="post-card-more-menu-item post-card-edit-button" id="post-card-edit-{{ post_item.post_post_id }}" name="post_card_edit_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-post-text="{{ post_item.post_text_bn|default:'' }}">✎ Edit</button>
+            <button type="button" class="post-card-more-menu-item post-card-analytics-button" id="post-card-analytics-{{ post_item.post_post_id }}" name="post_card_analytics_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-views="{{ post_item.view_count|default:0 }}" data-likes="{{ post_item.like_count|default:0 }}" data-replies="{{ post_item.reply_count|default:0 }}" data-reposts="{{ post_item.repost_count|default:0 }}">📊 Analytics</button>
             {% endif %}
             {% if user.is_authenticated and not post_item.can_edit %}
             <button type="button" class="post-card-more-menu-item post-card-flag-button" id="post-card-flag-{{ post_item.post_post_id }}" name="post_card_flag_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">⚑ Flag Post</button>
@@ -114,6 +115,7 @@
             {% endif %}
             {% if post_item.can_edit %}
             <button type="button" class="post-card-more-menu-item post-card-edit-button" id="post-card-edit-{{ post_item.post_post_id }}" name="post_card_edit_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-post-text="{{ post_item.post_text_bn|default:'' }}">✎ Edit</button>
+            <button type="button" class="post-card-more-menu-item post-card-analytics-button" id="post-card-analytics-{{ post_item.post_post_id }}" name="post_card_analytics_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-views="{{ post_item.view_count|default:0 }}" data-likes="{{ post_item.like_count|default:0 }}" data-replies="{{ post_item.reply_count|default:0 }}" data-reposts="{{ post_item.repost_count|default:0 }}">📊 Analytics</button>
             {% endif %}
             {% if user.is_authenticated and not post_item.can_edit %}
             <button type="button" class="post-card-more-menu-item post-card-flag-button" id="post-card-flag-{{ post_item.post_post_id }}" name="post_card_flag_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">⚑ Flag Post</button>
@@ -128,6 +130,8 @@
         </div>
       </div>
     </div>
+    {% if post_item.is_scheduled %}<div class="post-card-scheduled-badge" id="post-card-scheduled-badge-{{ post_item.post_post_id }}">🕐 নির্ধারিত সময়ে প্রকাশ হবে</div>{% endif %}
+    {% if post_item.quote_comment_text %}<div class="post-card-quote-comment" id="post-card-quote-comment-{{ post_item.post_post_id }}">{{ post_item.quote_comment_text }}</div>{% endif %}
     {% if post_item.post_text_bn %}<div class="post-card-text" id="post-card-text-{{ post_item.post_post_id }}">{{ post_item.post_text_highlighted|safe }}</div>{% endif %}
     {% endif %}
 

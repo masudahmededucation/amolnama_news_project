@@ -26,6 +26,8 @@ class Post(models.Model):
     is_edited = models.BooleanField(default=False)
     edited_at = models.DateTimeField(blank=True, null=True)
     is_pinned = models.BooleanField(default=False)
+    scheduled_publish_at = models.DateTimeField(blank=True, null=True)
+    quote_comment_text = models.CharField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -42,6 +44,7 @@ class PostMedia(models.Model):
     link_post_id = models.BigIntegerField()
     link_asset_id = models.BigIntegerField()
     sort_order = models.IntegerField(default=0)
+    alt_text = models.CharField(max_length=300, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 

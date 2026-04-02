@@ -47,6 +47,12 @@ def build_home_feed(request):
 def _build_intelligent_feed(request, feed_items, category_filter):
     """Apply full newsengine pipeline: promos → ranking → personalization → dedup → read history → category filter."""
 
+    # Step 0: Auto-publish scheduled posts that are due
+    try:
+        _auto_publish_scheduled_posts()
+    except Exception:
+        logger.exception('Auto-publish scheduled posts failed')
+
     # Step 1: Inject promo cards
     feed_items = _inject_promo_cards(feed_items)
 
@@ -86,6 +92,13 @@ def _build_intelligent_feed(request, feed_items, category_filter):
             feed_items = _exclude_blocked_users(feed_items, user_profile_id)
         except Exception:
             logger.exception('Blocked user filter failed — showing all content')
+
+    # Step 4c: Hide posts containing muted words
+    if user_profile_id:
+        try:
+            feed_items = _exclude_muted_words(feed_items, user_profile_id)
+        except Exception:
+            logger.exception('Muted words filter failed — showing all content')
 
     # Step 5: Deduplicate content (same content as published promo + boost)
     feed_items = _deduplicate_feed(feed_items)
@@ -199,6 +212,42 @@ def _filter_by_category(feed_items, category_filter):
                 filtered_items.append(item)
             elif not target_badge:
                 filtered_items.append(item)
+
+    return filtered_items
+
+
+def _auto_publish_scheduled_posts():
+    """Auto-publish posts where scheduled_publish_at has passed and is_published is False."""
+    from django.utils import timezone
+    from amolnama_news.site_apps.post.models import Post
+
+    now = timezone.now()
+    Post.objects.filter(
+        scheduled_publish_at__lte=now, is_published=False, is_active=True,
+    ).exclude(scheduled_publish_at__isnull=True).update(is_published=True)
+
+
+def _exclude_muted_words(feed_items, user_profile_id):
+    """Hide posts containing any of the user's muted words."""
+    from .models import CollMutedWord
+
+    muted_words = list(CollMutedWord.objects.filter(
+        link_user_profile_id=user_profile_id, is_active=True,
+    ).values_list('muted_word', flat=True))
+
+    if not muted_words:
+        return feed_items
+
+    filtered_items = []
+    for item in feed_items:
+        post_text = (item.get('post_text_bn') or item.get('promo_title') or '').lower()
+        is_muted = False
+        for muted_word in muted_words:
+            if muted_word in post_text:
+                is_muted = True
+                break
+        if not is_muted:
+            filtered_items.append(item)
 
     return filtered_items
 
