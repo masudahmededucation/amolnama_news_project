@@ -18,7 +18,9 @@ var BanglaInput = (function() {
   var dictLoading = false;
   var dictCallbacks = [];
   var avroAvailable = typeof OmicronLab !== "undefined" && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
-  var globalEnabled = true;    // toggled by setEnabled() — when false, typing stays English
+  // Default to saved preference, fallback to Bengali enabled
+  var savedLanguagePreference = localStorage.getItem('bangla_input_enabled');
+  var globalEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
 
   // ---- Load dictionary ----
   function loadDictionary(cb) {
@@ -418,6 +420,7 @@ var BanglaInput = (function() {
     },
     setEnabled: function(enabled) {
       globalEnabled = !!enabled;
+      try { localStorage.setItem('bangla_input_enabled', globalEnabled ? 'true' : 'false'); } catch (storageError) {}
     },
     isEnabled: function() {
       return globalEnabled;
