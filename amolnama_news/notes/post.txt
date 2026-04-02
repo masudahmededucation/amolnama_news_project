@@ -407,3 +407,45 @@ admin or user with post editor privilege should be able to flag posts.
 flag posts that does not add any values.
 
 
+Post App Rating: 7.5/10 — good but missing key features that users expect.
+
+The styling is better now. But the rating is about features, not just looks.
+
+What you have (strong):
+Text, image, video, paste, lightbox, upvote, like, bookmark, repost, reply, share, emoji, draft, NER, keywords, follow, profile popup, verified badge, contribution score, flag, follow post, view tracking, embed, draft mode, leave warning.
+
+What's missing for 9/10 (all free, local):
+
+Missing Feature	Twitter/X	Facebook	Priority
+Edit post	Yes	Yes	High
+Pin post to profile	Yes	Yes	High
+Polls (vote options)	Yes	No	High
+@mention with notify	Yes	Yes	High
+Link preview (og:tags)	Yes	Yes	High
+Quote repost	Yes	No	Medium
+Scheduled post UI	Yes	Yes	Medium
+Threaded replies	Yes	Yes	Medium
+Top 5 I'd build first:
+
+Edit post — quick, high value
+@mention — social engagement driver
+Link preview — already have the API from debate
+Polls — engagement booster
+Pin post — profile customization
+Want me to build all 5 now?
+
+have you done this?
+check again.
+you are right. after selecting the file. it collapses immediately and post button no longer avaiable. so make if any files attached or any letter written on the wall. then wall shouldn't collapse. basically, wall should have its' mode. if it is in draft mode, then it should not collapse. if user tries to move away from wall, give them warning. if they move aways, remove the draft mode. research, how facebook and twitter handles it. i am surprised you are not able to make the home wall post professional yet.
+
+post-home.js:447 Post creation failed: TypeError: Cannot read properties of null (reading 'insertAdjacentHTML')
+    at post-home.js:435:23
+(anonymous) @ post-home.js:447
+Promise.catch
+(anonymous) @ post-home.js:446
+
+
+i posted a video link.
+the text was visible for a few seconds.
+video was not showing on the post.
+after a few seconds it is gone.

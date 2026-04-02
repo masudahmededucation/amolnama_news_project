@@ -10,6 +10,30 @@ this way you know what is done and not.
 --compare the plan
 now check one more time that you have completed the task properly
 
+#################
+--auto posting app
+automatic scrapping current news
+news related to bangladesh
+automatic post
+need a nav menu options for this
+i should be able to give hint.
+then it should grab related to that hint and post.
+i should be able to tell how many post for that related hint.
+if i say 3 posts,
+then it should find 3 different topic for that same hint and post.
+in the beginning it will help to build a portfolio.
+if the wall is empty and i struggle to find users, 
+then the app may die soon. 
+this automatic posting will reduce my effort and time.
+it will make the app lively.
+
+
+####################
+revenue or advertisement app
+
+
+
+
 
 
 

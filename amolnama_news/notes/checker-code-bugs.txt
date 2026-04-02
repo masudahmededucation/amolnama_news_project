@@ -23,6 +23,9 @@ gen z proof
 competitive styling
 full of life
 good feel
+no amateur look. 
+buttons and display should be polished. 
+no dull and basic.
 make it responsive for all kind of devices
 
 --naming conventions
