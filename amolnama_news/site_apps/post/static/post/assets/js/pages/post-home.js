@@ -23,13 +23,28 @@
       }
     });
 
-    /* Draft mode — don't collapse if user has content (text or files) */
+    /* Draft mode — don't collapse if user has content, files, or file picker is open */
+    var filePickerIsOpen = false;
+
     function isComposerInDraftMode() {
+      if (filePickerIsOpen) return true;
       var textarea = composerElement.querySelector('.post-composer-textarea');
       var hasText = textarea && textarea.value.trim().length > 0;
       var previewContainer = document.getElementById('post-composer-media-preview');
       var hasFiles = previewContainer && previewContainer.children.length > 0;
       return hasText || hasFiles;
+    }
+
+    /* Track file picker open/close */
+    var mediaFileInput = document.getElementById('post-composer-media-input');
+    if (mediaFileInput) {
+      mediaFileInput.addEventListener('click', function () { filePickerIsOpen = true; });
+      mediaFileInput.addEventListener('change', function () { filePickerIsOpen = false; });
+      mediaFileInput.addEventListener('cancel', function () { filePickerIsOpen = false; });
+      /* Fallback — reset after 30s in case events don't fire */
+      mediaFileInput.addEventListener('click', function () {
+        setTimeout(function () { filePickerIsOpen = false; }, 30000);
+      });
     }
 
     /* Collapse helper — only collapse if NOT in draft mode */
