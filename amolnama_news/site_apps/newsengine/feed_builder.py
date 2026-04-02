@@ -111,17 +111,35 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items):
-    """Inject promo cards from all content apps into the feed."""
+    """Inject promo cards from all content apps into the feed.
+    User's recent posts (< 5 min) stay at top — promos go after them."""
+    from django.utils import timezone as tz
+    from datetime import timedelta
     from .promo_builders import build_all_promo_items, build_promotional_boost_items
 
-    # All published items — appear at top, sorted by date (latest first)
+    # Find how many recent user posts are at the top (< 5 min old)
+    recent_cutoff = tz.now() - timedelta(minutes=5)
+    recent_post_count = 0
+    for item in feed_items:
+        created_at = item.get('created_at_raw')
+        if created_at:
+            if tz.is_naive(created_at):
+                created_at = tz.make_aware(created_at)
+            if created_at > recent_cutoff:
+                recent_post_count += 1
+                continue
+        break
+
+    # Insert promos AFTER recent posts
+    insert_start = recent_post_count
+
     all_promo_items = build_all_promo_items()
     for index, promo in enumerate(all_promo_items):
-        feed_items.insert(index, promo)
+        feed_items.insert(insert_start + index, promo)
 
-    # Promotional boost — random 2 per category, re-surfaced lower in feed
+    # Promotional boost — lower in feed
     promo_boost_items = build_promotional_boost_items()
-    boost_start_position = max(len(all_promo_items) + 5, 10)
+    boost_start_position = max(insert_start + len(all_promo_items) + 5, 10)
     for index, promo in enumerate(promo_boost_items):
         position = boost_start_position + (index * 5)
         if position < len(feed_items):
