@@ -100,12 +100,16 @@ def classify_text(text):
                 total_score += keyword['weight']
                 matched_keyword_count += 1
 
-        # Normalize score (0.0 to 1.0)
+        # Score based on matched weight — 1 match = 0.3, 2 = 0.5, 3+ = 0.7+
         if matched_keyword_count > 0:
-            normalized_score = min(total_score / max(len(keywords), 1), 1.0)
-            # Boost if multiple keywords matched
+            normalized_score = min(total_score / 5.0, 1.0)
+            # Minimum floor based on match count
             if matched_keyword_count >= 3:
-                normalized_score = min(normalized_score + 0.2, 1.0)
+                normalized_score = max(normalized_score, 0.7)
+            elif matched_keyword_count >= 2:
+                normalized_score = max(normalized_score, 0.5)
+            elif matched_keyword_count >= 1:
+                normalized_score = max(normalized_score, 0.3)
 
             if normalized_score > 0.1:
                 results.append((
