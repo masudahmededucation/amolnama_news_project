@@ -176,3 +176,54 @@ class FactContentClassification(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[fact_content_classification]'
+
+
+class FactCheckResult(models.Model):
+    """Fact-check result — audit trail for every claim checked."""
+    newsengine_fact_check_result_id = models.BigAutoField(primary_key=True)
+    link_content_id = models.BigIntegerField()
+    fact_check_source_app = models.CharField(max_length=30)
+    fact_check_claim_text = models.CharField(max_length=500)
+    fact_check_claim_text_normalized = models.CharField(max_length=500)
+    fact_check_claim_hash = models.CharField(max_length=64)
+    fact_check_method = models.CharField(max_length=30, default='pattern')
+    fact_check_verdict = models.CharField(max_length=30, blank=True, null=True)
+    fact_check_verdict_source = models.CharField(max_length=200, blank=True, null=True)
+    fact_check_verdict_url = models.CharField(max_length=500, blank=True, null=True)
+    fact_check_confidence_score = models.DecimalField(max_digits=5, decimal_places=4, default=0)
+    is_flagged = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_check_result]'
+
+
+class RefFactCheckBlacklistedDomain(models.Model):
+    """Blacklisted domain — known unreliable/fake news sources."""
+    newsengine_ref_fact_check_blacklisted_domain_id = models.AutoField(primary_key=True)
+    blacklisted_domain_name = models.CharField(max_length=200)
+    blacklisted_domain_category = models.CharField(max_length=30, default='unreliable')
+    blacklisted_domain_reason = models.CharField(max_length=300, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[ref_fact_check_blacklisted_domain]'
+
+
+class RefFactCheckMisinformationPattern(models.Model):
+    """Misinformation pattern — sensationalism/manipulation phrases."""
+    newsengine_ref_fact_check_misinformation_pattern_id = models.AutoField(primary_key=True)
+    misinformation_pattern_text = models.CharField(max_length=200)
+    misinformation_pattern_text_normalized = models.CharField(max_length=200)
+    misinformation_pattern_language_code = models.CharField(max_length=5, default='bn')
+    misinformation_pattern_weight = models.DecimalField(max_digits=5, decimal_places=2, default=1.0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[ref_fact_check_misinformation_pattern]'

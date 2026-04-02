@@ -187,6 +187,17 @@ def api_post_create(request):
                 logger.exception('Content classification failed for post %s', background_post_id)
         threading.Thread(target=_background_content_classification, args=(post.post_post_id, post_text_bn), daemon=True).start()
 
+    # Fact-check in background — pattern detection, duplicate claims, domain blacklist, Google API
+    if post_text_bn and len(post_text_bn) >= 20:
+        import threading
+        def _background_fact_check(background_post_id, background_text):
+            try:
+                from amolnama_news.site_apps.newsengine.fact_checker import fact_check_content
+                fact_check_content('post', background_post_id, background_text)
+            except Exception:
+                logger.exception('Fact-check failed for post %s', background_post_id)
+        threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text_bn), daemon=True).start()
+
     return JsonResponse({
         'success': True,
         'post_post_id': post.post_post_id,
