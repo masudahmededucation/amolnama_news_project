@@ -1074,4 +1074,45 @@
     }
   });
 
+  /* ---- VIDEO THUMBNAIL — extract frame at 1s, skip black/solid frames ---- */
+  var videoElements = document.querySelectorAll('.post-card-media-video-full');
+  videoElements.forEach(function (videoElement) {
+    if (videoElement.poster) return;
+
+    videoElement.addEventListener('loadeddata', function () {
+      try {
+        videoElement.currentTime = 1;
+      } catch (error) {}
+    }, { once: true });
+
+    videoElement.addEventListener('seeked', function () {
+      try {
+        var canvas = document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        var context = canvas.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        /* Check if frame is mostly black/solid — sample 5 pixels */
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        var samplePoints = [0, Math.floor(imageData.length / 4), Math.floor(imageData.length / 2), Math.floor(imageData.length * 3 / 4), imageData.length - 4];
+        var darkPixelCount = 0;
+        samplePoints.forEach(function (offset) {
+          var red = imageData[offset];
+          var green = imageData[offset + 1];
+          var blue = imageData[offset + 2];
+          if (red < 30 && green < 30 && blue < 30) darkPixelCount++;
+        });
+
+        if (darkPixelCount >= 4 && videoElement.currentTime < 3) {
+          /* Too dark — try 2 seconds later */
+          videoElement.currentTime = Math.min(videoElement.currentTime + 2, videoElement.duration - 0.5);
+          return;
+        }
+
+        videoElement.poster = canvas.toDataURL('image/jpeg', 0.7);
+      } catch (error) {}
+    }, { once: false });
+  });
+
 })();
