@@ -27,7 +27,8 @@
     function isComposerInDraftMode() {
       var textarea = composerElement.querySelector('.post-composer-textarea');
       var hasText = textarea && textarea.value.trim().length > 0;
-      var hasFiles = typeof selectedMediaFiles !== 'undefined' && selectedMediaFiles.length > 0;
+      var previewContainer = document.getElementById('post-composer-media-preview');
+      var hasFiles = previewContainer && previewContainer.children.length > 0;
       return hasText || hasFiles;
     }
 
