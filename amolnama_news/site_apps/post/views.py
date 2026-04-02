@@ -326,29 +326,90 @@ def bookmarks(request):
         posts = [posts_map[post_id] for post_id in bookmarked_post_ids if post_id in posts_map]
         post_items, _ = build_post_feed_items(request, posts=posts)
 
-    # 2. Universal bookmarks (newsengine — poems, news, debates, travel, art, stories)
+    # 2. Collect bookmarks/likes from ALL apps into one unified list
     universal_bookmarks = []
+
+    # Poem likes
+    try:
+        from amolnama_news.site_apps.poem.models import EngPoemLike, CollPoemEntry
+        poem_like_ids = list(EngPoemLike.objects.filter(
+            link_user_profile_id=user_profile_id,
+        ).order_by('-created_at').values_list('link_poem_entry_id', flat=True)[:20])
+        if poem_like_ids:
+            poems_map = {p.poem_coll_poem_entry_id: p for p in CollPoemEntry.objects.filter(poem_coll_poem_entry_id__in=poem_like_ids)}
+            for poem_id in poem_like_ids:
+                poem = poems_map.get(poem_id)
+                if poem:
+                    universal_bookmarks.append({
+                        'content_type_label': 'POEM', 'content_type_color': 'purple',
+                        'content_title': poem.poem_title_bn or '', 'content_url': f'/bangla-kobita-gaan/{poem.poem_slug}/',
+                    })
+    except Exception:
+        pass
+
+    # Art bookmarks
+    try:
+        from amolnama_news.site_apps.art.models import EngArtworkBookmark, CollArtwork
+        art_bookmark_ids = list(EngArtworkBookmark.objects.filter(
+            link_user_profile_id=user_profile_id,
+        ).order_by('-created_at').values_list('link_artwork_id', flat=True)[:20])
+        if art_bookmark_ids:
+            artworks_map = {a.art_coll_artwork_id: a for a in CollArtwork.objects.filter(art_coll_artwork_id__in=art_bookmark_ids)}
+            for art_id in art_bookmark_ids:
+                artwork = artworks_map.get(art_id)
+                if artwork:
+                    universal_bookmarks.append({
+                        'content_type_label': 'ART', 'content_type_color': 'blue',
+                        'content_title': artwork.artwork_title_bn or '', 'content_url': f'/art-and-craft/{artwork.artwork_slug}/',
+                    })
+    except Exception:
+        pass
+
+    # Story bookmarks
+    try:
+        from amolnama_news.site_apps.stories.models import EngStoryBookmark, CollStory
+        story_bookmark_ids = list(EngStoryBookmark.objects.filter(
+            link_user_profile_id=user_profile_id,
+        ).order_by('-created_at').values_list('link_story_id', flat=True)[:20])
+        if story_bookmark_ids:
+            stories_map = {s.stories_coll_story_id: s for s in CollStory.objects.filter(stories_coll_story_id__in=story_bookmark_ids)}
+            for story_id in story_bookmark_ids:
+                story = stories_map.get(story_id)
+                if story:
+                    universal_bookmarks.append({
+                        'content_type_label': 'STORY', 'content_type_color': 'amber',
+                        'content_title': story.story_title_bn or '', 'content_url': f'/stories-for-kids/{story.story_slug}/',
+                    })
+    except Exception:
+        pass
+
+    # Travel destination bookmarks
+    try:
+        from amolnama_news.site_apps.bangladesh.models import EngDestinationBookmark, CollDestination
+        travel_bookmark_ids = list(EngDestinationBookmark.objects.filter(
+            link_user_profile_id=user_profile_id,
+        ).order_by('-created_at').values_list('link_destination_id', flat=True)[:20])
+        if travel_bookmark_ids:
+            destinations_map = {d.bangladesh_coll_destination_id: d for d in CollDestination.objects.filter(bangladesh_coll_destination_id__in=travel_bookmark_ids)}
+            for dest_id in travel_bookmark_ids:
+                destination = destinations_map.get(dest_id)
+                if destination:
+                    universal_bookmarks.append({
+                        'content_type_label': 'TRAVEL', 'content_type_color': 'green',
+                        'content_title': destination.destination_name_bn or destination.destination_name_en or '',
+                        'content_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',
+                    })
+    except Exception:
+        pass
+
+    # Newsengine universal bookmarks (future — manual bookmarks from promo cards)
     try:
         from amolnama_news.site_apps.newsengine.models import CollContentBookmark
-        bookmarks_queryset = CollContentBookmark.objects.filter(
-            link_user_profile_id=user_profile_id, is_active=True,
-        ).order_by('-created_at')[:50]
-
-        # Badge color map
-        color_map = {
-            'news': 'rose', 'poem': 'purple', 'story': 'amber',
-            'art': 'blue', 'travel': 'green', 'debate': 'amber',
-        }
-
-        for bookmark in bookmarks_queryset:
+        for bookmark in CollContentBookmark.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
+            color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
             universal_bookmarks.append({
-                'bookmark_id': bookmark.newsengine_coll_content_bookmark_id,
-                'content_type_code': bookmark.content_type_code,
-                'content_type_label': bookmark.content_type_code.upper(),
-                'content_type_color': color_map.get(bookmark.content_type_code, 'blue'),
-                'content_title': bookmark.content_title or '',
-                'content_url': bookmark.content_url or '',
-                'created_at_formatted': bookmark.created_at.strftime('%d %b %Y') if bookmark.created_at else '',
+                'content_type_label': bookmark.content_type_code.upper(), 'content_type_color': color_map.get(bookmark.content_type_code, 'blue'),
+                'content_title': bookmark.content_title or '', 'content_url': bookmark.content_url or '',
             })
     except Exception:
         pass
