@@ -134,11 +134,21 @@ def api_post_create(request):
         with open(full_path, 'wb') as destination_file:
             destination_file.write(file_content)
 
+        # Get alt text for this file
+        alt_texts_json = request.POST.get('alt_texts_json', '[]')
+        try:
+            alt_texts_list = json.loads(alt_texts_json)
+        except (json.JSONDecodeError, ValueError):
+            alt_texts_list = []
+        alt_text_value = alt_texts_list[file_index] if file_index < len(alt_texts_list) else None
+        alt_text_value = alt_text_value.strip() if alt_text_value else None
+
         # Link to post
         PostMedia.objects.create(
             link_post_id=post.post_post_id,
             link_asset_id=asset_id,
             sort_order=file_index,
+            alt_text=alt_text_value or None,
         )
         media_urls.append('/media/' + file_storage_path)
 

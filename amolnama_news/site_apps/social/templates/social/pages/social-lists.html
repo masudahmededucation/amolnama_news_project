@@ -1,0 +1,60 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}তালিকা — আমলনামা নিউজ{% endblock %}
+
+{% block content %}
+<div class="social-lists-page" id="social-lists-page" style="max-width:700px;margin:0 auto;padding:1rem;">
+  <h1 style="font-size:1.2rem;font-weight:800;margin:0 0 .5rem;">📋 আমার তালিকা (My Lists)</h1>
+  <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;">তালিকা তৈরি করুন এবং ব্যবহারকারীদের যোগ করুন — তালিকা অনুযায়ী ফিড ফিল্টার করুন।</p>
+
+  <div class="social-lists-create-row" id="social-lists-create-row" style="display:flex;gap:.4rem;margin-bottom:1rem;">
+    <input type="text" id="social-lists-create-input" name="social_lists_create_input" placeholder="নতুন তালিকার নাম..." style="flex:1;padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;">
+    <button type="button" id="social-lists-create-button" name="social_lists_create_button" style="padding:.4rem .8rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;">তৈরি করুন</button>
+  </div>
+
+  <div class="social-lists-container" id="social-lists-container">
+    {% for list_item in lists %}
+    <div class="social-lists-item" id="social-lists-item-{{ list_item.list_id }}" style="padding:.6rem .8rem;border:1px solid var(--border);border-radius:10px;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <span style="font-size:.88rem;font-weight:700;">{{ list_item.list_name }}</span>
+        <span style="font-size:.65rem;color:var(--muted);margin-left:.3rem;">{{ list_item.member_count }} সদস্য</span>
+      </div>
+    </div>
+    {% empty %}
+    <p style="color:var(--muted);font-size:.82rem;">এখনো কোনো তালিকা তৈরি হয়নি।</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var createInput = document.getElementById('social-lists-create-input');
+  var createButton = document.getElementById('social-lists-create-button');
+  if (!createInput || !createButton) return;
+
+  function getListCsrfToken() {
+    var match = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return match ? match.pop() : '';
+  }
+
+  createButton.addEventListener('click', function () {
+    var listName = createInput.value.trim();
+    if (!listName) return;
+    createButton.disabled = true;
+    fetch('/social/api/list/create/', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getListCsrfToken() },
+      body: JSON.stringify({ list_name: listName }),
+    }).then(function (response) { return response.json(); }).then(function (data) {
+      if (data.success) { window.location.reload(); }
+      createButton.disabled = false;
+    }).catch(function () { createButton.disabled = false; });
+  });
+
+  createInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') { event.preventDefault(); createButton.click(); }
+  });
+})();
+</script>
+{% endblock %}

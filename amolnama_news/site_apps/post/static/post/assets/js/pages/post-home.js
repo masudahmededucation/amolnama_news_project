@@ -378,6 +378,19 @@
       });
 
       previewItem.appendChild(removeButton);
+
+      /* Alt text input for images */
+      if (currentFile.type.startsWith('image/')) {
+        var altTextInput = document.createElement('input');
+        altTextInput.type = 'text';
+        altTextInput.className = 'post-composer-media-alt-text-input';
+        altTextInput.id = 'post-composer-media-alt-text-' + fileIndex;
+        altTextInput.name = 'post_composer_media_alt_text_' + fileIndex;
+        altTextInput.placeholder = 'ALT';
+        altTextInput.setAttribute('data-file-index', fileIndex);
+        previewItem.appendChild(altTextInput);
+      }
+
       mediaPreviewContainer.appendChild(previewItem);
     }
   }
@@ -401,9 +414,13 @@
       if (scheduleInputValue && scheduleInputValue.value) {
         formData.append('scheduled_publish_at', scheduleInputValue.value);
       }
+      var altTexts = [];
       for (var uploadIndex = 0; uploadIndex < selectedMediaFiles.length; uploadIndex++) {
         formData.append('post_media_files', selectedMediaFiles[uploadIndex]);
+        var altInput = document.getElementById('post-composer-media-alt-text-' + uploadIndex);
+        altTexts.push(altInput ? altInput.value.trim() : '');
       }
+      formData.append('alt_texts_json', JSON.stringify(altTexts));
 
       fetch('/post/api/create/', {
         method: 'POST',

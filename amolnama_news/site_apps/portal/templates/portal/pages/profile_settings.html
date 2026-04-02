@@ -40,4 +40,77 @@
   Don't remember your current password?
   <a href="{% url 'user_account:forgot_password' %}">Reset via email</a>
 </p>
+
+<hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+
+<h2 class="profile-section-title" id="muted-words-section-title">🔇 Muted Words</h2>
+<p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">এই শব্দগুলো থাকলে পোস্ট আপনার ফিডে দেখাবে না।</p>
+
+<div class="muted-words-container" id="muted-words-container">
+  <div class="muted-words-input-row" id="muted-words-input-row" style="display:flex;gap:.4rem;margin-bottom:.5rem;">
+    <input type="text" class="muted-words-input" id="muted-words-input" name="muted_words_input" placeholder="শব্দ লিখুন..." style="flex:1;padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;">
+    <button type="button" class="muted-words-add-button" id="muted-words-add-button" name="muted_words_add_button" style="padding:.4rem .8rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;">যোগ করুন</button>
+  </div>
+  <div class="muted-words-list" id="muted-words-list" style="display:flex;flex-wrap:wrap;gap:.3rem;"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var mutedWordInput = document.getElementById('muted-words-input');
+  var mutedWordAddButton = document.getElementById('muted-words-add-button');
+  var mutedWordListContainer = document.getElementById('muted-words-list');
+  if (!mutedWordInput || !mutedWordAddButton || !mutedWordListContainer) return;
+
+  function getMutedWordCsrfToken() {
+    var match = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    return match ? match.pop() : '';
+  }
+
+  function renderMutedWords(words) {
+    mutedWordListContainer.innerHTML = '';
+    words.forEach(function (word) {
+      var tag = document.createElement('span');
+      tag.style.cssText = 'display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .5rem;background:#f3f4f6;border-radius:14px;font-size:.75rem;';
+      tag.innerHTML = word + ' <button type="button" style="background:none;border:none;font-size:.8rem;cursor:pointer;color:#dc2626;padding:0;" data-muted-word="' + word + '">✕</button>';
+      mutedWordListContainer.appendChild(tag);
+    });
+  }
+
+  function loadMutedWords() {
+    fetch('/newsengine/api/muted-words/')
+      .then(function (response) { return response.json(); })
+      .then(function (data) { if (data.success) renderMutedWords(data.muted_words); });
+  }
+
+  mutedWordAddButton.addEventListener('click', function () {
+    var word = mutedWordInput.value.trim();
+    if (!word) return;
+    fetch('/newsengine/api/muted-words/add/', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getMutedWordCsrfToken() },
+      body: JSON.stringify({ muted_word: word }),
+    }).then(function (response) { return response.json(); }).then(function (data) {
+      if (data.success) { mutedWordInput.value = ''; loadMutedWords(); }
+    });
+  });
+
+  mutedWordListContainer.addEventListener('click', function (event) {
+    var removeButton = event.target.closest('[data-muted-word]');
+    if (!removeButton) return;
+    fetch('/newsengine/api/muted-words/remove/', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getMutedWordCsrfToken() },
+      body: JSON.stringify({ muted_word: removeButton.getAttribute('data-muted-word') }),
+    }).then(function (response) { return response.json(); }).then(function (data) {
+      if (data.success) loadMutedWords();
+    });
+  });
+
+  mutedWordInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') { event.preventDefault(); mutedWordAddButton.click(); }
+  });
+
+  loadMutedWords();
+})();
+</script>
+
 {% endblock %}
