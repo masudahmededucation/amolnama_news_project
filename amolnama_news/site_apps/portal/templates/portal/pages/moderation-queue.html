@@ -34,13 +34,13 @@
 
   {% for item in flagged_items %}
   <div class="moderation-item" id="moderation-item-{{ item.content_type }}-{{ item.content_id }}" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">
-    <div class="moderation-item-left">
-      <span class="moderation-item-badge moderation-item-badge-{{ item.content_type_color }}">{{ item.content_type_label }}</span>
-      <span class="moderation-item-preview">{{ item.content_preview }}</span>
-      <span class="moderation-item-flag-count">⚠️ {{ item.flag_count }} flags</span>
+    <div class="moderation-item-left" id="moderation-item-left-{{ item.content_type }}-{{ item.content_id }}">
+      <span class="moderation-item-badge moderation-item-badge-{{ item.content_type_color }}" id="moderation-item-badge-{{ item.content_type }}-{{ item.content_id }}">{{ item.content_type_label }}</span>
+      <span class="moderation-item-preview" id="moderation-item-preview-{{ item.content_type }}-{{ item.content_id }}">{{ item.content_preview }}</span>
+      <span class="moderation-item-flag-count" id="moderation-item-flag-count-{{ item.content_type }}-{{ item.content_id }}">⚠️ {{ item.flag_count }} flags</span>
     </div>
-    <div class="moderation-item-right">
-      <a href="{{ item.content_url }}" target="_blank" class="moderation-item-button moderation-item-view">View</a>
+    <div class="moderation-item-right" id="moderation-item-right-{{ item.content_type }}-{{ item.content_id }}">
+      <a href="{{ item.content_url }}" target="_blank" class="moderation-item-button moderation-item-view" id="moderation-item-view-{{ item.content_type }}-{{ item.content_id }}" name="moderation_item_view_{{ item.content_type }}_{{ item.content_id }}">View</a>
       <button type="button" class="moderation-item-button moderation-item-approve moderation-action-button"
               id="moderation-approve-{{ item.content_type }}-{{ item.content_id }}"
               name="moderation_approve_{{ item.content_type }}_{{ item.content_id }}"

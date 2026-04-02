@@ -1,0 +1,101 @@
+================================================================================
+APP: NEWSENGINE — Feed Brain, Ranking, Personalization, Notifications
+================================================================================
+
+URL Prefix: /newsengine/
+App Name: newsengine
+Role: The brain of the platform — decides what content users see on the home feed.
+
+================================================================================
+ARCHITECTURE
+================================================================================
+
+Core → Newsengine → Pulse
+- core/views.py calls newsengine/feed_builder.py
+- feed_builder assembles the complete feed
+- pulse template renders whatever feed_builder provides
+
+================================================================================
+FILES
+================================================================================
+
+feed_builder.py     — Assembles home feed: posts + promos + boosts + ranking + dedup + filtering
+promo_builders.py   — Collects published content from all 7 apps + tools catalog
+ranking.py          — Content scoring: recency(0.3) + engagement(0.4) + reputation(0.1) + quality(0.2)
+trending.py         — Finds fastest-growing content in last 24h
+personalization.py  — User interest profile from view history, boosts matching content
+recommendations.py  — "You liked X, you might like Y" — category-based collaborative filtering
+notifications.py    — Global notification helper: create_notification(), get_unread_count(), mark_all_read()
+rate_limiter.py     — Per-action rate limits: check_rate_limit(user_id, action_code)
+models.py           — FactUserContentView, FactContentScore, CollNotification, CollContentBookmark, FactRateLimitLog, CollHashtag, CollPostHashtag
+views_api.py        — APIs: notifications, bookmarks, feed pagination, recommendations, trending hashtags
+urls.py             — 5 API routes
+
+================================================================================
+FEED PIPELINE (feed_builder._build_intelligent_feed)
+================================================================================
+
+1. Inject promo cards (published items at top + random boost lower)
+2. Apply content ranking (sort posts by score, promos keep position)
+3. Apply personalization boost (user interest profile)
+4. Apply user feed preferences (hide categories user turned off)
+5. Remove viewed content (read history, last 200)
+6. Exclude blocked users
+7. Deduplicate (same content as published + boost)
+8. Category filter (if ?category=poem param)
+
+================================================================================
+RANKING FORMULA
+================================================================================
+
+total_score = (recency × 0.3) + (engagement × 0.4) + (author_reputation × 0.1) + (quality × 0.2)
+
+- Recency: exponential decay, half-life 48 hours
+- Engagement: log-normalized (likes + views×0.1 + replies×2 + reposts×1.5 + votes)
+- Author reputation: log-normalized contribution_score_count
+- Quality: word count + vocabulary diversity
+
+================================================================================
+PROMO SYSTEM (promo_builders.py)
+================================================================================
+
+3 types of feed appearance:
+1. Published — all published items at top, sorted by date
+2. Random boost — 2 random per category scattered lower in feed
+3. Tools — 2 random tools promoted per page load
+
+Apps covered: Debate, News, Poem, Story, Art, Travel, Tools (10 tools)
+
+================================================================================
+RATE LIMITS (rate_limiter.py)
+================================================================================
+
+post_create:     10/hour
+post_reply:      30/hour
+vote:            50/hour
+flag:            5/hour
+debate_argument: 20/hour
+debate_reply:    30/hour
+
+================================================================================
+DB TABLES
+================================================================================
+
+[newsengine].[fact_user_content_view]  — read history per user
+[newsengine].[fact_content_score]      — cached ranking scores
+[newsengine].[coll_notification]       — global notifications (all apps)
+[newsengine].[coll_content_bookmark]   — universal bookmarks (any content)
+[newsengine].[fact_rate_limit_log]     — rate limit action log
+[newsengine].[coll_hashtag]            — extracted hashtags
+[newsengine].[coll_post_hashtag]       — post ↔ hashtag junction
+
+================================================================================
+API ROUTES
+================================================================================
+
+GET  /newsengine/api/notifications/          — latest 20 + unread count
+POST /newsengine/api/notifications/mark-read/ — mark all read
+POST /newsengine/api/bookmark/toggle/         — toggle bookmark for any content
+GET  /newsengine/api/feed/?page=2&page_size=20 — paginated feed
+GET  /newsengine/api/recommendations/         — personalized recommendations
+GET  /newsengine/api/hashtags/trending/       — top 10 hashtags
