@@ -1007,10 +1007,24 @@ def api_audience_vote(request, topic_id):
         action = 'voted'
 
     topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+
+    # Recalculate total scores for live UI update
+    from amolnama_news.site_apps.debate.views import _calculate_winning_side
+    blue_participants_count = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=1, is_active=True).count()
+    red_participants_count = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=2, is_active=True).count()
+    winning_side, blue_total_score, red_total_score = _calculate_winning_side(
+        blue_participants_count, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
+        red_participants_count, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
+        topic.audience_blue_vote_count, topic.audience_red_vote_count,
+    )
+
     return JsonResponse({
         'success': True, 'action': action,
         'audience_blue_vote_count': topic.audience_blue_vote_count,
         'audience_red_vote_count': topic.audience_red_vote_count,
+        'blue_total_score': blue_total_score,
+        'red_total_score': red_total_score,
+        'winning_side': winning_side,
     })
 
 

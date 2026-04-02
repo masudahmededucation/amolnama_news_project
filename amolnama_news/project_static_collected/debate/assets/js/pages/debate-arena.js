@@ -540,6 +540,30 @@
           redBar.style.width = Math.round(data.audience_red_vote_count / totalVotes * 100) + '%';
         }
 
+        /* Update total scores smoothly */
+        var blueScoreElement = document.querySelector('.debate-passion-score-blue');
+        var redScoreElement = document.querySelector('.debate-passion-score-red');
+        if (blueScoreElement && data.blue_total_score !== undefined) {
+          blueScoreElement.textContent = '🔵 ' + data.blue_total_score + ' পয়েন্ট';
+        }
+        if (redScoreElement && data.red_total_score !== undefined) {
+          redScoreElement.textContent = '🔴 ' + data.red_total_score + ' পয়েন্ট';
+        }
+
+        /* Update winner banner */
+        var winnerElements = document.querySelectorAll('.debate-passion-winner');
+        winnerElements.forEach(function (element) { element.style.display = 'none'; });
+        if (data.winning_side === 'blue') {
+          var blueWinner = document.querySelector('.debate-passion-winner-blue');
+          if (blueWinner) blueWinner.style.display = '';
+        } else if (data.winning_side === 'red') {
+          var redWinner = document.querySelector('.debate-passion-winner-red');
+          if (redWinner) redWinner.style.display = '';
+        } else {
+          var tieWinner = document.querySelector('.debate-passion-winner-tie');
+          if (tieWinner) tieWinner.style.display = '';
+        }
+
         /* Tick circle — show on voted button, remove from other */
         var allVoteButtons = document.querySelectorAll('.debate-audience-vote-button');
         allVoteButtons.forEach(function (button) {
