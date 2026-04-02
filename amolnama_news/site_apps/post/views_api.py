@@ -99,7 +99,7 @@ def api_post_create(request):
     for file_index, uploaded_file in enumerate(uploaded_files):
         if uploaded_file.size > 10 * 1024 * 1024:
             continue
-        if not uploaded_file.content_type.startswith('image/'):
+        if not uploaded_file.content_type.startswith('image/') and not uploaded_file.content_type.startswith('video/'):
             continue
 
         file_content = uploaded_file.read()
