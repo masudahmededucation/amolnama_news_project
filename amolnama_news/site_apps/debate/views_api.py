@@ -522,6 +522,15 @@ def api_post_argument(request, topic_id):
         )
     threading.Thread(target=_update_argument_reputation, daemon=True).start()
 
+    # Classify content in background
+    def _background_classify_debate_argument():
+        try:
+            from amolnama_news.site_apps.newsengine.content_classifier import classify_and_store
+            classify_and_store('debate', post_id, post_content)
+        except Exception:
+            logger.exception('Content classification failed for debate argument %s', post_id)
+    threading.Thread(target=_background_classify_debate_argument, daemon=True).start()
+
     return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
 
 

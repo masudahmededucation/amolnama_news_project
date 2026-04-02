@@ -100,10 +100,13 @@ def _build_intelligent_feed(request, feed_items, category_filter):
         except Exception:
             logger.exception('Muted words filter failed — showing all content')
 
-    # Step 5: Deduplicate content (same content as published promo + boost)
+    # Step 5: Exclude auto-flagged content (classified as harmful)
+    feed_items = [item for item in feed_items if not item.get('is_auto_flagged')]
+
+    # Step 6: Deduplicate content (same content as published promo + boost)
     feed_items = _deduplicate_feed(feed_items)
 
-    # Step 6: Category filter (if requested via ?category=poem)
+    # Step 7: Category filter (if requested via ?category=poem)
     if category_filter:
         feed_items = _filter_by_category(feed_items, category_filter)
 

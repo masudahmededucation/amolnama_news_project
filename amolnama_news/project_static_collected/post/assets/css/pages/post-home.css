@@ -1146,6 +1146,21 @@
 .post-composer-schedule-input { font-size: .7rem; border: 1px solid var(--border); border-radius: 8px; padding: .2rem .3rem; font-family: inherit; }
 .post-composer-schedule-input-hidden { display: none; }
 
+/* Content category label */
+.post-card-category-label { font-size: .55rem; font-weight: 700; padding: .1rem .4rem; border-radius: 8px; text-transform: uppercase; display: inline-block; margin-bottom: .2rem; }
+.post-card-category-label-religion { background: #ede9fe; color: #6d28d9; }
+.post-card-category-label-politics { background: #fef3c7; color: #92400e; }
+.post-card-category-label-education { background: #d1fae5; color: #065f46; }
+.post-card-category-label-business { background: #dbeafe; color: #1e40af; }
+.post-card-category-label-news { background: #fee2e2; color: #991b1b; }
+.post-card-category-label-entertainment { background: #fce7f3; color: #9d174d; }
+.post-card-category-label-misinformation { background: #fef3c7; color: #92400e; }
+.post-card-category-label-advertisement { background: #f3f4f6; color: #6b7280; }
+.post-card-category-label-copyright { background: #f3f4f6; color: #6b7280; }
+
+/* Fact-check banner */
+.post-card-fact-check-banner { font-size: .72rem; font-weight: 600; padding: .4rem .6rem; background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; border-radius: 8px; margin-bottom: .3rem; }
+
 /* Scheduled badge on post card */
 .post-card-scheduled-badge { font-size: .7rem; color: #d97706; font-weight: 600; margin-bottom: .2rem; }
 

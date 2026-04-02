@@ -120,3 +120,59 @@ class CollMutedWord(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[coll_muted_word]'
+
+
+class RefContentCategory(models.Model):
+    """Content category for classification — safe, spam, adult, politics, etc."""
+    newsengine_ref_content_category_id = models.AutoField(primary_key=True)
+    category_code = models.CharField(max_length=30)
+    category_name_bn = models.CharField(max_length=100)
+    category_name_en = models.CharField(max_length=100)
+    category_action = models.CharField(max_length=20, default='allow')
+    category_severity_level = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[ref_content_category]'
+
+    def __str__(self):
+        return self.category_code
+
+
+class RefFlaggedKeyword(models.Model):
+    """Flagged keyword linked to a content category — used for classification."""
+    newsengine_ref_flagged_keyword_id = models.BigAutoField(primary_key=True)
+    link_content_category_id = models.IntegerField()
+    flagged_keyword_text = models.CharField(max_length=100)
+    flagged_keyword_text_normalized = models.CharField(max_length=100)
+    flagged_keyword_language_code = models.CharField(max_length=5, default='bn')
+    flagged_keyword_weight = models.DecimalField(max_digits=5, decimal_places=2, default=1.0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[ref_flagged_keyword]'
+
+
+class FactContentClassification(models.Model):
+    """Audit trail for content classification — stores every classification result."""
+    newsengine_fact_content_classification_id = models.BigAutoField(primary_key=True)
+    content_classification_source_app = models.CharField(max_length=30)
+    link_content_id = models.BigIntegerField()
+    link_content_category_id = models.IntegerField()
+    content_classification_score = models.DecimalField(max_digits=5, decimal_places=4, default=0)
+    content_classification_method = models.CharField(max_length=20, default='keyword')
+    content_classification_action_taken = models.CharField(max_length=20, blank=True, null=True)
+    is_auto_flagged = models.BooleanField(default=False)
+    is_admin_reviewed = models.BooleanField(default=False)
+    link_reviewed_by_user_profile_id = models.BigIntegerField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_content_classification]'

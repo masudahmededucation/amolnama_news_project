@@ -176,6 +176,17 @@ def api_post_create(request):
         )
         keyword_thread.start()
 
+    # Classify content in background — auto-flag harmful content
+    if post_text_bn:
+        import threading
+        def _background_content_classification(background_post_id, background_text):
+            try:
+                from amolnama_news.site_apps.newsengine.content_classifier import classify_and_store
+                classify_and_store('post', background_post_id, background_text)
+            except Exception:
+                logger.exception('Content classification failed for post %s', background_post_id)
+        threading.Thread(target=_background_content_classification, args=(post.post_post_id, post_text_bn), daemon=True).start()
+
     return JsonResponse({
         'success': True,
         'post_post_id': post.post_post_id,

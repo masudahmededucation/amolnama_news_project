@@ -179,6 +179,8 @@ def build_post_feed_items(request, posts=None):
             'can_edit': current_user_profile_id and post.link_user_profile_id == current_user_profile_id,
             'is_edited': post.is_edited,
             'is_pinned': post.is_pinned,
+            'content_category_code': post.content_category_code or '',
+            'is_auto_flagged': post.is_auto_flagged,
             'scheduled_publish_at': post.scheduled_publish_at,
             'is_scheduled': post.scheduled_publish_at and not post.is_published,
             'quote_comment_text': post.quote_comment_text or '',

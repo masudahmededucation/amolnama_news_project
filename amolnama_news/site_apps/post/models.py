@@ -26,6 +26,8 @@ class Post(models.Model):
     is_edited = models.BooleanField(default=False)
     edited_at = models.DateTimeField(blank=True, null=True)
     is_pinned = models.BooleanField(default=False)
+    content_category_code = models.CharField(max_length=30, blank=True, null=True)
+    is_auto_flagged = models.BooleanField(default=False)
     scheduled_publish_at = models.DateTimeField(blank=True, null=True)
     quote_comment_text = models.CharField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
