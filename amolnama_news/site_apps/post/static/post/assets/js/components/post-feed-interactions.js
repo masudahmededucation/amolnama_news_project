@@ -968,6 +968,57 @@
     closeAllDropdowns();
   });
 
+  /* ---- QUOTE REPOST — show inline form, then repost with quote text ---- */
+  document.addEventListener('click', function (event) {
+    var quoteButton = event.target.closest('.post-card-quote-repost-button');
+    if (!quoteButton) return;
+
+    var postId = quoteButton.getAttribute('data-post-id');
+    var originalText = quoteButton.getAttribute('data-original-text');
+    var originalAuthor = quoteButton.getAttribute('data-original-author');
+    var postCard = quoteButton.closest('.post-card');
+
+    /* Check if form already open */
+    if (postCard.querySelector('.post-card-quote-repost-form')) return;
+
+    var quoteForm = document.createElement('div');
+    quoteForm.className = 'post-card-quote-repost-form';
+    quoteForm.innerHTML =
+      '<div class="post-card-quote-repost-original">' +
+      '<span class="post-card-quote-repost-original-author">' + escapeHtmlText(originalAuthor) + '</span>: ' +
+      '<span class="post-card-quote-repost-original-text">' + escapeHtmlText(originalText) + '</span>' +
+      '</div>' +
+      '<textarea class="post-card-quote-repost-textarea" id="post-card-quote-repost-textarea-' + postId + '" name="post_card_quote_repost_textarea_' + postId + '" rows="2" placeholder="আপনার মন্তব্য লিখুন..."></textarea>' +
+      '<div class="post-card-quote-repost-buttons">' +
+      '<button type="button" class="post-card-quote-repost-submit" id="post-card-quote-repost-submit-' + postId + '" name="post_card_quote_repost_submit_' + postId + '">Quote Repost</button>' +
+      '<button type="button" class="post-card-quote-repost-cancel" id="post-card-quote-repost-cancel-' + postId + '" name="post_card_quote_repost_cancel_' + postId + '">বাতিল</button>' +
+      '</div>';
+
+    var actionsBar = postCard.querySelector('.post-card-actions');
+    if (actionsBar) actionsBar.insertAdjacentElement('afterend', quoteForm);
+
+    quoteForm.querySelector('.post-card-quote-repost-cancel').addEventListener('click', function () { quoteForm.remove(); });
+
+    quoteForm.querySelector('.post-card-quote-repost-submit').addEventListener('click', function () {
+      var quoteText = quoteForm.querySelector('.post-card-quote-repost-textarea').value.trim();
+      if (!quoteText) return;
+
+      fetch('/post/api/' + postId + '/repost/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+        body: JSON.stringify({ quote_comment_text: quoteText }),
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          quoteForm.innerHTML = '<div style="padding:.4rem;font-size:.75rem;color:#059669;">✓ Quote repost হয়েছে</div>';
+          setTimeout(function () { quoteForm.remove(); }, 2000);
+        }
+      })
+      .catch(function () {});
+    });
+  });
+
   /* ---- POLL VOTE ---- */
   document.addEventListener('click', function (event) {
     var pollOption = event.target.closest('.post-card-poll-option');

@@ -1139,6 +1139,28 @@
 .post-card-inline-edit-save { padding: .3rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
 .post-card-inline-edit-cancel { padding: .3rem .8rem; background: #e5e7eb; color: #374151; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
 
+/* Schedule button */
+.post-composer-schedule-wrapper { display: inline-flex; align-items: center; gap: .2rem; }
+.post-composer-schedule-button { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: .1rem; transition: transform .15s; }
+.post-composer-schedule-button:hover { transform: scale(1.15); }
+.post-composer-schedule-input { font-size: .7rem; border: 1px solid var(--border); border-radius: 8px; padding: .2rem .3rem; font-family: inherit; }
+.post-composer-schedule-input-hidden { display: none; }
+
+/* Scheduled badge on post card */
+.post-card-scheduled-badge { font-size: .7rem; color: #d97706; font-weight: 600; margin-bottom: .2rem; }
+
+/* Quote repost form */
+.post-card-quote-repost-form { padding: .5rem; border: 1px solid var(--border); border-radius: 10px; margin-top: .3rem; }
+.post-card-quote-repost-original { font-size: .72rem; color: var(--muted); padding: .3rem .4rem; background: #f8fafc; border-left: 2px solid var(--primary); border-radius: 4px; margin-bottom: .3rem; }
+.post-card-quote-repost-original-author { font-weight: 700; color: #333; }
+.post-card-quote-repost-textarea { width: 100%; padding: .4rem; border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
+.post-card-quote-repost-buttons { display: flex; gap: .3rem; margin-top: .3rem; }
+.post-card-quote-repost-submit { padding: .25rem .7rem; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.post-card-quote-repost-cancel { padding: .25rem .7rem; background: #e5e7eb; color: #374151; border: none; border-radius: 12px; font-size: .72rem; font-weight: 700; cursor: pointer; }
+
+/* Quote comment display on post card */
+.post-card-quote-comment { font-size: .82rem; font-weight: 600; padding: .3rem 0; color: #1e293b; }
+
 /* @Mention link */
 .post-card-mention-link { color: var(--primary); font-weight: 600; text-decoration: none; }
 .post-card-mention-link:hover { text-decoration: none; opacity: .8; }

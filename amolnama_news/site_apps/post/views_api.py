@@ -437,11 +437,11 @@ def api_post_repost(request, post_post_id):
         reposted = True
 
     # Always recalculate from actual data — never increment/decrement
+    from django.db.models import Q
     actual_repost_count = Post.objects.filter(
         link_repost_of_post_id=post_post_id,
-        post_type_code='repost',
         is_active=True,
-    ).count()
+    ).filter(Q(post_type_code='repost') | Q(post_type_code='quote_repost')).count()
     Post.objects.filter(post_post_id=post_post_id).update(repost_count=actual_repost_count)
     new_repost_count = actual_repost_count
 

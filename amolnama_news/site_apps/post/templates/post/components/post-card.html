@@ -195,6 +195,10 @@
         <span class="post-card-action-count post-card-repost-count">{{ post_item.repost_count|default:0 }}</span>
         <span class="post-card-action-label post-card-repost-label">{% if post_item.user_reposted %}Cancel Repost{% else %}Repost{% endif %}</span>
       </button>
+      <button type="button" class="post-card-action-button post-card-quote-repost-button" id="post-card-quote-repost-{{ post_item.post_post_id }}" name="post_card_quote_repost_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-original-text="{{ post_item.post_text_bn|default:''|truncatewords:20 }}" data-original-author="{{ post_item.author_display_name }}" title="Quote Repost">
+        <span class="post-card-action-icon">💬</span>
+        <span class="post-card-action-label">Quote</span>
+      </button>
       <button type="button" class="post-card-action-button post-card-bookmark-button{% if post_item.user_bookmarked %} post-card-bookmark-button-active{% endif %}" id="post-card-bookmark-{{ post_item.post_post_id }}" name="post_card_bookmark_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" title="সংরক্ষণ (Bookmark)">
         <span class="post-card-action-icon post-card-bookmark-icon">{% if post_item.user_bookmarked %}<svg viewBox="0 0 24 24" class="post-card-heart-svg post-card-heart-svg-filled"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>{% else %}<svg viewBox="0 0 24 24" class="post-card-heart-svg post-card-heart-svg-empty"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>{% endif %}</span>
         <span class="post-card-action-label">সংরক্ষণ</span>

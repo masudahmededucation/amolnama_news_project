@@ -277,6 +277,18 @@
     });
   }
 
+  /* ---- Schedule toggle ---- */
+  var scheduleButton = document.getElementById('post-composer-schedule-button');
+  var scheduleInput = document.getElementById('post-composer-schedule-input');
+  if (scheduleButton && scheduleInput) {
+    scheduleButton.addEventListener('click', function () {
+      scheduleInput.classList.toggle('post-composer-schedule-input-hidden');
+      if (!scheduleInput.classList.contains('post-composer-schedule-input-hidden')) {
+        scheduleInput.focus();
+      }
+    });
+  }
+
   /* ---- Media preview ---- */
 
   var mediaInput = document.getElementById('post-composer-media-input');
@@ -385,6 +397,10 @@
       formData.append('post_text_bn', postText);
       var visibilitySelect = document.getElementById('post-composer-visibility-select');
       formData.append('visibility_code', visibilitySelect ? visibilitySelect.value : 'public');
+      var scheduleInputValue = document.getElementById('post-composer-schedule-input');
+      if (scheduleInputValue && scheduleInputValue.value) {
+        formData.append('scheduled_publish_at', scheduleInputValue.value);
+      }
       for (var uploadIndex = 0; uploadIndex < selectedMediaFiles.length; uploadIndex++) {
         formData.append('post_media_files', selectedMediaFiles[uploadIndex]);
       }
