@@ -615,13 +615,15 @@ def api_post_replies(request, post_post_id):
     # Bulk-fetch vote state for current user
     reply_post_ids = [reply.post_post_id for reply in replies]
     user_voted_reply_ids = set()
+    current_viewer_profile_id = None
     if request.user.is_authenticated:
         try:
             viewer_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            current_viewer_profile_id = viewer_profile.user_profile_id
             user_voted_reply_ids = set(
                 PostVote.objects.filter(
                     link_post_id__in=reply_post_ids,
-                    link_user_profile_id=viewer_profile.user_profile_id,
+                    link_user_profile_id=current_viewer_profile_id,
                     is_active=True,
                 ).values_list('link_post_id', flat=True)
             )
@@ -642,6 +644,7 @@ def api_post_replies(request, post_post_id):
             'created_at_formatted': reply.created_at.strftime('%d %b %Y, %I:%M %p') if reply.created_at else '',
             'vote_score_count': reply.vote_score_count or 0,
             'user_voted': reply.post_post_id in user_voted_reply_ids,
+            'can_edit': current_viewer_profile_id and reply.link_user_profile_id == current_viewer_profile_id,
         })
 
     return JsonResponse({'success': True, 'replies': reply_items})
