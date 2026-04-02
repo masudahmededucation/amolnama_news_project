@@ -207,6 +207,7 @@
 
       {% if topic.blue_side_video_url or topic.blue_side_image_url %}
       <div class="debate-arena-board-media" id="debate-arena-board-media-blue">
+        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-blue">📎 মিডিয়া</span>
         {% if topic.blue_side_image_url %}
         <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-blue">
         {% endif %}
@@ -261,6 +262,7 @@
 
       {% if topic.red_side_video_url or topic.red_side_image_url %}
       <div class="debate-arena-board-media" id="debate-arena-board-media-red">
+        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-red">📎 মিডিয়া</span>
         {% if topic.red_side_image_url %}
         <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-red">
         {% endif %}

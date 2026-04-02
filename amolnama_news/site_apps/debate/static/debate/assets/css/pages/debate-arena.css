@@ -224,8 +224,9 @@
 .debate-argument-link-embed-title { font-weight: 600; font-size: .72rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .debate-argument-link-embed-description { color: var(--muted); font-size: .65rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* Board media — video/image per side */
-.debate-arena-board-media { margin-bottom: .5rem; border-radius: 8px; overflow: hidden; }
+/* Board media — video/image per side, grouped */
+.debate-arena-board-media { margin-bottom: .5rem; border: 1px solid var(--border); border-radius: 10px; padding: .5rem .6rem; }
+.debate-arena-board-media-title { font-size: .7rem; font-weight: 700; color: var(--muted); display: block; margin-bottom: .3rem; }
 .debate-arena-board-media-image { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; display: block; }
 .debate-arena-board-media-video { display: flex; align-items: center; gap: .3rem; padding: .35rem .6rem; background: #f3f4f6; border-radius: 8px; font-size: .72rem; font-weight: 600; color: #dc2626; text-decoration: none; margin-top: .3rem; transition: background .15s; }
 .debate-arena-board-media-video:hover { background: #e5e7eb; text-decoration: none; }
