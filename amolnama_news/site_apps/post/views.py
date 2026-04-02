@@ -296,7 +296,7 @@ def _build_my_posts(request):
 @login_required
 @ensure_csrf_cookie
 def bookmarks(request):
-    """Show user's bookmarked posts."""
+    """Show ALL bookmarked content — posts + universal bookmarks (poems, news, debates, etc.)."""
     from amolnama_news.site_apps.user_account.models import UserProfile
 
     try:
@@ -304,35 +304,59 @@ def bookmarks(request):
     except UserProfile.DoesNotExist:
         return render(request, 'post/pages/post-bookmarks.html', {
             'posts': [],
-            'seo': {'title': 'সংরক্ষিত পোস্ট — আমলনামা নিউজ'},
+            'universal_bookmarks': [],
+            'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ'},
         })
 
-    # Get bookmarked post IDs in order (newest bookmark first)
+    user_profile_id = current_profile.user_profile_id
+
+    # 1. Post bookmarks (existing system)
     bookmarked_post_ids = list(
         PostBookmark.objects.filter(
-            link_user_profile_id=current_profile.user_profile_id
+            link_user_profile_id=user_profile_id
         ).order_by('-created_at').values_list('link_post_id', flat=True)[:50]
     )
 
-    if not bookmarked_post_ids:
-        return render(request, 'post/pages/post-bookmarks.html', {
-            'posts': [],
-            'seo': {'title': 'সংরক্ষিত পোস্ট — আমলনামা নিউজ'},
-        })
+    post_items = []
+    if bookmarked_post_ids:
+        posts_map = {
+            post.post_post_id: post
+            for post in Post.objects.filter(post_post_id__in=bookmarked_post_ids, is_active=True)
+        }
+        posts = [posts_map[post_id] for post_id in bookmarked_post_ids if post_id in posts_map]
+        post_items, _ = build_post_feed_items(request, posts=posts)
 
-    # Fetch posts preserving bookmark order
-    posts_map = {
-        post.post_post_id: post
-        for post in Post.objects.filter(post_post_id__in=bookmarked_post_ids, is_active=True)
-    }
-    posts = [posts_map[post_id] for post_id in bookmarked_post_ids if post_id in posts_map]
+    # 2. Universal bookmarks (newsengine — poems, news, debates, travel, art, stories)
+    universal_bookmarks = []
+    try:
+        from amolnama_news.site_apps.newsengine.models import CollContentBookmark
+        bookmarks_queryset = CollContentBookmark.objects.filter(
+            link_user_profile_id=user_profile_id, is_active=True,
+        ).order_by('-created_at')[:50]
 
-    # Delegate to shared enricher — single source of truth
-    post_items, _ = build_post_feed_items(request, posts=posts)
+        # Badge color map
+        color_map = {
+            'news': 'rose', 'poem': 'purple', 'story': 'amber',
+            'art': 'blue', 'travel': 'green', 'debate': 'amber',
+        }
+
+        for bookmark in bookmarks_queryset:
+            universal_bookmarks.append({
+                'bookmark_id': bookmark.newsengine_coll_content_bookmark_id,
+                'content_type_code': bookmark.content_type_code,
+                'content_type_label': bookmark.content_type_code.upper(),
+                'content_type_color': color_map.get(bookmark.content_type_code, 'blue'),
+                'content_title': bookmark.content_title or '',
+                'content_url': bookmark.content_url or '',
+                'created_at_formatted': bookmark.created_at.strftime('%d %b %Y') if bookmark.created_at else '',
+            })
+    except Exception:
+        pass
 
     return render(request, 'post/pages/post-bookmarks.html', {
         'posts': post_items,
-        'seo': {'title': 'সংরক্ষিত পোস্ট — আমলনামা নিউজ'},
+        'universal_bookmarks': universal_bookmarks,
+        'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ'},
     })
 
 
