@@ -14,8 +14,8 @@
 .debate-arena-status-badge-closed { background: #f3f4f6; color: #374151; }
 .debate-arena-countdown { font-size: .78rem; font-weight: 700; color: #d97706; }
 .debate-arena-topic-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .3rem; }
-.debate-arena-edit-button { background: none; border: none; font-size: .8rem; cursor: pointer; opacity: .5; transition: opacity .15s; vertical-align: middle; }
-.debate-arena-edit-button:hover { opacity: 1; }
+.debate-arena-edit-button { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; margin-top: .3rem; }
+.debate-arena-edit-button:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .debate-arena-edit-form { background: var(--card, #fff); border: 1px solid var(--border); border-radius: 10px; padding: .75rem; margin: .5rem 0; }
 .debate-arena-edit-form-label { display: block; font-size: .72rem; font-weight: 700; margin-bottom: .2rem; margin-top: .4rem; }
 .debate-arena-edit-form-input { width: 100%; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .82rem; font-family: inherit; box-sizing: border-box; }

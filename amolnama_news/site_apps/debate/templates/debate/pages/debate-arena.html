@@ -25,11 +25,10 @@
       <span class="debate-arena-countdown" id="debate-arena-countdown">⏰ {{ topic.time_remaining }}</span>
       {% endif %}
     </div>
-    <h1 class="debate-arena-topic-title" id="debate-arena-topic-title">{{ topic.topic_title }}
-      {% if request.user.is_staff %}
-      <button type="button" class="debate-arena-edit-button" id="debate-arena-edit-button" name="debate_arena_edit_button" title="সম্পাদনা করুন (Edit)">✏️</button>
-      {% endif %}
-    </h1>
+    <h1 class="debate-arena-topic-title" id="debate-arena-topic-title">{{ topic.topic_title }}</h1>
+    {% if request.user.is_staff %}
+    <button type="button" class="debate-arena-edit-button" id="debate-arena-edit-button" name="debate_arena_edit_button">✏️ সম্পাদনা করুন</button>
+    {% endif %}
     {% if topic.topic_description %}
     <p class="debate-arena-topic-description">{{ topic.topic_description }}</p>
     {% endif %}
