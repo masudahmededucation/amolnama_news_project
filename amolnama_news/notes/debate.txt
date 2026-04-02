@@ -228,3 +228,9 @@ score update should be automatic with comment, right?
 you have to stop jumping game for nav menus. 
 if i open moderation and analytics, it opens the correct page. 
 but it jumps to portal nav menu and it is activated and selected.
+
+###
+--sections
+debate type?
+debate about person
+debate about topic

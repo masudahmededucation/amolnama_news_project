@@ -436,7 +436,14 @@ Want me to build all 5 now?
 
 have you done this?
 check again.
-you are right. after selecting the file. it collapses immediately and post button no longer avaiable. so make if any files attached or any letter written on the wall. then wall shouldn't collapse. basically, wall should have its' mode. if it is in draft mode, then it should not collapse. if user tries to move away from wall, give them warning. if they move aways, remove the draft mode. research, how facebook and twitter handles it. i am surprised you are not able to make the home wall post professional yet.
+you are right. after selecting the file. 
+it collapses immediately and post button no longer avaiable.
+so make if any files attached or any letter written on the wall.
+then wall shouldn't collapse. basically, wall should have its' mode. 
+if it is in draft mode, then it should not collapse. 
+if user tries to move away from wall, give them warning. 
+if they move always, remove the draft mode. research, how facebook and twitter handles it. 
+i am surprised you are not able to make the home wall post professional yet.
 
 post-home.js:447 Post creation failed: TypeError: Cannot read properties of null (reading 'insertAdjacentHTML')
     at post-home.js:435:23
@@ -449,3 +456,46 @@ i posted a video link.
 the text was visible for a few seconds.
 video was not showing on the post.
 after a few seconds it is gone.
+
+
+##########
+when i clicked on video upload option the animation was bizzar. 
+felt like crash, then after a while it opened the file upload dialog.
+
+you haven't fix old issues - 
+you are right. after selecting the file. 
+it collapses immediately and post button no longer avaiable.
+so make if any files attached or any letter written on the wall.
+then wall shouldn't collapse. basically, wall should have its' mode. 
+if it is in draft mode, then it should not collapse. 
+if user tries to move away from wall, give them warning. 
+if they move always, remove the draft mode. research, how facebook and twitter handles it. 
+i am surprised you are not able to make the home wall post professional yet.
+
+
+only text visible.
+i posted a video link.
+the text was visible for a few seconds.
+video was not showing on the post.
+after a few seconds it is gone.
+
+i just realised video post's text only post is not disappearing. 
+it is going in the middle. 
+bizarre. it is latest post, it should stay at top.
+
+
+from video - possible to get a image and use that as thumbnail image? 
+avoid black or solid color image. possible?
+
+post edit now editing the comment. 
+post edit is different action.
+
+why i have delete post options of other user's post. 
+we may at most hide it or flag it. 
+should be able to delete. 
+is this options good for even admin users? 
+because some admin may much around with this ability. 
+what do you think? 
+i have deleted one post so i can't give you example.
+
+

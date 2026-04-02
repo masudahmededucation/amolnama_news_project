@@ -20,3 +20,14 @@ and scale infrastructure (WebSocket, push notifications).
 scale infrastructure (WebSocket, push notifications).
 
 home wall video posting not working.
+
+
+--newshub engine 
+we need a way to categorise all posts into
+religion/general/education/politics/sex/spam/adult/business/advertisement
+/ and many others.
+it could be 100s all together. 
+otherwise, we won't be able to flag posts automatically.
+some posts which can be harmful or not allowed in our policy
+can pass through to the post's wall.
+so we need a brain. 

@@ -38,6 +38,8 @@ update documents
 update troubleshooting documents
 don't make file too large which would be harder to manage and modify.
 split larger files into smaller unit and files.
+split files when the feature is atomic and independent.
+don't split inter-related or co-related jobs.
 
 
 --attribute naming convention 
@@ -70,6 +72,9 @@ ready to show the data once user asks.
 proactive prefetch.
 
 --modularise code
+must modularise whenever possible.
+check possibility. 
+no lazy tries. 
 Write once, reuse everywhere. 
 no copy cat, duplicate code.
 it stops bugs and reduces effort.
