@@ -139,8 +139,8 @@
     <div class="post-card-media-grid post-card-media-grid-{{ post_item.media_urls|length }}" id="post-card-media-{{ post_item.post_post_id }}">
       {% for media_url in post_item.media_urls %}
       {% if '.mp4' in media_url or '.webm' in media_url or '.mov' in media_url %}
-      <div class="post-card-media-item post-card-media-item-single">
-        <video src="{{ media_url }}" class="post-card-media-video-full" controls preload="metadata"></video>
+      <div class="post-card-media-item post-card-media-item-single post-card-media-item-video-wrapper" id="post-card-media-video-wrapper-{{ post_item.post_post_id }}-{{ forloop.counter }}">
+        <video src="{{ media_url }}#t=1" class="post-card-media-video-full" controls preload="metadata"></video>
       </div>
       {% elif post_item.media_urls|length == 1 %}
       <div class="post-card-media-item post-card-media-item-single" data-photo-url="{{ media_url }}">

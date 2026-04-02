@@ -1103,8 +1103,8 @@
 .post-card-media-video-full { width: 100%; max-height: 500px; border-radius: 12px; display: block; background: #000; }
 
 /* Quick edit button — visible on post card header for owner */
-.post-card-quick-edit-button { background: none; border: none; font-size: .8rem; cursor: pointer; opacity: .5; transition: opacity .15s; padding: .1rem .2rem; }
-.post-card-quick-edit-button:hover { opacity: 1; }
+.post-card-quick-edit-button { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: .1rem .3rem; transition: transform .15s; }
+.post-card-quick-edit-button:hover { transform: scale(1.2); }
 
 /* Edited label */
 .post-card-edited-label { font-size: .65rem; color: var(--muted); font-style: italic; }
