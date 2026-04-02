@@ -580,9 +580,9 @@ def api_post_delete(request, post_post_id):
     if not post:
         return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
 
-    # Only owner or staff can delete
-    if post.link_user_profile_id != user_profile.user_profile_id and not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'আপনার অনুমতি নেই'}, status=403)
+    # Only post owner can delete — admins use moderation queue
+    if post.link_user_profile_id != user_profile.user_profile_id:
+        return JsonResponse({'success': False, 'error': 'শুধুমাত্র নিজের পোস্ট মুছতে পারবেন'}, status=403)
 
     post.is_active = False
     post.save(update_fields=['is_active'])

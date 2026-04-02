@@ -175,7 +175,7 @@ def build_post_feed_items(request, posts=None):
             'media_urls': post_media_map.get(post.post_post_id, []),
             'keywords': keywords,
             'is_repost': False,
-            'can_delete': current_user_profile_id and (post.link_user_profile_id == current_user_profile_id or request.user.is_staff),
+            'can_delete': current_user_profile_id and post.link_user_profile_id == current_user_profile_id,
             'can_edit': current_user_profile_id and post.link_user_profile_id == current_user_profile_id,
             'is_edited': post.is_edited,
             'is_pinned': post.is_pinned,
