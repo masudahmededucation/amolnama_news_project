@@ -23,9 +23,18 @@
       }
     });
 
-    /* Collapse helper — always collapse when focus is away */
+    /* Draft mode — don't collapse if user has content (text or files) */
+    function isComposerInDraftMode() {
+      var textarea = composerElement.querySelector('.post-composer-textarea');
+      var hasText = textarea && textarea.value.trim().length > 0;
+      var hasFiles = typeof selectedMediaFiles !== 'undefined' && selectedMediaFiles.length > 0;
+      return hasText || hasFiles;
+    }
+
+    /* Collapse helper — only collapse if NOT in draft mode */
     function collapseComposer() {
       if (composerElement.classList.contains('post-composer-collapsed')) return;
+      if (isComposerInDraftMode()) return;
       composerElement.classList.add('post-composer-collapsed');
       var textarea = composerElement.querySelector('.post-composer-textarea');
       if (textarea) {
@@ -36,27 +45,35 @@
       }
     }
 
-    /* Collapse when clicking outside */
+    /* Collapse when clicking outside — only if not in draft mode */
     document.addEventListener('click', function (event) {
       if (!event.target.closest('#post-composer')) {
         collapseComposer();
       }
     });
 
-    /* Collapse on scroll (if user moves away without clicking) */
+    /* Collapse on scroll — only if not in draft mode */
     var scrollCollapseTimer = null;
     window.addEventListener('scroll', function () {
       if (scrollCollapseTimer) clearTimeout(scrollCollapseTimer);
       scrollCollapseTimer = setTimeout(collapseComposer, 500);
     });
 
-    /* Collapse on textarea blur */
+    /* Collapse on textarea blur — only if not in draft mode */
     var composerTextareaForBlur = composerElement.querySelector('.post-composer-textarea');
     if (composerTextareaForBlur) {
       composerTextareaForBlur.addEventListener('blur', function () {
         setTimeout(collapseComposer, 200);
       });
     }
+
+    /* Warn before leaving page if in draft mode */
+    window.addEventListener('beforeunload', function (beforeUnloadEvent) {
+      if (isComposerInDraftMode()) {
+        beforeUnloadEvent.preventDefault();
+        beforeUnloadEvent.returnValue = '';
+      }
+    });
   }
 
   /* ---- Rotating placeholder ---- */
@@ -367,7 +384,7 @@
         submitButton.textContent = 'পোস্ট';
 
         if (data.success) {
-          var feedElement = document.getElementById('post-feed');
+          var feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
           var emptyElement = document.getElementById('post-feed-empty');
           if (emptyElement) emptyElement.remove();
 
