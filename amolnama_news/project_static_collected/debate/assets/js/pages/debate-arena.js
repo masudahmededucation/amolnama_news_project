@@ -299,9 +299,9 @@
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-title" name="debate_arena_edit_title" value="' + currentTitle.replace(/"/g, '&quot;') + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-description">বিবরণ</label>' +
         '<textarea class="debate-arena-edit-form-textarea" id="debate-arena-edit-description" name="debate_arena_edit_description" rows="3">' + currentDescription + '</textarea>' +
-        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 Blue Team এর নাম</label>' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 Blue Team যুক্তি খন্ডন করবেন</label>' +
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + currentBlueLabel.replace(/"/g, '&quot;') + '">' +
-        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 Red Team এর নাম</label>' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 Red Team যুক্তি খন্ডন করবেন</label>' +
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + currentRedLabel.replace(/"/g, '&quot;') + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-video">🔵 Blue Team ভিডিও URL</label>' +
         '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-video" name="debate_arena_edit_blue_video" value="' + currentBlueVideo + '">' +
