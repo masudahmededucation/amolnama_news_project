@@ -120,3 +120,10 @@ footer {
     padding: 1rem 0 0.5rem 0;
   }
 }
+
+/* Global breadcrumb — used on every page */
+.global-breadcrumb { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; padding: .3rem 0; }
+.global-breadcrumb-link { color: var(--primary); text-decoration: none; }
+.global-breadcrumb-link:hover { opacity: .8; text-decoration: none; }
+.global-breadcrumb-separator { margin: 0 .3rem; color: #cbd5e1; }
+.global-breadcrumb-current { color: #374151; font-weight: 600; }

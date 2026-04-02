@@ -77,6 +77,7 @@
       </header>
 
       <main>
+        {% if seo.breadcrumbs %}{% include "core/components/breadcrumb.html" with breadcrumbs=seo.breadcrumbs %}{% endif %}
         {% block content %}{% endblock %}
       </main>
     </div>

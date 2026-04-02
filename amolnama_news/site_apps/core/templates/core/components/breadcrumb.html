@@ -1,0 +1,12 @@
+{% if breadcrumbs %}
+<nav class="global-breadcrumb" id="global-breadcrumb" aria-label="Breadcrumb">
+  {% for crumb in breadcrumbs %}
+  {% if not forloop.last %}
+  <a href="{{ crumb.url }}" class="global-breadcrumb-link" id="global-breadcrumb-link-{{ forloop.counter }}">{{ crumb.name }}</a>
+  <span class="global-breadcrumb-separator">›</span>
+  {% else %}
+  <span class="global-breadcrumb-current" id="global-breadcrumb-current">{{ crumb.name }}</span>
+  {% endif %}
+  {% endfor %}
+</nav>
+{% endif %}

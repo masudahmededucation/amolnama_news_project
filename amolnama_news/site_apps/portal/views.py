@@ -483,7 +483,14 @@ def content_dashboard_view(request):
 
     return render(request, 'portal/pages/content-dashboard.html', {
         'content_items': content_items,
-        'seo': {'noindex': True},
+        'seo': {
+            'noindex': True,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'পোর্টাল', 'url': '/portal/'},
+                {'name': 'Content Dashboard'},
+            ],
+        },
     })
 
 
@@ -548,7 +555,14 @@ def analytics_dashboard_view(request):
         'post_stats': post_stats,
         'content_counts': content_counts,
         'top_posts': top_post_items,
-        'seo': {'noindex': True},
+        'seo': {
+            'noindex': True,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'পোর্টাল', 'url': '/portal/'},
+                {'name': 'Analytics'},
+            ],
+        },
     })
 
 
@@ -620,5 +634,12 @@ def moderation_queue_view(request):
 
     return render(request, 'portal/pages/moderation-queue.html', {
         'flagged_items': flagged_items,
-        'seo': {'noindex': True},
+        'seo': {
+            'noindex': True,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'পোর্টাল', 'url': '/portal/'},
+                {'name': 'Moderation Queue'},
+            ],
+        },
     })
