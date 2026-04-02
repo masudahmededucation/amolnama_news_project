@@ -176,6 +176,9 @@ def build_post_feed_items(request, posts=None):
             'is_repost': False,
             'can_delete': current_user_profile_id and (post.link_user_profile_id == current_user_profile_id or request.user.is_staff),
             'can_edit': current_user_profile_id and post.link_user_profile_id == current_user_profile_id,
+            'is_edited': post.is_edited,
+            'is_pinned': post.is_pinned,
+            'poll': None,
         }
 
         # If this is a repost, include original post data
@@ -209,6 +212,37 @@ def build_post_feed_items(request, posts=None):
         current_user_avatar_url = avatar_url_map.get(current_user_profile_id)
         if not current_user_avatar_url:
             current_user_avatar_url = _get_avatar_url_single(current_user_profile_id)
+
+    # Bulk-fetch polls for posts that have them
+    try:
+        from .models import CollPoll, CollPollVote
+        post_ids_for_polls = [item['post_post_id'] for item in post_items]
+        polls_map = {}
+        for poll in CollPoll.objects.filter(link_post_id__in=post_ids_for_polls, is_active=True):
+            options = []
+            for option_number in range(1, 5):
+                option_text = getattr(poll, f'poll_option_{option_number}', None)
+                if option_text:
+                    vote_count = getattr(poll, f'poll_option_{option_number}_vote_count', 0)
+                    percentage = round(vote_count / max(poll.total_vote_count, 1) * 100)
+                    options.append({'option_number': option_number, 'text': option_text, 'vote_count': vote_count, 'percentage': percentage})
+            user_voted_option = None
+            if current_user_profile_id:
+                user_vote = CollPollVote.objects.filter(link_poll_id=poll.post_coll_poll_id, link_user_profile_id=current_user_profile_id, is_active=True).first()
+                if user_vote:
+                    user_voted_option = user_vote.selected_option_number
+            polls_map[poll.link_post_id] = {
+                'post_coll_poll_id': poll.post_coll_poll_id,
+                'poll_question': poll.poll_question,
+                'options': options,
+                'total_vote_count': poll.total_vote_count,
+                'user_voted_option': user_voted_option,
+            }
+        for item in post_items:
+            if item['post_post_id'] in polls_map:
+                item['poll'] = polls_map[item['post_post_id']]
+    except Exception:
+        pass
 
     return post_items, current_user_avatar_url
 

@@ -1111,6 +1111,47 @@
 
 .post-card-media-video-full { width: 100%; max-height: 500px; border-radius: 12px; display: block; background: #000; }
 
+/* Quick edit button — visible on post card header for owner */
+.post-card-quick-edit-button { background: none; border: none; font-size: .8rem; cursor: pointer; opacity: .5; transition: opacity .15s; padding: .1rem .2rem; }
+.post-card-quick-edit-button:hover { opacity: 1; }
+
+/* Edited label */
+.post-card-edited-label { font-size: .65rem; color: var(--muted); font-style: italic; }
+
+/* Pinned badge */
+.post-card-pinned-badge { font-size: .8rem; margin-right: .2rem; }
+
+/* Link preview in post card */
+.post-card-link-previews { margin-top: .3rem; }
+.post-card-link-preview-card { display: flex; gap: .4rem; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 10px; background: #fafafa; margin-top: .2rem; font-size: .75rem; text-decoration: none; color: inherit; transition: border-color .15s; }
+.post-card-link-preview-card:hover { border-color: var(--primary); text-decoration: none; }
+.post-card-link-preview-image { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.post-card-link-preview-info { flex: 1; min-width: 0; }
+.post-card-link-preview-title { font-weight: 600; font-size: .75rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.post-card-link-preview-description { color: var(--muted); font-size: .65rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Poll display */
+.post-card-poll { margin-top: .4rem; padding: .5rem; border: 1px solid var(--border); border-radius: 12px; }
+.post-card-poll-question { font-size: .85rem; font-weight: 700; margin-bottom: .4rem; }
+.post-card-poll-option { display: flex; align-items: center; width: 100%; padding: .45rem .6rem; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; cursor: pointer; font-size: .8rem; font-weight: 600; margin-bottom: .3rem; position: relative; overflow: hidden; transition: all .15s; text-align: left; }
+.post-card-poll-option:hover { border-color: var(--primary); background: #f0f7ff; }
+.post-card-poll-option-voted { cursor: default; background: #f8fafc; }
+.post-card-poll-option-text { position: relative; z-index: 1; flex: 1; }
+.post-card-poll-option-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(24,119,242,.1); border-radius: 10px; transition: width .3s; }
+.post-card-poll-option-percentage { position: relative; z-index: 1; font-size: .72rem; font-weight: 800; color: var(--primary); margin-left: .3rem; }
+.post-card-poll-total { font-size: .68rem; color: var(--muted); margin-top: .2rem; }
+
+/* Inline edit form */
+.post-card-inline-edit-form { width: 100%; }
+.post-card-inline-edit-textarea { width: 100%; padding: .5rem; border: 2px solid var(--primary); border-radius: 10px; font-size: .88rem; font-family: inherit; resize: vertical; min-height: 60px; box-sizing: border-box; }
+.post-card-inline-edit-buttons { display: flex; gap: .3rem; margin-top: .3rem; }
+.post-card-inline-edit-save { padding: .3rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
+.post-card-inline-edit-cancel { padding: .3rem .8rem; background: #e5e7eb; color: #374151; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
+
+/* @Mention link */
+.post-card-mention-link { color: var(--primary); font-weight: 600; text-decoration: none; }
+.post-card-mention-link:hover { text-decoration: none; opacity: .8; }
+
 /* Composer video preview */
 .post-composer-media-preview-video { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 .post-composer-media-preview-video-label { position: absolute; bottom: 4px; left: 4px; background: rgba(0,0,0,.7); color: #fff; font-size: .55rem; font-weight: 700; padding: .1rem .3rem; border-radius: 4px; }

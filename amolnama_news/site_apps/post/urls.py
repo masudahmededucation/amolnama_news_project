@@ -23,4 +23,6 @@ urlpatterns = [
     path('api/<int:post_post_id>/edit/', views_api.api_post_edit, name='api_post_edit'),
     path('api/<int:post_post_id>/delete/', views_api.api_post_delete, name='api_post_delete'),
     path('api/<int:post_post_id>/replies/', views_api.api_post_replies, name='api_post_replies'),
+    path('api/<int:post_post_id>/poll-vote/', views_api.api_poll_vote, name='api_poll_vote'),
+    path('api/<int:post_post_id>/pin/', views_api.api_post_pin_toggle, name='api_post_pin_toggle'),
 ]

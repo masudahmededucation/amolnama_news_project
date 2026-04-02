@@ -870,4 +870,172 @@
     postCardObserver.observe(allPostCards[cardIndex]);
   }
 
+  /* ---- QUICK EDIT — inline edit form on pencil button click ---- */
+  document.addEventListener('click', function (event) {
+    var quickEditButton = event.target.closest('.post-card-quick-edit-button');
+    if (!quickEditButton) return;
+
+    var postId = quickEditButton.getAttribute('data-post-id');
+    var currentText = quickEditButton.getAttribute('data-post-text');
+    var postCard = quickEditButton.closest('.post-card');
+    var textElement = postCard.querySelector('.post-card-text');
+
+    if (!textElement) return;
+
+    /* Check if already editing */
+    if (postCard.querySelector('.post-card-inline-edit-form')) return;
+
+    var originalHtml = textElement.innerHTML;
+    var editForm = document.createElement('div');
+    editForm.className = 'post-card-inline-edit-form';
+    editForm.innerHTML =
+      '<textarea class="post-card-inline-edit-textarea" id="post-card-inline-edit-textarea-' + postId + '" name="post_card_inline_edit_textarea_' + postId + '" rows="4">' + currentText + '</textarea>' +
+      '<div class="post-card-inline-edit-buttons">' +
+      '<button type="button" class="post-card-inline-edit-save" id="post-card-inline-edit-save-' + postId + '" name="post_card_inline_edit_save_' + postId + '">সংরক্ষণ</button>' +
+      '<button type="button" class="post-card-inline-edit-cancel" id="post-card-inline-edit-cancel-' + postId + '" name="post_card_inline_edit_cancel_' + postId + '">বাতিল</button>' +
+      '</div>';
+
+    textElement.innerHTML = '';
+    textElement.appendChild(editForm);
+
+    editForm.querySelector('.post-card-inline-edit-cancel').addEventListener('click', function () {
+      textElement.innerHTML = originalHtml;
+    });
+
+    editForm.querySelector('.post-card-inline-edit-save').addEventListener('click', function () {
+      var newText = editForm.querySelector('.post-card-inline-edit-textarea').value.trim();
+      if (!newText) return;
+
+      fetch('/post/api/' + postId + '/edit/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+        body: JSON.stringify({ post_text_bn: newText }),
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          textElement.textContent = newText;
+          quickEditButton.setAttribute('data-post-text', newText);
+        } else {
+          textElement.innerHTML = originalHtml;
+        }
+      })
+      .catch(function () { textElement.innerHTML = originalHtml; });
+    });
+  });
+
+  /* ---- POLL VOTE ---- */
+  document.addEventListener('click', function (event) {
+    var pollOption = event.target.closest('.post-card-poll-option');
+    if (!pollOption || pollOption.disabled) return;
+
+    var postId = pollOption.getAttribute('data-post-id');
+    var pollId = pollOption.getAttribute('data-poll-id');
+    var optionNumber = parseInt(pollOption.getAttribute('data-option-number'), 10);
+
+    pollOption.disabled = true;
+
+    fetch('/post/api/' + postId + '/poll-vote/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ poll_id: parseInt(pollId, 10), selected_option_number: optionNumber }),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        var pollContainer = pollOption.closest('.post-card-poll');
+        var allOptions = pollContainer.querySelectorAll('.post-card-poll-option');
+        allOptions.forEach(function (option) {
+          option.disabled = true;
+          var optNum = parseInt(option.getAttribute('data-option-number'), 10);
+          var matchingOption = data.options.find(function (optionData) { return optionData.option_number === optNum; });
+          if (matchingOption) {
+            var barHtml = '<span class="post-card-poll-option-bar" style="width: ' + matchingOption.percentage + '%;"></span>';
+            var pctHtml = '<span class="post-card-poll-option-percentage">' + matchingOption.percentage + '%</span>';
+            option.insertAdjacentHTML('beforeend', barHtml + pctHtml);
+          }
+          if (optNum === data.selected_option_number) {
+            option.classList.add('post-card-poll-option-voted');
+          }
+        });
+        var totalElement = pollContainer.querySelector('.post-card-poll-total');
+        if (totalElement) totalElement.textContent = data.total_vote_count + ' ভোট';
+      }
+    })
+    .catch(function () { pollOption.disabled = false; });
+  });
+
+  /* ---- PIN POST ---- */
+  document.addEventListener('click', function (event) {
+    var pinButton = event.target.closest('.post-card-pin-button');
+    if (!pinButton) return;
+
+    var postId = pinButton.getAttribute('data-post-id');
+    pinButton.disabled = true;
+
+    fetch('/post/api/' + postId + '/pin/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({}),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        pinButton.textContent = data.is_pinned ? '📌 Unpin Post' : '📌 Pin Post';
+        window.location.reload();
+      }
+      pinButton.disabled = false;
+    })
+    .catch(function () { pinButton.disabled = false; });
+  });
+
+  /* ---- LINK PREVIEW — detect URLs in post text, fetch og:preview ---- */
+  var postTextElements = document.querySelectorAll('.post-card-text');
+  postTextElements.forEach(function (textElement) {
+    var textContent = textElement.textContent || '';
+    var urlMatches = textContent.match(/https?:\/\/[^\s]+/g);
+    if (!urlMatches || urlMatches.length === 0) return;
+
+    var postCard = textElement.closest('.post-card');
+    var previewContainer = postCard ? postCard.querySelector('.post-card-link-previews') : null;
+    if (!previewContainer) return;
+
+    urlMatches.slice(0, 2).forEach(function (detectedUrl) {
+      fetch('/debate/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (!data.success || !data.title) return;
+          var previewCard = document.createElement('a');
+          previewCard.href = data.url;
+          previewCard.target = '_blank';
+          previewCard.rel = 'noopener';
+          previewCard.className = 'post-card-link-preview-card';
+          var previewHtml = '';
+          if (data.image) {
+            previewHtml += '<img src="' + data.image + '" alt="" class="post-card-link-preview-image" onerror="this.style.display=\'none\'">';
+          }
+          previewHtml += '<div class="post-card-link-preview-info">';
+          previewHtml += '<span class="post-card-link-preview-title">' + data.title + '</span>';
+          if (data.description) {
+            previewHtml += '<span class="post-card-link-preview-description">' + data.description + '</span>';
+          }
+          previewHtml += '</div>';
+          previewCard.innerHTML = previewHtml;
+          previewContainer.appendChild(previewCard);
+        })
+        .catch(function () {});
+    });
+  });
+
+  /* ---- @MENTION RENDERING — convert @username to clickable links ---- */
+  postTextElements.forEach(function (textElement) {
+    var html = textElement.innerHTML;
+    if (html.indexOf('@') === -1) return;
+    var mentionRegex = /@([a-zA-Z0-9_]+)/g;
+    var newHtml = html.replace(mentionRegex, '<a href="/portal/profile/public/?user=$1" class="post-card-mention-link">@$1</a>');
+    if (newHtml !== html) {
+      textElement.innerHTML = newHtml;
+    }
+  });
+
 })();

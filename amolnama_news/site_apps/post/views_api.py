@@ -508,7 +508,10 @@ def api_post_edit(request, post_post_id):
         return JsonResponse({'success': False, 'error': 'পোস্ট ১০০০ অক্ষরের বেশি হতে পারবে না'}, status=400)
 
     post.post_text_bn = new_text
-    post.save(update_fields=['post_text_bn'])
+    post.is_edited = True
+    post.edited_at = timezone.now()
+    post.updated_at = timezone.now()
+    post.save(update_fields=['post_text_bn', 'is_edited', 'edited_at', 'updated_at'])
 
     # Re-extract keywords in background
     if len(new_text) >= 20:
@@ -802,3 +805,113 @@ def _update_contribution_score_background(author_user_profile_id):
             )
     except Exception:
         logger.exception('Contribution score update failed for profile %s', author_user_profile_id)
+
+
+# =========================================================
+# POLL VOTE
+# =========================================================
+
+@require_POST
+@login_required
+def api_poll_vote(request, post_post_id):
+    """Vote on a poll option. One vote per user per poll."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from .models import CollPoll, CollPollVote
+
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    poll_id = data.get('poll_id')
+    selected_option_number = data.get('selected_option_number')
+
+    if not poll_id or not selected_option_number or selected_option_number not in (1, 2, 3, 4):
+        return JsonResponse({'success': False, 'error': 'Invalid poll option'}, status=400)
+
+    poll = CollPoll.objects.filter(post_coll_poll_id=poll_id, link_post_id=post_post_id, is_active=True).first()
+    if not poll:
+        return JsonResponse({'success': False, 'error': 'পোল পাওয়া যায়নি'}, status=404)
+
+    # Check if already voted
+    existing_vote = CollPollVote.objects.filter(
+        link_poll_id=poll_id, link_user_profile_id=user_profile.user_profile_id, is_active=True,
+    ).first()
+    if existing_vote:
+        return JsonResponse({'success': False, 'error': 'আপনি ইতিমধ্যে ভোট দিয়েছেন'}, status=400)
+
+    # Insert vote
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [post].[coll_poll_vote] ([link_poll_id], [link_user_profile_id], [selected_option_number])
+            VALUES (%s, %s, %s)
+        """, [poll_id, user_profile.user_profile_id, selected_option_number])
+
+    # Update cached counts
+    vote_count_column = f'poll_option_{selected_option_number}_vote_count'
+    with connection.cursor() as cursor:
+        cursor.execute(f"""
+            UPDATE [post].[coll_poll]
+            SET [{vote_count_column}] = [{vote_count_column}] + 1, [total_vote_count] = [total_vote_count] + 1
+            WHERE [post_coll_poll_id] = %s
+        """, [poll_id])
+
+    # Return updated results
+    poll.refresh_from_db()
+    options = []
+    for option_number in range(1, 5):
+        option_text = getattr(poll, f'poll_option_{option_number}', None)
+        if option_text:
+            vote_count = getattr(poll, f'poll_option_{option_number}_vote_count', 0)
+            percentage = round(vote_count / max(poll.total_vote_count, 1) * 100)
+            options.append({'option_number': option_number, 'text': option_text, 'vote_count': vote_count, 'percentage': percentage})
+
+    return JsonResponse({
+        'success': True,
+        'total_vote_count': poll.total_vote_count,
+        'options': options,
+        'selected_option_number': selected_option_number,
+    })
+
+
+# =========================================================
+# PIN POST
+# =========================================================
+
+@require_POST
+@login_required
+def api_post_pin_toggle(request, post_post_id):
+    """Toggle pin/unpin a post. Only ONE pinned post per user."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    post = Post.objects.filter(post_post_id=post_post_id, is_active=True).first()
+    if not post:
+        return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
+
+    if post.link_user_profile_id != user_profile.user_profile_id:
+        return JsonResponse({'success': False, 'error': 'আপনার অনুমতি নেই'}, status=403)
+
+    if post.is_pinned:
+        # Unpin
+        post.is_pinned = False
+        post.save(update_fields=['is_pinned'])
+        return JsonResponse({'success': True, 'is_pinned': False})
+    else:
+        # Unpin any existing pinned post by this user first
+        Post.objects.filter(
+            link_user_profile_id=user_profile.user_profile_id, is_pinned=True,
+        ).update(is_pinned=False)
+        # Pin this one
+        post.is_pinned = True
+        post.save(update_fields=['is_pinned'])
+        return JsonResponse({'success': True, 'is_pinned': True})
