@@ -578,7 +578,26 @@ def moderation_queue_view(request):
             'content_url': f'/debate/topic/{post.link_topic_id}/',
         })
 
-    # Post flags (if PostFlag model exists)
+    # Auto-flagged posts from content classifier
+    from amolnama_news.site_apps.post.models import Post
+    auto_flagged_posts = Post.objects.filter(
+        is_auto_flagged=True, is_active=True,
+    ).order_by('-created_at')[:20]
+
+    for post in auto_flagged_posts:
+        flagged_items.append({
+            'content_type': 'auto_flagged_post',
+            'content_type_label': (post.content_category_code or 'flagged').upper(),
+            'content_type_color': 'rose',
+            'content_id': post.post_post_id,
+            'content_preview': (post.post_text_bn or '')[:100],
+            'flag_count': 1,
+            'is_fact_check_needed': post.content_category_code == 'misinformation',
+            'content_url': f'/post/{post.post_post_id}/',
+            'content_category_code': post.content_category_code or '',
+        })
+
+    # User-flagged posts (PostFlag)
     try:
         from amolnama_news.site_apps.post.models import PostFlag
         flagged_posts = PostFlag.objects.filter(
@@ -588,8 +607,8 @@ def moderation_queue_view(request):
         for flag in flagged_posts:
             flagged_items.append({
                 'content_type': 'post_flag',
-                'content_type_label': 'POST',
-                'content_type_color': 'rose',
+                'content_type_label': 'USER FLAG',
+                'content_type_color': 'amber',
                 'content_id': flag.link_post_id,
                 'content_preview': flag.flag_reason_code or 'Flagged',
                 'flag_count': 1,
@@ -597,7 +616,7 @@ def moderation_queue_view(request):
                 'content_url': f'/post/{flag.link_post_id}/',
             })
     except Exception:
-        pass  # PostFlag model may not exist yet
+        pass
 
     return render(request, 'portal/pages/moderation-queue.html', {
         'flagged_items': flagged_items,

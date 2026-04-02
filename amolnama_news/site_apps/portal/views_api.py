@@ -169,6 +169,12 @@ def api_moderation_approve(request):
             post.fact_check_flag_count = 0
             post.is_fact_check_needed = False
             post.save(update_fields=['fact_check_flag_count', 'is_fact_check_needed'])
+        elif content_type == 'auto_flagged_post':
+            from amolnama_news.site_apps.post.models import Post
+            post = Post.objects.get(post_post_id=content_id)
+            post.is_auto_flagged = False
+            post.is_published = True
+            post.save(update_fields=['is_auto_flagged', 'is_published'])
         elif content_type == 'post_flag':
             from amolnama_news.site_apps.post.models import PostFlag
             PostFlag.objects.filter(link_post_id=content_id, is_active=True).update(is_active=False)
@@ -203,11 +209,12 @@ def api_moderation_reject(request):
             post.is_deleted = True
             post.deleted_at = timezone.now()
             post.save(update_fields=['is_deleted', 'deleted_at'])
-        elif content_type == 'post_flag':
+        elif content_type in ('auto_flagged_post', 'post_flag'):
             from amolnama_news.site_apps.post.models import Post
             post = Post.objects.get(post_post_id=content_id)
-            post.is_deleted = True
-            post.save(update_fields=['is_deleted'])
+            post.is_active = False
+            post.is_published = False
+            post.save(update_fields=['is_active', 'is_published'])
         else:
             return JsonResponse({'success': False, 'error': 'Unknown content type'}, status=400)
     except Exception as error:
