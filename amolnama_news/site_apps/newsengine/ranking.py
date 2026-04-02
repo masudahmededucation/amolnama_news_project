@@ -121,17 +121,19 @@ def calculate_total_score(post_item):
 
 
 def rank_post_items(post_items):
-    """Sort post items by ranking score (highest first). Modifies items in-place with '_ranking_score'."""
+    """Sort post items chronologically (latest first). Promos keep their position.
+    Ranking scores are stored for future 'Top' tab but NOT used for sorting in 'For You' feed."""
     for item in post_items:
         if item.get('item_type') in ('debate_promo', 'content_promo', 'tools_promo'):
-            continue  # Don't re-rank promo cards — they have their own ordering
+            continue
         item['_ranking_score'] = calculate_total_score(item)
 
-    # Separate promos (keep their position) and posts (rank them)
+    # Separate promos and posts
     promo_items = [item for item in post_items if item.get('item_type') in ('debate_promo', 'content_promo', 'tools_promo')]
     regular_items = [item for item in post_items if item.get('item_type') not in ('debate_promo', 'content_promo', 'tools_promo')]
 
-    regular_items.sort(key=lambda item: item.get('_ranking_score', 0), reverse=True)
+    # Sort by date — latest first. Always. No exceptions.
+    regular_items.sort(key=lambda item: item.get('created_at_raw') or '', reverse=True)
 
-    # Rebuild: promos first (already sorted by date), then ranked posts
+    # Promos first (already sorted by date), then chronological posts
     return promo_items + regular_items
