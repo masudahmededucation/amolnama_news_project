@@ -6,22 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
-<style>
-  .bookmarks-page { max-width: 700px; margin: 0 auto; padding: 1rem; }
-  .bookmarks-section-title { font-size: .9rem; font-weight: 700; margin: 1rem 0 .5rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
-  .bookmarks-universal-list { display: flex; flex-direction: column; gap: .3rem; }
-  .bookmarks-universal-item { display: flex; align-items: center; gap: .5rem; padding: .5rem .7rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; transition: border-color .15s; }
-  .bookmarks-universal-item:hover { border-color: var(--primary); text-decoration: none; }
-  .bookmarks-universal-badge { font-size: .5rem; font-weight: 800; color: #fff; padding: .1rem .35rem; border-radius: 6px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
-  .bookmarks-universal-badge-rose { background: #e11d48; }
-  .bookmarks-universal-badge-purple { background: #7c3aed; }
-  .bookmarks-universal-badge-amber { background: #d97706; }
-  .bookmarks-universal-badge-blue { background: #2563eb; }
-  .bookmarks-universal-badge-green { background: #059669; }
-  .bookmarks-universal-title { flex: 1; font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-  .bookmarks-universal-date { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
-  .bookmarks-empty { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .85rem; }
-</style>
+<link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -32,15 +17,9 @@
 
   {% if universal_bookmarks %}
   <h2 class="bookmarks-section-title" id="bookmarks-section-universal">📌 কন্টেন্ট বুকমার্ক</h2>
-  <div class="bookmarks-universal-list" id="bookmarks-universal-list">
-    {% for bookmark in universal_bookmarks %}
-    <a href="{{ bookmark.content_url }}" class="bookmarks-universal-item" id="bookmarks-universal-item-{{ bookmark.bookmark_id }}">
-      <span class="bookmarks-universal-badge bookmarks-universal-badge-{{ bookmark.content_type_color }}">{{ bookmark.content_type_label }}</span>
-      <span class="bookmarks-universal-title">{{ bookmark.content_title }}</span>
-      <span class="bookmarks-universal-date">{{ bookmark.created_at_formatted }}</span>
-    </a>
-    {% endfor %}
-  </div>
+  {% for promo in universal_bookmarks %}
+  {% include "core/components/content-promo-card.html" with promo=promo %}
+  {% endfor %}
   {% endif %}
 
   {% if posts %}

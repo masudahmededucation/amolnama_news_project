@@ -341,8 +341,15 @@ def bookmarks(request):
                 poem = poems_map.get(poem_id)
                 if poem:
                     universal_bookmarks.append({
-                        'content_type_label': 'POEM', 'content_type_color': 'purple',
-                        'content_title': poem.poem_title_bn or '', 'content_url': f'/bangla-kobita-gaan/{poem.poem_slug}/',
+                        'item_type': 'content_promo', 'promo_id': poem.poem_coll_poem_entry_id,
+                        'promo_badge': 'POEM', 'promo_color': 'purple',
+                        'promo_title': poem.poem_title_bn or '',
+                        'promo_description': (poem.poem_body_bn or '')[:150],
+                        'promo_url': f'/bangla-kobita-gaan/{poem.poem_slug}/',
+                        'promo_author': None, 'promo_date_formatted': '',
+                        'promo_like_count': getattr(poem, 'like_count', None),
+                        'promo_view_count': getattr(poem, 'view_count', None),
+                        'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
                     })
     except Exception:
         pass
@@ -359,8 +366,15 @@ def bookmarks(request):
                 artwork = artworks_map.get(art_id)
                 if artwork:
                     universal_bookmarks.append({
-                        'content_type_label': 'ART', 'content_type_color': 'blue',
-                        'content_title': artwork.artwork_title_bn or '', 'content_url': f'/art-and-craft/{artwork.artwork_slug}/',
+                        'item_type': 'content_promo', 'promo_id': artwork.art_coll_artwork_id,
+                        'promo_badge': 'ART', 'promo_color': 'blue',
+                        'promo_title': artwork.artwork_title_bn or '',
+                        'promo_description': (artwork.artwork_description_bn or '')[:150],
+                        'promo_url': f'/art-and-craft/{artwork.artwork_slug}/',
+                        'promo_author': None, 'promo_date_formatted': '',
+                        'promo_like_count': getattr(artwork, 'like_count', None),
+                        'promo_view_count': getattr(artwork, 'view_count', None),
+                        'promo_extra_stat': None, 'promo_cta': 'দেখুন',
                     })
     except Exception:
         pass
@@ -377,8 +391,15 @@ def bookmarks(request):
                 story = stories_map.get(story_id)
                 if story:
                     universal_bookmarks.append({
-                        'content_type_label': 'STORY', 'content_type_color': 'amber',
-                        'content_title': story.story_title_bn or '', 'content_url': f'/stories-for-kids/{story.story_slug}/',
+                        'item_type': 'content_promo', 'promo_id': story.stories_coll_story_id,
+                        'promo_badge': 'STORY', 'promo_color': 'amber',
+                        'promo_title': story.story_title_bn or '',
+                        'promo_description': (getattr(story, 'story_summary_bn', '') or '')[:150],
+                        'promo_url': f'/stories-for-kids/{story.story_slug}/',
+                        'promo_author': None, 'promo_date_formatted': '',
+                        'promo_like_count': getattr(story, 'like_count', None),
+                        'promo_view_count': getattr(story, 'view_count', None),
+                        'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
                     })
     except Exception:
         pass
@@ -395,9 +416,15 @@ def bookmarks(request):
                 destination = destinations_map.get(dest_id)
                 if destination:
                     universal_bookmarks.append({
-                        'content_type_label': 'TRAVEL', 'content_type_color': 'green',
-                        'content_title': destination.destination_name_bn or destination.destination_name_en or '',
-                        'content_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',
+                        'item_type': 'content_promo', 'promo_id': destination.bangladesh_coll_destination_id,
+                        'promo_badge': 'TRAVEL', 'promo_color': 'green',
+                        'promo_title': destination.destination_name_bn or destination.destination_name_en or '',
+                        'promo_description': (destination.destination_description_bn or destination.destination_description_en or '')[:150],
+                        'promo_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',
+                        'promo_author': None, 'promo_date_formatted': '',
+                        'promo_like_count': getattr(destination, 'like_count', None),
+                        'promo_view_count': getattr(destination, 'view_count', None),
+                        'promo_extra_stat': None, 'promo_cta': 'ঘুরে আসুন',
                     })
     except Exception:
         pass
@@ -408,8 +435,13 @@ def bookmarks(request):
         for bookmark in CollContentBookmark.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
             color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
             universal_bookmarks.append({
-                'content_type_label': bookmark.content_type_code.upper(), 'content_type_color': color_map.get(bookmark.content_type_code, 'blue'),
-                'content_title': bookmark.content_title or '', 'content_url': bookmark.content_url or '',
+                'item_type': 'content_promo', 'promo_id': bookmark.newsengine_coll_content_bookmark_id,
+                'promo_badge': bookmark.content_type_code.upper(), 'promo_color': color_map.get(bookmark.content_type_code, 'blue'),
+                'promo_title': bookmark.content_title or '',
+                'promo_description': '', 'promo_url': bookmark.content_url or '',
+                'promo_author': None, 'promo_date_formatted': '',
+                'promo_like_count': None, 'promo_view_count': None,
+                'promo_extra_stat': None, 'promo_cta': 'দেখুন',
             })
     except Exception:
         pass
