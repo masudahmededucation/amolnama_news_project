@@ -131,6 +131,7 @@ def home(request):
         'seo': {
             'title': 'গল্পের ঝুলি — ছোটদের গল্প, রূপকথা, ঠাকুরমার ঝুলি | আমলনামা নিউজ',
             'description': 'বাংলা ছোটদের গল্প — ঠাকুরমার ঝুলি, পঞ্চতন্ত্র, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প।',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'গল্পের ঝুলি'}],
         },
     })
 
@@ -211,6 +212,7 @@ def detail(request, story_slug):
             'description': (story.story_summary_bn or story.story_title_bn)[:200],
             'og_image': request.build_absolute_uri(cover_url) if cover_url else '',
             'og_type': 'article',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'গল্পের ঝুলি', 'url': '/stories-for-kids/'}, {'name': (story.story_title_bn or '')[:40]}],
         },
     })
 
@@ -227,5 +229,6 @@ def submit(request):
         'age_groups': age_groups,
         'seo': {
             'title': 'গল্প জমা দিন — গল্পের ঝুলি | আমলনামা নিউজ',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'গল্পের ঝুলি', 'url': '/stories-for-kids/'}, {'name': 'জমা দিন'}],
         },
     })

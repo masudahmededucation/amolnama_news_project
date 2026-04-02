@@ -345,7 +345,7 @@ def bookmarks(request):
         return render(request, 'post/pages/post-bookmarks.html', {
             'posts': [],
             'universal_bookmarks': [],
-            'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ'},
+            'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ', 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সংরক্ষিত'}]},
         })
 
     user_profile_id = current_profile.user_profile_id
@@ -489,7 +489,7 @@ def bookmarks(request):
     return render(request, 'post/pages/post-bookmarks.html', {
         'posts': post_items,
         'universal_bookmarks': universal_bookmarks,
-        'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ'},
+        'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ', 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সংরক্ষিত'}]},
     })
 
 
@@ -522,6 +522,7 @@ def post_detail(request, post_post_id):
             'og_image': request.build_absolute_uri(og_image) if og_image else '',
             'og_type': 'article',
             'canonical': canonical_url,
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'পোস্ট'}],
         },
     })
 

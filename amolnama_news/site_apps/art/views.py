@@ -148,6 +148,7 @@ def home(request):
         'seo': {
             'title': 'শিল্পকলা — বাংলার ঐতিহ্যবাহী ও আধুনিক শিল্প | আমলনামা নিউজ',
             'description': 'নকশি কাঁথা, পটচিত্র, আলপনা, মৃৎশিল্প — বাংলাদেশের শিল্পকলা সংগ্রহ।',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা'}],
         },
     })
 
@@ -247,6 +248,7 @@ def detail(request, artwork_slug):
             'description': (artwork.artwork_description_bn or artwork.artwork_title_bn)[:200],
             'og_image': request.build_absolute_uri(cover_url) if cover_url else '',
             'og_type': 'article',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা', 'url': '/art-and-craft/'}, {'name': (artwork.artwork_title_bn or '')[:40]}],
         },
     })
 
@@ -265,5 +267,6 @@ def upload(request):
         'difficulties': difficulties,
         'seo': {
             'title': 'শিল্পকর্ম আপলোড — শিল্পকলা | আমলনামা নিউজ',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা', 'url': '/art-and-craft/'}, {'name': 'আপলোড'}],
         },
     })

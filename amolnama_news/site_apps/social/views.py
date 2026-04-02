@@ -38,5 +38,5 @@ def lists_page(request):
 
     return render(request, 'social/pages/social-lists.html', {
         'lists': list_items,
-        'seo': {'title': 'তালিকা — আমলনামা নিউজ', 'noindex': True},
+        'seo': {'title': 'তালিকা — আমলনামা নিউজ', 'noindex': True, 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সামাজিক', 'url': '/social/'}, {'name': 'তালিকা'}]},
     })

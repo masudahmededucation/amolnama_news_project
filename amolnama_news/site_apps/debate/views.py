@@ -118,6 +118,7 @@ def home(request):
         'seo': {
             'title': 'তর্ক-বিতর্ক — Debate Arena | আমলনামা নিউজ',
             'description': 'Structured debate platform — Blue vs Red. Schedule debates, argue with logic, vote on the strongest arguments.',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'তর্ক-বিতর্ক'}],
         },
     })
 
@@ -338,6 +339,7 @@ def topic_detail(request, topic_id):
         'seo': {
             'title': f'{topic.topic_title} — তর্ক-বিতর্ক | আমলনামা নিউজ',
             'description': topic.topic_description[:160] if topic.topic_description else 'Structured debate arena.',
+            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'তর্ক-বিতর্ক', 'url': '/debate/'}, {'name': topic.topic_title[:40]}],
         },
     }
 

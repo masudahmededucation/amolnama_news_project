@@ -155,7 +155,7 @@ def profile_personal_view(request):
         "form": form,
         "active_tab": "personal",
         "avatar_url": avatar_url,
-        "seo": {"noindex": True},
+        "seo": {"noindex": True, "breadcrumbs": [{"name": "হোম", "url": "/"}, {"name": "পোর্টাল", "url": "/portal/"}, {"name": "প্রোফাইল"}]},
     })
 
 
@@ -240,7 +240,7 @@ def profile_contact_view(request):
     return render(request, "portal/pages/profile_contact.html", {
         "form": form,
         "active_tab": "contact",
-        "seo": {"noindex": True},
+        "seo": {"noindex": True, "breadcrumbs": [{"name": "হোম", "url": "/"}, {"name": "পোর্টাল", "url": "/portal/"}, {"name": "প্রোফাইল"}]},
     })
 
 
@@ -363,7 +363,7 @@ def profile_address_view(request):
         "active_tab": "address",
         "api_upazilas_url": reverse("user_account:api_upazilas"),
         "api_unions_url": reverse("user_account:api_union_parishads"),
-        "seo": {"noindex": True},
+        "seo": {"noindex": True, "breadcrumbs": [{"name": "হোম", "url": "/"}, {"name": "পোর্টাল", "url": "/portal/"}, {"name": "প্রোফাইল"}]},
     })
 
 
@@ -384,7 +384,7 @@ def profile_settings_view(request):
     return render(request, "portal/pages/profile_settings.html", {
         "active_tab": "settings",
         "form": form,
-        "seo": {"noindex": True},
+        "seo": {"noindex": True, "breadcrumbs": [{"name": "হোম", "url": "/"}, {"name": "পোর্টাল", "url": "/portal/"}, {"name": "প্রোফাইল"}]},
     })
 
 
