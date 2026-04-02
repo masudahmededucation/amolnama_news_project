@@ -17,8 +17,9 @@ from django.views.decorators.http import require_POST
 
 from .models import Post, PostMedia, PostLike, PostBookmark, PostVote, PostFollow, PostFlag
 
-IMAGE_EXTENSION_MAP = {
+MEDIA_EXTENSION_MAP = {
     'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif',
+    'video/mp4': '.mp4', 'video/webm': '.webm', 'video/quicktime': '.mov',
 }
 
 
@@ -92,7 +93,7 @@ def api_post_create(request):
 
         file_content = uploaded_file.read()
         sha256_hash = hashlib.sha256(file_content).digest()
-        file_extension = IMAGE_EXTENSION_MAP.get(uploaded_file.content_type, '.jpg')
+        file_extension = MEDIA_EXTENSION_MAP.get(uploaded_file.content_type, '.jpg')
 
         asset_guid = uuid.uuid4()
         with connection.cursor() as cursor:

@@ -304,7 +304,20 @@
     for (var fileIndex = 0; fileIndex < selectedMediaFiles.length; fileIndex++) {
       var previewItem = document.createElement('div');
       previewItem.className = 'post-composer-media-preview-item';
-      previewItem.style.backgroundImage = 'url(' + URL.createObjectURL(selectedMediaFiles[fileIndex]) + ')';
+      var currentFile = selectedMediaFiles[fileIndex];
+      if (currentFile.type.startsWith('video/')) {
+        var videoElement = document.createElement('video');
+        videoElement.src = URL.createObjectURL(currentFile);
+        videoElement.className = 'post-composer-media-preview-video';
+        videoElement.muted = true;
+        previewItem.appendChild(videoElement);
+        var videoLabel = document.createElement('span');
+        videoLabel.className = 'post-composer-media-preview-video-label';
+        videoLabel.textContent = '▶ ভিডিও';
+        previewItem.appendChild(videoLabel);
+      } else {
+        previewItem.style.backgroundImage = 'url(' + URL.createObjectURL(currentFile) + ')';
+      }
 
       var removeButton = document.createElement('button');
       removeButton.type = 'button';
