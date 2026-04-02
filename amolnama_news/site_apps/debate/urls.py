@@ -13,6 +13,7 @@ urlpatterns = [
 
     # APIs — topic management
     path('api/topic/create/', views_api.api_topic_create, name='api_topic_create'),
+    path('api/topic/<int:topic_id>/edit/', views_api.api_topic_edit, name='api_topic_edit'),
     path('api/topic/<int:topic_id>/join/', views_api.api_topic_join, name='api_topic_join'),
     path('api/topic/<int:topic_id>/go-live/', views_api.api_topic_go_live, name='api_topic_go_live'),
     path('api/topic/<int:topic_id>/close/', views_api.api_topic_close, name='api_topic_close'),

@@ -212,6 +212,58 @@ def api_topic_create(request):
 
 @login_required
 @require_POST
+def api_topic_edit(request, topic_id):
+    """Edit debate topic details. Staff or topic creator only."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+    except CollTopic.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'বিষয় পাওয়া যায়নি'}, status=404)
+
+    # Only staff or topic creator can edit
+    if not request.user.is_staff and topic.link_created_by_user_profile_id != user_profile_id:
+        return JsonResponse({'success': False, 'error': 'আপনার এই বিষয় সম্পাদনার অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    topic_title = (data.get('topic_title') or '').strip()
+    topic_description = (data.get('topic_description') or '').strip() or None
+    blue_side_label = (data.get('blue_side_label') or '').strip() or None
+    red_side_label = (data.get('red_side_label') or '').strip() or None
+    blue_side_video_url = (data.get('blue_side_video_url') or '').strip() or None
+    red_side_video_url = (data.get('red_side_video_url') or '').strip() or None
+    blue_side_image_url = (data.get('blue_side_image_url') or '').strip() or None
+    red_side_image_url = (data.get('red_side_image_url') or '').strip() or None
+
+    if not topic_title or len(topic_title) < 10:
+        return JsonResponse({'success': False, 'error': 'বিষয় কমপক্ষে ১০ অক্ষর হতে হবে'}, status=400)
+
+    now = timezone.now()
+    _raw_execute("""
+        UPDATE [debate].[coll_topic]
+        SET [topic_title] = ?, [topic_description] = ?,
+            [blue_side_label] = ?, [red_side_label] = ?,
+            [blue_side_video_url] = ?, [red_side_video_url] = ?,
+            [blue_side_image_url] = ?, [red_side_image_url] = ?,
+            [updated_at] = ?
+        WHERE [debate_coll_topic_id] = ?
+    """, [topic_title, topic_description,
+          blue_side_label, red_side_label,
+          blue_side_video_url, red_side_video_url,
+          blue_side_image_url, red_side_image_url,
+          now, topic_id])
+
+    return JsonResponse({'success': True})
+
+
+@login_required
+@require_POST
 def api_topic_join(request, topic_id):
     """Join a debate topic on a specific side (blue/red)."""
     try:

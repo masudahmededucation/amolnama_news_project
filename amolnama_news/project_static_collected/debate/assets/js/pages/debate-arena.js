@@ -272,6 +272,74 @@
   setupComposer('blue');
   setupComposer('red');
 
+  /* ---- TOPIC EDIT — inline form for staff/creator ---- */
+  var editButton = document.getElementById('debate-arena-edit-button');
+  if (editButton) {
+    editButton.addEventListener('click', function () {
+      var existingForm = document.getElementById('debate-arena-edit-form');
+      if (existingForm) { existingForm.remove(); return; }
+
+      var header = document.getElementById('debate-arena-header');
+      var form = document.createElement('div');
+      form.className = 'debate-arena-edit-form';
+      form.id = 'debate-arena-edit-form';
+
+      var titleElement = document.querySelector('.debate-arena-topic-title');
+      var descriptionElement = document.querySelector('.debate-arena-topic-description');
+      var currentTitle = titleElement ? titleElement.textContent.replace('✏️', '').trim() : '';
+      var currentDescription = descriptionElement ? descriptionElement.textContent.trim() : '';
+
+      form.innerHTML =
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-title">বিষয়</label>' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-title" name="debate_arena_edit_title" value="' + currentTitle.replace(/"/g, '&quot;') + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-description">বিবরণ</label>' +
+        '<textarea class="debate-arena-edit-form-textarea" id="debate-arena-edit-description" name="debate_arena_edit_description" rows="3">' + currentDescription + '</textarea>' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 পক্ষের নাম</label>' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + (arenaElement.getAttribute('data-blue-label') || '') + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 বিপক্ষের নাম</label>' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + (arenaElement.getAttribute('data-red-label') || '') + '">' +
+        '<div class="debate-arena-edit-form-buttons">' +
+        '<button type="button" class="debate-arena-edit-form-save" id="debate-arena-edit-save" name="debate_arena_edit_save">সংরক্ষণ করুন</button>' +
+        '<button type="button" class="debate-arena-edit-form-cancel" id="debate-arena-edit-cancel" name="debate_arena_edit_cancel">বাতিল</button>' +
+        '</div>';
+
+      header.appendChild(form);
+
+      document.getElementById('debate-arena-edit-cancel').addEventListener('click', function () { form.remove(); });
+
+      document.getElementById('debate-arena-edit-save').addEventListener('click', function () {
+        var saveButton = document.getElementById('debate-arena-edit-save');
+        saveButton.disabled = true;
+        saveButton.textContent = '...';
+
+        fetch('/debate/api/topic/' + topicId + '/edit/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+          body: JSON.stringify({
+            topic_title: document.getElementById('debate-arena-edit-title').value.trim(),
+            topic_description: document.getElementById('debate-arena-edit-description').value.trim(),
+            blue_side_label: document.getElementById('debate-arena-edit-blue-label').value.trim(),
+            red_side_label: document.getElementById('debate-arena-edit-red-label').value.trim(),
+          }),
+        })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (data.success) {
+            window.location.reload();
+          } else {
+            showInlineMessage(form, data.error, 'error');
+            saveButton.disabled = false;
+            saveButton.textContent = 'সংরক্ষণ করুন';
+          }
+        })
+        .catch(function () {
+          saveButton.disabled = false;
+          saveButton.textContent = 'সংরক্ষণ করুন';
+        });
+      });
+    });
+  }
+
   /* ---- REPLY DRAWER CHAR COUNT ---- */
   var replyDrawerTextarea = document.getElementById('debate-arena-reply-drawer-textarea');
   var replyDrawerCharCount = document.getElementById('debate-arena-reply-drawer-char-count');
