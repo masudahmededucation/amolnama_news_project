@@ -299,24 +299,42 @@
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-title" name="debate_arena_edit_title" value="' + currentTitle.replace(/"/g, '&quot;') + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-description">বিবরণ</label>' +
         '<textarea class="debate-arena-edit-form-textarea" id="debate-arena-edit-description" name="debate_arena_edit_description" rows="3">' + currentDescription + '</textarea>' +
+
+        /* Team section */
+        '<div class="debate-arena-edit-form-group" id="debate-arena-edit-form-group-teams">' +
+        '<span class="debate-arena-edit-form-group-title" id="debate-arena-edit-form-group-title-teams">⚔️ টিম</span>' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 Blue Team যুক্তি খন্ডন করবেন</label>' +
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + currentBlueLabel.replace(/"/g, '&quot;') + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 Red Team যুক্তি খন্ডন করবেন</label>' +
         '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + currentRedLabel.replace(/"/g, '&quot;') + '">' +
+        '</div>' +
+
+        /* Media section — collapsible */
+        '<div class="debate-arena-edit-form-group" id="debate-arena-edit-form-group-media">' +
+        '<button type="button" class="debate-arena-edit-form-group-toggle" id="debate-arena-edit-form-media-toggle" name="debate_arena_edit_form_media_toggle">📎 মিডিয়া (ভিডিও ও ছবি)</button>' +
+        '<div class="debate-arena-edit-form-group-content debate-arena-edit-form-group-content-hidden" id="debate-arena-edit-form-media-content">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-video">🔵 Blue Team ভিডিও URL</label>' +
         '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-video" name="debate_arena_edit_blue_video" value="' + currentBlueVideo + '">' +
-        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-video">🔴 Red Team ভিডিও URL</label>' +
-        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-red-video" name="debate_arena_edit_red_video" value="' + currentRedVideo + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-image">🔵 Blue Team ছবি URL</label>' +
         '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-image" name="debate_arena_edit_blue_image" value="' + currentBlueImage + '">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-video">🔴 Red Team ভিডিও URL</label>' +
+        '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-red-video" name="debate_arena_edit_red_video" value="' + currentRedVideo + '">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-image">🔴 Red Team ছবি URL</label>' +
         '<input type="url" class="debate-arena-edit-form-input" id="debate-arena-edit-red-image" name="debate_arena_edit_red_image" value="' + currentRedImage + '">' +
+        '</div>' +
+        '</div>' +
+
         '<div class="debate-arena-edit-form-buttons">' +
         '<button type="button" class="debate-arena-edit-form-save" id="debate-arena-edit-save" name="debate_arena_edit_save">সংরক্ষণ করুন</button>' +
         '<button type="button" class="debate-arena-edit-form-cancel" id="debate-arena-edit-cancel" name="debate_arena_edit_cancel">বাতিল</button>' +
         '</div>';
 
       header.appendChild(form);
+
+      /* Media group toggle */
+      document.getElementById('debate-arena-edit-form-media-toggle').addEventListener('click', function () {
+        document.getElementById('debate-arena-edit-form-media-content').classList.toggle('debate-arena-edit-form-group-content-hidden');
+      });
 
       document.getElementById('debate-arena-edit-cancel').addEventListener('click', function () { form.remove(); });
 

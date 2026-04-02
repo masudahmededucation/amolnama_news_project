@@ -20,6 +20,12 @@
 .debate-arena-edit-form-label { display: block; font-size: .72rem; font-weight: 700; margin-bottom: .2rem; margin-top: .4rem; }
 .debate-arena-edit-form-input { width: 100%; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .82rem; font-family: inherit; box-sizing: border-box; }
 .debate-arena-edit-form-textarea { width: 100%; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .82rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
+.debate-arena-edit-form-group { margin-top: .5rem; border: 1px solid var(--border); border-radius: 8px; padding: .5rem .6rem; }
+.debate-arena-edit-form-group-title { font-size: .78rem; font-weight: 700; display: block; margin-bottom: .3rem; }
+.debate-arena-edit-form-group-toggle { background: none; border: none; font-size: .72rem; font-weight: 600; color: var(--muted); cursor: pointer; padding: 0; transition: color .15s; }
+.debate-arena-edit-form-group-toggle:hover { color: var(--primary); }
+.debate-arena-edit-form-group-content { margin-top: .3rem; }
+.debate-arena-edit-form-group-content-hidden { display: none; }
 .debate-arena-edit-form-buttons { display: flex; gap: .4rem; margin-top: .5rem; }
 .debate-arena-edit-form-save { padding: .3rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
 .debate-arena-edit-form-cancel { padding: .3rem .8rem; background: #e5e7eb; color: #374151; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
