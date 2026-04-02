@@ -121,19 +121,40 @@ def calculate_total_score(post_item):
 
 
 def rank_post_items(post_items):
-    """Sort post items chronologically (latest first). Promos keep their position.
-    Ranking scores are stored for future 'Top' tab but NOT used for sorting in 'For You' feed."""
+    """Sort posts: recent posts (< 30 min) stay at top chronologically,
+    older posts sorted by ranking score (popular rise). Two-phase feed."""
+    from django.utils import timezone as tz
+    from datetime import timedelta
+
+    recent_cutoff = tz.now() - timedelta(minutes=30)
+
     for item in post_items:
         if item.get('item_type') in ('debate_promo', 'content_promo', 'tools_promo'):
             continue
         item['_ranking_score'] = calculate_total_score(item)
 
-    # Separate promos and posts
+    # Separate promos, recent posts, older posts
     promo_items = [item for item in post_items if item.get('item_type') in ('debate_promo', 'content_promo', 'tools_promo')]
-    regular_items = [item for item in post_items if item.get('item_type') not in ('debate_promo', 'content_promo', 'tools_promo')]
 
-    # Sort by date — latest first. Always. No exceptions.
-    regular_items.sort(key=lambda item: item.get('created_at_raw') or '', reverse=True)
+    recent_posts = []
+    older_posts = []
+    for item in post_items:
+        if item.get('item_type') in ('debate_promo', 'content_promo', 'tools_promo'):
+            continue
+        created_at = item.get('created_at_raw')
+        if created_at:
+            if tz.is_naive(created_at):
+                created_at = tz.make_aware(created_at)
+            if created_at > recent_cutoff:
+                recent_posts.append(item)
+                continue
+        older_posts.append(item)
 
-    # Promos first (already sorted by date), then chronological posts
-    return promo_items + regular_items
+    # Recent posts: chronological (latest first)
+    recent_posts.sort(key=lambda item: item.get('created_at_raw') or '', reverse=True)
+
+    # Older posts: by ranking score (popular first)
+    older_posts.sort(key=lambda item: item.get('_ranking_score', 0), reverse=True)
+
+    # Final order: recent posts → promos → ranked older posts
+    return recent_posts + promo_items + older_posts
