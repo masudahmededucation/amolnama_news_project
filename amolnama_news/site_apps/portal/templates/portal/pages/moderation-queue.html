@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="{% static 'portal/assets/css/pages/content-dashboard.css' %}">
 <style>
   .moderation-queue { max-width: 900px; margin: 0 auto; padding: 1rem; }
+  .moderation-breadcrumb { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; }
+  .moderation-breadcrumb a { color: var(--primary); text-decoration: none; }
+  .moderation-breadcrumb a:hover { opacity: .8; }
   .moderation-queue-title { font-size: 1.3rem; font-weight: 800; margin: 0 0 .2rem; }
   .moderation-queue-subtitle { font-size: .8rem; color: var(--muted); margin: 0 0 1rem; }
   .moderation-item { display: flex; justify-content: space-between; align-items: center; padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: .4rem; background: #fff; }
@@ -29,6 +32,9 @@
 
 {% block content %}
 <div class="moderation-queue" id="moderation-queue">
+  <nav class="moderation-breadcrumb" id="moderation-breadcrumb">
+    <a href="/">হোম</a> › <a href="{% url 'portal:home' %}">পোর্টাল</a> › Moderation Queue
+  </nav>
   <h1 class="moderation-queue-title" id="moderation-queue-title">Moderation Queue</h1>
   <p class="moderation-queue-subtitle" id="moderation-queue-subtitle">রিপোর্ট করা কন্টেন্ট দেখুন — গ্রহণ বা বাতিল করুন</p>
 
