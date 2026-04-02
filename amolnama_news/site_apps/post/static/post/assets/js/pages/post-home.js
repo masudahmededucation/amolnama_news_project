@@ -433,18 +433,16 @@
         submitButton.textContent = 'পোস্ট';
 
         if (data.success) {
-          /* If media was attached, reload page for proper rendering (video player, etc.) */
-          if (selectedMediaFiles.length > 0) {
-            selectedMediaFiles = [];
-            if (mediaPreviewContainer) mediaPreviewContainer.innerHTML = '';
-            composerTextarea.value = '';
-            localStorage.removeItem(draftStorageKey);
-            window.location.reload();
-            return;
-          }
+          /* Clear composer */
+          selectedMediaFiles = [];
+          if (mediaPreviewContainer) mediaPreviewContainer.innerHTML = '';
+          composerTextarea.value = '';
+          characterCountElement.textContent = '0/1000';
+          submitButton.disabled = true;
+          localStorage.removeItem(draftStorageKey);
 
           var feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
-          var emptyElement = document.getElementById('post-feed-empty');
+          var emptyElement = document.getElementById('post-feed-empty') || document.getElementById('pulse-feed-empty');
           if (emptyElement) emptyElement.remove();
 
           /* Build avatar HTML */
@@ -461,13 +459,19 @@
           var mediaHtml = '';
           if (data.media_urls && data.media_urls.length > 0) {
             mediaHtml = '<div class="post-card-media-grid post-card-media-grid-' + data.media_urls.length + '" id="post-card-media-' + data.post_post_id + '">';
-            if (data.media_urls.length === 1) {
-              mediaHtml += '<div class="post-card-media-item post-card-media-item-single" data-photo-url="' + data.media_urls[0] + '">'
-                + '<img src="' + data.media_urls[0] + '" alt="" class="post-card-media-image-full">'
-                + '</div>';
-            } else {
-              for (var mediaIndex = 0; mediaIndex < data.media_urls.length; mediaIndex++) {
-                mediaHtml += '<div class="post-card-media-item" style="background-image:url(\'' + data.media_urls[mediaIndex] + '\');" data-photo-url="' + data.media_urls[mediaIndex] + '"></div>';
+            for (var mediaIndex = 0; mediaIndex < data.media_urls.length; mediaIndex++) {
+              var mediaUrl = data.media_urls[mediaIndex];
+              var isVideo = mediaUrl.indexOf('.mp4') !== -1 || mediaUrl.indexOf('.webm') !== -1 || mediaUrl.indexOf('.mov') !== -1;
+              if (isVideo) {
+                mediaHtml += '<div class="post-card-media-item post-card-media-item-single post-card-media-item-video-wrapper">'
+                  + '<video src="' + mediaUrl + '#t=1" class="post-card-media-video-full" controls preload="auto"></video>'
+                  + '</div>';
+              } else if (data.media_urls.length === 1) {
+                mediaHtml += '<div class="post-card-media-item post-card-media-item-single" data-photo-url="' + mediaUrl + '">'
+                  + '<img src="' + mediaUrl + '" alt="" class="post-card-media-image-full">'
+                  + '</div>';
+              } else {
+                mediaHtml += '<div class="post-card-media-item" style="background-image:url(\'' + mediaUrl + '\');" data-photo-url="' + mediaUrl + '"></div>';
               }
             }
             mediaHtml += '</div>';
@@ -508,13 +512,19 @@
             + '</div></div>'
             + '</div></div></article>';
 
-          feedElement.insertAdjacentHTML('afterbegin', newPostHtml);
-          composerTextarea.value = '';
-          characterCountElement.textContent = '0/1000';
-          submitButton.disabled = true;
-          selectedMediaFiles = [];
-          if (mediaPreviewContainer) mediaPreviewContainer.innerHTML = '';
-          localStorage.removeItem(draftStorageKey);
+          /* Insert with smooth fade-in animation */
+          var tempContainer = document.createElement('div');
+          tempContainer.innerHTML = newPostHtml;
+          var newPostElement = tempContainer.firstElementChild;
+          newPostElement.style.opacity = '0';
+          newPostElement.style.transform = 'translateY(-10px)';
+          newPostElement.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+          feedElement.insertBefore(newPostElement, feedElement.firstChild);
+          /* Trigger animation */
+          requestAnimationFrame(function () {
+            newPostElement.style.opacity = '1';
+            newPostElement.style.transform = 'translateY(0)';
+          });
         } else {
           showPostComposerError(data.error || 'পোস্ট করা যায়নি');
         }
