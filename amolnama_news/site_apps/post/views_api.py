@@ -383,10 +383,9 @@ def _extract_and_link_hashtags(post_id, text):
                 )
             else:
                 cursor.execute(
-                    "INSERT INTO [newsengine].[hashtag_item] ([hashtag_text], [hashtag_text_normalized], [hashtag_post_count]) VALUES (%s, %s, 1)",
+                    "INSERT INTO [newsengine].[hashtag_item] ([hashtag_text], [hashtag_text_normalized], [hashtag_post_count]) OUTPUT INSERTED.[newsengine_hashtag_item_id] VALUES (%s, %s, 1)",
                     [tag_text, tag_normalized],
                 )
-                cursor.execute("SELECT SCOPE_IDENTITY()")
                 hashtag_id = cursor.fetchone()[0]
 
             # Link post to hashtag (skip if already linked)
