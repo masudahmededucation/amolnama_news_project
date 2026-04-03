@@ -118,3 +118,36 @@
   color: #991b1b;
   font-size: .82rem;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .art-upload-container {
+    max-width: 100%;
+    padding: .5rem 0;
+  }
+
+  .art-upload-title {
+    font-size: 1.1rem;
+  }
+
+  .art-upload-form {
+    gap: .6rem;
+  }
+
+  .art-upload-input,
+  .art-upload-textarea,
+  .art-upload-select {
+    padding: .6rem;
+    font-size: .85rem;
+  }
+
+  .art-upload-preview-item {
+    width: 64px;
+    height: 64px;
+  }
+
+  .art-upload-submit-button {
+    min-height: 44px;
+    width: 100%;
+  }
+}

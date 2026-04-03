@@ -50,3 +50,16 @@
   color: var(--muted);
   white-space: nowrap;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .community-form input,
+  .community-form textarea {
+    padding: .6rem;
+  }
+
+  .communityvoice-clear-form-button {
+    min-height: 44px;
+    padding: .5rem 1rem;
+  }
+}

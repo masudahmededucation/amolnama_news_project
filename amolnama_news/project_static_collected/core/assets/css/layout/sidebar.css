@@ -43,3 +43,19 @@
   border-radius: 8px;
   border: 1px solid var(--border);
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .widget {
+    padding: .75rem;
+  }
+
+  .list li {
+    gap: .4rem;
+  }
+
+  .list li img {
+    width: 56px;
+    height: 42px;
+  }
+}

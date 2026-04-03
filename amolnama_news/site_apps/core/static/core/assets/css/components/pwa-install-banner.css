@@ -82,3 +82,25 @@
   border-radius: 3px;
   font-size: .75rem;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .pwa-header-install {
+    padding: .15rem .4rem .15rem .2rem;
+    gap: .25rem;
+  }
+
+  .pwa-header-install-logo {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pwa-header-install-label {
+    font-size: .65rem;
+  }
+
+  .pwa-tooltip {
+    max-width: 260px;
+    font-size: .78rem;
+  }
+}

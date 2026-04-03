@@ -50,3 +50,23 @@
   background: #efe8d4;
   color: var(--text);
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .sig-mode-toggle {
+    gap: .5rem;
+    font-size: .78rem;
+  }
+
+  .sig-canvas {
+    height: 100px;
+  }
+
+  .sig-clear-btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

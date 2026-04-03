@@ -162,3 +162,54 @@
   font-size: .78rem;
   text-align: center;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .avatar-upload-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+    gap: .75rem;
+    margin-bottom: 1rem;
+  }
+
+  .avatar-upload-preview {
+    width: 64px;
+    height: 64px;
+  }
+
+  .avatar-upload-default-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .avatar-upload-controls {
+    align-items: center;
+  }
+
+  .avatar-upload-button {
+    min-height: 44px;
+  }
+
+  .avatar-cropper-modal-content {
+    padding: 1rem;
+    width: 95%;
+  }
+
+  .avatar-cropper-container {
+    max-height: 300px;
+  }
+
+  .avatar-cropper-actions {
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .avatar-cropper-save-button,
+  .avatar-cropper-cancel-button {
+    min-height: 44px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}

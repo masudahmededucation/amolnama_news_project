@@ -178,3 +178,31 @@
   transform: scale(.98);
   transition: transform .1s ease;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .poem-card-body {
+    padding: .75rem .85rem;
+  }
+
+  .poem-card-title {
+    font-size: .92rem;
+  }
+
+  .poem-card-preview {
+    font-size: .78rem;
+  }
+
+  .poem-card-footer {
+    padding: .45rem .75rem;
+    font-size: .7rem;
+  }
+
+  .poem-card-author {
+    font-size: .72rem;
+  }
+
+  .poem-card-stats {
+    gap: .4rem;
+  }
+}

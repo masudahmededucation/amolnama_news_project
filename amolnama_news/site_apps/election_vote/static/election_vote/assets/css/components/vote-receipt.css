@@ -73,3 +73,35 @@
 .receipt-download-btn:hover {
   opacity: 0.85;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .receipt-card {
+    margin: 1rem auto;
+    padding: 1rem;
+  }
+
+  .receipt-code-wrapper {
+    padding: .75rem;
+    margin: .75rem 0;
+  }
+
+  .receipt-code {
+    font-size: 1.3rem;
+  }
+
+  .receipt-summary {
+    padding: .75rem;
+    margin: .75rem 0;
+  }
+
+  .receipt-actions {
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .receipt-download-btn {
+    min-height: 44px;
+    width: 100%;
+  }
+}

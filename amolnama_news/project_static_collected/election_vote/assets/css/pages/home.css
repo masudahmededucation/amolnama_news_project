@@ -102,3 +102,28 @@
 }
 
 .page-message--warning a { color: #664d03; }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .ev-card {
+    padding: 1rem;
+  }
+
+  #election-view .selection-list li {
+    padding: .75rem .75rem .75rem 3.5rem;
+  }
+
+  #election-view .selection-list li::before {
+    left: .6rem;
+    font-size: .95rem;
+  }
+
+  #election-view .selection-list .name-bn {
+    font-size: 1rem;
+  }
+
+  .page-message {
+    padding: .65rem .85rem;
+    font-size: .88rem;
+  }
+}
