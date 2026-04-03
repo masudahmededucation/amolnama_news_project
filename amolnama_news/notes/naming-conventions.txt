@@ -44,3 +44,5 @@ divide works in small chunks and make progress.
 --test
 check table and column names are matching specially id column names.
 check sql queries including, report, select, insert, update, delete
+
+we were doing something - the table name with prefix using group. was that complete?

@@ -114,7 +114,7 @@ class JobCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[career].[job_category]'
+        db_table = '[career].[ref_job_category]'
         verbose_name = "Job Category"
         verbose_name_plural = "Job Categories"
 
@@ -135,7 +135,7 @@ class JobDepartment(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[career].[job_department]'
+        db_table = '[career].[ref_job_department]'
         verbose_name = "Job Department"
         verbose_name_plural = "Job Departments"
 
@@ -160,7 +160,7 @@ class JobTitle(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[career].[job_title]'
+        db_table = '[career].[ref_job_title]'
         verbose_name = "Job Title"
         verbose_name_plural = "Job Titles"
 

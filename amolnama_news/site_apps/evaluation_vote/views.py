@@ -287,8 +287,8 @@ def update_vote(request):
         vote = EvaluationResponse.objects.get(evaluation_response_id=vote_id)
         
         # Update only if provided
-        if data.get('remarks_bn'):
-            vote.remarks_bn = data.get('remarks_bn')
+        if data.get('remarks'):
+            vote.remarks = data.get('remarks')
         
         if data.get('upazila_id'):
             vote.link_upazila_id = data.get('upazila_id')

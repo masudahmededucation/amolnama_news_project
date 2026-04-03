@@ -130,7 +130,7 @@ class EvaluationResponse(models.Model):
     link_user_session_id = models.BigIntegerField(blank=True, null=True)
     link_user_session_id_key = models.BigIntegerField()
     marks_awarded = models.IntegerField(blank=True, null=True)
-    remarks_bn = models.CharField(max_length=500, blank=True, null=True)
+    remarks = models.CharField(max_length=500, blank=True, null=True)
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
     modified_at = models.DateTimeField(blank=True, null=True)
