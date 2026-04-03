@@ -114,11 +114,15 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items):
-    """Sprinkle promo cards between posts — 1 promo every 5 posts, max 6 total.
-    User's recent posts (< 5 min) stay at top untouched."""
+    """Sprinkle promo cards between posts — posts always 65%+ of feed.
+    Rule: 1 promo every 5 posts, max capped by ratio. Recent posts untouched."""
     from django.utils import timezone as tz
     from datetime import timedelta
     from .promo_builders import build_all_promo_items
+
+    post_count = len(feed_items)
+    if post_count < 5:
+        return feed_items  # Too few posts — no promos
 
     # Find how many recent user posts are at the top (< 5 min old)
     recent_cutoff = tz.now() - timedelta(minutes=5)
@@ -133,18 +137,25 @@ def _inject_promo_cards(feed_items):
                 continue
         break
 
-    # Get promos — cap at 6
-    all_promo_items = build_all_promo_items()[:6]
+    # Max promos = 35% of feed (posts stay 65%+), cap at 6
+    max_promos = min(int(post_count * 0.35), 6)
+    if max_promos < 1:
+        return feed_items
+
+    all_promo_items = build_all_promo_items()[:max_promos]
     if not all_promo_items:
         return feed_items
 
-    # Sprinkle 1 promo every 5 posts, starting after recent posts
+    # Sprinkle evenly — calculate gap between promos
+    available_slots = post_count - recent_post_count
+    gap = max(available_slots // (len(all_promo_items) + 1), 3)
+
     promo_index = 0
-    insert_position = recent_post_count + 5
+    insert_position = recent_post_count + gap
     while promo_index < len(all_promo_items) and insert_position <= len(feed_items):
         feed_items.insert(insert_position, all_promo_items[promo_index])
         promo_index += 1
-        insert_position += 6  # 5 posts + 1 promo just inserted
+        insert_position += gap + 1  # gap posts + 1 promo just inserted
 
     return feed_items
 
