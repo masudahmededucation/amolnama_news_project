@@ -23,9 +23,16 @@
   /* ========== Detect initial language from toggle state ========== */
 
   var radios = document.querySelectorAll('input[name="form_lang"]');
+  // Prefer localStorage (client-side preference) over server-rendered radio (always defaults to bn)
+  var savedBanglaPreference = null;
+  try { savedBanglaPreference = localStorage.getItem('bangla_input_enabled'); } catch (storageError) {}
   var currentLang = 'bn';
-  for (var r = 0; r < radios.length; r++) {
-    if (radios[r].checked) { currentLang = radios[r].value; break; }
+  if (savedBanglaPreference !== null) {
+    currentLang = savedBanglaPreference === 'true' ? 'bn' : 'en';
+  } else {
+    for (var r = 0; r < radios.length; r++) {
+      if (radios[r].checked) { currentLang = radios[r].value; break; }
+    }
   }
   if (currentLang !== 'en') currentLang = 'bn';
 

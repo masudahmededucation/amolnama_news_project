@@ -20,7 +20,7 @@ var BanglaInput = (function() {
   var avroAvailable = typeof OmicronLab !== "undefined" && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
   // Default to saved preference, fallback to Bengali enabled
   var savedLanguagePreference = localStorage.getItem('bangla_input_enabled');
-  var globalEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
+  var globalBengaliKeyboardEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
 
   // ---- Load dictionary ----
   function loadDictionary(cb) {
@@ -313,7 +313,7 @@ var BanglaInput = (function() {
 
     // ---- Event handlers ----
     inputEl.addEventListener("input", function() {
-      if (!globalEnabled) { wordBuffer = ''; hideSuggestions(); return; }
+      if (!globalBengaliKeyboardEnabled) { wordBuffer = ''; hideSuggestions(); return; }
       var val = inputEl.value;
       var cursor = inputEl.selectionStart;
       var textUpToCursor = val.substring(0, cursor);
@@ -339,7 +339,7 @@ var BanglaInput = (function() {
     var PUNCTUATION_KEYS = { ',': 1, '.': 1, ';': 1, ':': 1, '!': 1, '?': 1, '-': 1, "'": 1, '"': 1, '(': 1, ')': 1 };
 
     inputEl.addEventListener("keydown", function(e) {
-      if (!globalEnabled) return;
+      if (!globalBengaliKeyboardEnabled) return;
       // Space or punctuation — auto-pick best suggestion then let punctuation through
       if ((e.key === " " || PUNCTUATION_KEYS[e.key]) && wordBuffer.length > 0 && bestSuggestion) {
         if (e.key === ' ') {
@@ -419,11 +419,11 @@ var BanglaInput = (function() {
       });
     },
     setEnabled: function(enabled) {
-      globalEnabled = !!enabled;
-      try { localStorage.setItem('bangla_input_enabled', globalEnabled ? 'true' : 'false'); } catch (storageError) {}
+      globalBengaliKeyboardEnabled = !!enabled;
+      try { localStorage.setItem('bangla_input_enabled', globalBengaliKeyboardEnabled ? 'true' : 'false'); } catch (storageError) {}
     },
     isEnabled: function() {
-      return globalEnabled;
+      return globalBengaliKeyboardEnabled;
     }
   };
 })();
