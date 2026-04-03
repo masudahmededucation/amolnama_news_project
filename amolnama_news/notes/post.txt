@@ -526,3 +526,67 @@ Let me check:
 every bengali fields needs to render properly. 
 so your rendering logic need to modularise and use it everywhere? 
 you don't modularise things even though i keep asking.
+
+####
+both post and comment edit  
+- can we make the edit box size 
+- little bit intelligent. 
+like 4 lines bigger than the text size
+
+the post box should expand on typing. always bigger 10+ bigger than text? 
+possible? 
+what do you think of this idea? this way, 
+people have a clear view of their texts.
+
+audio video post.
+accept post without minimum text length. 
+but we should warn user,
+no post allowed without details.
+then allow them for some time.
+because in difficult time,
+user may not have time to write text.
+they may do it later. 
+we will take down posts,
+if there is no detail about video or audio.
+because our main aim is allow purposeful posts.
+like what a post means and why they are posting.
+we also need to explain this to the user in easy language.
+many posts in facebook i see is ambiguous 
+and no idea what is inside the video until clicked.
+
+what do you think?
+
+####
+--categoraise posts
+--related topics
+we need to categorise posts.
+like a posts related to us invading of venezuela.
+so all posts related for topic appear in the same related topic pages
+
+similarly all posts related to july 2024 revolution. 
+should appear on same page. 
+so that people can see them one by one.
+at the moment in facebook,
+finding related posts is hard.
+it can find only people and pages.
+x or twitter shows related topics 
+and current topics really well.
+somehow before even posting through a newshub forms,
+we need to capture this category to make the discovery easier later on.
+basically july 2024 for us should be easy because they are already on specific tables.
+but any news coming through general news or world news would not catch it.
+another thing, people may type different category for same categories.
+we need to normalise it and make it standard.
+for example, us venezuela invasion december 2025.
+or simply us venezuela invasion.
+so anyone types related to us venezuela we give them hints.
+as a result all post categories become standardise.
+maybe admin has options to create these categories in advance.
+like whenever an even is going on, editors or staff creates an categories quick.
+as a result it is immediately available for user and 
+it makes it neat and clean categories for all posts.
+it also helps users.
+
+
+if you give me all the new features and tell me how to test them. 
+then i can test one by one.

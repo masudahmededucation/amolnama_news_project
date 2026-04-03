@@ -4,7 +4,6 @@ then check for bugs in the plan again.
 then continue implementing it. 
 you should be writing plan and implementing step 1 to... and mark them once done. 
 this way you know what is done and not.
---show me the plan first
 
 
 --compare the plan
@@ -42,7 +41,12 @@ including text/image/logo/date
 ############
 marketing
 
-
+####
+school/university campus life app
+we need a form
+encourage the best thing about their campus
+encourage student to encourage their best talent.
+extraordinary talent people or teacher.
 
 
 
