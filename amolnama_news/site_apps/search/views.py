@@ -8,11 +8,13 @@ def home(request):
     query = request.GET.get('q', '').strip()
     hashtag = request.GET.get('hashtag', '').strip()
 
-    breadcrumbs = [{'name': 'হোম', 'url': '/'}, {'name': 'অনুসন্ধান', 'url': '/search/'}]
+    breadcrumbs = [{'name': 'হোম', 'url': '/'}]
     if hashtag:
         breadcrumbs.append({'name': '#' + hashtag})
     elif query:
-        breadcrumbs.append({'name': query})
+        breadcrumbs.append({'name': 'অনুসন্ধান: ' + query})
+    else:
+        breadcrumbs.append({'name': 'অনুসন্ধান'})
 
     return render(request, 'search/pages/search-home.html', {
         'query': query,
