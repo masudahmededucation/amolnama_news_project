@@ -1,33 +1,61 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-{% block title %}অনুসন্ধান — আমলনামা নিউজ{% endblock %}
+{% block title %}সার্চ — আমলনামা নিউজ{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'search/assets/css/pages/search-home.css' %}">
+<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+<link rel="stylesheet" href="{% static 'debate/assets/css/components/debate-promo-card.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/components/tools-promo-card.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="search-page" id="search-page">
-  <div class="search-page-header" id="search-page-header">
-    <h1 class="search-page-title" id="search-page-title">🔍 অনুসন্ধান</h1>
-    <div class="search-page-input-wrapper" id="search-page-input-wrapper">
-      <input type="text" class="search-page-input" id="search-page-input" name="search_page_input" placeholder="পোস্ট, কবিতা, সংবাদ, বিতর্ক, ভ্রমণ — সব খুঁজুন..." value="{{ query }}{{ hashtag }}" autocomplete="off">
-    </div>
+
+  <!-- Search input with embedded button -->
+  <div class="search-page-input-wrapper" id="search-page-input-wrapper">
+    <input type="text" class="search-page-input" id="search-page-input" name="search_page_input" placeholder="পোস্ট, কবিতা, সংবাদ, বিতর্ক, ভ্রমণ — সব খুঁজুন..." value="{{ query }}{{ hashtag }}" autocomplete="off">
+    <button type="button" class="search-page-button" id="search-page-button" aria-label="Search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="search-page-button-label">সার্চ</span>
+    </button>
   </div>
 
-  <div class="search-page-results" id="search-page-results">
-    {% if query or hashtag %}
-    <div class="search-page-results-loading" id="search-page-results-loading">অনুসন্ধান হচ্ছে...</div>
-    {% else %}
-    <div class="search-page-empty" id="search-page-empty">
-      <p>কিছু লিখুন — সকল কন্টেন্ট থেকে খুঁজে দেবো</p>
-    </div>
-    {% endif %}
+  <!-- Search results (hidden by default, shown when user types) -->
+  <div class="search-page-results" id="search-page-results" style="display:none">
+    <div class="search-page-results-count" id="search-page-results-count"></div>
   </div>
+
+  <!-- Post feed (shown by default, hidden when user types) -->
+  <div class="post-feed" id="search-feed-container">
+    {% for post_item in posts %}
+    {% if post_item.item_type == 'debate_promo' %}
+    {% include "debate/components/debate-promo-card.html" with promo=post_item %}
+    {% elif post_item.item_type == 'content_promo' %}
+    {% include "core/components/content-promo-card.html" with promo=post_item %}
+    {% elif post_item.item_type == 'tools_promo' %}
+    {% include "tools/components/tools-promo-card.html" with promo=post_item %}
+    {% else %}
+    {% include "post/components/post-card.html" %}
+    {% endif %}
+    {% empty %}
+    <div class="post-feed-empty" id="search-feed-empty">
+      <p>এখনো কোনো পোস্ট নেই</p>
+    </div>
+    {% endfor %}
+  </div>
+
 </div>
+
+{% include "core/components/photo-lightbox.html" %}
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
+<script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}"></script>
 <script src="{% static 'search/assets/js/pages/search-home.js' %}"></script>
 {% endblock %}

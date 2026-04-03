@@ -1,33 +1,62 @@
-/* search-home.js — live cross-app search with 300ms debounce */
+/* search-home.js — toggle between post feed and search results */
 (function () {
   'use strict';
 
   var searchInput = document.getElementById('search-page-input');
+  var searchButton = document.getElementById('search-page-button');
+  var feedContainer = document.getElementById('search-feed-container');
   var resultsContainer = document.getElementById('search-page-results');
-  if (!searchInput || !resultsContainer) return;
+  if (!searchInput || !feedContainer || !resultsContainer) return;
 
   var debounceTimer = null;
+  var lastSearchedQuery = '';
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text || ''));
+    return div.innerHTML;
+  }
+
+  function cleanQuery(raw) {
+    return raw.replace(/\s+/g, ' ').trim();
+  }
+
+  function showFeed() {
+    feedContainer.style.display = '';
+    resultsContainer.style.display = 'none';
+  }
+
+  function showResults() {
+    feedContainer.style.display = 'none';
+    resultsContainer.style.display = '';
+  }
 
   function performSearch(query) {
+    query = cleanQuery(query);
     if (!query || query.length < 2) {
-      resultsContainer.innerHTML = '<div class="search-page-empty"><p>কিছু লিখুন — সকল কন্টেন্ট থেকে খুঁজে দেবো</p></div>';
+      showFeed();
+      lastSearchedQuery = '';
       return;
     }
 
+    if (query === lastSearchedQuery) return;
+    lastSearchedQuery = query;
+
+    showResults();
     resultsContainer.innerHTML = '<div class="search-page-results-loading">অনুসন্ধান হচ্ছে...</div>';
 
     fetch('/search/api/search/?q=' + encodeURIComponent(query))
       .then(function (response) { return response.json(); })
       .then(function (data) {
         if (!data.success || data.results.length === 0) {
-          resultsContainer.innerHTML = '<div class="search-page-no-results">কোনো ফলাফল পাওয়া যায়নি — "' + query + '"</div>';
+          resultsContainer.innerHTML = '<div class="search-page-no-results">কোনো ফলাফল পাওয়া যায়নি — "' + escapeHtml(query) + '"</div>';
           return;
         }
 
         var html = '';
         if (data.hashtag && data.hashtag_post_count) {
           html += '<div class="search-page-hashtag-stats">';
-          html += '<span class="search-page-hashtag-name">#' + data.hashtag + '</span>';
+          html += '<span class="search-page-hashtag-name">#' + escapeHtml(data.hashtag) + '</span>';
           html += '<span class="search-page-hashtag-count">' + data.hashtag_post_count + ' টি পোস্ট';
           if (data.hashtag_user_count) html += ' · ' + data.hashtag_user_count + ' জন ব্যবহারকারী';
           html += '</span></div>';
@@ -35,32 +64,51 @@
         html += '<div class="search-page-results-count">' + data.total + ' টি ফলাফল পাওয়া গেছে</div>';
 
         data.results.forEach(function (result) {
-          html += '<a href="' + result.url + '" class="search-result-item">';
-          html += '<span class="search-result-badge search-result-badge-' + result.content_type_color + '">' + result.content_type_label + '</span>';
-          html += '<span class="search-result-title">' + result.title + '</span>';
-          html += '<span class="search-result-date">' + result.date + '</span>';
+          html += '<a href="' + escapeHtml(result.url) + '" class="search-result-item">';
+          html += '<span class="search-result-badge search-result-badge-' + escapeHtml(result.content_type_color) + '">' + escapeHtml(result.content_type_label) + '</span>';
+          html += '<span class="search-result-title">' + escapeHtml(result.title) + '</span>';
+          html += '<span class="search-result-date">' + escapeHtml(result.date) + '</span>';
           html += '</a>';
         });
 
         resultsContainer.innerHTML = html;
       })
       .catch(function () {
-        resultsContainer.innerHTML = '<div class="search-page-no-results">অনুসন্ধান ব্যর্থ হয়েছে</div>';
+        resultsContainer.innerHTML = '<div class="search-page-no-results">অনুসন্ধান ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>';
       });
   }
 
+  /* Debounced search on typing */
   searchInput.addEventListener('input', function () {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function () {
-      performSearch(searchInput.value.trim());
+      performSearch(searchInput.value);
     }, 300);
   });
 
-  /* Auto-search if query is pre-filled (from URL param) */
-  if (searchInput.value.trim().length >= 2) {
-    performSearch(searchInput.value.trim());
+  /* Search button click */
+  if (searchButton) {
+    searchButton.addEventListener('click', function () {
+      clearTimeout(debounceTimer);
+      lastSearchedQuery = '';
+      performSearch(searchInput.value);
+    });
   }
 
-  /* Focus input on page load */
+  /* Enter key triggers search immediately */
+  searchInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      clearTimeout(debounceTimer);
+      lastSearchedQuery = '';
+      performSearch(searchInput.value);
+    }
+  });
+
+  /* Auto-search if query is pre-filled (from URL param) */
+  if (cleanQuery(searchInput.value).length >= 2) {
+    performSearch(searchInput.value);
+  }
+
   searchInput.focus();
 })();

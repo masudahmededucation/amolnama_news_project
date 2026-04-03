@@ -3,13 +3,25 @@
 .search-page { max-width: 700px; margin: 0 auto; padding: 1rem; }
 .search-page-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .75rem; }
 
-.search-page-input-wrapper { margin-bottom: 1rem; }
+.search-page-input-wrapper { margin-bottom: 1rem; position: relative; }
 .search-page-input {
-  width: 100%; padding: .65rem 1rem; border: 2px solid var(--border); border-radius: 24px;
-  font-size: .9rem; font-family: inherit; outline: none; transition: border-color .15s;
-  box-sizing: border-box;
+  width: 100%; padding: .65rem 5.5rem .65rem 1rem; border: 2px solid var(--border); border-radius: 24px;
+  font-size: .9rem; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s;
+  box-sizing: border-box; background: var(--card); color: var(--text);
 }
-.search-page-input:focus { border-color: var(--primary); }
+.search-page-input::placeholder { color: var(--muted); }
+.search-page-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.search-page-button {
+  position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
+  border: none; border-radius: 20px; padding: .35rem .75rem;
+  background: var(--primary); color: #fff; cursor: pointer;
+  display: flex; align-items: center; gap: .3rem;
+  font-size: .78rem; font-weight: 700; font-family: inherit;
+  transition: background .15s, transform .1s;
+}
+.search-page-button:hover { background: var(--primary-hover); }
+.search-page-button:active { transform: translateY(-50%) scale(.96); }
+.search-page-button-label { white-space: nowrap; }
 
 /* Results */
 .search-page-results { display: flex; flex-direction: column; gap: .4rem; }
@@ -44,7 +56,8 @@
 @media (max-width: 640px) {
   .search-page { padding: .6rem; }
   .search-page-title { font-size: 1rem; }
-  .search-page-input { padding: .5rem .8rem; font-size: .85rem; }
+  .search-page-input { padding: .5rem 5rem .5rem .8rem; font-size: .85rem; }
+  .search-page-button { padding: .3rem .6rem; font-size: .72rem; }
   .search-page-hashtag-stats { flex-direction: column; gap: .2rem; }
   .search-result-item { padding: .4rem .5rem; }
   .search-result-title { font-size: .78rem; }

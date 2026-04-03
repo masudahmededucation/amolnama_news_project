@@ -9,10 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 def _normalize_query(query):
-    """NFC normalize Bengali text for consistent matching."""
+    """NFC normalize Bengali text, collapse multiple spaces."""
     if not query:
         return ''
-    return unicodedata.normalize('NFC', query.strip())
+    import re
+    cleaned = re.sub(r'\s+', ' ', query).strip()
+    return unicodedata.normalize('NFC', cleaned)
 
 
 def api_search(request):
@@ -68,7 +70,7 @@ def api_search(request):
     except Exception:
         logger.exception('Search failed for poems')
 
-    # Search news articles
+    # Search news articles (headline only — summary lives on CollNewsEntry, not PubArticle)
     try:
         from amolnama_news.site_apps.newshub.models import PubArticle
         articles = PubArticle.objects.filter(
