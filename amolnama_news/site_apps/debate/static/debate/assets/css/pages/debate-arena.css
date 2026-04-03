@@ -131,7 +131,7 @@
 .debate-argument-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .3rem; }
 .debate-argument-card-author { font-size: .78rem; font-weight: 700; }
 .debate-argument-card-time { font-size: .65rem; color: var(--muted); }
-.debate-argument-card-content { font-size: .85rem; line-height: 1.6; margin-bottom: .4rem; white-space: pre-wrap; word-break: break-word; }
+.debate-argument-card-content { font-size: .85rem; line-height: 1.6; margin-bottom: .4rem; word-break: break-word; }
 .debate-argument-card-suppressed { opacity: .45; }
 .debate-argument-suppressed-badge { font-size: .65rem; color: #d97706; margin-bottom: .3rem; }
 
@@ -157,7 +157,7 @@
 .debate-rebuttal-card-side-indicator-red { background: #dc2626; }
 .debate-rebuttal-card-author { font-weight: 700; }
 .debate-rebuttal-card-time { color: var(--muted); }
-.debate-rebuttal-card-content { line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.debate-rebuttal-card-content { line-height: 1.5; word-break: break-word; }
 .debate-rebuttal-card-actions { display: flex; align-items: center; gap: .4rem; margin-top: .2rem; }
 
 /* Reply Drawer — centered, same width as arena */

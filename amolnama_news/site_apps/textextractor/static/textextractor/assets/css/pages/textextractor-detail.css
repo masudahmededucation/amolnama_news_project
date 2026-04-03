@@ -24,13 +24,13 @@
 /* Text Content */
 .textextractor-detail-text-container { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
 .textextractor-detail-text-header { display: flex; justify-content: space-between; padding: .5rem .75rem; background: var(--surface); font-size: .78rem; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); }
-.textextractor-detail-text-content { padding: 1rem; font-size: .95rem; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; max-height: 600px; overflow-y: auto; }
+.textextractor-detail-text-content { padding: 1rem; font-size: .95rem; line-height: 1.8; max-height: 600px; overflow-y: auto; }
 
 /* Pages */
 .textextractor-detail-section-title { font-size: 1rem; font-weight: 700; margin: 0 0 .5rem; }
 .textextractor-detail-page { border: 1px solid var(--border); border-radius: 10px; margin-bottom: .5rem; overflow: hidden; }
 .textextractor-detail-page-header { display: flex; justify-content: space-between; padding: .4rem .6rem; background: var(--surface); font-size: .75rem; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); }
-.textextractor-detail-page-text { padding: .6rem; font-size: .88rem; line-height: 1.7; white-space: pre-wrap; }
+.textextractor-detail-page-text { padding: .6rem; font-size: .88rem; line-height: 1.7; }
 
 /* Error */
 .textextractor-detail-error { text-align: center; padding: 2rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; }

@@ -71,6 +71,17 @@ main a:hover {
   text-decoration: underline;
 }
 
+/* User-generated text — preserve newlines globally.
+   Apply to any element displaying user/OCR content. */
+.user-text-content,
+main p, main .post-card-text, main .post-card-reply-text,
+main .debate-argument-card-content, main .debate-rebuttal-card-content,
+main .textextractor-detail-text-content, main .textextractor-detail-page-text,
+main .article-comment-text, main .engagement-comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 /* Generic site-width container */
 .container {
   width: min(100% - 2rem, var(--maxw));
