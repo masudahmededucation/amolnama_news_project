@@ -209,6 +209,30 @@
   document.addEventListener('click', function (event) {
     var target = event.target;
 
+    /* ---- Block actions while editing a post ---- */
+    var clickedPostCard = target.closest('.post-card');
+    if (clickedPostCard && clickedPostCard.getAttribute('data-editing') === '1') {
+      /* Allow edit save, edit cancel, and textarea clicks */
+      if (target.closest('.post-card-edit-save-button') || target.closest('.post-card-edit-cancel-button') || target.closest('.post-card-edit-textarea')) {
+        /* Let these through */
+      } else {
+        /* Block everything else — show inline warning */
+        var existingEditWarning = clickedPostCard.querySelector('.post-card-edit-warning');
+        if (!existingEditWarning) {
+          var editWarningElement = document.createElement('div');
+          editWarningElement.className = 'post-card-edit-warning';
+          editWarningElement.textContent = 'সম্পাদনা চলছে — প্রথমে সংরক্ষণ বা বাতিল করুন (Editing in progress — save or cancel first)';
+          editWarningElement.style.cssText = 'color:#b91c1c;font-size:.75rem;padding:.3rem .5rem;text-align:center;';
+          var editActionsElement = clickedPostCard.querySelector('.post-card-actions');
+          if (editActionsElement) editActionsElement.parentNode.insertBefore(editWarningElement, editActionsElement);
+          setTimeout(function () { editWarningElement.remove(); }, 3000);
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+    }
+
     /* ---- Follow/Unfollow toggle ---- */
     var followButton = target.closest('.post-card-follow-button');
     if (followButton) {
@@ -629,6 +653,12 @@
 
       textElement.querySelector('.post-card-edit-textarea').focus();
       textElement.setAttribute('data-original-html', originalHtml);
+      /* Disable actions while editing */
+      editPostCard.setAttribute('data-editing', '1');
+      var actionsBar = editPostCard.querySelector('.post-card-actions');
+      if (actionsBar) actionsBar.style.opacity = '0.3';
+      var moreMenuWrapper = editPostCard.querySelector('.post-card-more-menu-wrapper');
+      if (moreMenuWrapper) moreMenuWrapper.style.opacity = '0.3';
       return;
     }
 
@@ -658,6 +688,12 @@
           /* Update the edit button's data-post-text for next edit */
           var postEditButton = savePostCard.querySelector('.post-card-edit-button');
           if (postEditButton) postEditButton.setAttribute('data-post-text', data.post_text);
+          /* Re-enable actions after edit */
+          savePostCard.removeAttribute('data-editing');
+          var savedActionsBar = savePostCard.querySelector('.post-card-actions');
+          if (savedActionsBar) savedActionsBar.style.opacity = '';
+          var savedMoreMenu = savePostCard.querySelector('.post-card-more-menu-wrapper');
+          if (savedMoreMenu) savedMoreMenu.style.opacity = '';
         } else {
           editSaveButton.disabled = false;
           editSaveButton.textContent = 'সংরক্ষণ (Save)';
@@ -674,11 +710,20 @@
     /* ---- Edit cancel ---- */
     var editCancelButton = target.closest('.post-card-edit-cancel-button');
     if (editCancelButton) {
+      var cancelPostCard = editCancelButton.closest('.post-card');
       var cancelTextElement = editCancelButton.closest('.post-card-text');
       var savedOriginalHtml = cancelTextElement.getAttribute('data-original-html');
       if (savedOriginalHtml) {
         cancelTextElement.innerHTML = savedOriginalHtml;
         cancelTextElement.removeAttribute('data-original-html');
+      }
+      /* Re-enable actions after cancel */
+      if (cancelPostCard) {
+        cancelPostCard.removeAttribute('data-editing');
+        var cancelActionsBar = cancelPostCard.querySelector('.post-card-actions');
+        if (cancelActionsBar) cancelActionsBar.style.opacity = '';
+        var cancelMoreMenu = cancelPostCard.querySelector('.post-card-more-menu-wrapper');
+        if (cancelMoreMenu) cancelMoreMenu.style.opacity = '';
       }
       return;
     }
@@ -908,9 +953,25 @@
 
     textElement.innerHTML = '';
     textElement.appendChild(editForm);
+    /* Disable actions while editing */
+    var inlineEditPostCard = quickEditButton.closest('.post-card');
+    if (inlineEditPostCard) {
+      inlineEditPostCard.setAttribute('data-editing', '1');
+      var inlineEditActionsBar = inlineEditPostCard.querySelector('.post-card-actions');
+      if (inlineEditActionsBar) inlineEditActionsBar.style.opacity = '0.3';
+      var inlineEditMoreMenu = inlineEditPostCard.querySelector('.post-card-more-menu-wrapper');
+      if (inlineEditMoreMenu) inlineEditMoreMenu.style.opacity = '0.3';
+    }
 
     editForm.querySelector('.post-card-inline-edit-cancel').addEventListener('click', function () {
       textElement.innerHTML = originalHtml;
+      if (inlineEditPostCard) {
+        inlineEditPostCard.removeAttribute('data-editing');
+        var cancelActionsBar = inlineEditPostCard.querySelector('.post-card-actions');
+        if (cancelActionsBar) cancelActionsBar.style.opacity = '';
+        var cancelMoreMenu = inlineEditPostCard.querySelector('.post-card-more-menu-wrapper');
+        if (cancelMoreMenu) cancelMoreMenu.style.opacity = '';
+      }
     });
 
     editForm.querySelector('.post-card-inline-edit-save').addEventListener('click', function () {
@@ -929,6 +990,14 @@
           quickEditButton.setAttribute('data-post-text', newText);
         } else {
           textElement.innerHTML = originalHtml;
+        }
+        /* Re-enable actions after save */
+        if (inlineEditPostCard) {
+          inlineEditPostCard.removeAttribute('data-editing');
+          var saveActionsBar = inlineEditPostCard.querySelector('.post-card-actions');
+          if (saveActionsBar) saveActionsBar.style.opacity = '';
+          var saveMoreMenu = inlineEditPostCard.querySelector('.post-card-more-menu-wrapper');
+          if (saveMoreMenu) saveMoreMenu.style.opacity = '';
         }
       })
       .catch(function () { textElement.innerHTML = originalHtml; });
