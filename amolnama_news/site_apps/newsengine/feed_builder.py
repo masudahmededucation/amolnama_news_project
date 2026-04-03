@@ -183,7 +183,6 @@ def _inject_promo_cards(feed_items, request=None):
         category = category_order[category_index % len(category_order)]
         if category in categorized and categorized[category]:
             picked = random.choice(categorized[category])
-            picked['is_promoted'] = True  # Label flag
             selected_promos.append(picked)
             categorized[category].remove(picked)
         category_index += 1

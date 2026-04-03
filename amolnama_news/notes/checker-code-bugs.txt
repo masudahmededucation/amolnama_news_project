@@ -32,7 +32,7 @@ no amateur look.
 buttons and display should be polished. 
 no dull and basic.
 make it responsive for all kind of devices
-mobile user ux 
+mobile user UX UI
 
 --naming conventions
 check name rules

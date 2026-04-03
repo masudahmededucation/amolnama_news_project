@@ -38,3 +38,31 @@ this way we can expose all our features through home wall.
 people can just stay there and watch the show.
 so kind of 3 different way - published time, latest, and random.
 
+
+--promo appear and disappear
+the promo card from news article, 
+bangladesh and other places are permanently occupying the home wall posts. 
+promo means promo. 
+it is supposed to appear and disappear in between posts. 
+each promo should be in between posts, not continuously occupying the post wall.
+it is at the moment pushing the real posts all the way down after 30 minutes or so.
+--algorithm
+you need to make a clean algorithm about it. 
+clean requirements, clean implementation. 
+we cannot afford to fuck this up. 
+because this is the brain. this mistake will cost us losing users.
+--83% or more
+posts should occupy 17% or more of the wall at bare minimum.
+research and suggest.
+other should come and go in that 35% or less area.
+-- at least 1 promo
+no, make at least 1 promo appear disappear alternatively. 
+chose randomly but keep track of what appeared before, 
+what should be next.
+alternate categories.
+
+--প্রচারিত label 
+প্রচারিত dont need for our form's post or news article or poem. 
+it should be only when we promote advertisement or any business. are you clear?
+
+--research and suggest more.
