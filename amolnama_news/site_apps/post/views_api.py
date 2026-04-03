@@ -210,12 +210,48 @@ def api_post_create(request):
                 logger.exception('Fact-check failed for post %s', background_post_id)
         threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text), daemon=True).start()
 
+    # Render the post card HTML server-side — single source of truth (post-card.html template)
+    from django.template.loader import render_to_string
+    from .views import _calculate_time_ago, _highlight_text_with_entities, _parse_keywords_json
+
+    keywords = _parse_keywords_json(post.post_keywords_json)
+    post_item = {
+        'post_post_id': post.post_post_id,
+        'post_text': post.post_text,
+        'post_text_highlighted': _highlight_text_with_entities(post.post_text, keywords),
+        'author_display_name': user_profile.display_name or 'ব্যবহারকারী',
+        'author_avatar_url': _get_user_avatar_url(user_profile),
+        'author_user_profile_id': user_profile.user_profile_id,
+        'author_is_verified': user_profile.is_verified if hasattr(user_profile, 'is_verified') else False,
+        'author_bio': user_profile.professional_bio_summary if hasattr(user_profile, 'professional_bio_summary') else '',
+        'author_username_handle': user_profile.username_handle if hasattr(user_profile, 'username_handle') else '',
+        'author_follower_count': 0,
+        'author_following_count': 0,
+        'time_ago': 'এইমাত্র',
+        'created_at_formatted': timezone.now().strftime('%d %b %Y, %I:%M %p'),
+        'like_count': 0, 'reply_count': 0, 'repost_count': 0, 'view_count': 0,
+        'bookmark_count': 0, 'vote_score_count': 0,
+        'user_voted': False, 'user_followed_post': False, 'user_liked': False,
+        'user_bookmarked': False, 'user_reposted': False,
+        'media_urls': media_urls,
+        'keywords': keywords,
+        'is_repost': False,
+        'can_delete': True,
+        'can_edit': True,
+        'is_edited': False,
+        'is_pinned': False,
+        'content_category_code': '',
+        'is_auto_flagged': False,
+    }
+    post_card_html = render_to_string('post/components/post-card.html', {
+        'post_item': post_item,
+        'request': request,
+    })
+
     return JsonResponse({
         'success': True,
         'post_post_id': post.post_post_id,
-        'author_display_name': user_profile.display_name or 'ব্যবহারকারী',
-        'author_avatar_url': _get_user_avatar_url(user_profile),
-        'media_urls': media_urls,
+        'post_card_html': post_card_html,
     })
 
 
