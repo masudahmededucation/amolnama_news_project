@@ -153,7 +153,7 @@ def build_post_feed_items(request, posts=None):
             'author_avatar_url': author_avatar_url,
             'author_user_profile_id': post.link_user_profile_id,
             'author_is_verified': profile.is_verified if profile and hasattr(profile, 'is_verified') else False,
-            'author_bio': profile.professional_bio_summary_bn if profile and hasattr(profile, 'professional_bio_summary_bn') else '',
+            'author_bio': profile.professional_bio_summary if profile and hasattr(profile, 'professional_bio_summary') else '',
             'author_username_handle': profile.username_handle if profile and hasattr(profile, 'username_handle') else '',
             'author_follower_count': follower_counts.get(post.link_user_profile_id, 0),
             'author_following_count': following_counts.get(post.link_user_profile_id, 0),
@@ -200,7 +200,7 @@ def build_post_feed_items(request, posts=None):
                 post_item['original_author_user_profile_id'] = original_post.link_user_profile_id
                 post_item['original_author_avatar_url'] = avatar_url_map.get(original_post.link_user_profile_id)
                 post_item['original_author_is_verified'] = original_profile.is_verified if original_profile and hasattr(original_profile, 'is_verified') else False
-                post_item['original_author_bio'] = original_profile.professional_bio_summary_bn if original_profile and hasattr(original_profile, 'professional_bio_summary_bn') else ''
+                post_item['original_author_bio'] = original_profile.professional_bio_summary if original_profile and hasattr(original_profile, 'professional_bio_summary') else ''
                 post_item['original_author_username_handle'] = original_profile.username_handle if original_profile and hasattr(original_profile, 'username_handle') else ''
                 post_item['original_author_follower_count'] = follower_counts.get(original_post.link_user_profile_id, 0)
                 post_item['original_author_following_count'] = following_counts.get(original_post.link_user_profile_id, 0)

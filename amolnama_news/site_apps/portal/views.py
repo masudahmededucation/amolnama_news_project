@@ -39,8 +39,8 @@ def profile_public_view(request):
 
     if request.method == "POST":
         display_name = (request.POST.get('display_name') or '').strip() or None
-        bio_summary = (request.POST.get('professional_bio_summary_bn') or '').strip() or None
-        bio_description = (request.POST.get('professional_bio_description_bn') or '').strip() or None
+        bio_summary = (request.POST.get('professional_bio_summary') or '').strip() or None
+        bio_description = (request.POST.get('professional_bio_description') or '').strip() or None
         profile_location = (request.POST.get('profile_location') or '').strip() or None
         profile_website_url = (request.POST.get('profile_website_url') or '').strip() or None
         username_handle = (request.POST.get('username_handle') or '').strip() or None
@@ -55,14 +55,14 @@ def profile_public_view(request):
                 return redirect('portal:profile_public')
 
         profile.display_name = display_name
-        profile.professional_bio_summary_bn = bio_summary
-        profile.professional_bio_description_bn = bio_description
+        profile.professional_bio_summary = bio_summary
+        profile.professional_bio_description = bio_description
         profile.profile_location = profile_location
         profile.profile_website_url = profile_website_url
         profile.username_handle = username_handle
         profile.updated_at = timezone.now()
         profile.save(update_fields=[
-            'display_name', 'professional_bio_summary_bn', 'professional_bio_description_bn',
+            'display_name', 'professional_bio_summary', 'professional_bio_description',
             'profile_location', 'profile_website_url', 'username_handle', 'updated_at',
         ])
 

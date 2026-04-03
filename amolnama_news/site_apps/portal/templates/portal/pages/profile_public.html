@@ -33,13 +33,13 @@
 
   <div class="profile-field-group">
     <label for="profile-public-bio-summary" class="profile-field-label">Bio</label>
-    <input type="text" id="profile-public-bio-summary" name="professional_bio_summary_bn" value="{{ profile.professional_bio_summary_bn|default:'' }}" maxlength="200" class="profile-field-input" placeholder="সংক্ষিপ্ত পরিচয় — যেমন: সাংবাদিক, ঢাকা">
+    <input type="text" id="profile-public-bio-summary" name="professional_bio_summary" value="{{ profile.professional_bio_summary|default:'' }}" maxlength="200" class="profile-field-input" placeholder="সংক্ষিপ্ত পরিচয় — যেমন: সাংবাদিক, ঢাকা">
     <span class="profile-field-hint">সংক্ষিপ্ত বায়ো — হোভার প্রোফাইল কার্ডে দেখা যাবে</span>
   </div>
 
   <div class="profile-field-group">
     <label for="profile-public-bio-description" class="profile-field-label">About</label>
-    <textarea id="profile-public-bio-description" name="professional_bio_description_bn" maxlength="1000" class="profile-field-textarea" rows="3" placeholder="বিস্তারিত পরিচয়...">{{ profile.professional_bio_description_bn|default:'' }}</textarea>
+    <textarea id="profile-public-bio-description" name="professional_bio_description" maxlength="1000" class="profile-field-textarea" rows="3" placeholder="বিস্তারিত পরিচয়...">{{ profile.professional_bio_description|default:'' }}</textarea>
     <span class="profile-field-hint">বিস্তারিত বর্ণনা — আপনার প্রোফাইল পেজে দেখা যাবে</span>
   </div>
 
