@@ -632,9 +632,8 @@
 
       var currentText = editButton.getAttribute('data-post-text') || textElement.textContent || '';
       var originalHtml = textElement.innerHTML;
-      var editTextRows = Math.max((currentText.split('\n').length || 1) + 4, 6);
 
-      textElement.innerHTML = '<textarea class="post-card-edit-textarea" id="post-card-edit-textarea-' + editPostId + '" name="post_card_edit_textarea_' + editPostId + '" maxlength="1000" rows="' + editTextRows + '">' + currentText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>'
+      textElement.innerHTML = '<textarea class="post-card-edit-textarea" id="post-card-edit-textarea-' + editPostId + '" name="post_card_edit_textarea_' + editPostId + '" maxlength="1000">' + currentText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>'
         + '<div class="post-card-edit-actions">'
         + '<button type="button" class="post-card-edit-save-button" id="post-card-edit-save-' + editPostId + '" name="post_card_edit_save_' + editPostId + '" data-post-id="' + editPostId + '">সংরক্ষণ (Save)</button>'
         + '<button type="button" class="post-card-edit-cancel-button" id="post-card-edit-cancel-' + editPostId + '" name="post_card_edit_cancel_' + editPostId + '">বাতিল (Cancel)</button>'
@@ -943,7 +942,7 @@
     var editForm = document.createElement('div');
     editForm.className = 'post-card-inline-edit-form';
     editForm.innerHTML =
-      '<textarea class="post-card-inline-edit-textarea" id="post-card-inline-edit-textarea-' + postId + '" name="post_card_inline_edit_textarea_' + postId + '" rows="' + Math.max((currentText.split('\n').length || 1) + 4, 6) + '">' + currentText + '</textarea>' +
+      '<textarea class="post-card-inline-edit-textarea" id="post-card-inline-edit-textarea-' + postId + '" name="post_card_inline_edit_textarea_' + postId + '">' + currentText + '</textarea>' +
       '<div class="post-card-inline-edit-buttons">' +
       '<button type="button" class="post-card-inline-edit-save" id="post-card-inline-edit-save-' + postId + '" name="post_card_inline_edit_save_' + postId + '">সংরক্ষণ</button>' +
       '<button type="button" class="post-card-inline-edit-cancel" id="post-card-inline-edit-cancel-' + postId + '" name="post_card_inline_edit_cancel_' + postId + '">বাতিল</button>' +
