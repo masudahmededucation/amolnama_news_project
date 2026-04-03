@@ -640,7 +640,16 @@
         + '<button type="button" class="post-card-edit-cancel-button" id="post-card-edit-cancel-' + editPostId + '" name="post_card_edit_cancel_' + editPostId + '">বাতিল (Cancel)</button>'
         + '</div>';
 
-      textElement.querySelector('.post-card-edit-textarea').focus();
+      var editTextareaElement = textElement.querySelector('.post-card-edit-textarea');
+      editTextareaElement.style.overflow = 'hidden';
+      editTextareaElement.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight + 60) + 'px';
+      });
+      /* Set initial height based on content */
+      editTextareaElement.style.height = 'auto';
+      editTextareaElement.style.height = (editTextareaElement.scrollHeight + 60) + 'px';
+      editTextareaElement.focus();
       textElement.setAttribute('data-original-html', originalHtml);
       /* Disable actions while editing */
       editPostCard.setAttribute('data-editing', '1');
@@ -942,6 +951,14 @@
 
     textElement.innerHTML = '';
     textElement.appendChild(editForm);
+    var inlineTextareaElement = editForm.querySelector('.post-card-inline-edit-textarea');
+    inlineTextareaElement.style.overflow = 'hidden';
+    inlineTextareaElement.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight + 60) + 'px';
+    });
+    inlineTextareaElement.style.height = 'auto';
+    inlineTextareaElement.style.height = (inlineTextareaElement.scrollHeight + 60) + 'px';
     /* Disable actions while editing */
     var inlineEditPostCard = quickEditButton.closest('.post-card');
     if (inlineEditPostCard) {
