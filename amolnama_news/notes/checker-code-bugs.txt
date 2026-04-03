@@ -34,6 +34,7 @@ no dull and basic.
 make it responsive for all kind of devices
 
 --naming conventions
+check name rules
 seo friendly name 
 check variables, filename, functions, features.
 all files css, js, ajax, html
@@ -45,7 +46,13 @@ don't make file too large which would be harder to manage and modify.
 split larger files into smaller unit and files.
 split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
+check name rules
 
+do you think we should use prefix to name table? 
+for example: fact_check for fact check tables?
+for ref table ref_fact_check as part of the table name. 
+as a result to identify group of table for fact check? for all other group of works. 
+should we rename our table like that?
 
 --attribute naming convention 
 all attributes should have its id and name 
@@ -84,6 +91,17 @@ Write once, reuse everywhere.
 no copy cat, duplicate code.
 it stops bugs and reduces effort.
 
+--modularise everything
+make a rule - any new features - should be modularised. 
+even used in one place. 
+then first thing before implementing a new feature is to check, 
+is this feature already exists? 
+if the feature not exists then create a new modularised feature.
+make that rule modularise everything - not just when needed or not. 
+everything every time. 
+all.
+one source of truth.
+what do you think?
 
 
 --create or update documentation

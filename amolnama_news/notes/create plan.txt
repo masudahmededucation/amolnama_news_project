@@ -32,6 +32,17 @@ it will make the app lively.
 revenue or advertisement app
 
 
+######
+facebook post creator
+text and image input
+output large picture -
+including text/image/logo/date
+
+
+############
+marketing
+
+
 
 
 

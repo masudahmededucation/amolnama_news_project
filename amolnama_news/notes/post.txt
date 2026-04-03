@@ -499,3 +499,30 @@ what do you think?
 i have deleted one post so i can't give you example.
 
 
+post refreshes should be smooth, not eye catching jump. 
+it should be smooth fade in or fade out whatever.
+insertion should look like think about a card is appearing smoothing. 
+like a image or post is appearing smooth. 
+it should be appealing dramatic but without drama.
+
+
+another thing - even when english language is selected. 
+it keeps typing bengali. 
+i had to toggle a few times to make it working. 
+it works but needs a few punches.
+
+--new line not saving
+post wall is not saving a new line. some of the things, 
+we may want to put it in a new line for example - 
+writers name or user may put their name. 
+it is showing as a continuous text.
+
+The post text is stored as a single CharField — 
+newlines are there in the data, 
+but the template renders it without preserving them. 
+Let me check:
+
+
+every bengali fields needs to render properly. 
+so your rendering logic need to modularise and use it everywhere? 
+you don't modularise things even though i keep asking.

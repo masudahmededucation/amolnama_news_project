@@ -11,3 +11,15 @@ choose the national language as the translated language.
 and also keep the option to choose bangla and english keyboard.
 
 so for bangladesh, people will have default option to write in bangla.
+
+
+even when english language is selected, bangla is typing. 
+it types english when i switch to bangla then switch back to english. 
+so generally, somehow it forces to write bangla by default always. 
+this is a long standing issue, i have reported a few times.
+
+--globally
+yes, it should work globally on every page. 
+
+globalEnabled is false (English mode) change variable to make it distinguished globalBanglaEnabled
+change this globalEnabled to globalBengaliKeyboardEnabled

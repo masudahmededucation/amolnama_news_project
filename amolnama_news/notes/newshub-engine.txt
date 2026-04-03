@@ -32,6 +32,8 @@ some posts which can be harmful or not allowed in our policy
 can pass through to the post's wall.
 so we need a brain. 
 
+--policy
+--adult content
 so research some general guideline and policy.
 research facebook/twitter/instgram and other social apps.
 our only intention to block harmful contents.
@@ -49,5 +51,27 @@ at first, we flag it.
 we tell users to check this posts facts.
 we put a notice on the post.
 then learn slowly what to do?
-
+is Google Fact Check Tools API available on dev mode- no bank card needed?
+if no bank card needed then lets include it.
 do research and create list. 
+free and local apps only
+do some more deep research. 
+make it future proof.
+make it practical and broad.
+make it professional grade.  
+compare you work with other real world apps before making decisions.
+this feature should work in the background
+without hampering user's browsing experience.
+user should not realise this newsengine's feature is running.
+
+
+
+
+
+just realised the moderation view content opens in a open in a new page. 
+is that intended?
+
+--breadcrumb
+breadcrumb should be general in every nav menu. 
+create a rule. 
+everywhere we need a breadcrumb
