@@ -54,7 +54,7 @@ def _build_intelligent_feed(request, feed_items, category_filter):
         logger.exception('Auto-publish scheduled posts failed')
 
     # Step 1: Inject promo cards
-    feed_items = _inject_promo_cards(feed_items)
+    feed_items = _inject_promo_cards(feed_items, request=request)
 
     # Step 2: Apply content ranking to posts (promos keep their position)
     try:
@@ -113,13 +113,12 @@ def _build_intelligent_feed(request, feed_items, category_filter):
     return feed_items
 
 
-def _inject_promo_cards(feed_items):
-    """Insert 1 rotating promo between posts. Different promo each page load.
-    Posts always dominate. Promo appears once, mid-feed, then gone."""
+def _inject_promo_cards(feed_items, request=None):
+    """Insert 1 rotating promo between posts. Alternates categories each page load.
+    Tracks last shown category in session to avoid repeats."""
     from django.utils import timezone as tz
     from datetime import timedelta
     from .promo_builders import build_all_promo_items
-    import random
 
     post_count = len(feed_items)
     if post_count < 3:
@@ -142,10 +141,44 @@ def _inject_promo_cards(feed_items):
     if not all_promo_items:
         return feed_items
 
-    # Pick 1 random promo — rotates each page load
-    selected_promo = random.choice(all_promo_items)
+    # Group promos by category (item_type or promo_badge)
+    category_order = ['debate_promo', 'NEWS', 'POEM', 'STORY', 'ART', 'TRAVEL', 'tools_promo']
+    categorized = {}
+    for promo in all_promo_items:
+        category = promo.get('promo_badge') or promo.get('item_type', 'other')
+        if category not in categorized:
+            categorized[category] = []
+        categorized[category].append(promo)
 
-    # Place it after 3-5 posts (after recent ones)
+    # Get last shown category from session — pick next in rotation
+    last_category = None
+    if request and hasattr(request, 'session'):
+        last_category = request.session.get('last_promo_category')
+
+    # Find next category that has promos
+    selected_promo = None
+    next_category = None
+    started = last_category is None
+    for category in category_order + category_order:  # wrap around
+        if started and category in categorized and categorized[category]:
+            import random
+            selected_promo = random.choice(categorized[category])
+            next_category = category
+            break
+        if category == last_category:
+            started = True
+
+    # Fallback — pick any
+    if not selected_promo:
+        import random
+        selected_promo = random.choice(all_promo_items)
+        next_category = selected_promo.get('promo_badge') or selected_promo.get('item_type')
+
+    # Save to session for next rotation
+    if request and hasattr(request, 'session'):
+        request.session['last_promo_category'] = next_category
+
+    # Place after 4th post (after recent ones)
     insert_position = min(recent_post_count + 4, post_count)
     feed_items.insert(insert_position, selected_promo)
 
