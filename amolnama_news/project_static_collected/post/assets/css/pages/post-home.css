@@ -688,7 +688,7 @@
 /* ---- Inline Edit ---- */
 .post-card-edit-textarea {
   width: 100%;
-  min-height: 320px;
+  min-height: 100px;
   padding: .5rem;
   font-size: .9rem;
   line-height: 1.6;
