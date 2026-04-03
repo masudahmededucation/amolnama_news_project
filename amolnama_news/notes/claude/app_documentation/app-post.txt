@@ -245,3 +245,13 @@ POST /post/api/<id>/pin/
 ### Model Class Renames
 - CollPoll → PostPoll
 - CollPollVote → PostPollVote
+
+## New Features (2026-04-03)
+- Link preview in composer: URL detection (debounced 800ms), fetches /newsengine/api/link-preview/, renders OG card with dismiss button
+- Hashtags: #tag extraction on post create (background thread), stored in HashtagItem + HashtagPostLink, rendered as clickable <a> links in post text
+- @Mentions: @handle extraction on create, PostMention model ([post].[post_mention]), autocomplete API /post/api/mentions/autocomplete/?q=, notification sent to mentioned users, rendered as clickable links to /social/@handle/
+- Edit history: PostEditHistory model ([post].[post_edit_history]), saves old text before each edit, GET /post/api/{id}/edit-history/, clickable "(edited)" label toggles inline version list
+- Auto-expand textarea: composer + both edit modes grow with content (scrollHeight + 60px)
+- Edit mode blocks all other post actions (stopImmediatePropagation)
+- Composer collapses after successful post
+- Server-rendered post card on create (single source of truth — post-card.html)

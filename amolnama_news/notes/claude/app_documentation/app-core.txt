@@ -138,3 +138,9 @@ core/utils.py. NFC normalization preserves matras unlike NFKD.
 ### Shared component init
 All shared components require explicit init: window.actionsBar.init(), window.photoCard.init(),
 window.photoLightbox.init(). Must be called after DOM ready in each page that uses them.
+
+## New Features (2026-04-03)
+- Dark mode: [data-theme="dark"] in colors.css + @media prefers-color-scheme fallback, theme-toggle.js with localStorage persistence, moon/sun toggle in header
+- Shared get_user_avatar_url() in core/utils.py — single source of truth for avatar lookup, used by post, social, portal, user_account
+- Global white-space: pre-wrap rule in base.css for all user-generated text
+- right-panel-trending.js loaded globally via base.html

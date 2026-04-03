@@ -209,3 +209,7 @@ Link Preview API (shared):
 ### Engagement Table Prefix (eng_ → engagement_)
 - All engagement tables across all schemas standardised to engagement_ prefix
 - Example: eng_article_stat → engagement_article_stat
+
+## New Features (2026-04-03)
+- Trending hashtags widget: right-panel-trending.js fetches /newsengine/api/hashtags/trending/, renders top 8 in right sidebar
+- Fixed trending.py bug: is_deleted=False → is_active=True (Post has no is_deleted)
