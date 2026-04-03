@@ -58,7 +58,7 @@ def _get_popular_in_category(category, viewed_keys, limit=2):
     if category == 'post':
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
-            is_published=True, is_deleted=False,
+            is_published=True, is_active=True,
         ).order_by('-like_count', '-view_count')[:limit * 3]
         for post in posts:
             key = f'post:{post.post_post_id}'
@@ -116,7 +116,7 @@ def _get_global_popular(limit=5):
     try:
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
-            is_published=True, is_deleted=False,
+            is_published=True, is_active=True,
         ).order_by('-like_count')[:limit]
         for post in posts:
             items.append({

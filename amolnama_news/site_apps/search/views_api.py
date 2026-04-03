@@ -33,7 +33,7 @@ def api_search(request):
     try:
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
-            post_text__icontains=query, is_published=True, is_deleted=False,
+            post_text__icontains=query, is_published=True, is_active=True,
         ).order_by('-created_at')[:10]
         for post in posts:
             results.append({
