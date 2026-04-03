@@ -35,19 +35,11 @@ def user_display_name(request):
                 name = profile.display_name
             except UserProfile.DoesNotExist:
                 pass
-        # Fetch avatar URL if profile has one
+        # Fetch avatar URL — shared utility
         avatar_url = None
         try:
-            if profile and profile.link_avatar_asset_id:
-                from django.db import connection
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
-                        [profile.link_avatar_asset_id],
-                    )
-                    row = cursor.fetchone()
-                    if row:
-                        avatar_url = row[0]
+            from amolnama_news.site_apps.core.utils import get_user_avatar_url
+            avatar_url = get_user_avatar_url(profile)
         except Exception:
             pass
 

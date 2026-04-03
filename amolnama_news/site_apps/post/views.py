@@ -715,23 +715,12 @@ def _get_avatar_urls_bulk(profile_map):
 
 
 def _get_avatar_url_single(user_profile_id):
-    """Fetch avatar URL for a single user profile."""
-    from django.db import connection
+    """Fetch avatar URL for a single user profile — delegates to shared utility."""
     from amolnama_news.site_apps.user_account.models import UserProfile
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
 
     try:
         profile = UserProfile.objects.get(user_profile_id=user_profile_id)
     except UserProfile.DoesNotExist:
         return None
-
-    if not profile.link_avatar_asset_id:
-        return None
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
-            [profile.link_avatar_asset_id],
-        )
-        row = cursor.fetchone()
-
-    return row[0] if row else None
+    return get_user_avatar_url(profile)
