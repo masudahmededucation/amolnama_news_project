@@ -269,6 +269,10 @@ def highlight_entities_in_text(text, keywords=None):
     for match in re.finditer(r'#([\w\u0980-\u09FF]+)', text):
         all_entities.append((match.start(), match.end(), 'hashtag'))
 
+    # Detect @mentions (@username_handle)
+    for match in re.finditer(r'@([\w.-]+)', text):
+        all_entities.append((match.start(), match.end(), 'mention'))
+
     # Add theme keywords (lowest priority)
     if keywords:
         for keyword in keywords:
@@ -305,6 +309,9 @@ def highlight_entities_in_text(text, keywords=None):
         if entity_type == 'hashtag':
             tag_value = entity_text[1:] if entity_text.startswith('#') else entity_text
             result_parts.append(f'<a href="/search/?hashtag={tag_value}" class="post-hashtag">{entity_text}</a>')
+        elif entity_type == 'mention':
+            handle_value = entity_text[1:] if entity_text.startswith('@') else entity_text
+            result_parts.append(f'<a href="/social/@{handle_value}/" class="post-mention">{entity_text}</a>')
         else:
             css_class = ENTITY_CSS_CLASS.get(entity_type, 'post-entity-keyword')
             result_parts.append(f'<mark class="{css_class}">{entity_text}</mark>')

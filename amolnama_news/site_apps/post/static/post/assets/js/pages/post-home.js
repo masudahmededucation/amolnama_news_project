@@ -243,6 +243,76 @@
     });
   }
 
+  /* ---- @Mention autocomplete in composer ---- */
+  (function () {
+    if (!composerTextarea) return;
+    var mentionDropdown = null;
+    var mentionTimer = null;
+
+    composerTextarea.addEventListener('input', function () {
+      clearTimeout(mentionTimer);
+      var cursorPosition = composerTextarea.selectionStart;
+      var textBeforeCursor = composerTextarea.value.substring(0, cursorPosition);
+      var mentionMatch = textBeforeCursor.match(/@([\w.-]*)$/);
+
+      if (!mentionMatch || mentionMatch[1].length < 1) {
+        if (mentionDropdown) mentionDropdown.style.display = 'none';
+        return;
+      }
+
+      var mentionQuery = mentionMatch[1];
+      mentionTimer = setTimeout(function () {
+        fetch('/post/api/mentions/autocomplete/?q=' + encodeURIComponent(mentionQuery))
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.success || !data.users || data.users.length === 0) {
+              if (mentionDropdown) mentionDropdown.style.display = 'none';
+              return;
+            }
+            if (!mentionDropdown) {
+              mentionDropdown = document.createElement('div');
+              mentionDropdown.className = 'post-composer-mention-dropdown';
+              mentionDropdown.id = 'post-composer-mention-dropdown';
+              composerTextarea.parentNode.style.position = 'relative';
+              composerTextarea.parentNode.appendChild(mentionDropdown);
+            }
+            mentionDropdown.innerHTML = data.users.map(function (user) {
+              var avatarHtml = user.avatar_url
+                ? '<img src="' + user.avatar_url + '" alt="" class="post-composer-mention-avatar">'
+                : '<span class="post-composer-mention-avatar-initials">' + (user.display_name || user.handle).charAt(0) + '</span>';
+              return '<div class="post-composer-mention-item" data-handle="' + user.handle + '">'
+                + avatarHtml
+                + '<div class="post-composer-mention-info">'
+                + '<span class="post-composer-mention-name">' + (user.display_name || '') + '</span>'
+                + '<span class="post-composer-mention-handle">@' + user.handle + '</span>'
+                + '</div></div>';
+            }).join('');
+            mentionDropdown.style.display = 'block';
+
+            mentionDropdown.querySelectorAll('.post-composer-mention-item').forEach(function (item) {
+              item.addEventListener('mousedown', function (mouseDownEvent) {
+                mouseDownEvent.preventDefault();
+                var selectedHandle = item.getAttribute('data-handle');
+                var beforeMention = textBeforeCursor.substring(0, textBeforeCursor.lastIndexOf('@'));
+                var afterCursor = composerTextarea.value.substring(cursorPosition);
+                composerTextarea.value = beforeMention + '@' + selectedHandle + ' ' + afterCursor;
+                var newPosition = beforeMention.length + selectedHandle.length + 2;
+                composerTextarea.setSelectionRange(newPosition, newPosition);
+                composerTextarea.focus();
+                mentionDropdown.style.display = 'none';
+                composerTextarea.dispatchEvent(new Event('input'));
+              });
+            });
+          })
+          .catch(function () { if (mentionDropdown) mentionDropdown.style.display = 'none'; });
+      }, 300);
+    });
+
+    composerTextarea.addEventListener('blur', function () {
+      setTimeout(function () { if (mentionDropdown) mentionDropdown.style.display = 'none'; }, 200);
+    });
+  })();
+
   /* ---- Emoji picker ---- */
 
   var emojiCategories = {

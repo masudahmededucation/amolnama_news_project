@@ -1034,6 +1034,20 @@
 .post-hashtag { color: var(--primary); font-weight: 600; }
 .post-hashtag:hover { text-decoration: underline; }
 
+/* @Mention links */
+.post-mention { color: var(--primary); font-weight: 600; }
+.post-mention:hover { text-decoration: underline; }
+
+/* Mention autocomplete dropdown */
+.post-composer-mention-dropdown { position: absolute; bottom: 100%; left: 0; right: 0; z-index: 200; background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-md); max-height: 240px; overflow-y: auto; display: none; }
+.post-composer-mention-item { display: flex; align-items: center; gap: .5rem; padding: .45rem .6rem; cursor: pointer; transition: background .1s; }
+.post-composer-mention-item:hover { background: var(--surface); }
+.post-composer-mention-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.post-composer-mention-avatar-initials { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-size: .7rem; font-weight: 700; flex-shrink: 0; }
+.post-composer-mention-info { min-width: 0; }
+.post-composer-mention-name { display: block; font-size: .8rem; font-weight: 600; color: var(--text); }
+.post-composer-mention-handle { display: block; font-size: .7rem; color: var(--muted); }
+
 /* Legacy keyword pills (kept for dynamically created posts before page reload) */
 
 .post-card-keywords {

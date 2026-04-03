@@ -198,6 +198,16 @@ def api_post_create(request):
                 logger.exception('Hashtag extraction failed for post %s', background_post_id)
         threading.Thread(target=_background_hashtag_extraction, args=(post.post_post_id, post_text), daemon=True).start()
 
+    # Extract and link @mentions in background + send notifications
+    if post_text:
+        import threading
+        def _background_mention_extraction(background_post_id, background_text, author_profile_id):
+            try:
+                _extract_and_link_mentions(background_post_id, background_text, author_profile_id)
+            except Exception:
+                logger.exception('Mention extraction failed for post %s', background_post_id)
+        threading.Thread(target=_background_mention_extraction, args=(post.post_post_id, post_text, user_profile.user_profile_id), daemon=True).start()
+
     # Classify content in background — auto-flag harmful content
     if post_text:
         import threading
@@ -280,6 +290,63 @@ def _get_user_avatar_url(user_profile):
         )
         row = cursor.fetchone()
     return row[0] if row else None
+
+
+def _extract_and_link_mentions(post_id, text, author_user_profile_id):
+    """Extract @handles from post text, link to PostMention, send notifications."""
+    import re
+    from django.db import connection as mention_connection
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    mention_pattern = re.compile(r'@([\w.-]+)', re.UNICODE)
+    matches = mention_pattern.findall(text)
+    if not matches:
+        return
+
+    seen_handles = set()
+    for handle in matches:
+        handle_lower = handle.lower().strip()
+        if len(handle_lower) < 2 or handle_lower in seen_handles:
+            continue
+        seen_handles.add(handle_lower)
+
+        # Look up user by handle
+        mentioned_profile = UserProfile.objects.filter(username_handle__iexact=handle_lower).first()
+        if not mentioned_profile:
+            continue
+
+        mentioned_user_profile_id = mentioned_profile.user_profile_id
+
+        # Skip self-mention
+        if mentioned_user_profile_id == author_user_profile_id:
+            continue
+
+        # Insert mention record
+        with mention_connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT 1 FROM [post].[post_mention] WHERE [link_post_id] = %s AND [link_mentioned_user_profile_id] = %s",
+                [post_id, mentioned_user_profile_id],
+            )
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO [post].[post_mention] ([link_post_id], [link_mentioned_user_profile_id]) VALUES (%s, %s)",
+                    [post_id, mentioned_user_profile_id],
+                )
+
+        # Send notification
+        try:
+            from amolnama_news.site_apps.newsengine.notifications import create_notification
+            create_notification(
+                recipient_user_profile_id=mentioned_user_profile_id,
+                actor_user_profile_id=author_user_profile_id,
+                event_code='mention',
+                source_app='post',
+                content_id=post_id,
+                message='আপনাকে একটি পোস্টে উল্লেখ করা হয়েছে',
+                url=f'/post/{post_id}/',
+            )
+        except Exception:
+            logger.exception('Mention notification failed for user %s', mentioned_user_profile_id)
 
 
 def _extract_and_link_hashtags(post_id, text):
@@ -1087,3 +1154,40 @@ def api_post_pin_toggle(request, post_post_id):
         post.is_pinned = True
         post.save(update_fields=['is_pinned'])
         return JsonResponse({'success': True, 'is_pinned': True})
+
+
+# =========================================================
+# @MENTION AUTOCOMPLETE
+# =========================================================
+
+def api_mention_autocomplete(request):
+    """GET ?q=partial_handle — returns matching user profiles for @mention autocomplete."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    query = (request.GET.get('q') or '').strip().lower()
+    if len(query) < 1:
+        return JsonResponse({'success': True, 'users': []})
+
+    profiles = UserProfile.objects.filter(
+        username_handle__istartswith=query,
+    ).exclude(username_handle__isnull=True).order_by('username_handle')[:8]
+
+    users = []
+    for profile in profiles:
+        avatar_url = None
+        if profile.link_avatar_asset_id:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
+                    [profile.link_avatar_asset_id],
+                )
+                row = cursor.fetchone()
+                if row:
+                    avatar_url = row[0]
+        users.append({
+            'handle': profile.username_handle,
+            'display_name': profile.display_name or '',
+            'avatar_url': avatar_url,
+        })
+
+    return JsonResponse({'success': True, 'users': users})

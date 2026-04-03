@@ -178,3 +178,16 @@ class PostPollVote(models.Model):
     class Meta:
         managed = False
         db_table = '[post].[post_poll_vote]'
+
+
+class PostMention(models.Model):
+    """@mention — tracks which users are mentioned in a post."""
+    post_post_mention_id = models.BigAutoField(primary_key=True)
+    link_post_id = models.BigIntegerField()
+    link_mentioned_user_profile_id = models.BigIntegerField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[post].[post_mention]'
