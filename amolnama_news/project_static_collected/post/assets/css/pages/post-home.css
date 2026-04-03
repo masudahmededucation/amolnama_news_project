@@ -979,6 +979,7 @@
   color: var(--text);
   margin-bottom: .5rem;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 /* ---- Named Entity + Keyword inline highlights ---- */
@@ -1614,6 +1615,7 @@
   color: var(--text);
   margin-top: .15rem;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .post-card-reply-header {
