@@ -114,15 +114,16 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items):
-    """Sprinkle promo cards between posts — posts always 65%+ of feed.
-    Rule: 1 promo every 5 posts, max capped by ratio. Recent posts untouched."""
+    """Insert 1 rotating promo between posts. Different promo each page load.
+    Posts always dominate. Promo appears once, mid-feed, then gone."""
     from django.utils import timezone as tz
     from datetime import timedelta
     from .promo_builders import build_all_promo_items
+    import random
 
     post_count = len(feed_items)
-    if post_count < 5:
-        return feed_items  # Too few posts — no promos
+    if post_count < 3:
+        return feed_items
 
     # Find how many recent user posts are at the top (< 5 min old)
     recent_cutoff = tz.now() - timedelta(minutes=5)
@@ -137,25 +138,16 @@ def _inject_promo_cards(feed_items):
                 continue
         break
 
-    # Max promos = 35% of feed (posts stay 65%+), cap at 6
-    max_promos = min(int(post_count * 0.35), 6)
-    if max_promos < 1:
-        return feed_items
-
-    all_promo_items = build_all_promo_items()[:max_promos]
+    all_promo_items = build_all_promo_items()
     if not all_promo_items:
         return feed_items
 
-    # Sprinkle evenly — calculate gap between promos
-    available_slots = post_count - recent_post_count
-    gap = max(available_slots // (len(all_promo_items) + 1), 3)
+    # Pick 1 random promo — rotates each page load
+    selected_promo = random.choice(all_promo_items)
 
-    promo_index = 0
-    insert_position = recent_post_count + gap
-    while promo_index < len(all_promo_items) and insert_position <= len(feed_items):
-        feed_items.insert(insert_position, all_promo_items[promo_index])
-        promo_index += 1
-        insert_position += gap + 1  # gap posts + 1 promo just inserted
+    # Place it after 3-5 posts (after recent ones)
+    insert_position = min(recent_post_count + 4, post_count)
+    feed_items.insert(insert_position, selected_promo)
 
     return feed_items
 
