@@ -242,6 +242,10 @@ def api_post_create(request):
         'is_pinned': False,
         'content_category_code': '',
         'is_auto_flagged': False,
+        'is_scheduled': bool(scheduled_publish_at),
+        'scheduled_publish_at': scheduled_publish_at,
+        'quote_comment_text': None,
+        'poll': None,
     }
     post_card_html = render_to_string('post/components/post-card.html', {
         'post_item': post_item,

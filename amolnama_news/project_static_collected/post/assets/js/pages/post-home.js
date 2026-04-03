@@ -440,7 +440,8 @@
           if (emptyElement) emptyElement.remove();
 
           /* Server-rendered post card HTML — single source of truth (post-card.html template) */
-          var newPostHtml = data.post_card_html;
+          var newPostHtml = data.post_card_html || '';
+          if (!newPostHtml) { showPostComposerError('পোস্ট তৈরি হয়েছে কিন্তু প্রদর্শন করা যায়নি। পেইজ রিফ্রেশ করুন।'); return; }
 
           /* Insert with smooth fade-in animation */
           var tempContainer = document.createElement('div');
