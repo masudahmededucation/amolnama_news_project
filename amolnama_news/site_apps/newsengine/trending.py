@@ -34,7 +34,7 @@ def get_trending_posts(limit=5):
             items.append({
                 'item_type': 'trending_post',
                 'post_post_id': post.post_post_id,
-                'post_text_bn': post.post_text_bn or '',
+                'post_text': post.post_text or '',
                 'like_count': post.like_count or 0,
                 'view_count': post.view_count or 0,
                 'reply_count': post.reply_count or 0,

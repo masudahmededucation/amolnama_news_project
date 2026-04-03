@@ -93,13 +93,13 @@
       + '<span class="post-card-reply-author">' + escapeHtmlText(reply.author_display_name) + '</span>'
       + '<span class="post-card-reply-time">' + escapeHtmlText(reply.time_ago) + ' · ' + escapeHtmlText(reply.created_at_formatted) + '</span>'
       + '</div>'
-      + '<div class="post-card-reply-text">' + escapeHtmlText(reply.post_text_bn) + '</div>'
+      + '<div class="post-card-reply-text">' + escapeHtmlText(reply.post_text) + '</div>'
       + '<div class="post-card-reply-actions">'
       + '<button type="button" class="post-card-reply-vote-button post-card-vote-button' + replyVoteActiveClass + '" id="post-card-vote-' + reply.post_post_id + '" name="post_card_vote_' + reply.post_post_id + '" data-post-id="' + reply.post_post_id + '" title="This reply is useful">'
       + '<span class="post-card-action-icon post-card-vote-icon"><svg viewBox="0 0 24 24" class="post-card-vote-svg ' + replyVoteSvgClass + '"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg></span>'
       + '<span class="post-card-action-count post-card-vote-count">' + (reply.vote_score_count || 0) + '</span>'
       + '</button>'
-      + (reply.can_edit ? '<button type="button" class="post-card-quick-edit-button" id="post-card-quick-edit-' + reply.post_post_id + '" name="post_card_quick_edit_' + reply.post_post_id + '" data-post-id="' + reply.post_post_id + '" data-post-text="' + escapeHtmlText(reply.post_text_bn) + '" title="সম্পাদনা (Edit)">✏️</button>' : '')
+      + (reply.can_edit ? '<button type="button" class="post-card-quick-edit-button" id="post-card-quick-edit-' + reply.post_post_id + '" name="post_card_quick_edit_' + reply.post_post_id + '" data-post-id="' + reply.post_post_id + '" data-post-text="' + escapeHtmlText(reply.post_text) + '" title="সম্পাদনা (Edit)">✏️</button>' : '')
       + '</div>'
       + '</div></div>';
   }
@@ -322,7 +322,7 @@
       fetch('/post/api/' + submitFlagPostId + '/flag/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-        body: JSON.stringify({ flag_reason_code: selectedReason.value, flag_description_en: flagDescription || null }),
+        body: JSON.stringify({ flag_reason_code: selectedReason.value, flag_description: flagDescription || null }),
       })
       .then(function (response) { return response.json(); })
       .then(function (data) {
@@ -649,15 +649,15 @@
       fetch('/post/api/' + savePostId + '/edit/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-        body: JSON.stringify({ post_text_bn: newText }),
+        body: JSON.stringify({ post_text: newText }),
       })
       .then(function (response) { return response.json(); })
       .then(function (data) {
         if (data.success) {
-          saveTextElement.textContent = data.post_text_bn;
+          saveTextElement.textContent = data.post_text;
           /* Update the edit button's data-post-text for next edit */
           var postEditButton = savePostCard.querySelector('.post-card-edit-button');
-          if (postEditButton) postEditButton.setAttribute('data-post-text', data.post_text_bn);
+          if (postEditButton) postEditButton.setAttribute('data-post-text', data.post_text);
         } else {
           editSaveButton.disabled = false;
           editSaveButton.textContent = 'সংরক্ষণ (Save)';
@@ -920,7 +920,7 @@
       fetch('/post/api/' + postId + '/edit/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-        body: JSON.stringify({ post_text_bn: newText }),
+        body: JSON.stringify({ post_text: newText }),
       })
       .then(function (response) { return response.json(); })
       .then(function (data) {

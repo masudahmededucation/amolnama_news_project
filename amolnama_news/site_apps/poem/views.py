@@ -157,13 +157,13 @@ def _render_poem_detail(request, poem):
     # Check if current user liked this poem
     user_liked = False
     if request.user.is_authenticated:
-        from .models import EngPoemLike
+        from .models import EngagementPoemLike
         from amolnama_news.site_apps.user_account.models import UserProfile
         try:
             profile = UserProfile.objects.only("user_profile_id").get(
                 link_user_account_user_id=request.user.pk
             )
-            user_liked = EngPoemLike.objects.filter(
+            user_liked = EngagementPoemLike.objects.filter(
                 link_poem_coll_poem_entry_id=poem_id,
                 link_user_profile_id=profile.user_profile_id,
             ).exists()

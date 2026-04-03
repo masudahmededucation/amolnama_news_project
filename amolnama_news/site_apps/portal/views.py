@@ -545,7 +545,7 @@ def analytics_dashboard_view(request):
     for post in top_posts:
         top_post_items.append({
             'post_post_id': post.post_post_id,
-            'post_text_preview': (post.post_text_bn or '')[:80],
+            'post_text_preview': (post.post_text or '')[:80],
             'like_count': post.like_count or 0,
             'view_count': post.view_count or 0,
             'reply_count': post.reply_count or 0,
@@ -604,7 +604,7 @@ def moderation_queue_view(request):
             'content_type_label': (post.content_category_code or 'flagged').upper(),
             'content_type_color': 'rose',
             'content_id': post.post_post_id,
-            'content_preview': (post.post_text_bn or '')[:100],
+            'content_preview': (post.post_text or '')[:100],
             'flag_count': 1,
             'is_fact_check_needed': post.content_category_code == 'misinformation',
             'content_url': f'/post/{post.post_post_id}/',

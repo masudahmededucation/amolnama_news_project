@@ -12,7 +12,7 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import CollArtwork, EngArtworkLike, EngArtworkBookmark, EngArtworkComment
+from .models import CollArtwork, EngagementArtworkLike, EngagementArtworkBookmark, EngagementArtworkComment
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ def api_artwork_create(request):
             asset_id = row[0]
 
             cursor.execute("""
-                INSERT INTO [art].[coll_artwork_asset]
+                INSERT INTO [art].[artwork_asset]
                     ([link_artwork_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [artwork_id, asset_id, 'main', 1 if file_index == 0 else 0, file_index, 1])
@@ -129,7 +129,7 @@ def api_artwork_like_toggle(request, artwork_id):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    existing_like = EngArtworkLike.objects.filter(
+    existing_like = EngagementArtworkLike.objects.filter(
         link_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
@@ -143,14 +143,14 @@ def api_artwork_like_toggle(request, artwork_id):
         existing_like.save(update_fields=['is_active'])
         liked = True
     else:
-        EngArtworkLike.objects.create(
+        EngagementArtworkLike.objects.create(
             link_artwork_id=artwork_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         liked = True
 
-    actual_count = EngArtworkLike.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
+    actual_count = EngagementArtworkLike.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
     CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(like_count=actual_count)
 
     return JsonResponse({'success': True, 'liked': liked, 'like_count': actual_count})
@@ -167,7 +167,7 @@ def api_artwork_bookmark_toggle(request, artwork_id):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    existing_bookmark = EngArtworkBookmark.objects.filter(
+    existing_bookmark = EngagementArtworkBookmark.objects.filter(
         link_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
@@ -181,14 +181,14 @@ def api_artwork_bookmark_toggle(request, artwork_id):
         existing_bookmark.save(update_fields=['is_active'])
         bookmarked = True
     else:
-        EngArtworkBookmark.objects.create(
+        EngagementArtworkBookmark.objects.create(
             link_artwork_id=artwork_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         bookmarked = True
 
-    actual_count = EngArtworkBookmark.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
+    actual_count = EngagementArtworkBookmark.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
     CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(bookmark_count=actual_count)
 
     return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})
@@ -222,14 +222,14 @@ def api_artwork_comment_create(request, artwork_id):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    EngArtworkComment.objects.create(
+    EngagementArtworkComment.objects.create(
         link_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
         comment_text_bn=comment_text_bn,
         is_active=True,
     )
 
-    actual_count = EngArtworkComment.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
+    actual_count = EngagementArtworkComment.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
     CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(comment_count=actual_count)
 
     return JsonResponse({

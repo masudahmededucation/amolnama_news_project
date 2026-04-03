@@ -57,18 +57,18 @@ class CollPoemEntry(models.Model):
         return self.poem_title_bn or self.poem_title_en or f"Poem({self.poem_coll_poem_entry_id})"
 
 
-class EngPoemLike(models.Model):
-    """Like/heart on a poem. Maps to [poem].[eng_poem_like]."""
+class EngagementPoemLike(models.Model):
+    """Like/heart on a poem. Maps to [poem].[engagement_poem_like]."""
 
-    poem_eng_poem_like_id = models.BigAutoField(primary_key=True)
+    poem_engagement_poem_like_id = models.BigAutoField(primary_key=True)
     link_poem_coll_poem_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = "[poem].[eng_poem_like]"
+        db_table = "[poem].[engagement_poem_like]"
         unique_together = [["link_poem_coll_poem_entry_id", "link_user_profile_id"]]
 
     def __str__(self):
-        return f"PoemLike({self.poem_eng_poem_like_id})"
+        return f"PoemLike({self.poem_engagement_poem_like_id})"

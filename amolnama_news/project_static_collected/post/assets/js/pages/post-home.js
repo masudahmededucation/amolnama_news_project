@@ -407,7 +407,7 @@
 
       /* Build FormData (supports both text and files) */
       var formData = new FormData();
-      formData.append('post_text_bn', postText);
+      formData.append('post_text', postText);
       var visibilitySelect = document.getElementById('post-composer-visibility-select');
       formData.append('visibility_code', visibilitySelect ? visibilitySelect.value : 'public');
       var scheduleInputValue = document.getElementById('post-composer-schedule-input');

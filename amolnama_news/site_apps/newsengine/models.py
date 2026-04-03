@@ -43,9 +43,9 @@ class FactFeedContentScore(models.Model):
 # GROUP: notification_
 # =========================================================
 
-class CollNotificationItem(models.Model):
+class NotificationItem(models.Model):
     """Global notification — covers all apps."""
-    newsengine_coll_notification_item_id = models.BigAutoField(primary_key=True)
+    newsengine_notification_item_id = models.BigAutoField(primary_key=True)
     link_recipient_user_profile_id = models.BigIntegerField()
     link_actor_user_profile_id = models.BigIntegerField(blank=True, null=True)
     notification_event_code = models.CharField(max_length=30)
@@ -60,16 +60,16 @@ class CollNotificationItem(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newsengine].[coll_notification_item]'
+        db_table = '[newsengine].[notification_item]'
 
 
 # =========================================================
 # GROUP: bookmark_
 # =========================================================
 
-class CollBookmarkContent(models.Model):
+class BookmarkContent(models.Model):
     """Universal bookmark — any content type from any app."""
-    newsengine_coll_bookmark_content_id = models.BigAutoField(primary_key=True)
+    newsengine_bookmark_content_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
     bookmark_content_type_code = models.CharField(max_length=30)
     bookmark_content_id = models.BigIntegerField()
@@ -80,7 +80,7 @@ class CollBookmarkContent(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newsengine].[coll_bookmark_content]'
+        db_table = '[newsengine].[bookmark_content]'
 
 
 # =========================================================
@@ -103,9 +103,9 @@ class FactRateLimitActionLog(models.Model):
 # GROUP: hashtag_
 # =========================================================
 
-class CollHashtagItem(models.Model):
+class HashtagItem(models.Model):
     """Hashtag extracted from posts."""
-    newsengine_coll_hashtag_item_id = models.BigAutoField(primary_key=True)
+    newsengine_hashtag_item_id = models.BigAutoField(primary_key=True)
     hashtag_text = models.CharField(max_length=100)
     hashtag_text_normalized = models.CharField(max_length=100)
     hashtag_post_count = models.IntegerField(default=0)
@@ -114,12 +114,12 @@ class CollHashtagItem(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newsengine].[coll_hashtag_item]'
+        db_table = '[newsengine].[hashtag_item]'
 
 
-class CollHashtagPostLink(models.Model):
+class HashtagPostLink(models.Model):
     """Junction: post to hashtag."""
-    newsengine_coll_hashtag_post_link_id = models.BigAutoField(primary_key=True)
+    newsengine_hashtag_post_link_id = models.BigAutoField(primary_key=True)
     link_hashtag_id = models.BigIntegerField()
     link_post_id = models.BigIntegerField()
     is_active = models.BooleanField(default=True)
@@ -127,16 +127,16 @@ class CollHashtagPostLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newsengine].[coll_hashtag_post_link]'
+        db_table = '[newsengine].[hashtag_post_link]'
 
 
 # =========================================================
 # GROUP: muted_word_
 # =========================================================
 
-class CollMutedWordItem(models.Model):
+class MutedWordItem(models.Model):
     """User's muted words — posts containing these words are hidden from feed."""
-    newsengine_coll_muted_word_item_id = models.BigAutoField(primary_key=True)
+    newsengine_muted_word_item_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
     muted_word_text = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
@@ -144,7 +144,7 @@ class CollMutedWordItem(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newsengine].[coll_muted_word_item]'
+        db_table = '[newsengine].[muted_word_item]'
 
 
 # =========================================================

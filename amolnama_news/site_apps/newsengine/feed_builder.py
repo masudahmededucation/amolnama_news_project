@@ -250,9 +250,9 @@ def _auto_publish_scheduled_posts():
 
 def _exclude_muted_words(feed_items, user_profile_id):
     """Hide posts containing any of the user's muted words."""
-    from .models import CollMutedWordItem
+    from .models import MutedWordItem
 
-    muted_words = list(CollMutedWordItem.objects.filter(
+    muted_words = list(MutedWordItem.objects.filter(
         link_user_profile_id=user_profile_id, is_active=True,
     ).values_list('muted_word_text', flat=True))
 
@@ -261,7 +261,7 @@ def _exclude_muted_words(feed_items, user_profile_id):
 
     filtered_items = []
     for item in feed_items:
-        post_text = (item.get('post_text_bn') or item.get('promo_title') or '').lower()
+        post_text = (item.get('post_text') or item.get('promo_title') or '').lower()
         is_muted = False
         for muted_word in muted_words:
             if muted_word in post_text:
@@ -275,9 +275,9 @@ def _exclude_muted_words(feed_items, user_profile_id):
 
 def _exclude_blocked_users(feed_items, user_profile_id):
     """Remove posts from users that the current user has blocked."""
-    from amolnama_news.site_apps.social.models import CollUserBlock
+    from amolnama_news.site_apps.social.models import UserBlock
 
-    blocked_ids = set(CollUserBlock.objects.filter(
+    blocked_ids = set(UserBlock.objects.filter(
         link_blocker_user_profile_id=user_profile_id, is_active=True,
     ).values_list('link_blocked_user_profile_id', flat=True))
 

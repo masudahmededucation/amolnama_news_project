@@ -8,8 +8,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import (
     RefStoryCategory, RefStoryAgeGroup,
-    CollStory, CollStoryAsset, CollStoryPage,
-    EngStoryLike, EngStoryBookmark,
+    CollStory, StoryAsset, StoryPage,
+    EngagementStoryLike, EngagementStoryBookmark,
 )
 
 
@@ -19,7 +19,7 @@ def _get_story_cover_url(story_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT a.[file_storage_path]
-            FROM [stories].[coll_story_asset] sa
+            FROM [stories].[story_asset] sa
             JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
             WHERE sa.[link_story_id] = %s AND sa.[is_cover] = 1 AND sa.[is_active] = 1
         """, [story_id])
@@ -73,7 +73,7 @@ def home(request):
             placeholders = ','.join(['%s'] * len(story_ids))
             cursor.execute(f"""
                 SELECT sa.[link_story_id], a.[file_storage_path]
-                FROM [stories].[coll_story_asset] sa
+                FROM [stories].[story_asset] sa
                 JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
                 WHERE sa.[link_story_id] IN ({placeholders}) AND sa.[is_cover] = 1 AND sa.[is_active] = 1
             """, story_ids)
@@ -155,7 +155,7 @@ def detail(request, story_slug):
     age_group = RefStoryAgeGroup.objects.filter(stories_ref_story_age_group_id=story.link_age_group_id).first()
 
     # Story pages (for paginated reading)
-    pages = list(CollStoryPage.objects.filter(
+    pages = list(StoryPage.objects.filter(
         link_story_id=story.stories_coll_story_id, is_active=True,
     ).order_by('page_number'))
 
@@ -169,11 +169,11 @@ def detail(request, story_slug):
         try:
             current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
             current_profile_id = current_profile.user_profile_id
-            user_liked = EngStoryLike.objects.filter(
+            user_liked = EngagementStoryLike.objects.filter(
                 link_story_id=story.stories_coll_story_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
-            user_bookmarked = EngStoryBookmark.objects.filter(
+            user_bookmarked = EngagementStoryBookmark.objects.filter(
                 link_story_id=story.stories_coll_story_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()

@@ -412,7 +412,7 @@ def _bit_flags_to_ids_by_code(obj, bit_to_code_map, group_code):
 def _build_shared_edit_data(entry):
     """Build shared edit data from CollNewsEntry (steps 2-3, 9-11)."""
     from amolnama_news.site_apps.newshub.models import (
-        CollContributor, CollNewsEntryTag, CollNewsSocialMediaSource,
+        Contributor, NewsEntryTag, NewsSocialMediaSource,
     )
     from amolnama_news.site_apps.multimedia.models import SocialUrlLibrary
 
@@ -422,15 +422,15 @@ def _build_shared_edit_data(entry):
     contributor = {}
     if entry.link_contributor_id:
         try:
-            c = CollContributor.objects.get(coll_contributor_id=entry.link_contributor_id)
+            c = Contributor.objects.get(newshub_contributor_id=entry.link_contributor_id)
             contributor = {
-                'full_name_bn': c.coll_contributor_full_name_bn or '',
+                'full_name_bn': c.contributor_full_name_bn or '',
                 'type_id': c.link_contributor_type_id,
-                'email': c.coll_contributor_contact_email or '',
-                'phone': c.coll_contributor_contact_phone or '',
-                'organization_bn': c.coll_contributor_organization_bn or '',
+                'email': c.contributor_contact_email or '',
+                'phone': c.contributor_contact_phone or '',
+                'organization_bn': c.contributor_organization_bn or '',
             }
-        except CollContributor.DoesNotExist:
+        except Contributor.DoesNotExist:
             pass
     data['contributor'] = contributor
 
@@ -459,7 +459,7 @@ def _build_shared_edit_data(entry):
 
     # Social sources (Step 10) — bulk fetch to avoid N+1
     social_sources = []
-    social_links = list(CollNewsSocialMediaSource.objects.filter(
+    social_links = list(NewsSocialMediaSource.objects.filter(
         link_coll_news_entry_id=entry.coll_news_entry_id
     ).values_list('link_social_media_url_library_id', flat=True))
     if social_links:
@@ -479,7 +479,7 @@ def _build_shared_edit_data(entry):
 
     # Category & Tags (Step 11)
     data['category_id'] = entry.link_news_category_id
-    tag_entries = CollNewsEntryTag.objects.filter(
+    tag_entries = NewsEntryTag.objects.filter(
         link_coll_news_entry_id=entry.coll_news_entry_id
     ).values_list('link_news_category_tag_id', flat=True)
     tag_ids = list(tag_entries)
@@ -776,7 +776,7 @@ def get_article_photos(coll_news_entry_id):
         {
             'link_asset_id': int,
             'file_url': str,                     — '/media/...' URL path
-            'coll_news_asset_caption_bn': str,
+            'news_asset_caption_bn': str,
             'is_featured': bool,
             'asset_group_code': str or None,
             'view_count': int,
@@ -788,20 +788,20 @@ def get_article_photos(coll_news_entry_id):
     from django.db import connection
 
     sql = """
-        SELECT [newshub].[coll_news_asset].link_asset_id,
-               [newshub].[coll_news_asset].coll_news_asset_caption_bn,
-               [newshub].[coll_news_asset].is_featured,
-               [newshub].[coll_news_asset].asset_group_code,
-               [newshub].[coll_news_asset].view_count,
-               [newshub].[coll_news_asset].like_count,
-               [newshub].[coll_news_asset].sort_order,
+        SELECT [newshub].[news_asset].link_asset_id,
+               [newshub].[news_asset].news_asset_caption_bn,
+               [newshub].[news_asset].is_featured,
+               [newshub].[news_asset].asset_group_code,
+               [newshub].[news_asset].view_count,
+               [newshub].[news_asset].like_count,
+               [newshub].[news_asset].sort_order,
                '/media/' + [media].[asset].file_storage_path AS file_url,
                [media].[asset].file_mime_type
-        FROM [newshub].[coll_news_asset]
-        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[coll_news_asset].link_asset_id
-        WHERE [newshub].[coll_news_asset].link_coll_news_entry_id = %s
+        FROM [newshub].[news_asset]
+        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[news_asset].link_asset_id
+        WHERE [newshub].[news_asset].link_coll_news_entry_id = %s
           AND [media].[asset].is_active = 1
-        ORDER BY [newshub].[coll_news_asset].sort_order
+        ORDER BY [newshub].[news_asset].sort_order
     """
 
     with connection.cursor() as cursor:
@@ -832,7 +832,7 @@ def get_article_photos(coll_news_entry_id):
             'id': photo['link_asset_id'],
             'parent_id': coll_news_entry_id,
             'file_url': photo['file_url'],
-            'caption': photo.get('coll_news_asset_caption_bn') or None,
+            'caption': photo.get('news_asset_caption_bn') or None,
             'like_count': photo.get('like_count', 0),
             'view_count': photo.get('view_count', 0),
             'user_liked': photo.get('user_liked', False),
@@ -867,18 +867,18 @@ def get_article_cover_urls_bulk(coll_news_entry_ids):
 
     placeholders = ','.join(['%s'] * len(coll_news_entry_ids))
     sql = f"""
-        SELECT [newshub].[coll_news_asset].link_coll_news_entry_id,
+        SELECT [newshub].[news_asset].link_coll_news_entry_id,
                '/media/' + [media].[asset].file_storage_path AS file_url,
-               [newshub].[coll_news_asset].is_featured,
-               [newshub].[coll_news_asset].sort_order
-        FROM [newshub].[coll_news_asset]
-        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[coll_news_asset].link_asset_id
-        WHERE [newshub].[coll_news_asset].link_coll_news_entry_id IN ({placeholders})
+               [newshub].[news_asset].is_featured,
+               [newshub].[news_asset].sort_order
+        FROM [newshub].[news_asset]
+        JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[news_asset].link_asset_id
+        WHERE [newshub].[news_asset].link_coll_news_entry_id IN ({placeholders})
           AND [media].[asset].is_active = 1
           AND [media].[asset].file_mime_type LIKE 'image/%%'
-        ORDER BY [newshub].[coll_news_asset].link_coll_news_entry_id,
-                 [newshub].[coll_news_asset].is_featured DESC,
-                 [newshub].[coll_news_asset].sort_order
+        ORDER BY [newshub].[news_asset].link_coll_news_entry_id,
+                 [newshub].[news_asset].is_featured DESC,
+                 [newshub].[news_asset].sort_order
     """
 
     with connection.cursor() as cursor:

@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .models import (
-    CollNotification, CollPost, CollTopic, CollTopicParticipant, CollVote,
+    Notification, CollPost, CollTopic, CollTopicParticipant, Vote,
     FactPostModeration, RefTeamSide, RefTopicStatus, RefVoteTargetType,
 )
 
@@ -439,14 +439,14 @@ def api_post_argument(request, topic_id):
         # Auto-upvote the existing post for this user
         vote_target_type = RefVoteTargetType.objects.filter(vote_target_type_code='post').first()
         if vote_target_type:
-            existing_vote = CollVote.objects.filter(
+            existing_vote = Vote.objects.filter(
                 link_voter_user_profile_id=user_profile_id,
                 link_vote_target_type_id=vote_target_type.debate_ref_vote_target_type_id,
                 target_row_id=existing_duplicate.debate_coll_post_id,
             ).first()
             if not existing_vote:
                 _raw_execute("""
-                    INSERT INTO [debate].[coll_vote]
+                    INSERT INTO [debate].[vote]
                         ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
                     VALUES (?, ?, ?, ?)
                 """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id,
@@ -693,7 +693,7 @@ def api_post_edit(request, post_id):
         return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
 
     _raw_execute("""
-        INSERT INTO [debate].[coll_post_edit_history]
+        INSERT INTO [debate].[fact_post_edit_history]
             ([link_post_id], [previous_post_content], [link_edited_by_user_profile_id])
         VALUES (?, ?, ?)
     """, [post_id, post.post_content, user_profile_id])
@@ -771,7 +771,7 @@ def _handle_vote(request, target_type_code, target_row_id):
 
     vote_target_type_id = vote_target_type.debate_ref_vote_target_type_id
 
-    existing_vote = CollVote.objects.filter(
+    existing_vote = Vote.objects.filter(
         link_voter_user_profile_id=user_profile_id,
         link_vote_target_type_id=vote_target_type_id,
         target_row_id=target_row_id,
@@ -782,22 +782,22 @@ def _handle_vote(request, target_type_code, target_row_id):
     if existing_vote:
         if existing_vote.vote_value == vote_value:
             # Same vote → remove (toggle off)
-            _raw_execute("DELETE FROM [debate].[coll_vote] WHERE [debate_coll_vote_id] = ?",
-                         [existing_vote.debate_coll_vote_id])
+            _raw_execute("DELETE FROM [debate].[vote] WHERE [debate_vote_id] = ?",
+                         [existing_vote.debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -vote_value, 0)
             return JsonResponse({'success': True, 'action': 'removed'})
         else:
             # Different vote → flip
             _raw_execute("""
-                UPDATE [debate].[coll_vote] SET [vote_value] = ?, [voted_at] = ?, [updated_at] = ?
-                WHERE [debate_coll_vote_id] = ?
-            """, [vote_value, now, now, existing_vote.debate_coll_vote_id])
+                UPDATE [debate].[vote] SET [vote_value] = ?, [voted_at] = ?, [updated_at] = ?
+                WHERE [debate_vote_id] = ?
+            """, [vote_value, now, now, existing_vote.debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -existing_vote.vote_value, vote_value)
             return JsonResponse({'success': True, 'action': 'flipped'})
     else:
         # New vote
         _raw_execute("""
-            INSERT INTO [debate].[coll_vote]
+            INSERT INTO [debate].[vote]
                 ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
         """, [user_profile_id, vote_target_type_id, target_row_id, vote_value])
@@ -1002,7 +1002,7 @@ def api_audience_vote(request, topic_id):
             if vote_target_type_check:
                 placeholders = ','.join('?' * len(same_ip_profile_ids))
                 duplicate_ip_vote = _raw_execute(f"""
-                    SELECT TOP 1 [debate_coll_vote_id] FROM [debate].[coll_vote]
+                    SELECT TOP 1 [debate_vote_id] FROM [debate].[vote]
                     WHERE [link_voter_user_profile_id] IN ({placeholders})
                       AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
                 """, list(same_ip_profile_ids) + [vote_target_type_check.debate_ref_vote_target_type_id, topic_id])
@@ -1020,7 +1020,7 @@ def api_audience_vote(request, topic_id):
 
     # Check existing vote via raw SQL
     cursor = _raw_execute("""
-        SELECT [debate_coll_vote_id], [vote_value] FROM [debate].[coll_vote]
+        SELECT [debate_vote_id], [vote_value] FROM [debate].[vote]
         WHERE [link_voter_user_profile_id] = ? AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
     """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id])
     existing_row = cursor.fetchone()
@@ -1031,7 +1031,7 @@ def api_audience_vote(request, topic_id):
 
         if existing_vote_value == vote_value:
             # Same vote — toggle off
-            _raw_execute("DELETE FROM [debate].[coll_vote] WHERE [debate_coll_vote_id] = ?", [existing_vote_id])
+            _raw_execute("DELETE FROM [debate].[vote] WHERE [debate_vote_id] = ?", [existing_vote_id])
             column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
             _raw_execute(f"""
                 UPDATE [debate].[coll_topic]
@@ -1041,7 +1041,7 @@ def api_audience_vote(request, topic_id):
             action = 'removed'
         else:
             # Flip vote
-            _raw_execute("UPDATE [debate].[coll_vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_coll_vote_id] = ?",
+            _raw_execute("UPDATE [debate].[vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_vote_id] = ?",
                          [vote_value, now, existing_vote_id])
             old_column = 'audience_blue_vote_count' if existing_vote_value == 1 else 'audience_red_vote_count'
             new_column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
@@ -1055,7 +1055,7 @@ def api_audience_vote(request, topic_id):
     else:
         # New vote
         _raw_execute("""
-            INSERT INTO [debate].[coll_vote]
+            INSERT INTO [debate].[vote]
                 ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
         """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id, vote_value])
@@ -1100,7 +1100,7 @@ def api_notifications_list(request):
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
 
-    notifications = CollNotification.objects.filter(
+    notifications = Notification.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_active=True,
     ).order_by('-created_at')[:20]
@@ -1108,7 +1108,7 @@ def api_notifications_list(request):
     items = []
     for notification in notifications:
         items.append({
-            'notification_id': notification.debate_coll_notification_id,
+            'notification_id': notification.debate_notification_id,
             'event_code': notification.notification_event_code,
             'message': notification.notification_message,
             'topic_id': notification.link_topic_id,
@@ -1117,7 +1117,7 @@ def api_notifications_list(request):
             'created_at': notification.created_at.strftime('%d %b %Y, %I:%M %p') if notification.created_at else '',
         })
 
-    unread_count = CollNotification.objects.filter(
+    unread_count = Notification.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).count()
@@ -1134,7 +1134,7 @@ def api_notifications_mark_read(request):
         return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
 
     now = timezone.now()
-    CollNotification.objects.filter(
+    Notification.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).update(is_read=True, read_at=now)
@@ -1148,7 +1148,7 @@ def _create_notification(recipient_user_profile_id, actor_user_profile_id, event
         return  # Don't notify yourself
     try:
         _raw_execute("""
-            INSERT INTO [debate].[coll_notification]
+            INSERT INTO [debate].[notification]
                 ([link_recipient_user_profile_id], [link_actor_user_profile_id],
                  [notification_event_code], [link_topic_id], [link_post_id], [notification_message])
             VALUES (?, ?, ?, ?, ?, ?)

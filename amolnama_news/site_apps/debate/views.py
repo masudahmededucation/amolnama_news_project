@@ -320,8 +320,8 @@ def topic_detail(request, topic_id):
     # Notification count for authenticated users
     notification_unread_count = 0
     if current_user_profile_id:
-        from .models import CollNotification
-        notification_unread_count = CollNotification.objects.filter(
+        from .models import Notification
+        notification_unread_count = Notification.objects.filter(
             link_recipient_user_profile_id=current_user_profile_id,
             link_topic_id=topic_id,
             is_read=False, is_active=True,

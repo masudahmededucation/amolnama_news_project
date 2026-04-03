@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from .helpers import get_smart_related_poems
-from .models import CollPoemEntry, EngPoemLike, RefPoemCategory
+from .models import CollPoemEntry, EngagementPoemLike, RefPoemCategory
 from .views import _ensure_poem_slug
 
 
@@ -293,7 +293,7 @@ def api_poem_entry_like_toggle(request, poem_id):
     if not CollPoemEntry.objects.filter(poem_coll_poem_entry_id=poem_id).exists():
         return JsonResponse({"success": False, "error": "Poem not found"}, status=404)
 
-    existing = EngPoemLike.objects.filter(
+    existing = EngagementPoemLike.objects.filter(
         link_poem_coll_poem_entry_id=poem_id,
         link_user_profile_id=profile_id,
     ).first()
@@ -305,7 +305,7 @@ def api_poem_entry_like_toggle(request, poem_id):
         )
         liked = False
     else:
-        EngPoemLike.objects.create(
+        EngagementPoemLike.objects.create(
             link_poem_coll_poem_entry_id=poem_id,
             link_user_profile_id=profile_id,
             created_at=timezone.now(),

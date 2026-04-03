@@ -8,9 +8,9 @@ from django.utils import timezone
 
 
 class ContactType(models.Model):
-    """Maps to [contact].[contact_type]."""
+    """Maps to [contact].[ref_contact_type_legacy]."""
 
-    contact_type_id = models.IntegerField(primary_key=True)
+    contact_ref_contact_type_id = models.IntegerField(primary_key=True)
     contact_type_code = models.CharField(max_length=100)
     contact_type_name_en = models.CharField(max_length=100)
     contact_type_name_bn = models.CharField(max_length=100, blank=True, null=True)
@@ -23,7 +23,7 @@ class ContactType(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[contact].[contact_type]'
+        db_table = '[contact].[ref_contact_type_legacy]'
         verbose_name = "Contact Type"
         verbose_name_plural = "Contact Types"
 
@@ -32,9 +32,9 @@ class ContactType(models.Model):
 
 
 class EntityType(models.Model):
-    """Maps to [contact].[entity_type]."""
+    """Maps to [contact].[ref_entity_type]."""
 
-    entity_type_id = models.IntegerField(primary_key=True)
+    contact_ref_entity_type_id = models.IntegerField(primary_key=True)
     entity_type_code = models.CharField(max_length=200)
     entity_type_name_en = models.CharField(max_length=200)
     entity_type_name_bn = models.CharField(max_length=200, blank=True, null=True)
@@ -44,7 +44,7 @@ class EntityType(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[contact].[entity_type]'
+        db_table = '[contact].[ref_entity_type]'
         verbose_name = "Entity Type"
         verbose_name_plural = "Entity Types"
 
@@ -55,7 +55,7 @@ class EntityType(models.Model):
 class RefSocialMediaPlatform(models.Model):
     """Maps to [contact].[ref_social_media_platform]."""
 
-    platform_id = models.IntegerField(primary_key=True)
+    contact_ref_social_media_platform_id = models.IntegerField(primary_key=True)
     platform_code = models.CharField(max_length=50)
     platform_name_en = models.CharField(max_length=100)
     platform_name_bn = models.CharField(max_length=100, blank=True, null=True)
@@ -77,9 +77,9 @@ class RefSocialMediaPlatform(models.Model):
 class SocialMedia(models.Model):
     """Maps to [contact].[social_media]."""
 
-    social_media_id = models.IntegerField(primary_key=True)
+    contact_social_media_id = models.IntegerField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_social_media_platform_id = models.IntegerField()
+    link_ref_social_media_platform_id = models.IntegerField()
     url = models.CharField(max_length=1000)
     is_active = models.BooleanField()
     created_at = models.DateTimeField(default=timezone.now)

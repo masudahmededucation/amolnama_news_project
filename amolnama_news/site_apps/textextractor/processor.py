@@ -112,7 +112,7 @@ def recover_stuck_jobs():
 
 def process_extraction_job(job_id):
     """Process a single extraction job. Called from background thread or management command."""
-    from .models import CollExtractionJob, CollExtractionPage, RefExtractionEngine
+    from .models import CollExtractionJob, ExtractionPage, RefExtractionEngine
 
     try:
         job = CollExtractionJob.objects.get(textextractor_coll_extraction_job_id=job_id)
@@ -138,7 +138,7 @@ def process_extraction_job(job_id):
 
 def _process_extraction_job_inner(job, job_id, start_time):
     """Inner processing logic — wrapped by try/except in process_extraction_job."""
-    from .models import CollExtractionPage, RefExtractionEngine
+    from .models import ExtractionPage, RefExtractionEngine
 
     file_path = job.input_file_path
 

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .models import CollExtractionJob, CollExtractionPage, RefExtractionEngine
+from .models import CollExtractionJob, ExtractionPage, RefExtractionEngine
 
 
 def _format_duration_display(processing_time_milliseconds):
@@ -117,7 +117,7 @@ def job_detail(request, job_id):
     except CollExtractionJob.DoesNotExist:
         raise Http404
 
-    pages = list(CollExtractionPage.objects.filter(
+    pages = list(ExtractionPage.objects.filter(
         link_extraction_job_id=job_id, is_active=True,
     ).order_by('page_number'))
 

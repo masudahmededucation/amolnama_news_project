@@ -247,7 +247,7 @@ def fact_check_content(source_app, content_id, text):
         if is_flagged and source_app == 'post':
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    UPDATE [post].[post]
+                    UPDATE [post].[coll_post]
                     SET [content_category_code] = 'misinformation'
                     WHERE [post_post_id] = %s AND ([content_category_code] IS NULL OR [content_category_code] = 'safe')
                 """, [content_id])

@@ -144,14 +144,14 @@ class VwAppNewsCategoryTag(models.Model):
 
 # ========== Collection Tables ==========
 
-class CollContributor(models.Model):
-    coll_contributor_id = models.BigAutoField(primary_key=True)
+class Contributor(models.Model):
+    newshub_contributor_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField(blank=True, null=True)
     link_contributor_type_id = models.IntegerField()
-    coll_contributor_full_name_bn = models.CharField(max_length=100)
-    coll_contributor_organization_bn = models.CharField(max_length=100, blank=True, null=True)
-    coll_contributor_contact_email = models.CharField(max_length=255, blank=True, null=True)
-    coll_contributor_contact_phone = models.CharField(max_length=50, blank=True, null=True)
+    contributor_full_name_bn = models.CharField(max_length=100)
+    contributor_organization_bn = models.CharField(max_length=100, blank=True, null=True)
+    contributor_contact_email = models.CharField(max_length=255, blank=True, null=True)
+    contributor_contact_phone = models.CharField(max_length=50, blank=True, null=True)
     professional_bio_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_verified = models.BooleanField()
     verification_date = models.DateTimeField(blank=True, null=True)
@@ -159,10 +159,10 @@ class CollContributor(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[coll_contributor]'
+        db_table = '[newshub].[contributor]'
 
     def __str__(self):
-        return self.coll_contributor_full_name_bn
+        return self.contributor_full_name_bn
 
 
 
@@ -208,11 +208,11 @@ class CollNewsEntry(models.Model):
         return self.news_headline_bn[:80]
 
 
-class CollNewsAsset(models.Model):
+class NewsAsset(models.Model):
     """Junction table: news entry <-> media asset (composite PK in SQL Server)."""
     link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
     link_asset_id = models.BigIntegerField()
-    coll_news_asset_caption_bn = models.CharField(max_length=1000, blank=True, null=True)
+    news_asset_caption_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_featured = models.BooleanField()
     asset_group_code = models.CharField(max_length=50, blank=True, null=True)
     view_count = models.IntegerField(default=0)
@@ -222,28 +222,28 @@ class CollNewsAsset(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[coll_news_asset]'
+        db_table = '[newshub].[news_asset]'
         unique_together = [['link_coll_news_entry_id', 'link_asset_id']]
 
     def __str__(self):
-        return f"CollNewsAsset({self.link_coll_news_entry_id}, {self.link_asset_id})"
+        return f"NewsAsset({self.link_coll_news_entry_id}, {self.link_asset_id})"
 
 
-class CollNewsSocialMediaSource(models.Model):
-    coll_news_social_media_source_id = models.BigAutoField(primary_key=True)
+class NewsSocialMediaSource(models.Model):
+    newshub_news_social_media_source_id = models.BigAutoField(primary_key=True)
     link_coll_news_entry_id = models.BigIntegerField()
     link_social_media_url_library_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = '[newshub].[coll_news_social_media_source]'
+        db_table = '[newshub].[news_social_media_source]'
 
     def __str__(self):
-        return f"NewsSocialSource({self.coll_news_social_media_source_id})"
+        return f"NewsSocialSource({self.newshub_news_social_media_source_id})"
 
 
-class CollNewsEntryTag(models.Model):
+class NewsEntryTag(models.Model):
     """Junction table: news entry <-> tag (composite PK in SQL Server)."""
     link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
     link_news_category_tag_id = models.IntegerField()
@@ -251,11 +251,11 @@ class CollNewsEntryTag(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[coll_news_entry_tag]'
+        db_table = '[newshub].[news_entry_tag]'
         unique_together = [['link_coll_news_entry_id', 'link_news_category_tag_id']]
 
     def __str__(self):
-        return f"CollNewsEntryTag({self.link_coll_news_entry_id}, {self.link_news_category_tag_id})"
+        return f"NewsEntryTag({self.link_coll_news_entry_id}, {self.link_news_category_tag_id})"
 
 
 # ========== Publishing Tables ==========
@@ -281,8 +281,8 @@ class PubArticle(models.Model):
 
 # ========== Engagement Tables ==========
 
-class EngArticleStat(models.Model):
-    eng_article_stat_id = models.BigAutoField(primary_key=True)
+class EngagementArticleStat(models.Model):
+    newshub_engagement_article_stat_id = models.BigAutoField(primary_key=True)
     link_pub_article_id = models.BigIntegerField()
     view_count = models.IntegerField()
     share_count = models.IntegerField()
@@ -291,27 +291,27 @@ class EngArticleStat(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[newshub].[eng_article_stat]'
+        db_table = '[newshub].[engagement_article_stat]'
 
     def __str__(self):
         return f"ArticleStat({self.link_pub_article_id})"
 
 
-class EngComment(models.Model):
-    eng_comment_id = models.BigAutoField(primary_key=True)
+class EngagementComment(models.Model):
+    newshub_engagement_comment_id = models.BigAutoField(primary_key=True)
     link_pub_article_id = models.BigIntegerField()
     link_user_id = models.IntegerField()
     parent_comment_id = models.BigIntegerField(blank=True, null=True)
-    eng_comment_text_bn = models.TextField()
+    engagement_comment_text = models.TextField()
     is_approved = models.BooleanField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = '[newshub].[eng_comment]'
+        db_table = '[newshub].[engagement_comment]'
 
     def __str__(self):
-        return f"Comment({self.eng_comment_id})"
+        return f"Comment({self.newshub_engagement_comment_id})"
 
 
 # ========== Advertising Tables ==========

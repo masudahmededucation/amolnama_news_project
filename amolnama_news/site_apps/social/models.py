@@ -18,9 +18,9 @@ class UserFollow(models.Model):
         return f'{self.link_follower_user_profile_id} → {self.link_following_user_profile_id}'
 
 
-class CollUserBlock(models.Model):
+class UserBlock(models.Model):
     """User blocks another user — hides their content from feed."""
-    social_coll_user_block_id = models.BigAutoField(primary_key=True)
+    social_user_block_id = models.BigAutoField(primary_key=True)
     link_blocker_user_profile_id = models.BigIntegerField()
     link_blocked_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField(default=True)
@@ -28,12 +28,12 @@ class CollUserBlock(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[social].[coll_user_block]'
+        db_table = '[social].[user_block]'
 
 
-class CollUserList(models.Model):
+class UserList(models.Model):
     """User-created list/circle — group of users for filtered feed."""
-    social_coll_user_list_id = models.BigAutoField(primary_key=True)
+    social_user_list_id = models.BigAutoField(primary_key=True)
     link_owner_user_profile_id = models.BigIntegerField()
     list_name = models.CharField(max_length=100)
     list_description = models.CharField(max_length=300, blank=True, null=True)
@@ -42,12 +42,12 @@ class CollUserList(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[social].[coll_user_list]'
+        db_table = '[social].[user_list]'
 
 
-class CollUserListMember(models.Model):
+class UserListMember(models.Model):
     """Member of a user list."""
-    social_coll_user_list_member_id = models.BigAutoField(primary_key=True)
+    social_user_list_member_id = models.BigAutoField(primary_key=True)
     link_list_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField(default=True)
@@ -55,4 +55,4 @@ class CollUserListMember(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[social].[coll_user_list_member]'
+        db_table = '[social].[user_list_member]'

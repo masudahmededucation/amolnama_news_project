@@ -15,8 +15,8 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 from .models import (
     CollDestination, RefDestinationCategory, RefSeason,
     CollMediaEntry, RefMediaCategory,
-    CollDestinationPhoto, CollDestinationYoutubeLink, CollDestinationReferenceLink,
-    EngDestinationReview, EngDestinationPhotoLike, EngDestinationVideoLike,
+    DestinationPhoto, DestinationYoutubeLink, DestinationReferenceLink,
+    EngagementDestinationReview, EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
 )
 
 
@@ -436,12 +436,12 @@ def api_destination_photo_upload(request, destination_id):
     caption = (request.POST.get("caption_bn") or "").strip() or None
 
     # Get next sort_order
-    last_order = CollDestinationPhoto.objects.filter(
+    last_order = DestinationPhoto.objects.filter(
         link_coll_destination_id=destination_id
     ).order_by("-sort_order").values_list("sort_order", flat=True).first()
     next_order = (last_order or 0) + 1
 
-    photo = CollDestinationPhoto.objects.create(
+    photo = DestinationPhoto.objects.create(
         link_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         photo_url=file_url,
@@ -464,7 +464,7 @@ def api_destination_photo_upload(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "photo_id": photo.bangladesh_coll_destination_photo_id,
+        "photo_id": photo.bangladesh_destination_photo_id,
         "photo_url": file_url,
         "caption_bn": caption or "",
     })
@@ -508,7 +508,7 @@ def api_destination_youtube_link_add(request, destination_id):
     title = (data.get("video_title_bn") or "").strip() or None
     description = (data.get("description_bn") or "").strip() or None
 
-    link = CollDestinationYoutubeLink.objects.create(
+    link = DestinationYoutubeLink.objects.create(
         link_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         youtube_url=video_url,
@@ -524,7 +524,7 @@ def api_destination_youtube_link_add(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "link_id": link.bangladesh_coll_destination_youtube_link_id,
+        "link_id": link.bangladesh_destination_youtube_link_id,
         "youtube_video_id": video_id or "",
         "video_title_bn": title or "",
         "platform": platform,
@@ -558,7 +558,7 @@ def api_destination_reference_link_add(request, destination_id):
     title = (data.get("reference_title_bn") or "").strip() or None
     description = (data.get("description_bn") or "").strip() or None
 
-    link = CollDestinationReferenceLink.objects.create(
+    link = DestinationReferenceLink.objects.create(
         link_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         reference_url=ref_url,
@@ -571,7 +571,7 @@ def api_destination_reference_link_add(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "link_id": link.bangladesh_coll_destination_reference_link_id,
+        "link_id": link.bangladesh_destination_reference_link_id,
         "reference_title_bn": title or "",
         "reference_url": ref_url,
     })
@@ -624,8 +624,8 @@ def _fetch_tiktok_thumbnail(url):
 def api_destination_photo_view(request, destination_id, photo_id):
     """POST — increment photo view count (called when lightbox opens)."""
     from django.db.models import F
-    updated = CollDestinationPhoto.objects.filter(
-        bangladesh_coll_destination_photo_id=photo_id,
+    updated = DestinationPhoto.objects.filter(
+        bangladesh_destination_photo_id=photo_id,
         link_coll_destination_id=destination_id,
     ).update(view_count=F('view_count') + 1)
     if not updated:
@@ -637,8 +637,8 @@ def api_destination_photo_view(request, destination_id, photo_id):
 def api_destination_video_view(request, destination_id, youtube_link_id):
     """POST — increment video view count (called when video link is clicked)."""
     from django.db.models import F
-    updated = CollDestinationYoutubeLink.objects.filter(
-        bangladesh_coll_destination_youtube_link_id=youtube_link_id,
+    updated = DestinationYoutubeLink.objects.filter(
+        bangladesh_destination_youtube_link_id=youtube_link_id,
         link_coll_destination_id=destination_id,
     ).update(view_count=F('view_count') + 1)
     if not updated:
@@ -669,7 +669,7 @@ def api_destination_review_add(request, destination_id):
         return JsonResponse({"success": False, "error": "রেটিং দিন (1-5)"}, status=400)
 
     # Prevent duplicate reviews from same user
-    if EngDestinationReview.objects.filter(
+    if EngagementDestinationReview.objects.filter(
         link_coll_destination_id=destination_id, link_user_profile_id=profile_id
     ).exists():
         return JsonResponse({"success": False, "error": "আপনি ইতিমধ্যে এই গন্তব্যের জন্য রিভিউ দিয়েছেন"}, status=400)
@@ -678,7 +678,7 @@ def api_destination_review_add(request, destination_id):
     review_body = (data.get("review_body_bn") or "").strip() or None
     visited_at = data.get("visited_at") or None
 
-    review = EngDestinationReview.objects.create(
+    review = EngagementDestinationReview.objects.create(
         link_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         rating_overall=int(rating),
@@ -691,9 +691,9 @@ def api_destination_review_add(request, destination_id):
 
     # Update destination avg_rating and review_count
     from django.db.models import Avg, Count
-    stats = EngDestinationReview.objects.filter(
+    stats = EngagementDestinationReview.objects.filter(
         link_coll_destination_id=destination_id
-    ).aggregate(avg=Avg("rating_overall"), count=Count("bangladesh_eng_destination_review_id"))
+    ).aggregate(avg=Avg("rating_overall"), count=Count("bangladesh_engagement_destination_review_id"))
     CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).update(
         avg_rating=stats["avg"],
         review_count=stats["count"],
@@ -701,7 +701,7 @@ def api_destination_review_add(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "review_id": review.bangladesh_eng_destination_review_id,
+        "review_id": review.bangladesh_engagement_destination_review_id,
         "rating_overall": int(rating),
         "review_title_bn": review_title or "",
         "review_body_bn": review_body or "",
@@ -719,24 +719,24 @@ def api_destination_photo_like_toggle(request, destination_id, photo_id):
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
     from django.db.models import F
-    existing = EngDestinationPhotoLike.objects.filter(
-        link_coll_destination_photo_id=photo_id,
+    existing = EngagementDestinationPhotoLike.objects.filter(
+        link_destination_photo_id=photo_id,
         link_user_profile_id=profile_id,
     )
     if existing.exists():
         existing.delete()
-        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id, like_count__gt=0).update(like_count=F('like_count') - 1)
+        DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
-        EngDestinationPhotoLike.objects.create(
-            link_coll_destination_photo_id=photo_id,
+        EngagementDestinationPhotoLike.objects.create(
+            link_destination_photo_id=photo_id,
             link_user_profile_id=profile_id,
             created_at=timezone.now(),
         )
-        CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
+        DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
         liked = True
 
-    new_count = CollDestinationPhoto.objects.filter(bangladesh_coll_destination_photo_id=photo_id).values_list('like_count', flat=True).first() or 0
+    new_count = DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id).values_list('like_count', flat=True).first() or 0
     return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
@@ -751,24 +751,24 @@ def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
     from django.db.models import F
-    existing = EngDestinationVideoLike.objects.filter(
-        link_coll_destination_youtube_link_id=youtube_link_id,
+    existing = EngagementDestinationVideoLike.objects.filter(
+        link_destination_youtube_link_id=youtube_link_id,
         link_user_profile_id=profile_id,
     )
     if existing.exists():
         existing.delete()
-        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id, like_count__gt=0).update(like_count=F('like_count') - 1)
+        DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
-        EngDestinationVideoLike.objects.create(
-            link_coll_destination_youtube_link_id=youtube_link_id,
+        EngagementDestinationVideoLike.objects.create(
+            link_destination_youtube_link_id=youtube_link_id,
             link_user_profile_id=profile_id,
             created_at=timezone.now(),
         )
-        CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
+        DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
         liked = True
 
-    new_count = CollDestinationYoutubeLink.objects.filter(bangladesh_coll_destination_youtube_link_id=youtube_link_id).values_list('like_count', flat=True).first() or 0
+    new_count = DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id).values_list('like_count', flat=True).first() or 0
     return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
@@ -848,11 +848,11 @@ def _can_manage_contribution(request, contribution_profile_id, destination_id):
 def api_destination_photo_update(request, destination_id, photo_id):
     """PATCH — edit a destination photo caption."""
     try:
-        photo = CollDestinationPhoto.objects.get(
-            bangladesh_coll_destination_photo_id=photo_id,
+        photo = DestinationPhoto.objects.get(
+            bangladesh_destination_photo_id=photo_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationPhoto.DoesNotExist:
+    except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, photo.link_user_profile_id, destination_id)
@@ -875,11 +875,11 @@ def api_destination_photo_update(request, destination_id, photo_id):
 def api_destination_photo_delete(request, destination_id, photo_id):
     """DELETE — remove a destination photo."""
     try:
-        photo = CollDestinationPhoto.objects.get(
-            bangladesh_coll_destination_photo_id=photo_id,
+        photo = DestinationPhoto.objects.get(
+            bangladesh_destination_photo_id=photo_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationPhoto.DoesNotExist:
+    except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, photo.link_user_profile_id, destination_id)
@@ -917,11 +917,11 @@ def api_destination_cover_image_set(request, destination_id, photo_id):
         return JsonResponse({"success": False, "error": "অনুমতি নেই"}, status=403)
 
     try:
-        photo = CollDestinationPhoto.objects.get(
-            bangladesh_coll_destination_photo_id=photo_id,
+        photo = DestinationPhoto.objects.get(
+            bangladesh_destination_photo_id=photo_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationPhoto.DoesNotExist:
+    except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
 
     # Always use photo_url for consistency — auto-cover on upload also uses photo_url,
@@ -937,11 +937,11 @@ def api_destination_cover_image_set(request, destination_id, photo_id):
 def api_destination_youtube_link_update(request, destination_id, youtube_link_id):
     """PATCH — edit a destination YouTube link title/description."""
     try:
-        link = CollDestinationYoutubeLink.objects.get(
-            bangladesh_coll_destination_youtube_link_id=youtube_link_id,
+        link = DestinationYoutubeLink.objects.get(
+            bangladesh_destination_youtube_link_id=youtube_link_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationYoutubeLink.DoesNotExist:
+    except DestinationYoutubeLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "YouTube link not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, link.link_user_profile_id, destination_id)
@@ -969,11 +969,11 @@ def api_destination_youtube_link_update(request, destination_id, youtube_link_id
 def api_destination_youtube_link_delete(request, destination_id, youtube_link_id):
     """DELETE — remove a destination YouTube link."""
     try:
-        link = CollDestinationYoutubeLink.objects.get(
-            bangladesh_coll_destination_youtube_link_id=youtube_link_id,
+        link = DestinationYoutubeLink.objects.get(
+            bangladesh_destination_youtube_link_id=youtube_link_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationYoutubeLink.DoesNotExist:
+    except DestinationYoutubeLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "YouTube link not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, link.link_user_profile_id, destination_id)
@@ -988,11 +988,11 @@ def api_destination_youtube_link_delete(request, destination_id, youtube_link_id
 def api_destination_reference_link_update(request, destination_id, reference_link_id):
     """PATCH — edit a destination reference link title/description."""
     try:
-        link = CollDestinationReferenceLink.objects.get(
-            bangladesh_coll_destination_reference_link_id=reference_link_id,
+        link = DestinationReferenceLink.objects.get(
+            bangladesh_destination_reference_link_id=reference_link_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationReferenceLink.DoesNotExist:
+    except DestinationReferenceLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "Reference link not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, link.link_user_profile_id, destination_id)
@@ -1020,11 +1020,11 @@ def api_destination_reference_link_update(request, destination_id, reference_lin
 def api_destination_reference_link_delete(request, destination_id, reference_link_id):
     """DELETE — remove a destination reference link."""
     try:
-        link = CollDestinationReferenceLink.objects.get(
-            bangladesh_coll_destination_reference_link_id=reference_link_id,
+        link = DestinationReferenceLink.objects.get(
+            bangladesh_destination_reference_link_id=reference_link_id,
             link_coll_destination_id=destination_id,
         )
-    except CollDestinationReferenceLink.DoesNotExist:
+    except DestinationReferenceLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "Reference link not found"}, status=404)
 
     allowed, _ = _can_manage_contribution(request, link.link_user_profile_id, destination_id)

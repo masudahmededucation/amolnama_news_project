@@ -18,7 +18,7 @@ def create_notification(recipient_user_profile_id, actor_user_profile_id, event_
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [newsengine].[coll_notification]
+                INSERT INTO [newsengine].[notification_item]
                     ([link_recipient_user_profile_id], [link_actor_user_profile_id],
                      [notification_event_code], [notification_source_app],
                      [link_content_id], [notification_message], [notification_url])
@@ -36,8 +36,8 @@ def get_unread_count(user_profile_id):
     """Get unread notification count for a user."""
     if not user_profile_id:
         return 0
-    from .models import CollNotificationItem
-    return CollNotificationItem.objects.filter(
+    from .models import NotificationItem
+    return NotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).count()
@@ -47,14 +47,14 @@ def get_notifications_list(user_profile_id, limit=20):
     """Get latest notifications for a user."""
     if not user_profile_id:
         return []
-    from .models import CollNotificationItem
-    notifications = CollNotificationItem.objects.filter(
+    from .models import NotificationItem
+    notifications = NotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_active=True,
     ).order_by('-created_at')[:limit]
 
     return [{
-        'notification_id': notification.newsengine_coll_notification_item_id,
+        'notification_id': notification.newsengine_notification_item_id,
         'event_code': notification.notification_event_code,
         'source_app': notification.notification_source_app,
         'message': notification.notification_message,
@@ -69,8 +69,8 @@ def mark_all_read(user_profile_id):
     if not user_profile_id:
         return
     from django.utils import timezone
-    from .models import CollNotificationItem
-    CollNotificationItem.objects.filter(
+    from .models import NotificationItem
+    NotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).update(is_read=True, read_at=timezone.now())

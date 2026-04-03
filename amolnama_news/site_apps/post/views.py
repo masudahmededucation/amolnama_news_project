@@ -143,11 +143,11 @@ def build_post_feed_items(request, posts=None):
         time_ago = _calculate_time_ago(post.created_at)
 
         keywords = _parse_keywords_json(post.post_keywords_json)
-        post_text_highlighted = _highlight_text_with_entities(post.post_text_bn, keywords)
+        post_text_highlighted = _highlight_text_with_entities(post.post_text, keywords)
 
         post_item = {
             'post_post_id': post.post_post_id,
-            'post_text_bn': post.post_text_bn,
+            'post_text': post.post_text,
             'post_text_highlighted': post_text_highlighted,
             'author_display_name': author_display_name,
             'author_avatar_url': author_avatar_url,
@@ -193,9 +193,9 @@ def build_post_feed_items(request, posts=None):
             if original_post:
                 original_profile = profile_map.get(original_post.link_user_profile_id)
                 post_item['is_repost'] = True
-                post_item['original_post_text_bn'] = original_post.post_text_bn
+                post_item['original_post_text'] = original_post.post_text
                 original_keywords = _parse_keywords_json(original_post.post_keywords_json)
-                post_item['original_post_text_highlighted'] = _highlight_text_with_entities(original_post.post_text_bn, original_keywords)
+                post_item['original_post_text_highlighted'] = _highlight_text_with_entities(original_post.post_text, original_keywords)
                 post_item['original_author_display_name'] = original_profile.display_name if original_profile and original_profile.display_name else 'ব্যবহারকারী'
                 post_item['original_author_user_profile_id'] = original_post.link_user_profile_id
                 post_item['original_author_avatar_url'] = avatar_url_map.get(original_post.link_user_profile_id)
@@ -221,10 +221,10 @@ def build_post_feed_items(request, posts=None):
 
     # Bulk-fetch polls for posts that have them
     try:
-        from .models import CollPoll, CollPollVote
+        from .models import PostPoll, PostPollVote
         post_ids_for_polls = [item['post_post_id'] for item in post_items]
         polls_map = {}
-        for poll in CollPoll.objects.filter(link_post_id__in=post_ids_for_polls, is_active=True):
+        for poll in PostPoll.objects.filter(link_post_id__in=post_ids_for_polls, is_active=True):
             options = []
             for option_number in range(1, 5):
                 option_text = getattr(poll, f'poll_option_{option_number}', None)
@@ -234,11 +234,11 @@ def build_post_feed_items(request, posts=None):
                     options.append({'option_number': option_number, 'text': option_text, 'vote_count': vote_count, 'percentage': percentage})
             user_voted_option = None
             if current_user_profile_id:
-                user_vote = CollPollVote.objects.filter(link_poll_id=poll.post_coll_poll_id, link_user_profile_id=current_user_profile_id, is_active=True).first()
+                user_vote = PostPollVote.objects.filter(link_poll_id=poll.post_post_poll_id, link_user_profile_id=current_user_profile_id, is_active=True).first()
                 if user_vote:
                     user_voted_option = user_vote.selected_option_number
             polls_map[poll.link_post_id] = {
-                'post_coll_poll_id': poll.post_coll_poll_id,
+                'post_post_poll_id': poll.post_post_poll_id,
                 'poll_question': poll.poll_question,
                 'options': options,
                 'total_vote_count': poll.total_vote_count,
@@ -371,8 +371,8 @@ def bookmarks(request):
 
     # Poem likes
     try:
-        from amolnama_news.site_apps.poem.models import EngPoemLike, CollPoemEntry
-        poem_like_ids = list(EngPoemLike.objects.filter(
+        from amolnama_news.site_apps.poem.models import EngagementPoemLike, CollPoemEntry
+        poem_like_ids = list(EngagementPoemLike.objects.filter(
             link_user_profile_id=user_profile_id,
         ).order_by('-created_at').values_list('link_poem_coll_poem_entry_id', flat=True)[:20])
         if poem_like_ids:
@@ -396,8 +396,8 @@ def bookmarks(request):
 
     # Art bookmarks
     try:
-        from amolnama_news.site_apps.art.models import EngArtworkBookmark, CollArtwork
-        art_bookmark_ids = list(EngArtworkBookmark.objects.filter(
+        from amolnama_news.site_apps.art.models import EngagementArtworkBookmark, CollArtwork
+        art_bookmark_ids = list(EngagementArtworkBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
         ).order_by('-created_at').values_list('link_artwork_id', flat=True)[:20])
         if art_bookmark_ids:
@@ -421,8 +421,8 @@ def bookmarks(request):
 
     # Story bookmarks
     try:
-        from amolnama_news.site_apps.stories.models import EngStoryBookmark, CollStory
-        story_bookmark_ids = list(EngStoryBookmark.objects.filter(
+        from amolnama_news.site_apps.stories.models import EngagementStoryBookmark, CollStory
+        story_bookmark_ids = list(EngagementStoryBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
         ).order_by('-created_at').values_list('link_story_id', flat=True)[:20])
         if story_bookmark_ids:
@@ -446,8 +446,8 @@ def bookmarks(request):
 
     # Travel destination bookmarks
     try:
-        from amolnama_news.site_apps.bangladesh.models import EngDestinationBookmark, CollDestination
-        travel_bookmark_ids = list(EngDestinationBookmark.objects.filter(
+        from amolnama_news.site_apps.bangladesh.models import EngagementDestinationBookmark, CollDestination
+        travel_bookmark_ids = list(EngagementDestinationBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
         ).order_by('-created_at').values_list('link_coll_destination_id', flat=True)[:20])
         if travel_bookmark_ids:
@@ -471,11 +471,11 @@ def bookmarks(request):
 
     # Newsengine universal bookmarks (future — manual bookmarks from promo cards)
     try:
-        from amolnama_news.site_apps.newsengine.models import CollBookmarkContent
-        for bookmark in CollBookmarkContent.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
+        from amolnama_news.site_apps.newsengine.models import BookmarkContent
+        for bookmark in BookmarkContent.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
             color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
             universal_bookmarks.append({
-                'item_type': 'content_promo', 'promo_id': bookmark.newsengine_coll_content_bookmark_id,
+                'item_type': 'content_promo', 'promo_id': bookmark.newsengine_bookmark_content_id,
                 'promo_badge': bookmark.content_type_code.upper(), 'promo_color': color_map.get(bookmark.content_type_code, 'blue'),
                 'promo_title': bookmark.content_title or '',
                 'promo_description': '', 'promo_url': bookmark.content_url or '',
@@ -507,7 +507,7 @@ def post_detail(request, post_post_id):
 
     # OG meta tags for social share preview
     author_display_name = post_item.get('author_display_name', 'ব্যবহারকারী')
-    post_text_plain = strip_tags(post.post_text_bn or '')
+    post_text_plain = strip_tags(post.post_text or '')
     og_title = f'{author_display_name} — আমলনামা নিউজ'
     og_description = post_text_plain[:200] if post_text_plain else 'আমলনামা নিউজে পোস্ট দেখুন'
     media_urls = post_item.get('media_urls', [])
@@ -550,11 +550,11 @@ def post_embed(request, post_post_id):
     media_urls = post_media_map.get(post_post_id, [])
 
     keywords = _parse_keywords_json(post.post_keywords_json)
-    post_text_highlighted = _highlight_text_with_entities(post.post_text_bn, keywords)
+    post_text_highlighted = _highlight_text_with_entities(post.post_text, keywords)
 
     post_item = {
         'post_post_id': post.post_post_id,
-        'post_text_bn': post.post_text_bn,
+        'post_text': post.post_text,
         'post_text_highlighted': post_text_highlighted,
         'author_display_name': author_display_name,
         'author_is_verified': profile.is_verified if profile and hasattr(profile, 'is_verified') else False,
@@ -597,7 +597,7 @@ def api_post_oembed(request):
         pass
 
     author_display_name = profile.display_name if profile and profile.display_name else 'ব্যবহারকারী'
-    post_text_plain = strip_tags(post.post_text_bn or '')[:200]
+    post_text_plain = strip_tags(post.post_text or '')[:200]
     embed_url = request.build_absolute_uri(f'/post/{post_post_id}/embed/')
 
     return JsonResponse({

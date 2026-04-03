@@ -31,3 +31,23 @@ otherwise, we won't be able to flag posts automatically.
 some posts which can be harmful or not allowed in our policy
 can pass through to the post's wall.
 so we need a brain. 
+
+so research some general guideline and policy.
+research facebook/twitter/instgram and other social apps.
+our only intention to block harmful contents.
+--challenge 
+user should be notified about any posts get flagged with appropriate category. 
+also should get a professional message what happened and what can be done. 
+does user have option to challenge?
+
+
+--fact check brain.
+we also need ai fact checker engine.
+which can go online and read other peoples posts or comment to make a decision
+if a post is completely false.
+at first, we flag it. 
+we tell users to check this posts facts.
+we put a notice on the post.
+then learn slowly what to do?
+
+do research and create list. 

@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .models import CollUserBlock, CollUserList, CollUserListMember, UserFollow
+from .models import UserBlock, UserList, UserListMember, UserFollow
 
 
 @require_POST
@@ -84,7 +84,7 @@ def api_block_toggle(request, user_profile_id):
     if current_profile.user_profile_id == user_profile_id:
         return JsonResponse({'success': False, 'error': 'নিজেকে ব্লক করা যায় না'}, status=400)
 
-    existing_block = CollUserBlock.objects.filter(
+    existing_block = UserBlock.objects.filter(
         link_blocker_user_profile_id=current_profile.user_profile_id,
         link_blocked_user_profile_id=user_profile_id,
         is_active=True,
@@ -96,7 +96,7 @@ def api_block_toggle(request, user_profile_id):
     else:
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [social].[coll_user_block]
+                INSERT INTO [social].[user_block]
                     ([link_blocker_user_profile_id], [link_blocked_user_profile_id])
                 VALUES (?, ?)
             """, [current_profile.user_profile_id, user_profile_id])
@@ -133,8 +133,8 @@ def api_list_create(request):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [social].[coll_user_list] ([link_owner_user_profile_id], [list_name], [list_description])
-            OUTPUT INSERTED.social_coll_user_list_id
+            INSERT INTO [social].[user_list] ([link_owner_user_profile_id], [list_name], [list_description])
+            OUTPUT INSERTED.social_user_list_id
             VALUES (?, ?, ?)
         """, [current_profile.user_profile_id, list_name, list_description])
         list_id = cursor.fetchone()[0]
@@ -165,14 +165,14 @@ def api_list_member_toggle(request):
         return JsonResponse({'success': False, 'error': 'Missing list_id or member_user_profile_id'}, status=400)
 
     # Verify ownership
-    from .models import CollUserList, CollUserListMember
-    user_list = CollUserList.objects.filter(
-        social_coll_user_list_id=list_id, link_owner_user_profile_id=current_profile.user_profile_id, is_active=True,
+    from .models import UserList, UserListMember
+    user_list = UserList.objects.filter(
+        social_user_list_id=list_id, link_owner_user_profile_id=current_profile.user_profile_id, is_active=True,
     ).first()
     if not user_list:
         return JsonResponse({'success': False, 'error': 'তালিকা পাওয়া যায়নি'}, status=404)
 
-    existing_member = CollUserListMember.objects.filter(
+    existing_member = UserListMember.objects.filter(
         link_list_id=list_id, link_user_profile_id=member_user_profile_id, is_active=True,
     ).first()
 
@@ -182,7 +182,7 @@ def api_list_member_toggle(request):
     else:
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [social].[coll_user_list_member] ([link_list_id], [link_user_profile_id])
+                INSERT INTO [social].[user_list_member] ([link_list_id], [link_user_profile_id])
                 VALUES (?, ?)
             """, [list_id, member_user_profile_id])
         return JsonResponse({'success': True, 'action': 'added'})

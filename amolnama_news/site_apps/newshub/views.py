@@ -49,11 +49,11 @@ from .forms import (
     NewsSocialSourceForm,
 )
 from .models import (
-    CollContributor,
-    CollNewsAsset,
+    Contributor,
+    NewsAsset,
     CollNewsEntry,
-    CollNewsEntryTag,
-    CollNewsSocialMediaSource,
+    NewsEntryTag,
+    NewsSocialMediaSource,
 
     RefContributorType,
     RefNewsFormType,
@@ -270,8 +270,8 @@ def news_collection_multistep_extortion(request):
                     can_edit = True
                 elif edit_entry.link_contributor_id:
                     try:
-                        contributor = CollContributor.objects.get(
-                            coll_contributor_id=edit_entry.link_contributor_id
+                        contributor = Contributor.objects.get(
+                            newshub_contributor_id=edit_entry.link_contributor_id
                         )
                         if contributor.link_user_profile_id:
                             user_profile = UserProfile.objects.get(
@@ -279,7 +279,7 @@ def news_collection_multistep_extortion(request):
                             )
                             if contributor.link_user_profile_id == user_profile.user_profile_id:
                                 can_edit = True
-                    except (CollContributor.DoesNotExist, UserProfile.DoesNotExist):
+                    except (Contributor.DoesNotExist, UserProfile.DoesNotExist):
                         pass
             if can_edit:
                 from .helpers import build_edit_data
@@ -1156,7 +1156,7 @@ def news_collection_multistep_women_child_violence(request):
 
 def news_article_landing(request):
     """Public landing page — list of published articles."""
-    from .models import PubArticle, EngArticleStat
+    from .models import PubArticle, EngagementArticleStat
 
     published_articles = PubArticle.objects.filter(
         is_published=True
@@ -1184,16 +1184,16 @@ def news_article_landing(request):
         contributor = None
         if entry.link_contributor_id:
             try:
-                contributor = CollContributor.objects.get(
-                    coll_contributor_id=entry.link_contributor_id
+                contributor = Contributor.objects.get(
+                    newshub_contributor_id=entry.link_contributor_id
                 )
-            except CollContributor.DoesNotExist:
+            except Contributor.DoesNotExist:
                 pass
 
         # Resolve contributor display name
         contributor_display_name = ''
         if contributor:
-            contributor_display_name = contributor.coll_contributor_full_name_bn or ''
+            contributor_display_name = contributor.contributor_full_name_bn or ''
             if '@' in contributor_display_name and contributor.link_user_profile_id:
                 try:
                     profile = UserProfile.objects.get(
@@ -1238,7 +1238,7 @@ def news_article_landing(request):
     pub_article_ids = [a['published_article'].pub_article_id for a in articles_with_meta]
     stats_map = {}
     if pub_article_ids:
-        for stat in EngArticleStat.objects.filter(link_pub_article_id__in=pub_article_ids):
+        for stat in EngagementArticleStat.objects.filter(link_pub_article_id__in=pub_article_ids):
             stats_map[stat.link_pub_article_id] = stat
     for article_meta in articles_with_meta:
         stat = stats_map.get(article_meta['published_article'].pub_article_id)
@@ -1263,7 +1263,7 @@ def news_article_landing(request):
 def article_detail(request, slug):
     """Public article detail view — two-column sidenote layout via pub_article slug."""
     from .helpers import build_sidenote_data
-    from .models import PubArticle, EngComment, EngArticleStat
+    from .models import PubArticle, EngagementComment, EngagementArticleStat
     from django.http import Http404
 
     # Find published article by slug
@@ -1306,10 +1306,10 @@ def article_detail(request, slug):
     contributor_display_name = ''
     if entry.link_contributor_id:
         try:
-            contributor = CollContributor.objects.get(
-                coll_contributor_id=entry.link_contributor_id
+            contributor = Contributor.objects.get(
+                newshub_contributor_id=entry.link_contributor_id
             )
-            contributor_display_name = contributor.coll_contributor_full_name_bn or ''
+            contributor_display_name = contributor.contributor_full_name_bn or ''
             # If display name looks like an email, try to get real name from user profile → person
             if '@' in contributor_display_name and contributor.link_user_profile_id:
                 try:
@@ -1325,11 +1325,11 @@ def article_detail(request, slug):
                             contributor_display_name = real_name
                 except Exception:
                     pass
-        except CollContributor.DoesNotExist:
+        except Contributor.DoesNotExist:
             pass
 
     # Tags
-    tag_ids = CollNewsEntryTag.objects.filter(
+    tag_ids = NewsEntryTag.objects.filter(
         link_coll_news_entry_id=entry.coll_news_entry_id
     ).values_list('link_news_category_tag_id', flat=True)
     tags = []
@@ -1391,20 +1391,20 @@ def article_detail(request, slug):
         edit_url = reverse(url_name) + '?edit=' + str(entry.coll_news_entry_id)
 
     # Comments (approved only for public view)
-    comments = list(EngComment.objects.filter(
+    comments = list(EngagementComment.objects.filter(
         link_pub_article_id=published_article.pub_article_id,
         is_approved=True,
     ).order_by('created_at'))
 
     # Article stats (view count, share count) — increment view count on each page load
     from django.db.models import F
-    stats_updated = EngArticleStat.objects.filter(
+    stats_updated = EngagementArticleStat.objects.filter(
         link_pub_article_id=published_article.pub_article_id,
     ).update(view_count=F('view_count') + 1)
 
     if not stats_updated:
         # No stat row yet — create one with view_count=1
-        EngArticleStat.objects.create(
+        EngagementArticleStat.objects.create(
             link_pub_article_id=published_article.pub_article_id,
             view_count=1,
             share_count=0,
@@ -1413,8 +1413,8 @@ def article_detail(request, slug):
 
     stats = None
     try:
-        stats = EngArticleStat.objects.get(link_pub_article_id=published_article.pub_article_id)
-    except EngArticleStat.DoesNotExist:
+        stats = EngagementArticleStat.objects.get(link_pub_article_id=published_article.pub_article_id)
+    except EngagementArticleStat.DoesNotExist:
         pass
 
     # Community additions (visible: pending + approved)
@@ -1600,13 +1600,13 @@ def _save_or_reuse_asset(uploaded_file, file_desc, now):
 # Shared evidence/attachment file save helper — single source of truth
 # ---------------------------------------------------------------------------
 # Used by: crime evidence, extortion evidence, and any future form-specific
-# file upload sections. All flow through _save_or_reuse_asset → CollNewsAsset.
+# file upload sections. All flow through _save_or_reuse_asset → NewsAsset.
 # General attachments (with caption + featured) have their own block because
 # of the extra caption/featured logic.
 
 def _save_evidence_files(request, coll_news_entry_id, file_field, desc_field, max_count, now,
                          asset_group_code=None):
-    """Save evidence/form-specific file uploads → media.asset + newshub.coll_news_asset.
+    """Save evidence/form-specific file uploads → media.asset + newshub.news_asset.
 
     Args:
         request              — Django request object
@@ -1634,7 +1634,7 @@ def _save_evidence_files(request, coll_news_entry_id, file_field, desc_field, ma
         if i < len(descs):
             file_desc = (descs[i] or '').strip() or None
         asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
-        CollNewsAsset.objects.create(
+        NewsAsset.objects.create(
             link_coll_news_entry_id=coll_news_entry_id,
             link_asset_id=asset.asset_id,
             is_featured=False,
@@ -1772,7 +1772,7 @@ def _save_actor_occupation(person_id, actor_data, now, occ_key='occupationId'):
         org_obj = Organisation.objects.create(
             organisation_name_bn=inst_name,
             organisation_name_en=inst_name,
-            link_organisation_type_id=_infer_org_type_id(inst_name),
+            link_ref_organisation_type_id=_infer_org_type_id(inst_name),
             is_active=True,
             created_at=now,
         )
@@ -1780,7 +1780,7 @@ def _save_actor_occupation(person_id, actor_data, now, occ_key='occupationId'):
     PersonJob.objects.create(
         link_person_id=person_id,
         link_job_title_id=job_title_obj.job_title_id,
-        link_organisation_id=org_obj.organisation_id,
+        link_organisation_id=org_obj.directory_organisation_id,
         start_date=now.date(),
         is_active=True,
         created_at=now,
@@ -2046,7 +2046,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
     org_custom = request.POST.get('contributor_organization_custom', '').strip() or None
     org_name_bn = None
     if org_id:
-        org = Organisation.objects.filter(organisation_id=int(org_id)).first()
+        org = Organisation.objects.filter(directory_organisation_id=int(org_id)).first()
         if org:
             org_name_bn = org.organisation_name_bn or org.organisation_name_en
     if not org_name_bn and org_custom:
@@ -2082,21 +2082,21 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
             if is_edit_mode:
                 # UPDATE existing contributor
-                contributor = CollContributor.objects.get(
-                    coll_contributor_id=existing_entry.link_contributor_id
+                contributor = Contributor.objects.get(
+                    newshub_contributor_id=existing_entry.link_contributor_id
                 )
-                contributor.coll_contributor_full_name_bn = cd['contributor_full_name_bn']
-                contributor.coll_contributor_organization_bn = org_name_bn
-                contributor.coll_contributor_contact_email = cd['contributor_contact_email'] or None
-                contributor.coll_contributor_contact_phone = cd['contributor_contact_phone'] or None
+                contributor.contributor_full_name_bn = cd['contributor_full_name_bn']
+                contributor.contributor_organization_bn = org_name_bn
+                contributor.contributor_contact_email = cd['contributor_contact_email'] or None
+                contributor.contributor_contact_phone = cd['contributor_contact_phone'] or None
                 contributor.link_contributor_type_id = cd['contributor_type_id']
                 contributor.save()
             else:
-                contributor = CollContributor.objects.create(
-                    coll_contributor_full_name_bn=cd['contributor_full_name_bn'],
-                    coll_contributor_organization_bn=org_name_bn,
-                    coll_contributor_contact_email=cd['contributor_contact_email'] or None,
-                    coll_contributor_contact_phone=cd['contributor_contact_phone'] or None,
+                contributor = Contributor.objects.create(
+                    contributor_full_name_bn=cd['contributor_full_name_bn'],
+                    contributor_organization_bn=org_name_bn,
+                    contributor_contact_email=cd['contributor_contact_email'] or None,
+                    contributor_contact_phone=cd['contributor_contact_phone'] or None,
                     link_contributor_type_id=cd['contributor_type_id'],
                     link_user_profile_id=contributor_user_profile_id,
                     is_verified=False,
@@ -2130,8 +2130,8 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 entry.save()
 
                 # Delete old junction records for re-insertion
-                CollNewsEntryTag.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
-                CollNewsSocialMediaSource.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+                NewsEntryTag.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+                NewsSocialMediaSource.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
 
                 # Delete old actors (person records are NOT deleted — they may be shared)
                 IncidentInvolvedActorProfile.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
@@ -2174,7 +2174,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 _WcvVictim.objects.filter(link_coll_news_entry_id=_eid).delete()
                 _WcvPerp.objects.filter(link_coll_news_entry_id=_eid).delete()
                 _WcvLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
-                # NOTE: Attachments (CollNewsAsset) are NOT deleted — existing files kept
+                # NOTE: Attachments (NewsAsset) are NOT deleted — existing files kept
             else:
                 entry = CollNewsEntry.objects.create(
                     link_form_type_id=form_type_id,
@@ -2182,7 +2182,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     news_summary_bn=summary_normalized or None,
                     news_content_body_bn=content_body,
                     link_news_category_id=int(category_id) if category_id else 12,
-                    link_contributor_id=contributor.coll_contributor_id,
+                    link_contributor_id=contributor.newshub_contributor_id,
                     link_constituency_id=int(constituency_id) if constituency_id else None,
                     link_district_id=int(district_id) if district_id else None,
                     upazila_city_corporation_name=upazila_city_corporation_name,
@@ -2220,10 +2220,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                 asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
 
-                CollNewsAsset.objects.create(
+                NewsAsset.objects.create(
                     link_coll_news_entry_id=entry.coll_news_entry_id,
                     link_asset_id=asset.asset_id,
-                    coll_news_asset_caption_bn=caption if i == 0 else None,
+                    news_asset_caption_bn=caption if i == 0 else None,
                     is_featured=(i == featured_idx),
                     asset_group_code='general',
                     sort_order=i,
@@ -2232,7 +2232,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
             # ---- Save social sources (repeater JSON) ----
             # → media.social_url_library (URL record)
-            # → newshub.coll_news_social_source (junction to news entry)
+            # → newshub.news_social_media_source (junction to news entry)
             social_json_raw = request.POST.get('social_source_json', '')
             if social_json_raw:
                 try:
@@ -2249,7 +2249,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                 social_embed_code=src.get('embedCode') or None,
                                 created_at=now,
                             )
-                        CollNewsSocialMediaSource.objects.create(
+                        NewsSocialMediaSource.objects.create(
                             link_coll_news_entry_id=entry.coll_news_entry_id,
                             link_social_media_url_library_id=url_record.social_media_url_library_id,
                             created_at=now,
@@ -2260,7 +2260,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             # ---- Save tags ----
             for tid in tag_ids:
                 if tid.isdigit():
-                    CollNewsEntryTag.objects.create(
+                    NewsEntryTag.objects.create(
                         link_coll_news_entry_id=entry.coll_news_entry_id,
                         link_news_category_tag_id=int(tid),
                         created_at=now,
@@ -2275,7 +2275,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             )
 
             # ---- Save actor-group photos (accused / victim / witness) ----
-            # → media.asset + newshub.coll_news_asset
+            # → media.asset + newshub.news_asset
             # Caption: user-provided per-file description (from *_photos_descriptions_json),
             # falling back to the role status_code ('accused'/'victim'/'witness').
             # sort_order ranges: accused=100-102, victim=200-202, witness=300-302
@@ -2298,10 +2298,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 for _j, _uploaded_file in enumerate(_group_files[:3]):
                     _asset = _save_or_reuse_asset(_uploaded_file, None, now)
                     _user_desc = (_descs[_j].strip() if _j < len(_descs) else '') or ''
-                    CollNewsAsset.objects.create(
+                    NewsAsset.objects.create(
                         link_coll_news_entry_id=entry.coll_news_entry_id,
                         link_asset_id=_asset.asset_id,
-                        coll_news_asset_caption_bn=_user_desc or _code,
+                        news_asset_caption_bn=_user_desc or _code,
                         is_featured=False,
                         asset_group_code=_code,
                         sort_order=_sort_base + _j,

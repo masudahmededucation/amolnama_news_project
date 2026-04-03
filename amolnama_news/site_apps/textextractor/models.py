@@ -94,8 +94,8 @@ class CollExtractionJob(models.Model):
         return f'{self.original_file_name} ({self.status_code})'
 
 
-class CollExtractionPage(models.Model):
-    textextractor_coll_extraction_page_id = models.BigAutoField(primary_key=True)
+class ExtractionPage(models.Model):
+    textextractor_extraction_page_id = models.BigAutoField(primary_key=True)
     link_extraction_job_id = models.BigIntegerField()
     page_number = models.IntegerField()
     page_text_plain = models.TextField(blank=True, null=True)
@@ -108,11 +108,11 @@ class CollExtractionPage(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[textextractor].[coll_extraction_page]'
+        db_table = '[textextractor].[extraction_page]'
 
 
-class CollExtractionTable(models.Model):
-    textextractor_coll_extraction_table_id = models.BigAutoField(primary_key=True)
+class ExtractionTable(models.Model):
+    textextractor_extraction_table_id = models.BigAutoField(primary_key=True)
     link_extraction_job_id = models.BigIntegerField()
     link_extraction_page_id = models.BigIntegerField(blank=True, null=True)
     table_index = models.IntegerField()
@@ -126,11 +126,11 @@ class CollExtractionTable(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[textextractor].[coll_extraction_table]'
+        db_table = '[textextractor].[extraction_table]'
 
 
-class CollExtractionTableCell(models.Model):
-    textextractor_coll_extraction_table_cell_id = models.BigAutoField(primary_key=True)
+class ExtractionTableCell(models.Model):
+    textextractor_extraction_table_cell_id = models.BigAutoField(primary_key=True)
     link_extraction_table_id = models.BigIntegerField()
     row_number = models.IntegerField()
     column_number = models.IntegerField()
@@ -142,4 +142,4 @@ class CollExtractionTableCell(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[textextractor].[coll_extraction_table_cell]'
+        db_table = '[textextractor].[extraction_table_cell]'

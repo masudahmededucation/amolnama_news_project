@@ -8,8 +8,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import (
     RefArtCategory, RefArtMedium, RefArtDifficulty,
-    CollArtwork, CollArtworkAsset, CollArtworkStep,
-    CollArtworkYoutubeLink, EngArtworkLike, EngArtworkBookmark,
+    CollArtwork, ArtworkAsset, ArtworkStep,
+    ArtworkYoutubeLink, EngagementArtworkLike, EngagementArtworkBookmark,
 )
 
 
@@ -19,7 +19,7 @@ def _get_artwork_cover_url(artwork_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT a.[file_storage_path]
-            FROM [art].[coll_artwork_asset] aa
+            FROM [art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
             WHERE aa.[link_artwork_id] = %s AND aa.[is_cover] = 1 AND aa.[is_active] = 1
         """, [artwork_id])
@@ -33,9 +33,9 @@ def _get_artwork_photos(artwork_id):
     photos = []
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT aa.[art_coll_artwork_asset_id], a.[file_storage_path], aa.[caption_bn],
+            SELECT aa.[art_artwork_asset_id], a.[file_storage_path], aa.[caption_bn],
                    aa.[asset_group_code], aa.[is_cover]
-            FROM [art].[coll_artwork_asset] aa
+            FROM [art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
             WHERE aa.[link_artwork_id] = %s AND aa.[is_active] = 1
             ORDER BY aa.[is_cover] DESC, aa.[sort_order] ASC
@@ -97,7 +97,7 @@ def home(request):
             placeholders = ','.join(['%s'] * len(artwork_ids))
             cursor.execute(f"""
                 SELECT aa.[link_artwork_id], a.[file_storage_path]
-                FROM [art].[coll_artwork_asset] aa
+                FROM [art].[artwork_asset] aa
                 JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
                 WHERE aa.[link_artwork_id] IN ({placeholders}) AND aa.[is_cover] = 1 AND aa.[is_active] = 1
             """, artwork_ids)
@@ -178,12 +178,12 @@ def detail(request, artwork_slug):
     photos = _get_artwork_photos(artwork.art_coll_artwork_id)
 
     # Tutorial steps
-    steps = list(CollArtworkStep.objects.filter(
+    steps = list(ArtworkStep.objects.filter(
         link_artwork_id=artwork.art_coll_artwork_id, is_active=True,
     ).order_by('step_number'))
 
     # YouTube links
-    youtube_links = list(CollArtworkYoutubeLink.objects.filter(
+    youtube_links = list(ArtworkYoutubeLink.objects.filter(
         link_artwork_id=artwork.art_coll_artwork_id, is_active=True,
     ))
 
@@ -195,11 +195,11 @@ def detail(request, artwork_slug):
         try:
             current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
             current_profile_id = current_profile.user_profile_id
-            user_liked = EngArtworkLike.objects.filter(
+            user_liked = EngagementArtworkLike.objects.filter(
                 link_artwork_id=artwork.art_coll_artwork_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
-            user_bookmarked = EngArtworkBookmark.objects.filter(
+            user_bookmarked = EngagementArtworkBookmark.objects.filter(
                 link_artwork_id=artwork.art_coll_artwork_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()

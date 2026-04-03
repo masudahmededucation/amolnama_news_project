@@ -33,13 +33,13 @@ def api_post_create(request):
     # Support both JSON and FormData
     scheduled_publish_at = None
     if request.content_type and 'multipart' in request.content_type:
-        post_text_bn = (request.POST.get('post_text_bn') or '').strip()
+        post_text = (request.POST.get('post_text') or '').strip()
         visibility_code = request.POST.get('visibility_code') or 'public'
         scheduled_publish_at_raw = request.POST.get('scheduled_publish_at') or ''
     else:
         try:
             data = json.loads(request.body)
-            post_text_bn = (data.get('post_text_bn') or '').strip()
+            post_text = (data.get('post_text') or '').strip()
             visibility_code = data.get('visibility_code') or 'public'
             scheduled_publish_at_raw = data.get('scheduled_publish_at') or ''
         except json.JSONDecodeError:
@@ -58,14 +58,14 @@ def api_post_create(request):
     uploaded_files = request.FILES.getlist('post_media_files')
 
     # Must have text or media
-    if not post_text_bn and not uploaded_files:
+    if not post_text and not uploaded_files:
         return JsonResponse({'success': False, 'error': 'পোস্টে কিছু লিখুন বা ছবি যোগ করুন'}, status=400)
 
-    if post_text_bn and len(post_text_bn) > 1000:
+    if post_text and len(post_text) > 1000:
         return JsonResponse({'success': False, 'error': 'পোস্ট ১০০০ অক্ষরের বেশি হতে পারবে না'}, status=400)
 
     # Minimum 150 characters for text-only posts (no media)
-    if not uploaded_files and post_text_bn and len(post_text_bn) < 150:
+    if not uploaded_files and post_text and len(post_text) < 150:
         return JsonResponse({'success': False, 'error': 'শুধু টেক্সট পোস্টে সর্বনিম্ন ১৫০ অক্ষর লিখুন (Minimum 150 characters for text-only posts)'}, status=400)
 
     if len(uploaded_files) > 4:
@@ -85,11 +85,11 @@ def api_post_create(request):
     post_guid = str(uuid.uuid4())
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [post].[post]
-                ([post_guid], [link_user_profile_id], [post_text_bn], [post_type_code], [visibility_code], [post_keywords_json], [scheduled_publish_at], [is_published], [is_active])
+            INSERT INTO [post].[coll_post]
+                ([post_guid], [link_user_profile_id], [post_text], [post_type_code], [visibility_code], [post_keywords_json], [scheduled_publish_at], [is_published], [is_active])
             OUTPUT INSERTED.post_post_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, [post_guid, user_profile.user_profile_id, post_text_bn or None, post_type_code, visibility_code, None,
+        """, [post_guid, user_profile.user_profile_id, post_text or None, post_type_code, visibility_code, None,
               scheduled_publish_at, 0 if scheduled_publish_at else 1, 1])
         post_post_id = cursor.fetchone()[0]
 
@@ -153,7 +153,7 @@ def api_post_create(request):
         media_urls.append('/media/' + file_storage_path)
 
     # Extract keywords in background thread — don't block the user
-    if post_text_bn and len(post_text_bn) >= 20:
+    if post_text and len(post_text) >= 20:
         import threading
         def _background_keyword_extraction(background_post_id, background_text):
             try:
@@ -163,7 +163,7 @@ def api_post_create(request):
                 if keywords_json:
                     with background_connection.cursor() as background_cursor:
                         background_cursor.execute(
-                            "UPDATE [post].[post] SET [post_keywords_json] = %s WHERE [post_post_id] = %s",
+                            "UPDATE [post].[coll_post] SET [post_keywords_json] = %s WHERE [post_post_id] = %s",
                             [keywords_json, background_post_id],
                         )
             except Exception:
@@ -171,13 +171,13 @@ def api_post_create(request):
 
         keyword_thread = threading.Thread(
             target=_background_keyword_extraction,
-            args=(post.post_post_id, post_text_bn),
+            args=(post.post_post_id, post_text),
             daemon=True,
         )
         keyword_thread.start()
 
     # Classify content in background — auto-flag harmful content
-    if post_text_bn:
+    if post_text:
         import threading
         def _background_content_classification(background_post_id, background_text):
             try:
@@ -185,10 +185,10 @@ def api_post_create(request):
                 classify_and_store('post', background_post_id, background_text)
             except Exception:
                 logger.exception('Content classification failed for post %s', background_post_id)
-        threading.Thread(target=_background_content_classification, args=(post.post_post_id, post_text_bn), daemon=True).start()
+        threading.Thread(target=_background_content_classification, args=(post.post_post_id, post_text), daemon=True).start()
 
     # Fact-check in background — pattern detection, duplicate claims, domain blacklist, Google API
-    if post_text_bn and len(post_text_bn) >= 20:
+    if post_text and len(post_text) >= 20:
         import threading
         def _background_fact_check(background_post_id, background_text):
             try:
@@ -196,7 +196,7 @@ def api_post_create(request):
                 fact_check_content('post', background_post_id, background_text)
             except Exception:
                 logger.exception('Fact-check failed for post %s', background_post_id)
-        threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text_bn), daemon=True).start()
+        threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text), daemon=True).start()
 
     return JsonResponse({
         'success': True,
@@ -457,7 +457,7 @@ def api_post_repost(request, post_post_id):
         repost_guid = str(uuid.uuid4())
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [post].[post]
+                INSERT INTO [post].[coll_post]
                     ([post_guid], [link_user_profile_id], [link_repost_of_post_id], [post_type_code],
                      [quote_comment_text], [is_published], [is_active])
                 OUTPUT INSERTED.post_post_id
@@ -509,8 +509,8 @@ def api_post_reply(request, post_post_id):
     reply_guid = str(uuid.uuid4())
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [post].[post]
-                ([post_guid], [link_user_profile_id], [link_parent_post_id], [post_text_bn], [post_type_code], [suggestion_type_code], [is_published], [is_active])
+            INSERT INTO [post].[coll_post]
+                ([post_guid], [link_user_profile_id], [link_parent_post_id], [post_text], [post_type_code], [suggestion_type_code], [is_published], [is_active])
             OUTPUT INSERTED.post_post_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, [reply_guid, user_profile.user_profile_id, post_post_id, reply_text_bn, 'reply', suggestion_type_code, 1, 1])
@@ -556,17 +556,17 @@ def api_post_edit(request, post_post_id):
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
-    new_text = (data.get('post_text_bn') or '').strip()
+    new_text = (data.get('post_text') or '').strip()
     if not new_text:
         return JsonResponse({'success': False, 'error': 'পোস্টে কিছু লিখুন'}, status=400)
     if len(new_text) > 1000:
         return JsonResponse({'success': False, 'error': 'পোস্ট ১০০০ অক্ষরের বেশি হতে পারবে না'}, status=400)
 
-    post.post_text_bn = new_text
+    post.post_text = new_text
     post.is_edited = True
     post.edited_at = timezone.now()
     post.updated_at = timezone.now()
-    post.save(update_fields=['post_text_bn', 'is_edited', 'edited_at', 'updated_at'])
+    post.save(update_fields=['post_text', 'is_edited', 'edited_at', 'updated_at'])
 
     # Re-extract keywords in background
     if len(new_text) >= 20:
@@ -577,14 +577,14 @@ def api_post_edit(request, post_post_id):
                 if keywords_json:
                     with connection.cursor() as background_cursor:
                         background_cursor.execute(
-                            "UPDATE [post].[post] SET [post_keywords_json] = %s WHERE [post_post_id] = %s",
+                            "UPDATE [post].[coll_post] SET [post_keywords_json] = %s WHERE [post_post_id] = %s",
                             [keywords_json, background_post_id],
                         )
             except Exception:
                 logger.exception('Background keyword update failed for post %s', background_post_id)
         threading.Thread(target=_background_keyword_update, args=(post_post_id, new_text), daemon=True).start()
 
-    return JsonResponse({'success': True, 'post_text_bn': new_text})
+    return JsonResponse({'success': True, 'post_text': new_text})
 
 
 @require_POST
@@ -669,7 +669,7 @@ def api_post_replies(request, post_post_id):
 
         reply_items.append({
             'post_post_id': reply.post_post_id,
-            'post_text_bn': reply.post_text_bn,
+            'post_text': reply.post_text,
             'author_display_name': author_display_name,
             'author_avatar_url': avatar_url_map.get(reply.link_user_profile_id),
             'time_ago': _calculate_time_ago(reply.created_at),
@@ -818,7 +818,7 @@ def api_post_flag_create(request, post_post_id):
     if flag_reason_code not in VALID_FLAG_REASONS:
         return JsonResponse({'success': False, 'error': 'কারণ নির্বাচন করুন'}, status=400)
 
-    flag_description_en = (data.get('flag_description_en') or '').strip() or None
+    flag_description = (data.get('flag_description') or '').strip() or None
 
     # Check if already flagged by this user
     if PostFlag.objects.filter(
@@ -832,7 +832,7 @@ def api_post_flag_create(request, post_post_id):
         link_post_id=post_post_id,
         link_user_profile_id=user_profile.user_profile_id,
         flag_reason_code=flag_reason_code,
-        flag_description_en=flag_description_en,
+        flag_description=flag_description,
         flag_status_code='pending',
         is_active=True,
     )
@@ -874,7 +874,7 @@ def _update_contribution_score_background(author_user_profile_id):
 def api_poll_vote(request, post_post_id):
     """Vote on a poll option. One vote per user per poll."""
     from amolnama_news.site_apps.user_account.models import UserProfile
-    from .models import CollPoll, CollPollVote
+    from .models import PostPoll, PostPollVote
 
     try:
         user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
@@ -892,12 +892,12 @@ def api_poll_vote(request, post_post_id):
     if not poll_id or not selected_option_number or selected_option_number not in (1, 2, 3, 4):
         return JsonResponse({'success': False, 'error': 'Invalid poll option'}, status=400)
 
-    poll = CollPoll.objects.filter(post_coll_poll_id=poll_id, link_post_id=post_post_id, is_active=True).first()
+    poll = PostPoll.objects.filter(post_post_poll_id=poll_id, link_post_id=post_post_id, is_active=True).first()
     if not poll:
         return JsonResponse({'success': False, 'error': 'পোল পাওয়া যায়নি'}, status=404)
 
     # Check if already voted
-    existing_vote = CollPollVote.objects.filter(
+    existing_vote = PostPollVote.objects.filter(
         link_poll_id=poll_id, link_user_profile_id=user_profile.user_profile_id, is_active=True,
     ).first()
     if existing_vote:
@@ -906,7 +906,7 @@ def api_poll_vote(request, post_post_id):
     # Insert vote
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [post].[coll_poll_vote] ([link_poll_id], [link_user_profile_id], [selected_option_number])
+            INSERT INTO [post].[post_poll_vote] ([link_poll_id], [link_user_profile_id], [selected_option_number])
             VALUES (%s, %s, %s)
         """, [poll_id, user_profile.user_profile_id, selected_option_number])
 
@@ -914,9 +914,9 @@ def api_poll_vote(request, post_post_id):
     vote_count_column = f'poll_option_{selected_option_number}_vote_count'
     with connection.cursor() as cursor:
         cursor.execute(f"""
-            UPDATE [post].[coll_poll]
+            UPDATE [post].[post_poll]
             SET [{vote_count_column}] = [{vote_count_column}] + 1, [total_vote_count] = [total_vote_count] + 1
-            WHERE [post_coll_poll_id] = %s
+            WHERE [post_post_poll_id] = %s
         """, [poll_id])
 
     # Return updated results

@@ -11,7 +11,12 @@ whenever you need to create db table or column.
 give me script, i will check and run myself.
 never user alias when there is no collision among names
 never user shortcut alias name.
-use full name when possible
+use full name when possible.
+when there are group of columns.
+use group as the prefix for column names.
+follow standard rules already placed in table and column creation.
+
+
 
 --create styling rule
 make professional

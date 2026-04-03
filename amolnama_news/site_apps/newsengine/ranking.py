@@ -97,7 +97,7 @@ def calculate_total_score(post_item):
         post_item.get('author_contribution_score', 0)
     )
     content_quality = calculate_content_quality_score(
-        post_item.get('post_text_bn', '')
+        post_item.get('post_text', '')
     )
 
     total = (

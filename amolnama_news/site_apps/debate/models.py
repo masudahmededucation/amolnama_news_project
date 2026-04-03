@@ -239,7 +239,7 @@ class CollPost(models.Model):
 
 class FactPostModeration(models.Model):
     """Separate moderation audit trail."""
-    debate_fact_post_moderation_id = models.BigAutoField(primary_key=True)
+    debate_fact_debate_post_moderation_id = models.BigAutoField(primary_key=True)
     link_post_id = models.BigIntegerField()
     link_moderation_status_id = models.IntegerField()
     moderation_reason = models.CharField(max_length=500, blank=True, null=True)
@@ -257,12 +257,12 @@ class FactPostModeration(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[fact_post_moderation]'
+        db_table = '[debate].[fact_debate_post_moderation]'
 
 
-class CollVote(models.Model):
+class Vote(models.Model):
     """One vote per user per target — supports topics and posts."""
-    debate_coll_vote_id = models.BigAutoField(primary_key=True)
+    debate_vote_id = models.BigAutoField(primary_key=True)
     link_voter_user_profile_id = models.BigIntegerField()
     link_vote_target_type_id = models.IntegerField()
     target_row_id = models.BigIntegerField()
@@ -274,12 +274,12 @@ class CollVote(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_vote]'
+        db_table = '[debate].[vote]'
 
 
-class CollPostEditHistory(models.Model):
+class FactPostEditHistory(models.Model):
     """Audit trail for post edits."""
-    debate_coll_post_edit_history_id = models.BigAutoField(primary_key=True)
+    debate_fact_debate_post_edit_history_id = models.BigAutoField(primary_key=True)
     link_post_id = models.BigIntegerField()
     previous_post_content = models.TextField()
     link_edited_by_user_profile_id = models.BigIntegerField()
@@ -289,12 +289,12 @@ class CollPostEditHistory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_post_edit_history]'
+        db_table = '[debate].[fact_post_edit_history]'
 
 
-class CollNotification(models.Model):
+class Notification(models.Model):
     """In-app notification for debate events — reply, vote, champion, fact-check."""
-    debate_coll_notification_id = models.BigAutoField(primary_key=True)
+    debate_notification_id = models.BigAutoField(primary_key=True)
     link_recipient_user_profile_id = models.BigIntegerField()
     link_actor_user_profile_id = models.BigIntegerField()
     notification_event_code = models.CharField(max_length=30)
@@ -308,4 +308,4 @@ class CollNotification(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_notification]'
+        db_table = '[debate].[notification]'

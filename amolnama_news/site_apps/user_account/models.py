@@ -308,7 +308,7 @@ class PersonAddress(models.Model):
 class RefContactType(models.Model):
     """Maps to [contact].[ref_contact_type]."""
 
-    contact_type_id = models.IntegerField(primary_key=True)
+    contact_ref_contact_type_id = models.IntegerField(primary_key=True)
     contact_type_code = models.CharField(max_length=50)
     contact_type_name_en = models.CharField(max_length=100)
     contact_type_name_bn = models.CharField(max_length=100, blank=True, null=True)
@@ -326,9 +326,9 @@ class RefContactType(models.Model):
 class Phone(models.Model):
     """Maps to [contact].[phone]."""
 
-    phone_id = models.IntegerField(primary_key=True)
+    contact_phone_id = models.IntegerField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_contact_type_id = models.IntegerField()
+    link_ref_contact_type_id = models.IntegerField()
     country_calling_code = models.CharField(max_length=10)
     phone_number = models.CharField(max_length=20)
     is_primary = models.BooleanField()
@@ -346,9 +346,9 @@ class Phone(models.Model):
 class Email(models.Model):
     """Maps to [contact].[email]."""
 
-    email_id = models.IntegerField(primary_key=True)
+    contact_email_id = models.IntegerField(primary_key=True)
     link_person_id = models.BigIntegerField()
-    link_contact_type_id = models.IntegerField()
+    link_ref_contact_type_id = models.IntegerField()
     email_address = models.CharField(max_length=255)
     is_primary = models.BooleanField()
     is_verified = models.BooleanField()
@@ -367,7 +367,7 @@ class Email(models.Model):
 class OrganisationType(models.Model):
     """Maps to [directory].[organisation_type]."""
 
-    organisation_type_id = models.IntegerField(primary_key=True)
+    directory_ref_organisation_type_id = models.IntegerField(primary_key=True)
     organisation_type_code = models.CharField(max_length=100)
     organisation_type_name_en = models.CharField(max_length=200)
     organisation_type_name_bn = models.CharField(max_length=200)
@@ -378,7 +378,7 @@ class OrganisationType(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[directory].[organisation_type]'
+        db_table = '[directory].[ref_organisation_type]'
 
     def __str__(self):
         return self.organisation_type_name_en
@@ -387,10 +387,10 @@ class OrganisationType(models.Model):
 class Organisation(models.Model):
     """Maps to [directory].[organisation]."""
 
-    organisation_id = models.IntegerField(primary_key=True)
+    directory_organisation_id = models.IntegerField(primary_key=True)
     # organisation_uid: NOT NULL column with DB DEFAULT NEWID() — omitted so
     # Django never sends a value and the DB generates it automatically.
-    link_organisation_type_id = models.IntegerField()
+    link_ref_organisation_type_id = models.IntegerField()
     link_branch_address_id = models.IntegerField(blank=True, null=True)
     organisation_name_en = models.CharField(max_length=200)
     organisation_name_bn = models.CharField(max_length=200, blank=True, null=True)

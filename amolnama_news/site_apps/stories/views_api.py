@@ -12,7 +12,7 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import CollStory, EngStoryLike, EngStoryBookmark, EngStoryComment
+from .models import CollStory, EngagementStoryLike, EngagementStoryBookmark, EngagementStoryComment
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,7 @@ def api_story_create(request):
             asset_id = cursor.fetchone()[0]
 
             cursor.execute("""
-                INSERT INTO [stories].[coll_story_asset]
+                INSERT INTO [stories].[story_asset]
                     ([link_story_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
@@ -114,7 +114,7 @@ def api_story_like_toggle(request, story_id):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    existing_like = EngStoryLike.objects.filter(
+    existing_like = EngagementStoryLike.objects.filter(
         link_story_id=story_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
@@ -128,14 +128,14 @@ def api_story_like_toggle(request, story_id):
         existing_like.save(update_fields=['is_active'])
         liked = True
     else:
-        EngStoryLike.objects.create(
+        EngagementStoryLike.objects.create(
             link_story_id=story_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         liked = True
 
-    actual_count = EngStoryLike.objects.filter(link_story_id=story_id, is_active=True).count()
+    actual_count = EngagementStoryLike.objects.filter(link_story_id=story_id, is_active=True).count()
     CollStory.objects.filter(stories_coll_story_id=story_id).update(like_count=actual_count)
 
     return JsonResponse({'success': True, 'liked': liked, 'like_count': actual_count})
@@ -152,7 +152,7 @@ def api_story_bookmark_toggle(request, story_id):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    existing_bookmark = EngStoryBookmark.objects.filter(
+    existing_bookmark = EngagementStoryBookmark.objects.filter(
         link_story_id=story_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
@@ -166,14 +166,14 @@ def api_story_bookmark_toggle(request, story_id):
         existing_bookmark.save(update_fields=['is_active'])
         bookmarked = True
     else:
-        EngStoryBookmark.objects.create(
+        EngagementStoryBookmark.objects.create(
             link_story_id=story_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         bookmarked = True
 
-    actual_count = EngStoryBookmark.objects.filter(link_story_id=story_id, is_active=True).count()
+    actual_count = EngagementStoryBookmark.objects.filter(link_story_id=story_id, is_active=True).count()
     CollStory.objects.filter(stories_coll_story_id=story_id).update(bookmark_count=actual_count)
 
     return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})

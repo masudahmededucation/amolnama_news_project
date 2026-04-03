@@ -65,7 +65,7 @@ def _get_popular_in_category(category, viewed_keys, limit=2):
             if key not in viewed_keys:
                 items.append({
                     'content_type': 'post',
-                    'title': (post.post_text_bn or '')[:80],
+                    'title': (post.post_text or '')[:80],
                     'url': f'/post/{post.post_post_id}/',
                     'like_count': post.like_count or 0,
                 })
@@ -121,7 +121,7 @@ def _get_global_popular(limit=5):
         for post in posts:
             items.append({
                 'content_type': 'post',
-                'title': (post.post_text_bn or '')[:80],
+                'title': (post.post_text or '')[:80],
                 'url': f'/post/{post.post_post_id}/',
                 'like_count': post.like_count or 0,
             })

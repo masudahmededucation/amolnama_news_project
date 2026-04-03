@@ -117,8 +117,8 @@ class CollDestination(models.Model):
         return self.destination_name_en
 
 
-class CollDestinationPhoto(models.Model):
-    bangladesh_coll_destination_photo_id = models.BigAutoField(primary_key=True)
+class DestinationPhoto(models.Model):
+    bangladesh_destination_photo_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     photo_url = models.CharField(max_length=1000)
@@ -134,11 +134,11 @@ class CollDestinationPhoto(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_destination_photo]"
+        db_table = "[bangladesh].[destination_photo]"
 
 
-class CollAccommodation(models.Model):
-    bangladesh_coll_accommodation_id = models.BigAutoField(primary_key=True)
+class Accommodation(models.Model):
+    bangladesh_accommodation_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     accommodation_name_en = models.CharField(max_length=300)
@@ -163,14 +163,14 @@ class CollAccommodation(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_accommodation]"
+        db_table = "[bangladesh].[accommodation]"
 
     def __str__(self):
         return self.accommodation_name_en
 
 
-class CollTransportRoute(models.Model):
-    bangladesh_coll_transport_route_id = models.BigAutoField(primary_key=True)
+class TransportRoute(models.Model):
+    bangladesh_transport_route_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     transport_mode = models.CharField(max_length=30)
@@ -190,11 +190,11 @@ class CollTransportRoute(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_transport_route]"
+        db_table = "[bangladesh].[transport_route]"
 
 
-class CollTravelTip(models.Model):
-    bangladesh_coll_travel_tip_id = models.BigAutoField(primary_key=True)
+class TravelTip(models.Model):
+    bangladesh_travel_tip_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     tip_text_en = models.TextField(blank=True, null=True)
@@ -205,15 +205,15 @@ class CollTravelTip(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_travel_tip]"
+        db_table = "[bangladesh].[travel_tip]"
 
 
 # ============================================================================
 # TRAVEL HUB — ENGAGEMENT TABLES
 # ============================================================================
 
-class EngDestinationReview(models.Model):
-    bangladesh_eng_destination_review_id = models.BigAutoField(primary_key=True)
+class EngagementDestinationReview(models.Model):
+    bangladesh_engagement_destination_review_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     rating_overall = models.IntegerField()
@@ -233,11 +233,11 @@ class EngDestinationReview(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_destination_review]"
+        db_table = "[bangladesh].[engagement_destination_review]"
 
 
-class EngDestinationBookmark(models.Model):
-    bangladesh_eng_destination_bookmark_id = models.BigAutoField(primary_key=True)
+class EngagementDestinationBookmark(models.Model):
+    bangladesh_engagement_destination_bookmark_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     bookmark_note = models.CharField(max_length=300, blank=True, null=True)
@@ -245,35 +245,35 @@ class EngDestinationBookmark(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_destination_bookmark]"
+        db_table = "[bangladesh].[engagement_destination_bookmark]"
 
 
-class EngDestinationPhotoLike(models.Model):
-    bangladesh_eng_destination_photo_like_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_photo_id = models.BigIntegerField()
+class EngagementDestinationPhotoLike(models.Model):
+    bangladesh_engagement_destination_photo_like_id = models.BigAutoField(primary_key=True)
+    link_destination_photo_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_destination_photo_like]"
-        unique_together = [["link_coll_destination_photo_id", "link_user_profile_id"]]
+        db_table = "[bangladesh].[engagement_destination_photo_like]"
+        unique_together = [["link_destination_photo_id", "link_user_profile_id"]]
 
 
-class EngDestinationVideoLike(models.Model):
-    bangladesh_eng_destination_video_like_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_youtube_link_id = models.BigIntegerField()
+class EngagementDestinationVideoLike(models.Model):
+    bangladesh_engagement_destination_video_like_id = models.BigAutoField(primary_key=True)
+    link_destination_youtube_link_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_destination_video_like]"
-        unique_together = [["link_coll_destination_youtube_link_id", "link_user_profile_id"]]
+        db_table = "[bangladesh].[engagement_destination_video_like]"
+        unique_together = [["link_destination_youtube_link_id", "link_user_profile_id"]]
 
 
-class CollDestinationYoutubeLink(models.Model):
-    bangladesh_coll_destination_youtube_link_id = models.BigAutoField(primary_key=True)
+class DestinationYoutubeLink(models.Model):
+    bangladesh_destination_youtube_link_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     youtube_url = models.CharField(max_length=1000)
@@ -292,11 +292,11 @@ class CollDestinationYoutubeLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_destination_youtube_link]"
+        db_table = "[bangladesh].[destination_youtube_link]"
 
 
-class CollDestinationReferenceLink(models.Model):
-    bangladesh_coll_destination_reference_link_id = models.BigAutoField(primary_key=True)
+class DestinationReferenceLink(models.Model):
+    bangladesh_destination_reference_link_id = models.BigAutoField(primary_key=True)
     link_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     reference_url = models.CharField(max_length=2000)
@@ -310,7 +310,7 @@ class CollDestinationReferenceLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_destination_reference_link]"
+        db_table = "[bangladesh].[destination_reference_link]"
 
 
 # ============================================================================
@@ -421,20 +421,20 @@ class MapMediaTag(models.Model):
 # BEAUTY OF BANGLADESH — ENGAGEMENT TABLES
 # ============================================================================
 
-class EngMediaLike(models.Model):
-    bangladesh_eng_media_like_id = models.BigAutoField(primary_key=True)
+class EngagementMediaLike(models.Model):
+    bangladesh_engagement_media_like_id = models.BigAutoField(primary_key=True)
     link_coll_media_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_media_like]"
+        db_table = "[bangladesh].[engagement_media_like]"
         unique_together = [["link_coll_media_entry_id", "link_user_profile_id"]]
 
 
-class EngMediaComment(models.Model):
-    bangladesh_eng_media_comment_id = models.BigAutoField(primary_key=True)
+class EngagementMediaComment(models.Model):
+    bangladesh_engagement_media_comment_id = models.BigAutoField(primary_key=True)
     link_coll_media_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
@@ -446,4 +446,4 @@ class EngMediaComment(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[eng_media_comment]"
+        db_table = "[bangladesh].[engagement_media_comment]"

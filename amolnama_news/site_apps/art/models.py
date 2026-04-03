@@ -96,8 +96,8 @@ class CollArtwork(models.Model):
         return self.artwork_title_bn or self.artwork_title_en or str(self.art_coll_artwork_id)
 
 
-class CollArtworkAsset(models.Model):
-    art_coll_artwork_asset_id = models.BigAutoField(primary_key=True)
+class ArtworkAsset(models.Model):
+    art_artwork_asset_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     link_asset_id = models.BigIntegerField()
     asset_group_code = models.CharField(max_length=30)
@@ -110,11 +110,11 @@ class CollArtworkAsset(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[coll_artwork_asset]'
+        db_table = '[art].[artwork_asset]'
 
 
-class CollArtworkStep(models.Model):
-    art_coll_artwork_step_id = models.BigAutoField(primary_key=True)
+class ArtworkStep(models.Model):
+    art_artwork_step_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     step_number = models.IntegerField()
     step_instruction_bn = models.TextField()
@@ -126,11 +126,11 @@ class CollArtworkStep(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[coll_artwork_step]'
+        db_table = '[art].[artwork_step]'
 
 
-class CollArtworkYoutubeLink(models.Model):
-    art_coll_artwork_youtube_link_id = models.BigAutoField(primary_key=True)
+class ArtworkYoutubeLink(models.Model):
+    art_artwork_youtube_link_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     youtube_url = models.CharField(max_length=500)
@@ -141,11 +141,11 @@ class CollArtworkYoutubeLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[coll_artwork_youtube_link]'
+        db_table = '[art].[artwork_youtube_link]'
 
 
-class EngArtworkLike(models.Model):
-    art_eng_artwork_like_id = models.BigAutoField(primary_key=True)
+class EngagementArtworkLike(models.Model):
+    art_engagement_artwork_like_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
@@ -154,11 +154,11 @@ class EngArtworkLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[eng_artwork_like]'
+        db_table = '[art].[engagement_artwork_like]'
 
 
-class EngArtworkBookmark(models.Model):
-    art_eng_artwork_bookmark_id = models.BigAutoField(primary_key=True)
+class EngagementArtworkBookmark(models.Model):
+    art_engagement_artwork_bookmark_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
@@ -167,11 +167,11 @@ class EngArtworkBookmark(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[eng_artwork_bookmark]'
+        db_table = '[art].[engagement_artwork_bookmark]'
 
 
-class EngArtworkComment(models.Model):
-    art_eng_artwork_comment_id = models.BigAutoField(primary_key=True)
+class EngagementArtworkComment(models.Model):
+    art_engagement_artwork_comment_id = models.BigAutoField(primary_key=True)
     link_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
@@ -182,4 +182,4 @@ class EngArtworkComment(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[eng_artwork_comment]'
+        db_table = '[art].[engagement_artwork_comment]'

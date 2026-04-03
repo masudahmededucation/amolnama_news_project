@@ -174,13 +174,13 @@ def classify_and_store(content_source_app, content_id, text):
             with connection.cursor() as cursor:
                 if is_auto_flagged:
                     cursor.execute("""
-                        UPDATE [post].[post]
+                        UPDATE [post].[coll_post]
                         SET [content_category_code] = %s, [is_auto_flagged] = 1, [is_published] = 0
                         WHERE [post_post_id] = %s
                     """, [top_category_code, content_id])
                 else:
                     cursor.execute("""
-                        UPDATE [post].[post]
+                        UPDATE [post].[coll_post]
                         SET [content_category_code] = %s
                         WHERE [post_post_id] = %s
                     """, [top_category_code, content_id])

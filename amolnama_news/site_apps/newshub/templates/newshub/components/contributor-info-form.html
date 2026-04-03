@@ -47,7 +47,7 @@
         <select id="contributor-org-type" name="organisation_type_id">
           <option value="">-- ধরন নির্বাচন করুন --</option>
           {% for ot in organisation_types %}
-            <option value="{{ ot.organisation_type_id }}">
+            <option value="{{ ot.directory_ref_organisation_type_id }}">
               {{ ot.organisation_type_name_bn }}{% if ot.organisation_type_name_en %} ({{ ot.organisation_type_name_en }}){% endif %}
             </option>
           {% endfor %}

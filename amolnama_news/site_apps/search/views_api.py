@@ -33,14 +33,14 @@ def api_search(request):
     try:
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
-            post_text_bn__icontains=query, is_published=True, is_deleted=False,
+            post_text__icontains=query, is_published=True, is_deleted=False,
         ).order_by('-created_at')[:10]
         for post in posts:
             results.append({
                 'content_type': 'post',
                 'content_type_label': 'POST',
                 'content_type_color': 'blue',
-                'title': (post.post_text_bn or '')[:100],
+                'title': (post.post_text or '')[:100],
                 'url': f'/post/{post.post_post_id}/',
                 'date': post.created_at.strftime('%d %b %Y') if post.created_at else '',
             })
