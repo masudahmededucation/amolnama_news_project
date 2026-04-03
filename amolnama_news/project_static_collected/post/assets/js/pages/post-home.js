@@ -196,6 +196,51 @@
         characterCountElement.style.color = '';
       }
     });
+
+    /* ---- Link preview in composer (debounced URL detection) ---- */
+    var linkPreviewContainer = document.getElementById('post-composer-link-preview');
+    var linkPreviewTimer = null;
+    var linkPreviewCurrentUrl = '';
+
+    composerTextarea.addEventListener('input', function () {
+      if (!linkPreviewContainer) return;
+      clearTimeout(linkPreviewTimer);
+      linkPreviewTimer = setTimeout(function () {
+        var textValue = composerTextarea.value || '';
+        var urlMatch = textValue.match(/https?:\/\/[^\s<>"']+/);
+        var detectedUrl = urlMatch ? urlMatch[0] : '';
+
+        if (!detectedUrl || detectedUrl === linkPreviewCurrentUrl) return;
+        linkPreviewCurrentUrl = detectedUrl;
+
+        fetch('/newsengine/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.success || (!data.title && !data.description)) {
+              linkPreviewContainer.style.display = 'none';
+              return;
+            }
+            var previewHtml = '<div class="post-composer-link-preview-card">';
+            if (data.image) previewHtml += '<img src="' + data.image + '" alt="" class="post-composer-link-preview-image" onerror="this.style.display=\'none\'">';
+            previewHtml += '<div class="post-composer-link-preview-info">';
+            if (data.title) previewHtml += '<div class="post-composer-link-preview-title">' + data.title + '</div>';
+            if (data.description) previewHtml += '<div class="post-composer-link-preview-description">' + data.description + '</div>';
+            previewHtml += '<div class="post-composer-link-preview-domain">' + detectedUrl.replace(/^https?:\/\//, '').split('/')[0] + '</div>';
+            previewHtml += '</div>';
+            previewHtml += '<button type="button" class="post-composer-link-preview-dismiss" id="post-composer-link-preview-dismiss" name="post_composer_link_preview_dismiss" title="বাতিল">✕</button>';
+            previewHtml += '</div>';
+            linkPreviewContainer.innerHTML = previewHtml;
+            linkPreviewContainer.style.display = 'block';
+
+            document.getElementById('post-composer-link-preview-dismiss').addEventListener('click', function () {
+              linkPreviewContainer.style.display = 'none';
+              linkPreviewContainer.innerHTML = '';
+              linkPreviewCurrentUrl = '__dismissed__';
+            });
+          })
+          .catch(function () { /* URL fetch failed — no preview */ });
+      }, 800);
+    });
   }
 
   /* ---- Emoji picker ---- */

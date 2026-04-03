@@ -39,6 +39,7 @@
 .post-composer-collapsed .post-composer-media-bar,
 .post-composer-collapsed .post-composer-emoji-picker,
 .post-composer-collapsed .post-composer-media-preview,
+.post-composer-collapsed .post-composer-link-preview,
 .post-composer-collapsed .post-composer-visibility,
 .post-composer-collapsed .post-composer-character-count {
   max-height: 0;
@@ -378,6 +379,17 @@
   transition: background .15s;
 }
 .post-composer-media-preview-remove:hover { background: #dc2626; }
+
+/* ---- Link preview in composer ---- */
+.post-composer-link-preview { margin-top: .5rem; }
+.post-composer-link-preview-card { display: flex; gap: .6rem; padding: .5rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); position: relative; }
+.post-composer-link-preview-image { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+.post-composer-link-preview-info { flex: 1; min-width: 0; }
+.post-composer-link-preview-title { font-size: .82rem; font-weight: 700; color: var(--text); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.post-composer-link-preview-description { font-size: .72rem; color: var(--muted); margin-top: .2rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.post-composer-link-preview-domain { font-size: .65rem; color: var(--muted); margin-top: .2rem; }
+.post-composer-link-preview-dismiss { position: absolute; top: .3rem; right: .3rem; background: none; border: none; font-size: .9rem; cursor: pointer; color: var(--muted); line-height: 1; padding: .1rem .3rem; border-radius: 50%; }
+.post-composer-link-preview-dismiss:hover { background: rgba(0,0,0,.08); }
 
 /* ---- Login prompt ---- */
 
