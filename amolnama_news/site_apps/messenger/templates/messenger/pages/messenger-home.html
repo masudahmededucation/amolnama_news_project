@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}মেসেঞ্জার — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'messenger/assets/css/pages/messenger-home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="messenger" id="messenger" data-initial-conversation="{{ initial_conversation_id }}" data-current-user-profile-id="{{ current_user_profile_id }}">
+
+  <!-- Left panel: conversation list -->
+  <div class="messenger-sidebar" id="messenger-sidebar">
+    <div class="messenger-sidebar-header" id="messenger-sidebar-header">
+      <h1 class="messenger-sidebar-title">মেসেঞ্জার</h1>
+    </div>
+    <div class="messenger-sidebar-search" id="messenger-sidebar-search">
+      <input type="text" class="messenger-sidebar-search-input" id="messenger-sidebar-search-input" name="messenger_sidebar_search_input" placeholder="কথোপকথন খুঁজুন..." autocomplete="off">
+    </div>
+    <div class="messenger-conversation-list" id="messenger-conversation-list">
+      <div class="messenger-conversation-list-loading" id="messenger-conversation-list-loading">লোড হচ্ছে...</div>
+    </div>
+  </div>
+
+  <!-- Right panel: chat view -->
+  <div class="messenger-chat" id="messenger-chat">
+
+    <!-- Empty state (no conversation selected) -->
+    <div class="messenger-chat-empty" id="messenger-chat-empty">
+      <div class="messenger-chat-empty-icon">💬</div>
+      <p class="messenger-chat-empty-title">একটি কথোপকথন নির্বাচন করুন</p>
+      <p class="messenger-chat-empty-subtitle">বাম পাশ থেকে কথোপকথন বেছে নিন অথবা নতুন শুরু করুন</p>
+    </div>
+
+    <!-- Chat header (hidden until conversation opened) -->
+    <div class="messenger-chat-header messenger-hidden" id="messenger-chat-header">
+      <button type="button" class="messenger-chat-back-button" id="messenger-chat-back-button" aria-label="Back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="messenger-chat-header-avatar" id="messenger-chat-header-avatar"></div>
+      <div class="messenger-chat-header-info" id="messenger-chat-header-info">
+        <span class="messenger-chat-header-name" id="messenger-chat-header-name"></span>
+        <span class="messenger-chat-header-status" id="messenger-chat-header-status"></span>
+      </div>
+    </div>
+
+    <!-- Messages area (hidden until conversation opened) -->
+    <div class="messenger-messages messenger-hidden" id="messenger-messages">
+      <div class="messenger-messages-loading" id="messenger-messages-loading">লোড হচ্ছে...</div>
+    </div>
+
+    <!-- Scroll to bottom button -->
+    <button type="button" class="messenger-scroll-bottom-button messenger-hidden" id="messenger-scroll-bottom-button" aria-label="Scroll to bottom">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      <span class="messenger-scroll-bottom-badge messenger-hidden" id="messenger-scroll-bottom-badge">0</span>
+    </button>
+
+    <!-- Message input (hidden until conversation opened) -->
+    <div class="messenger-input-area messenger-hidden" id="messenger-input-area">
+      <div class="messenger-input-wrapper" id="messenger-input-wrapper">
+        <textarea class="messenger-input-textarea" id="messenger-input-textarea" name="messenger_input_textarea" placeholder="মেসেজ লিখুন..." rows="1"></textarea>
+        <button type="button" class="messenger-send-button messenger-hidden" id="messenger-send-button" aria-label="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'messenger/assets/js/pages/messenger-home.js' %}"></script>
+{% endblock %}

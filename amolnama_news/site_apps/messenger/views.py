@@ -1,5 +1,26 @@
+"""Messenger views — WhatsApp-style chat page."""
+
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
+@login_required
 def home(request):
-    return render(request, 'core/base.html')
+    """Messenger home — two-panel layout (conversation list + chat view)."""
+    conversation_id = request.GET.get('conversation', '')
+
+    current_user_profile_id = None
+    try:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        current_user_profile_id = UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
+    except Exception:
+        pass
+
+    return render(request, 'messenger/pages/messenger-home.html', {
+        'initial_conversation_id': conversation_id,
+        'current_user_profile_id': current_user_profile_id,
+        'seo': {
+            'title': 'মেসেঞ্জার — আমলনামা নিউজ',
+            'description': 'ব্যক্তিগত বার্তা পাঠান ও গ্রহণ করুন।',
+        },
+    })
