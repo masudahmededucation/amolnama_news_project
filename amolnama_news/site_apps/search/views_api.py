@@ -34,15 +34,15 @@ def api_search(request):
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
             post_text__icontains=query, is_published=True, is_active=True,
-            link_parent_post_id__isnull=True,
-        ).order_by('-created_at')[:10]
+        ).order_by('-created_at')[:20]
         for post in posts:
+            is_reply = post.link_parent_post_id is not None
             results.append({
-                'content_type': 'post',
-                'content_type_label': 'POST',
-                'content_type_color': 'blue',
+                'content_type': 'comment' if is_reply else 'post',
+                'content_type_label': 'COMMENT' if is_reply else 'POST',
+                'content_type_color': 'amber' if is_reply else 'blue',
                 'title': (post.post_text or '')[:100],
-                'url': f'/post/{post.post_post_id}/',
+                'url': f'/post/{post.link_parent_post_id or post.post_post_id}/',
                 'date': post.created_at.strftime('%d %b %Y') if post.created_at else '',
             })
     except Exception:
