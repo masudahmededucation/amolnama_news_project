@@ -34,6 +34,7 @@ def api_search(request):
         from amolnama_news.site_apps.post.models import Post
         posts = Post.objects.filter(
             post_text__icontains=query, is_published=True, is_active=True,
+            link_parent_post_id__isnull=True,
         ).order_by('-created_at')[:10]
         for post in posts:
             results.append({
