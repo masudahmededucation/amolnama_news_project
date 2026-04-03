@@ -63,3 +63,9 @@
 .article-detail__body li {
   margin-bottom: .25rem;
 }
+
+@media (max-width: 640px) {
+  .article-detail { padding: 1rem; }
+  .article-hero-image { max-height: 280px; }
+  .article-detail h1 { font-size: 1.2rem; }
+}

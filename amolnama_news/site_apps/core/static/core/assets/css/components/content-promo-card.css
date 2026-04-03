@@ -60,3 +60,12 @@
 .content-promo-card-cta-amber { background: #d97706; }
 .content-promo-card-cta-rose { background: #e11d48; }
 .content-promo-card:hover .content-promo-card-cta { opacity: .9; }
+
+@media (max-width: 640px) {
+  .content-promo-card { padding: .6rem .75rem; }
+  .content-promo-card-title { font-size: .88rem; }
+  .content-promo-card-description { font-size: .72rem; }
+  .content-promo-card-footer { flex-wrap: wrap; gap: .3rem; }
+  .content-promo-card-stats { gap: .4rem; font-size: .65rem; }
+  .content-promo-card-cta { padding: .2rem .5rem; font-size: .68rem; }
+}

@@ -40,3 +40,12 @@
 .search-result-date { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
 
 .search-page-no-results { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .82rem; }
+
+@media (max-width: 640px) {
+  .search-page { padding: .6rem; }
+  .search-page-title { font-size: 1rem; }
+  .search-page-input { padding: .5rem .8rem; font-size: .85rem; }
+  .search-page-hashtag-stats { flex-direction: column; gap: .2rem; }
+  .search-result-item { padding: .4rem .5rem; }
+  .search-result-title { font-size: .78rem; }
+}

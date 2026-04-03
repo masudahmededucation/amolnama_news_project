@@ -350,4 +350,6 @@
   .debate-arena-topic-title { font-size: 1rem; }
   .debate-arena-header-stats { gap: .5rem; font-size: .72rem; }
   .debate-argument-card { padding: .6rem; }
+  .debate-arena-reply-drawer { max-width: 100%; left: 0; transform: none; padding: .6rem; }
+  .debate-arena-reply-drawer-hidden { transform: translateY(100%); }
 }

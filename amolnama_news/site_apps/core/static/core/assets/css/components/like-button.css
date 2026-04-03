@@ -48,3 +48,7 @@
   font-size: .78rem;
   font-weight: 700;
 }
+
+@media (max-width: 640px) {
+  .like-button { min-height: 44px; padding: .4rem .6rem; }
+}

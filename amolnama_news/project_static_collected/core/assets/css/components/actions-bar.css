@@ -124,3 +124,7 @@
 .actions-bar-edit-button:hover {
   opacity: .85;
 }
+
+@media (max-width: 640px) {
+  .actions-bar-button { min-height: 44px; padding: .4rem .6rem; }
+}

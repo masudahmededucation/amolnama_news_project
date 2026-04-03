@@ -57,3 +57,9 @@
 }
 .tools-promo-card-share-item:hover { background: #f3f4f6; text-decoration: none; }
 .tools-promo-card-share-icon { width: .85rem; height: .85rem; flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .tools-promo-card-body { flex-direction: column; }
+  .tools-promo-card-share-dropdown { min-width: auto; width: 100%; }
+  .tools-promo-card-share-button { width: 36px; height: 36px; min-width: 44px; min-height: 44px; }
+}

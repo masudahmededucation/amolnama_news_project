@@ -17,7 +17,8 @@
 }
 
 .brand img {
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: auto;
   background: var(--bg);
   padding: .25rem .5rem;

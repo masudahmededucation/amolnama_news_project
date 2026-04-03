@@ -47,3 +47,7 @@
 .icon-btn:hover {
   box-shadow: var(--shadow-md);
 }
+
+@media (max-width: 640px) {
+  .btn-icon { width: 44px; height: 44px; }
+}
