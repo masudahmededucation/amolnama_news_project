@@ -48,7 +48,7 @@ def check_rate_limit(user_profile_id, action_code):
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [newsengine].[fact_rate_limit_log]
+                INSERT INTO [newsengine].[fact_rate_limit_action_log]
                     ([link_user_profile_id], [rate_limit_action_code])
                 VALUES (?, ?)
             """, [user_profile_id, action_code])

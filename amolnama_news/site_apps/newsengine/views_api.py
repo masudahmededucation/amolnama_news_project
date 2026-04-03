@@ -95,7 +95,7 @@ def api_bookmark_toggle(request):
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [newsengine].[coll_content_bookmark]
+                INSERT INTO [newsengine].[bookmark_content]
                     ([link_user_profile_id], [content_type_code], [content_id], [content_title], [content_url])
                 VALUES (?, ?, ?, ?, ?)
             """, [user_profile_id, content_type_code, content_id, content_title, content_url])

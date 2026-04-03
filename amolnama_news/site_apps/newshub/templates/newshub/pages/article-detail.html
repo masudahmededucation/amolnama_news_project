@@ -266,7 +266,7 @@
       <div class="article-comments-list">
         {% for comment in comments %}
         <div class="article-comment-card" {% if comment.parent_comment_id %}style="margin-left:2rem;"{% endif %}>
-          <p class="article-comment-text">{{ comment.eng_comment_text_bn }}</p>
+          <p class="article-comment-text">{{ comment.engagement_comment_text }}</p>
           <span class="article-comment-meta">{{ comment.created_at|date:"d M Y, h:i A" }}</span>
         </div>
         {% endfor %}
