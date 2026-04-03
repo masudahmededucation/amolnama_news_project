@@ -688,7 +688,7 @@
 /* ---- Inline Edit ---- */
 .post-card-edit-textarea {
   width: 100%;
-  min-height: 100px;
+  min-height: auto;
   padding: .5rem;
   font-size: .9rem;
   line-height: 1.6;
@@ -1133,7 +1133,7 @@
 
 /* Inline edit form */
 .post-card-inline-edit-form { width: 100%; }
-.post-card-inline-edit-textarea { width: 100%; padding: .5rem; border: 2px solid var(--primary); border-radius: 10px; font-size: .88rem; font-family: inherit; resize: vertical; min-height: 240px; box-sizing: border-box; }
+.post-card-inline-edit-textarea { width: 100%; padding: .5rem; border: 2px solid var(--primary); border-radius: 10px; font-size: .88rem; font-family: inherit; resize: vertical; min-height: auto; box-sizing: border-box; }
 .post-card-inline-edit-buttons { display: flex; gap: .3rem; margin-top: .3rem; }
 .post-card-inline-edit-save { padding: .3rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
 .post-card-inline-edit-cancel { padding: .3rem .8rem; background: #e5e7eb; color: #374151; border: none; border-radius: 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
