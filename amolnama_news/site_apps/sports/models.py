@@ -7,7 +7,7 @@ from django.db import models
 # ---------------------------------------------------------------------------
 class SportsFormFact(models.Model):
     sports_form_fact_id     = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
 
     # Step 3: Sport Type & News Sub-Type
     link_ref_status_sports_form_sport_list_id      = models.IntegerField(blank=True, null=True)

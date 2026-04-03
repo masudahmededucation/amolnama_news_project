@@ -186,7 +186,7 @@ def _actor_sidenotes(entry_id):
 
     items = []
     actors = list(IncidentInvolvedActorProfile.objects.filter(
-        link_coll_news_entry_id=entry_id
+        link_newshub_coll_news_entry_id=entry_id
     ))
 
     # Bulk fetch persons
@@ -237,7 +237,7 @@ def _extortion_sidenotes(entry_id):
     """Sidenotes specific to extortion form."""
     items = []
     try:
-        extortion_impact = ExtortionFormImpact.objects.get(link_coll_news_entry_id=entry_id)
+        extortion_impact = ExtortionFormImpact.objects.get(link_newshub_coll_news_entry_id=entry_id)
     except ExtortionFormImpact.DoesNotExist:
         return items
 
@@ -319,7 +319,7 @@ def _extortion_sidenotes(entry_id):
 
     # Legal status
     try:
-        legal = ExtortionFormVictimLegalAction.objects.get(link_coll_news_entry_id=entry_id)
+        legal = ExtortionFormVictimLegalAction.objects.get(link_newshub_coll_news_entry_id=entry_id)
         fir_status = _resolve_status(legal.link_ref_status_law_gd_fir_status_id)
         if fir_status:
             items.append(_build_sidenote_item('legal', '⚖️', 'এফআইআর / জিডি', fir_status))
@@ -362,12 +362,12 @@ def build_sidenote_data(news_entry, form_type_code):
     items.extend(_shared_sidenotes(news_entry))
 
     # Actor sidenotes (all form types)
-    items.extend(_actor_sidenotes(news_entry.coll_news_entry_id))
+    items.extend(_actor_sidenotes(news_entry.newshub_coll_news_entry_id))
 
     # Form-type-specific sidenotes
     builder = _FORM_TYPE_BUILDERS.get(form_type_code)
     if builder:
-        items.extend(builder(news_entry.coll_news_entry_id))
+        items.extend(builder(news_entry.newshub_coll_news_entry_id))
 
     # Remove None items
     return [i for i in items if i is not None]
@@ -460,7 +460,7 @@ def _build_shared_edit_data(entry):
     # Social sources (Step 10) — bulk fetch to avoid N+1
     social_sources = []
     social_links = list(NewsSocialMediaSource.objects.filter(
-        link_coll_news_entry_id=entry.coll_news_entry_id
+        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id
     ).values_list('link_social_media_url_library_id', flat=True))
     if social_links:
         url_recs = {
@@ -480,7 +480,7 @@ def _build_shared_edit_data(entry):
     # Category & Tags (Step 11)
     data['category_id'] = entry.link_news_category_id
     tag_entries = NewsEntryTag.objects.filter(
-        link_coll_news_entry_id=entry.coll_news_entry_id
+        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id
     ).values_list('link_news_category_tag_id', flat=True)
     tag_ids = list(tag_entries)
     # Fetch tag names for JS chip rendering
@@ -505,7 +505,7 @@ def _build_actor_edit_data(entry_id):
     from amolnama_news.site_apps.user_account.models import Person
 
     actors = list(IncidentInvolvedActorProfile.objects.filter(
-        link_coll_news_entry_id=entry_id
+        link_newshub_coll_news_entry_id=entry_id
     ))
 
     # Bulk fetch all persons in one query
@@ -592,7 +592,7 @@ def _build_extortion_edit_data(entry_id):
 
     # Step 7 — Extortion incident details
     try:
-        impact = ExtortionFormImpact.objects.get(link_coll_news_entry_id=entry_id)
+        impact = ExtortionFormImpact.objects.get(link_newshub_coll_news_entry_id=entry_id)
 
         # Sector: exactly one BIT is True → find the status_id
         sector_id = None
@@ -623,7 +623,7 @@ def _build_extortion_edit_data(entry_id):
 
     # Step 8 — Legal action
     try:
-        legal = ExtortionFormVictimLegalAction.objects.get(link_coll_news_entry_id=entry_id)
+        legal = ExtortionFormVictimLegalAction.objects.get(link_newshub_coll_news_entry_id=entry_id)
         result['ext_legal'] = {
             'firStatusId': legal.link_ref_status_law_gd_fir_status_id,
             'policeStation': legal.gd_fir_location_display_title_en or '',
@@ -662,7 +662,7 @@ def build_edit_data(entry_id, form_type_code):
     """
     from amolnama_news.site_apps.newshub.models import CollNewsEntry
 
-    entry = CollNewsEntry.objects.get(coll_news_entry_id=entry_id)
+    entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=entry_id)
 
     # Shared data (all form types)
     data = _build_shared_edit_data(entry)
@@ -750,14 +750,14 @@ def build_article_seo_slug(entry, form_type_code):
         parts.append(str(entry.created_at.year))
 
     slug = '-'.join(part for part in parts if part)
-    return slug[:450] if slug else str(entry.coll_news_entry_id)
+    return slug[:450] if slug else str(entry.newshub_coll_news_entry_id)
 
 
 # ---------------------------------------------------------------------------
 # Article photos — fetch file URLs via raw SQL (file_storage_path is computed)
 # ---------------------------------------------------------------------------
 
-def get_article_photos(coll_news_entry_id):
+def get_article_photos(newshub_coll_news_entry_id):
     """Fetch all photos for a news article, grouped by asset_group_code.
 
     Returns a dict:
@@ -799,13 +799,13 @@ def get_article_photos(coll_news_entry_id):
                [media].[asset].file_mime_type
         FROM [newshub].[news_asset]
         JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[news_asset].link_asset_id
-        WHERE [newshub].[news_asset].link_coll_news_entry_id = %s
+        WHERE [newshub].[news_asset].link_newshub_coll_news_entry_id = %s
           AND [media].[asset].is_active = 1
         ORDER BY [newshub].[news_asset].sort_order
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(sql, [coll_news_entry_id])
+        cursor.execute(sql, [newshub_coll_news_entry_id])
         columns = [col[0] for col in cursor.description]
         rows = cursor.fetchall()
 
@@ -830,7 +830,7 @@ def get_article_photos(coll_news_entry_id):
     for photo in image_photos:
         photo['photo_card'] = {
             'id': photo['link_asset_id'],
-            'parent_id': coll_news_entry_id,
+            'parent_id': newshub_coll_news_entry_id,
             'file_url': photo['file_url'],
             'caption': photo.get('news_asset_caption_bn') or None,
             'like_count': photo.get('like_count', 0),
@@ -854,35 +854,35 @@ def get_article_photos(coll_news_entry_id):
     }
 
 
-def get_article_cover_urls_bulk(coll_news_entry_ids):
+def get_article_cover_urls_bulk(newshub_coll_news_entry_ids):
     """Bulk fetch cover image URLs for multiple articles (for listing page).
 
-    Returns dict: { coll_news_entry_id: file_url, ... }
+    Returns dict: { newshub_coll_news_entry_id: file_url, ... }
     Uses is_featured=1 first, falls back to first photo (lowest sort_order).
     """
-    if not coll_news_entry_ids:
+    if not newshub_coll_news_entry_ids:
         return {}
 
     from django.db import connection
 
-    placeholders = ','.join(['%s'] * len(coll_news_entry_ids))
+    placeholders = ','.join(['%s'] * len(newshub_coll_news_entry_ids))
     sql = f"""
-        SELECT [newshub].[news_asset].link_coll_news_entry_id,
+        SELECT [newshub].[news_asset].link_newshub_coll_news_entry_id,
                '/media/' + [media].[asset].file_storage_path AS file_url,
                [newshub].[news_asset].is_featured,
                [newshub].[news_asset].sort_order
         FROM [newshub].[news_asset]
         JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[news_asset].link_asset_id
-        WHERE [newshub].[news_asset].link_coll_news_entry_id IN ({placeholders})
+        WHERE [newshub].[news_asset].link_newshub_coll_news_entry_id IN ({placeholders})
           AND [media].[asset].is_active = 1
           AND [media].[asset].file_mime_type LIKE 'image/%%'
-        ORDER BY [newshub].[news_asset].link_coll_news_entry_id,
+        ORDER BY [newshub].[news_asset].link_newshub_coll_news_entry_id,
                  [newshub].[news_asset].is_featured DESC,
                  [newshub].[news_asset].sort_order
     """
 
     with connection.cursor() as cursor:
-        cursor.execute(sql, list(coll_news_entry_ids))
+        cursor.execute(sql, list(newshub_coll_news_entry_ids))
         rows = cursor.fetchall()
 
     # Pick first row per entry (featured first due to ORDER BY)

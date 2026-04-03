@@ -1,9 +1,9 @@
 {# Article photo card — included by article-detail.html for each photo. Context variables: photo (dict with user_liked), entry, cover_image_url, can_edit #}
-<div class="article-detail-photo-card" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.coll_news_entry_id }}">
+<div class="article-detail-photo-card" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">
   <div class="article-detail-photo-card-image" data-photo-url="{{ photo.file_url }}" data-photo-caption="{{ photo.news_asset_caption_bn|default:'' }}" style="background-image:url('{{ photo.file_url }}');cursor:pointer;"></div>
 
   {% if can_edit %}
-  <button type="button" class="article-detail-set-cover-button{% if cover_image_url and cover_image_url == photo.file_url %} article-detail-set-cover-button-active{% endif %}" id="article-detail-set-cover-{{ photo.link_asset_id }}" name="article_set_cover_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.coll_news_entry_id }}">
+  <button type="button" class="article-detail-set-cover-button{% if cover_image_url and cover_image_url == photo.file_url %} article-detail-set-cover-button-active{% endif %}" id="article-detail-set-cover-{{ photo.link_asset_id }}" name="article_set_cover_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">
     <span class="article-detail-set-cover-label">{% if cover_image_url and cover_image_url == photo.file_url %}✓ কভার ছবি (Cover photo){% else %}☆ কভার ছবি সেট করুন (Set as cover){% endif %}</span>
   </button>
   {% endif %}
@@ -12,7 +12,7 @@
 
   <div class="article-detail-photo-card-footer">
     <div class="article-detail-photo-card-stats">
-      <button type="button" class="article-detail-photo-like-button{% if photo.user_liked %} article-detail-photo-like-button-active{% endif %}" id="article-detail-photo-like-{{ photo.link_asset_id }}" name="article_photo_like_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.coll_news_entry_id }}" title="পছন্দ (Like)">
+      <button type="button" class="article-detail-photo-like-button{% if photo.user_liked %} article-detail-photo-like-button-active{% endif %}" id="article-detail-photo-like-{{ photo.link_asset_id }}" name="article_photo_like_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}" title="পছন্দ (Like)">
         <span class="article-detail-photo-like-icon">{% if photo.user_liked %}❤️{% else %}🤍{% endif %}</span>
         <span class="article-detail-photo-like-count" id="article-detail-photo-like-count-{{ photo.link_asset_id }}">{{ photo.like_count|default:0 }}</span>
       </button>
@@ -20,8 +20,8 @@
     </div>
     {% if can_edit %}
     <div class="article-detail-photo-card-actions">
-      <button type="button" class="article-detail-photo-edit-button" id="article-detail-photo-edit-{{ photo.link_asset_id }}" name="article_photo_edit_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.coll_news_entry_id }}" data-caption="{{ photo.news_asset_caption_bn|default:'' }}" title="ক্যাপশন পরিবর্তন করুন (Edit caption)">✏️</button>
-      <button type="button" class="article-detail-photo-delete-button" id="article-detail-photo-delete-{{ photo.link_asset_id }}" name="article_photo_delete_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.coll_news_entry_id }}" title="ছবি মুছুন (Delete photo)">🗑️</button>
+      <button type="button" class="article-detail-photo-edit-button" id="article-detail-photo-edit-{{ photo.link_asset_id }}" name="article_photo_edit_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}" data-caption="{{ photo.news_asset_caption_bn|default:'' }}" title="ক্যাপশন পরিবর্তন করুন (Edit caption)">✏️</button>
+      <button type="button" class="article-detail-photo-delete-button" id="article-detail-photo-delete-{{ photo.link_asset_id }}" name="article_photo_delete_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}" title="ছবি মুছুন (Delete photo)">🗑️</button>
     </div>
     {% endif %}
   </div>

@@ -262,7 +262,7 @@ def news_collection_multistep_extortion(request):
     if edit_entry_id:
         try:
             edit_entry_id = int(edit_entry_id)
-            edit_entry = CollNewsEntry.objects.get(coll_news_entry_id=edit_entry_id)
+            edit_entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=edit_entry_id)
             # Permission check: owner or admin
             can_edit = False
             if request.user.is_authenticated:
@@ -1167,7 +1167,7 @@ def news_article_landing(request):
     for published_article in published_articles:
         try:
             entry = CollNewsEntry.objects.get(
-                coll_news_entry_id=published_article.link_news_entry_id
+                newshub_coll_news_entry_id=published_article.link_news_entry_id
             )
         except CollNewsEntry.DoesNotExist:
             continue
@@ -1227,11 +1227,11 @@ def news_article_landing(request):
 
     # Bulk-fetch cover image URLs for all articles
     from .helpers import get_article_cover_urls_bulk
-    entry_ids = [a['entry'].coll_news_entry_id for a in articles_with_meta]
+    entry_ids = [a['entry'].newshub_coll_news_entry_id for a in articles_with_meta]
     cover_url_map = get_article_cover_urls_bulk(entry_ids)
     for article_meta in articles_with_meta:
         article_meta['cover_image_url'] = cover_url_map.get(
-            article_meta['entry'].coll_news_entry_id
+            article_meta['entry'].newshub_coll_news_entry_id
         )
 
     # Bulk-fetch engagement stats (like_count, view_count) for all articles
@@ -1274,7 +1274,7 @@ def article_detail(request, slug):
 
     # Get the underlying news entry
     try:
-        entry = CollNewsEntry.objects.get(coll_news_entry_id=published_article.link_news_entry_id)
+        entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=published_article.link_news_entry_id)
     except CollNewsEntry.DoesNotExist:
         raise Http404("Article not found")
 
@@ -1330,7 +1330,7 @@ def article_detail(request, slug):
 
     # Tags
     tag_ids = NewsEntryTag.objects.filter(
-        link_coll_news_entry_id=entry.coll_news_entry_id
+        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id
     ).values_list('link_news_category_tag_id', flat=True)
     tags = []
     if tag_ids:
@@ -1388,7 +1388,7 @@ def article_detail(request, slug):
     }
     url_name = form_type_url_map.get(form_type_code)
     if url_name:
-        edit_url = reverse(url_name) + '?edit=' + str(entry.coll_news_entry_id)
+        edit_url = reverse(url_name) + '?edit=' + str(entry.newshub_coll_news_entry_id)
 
     # Comments (approved only for public view)
     comments = list(EngagementComment.objects.filter(
@@ -1420,7 +1420,7 @@ def article_detail(request, slug):
     # Community additions (visible: pending + approved)
     from .models import ArticleCommunityAddition
     additions = list(ArticleCommunityAddition.objects.filter(
-        link_coll_news_entry_id=entry.coll_news_entry_id,
+        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
     ).exclude(status_code='rejected').order_by('-created_at'))
 
     # Publication status options (for admin/editor dropdown)
@@ -1437,14 +1437,14 @@ def article_detail(request, slug):
 
     # ---- Article photos (evidence, impact, accused, victim, witness, general) ----
     from .helpers import get_article_photos
-    article_photos = get_article_photos(entry.coll_news_entry_id)
+    article_photos = get_article_photos(entry.newshub_coll_news_entry_id)
     cover_image_url = article_photos['cover_image_url']
     photo_groups = article_photos['groups']
 
     # Annotate each photo with user_liked flag (session-based)
     liked_photo_keys = set(request.session.get('article_photo_likes', []))
     for photo in article_photos['all']:
-        photo_key = str(entry.coll_news_entry_id) + '_' + str(photo['link_asset_id'])
+        photo_key = str(entry.newshub_coll_news_entry_id) + '_' + str(photo['link_asset_id'])
         photo['user_liked'] = photo_key in liked_photo_keys
 
     # ---- SEO ----
@@ -1604,13 +1604,13 @@ def _save_or_reuse_asset(uploaded_file, file_desc, now):
 # General attachments (with caption + featured) have their own block because
 # of the extra caption/featured logic.
 
-def _save_evidence_files(request, coll_news_entry_id, file_field, desc_field, max_count, now,
+def _save_evidence_files(request, newshub_coll_news_entry_id, file_field, desc_field, max_count, now,
                          asset_group_code=None):
     """Save evidence/form-specific file uploads → media.asset + newshub.news_asset.
 
     Args:
         request              — Django request object
-        coll_news_entry_id   — primary key of the news entry
+        newshub_coll_news_entry_id   — primary key of the news entry
         file_field           — POST file field name, e.g. 'crime_evidence_file'
         desc_field           — POST field name for descriptions JSON, e.g. 'crime_evidence_descriptions_json'
         max_count            — max files to save (typically 4)
@@ -1635,7 +1635,7 @@ def _save_evidence_files(request, coll_news_entry_id, file_field, desc_field, ma
             file_desc = (descs[i] or '').strip() or None
         asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
         NewsAsset.objects.create(
-            link_coll_news_entry_id=coll_news_entry_id,
+            link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
             link_asset_id=asset.asset_id,
             is_featured=False,
             asset_group_code=asset_group_code,
@@ -1825,7 +1825,7 @@ def _resolve_actor_role(role_code=None, role_id=None):
     return (None, None)
 
 
-def _save_actor_profile(coll_news_entry_id, person_id, actor_data, form_type_id, group_code, now,
+def _save_actor_profile(newshub_coll_news_entry_id, person_id, actor_data, form_type_id, group_code, now,
                         marriage_id=None, role_code=None):
     """Save Actor Type + Party Details → [investigation].[incident_involved_actor_profile].
 
@@ -1845,7 +1845,7 @@ def _save_actor_profile(coll_news_entry_id, person_id, actor_data, form_type_id,
             resolved_id, resolved_code = None, None
 
     return IncidentInvolvedActorProfile.objects.create(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_person_id=person_id,
         link_person_marriage_id=marriage_id,
         link_ref_status_incident_involved_actor_role_id=resolved_id,
@@ -1873,7 +1873,7 @@ _FIELD_TO_ROLE = {
 }
 
 
-def _save_actors_from_json(request, coll_news_entry_id, form_type_id, group_code, now,
+def _save_actors_from_json(request, newshub_coll_news_entry_id, form_type_id, group_code, now,
                            json_fields=('accused_json', 'victim_json', 'witness_json')):
     """Parse actor JSON from POST and save each actor using the shared helpers.
 
@@ -1895,7 +1895,7 @@ def _save_actors_from_json(request, coll_news_entry_id, form_type_id, group_code
                 if not person:
                     continue  # skip actors with no name
                 _save_actor_profile(
-                    coll_news_entry_id, person.person_id, actor_data,
+                    newshub_coll_news_entry_id, person.person_id, actor_data,
                     form_type_id, group_code, now,
                     role_code=role_code,
                 )
@@ -2011,7 +2011,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         news_headline_bn__iexact=headline_normalized,
     )
     if edit_entry_id:
-        duplicate_qs = duplicate_qs.exclude(coll_news_entry_id=int(edit_entry_id))
+        duplicate_qs = duplicate_qs.exclude(newshub_coll_news_entry_id=int(edit_entry_id))
     duplicate_exists = duplicate_qs.exists()
     if duplicate_exists:
         news_entry_form.add_error(
@@ -2065,7 +2065,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
     existing_entry = None
     if is_edit_mode:
         try:
-            existing_entry = CollNewsEntry.objects.get(coll_news_entry_id=int(edit_entry_id))
+            existing_entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=int(edit_entry_id))
         except CollNewsEntry.DoesNotExist:
             is_edit_mode = False
 
@@ -2130,11 +2130,11 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 entry.save()
 
                 # Delete old junction records for re-insertion
-                NewsEntryTag.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
-                NewsSocialMediaSource.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+                NewsEntryTag.objects.filter(link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id).delete()
+                NewsSocialMediaSource.objects.filter(link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id).delete()
 
                 # Delete old actors (person records are NOT deleted — they may be shared)
-                IncidentInvolvedActorProfile.objects.filter(link_coll_news_entry_id=entry.coll_news_entry_id).delete()
+                IncidentInvolvedActorProfile.objects.filter(link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id).delete()
 
                 # Delete old form-specific records for re-insertion
                 from amolnama_news.site_apps.investigation.models import (
@@ -2156,24 +2156,24 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     WomenFormPerpetrator as _WcvPerp,
                     WomenFormVictimLegalAction as _WcvLegal,
                 )
-                _eid = entry.coll_news_entry_id
-                _ExtImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _ExtLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _CrimeCas.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _CrimeWpn.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _CrimeLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _LandFact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _LandLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _PricePrice.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _PriceStock.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _CivicImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _GlobalFact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _ConflictImpact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _ConflictCountry.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _JulyFact.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _WcvVictim.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _WcvPerp.objects.filter(link_coll_news_entry_id=_eid).delete()
-                _WcvLegal.objects.filter(link_coll_news_entry_id=_eid).delete()
+                _eid = entry.newshub_coll_news_entry_id
+                _ExtImpact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _ExtLegal.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _CrimeCas.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _CrimeWpn.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _CrimeLegal.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _LandFact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _LandLegal.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _PricePrice.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _PriceStock.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _CivicImpact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _GlobalFact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _ConflictImpact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _ConflictCountry.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _JulyFact.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _WcvVictim.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _WcvPerp.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
+                _WcvLegal.objects.filter(link_newshub_coll_news_entry_id=_eid).delete()
                 # NOTE: Attachments (NewsAsset) are NOT deleted — existing files kept
             else:
                 entry = CollNewsEntry.objects.create(
@@ -2221,7 +2221,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 asset = _save_or_reuse_asset(uploaded_file, file_desc, now)
 
                 NewsAsset.objects.create(
-                    link_coll_news_entry_id=entry.coll_news_entry_id,
+                    link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                     link_asset_id=asset.asset_id,
                     news_asset_caption_bn=caption if i == 0 else None,
                     is_featured=(i == featured_idx),
@@ -2250,7 +2250,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                 created_at=now,
                             )
                         NewsSocialMediaSource.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_social_media_url_library_id=url_record.social_media_url_library_id,
                             created_at=now,
                         )
@@ -2261,7 +2261,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             for tid in tag_ids:
                 if tid.isdigit():
                     NewsEntryTag.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         link_news_category_tag_id=int(tid),
                         created_at=now,
                     )
@@ -2270,7 +2270,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             # → [person].[person] + [investigation].[incident_involved_actor_profile]
             # Uses shared helpers: _save_actor_person + _save_actor_profile
             _save_actors_from_json(
-                request, entry.coll_news_entry_id, form_type_id,
+                request, entry.newshub_coll_news_entry_id, form_type_id,
                 form_type_group_code or 'general_news', now,
             )
 
@@ -2299,7 +2299,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     _asset = _save_or_reuse_asset(_uploaded_file, None, now)
                     _user_desc = (_descs[_j].strip() if _j < len(_descs) else '') or ''
                     NewsAsset.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         link_asset_id=_asset.asset_id,
                         news_asset_caption_bn=_user_desc or _code,
                         is_featured=False,
@@ -2326,7 +2326,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         raise
                     is_ongoing = bool(casualties.get('isOngoing', False))
                     CrimeFormImpactCasualty.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         casualty_death_count=death_count,
                         casualty_injury_count=injury_count,
                         casualty_missing_count=0,
@@ -2356,7 +2356,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     wpn_codes = {wpn_code_map[i] for i in wpn_ids if i in wpn_code_map}
 
                     CrimeFormWeapon.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         weapon_is_firearms_used='firearms' in wpn_codes,
                         weapon_is_explosives_used='explosives' in wpn_codes,
                         weapon_is_sharp_weapon_used='sharp_weapon' in wpn_codes,
@@ -2393,7 +2393,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
 
                         CrimeFormVictimLegalAction.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_law_gd_fir_status_id=fir_status_id,
                             case_gd_number=(cl.get('caseNumber') or '').strip() or None,
                             reason_not_filing_and_plans=(cl.get('noFirReason') or '').strip() or None,
@@ -2446,7 +2446,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     remarks       = (ext.get('remarks') or '').strip() or None
 
                     ExtortionFormImpact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         link_ref_status_extortion_form_extortion_demand_frequency_id=freq_id,
                         # Sector (single radio → BIT flags, status_ids 427-436)
                         sector_is_shop_market=(sector_id == 427),
@@ -2531,7 +2531,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
 
                         ExtortionFormVictimLegalAction.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_law_gd_fir_status_id=fir_status_id,
                             gd_fir_case_gd_number=(el.get('caseNumber') or '').strip() or None,
                             gd_fir_reason_not_filing_and_plans=(el.get('noFirReason') or '').strip() or None,
@@ -2563,7 +2563,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             # ---- Save evidence files (extortion & land-grab forms) ----
             # Uses shared helper: _save_evidence_files()
             _save_evidence_files(
-                request, entry.coll_news_entry_id,
+                request, entry.newshub_coll_news_entry_id,
                 'evidence_file', 'evidence_descriptions_json', 4, now,
                 asset_group_code='evidence',
             )
@@ -2588,7 +2588,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     except (ValueError, TypeError):
                         raise
                     LandGrabbingFormFact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         link_ref_status_land_grabbing_form_land_type_id=prop_type_id,
                         land_details_other_property_type_description=(lg.get('propertyTypeOther') or '').strip() or None,
                         record_details_mouza_name=(lg.get('mouza') or '').strip() or None,
@@ -2645,7 +2645,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
 
                         LandGrabbingFormVictimLegalAction.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_law_gd_fir_status_id=fir_status_id,
                             legal_action_case_gd_number=(ll.get('caseNumber') or '').strip() or None,
                             legal_action_reason_not_filing_desc=(ll.get('noFirReason') or '').strip() or None,
@@ -2679,7 +2679,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             # ---- Save crime evidence files (crime/violence form) ----
             # Uses shared helper: _save_evidence_files()
             _save_evidence_files(
-                request, entry.coll_news_entry_id,
+                request, entry.newshub_coll_news_entry_id,
                 'crime_evidence_file', 'crime_evidence_descriptions_json', 4, now,
                 asset_group_code='evidence',
             )
@@ -2698,7 +2698,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         market_rate = float(commodity.get('marketRate') or 0)
                         consumer_impact = (commodity.get('consumerImpact') or '').strip() or None
                         PriceHikingFormCommodityPrice.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_commodity_id=int(commodity_id),
                             price_govt_fixed_rate=govt_rate,
                             price_market_rate=market_rate,
@@ -2719,7 +2719,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         if not commodity_id:
                             continue
                         PriceHikingFormCommodityStockSupplyChain.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_commodity_id=int(commodity_id),
                             is_crisis_artificial_created=bool(item.get('artificialCrisis')),
                             stock_storage_description_bn=(item.get('description') or '').strip() or None,
@@ -2755,7 +2755,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                     if impact_cat_id and issue_status_id:
                         CivicFormImpact.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_civic_form_sub_issue_type_id=civic_sub_type_id,
                             link_ref_status_civic_form_impact_category_id=impact_cat_id,
                             link_ref_status_civic_form_time_duration_unit_id=dur_unit_id,
@@ -2793,7 +2793,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         is_bd_relevant_val = bool(cls.get('hasBangladeshAngle'))
 
                         GlobalNewsFormFact.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             # Step 3: Sub-type + Classification + Story Status
                             link_ref_status_global_news_form_issue_sub_type_id=int(request.POST.get('global_news_sub_type', '') or 0) or None,
                             news_issue_sub_type_other_category_details=(request.POST.get('global_news_sub_type_other_detail', '') or '').strip() or None,
@@ -2852,7 +2852,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         if not country_id or not involvement_type_id:
                             continue  # skip parties without a country or role
                         ConflictFormActorCountry.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_actor_involvement_type_id=involvement_type_id,
                             link_country_id=country_id,
                             actor_alliance_coalition_bn=(party.get('alliance') or '').strip() or None,
@@ -2878,7 +2878,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     gp = json.loads(geopolitics_json_raw) if geopolitics_json_raw else {}
 
                     ConflictFormImpact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         # Step 3: conflict sub-type / type
                         link_ref_status_conflict_form_conflict_type_id=global_sub_type_id,
                         # Step 5: frontline
@@ -2969,7 +2969,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                     # ④ Shared: Actor profile → [investigation].[incident_involved_actor_profile]
                     actor_profile = _save_actor_profile(
-                        entry.coll_news_entry_id, victim_person_id, vp,
+                        entry.newshub_coll_news_entry_id, victim_person_id, vp,
                         form_type_id, 'women_child_violence', now,
                         marriage_id=marriage_id, role_code='victim',
                     )
@@ -3078,7 +3078,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     cattr['msc_consent_to_share_information'] = code_map.get(consent_id) or None
 
                     victim_profile_fact = WomenFormVictimProfileFact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         link_person_id=victim_person_id,
                         link_person_marriage_id=marriage_id,
                         created_at=now,
@@ -3118,7 +3118,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                                 # ② Shared: Actor profile → [investigation].[incident_involved_actor_profile]
                                 _save_actor_profile(
-                                    entry.coll_news_entry_id, person.person_id, acc,
+                                    entry.newshub_coll_news_entry_id, person.person_id, acc,
                                     form_type_id, 'women_child_violence', now,
                                     role_code='accused',
                                 )
@@ -3126,7 +3126,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                 attr_id_set = set(int(x) for x in (acc.get('attributeIds') or []) if x)
                                 attr_codes = {attr_code_map[i] for i in attr_id_set if i in attr_code_map}
                                 WomenFormPerpetrator.objects.create(
-                                    link_coll_news_entry_id=entry.coll_news_entry_id,
+                                    link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                                     link_person_id=person.person_id,
                                     link_women_form_victim_profile_fact_id=victim_profile_fact.women_form_victim_profile_fact_id,
                                     link_ref_status_victim_attacker_relationship_id=int(acc.get('relationshipId') or 0) or None,
@@ -3148,7 +3148,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             # ---- Save WCV witnesses — Step 7 (standard witness repeater) ----
             # Uses shared helper: _save_actors_from_json (witness_json only)
             _save_actors_from_json(
-                request, entry.coll_news_entry_id, form_type_id,
+                request, entry.newshub_coll_news_entry_id, form_type_id,
                 'women_child_violence', now,
                 json_fields=('witness_json',),
             )
@@ -3185,7 +3185,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         retaliation_codes = {code_map[i] for i in retaliation_ids if i in code_map}
 
                         WomenFormVictimLegalAction.objects.create(
-                            link_coll_news_entry_id=entry.coll_news_entry_id,
+                            link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_law_gd_fir_status_id=fir_status_id,
                             case_gd_number=((lg.get('caseNumber') or '').strip() or None) if fir_yes else None,
                             reason_for_not_filing_and_plans=((lg.get('noFirReason') or '').strip() or None) if fir_no else None,
@@ -3247,7 +3247,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         return _date.fromisoformat(s)
 
                     SportsFormFact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         # Step 3: Sport Type & News Sub-Type
                         link_ref_status_sports_form_sport_list_id=_ref_id('sports_form_sport_list', sports_sport_type_raw) if sports_sport_type_raw else None,
                         link_ref_status_sports_form_sub_issue_type_id=_ref_id('sports_form_sub_issue_type', sports_sub_type_raw) if sports_sub_type_raw else None,
@@ -3305,7 +3305,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                     title_val = _se(epd, 'title') or ''
 
                     EntertainmentFormFact.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         # Step 3: Medium & Sub-Type
                         link_ref_status_entertainment_form_medium_type_id=_ref_id('entertainment_form_medium_type', ent_medium_code),
                         link_ref_status_entertainment_form_issue_sub_type_id=_ref_id('entertainment_form_issue_sub_type', ent_sub_type_code),
@@ -3373,7 +3373,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                     # ---- Shared: Actor profile → [investigation].[incident_involved_actor_profile] ----
                     _save_actor_profile(
-                        entry.coll_news_entry_id, martyr_person_id, jm,
+                        entry.newshub_coll_news_entry_id, martyr_person_id, jm,
                         form_type_id, 'july_uprising_2024', now,
                         role_code='victim',
                     )
@@ -3394,7 +3394,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
                     # ---- INSERT [investigation].[july2024_fact_protest] ----
                     July2024FactProtest.objects.create(
-                        link_coll_news_entry_id=entry.coll_news_entry_id,
+                        link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                         # Step 3: incident type + context
                         link_ref_status_incident_type_id=int(request.POST.get('july_sub_type', '') or 0) or None,
                         link_ref_status_protest_scale_id=int(jctx.get('scale') or 0) or None,
@@ -3487,7 +3487,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
     if is_edit_mode:
         from .models import PubArticle
         try:
-            pub = PubArticle.objects.get(link_news_entry_id=entry.coll_news_entry_id)
+            pub = PubArticle.objects.get(link_news_entry_id=entry.newshub_coll_news_entry_id)
             article_url = reverse('newshub:article_detail', kwargs={'slug': pub.pub_article_slug})
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'redirect': article_url})

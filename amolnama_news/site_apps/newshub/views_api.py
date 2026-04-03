@@ -748,7 +748,7 @@ def api_article_update_publication_status(request, entry_id):
     from .models import CollNewsEntry
 
     try:
-        entry = CollNewsEntry.objects.get(coll_news_entry_id=entry_id)
+        entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=entry_id)
     except CollNewsEntry.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Article not found'}, status=404)
 
@@ -812,7 +812,7 @@ from django.db import connection
 from .models import CollNewsEntry, NewsAsset
 
 
-def _can_manage_article(request, coll_news_entry_id):
+def _can_manage_article(request, newshub_coll_news_entry_id):
     """Check if user can manage an article's photos.
 
     Allowed: contributor owner, staff, admin.
@@ -822,7 +822,7 @@ def _can_manage_article(request, coll_news_entry_id):
         return False, None
 
     try:
-        entry = CollNewsEntry.objects.get(coll_news_entry_id=coll_news_entry_id)
+        entry = CollNewsEntry.objects.get(newshub_coll_news_entry_id=newshub_coll_news_entry_id)
     except CollNewsEntry.DoesNotExist:
         return False, None
 
@@ -856,13 +856,13 @@ def _get_asset_file_url(asset_id):
 
 
 @require_http_methods(["PATCH"])
-def api_article_cover_image_set(request, coll_news_entry_id, asset_id):
+def api_article_cover_image_set(request, newshub_coll_news_entry_id, asset_id):
     """PATCH — set a photo as the article cover/featured image.
 
     Toggles is_featured on NewsAsset: clears all, sets the target.
     Only article contributor owner + staff/admin can change.
     """
-    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    is_allowed, entry = _can_manage_article(request, newshub_coll_news_entry_id)
     if entry is None:
         return JsonResponse({"success": False, "error": "Article not found"}, status=404)
     if not is_allowed:
@@ -870,18 +870,18 @@ def api_article_cover_image_set(request, coll_news_entry_id, asset_id):
 
     # Verify the asset belongs to this entry
     if not NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).exists():
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
 
     # Clear all featured flags for this entry, then set the target
     NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id
     ).update(is_featured=False)
 
     NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).update(is_featured=True)
 
@@ -890,12 +890,12 @@ def api_article_cover_image_set(request, coll_news_entry_id, asset_id):
 
 
 @require_http_methods(["PATCH"])
-def api_article_photo_caption_update(request, coll_news_entry_id, asset_id):
+def api_article_photo_caption_update(request, newshub_coll_news_entry_id, asset_id):
     """PATCH — edit an article photo caption.
 
     Only article contributor owner + staff/admin can edit.
     """
-    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    is_allowed, entry = _can_manage_article(request, newshub_coll_news_entry_id)
     if entry is None:
         return JsonResponse({"success": False, "error": "Article not found"}, status=404)
     if not is_allowed:
@@ -903,7 +903,7 @@ def api_article_photo_caption_update(request, coll_news_entry_id, asset_id):
 
     # Verify the asset belongs to this entry
     if not NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).exists():
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
@@ -917,7 +917,7 @@ def api_article_photo_caption_update(request, coll_news_entry_id, asset_id):
     new_caption = (body.get("caption_bn") or "").strip() or None
 
     NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).update(news_asset_caption_bn=new_caption)
 
@@ -925,20 +925,20 @@ def api_article_photo_caption_update(request, coll_news_entry_id, asset_id):
 
 
 @require_http_methods(["DELETE"])
-def api_article_photo_delete(request, coll_news_entry_id, asset_id):
+def api_article_photo_delete(request, newshub_coll_news_entry_id, asset_id):
     """DELETE — remove a photo from an article.
 
     Deletes the NewsAsset junction record (keeps the Asset file).
     Only article contributor owner + staff/admin can delete.
     """
-    is_allowed, entry = _can_manage_article(request, coll_news_entry_id)
+    is_allowed, entry = _can_manage_article(request, newshub_coll_news_entry_id)
     if entry is None:
         return JsonResponse({"success": False, "error": "Article not found"}, status=404)
     if not is_allowed:
         return JsonResponse({"success": False, "error": "লগইন প্রয়োজন বা অনুমতি নেই"}, status=403)
 
     deleted_count, _ = NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).delete()
 
@@ -956,11 +956,11 @@ from django.views.decorators.http import require_POST
 
 
 @require_POST
-def api_article_photo_view(request, coll_news_entry_id, asset_id):
+def api_article_photo_view(request, newshub_coll_news_entry_id, asset_id):
     """POST — increment photo view count (called when lightbox opens)."""
     from django.db.models import F
     updated_count = NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).update(view_count=F('view_count') + 1)
 
@@ -970,7 +970,7 @@ def api_article_photo_view(request, coll_news_entry_id, asset_id):
 
 
 @require_POST
-def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
+def api_article_photo_like_toggle(request, newshub_coll_news_entry_id, asset_id):
     """POST — toggle like on an article photo.
 
     Simple increment/decrement on NewsAsset.like_count.
@@ -981,7 +981,7 @@ def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
 
     # Verify photo exists
     if not NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).exists():
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
@@ -991,13 +991,13 @@ def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
     # Track likes in session (no separate engagement table for now)
     session_like_key = 'article_photo_likes'
     liked_photos = request.session.get(session_like_key, [])
-    photo_key = str(coll_news_entry_id) + '_' + str(asset_id)
+    photo_key = str(newshub_coll_news_entry_id) + '_' + str(asset_id)
 
     if photo_key in liked_photos:
         # Unlike
         liked_photos.remove(photo_key)
         NewsAsset.objects.filter(
-            link_coll_news_entry_id=coll_news_entry_id,
+            link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
             link_asset_id=asset_id,
             like_count__gt=0,
         ).update(like_count=F('like_count') - 1)
@@ -1006,7 +1006,7 @@ def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
         # Like
         liked_photos.append(photo_key)
         NewsAsset.objects.filter(
-            link_coll_news_entry_id=coll_news_entry_id,
+            link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
             link_asset_id=asset_id,
         ).update(like_count=F('like_count') + 1)
         liked = True
@@ -1014,7 +1014,7 @@ def api_article_photo_like_toggle(request, coll_news_entry_id, asset_id):
     request.session[session_like_key] = liked_photos
 
     new_like_count = NewsAsset.objects.filter(
-        link_coll_news_entry_id=coll_news_entry_id,
+        link_newshub_coll_news_entry_id=newshub_coll_news_entry_id,
         link_asset_id=asset_id,
     ).values_list('like_count', flat=True).first() or 0
 

@@ -7,7 +7,7 @@ from django.db import models
 # ---------------------------------------------------------------------------
 class EntertainmentFormFact(models.Model):
     entertainment_form_fact_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id    = models.BigIntegerField()
+    link_newshub_coll_news_entry_id    = models.BigIntegerField()
 
     # Step 3: Medium & Sub-Type (মাধ্যম ও সংবাদের ধরন)
     link_ref_status_entertainment_form_medium_type_id    = models.IntegerField(blank=True, null=True)

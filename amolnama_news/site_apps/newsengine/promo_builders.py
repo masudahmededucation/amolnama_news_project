@@ -206,8 +206,8 @@ def _build_newshub_promo_items():
     entry_ids = [article.link_news_entry_id for article in articles if article.link_news_entry_id]
     entry_map = {}
     if entry_ids:
-        for entry in CollNewsEntry.objects.filter(coll_news_entry_id__in=entry_ids):
-            entry_map[entry.coll_news_entry_id] = entry
+        for entry in CollNewsEntry.objects.filter(newshub_coll_news_entry_id__in=entry_ids):
+            entry_map[entry.newshub_coll_news_entry_id] = entry
 
     items = []
     for article in articles:

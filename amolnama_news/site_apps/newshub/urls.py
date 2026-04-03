@@ -55,11 +55,11 @@ urlpatterns = [
     # API endpoints — article interactions
     path('api/article/<int:pub_article_id>/comment/', views_api.api_article_comment_create, name='api_article_comment_create'),
     path('api/article/<int:entry_id>/status/', views_api.api_article_update_publication_status, name='api_article_update_publication_status'),
-    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/set-cover/', views_api.api_article_cover_image_set, name='api_article_cover_image_set'),
-    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/caption/', views_api.api_article_photo_caption_update, name='api_article_photo_caption_update'),
-    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/delete/', views_api.api_article_photo_delete, name='api_article_photo_delete'),
-    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/view/', views_api.api_article_photo_view, name='api_article_photo_view'),
-    path('api/article/<int:coll_news_entry_id>/photo/<int:asset_id>/like/', views_api.api_article_photo_like_toggle, name='api_article_photo_like_toggle'),
+    path('api/article/<int:newshub_coll_news_entry_id>/photo/<int:asset_id>/set-cover/', views_api.api_article_cover_image_set, name='api_article_cover_image_set'),
+    path('api/article/<int:newshub_coll_news_entry_id>/photo/<int:asset_id>/caption/', views_api.api_article_photo_caption_update, name='api_article_photo_caption_update'),
+    path('api/article/<int:newshub_coll_news_entry_id>/photo/<int:asset_id>/delete/', views_api.api_article_photo_delete, name='api_article_photo_delete'),
+    path('api/article/<int:newshub_coll_news_entry_id>/photo/<int:asset_id>/view/', views_api.api_article_photo_view, name='api_article_photo_view'),
+    path('api/article/<int:newshub_coll_news_entry_id>/photo/<int:asset_id>/like/', views_api.api_article_photo_like_toggle, name='api_article_photo_like_toggle'),
     path('api/article/<int:pub_article_id>/like/', views_api.api_article_like_toggle, name='api_article_like_toggle'),
 
     # API endpoints — organisations

@@ -39,7 +39,7 @@ class RefStatus(models.Model):
 
 class CrimeFormImpactCasualty(models.Model):
     crime_form_impact_casualty_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     casualty_death_count = models.IntegerField()
     casualty_injury_count = models.IntegerField()
     casualty_missing_count = models.IntegerField()
@@ -63,7 +63,7 @@ class CrimeFormImpactCasualty(models.Model):
 class ExtortionFormImpact(models.Model):
     # DB table: [investigation].[extortion_form_impact]
     investigation_extortion_form_impact_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_extortion_form_extortion_demand_frequency_id = models.IntegerField(blank=True, null=True)
     # Sector BIT flags (single radio → one True, rest False)
     sector_is_shop_market = models.BooleanField()
@@ -132,7 +132,7 @@ class ExtortionFormImpact(models.Model):
 class CivicFormImpact(models.Model):
     # DB table: [investigation].[civic_form_impact]
     civic_form_impact_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_civic_form_sub_issue_type_id = models.IntegerField()
     impact_affected_people_count = models.IntegerField(blank=True, null=True)
     link_ref_status_civic_form_impact_category_id = models.IntegerField()
@@ -159,7 +159,7 @@ class GlobalNewsFormFact(models.Model):
     # DB table: [investigation].[global_news_form_fact]
     # Stores all Global News form-specific data in a single row.
     investigation_global_news_form_fact_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
 
     # News Details (Step 3: sub-type + classification + story status)
     link_ref_status_global_news_form_issue_sub_type_id = models.IntegerField(blank=True, null=True)
@@ -227,7 +227,7 @@ class GlobalNewsFormFact(models.Model):
 class ConflictFormActorCountry(models.Model):
     # Renamed from incident_evidence_conflict_country → conflict_form_actor_country
     conflict_form_actor_country_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_actor_involvement_type_id = models.IntegerField()
     link_country_id = models.IntegerField()
     actor_alliance_coalition_bn = models.CharField(max_length=255, blank=True, null=True)
@@ -248,7 +248,7 @@ class ConflictFormImpact(models.Model):
     # Replaces: incident_evidence_global_conflict + incident_evidence_global_conflict_strategic_impact
     # Strategic impacts are now 4 bit columns instead of a junction table
     conflict_form_impact_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_conflict_form_conflict_type_id = models.IntegerField(blank=True, null=True)
     link_ref_status_conflict_form_territorial_sovereignty_status_id = models.IntegerField(blank=True, null=True)
     link_ref_status_conflict_form_conflict_intensity_id = models.IntegerField(blank=True, null=True)
@@ -296,7 +296,7 @@ class WomenFormPerpetrator(models.Model):
     """One row per accused perpetrator per news entry.
     Name/father stored in [person].[person] via link_person_id — not on this table."""
     women_form_perpetrator_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_person_id = models.BigIntegerField()
     link_women_form_victim_profile_fact_id = models.BigIntegerField(blank=True, null=True)
     link_ref_status_victim_attacker_relationship_id = models.IntegerField(blank=True, null=True)
@@ -329,7 +329,7 @@ class WomenFormVictimProfileFact(models.Model):
     """Flat table storing Step 3 (violence type/context) and Step 5 (condition/injury) attributes.
     One row per victim per news entry. Directly stores person + marriage FKs."""
     women_form_victim_profile_fact_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_person_id = models.BigIntegerField(blank=True, null=True)
     link_person_marriage_id = models.BigIntegerField(blank=True, null=True)
     # Step 3: Violence type
@@ -398,7 +398,7 @@ class WomenFormVictimProfileFact(models.Model):
 class WomenFormVictimLegalAction(models.Model):
     """Step 7 legal action data — one row per news entry."""
     women_form_victim_legal_action_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_law_gd_fir_status_id = models.IntegerField()  # FK → ref_status; NOT NULL
     case_gd_number = models.CharField(max_length=100, blank=True, null=True, db_column='law_gd_fir_case_gd_number')
     reason_for_not_filing_and_plans = models.CharField(max_length=1000, blank=True, null=True, db_column='law_gd_fir_reason_not_filing_and_plans')
@@ -452,7 +452,7 @@ class IncidentInvolvedActorProfile(models.Model):
     incident_involved_actor_role_group_code = models.CharField(max_length=100,
         db_column='incident_involved_actor_role_group_code')  # denormalised role code: VICTIM, ACCUSED, WITNESS, etc.
     link_form_type_id = models.IntegerField(blank=True, null=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_person_id = models.BigIntegerField(blank=True, null=True)
     link_person_marriage_id = models.BigIntegerField(blank=True, null=True)
     link_ref_status_victim_medical_condition_id = models.IntegerField(blank=True, null=True,
@@ -484,7 +484,7 @@ class IncidentInvolvedActorProfile(models.Model):
 # ---------------------------------------------------------------------------
 class CrimeFormWeapon(models.Model):
     investigation_crime_form_weapon_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     weapon_is_firearms_used = models.BooleanField()
     weapon_is_explosives_used = models.BooleanField()
     weapon_is_sharp_weapon_used = models.BooleanField()
@@ -512,7 +512,7 @@ class CrimeFormWeapon(models.Model):
 # ---------------------------------------------------------------------------
 class CrimeFormVictimLegalAction(models.Model):
     investigation_crime_form_victim_legal_action_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_law_gd_fir_status_id = models.IntegerField()       # FK → [investigation].[ref_status]; group_code=law_gd_fir_status
     case_gd_number = models.CharField(max_length=100, blank=True, null=True, db_column='law_gd_fir_case_gd_number')
     reason_not_filing_and_plans = models.CharField(max_length=1000, blank=True, null=True, db_column='law_gd_fir_reason_not_filing_and_plans')
@@ -563,7 +563,7 @@ class CrimeFormVictimLegalAction(models.Model):
 # ---------------------------------------------------------------------------
 class ExtortionFormVictimLegalAction(models.Model):
     extortion_form_victim_legal_action_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_ref_status_law_gd_fir_status_id = models.IntegerField()
     gd_fir_case_gd_number = models.CharField(max_length=100, blank=True, null=True, db_column='law_gd_fir_case_gd_number')
     gd_fir_reason_not_filing_and_plans = models.CharField(max_length=1000, blank=True, null=True, db_column='law_gd_fir_reason_not_filing_and_plans')
@@ -607,7 +607,7 @@ class ExtortionFormVictimLegalAction(models.Model):
 # ---------------------------------------------------------------------------
 class July2024FactProtest(models.Model):
     july2024_fact_protest_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
 
     # 1. Incident type and context (Step 3)
     link_ref_status_incident_type_id = models.IntegerField(blank=True, null=True)
@@ -688,7 +688,7 @@ class July2024FactProtest(models.Model):
 class LandGrabbingFormFact(models.Model):
     # DB table: [investigation].[land_grabbing_form_fact]
     investigation_land_grabbing_form_fact_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     # Property type
     link_ref_status_land_grabbing_form_land_type_id = models.IntegerField(blank=True, null=True)
     land_details_other_property_type_description = models.CharField(max_length=1000, blank=True, null=True)
@@ -735,7 +735,7 @@ class LandGrabbingFormFact(models.Model):
 class LandGrabbingFormVictimLegalAction(models.Model):
     # DB table: [investigation].[land_grabbing_form_victim_legal_action]
     land_grabbing_form_victim_legal_action_id = models.AutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     # FIR / GD
     link_ref_status_law_gd_fir_status_id = models.IntegerField()  # NOT NULL in DDL
     legal_action_case_gd_number = models.CharField(max_length=100, blank=True, null=True, db_column='law_gd_fir_case_gd_number')
@@ -784,7 +784,7 @@ class LandGrabbingFormVictimLegalAction(models.Model):
 class PriceHikingFormCommodityPrice(models.Model):
     # Note: table name has typo "comodity" (single m) — matches DB exactly
     market_commodity_price_impact_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_commodity_id = models.IntegerField()
     price_govt_fixed_rate = models.DecimalField(max_digits=18, decimal_places=2)
     price_market_rate = models.DecimalField(max_digits=18, decimal_places=2)
@@ -802,7 +802,7 @@ class PriceHikingFormCommodityPrice(models.Model):
 
 class PriceHikingFormCommodityStockSupplyChain(models.Model):
     price_hiking_form_commodity_stock_supply_chain_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_commodity_id = models.IntegerField()
     is_crisis_artificial_created = models.BooleanField()
     stock_storage_description_bn = models.CharField(max_length=500, blank=True, null=True)

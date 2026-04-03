@@ -167,7 +167,7 @@ class Contributor(models.Model):
 
 
 class CollNewsEntry(models.Model):
-    coll_news_entry_id = models.BigAutoField(primary_key=True)
+    newshub_coll_news_entry_id = models.BigAutoField(primary_key=True)
     link_form_type_id = models.IntegerField(blank=True, null=True)
     link_news_category_id = models.IntegerField()
     link_contributor_id = models.BigIntegerField()
@@ -210,7 +210,7 @@ class CollNewsEntry(models.Model):
 
 class NewsAsset(models.Model):
     """Junction table: news entry <-> media asset (composite PK in SQL Server)."""
-    link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
+    link_newshub_coll_news_entry_id = models.BigIntegerField(primary_key=True)
     link_asset_id = models.BigIntegerField()
     news_asset_caption_bn = models.CharField(max_length=1000, blank=True, null=True)
     is_featured = models.BooleanField()
@@ -223,15 +223,15 @@ class NewsAsset(models.Model):
     class Meta:
         managed = False
         db_table = '[newshub].[news_asset]'
-        unique_together = [['link_coll_news_entry_id', 'link_asset_id']]
+        unique_together = [['link_newshub_coll_news_entry_id', 'link_asset_id']]
 
     def __str__(self):
-        return f"NewsAsset({self.link_coll_news_entry_id}, {self.link_asset_id})"
+        return f"NewsAsset({self.link_newshub_coll_news_entry_id}, {self.link_asset_id})"
 
 
 class NewsSocialMediaSource(models.Model):
     newshub_news_social_media_source_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_social_media_url_library_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
@@ -245,17 +245,17 @@ class NewsSocialMediaSource(models.Model):
 
 class NewsEntryTag(models.Model):
     """Junction table: news entry <-> tag (composite PK in SQL Server)."""
-    link_coll_news_entry_id = models.BigIntegerField(primary_key=True)
+    link_newshub_coll_news_entry_id = models.BigIntegerField(primary_key=True)
     link_news_category_tag_id = models.IntegerField()
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = '[newshub].[news_entry_tag]'
-        unique_together = [['link_coll_news_entry_id', 'link_news_category_tag_id']]
+        unique_together = [['link_newshub_coll_news_entry_id', 'link_news_category_tag_id']]
 
     def __str__(self):
-        return f"NewsEntryTag({self.link_coll_news_entry_id}, {self.link_news_category_tag_id})"
+        return f"NewsEntryTag({self.link_newshub_coll_news_entry_id}, {self.link_news_category_tag_id})"
 
 
 # ========== Publishing Tables ==========
@@ -389,7 +389,7 @@ class VlogVerification(models.Model):
 
 class ArticleEditHistory(models.Model):
     article_edit_history_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     article_edit_type_code = models.CharField(max_length=50)
     article_edit_summary_bn = models.CharField(max_length=500, blank=True, null=True)
@@ -413,7 +413,7 @@ class ArticleEditHistory(models.Model):
 
 class ArticleCommunityAddition(models.Model):
     article_community_addition_id = models.BigAutoField(primary_key=True)
-    link_coll_news_entry_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     community_addition_type_code = models.CharField(max_length=50)
     community_addition_title_bn = models.CharField(max_length=200, blank=True, null=True)
