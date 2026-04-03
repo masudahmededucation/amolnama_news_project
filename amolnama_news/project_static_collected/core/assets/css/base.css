@@ -74,7 +74,7 @@ main a:hover {
 /* User-generated text — preserve newlines globally.
    Apply to any element displaying user/OCR content. */
 .user-text-content,
-main p, main .post-card-text, main .post-card-reply-text,
+main .post-card-text, main .post-card-reply-text,
 main .debate-argument-card-content, main .debate-rebuttal-card-content,
 main .textextractor-detail-text-content, main .textextractor-detail-page-text,
 main .article-comment-text, main .engagement-comment-text {
