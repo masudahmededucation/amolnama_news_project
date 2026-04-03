@@ -71,6 +71,9 @@ main a:hover {
   text-decoration: underline;
 }
 
+/* Promoted label — shared across all promo card types */
+.promo-promoted-label { font-size: .6rem; color: var(--muted); font-weight: 600; margin-left: .4rem; text-transform: uppercase; letter-spacing: .03em; }
+
 /* User-generated text — preserve newlines globally.
    Apply to any element displaying user/OCR content. */
 .user-text-content,

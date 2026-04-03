@@ -114,11 +114,12 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items, request=None):
-    """Insert 1 rotating promo between posts. Alternates categories each page load.
-    Tracks last shown category in session to avoid repeats."""
+    """Insert 3 rotating promos at positions 4, 12, 20. Alternates categories.
+    Respects user feed preferences. Tracks shown promos to avoid repeats."""
     from django.utils import timezone as tz
     from datetime import timedelta
     from .promo_builders import build_all_promo_items
+    import random
 
     post_count = len(feed_items)
     if post_count < 3:
@@ -141,48 +142,88 @@ def _inject_promo_cards(feed_items, request=None):
     if not all_promo_items:
         return feed_items
 
-    # Group promos by category (item_type or promo_badge)
+    # Filter by user feed preferences
+    user_profile_id = _get_user_profile_id(request) if request else None
+    if user_profile_id:
+        all_promo_items = _filter_promos_by_user_preferences(all_promo_items, user_profile_id)
+        if not all_promo_items:
+            return feed_items
+
+    # Get shown promo IDs from session — don't repeat within session
+    shown_promo_ids = set()
+    if request and hasattr(request, 'session'):
+        shown_promo_ids = set(request.session.get('shown_promo_ids', []))
+
+    # Filter out already-shown promos
+    available_promos = [p for p in all_promo_items if _get_promo_key(p) not in shown_promo_ids]
+    if not available_promos:
+        # All shown — reset and start fresh
+        available_promos = all_promo_items
+        shown_promo_ids = set()
+
+    # Group by category and pick 3 from different categories
     category_order = ['debate_promo', 'NEWS', 'POEM', 'STORY', 'ART', 'TRAVEL', 'tools_promo']
     categorized = {}
-    for promo in all_promo_items:
+    for promo in available_promos:
         category = promo.get('promo_badge') or promo.get('item_type', 'other')
         if category not in categorized:
             categorized[category] = []
         categorized[category].append(promo)
 
-    # Get last shown category from session — pick next in rotation
-    last_category = None
+    # Get last category index from session — continue rotation
+    last_category_index = 0
     if request and hasattr(request, 'session'):
-        last_category = request.session.get('last_promo_category')
+        last_category_index = request.session.get('last_promo_category_index', 0)
 
-    # Find next category that has promos
-    selected_promo = None
-    next_category = None
-    started = last_category is None
-    for category in category_order + category_order:  # wrap around
-        if started and category in categorized and categorized[category]:
-            import random
-            selected_promo = random.choice(categorized[category])
-            next_category = category
+    # Pick up to 3 promos from consecutive categories
+    selected_promos = []
+    category_index = last_category_index
+    attempts = 0
+    while len(selected_promos) < 3 and attempts < len(category_order) * 2:
+        category = category_order[category_index % len(category_order)]
+        if category in categorized and categorized[category]:
+            picked = random.choice(categorized[category])
+            picked['is_promoted'] = True  # Label flag
+            selected_promos.append(picked)
+            categorized[category].remove(picked)
+        category_index += 1
+        attempts += 1
+
+    if not selected_promos:
+        return feed_items
+
+    # Track shown promos in session
+    new_shown_ids = list(shown_promo_ids)
+    for promo in selected_promos:
+        new_shown_ids.append(_get_promo_key(promo))
+    if request and hasattr(request, 'session'):
+        request.session['shown_promo_ids'] = new_shown_ids[-50:]  # keep last 50
+        request.session['last_promo_category_index'] = category_index % len(category_order)
+
+    # Insert at positions 4, 12, 20 (after recent posts)
+    promo_positions = [4, 12, 20]
+    for slot_index, promo in enumerate(selected_promos):
+        if slot_index >= len(promo_positions):
             break
-        if category == last_category:
-            started = True
-
-    # Fallback — pick any
-    if not selected_promo:
-        import random
-        selected_promo = random.choice(all_promo_items)
-        next_category = selected_promo.get('promo_badge') or selected_promo.get('item_type')
-
-    # Save to session for next rotation
-    if request and hasattr(request, 'session'):
-        request.session['last_promo_category'] = next_category
-
-    # Place after 4th post (after recent ones)
-    insert_position = min(recent_post_count + 4, post_count)
-    feed_items.insert(insert_position, selected_promo)
+        insert_at = recent_post_count + promo_positions[slot_index] + slot_index  # +slot_index compensates for prior inserts
+        if insert_at <= len(feed_items):
+            feed_items.insert(insert_at, promo)
+        else:
+            break  # feed too short for this position
 
     return feed_items
+
+
+def _get_promo_key(promo):
+    """Unique key for a promo item — used for dedup and session tracking."""
+    item_type = promo.get('item_type', '')
+    promo_id = promo.get('promo_id') or promo.get('debate_coll_topic_id') or promo.get('tool_name_en') or ''
+    return f'{item_type}:{promo_id}'
+
+
+def _filter_promos_by_user_preferences(promo_items, user_profile_id):
+    """Remove promo categories the user has disabled — reuses existing preference filter."""
+    return _apply_user_feed_preferences(promo_items, user_profile_id)
 
 
 def _exclude_viewed_content(feed_items, user_profile_id):

@@ -1,6 +1,6 @@
 <a href="{{ promo.promo_url }}" class="content-promo-card content-promo-card-{{ promo.promo_color }}" id="content-promo-card-{{ promo.item_type }}-{{ promo.promo_id }}">
   <div class="content-promo-card-header" id="content-promo-card-header-{{ promo.item_type }}-{{ promo.promo_id }}">
-    <span class="content-promo-card-badge content-promo-card-badge-{{ promo.promo_color }}" id="content-promo-card-badge-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_badge }}</span>
+    <span class="content-promo-card-badge content-promo-card-badge-{{ promo.promo_color }}" id="content-promo-card-badge-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_badge }}</span>{% if promo.is_promoted %}<span class="promo-promoted-label">প্রচারিত</span>{% endif %}
     {% if promo.promo_author %}
     <span class="content-promo-card-author" id="content-promo-card-author-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_author }}</span>
     {% endif %}
