@@ -163,21 +163,12 @@
       composerTextarea.dispatchEvent(new Event('input'));
     }
 
-    /* Auto-expand textarea up to 10 lines, then scroll */
-    var composerLineHeight = parseFloat(getComputedStyle(composerTextarea).lineHeight) || 24;
-    var composerMaxHeight = composerLineHeight * 10;
+    /* Auto-expand textarea — grows with content, always room to type */
     composerTextarea.style.overflow = 'hidden';
 
     composerTextarea.addEventListener('input', function () {
       composerTextarea.style.height = 'auto';
-      var scrollHeight = composerTextarea.scrollHeight;
-      if (scrollHeight <= composerMaxHeight) {
-        composerTextarea.style.height = scrollHeight + 'px';
-        composerTextarea.style.overflow = 'hidden';
-      } else {
-        composerTextarea.style.height = composerMaxHeight + 'px';
-        composerTextarea.style.overflow = 'auto';
-      }
+      composerTextarea.style.height = (composerTextarea.scrollHeight + 60) + 'px';
 
       var currentLength = composerTextarea.value.length;
       characterCountElement.textContent = currentLength + '/1000';
