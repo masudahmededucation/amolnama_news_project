@@ -514,6 +514,13 @@ def post_detail(request, post_post_id):
     og_image = media_urls[0] if media_urls else ''
     canonical_url = request.build_absolute_uri(f'/post/{post_post_id}/')
 
+    # Build breadcrumb — include search context if coming from search
+    breadcrumbs = [{'name': 'হোম', 'url': '/'}]
+    referer = request.META.get('HTTP_REFERER', '')
+    if '/search/' in referer:
+        breadcrumbs.append({'name': 'অনুসন্ধান', 'url': referer})
+    breadcrumbs.append({'name': 'পোস্ট'})
+
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,
         'seo': {
@@ -522,7 +529,7 @@ def post_detail(request, post_post_id):
             'og_image': request.build_absolute_uri(og_image) if og_image else '',
             'og_type': 'article',
             'canonical': canonical_url,
-            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'পোস্ট'}],
+            'breadcrumbs': breadcrumbs,
         },
     })
 
