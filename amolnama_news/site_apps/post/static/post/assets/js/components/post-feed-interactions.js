@@ -212,23 +212,11 @@
     /* ---- Block actions while editing a post ---- */
     var clickedPostCard = target.closest('.post-card');
     if (clickedPostCard && clickedPostCard.getAttribute('data-editing') === '1') {
-      /* Allow edit save, edit cancel, and textarea clicks */
-      if (target.closest('.post-card-edit-save-button') || target.closest('.post-card-edit-cancel-button') || target.closest('.post-card-edit-textarea')) {
-        /* Let these through */
-      } else {
-        /* Block everything else — show inline warning */
-        var existingEditWarning = clickedPostCard.querySelector('.post-card-edit-warning');
-        if (!existingEditWarning) {
-          var editWarningElement = document.createElement('div');
-          editWarningElement.className = 'post-card-edit-warning';
-          editWarningElement.textContent = 'সম্পাদনা চলছে — প্রথমে সংরক্ষণ বা বাতিল করুন (Editing in progress — save or cancel first)';
-          editWarningElement.style.cssText = 'color:#b91c1c;font-size:.75rem;padding:.3rem .5rem;text-align:center;';
-          var editActionsElement = clickedPostCard.querySelector('.post-card-actions');
-          if (editActionsElement) editActionsElement.parentNode.insertBefore(editWarningElement, editActionsElement);
-          setTimeout(function () { editWarningElement.remove(); }, 3000);
-        }
+      /* Allow edit save, cancel, and textarea clicks only */
+      if (!target.closest('.post-card-edit-save-button') && !target.closest('.post-card-edit-cancel-button') && !target.closest('.post-card-edit-textarea')
+          && !target.closest('.post-card-inline-edit-save') && !target.closest('.post-card-inline-edit-cancel') && !target.closest('.post-card-inline-edit-textarea')) {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         return;
       }
     }
