@@ -107,32 +107,44 @@ def api_post_create(request):
         sha256_hash = hashlib.sha256(file_content).digest()
         file_extension = MEDIA_EXTENSION_MAP.get(uploaded_file.content_type, '.jpg')
 
-        asset_guid = uuid.uuid4()
+        # Reuse existing asset if same file was uploaded before (hash + size match)
         with connection.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO [media].[asset]
-                    ([asset_guid], [file_original_name], [file_extension], [file_mime_type],
-                     [file_size_bytes], [hash_sha256], [hash_algorithm_used], [hash_is_verified], [is_active])
-                OUTPUT INSERTED.asset_id, INSERTED.file_storage_path
-                VALUES (%s, %s, %s, %s, %s, %s, %s, 1, 1)
-            """, [
-                str(asset_guid),
-                uploaded_file.name or f'post_media_{file_index}.jpg',
-                file_extension,
-                uploaded_file.content_type,
-                len(file_content),
-                sha256_hash,
-                'sha256',
-            ])
-            row = cursor.fetchone()
-            asset_id = row[0]
-            file_storage_path = row[1]
+            cursor.execute(
+                "SELECT [asset_id], [file_storage_path] FROM [media].[asset] WHERE [hash_sha256] = %s AND [file_size_bytes] = %s AND [is_active] = 1",
+                [sha256_hash, len(file_content)],
+            )
+            existing_asset_row = cursor.fetchone()
 
-        # Save file to disk
-        full_path = os.path.join(settings.MEDIA_ROOT, file_storage_path)
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-        with open(full_path, 'wb') as destination_file:
-            destination_file.write(file_content)
+        if existing_asset_row:
+            asset_id = existing_asset_row[0]
+            file_storage_path = existing_asset_row[1]
+        else:
+            asset_guid = uuid.uuid4()
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO [media].[asset]
+                        ([asset_guid], [file_original_name], [file_extension], [file_mime_type],
+                         [file_size_bytes], [hash_sha256], [hash_algorithm_used], [hash_is_verified], [is_active])
+                    OUTPUT INSERTED.asset_id, INSERTED.file_storage_path
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 1, 1)
+                """, [
+                    str(asset_guid),
+                    uploaded_file.name or f'post_media_{file_index}.jpg',
+                    file_extension,
+                    uploaded_file.content_type,
+                    len(file_content),
+                    sha256_hash,
+                    'sha256',
+                ])
+                row = cursor.fetchone()
+                asset_id = row[0]
+                file_storage_path = row[1]
+
+            # Save file to disk (only for new assets)
+            full_path = os.path.join(settings.MEDIA_ROOT, file_storage_path)
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
+            with open(full_path, 'wb') as destination_file:
+                destination_file.write(file_content)
 
         # Get alt text for this file
         alt_texts_json = request.POST.get('alt_texts_json', '[]')
