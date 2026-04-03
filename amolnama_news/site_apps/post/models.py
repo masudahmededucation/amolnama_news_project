@@ -191,3 +191,16 @@ class PostMention(models.Model):
     class Meta:
         managed = False
         db_table = '[post].[post_mention]'
+
+
+class PostEditHistory(models.Model):
+    """Edit history — stores previous text before each edit."""
+    post_post_edit_history_id = models.BigAutoField(primary_key=True)
+    link_post_id = models.BigIntegerField()
+    previous_post_text = models.CharField(max_length=2000, blank=True, null=True)
+    edited_by_user_profile_id = models.BigIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[post].[post_edit_history]'

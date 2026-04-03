@@ -1018,6 +1018,41 @@
     });
   });
 
+  /* ---- EDIT HISTORY — click "(edited)" label to show previous versions ---- */
+  document.addEventListener('click', function (event) {
+    var editedLabel = event.target.closest('.post-card-edited-label');
+    if (!editedLabel) return;
+
+    var postCard = editedLabel.closest('.post-card');
+    if (!postCard) return;
+    var postId = postCard.getAttribute('data-post-id');
+    if (!postId) return;
+
+    /* Toggle — if history already shown, remove it */
+    var existingHistory = postCard.querySelector('.post-card-edit-history');
+    if (existingHistory) { existingHistory.remove(); return; }
+
+    fetch('/post/api/' + postId + '/edit-history/')
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (!data.success || !data.history || data.history.length === 0) return;
+
+        var historyHtml = '<div class="post-card-edit-history">'
+          + '<div class="post-card-edit-history-title">সম্পাদনার ইতিহাস (Edit History)</div>';
+        for (var historyIndex = 0; historyIndex < data.history.length; historyIndex++) {
+          var entry = data.history[historyIndex];
+          historyHtml += '<div class="post-card-edit-history-item">'
+            + '<div class="post-card-edit-history-text">' + (entry.previous_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>'
+            + '<div class="post-card-edit-history-date">' + entry.edited_at + '</div>'
+            + '</div>';
+        }
+        historyHtml += '</div>';
+
+        var textElement = postCard.querySelector('.post-card-text');
+        if (textElement) textElement.insertAdjacentHTML('afterend', historyHtml);
+      });
+  });
+
   /* ---- POST ANALYTICS — inline card ---- */
   document.addEventListener('click', function (event) {
     var analyticsButton = event.target.closest('.post-card-analytics-button');

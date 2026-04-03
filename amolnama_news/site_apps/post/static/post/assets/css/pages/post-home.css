@@ -1038,6 +1038,16 @@
 .post-mention { color: var(--primary); font-weight: 600; }
 .post-mention:hover { text-decoration: underline; }
 
+/* Edit history */
+.post-card-edited-label { cursor: pointer; color: var(--muted); font-size: .75rem; }
+.post-card-edited-label:hover { text-decoration: underline; color: var(--primary); }
+.post-card-edit-history { margin-top: .5rem; padding: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.post-card-edit-history-title { font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: .4rem; }
+.post-card-edit-history-item { padding: .4rem 0; border-bottom: 1px solid var(--border); }
+.post-card-edit-history-item:last-child { border-bottom: none; }
+.post-card-edit-history-text { font-size: .82rem; color: var(--text); line-height: 1.4; white-space: pre-wrap; }
+.post-card-edit-history-date { font-size: .65rem; color: var(--muted); margin-top: .2rem; }
+
 /* Mention autocomplete dropdown */
 .post-composer-mention-dropdown { position: absolute; bottom: 100%; left: 0; right: 0; z-index: 200; background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-md); max-height: 240px; overflow-y: auto; display: none; }
 .post-composer-mention-item { display: flex; align-items: center; gap: .5rem; padding: .45rem .6rem; cursor: pointer; transition: background .1s; }

@@ -26,4 +26,5 @@ urlpatterns = [
     path('api/<int:post_post_id>/poll-vote/', views_api.api_poll_vote, name='api_poll_vote'),
     path('api/<int:post_post_id>/pin/', views_api.api_post_pin_toggle, name='api_post_pin_toggle'),
     path('api/mentions/autocomplete/', views_api.api_mention_autocomplete, name='api_mention_autocomplete'),
+    path('api/<int:post_post_id>/edit-history/', views_api.api_post_edit_history, name='api_post_edit_history'),
 ]

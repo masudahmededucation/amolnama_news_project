@@ -743,6 +743,14 @@ def api_post_edit(request, post_post_id):
     if len(new_text) > 1000:
         return JsonResponse({'success': False, 'error': 'পোস্ট ১০০০ অক্ষরের বেশি হতে পারবে না'}, status=400)
 
+    # Save previous text to edit history before overwriting
+    if post.post_text and post.post_text != new_text:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO [post].[post_edit_history] ([link_post_id], [previous_post_text], [edited_by_user_profile_id]) VALUES (%s, %s, %s)",
+                [post_post_id, post.post_text, user_profile.user_profile_id],
+            )
+
     post.post_text = new_text
     post.is_edited = True
     post.edited_at = timezone.now()
@@ -1191,3 +1199,23 @@ def api_mention_autocomplete(request):
         })
 
     return JsonResponse({'success': True, 'users': users})
+
+
+# =========================================================
+# EDIT HISTORY
+# =========================================================
+
+def api_post_edit_history(request, post_post_id):
+    """GET — returns edit history for a post (list of previous versions)."""
+    from .models import PostEditHistory
+
+    history = PostEditHistory.objects.filter(
+        link_post_id=post_post_id,
+    ).order_by('-created_at')[:20]
+
+    items = [{
+        'previous_text': entry.previous_post_text or '',
+        'edited_at': entry.created_at.strftime('%d %b %Y, %I:%M %p') if entry.created_at else '',
+    } for entry in history]
+
+    return JsonResponse({'success': True, 'history': items})
