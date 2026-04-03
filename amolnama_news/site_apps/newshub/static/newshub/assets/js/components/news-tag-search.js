@@ -29,11 +29,6 @@
   } catch (e) { return; }
 
   /* ---- escapeHtml() — prevent XSS in tag names ---- */
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
 
   /* ---- search() — filter tags by query, return top matches ---- */
   function search(query) {

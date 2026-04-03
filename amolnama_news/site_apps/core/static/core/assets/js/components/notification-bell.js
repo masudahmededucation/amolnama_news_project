@@ -7,11 +7,6 @@
   var countBadge = document.getElementById('global-notification-count');
   if (!bellButton || !dropdown || !countBadge) return;
 
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(text || ''));
-    return div.innerHTML;
-  }
 
 
   function updateCountBadge(count) {

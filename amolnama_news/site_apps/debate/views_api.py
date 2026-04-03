@@ -1,6 +1,7 @@
 """Debate API views — topic management, post creation (argument/rebuttal), voting."""
 
 import hashlib
+from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import json
 import logging
 import re
@@ -19,16 +20,6 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 
-
-def _get_user_profile_id(request):
-    """Get current user's profile ID or None."""
-    if not request.user.is_authenticated:
-        return None
-    from amolnama_news.site_apps.user_account.models import UserProfile
-    try:
-        return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
-    except UserProfile.DoesNotExist:
-        return None
 
 
 def _raw_execute(sql, params):

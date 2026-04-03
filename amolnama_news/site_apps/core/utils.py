@@ -18,6 +18,17 @@ def get_user_avatar_url(user_profile):
     return row[0] if row else None
 
 
+def get_user_profile_id(request):
+    """Get current user's profile ID or None. Shared across all apps."""
+    if not request.user.is_authenticated:
+        return None
+    try:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
+    except Exception:
+        return None
+
+
 def bangla_slugify(text, max_length=450):
     """Generate a URL-safe slug that preserves Bengali characters (matras, conjuncts, chandrabindu).
 

@@ -1,6 +1,7 @@
 """Poem app — JSON API endpoints."""
 
 import json
+from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import logging
 
 logger = logging.getLogger(__name__)
@@ -47,18 +48,6 @@ def _time_ago(dt):
     months = days // 30
     return f"{months}mo ago"
 
-
-def _get_user_profile_id(request):
-    """Resolve user_profile_id from the authenticated user."""
-    if not request.user.is_authenticated:
-        return None
-    from amolnama_news.site_apps.user_account.models import UserProfile
-    try:
-        return UserProfile.objects.only("user_profile_id").get(
-            link_user_account_user_id=request.user.pk
-        ).user_profile_id
-    except UserProfile.DoesNotExist:
-        return None
 
 
 def _categories_map():

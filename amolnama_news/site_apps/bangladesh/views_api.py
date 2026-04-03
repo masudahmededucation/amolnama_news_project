@@ -1,6 +1,7 @@
 """Bangladesh app — JSON API endpoints."""
 
 import json
+from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import os
 import re
 import uuid
@@ -42,17 +43,6 @@ def _sanitize_html(html):
     html = re.sub(r'href\s*=\s*["\']javascript:[^"\']*["\']', 'href="#"', html, flags=re.IGNORECASE)
     return html.strip()
 
-
-def _get_user_profile_id(request):
-    if not request.user.is_authenticated:
-        return None
-    from amolnama_news.site_apps.user_account.models import UserProfile
-    try:
-        return UserProfile.objects.only("user_profile_id").get(
-            link_user_account_user_id=request.user.pk
-        ).user_profile_id
-    except UserProfile.DoesNotExist:
-        return None
 
 
 def _time_ago(dt):

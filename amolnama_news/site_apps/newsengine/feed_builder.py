@@ -3,6 +3,7 @@ Collects user posts, promo cards, promotional boosts, applies ranking, dedup, pe
 This is the single source of truth for what appears on the home page."""
 
 import logging
+from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 
 logger = logging.getLogger(__name__)
 
@@ -350,12 +351,3 @@ def _get_content_key(item):
     return None
 
 
-def _get_user_profile_id(request):
-    """Get current user's profile ID or None."""
-    if not request.user.is_authenticated:
-        return None
-    try:
-        from amolnama_news.site_apps.user_account.models import UserProfile
-        return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
-    except Exception:
-        return None

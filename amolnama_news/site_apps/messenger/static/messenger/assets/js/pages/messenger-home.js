@@ -27,11 +27,6 @@
   var typingTimer = null;
   var newMessageCount = 0;
 
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(text || ''));
-    return div.innerHTML;
-  }
 
   function formatTime(isoString) {
     if (!isoString) return '';

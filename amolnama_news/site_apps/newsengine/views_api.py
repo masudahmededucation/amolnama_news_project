@@ -1,6 +1,7 @@
 """Newsengine API views — global notifications, universal bookmarks, feed pagination."""
 
 import json
+from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import logging
 
 from django.contrib.auth.decorators import login_required
@@ -10,16 +11,6 @@ from django.views.decorators.http import require_POST
 
 logger = logging.getLogger(__name__)
 
-
-def _get_user_profile_id(request):
-    """Get current user's profile ID or None."""
-    if not request.user.is_authenticated:
-        return None
-    try:
-        from amolnama_news.site_apps.user_account.models import UserProfile
-        return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
-    except Exception:
-        return None
 
 
 # =========================================================
