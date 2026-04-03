@@ -427,3 +427,23 @@ var BanglaInput = (function() {
     }
   };
 })();
+
+// ---- Global header toggle listener ----
+// Works on every page — syncs header বাংলা/English radio with BanglaInput
+(function() {
+  var headerRadios = document.querySelectorAll('input[name="form_lang"]');
+  if (!headerRadios.length) return;
+  headerRadios.forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      if (typeof BanglaInput !== 'undefined' && BanglaInput.setEnabled) {
+        BanglaInput.setEnabled(this.value === 'bn');
+      }
+    });
+  });
+  // Sync header radio to match saved preference on page load
+  var savedEnabled = typeof BanglaInput !== 'undefined' && BanglaInput.isEnabled();
+  var targetRadio = document.getElementById(savedEnabled ? 'form-lang-bn' : 'form-lang-en');
+  if (targetRadio && !targetRadio.checked) {
+    targetRadio.checked = true;
+  }
+})();
