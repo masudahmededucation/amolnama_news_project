@@ -280,16 +280,9 @@ def api_post_create(request):
 
 
 def _get_user_avatar_url(user_profile):
-    """Get avatar URL for a user profile."""
-    if not user_profile.link_avatar_asset_id:
-        return None
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
-            [user_profile.link_avatar_asset_id],
-        )
-        row = cursor.fetchone()
-    return row[0] if row else None
+    """Get avatar URL — delegates to shared core utility."""
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
+    return get_user_avatar_url(user_profile)
 
 
 def _extract_and_link_mentions(post_id, text, author_user_profile_id):
@@ -1179,23 +1172,11 @@ def api_mention_autocomplete(request):
         username_handle__istartswith=query,
     ).exclude(username_handle__isnull=True).order_by('username_handle')[:8]
 
-    users = []
-    for profile in profiles:
-        avatar_url = None
-        if profile.link_avatar_asset_id:
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
-                    [profile.link_avatar_asset_id],
-                )
-                row = cursor.fetchone()
-                if row:
-                    avatar_url = row[0]
-        users.append({
-            'handle': profile.username_handle,
-            'display_name': profile.display_name or '',
-            'avatar_url': avatar_url,
-        })
+    users = [{
+        'handle': profile.username_handle,
+        'display_name': profile.display_name or '',
+        'avatar_url': _get_user_avatar_url(profile),
+    } for profile in profiles]
 
     return JsonResponse({'success': True, 'users': users})
 

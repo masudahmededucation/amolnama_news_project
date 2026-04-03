@@ -21,18 +21,9 @@ def public_profile(request, username_handle):
             'seo': {'title': 'প্রোফাইল পাওয়া যায়নি', 'noindex': True},
         })
 
-    # Get avatar
-    avatar_url = None
-    if profile.link_avatar_asset_id:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
-                [profile.link_avatar_asset_id],
-            )
-            row = cursor.fetchone()
-            if row:
-                avatar_url = row[0]
+    # Get avatar — shared utility
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
+    avatar_url = get_user_avatar_url(profile)
 
     # Follower/following counts
     follower_count = UserFollow.objects.filter(

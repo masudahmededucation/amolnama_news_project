@@ -4,6 +4,20 @@ import re
 import unicodedata
 
 
+def get_user_avatar_url(user_profile):
+    """Get avatar URL for a user profile. Shared across all apps."""
+    if not user_profile or not user_profile.link_avatar_asset_id:
+        return None
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT '/media/' + [file_storage_path] FROM [media].[asset] WHERE [asset_id] = %s AND [is_active] = 1",
+            [user_profile.link_avatar_asset_id],
+        )
+        row = cursor.fetchone()
+    return row[0] if row else None
+
+
 def bangla_slugify(text, max_length=450):
     """Generate a URL-safe slug that preserves Bengali characters (matras, conjuncts, chandrabindu).
 
