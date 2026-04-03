@@ -8,12 +8,18 @@ def home(request):
     query = request.GET.get('q', '').strip()
     hashtag = request.GET.get('hashtag', '').strip()
 
+    breadcrumbs = [{'name': 'হোম', 'url': '/'}, {'name': 'অনুসন্ধান', 'url': '/search/'}]
+    if hashtag:
+        breadcrumbs.append({'name': '#' + hashtag})
+    elif query:
+        breadcrumbs.append({'name': query})
+
     return render(request, 'search/pages/search-home.html', {
         'query': query,
         'hashtag': hashtag,
         'seo': {
-            'title': 'অনুসন্ধান — আমলনামা নিউজ | Search',
+            'title': ('#' + hashtag if hashtag else query or 'অনুসন্ধান') + ' — আমলনামা নিউজ',
             'description': 'সকল কন্টেন্ট অনুসন্ধান করুন — পোস্ট, কবিতা, সংবাদ, বিতর্ক, ভ্রমণ।',
-            'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'অনুসন্ধান'}],
+            'breadcrumbs': breadcrumbs,
         },
     })
