@@ -98,14 +98,14 @@
 .header-theme-toggle {
   background: none;
   border: 1.5px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: .15rem .4rem;
   font-size: 1rem;
   cursor: pointer;
   line-height: 1;
-  transition: background .15s;
+  transition: background .15s, box-shadow .15s;
 }
-.header-theme-toggle:hover { background: var(--surface); }
+.header-theme-toggle:hover, .header-theme-toggle:focus { background: var(--surface); box-shadow: var(--shadow); outline: none; }
 
 /* ── Language toggle pill (authenticated header) — marriage-style ── */
 .header-lang-toggle {

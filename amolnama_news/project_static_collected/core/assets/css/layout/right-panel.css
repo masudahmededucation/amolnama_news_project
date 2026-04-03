@@ -91,10 +91,10 @@
   justify-content: space-between;
   align-items: center;
   padding: .3rem .5rem;
-  border-radius: 8px;
-  transition: background .15s;
+  border-radius: var(--radius-sm);
+  transition: background .15s, box-shadow .15s;
 }
-.right-panel-trending-hashtag-item:hover { background: var(--surface); }
+.right-panel-trending-hashtag-item:hover, .right-panel-trending-hashtag-item:focus { background: var(--surface); box-shadow: var(--shadow); outline: none; }
 .right-panel-trending-hashtag-text { font-size: .8rem; font-weight: 600; color: var(--primary); }
 .right-panel-trending-hashtag-count { font-size: .65rem; color: var(--muted); }
 

@@ -22,13 +22,13 @@
 
 /* Actions */
 .user-profile-actions { display: flex; gap: .5rem; margin-top: .8rem; }
-.user-profile-follow-button { padding: .4rem 1.2rem; background: var(--primary); color: #fff; border: none; border-radius: 20px; font-size: .82rem; font-weight: 700; cursor: pointer; transition: background .15s; }
-.user-profile-follow-button:hover { background: var(--primary-hover); }
+.user-profile-follow-button { padding: .4rem 1.2rem; background: var(--primary); color: #fff; border: none; border-radius: 20px; font-size: .82rem; font-weight: 700; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-follow-button:hover, .user-profile-follow-button:focus { background: var(--primary-hover); outline: none; }
 .user-profile-follow-button-active { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
-.user-profile-follow-button-active:hover { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
-.user-profile-block-button { padding: .4rem 1rem; background: var(--surface); color: var(--muted); border: 1.5px solid var(--border); border-radius: 20px; font-size: .78rem; font-weight: 600; cursor: pointer; }
-.user-profile-block-button:hover { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
-.user-profile-block-button-active { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+.user-profile-follow-button-active:hover, .user-profile-follow-button-active:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
+.user-profile-block-button { padding: .4rem 1rem; background: var(--surface); color: var(--muted); border: 1.5px solid var(--border); border-radius: 20px; font-size: .78rem; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-block-button:hover, .user-profile-block-button:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
+.user-profile-block-button-active { background: var(--primary-light); color: var(--danger); border-color: var(--danger); }
 .user-profile-edit-link { display: inline-block; margin-top: .6rem; font-size: .82rem; color: var(--primary); font-weight: 600; }
 
 /* Posts section */
