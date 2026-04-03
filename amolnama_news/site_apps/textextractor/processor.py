@@ -205,6 +205,10 @@ def _process_extraction_job_inner(job, job_id, start_time):
     for page_data in pages:
         page_text = page_data.get('text', '')
         page_number = page_data.get('page_number', 1)
+
+        # Normalize OCR output — replace ASCII pipe with Bengali dari (full stop)
+        # OCR engines often output | (U+007C) instead of । (U+0964)
+        page_text = page_text.replace('|', '।')
         page_word_count = page_data.get('word_count', 0)
 
         _append_page_to_output_file(job.output_file_path, page_number, page_text)
