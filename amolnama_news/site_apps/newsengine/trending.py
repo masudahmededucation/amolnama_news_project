@@ -18,7 +18,7 @@ def get_trending_posts(limit=5):
 
     # Posts created or engaged with in last 24h, sorted by combined engagement
     trending_posts = Post.objects.filter(
-        is_published=True, is_deleted=False,
+        is_published=True, is_active=True,
         created_at__gte=cutoff_24h - timedelta(days=7),  # Look at last 7 days of content
     ).order_by('-like_count', '-view_count', '-reply_count')[:limit]
 

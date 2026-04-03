@@ -264,6 +264,11 @@ def highlight_entities_in_text(text, keywords=None):
     for start, end, entity_text in _detect_religious_terms(text):
         all_entities.append((start, end, 'religious'))
 
+    # Detect hashtags (#ট্যাগ, #tag)
+    import re
+    for match in re.finditer(r'#([\w\u0980-\u09FF]+)', text):
+        all_entities.append((match.start(), match.end(), 'hashtag'))
+
     # Add theme keywords (lowest priority)
     if keywords:
         for keyword in keywords:
@@ -297,8 +302,12 @@ def highlight_entities_in_text(text, keywords=None):
 
         # Add entity with highlight
         entity_text = escape(text[start:end])
-        css_class = ENTITY_CSS_CLASS.get(entity_type, 'post-entity-keyword')
-        result_parts.append(f'<mark class="{css_class}">{entity_text}</mark>')
+        if entity_type == 'hashtag':
+            tag_value = entity_text[1:] if entity_text.startswith('#') else entity_text
+            result_parts.append(f'<a href="/search/?hashtag={tag_value}" class="post-hashtag">{entity_text}</a>')
+        else:
+            css_class = ENTITY_CSS_CLASS.get(entity_type, 'post-entity-keyword')
+            result_parts.append(f'<mark class="{css_class}">{entity_text}</mark>')
 
         last_position = end
 

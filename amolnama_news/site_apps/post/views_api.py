@@ -188,6 +188,16 @@ def api_post_create(request):
         )
         keyword_thread.start()
 
+    # Extract and link hashtags in background
+    if post_text:
+        import threading
+        def _background_hashtag_extraction(background_post_id, background_text):
+            try:
+                _extract_and_link_hashtags(background_post_id, background_text)
+            except Exception:
+                logger.exception('Hashtag extraction failed for post %s', background_post_id)
+        threading.Thread(target=_background_hashtag_extraction, args=(post.post_post_id, post_text), daemon=True).start()
+
     # Classify content in background — auto-flag harmful content
     if post_text:
         import threading
@@ -270,6 +280,58 @@ def _get_user_avatar_url(user_profile):
         )
         row = cursor.fetchone()
     return row[0] if row else None
+
+
+def _extract_and_link_hashtags(post_id, text):
+    """Extract #hashtags from post text, upsert into HashtagItem, link via HashtagPostLink."""
+    import re
+    import unicodedata
+    from django.db import connection as hashtag_connection
+
+    hashtag_pattern = re.compile(r'#([\w\u0980-\u09FF]+)', re.UNICODE)
+    matches = hashtag_pattern.findall(text)
+    if not matches:
+        return
+
+    seen_tags = set()
+    for raw_tag in matches:
+        tag_text = raw_tag.strip()
+        if len(tag_text) < 2 or tag_text in seen_tags:
+            continue
+        seen_tags.add(tag_text)
+        tag_normalized = unicodedata.normalize('NFC', tag_text.lower())
+
+        with hashtag_connection.cursor() as cursor:
+            # Upsert hashtag — get or create
+            cursor.execute(
+                "SELECT [newsengine_hashtag_item_id] FROM [newsengine].[hashtag_item] WHERE [hashtag_text_normalized] = %s",
+                [tag_normalized],
+            )
+            row = cursor.fetchone()
+            if row:
+                hashtag_id = row[0]
+                cursor.execute(
+                    "UPDATE [newsengine].[hashtag_item] SET [hashtag_post_count] = [hashtag_post_count] + 1 WHERE [newsengine_hashtag_item_id] = %s",
+                    [hashtag_id],
+                )
+            else:
+                cursor.execute(
+                    "INSERT INTO [newsengine].[hashtag_item] ([hashtag_text], [hashtag_text_normalized], [hashtag_post_count]) VALUES (%s, %s, 1)",
+                    [tag_text, tag_normalized],
+                )
+                cursor.execute("SELECT SCOPE_IDENTITY()")
+                hashtag_id = cursor.fetchone()[0]
+
+            # Link post to hashtag (skip if already linked)
+            cursor.execute(
+                "SELECT 1 FROM [newsengine].[hashtag_post_link] WHERE [link_hashtag_id] = %s AND [link_post_id] = %s",
+                [hashtag_id, post_id],
+            )
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO [newsengine].[hashtag_post_link] ([link_hashtag_id], [link_post_id]) VALUES (%s, %s)",
+                    [hashtag_id, post_id],
+                )
 
 
 def _extract_keywords(text):

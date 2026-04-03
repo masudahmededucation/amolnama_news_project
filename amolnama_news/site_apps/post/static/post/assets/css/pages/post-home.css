@@ -1030,6 +1030,10 @@
   background: none;
 }
 
+/* Hashtag links */
+.post-hashtag { color: var(--primary); font-weight: 600; }
+.post-hashtag:hover { text-decoration: underline; }
+
 /* Legacy keyword pills (kept for dynamically created posts before page reload) */
 
 .post-card-keywords {
