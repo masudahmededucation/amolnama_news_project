@@ -114,11 +114,11 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items):
-    """Inject promo cards from all content apps into the feed.
-    User's recent posts (< 5 min) stay at top — promos go after them."""
+    """Sprinkle promo cards between posts — 1 promo every 5 posts, max 6 total.
+    User's recent posts (< 5 min) stay at top untouched."""
     from django.utils import timezone as tz
     from datetime import timedelta
-    from .promo_builders import build_all_promo_items, build_promotional_boost_items
+    from .promo_builders import build_all_promo_items
 
     # Find how many recent user posts are at the top (< 5 min old)
     recent_cutoff = tz.now() - timedelta(minutes=5)
@@ -133,22 +133,18 @@ def _inject_promo_cards(feed_items):
                 continue
         break
 
-    # Insert promos AFTER recent posts
-    insert_start = recent_post_count
+    # Get promos — cap at 6
+    all_promo_items = build_all_promo_items()[:6]
+    if not all_promo_items:
+        return feed_items
 
-    all_promo_items = build_all_promo_items()
-    for index, promo in enumerate(all_promo_items):
-        feed_items.insert(insert_start + index, promo)
-
-    # Promotional boost — lower in feed
-    promo_boost_items = build_promotional_boost_items()
-    boost_start_position = max(insert_start + len(all_promo_items) + 5, 10)
-    for index, promo in enumerate(promo_boost_items):
-        position = boost_start_position + (index * 5)
-        if position < len(feed_items):
-            feed_items.insert(position, promo)
-        else:
-            feed_items.append(promo)
+    # Sprinkle 1 promo every 5 posts, starting after recent posts
+    promo_index = 0
+    insert_position = recent_post_count + 5
+    while promo_index < len(all_promo_items) and insert_position <= len(feed_items):
+        feed_items.insert(insert_position, all_promo_items[promo_index])
+        promo_index += 1
+        insert_position += 6  # 5 posts + 1 promo just inserted
 
     return feed_items
 
