@@ -1000,7 +1000,16 @@
           if (saveMoreMenu) saveMoreMenu.style.opacity = '';
         }
       })
-      .catch(function () { textElement.innerHTML = originalHtml; });
+      .catch(function () {
+        textElement.innerHTML = originalHtml;
+        if (inlineEditPostCard) {
+          inlineEditPostCard.removeAttribute('data-editing');
+          var errorActionsBar = inlineEditPostCard.querySelector('.post-card-actions');
+          if (errorActionsBar) errorActionsBar.style.opacity = '';
+          var errorMoreMenu = inlineEditPostCard.querySelector('.post-card-more-menu-wrapper');
+          if (errorMoreMenu) errorMoreMenu.style.opacity = '';
+        }
+      });
     });
   });
 
