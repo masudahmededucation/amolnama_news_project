@@ -1,7 +1,7 @@
 {# Debate promo card — shown in the home feed to promote active debates. Context: promo (dict) #}
 <a href="/debate/topic/{{ promo.debate_coll_topic_id }}/" class="debate-promo-card" id="debate-promo-card-{{ promo.debate_coll_topic_id }}">
   <div class="debate-promo-card-header" id="debate-promo-card-header-{{ promo.debate_coll_topic_id }}">
-    <span class="debate-promo-card-badge" id="debate-promo-card-badge-{{ promo.debate_coll_topic_id }}">DEBATE</span>{% if promo.is_promoted %}<span class="promo-promoted-label">প্রচারিত</span>{% endif %}
+    <span class="debate-promo-card-badge" id="debate-promo-card-badge-{{ promo.debate_coll_topic_id }}">DEBATE</span>
     <span class="debate-promo-card-status debate-promo-card-status-{{ promo.topic_status_code }}" id="debate-promo-card-status-{{ promo.debate_coll_topic_id }}">{{ promo.topic_status_name_bn }}</span>
   </div>
 
