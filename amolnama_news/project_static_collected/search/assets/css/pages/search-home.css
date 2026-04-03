@@ -16,6 +16,9 @@
 .search-page-results-loading { text-align: center; padding: 1rem; color: var(--muted); font-size: .82rem; }
 .search-page-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
 .search-page-results-count { font-size: .72rem; color: var(--muted); margin-bottom: .5rem; }
+.search-page-hashtag-stats { padding: .6rem .8rem; background: var(--surface); border-radius: 10px; margin-bottom: .6rem; display: flex; align-items: baseline; gap: .5rem; }
+.search-page-hashtag-name { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+.search-page-hashtag-count { font-size: .8rem; color: var(--muted); }
 
 /* Result item */
 .search-result-item {

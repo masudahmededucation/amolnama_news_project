@@ -124,4 +124,30 @@ def api_search(request):
     except Exception:
         logger.exception('Search failed for travel')
 
-    return JsonResponse({'success': True, 'results': results, 'total': len(results), 'query': raw_query})
+    # Get hashtag stats if searching by hashtag
+    hashtag_post_count = None
+    hashtag_user_count = None
+    if hashtag_query:
+        from amolnama_news.site_apps.newsengine.models import HashtagItem, HashtagPostLink
+        hashtag_item = HashtagItem.objects.filter(hashtag_text=hashtag_query, is_active=True).first()
+        if hashtag_item:
+            hashtag_post_count = hashtag_item.hashtag_post_count
+            # Count unique users who used this hashtag
+            from amolnama_news.site_apps.post.models import Post
+            post_ids = list(HashtagPostLink.objects.filter(
+                link_hashtag_id=hashtag_item.newsengine_hashtag_item_id, is_active=True,
+            ).values_list('link_post_id', flat=True))
+            if post_ids:
+                hashtag_user_count = Post.objects.filter(
+                    post_post_id__in=post_ids, is_active=True,
+                ).values('link_user_profile_id').distinct().count()
+
+    return JsonResponse({
+        'success': True,
+        'results': results,
+        'total': len(results),
+        'query': raw_query,
+        'hashtag': hashtag_query or None,
+        'hashtag_post_count': hashtag_post_count,
+        'hashtag_user_count': hashtag_user_count,
+    })

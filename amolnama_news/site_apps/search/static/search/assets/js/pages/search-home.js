@@ -24,7 +24,15 @@
           return;
         }
 
-        var html = '<div class="search-page-results-count">' + data.total + ' টি ফলাফল পাওয়া গেছে</div>';
+        var html = '';
+        if (data.hashtag && data.hashtag_post_count) {
+          html += '<div class="search-page-hashtag-stats">';
+          html += '<span class="search-page-hashtag-name">#' + data.hashtag + '</span>';
+          html += '<span class="search-page-hashtag-count">' + data.hashtag_post_count + ' টি পোস্ট';
+          if (data.hashtag_user_count) html += ' · ' + data.hashtag_user_count + ' জন ব্যবহারকারী';
+          html += '</span></div>';
+        }
+        html += '<div class="search-page-results-count">' + data.total + ' টি ফলাফল পাওয়া গেছে</div>';
 
         data.results.forEach(function (result) {
           html += '<a href="' + result.url + '" class="search-result-item">';
