@@ -83,13 +83,7 @@
       });
     }
 
-    /* Warn before leaving page if in draft mode */
-    window.addEventListener('beforeunload', function (beforeUnloadEvent) {
-      if (isComposerInDraftMode()) {
-        beforeUnloadEvent.preventDefault();
-        beforeUnloadEvent.returnValue = '';
-      }
-    });
+    /* beforeunload warning handled below — single listener for both composer modes */
   }
 
   /* ---- Rotating placeholder ---- */
@@ -540,10 +534,18 @@
 
   /* ---- Warn before leaving with unsaved draft ---- */
 
+  var postComposerUserConfirmedLeave = false;
   window.addEventListener('beforeunload', function (event) {
     if (composerTextarea && composerTextarea.value.trim().length > 0) {
+      postComposerUserConfirmedLeave = true;
       event.preventDefault();
       event.returnValue = '';
+    }
+  });
+  /* Clear draft when user confirms "Leave" — pagehide fires after beforeunload */
+  window.addEventListener('pagehide', function () {
+    if (postComposerUserConfirmedLeave) {
+      try { localStorage.removeItem('post_composer_draft'); } catch (storageError) {}
     }
   });
 
