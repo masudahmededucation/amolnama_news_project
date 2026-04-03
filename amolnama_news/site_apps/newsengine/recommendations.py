@@ -14,10 +14,10 @@ def get_recommendations_for_user(user_profile_id, limit=5):
         return _get_global_popular(limit)
 
     # Step 1: Find what categories user engages with most
-    from .models import FactUserContentView
-    user_views = FactUserContentView.objects.filter(
+    from .models import FactFeedUserContentView
+    user_views = FactFeedUserContentView.objects.filter(
         link_user_profile_id=user_profile_id, is_active=True,
-    ).values_list('content_type_code', flat=True)
+    ).values_list('feed_content_type_code', flat=True)
 
     if not user_views:
         return _get_global_popular(limit)
@@ -29,9 +29,9 @@ def get_recommendations_for_user(user_profile_id, limit=5):
 
     # Step 2: Find popular content in those categories that user hasn't seen
     viewed_keys = set()
-    for view in FactUserContentView.objects.filter(
+    for view in FactFeedUserContentView.objects.filter(
         link_user_profile_id=user_profile_id, is_active=True,
-    ).values_list('content_type_code', 'content_id'):
+    ).values_list('feed_content_type_code', 'feed_content_id'):
         viewed_keys.add(f'{view[0]}:{view[1]}')
 
     recommendations = []

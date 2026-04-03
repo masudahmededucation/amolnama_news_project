@@ -34,10 +34,10 @@ def check_rate_limit(user_profile_id, action_code):
     max_count, window_minutes = config
     cutoff_time = timezone.now() - timedelta(minutes=window_minutes)
 
-    from .models import FactRateLimitLog
-    recent_count = FactRateLimitLog.objects.filter(
+    from .models import FactRateLimitActionLog
+    recent_count = FactRateLimitActionLog.objects.filter(
         link_user_profile_id=user_profile_id,
-        action_code=action_code,
+        rate_limit_action_code=action_code,
         action_at__gte=cutoff_time,
     ).count()
 
@@ -49,7 +49,7 @@ def check_rate_limit(user_profile_id, action_code):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_rate_limit_log]
-                    ([link_user_profile_id], [action_code])
+                    ([link_user_profile_id], [rate_limit_action_code])
                 VALUES (?, ?)
             """, [user_profile_id, action_code])
     except Exception:

@@ -79,9 +79,9 @@ def api_bookmark_toggle(request):
     if not content_type_code or not content_id:
         return JsonResponse({'success': False, 'error': 'Missing content_type_code or content_id'}, status=400)
 
-    from .models import CollContentBookmark
+    from .models import CollBookmarkContent
 
-    existing = CollContentBookmark.objects.filter(
+    existing = CollBookmarkContent.objects.filter(
         link_user_profile_id=user_profile_id,
         content_type_code=content_type_code,
         content_id=content_id,
@@ -169,15 +169,15 @@ def api_recommendations(request):
 
 def api_trending_hashtags(request):
     """GET — top 10 hashtags by post count."""
-    from .models import CollHashtag
-    hashtags = CollHashtag.objects.filter(
-        is_active=True, post_count__gt=0,
-    ).order_by('-post_count')[:10]
+    from .models import CollHashtagItem
+    hashtags = CollHashtagItem.objects.filter(
+        is_active=True, hashtag_post_count__gt=0,
+    ).order_by('-hashtag_post_count')[:10]
 
     items = [{
         'hashtag_id': hashtag.newsengine_coll_hashtag_id,
         'hashtag_text': hashtag.hashtag_text,
-        'post_count': hashtag.post_count,
+        'post_count': hashtag.hashtag_post_count,
     } for hashtag in hashtags]
 
     return JsonResponse({'success': True, 'hashtags': items})
@@ -204,9 +204,9 @@ def api_muted_word_add(request):
     if not muted_word or len(muted_word) < 2:
         return JsonResponse({'success': False, 'error': 'শব্দটি কমপক্ষে ২ অক্ষর হতে হবে'}, status=400)
 
-    from .models import CollMutedWord
-    existing = CollMutedWord.objects.filter(
-        link_user_profile_id=user_profile_id, muted_word=muted_word, is_active=True,
+    from .models import CollMutedWordItem
+    existing = CollMutedWordItem.objects.filter(
+        link_user_profile_id=user_profile_id, muted_word_text=muted_word, is_active=True,
     ).first()
     if existing:
         return JsonResponse({'success': False, 'error': 'এই শব্দটি ইতিমধ্যে মিউট করা আছে'}, status=400)
@@ -214,7 +214,7 @@ def api_muted_word_add(request):
     from django.db import connection
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [newsengine].[coll_muted_word] ([link_user_profile_id], [muted_word])
+            INSERT INTO [newsengine].[coll_muted_word_item] ([link_user_profile_id], [muted_word_text])
             VALUES (?, ?)
         """, [user_profile_id, muted_word])
 
@@ -236,9 +236,9 @@ def api_muted_word_remove(request):
 
     muted_word = (data.get('muted_word') or '').strip().lower()
 
-    from .models import CollMutedWord
-    CollMutedWord.objects.filter(
-        link_user_profile_id=user_profile_id, muted_word=muted_word, is_active=True,
+    from .models import CollMutedWordItem
+    CollMutedWordItem.objects.filter(
+        link_user_profile_id=user_profile_id, muted_word_text=muted_word, is_active=True,
     ).delete()
 
     return JsonResponse({'success': True})
@@ -251,10 +251,10 @@ def api_muted_words_list(request):
     if not user_profile_id:
         return JsonResponse({'success': True, 'muted_words': []})
 
-    from .models import CollMutedWord
-    words = list(CollMutedWord.objects.filter(
+    from .models import CollMutedWordItem
+    words = list(CollMutedWordItem.objects.filter(
         link_user_profile_id=user_profile_id, is_active=True,
-    ).values_list('muted_word', flat=True))
+    ).values_list('muted_word_text', flat=True))
 
     return JsonResponse({'success': True, 'muted_words': words})
 

@@ -30,19 +30,19 @@ def _normalize_text(text):
 
 def _load_flagged_keywords():
     """Load all active flagged keywords grouped by category. Cached per request."""
-    from .models import RefFlaggedKeyword, RefContentCategory
+    from .models import RefContentClassificationFlaggedKeyword, RefContentClassificationCategory
 
     categories = {}
-    for category in RefContentCategory.objects.filter(is_active=True):
-        categories[category.newsengine_ref_content_category_id] = {
+    for category in RefContentClassificationCategory.objects.filter(is_active=True):
+        categories[category.newsengine_ref_content_classification_category_id] = {
             'category_code': category.category_code,
             'category_action': category.category_action,
             'category_severity_level': category.category_severity_level,
             'keywords': [],
         }
 
-    for keyword in RefFlaggedKeyword.objects.filter(is_active=True):
-        category_id = keyword.link_content_category_id
+    for keyword in RefContentClassificationFlaggedKeyword.objects.filter(is_active=True):
+        category_id = keyword.link_content_classification_category_id
         if category_id in categories:
             categories[category_id]['keywords'].append({
                 'text_normalized': keyword.flagged_keyword_text_normalized,
@@ -150,15 +150,15 @@ def classify_and_store(content_source_app, content_id, text):
         is_auto_flagged = top_action in ('auto_hide',) and top_score > 0.5
 
         # Get category ID for audit record
-        from .models import RefContentCategory
-        category = RefContentCategory.objects.filter(category_code=top_category_code, is_active=True).first()
-        category_id = category.newsengine_ref_content_category_id if category else 1
+        from .models import RefContentClassificationCategory
+        category = RefContentClassificationCategory.objects.filter(category_code=top_category_code, is_active=True).first()
+        category_id = category.newsengine_ref_content_classification_category_id if category else 1
 
         # Store classification audit
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [newsengine].[fact_content_classification]
-                    ([content_classification_source_app], [link_content_id], [link_content_category_id],
+                INSERT INTO [newsengine].[fact_content_classification_result]
+                    ([content_classification_source_app], [link_content_id], [link_content_classification_category_id],
                      [content_classification_score], [content_classification_method],
                      [content_classification_action_taken], [is_auto_flagged])
                 VALUES (%s, %s, %s, %s, %s, %s, %s)

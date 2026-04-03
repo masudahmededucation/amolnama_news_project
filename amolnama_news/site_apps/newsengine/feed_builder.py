@@ -155,12 +155,12 @@ def _inject_promo_cards(feed_items):
 
 def _exclude_viewed_content(feed_items, user_profile_id):
     """Remove content the user has already viewed (last 200 views)."""
-    from .models import FactUserContentView
+    from .models import FactFeedUserContentView
 
-    recent_views = FactUserContentView.objects.filter(
+    recent_views = FactFeedUserContentView.objects.filter(
         link_user_profile_id=user_profile_id,
         is_active=True,
-    ).order_by('-viewed_at').values_list('content_type_code', 'content_id')[:200]
+    ).order_by('-feed_viewed_at').values_list('feed_content_type_code', 'feed_content_id')[:200]
 
     viewed_keys = set()
     for content_type_code, content_id in recent_views:
@@ -250,11 +250,11 @@ def _auto_publish_scheduled_posts():
 
 def _exclude_muted_words(feed_items, user_profile_id):
     """Hide posts containing any of the user's muted words."""
-    from .models import CollMutedWord
+    from .models import CollMutedWordItem
 
-    muted_words = list(CollMutedWord.objects.filter(
+    muted_words = list(CollMutedWordItem.objects.filter(
         link_user_profile_id=user_profile_id, is_active=True,
-    ).values_list('muted_word', flat=True))
+    ).values_list('muted_word_text', flat=True))
 
     if not muted_words:
         return feed_items

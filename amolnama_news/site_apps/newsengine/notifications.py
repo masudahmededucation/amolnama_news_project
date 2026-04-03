@@ -36,8 +36,8 @@ def get_unread_count(user_profile_id):
     """Get unread notification count for a user."""
     if not user_profile_id:
         return 0
-    from .models import CollNotification
-    return CollNotification.objects.filter(
+    from .models import CollNotificationItem
+    return CollNotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).count()
@@ -47,14 +47,14 @@ def get_notifications_list(user_profile_id, limit=20):
     """Get latest notifications for a user."""
     if not user_profile_id:
         return []
-    from .models import CollNotification
-    notifications = CollNotification.objects.filter(
+    from .models import CollNotificationItem
+    notifications = CollNotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_active=True,
     ).order_by('-created_at')[:limit]
 
     return [{
-        'notification_id': notification.newsengine_coll_notification_id,
+        'notification_id': notification.newsengine_coll_notification_item_id,
         'event_code': notification.notification_event_code,
         'source_app': notification.notification_source_app,
         'message': notification.notification_message,
@@ -69,8 +69,8 @@ def mark_all_read(user_profile_id):
     if not user_profile_id:
         return
     from django.utils import timezone
-    from .models import CollNotification
-    CollNotification.objects.filter(
+    from .models import CollNotificationItem
+    CollNotificationItem.objects.filter(
         link_recipient_user_profile_id=user_profile_id,
         is_read=False, is_active=True,
     ).update(is_read=True, read_at=timezone.now())

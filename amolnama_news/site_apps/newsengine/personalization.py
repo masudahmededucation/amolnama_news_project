@@ -30,12 +30,12 @@ def build_user_interest_profile(user_profile_id):
     if not user_profile_id:
         return DEFAULT_INTEREST_WEIGHTS
 
-    from .models import FactUserContentView
+    from .models import FactFeedUserContentView
 
-    views = FactUserContentView.objects.filter(
+    views = FactFeedUserContentView.objects.filter(
         link_user_profile_id=user_profile_id,
         is_active=True,
-    ).values_list('content_type_code', flat=True)
+    ).values_list('feed_content_type_code', flat=True)
 
     if not views:
         return DEFAULT_INTEREST_WEIGHTS
@@ -97,8 +97,8 @@ def record_content_view(user_profile_id, content_type_code, content_id):
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO [newsengine].[fact_user_content_view]
-                    ([link_user_profile_id], [content_type_code], [content_id])
+                INSERT INTO [newsengine].[fact_feed_user_content_view]
+                    ([link_user_profile_id], [feed_content_type_code], [feed_content_id])
                 VALUES (?, ?, ?)
             """, [user_profile_id, content_type_code, content_id])
     except Exception:

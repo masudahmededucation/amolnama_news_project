@@ -471,8 +471,8 @@ def bookmarks(request):
 
     # Newsengine universal bookmarks (future — manual bookmarks from promo cards)
     try:
-        from amolnama_news.site_apps.newsengine.models import CollContentBookmark
-        for bookmark in CollContentBookmark.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
+        from amolnama_news.site_apps.newsengine.models import CollBookmarkContent
+        for bookmark in CollBookmarkContent.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
             color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
             universal_bookmarks.append({
                 'item_type': 'content_promo', 'promo_id': bookmark.newsengine_coll_content_bookmark_id,
