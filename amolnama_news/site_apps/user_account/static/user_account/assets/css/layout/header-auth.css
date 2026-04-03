@@ -94,6 +94,19 @@
   text-decoration: none;
 }
 
+/* ── Theme toggle (dark/light mode) ── */
+.header-theme-toggle {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: .15rem .4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background .15s;
+}
+.header-theme-toggle:hover { background: var(--surface); }
+
 /* ── Language toggle pill (authenticated header) — marriage-style ── */
 .header-lang-toggle {
   display: inline-flex;

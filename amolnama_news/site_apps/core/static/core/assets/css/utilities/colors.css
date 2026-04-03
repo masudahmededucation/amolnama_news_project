@@ -22,8 +22,25 @@
   --gap: 1.25rem;
 }
 
+/* Dark mode — manual toggle via [data-theme="dark"] on <html> */
+[data-theme="dark"] {
+  --bg: #0d0f0e;
+  --surface: #141a17;
+  --text: #eef0f3;
+  --muted: #9aa1ab;
+  --primary: #2d9d6a;
+  --primary-light: #162b20;
+  --primary-hover: #24805a;
+  --danger: #e05555;
+  --card: #161c19;
+  --border: #253028;
+  --shadow: 0 2px 8px rgba(0, 0, 0, .4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, .5);
+}
+
+/* Auto-detect system preference — only when user hasn't chosen manually */
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme="light"]) {
     --bg: #0d0f0e;
     --surface: #141a17;
     --text: #eef0f3;
