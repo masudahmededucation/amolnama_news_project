@@ -457,10 +457,12 @@
             newPostElement.style.transform = 'translateY(0)';
           });
 
-          /* Collapse composer smoothly after successful post */
-          if (typeof collapseComposer === 'function') {
-            setTimeout(collapseComposer, 300);
-          }
+          /* Force collapse composer after successful post */
+          submitButton.blur();
+          composerTextarea.blur();
+          composerElement.classList.add('post-composer-collapsed');
+          composerTextarea.setAttribute('rows', '1');
+          composerTextarea.style.height = 'auto';
         } else {
           showPostComposerError(data.error || 'পোস্ট করা যায়নি');
         }
