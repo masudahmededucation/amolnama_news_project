@@ -3,6 +3,7 @@
  */
 (function () {
   "use strict";
+  var getCsrf = window.getCsrfTokenValue;
 
   // Update labels based on ?type=song
   var urlParams = new URLSearchParams(window.location.search);

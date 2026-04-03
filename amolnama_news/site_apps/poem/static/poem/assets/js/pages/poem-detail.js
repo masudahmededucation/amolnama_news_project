@@ -3,6 +3,7 @@
  */
 (function () {
   "use strict";
+  var getCsrf = window.getCsrfTokenValue;
 
   /* ── Collapsible sections ── */
   document.querySelectorAll(".poem-detail-section-toggle").forEach(function (btn) {

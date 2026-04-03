@@ -3,6 +3,7 @@
  */
 (function () {
   "use strict";
+  var getCsrf = window.getCsrfTokenValue;
 
   var form = document.getElementById("poemEditForm");
   var submitButton = document.getElementById("poem-submit-button");
