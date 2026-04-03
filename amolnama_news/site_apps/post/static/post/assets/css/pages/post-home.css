@@ -982,6 +982,7 @@
 .post-card-timestamp {
   font-size: .75rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .post-card-text {
@@ -1909,6 +1910,13 @@
   .post-composer-link-preview-description { font-size: .65rem; }
   .post-card-edit-history { padding: .4rem; }
   .post-card-edit-history-text { font-size: .78rem; }
+}
+
+/* ---- Mobile (640px) — timestamp on its own line, short time only ---- */
+@media (max-width: 640px) {
+  .post-card-header-left { flex-wrap: wrap; }
+  .post-card-timestamp { width: 100%; order: -1; font-size: .68rem; }
+  .post-card-timestamp-full { display: none; }
 }
 
 /* ---- Small phone (480px) ---- */
