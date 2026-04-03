@@ -74,7 +74,7 @@
     <div class="post-card-header" id="post-card-header-{{ post_item.post_post_id }}">
       <div class="post-card-header-left">
         <div class="post-card-author-hover-wrapper">
-          <span class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</span>
+          <a href="/social/@{{ post_item.author_username_handle }}/" class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</a>
           <div class="post-card-profile-popup" id="post-card-profile-popup-{{ post_item.post_post_id }}">
             <div class="post-card-profile-popup-header">
               {% if post_item.author_avatar_url %}

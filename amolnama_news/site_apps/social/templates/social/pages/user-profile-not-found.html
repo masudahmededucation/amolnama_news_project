@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+
+{% block title %}প্রোফাইল পাওয়া যায়নি{% endblock %}
+
+{% block content %}
+<div style="text-align:center;padding:4rem 1rem;">
+  <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+  <h1 style="font-size:1.2rem;margin-bottom:.5rem;">@{{ username_handle }} পাওয়া যায়নি</h1>
+  <p style="color:var(--muted);font-size:.9rem;">এই ব্যবহারকারীর প্রোফাইল খুঁজে পাওয়া যায়নি।</p>
+  <a href="/" style="display:inline-block;margin-top:1rem;padding:.5rem 1.5rem;background:var(--primary);color:#fff;border-radius:8px;font-size:.85rem;">হোমে ফিরে যান</a>
+</div>
+{% endblock %}
