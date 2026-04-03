@@ -95,3 +95,9 @@ no username). Person + UserProfile + contact models. Device/session tracking.
 - Phone storage: contact.phone stores country_code + phone_number separately; account.user.phone stores full number
 - normalize_phone: regex bug was fixed — don't re-add regex
 - Non-mandatory text columns: use `or None` not empty string
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Column Renames
+- professional_bio_summary_bn → professional_bio_summary (single UTF-8 column, no _bn suffix)
+- professional_bio_description_bn → professional_bio_description (single UTF-8 column, no _bn suffix)

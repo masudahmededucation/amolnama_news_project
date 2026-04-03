@@ -219,3 +219,15 @@ POST /debate/api/post/<id>/fact-check-flag/
 GET  /debate/api/link-preview/?url=...
 GET  /debate/api/notifications/
 POST /debate/api/notifications/mark-read/
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames
+- coll_vote → vote
+- coll_notification → notification
+- coll_post_edit_history → fact_post_edit_history
+
+### Model Class Renames
+- CollVote → Vote
+- CollNotification → Notification
+- CollPostEditHistory → FactPostEditHistory

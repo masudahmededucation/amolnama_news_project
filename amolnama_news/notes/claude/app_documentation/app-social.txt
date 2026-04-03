@@ -92,3 +92,16 @@ If follow button appears on own content, check these template conditions.
 ### Count drift
 Follower counts are always recalculated from actual data (not increment/decrement).
 If counts seem wrong, check for orphan records where is_active logic may have been bypassed.
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames (dropped coll_ prefix)
+- coll_user_follow → user_follow
+- coll_user_block → user_block
+- coll_user_list → user_list
+- coll_user_list_member → user_list_member
+
+### Model Class Renames
+- CollUserBlock → UserBlock
+- CollUserList → UserList
+- CollUserListMember → UserListMember

@@ -64,3 +64,10 @@ None.
 - If dynamic fields don't get it: MutationObserver should pick up — check data-bangla-attached
 - CSP requires external JS files, NOT inline scripts
 - Filenames must NOT contain "bangla-input" in the path (CSP filename filter issue — legacy)
+
+## Session 2026-04-03 — Bengali Keyboard Bug Fix
+
+### Fixed: Bengali keyboard always-on bug
+- news-form-lang.js was overriding localStorage preference on page load
+- Global header toggle now works on every page (was previously only newshub forms)
+- Variable renamed: globalEnabled → globalBengaliKeyboardEnabled (descriptive naming convention)

@@ -189,3 +189,23 @@ DB Tables:
 Link Preview API (shared):
 - /newsengine/api/link-preview/?url=... — fetches og:title, og:description, og:image
 - Used by post + debate (moved from debate to newsengine for zero duplication)
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames (dropped coll_ prefix)
+- coll_notification_item → notification_item
+- coll_bookmark_content → bookmark_content
+- coll_hashtag_item → hashtag_item
+- coll_hashtag_post_link → hashtag_post_link
+- coll_muted_word_item → muted_word_item
+
+### Model Class Renames
+- CollNotificationItem → NotificationItem
+- CollBookmarkContent → BookmarkContent
+- CollHashtagItem → HashtagItem
+- CollHashtagPostLink → HashtagPostLink
+- CollMutedWordItem → MutedWordItem
+
+### Engagement Table Prefix (eng_ → engagement_)
+- All engagement tables across all schemas standardised to engagement_ prefix
+- Example: eng_article_stat → engagement_article_stat

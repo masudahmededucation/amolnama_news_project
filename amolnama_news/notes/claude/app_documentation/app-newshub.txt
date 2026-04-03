@@ -106,3 +106,24 @@ Multi-step form templates, article templates, component partials.
 - Category → tag cascade: both _en and _bn in option text for Tom Select search
 - hash_headline_check is computed column — remove from Django model, never include in INSERT
 - Form persistence: localStorage key per form type, cleared on successful submit
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames (dropped coll_ prefix)
+- coll_news_asset → news_asset
+- coll_news_entry_tag → news_entry_tag
+- coll_news_social_media_source → news_social_media_source
+- coll_contributor → contributor
+
+### PK Rename + FK Alignment
+- coll_news_entry_id → newshub_coll_news_entry_id (on coll_news_entry table)
+- FK alignment across 16 investigation tables to match the renamed PK
+
+### Engagement Table Prefix (eng_ → engagement_)
+- eng_article_stat → engagement_article_stat
+- eng_comment → engagement_comment
+
+### Column Renames
+- eng_comment_text_bn → engagement_comment_text
+- coll_contributor_* → contributor_* (dropped coll_ prefix on contributor columns)
+- coll_news_asset_caption_bn → news_asset_caption_bn (dropped coll_ prefix)

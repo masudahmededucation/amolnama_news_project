@@ -223,3 +223,25 @@ POST /post/api/<id>/pin/
 - Post ordering: created_at_raw must be in post item dict for ranking/promo injection to work
 - Edit targeting: use #post-card-text-{id} for posts, .post-card-reply-text for replies (not querySelector on parent)
 - Media post: build card in JS with video support, no page reload (was causing visible jump)
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames (dropped coll_ prefix)
+- coll_post_media → post_media
+- coll_post_poll → post_poll
+- coll_post_poll_vote → post_poll_vote
+
+### Engagement Table Prefix (eng_ → engagement_)
+- eng_post_like → engagement_post_like
+- eng_post_bookmark → engagement_post_bookmark
+- eng_post_vote → engagement_post_vote
+- eng_post_follow → engagement_post_follow
+- eng_post_flag → engagement_post_flag
+
+### Column Renames
+- post_text_bn → post_text (single UTF-8 column, no _bn suffix needed)
+- flag_description_en → flag_description (single column, no _en suffix needed)
+
+### Model Class Renames
+- CollPoll → PostPoll
+- CollPollVote → PostPollVote

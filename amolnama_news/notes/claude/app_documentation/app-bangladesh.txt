@@ -106,3 +106,20 @@ YouTube/reference link CRUD, cover image set, community contribution edit/delete
 - Map search Enter key: must preventDefault() inside <form>
 - Bengali slugs: use bangla_slugify() from core/utils.py
 - Nominatim: state_district=district, county=upazila. Use extractNameBefore() for parsing
+
+## Session 2026-04-03 — Naming Convention Enforcement
+
+### Table Renames (dropped coll_ prefix, 6 tables)
+- coll_destination_photo → destination_photo
+- coll_accommodation → accommodation
+- coll_transport_route → transport_route
+- coll_travel_tip → travel_tip
+- coll_destination_youtube_link → destination_youtube_link
+- coll_destination_reference_link → destination_reference_link
+
+### Engagement Table Prefix (eng_ → engagement_)
+- All engagement tables standardised to engagement_ prefix
+
+### FK Renames
+- link_coll_destination_photo_id → link_destination_photo_id
+- link_coll_destination_youtube_link_id → link_destination_youtube_link_id
