@@ -98,7 +98,7 @@ def api_block_toggle(request, user_profile_id):
             cursor.execute("""
                 INSERT INTO [social].[user_block]
                     ([link_blocker_user_profile_id], [link_blocked_user_profile_id])
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, [current_profile.user_profile_id, user_profile_id])
         blocked = True
 
@@ -135,7 +135,7 @@ def api_list_create(request):
         cursor.execute("""
             INSERT INTO [social].[user_list] ([link_owner_user_profile_id], [list_name], [list_description])
             OUTPUT INSERTED.social_user_list_id
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
         """, [current_profile.user_profile_id, list_name, list_description])
         list_id = cursor.fetchone()[0]
 
@@ -183,6 +183,6 @@ def api_list_member_toggle(request):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [social].[user_list_member] ([link_list_id], [link_user_profile_id])
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, [list_id, member_user_profile_id])
         return JsonResponse({'success': True, 'action': 'added'})

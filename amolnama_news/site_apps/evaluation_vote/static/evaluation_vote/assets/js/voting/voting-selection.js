@@ -38,7 +38,6 @@ function selectDivision(id, nameEn, nameBn) {
       });
     })
     .catch(error => {
-      console.error('Error loading districts:', error);
     });
 }
 
@@ -86,7 +85,6 @@ function selectDistrict(id, nameEn, nameBn) {
       });
     })
     .catch(error => {
-      console.error('Error loading constituencies:', error);
     });
 }
 
@@ -137,7 +135,6 @@ function loadUpazilas() {
       });
     })
     .catch(error => {
-      console.error('Error loading upazilas:', error);
     });
 }
 
@@ -168,7 +165,6 @@ function loadUnions() {
       unionSelect.disabled = false;
     })
     .catch(error => {
-      console.error('Error loading unions:', error);
     });
 }
 

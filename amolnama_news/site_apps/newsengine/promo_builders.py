@@ -51,7 +51,7 @@ def build_all_promo_items():
         logger.exception('Failed to build travel promo items')
 
     # Sort all by date — latest first
-    all_promos.sort(key=lambda item: item.get('promo_sort_date', ''), reverse=True)
+    all_promos.sort(key=lambda item: item.get('created_at_raw') or '', reverse=True)
     return all_promos
 
 
@@ -218,7 +218,7 @@ def _build_newshub_promo_items():
 
         items.append({
             'item_type': 'content_promo',
-            'promo_sort_date': article.created_at.isoformat() if article.created_at else '',
+            'created_at_raw': article.created_at,
             'promo_id': article.pub_article_id,
             'promo_badge': 'NEWS',
             'promo_color': 'rose',
@@ -247,7 +247,7 @@ def _build_poem_promo_items():
     for poem in poems:
         items.append({
             'item_type': 'content_promo',
-            'promo_sort_date': poem.created_at.isoformat() if poem.created_at else '',
+            'created_at_raw': poem.created_at,
             'promo_id': poem.poem_coll_poem_entry_id,
             'promo_badge': 'POEM',
             'promo_color': 'purple',
@@ -277,7 +277,7 @@ def _build_stories_promo_items():
         reading_time = getattr(story, 'reading_time_minutes', None)
         items.append({
             'item_type': 'content_promo',
-            'promo_sort_date': story.created_at.isoformat() if story.created_at else '',
+            'created_at_raw': story.created_at,
             'promo_id': story.stories_coll_story_id,
             'promo_badge': 'STORY',
             'promo_color': 'amber',
@@ -306,7 +306,7 @@ def _build_art_promo_items():
     for artwork in artworks:
         items.append({
             'item_type': 'content_promo',
-            'promo_sort_date': artwork.created_at.isoformat() if artwork.created_at else '',
+            'created_at_raw': artwork.created_at,
             'promo_id': artwork.art_coll_artwork_id,
             'promo_badge': 'ART',
             'promo_color': 'blue',
@@ -335,7 +335,7 @@ def _build_travel_promo_items():
     for destination in destinations:
         items.append({
             'item_type': 'content_promo',
-            'promo_sort_date': destination.created_at.isoformat() if destination.created_at else '',
+            'created_at_raw': destination.created_at,
             'promo_id': destination.bangladesh_coll_destination_id,
             'promo_badge': 'TRAVEL',
             'promo_color': 'green',

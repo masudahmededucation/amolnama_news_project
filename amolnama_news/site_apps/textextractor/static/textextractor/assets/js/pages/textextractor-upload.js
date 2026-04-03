@@ -15,10 +15,6 @@
 
   if (!dropzoneElement) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   function showError(text) {
     if (errorSection) { errorSection.textContent = text; errorSection.style.display = 'block'; }
@@ -52,7 +48,6 @@
       pollJobStatus(data.job_id);
     })
     .catch(function (networkError) {
-      console.error('Upload failed:', networkError);
       showError('Network error');
     });
   }

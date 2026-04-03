@@ -31,11 +31,11 @@
   font-size: .5rem; font-weight: 800; color: #fff; padding: .1rem .35rem;
   border-radius: 6px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
 }
-.search-result-badge-blue { background: #2563eb; }
-.search-result-badge-purple { background: #7c3aed; }
-.search-result-badge-rose { background: #e11d48; }
-.search-result-badge-amber { background: #d97706; }
-.search-result-badge-green { background: #059669; }
+.search-result-badge-blue { background: var(--info); }
+.search-result-badge-purple { background: var(--purple); }
+.search-result-badge-rose { background: var(--rose); }
+.search-result-badge-amber { background: var(--amber); }
+.search-result-badge-green { background: var(--success); }
 .search-result-title { flex: 1; font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .search-result-date { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
 

@@ -188,7 +188,7 @@
 }
 
 .sidebar-navigation-toggle:hover {
-  background: var(--primary-dark, #1565c0);
+  background: var(--primary-hover);
   transform: scale(1.1);
 }
 

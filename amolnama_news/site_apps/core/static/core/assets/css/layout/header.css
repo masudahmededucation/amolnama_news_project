@@ -68,14 +68,18 @@
   width: 0;
   opacity: 0;
   transform: scaleX(.8);
-  transition: .2s ease;
+  transition: width .2s ease, opacity .2s ease, transform .2s ease, border-color .2s;
   border: 1px solid var(--border);
   background: var(--card);
+  color: var(--text);
   height: 40px;
   border-radius: 10px;
   padding: .5rem .75rem;
   outline: none;
 }
+
+#searchInput::placeholder { color: var(--muted); opacity: .7; }
+#searchInput:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
 .icon-btn[aria-expanded="true"] + #searchInput {
   width: min(50vw, 320px);

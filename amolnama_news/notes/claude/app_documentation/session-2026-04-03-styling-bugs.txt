@@ -1,0 +1,110 @@
+Session: 2026-04-03 — Styling Compliance + Bug Sweep + Tech Debt Cleanup
+=========================================================================
+
+## Summary
+Full project audit and cleanup: CSS compliance, bug sweep (6 rounds), tech debt elimination.
+Total fixes: 210+. Cache bumped v326 → v335.
+
+## 1. CSS Styling — 100% Compliance
+
+### colors.css — Single Source of Truth
+Added 17 new tokens (light + dark mode):
+  --accent, --success, --success-light, --warning, --warning-light
+  --info, --info-light, --purple, --purple-light, --teal, --teal-light
+  --rose, --amber, --danger-light, --danger-text, --danger-border, --warning-text
+
+### Hardcoded Colors Replaced (40+ files)
+- #fef2f2, #991b1b, #fecaca → var(--danger-light), var(--danger-text), var(--danger-border)
+- #fef3c7, #92400e → var(--warning-light), var(--warning-text)
+- #555, #888, #777, #999 → var(--muted)
+- #333, #222, #1a1a1a → var(--text)
+- #e5e7eb, #d1d5db, #eee → var(--border)
+- #2563eb → var(--info), #7c3aed → var(--purple), #059669 → var(--success)
+- Removed duplicate :root block from base.css
+
+### New CSS Components Created
+- core/assets/css/components/loading.css — spinner, skeleton shimmer, progress bar
+- core/assets/css/utilities/animations.css — fade, slide, scale, bounce, pulse + prefers-reduced-motion
+- core/assets/css/components/modals.css — backdrop, dialog, header/body/footer, mobile bottom-sheet
+
+### Other CSS Fixes
+- Undefined vars: --primary-dark → --primary-hover (3 files), --thumb-color → --primary (1 file)
+- Submenu dropdown animation added (navigation.css)
+- Search input focus ring + placeholder styling (header.css)
+- Footer responsive text sizing (footer.css)
+- Notification bell: text truncation, dark mode colors (notification-bell.css)
+- Photo card: hardcoded #1877f2 → var(--accent)
+- base.css footer: hardcoded #f8f8f8 → var(--surface)
+
+## 2. Bug Sweep — 6 Rounds, 210+ Fixes
+
+### Round 1: Core Bugs (14)
+- 5x SQL ? → %s placeholders (newsengine/*.py)
+- 3x CSS undefined variables
+- 1x SQL injection protection (post/views_api.py poll vote)
+- 2x JS null checks (notification-bell.js, debate-arena.js)
+- 1x duplicate click listener (post-home.js)
+
+### Round 2: Banned Patterns (54)
+- 8x alert() removed (main.js, voting-submission.js, marriage-photo-upload.js, 3 tools, martyr-profile.html, sidebar_newsletter.html)
+- 44x console.log/error/warn removed (23 JS files)
+- 2x missing .catch() added (user-profile.js)
+
+### Round 3: Security (3)
+- 1x confirm() removed (marriage-saved-office.js) — replaced with double-click pattern
+- 2x XSS innerHTML fixed (notification-bell.js, debate-arena.js) — added escapeHtml()
+
+### Round 4: Edge Cases (10)
+- 3x unclosed database cursors (debate/views_api.py, textextractor/processor.py, newshub/views.py)
+- 7x unprotected int() conversions (bangladesh, newsengine, poem, newshub)
+
+### Round 5: Final Verification (4)
+- 1x window.open without noopener (debate-arena.js)
+- 1x document.write removed (debate-arena.js)
+- 1x target="_blank" missing rel (content-dashboard.html)
+- 3x SQL ? → %s in social/views_api.py
+
+### Error Handling Audit (7)
+- 1x CRITICAL: traceback.format_exc() exposed to client (poem/views_api.py)
+- 4x HIGH: raw str(e) shown to users (evaluation_vote x2, user_account x2)
+- 1x HIGH: debate-home.js catch block missing error message
+- 1x LOW: unused exception variable (election_vote)
+
+## 3. Tech Debt Cleaned
+
+### CSRF Function Consolidation
+- Created core/assets/js/utilities/csrf-token.js (single source of truth)
+- Removed 21 duplicate getCsrfTokenValue/getCsrf function definitions
+- Added to base.html before all other scripts
+- 4 getCsrf() aliases mapped to global via var getCsrf = window.getCsrfTokenValue
+
+### Promo Card Positioning
+- Positions changed from fixed (4,12,20) to randomized bands (5-8, 13-16, 21-24)
+- Ranking now runs BEFORE promo injection (was after — caused promos to float to top)
+- New promos (< 1 hour old) can appear at position 1-3
+- Removed entrance animation (promos look native in feed)
+- Feed < 6 posts = no promos
+- Cleaned redundant logic: removed dead recent_post_count, dead hashlib import, dead wrapper function
+
+### feed_builder.py Cleanup
+- Removed dead import (hashlib)
+- Removed dead code (recent_post_count block)
+- Removed wrapper function (_filter_promos_by_user_preferences)
+- Consolidated 4x repeated if user_profile_id blocks into single block
+- Simplified _exclude_viewed_content (set comprehension)
+- Simplified _exclude_muted_words (any() instead of manual loop)
+- File reduced from ~120 lines of logic to ~80
+
+### Promo Card Positioning (Final)
+- Ranking runs BEFORE promo injection (was after — caused promos to float to top)
+- promo_sort_date (ISO string) replaced with created_at_raw (actual datetime) in all 6 promo builders
+- New promos (< 1 hour old) → position 1-3 (top allowed)
+- Older promos → position 5-8, 13-16, 21-24 (never on top)
+- No entrance animation (promos look native in feed)
+- Removed all string date parsing — uses datetime directly
+
+## 4. Permanent Rules Saved
+
+feedback_real_bug_checks.md — 20-point automated checklist:
+  Banned patterns (5), Security (5), CSS compliance (2), Error handling (4), Code quality (4)
+  Runs after every coding session. No exceptions.

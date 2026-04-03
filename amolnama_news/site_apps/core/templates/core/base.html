@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/colors.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/typography.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/spacing.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/animations.css' %}">
 
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/header.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/grid.css' %}">
@@ -48,6 +49,7 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/components/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/loading.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/pwa-install-banner.css' %}">
 
   <link rel="stylesheet" href="{% static 'user_account/assets/css/layout/header-auth.css' %}">
@@ -85,6 +87,7 @@
     {% include "core/partials/right-panel.html" %}
   </div>
 
+  <script src="{% static 'core/assets/js/utilities/csrf-token.js' %}"></script>
   <script src="{% static 'core/assets/js/components/file-dropzone.js' %}"></script>
   <script src="{% static 'core/assets/js/components/notification-bell.js' %}"></script>
   {% block extra_js %}{% endblock %}

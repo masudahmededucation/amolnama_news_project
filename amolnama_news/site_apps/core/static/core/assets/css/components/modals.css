@@ -1,3 +1,122 @@
-/* Modal window styling placeholder for future dialogs */
+/* Modal component — backdrop, dialog, open/close states */
 
-/* Define modal containers, backdrops and open states here when needed */
+/* ── Backdrop overlay ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s;
+}
+
+.modal-backdrop-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, .7);
+}
+
+/* ── Dialog container ── */
+.modal-dialog {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: scale(.92);
+  opacity: 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.modal-backdrop-open .modal-dialog {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Size variants */
+.modal-dialog-small { max-width: 360px; }
+.modal-dialog-large { max-width: 640px; }
+.modal-dialog-full { max-width: 90vw; max-height: 90vh; }
+
+/* ── Header ── */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-size: .95rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: .25rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+
+.modal-close-button:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ── Body ── */
+.modal-body {
+  padding: 1rem;
+}
+
+/* ── Footer ── */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .modal-dialog {
+    max-width: none;
+    margin: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-height: 85vh;
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-header { padding: .6rem .8rem; }
+  .modal-body { padding: .75rem; }
+  .modal-footer { padding: .6rem .8rem; }
+  .modal-close-button { min-width: 44px; min-height: 44px; }
+}

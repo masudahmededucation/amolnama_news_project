@@ -97,7 +97,7 @@ def api_bookmark_toggle(request):
             cursor.execute("""
                 INSERT INTO [newsengine].[bookmark_content]
                     ([link_user_profile_id], [content_type_code], [content_id], [content_title], [content_url])
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
             """, [user_profile_id, content_type_code, content_id, content_title, content_url])
         return JsonResponse({'success': True, 'action': 'bookmarked'})
 
@@ -109,8 +109,14 @@ def api_bookmark_toggle(request):
 @login_required
 def api_feed_page(request):
     """GET — paginated feed items. ?page=2&page_size=20&category=poem."""
-    page = int(request.GET.get('page', 1))
-    page_size = min(int(request.GET.get('page_size', 20)), 50)
+    try:
+        page = int(request.GET.get('page', 1))
+    except (ValueError, TypeError):
+        page = 1
+    try:
+        page_size = min(int(request.GET.get('page_size', 20)), 50)
+    except (ValueError, TypeError):
+        page_size = 20
     category_filter = request.GET.get('category', '')
 
     from .feed_builder import build_home_feed
@@ -215,7 +221,7 @@ def api_muted_word_add(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [newsengine].[muted_word_item] ([link_user_profile_id], [muted_word_text])
-            VALUES (?, ?)
+            VALUES (%s, %s)
         """, [user_profile_id, muted_word])
 
     return JsonResponse({'success': True})

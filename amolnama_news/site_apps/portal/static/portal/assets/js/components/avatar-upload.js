@@ -13,10 +13,6 @@
 
   if (!fileInput || !cropperModal || !cropperImage) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- File selected → open cropper modal ---- */
 
@@ -177,7 +173,6 @@
         }
       })
       .catch(function (networkError) {
-        console.error('Avatar upload failed:', networkError);
         saveButton.disabled = false;
         saveButton.textContent = 'সংরক্ষণ করুন (Save)';
         messageElement.textContent = 'নেটওয়ার্ক ত্রুটি (Network error)';

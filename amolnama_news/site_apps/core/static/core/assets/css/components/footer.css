@@ -20,11 +20,14 @@
 
 @media (max-width: 480px) {
   .footer .cols { grid-template-columns: 1fr; }
+  .footer { padding: 1.25rem 0; }
+  .footer .legal { font-size: .78rem; }
 }
 
 .footer .cols h5 {
   margin: .25rem 0;
   color: var(--text);
+  font-size: .9rem;
 }
 
 .footer .legal {

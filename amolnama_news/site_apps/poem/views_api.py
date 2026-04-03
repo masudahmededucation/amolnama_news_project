@@ -1,6 +1,9 @@
 """Poem app — JSON API endpoints."""
 
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from django.db.models import F, Q
 from django.http import JsonResponse
@@ -69,7 +72,10 @@ def _categories_map():
 @require_GET
 def api_poem_entry_list(request):
     """GET /poem/api/poems/ — paginated poem list with filters."""
-    page = int(request.GET.get("page", 1))
+    try:
+        page = int(request.GET.get("page", 1))
+    except (ValueError, TypeError):
+        page = 1
     category = request.GET.get("category", "").strip()
     q = request.GET.get("q", "").strip()
     poem_type = request.GET.get("type", "").strip()
@@ -129,7 +135,6 @@ def api_poem_entry_list(request):
 @require_POST
 def api_poem_entry_create(request):
     """POST /poem/api/poems/create/ — create a new poem."""
-    import traceback
     try:
         if not request.user.is_authenticated:
             return JsonResponse({"success": False, "error": "Login required"}, status=401)
@@ -208,7 +213,8 @@ def api_poem_entry_create(request):
         _ensure_poem_slug(poem)
         return JsonResponse({"success": True, "poem_id": poem.poem_coll_poem_entry_id, "poem_url": _poem_url(poem)})
     except Exception:
-        return JsonResponse({"success": False, "error": traceback.format_exc()}, status=500)
+        logger.exception('Poem create failed')
+        return JsonResponse({"success": False, "error": "কবিতা সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।"}, status=500)
 
 
 @require_POST

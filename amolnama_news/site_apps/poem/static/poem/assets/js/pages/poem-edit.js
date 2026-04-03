@@ -113,10 +113,6 @@
   }
 
   /* ── CSRF ── */
-  function getCsrf() {
-    var cookie = document.cookie.match(/csrftoken=([^;]+)/);
-    return cookie ? cookie[1] : "";
-  }
 
   /* ── Submit ── */
   form.addEventListener("submit", function (e) {

@@ -1,4 +1,8 @@
+import logging
+
 from django.contrib import messages
+
+logger = logging.getLogger(__name__)
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -244,8 +248,9 @@ def signup_complete_view(request):
                 login(request, user, backend=EMAIL_AUTH_BACKEND)
                 messages.success(request, "Account created successfully!")
                 return redirect("/")
-            except Exception as e:
-                messages.error(request, str(e))
+            except Exception:
+                logger.exception('Signup failed')
+                messages.error(request, 'অ্যাকাউন্ট তৈরি করা যায়নি। আবার চেষ্টা করুন।')
     else:
         form = SignupForm(initial={"email": email})
 
@@ -395,8 +400,9 @@ def mobile_set_password_view(request):
             login(request, user, backend=EMAIL_AUTH_BACKEND)
             messages.success(request, "Account created successfully!")
             return redirect("/")
-        except Exception as e:
-            messages.error(request, str(e))
+        except Exception:
+            logger.exception('Phone signup failed')
+            messages.error(request, 'অ্যাকাউন্ট তৈরি করা যায়নি। আবার চেষ্টা করুন।')
 
     masked = phone[:-4].replace(phone[:-4], "*" * len(phone[:-4])) + phone[-4:]
     return render(

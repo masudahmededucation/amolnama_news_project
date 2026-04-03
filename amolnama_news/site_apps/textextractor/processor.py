@@ -18,10 +18,15 @@ STUCK_JOB_TIMEOUT_SECONDS = 1800  # 30 minutes
 
 
 def _raw_execute(sql, params):
-    """Execute raw SQL via Django cursor. Uses ? placeholders → converted to %s."""
+    """Execute raw SQL via Django cursor. Uses ? placeholders → converted to %s.
+    Returns open cursor. Closes on execute failure to prevent leak."""
     django_sql = sql.replace('?', '%s')
     cursor = connection.cursor()
-    cursor.execute(django_sql, params)
+    try:
+        cursor.execute(django_sql, params)
+    except Exception:
+        cursor.close()
+        raise
     return cursor
 
 

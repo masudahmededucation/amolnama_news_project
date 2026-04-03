@@ -16,7 +16,7 @@
 
 /* Vote summary */
 .vote-summary {
-  background: var(--background);
+  background: var(--surface);
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -59,7 +59,7 @@
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background: var(--background);
+  background: var(--surface);
   font-size: 1rem;
   color: var(--text);
   font-family: inherit;
@@ -111,14 +111,14 @@
 
 .optional-note {
   font-size: 0.85rem;
-  color: #856404;
+  color: var(--warning);
   margin-bottom: 1rem;
 }
 
 /* Optional card - highlighted */
 .optional-card {
-  background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
-  border: 2px solid #ffc107;
+  background: var(--warning-light);
+  border: 2px solid var(--warning);
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -127,7 +127,7 @@
 
 .optional-card h4 {
   margin-bottom: 1rem;
-  color: #856404;
+  color: var(--warning);
   font-size: 1.1rem;
 }
 
@@ -146,7 +146,7 @@
 }
 
 .submit-btn:hover {
-  background: var(--primary-dark, #0056b3);
+  background: var(--primary-hover);
   transform: translateY(-2px);
 }
 
@@ -201,7 +201,7 @@
 .success-icon {
   width: 80px;
   height: 80px;
-  background: #28a745;
+  background: var(--success);
   color: #fff;
   font-size: 3rem;
   font-weight: bold;
@@ -213,7 +213,7 @@
 }
 
 .success-card h3 {
-  color: #28a745;
+  color: var(--success);
   font-size: 1.1em;
   margin: 8px 0;
 }
@@ -248,10 +248,10 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: #d4edda;
-  border: 1px solid #28a745;
+  background: var(--success-light);
+  border: 1px solid var(--success);
   border-radius: 0.5rem;
-  color: #155724;
+  color: var(--success);
   margin-top: 1rem;
   font-weight: 600;
 }
@@ -263,7 +263,7 @@
 .update-success .tick-icon {
   width: 24px;
   height: 24px;
-  background: #28a745;
+  background: var(--success);
   color: #fff;
   border-radius: 50%;
   display: flex;

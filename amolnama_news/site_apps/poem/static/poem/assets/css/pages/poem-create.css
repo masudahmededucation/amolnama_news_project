@@ -126,7 +126,7 @@
 }
 
 .poem-create-submit:hover {
-  background: var(--primary-dark, var(--primary));
+  background: var(--primary-hover);
   transform: translateY(-1px);
 }
 

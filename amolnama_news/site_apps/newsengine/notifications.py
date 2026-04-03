@@ -22,7 +22,7 @@ def create_notification(recipient_user_profile_id, actor_user_profile_id, event_
                     ([link_recipient_user_profile_id], [link_actor_user_profile_id],
                      [notification_event_code], [notification_source_app],
                      [link_content_id], [notification_message], [notification_url])
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
             """, [
                 recipient_user_profile_id, actor_user_profile_id,
                 event_code, source_app,

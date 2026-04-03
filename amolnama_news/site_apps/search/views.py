@@ -12,9 +12,9 @@ def home(request):
     if hashtag:
         breadcrumbs.append({'name': '#' + hashtag})
     elif query:
-        breadcrumbs.append({'name': 'অনুসন্ধান: ' + query})
+        breadcrumbs.append({'name': 'সার্চ রেজাল্ট: ' + query})
     else:
-        breadcrumbs.append({'name': 'অনুসন্ধান'})
+        breadcrumbs.append({'name': 'সার্চ রেজাল্ট'})
 
     return render(request, 'search/pages/search-home.html', {
         'query': query,

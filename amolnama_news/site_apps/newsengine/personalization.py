@@ -99,7 +99,7 @@ def record_content_view(user_profile_id, content_type_code, content_id):
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_feed_user_content_view]
                     ([link_user_profile_id], [feed_content_type_code], [feed_content_id])
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
             """, [user_profile_id, content_type_code, content_id])
     except Exception:
         logger.exception('Failed to record content view for user %s', user_profile_id)

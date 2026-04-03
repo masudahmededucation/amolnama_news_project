@@ -3,7 +3,7 @@
 
 /* Progress bar styles */
 .bar-container {
-  background: #eee;
+  background: var(--border);
   border-radius: 4px;
   height: 18px;
   margin-top: 5px;
@@ -23,7 +23,7 @@
   right: 8px;
   top: 0;
   font-size: 0.9em;
-  color: #222;
+  color: var(--text);
 }
 
 /* Party list specific styles */
@@ -107,7 +107,7 @@
   padding: 4px 10px;
   border-radius: 6px;
   font-weight: bold;
-  color: #333;
+  color: var(--text);
 }
 
 /* ========== RESPONSIVE - PROGRESS ========== */

@@ -54,7 +54,6 @@ function submitVote() {
       party_name_bn: selectedParty?.nameBn
     };
     
-    console.log("Submitting vote:", voteData);
 
     fetch('/evaluation_vote/api/submit-vote/', {
       method: 'POST',
@@ -77,12 +76,13 @@ function submitVote() {
           showSuccessView();
           updatePartyListWithPercentages();
         } else {
-          alert(data.error || 'Vote submission failed.');
+          var errorContainer = document.getElementById('vote-error-message');
+          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
         }
       })
-      .catch(error => {
-        alert('Vote submission failed.');
-        console.error('Error:', error);
+      .catch(function () {
+        var errorContainer = document.getElementById('vote-error-message');
+        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
       });
   });
 }
@@ -172,6 +172,5 @@ function updateVote() {
       }
     })
     .catch(error => {
-      console.error('Error:', error);
     });
 }

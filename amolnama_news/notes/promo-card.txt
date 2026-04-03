@@ -8,7 +8,7 @@ just make it feel like inside of that topic but still on the home page?
 
 this promo card needs to be latest and on the very top.
 latest item means it was created as latest after the latest post. 
-so naturally it should be on the topl
+so naturally it should be on the top.
 because it was posted as latest item.
 we need similar promo card for every kind of article.
 for example: news article, travel hub, poem, everything etc. 
@@ -62,7 +62,23 @@ what should be next.
 alternate categories.
 
 --প্রচারিত label 
-প্রচারিত dont need for our form's post or news article or poem. 
+প্রচারিত don't need for our form's post or news article or poem. 
 it should be only when we promote advertisement or any business. are you clear?
 
 --research and suggest more.
+
+--appearing on the top always
+promo card is always appearing on top of the wall. 
+this is not acceptable and it does not look natural.
+it seems forced fed.
+it could be sometimes second post or third post. 
+it should be random right. 
+appear suddenly but smooth transitions in between posts. 
+user should not see this squeezing. 
+while user has done some scrolling,
+you should decide and make the wall posts order ready to display.
+maybe make it ready for user,
+when they logged in.
+or comeback on app.
+promo card can appear on Top,
+only if they are new and latest.

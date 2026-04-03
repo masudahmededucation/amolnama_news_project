@@ -1068,9 +1068,12 @@ def api_poll_vote(request, post_post_id):
         return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
     poll_id = data.get('poll_id')
-    selected_option_number = data.get('selected_option_number')
+    try:
+        selected_option_number = int(data.get('selected_option_number', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid poll option'}, status=400)
 
-    if not poll_id or not selected_option_number or selected_option_number not in (1, 2, 3, 4):
+    if not poll_id or selected_option_number not in (1, 2, 3, 4):
         return JsonResponse({'success': False, 'error': 'Invalid poll option'}, status=400)
 
     poll = PostPoll.objects.filter(post_post_poll_id=poll_id, link_post_id=post_post_id, is_active=True).first()

@@ -136,7 +136,7 @@
 /* SSC row with fail highlight */
 .gpa-ssc-row--fail .gpa-ssc-select {
   border-color: var(--danger);
-  background: #fef2f2;
+  background: var(--danger-light);
 }
 
 /* University course rows */
@@ -198,7 +198,7 @@
 }
 
 .gpa-uni-remove:hover {
-  background: #fef2f2;
+  background: var(--danger-light);
   color: var(--danger);
 }
 
@@ -289,12 +289,12 @@
 }
 
 .gpa-result-badge--golden {
-  background: #fef3c7;
+  background: var(--warning-light);
   color: #d97706;
 }
 
 .gpa-result-badge--fail {
-  background: #fef2f2;
+  background: var(--danger-light);
   color: #dc2626;
 }
 
@@ -304,7 +304,7 @@
 }
 
 .gpa-result-badge--impossible {
-  background: #fef2f2;
+  background: var(--danger-light);
   color: #dc2626;
 }
 

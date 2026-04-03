@@ -50,7 +50,7 @@ def check_rate_limit(user_profile_id, action_code):
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_rate_limit_action_log]
                     ([link_user_profile_id], [rate_limit_action_code])
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, [user_profile_id, action_code])
     except Exception:
         logger.exception('Failed to log rate limit for user %s action %s', user_profile_id, action_code)

@@ -5,12 +5,14 @@
   var bellButton = document.getElementById('global-notification-bell');
   var dropdown = document.getElementById('global-notification-dropdown');
   var countBadge = document.getElementById('global-notification-count');
-  if (!bellButton || !dropdown) return;
+  if (!bellButton || !dropdown || !countBadge) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text || ''));
+    return div.innerHTML;
   }
+
 
   function updateCountBadge(count) {
     if (count > 0) {
@@ -36,14 +38,14 @@
         var html = '';
         data.notifications.forEach(function (notification) {
           var readClass = notification.is_read ? '' : ' global-notification-item-unread';
-          var urlAttr = notification.url ? ' href="' + notification.url + '"' : '';
+          var urlAttr = notification.url ? ' href="' + escapeHtml(notification.url) + '"' : '';
           var tag = notification.url ? 'a' : 'div';
           html += '<' + tag + urlAttr + ' class="global-notification-item' + readClass + '">';
           html += '<div class="global-notification-item-message">';
-          html += '<span class="global-notification-item-source">' + notification.source_app + '</span>';
-          html += notification.message;
+          html += '<span class="global-notification-item-source">' + escapeHtml(notification.source_app) + '</span>';
+          html += escapeHtml(notification.message);
           html += '</div>';
-          html += '<div class="global-notification-item-time">' + notification.created_at + '</div>';
+          html += '<div class="global-notification-item-time">' + escapeHtml(notification.created_at) + '</div>';
           html += '</' + tag + '>';
         });
 

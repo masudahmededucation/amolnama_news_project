@@ -94,7 +94,6 @@
       const loadMoreWrapper = document.getElementById("travel-hub-load-more");
       if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
     } catch (error) {
-      console.error("Failed to load destinations:", error);
     } finally {
       isLoading = false;
     }

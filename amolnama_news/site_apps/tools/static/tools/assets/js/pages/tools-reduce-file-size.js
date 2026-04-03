@@ -690,7 +690,6 @@ if (typeof pdfjsLib !== 'undefined') {
         idx++;
         processNext();
       }).catch(function (err) {
-        console.error('Compression failed for ' + sf.file.name + ':', err);
         // Keep original file on error
         compressedResults.push({
           name: sf.file.name,

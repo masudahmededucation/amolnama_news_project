@@ -20,10 +20,6 @@
 
   var config = {};
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   function handleLikeClick(event) {
     var likeButton = event.target.closest(config.buttonSelector);
@@ -47,7 +43,6 @@
       likeButton.disabled = false;
 
       if (!data.success) {
-        console.error('Like failed:', data.error);
         return;
       }
 
@@ -69,7 +64,6 @@
       }
     })
     .catch(function (networkError) {
-      console.error('Like toggle failed:', networkError);
       likeButton.disabled = false;
     });
   }
@@ -81,7 +75,6 @@
     };
 
     if (typeof config.buildApiUrl !== 'function') {
-      console.error('like-button.js: buildApiUrl function is required');
       return;
     }
 

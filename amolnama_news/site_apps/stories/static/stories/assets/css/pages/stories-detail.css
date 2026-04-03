@@ -190,13 +190,13 @@
 }
 
 .stories-detail-like-button-active {
-  background: #fff0f0;
+  background: var(--danger-light);
   border-color: #fca5a5;
   color: #dc2626;
 }
 
 .stories-detail-bookmark-button-active {
-  background: #fef3c7;
+  background: var(--warning-light);
   border-color: #fcd34d;
   color: #d97706;
 }

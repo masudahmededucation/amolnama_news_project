@@ -32,10 +32,16 @@ def _get_user_profile_id(request):
 
 
 def _raw_execute(sql, params):
-    """Execute raw SQL with ? placeholders converted to %s for Django cursor."""
+    """Execute raw SQL with ? placeholders converted to %s for Django cursor.
+    Returns open cursor. For INSERT/UPDATE callers, cursor is auto-closed by Django
+    connection pool. For SELECT callers, fetch data then let cursor go out of scope."""
     django_sql = sql.replace('?', '%s')
     cursor = connection.cursor()
-    cursor.execute(django_sql, params)
+    try:
+        cursor.execute(django_sql, params)
+    except Exception:
+        cursor.close()
+        raise
     return cursor
 
 

@@ -2,6 +2,12 @@
 (function () {
   'use strict';
 
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text || ''));
+    return div.innerHTML;
+  }
+
   var arenaElement = document.getElementById('debate-arena');
   if (!arenaElement) return;
 
@@ -45,10 +51,6 @@
   initRotatingPlaceholders();
   var minimumCharacterCount = parseInt(arenaElement.getAttribute('data-min-chars') || '60', 10);
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   function scrollToAndHighlightPost(postId) {
     var postElement = document.getElementById('debate-argument-card-' + postId) ||
@@ -419,8 +421,9 @@
     if (nativeShareButton) {
       if (navigator.share) {
         nativeShareButton.addEventListener('click', function () {
+          var topicTitleElement = document.querySelector('.debate-arena-topic-title');
           navigator.share({
-            title: document.querySelector('.debate-arena-topic-title').textContent,
+            title: topicTitleElement ? topicTitleElement.textContent : 'বিতর্ক',
             url: window.location.origin + '/debate/topic/' + topicId + '/',
           });
           shareDropdown.classList.remove('debate-arena-share-dropdown-open');
@@ -447,9 +450,15 @@
       var pdfFilename = filenameWords + '.pdf';
 
       /* Open preview window immediately (user gesture context — won't be blocked) */
-      var previewWindow = window.open('', '_blank');
+      var previewWindow = window.open('about:blank', '_blank', 'noopener');
       if (previewWindow) {
-        previewWindow.document.write('<html><head><title>' + pdfFilename + '</title></head><body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#666;"><p>⏳ PDF তৈরি হচ্ছে...</p></body></html>');
+        previewWindow.document.open();
+        previewWindow.document.close();
+        var loadingMessage = previewWindow.document.createElement('p');
+        loadingMessage.textContent = '\u23F3 PDF \u09A4\u09C8\u09B0\u09BF \u09B9\u099A\u09CD\u099B\u09C7...';
+        loadingMessage.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#666;';
+        previewWindow.document.body.appendChild(loadingMessage);
+        previewWindow.document.title = escapeHtml(pdfFilename);
       }
 
       fetch('/debate/topic/' + topicId + '/download-pdf/')
@@ -714,8 +723,8 @@
             data.notifications.forEach(function (notification) {
               var readClass = notification.is_read ? '' : ' debate-arena-notification-item-unread';
               html += '<div class="debate-arena-notification-item' + readClass + '">';
-              html += '<div>' + notification.message + '</div>';
-              html += '<div class="debate-arena-notification-item-time">' + notification.created_at + '</div>';
+              html += '<div>' + escapeHtml(notification.message) + '</div>';
+              html += '<div class="debate-arena-notification-item-time">' + escapeHtml(notification.created_at) + '</div>';
               html += '</div>';
             });
 

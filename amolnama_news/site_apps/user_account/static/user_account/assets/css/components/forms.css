@@ -118,7 +118,7 @@
 }
 
 .auth-alert--warning {
-  background: #fff8e1;
+  background: var(--warning-light);
   color: #8a6d00;
   border: 1px solid #ffe082;
 }

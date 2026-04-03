@@ -1,7 +1,7 @@
 <div class="widget">
   <h4>Newsletter</h4>
   <p>Get the best of Amolnama News in your inbox every morning.</p>
-  <form onsubmit="event.preventDefault(); alert('This is a static template. Hook this up to your backend.');">
+  <form onsubmit="event.preventDefault(); var emailInput = this.querySelector('input[type=email]'); if (emailInput) { emailInput.value = ''; emailInput.placeholder = 'শীঘ্রই আসছে!'; }">
     <div class="grid-2" style="grid-template-columns:1fr auto;">
       <input type="email" id="newsletter-email" name="email" required placeholder="you@example.com" aria-label="Email" autocomplete="email"
              style="height:44px;border:1px solid var(--border);background:var(--card);

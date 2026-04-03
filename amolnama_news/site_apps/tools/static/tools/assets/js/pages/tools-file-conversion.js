@@ -292,7 +292,8 @@
       resultBlob = blob;
       showResult();
     }).catch(function (err) {
-      alert('Conversion failed: ' + err.message);
+      var errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'Conversion failed: ' + err.message; errorElement.style.display = 'block'; }
     }).finally(function () {
       actionBtn.disabled = false;
       actionLabel.textContent = 'Convert to ' + selectedTarget;

@@ -429,7 +429,7 @@ def build_debate_promo_items():
 
         promo_items.append({
             'item_type': 'debate_promo',
-            'promo_sort_date': topic.scheduled_start_at.isoformat() if topic.scheduled_start_at else '',
+            'created_at_raw': topic.scheduled_start_at,
             'debate_coll_topic_id': topic_id,
             'topic_title': topic.topic_title,
             'topic_description': topic.topic_description,

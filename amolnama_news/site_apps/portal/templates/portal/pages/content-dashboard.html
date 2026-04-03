@@ -31,7 +31,7 @@
       <div class="content-dashboard-item-left">
         <span class="content-dashboard-item-badge content-dashboard-item-badge-{{ item.content_type_color }}">{{ item.content_type_label }}</span>
         <div class="content-dashboard-item-info">
-          <a href="{{ item.content_url }}" class="content-dashboard-item-title" id="content-dashboard-item-title-{{ item.content_type }}-{{ item.content_id }}" target="_blank">{{ item.content_title }}</a>
+          <a href="{{ item.content_url }}" class="content-dashboard-item-title" id="content-dashboard-item-title-{{ item.content_type }}-{{ item.content_id }}" target="_blank" rel="noopener noreferrer">{{ item.content_title }}</a>
           <span class="content-dashboard-item-date" id="content-dashboard-item-date-{{ item.content_type }}-{{ item.content_id }}">{{ item.created_at_formatted }}</span>
         </div>
       </div>

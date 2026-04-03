@@ -590,3 +590,16 @@ it also helps users.
 
 if you give me all the new features and tell me how to test them. 
 then i can test one by one.
+
+
+####
+--happy birthday flash.
+flash happy birthday to user,
+on their birthday if their birthday date is set.
+it should happen only once,
+first time they open the wall post,
+after their birthday.
+
+same for new year.
+same for Eid-ul-fitre
+same for Eid-ul-adha

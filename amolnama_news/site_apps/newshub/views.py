@@ -795,15 +795,15 @@ def news_collection_multistep_war_conflict(request):
         .values('status_id', 'status_code', 'status_name_bn', 'status_name_en')
     ))
 
-    cursor = connection.cursor()
-    cursor.execute(
-        "SELECT country_id, country_name_en, country_name_bn, country_iso_code "
-        "FROM [location].[country] WHERE is_active=1 ORDER BY country_name_en"
-    )
-    cols = [c[0] for c in cursor.description]
-    extra['countries_json'] = json.dumps(
-        [dict(zip(cols, row)) for row in cursor.fetchall()]
-    )
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT country_id, country_name_en, country_name_bn, country_iso_code "
+            "FROM [location].[country] WHERE is_active=1 ORDER BY country_name_en"
+        )
+        cols = [c[0] for c in cursor.description]
+        extra['countries_json'] = json.dumps(
+            [dict(zip(cols, row)) for row in cursor.fetchall()]
+        )
 
     # Step 5: Frontline — territory status, intensity, involvement level, weapon class
     extra['territory_statuses_json'] = json.dumps(list(
@@ -2732,7 +2732,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
             # ---- Save civic evidence & impact (Step 3 sub-type + Step 7 impact + Step 8 status) ----
             # → investigation.civic_form_impact (single row combining all civic data)
-            civic_sub_type_id = int(request.POST.get('civic_sub_type', '') or 0)
+            try:
+                civic_sub_type_id = int(request.POST.get('civic_sub_type', '') or 0)
+            except (ValueError, TypeError):
+                civic_sub_type_id = 0
             civic_impact_json_raw = request.POST.get('civic_impact_json', '')
             civic_status_json_raw = request.POST.get('civic_status_json', '')
 
@@ -2865,7 +2868,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
             # ---- Save global news conflict evidence — Steps 3+5+6+7 ----
             # → investigation.conflict_form_impact (single row)
-            global_sub_type_id = int(request.POST.get('global_sub_type', '') or 0) or None
+            try:
+                global_sub_type_id = int(request.POST.get('global_sub_type', '') or 0) or None
+            except (ValueError, TypeError):
+                global_sub_type_id = None
             frontline_json_raw = request.POST.get('global_frontline_json', '')
             humanitarian_json_raw = request.POST.get('global_humanitarian_json', '')
             geopolitics_json_raw = request.POST.get('global_geopolitics_json', '')

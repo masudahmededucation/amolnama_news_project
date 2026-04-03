@@ -8,10 +8,6 @@
 
   if (!submitForm) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   function showError(text) {
     if (errorMessage) {
@@ -44,7 +40,6 @@
       }
     })
     .catch(function (networkError) {
-      console.error('Submit failed:', networkError);
       showError('নেটওয়ার্ক ত্রুটি (Network error)');
       submitButton.disabled = false;
       submitButton.textContent = 'জমা দিন';

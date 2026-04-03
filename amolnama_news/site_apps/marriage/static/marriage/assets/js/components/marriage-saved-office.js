@@ -5,6 +5,7 @@
  */
 (function () {
   'use strict';
+  var getCsrf = window.getCsrfTokenValue;
 
   var bar = document.getElementById('saved-office-bar');
   if (!bar) return;
@@ -30,10 +31,6 @@
   var API_DELETE  = '/bangladesh-marriage-registration/api/saved-offices/delete/';
 
   /* ── CSRF ── */
-  function getCsrf() {
-    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return match ? match[1] : '';
-  }
 
   /* ── Populate select dropdown ── */
   function loadList() {
@@ -127,11 +124,19 @@
     });
   });
 
+  var deleteConfirmPending = false;
   btnDelete.addEventListener('click', function () {
     if (!select.value) return;
-    var opt = select.options[select.selectedIndex];
-    var label = opt ? opt.textContent : '';
-    if (!confirm('Delete "' + label + '"?')) return;
+    if (!deleteConfirmPending) {
+      deleteConfirmPending = true;
+      btnDelete.textContent = 'নিশ্চিত? আবার ক্লিক করুন';
+      btnDelete.style.color = 'var(--danger)';
+      setTimeout(function () { deleteConfirmPending = false; btnDelete.textContent = 'Delete'; btnDelete.style.color = ''; }, 3000);
+      return;
+    }
+    deleteConfirmPending = false;
+    btnDelete.textContent = 'Delete';
+    btnDelete.style.color = '';
 
     fetch(API_DELETE, {
       method: 'POST',
@@ -145,7 +150,8 @@
     .then(function (r) { return r.json(); })
     .then(function (result) {
       if (result.ok) loadList();
-    });
+    })
+    .catch(function () {});
   });
 
   /* ── Init: load saved offices on page load ── */

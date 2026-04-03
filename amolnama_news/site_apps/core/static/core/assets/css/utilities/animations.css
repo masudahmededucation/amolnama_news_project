@@ -1,0 +1,106 @@
+/* Global animation utilities — entrance, exit, micro-interactions */
+
+/* ── Fade in ── */
+.animate-fade-in {
+  animation: fade-in .3s ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Fade out ── */
+.animate-fade-out {
+  animation: fade-out .2s ease-in both;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── Slide up (cards, notifications, new items) ── */
+.animate-slide-up {
+  animation: slide-up .3s ease-out both;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Slide down (dropdowns, menus) ── */
+.animate-slide-down {
+  animation: slide-down .25s ease-out both;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Scale in (modals, popups, tooltips) ── */
+.animate-scale-in {
+  animation: scale-in .2s ease-out both;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ── Scale out ── */
+.animate-scale-out {
+  animation: scale-out .15s ease-in both;
+}
+
+@keyframes scale-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(.92); }
+}
+
+/* ── Slide in from right (panels, drawers) ── */
+.animate-slide-in-right {
+  animation: slide-in-right .3s ease-out both;
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Pulse (attention, notification dot) ── */
+.animate-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
+/* ── Bounce in (success icons, confirmation ticks) ── */
+.animate-bounce-in {
+  animation: bounce-in .4s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes bounce-in {
+  from { opacity: 0; transform: scale(.3); }
+  60% { opacity: 1; transform: scale(1.1); }
+  to { transform: scale(1); }
+}
+
+/* ── Stagger — add delay per child using CSS counter ── */
+.animate-stagger > * { animation-delay: calc(var(--stagger-index, 0) * 60ms); }
+
+/* ── Reduce motion — respect user preference ── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in, .animate-fade-out,
+  .animate-slide-up, .animate-slide-down,
+  .animate-scale-in, .animate-scale-out,
+  .animate-slide-in-right, .animate-bounce-in {
+    animation-duration: 0.01ms;
+  }
+  .animate-pulse { animation: none; }
+}

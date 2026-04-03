@@ -33,6 +33,11 @@ buttons and display should be polished.
 no dull and basic.
 make it responsive for all kind of devices
 mobile user UX UI
+full mobile responsiveness need to start now. 
+otherwise too many jobs to do in future.
+fix all files.
+everything everywhere.
+make it 100% compliance
 
 --naming conventions
 check name rules
@@ -60,6 +65,20 @@ all attributes should have its id and name
 
 --check for bugs
 check for bugs, bad code, broken code, illegal code, dead code. 
+sql injection risk
+duplicates
+remove debug code? 
+clear clean code of error handing
+CSS bugs
+SQL bugs
+JS null checks
+Duplicate listeners
+Banned alert()
+Banned confirm()
+Debug console.*	
+Missing .catch()
+XSS vulnerabilities
+tech debt item
 
 
 --check code for faster and efficiency. 

@@ -2,10 +2,6 @@
 (function () {
   'use strict';
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match(/csrftoken=([^;]+)/);
-    return cookieMatch ? cookieMatch[1] : '';
-  }
 
   /* ---- Follow toggle ---- */
   var followButton = document.getElementById('user-profile-follow-button');
@@ -26,7 +22,8 @@
           followButton.textContent = 'Follow';
           followButton.classList.remove('user-profile-follow-button-active');
         }
-      });
+      })
+      .catch(function () { followButton.textContent = 'Follow'; });
     });
   }
 
@@ -49,7 +46,8 @@
           blockButton.textContent = 'Block';
           blockButton.classList.remove('user-profile-block-button-active');
         }
-      });
+      })
+      .catch(function () {});
     });
   }
 })();

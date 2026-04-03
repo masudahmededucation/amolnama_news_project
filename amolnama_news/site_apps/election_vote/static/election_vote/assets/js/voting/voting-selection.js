@@ -52,7 +52,6 @@ function handleElectionSelection(electionEvaluationId, electionId, nameEn, nameB
     })
     .catch(function (err) {
       if (err === 'not_authenticated') return;
-      console.error('Eligibility check failed:', err);
     });
 }
 
@@ -93,7 +92,6 @@ function handleDivisionSelection(id, nameEn, nameBn) {
         districtList.appendChild(li);
       });
     })
-    .catch(function (err) { console.error('Error loading districts:', err); });
 }
 
 /**
@@ -133,7 +131,6 @@ function handleDistrictSelection(id, nameEn, nameBn) {
         constituencyList.appendChild(li);
       });
     })
-    .catch(function (err) { console.error('Error loading constituencies:', err); });
 }
 
 /**

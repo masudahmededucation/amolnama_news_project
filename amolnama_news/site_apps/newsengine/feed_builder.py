@@ -2,7 +2,6 @@
 Collects user posts, promo cards, promotional boosts, applies ranking, dedup, personalization.
 This is the single source of truth for what appears on the home page."""
 
-import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -53,52 +52,31 @@ def _build_intelligent_feed(request, feed_items, category_filter):
     except Exception:
         logger.exception('Auto-publish scheduled posts failed')
 
-    # Step 1: Inject promo cards
-    feed_items = _inject_promo_cards(feed_items, request=request)
-
-    # Step 2: Apply content ranking to posts (promos keep their position)
+    # Step 1: Apply content ranking to posts BEFORE promo injection
     try:
         from .ranking import rank_post_items
         feed_items = rank_post_items(feed_items)
     except Exception:
         logger.exception('Content ranking failed — falling back to default order')
 
-    # Step 3: Apply personalization boost for authenticated users
+    # Step 2: Inject promo cards AFTER ranking (so ranking can't move them to top)
+    feed_items = _inject_promo_cards(feed_items, request=request)
+
+    # Steps 3-4: User-specific filters (only for authenticated users)
     user_profile_id = _get_user_profile_id(request)
     if user_profile_id:
         try:
             from .personalization import apply_personalization_boost
             feed_items = apply_personalization_boost(feed_items, user_profile_id)
         except Exception:
-            logger.exception('Personalization failed — continuing without boost')
-
-    # Step 3b: Apply user feed preferences (hide categories user turned off)
-    if user_profile_id:
+            logger.exception('Personalization failed')
         try:
             feed_items = _apply_user_feed_preferences(feed_items, user_profile_id)
-        except Exception:
-            logger.exception('Feed preferences filter failed — showing all content')
-
-    # Step 4: Remove content user has already viewed (read history)
-    if user_profile_id:
-        try:
             feed_items = _exclude_viewed_content(feed_items, user_profile_id)
-        except Exception:
-            logger.exception('Read history filter failed — showing all content')
-
-    # Step 4b: Exclude content from blocked users
-    if user_profile_id:
-        try:
             feed_items = _exclude_blocked_users(feed_items, user_profile_id)
-        except Exception:
-            logger.exception('Blocked user filter failed — showing all content')
-
-    # Step 4c: Hide posts containing muted words
-    if user_profile_id:
-        try:
             feed_items = _exclude_muted_words(feed_items, user_profile_id)
         except Exception:
-            logger.exception('Muted words filter failed — showing all content')
+            logger.exception('User feed filter failed')
 
     # Step 5: Exclude auto-flagged content (classified as harmful)
     feed_items = [item for item in feed_items if not item.get('is_auto_flagged')]
@@ -114,101 +92,75 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items, request=None):
-    """Insert 3 rotating promos at positions 4, 12, 20. Alternates categories.
-    Respects user feed preferences. Tracks shown promos to avoid repeats."""
-    from django.utils import timezone as tz
-    from datetime import timedelta
+    """Insert up to 3 promos at random positions (5-8, 13-16, 21-24).
+    Rotates categories per session. Respects user feed preferences."""
     from .promo_builders import build_all_promo_items
     import random
 
-    post_count = len(feed_items)
-    if post_count < 3:
+    if len(feed_items) < 6:
         return feed_items
 
-    # Find how many recent user posts are at the top (< 5 min old)
-    recent_cutoff = tz.now() - timedelta(minutes=5)
-    recent_post_count = 0
-    for item in feed_items:
-        created_at = item.get('created_at_raw')
-        if created_at:
-            if tz.is_naive(created_at):
-                created_at = tz.make_aware(created_at)
-            if created_at > recent_cutoff:
-                recent_post_count += 1
-                continue
-        break
-
-    all_promo_items = build_all_promo_items()
-    if not all_promo_items:
+    all_promos = build_all_promo_items()
+    if not all_promos:
         return feed_items
 
-    # Filter by user feed preferences
+    # Filter by user preferences
     user_profile_id = _get_user_profile_id(request) if request else None
     if user_profile_id:
-        all_promo_items = _filter_promos_by_user_preferences(all_promo_items, user_profile_id)
-        if not all_promo_items:
+        all_promos = _apply_user_feed_preferences(all_promos, user_profile_id)
+        if not all_promos:
             return feed_items
 
-    # Get shown promo IDs from session — don't repeat within session
-    shown_promo_ids = set()
-    if request and hasattr(request, 'session'):
-        shown_promo_ids = set(request.session.get('shown_promo_ids', []))
+    # Skip promos already shown this session
+    session = getattr(request, 'session', {})
+    shown_ids = set(session.get('shown_promo_ids', []))
+    available = [p for p in all_promos if _get_promo_key(p) not in shown_ids]
+    if not available:
+        available = all_promos
+        shown_ids = set()
 
-    # Filter out already-shown promos
-    available_promos = [p for p in all_promo_items if _get_promo_key(p) not in shown_promo_ids]
-    if not available_promos:
-        # All shown — reset and start fresh
-        available_promos = all_promo_items
-        shown_promo_ids = set()
-
-    # Group by category and pick 3 from different categories
-    category_order = ['debate_promo', 'NEWS', 'POEM', 'STORY', 'ART', 'TRAVEL', 'tools_promo']
-    categorized = {}
-    for promo in available_promos:
-        category = promo.get('promo_badge') or promo.get('item_type', 'other')
-        if category not in categorized:
-            categorized[category] = []
-        categorized[category].append(promo)
-
-    # Get last category index from session — continue rotation
-    last_category_index = 0
-    if request and hasattr(request, 'session'):
-        last_category_index = request.session.get('last_promo_category_index', 0)
-
-    # Pick up to 3 promos from consecutive categories
-    selected_promos = []
-    category_index = last_category_index
-    attempts = 0
-    while len(selected_promos) < 3 and attempts < len(category_order) * 2:
-        category = category_order[category_index % len(category_order)]
-        if category in categorized and categorized[category]:
-            picked = random.choice(categorized[category])
-            selected_promos.append(picked)
-            categorized[category].remove(picked)
+    # Pick up to 3 from different categories (rotate from last session index)
+    categories = ['debate_promo', 'NEWS', 'POEM', 'STORY', 'ART', 'TRAVEL', 'tools_promo']
+    category_index = session.get('last_promo_category_index', 0)
+    selected = []
+    for _ in range(len(categories)):
+        if len(selected) >= 3:
+            break
+        category = categories[category_index % len(categories)]
         category_index += 1
-        attempts += 1
+        matches = [p for p in available if (p.get('promo_badge') or p.get('item_type')) == category]
+        if matches:
+            picked = random.choice(matches)
+            selected.append(picked)
+            available.remove(picked)
 
-    if not selected_promos:
+    if not selected:
         return feed_items
 
-    # Track shown promos in session
-    new_shown_ids = list(shown_promo_ids)
-    for promo in selected_promos:
-        new_shown_ids.append(_get_promo_key(promo))
-    if request and hasattr(request, 'session'):
-        request.session['shown_promo_ids'] = new_shown_ids[-50:]  # keep last 50
-        request.session['last_promo_category_index'] = category_index % len(category_order)
+    # Track in session
+    if hasattr(request, 'session'):
+        request.session['shown_promo_ids'] = (list(shown_ids) + [_get_promo_key(p) for p in selected])[-50:]
+        request.session['last_promo_category_index'] = category_index % len(categories)
 
-    # Insert at positions 4, 12, 20 (after recent posts)
-    promo_positions = [4, 12, 20]
-    for slot_index, promo in enumerate(selected_promos):
-        if slot_index >= len(promo_positions):
-            break
-        insert_at = recent_post_count + promo_positions[slot_index] + slot_index  # +slot_index compensates for prior inserts
-        if insert_at <= len(feed_items):
-            feed_items.insert(insert_at, promo)
+    # Place promos at random positions in feed.
+    # New content (< 1 hour) → top (position 1-3). Older → deeper (5-8, 13-16, 21-24).
+    from django.utils import timezone
+    now = timezone.now()
+    feed_length = len(feed_items)
+
+    for slot_index, promo in enumerate(selected):
+        created_at = promo.get('created_at_raw')
+        is_new = bool(created_at and (now - created_at).total_seconds() < 3600)
+
+        if is_new and slot_index == 0:
+            position_start, position_end = 1, 3
         else:
-            break  # feed too short for this position
+            position_start = 5 + (slot_index * 8)
+            position_end = position_start + 3
+
+        if position_start >= feed_length:
+            break
+        feed_items.insert(random.randint(position_start, min(position_end, feed_length)), promo)
 
     return feed_items
 
@@ -220,10 +172,6 @@ def _get_promo_key(promo):
     return f'{item_type}:{promo_id}'
 
 
-def _filter_promos_by_user_preferences(promo_items, user_profile_id):
-    """Remove promo categories the user has disabled — reuses existing preference filter."""
-    return _apply_user_feed_preferences(promo_items, user_profile_id)
-
 
 def _exclude_viewed_content(feed_items, user_profile_id):
     """Remove content the user has already viewed (last 200 views)."""
@@ -234,22 +182,11 @@ def _exclude_viewed_content(feed_items, user_profile_id):
         is_active=True,
     ).order_by('-feed_viewed_at').values_list('feed_content_type_code', 'feed_content_id')[:200]
 
-    viewed_keys = set()
-    for content_type_code, content_id in recent_views:
-        viewed_keys.add(f'{content_type_code}:{content_id}')
-
+    viewed_keys = {f'{code}:{cid}' for code, cid in recent_views}
     if not viewed_keys:
         return feed_items
 
-    filtered_items = []
-    for item in feed_items:
-        # Build a key for this item
-        item_key = _get_content_key(item)
-        if item_key and item_key in viewed_keys:
-            continue  # Skip viewed content
-        filtered_items.append(item)
-
-    return filtered_items
+    return [item for item in feed_items if _get_content_key(item) not in viewed_keys]
 
 
 def _deduplicate_feed(feed_items):
@@ -331,18 +268,10 @@ def _exclude_muted_words(feed_items, user_profile_id):
     if not muted_words:
         return feed_items
 
-    filtered_items = []
-    for item in feed_items:
-        post_text = (item.get('post_text') or item.get('promo_title') or '').lower()
-        is_muted = False
-        for muted_word in muted_words:
-            if muted_word in post_text:
-                is_muted = True
-                break
-        if not is_muted:
-            filtered_items.append(item)
-
-    return filtered_items
+    return [
+        item for item in feed_items
+        if not any(word in (item.get('post_text') or item.get('promo_title') or '').lower() for word in muted_words)
+    ]
 
 
 def _exclude_blocked_users(feed_items, user_profile_id):

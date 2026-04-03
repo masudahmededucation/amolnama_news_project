@@ -222,7 +222,7 @@ def cast_vote(request):
             "receipt_code": receipt_code,
         })
 
-    except Exception as e:
+    except Exception:
         logger.exception("cast_vote: transaction failed")
         return JsonResponse(
             {"success": False, "error": "Vote submission failed. Please try again."},

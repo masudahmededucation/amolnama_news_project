@@ -1,5 +1,9 @@
+import logging
+
 from django.shortcuts import render
 from django.http import JsonResponse
+
+logger = logging.getLogger(__name__)
 from django.db.models.functions import Cast
 from django.db.models import IntegerField, Q
 from django.views.decorators.http import require_POST
@@ -265,11 +269,12 @@ def submit_vote(request):
             'message': 'Vote submitted successfully'
         })
 
-    except Exception as e:
+    except Exception:
+        logger.exception('Vote submission failed')
         return JsonResponse({
             'success': False,
-            'error': str(e)
-        }, status=400)
+            'error': 'ভোট জমা দিতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।'
+        }, status=500)
 
 @require_POST
 def update_vote(request):
@@ -309,13 +314,13 @@ def update_vote(request):
             'error': 'Vote not found'
         }, status=404)
         
-    except Exception as e:
+    except Exception:
+        logger.exception('Vote update failed')
         return JsonResponse({
             'success': False,
-            'error': str(e)
-        }, status=400)
-        
-        
+            'error': 'ভোট আপডেট করা যায়নি। আবার চেষ্টা করুন।'
+        }, status=500)
+
 
 
 def vote_results(request):

@@ -102,7 +102,6 @@
       const loadMoreWrapper = document.getElementById("beauty-hub-load-more");
       if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
     } catch (error) {
-      console.error("Failed to load media:", error);
     } finally {
       isLoading = false;
     }

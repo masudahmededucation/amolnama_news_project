@@ -82,7 +82,10 @@ def _time_ago(dt):
 @require_GET
 def api_destination_list(request):
     """GET /bangladesh/api/destinations/ — paginated destination list."""
-    page = int(request.GET.get("page", 1))
+    try:
+        page = int(request.GET.get("page", 1))
+    except (ValueError, TypeError):
+        page = 1
     category = request.GET.get("category", "").strip()
     season = request.GET.get("season", "").strip()
     search_query = request.GET.get("q", "").strip()
@@ -270,7 +273,10 @@ def api_destination_update(request, destination_id):
 @require_GET
 def api_media_list(request):
     """GET /bangladesh/api/media/ — paginated media gallery."""
-    page = int(request.GET.get("page", 1))
+    try:
+        page = int(request.GET.get("page", 1))
+    except (ValueError, TypeError):
+        page = 1
     category = request.GET.get("category", "").strip()
     media_type = request.GET.get("type", "").strip()
     season = request.GET.get("season", "").strip()

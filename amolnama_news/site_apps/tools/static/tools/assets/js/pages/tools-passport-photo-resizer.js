@@ -398,7 +398,8 @@
   function loadImage(file) {
     if (!file.type.startsWith('image/')) return;
     if (file.size > 10 * 1024 * 1024) {
-      alert('ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।');
+      var errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।'; errorElement.style.display = 'block'; }
       return;
     }
 

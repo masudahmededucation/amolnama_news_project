@@ -489,7 +489,7 @@
   <div class="share-section">
     <h2>শেয়ার করুন (Share This Profile)</h2>
     <div class="share-buttons">
-      <button class="share-btn share-btn-copy" onclick="navigator.clipboard.writeText(window.location.href).then(function(){alert('লিংক কপি হয়েছে!')})">
+      <button class="share-btn share-btn-copy" onclick="var self=this;navigator.clipboard.writeText(window.location.href).then(function(){self.textContent='✅ কপি হয়েছে!';setTimeout(function(){self.textContent='📋 লিংক কপি';},2000)})">
         📋 লিংক কপি
       </button>
       <a class="share-btn share-btn-whatsapp"

@@ -100,7 +100,7 @@
 .bgr-error {
   text-align: center;
   padding: 2rem 1rem;
-  background: #fff5f5;
+  background: var(--danger-light);
   border: 1px solid var(--danger);
   border-radius: var(--radius-sm);
 }
