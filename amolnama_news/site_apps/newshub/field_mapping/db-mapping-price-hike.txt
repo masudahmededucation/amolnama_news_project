@@ -86,7 +86,7 @@ DB: [investigation].[price_hiking_form_comodity_price] — one row per commodity
   link_commodity_id                = int(json.commodityId)          (mandatory)
   price_govt_fixed_rate            = float(json.govtRate)           decimal(18,2)
   price_market_rate                = float(json.marketRate)         decimal(18,2)
-  consumer_impact_description_bn   = json.consumerImpact or None    nvarchar(1000)
+  consumer_impact_description   = json.consumerImpact or None    nvarchar(1000)
   created_at                       = now
 
 Django model: PriceHikingFormCommodityPrice (investigation/models.py)
@@ -119,9 +119,9 @@ DB: [investigation].[price_hiking_form_commodity_stock_supply_chain] — one row
   link_coll_news_entry_id          = entry.coll_news_entry_id
   link_commodity_id                = int(json.commodityId)          (mandatory)
   is_crisis_artificial_created     = bool(json.artificialCrisis)    bit NOT NULL DEFAULT 0
-  stock_storage_description_bn    = json.description or None       nvarchar(500)
+  stock_storage_description    = json.description or None       nvarchar(500)
   stock_estimated_quantity         = json.estimatedQuantity or None  nvarchar(100)
-  supply_chain_crisis_description_bn = json.supplyChainIssue or None nvarchar(500)
+  supply_chain_crisis_description = json.supplyChainIssue or None nvarchar(500)
   created_at                       = now
   modified_at                      = NULL (updated by app on edits)
 

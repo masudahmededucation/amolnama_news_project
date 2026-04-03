@@ -52,17 +52,17 @@ TABLE     : [investigation].[entertainment_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key      →  DB column                                    Type / Notes
-  title         →  prod_title_name_bn                          NVARCHAR(500) NOT NULL
+  title         →  prod_title_name                          NVARCHAR(500) NOT NULL
   language      →  prod_link_ref_language_id                   INT NULL, FK → ref_status
                      db_column: link_ref_status_entertainment_form_language_id
                      Resolved server-side: _ref_id('entertainment_form_language', status_code)
   industry      →  prod_link_ref_entertainment_industry_id     INT NULL, FK → ref_status
                      db_column: link_ref_status_entertainment_form_entertainment_industry_id
                      Resolved server-side: _ref_id('entertainment_form_entertainment_industry', status_code)
-  director      →  prod_director_bn                            NVARCHAR(100) NULL
-  producer      →  prod_producer_house_bn                      NVARCHAR(100) NULL
-  writer        →  prod_writer_screenwriter_bn                 NVARCHAR(100) NULL
-  musicDirector →  prod_music_director_singer_bn               NVARCHAR(100) NULL
+  director      →  prod_director                            NVARCHAR(100) NULL
+  producer      →  prod_producer_house                      NVARCHAR(100) NULL
+  writer        →  prod_writer_screenwriter                 NVARCHAR(100) NULL
+  musicDirector →  prod_music_director_singer               NVARCHAR(100) NULL
 
 
 ================================================================================
@@ -74,8 +74,8 @@ TABLE     : [investigation].[entertainment_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key     →  DB column                                    Type / Notes
-  leadCast     →  cast_lead_cast_bn                           NVARCHAR(2000) NULL
-  suppCast     →  cast_supporting_cast_bn                     NVARCHAR(2000) NULL
+  leadCast     →  cast_lead_cast                           NVARCHAR(2000) NULL
+  suppCast     →  cast_supporting_cast                     NVARCHAR(2000) NULL
   releaseDate  →  cast_release_date                           DATE NULL (ISO 8601)
   platform     →  cast_link_ref_media_platform_id             INT NULL, FK → ref_status
                     db_column: link_ref_status_entertainment_form_media_platform_id
@@ -98,9 +98,9 @@ TABLE     : [investigation].[entertainment_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key          →  DB column                                Type / Notes
-  boxOffice         →  perf_box_office_revenue_bn              NVARCHAR(100) NULL
-  viewsStreams      →  perf_views_streams_bn                   NVARCHAR(100) NULL
-  rating            →  perf_rating_bn                          NVARCHAR(100) NULL
+  boxOffice         →  perf_box_office_revenue              NVARCHAR(100) NULL
+  viewsStreams      →  perf_views_streams                   NVARCHAR(100) NULL
+  rating            →  perf_rating                          NVARCHAR(100) NULL
   audienceResponse  →  perf_link_ref_audience_response_id      INT NULL, FK → ref_status
                          db_column: link_ref_status_entertainment_form_audience_response_id
                          Resolved server-side: _ref_id('entertainment_form_audience_response', status_code)
@@ -126,7 +126,7 @@ SAVE SEQUENCE (on form submit — in _handle_news_submission)
    - cast_link_ref_genre_category_id = _ref_id('entertainment_form_genre_category', status_code)
    - perf_link_ref_audience_response_id = _ref_id('entertainment_form_audience_response', status_code)
 4. EntertainmentFormFact.objects.create() — single row with all 18 data columns
-   prod_title_name_bn is NOT NULL — fallback to empty string if empty
+   prod_title_name is NOT NULL — fallback to empty string if empty
    created_at = now (Python-supplied, not DB default)
 
 

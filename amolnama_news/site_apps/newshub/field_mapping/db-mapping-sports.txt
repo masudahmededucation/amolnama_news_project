@@ -55,12 +55,12 @@ TABLE     : [investigation].[sports_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key         →  DB column                                         Type / Notes
-  competitionName  →  event_tournament_name_bn                         NVARCHAR(255) NULL
+  competitionName  →  event_tournament_name                         NVARCHAR(255) NULL
   stage            →  event_link_ref_tournament_round_stage_id         INT NULL, FK → ref_status
                        Resolved server-side: _ref_id('sports_form_tournament_round_stage', stage_code)
-  stageName        →  event_tournament_round_stage_bn                  NVARCHAR(100) NULL
+  stageName        →  event_tournament_round_stage                  NVARCHAR(100) NULL
                        Display text auto-captured from <select> option text by JS
-  venue            →  event_venue_stadium_bn                           NVARCHAR(255) NULL
+  venue            →  event_venue_stadium                           NVARCHAR(255) NULL
   matchDate        →  event_match_date                                 DATE NULL (ISO 8601)
   matchStatus      →  event_link_ref_match_status_id                   INT NULL, FK → ref_status
                        Resolved server-side: _ref_id('sports_form_match_status', status_code)
@@ -78,14 +78,14 @@ TABLE     : [investigation].[sports_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key       →  DB column                             Type / Notes
-  teamA          →  match_team_player_a_bn               NVARCHAR(255) NULL
-  teamB          →  match_team_player_b_bn               NVARCHAR(255) NULL
+  teamA          →  match_team_player_a               NVARCHAR(255) NULL
+  teamB          →  match_team_player_b               NVARCHAR(255) NULL
   scoreA         →  match_score_a                        NVARCHAR(100) NULL (Latin1 collation)
   scoreB         →  match_score_b                        NVARCHAR(100) NULL (Latin1 collation)
-  result         →  match_result_summary_bn              NVARCHAR(500) NULL
-  tossWinner     →  match_toss_winner_bn                 NVARCHAR(100) NULL (free text team name)
-  tossDecision   →  match_toss_decision_bn               NVARCHAR(100) NULL (free text e.g. ব্যাটিং/ফিল্ডিং)
-  playerOfMatch  →  match_player_of_the_match_bn         NVARCHAR(255) NULL
+  result         →  match_result_summary              NVARCHAR(500) NULL
+  tossWinner     →  match_toss_winner                 NVARCHAR(100) NULL (free text team name)
+  tossDecision   →  match_toss_decision               NVARCHAR(100) NULL (free text e.g. ব্যাটিং/ফিল্ডিং)
+  playerOfMatch  →  match_player_of_the_match         NVARCHAR(255) NULL
 
 
 ================================================================================
@@ -97,14 +97,14 @@ TABLE     : [investigation].[sports_form_fact]
 STATUS    : ✅ CONFIRMED
 
   JSON key            →  DB column                          Type / Notes
-  performer1Name      →  perf_top_performer_1_name_bn      NVARCHAR(255) NULL
-  performer1Detail    →  perf_top_performer_1_desc_bn      NVARCHAR(500) NULL
-  performer2Name      →  perf_top_performer_2_name_bn      NVARCHAR(255) NULL
-  performer2Detail    →  perf_top_performer_2_desc_bn      NVARCHAR(500) NULL
-  performer3Name      →  perf_top_performer_3_name_bn      NVARCHAR(255) NULL
-  performer3Detail    →  perf_top_performer_3_desc_bn      NVARCHAR(500) NULL
-  records             →  perf_records_milestones_bn        NVARCHAR(MAX) NULL
-  standing            →  perf_tournament_standing_bn       NVARCHAR(500) NULL
+  performer1Name      →  perf_top_performer_1_name      NVARCHAR(255) NULL
+  performer1Detail    →  perf_top_performer_1_desc      NVARCHAR(500) NULL
+  performer2Name      →  perf_top_performer_2_name      NVARCHAR(255) NULL
+  performer2Detail    →  perf_top_performer_2_desc      NVARCHAR(500) NULL
+  performer3Name      →  perf_top_performer_3_name      NVARCHAR(255) NULL
+  performer3Detail    →  perf_top_performer_3_desc      NVARCHAR(500) NULL
+  records             →  perf_records_milestones        NVARCHAR(MAX) NULL
+  standing            →  perf_tournament_standing       NVARCHAR(500) NULL
 
   NOT in this table (no DDL column):
     transferPlayer/From/To/Fee/Contract — removed. No transfer columns.

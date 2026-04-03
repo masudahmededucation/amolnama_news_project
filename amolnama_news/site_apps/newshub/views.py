@@ -2332,7 +2332,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         casualty_missing_count=0,
                         casualty_arrested_count=0,
                         property_has_property_destruction=bool(prop_desc),
-                        property_destruction_description_bn=prop_desc,
+                        property_destruction_description=prop_desc,
                         property_estimated_damage_amount_bdt=damage_amt,
                         state_is_incident_ongoing=is_ongoing,
                         created_at=now,
@@ -2702,7 +2702,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             link_commodity_id=int(commodity_id),
                             price_govt_fixed_rate=govt_rate,
                             price_market_rate=market_rate,
-                            consumer_impact_description_bn=consumer_impact,
+                            consumer_impact_description=consumer_impact,
                             created_at=now,
                         )
                 except (json.JSONDecodeError, ValueError, TypeError):
@@ -2722,9 +2722,9 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_commodity_id=int(commodity_id),
                             is_crisis_artificial_created=bool(item.get('artificialCrisis')),
-                            stock_storage_description_bn=(item.get('description') or '').strip() or None,
+                            stock_storage_description=(item.get('description') or '').strip() or None,
                             stock_estimated_quantity=(item.get('estimatedQuantity') or '').strip() or None,
-                            supply_chain_crisis_description_bn=(item.get('supplyChainIssue') or '').strip() or None,
+                            supply_chain_crisis_description=(item.get('supplyChainIssue') or '').strip() or None,
                             created_at=now,
                         )
                 except (json.JSONDecodeError, ValueError, TypeError):
@@ -2762,7 +2762,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             link_ref_status_civic_form_current_issue_status_id=issue_status_id,
                             impact_affected_people_count=people,
                             impact_time_duration_unit_number=dur_val,
-                            status_description_bn=status_desc,
+                            status_description=status_desc,
                             is_complaint_filed_previously=has_complaint,
                             complaint_previous_details=complaint_details,
                             complaint_budget_project_info=budget,
@@ -2855,9 +2855,9 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_actor_involvement_type_id=involvement_type_id,
                             link_country_id=country_id,
-                            actor_alliance_coalition_bn=(party.get('alliance') or '').strip() or None,
-                            actor_leader_decision_maker_bn=(party.get('leaderName') or '').strip() or None,
-                            actor_official_statement_bn=(party.get('statement') or '').strip() or None,
+                            actor_alliance_coalition=(party.get('alliance') or '').strip() or None,
+                            actor_leader_decision_maker=(party.get('leaderName') or '').strip() or None,
+                            actor_official_statement=(party.get('statement') or '').strip() or None,
                             created_at=now,
                         )
                 except (json.JSONDecodeError, ValueError, TypeError):
@@ -2883,7 +2883,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         link_ref_status_conflict_form_conflict_type_id=global_sub_type_id,
                         # Step 5: frontline
                         link_ref_status_conflict_form_territorial_sovereignty_status_id=int(fl.get('territoryStatusId') or 0) or None,
-                        frontline_territory_name_bn=(fl.get('territoryDescription') or '').strip() or None,
+                        frontline_territory_name=(fl.get('territoryDescription') or '').strip() or None,
                         link_ref_status_conflict_form_conflict_intensity_id=int(fl.get('conflictIntensityId') or 0) or None,
                         link_ref_status_conflict_form_weapon_id=int(fl.get('weaponClassId') or 0) or None,
                         link_ref_status_conflict_form_involvement_level_id=int(fl.get('involvementLevelId') or 0) or None,
@@ -2892,10 +2892,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         casualty_civilian_count=int(hm.get('civilianCasualties') or 0),
                         casualty_displaced_refugee_count=int(hm.get('refugees') or 0),
                         casualty_has_war_crime_allegation=bool(hm.get('warCrimes')),
-                        casualty_war_crime_details_bn=(hm.get('warCrimesDescription') or '').strip() or None,
+                        casualty_war_crime_details=(hm.get('warCrimesDescription') or '').strip() or None,
                         # Step 7: geopolitics
                         link_ref_status_conflict_form_global_reaction_id=int(gp.get('globalReactionId') or 0) or None,
-                        global_reaction_details_bn=(gp.get('globalReactionDetails') or '').strip() or None,
+                        global_reaction_details=(gp.get('globalReactionDetails') or '').strip() or None,
                         # Step 7: strategic impact (4 bit columns, from named checkboxes)
                         global_is_impact_currency_economy=bool(gp.get('strategicCurrencyEconomy')),
                         global_is_impact_food_supply=bool(gp.get('strategicFoodSupply')),
@@ -2903,7 +2903,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         global_is_impact_shipping_lanes=bool(gp.get('strategicShippingLanes')),
                         # Step 7: local impact
                         local_has_bangladesh_impact=bool(gp.get('localImpact')),
-                        local_impact_description_bn=(gp.get('localImpactDescription') or '').strip() or None,
+                        local_impact_description=(gp.get('localImpactDescription') or '').strip() or None,
                         created_at=now,
                     )
 
@@ -3031,7 +3031,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         col = _vt_col_override.get(code) or ('violence_type_' + code.lower())
                         if col in cattr:
                             cattr[col] = True
-                    cattr['violence_type_describe_type_of_violence_bn'] = (wt.get('otherType') or '').strip() or None
+                    cattr['violence_type_describe_type_of_violence'] = (wt.get('otherType') or '').strip() or None
                     cattr['violence_type_incident_location_type'] = code_map.get(loc_id) or None
                     cattr['violence_type_is_recurring_violence'] = bool(wt.get('recurring'))
                     cattr['violence_type_duration_of_violence'] = (wt.get('duration') or '').strip() or None
@@ -3047,7 +3047,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         cattr['victim_condition_has_economic_dependency'] = True
                     if ci.get('disability'):
                         cattr['victim_condition_has_disability'] = True
-                    cattr['victim_condition_disability_type_bn'] = (ci.get('disabilityType') or '').strip() or None
+                    cattr['victim_condition_disability_type'] = (ci.get('disabilityType') or '').strip() or None
 
                     # Step 5: Injury types — code HAS_X → column injury_type_has_x
                     # Codes include HAS_ prefix; strip it to avoid double has_
@@ -3133,12 +3133,12 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                                     perp_other_relationship_details=(acc.get('relationshipOther') or '').strip() or None,
                                     perp_number_of_perpetrators=int(acc.get('accusedCount') or 0) or None,
                                     link_ref_status_women_form_attacker_power_position_id=int(acc.get('positionId') or 0) or None,
-                                    perp_power_position_details_bn=(acc.get('positionRemarks') or '').strip() or None,
+                                    perp_power_position_details=(acc.get('positionRemarks') or '').strip() or None,
                                     is_perp_threatened_victim_or_family='has_threatened_victim_or_family' in attr_codes,
                                     is_perp_used_drugs_or_intoxication='has_used_drugs_or_intoxication' in attr_codes,
                                     is_perp_history_previous_violence='has_previous_history_of_violence' in attr_codes,
-                                    perp_history_previous_details_bn=(acc.get('previousHistoryDetails') or '').strip() or None,
-                                    remarks_about_perpetrator_bn=(acc.get('remarks') or '').strip() or None,
+                                    perp_history_previous_details=(acc.get('previousHistoryDetails') or '').strip() or None,
+                                    remarks_about_perpetrator=(acc.get('remarks') or '').strip() or None,
                                     created_at=now,
                                 )
 
@@ -3252,30 +3252,30 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         link_ref_status_sports_form_sport_list_id=_ref_id('sports_form_sport_list', sports_sport_type_raw) if sports_sport_type_raw else None,
                         link_ref_status_sports_form_sub_issue_type_id=_ref_id('sports_form_sub_issue_type', sports_sub_type_raw) if sports_sub_type_raw else None,
                         # Step 4: Match & Event
-                        event_tournament_name_bn=_s(me, 'competitionName'),
+                        event_tournament_name=_s(me, 'competitionName'),
                         event_link_ref_tournament_round_stage_id=_ref_id('sports_form_tournament_round_stage', _s(me, 'stage')),
-                        event_tournament_round_stage_bn=_s(me, 'stageName'),
-                        event_venue_stadium_bn=_s(me, 'venue'),
+                        event_tournament_round_stage=_s(me, 'stageName'),
+                        event_venue_stadium=_s(me, 'venue'),
                         event_match_date=_sdate(me.get('matchDate')),
                         event_link_ref_match_status_id=_ref_id('sports_form_match_status', _s(me, 'matchStatus')),
                         # Step 5: Teams & Result
-                        match_team_player_a_bn=_s(tr, 'teamA'),
-                        match_team_player_b_bn=_s(tr, 'teamB'),
+                        match_team_player_a=_s(tr, 'teamA'),
+                        match_team_player_b=_s(tr, 'teamB'),
                         match_score_a=_s(tr, 'scoreA'),
                         match_score_b=_s(tr, 'scoreB'),
-                        match_result_summary_bn=_s(tr, 'result'),
-                        match_toss_winner_bn=_s(tr, 'tossWinner'),
-                        match_toss_decision_bn=_s(tr, 'tossDecision'),
-                        match_player_of_the_match_bn=_s(tr, 'playerOfMatch'),
+                        match_result_summary=_s(tr, 'result'),
+                        match_toss_winner=_s(tr, 'tossWinner'),
+                        match_toss_decision=_s(tr, 'tossDecision'),
+                        match_player_of_the_match=_s(tr, 'playerOfMatch'),
                         # Step 6: Key Performances
-                        perf_top_performer_1_name_bn=_s(kp, 'performer1Name'),
-                        perf_top_performer_1_desc_bn=_s(kp, 'performer1Detail'),
-                        perf_top_performer_2_name_bn=_s(kp, 'performer2Name'),
-                        perf_top_performer_2_desc_bn=_s(kp, 'performer2Detail'),
-                        perf_top_performer_3_name_bn=_s(kp, 'performer3Name'),
-                        perf_top_performer_3_desc_bn=_s(kp, 'performer3Detail'),
-                        perf_records_milestones_bn=_s(kp, 'records'),
-                        perf_tournament_standing_bn=_s(kp, 'standing'),
+                        perf_top_performer_1_name=_s(kp, 'performer1Name'),
+                        perf_top_performer_1_desc=_s(kp, 'performer1Detail'),
+                        perf_top_performer_2_name=_s(kp, 'performer2Name'),
+                        perf_top_performer_2_desc=_s(kp, 'performer2Detail'),
+                        perf_top_performer_3_name=_s(kp, 'performer3Name'),
+                        perf_top_performer_3_desc=_s(kp, 'performer3Detail'),
+                        perf_records_milestones=_s(kp, 'records'),
+                        perf_tournament_standing=_s(kp, 'standing'),
                         created_at=now,
                     )
                 except (json.JSONDecodeError, ValueError, TypeError):
@@ -3301,7 +3301,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         if not s: return None
                         return _date.fromisoformat(s)
 
-                    # prod_title_name_bn is NOT NULL — fallback to empty string
+                    # prod_title_name is NOT NULL — fallback to empty string
                     title_val = _se(epd, 'title') or ''
 
                     EntertainmentFormFact.objects.create(
@@ -3310,23 +3310,23 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         link_ref_status_entertainment_form_medium_type_id=_ref_id('entertainment_form_medium_type', ent_medium_code),
                         link_ref_status_entertainment_form_issue_sub_type_id=_ref_id('entertainment_form_issue_sub_type', ent_sub_type_code),
                         # Step 4: Production
-                        prod_title_name_bn=title_val,
+                        prod_title_name=title_val,
                         prod_link_ref_language_id=_ref_id('entertainment_form_language', _se(epd, 'language')),
                         prod_link_ref_entertainment_industry_id=_ref_id('entertainment_form_entertainment_industry', _se(epd, 'industry')),
-                        prod_director_bn=_se(epd, 'director'),
-                        prod_producer_house_bn=_se(epd, 'producer'),
-                        prod_writer_screenwriter_bn=_se(epd, 'writer'),
-                        prod_music_director_singer_bn=_se(epd, 'musicDirector'),
+                        prod_director=_se(epd, 'director'),
+                        prod_producer_house=_se(epd, 'producer'),
+                        prod_writer_screenwriter=_se(epd, 'writer'),
+                        prod_music_director_singer=_se(epd, 'musicDirector'),
                         # Step 5: Cast & Release
-                        cast_lead_cast_bn=_se(ecr, 'leadCast'),
-                        cast_supporting_cast_bn=_se(ecr, 'suppCast'),
+                        cast_lead_cast=_se(ecr, 'leadCast'),
+                        cast_supporting_cast=_se(ecr, 'suppCast'),
                         cast_release_date=_sedate(ecr.get('releaseDate')),
                         cast_link_ref_media_platform_id=_ref_id('entertainment_form_media_platform', _se(ecr, 'platform')),
                         cast_link_ref_genre_category_id=_ref_id('entertainment_form_genre_category', _se(ecr, 'genre')),
                         # Step 6: Performance
-                        perf_box_office_revenue_bn=_se(epf, 'boxOffice'),
-                        perf_views_streams_bn=_se(epf, 'viewsStreams'),
-                        perf_rating_bn=_se(epf, 'rating'),
+                        perf_box_office_revenue=_se(epf, 'boxOffice'),
+                        perf_views_streams=_se(epf, 'viewsStreams'),
+                        perf_rating=_se(epf, 'rating'),
                         perf_link_ref_audience_response_id=_ref_id('entertainment_form_audience_response', _se(epf, 'audienceResponse')),
                         created_at=now,
                     )
