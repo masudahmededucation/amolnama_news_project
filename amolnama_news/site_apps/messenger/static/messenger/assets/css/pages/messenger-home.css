@@ -272,6 +272,17 @@
 .messenger-chat-settings-item-active { color: var(--primary); font-weight: 700; }
 .messenger-chat-settings-item-danger { color: var(--danger); }
 .messenger-chat-settings-item-danger:hover { background: var(--danger-light); }
+.messenger-chat-settings-submenu-toggle { display: flex; justify-content: space-between; align-items: center; }
+.messenger-chat-settings-arrow { font-size: .7rem; color: var(--muted); transition: transform .15s; }
+.messenger-chat-settings-submenu-open .messenger-chat-settings-arrow { transform: rotate(90deg); }
+.messenger-chat-settings-submenu { padding-left: .5rem; border-left: 2px solid var(--primary); margin-left: .8rem; }
+.messenger-chat-settings-subitem {
+  display: block; width: 100%; padding: .4rem .8rem; border: none; background: none;
+  font-size: .78rem; font-family: inherit; color: var(--text); cursor: pointer;
+  text-align: left; transition: background .1s;
+}
+.messenger-chat-settings-subitem:hover { background: var(--surface); }
+.messenger-chat-settings-subitem-active { color: var(--primary); font-weight: 700; }
 .messenger-chat-settings-divider { height: 1px; background: var(--border); margin: .3rem 0; }
 
 /* Messages area */

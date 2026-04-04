@@ -926,6 +926,16 @@
       }
     });
 
+    // Auto-delete submenu toggle
+    var autoDeleteToggle = document.getElementById('messenger-auto-delete-toggle');
+    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    if (autoDeleteToggle && autoDeleteSubmenu) {
+      autoDeleteToggle.addEventListener('click', function () {
+        autoDeleteSubmenu.classList.toggle('messenger-hidden');
+        autoDeleteToggle.classList.toggle('messenger-chat-settings-submenu-open');
+      });
+    }
+
     // Auto-delete timer buttons
     settingsDropdown.addEventListener('click', function (event) {
       var item = event.target.closest('[data-auto-delete]');
@@ -942,7 +952,7 @@
         if (data.success) {
           settingsDropdown.classList.add('messenger-hidden');
           // Highlight active option
-          settingsDropdown.querySelectorAll('[data-auto-delete]').forEach(function (button) {
+          settingsDropdown.querySelectorAll('.messenger-chat-settings-subitem').forEach(function (button) {
             button.classList.toggle('messenger-chat-settings-item-active', parseInt(button.getAttribute('data-auto-delete'), 10) === seconds);
           });
         } else {
