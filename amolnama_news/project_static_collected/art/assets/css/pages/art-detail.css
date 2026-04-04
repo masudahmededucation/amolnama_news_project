@@ -47,7 +47,7 @@
 }
 
 .art-detail-meta-tutorial {
-  background: #fff3e0;
+  background: var(--warning-light);
   border-color: #ffe0b2;
   color: #e65100;
 }
@@ -192,7 +192,7 @@
 }
 
 .art-detail-youtube-item:hover {
-  background: #ffebee;
+  background: var(--danger-light);
   border-color: #ef9a9a;
 }
 
@@ -236,13 +236,13 @@
 }
 
 .art-detail-like-button-active {
-  background: #fff0f0;
+  background: var(--danger-light);
   border-color: #fca5a5;
   color: #dc2626;
 }
 
 .art-detail-bookmark-button-active {
-  background: #fef3c7;
+  background: var(--warning-light);
   border-color: #fcd34d;
   color: #d97706;
 }

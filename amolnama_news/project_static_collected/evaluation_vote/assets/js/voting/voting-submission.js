@@ -4,10 +4,6 @@
  * Get CSRF token from cookies for secure API requests
  * @returns {string} CSRF token value or null
  */
-function getCsrfToken() {
-  const name = 'csrftoken';
-  let cookieValue = null;
-  
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
@@ -54,13 +50,12 @@ function submitVote() {
       party_name_bn: selectedParty?.nameBn
     };
     
-    console.log("Submitting vote:", voteData);
 
     fetch('/evaluation_vote/api/submit-vote/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
+        'X-CSRFToken': getCsrfTokenValue(),
       },
       body: JSON.stringify(voteData),
     })
@@ -77,12 +72,13 @@ function submitVote() {
           showSuccessView();
           updatePartyListWithPercentages();
         } else {
-          alert(data.error || 'Vote submission failed.');
+          var errorContainer = document.getElementById('vote-error-message');
+          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
         }
       })
-      .catch(error => {
-        alert('Vote submission failed.');
-        console.error('Error:', error);
+      .catch(function () {
+        var errorContainer = document.getElementById('vote-error-message');
+        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
       });
   });
 }
@@ -155,7 +151,7 @@ function updateVote() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCsrfToken(),
+      'X-CSRFToken': getCsrfTokenValue(),
     },
     body: JSON.stringify(updateData),
   })
@@ -172,6 +168,5 @@ function updateVote() {
       }
     })
     .catch(error => {
-      console.error('Error:', error);
     });
 }

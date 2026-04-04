@@ -30,10 +30,6 @@
 
   var formVisible = false;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   createButton.addEventListener('click', function () {
     if (formVisible) return;
@@ -272,6 +268,10 @@
         }
       })
       .catch(function () {
+        var errorMessage = document.createElement('div');
+        errorMessage.style.cssText = 'color:var(--danger);font-size:.78rem;margin-top:.4rem;';
+        errorMessage.textContent = 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।';
+        formContainer.appendChild(errorMessage);
         submitButton.disabled = false;
       });
     });

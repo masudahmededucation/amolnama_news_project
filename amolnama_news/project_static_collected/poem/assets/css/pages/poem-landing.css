@@ -49,11 +49,11 @@
 }
 
 .poem-header-cta--song {
-  background: #7c3aed;
+  background: var(--purple);
 }
 
 .poem-header-cta--song:hover {
-  background: #6d28d9;
+  opacity: .9;
 }
 
 .poem-header-cta svg {
@@ -124,9 +124,9 @@
   padding: .4rem 1rem;
   font-size: .82rem;
   font-weight: 600;
-  color: #5b6abf;
-  background: #f0f0fa;
-  border: 1.5px solid #c7c7e0;
+  color: var(--info);
+  background: var(--info-light);
+  border: 1.5px solid var(--border);
   border-radius: 20px;
   cursor: pointer;
   transition: border-color .2s, background .2s, color .2s;
@@ -134,46 +134,43 @@
 }
 
 .poem-type-tab:hover {
-  border-color: #5b6abf;
-  background: #e8e8f5;
+  border-color: var(--info);
 }
 
 .poem-type-tab--active {
-  background: #5b6abf;
+  background: var(--info);
   color: #fff;
-  border-color: #5b6abf;
+  border-color: var(--info);
 }
 
 /* কবিতা — teal */
 .poem-type-tab[data-type="poem"] {
-  color: #0d7377;
-  background: #e6f7f7;
-  border-color: #b2dfdb;
+  color: var(--teal);
+  background: var(--teal-light);
+  border-color: var(--border);
 }
 .poem-type-tab[data-type="poem"]:hover {
-  border-color: #0d7377;
-  background: #d0efef;
+  border-color: var(--teal);
 }
 .poem-type-tab[data-type="poem"].poem-type-tab--active {
-  background: #0d7377;
+  background: var(--teal);
   color: #fff;
-  border-color: #0d7377;
+  border-color: var(--teal);
 }
 
 /* গানের কথা — purple */
 .poem-type-tab[data-type="song"] {
-  color: #7c3aed;
-  background: #f3eefe;
-  border-color: #d4bffc;
+  color: var(--purple);
+  background: var(--purple-light);
+  border-color: var(--border);
 }
 .poem-type-tab[data-type="song"]:hover {
-  border-color: #7c3aed;
-  background: #e8dcfd;
+  border-color: var(--purple);
 }
 .poem-type-tab[data-type="song"].poem-type-tab--active {
-  background: #7c3aed;
+  background: var(--purple);
   color: #fff;
-  border-color: #7c3aed;
+  border-color: var(--purple);
 }
 
 .poem-filter-pills {
@@ -236,16 +233,16 @@
   padding: .2rem .5rem;
   font-size: .72rem;
   font-weight: 600;
-  color: #5b6abf;
-  background: #eeecfa;
-  border: 1px solid #d4d0ef;
+  color: var(--info);
+  background: var(--info-light);
+  border: 1px solid var(--border);
   border-radius: 12px;
 }
 
 .poem-filter-chip-remove {
   background: none;
   border: none;
-  color: #888;
+  color: var(--muted);
   font-size: .75rem;
   cursor: pointer;
   padding: 0 .1rem;
@@ -262,7 +259,7 @@
   background: none;
   border: none;
   font-size: .7rem;
-  color: #e74c3c;
+  color: var(--danger);
   cursor: pointer;
   font-weight: 600;
   transition: opacity .15s;

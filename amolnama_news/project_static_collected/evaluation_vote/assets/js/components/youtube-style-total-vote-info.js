@@ -9,7 +9,6 @@ function updateTotalVoteInfo(totalVotes, elementId = 'total-vote-info') {
   const totalVoteElement = document.getElementById(elementId);
 
   if (!totalVoteElement) {
-    console.warn(`Element with ID '${elementId}' not found`);
     return;
   }
 
@@ -35,7 +34,6 @@ function fetchAndDisplayTotalVotes(apiUrl, elementId = 'total-vote-info') {
       }
     })
     .catch(error => {
-      console.error('Error fetching total votes:', error);
     });
 }
 

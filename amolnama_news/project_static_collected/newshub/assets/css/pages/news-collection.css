@@ -384,7 +384,7 @@
   padding: .3rem .7rem;
   border: 1px solid #fca5a5;
   border-radius: 1rem;
-  background: #fff5f5;
+  background: var(--danger-light);
   color: #dc2626;
   font-size: .8rem;
   font-weight: 600;
@@ -409,7 +409,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fecaca;
+  background: var(--danger-border);
   font-size: .85rem;
   font-weight: 700;
   line-height: 1;
@@ -496,7 +496,7 @@
   margin-top: .4rem;
   margin-bottom: .5rem;
   border-radius: var(--radius-sm);
-  background: #fef2f2;
+  background: var(--danger-light);
   border: 1px solid #fca5a5;
   color: var(--danger);
   font-size: .8rem;
@@ -510,7 +510,7 @@
   border-radius: var(--radius-sm);
   background: #fffbeb;
   border: 1px solid #fcd34d;
-  color: #92400e;
+  color: var(--warning-text);
   font-size: .8rem;
   line-height: 1.5;
 }
@@ -1771,7 +1771,7 @@
 }
 
 .form-subsection-title.subsection-red {
-  background: linear-gradient(135deg, #ffebee, #ef9a9a);
+  background: linear-gradient(135deg, var(--danger-light), #ef9a9a);
   color: #c62828;
 }
 
@@ -1968,7 +1968,7 @@
 }
 
 .actor-add-accused { border-color: #ef9a9a; }
-.actor-add-accused:hover { border-color: var(--danger); background: #fef2f2; }
+.actor-add-accused:hover { border-color: var(--danger); background: var(--danger-light); }
 .actor-add-victim { border-color: #a5d6a7; }
 .actor-add-victim:hover { border-color: #388e3c; background: #f1f8e9; }
 .actor-add-witness { border-color: #90caf9; }
@@ -2020,7 +2020,7 @@
 
 /* Role-specific header gradients */
 .actor-card-accused .actor-card-header {
-  background: linear-gradient(135deg, #ffebee, #ef9a9a);
+  background: linear-gradient(135deg, var(--danger-light), #ef9a9a);
 }
 .actor-card-victim .actor-card-header {
   background: linear-gradient(135deg, #e8f5e9, #a5d6a7);

@@ -4,10 +4,6 @@
 (function () {
   'use strict';
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- SVG templates (defined once, reused) ---- */
   var LIKE_SVG_PATH = '<svg viewBox="0 0 24 24" class="post-card-like-svg LIKECLASS"><path d="M2 20h2V8H2v12zm22-11a2 2 0 0 0-2-2h-6.31l.95-4.57.03-.32a1.49 1.49 0 0 0-.44-1.06L15.17 0 7.59 7.59C7.22 7.95 7 8.45 7 9v10a2 2 0 0 0 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>';
@@ -154,7 +150,6 @@
         }
       })
       .catch(function (networkError) {
-        console.error('Failed to load replies:', networkError);
       });
     }
   }
@@ -346,7 +341,6 @@
           flagSubmitButton.textContent = 'Submit Flag';
         }
       })
-      .catch(function (networkError) { console.error('Flag submit failed:', networkError); flagSubmitButton.disabled = false; flagSubmitButton.textContent = 'Submit Flag'; });
       return;
     }
 
@@ -566,7 +560,6 @@
           if (repostLabelElement) repostLabelElement.textContent = 'Repost';
         }
         if (repostCountElement) repostCountElement.textContent = currentCount;
-        console.error('Repost toggle failed');
       });
       return;
     }
@@ -605,7 +598,6 @@
           }
         } else { submitReplyButton.disabled = false; submitReplyButton.textContent = 'Submit'; }
       })
-      .catch(function (networkError) { console.error('Reply submit failed:', networkError); submitReplyButton.disabled = false; submitReplyButton.textContent = 'Submit'; });
       return;
     }
 
@@ -697,7 +689,6 @@
         }
       })
       .catch(function (networkError) {
-        console.error('Edit save failed:', networkError);
         editSaveButton.disabled = false;
         editSaveButton.textContent = 'সংরক্ষণ (Save)';
       });
@@ -785,7 +776,6 @@
         }
         else { confirmYesButton.disabled = false; confirmYesButton.textContent = 'হ্যাঁ মুছুন'; }
       })
-      .catch(function (networkError) { console.error('Delete failed:', networkError); confirmYesButton.disabled = false; confirmYesButton.textContent = 'হ্যাঁ মুছুন'; });
       return;
     }
 

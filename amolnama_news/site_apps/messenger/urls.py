@@ -21,6 +21,10 @@ urlpatterns = [
     path('api/messages/<int:conversation_id>/poll/', views_api.api_message_poll, name='api_message_poll'),
     path('api/messages/<int:conversation_id>/read/', views_api.api_message_mark_read, name='api_message_mark_read'),
 
+    # Auto-delete + Clear
+    path('api/conversations/<int:conversation_id>/set-auto-delete/', views_api.api_conversation_set_auto_delete, name='api_conversation_set_auto_delete'),
+    path('api/conversations/<int:conversation_id>/clear-all/', views_api.api_conversation_clear_all, name='api_conversation_clear_all'),
+
     # Pin / Mute
     path('api/conversations/<int:conversation_id>/pin/', views_api.api_conversation_pin, name='api_conversation_pin'),
     path('api/conversations/<int:conversation_id>/mute/', views_api.api_conversation_mute, name='api_conversation_mute'),

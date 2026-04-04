@@ -1,0 +1,48 @@
+/* User profile page */
+.user-profile-page { max-width: 680px; margin: 0 auto; padding: 1rem; }
+
+/* Header */
+.user-profile-header { display: flex; gap: 1.2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.5rem; }
+.user-profile-avatar { flex-shrink: 0; }
+.user-profile-avatar-image { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+.user-profile-avatar-initials { display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 2rem; font-weight: 700; }
+.user-profile-avatar-default { width: 80px; height: 80px; color: var(--muted); }
+.user-profile-info { flex: 1; min-width: 0; }
+.user-profile-name-row { display: flex; align-items: center; gap: .4rem; }
+.user-profile-display-name { font-size: 1.3rem; font-weight: 800; margin: 0; line-height: 1.2; }
+.user-profile-verified-badge { display: inline-flex; }
+.user-profile-handle { font-size: .85rem; color: var(--muted); display: block; margin-top: .1rem; }
+.user-profile-bio { font-size: .88rem; color: var(--text); margin: .5rem 0 0; line-height: 1.4; }
+.user-profile-meta { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: .4rem; font-size: .78rem; color: var(--muted); }
+.user-profile-website-link { color: var(--accent); }
+
+/* Stats */
+.user-profile-stats { display: flex; gap: 1.2rem; margin-top: .6rem; font-size: .85rem; color: var(--text); }
+.user-profile-stat strong { font-weight: 800; }
+
+/* Actions */
+.user-profile-actions { display: flex; gap: .5rem; margin-top: .8rem; }
+.user-profile-follow-button { padding: .4rem 1.2rem; background: var(--primary); color: #fff; border: none; border-radius: 20px; font-size: .82rem; font-weight: 700; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-follow-button:hover, .user-profile-follow-button:focus { background: var(--primary-hover); outline: none; }
+.user-profile-follow-button-active { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+.user-profile-follow-button-active:hover, .user-profile-follow-button-active:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
+.user-profile-message-button { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem 1.2rem; background: var(--card); color: var(--text); border: 1.5px solid var(--border); border-radius: 20px; font-size: .82rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-message-button:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); text-decoration: none; }
+.user-profile-block-button { padding: .4rem 1rem; background: var(--surface); color: var(--muted); border: 1.5px solid var(--border); border-radius: 20px; font-size: .78rem; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-block-button:hover, .user-profile-block-button:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
+.user-profile-block-button-active { background: var(--primary-light); color: var(--danger); border-color: var(--danger); }
+.user-profile-edit-link { display: inline-block; margin-top: .6rem; font-size: .82rem; color: var(--primary); font-weight: 600; }
+
+/* Posts section */
+.user-profile-posts-section { margin-top: .5rem; }
+.user-profile-posts-title { font-size: 1rem; font-weight: 700; margin: 0 0 .8rem; padding-bottom: .4rem; border-bottom: 2px solid var(--primary); display: inline-block; }
+.user-profile-posts-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .9rem; }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .user-profile-header { flex-direction: column; align-items: center; text-align: center; padding: 1rem; }
+  .user-profile-stats { justify-content: center; }
+  .user-profile-actions { justify-content: center; }
+  .user-profile-message-button { min-height: 44px; }
+  .user-profile-meta { justify-content: center; }
+}

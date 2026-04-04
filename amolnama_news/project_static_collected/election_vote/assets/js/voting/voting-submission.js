@@ -74,7 +74,6 @@ function handlePartySelectionAndCastVote(id, nameEn, nameBn, event) {
     })
     .catch(function (error) {
       if (error === 'not_authenticated') return;
-      console.error('Vote submission error:', error);
       showPageMessage('ভোট জমা ব্যর্থ হয়েছে। আবার চেষ্টা করুন। (Vote submission failed. Please try again.)', 'error');
       if (partyListElement) partyListElement.style.pointerEvents = 'auto';
     });

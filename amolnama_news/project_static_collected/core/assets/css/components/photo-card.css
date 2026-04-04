@@ -59,12 +59,12 @@
 }
 
 .photo-card-set-cover-button:hover {
-  background: #fff8e1;
+  background: var(--warning-light);
   color: #b8860b;
 }
 
 .photo-card-set-cover-button-active {
-  background: #fff8e1;
+  background: var(--warning-light);
   color: #b8860b;
   cursor: default;
 }
@@ -110,12 +110,12 @@
 }
 
 .photo-card-like-button:hover {
-  color: #1877f2;
+  color: var(--accent);
   background: #e7f3ff;
 }
 
 .photo-card-like-button-active {
-  color: #1877f2;
+  color: var(--accent);
 }
 
 .photo-card-like-button:disabled {
@@ -258,11 +258,11 @@
   align-items: center;
   padding: .35rem .5rem;
   margin-top: .3rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
   font-size: .75rem;
-  color: #991b1b;
+  color: var(--danger-text);
 }
 
 .photo-card-confirm-delete-button,
@@ -291,12 +291,12 @@
 
 .photo-card-cancel-delete-button {
   background: #fff;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 
 .photo-card-cancel-delete-button:hover {
-  background: #fef2f2;
+  background: var(--danger-light);
 }
 
 /* Edit/delete forms placed as grid siblings span full width */
@@ -321,9 +321,9 @@
 }
 
 .photo-card-inline-message-error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: var(--danger-light);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 
 /* ---- Responsive ---- */

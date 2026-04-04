@@ -1,12 +1,7 @@
 /* Base reset and layout styles for global HTML elements and page container */
 
 
-:root {
-  --maxw: 1200px;
-  --bg: #fff;
-  --text: #222;
-  --accent: #0077cc;
-}
+/* All :root variables live in colors.css — the single source of truth */
 
 /* Always show scrollbar to prevent layout shift when navigating between pages */
 html {
@@ -93,12 +88,12 @@ main .article-comment-text, main .engagement-comment-text {
 
 /* Footer styles */
 footer {
-  background: #f8f8f8;
-  color: #555;
+  background: var(--surface);
+  color: var(--muted);
   text-align: center;
   padding: 1.5rem 0 1rem 0;
   font-size: 1rem;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border);
 }
 
 /* ---- Universal language field visibility ---- */
@@ -107,7 +102,7 @@ footer {
 
 /* Optional: Utility classes */
 .muted {
-  color: #888;
+  color: var(--muted);
 }
 
 .bold {
@@ -139,5 +134,5 @@ footer {
 .global-breadcrumb { font-size: .75rem; color: var(--muted); margin-bottom: .75rem; padding: .3rem 0; }
 .global-breadcrumb-link { color: var(--primary); text-decoration: none; }
 .global-breadcrumb-link:hover { opacity: .8; text-decoration: none; }
-.global-breadcrumb-separator { margin: 0 .3rem; color: #cbd5e1; }
-.global-breadcrumb-current { color: #374151; font-weight: 600; }
+.global-breadcrumb-separator { margin: 0 .3rem; color: var(--border); }
+.global-breadcrumb-current { color: var(--text); font-weight: 600; }

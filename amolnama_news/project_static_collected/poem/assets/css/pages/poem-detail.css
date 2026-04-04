@@ -305,7 +305,7 @@
   display: block;
   font-size: .78rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--border);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -314,7 +314,7 @@
 .poem-audio-desc {
   display: block;
   font-size: .68rem;
-  color: #888;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -358,7 +358,7 @@
 
 .poem-audio-time {
   font-size: .65rem;
-  color: #777;
+  color: var(--muted);
   text-align: right;
   font-family: 'Courier New', monospace;
 }
@@ -399,7 +399,7 @@
 
 .poem-audio-video-btn:hover {
   color: #fff;
-  border-color: #888;
+  border-color: var(--muted);
 }
 
 /* Video expand area */
@@ -422,7 +422,7 @@
   padding: .4rem;
   background: #1a1a2e;
   border: none;
-  color: #888;
+  color: var(--muted);
   font-size: .75rem;
   cursor: pointer;
   transition: color .15s;
@@ -511,13 +511,13 @@
   margin: 0;
   font-size: .88rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--border);
 }
 
 .poem-radio-next-preview span {
   display: block;
   font-size: .72rem;
-  color: #888;
+  color: var(--muted);
   margin-bottom: .3rem;
 }
 

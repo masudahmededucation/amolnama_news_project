@@ -34,7 +34,8 @@
       var remaining = MAX_PER_SECTION - store.length;
 
       if (remaining <= 0) {
-        alert("সর্বোচ্চ " + MAX_PER_SECTION + "টি ছবি আপলোড করা যাবে এই বিভাগে");
+        var warningElement = document.getElementById('photo-upload-warning');
+        if (warningElement) { warningElement.textContent = "সর্বোচ্চ " + MAX_PER_SECTION + "টি ছবি আপলোড করা যাবে এই বিভাগে"; warningElement.style.display = 'block'; setTimeout(function () { warningElement.style.display = 'none'; }, 4000); }
         this.value = "";
         return;
       }

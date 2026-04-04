@@ -2,10 +2,6 @@
 (function () {
   'use strict';
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   var artDetailElement = document.querySelector('.art-detail');
   if (!artDetailElement) return;
@@ -74,7 +70,6 @@
         if (data.success && likeCount) likeCount.textContent = data.like_count;
       })
       .catch(function (networkError) {
-        console.error('Like toggle failed:', networkError);
         /* Revert */
         if (wasLiked) {
           likeButton.classList.add('art-detail-like-button-active');
@@ -121,7 +116,6 @@
         if (data.success && bookmarkCount) bookmarkCount.textContent = data.bookmark_count;
       })
       .catch(function (networkError) {
-        console.error('Bookmark toggle failed:', networkError);
         if (wasBookmarked) {
           bookmarkButton.classList.add('art-detail-bookmark-button-active');
           if (bookmarkIcon) bookmarkIcon.textContent = '🔖';

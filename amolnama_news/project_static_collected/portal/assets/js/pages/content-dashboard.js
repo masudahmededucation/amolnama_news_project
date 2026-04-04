@@ -5,10 +5,6 @@
   var dashboardElement = document.getElementById('content-dashboard');
   if (!dashboardElement) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- FILTER TABS ---- */
   var filterButtons = document.querySelectorAll('.content-dashboard-filter');

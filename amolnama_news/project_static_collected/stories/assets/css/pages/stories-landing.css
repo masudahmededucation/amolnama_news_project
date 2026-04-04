@@ -29,7 +29,7 @@
 .stories-landing-submit-button {
   display: inline-block;
   padding: .5rem 1.2rem;
-  background: #7c3aed;
+  background: var(--purple);
   color: #fff;
   border-radius: 25px;
   font-size: .85rem;
@@ -39,7 +39,7 @@
 }
 
 .stories-landing-submit-button:hover {
-  background: #6d28d9;
+  opacity: .9;
   transform: scale(1.03);
 }
 
@@ -75,20 +75,20 @@
 .stories-age-pill:hover,
 .stories-category-pill:hover {
   background: var(--surface);
-  border-color: #7c3aed;
+  border-color: var(--purple);
   transform: scale(1.02);
 }
 
 .stories-age-pill-active {
-  background: #7c3aed;
+  background: var(--purple);
   color: #fff;
-  border-color: #7c3aed;
+  border-color: var(--purple);
 }
 
 .stories-category-pill-active {
-  background: #059669;
+  background: var(--success);
   color: #fff;
-  border-color: #059669;
+  border-color: var(--success);
 }
 
 /* Story Grid */
@@ -147,8 +147,8 @@
   top: .5rem;
   left: .5rem;
   padding: .2rem .5rem;
-  background: #fbbf24;
-  color: #78350f;
+  background: var(--warning);
+  color: #fff;
   font-size: .68rem;
   font-weight: 700;
   border-radius: 12px;
@@ -159,7 +159,7 @@
   top: .5rem;
   right: .5rem;
   padding: .2rem .5rem;
-  background: rgba(124, 58, 237, .85);
+  background: var(--purple);
   color: #fff;
   font-size: .65rem;
   font-weight: 600;

@@ -16,7 +16,7 @@
 /* Progress */
 .textextractor-upload-progress { margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card, #fff); }
 .textextractor-upload-progress-filename { font-weight: 700; font-size: .88rem; margin-bottom: .5rem; }
-.textextractor-upload-progress-bar-wrapper { position: relative; height: 24px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden; }
+.textextractor-upload-progress-bar-wrapper { position: relative; height: 24px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
 .textextractor-upload-progress-bar { height: 100%; background: linear-gradient(180deg, #6ee7b7, #059669, #047857); border-radius: 3px; width: 0%; transition: width .5s ease-out; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
 .textextractor-upload-progress-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: #1f2937; pointer-events: none; }
 
@@ -28,7 +28,7 @@
 .textextractor-upload-result-view-button:hover { background: #047857; }
 
 /* Error */
-.textextractor-upload-error { margin-top: 1.5rem; padding: .75rem 1rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; color: #991b1b; font-size: .85rem; }
+.textextractor-upload-error { margin-top: 1.5rem; padding: .75rem 1rem; background: var(--danger-light); border: 1px solid var(--danger-border); border-radius: 10px; color: var(--danger-text); font-size: .85rem; }
 
 /* Mobile */
 @media (max-width: 600px) {

@@ -145,11 +145,6 @@ if (typeof pdfjsLib !== 'undefined') {
     return total;
   }
 
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
-  }
 
   /* ====== Drag & Drop ====== */
 
@@ -690,7 +685,6 @@ if (typeof pdfjsLib !== 'undefined') {
         idx++;
         processNext();
       }).catch(function (err) {
-        console.error('Compression failed for ' + sf.file.name + ':', err);
         // Keep original file on error
         compressedResults.push({
           name: sf.file.name,

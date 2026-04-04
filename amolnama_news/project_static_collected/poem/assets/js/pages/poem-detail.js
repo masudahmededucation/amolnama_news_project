@@ -3,6 +3,7 @@
  */
 (function () {
   "use strict";
+  var getCsrf = window.getCsrfTokenValue;
 
   /* ── Collapsible sections ── */
   document.querySelectorAll(".poem-detail-section-toggle").forEach(function (btn) {
@@ -82,8 +83,4 @@
   }
 
   /* ── CSRF helper ── */
-  function getCsrf() {
-    var cookie = document.cookie.match(/csrftoken=([^;]+)/);
-    return cookie ? cookie[1] : "";
-  }
 })();

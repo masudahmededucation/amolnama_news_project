@@ -616,7 +616,6 @@ if (typeof pdfjsLib !== 'undefined') {
         mergeBtn.disabled = false;
       }, 300);
     }).catch(function (err) {
-      console.error('Merge error:', err);
       hideSection(progressSection);
       showError('মার্জ করতে সমস্যা হয়েছে: ' + (err.message || 'Unknown error') + ' (Merge failed)');
       merging = false;

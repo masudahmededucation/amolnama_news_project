@@ -47,7 +47,7 @@
       e.preventDefault();
       const q = (searchInput?.value || '').trim();
       if(q){
-        alert('Search for: ' + q + '\n(This is a static template. Implement real search server-side.)');
+        window.location.href = '/search/?q=' + encodeURIComponent(q);
       }
     });
   }

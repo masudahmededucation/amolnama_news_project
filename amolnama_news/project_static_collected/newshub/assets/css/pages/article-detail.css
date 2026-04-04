@@ -109,9 +109,9 @@
   transition: opacity .2s;
 }
 
-.article-status-badge.pending  { background: #fef3c7; color: #92400e; }
+.article-status-badge.pending  { background: var(--warning-light); color: var(--warning-text); }
 .article-status-badge.approved { background: #dcfce7; color: #166534; }
-.article-status-badge.rejected { background: #fef2f2; color: #991b1b; }
+.article-status-badge.rejected { background: var(--danger-light); color: var(--danger-text); }
 
 .article-status-edit-btn {
   display: inline-flex;
@@ -342,8 +342,8 @@
 }
 
 .inline-message-error {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--danger-light);
+  color: var(--danger-text);
 }
 
 /* ======== Hero Cover Image ======== */

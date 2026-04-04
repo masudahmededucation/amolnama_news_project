@@ -2,10 +2,6 @@
 (function () {
   'use strict';
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- Composer expand/collapse ---- */
 
@@ -38,13 +34,13 @@
     /* Track file picker open/close */
     var mediaFileInput = document.getElementById('post-composer-media-input');
     if (mediaFileInput) {
-      mediaFileInput.addEventListener('click', function () { filePickerIsOpen = true; });
-      mediaFileInput.addEventListener('change', function () { filePickerIsOpen = false; });
-      mediaFileInput.addEventListener('cancel', function () { filePickerIsOpen = false; });
-      /* Fallback — reset after 30s in case events don't fire */
       mediaFileInput.addEventListener('click', function () {
+        filePickerIsOpen = true;
+        /* Fallback — reset after 30s in case change/cancel events don't fire */
         setTimeout(function () { filePickerIsOpen = false; }, 30000);
       });
+      mediaFileInput.addEventListener('change', function () { filePickerIsOpen = false; });
+      mediaFileInput.addEventListener('cancel', function () { filePickerIsOpen = false; });
     }
 
     /* Collapse helper — only collapse if NOT in draft mode */
@@ -574,7 +570,6 @@
         }
       })
       .catch(function (networkError) {
-        console.error('Post creation failed:', networkError);
         submitButton.disabled = false;
         submitButton.textContent = 'পোস্ট';
         showPostComposerError('নেটওয়ার্ক ত্রুটি (Network error)');

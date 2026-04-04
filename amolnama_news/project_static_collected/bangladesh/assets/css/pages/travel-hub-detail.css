@@ -588,7 +588,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-inline-message-success { background: #dcfce7; color: #166534; }
-.travel-hub-detail-inline-message-error   { background: #fef2f2; color: #991b1b; }
+.travel-hub-detail-inline-message-error   { background: var(--danger-light); color: var(--danger-text); }
 
 /* Contribution meta (uploader name + edit/delete) */
 .travel-hub-detail-contribution-meta {
@@ -728,11 +728,11 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   align-items: center;
   padding: .35rem .5rem;
   margin-top: .3rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
   font-size: .75rem;
-  color: #991b1b;
+  color: var(--danger-text);
 }
 
 .travel-hub-detail-contribution-confirm-yes-button,
@@ -759,11 +759,11 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 .travel-hub-detail-contribution-confirm-no-button {
   background: #fff;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 
-.travel-hub-detail-contribution-confirm-no-button:hover { background: #fef2f2; }
+.travel-hub-detail-contribution-confirm-no-button:hover { background: var(--danger-light); }
 
 /* Photo edit/delete forms are placed AFTER the thumb (as grid siblings), not inside.
    They span the full grid column width. */
@@ -898,12 +898,12 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-set-cover-button:hover {
-  background: #fff8e1;
+  background: var(--warning-light);
   color: #b8860b;
 }
 
 .travel-hub-detail-set-cover-button-active {
-  background: #fff8e1;
+  background: var(--warning-light);
   color: #b8860b;
   cursor: default;
 }

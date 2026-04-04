@@ -93,5 +93,4 @@ function initCharacterCounter() {
  */
 document.addEventListener('DOMContentLoaded', function() {
   initCharacterCounter();
-  console.log('Voting tracker initialized');
 });

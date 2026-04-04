@@ -42,11 +42,6 @@
       .replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  function escapeHtml(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
   /* Shared label builder — matches template and DOM mode output */
   function labelHtml(field) {
     return '<label data-bn="' + escapeAttr(field.labelBn)

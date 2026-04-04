@@ -276,7 +276,8 @@
       lastZipStats = result.stats;
       showResult();
     }).catch(function (err) {
-      alert('ZIP creation failed: ' + err.message);
+      var errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'ZIP creation failed: ' + err.message; errorElement.style.display = 'block'; }
     }).finally(function () {
       actionBtn.disabled = false;
       actionLabel.textContent = 'Create ZIP';

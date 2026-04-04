@@ -255,7 +255,7 @@
   height: 28px;
   border-radius: 50%;
   background: #fff;
-  border: 3.5px solid var(--thumb-color);
+  border: 3.5px solid var(--primary);
   box-shadow: 0 1px 6px rgba(0,0,0,0.25);
   cursor: grab;
   transition: box-shadow .2s;
@@ -276,7 +276,7 @@
   height: 28px;
   border-radius: 50%;
   background: #fff;
-  border: 3.5px solid var(--thumb-color);
+  border: 3.5px solid var(--primary);
   box-shadow: 0 1px 6px rgba(0,0,0,0.25);
   cursor: grab;
 }

@@ -74,7 +74,7 @@
 .step-dot.has-error .step-num {
   border-color: var(--danger);
   color: var(--danger);
-  background: #fef2f2;
+  background: var(--danger-light);
 }
 
 .step-dot.has-error .step-label {
@@ -838,7 +838,7 @@
 /* ---- Step validation warnings ---- */
 
 .step-validation-messages {
-  background: #fef2f2;
+  background: var(--danger-light);
   border: 1px solid #fca5a5;
   border-left: 4px solid #ef4444;
   border-radius: 0 .375rem .375rem 0;
@@ -847,7 +847,7 @@
 }
 
 .step-validation-msg {
-  color: #991b1b;
+  color: var(--danger-text);
   font-size: .9rem;
   line-height: 1.6;
 }

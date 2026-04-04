@@ -809,7 +809,6 @@
         processingText.textContent = 'ব্যাকগ্রাউন্ড সনাক্ত হচ্ছে… (Detecting background…)';
         return segmenter.send({ image: img });
       }).catch(function (err) {
-        console.error('Segmentation error:', err);
         hideSection(processingOverlay);
         hideSection(editor);
         showError('AI মডেল লোড করতে সমস্যা হয়েছে। পেজ রিফ্রেশ করে আবার চেষ্টা করুন। (Failed to load AI model. Please refresh and try again.)');

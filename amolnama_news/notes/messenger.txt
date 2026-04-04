@@ -51,6 +51,20 @@ then give option to resend or try again options.
 when the network is available 
 then it should send that message successfully.
 on no network, it should still work right?
+i will turn off the server.
+then i will try to send message and check what happens?
+
+--attachement
+--picture
+--link
+--video--give warning video will be deleted after 1/7 day?
+should we have video options at all? 
+i am worried about expense and storage.
+--it will reduce the storage pressure.
+
+--emoji
+emoji should be inside the message typing box?
+make the message typing box wider?
 
 --telegram
 need to be able to clear all messages from everywhere.
@@ -58,3 +72,33 @@ it is to protect the sender/journalist.
 need to be able to clear all conversation.
 need to be able to clear message periodically.
 maybe 1/7/30/yearly.
+
+
+when no network, testing. 
+after refresh, on this url http://127.0.0.1:8001/messenger/ 
+home post was loaded. so after refresh f5. 
+the display becomes message and large icons showing. 
+it means js and css file are always loaded from server, on every refresh. 
+is that a good idea? 
+the user experience will be so shitty. 
+they will never come back.
+double check logic.
+deep research. 
+make it professional. 
+no rush and check. 
+check and check for unlimited time.
+logic should be clean, clear, concise.
+no duplicate codes.
+
+
+--offline display
+--no network display
+when server was off. 
+it needs to display page properly
+cache still not loading properly when offline. 
+we need to fix the offline display. 
+when no network, offline, still it needs to display properly.
+or at least say, no network blank page. 
+but showing shitty display is not a solution.
+
+

@@ -43,6 +43,21 @@
         <span class="messenger-chat-header-name" id="messenger-chat-header-name"></span>
         <span class="messenger-chat-header-status" id="messenger-chat-header-status"></span>
       </div>
+      <div class="messenger-chat-settings-wrapper">
+        <button type="button" class="messenger-chat-settings-button" id="messenger-chat-settings-button" title="সেটিংস">⚙</button>
+        <div class="messenger-chat-settings-dropdown messenger-hidden" id="messenger-chat-settings-dropdown">
+          <div class="messenger-chat-settings-section">
+            <span class="messenger-chat-settings-label">অটো-ডিলিট</span>
+            <button type="button" class="messenger-chat-settings-item" data-auto-delete="0">বন্ধ</button>
+            <button type="button" class="messenger-chat-settings-item" data-auto-delete="86400">১ দিন</button>
+            <button type="button" class="messenger-chat-settings-item" data-auto-delete="604800">৭ দিন</button>
+            <button type="button" class="messenger-chat-settings-item" data-auto-delete="2592000">৩০ দিন</button>
+            <button type="button" class="messenger-chat-settings-item" data-auto-delete="31536000">১ বছর</button>
+          </div>
+          <div class="messenger-chat-settings-divider"></div>
+          <button type="button" class="messenger-chat-settings-item messenger-chat-settings-item-danger" id="messenger-chat-clear-all-button">🗑 সব মেসেজ মুছুন</button>
+        </div>
+      </div>
     </div>
 
     <!-- Messages area (hidden until conversation opened) -->

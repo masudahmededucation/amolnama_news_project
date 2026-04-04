@@ -27,10 +27,6 @@
 
   /* ---- CSRF token ---- */
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- Escape HTML for safe attribute insertion ---- */
 
@@ -130,7 +126,6 @@
       showInlineMessage(cardElement, 'কভার ছবি সেট হয়েছে (Cover set)', false);
     })
     .catch(function (networkError) {
-      console.error('Set cover failed:', networkError);
       setCoverButton.disabled = false;
       showInlineMessage(cardElement, 'নেটওয়ার্ক ত্রুটি (Network error)', true);
     });
@@ -180,7 +175,6 @@
       if (likeCountElement) likeCountElement.textContent = data.like_count;
     })
     .catch(function (networkError) {
-      console.error('Like toggle failed:', networkError);
       likeButton.disabled = false;
     });
   }
@@ -218,7 +212,6 @@
       }
     })
     .catch(function (networkError) {
-      console.error('View count failed:', networkError);
     });
   }
 
@@ -311,7 +304,6 @@
       }
     })
     .catch(function (networkError) {
-      console.error('Edit caption failed:', networkError);
       var cardElement = editFormElement.closest(config.cardSelector);
       editFormElement.remove();
       if (cardElement) {
@@ -394,7 +386,6 @@
       }
     })
     .catch(function (networkError) {
-      console.error('Delete photo failed:', networkError);
       showInlineMessage(cardElement, 'নেটওয়ার্ক ত্রুটি (Network error)', true);
       confirmDeleteButton.disabled = false;
       confirmDeleteButton.textContent = 'হ্যাঁ (Yes)';
@@ -423,7 +414,6 @@
     };
 
     if (typeof config.buildApiUrl !== 'function') {
-      console.error('photo-card.js: buildApiUrl function is required');
       return;
     }
 

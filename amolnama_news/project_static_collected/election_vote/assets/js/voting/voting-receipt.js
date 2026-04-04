@@ -95,6 +95,5 @@ function fetchNationalResults(electionEvaluationId, attempt) {
       container.style.display = 'block';
     })
     .catch(function (error) {
-      console.error('Failed to load national results:', error);
     });
 }

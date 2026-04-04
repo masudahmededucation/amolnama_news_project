@@ -3,6 +3,7 @@
  */
 (function () {
   "use strict";
+  var getCsrf = window.getCsrfTokenValue;
 
   // Update labels based on ?type=song
   var urlParams = new URLSearchParams(window.location.search);
@@ -125,10 +126,6 @@
   }
 
   /* ── CSRF ── */
-  function getCsrf() {
-    var cookie = document.cookie.match(/csrftoken=([^;]+)/);
-    return cookie ? cookie[1] : "";
-  }
 
   /* ── Submit ── */
   form.addEventListener("submit", function (e) {

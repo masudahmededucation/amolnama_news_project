@@ -205,9 +205,14 @@ def api_message_list(request, conversation_id):
         link_user_profile_id=user_profile_id,
     ).values_list('link_message_id', flat=True))
 
+    now = timezone.now()
     messages_query = Message.objects.filter(
         link_conversation_id=conversation_id, is_active=True,
-    ).exclude(messenger_message_id__in=deleted_message_ids)
+    ).exclude(
+        messenger_message_id__in=deleted_message_ids,
+    ).exclude(
+        auto_delete_expires_at__isnull=False, auto_delete_expires_at__lte=now,
+    )
 
     # Cursor-based pagination: load older messages before a given message ID
     before_message_id = request.GET.get('before')
@@ -286,14 +291,21 @@ def api_message_send(request, conversation_id):
     if other_participant and _is_blocked(user_profile_id, other_participant.link_user_profile_id):
         return JsonResponse({'success': False, 'error': 'এই ব্যবহারকারীকে মেসেজ পাঠানো যাচ্ছে না'}, status=403)
 
+    # Check auto-delete timer on conversation
+    conversation = Conversation.objects.filter(messenger_conversation_id=conversation_id).first()
+    auto_delete_expires_at = None
+    if conversation and conversation.auto_delete_after_seconds:
+        from datetime import timedelta
+        auto_delete_expires_at = timezone.now() + timedelta(seconds=conversation.auto_delete_after_seconds)
+
     # Insert message
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [messenger].[message]
-                ([link_conversation_id], [link_sender_user_profile_id], [message_text], [link_reply_to_message_id])
+                ([link_conversation_id], [link_sender_user_profile_id], [message_text], [link_reply_to_message_id], [auto_delete_expires_at])
             OUTPUT INSERTED.messenger_message_id, INSERTED.created_at
-            VALUES (%s, %s, %s, %s)
-        """, [conversation_id, user_profile_id, message_text, reply_to_message_id])
+            VALUES (%s, %s, %s, %s, %s)
+        """, [conversation_id, user_profile_id, message_text, reply_to_message_id, auto_delete_expires_at])
         row = cursor.fetchone()
         message_id = row[0]
         created_at = row[1]
@@ -366,12 +378,15 @@ def api_message_poll(request, conversation_id):
         link_user_profile_id=user_profile_id,
     ).values_list('link_message_id', flat=True))
 
+    now = timezone.now()
     new_messages = list(Message.objects.filter(
         link_conversation_id=conversation_id,
         messenger_message_id__gt=after_message_id,
         is_active=True,
     ).exclude(
         messenger_message_id__in=deleted_message_ids,
+    ).exclude(
+        auto_delete_expires_at__isnull=False, auto_delete_expires_at__lte=now,
     ).order_by('created_at')[:50])
 
     # Batch-fetch reply-to texts
@@ -637,3 +652,122 @@ def api_conversation_mute(request, conversation_id):
         """, [new_value, participant.messenger_conversation_participant_id])
 
     return JsonResponse({'success': True, 'is_muted': new_value})
+
+
+# =========================================================
+# AUTO-DELETE TIMER
+# =========================================================
+
+AUTO_DELETE_OPTIONS = {0, 86400, 604800, 2592000, 31536000}  # off, 1d, 7d, 30d, 1y
+AUTO_DELETE_LABELS = {
+    0: 'বন্ধ',
+    86400: '১ দিন',
+    604800: '৭ দিন',
+    2592000: '৩০ দিন',
+    31536000: '১ বছর',
+}
+
+
+@require_POST
+@login_required
+def api_conversation_set_auto_delete(request, conversation_id):
+    """POST — set auto-delete timer for a conversation. Applies to BOTH sides."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Verify participant
+    if not ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).exists():
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    try:
+        seconds = int(data.get('auto_delete_after_seconds', 0))
+    except (ValueError, TypeError):
+        seconds = 0
+
+    if seconds not in AUTO_DELETE_OPTIONS:
+        return JsonResponse({'success': False, 'error': 'অবৈধ সময়সীমা'}, status=400)
+
+    now = timezone.now()
+    timer_value = seconds if seconds > 0 else None
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [messenger].[conversation]
+            SET [auto_delete_after_seconds] = %s, [auto_delete_set_by_user_profile_id] = %s, [auto_delete_set_at] = %s
+            WHERE [messenger_conversation_id] = %s
+        """, [timer_value, user_profile_id, now, conversation_id])
+
+        # Insert system message
+        label = AUTO_DELETE_LABELS.get(seconds, str(seconds))
+        system_text = 'অটো-ডিলিট ' + label + ' সেট করা হয়েছে' if seconds > 0 else 'অটো-ডিলিট বন্ধ করা হয়েছে'
+        cursor.execute("""
+            INSERT INTO [messenger].[message]
+                ([link_conversation_id], [link_sender_user_profile_id], [message_text], [is_system_message])
+            VALUES (%s, %s, %s, 1)
+        """, [conversation_id, user_profile_id, system_text])
+
+    return JsonResponse({'success': True, 'auto_delete_after_seconds': timer_value})
+
+
+# =========================================================
+# CLEAR ALL MESSAGES (BOTH SIDES)
+# =========================================================
+
+@require_POST
+@login_required
+def api_conversation_clear_all(request, conversation_id):
+    """POST — hard delete ALL messages from BOTH sides. No recovery."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Verify participant
+    if not ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).exists():
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    with connection.cursor() as cursor:
+        # Delete per-user deletions first (FK constraint)
+        cursor.execute("""
+            DELETE FROM [messenger].[message_deletion]
+            WHERE [link_message_id] IN (
+                SELECT [messenger_message_id] FROM [messenger].[message] WHERE [link_conversation_id] = %s
+            )
+        """, [conversation_id])
+
+        # Hard delete all messages
+        cursor.execute("""
+            DELETE FROM [messenger].[message] WHERE [link_conversation_id] = %s
+        """, [conversation_id])
+
+        # Reset conversation
+        cursor.execute("""
+            UPDATE [messenger].[conversation]
+            SET [last_message_text] = NULL, [last_message_at] = NULL, [last_message_sender_user_profile_id] = NULL
+            WHERE [messenger_conversation_id] = %s
+        """, [conversation_id])
+
+        # Reset unread counts
+        cursor.execute("""
+            UPDATE [messenger].[conversation_participant]
+            SET [unread_count] = 0
+            WHERE [link_conversation_id] = %s
+        """, [conversation_id])
+
+        # Insert system message (this stays as the only message)
+        cursor.execute("""
+            INSERT INTO [messenger].[message]
+                ([link_conversation_id], [link_sender_user_profile_id], [message_text], [is_system_message])
+            VALUES (%s, %s, %s, 1)
+        """, [conversation_id, user_profile_id, 'সব মেসেজ মুছে ফেলা হয়েছে'])
+
+    return JsonResponse({'success': True})

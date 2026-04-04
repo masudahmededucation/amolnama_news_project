@@ -96,7 +96,7 @@
 .page-message--error a { color: #842029; }
 
 .page-message--warning {
-  background: #fff3cd;
+  background: var(--warning-light);
   border: 1px solid #ffecb5;
   color: #664d03;
 }

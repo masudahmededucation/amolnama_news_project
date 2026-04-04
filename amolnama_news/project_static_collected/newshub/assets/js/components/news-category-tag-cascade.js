@@ -35,11 +35,6 @@
   var removedByUser = {};      // { id: true } — manually removed, skip auto-re-add
 
   /* ---- escapeHtml() — prevent XSS in tag names ---- */
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
 
   /* ---- tagLabel() — formatted display: "বাংলা (English)" ---- */
   function tagLabel(tag) {

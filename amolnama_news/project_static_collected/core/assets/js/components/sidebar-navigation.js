@@ -31,4 +31,26 @@
       activeItem.scrollIntoView({ block: 'nearest', behavior: 'instant' });
     }
   }
+
+  /* ---- Messenger unread badge polling ---- */
+  var messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
+  if (messengerBadge) {
+    function pollMessengerUnreadCount() {
+      if (document.visibilityState === 'hidden') return;
+      fetch('/messenger/api/unread-count/')
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          if (!data.success) return;
+          if (data.unread_count > 0) {
+            messengerBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+            messengerBadge.classList.remove('sidebar-navigation-unread-badge-hidden');
+          } else {
+            messengerBadge.classList.add('sidebar-navigation-unread-badge-hidden');
+          }
+        })
+        .catch(function () {});
+    }
+    pollMessengerUnreadCount();
+    setInterval(pollMessengerUnreadCount, 30000);
+  }
 })();

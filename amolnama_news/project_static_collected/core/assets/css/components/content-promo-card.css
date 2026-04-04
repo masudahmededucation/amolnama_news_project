@@ -15,16 +15,16 @@
 .content-promo-card:hover { text-decoration: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
 
 /* Color variants — left border accent */
-.content-promo-card-blue { border-left: 3px solid #2563eb; }
-.content-promo-card-blue:hover { border-color: #2563eb; }
-.content-promo-card-green { border-left: 3px solid #059669; }
-.content-promo-card-green:hover { border-color: #059669; }
-.content-promo-card-purple { border-left: 3px solid #7c3aed; }
-.content-promo-card-purple:hover { border-color: #7c3aed; }
-.content-promo-card-amber { border-left: 3px solid #d97706; }
-.content-promo-card-amber:hover { border-color: #d97706; }
-.content-promo-card-rose { border-left: 3px solid #e11d48; }
-.content-promo-card-rose:hover { border-color: #e11d48; }
+.content-promo-card-blue { border-left: 3px solid var(--info); }
+.content-promo-card-blue:hover { border-color: var(--info); }
+.content-promo-card-green { border-left: 3px solid var(--success); }
+.content-promo-card-green:hover { border-color: var(--success); }
+.content-promo-card-purple { border-left: 3px solid var(--purple); }
+.content-promo-card-purple:hover { border-color: var(--purple); }
+.content-promo-card-amber { border-left: 3px solid var(--amber); }
+.content-promo-card-amber:hover { border-color: var(--amber); }
+.content-promo-card-rose { border-left: 3px solid var(--rose); }
+.content-promo-card-rose:hover { border-color: var(--rose); }
 
 /* Header */
 .content-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; flex-wrap: wrap; }
@@ -33,17 +33,17 @@
   color: #fff; padding: .1rem .45rem; border-radius: 8px;
   text-transform: uppercase;
 }
-.content-promo-card-badge-blue { background: #2563eb; }
-.content-promo-card-badge-green { background: #059669; }
-.content-promo-card-badge-purple { background: #7c3aed; }
-.content-promo-card-badge-amber { background: #d97706; }
-.content-promo-card-badge-rose { background: #e11d48; }
-.content-promo-card-author { font-size: .72rem; font-weight: 600; color: #555; }
+.content-promo-card-badge-blue { background: var(--info); }
+.content-promo-card-badge-green { background: var(--success); }
+.content-promo-card-badge-purple { background: var(--purple); }
+.content-promo-card-badge-amber { background: var(--amber); }
+.content-promo-card-badge-rose { background: var(--rose); }
+.content-promo-card-author { font-size: .72rem; font-weight: 600; color: var(--muted); }
 .content-promo-card-date { font-size: .65rem; color: var(--muted); margin-left: auto; }
 
 /* Title + Description */
 .content-promo-card-title { font-size: .95rem; font-weight: 700; margin: 0 0 .25rem; line-height: 1.4; }
-.content-promo-card-description { font-size: .78rem; color: #555; margin: 0 0 .4rem; line-height: 1.5; }
+.content-promo-card-description { font-size: .78rem; color: var(--muted); margin: 0 0 .4rem; line-height: 1.5; }
 
 /* Footer */
 .content-promo-card-footer { display: flex; justify-content: space-between; align-items: center; }
@@ -54,12 +54,15 @@
   padding: .2rem .6rem; border-radius: 12px;
   transition: opacity .15s;
 }
-.content-promo-card-cta-blue { background: #2563eb; }
-.content-promo-card-cta-green { background: #059669; }
-.content-promo-card-cta-purple { background: #7c3aed; }
-.content-promo-card-cta-amber { background: #d97706; }
-.content-promo-card-cta-rose { background: #e11d48; }
+.content-promo-card-cta-blue { background: var(--info); }
+.content-promo-card-cta-green { background: var(--success); }
+.content-promo-card-cta-purple { background: var(--purple); }
+.content-promo-card-cta-amber { background: var(--amber); }
+.content-promo-card-cta-rose { background: var(--rose); }
 .content-promo-card:hover .content-promo-card-cta { opacity: .9; }
+
+/* Promo cards render inline with posts — no entrance animation.
+   They are pre-positioned server-side so they look native in the feed. */
 
 @media (max-width: 640px) {
   .content-promo-card { padding: .6rem .75rem; }

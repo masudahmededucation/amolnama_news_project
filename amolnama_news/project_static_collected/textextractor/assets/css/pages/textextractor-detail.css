@@ -13,8 +13,8 @@
 
 .textextractor-detail-status-completed { background: #d1fae5; border-color: #a7f3d0; color: #065f46; }
 .textextractor-detail-status-processing { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
-.textextractor-detail-status-queued { background: #fef3c7; border-color: #fde68a; color: #92400e; }
-.textextractor-detail-status-failed { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+.textextractor-detail-status-queued { background: var(--warning-light); border-color: #fde68a; color: var(--warning-text); }
+.textextractor-detail-status-failed { background: var(--danger-light); border-color: var(--danger-border); color: var(--danger-text); }
 
 /* Actions */
 .textextractor-detail-actions { display: flex; gap: .5rem; margin-bottom: 1rem; }
@@ -33,9 +33,9 @@
 .textextractor-detail-page-text { padding: .6rem; font-size: .88rem; line-height: 1.7; }
 
 /* Error */
-.textextractor-detail-error { text-align: center; padding: 2rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; }
+.textextractor-detail-error { text-align: center; padding: 2rem; background: var(--danger-light); border: 1px solid var(--danger-border); border-radius: 12px; }
 .textextractor-detail-error-icon { font-size: 2rem; }
-.textextractor-detail-error-message { color: #991b1b; font-size: .9rem; margin-top: .5rem; }
+.textextractor-detail-error-message { color: var(--danger-text); font-size: .9rem; margin-top: .5rem; }
 
 /* Processing spinner */
 .textextractor-detail-processing { text-align: center; padding: 3rem 1rem; color: var(--muted); }

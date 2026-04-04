@@ -5,10 +5,6 @@
   var dashboardElement = document.querySelector('.textextractor-dashboard');
   if (!dashboardElement) return;
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   /* ---- Dropzone — upload files then reload ---- */
   if (window.fileDropzone) {

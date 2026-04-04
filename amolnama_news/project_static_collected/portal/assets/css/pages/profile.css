@@ -312,8 +312,8 @@
 }
 
 .profile-message-error {
-  background: #fef2f2;
-  color: #991b1b;
+  background: var(--danger-light);
+  color: var(--danger-text);
 }
 
 /* ── Forgot password link ── */

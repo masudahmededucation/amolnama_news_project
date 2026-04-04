@@ -1,7 +1,6 @@
 /* ========== UNIFIED VOTING SYSTEM - Main JS File ========== */
 /* This file initializes state variables and loads all modular JS modules */
 
-console.log('home.js loaded successfully');
 
 /* ========== GLOBAL STATE VARIABLES ========== */
 let selectedDivision = null;

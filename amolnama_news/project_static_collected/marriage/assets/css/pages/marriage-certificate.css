@@ -565,7 +565,7 @@ span.flatpickr-weekday {
   max-width: 800px;
   margin: 0 auto;
   font-family: 'Times New Roman', 'Nirmala UI', serif;
-  color: #1a1a1a;
+  color: var(--text);
   position: relative;
 }
 
@@ -603,7 +603,7 @@ span.flatpickr-weekday {
 
 .cert-header-address {
   font-size: .85rem;
-  color: #1a1a1a;
+  color: var(--text);
   margin: 0 0 .75rem;
 }
 
@@ -666,7 +666,7 @@ span.flatpickr-weekday {
 }
 
 .cert-body .cert-field-empty {
-  color: #999;
+  color: var(--muted);
   font-style: italic;
   font-weight: 400;
 }
@@ -707,7 +707,7 @@ span.flatpickr-weekday {
   align-items: center;
   justify-content: center;
   font-size: .65rem;
-  color: #999;
+  color: var(--muted);
 }
 
 .cert-sig-area {
@@ -738,7 +738,7 @@ span.flatpickr-weekday {
 
 .cert-footer-desg {
   font-size: .72rem;
-  color: #555;
+  color: var(--muted);
 }
 
 /* ---- Preview actions ---- */

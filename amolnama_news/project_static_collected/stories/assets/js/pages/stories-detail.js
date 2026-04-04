@@ -2,10 +2,6 @@
 (function () {
   'use strict';
 
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
 
   var storyDetailElement = document.querySelector('.stories-detail');
   if (!storyDetailElement) return;
@@ -85,7 +81,6 @@
         if (data.success && likeCount) likeCount.textContent = data.like_count;
       })
       .catch(function (networkError) {
-        console.error('Like toggle failed:', networkError);
         if (wasLiked) { likeButton.classList.add('stories-detail-like-button-active'); if (likeIcon) likeIcon.textContent = '❤️'; }
         else { likeButton.classList.remove('stories-detail-like-button-active'); if (likeIcon) likeIcon.textContent = '🤍'; }
         if (likeCount) likeCount.textContent = currentCount;
@@ -126,7 +121,6 @@
         if (data.success && bookmarkCount) bookmarkCount.textContent = data.bookmark_count;
       })
       .catch(function (networkError) {
-        console.error('Bookmark toggle failed:', networkError);
         if (wasBookmarked) { bookmarkButton.classList.add('stories-detail-bookmark-button-active'); if (bookmarkIcon) bookmarkIcon.textContent = '🔖'; }
         else { bookmarkButton.classList.remove('stories-detail-bookmark-button-active'); if (bookmarkIcon) bookmarkIcon.textContent = '📑'; }
         if (bookmarkCount) bookmarkCount.textContent = currentBookmarkCount;
