@@ -215,6 +215,7 @@
         if (!data.success) return;
         if (!beforeMessageId) {
           renderMessages(data.messages);
+          loadFailedMessagesFromStorage(conversationId);
           scrollToBottom(false);
         } else {
           prependMessages(data.messages);
@@ -588,9 +589,40 @@
       metaElement.innerHTML = '<span class="messenger-bubble-failed-text">⚠ ' + escapeHtml(errorMessage) + '</span>' +
         '<button type="button" class="messenger-bubble-retry-button" data-retry-text="' + tempId + '">আবার চেষ্টা করুন</button>';
     }
-    // Store message data for retry
+    // Store message data for retry (DOM + localStorage)
     failedBubble.setAttribute('data-retry-message-text', messageText);
     failedBubble.setAttribute('data-retry-reply-id', replyId || '');
+    saveFailedMessageToStorage(activeConversationId, messageText, replyId);
+  }
+
+  function saveFailedMessageToStorage(conversationId, messageText, replyId) {
+    var key = 'messenger_failed_' + conversationId;
+    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    failed.push({ text: messageText, reply_id: replyId || null, timestamp: new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(failed));
+  }
+
+  function removeFailedMessageFromStorage(conversationId, messageText) {
+    var key = 'messenger_failed_' + conversationId;
+    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    failed = failed.filter(function (item) { return item.text !== messageText; });
+    if (failed.length) localStorage.setItem(key, JSON.stringify(failed));
+    else localStorage.removeItem(key);
+  }
+
+  function loadFailedMessagesFromStorage(conversationId) {
+    var key = 'messenger_failed_' + conversationId;
+    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    failed.forEach(function (item) {
+      var tempId = 'failed-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      var html = '<div class="messenger-bubble messenger-bubble-sent messenger-bubble-failed" data-message-id="' + tempId + '" data-retry-message-text="' + escapeHtml(item.text) + '" data-retry-reply-id="' + (item.reply_id || '') + '">';
+      html += '<span class="messenger-bubble-text">' + escapeHtml(item.text) + '</span>';
+      html += '<div class="messenger-bubble-meta">';
+      html += '<span class="messenger-bubble-failed-text">⚠ পাঠানো যায়নি</span>';
+      html += '<button type="button" class="messenger-bubble-retry-button">আবার চেষ্টা করুন</button>';
+      html += '</div></div>';
+      messagesContainer.insertAdjacentHTML('beforeend', html);
+    });
   }
 
   // Retry click handler
@@ -619,6 +651,7 @@
     .then(function (response) { return response.json(); })
     .then(function (data) {
       if (data.success) {
+        removeFailedMessageFromStorage(activeConversationId, retryText);
         bubble.setAttribute('data-message-id', data.message_id);
         bubble.removeAttribute('data-retry-message-text');
         bubble.removeAttribute('data-retry-reply-id');
