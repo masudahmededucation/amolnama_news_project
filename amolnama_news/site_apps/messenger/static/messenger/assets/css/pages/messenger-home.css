@@ -562,7 +562,7 @@
   font-family: inherit;
   outline: none;
   resize: none;
-  min-height: 56px;
+  min-height: 70px;
   max-height: 200px;
   overflow-y: auto;
   background: var(--bg);
