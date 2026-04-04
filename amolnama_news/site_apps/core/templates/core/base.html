@@ -31,6 +31,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 
+  <!-- Critical inline CSS — page never looks broken even if external CSS fails (offline) -->
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Noto Sans Bengali','Noto Sans',sans-serif;color:#1A1A1A;background:#fff;line-height:1.6}
+    .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
+    main{flex:1;max-width:1200px;margin:0 auto;padding:1rem;width:100%}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%}
+  </style>
+
   <link rel="stylesheet" href="{% static 'core/assets/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/notification-bell.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/colors.css' %}">
