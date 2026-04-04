@@ -656,7 +656,7 @@ body:has(.messenger) { overflow: hidden; }
 /* ── Input area ── */
 
 .messenger-input-area {
-  padding: .6rem 1rem;
+  padding: .6rem 1rem 1rem;
   border-top: 1px solid var(--border);
   background: var(--card);
   flex-shrink: 0;
