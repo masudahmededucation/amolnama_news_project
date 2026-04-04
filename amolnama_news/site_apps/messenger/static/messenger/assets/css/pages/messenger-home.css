@@ -504,17 +504,27 @@
 }
 .messenger-reply-preview-close:hover { color: var(--danger); }
 
-/* Emoji toggle button */
+/* Textarea wrapper (positions emoji inside) */
+.messenger-input-textarea-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+/* Emoji toggle button — inside textarea, bottom-left */
 .messenger-emoji-toggle {
+  position: absolute;
+  bottom: .5rem;
+  left: .6rem;
   background: none;
   border: none;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: .3rem;
-  flex-shrink: 0;
+  padding: .2rem;
   transition: transform .1s;
+  z-index: 2;
+  opacity: .6;
 }
-.messenger-emoji-toggle:hover { transform: scale(1.15); }
+.messenger-emoji-toggle:hover { transform: scale(1.15); opacity: 1; }
 
 /* Emoji picker grid */
 .messenger-emoji-picker {
@@ -554,8 +564,8 @@
 }
 
 .messenger-input-textarea {
-  flex: 1;
-  padding: .7rem 1rem;
+  width: 100%;
+  padding: .7rem 1rem .7rem 2.5rem;
   border: 2px solid var(--border);
   border-radius: 22px;
   font-size: .95rem;
