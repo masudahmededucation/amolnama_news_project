@@ -35,7 +35,7 @@
   var otherUserAvatar = '';
 
 
-  var dayNames = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'ব��হ', 'শুক্র', 'শনি'];
+  var dayNames = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
 
   function formatTime(isoString) {
     if (!isoString) return '';
