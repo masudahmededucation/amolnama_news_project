@@ -189,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v365';
+var CACHE_NAME = 'amolnama-v366';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install
@@ -236,10 +236,11 @@ self.addEventListener('fetch', function (event) {
   // Network-first strategy: try network, fall back to cache
   event.respondWith(
     fetch(request).then(function (response) {
-      // Cache successful responses for static assets
+      // Cache successful responses for static assets AND page HTML
       if (response.ok && (
         request.url.indexOf('/static/') !== -1 ||
-        request.url.indexOf('/manifest.json') !== -1
+        request.url.indexOf('/manifest.json') !== -1 ||
+        request.mode === 'navigate'
       )) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function (cache) {
