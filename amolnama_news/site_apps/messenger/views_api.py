@@ -529,22 +529,25 @@ def api_message_delete_for_me(request, conversation_id, message_id):
 @require_POST
 @login_required
 def api_message_delete_for_everyone(request, conversation_id, message_id):
-    """POST — delete a message for everyone. Only sender, within 1 hour."""
+    """POST — delete a message for everyone. Either party can delete any message (Telegram-style)."""
     user_profile_id = _get_user_profile_id(request)
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
+    # Verify user is participant in this conversation
+    if not ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).exists():
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
     message = Message.objects.filter(
-        messenger_message_id=message_id, link_conversation_id=conversation_id,
-        link_sender_user_profile_id=user_profile_id, is_active=True,
+        messenger_message_id=message_id, link_conversation_id=conversation_id, is_active=True,
     ).first()
 
     if not message:
-        return JsonResponse({'success': False, 'error': 'মেসেজ পাওয়া যায়নি বা অনুমতি নেই'}, status=404)
+        return JsonResponse({'success': False, 'error': 'মেসেজ পাওয়া যায়নি'}, status=404)
 
-    # Check time limit (1 hour)
-    if (timezone.now() - message.created_at).total_seconds() > 3600:
-        return JsonResponse({'success': False, 'error': '১ ঘণ্টার বেশি সময় হয়ে গেছে — মুছে ফেলা যাবে না'}, status=400)
+    # No time limit — either party can delete any message any time (Telegram-style)
 
     with connection.cursor() as cursor:
         cursor.execute("""
