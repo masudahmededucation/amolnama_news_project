@@ -5,9 +5,6 @@
   var messengerElement = document.getElementById('messenger');
   if (!messengerElement) return;
 
-  // Prevent page scroll — only messenger internals should scroll
-  document.body.style.overflow = 'hidden';
-  document.documentElement.style.overflow = 'hidden';
 
   var sidebar = document.getElementById('messenger-sidebar');
   var conversationListContainer = document.getElementById('messenger-conversation-list');
