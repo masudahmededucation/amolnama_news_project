@@ -822,7 +822,8 @@
   // =========================================================
 
   // Set current user profile ID (used to determine sent vs received)
-  window.messengerCurrentUserProfileId = parseInt(messengerElement.getAttribute('data-current-user-profile-id'), 10) || null;
+  var parsedProfileId = parseInt(messengerElement.getAttribute('data-current-user-profile-id'), 10);
+  window.messengerCurrentUserProfileId = isNaN(parsedProfileId) ? null : parsedProfileId;
 
   // Load conversation list
   loadConversationList();

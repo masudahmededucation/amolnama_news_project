@@ -10,12 +10,8 @@ def home(request):
     conversation_id = request.GET.get('conversation', '')
     start_with_user_profile_id = request.GET.get('start', '')
 
-    current_user_profile_id = None
-    try:
-        from amolnama_news.site_apps.user_account.models import UserProfile
-        current_user_profile_id = UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
-    except Exception:
-        pass
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    current_user_profile_id = get_user_profile_id(request) or ''
 
     return render(request, 'messenger/pages/messenger-home.html', {
         'initial_conversation_id': conversation_id,
