@@ -106,9 +106,8 @@ def api_conversation_list(request):
             'is_muted': participant_data.get('is_muted', False),
         })
 
-    # Sort: pinned first, then by last_message_at
-    results.sort(key=lambda conversation_item: (not conversation_item['is_pinned'], conversation_item['last_message_at'] or ''), reverse=False)
-    results.sort(key=lambda conversation_item: conversation_item['is_pinned'], reverse=True)
+    # Sort: pinned first, then by last_message_at (newest first)
+    results.sort(key=lambda conversation_item: (conversation_item['is_pinned'], conversation_item['last_message_at'] or ''), reverse=True)
 
     return JsonResponse({'success': True, 'conversations': results})
 

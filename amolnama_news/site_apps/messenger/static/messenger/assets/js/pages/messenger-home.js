@@ -30,6 +30,7 @@
   var replyPreviewClose = document.getElementById('messenger-reply-preview-close');
   var typingTimer = null;
   var newMessageCount = 0;
+  var messageTextMap = {};
 
 
   function formatTime(isoString) {
@@ -269,7 +270,8 @@
       var isMine = message.sender_user_profile_id === window.messengerCurrentUserProfileId;
       var bubbleClass = isMine ? 'messenger-bubble-sent' : 'messenger-bubble-received';
 
-      html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '" data-message-text="' + escapeHtml(message.message_text || '') + '">';
+      messageTextMap[message.message_id] = message.message_text || '';
+      html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '">';
 
       // Quoted reply
       if (message.reply_to_message_id) {
@@ -327,7 +329,7 @@
     if (replyButton) {
       var messageId = replyButton.getAttribute('data-reply-id');
       var bubble = replyButton.closest('.messenger-bubble');
-      var messageText = bubble ? bubble.getAttribute('data-message-text') : '';
+      var messageText = bubble ? messageTextMap[bubble.getAttribute('data-message-id')] || '' : '';
       setReplyTo(parseInt(messageId, 10), messageText);
       return;
     }
@@ -417,7 +419,7 @@
     var action = button.getAttribute('data-action');
 
     if (action === 'reply') {
-      var messageText = contextMenuTargetBubble ? contextMenuTargetBubble.getAttribute('data-message-text') : '';
+      var messageText = contextMenuTargetBubble ? messageTextMap[contextMenuTargetBubble.getAttribute('data-message-id')] || '' : '';
       setReplyTo(contextMenuTargetMessageId, messageText);
     }
 
@@ -477,8 +479,9 @@
       .then(function (response) { return response.json(); })
       .then(function (data) {
         if (data.success && deleteBubble) deleteBubble.remove();
+        else if (data.error) showInputError(data.error);
       })
-      .catch(function () {});
+      .catch(function () { showInputError('মুছে ফেলা যায়নি'); });
     }
 
     if (action === 'delete_for_everyone') {
@@ -499,7 +502,7 @@
           showInputError(data.error);
         }
       })
-      .catch(function () {});
+      .catch(function () { showInputError('মুছে ফেলা যায়নি'); });
     }
 
     hideContextMenu();
