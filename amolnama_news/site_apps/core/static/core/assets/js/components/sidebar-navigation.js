@@ -23,14 +23,7 @@
     localStorage.setItem('sidebar_navigation_collapsed', isCollapsed ? 'true' : 'false');
   });
 
-  /* Scroll sidebar to active item so it's visible (admin items at bottom) */
-  var activeItem = document.querySelector('.sidebar-navigation-item-active');
-  if (activeItem) {
-    var sidebarMenu = document.getElementById('sidebar-navigation-menu');
-    if (sidebarMenu) {
-      activeItem.scrollIntoView({ block: 'nearest', behavior: 'instant' });
-    }
-  }
+  /* Active item highlight is CSS-only — no scroll manipulation needed */
 
   /* ---- Messenger unread badge polling ---- */
   var messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
