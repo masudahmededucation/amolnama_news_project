@@ -49,6 +49,7 @@ body {
 
 main {
   flex: 1;
+  transition: opacity .1s ease;
 }
 
 /* Links – scoped to main content only.

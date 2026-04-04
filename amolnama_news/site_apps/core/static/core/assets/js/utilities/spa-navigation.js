@@ -55,35 +55,40 @@
           return;
         }
 
-        // Step 1: Load CSS first, wait for it + one animation frame for paint
-        loadPageCss(parsed).then(function () {
-          return new Promise(function (resolve) { requestAnimationFrame(resolve); });
-        }).then(function () {
+        // Step 1: Hide content instantly (prevents flash of old content)
+        mainElement.style.opacity = '0';
 
-          // Step 2: Swap content (CSS is loaded AND painted)
-          mainElement.innerHTML = newMain.innerHTML;
+        // Step 2: Start loading CSS (non-blocking)
+        loadPageCss(parsed);
 
-          // Step 3: Update title
-          if (newTitle) document.title = newTitle.textContent;
+        // Step 3: Swap content immediately (CSS may still be loading but inline styles are ready)
+        mainElement.innerHTML = newMain.innerHTML;
 
-          // Step 4: Update URL (only on click, not on back/forward)
-          if (isPushState) {
-            history.pushState({ url: url }, '', url);
-          }
+        // Step 4: Update title
+        if (newTitle) document.title = newTitle.textContent;
 
-          // Step 5: Update sidebar highlight
-          updateSidebarActiveState(url);
+        // Step 5: Update URL (only on click, not on back/forward)
+        if (isPushState) {
+          history.pushState({ url: url }, '', url);
+        }
 
-          // Step 6: Load page-specific JS
-          loadPageJs(parsed);
+        // Step 6: Update sidebar highlight
+        updateSidebarActiveState(url);
 
-          // Step 7: Scroll to top
-          mainElement.scrollTop = 0;
-          window.scrollTo(0, 0);
+        // Step 7: Load page-specific JS
+        loadPageJs(parsed);
 
-          hideLoadingBar();
-          isNavigating = false;
+        // Step 8: Scroll to top
+        mainElement.scrollTop = 0;
+        window.scrollTo(0, 0);
+
+        // Step 9: Show content (fade in after one frame — CSS applied)
+        requestAnimationFrame(function () {
+          mainElement.style.opacity = '1';
         });
+
+        hideLoadingBar();
+        isNavigating = false;
       })
       .catch(function (error) {
         if (error.name === 'AbortError') return;
