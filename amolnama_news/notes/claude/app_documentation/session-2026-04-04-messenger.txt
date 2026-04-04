@@ -89,3 +89,45 @@ Session: 2026-04-04 — Messenger App + Search Redesign + Modularisation
 ## Profile Page Fix
 - Added missing post-home.css, post-feed-interactions.js, photo-lightbox
 - Message button: 🗨 Message | Following | Block order
+
+## SPA Hybrid Navigation (PJAX)
+- File: core/static/core/assets/js/utilities/spa-navigation.js (~200 lines)
+- Intercepts sidebar nav clicks only — fetches URL, swaps `<main>` content
+- Sidebar, header, footer never reload — instant app-like transitions
+- URL updates via pushState, browser back/forward via popstate
+- Page-specific CSS/JS loaded/unloaded dynamically (data-spa-css, data-spa-js)
+- Loading progress bar during fetch
+- Graceful fallback: any error → full page load
+- Edge cases: external links, hash links, modifier keys, target=_blank all bypass
+- SEO unchanged — crawlers get full HTML from Django
+- No backend changes — JS extracts content from full HTML response
+- Zero dependencies — vanilla JS
+
+## Messenger Auto-Delete + Clear Conversation
+- DB: auto_delete_after_seconds on conversation, auto_delete_expires_at on message
+- Telegram-style: either party sets timer, applies to both sides
+- Options: off, 1 day, 7 days, 30 days, 1 year
+- Clear all: hard deletes from both sides permanently
+- Management command: cleanup_expired_messages (cron hourly)
+- Settings gear icon in chat header with expandable submenu
+
+## Placeholder Admin
+- DB: [post].[ref_composer_placeholder] with 50 seeded Bengali placeholders
+- Admin page: /portal/admin/placeholders/ (staff only)
+- API: /post/api/composer-placeholder/ — returns featured or random
+- Featured: override all placeholders for 30 minutes
+- JS fetches from API, hardcoded array as offline fallback
+
+## Service Worker Rewrite
+- Static assets: cache-first (instant, offline-safe)
+- Page HTML: network-only, offline shows styled Bengali page
+- Inline critical CSS in base.html prevents broken layout
+- Professional offline page with 📡 icon and retry button
+
+## Breadcrumb
+- Global font size increased to 1.2rem
+
+## Nav Menu Fix
+- Sidebar scroll position saved/restored via sessionStorage
+- scrollIntoView removed (was causing jumping)
+- SPA navigation eliminates the jump entirely (sidebar never reloads)

@@ -132,7 +132,12 @@ no test and test, keep doing test.
 no layer on top of layer code.
 logic should be clean, clear, concise.
 no duplicate codes.
-
+yes, i want you to implement it. 
+But you have to promise me of no lying. 
+no cheating. 
+no shitty code. 
+no skipping. 
+no short cut. 
 
 --create or update documentation
 architecture, features, functions, and troubleshooting.
