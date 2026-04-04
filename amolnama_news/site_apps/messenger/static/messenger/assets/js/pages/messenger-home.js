@@ -420,9 +420,9 @@
   messagesContainer.addEventListener('touchend', function () { clearTimeout(longPressTimer); });
   messagesContainer.addEventListener('touchmove', function () { clearTimeout(longPressTimer); });
 
-  // Close context menu on click outside
-  document.addEventListener('click', function (event) {
-    if (!contextMenu.contains(event.target)) hideContextMenu();
+  // Close context menu on click outside (mousedown to avoid race with contextmenu event)
+  document.addEventListener('mousedown', function (event) {
+    if (contextMenu && !contextMenu.classList.contains('messenger-hidden') && !contextMenu.contains(event.target)) hideContextMenu();
   });
 
   // Context menu actions
@@ -596,14 +596,14 @@
   }
 
   function saveFailedMessageToStorage(conversationId, messageText, replyId) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.push({ text: messageText, reply_id: replyId || null, timestamp: new Date().toISOString() });
     localStorage.setItem(key, JSON.stringify(failed));
   }
 
   function removeFailedMessageFromStorage(conversationId, messageText) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed = failed.filter(function (item) { return item.text !== messageText; });
     if (failed.length) localStorage.setItem(key, JSON.stringify(failed));
@@ -611,7 +611,7 @@
   }
 
   function loadFailedMessagesFromStorage(conversationId) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.forEach(function (item) {
       var tempId = 'failed-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
