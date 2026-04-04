@@ -624,3 +624,13 @@ without coming to you all the time.
 
 we may need to have some intelligence for placeholder values.
 
+why nav menu jumps and move away from it's current position. 
+it either tries put the selected option on the bottom side of it or top side of it. 
+the slider either pushes up or down. 
+depending on which half of the nav menu options clicks. 
+this is not acceptable behaviour. 
+this is hard to capture this behaviour without video recording.
+when i click on a item. 
+it is already in the view. 
+there is no auto action need to happen, simple.
+unnecessary work

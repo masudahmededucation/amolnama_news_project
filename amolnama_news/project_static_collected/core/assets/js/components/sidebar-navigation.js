@@ -23,13 +23,15 @@
     localStorage.setItem('sidebar_navigation_collapsed', isCollapsed ? 'true' : 'false');
   });
 
-  /* Scroll sidebar to active item so it's visible (admin items at bottom) */
-  var activeItem = document.querySelector('.sidebar-navigation-item-active');
-  if (activeItem) {
-    var sidebarMenu = document.getElementById('sidebar-navigation-menu');
-    if (sidebarMenu) {
-      activeItem.scrollIntoView({ block: 'nearest', behavior: 'instant' });
-    }
+  /* Preserve sidebar scroll position across page navigation */
+  var sidebarElement = document.querySelector('.sidebar-navigation');
+  if (sidebarElement) {
+    var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
+    if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
+
+    window.addEventListener('beforeunload', function () {
+      sessionStorage.setItem('sidebar_scroll_position', sidebarElement.scrollTop);
+    });
   }
 
   /* ---- Messenger unread badge polling ---- */
