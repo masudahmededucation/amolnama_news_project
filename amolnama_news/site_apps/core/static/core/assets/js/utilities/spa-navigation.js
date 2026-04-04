@@ -61,31 +61,34 @@
           return;
         }
 
-        // Swap content
-        mainElement.innerHTML = newMain.innerHTML;
+        // Load page-specific CSS FIRST (before swapping content)
+        var cssReady = swapPageCss(parsed);
 
-        // Update title
-        if (newTitle) document.title = newTitle.textContent;
+        // Wait for CSS to load, then swap content
+        cssReady.then(function () {
+          // Swap content
+          mainElement.innerHTML = newMain.innerHTML;
 
-        // Update URL
-        history.pushState({ url: url }, '', url);
+          // Update title
+          if (newTitle) document.title = newTitle.textContent;
 
-        // Update sidebar active state
-        updateSidebarActiveState(url);
+          // Update URL
+          history.pushState({ url: url }, '', url);
 
-        // Handle page-specific CSS
-        swapPageCss(parsed);
+          // Update sidebar active state
+          updateSidebarActiveState(url);
 
-        // Handle page-specific JS
-        swapPageJs(parsed);
+          // Handle page-specific JS
+          swapPageJs(parsed);
 
-        // Scroll content to top
-        mainElement.scrollTop = 0;
-        window.scrollTo(0, 0);
+          // Scroll content to top
+          mainElement.scrollTop = 0;
+          window.scrollTo(0, 0);
 
-        // Done
-        hideLoadingBar();
-        isNavigating = false;
+          // Done
+          hideLoadingBar();
+          isNavigating = false;
+        });
       })
       .catch(function (error) {
         if (error.name === 'AbortError') return;
@@ -127,11 +130,12 @@
     });
 
     // Find new page-specific CSS from parsed document
-    // These are CSS links NOT in the base template (not in our known base set)
     var baseCssHrefs = new Set();
     document.querySelectorAll('link[rel="stylesheet"]:not([data-spa-css])').forEach(function (link) {
       baseCssHrefs.add(link.getAttribute('href'));
     });
+
+    var cssLoadPromises = [];
 
     parsedDocument.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
       var href = link.getAttribute('href');
@@ -141,8 +145,19 @@
         newLink.href = href;
         newLink.setAttribute('data-spa-css', 'true');
         document.head.appendChild(newLink);
+
+        // Wait for this CSS to load
+        cssLoadPromises.push(new Promise(function (resolve) {
+          newLink.onload = resolve;
+          newLink.onerror = resolve; // Don't block on error
+          // Timeout fallback — don't wait forever
+          setTimeout(resolve, 2000);
+        }));
       }
     });
+
+    // Return promise that resolves when all CSS loaded (or immediately if none)
+    return cssLoadPromises.length > 0 ? Promise.all(cssLoadPromises) : Promise.resolve();
   }
 
   // =========================================================
