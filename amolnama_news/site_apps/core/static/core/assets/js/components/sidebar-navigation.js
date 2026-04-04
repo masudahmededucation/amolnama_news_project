@@ -23,7 +23,16 @@
     localStorage.setItem('sidebar_navigation_collapsed', isCollapsed ? 'true' : 'false');
   });
 
-  /* Active item highlight is CSS-only — no scroll manipulation needed */
+  /* Preserve sidebar scroll position across page navigation */
+  var sidebarElement = document.querySelector('.sidebar-navigation');
+  if (sidebarElement) {
+    var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
+    if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
+
+    window.addEventListener('beforeunload', function () {
+      sessionStorage.setItem('sidebar_scroll_position', sidebarElement.scrollTop);
+    });
+  }
 
   /* ---- Messenger unread badge polling ---- */
   var messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
