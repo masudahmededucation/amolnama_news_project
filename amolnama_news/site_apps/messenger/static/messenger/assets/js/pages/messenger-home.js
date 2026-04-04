@@ -123,6 +123,19 @@
     openConversation(conversationId, title, avatarUrl);
   });
 
+  // Conversation search filter (client-side)
+  var sidebarSearchInput = document.getElementById('messenger-sidebar-search-input');
+  if (sidebarSearchInput) {
+    sidebarSearchInput.addEventListener('input', function () {
+      var query = sidebarSearchInput.value.trim().toLowerCase();
+      var items = conversationListContainer.querySelectorAll('.messenger-conversation-item');
+      items.forEach(function (item) {
+        var name = (item.getAttribute('data-title') || '').toLowerCase();
+        item.style.display = name.indexOf(query) !== -1 ? '' : 'none';
+      });
+    });
+  }
+
   // =========================================================
   // OPEN CONVERSATION
   // =========================================================
@@ -131,6 +144,8 @@
     activeConversationId = conversationId;
     lastMessageId = 0;
     newMessageCount = 0;
+    hasOlderMessages = true;
+    isLoadingOlder = false;
 
     // Update header
     headerName.textContent = title || '';
@@ -166,7 +181,7 @@
 
     // Start polling
     stopPolling();
-    messagePollTimer = setInterval(function () { pollNewMessages(); }, 3000);
+    messagePollTimer = setInterval(function () { pollNewMessages(); pollTypingStatus(); }, 3000);
 
     // Focus textarea
     textarea.value = '';
@@ -385,6 +400,24 @@
       .catch(function () {});
   }
 
+  function pollTypingStatus() {
+    if (!activeConversationId || document.visibilityState === 'hidden') return;
+    fetch('/messenger/api/typing/' + activeConversationId + '/status/')
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success && data.is_typing) {
+          headerStatus.textContent = 'টাইপ করছেন...';
+          headerStatus.classList.add('messenger-chat-header-status-typing');
+        } else {
+          if (headerStatus.classList.contains('messenger-chat-header-status-typing')) {
+            headerStatus.textContent = '';
+            headerStatus.classList.remove('messenger-chat-header-status-typing');
+          }
+        }
+      })
+      .catch(function () {});
+  }
+
   function stopPolling() {
     if (messagePollTimer) { clearInterval(messagePollTimer); messagePollTimer = null; }
   }
@@ -407,12 +440,45 @@
     return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 50;
   }
 
+  var isLoadingOlder = false;
+  var hasOlderMessages = true;
+
   messagesContainer.addEventListener('scroll', function () {
     if (isScrolledToBottom()) {
       scrollBottomButton.classList.add('messenger-hidden');
       newMessageCount = 0;
     } else {
       scrollBottomButton.classList.remove('messenger-hidden');
+    }
+
+    // Load older messages when scrolled to top
+    if (messagesContainer.scrollTop < 50 && activeConversationId && !isLoadingOlder && hasOlderMessages) {
+      var firstBubble = messagesContainer.querySelector('.messenger-bubble');
+      if (!firstBubble) return;
+      var oldestMessageId = firstBubble.getAttribute('data-message-id');
+      if (!oldestMessageId || oldestMessageId.toString().startsWith('temp-')) return;
+
+      isLoadingOlder = true;
+      var loadingElement = document.createElement('div');
+      loadingElement.className = 'messenger-messages-loading';
+      loadingElement.textContent = 'পুরানো মেসেজ লোড হচ্ছে...';
+      messagesContainer.insertBefore(loadingElement, messagesContainer.firstChild);
+
+      var url = '/messenger/api/messages/' + activeConversationId + '/?before=' + oldestMessageId;
+      fetch(url)
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+          loadingElement.remove();
+          if (data.success && data.messages.length > 0) {
+            prependMessages(data.messages);
+          }
+          if (!data.has_more) hasOlderMessages = false;
+          isLoadingOlder = false;
+        })
+        .catch(function () {
+          loadingElement.remove();
+          isLoadingOlder = false;
+        });
     }
   });
 

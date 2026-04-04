@@ -225,6 +225,7 @@
 }
 .messenger-chat-header-name { font-size: .92rem; font-weight: 700; color: var(--text); }
 .messenger-chat-header-status { font-size: .72rem; color: var(--muted); }
+.messenger-chat-header-status-typing { color: var(--primary); font-weight: 600; }
 
 /* Messages area */
 .messenger-messages {
