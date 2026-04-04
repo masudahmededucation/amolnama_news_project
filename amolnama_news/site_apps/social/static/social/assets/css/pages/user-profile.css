@@ -26,7 +26,7 @@
 .user-profile-follow-button:hover, .user-profile-follow-button:focus { background: var(--primary-hover); outline: none; }
 .user-profile-follow-button-active { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
 .user-profile-follow-button-active:hover, .user-profile-follow-button-active:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
-.user-profile-message-button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--card); color: var(--text); border: 1.5px solid var(--border); border-radius: 50%; cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s, color .15s; }
+.user-profile-message-button { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem 1.2rem; background: var(--card); color: var(--text); border: 1.5px solid var(--border); border-radius: 20px; font-size: .82rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s, border-color .15s, color .15s; }
 .user-profile-message-button:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); text-decoration: none; }
 .user-profile-block-button { padding: .4rem 1rem; background: var(--surface); color: var(--muted); border: 1.5px solid var(--border); border-radius: 20px; font-size: .78rem; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .user-profile-block-button:hover, .user-profile-block-button:focus { background: var(--primary-light); color: var(--danger); border-color: var(--danger); outline: none; }
@@ -43,6 +43,6 @@
   .user-profile-header { flex-direction: column; align-items: center; text-align: center; padding: 1rem; }
   .user-profile-stats { justify-content: center; }
   .user-profile-actions { justify-content: center; }
-  .user-profile-message-button { width: 44px; height: 44px; }
+  .user-profile-message-button { min-height: 44px; }
   .user-profile-meta { justify-content: center; }
 }
