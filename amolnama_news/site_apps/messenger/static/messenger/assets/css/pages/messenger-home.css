@@ -282,7 +282,9 @@
   text-align: left; transition: background .1s;
 }
 .messenger-chat-settings-subitem:hover { background: var(--surface); }
-.messenger-chat-settings-subitem-active { color: var(--primary); font-weight: 700; }
+.messenger-chat-settings-subitem-active { color: var(--primary); font-weight: 700; background: var(--primary-light); border-radius: 6px; }
+.messenger-chat-settings-subitem-active::after { content: ' ✓'; font-size: .7rem; }
+.messenger-chat-settings-subitem-off { color: var(--muted); }
 .messenger-chat-settings-divider { height: 1px; background: var(--border); margin: .3rem 0; }
 
 /* Messages area */

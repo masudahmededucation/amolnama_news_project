@@ -104,6 +104,7 @@ def api_conversation_list(request):
             'unread_count': participant_data.get('unread_count', 0),
             'is_pinned': participant_data.get('is_pinned', False),
             'is_muted': participant_data.get('is_muted', False),
+            'auto_delete_after_seconds': conversation.auto_delete_after_seconds,
         })
 
     # Sort: pinned first, then by last_message_at (newest first)

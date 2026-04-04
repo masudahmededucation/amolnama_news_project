@@ -98,7 +98,7 @@
       var isActive = conversation.conversation_id === activeConversationId;
       var initial = (conversation.title || '?').charAt(0);
 
-      html += '<div class="messenger-conversation-item' + (isActive ? ' messenger-conversation-item-active' : '') + '" data-conversation-id="' + conversation.conversation_id + '" data-title="' + escapeHtml(conversation.title) + '" data-avatar="' + escapeHtml(conversation.avatar_url) + '" data-other-user-profile-id="' + (conversation.other_user_profile_id || '') + '">';
+      html += '<div class="messenger-conversation-item' + (isActive ? ' messenger-conversation-item-active' : '') + '" data-conversation-id="' + conversation.conversation_id + '" data-title="' + escapeHtml(conversation.title) + '" data-avatar="' + escapeHtml(conversation.avatar_url) + '" data-other-user-profile-id="' + (conversation.other_user_profile_id || '') + '" data-auto-delete="' + (conversation.auto_delete_after_seconds || 0) + '">';
 
       if (conversation.avatar_url) {
         html += '<img class="messenger-conversation-item-avatar" src="' + escapeHtml(conversation.avatar_url) + '" alt="">';
@@ -130,7 +130,8 @@
     var conversationId = parseInt(item.getAttribute('data-conversation-id'), 10);
     var title = item.getAttribute('data-title');
     var avatarUrl = item.getAttribute('data-avatar');
-    openConversation(conversationId, title, avatarUrl);
+    var autoDeleteSeconds = parseInt(item.getAttribute('data-auto-delete'), 10) || 0;
+    openConversation(conversationId, title, avatarUrl, autoDeleteSeconds);
   });
 
   // Conversation search filter (client-side)
@@ -150,11 +151,19 @@
   // OPEN CONVERSATION
   // =========================================================
 
-  function openConversation(conversationId, title, avatarUrl) {
+  function openConversation(conversationId, title, avatarUrl, autoDeleteSeconds) {
     activeConversationId = conversationId;
     lastMessageId = 0;
     newMessageCount = 0;
     hasOlderMessages = true;
+
+    // Highlight active auto-delete option
+    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    if (autoDeleteSubmenu) {
+      autoDeleteSubmenu.querySelectorAll('.messenger-chat-settings-subitem').forEach(function (button) {
+        button.classList.toggle('messenger-chat-settings-subitem-active', parseInt(button.getAttribute('data-auto-delete'), 10) === (autoDeleteSeconds || 0));
+      });
+    }
     isLoadingOlder = false;
     otherUserName = title || '';
     otherUserAvatar = avatarUrl || '';
