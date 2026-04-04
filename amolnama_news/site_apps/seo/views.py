@@ -189,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v366';
+var CACHE_NAME = 'amolnama-v367';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install
@@ -233,33 +233,42 @@ self.addEventListener('fetch', function (event) {
   if (request.url.indexOf('/api/') !== -1) return;
   if (request.url.indexOf('/admin/') !== -1) return;
 
-  // Network-first strategy: try network, fall back to cache
-  event.respondWith(
-    fetch(request).then(function (response) {
-      // Cache successful responses for static assets AND page HTML
-      if (response.ok && (
-        request.url.indexOf('/static/') !== -1 ||
-        request.url.indexOf('/manifest.json') !== -1 ||
-        request.mode === 'navigate'
-      )) {
-        var clone = response.clone();
-        caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(request, clone);
-        });
-      }
-      return response;
-    }).catch(function () {
-      // Offline: serve from cache
-      return caches.match(request).then(function (cached) {
+  var isStaticAsset = request.url.indexOf('/static/') !== -1 || request.url.indexOf('/manifest.json') !== -1;
+  var isPageNavigation = request.mode === 'navigate';
+
+  if (isStaticAsset) {
+    // STATIC ASSETS: cache-first, network-fallback (fast, offline-safe)
+    event.respondWith(
+      caches.match(request).then(function (cached) {
         if (cached) return cached;
-        // For navigation requests, show cached home page
-        if (request.mode === 'navigate') {
-          return caches.match(OFFLINE_URL);
+        return fetch(request).then(function (response) {
+          if (response.ok) {
+            var clone = response.clone();
+            caches.open(CACHE_NAME).then(function (cache) { cache.put(request, clone); });
+          }
+          return response;
+        }).catch(function () {
+          return new Response('', { status: 503 });
+        });
+      })
+    );
+  } else if (isPageNavigation) {
+    // PAGE HTML: network-first, cache-fallback (fresh content, offline-safe)
+    event.respondWith(
+      fetch(request).then(function (response) {
+        if (response.ok) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) { cache.put(request, clone); });
         }
-        return new Response('Offline', { status: 503, statusText: 'Offline' });
-      });
-    })
-  );
+        return response;
+      }).catch(function () {
+        return caches.match(request).then(function (cached) {
+          if (cached) return cached;
+          return caches.match(OFFLINE_URL);
+        });
+      })
+    );
+  }
 });
 """
     return HttpResponse(sw_code, content_type="application/javascript; charset=utf-8")
