@@ -216,7 +216,7 @@ class RefComposerPlaceholder(models.Model):
     sort_order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField()
-    link_created_by_user_profile_id = models.BigIntegerField(blank=True, null=True)
+    link_user_profile_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

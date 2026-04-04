@@ -252,7 +252,7 @@ def api_placeholder_add(request):
     from django.db import connection
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [post].[ref_composer_placeholder] ([placeholder_text], [placeholder_category_code], [link_created_by_user_profile_id])
+            INSERT INTO [post].[ref_composer_placeholder] ([placeholder_text], [placeholder_category_code], [link_user_profile_id])
             OUTPUT INSERTED.post_ref_composer_placeholder_id
             VALUES (%s, %s, %s)
         """, [text, category, user_profile_id])
