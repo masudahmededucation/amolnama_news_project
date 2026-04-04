@@ -246,8 +246,10 @@
 /* Chat settings dropdown */
 .messenger-chat-settings-wrapper { position: relative; margin-left: auto; }
 .messenger-chat-settings-button {
-  background: none; border: none; font-size: 1.2rem; cursor: pointer;
-  color: var(--muted); padding: .3rem; border-radius: 50%;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: .4rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
   transition: background .15s, color .15s;
 }
 .messenger-chat-settings-button:hover { background: var(--surface); color: var(--text); }
