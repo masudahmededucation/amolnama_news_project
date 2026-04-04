@@ -516,10 +516,14 @@
     var text = textarea.value.trim();
     if (!text || !activeConversationId) return;
 
-    // Optimistic: show message immediately
+    // Optimistic: show message immediately (with quote if replying)
     var tempId = 'temp-' + Date.now();
     var now = new Date().toISOString();
     var optimisticHtml = '<div class="messenger-bubble messenger-bubble-sent" data-message-id="' + tempId + '">';
+    if (replyToMessageId) {
+      var replyText = replyPreviewContent.textContent || 'মেসেজ';
+      optimisticHtml += '<div class="messenger-bubble-quote" data-quote-id="' + replyToMessageId + '">↩ ' + escapeHtml(replyText) + '</div>';
+    }
     optimisticHtml += '<span class="messenger-bubble-text">' + escapeHtml(text) + '</span>';
     optimisticHtml += '<div class="messenger-bubble-meta">';
     optimisticHtml += '<span class="messenger-bubble-time">' + formatTime(now) + '</span>';
