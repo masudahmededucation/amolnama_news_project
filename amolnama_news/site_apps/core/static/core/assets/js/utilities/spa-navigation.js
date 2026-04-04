@@ -125,8 +125,8 @@
 
   function swapPageCss(parsedDocument) {
     // Remove old page-specific CSS (marked with data-spa-css)
-    document.querySelectorAll('link[data-spa-css]').forEach(function (link) {
-      link.remove();
+    document.querySelectorAll('[data-spa-css]').forEach(function (element) {
+      element.remove();
     });
 
     // Find new page-specific CSS from parsed document
@@ -137,6 +137,7 @@
 
     var cssLoadPromises = [];
 
+    // External stylesheets
     parsedDocument.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
       var href = link.getAttribute('href');
       if (href && !baseCssHrefs.has(href)) {
@@ -146,14 +147,24 @@
         newLink.setAttribute('data-spa-css', 'true');
         document.head.appendChild(newLink);
 
-        // Wait for this CSS to load
         cssLoadPromises.push(new Promise(function (resolve) {
           newLink.onload = resolve;
-          newLink.onerror = resolve; // Don't block on error
-          // Timeout fallback — don't wait forever
+          newLink.onerror = resolve;
           setTimeout(resolve, 2000);
         }));
       }
+    });
+
+    // Inline <style> blocks (page-specific, not in base)
+    var baseStyleCount = document.querySelectorAll('style:not([data-spa-css])').length;
+    var parsedStyles = parsedDocument.querySelectorAll('style');
+    parsedStyles.forEach(function (style, index) {
+      // Skip the base inline critical CSS (first style tag)
+      if (index < baseStyleCount) return;
+      var newStyle = document.createElement('style');
+      newStyle.textContent = style.textContent;
+      newStyle.setAttribute('data-spa-css', 'true');
+      document.head.appendChild(newStyle);
     });
 
     // Return promise that resolves when all CSS loaded (or immediately if none)
