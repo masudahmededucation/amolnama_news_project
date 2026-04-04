@@ -275,7 +275,7 @@
 
 .messenger-bubble-sent {
   align-self: flex-end;
-  background: #dcf8c6;
+  background: #e3f2fd;
   border-bottom-right-radius: 3px;
 }
 
@@ -286,7 +286,7 @@
   border-bottom-left-radius: 3px;
 }
 
-[data-theme="dark"] .messenger-bubble-sent { background: #1a3a2a; }
+[data-theme="dark"] .messenger-bubble-sent { background: #1a2a3a; }
 [data-theme="dark"] .messenger-bubble-received { background: var(--surface); border-color: var(--border); }
 
 .messenger-bubble-text {
