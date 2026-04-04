@@ -1,8 +1,7 @@
 /* Messenger — WhatsApp-style two-panel chat layout */
 
-/* Messenger page — reduce outer spacing, prevent page scroll */
+/* Messenger page — prevent page scroll */
 body:has(.messenger) { overflow: hidden; }
-main:has(.messenger) { padding-top: .25rem; }
 
 .messenger {
   display: grid;
