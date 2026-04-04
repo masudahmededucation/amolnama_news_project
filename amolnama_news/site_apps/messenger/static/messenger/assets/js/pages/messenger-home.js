@@ -24,6 +24,10 @@
   var lastMessageId = 0;
   var messagePollTimer = null;
   var conversationPollTimer = null;
+  var replyToMessageId = null;
+  var replyPreview = document.getElementById('messenger-reply-preview');
+  var replyPreviewContent = document.getElementById('messenger-reply-preview-content');
+  var replyPreviewClose = document.getElementById('messenger-reply-preview-close');
   var typingTimer = null;
   var newMessageCount = 0;
 
@@ -260,12 +264,22 @@
       var isMine = message.sender_user_profile_id === window.messengerCurrentUserProfileId;
       var bubbleClass = isMine ? 'messenger-bubble-sent' : 'messenger-bubble-received';
 
-      html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '">';
+      html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '" data-message-text="' + escapeHtml(message.message_text || '') + '">';
+
+      // Quoted reply
+      if (message.reply_to_message_id) {
+        html += '<div class="messenger-bubble-quote" data-quote-id="' + message.reply_to_message_id + '">↩ রিপ্লাই</div>';
+      }
 
       if (message.is_deleted_for_everyone) {
         html += '<span class="messenger-bubble-deleted">এই মেসেজটি মুছে ফেলা হয়েছে</span>';
       } else {
         html += '<span class="messenger-bubble-text">' + escapeHtml(message.message_text) + '</span>';
+      }
+
+      // Reply button (hover visible)
+      if (!message.is_deleted_for_everyone) {
+        html += '<button type="button" class="messenger-bubble-reply-button" data-reply-id="' + message.message_id + '" title="রিপ্লাই">↩</button>';
       }
 
       html += '<div class="messenger-bubble-meta">';
@@ -282,6 +296,193 @@
 
     return html;
   }
+
+  // =========================================================
+  // REPLY-TO
+  // =========================================================
+
+  function setReplyTo(messageId, messageText) {
+    replyToMessageId = messageId;
+    replyPreviewContent.textContent = (messageText || '').substring(0, 100);
+    replyPreview.classList.remove('messenger-hidden');
+    textarea.focus();
+  }
+
+  function clearReplyTo() {
+    replyToMessageId = null;
+    replyPreview.classList.add('messenger-hidden');
+    replyPreviewContent.textContent = '';
+  }
+
+  // Reply button click (delegated on messages container)
+  messagesContainer.addEventListener('click', function (event) {
+    var replyButton = event.target.closest('.messenger-bubble-reply-button');
+    if (!replyButton) return;
+    var messageId = replyButton.getAttribute('data-reply-id');
+    var bubble = replyButton.closest('.messenger-bubble');
+    var messageText = bubble ? bubble.getAttribute('data-message-text') : '';
+    setReplyTo(parseInt(messageId, 10), messageText);
+  });
+
+  // Close reply preview
+  if (replyPreviewClose) {
+    replyPreviewClose.addEventListener('click', function () { clearReplyTo(); });
+  }
+
+  // =========================================================
+  // CONTEXT MENU (right-click / long-press on bubble)
+  // =========================================================
+
+  var contextMenu = document.getElementById('messenger-context-menu');
+  var contextMenuTargetMessageId = null;
+  var contextMenuTargetBubble = null;
+  var longPressTimer = null;
+
+  function showContextMenu(bubble, clientX, clientY) {
+    contextMenuTargetBubble = bubble;
+    contextMenuTargetMessageId = parseInt(bubble.getAttribute('data-message-id'), 10);
+    var isMine = bubble.classList.contains('messenger-bubble-sent');
+
+    // Show/hide own-message-only options
+    contextMenu.querySelectorAll('.messenger-context-menu-item-own').forEach(function (item) {
+      item.style.display = isMine ? '' : 'none';
+    });
+
+    contextMenu.style.left = clientX + 'px';
+    contextMenu.style.top = clientY + 'px';
+    contextMenu.classList.remove('messenger-hidden');
+
+    // Adjust if overflowing viewport
+    var rect = contextMenu.getBoundingClientRect();
+    if (rect.right > window.innerWidth) contextMenu.style.left = (clientX - rect.width) + 'px';
+    if (rect.bottom > window.innerHeight) contextMenu.style.top = (clientY - rect.height) + 'px';
+  }
+
+  function hideContextMenu() {
+    contextMenu.classList.add('messenger-hidden');
+    contextMenuTargetMessageId = null;
+    contextMenuTargetBubble = null;
+  }
+
+  // Right-click on bubble
+  messagesContainer.addEventListener('contextmenu', function (event) {
+    var bubble = event.target.closest('.messenger-bubble');
+    if (!bubble) return;
+    event.preventDefault();
+    showContextMenu(bubble, event.clientX, event.clientY);
+  });
+
+  // Long-press on bubble (mobile)
+  messagesContainer.addEventListener('touchstart', function (event) {
+    var bubble = event.target.closest('.messenger-bubble');
+    if (!bubble) return;
+    longPressTimer = setTimeout(function () {
+      var touch = event.touches[0];
+      showContextMenu(bubble, touch.clientX, touch.clientY);
+    }, 500);
+  });
+  messagesContainer.addEventListener('touchend', function () { clearTimeout(longPressTimer); });
+  messagesContainer.addEventListener('touchmove', function () { clearTimeout(longPressTimer); });
+
+  // Close context menu on click outside
+  document.addEventListener('click', function (event) {
+    if (!contextMenu.contains(event.target)) hideContextMenu();
+  });
+
+  // Context menu actions
+  contextMenu.addEventListener('click', function (event) {
+    var button = event.target.closest('.messenger-context-menu-item');
+    if (!button || !contextMenuTargetMessageId) return;
+    var action = button.getAttribute('data-action');
+
+    if (action === 'reply') {
+      var messageText = contextMenuTargetBubble ? contextMenuTargetBubble.getAttribute('data-message-text') : '';
+      setReplyTo(contextMenuTargetMessageId, messageText);
+    }
+
+    if (action === 'copy') {
+      var text = contextMenuTargetBubble ? (contextMenuTargetBubble.querySelector('.messenger-bubble-text') || {}).textContent : '';
+      if (text) navigator.clipboard.writeText(text).catch(function () {});
+    }
+
+    if (action === 'edit') {
+      var editBubble = contextMenuTargetBubble;
+      var editMessageId = contextMenuTargetMessageId;
+      var textElement = editBubble ? editBubble.querySelector('.messenger-bubble-text') : null;
+      if (textElement) {
+        var originalText = textElement.textContent;
+        textElement.contentEditable = 'true';
+        textElement.focus();
+        textElement.addEventListener('keydown', function handleEditKey(keyEvent) {
+          if (keyEvent.key === 'Enter' && !keyEvent.shiftKey) {
+            keyEvent.preventDefault();
+            textElement.contentEditable = 'false';
+            textElement.removeEventListener('keydown', handleEditKey);
+            var newText = textElement.textContent.trim();
+            if (newText && newText !== originalText) {
+              fetch('/messenger/api/messages/' + activeConversationId + '/edit/' + editMessageId + '/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+                body: JSON.stringify({ message_text: newText }),
+              })
+              .then(function (response) { return response.json(); })
+              .then(function (data) {
+                if (!data.success) {
+                  textElement.textContent = originalText;
+                  showInputError(data.error || 'সম্পাদনা ব্যর্থ হয়েছে');
+                }
+              })
+              .catch(function () { textElement.textContent = originalText; });
+            } else {
+              textElement.textContent = originalText;
+            }
+          }
+          if (keyEvent.key === 'Escape') {
+            textElement.contentEditable = 'false';
+            textElement.textContent = originalText;
+            textElement.removeEventListener('keydown', handleEditKey);
+          }
+        });
+      }
+    }
+
+    if (action === 'delete_for_me') {
+      var deleteMessageId = contextMenuTargetMessageId;
+      var deleteBubble = contextMenuTargetBubble;
+      fetch('/messenger/api/messages/' + activeConversationId + '/delete-for-me/' + deleteMessageId + '/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success && deleteBubble) deleteBubble.remove();
+      })
+      .catch(function () {});
+    }
+
+    if (action === 'delete_for_everyone') {
+      var deleteEveryoneMessageId = contextMenuTargetMessageId;
+      var deleteEveryoneBubble = contextMenuTargetBubble;
+      fetch('/messenger/api/messages/' + activeConversationId + '/delete-for-everyone/' + deleteEveryoneMessageId + '/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success && deleteEveryoneBubble) {
+          var textEl = deleteEveryoneBubble.querySelector('.messenger-bubble-text');
+          if (textEl) textEl.outerHTML = '<span class="messenger-bubble-deleted">এই মেসেজটি মুছে ফেলা হয়েছে</span>';
+          var replyBtn = deleteEveryoneBubble.querySelector('.messenger-bubble-reply-button');
+          if (replyBtn) replyBtn.remove();
+        } else if (data.error) {
+          showInputError(data.error);
+        }
+      })
+      .catch(function () {});
+    }
+
+    hideContextMenu();
+  });
 
   // =========================================================
   // SEND MESSAGE (optimistic UI)
@@ -303,17 +504,18 @@
     messagesContainer.insertAdjacentHTML('beforeend', optimisticHtml);
     scrollToBottom(true);
 
-    // Clear input
+    // Clear input + reply
     textarea.value = '';
     textarea.style.height = 'auto';
     updateSendButtonVisibility();
+    clearReplyTo();
     textarea.focus();
 
     // Send to server
     fetch('/messenger/api/messages/' + activeConversationId + '/send/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-      body: JSON.stringify({ message_text: text }),
+      body: JSON.stringify({ message_text: text, reply_to_message_id: replyToMessageId }),
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {

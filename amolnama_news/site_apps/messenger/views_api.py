@@ -465,3 +465,105 @@ def api_typing_status(request, conversation_id):
     is_typing = typing_user is not None
 
     return JsonResponse({'success': True, 'is_typing': is_typing})
+
+
+# =========================================================
+# DELETE MESSAGE
+# =========================================================
+
+@require_POST
+@login_required
+def api_message_delete_for_me(request, conversation_id, message_id):
+    """POST — delete a message for the current user only."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Verify participant
+    if not ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).exists():
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    # Insert deletion record
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [messenger].[message_deletion] ([link_message_id], [link_user_profile_id])
+            VALUES (%s, %s)
+        """, [message_id, user_profile_id])
+
+    return JsonResponse({'success': True})
+
+
+@require_POST
+@login_required
+def api_message_delete_for_everyone(request, conversation_id, message_id):
+    """POST — delete a message for everyone. Only sender, within 1 hour."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    message = Message.objects.filter(
+        messenger_message_id=message_id, link_conversation_id=conversation_id,
+        link_sender_user_profile_id=user_profile_id, is_active=True,
+    ).first()
+
+    if not message:
+        return JsonResponse({'success': False, 'error': 'মেসেজ পাওয়া যায়নি বা অনুমতি নেই'}, status=404)
+
+    # Check time limit (1 hour)
+    if (timezone.now() - message.created_at).total_seconds() > 3600:
+        return JsonResponse({'success': False, 'error': '১ ঘণ্টার বেশি সময় হয়ে গেছে — মুছে ফেলা যাবে না'}, status=400)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [messenger].[message]
+            SET [is_deleted_for_everyone] = 1, [deleted_for_everyone_at] = %s
+            WHERE [messenger_message_id] = %s
+        """, [timezone.now(), message_id])
+
+    return JsonResponse({'success': True})
+
+
+# =========================================================
+# EDIT MESSAGE
+# =========================================================
+
+@require_POST
+@login_required
+def api_message_edit(request, conversation_id, message_id):
+    """POST — edit a message. Only sender, within 15 minutes."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    new_text = (data.get('message_text') or '').strip()
+    if not new_text:
+        return JsonResponse({'success': False, 'error': 'মেসেজ খালি হতে পারে না'}, status=400)
+
+    message = Message.objects.filter(
+        messenger_message_id=message_id, link_conversation_id=conversation_id,
+        link_sender_user_profile_id=user_profile_id, is_active=True,
+        is_deleted_for_everyone=False,
+    ).first()
+
+    if not message:
+        return JsonResponse({'success': False, 'error': 'মেসেজ পাওয়া যায়নি বা অনুমতি নেই'}, status=404)
+
+    # Check time limit (15 minutes)
+    if (timezone.now() - message.created_at).total_seconds() > 900:
+        return JsonResponse({'success': False, 'error': '১৫ মিনিটের বেশি সময় হয়ে গেছে — সম্পাদনা করা যাবে না'}, status=400)
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [messenger].[message]
+            SET [message_text] = %s, [is_edited] = 1, [edited_at] = %s
+            WHERE [messenger_message_id] = %s
+        """, [new_text, timezone.now(), message_id])
+
+    return JsonResponse({'success': True})

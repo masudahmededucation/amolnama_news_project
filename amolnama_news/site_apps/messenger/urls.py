@@ -21,6 +21,11 @@ urlpatterns = [
     path('api/messages/<int:conversation_id>/poll/', views_api.api_message_poll, name='api_message_poll'),
     path('api/messages/<int:conversation_id>/read/', views_api.api_message_mark_read, name='api_message_mark_read'),
 
+    # Delete + Edit
+    path('api/messages/<int:conversation_id>/delete-for-me/<int:message_id>/', views_api.api_message_delete_for_me, name='api_message_delete_for_me'),
+    path('api/messages/<int:conversation_id>/delete-for-everyone/<int:message_id>/', views_api.api_message_delete_for_everyone, name='api_message_delete_for_everyone'),
+    path('api/messages/<int:conversation_id>/edit/<int:message_id>/', views_api.api_message_edit, name='api_message_edit'),
+
     # Typing indicator
     path('api/typing/<int:conversation_id>/', views_api.api_typing_indicator, name='api_typing_indicator'),
     path('api/typing/<int:conversation_id>/status/', views_api.api_typing_status, name='api_typing_status'),

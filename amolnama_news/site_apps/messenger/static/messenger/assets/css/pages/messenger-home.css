@@ -364,6 +364,106 @@
   padding: 0 3px;
 }
 
+/* Context menu */
+.messenger-context-menu {
+  position: fixed;
+  z-index: 100;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  min-width: 180px;
+  padding: .3rem 0;
+  overflow: hidden;
+}
+.messenger-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  width: 100%;
+  padding: .55rem .8rem;
+  border: none;
+  background: none;
+  font-size: .82rem;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background .1s;
+}
+.messenger-context-menu-item:hover { background: var(--surface); }
+.messenger-context-menu-item-danger { color: var(--danger); }
+.messenger-context-menu-item-danger:hover { background: var(--danger-light); }
+
+/* Reply button on bubble (hover visible) */
+.messenger-bubble-reply-button {
+  position: absolute;
+  top: .2rem;
+  right: -.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: .7rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: background .1s;
+  box-shadow: var(--shadow);
+}
+.messenger-bubble-sent .messenger-bubble-reply-button { right: auto; left: -.5rem; }
+.messenger-bubble:hover .messenger-bubble-reply-button { display: flex; }
+.messenger-bubble-reply-button:hover { background: var(--surface); color: var(--text); }
+
+/* Quoted message inside bubble */
+.messenger-bubble-quote {
+  padding: .25rem .5rem;
+  margin-bottom: .3rem;
+  background: var(--surface);
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+  font-size: .72rem;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Reply preview bar above input */
+.messenger-reply-preview {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .75rem;
+  background: var(--surface);
+  border-left: 3px solid var(--primary);
+  border-radius: 6px;
+  margin-bottom: .4rem;
+}
+.messenger-reply-preview-content {
+  flex: 1;
+  font-size: .78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.messenger-reply-preview-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .9rem;
+  padding: .2rem;
+  transition: color .1s;
+}
+.messenger-reply-preview-close:hover { color: var(--danger); }
+
 /* ── Input area ── */
 
 .messenger-input-area {

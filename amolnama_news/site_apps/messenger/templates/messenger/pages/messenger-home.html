@@ -56,8 +56,22 @@
       <span class="messenger-scroll-bottom-badge messenger-hidden" id="messenger-scroll-bottom-badge">0</span>
     </button>
 
+    <!-- Context menu (positioned on right-click / long-press) -->
+    <div class="messenger-context-menu messenger-hidden" id="messenger-context-menu">
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-reply" data-action="reply">↩ রিপ্লাই</button>
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-copy" data-action="copy">📋 কপি</button>
+      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-own" id="messenger-context-menu-edit" data-action="edit">✏️ সম্পাদনা</button>
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-delete-for-me" data-action="delete_for_me">🗑 আমার জন্য মুছুন</button>
+      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-own messenger-context-menu-item-danger" id="messenger-context-menu-delete-for-everyone" data-action="delete_for_everyone">🗑 সবার জন্য মুছুন</button>
+    </div>
+
     <!-- Message input (hidden until conversation opened) -->
     <div class="messenger-input-area messenger-hidden" id="messenger-input-area">
+      <!-- Reply preview bar (hidden until user clicks reply) -->
+      <div class="messenger-reply-preview messenger-hidden" id="messenger-reply-preview">
+        <div class="messenger-reply-preview-content" id="messenger-reply-preview-content"></div>
+        <button type="button" class="messenger-reply-preview-close" id="messenger-reply-preview-close" aria-label="Cancel reply">✕</button>
+      </div>
       <div class="messenger-input-wrapper" id="messenger-input-wrapper">
         <textarea class="messenger-input-textarea" id="messenger-input-textarea" name="messenger_input_textarea" placeholder="মেসেজ লিখুন..." rows="1"></textarea>
         <button type="button" class="messenger-send-button messenger-hidden" id="messenger-send-button" aria-label="Send">
