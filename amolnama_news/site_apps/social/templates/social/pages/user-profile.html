@@ -3,6 +3,12 @@
 
 {% block title %}{{ seo.title }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'social/assets/css/pages/user-profile.css' %}">
+<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="user-profile-page">
 
@@ -62,12 +68,12 @@
   </div>
 
 </div>
-{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'social/assets/css/pages/user-profile.css' %}">
+{% include "core/components/photo-lightbox.html" %}
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
 <script src="{% static 'social/assets/js/pages/user-profile.js' %}"></script>
 {% endblock %}
