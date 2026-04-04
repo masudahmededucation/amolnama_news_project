@@ -31,21 +31,24 @@
   var typingTimer = null;
   var newMessageCount = 0;
   var messageTextMap = {};
+  var otherUserName = '';
+  var otherUserAvatar = '';
 
+
+  var dayNames = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'ব��হ', 'শুক্র', 'শনি'];
 
   function formatTime(isoString) {
     if (!isoString) return '';
     var date = new Date(isoString);
-    var today = new Date();
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
     var time = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
-    if (date.toDateString() === today.toDateString()) return time;
     var day = date.getDate();
     var month = date.getMonth() + 1;
-    return day + '/' + month + ' ' + time;
+    var dayName = dayNames[date.getDay()];
+    return day + '/' + month + ' ' + dayName + ' ' + time;
   }
 
   function formatDateSeparator(isoString) {
@@ -156,6 +159,8 @@
     newMessageCount = 0;
     hasOlderMessages = true;
     isLoadingOlder = false;
+    otherUserName = title || '';
+    otherUserAvatar = avatarUrl || '';
 
     // Update header
     headerName.textContent = title || '';
@@ -272,6 +277,16 @@
 
       messageTextMap[message.message_id] = message.message_text || '';
       html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '">';
+
+      // Sender name + avatar on received bubbles
+      if (!isMine && lastSenderId !== message.sender_user_profile_id) {
+        html += '<div class="messenger-bubble-sender">';
+        if (otherUserAvatar) {
+          html += '<img class="messenger-bubble-sender-avatar" src="' + escapeHtml(otherUserAvatar) + '" alt="">';
+        }
+        html += '<span class="messenger-bubble-sender-name">' + escapeHtml(otherUserName) + '</span>';
+        html += '</div>';
+      }
 
       // Quoted reply
       if (message.reply_to_message_id) {

@@ -273,6 +273,25 @@
   box-shadow: 0 1px 1px rgba(0,0,0,.06);
 }
 
+/* Sender name + avatar on received bubbles */
+.messenger-bubble-sender {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  margin-bottom: .25rem;
+}
+.messenger-bubble-sender-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.messenger-bubble-sender-name {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
 .messenger-bubble-sent {
   align-self: flex-end;
   background: #dcf8c6;
