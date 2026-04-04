@@ -900,7 +900,7 @@
     collapseButton.addEventListener('click', function () {
       messengerElement.classList.toggle('messenger-sidebar-collapsed');
       var isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
-      collapseButton.textContent = isCollapsed ? '▸' : '☰';
+      collapseButton.textContent = isCollapsed ? '▶' : '◀';
       collapseButton.title = isCollapsed ? 'বিস্তারিত করুন' : 'সংকুচিত করুন';
     });
   }
