@@ -204,3 +204,23 @@ class PostEditHistory(models.Model):
     class Meta:
         managed = False
         db_table = '[post].[post_edit_history]'
+
+
+class RefComposerPlaceholder(models.Model):
+    post_ref_composer_placeholder_id = models.BigAutoField(primary_key=True)
+    placeholder_text = models.CharField(max_length=500)
+    placeholder_category_code = models.CharField(max_length=30, default='general')
+    is_featured = models.BooleanField(default=False)
+    featured_start_at = models.DateTimeField(blank=True, null=True)
+    featured_duration_minutes = models.IntegerField(blank=True, null=True, default=30)
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+    link_created_by_user_profile_id = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[post].[ref_composer_placeholder]'
+
+    def __str__(self):
+        return self.placeholder_text[:50]

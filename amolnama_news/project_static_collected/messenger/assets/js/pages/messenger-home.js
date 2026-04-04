@@ -5,6 +5,7 @@
   var messengerElement = document.getElementById('messenger');
   if (!messengerElement) return;
 
+
   var sidebar = document.getElementById('messenger-sidebar');
   var conversationListContainer = document.getElementById('messenger-conversation-list');
   var chatEmpty = document.getElementById('messenger-chat-empty');
@@ -98,7 +99,7 @@
       var isActive = conversation.conversation_id === activeConversationId;
       var initial = (conversation.title || '?').charAt(0);
 
-      html += '<div class="messenger-conversation-item' + (isActive ? ' messenger-conversation-item-active' : '') + '" data-conversation-id="' + conversation.conversation_id + '" data-title="' + escapeHtml(conversation.title) + '" data-avatar="' + escapeHtml(conversation.avatar_url) + '" data-other-user-profile-id="' + (conversation.other_user_profile_id || '') + '">';
+      html += '<div class="messenger-conversation-item' + (isActive ? ' messenger-conversation-item-active' : '') + '" data-conversation-id="' + conversation.conversation_id + '" data-title="' + escapeHtml(conversation.title) + '" data-avatar="' + escapeHtml(conversation.avatar_url) + '" data-other-user-profile-id="' + (conversation.other_user_profile_id || '') + '" data-auto-delete="' + (conversation.auto_delete_after_seconds || 0) + '">';
 
       if (conversation.avatar_url) {
         html += '<img class="messenger-conversation-item-avatar" src="' + escapeHtml(conversation.avatar_url) + '" alt="">';
@@ -130,7 +131,8 @@
     var conversationId = parseInt(item.getAttribute('data-conversation-id'), 10);
     var title = item.getAttribute('data-title');
     var avatarUrl = item.getAttribute('data-avatar');
-    openConversation(conversationId, title, avatarUrl);
+    var autoDeleteSeconds = parseInt(item.getAttribute('data-auto-delete'), 10) || 0;
+    openConversation(conversationId, title, avatarUrl, autoDeleteSeconds);
   });
 
   // Conversation search filter (client-side)
@@ -150,11 +152,19 @@
   // OPEN CONVERSATION
   // =========================================================
 
-  function openConversation(conversationId, title, avatarUrl) {
+  function openConversation(conversationId, title, avatarUrl, autoDeleteSeconds) {
     activeConversationId = conversationId;
     lastMessageId = 0;
     newMessageCount = 0;
     hasOlderMessages = true;
+
+    // Highlight active auto-delete option
+    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    if (autoDeleteSubmenu) {
+      autoDeleteSubmenu.querySelectorAll('.messenger-chat-settings-subitem').forEach(function (button) {
+        button.classList.toggle('messenger-chat-settings-subitem-active', parseInt(button.getAttribute('data-auto-delete'), 10) === (autoDeleteSeconds || 0));
+      });
+    }
     isLoadingOlder = false;
     otherUserName = title || '';
     otherUserAvatar = avatarUrl || '';
@@ -420,9 +430,9 @@
   messagesContainer.addEventListener('touchend', function () { clearTimeout(longPressTimer); });
   messagesContainer.addEventListener('touchmove', function () { clearTimeout(longPressTimer); });
 
-  // Close context menu on click outside
-  document.addEventListener('click', function (event) {
-    if (!contextMenu.contains(event.target)) hideContextMenu();
+  // Close context menu on click outside (mousedown to avoid race with contextmenu event)
+  document.addEventListener('mousedown', function (event) {
+    if (contextMenu && !contextMenu.classList.contains('messenger-hidden') && !contextMenu.contains(event.target)) hideContextMenu();
   });
 
   // Context menu actions
@@ -596,14 +606,14 @@
   }
 
   function saveFailedMessageToStorage(conversationId, messageText, replyId) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.push({ text: messageText, reply_id: replyId || null, timestamp: new Date().toISOString() });
     localStorage.setItem(key, JSON.stringify(failed));
   }
 
   function removeFailedMessageFromStorage(conversationId, messageText) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed = failed.filter(function (item) { return item.text !== messageText; });
     if (failed.length) localStorage.setItem(key, JSON.stringify(failed));
@@ -611,7 +621,7 @@
   }
 
   function loadFailedMessagesFromStorage(conversationId) {
-    var key = 'messenger_failed_' + conversationId;
+    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
     var failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.forEach(function (item) {
       var tempId = 'failed-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
@@ -892,6 +902,20 @@
   });
 
   // =========================================================
+  // SIDEBAR COLLAPSE TOGGLE
+  // =========================================================
+
+  var collapseButton = document.getElementById('messenger-sidebar-collapse-button');
+  if (collapseButton) {
+    collapseButton.addEventListener('click', function () {
+      messengerElement.classList.toggle('messenger-sidebar-collapsed');
+      var isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
+      collapseButton.textContent = isCollapsed ? '▶' : '◀';
+      collapseButton.title = isCollapsed ? 'বিস্তারিত করুন' : 'সংকুচিত করুন';
+    });
+  }
+
+  // =========================================================
   // CHAT SETTINGS (auto-delete + clear all)
   // =========================================================
 
@@ -912,6 +936,16 @@
       }
     });
 
+    // Auto-delete submenu toggle
+    var autoDeleteToggle = document.getElementById('messenger-auto-delete-toggle');
+    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    if (autoDeleteToggle && autoDeleteSubmenu) {
+      autoDeleteToggle.addEventListener('click', function () {
+        autoDeleteSubmenu.classList.toggle('messenger-hidden');
+        autoDeleteToggle.classList.toggle('messenger-chat-settings-submenu-open');
+      });
+    }
+
     // Auto-delete timer buttons
     settingsDropdown.addEventListener('click', function (event) {
       var item = event.target.closest('[data-auto-delete]');
@@ -928,7 +962,7 @@
         if (data.success) {
           settingsDropdown.classList.add('messenger-hidden');
           // Highlight active option
-          settingsDropdown.querySelectorAll('[data-auto-delete]').forEach(function (button) {
+          settingsDropdown.querySelectorAll('.messenger-chat-settings-subitem').forEach(function (button) {
             button.classList.toggle('messenger-chat-settings-item-active', parseInt(button.getAttribute('data-auto-delete'), 10) === seconds);
           });
         } else {

@@ -17,7 +17,6 @@ use group as the prefix for column names.
 follow standard rules already placed in table and column creation.
 
 
-
 --create styling rule
 make professional
 do some research
@@ -38,6 +37,7 @@ otherwise too many jobs to do in future.
 fix all files.
 everything everywhere.
 make it 100% compliance
+
 
 --naming conventions
 check name rules
@@ -121,7 +121,17 @@ make that rule modularise everything - not just when needed or not.
 everything every time. 
 all.
 one source of truth.
-what do you think?
+
+
+--deep research
+deep research. 
+make it professional. 
+no rush and check. 
+check and check for unlimited time.
+no test and test, keep doing test.
+no layer on top of layer code.
+logic should be clean, clear, concise.
+no duplicate codes.
 
 
 --create or update documentation
@@ -131,5 +141,6 @@ folders
 \notes\claude\memory-training\
 
 --bump cache + Collect-static + service worker cache
+
 
 

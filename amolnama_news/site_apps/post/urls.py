@@ -27,4 +27,5 @@ urlpatterns = [
     path('api/<int:post_post_id>/pin/', views_api.api_post_pin_toggle, name='api_post_pin_toggle'),
     path('api/mentions/autocomplete/', views_api.api_mention_autocomplete, name='api_mention_autocomplete'),
     path('api/<int:post_post_id>/edit-history/', views_api.api_post_edit_history, name='api_post_edit_history'),
+    path('api/composer-placeholder/', views_api.api_composer_placeholder, name='api_composer_placeholder'),
 ]

@@ -222,3 +222,129 @@ def api_moderation_reject(request):
         return JsonResponse({'success': False, 'error': 'Reject failed'}, status=500)
 
     return JsonResponse({'success': True})
+
+
+# =========================================================
+# PLACEHOLDER MANAGEMENT (staff only)
+# =========================================================
+
+@require_POST
+@login_required
+def api_placeholder_add(request):
+    """Add a new composer placeholder."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    text = (data.get('placeholder_text') or '').strip()
+    category = (data.get('placeholder_category_code') or 'general').strip()
+
+    if not text or len(text) < 5:
+        return JsonResponse({'success': False, 'error': 'প্লেসহোল্ডার কমপক্ষে ৫ অক্ষর হতে হবে'}, status=400)
+
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    user_profile_id = get_user_profile_id(request)
+
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [post].[ref_composer_placeholder] ([placeholder_text], [placeholder_category_code], [link_created_by_user_profile_id])
+            OUTPUT INSERTED.post_ref_composer_placeholder_id
+            VALUES (%s, %s, %s)
+        """, [text, category, user_profile_id])
+        placeholder_id = cursor.fetchone()[0]
+
+    return JsonResponse({'success': True, 'placeholder_id': placeholder_id})
+
+
+@require_POST
+@login_required
+def api_placeholder_toggle(request):
+    """Toggle active/inactive on a placeholder."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    try:
+        placeholder_id = int(data.get('placeholder_id', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid ID'}, status=400)
+
+    from amolnama_news.site_apps.post.models import RefComposerPlaceholder
+    placeholder = RefComposerPlaceholder.objects.filter(post_ref_composer_placeholder_id=placeholder_id).first()
+    if not placeholder:
+        return JsonResponse({'success': False, 'error': 'পাওয়া যায়নি'}, status=404)
+
+    new_value = not placeholder.is_active
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [post].[ref_composer_placeholder] SET [is_active] = %s WHERE [post_ref_composer_placeholder_id] = %s
+        """, [new_value, placeholder_id])
+
+    return JsonResponse({'success': True, 'is_active': new_value})
+
+
+@require_POST
+@login_required
+def api_placeholder_feature(request):
+    """Set a placeholder as featured for X minutes."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    try:
+        placeholder_id = int(data.get('placeholder_id', 0))
+        duration_minutes = int(data.get('duration_minutes', 30))
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid data'}, status=400)
+
+    from django.utils import timezone
+    from django.db import connection
+
+    # Clear any existing featured, then set new one
+    with connection.cursor() as cursor:
+        cursor.execute("UPDATE [post].[ref_composer_placeholder] SET [is_featured] = 0")
+        cursor.execute("""
+            UPDATE [post].[ref_composer_placeholder]
+            SET [is_featured] = 1, [featured_start_at] = %s, [featured_duration_minutes] = %s
+            WHERE [post_ref_composer_placeholder_id] = %s
+        """, [timezone.now(), duration_minutes, placeholder_id])
+
+    return JsonResponse({'success': True})
+
+
+@require_POST
+@login_required
+def api_placeholder_delete(request):
+    """Hard delete a placeholder."""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    try:
+        placeholder_id = int(data.get('placeholder_id', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid ID'}, status=400)
+
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM [post].[ref_composer_placeholder] WHERE [post_ref_composer_placeholder_id] = %s", [placeholder_id])
+
+    return JsonResponse({'success': True})

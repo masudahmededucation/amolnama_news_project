@@ -634,3 +634,25 @@ def moderation_queue_view(request):
             ],
         },
     })
+
+
+@login_required
+def composer_placeholders_view(request):
+    """Staff only — manage post composer placeholders."""
+    if not request.user.is_staff:
+        return redirect('portal:home')
+
+    from amolnama_news.site_apps.post.models import RefComposerPlaceholder
+    placeholders = RefComposerPlaceholder.objects.all().order_by('-is_featured', '-created_at')
+
+    return render(request, 'portal/pages/composer-placeholders-admin.html', {
+        'placeholders': placeholders,
+        'seo': {
+            'title': 'প্লেসহোল্ডার ব্যবস্থাপনা — আমলনামা নিউজ',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'পোর্টাল', 'url': '/portal/'},
+                {'name': 'প্লেসহোল্ডার'},
+            ],
+        },
+    })

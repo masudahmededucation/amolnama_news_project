@@ -1202,3 +1202,37 @@ def api_post_edit_history(request, post_post_id):
     } for entry in history]
 
     return JsonResponse({'success': True, 'history': items})
+
+
+# =========================================================
+# COMPOSER PLACEHOLDER
+# =========================================================
+
+def api_composer_placeholder(request):
+    """GET — return one placeholder for the composer. Featured overrides random."""
+    from datetime import timedelta
+    from .models import RefComposerPlaceholder
+    import random
+
+    now = timezone.now()
+
+    # Check for active featured placeholder
+    featured = RefComposerPlaceholder.objects.filter(
+        is_featured=True, is_active=True,
+        featured_start_at__isnull=False,
+    ).first()
+
+    if featured and featured.featured_start_at and featured.featured_duration_minutes:
+        expires_at = featured.featured_start_at + timedelta(minutes=featured.featured_duration_minutes)
+        if now <= expires_at:
+            return JsonResponse({'success': True, 'placeholder': featured.placeholder_text, 'is_featured': True})
+
+    # Random from active placeholders
+    active_placeholders = list(RefComposerPlaceholder.objects.filter(
+        is_active=True,
+    ).values_list('placeholder_text', flat=True))
+
+    if active_placeholders:
+        return JsonResponse({'success': True, 'placeholder': random.choice(active_placeholders), 'is_featured': False})
+
+    return JsonResponse({'success': True, 'placeholder': 'কী ঘটছে?', 'is_featured': False})

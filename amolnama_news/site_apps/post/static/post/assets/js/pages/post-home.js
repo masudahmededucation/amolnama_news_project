@@ -137,8 +137,19 @@
 
   var composerTextareaElement = document.getElementById('post-composer-textarea');
   if (composerTextareaElement) {
+    // Set random fallback immediately (instant UI)
     var randomPlaceholderIndex = Math.floor(Math.random() * composerPlaceholders.length);
     composerTextareaElement.placeholder = composerPlaceholders[randomPlaceholderIndex];
+
+    // Then fetch from API (may override with featured or DB-managed placeholder)
+    fetch('/post/api/composer-placeholder/')
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success && data.placeholder) {
+          composerTextareaElement.placeholder = data.placeholder;
+        }
+      })
+      .catch(function () {});
   }
 
   /* ---- Character counter ---- */

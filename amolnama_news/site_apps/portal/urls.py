@@ -20,4 +20,9 @@ urlpatterns = [
     path('api/content/toggle-publish/', views_api.api_content_toggle_publish, name='api_content_toggle_publish'),
     path('api/moderation/approve/', views_api.api_moderation_approve, name='api_moderation_approve'),
     path('api/moderation/reject/', views_api.api_moderation_reject, name='api_moderation_reject'),
+    path('admin/placeholders/', views.composer_placeholders_view, name='composer_placeholders'),
+    path('api/placeholders/add/', views_api.api_placeholder_add, name='api_placeholder_add'),
+    path('api/placeholders/toggle/', views_api.api_placeholder_toggle, name='api_placeholder_toggle'),
+    path('api/placeholders/feature/', views_api.api_placeholder_feature, name='api_placeholder_feature'),
+    path('api/placeholders/delete/', views_api.api_placeholder_delete, name='api_placeholder_delete'),
 ]

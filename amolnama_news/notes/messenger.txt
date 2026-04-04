@@ -72,6 +72,8 @@ it is to protect the sender/journalist.
 need to be able to clear all conversation.
 need to be able to clear message periodically.
 maybe 1/7/30/yearly.
+auto delete.
+clear conversation should clear from both sender and receiver.
 
 
 when no network, testing. 
@@ -83,13 +85,6 @@ is that a good idea?
 the user experience will be so shitty. 
 they will never come back.
 double check logic.
-deep research. 
-make it professional. 
-no rush and check. 
-check and check for unlimited time.
-logic should be clean, clear, concise.
-no duplicate codes.
-
 
 --offline display
 --no network display
@@ -101,4 +96,98 @@ when no network, offline, still it needs to display properly.
 or at least say, no network blank page. 
 but showing shitty display is not a solution.
 
+
+--deep research
+deep research. 
+make it professional. 
+no rush and check. 
+check and check for unlimited time.
+logic should be clean, clear, concise.
+no duplicate codes.
+
+
+no network message is being load with 
+- send failure, try again notice in both sender and receiver.
+if it failed to sent,
+then how come receiver can see it?
+it has to be logical operation.
+sender needs to see the message sent first,
+before receiver can see the message.
+
+
+--right click options
+none of them working.
+make the working.
+make plan.
+do one by one.
+
+--hybrid whatsapp and telegram
+though we are copying the displaying mainly whatsapp style
+some of the options we prefer from telegram.
+so sender or receiver both will be able delete,
+any messages sent by both party - sender and receiver.
+also need a clear all messages options.
+
+yes, both options, 
+delete from me or delete for everyone for all messages. 
+all the time. no expiry time for this option.
+display style whatsapp. 
+options hybrid -whatsapp+telegram
+
+
+the bubbles have a speech tail/pointer shape. 
+The sent bubble has a tail on the bottom-right, 
+the received has a tail on the bottom-left. 
+Like a comic speech bubble. 
+Currently our bubbles just have a smaller border-radius on one corner — no actual tail.
+lets make each message 
+
+- message box color little bit prominent. 
+lets test. 
+how does it look. 
+if i don't like it then will revert it.
+
+
+--collapsible list
+reduce the left side list of users's and increaser the actual messenger. 
+maybe make it collapsible like nav menu.
+when collapsed, 
+just show the user's name, 
+no preview of message.
+collapsible icon should have left arrow right arrow sign. 
+when not collapsed show left arrow, 
+when collapsed show right arrow. 
+options should be visible permanently.
+basically, make the top action bar always visible.
+
+you are collapsing the whole message from the right side too. 
+you should collapse only left side to save some space. 
+nothing else. 
+left side top action bar should have chats 
+or messenger label visible even when collapsed.
+
+top bar should be fixed. 
+even when scrolling should be visible.
+chrome page - when the whole page scroll. 
+then it goes out of sight.
+inside scroll is fixed.
+
+
+
+top right settings to auto delete options. 
+make it bigger. 
+icon is not correct. 
+get the proper wheel icon for settings.
+
+1 day, 7 day options has to look like 
+under auto delete expandable menu options. 
+at the moment looks like independent options. 
+are you clear?
+
+this settings need to be user based. means. 
+one user it could 1 day. 
+for another user it could be turned off. 
+
+i am not impressed with the display styling of the options. 
+it is dull, amateurish.
 
