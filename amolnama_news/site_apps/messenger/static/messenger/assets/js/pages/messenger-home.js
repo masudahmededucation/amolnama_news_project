@@ -45,20 +45,22 @@
     var ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
     var time = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
-    var day = date.getDate();
-    var month = date.getMonth() + 1;
+    var dd = ('0' + date.getDate()).slice(-2);
+    var mm = ('0' + (date.getMonth() + 1)).slice(-2);
+    var yyyy = date.getFullYear();
     var dayName = dayNames[date.getDay()];
-    return day + '/' + month + ' ' + dayName + ' ' + time;
+    return dd + '/' + mm + '/' + yyyy + ' ' + dayName + ' ' + time;
   }
 
   function formatDateSeparator(isoString) {
     if (!isoString) return '';
     var date = new Date(isoString);
 
-    var day = date.getDate();
-    var month = date.getMonth() + 1;
+    var dd = ('0' + date.getDate()).slice(-2);
+    var mm = ('0' + (date.getMonth() + 1)).slice(-2);
+    var yyyy = date.getFullYear();
     var dayName = dayNames[date.getDay()];
-    return day + '/' + month + '/' + date.getFullYear() + ' ' + dayName;
+    return dd + '/' + mm + '/' + yyyy + ' ' + dayName;
   }
 
   function checkmarkHtml(status) {
