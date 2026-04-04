@@ -570,18 +570,71 @@
         }
         if (data.message_id > lastMessageId) lastMessageId = data.message_id;
       } else {
-        // Remove optimistic message, show error
-        var failedBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
-        if (failedBubble) failedBubble.remove();
-        showInputError(data.error || 'মেসেজ পাঠানো যায়নি');
+        markBubbleFailed(tempId, text, sendReplyToMessageId, data.error || 'মেসেজ পাঠানো যায়নি');
       }
     })
     .catch(function () {
-      var failedBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
-      if (failedBubble) failedBubble.remove();
-      showInputError('নেটওয়ার্ক ত্রুটি — মেসেজ পাঠানো যায়নি');
+      markBubbleFailed(tempId, text, sendReplyToMessageId, 'নেটওয়ার্ক ত্রুটি');
     });
   }
+
+  function markBubbleFailed(tempId, messageText, replyId, errorMessage) {
+    var failedBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
+    if (!failedBubble) return;
+    failedBubble.classList.add('messenger-bubble-failed');
+    // Replace checkmark with error + retry
+    var metaElement = failedBubble.querySelector('.messenger-bubble-meta');
+    if (metaElement) {
+      metaElement.innerHTML = '<span class="messenger-bubble-failed-text">⚠ ' + escapeHtml(errorMessage) + '</span>' +
+        '<button type="button" class="messenger-bubble-retry-button" data-retry-text="' + tempId + '">আবার চেষ্টা করুন</button>';
+    }
+    // Store message data for retry
+    failedBubble.setAttribute('data-retry-message-text', messageText);
+    failedBubble.setAttribute('data-retry-reply-id', replyId || '');
+  }
+
+  // Retry click handler
+  messagesContainer.addEventListener('click', function (event) {
+    var retryButton = event.target.closest('.messenger-bubble-retry-button');
+    if (!retryButton) return;
+    var bubble = retryButton.closest('.messenger-bubble');
+    if (!bubble || !activeConversationId) return;
+
+    var retryText = bubble.getAttribute('data-retry-message-text');
+    var retryReplyId = bubble.getAttribute('data-retry-reply-id') || null;
+    if (retryReplyId) retryReplyId = parseInt(retryReplyId, 10);
+
+    // Update UI to show sending
+    bubble.classList.remove('messenger-bubble-failed');
+    var metaElement = bubble.querySelector('.messenger-bubble-meta');
+    if (metaElement) {
+      metaElement.innerHTML = '<span class="messenger-bubble-time">পাঠানো হচ্ছে...</span>';
+    }
+
+    fetch('/messenger/api/messages/' + activeConversationId + '/send/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ message_text: retryText, reply_to_message_id: retryReplyId }),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        bubble.setAttribute('data-message-id', data.message_id);
+        bubble.removeAttribute('data-retry-message-text');
+        bubble.removeAttribute('data-retry-reply-id');
+        if (metaElement) {
+          metaElement.innerHTML = '<span class="messenger-bubble-time">' + formatTime(data.created_at) + '</span>' +
+            checkmarkHtml('sent');
+        }
+        if (data.message_id > lastMessageId) lastMessageId = data.message_id;
+      } else {
+        markBubbleFailed(bubble.getAttribute('data-message-id'), retryText, retryReplyId, data.error || 'পাঠানো যায়নি');
+      }
+    })
+    .catch(function () {
+      markBubbleFailed(bubble.getAttribute('data-message-id'), retryText, retryReplyId, 'নেটওয়ার্ক ত্রুটি');
+    });
+  });
 
   function showInputError(message) {
     var existing = document.getElementById('messenger-input-error');

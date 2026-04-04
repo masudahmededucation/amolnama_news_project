@@ -335,6 +335,17 @@
 .messenger-bubble-check-delivered { color: var(--muted); }
 .messenger-bubble-check-read { color: #53bdeb; }
 
+/* Failed message */
+.messenger-bubble-failed { opacity: .7; border: 1px dashed var(--danger); }
+.messenger-bubble-failed-text { font-size: .65rem; color: var(--danger); }
+.messenger-bubble-retry-button {
+  background: none; border: 1px solid var(--danger); border-radius: 10px;
+  color: var(--danger); font-size: .62rem; font-weight: 700; font-family: inherit;
+  padding: .15rem .5rem; cursor: pointer; margin-left: .3rem;
+  transition: background .1s;
+}
+.messenger-bubble-retry-button:hover { background: var(--danger-light); }
+
 /* Deleted message */
 .messenger-bubble-deleted {
   font-style: italic;
