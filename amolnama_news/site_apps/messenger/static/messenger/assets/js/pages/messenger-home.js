@@ -544,6 +544,9 @@
     messagesContainer.insertAdjacentHTML('beforeend', optimisticHtml);
     scrollToBottom(true);
 
+    // Capture reply ID before clearing (needed for fetch below)
+    var sendReplyToMessageId = replyToMessageId;
+
     // Clear input + reply
     textarea.value = '';
     textarea.style.height = 'auto';
@@ -555,7 +558,7 @@
     fetch('/messenger/api/messages/' + activeConversationId + '/send/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-      body: JSON.stringify({ message_text: text, reply_to_message_id: replyToMessageId }),
+      body: JSON.stringify({ message_text: text, reply_to_message_id: sendReplyToMessageId }),
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {
