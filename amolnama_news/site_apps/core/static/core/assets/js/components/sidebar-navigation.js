@@ -2,6 +2,17 @@
 (function () {
   'use strict';
 
+  /* Preserve sidebar scroll position across page navigation — must run first */
+  var sidebarElement = document.querySelector('.sidebar-navigation');
+  if (sidebarElement) {
+    var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
+    if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
+
+    window.addEventListener('beforeunload', function () {
+      sessionStorage.setItem('sidebar_scroll_position', sidebarElement.scrollTop);
+    });
+  }
+
   var appLayoutElement = document.getElementById('app-layout');
   var toggleButton = document.getElementById('sidebar-navigation-toggle');
   var toggleIconElement = document.getElementById('sidebar-navigation-toggle-icon');
@@ -22,17 +33,6 @@
     toggleIconElement.textContent = isCollapsed ? '»' : '«';
     localStorage.setItem('sidebar_navigation_collapsed', isCollapsed ? 'true' : 'false');
   });
-
-  /* Preserve sidebar scroll position across page navigation */
-  var sidebarElement = document.querySelector('.sidebar-navigation');
-  if (sidebarElement) {
-    var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
-    if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
-
-    window.addEventListener('beforeunload', function () {
-      sessionStorage.setItem('sidebar_scroll_position', sidebarElement.scrollTop);
-    });
-  }
 
   /* ---- Messenger unread badge polling ---- */
   var messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
