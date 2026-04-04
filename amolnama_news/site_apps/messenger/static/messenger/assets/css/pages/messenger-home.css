@@ -1,14 +1,20 @@
 /* Messenger — WhatsApp-style two-panel chat layout */
 
+/* Prevent page scroll on messenger page */
+body:has(.messenger) { overflow: hidden; }
+
 .messenger {
   display: grid;
   grid-template-columns: 280px 1fr;
   height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
   background: var(--bg);
   box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
 }
 
 .messenger-hidden { display: none !important; }
