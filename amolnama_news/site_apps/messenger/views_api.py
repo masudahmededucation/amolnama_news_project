@@ -567,3 +567,57 @@ def api_message_edit(request, conversation_id, message_id):
         """, [new_text, timezone.now(), message_id])
 
     return JsonResponse({'success': True})
+
+
+# =========================================================
+# PIN / MUTE CONVERSATION
+# =========================================================
+
+@require_POST
+@login_required
+def api_conversation_pin(request, conversation_id):
+    """POST — toggle pin on a conversation."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    participant = ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).first()
+    if not participant:
+        return JsonResponse({'success': False, 'error': 'কথোপকথন পাওয়া যায়নি'}, status=404)
+
+    new_value = not participant.is_pinned
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [messenger].[conversation_participant]
+            SET [is_pinned] = %s
+            WHERE [messenger_conversation_participant_id] = %s
+        """, [new_value, participant.messenger_conversation_participant_id])
+
+    return JsonResponse({'success': True, 'is_pinned': new_value})
+
+
+@require_POST
+@login_required
+def api_conversation_mute(request, conversation_id):
+    """POST — toggle mute on a conversation."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    participant = ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id, link_user_profile_id=user_profile_id, is_active=True,
+    ).first()
+    if not participant:
+        return JsonResponse({'success': False, 'error': 'কথোপকথন পাওয়া যায়নি'}, status=404)
+
+    new_value = not participant.is_muted
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            UPDATE [messenger].[conversation_participant]
+            SET [is_muted] = %s
+            WHERE [messenger_conversation_participant_id] = %s
+        """, [new_value, participant.messenger_conversation_participant_id])
+
+    return JsonResponse({'success': True, 'is_muted': new_value})

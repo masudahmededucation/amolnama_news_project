@@ -35,11 +35,16 @@
   function formatTime(isoString) {
     if (!isoString) return '';
     var date = new Date(isoString);
+    var today = new Date();
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    return hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
+    var time = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
+    if (date.toDateString() === today.toDateString()) return time;
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    return day + '/' + month + ' ' + time;
   }
 
   function formatDateSeparator(isoString) {
@@ -707,10 +712,13 @@
   // =========================================================
 
   function updateSendButtonVisibility() {
+    sendButton.classList.remove('messenger-hidden');
     if (textarea.value.trim()) {
-      sendButton.classList.remove('messenger-hidden');
+      sendButton.style.opacity = '1';
+      sendButton.disabled = false;
     } else {
-      sendButton.classList.add('messenger-hidden');
+      sendButton.style.opacity = '.4';
+      sendButton.disabled = true;
     }
   }
 
@@ -758,6 +766,40 @@
 
     loadConversationList();
   });
+
+  // =========================================================
+  // EMOJI PICKER
+  // =========================================================
+
+  var emojiToggle = document.getElementById('messenger-emoji-toggle');
+  var emojiPicker = document.getElementById('messenger-emoji-picker');
+  var commonEmojis = ['😊','😂','❤️','👍','🙏','😢','😡','🔥','💯','✅','👏','🎉','😍','🤔','😎','💪','🥰','😭','🤣','👀','💀','🫡','😤','🥺','😅','🙄','😳','🤝','💜','🌹','🇧🇩','⭐','💬','📌','🗑','✏️','↩','📋','🔗','👁','📩','🔔','❌','⚡','🎯','💡','📸','🎵','🏆','🌟'];
+
+  if (emojiToggle && emojiPicker) {
+    var emojiHtml = '';
+    commonEmojis.forEach(function (emoji) {
+      emojiHtml += '<button type="button" class="messenger-emoji-item">' + emoji + '</button>';
+    });
+    emojiPicker.innerHTML = emojiHtml;
+
+    emojiToggle.addEventListener('click', function () {
+      emojiPicker.classList.toggle('messenger-hidden');
+    });
+
+    emojiPicker.addEventListener('click', function (event) {
+      var item = event.target.closest('.messenger-emoji-item');
+      if (!item) return;
+      var emoji = item.textContent;
+      var cursorPosition = textarea.selectionStart;
+      var before = textarea.value.substring(0, cursorPosition);
+      var after = textarea.value.substring(cursorPosition);
+      textarea.value = before + emoji + after;
+      textarea.selectionStart = textarea.selectionEnd = cursorPosition + emoji.length;
+      textarea.focus();
+      updateSendButtonVisibility();
+      emojiPicker.classList.add('messenger-hidden');
+    });
+  }
 
   // =========================================================
   // INIT

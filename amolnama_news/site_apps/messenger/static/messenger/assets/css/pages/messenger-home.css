@@ -2,7 +2,7 @@
 
 .messenger {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 280px 1fr;
   height: calc(100vh - 120px);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -79,7 +79,7 @@
   transition: background .1s;
 }
 .messenger-conversation-item:hover { background: var(--surface); }
-.messenger-conversation-item-active { background: var(--primary-light); }
+.messenger-conversation-item-active { background: var(--primary-light); border-left: 3px solid var(--primary); }
 
 .messenger-conversation-item-avatar {
   width: 40px;
@@ -275,15 +275,14 @@
 
 .messenger-bubble-sent {
   align-self: flex-end;
-  background: var(--success-light);
+  background: var(--primary-light);
   border-bottom-right-radius: 3px;
 }
 
 .messenger-bubble-received {
   align-self: flex-start;
-  background: var(--card);
+  background: var(--info-light);
   border-bottom-left-radius: 3px;
-  border: 1px solid var(--border);
 }
 
 .messenger-bubble-text {
@@ -464,6 +463,41 @@
 }
 .messenger-reply-preview-close:hover { color: var(--danger); }
 
+/* Emoji toggle button */
+.messenger-emoji-toggle {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: .3rem;
+  flex-shrink: 0;
+  transition: transform .1s;
+}
+.messenger-emoji-toggle:hover { transform: scale(1.15); }
+
+/* Emoji picker grid */
+.messenger-emoji-picker {
+  padding: .5rem;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: .2rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.messenger-emoji-item {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: .3rem;
+  border-radius: 6px;
+  transition: background .1s;
+  text-align: center;
+}
+.messenger-emoji-item:hover { background: var(--surface); }
+
 /* ── Input area ── */
 
 .messenger-input-area {
@@ -487,7 +521,7 @@
   font-family: inherit;
   outline: none;
   resize: none;
-  min-height: 46px;
+  min-height: 56px;
   max-height: 200px;
   overflow-y: auto;
   background: var(--bg);
