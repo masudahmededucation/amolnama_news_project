@@ -55,10 +55,12 @@
           return;
         }
 
-        // Step 1: Load CSS first, wait for it
+        // Step 1: Load CSS first, wait for it + one animation frame for paint
         loadPageCss(parsed).then(function () {
+          return new Promise(function (resolve) { requestAnimationFrame(resolve); });
+        }).then(function () {
 
-          // Step 2: Swap content
+          // Step 2: Swap content (CSS is loaded AND painted)
           mainElement.innerHTML = newMain.innerHTML;
 
           // Step 3: Update title
