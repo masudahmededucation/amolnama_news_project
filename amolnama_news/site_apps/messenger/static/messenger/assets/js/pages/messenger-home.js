@@ -507,4 +507,22 @@
     openConversation(parseInt(initialConversationId, 10), '', '');
   }
 
+  // Auto-start conversation if ?start= in URL (from profile page Message button)
+  var startWithUserId = messengerElement.getAttribute('data-start-with-user');
+  if (startWithUserId && !initialConversationId) {
+    fetch('/messenger/api/conversations/start/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ other_user_profile_id: parseInt(startWithUserId, 10) }),
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      if (data.success) {
+        openConversation(data.conversation_id, '', '');
+        loadConversationList();
+      }
+    })
+    .catch(function () {});
+  }
+
 })();

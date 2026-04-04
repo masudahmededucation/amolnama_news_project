@@ -8,6 +8,7 @@ from django.shortcuts import render
 def home(request):
     """Messenger home — two-panel layout (conversation list + chat view)."""
     conversation_id = request.GET.get('conversation', '')
+    start_with_user_profile_id = request.GET.get('start', '')
 
     current_user_profile_id = None
     try:
@@ -18,6 +19,7 @@ def home(request):
 
     return render(request, 'messenger/pages/messenger-home.html', {
         'initial_conversation_id': conversation_id,
+        'start_with_user_profile_id': start_with_user_profile_id,
         'current_user_profile_id': current_user_profile_id,
         'seo': {
             'title': 'মেসেঞ্জার — আমলনামা নিউজ',

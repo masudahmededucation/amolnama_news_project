@@ -44,6 +44,7 @@
         <button type="button" class="user-profile-follow-button{% if user_following %} user-profile-follow-button-active{% endif %}" id="user-profile-follow-button" name="user_profile_follow_button" data-user-profile-id="{{ profile.user_profile_id }}">
           {% if user_following %}Following{% else %}Follow{% endif %}
         </button>
+        <a href="/messenger/?start={{ profile.user_profile_id }}" class="user-profile-message-button" id="user-profile-message-button" name="user_profile_message_button">💬 Message</a>
         <button type="button" class="user-profile-block-button{% if user_blocked %} user-profile-block-button-active{% endif %}" id="user-profile-block-button" name="user_profile_block_button" data-user-profile-id="{{ profile.user_profile_id }}">
           {% if user_blocked %}Unblock{% else %}Block{% endif %}
         </button>
