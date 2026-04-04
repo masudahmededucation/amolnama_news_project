@@ -698,8 +698,9 @@
 .messenger-send-button:active { transform: scale(.95); }
 
 /* ── Collapsed sidebar: name only, no preview ── */
-/* Collapsed: only left sidebar shrinks. Chat area unchanged. */
+.messenger { transition: grid-template-columns .2s ease; }
 .messenger.messenger-sidebar-collapsed { grid-template-columns: 180px 1fr; }
+.messenger-sidebar-collapsed .messenger-sidebar { overflow: hidden; }
 .messenger-sidebar-collapsed .messenger-sidebar-search { display: none; }
 .messenger-sidebar-collapsed .messenger-sidebar-title { font-size: .82rem; }
 .messenger-sidebar-collapsed .messenger-conversation-item { padding: .45rem .6rem; gap: .4rem; }
