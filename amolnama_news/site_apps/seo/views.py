@@ -189,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v367';
+var CACHE_NAME = 'amolnama-v368';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install
@@ -253,18 +253,11 @@ self.addEventListener('fetch', function (event) {
       })
     );
   } else if (isPageNavigation) {
-    // PAGE HTML: network-first, cache-fallback (fresh content, offline-safe)
+    // PAGE HTML: network only, offline shows cached home or offline message
     event.respondWith(
-      fetch(request).then(function (response) {
-        if (response.ok) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function (cache) { cache.put(request, clone); });
-        }
-        return response;
-      }).catch(function () {
-        return caches.match(request).then(function (cached) {
-          if (cached) return cached;
-          return caches.match(OFFLINE_URL);
+      fetch(request).catch(function () {
+        return caches.match(OFFLINE_URL).then(function (cached) {
+          return cached || new Response('<h1>অফলাইন</h1><p>ইন্টারনেট সংযোগ নেই। পুনরায় চেষ্টা করুন।</p>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
         });
       })
     );
