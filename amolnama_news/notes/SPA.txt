@@ -1,0 +1,18 @@
+one thing, i am confused. why the fuck are you loading or refresh the whole page? you are supposed to refresh only content body, right? which is on the middle. what the hell have you been doing?
+You're right. This is a traditional Django multi-page app — every nav click does a full page reload from the server. The sidebar, header, footer — everything reloads. That's why the sidebar scroll resets.
+
+
+A proper app should only reload the middle content area — the sidebar stays in place, never re-renders, never loses scroll.
+
+That's how X/Twitter, Gmail, WhatsApp Web all work — Single Page Application (SPA) pattern. Click nav → only the content area changes via AJAX, sidebar never touches.
+
+But implementing full SPA routing is a massive rewrite — every view would need to return JSON, and the frontend would need to handle rendering. That's not a quick fix.
+
+What I can do now without rewriting everything:
+
+The sessionStorage fix preserves scroll position across full page loads
+It's a band-aid, not a cure
+The cure is SPA routing — but that's a different architecture
+The sidebar jump issue exists because I built this as a traditional multi-page Django app instead of an SPA. That was the wrong foundation for a social media platform.
+
+Want me to plan SPA routing as a future task, or is the sessionStorage fix acceptable for now?
