@@ -659,6 +659,7 @@ body:has(.messenger) { overflow: hidden; }
   padding: .6rem 1rem;
   border-top: 1px solid var(--border);
   background: var(--card);
+  flex-shrink: 0;
 }
 
 .messenger-input-wrapper {
