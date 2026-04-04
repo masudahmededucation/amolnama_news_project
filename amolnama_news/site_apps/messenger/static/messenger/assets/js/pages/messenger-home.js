@@ -892,6 +892,20 @@
   });
 
   // =========================================================
+  // SIDEBAR COLLAPSE TOGGLE
+  // =========================================================
+
+  var collapseButton = document.getElementById('messenger-sidebar-collapse-button');
+  if (collapseButton) {
+    collapseButton.addEventListener('click', function () {
+      messengerElement.classList.toggle('messenger-sidebar-collapsed');
+      var isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
+      collapseButton.textContent = isCollapsed ? '▸' : '☰';
+      collapseButton.title = isCollapsed ? 'বিস্তারিত করুন' : 'সংকুচিত করুন';
+    });
+  }
+
+  // =========================================================
   // CHAT SETTINGS (auto-delete + clear all)
   // =========================================================
 
