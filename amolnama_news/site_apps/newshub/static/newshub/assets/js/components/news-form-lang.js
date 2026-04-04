@@ -110,15 +110,11 @@
 
   /* ========== CSRF from cookie (works on all pages) ========== */
 
-  function getCsrfToken() {
-    var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return match ? match[1] : '';
-  }
 
   /* ========== AJAX save ========== */
 
   function saveLangPref(lang) {
-    var csrf = getCsrfToken();
+    var csrf = getCsrfTokenValue();
     if (!csrf) return;
     var body = new URLSearchParams();
     body.append('lang', lang);

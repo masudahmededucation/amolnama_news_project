@@ -124,12 +124,8 @@
     });
 
     xhr.open("POST", "/bangladesh-tourist-destinations/api/media/upload/");
-    xhr.setRequestHeader("X-CSRFToken", getCsrfToken("csrftoken"));
+    xhr.setRequestHeader("X-CSRFToken", getCsrfTokenValue());
     xhr.send(formData);
   });
 
-  function getCsrfToken(name) {
-    var match = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
-    return match ? match.pop() : "";
-  }
 })();

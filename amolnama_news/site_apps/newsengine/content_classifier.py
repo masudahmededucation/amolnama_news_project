@@ -4,6 +4,7 @@ Phase 1: keyword matching. Phase 2 (future): AI classification.
 All local, no external API."""
 
 import logging
+from amolnama_news.site_apps.core.utils import normalize_text as _normalize_text
 import re
 import unicodedata
 
@@ -20,12 +21,6 @@ SPAM_PATTERNS = [
     re.compile(r'(.)\1{5,}'),                                  # repeated chars (6+)
 ]
 
-
-def _normalize_text(text):
-    """NFC normalize + lowercase for consistent matching."""
-    if not text:
-        return ''
-    return unicodedata.normalize('NFC', text.strip().lower())
 
 
 def _load_flagged_keywords():

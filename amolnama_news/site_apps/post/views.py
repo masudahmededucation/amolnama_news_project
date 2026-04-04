@@ -2,6 +2,8 @@
 
 import re
 
+from amolnama_news.site_apps.core.utils import time_ago as _calculate_time_ago
+
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import redirect, render
@@ -620,12 +622,6 @@ def api_post_oembed(request):
         'height': 400,
     })
 
-
-def _calculate_time_ago(created_at):
-    """Return a Bengali time-ago string."""
-    now = timezone.now()
-    diff = now - created_at
-    seconds = int(diff.total_seconds())
 
     if seconds < 60:
         return 'এইমাত্র'

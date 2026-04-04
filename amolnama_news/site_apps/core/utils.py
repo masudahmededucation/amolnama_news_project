@@ -29,6 +29,34 @@ def get_user_profile_id(request):
         return None
 
 
+def time_ago(dt):
+    """Bengali time-ago string. Shared across all apps."""
+    if not dt:
+        return ''
+    from django.utils import timezone as tz
+    diff = tz.now() - dt
+    seconds = int(diff.total_seconds())
+    if seconds < 60:
+        return 'এইমাত্র'
+    minutes = seconds // 60
+    if minutes < 60:
+        return f'{minutes} মিনিট আগে'
+    hours = minutes // 60
+    if hours < 24:
+        return f'{hours} ঘণ্টা আগে'
+    days = hours // 24
+    if days < 7:
+        return f'{days} দিন আগে'
+    return dt.strftime('%d %b %Y')
+
+
+def normalize_text(text):
+    """NFC normalize + lowercase for consistent Bengali text matching. Shared across all apps."""
+    if not text:
+        return ''
+    return unicodedata.normalize('NFC', text.strip().lower())
+
+
 def bangla_slugify(text, max_length=450):
     """Generate a URL-safe slug that preserves Bengali characters (matras, conjuncts, chandrabindu).
 

@@ -4,10 +4,6 @@
  * Get CSRF token from cookies for secure API requests
  * @returns {string} CSRF token value or null
  */
-function getCsrfToken() {
-  const name = 'csrftoken';
-  let cookieValue = null;
-  
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
@@ -59,7 +55,7 @@ function submitVote() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
+        'X-CSRFToken': getCsrfTokenValue(),
       },
       body: JSON.stringify(voteData),
     })
@@ -155,7 +151,7 @@ function updateVote() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCsrfToken(),
+      'X-CSRFToken': getCsrfTokenValue(),
     },
     body: JSON.stringify(updateData),
   })

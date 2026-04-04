@@ -1,6 +1,7 @@
 """Poem app — page views."""
 
 import re
+from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
@@ -75,26 +76,6 @@ def poem_detail_by_slug(request, poem_slug):
         raise Http404
     return _render_poem_detail(request, poem)
 
-
-def _time_ago(dt):
-    """Human-readable time-ago string (Bengali + English)."""
-    if not dt:
-        return ""
-    diff = timezone.now() - dt
-    seconds = int(diff.total_seconds())
-    if seconds < 60:
-        return "এইমাত্র (just now)"
-    minutes = seconds // 60
-    if minutes < 60:
-        return f"{minutes} মিনিট আগে ({minutes}m ago)"
-    hours = minutes // 60
-    if hours < 24:
-        return f"{hours} ঘন্টা আগে ({hours}h ago)"
-    days = hours // 24
-    if days < 30:
-        return f"{days} দিন আগে ({days}d ago)"
-    months = days // 30
-    return f"{months} মাস আগে ({months}mo ago)"
 
 
 def _annotate_poem(poem, categories_map):

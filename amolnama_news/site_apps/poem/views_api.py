@@ -1,6 +1,7 @@
 """Poem app — JSON API endpoints."""
 
 import json
+from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import logging
 
@@ -27,26 +28,6 @@ def _poem_url(poem):
     # No slug yet — return ID-based redirect URL (avoids DB write during list API)
     return reverse("poem:poem_detail_by_id", kwargs={"poem_id": poem.poem_coll_poem_entry_id})
 
-
-def _time_ago(dt):
-    """Human-readable time-ago string."""
-    if not dt:
-        return ""
-    diff = timezone.now() - dt
-    seconds = int(diff.total_seconds())
-    if seconds < 60:
-        return "এইমাত্র"
-    minutes = seconds // 60
-    if minutes < 60:
-        return f"{minutes}m ago"
-    hours = minutes // 60
-    if hours < 24:
-        return f"{hours}h ago"
-    days = hours // 24
-    if days < 30:
-        return f"{days}d ago"
-    months = days // 30
-    return f"{months}mo ago"
 
 
 

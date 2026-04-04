@@ -1,6 +1,7 @@
 """Bangladesh app — page views."""
 
 import json
+from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 import re
 
 from django.contrib.auth.decorators import login_required
@@ -25,25 +26,6 @@ from .models import (
 
 PAGE_SIZE = 12
 
-
-def _time_ago(dt):
-    if not dt:
-        return ""
-    diff = timezone.now() - dt
-    seconds = int(diff.total_seconds())
-    if seconds < 60:
-        return "এইমাত্র"
-    minutes = seconds // 60
-    if minutes < 60:
-        return f"{minutes} মিনিট আগে"
-    hours = minutes // 60
-    if hours < 24:
-        return f"{hours} ঘন্টা আগে"
-    days = hours // 24
-    if days < 30:
-        return f"{days} দিন আগে"
-    months = days // 30
-    return f"{months} মাস আগে"
 
 
 # ============================================================================

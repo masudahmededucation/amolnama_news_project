@@ -1,6 +1,7 @@
 """Stories for Kids views — landing, detail, submit pages."""
 
 from django.contrib.auth.decorators import login_required
+from amolnama_news.site_apps.core.utils import time_ago as _calculate_time_ago
 from django.http import Http404
 from django.shortcuts import render
 from django.utils import timezone
@@ -26,27 +27,6 @@ def _get_story_cover_url(story_id):
         row = cursor.fetchone()
     return row[0] if row else None
 
-
-def _calculate_time_ago(created_at):
-    """Calculate Bengali time ago string."""
-    if not created_at:
-        return ''
-    now = timezone.now()
-    diff = now - created_at
-    seconds = int(diff.total_seconds())
-    if seconds < 60:
-        return 'এইমাত্র'
-    minutes = seconds // 60
-    if minutes < 60:
-        return f'{minutes} মিনিট আগে'
-    hours = minutes // 60
-    if hours < 24:
-        return f'{hours} ঘণ্টা আগে'
-    days = hours // 24
-    if days < 30:
-        return f'{days} দিন আগে'
-    months = days // 30
-    return f'{months} মাস আগে'
 
 
 @ensure_csrf_cookie

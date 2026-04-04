@@ -43,7 +43,7 @@
     if (photoId && destId) {
       fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/photo/' + photoId + '/view/', {
         method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfToken() },
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
         .then(function () {
           /* Increment displayed view count */
@@ -132,7 +132,7 @@
     if (videoLinkId && destId) {
       fetch('/bangladesh-tourist-destinations/api/destination/' + destId + '/video/' + videoLinkId + '/view/', {
         method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfToken() },
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
         .then(function () {
           var viewsElement = card.querySelector('.travel-hub-detail-media-card-views');
@@ -168,7 +168,7 @@
     likeButton.disabled = true;
     fetch(apiUrl, {
       method: 'POST',
-      headers: { 'X-CSRFToken': getCsrfToken() },
+      headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
       .then(function (response) { return response.json(); })
       .then(function (data) {
@@ -221,10 +221,6 @@
 
   /* ========== Helpers ========== */
 
-  function getCsrfToken() {
-    var match = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return match ? match.pop() : '';
-  }
 
   function showInlineMessage(parent, text, isError) {
     var old = parent.querySelector('.travel-hub-detail-inline-message');
@@ -266,7 +262,7 @@
 
       fetch('/bangladesh-tourist-destinations/api/destination/' + destinationId + '/photo/', {
         method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfToken() },
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
         body: formData,
       })
         .then(function (response) { return response.json(); })
@@ -374,7 +370,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken(),
+          'X-CSRFToken': getCsrfTokenValue(),
         },
         body: JSON.stringify({
           youtube_url: url,
@@ -460,7 +456,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken(),
+          'X-CSRFToken': getCsrfTokenValue(),
         },
         body: JSON.stringify({
           reference_url: url,
@@ -547,7 +543,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken(),
+          'X-CSRFToken': getCsrfTokenValue(),
         },
         body: JSON.stringify({
           rating_overall: parseInt(rating),
@@ -751,7 +747,7 @@
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
+        'X-CSRFToken': getCsrfTokenValue(),
       },
       body: JSON.stringify(payload),
     })
@@ -882,7 +878,7 @@
 
     fetch(apiUrl, {
       method: 'DELETE',
-      headers: { 'X-CSRFToken': getCsrfToken() },
+      headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
       .then(function (response) { return response.json(); })
       .then(function (data) {
@@ -942,7 +938,7 @@
     var apiUrl = '/bangladesh-tourist-destinations/api/destination/' + destinationId + '/photo/' + photoId + '/set-cover/';
     fetch(apiUrl, {
       method: 'PATCH',
-      headers: { 'X-CSRFToken': getCsrfToken() },
+      headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
     .then(function (response) { return response.json(); })
     .then(function (data) {

@@ -3,6 +3,7 @@ Runs in background thread after content creation. All local except optional Goog
 Phase 1: keyword + pattern. Phase 2 (future): AI + partnerships."""
 
 import hashlib
+from amolnama_news.site_apps.core.utils import normalize_text as _normalize_text
 import logging
 import re
 import unicodedata
@@ -19,12 +20,6 @@ logger = logging.getLogger(__name__)
 GOOGLE_FACT_CHECK_API_KEY = None  # Set this in settings or environment variable
 GOOGLE_FACT_CHECK_API_URL = 'https://factchecktools.googleapis.com/v1alpha1/claims:search'
 
-
-def _normalize_text(text):
-    """NFC normalize + lowercase for consistent matching."""
-    if not text:
-        return ''
-    return unicodedata.normalize('NFC', text.strip().lower())
 
 
 def _hash_claim(text):
