@@ -170,6 +170,8 @@
   flex-direction: column;
   position: relative;
   background: var(--bg);
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Empty state */
