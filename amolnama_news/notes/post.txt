@@ -603,3 +603,24 @@ after their birthday.
 same for new year.
 same for Eid-ul-fitre
 same for Eid-ul-adha
+
+
+####
+--video saving option
+when someone uploads a video
+admin staff should have ability to save video
+
+
+###
+--placeholder admin
+it will give me options to put placeholder value for posts wall.
+it will put this as default for 30 minutes maybe for all users.
+time starts from when they come to the home wall posts.
+then randomly it will come back frequently.
+this will help to collect information on current news.
+
+all give me options to add more placeholder value
+without coming to you all the time.
+
+we may need to have some intelligence for placeholder values.
+

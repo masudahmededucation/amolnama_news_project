@@ -134,6 +134,10 @@
       <span class="sidebar-navigation-item-icon">🛡️</span>
       <span class="sidebar-navigation-item-label">Moderation</span>
     </a>
+    <a href="{% url 'portal:composer_placeholders' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/admin/placeholders/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-placeholders" name="sidebar_navigation_item_placeholders" title="Placeholder Admin">
+      <span class="sidebar-navigation-item-icon">🎯</span>
+      <span class="sidebar-navigation-item-label">Placeholders</span>
+    </a>
     {% endif %}
   </div>
 </nav>
