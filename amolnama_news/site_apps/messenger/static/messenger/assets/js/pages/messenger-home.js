@@ -54,16 +54,11 @@
   function formatDateSeparator(isoString) {
     if (!isoString) return '';
     var date = new Date(isoString);
-    var today = new Date();
-    var yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (date.toDateString() === today.toDateString()) return 'আজ';
-    if (date.toDateString() === yesterday.toDateString()) return 'গতকাল';
 
     var day = date.getDate();
-    var months = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগ', 'সেপ্ট', 'অক্টো', 'নভে', 'ডিসে'];
-    return day + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+    var month = date.getMonth() + 1;
+    var dayName = dayNames[date.getDay()];
+    return day + '/' + month + '/' + date.getFullYear() + ' ' + dayName;
   }
 
   function checkmarkHtml(status) {
