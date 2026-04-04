@@ -281,13 +281,12 @@
 
 .messenger-bubble-received {
   align-self: flex-start;
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: #e3f2fd;
   border-bottom-left-radius: 3px;
 }
 
 [data-theme="dark"] .messenger-bubble-sent { background: #1a3a2a; }
-[data-theme="dark"] .messenger-bubble-received { background: var(--surface); border-color: var(--border); }
+[data-theme="dark"] .messenger-bubble-received { background: #1a2a3a; }
 
 .messenger-bubble-text {
   white-space: pre-wrap;
