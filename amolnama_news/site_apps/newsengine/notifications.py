@@ -21,7 +21,7 @@ def create_notification(recipient_user_profile_id, actor_user_profile_id, event_
                 INSERT INTO [newsengine].[notification_item]
                     ([link_recipient_user_profile_id], [link_actor_user_profile_id],
                      [notification_event_code], [notification_source_app],
-                     [link_content_id], [notification_message], [notification_url])
+                     [link_notification_content_id], [notification_message], [notification_url])
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             """, [
                 recipient_user_profile_id, actor_user_profile_id,
