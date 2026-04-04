@@ -122,32 +122,41 @@
   var baseStyleCount = document.querySelectorAll('style').length;
 
   function loadPageCss(parsedDocument) {
-    // Remove old page-specific CSS
-    document.querySelectorAll('[data-spa-css]').forEach(function (element) {
-      element.remove();
-    });
-
-    var cssLoadPromises = [];
-
-    // External stylesheets not in base
+    // Find what the new page needs
+    var newPageCssHrefs = new Set();
     parsedDocument.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
       var href = link.getAttribute('href');
-      if (href && !baseCssHrefs.has(href)) {
+      if (href && !baseCssHrefs.has(href)) newPageCssHrefs.add(href);
+    });
+
+    // Find what's currently loaded (page-specific only)
+    var currentSpaCssHrefs = new Set();
+    document.querySelectorAll('link[data-spa-css]').forEach(function (link) {
+      currentSpaCssHrefs.add(link.getAttribute('href'));
+    });
+
+    // Remove CSS that the new page doesn't need
+    document.querySelectorAll('link[data-spa-css]').forEach(function (link) {
+      if (!newPageCssHrefs.has(link.getAttribute('href'))) link.remove();
+    });
+
+    // Remove old inline styles (always replaced)
+    document.querySelectorAll('style[data-spa-css]').forEach(function (style) {
+      style.remove();
+    });
+
+    // Add CSS that's new (not already loaded)
+    newPageCssHrefs.forEach(function (href) {
+      if (!currentSpaCssHrefs.has(href)) {
         var newLink = document.createElement('link');
         newLink.rel = 'stylesheet';
         newLink.href = href;
         newLink.setAttribute('data-spa-css', 'true');
         document.head.appendChild(newLink);
-
-        cssLoadPromises.push(new Promise(function (resolve) {
-          newLink.onload = resolve;
-          newLink.onerror = resolve;
-          setTimeout(resolve, 2000);
-        }));
       }
     });
 
-    // Inline <style> blocks beyond base count
+    // Add inline <style> blocks beyond base count
     var parsedStyles = parsedDocument.querySelectorAll('style');
     for (var i = baseStyleCount; i < parsedStyles.length; i++) {
       var newStyle = document.createElement('style');
@@ -155,8 +164,6 @@
       newStyle.setAttribute('data-spa-css', 'true');
       document.head.appendChild(newStyle);
     }
-
-    return cssLoadPromises.length > 0 ? Promise.all(cssLoadPromises) : Promise.resolve();
   }
 
   // =========================================================
