@@ -220,9 +220,17 @@ def api_message_list(request, conversation_id):
             pass
 
     messages = messages_query.order_by('-created_at')[:30]
+    messages_list = list(messages)
+
+    # Batch-fetch reply-to message texts
+    reply_ids = [m.link_reply_to_message_id for m in messages_list if m.link_reply_to_message_id]
+    reply_texts = {}
+    if reply_ids:
+        for reply_message in Message.objects.filter(messenger_message_id__in=reply_ids).only('messenger_message_id', 'message_text'):
+            reply_texts[reply_message.messenger_message_id] = (reply_message.message_text or '')[:100]
 
     results = []
-    for message in reversed(list(messages)):  # Reverse to show oldest first
+    for message in reversed(messages_list):  # Reverse to show oldest first
         results.append({
             'message_id': message.messenger_message_id,
             'sender_user_profile_id': message.link_sender_user_profile_id,
@@ -233,6 +241,7 @@ def api_message_list(request, conversation_id):
             'is_edited': message.is_edited,
             'is_system_message': message.is_system_message,
             'reply_to_message_id': message.link_reply_to_message_id,
+            'reply_to_text': reply_texts.get(message.link_reply_to_message_id, ''),
             'created_at': message.created_at.isoformat() if message.created_at else '',
         })
 
@@ -358,13 +367,20 @@ def api_message_poll(request, conversation_id):
         link_user_profile_id=user_profile_id,
     ).values_list('link_message_id', flat=True))
 
-    new_messages = Message.objects.filter(
+    new_messages = list(Message.objects.filter(
         link_conversation_id=conversation_id,
         messenger_message_id__gt=after_message_id,
         is_active=True,
     ).exclude(
         messenger_message_id__in=deleted_message_ids,
-    ).order_by('created_at')[:50]
+    ).order_by('created_at')[:50])
+
+    # Batch-fetch reply-to texts
+    reply_ids = [m.link_reply_to_message_id for m in new_messages if m.link_reply_to_message_id]
+    reply_texts = {}
+    if reply_ids:
+        for reply_message in Message.objects.filter(messenger_message_id__in=reply_ids).only('messenger_message_id', 'message_text'):
+            reply_texts[reply_message.messenger_message_id] = (reply_message.message_text or '')[:100]
 
     results = []
     for message in new_messages:
@@ -378,6 +394,7 @@ def api_message_poll(request, conversation_id):
             'is_edited': message.is_edited,
             'is_system_message': message.is_system_message,
             'reply_to_message_id': message.link_reply_to_message_id,
+            'reply_to_text': reply_texts.get(message.link_reply_to_message_id, ''),
             'created_at': message.created_at.isoformat() if message.created_at else '',
         })
 

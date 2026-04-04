@@ -273,7 +273,8 @@
 
       // Quoted reply
       if (message.reply_to_message_id) {
-        html += '<div class="messenger-bubble-quote" data-quote-id="' + message.reply_to_message_id + '">↩ রিপ্লাই</div>';
+        var quoteText = message.reply_to_text ? escapeHtml(message.reply_to_text) : 'মেসেজ';
+        html += '<div class="messenger-bubble-quote" data-quote-id="' + message.reply_to_message_id + '">↩ ' + quoteText + '</div>';
       }
 
       if (message.is_deleted_for_everyone) {
@@ -319,14 +320,29 @@
     replyPreviewContent.textContent = '';
   }
 
-  // Reply button click (delegated on messages container)
+  // Reply button click + quote click (delegated on messages container)
   messagesContainer.addEventListener('click', function (event) {
+    // Reply button
     var replyButton = event.target.closest('.messenger-bubble-reply-button');
-    if (!replyButton) return;
-    var messageId = replyButton.getAttribute('data-reply-id');
-    var bubble = replyButton.closest('.messenger-bubble');
-    var messageText = bubble ? bubble.getAttribute('data-message-text') : '';
-    setReplyTo(parseInt(messageId, 10), messageText);
+    if (replyButton) {
+      var messageId = replyButton.getAttribute('data-reply-id');
+      var bubble = replyButton.closest('.messenger-bubble');
+      var messageText = bubble ? bubble.getAttribute('data-message-text') : '';
+      setReplyTo(parseInt(messageId, 10), messageText);
+      return;
+    }
+
+    // Quote click — scroll to original message
+    var quote = event.target.closest('.messenger-bubble-quote');
+    if (quote) {
+      var quoteId = quote.getAttribute('data-quote-id');
+      var originalBubble = messagesContainer.querySelector('[data-message-id="' + quoteId + '"]');
+      if (originalBubble) {
+        originalBubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        originalBubble.style.outline = '2px solid var(--primary)';
+        setTimeout(function () { originalBubble.style.outline = ''; }, 2000);
+      }
+    }
   });
 
   // Close reply preview
