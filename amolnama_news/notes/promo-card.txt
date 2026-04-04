@@ -82,3 +82,12 @@ when they logged in.
 or comeback on app.
 promo card can appear on Top,
 only if they are new and latest.
+
+
+--changing promo card
+if a user already have seen or scrolled to a promo card.
+then it is time to change the promo card. 
+don't change it.
+user maybe interested to look at it. 
+if the user scrolls past then change. 
+give it a minute or two if he is there.

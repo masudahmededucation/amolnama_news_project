@@ -1,0 +1,91 @@
+Session: 2026-04-04 — Messenger App + Search Redesign + Modularisation
+=========================================================================
+
+## Messenger App (WhatsApp-style)
+
+### DB Tables (5 tables in [messenger] schema)
+- conversation — type (direct/group), denormalized last_message fields
+- conversation_participant — unread_count, is_pinned, is_muted, last_read_message_id
+- message — text, status (sent/delivered/read), reply_to, edit, delete_for_everyone
+- message_deletion — per-user "delete for me"
+- typing_indicator — ephemeral, 5-second expiry
+
+### API Endpoints (14 total)
+- GET /api/unread-count/ — total unread (polled by sidebar nav)
+- GET /api/conversations/ — list with sorting (pinned first, then by time)
+- POST /api/conversations/start/ — start or find existing direct chat
+- GET /api/messages/<id>/ — paginated messages (cursor-based, ?before=)
+- POST /api/messages/<id>/send/ — send with optimistic UI
+- GET /api/messages/<id>/poll/ — new messages since ?after=
+- POST /api/messages/<id>/read/ — mark all as read
+- POST /api/messages/<id>/delete-for-me/<mid>/ — soft delete for current user
+- POST /api/messages/<id>/delete-for-everyone/<mid>/ — delete for all (1 hour limit)
+- POST /api/messages/<id>/edit/<mid>/ — edit message (15 min limit)
+- POST /api/conversations/<id>/pin/ — toggle pin
+- POST /api/conversations/<id>/mute/ — toggle mute
+- POST /api/typing/<id>/ — update typing indicator
+- GET /api/typing/<id>/status/ — check if other user typing
+
+### Features Built
+- Two-panel layout (280px sidebar + chat)
+- 3-second polling for new messages
+- 30-second polling for conversation list
+- Optimistic message sending (instant display)
+- Read receipts (✓ sent, ✓✓ delivered, ✓✓ blue read)
+- Reply-to with quoted preview (click to scroll to original)
+- Context menu (right-click desktop, long-press mobile): reply, copy, edit, delete
+- Edit message (inline contentEditable, 15 min limit)
+- Delete for me / delete for everyone (1 hour limit)
+- Typing indicator display ("টাইপ করছেন...")
+- Scroll up to load older messages (cursor pagination, preserves scroll)
+- Conversation search (client-side filter)
+- Emoji picker (50 emojis, inside textarea)
+- Pin/mute conversation
+- Unread badge on sidebar nav (red circle, polls 30s)
+- Message button on user profiles (/messenger/?start=<id>)
+- Date+day+time on every message (DD/MM/YYYY বারের_নাম HH:MM AM/PM)
+- Sender name + avatar on received bubbles
+- Date separators with gap between groups
+- Send failure: message stays with retry button (persists in localStorage)
+- Mobile: single-panel mode with back button, 44px tap targets
+- Block check prevents messaging
+- Notification on new message
+
+### Key Bug Fixes
+- parseInt("None") returning NaN — all messages rendered as received (white)
+- replyToMessageId cleared before fetch sent it — replies never saved to DB
+- Notification column name wrong (link_content_id → link_notification_content_id)
+- Conversation sort: second sort overriding first
+- XSS: message text in data attribute — moved to JS Map
+- Desktop scroll not working — needed min-height:0 on flex container
+
+### Service Worker Rewrite
+- Static assets: cache-first (fast, offline-safe)
+- Page HTML: network-only, offline shows styled Bengali page
+- Inline critical CSS in base.html prevents broken layout
+- Professional offline page with 📡 icon and retry button
+
+## Search Page Redesign
+- Shows full home feed by default (no composer)
+- Type to search → feed hides, results show
+- Clear search → feed returns
+- Embedded search button (🔍 সার্চ) with focus ring
+- Multiple space collapse in query
+- Enter key immediate search
+
+## Modularisation (57 duplicates → 4 shared utilities)
+- getCsrfTokenValue: 21 copies → core/js/utilities/csrf-token.js
+- getCsrfToken: 4 copies → removed, uses global
+- getCsrf: 4 copies → alias to global
+- escapeHtml: 13 copies → core/js/utilities/escape-html.js
+- _get_user_profile_id: 6 copies → core/utils.py
+- _time_ago/_calculate_time_ago: 7 copies → core/utils.py
+- _normalize_text: 2 copies → core/utils.py
+
+## Post Card Mobile Fix
+- Timestamp on own line (order: -1) on mobile
+- Short time only, full date on tooltip
+
+## Profile Page Fix
+- Added missing post-home.css, post-feed-interactions.js, photo-lightbox
+- Message button: 🗨 Message | Following | Block order

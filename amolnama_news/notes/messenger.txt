@@ -1,0 +1,60 @@
+messenger app - 
+do some research on competitive apps - x/facebook/whatsapp.
+i like whatsapp messaging style. 
+is it possible we can do that here?
+
+--deep research
+do some deep research.
+rather than editing and rushing. 
+do some deep research. 
+specially whatsapp then come back again
+
+
+if i select to reply to message - how are you?
+then i click reply, then in the reply message,
+it should include how are you? and the reply.
+if the the message is to big then show little preview of it.
+just check how whatsapp does it?
+you stupid little shit keep avoiding this. 
+
+reply should show the preview of message. 
+then clicking on that should take it to the original message.
+
+are you clear?
+every step of the flow:
+
+Click reply on a message → reply preview bar shows with message text
+Type reply and send → sent message includes quoted preview of original
+Click the quoted preview → scrolls to original message
+
+show date time on every message individually.
+show receivers name on the top.
+saying today, it should be date, day name, time on each message.
+every message should have it's own bar at the bottom of each message.
+
+also group the message by dates and day.
+there should be some gap between different dates of messages.
+it makes it easier to scroll through and find messages.
+
+date format DD/MM/YYYY
+
+not able to scroll through message.
+the reply message preview for once.
+if i move or refresh page, then it vanishes.
+you are a magician.
+you need to save which message has been replied to info.
+
+--sent failure
+on message sent failure.
+it still should get on the senders's message board list.
+then give option to resend or try again options.
+when the network is available 
+then it should send that message successfully.
+on no network, it should still work right?
+
+--telegram
+need to be able to clear all messages from everywhere.
+it is to protect the sender/journalist. 
+need to be able to clear all conversation.
+need to be able to clear message periodically.
+maybe 1/7/30/yearly.
