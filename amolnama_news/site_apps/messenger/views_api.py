@@ -55,6 +55,21 @@ def _get_other_participant_info(conversation_id, current_user_profile_id):
 # =========================================================
 
 @login_required
+def api_unread_count(request):
+    """GET — total unread message count across all conversations. Polled by sidebar."""
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': True, 'unread_count': 0})
+
+    from django.db.models import Sum
+    total = ConversationParticipant.objects.filter(
+        link_user_profile_id=user_profile_id, is_active=True,
+    ).aggregate(total=Sum('unread_count'))['total'] or 0
+
+    return JsonResponse({'success': True, 'unread_count': total})
+
+
+@login_required
 def api_conversation_list(request):
     """GET — list current user's conversations with last message and unread count."""
     user_profile_id = _get_user_profile_id(request)

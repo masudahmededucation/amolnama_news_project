@@ -8,6 +8,9 @@ app_name = 'messenger'
 urlpatterns = [
     path('', views.home, name='home'),
 
+    # Unread count (polled globally from sidebar)
+    path('api/unread-count/', views_api.api_unread_count, name='api_unread_count'),
+
     # Conversation API
     path('api/conversations/', views_api.api_conversation_list, name='api_conversation_list'),
     path('api/conversations/start/', views_api.api_conversation_start, name='api_conversation_start'),

@@ -28,7 +28,7 @@
     </a>
 
     <a href="{% url 'messenger:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'messenger' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-messenger" name="sidebar_navigation_item_messenger" title="মেসেঞ্জার (Messenger)">
-      <span class="sidebar-navigation-item-icon">📩</span>
+      <span class="sidebar-navigation-item-icon">📩<span class="sidebar-navigation-unread-badge sidebar-navigation-unread-badge-hidden" id="sidebar-messenger-unread-badge">0</span></span>
       <span class="sidebar-navigation-item-label">মেসেঞ্জার</span>
     </a>
 
