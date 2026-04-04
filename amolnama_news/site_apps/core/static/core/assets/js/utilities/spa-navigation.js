@@ -9,11 +9,12 @@
 
   var isNavigating = false;
   var currentAbortController = null;
+  var isPushState = true; // false during popstate (back/forward)
 
-  // Only intercept sidebar navigation links
   var sidebarNav = document.getElementById('sidebar-navigation');
   if (!sidebarNav) return;
 
+  // Intercept sidebar nav link clicks
   sidebarNav.addEventListener('click', function (event) {
     var link = event.target.closest('a.sidebar-navigation-item');
     if (!link) return;
@@ -21,28 +22,22 @@
     var url = link.getAttribute('href');
     if (!url) return;
 
-    // Skip: external links, hash links, modifier keys, new tab
     if (link.target === '_blank') return;
     if (url.startsWith('http') && !url.startsWith(window.location.origin)) return;
     if (url.startsWith('#')) return;
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-
-    // Skip: same URL
     if (url === window.location.pathname) return;
 
     event.preventDefault();
+    isPushState = true;
     navigateTo(url);
   });
 
   function navigateTo(url) {
-    if (isNavigating) {
-      if (currentAbortController) currentAbortController.abort();
-    }
+    if (isNavigating && currentAbortController) currentAbortController.abort();
 
     isNavigating = true;
     currentAbortController = new AbortController();
-
-    // Show loading indicator
     showLoadingBar();
 
     fetch(url, { signal: currentAbortController.signal })
@@ -56,43 +51,40 @@
         var newTitle = parsed.querySelector('title');
 
         if (!newMain) {
-          // Fallback: full page load if <main> not found
           window.location.href = url;
           return;
         }
 
-        // Load page-specific CSS FIRST (before swapping content)
-        var cssReady = swapPageCss(parsed);
+        // Step 1: Load CSS first, wait for it
+        loadPageCss(parsed).then(function () {
 
-        // Wait for CSS to load, then swap content
-        cssReady.then(function () {
-          // Swap content
+          // Step 2: Swap content
           mainElement.innerHTML = newMain.innerHTML;
 
-          // Update title
+          // Step 3: Update title
           if (newTitle) document.title = newTitle.textContent;
 
-          // Update URL
-          history.pushState({ url: url }, '', url);
+          // Step 4: Update URL (only on click, not on back/forward)
+          if (isPushState) {
+            history.pushState({ url: url }, '', url);
+          }
 
-          // Update sidebar active state
+          // Step 5: Update sidebar highlight
           updateSidebarActiveState(url);
 
-          // Handle page-specific JS
-          swapPageJs(parsed);
+          // Step 6: Load page-specific JS
+          loadPageJs(parsed);
 
-          // Scroll content to top
+          // Step 7: Scroll to top
           mainElement.scrollTop = 0;
           window.scrollTo(0, 0);
 
-          // Done
           hideLoadingBar();
           isNavigating = false;
         });
       })
       .catch(function (error) {
         if (error.name === 'AbortError') return;
-        // Fallback: full page load on any error
         hideLoadingBar();
         isNavigating = false;
         window.location.href = url;
@@ -104,40 +96,33 @@
   // =========================================================
 
   function updateSidebarActiveState(url) {
-    var items = sidebarNav.querySelectorAll('.sidebar-navigation-item');
-    items.forEach(function (item) {
+    sidebarNav.querySelectorAll('.sidebar-navigation-item').forEach(function (item) {
       var href = item.getAttribute('href') || '';
-      var isActive = false;
-
-      if (href === '/' && url === '/') {
-        isActive = true;
-      } else if (href !== '/' && url.startsWith(href)) {
-        isActive = true;
-      }
-
+      var isActive = (href === '/' && url === '/') || (href !== '/' && url.startsWith(href));
       item.classList.toggle('sidebar-navigation-item-active', isActive);
     });
   }
 
   // =========================================================
-  // PAGE-SPECIFIC CSS
+  // PAGE-SPECIFIC CSS — load before content swap
   // =========================================================
 
-  function swapPageCss(parsedDocument) {
-    // Remove old page-specific CSS (marked with data-spa-css)
+  // Track which CSS hrefs are part of the base template (never change)
+  var baseCssHrefs = new Set();
+  document.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
+    baseCssHrefs.add(link.getAttribute('href'));
+  });
+  var baseStyleCount = document.querySelectorAll('style').length;
+
+  function loadPageCss(parsedDocument) {
+    // Remove old page-specific CSS
     document.querySelectorAll('[data-spa-css]').forEach(function (element) {
       element.remove();
     });
 
-    // Find new page-specific CSS from parsed document
-    var baseCssHrefs = new Set();
-    document.querySelectorAll('link[rel="stylesheet"]:not([data-spa-css])').forEach(function (link) {
-      baseCssHrefs.add(link.getAttribute('href'));
-    });
-
     var cssLoadPromises = [];
 
-    // External stylesheets
+    // External stylesheets not in base
     parsedDocument.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
       var href = link.getAttribute('href');
       if (href && !baseCssHrefs.has(href)) {
@@ -155,44 +140,42 @@
       }
     });
 
-    // Inline <style> blocks (page-specific, not in base)
-    var baseStyleCount = document.querySelectorAll('style:not([data-spa-css])').length;
+    // Inline <style> blocks beyond base count
     var parsedStyles = parsedDocument.querySelectorAll('style');
-    parsedStyles.forEach(function (style, index) {
-      // Skip the base inline critical CSS (first style tag)
-      if (index < baseStyleCount) return;
+    for (var i = baseStyleCount; i < parsedStyles.length; i++) {
       var newStyle = document.createElement('style');
-      newStyle.textContent = style.textContent;
+      newStyle.textContent = parsedStyles[i].textContent;
       newStyle.setAttribute('data-spa-css', 'true');
       document.head.appendChild(newStyle);
-    });
+    }
 
-    // Return promise that resolves when all CSS loaded (or immediately if none)
     return cssLoadPromises.length > 0 ? Promise.all(cssLoadPromises) : Promise.resolve();
   }
 
   // =========================================================
-  // PAGE-SPECIFIC JS
+  // PAGE-SPECIFIC JS — load after content swap
   // =========================================================
 
-  function swapPageJs(parsedDocument) {
-    // Remove old page-specific scripts (marked with data-spa-js)
-    document.querySelectorAll('script[data-spa-js]').forEach(function (script) {
+  // Track which script srcs are part of the base template
+  var baseScriptSrcs = new Set();
+  document.querySelectorAll('script[src]').forEach(function (script) {
+    baseScriptSrcs.add(script.getAttribute('src'));
+  });
+
+  function loadPageJs(parsedDocument) {
+    // Remove old page-specific scripts
+    document.querySelectorAll('[data-spa-js]').forEach(function (script) {
       script.remove();
     });
 
-    // Find scripts that are after the extra_js marker in parsed document
-    // We look for scripts that are NOT in our base set
-    var baseScriptSrcs = new Set();
-    document.querySelectorAll('script[src]:not([data-spa-js])').forEach(function (script) {
-      baseScriptSrcs.add(script.getAttribute('src'));
-    });
+    // Only process scripts from the parsed <body> (where extra_js lives)
+    var parsedBody = parsedDocument.querySelector('body');
+    if (!parsedBody) return;
 
-    parsedDocument.querySelectorAll('script').forEach(function (script) {
+    parsedBody.querySelectorAll('script').forEach(function (script) {
       var src = script.getAttribute('src');
 
       if (src) {
-        // External script — only load if not already in base
         if (!baseScriptSrcs.has(src)) {
           var newScript = document.createElement('script');
           newScript.src = src;
@@ -200,7 +183,6 @@
           document.body.appendChild(newScript);
         }
       } else if (script.textContent.trim()) {
-        // Inline script — execute it
         var newScript = document.createElement('script');
         newScript.textContent = script.textContent;
         newScript.setAttribute('data-spa-js', 'true');
@@ -213,11 +195,11 @@
   // BROWSER BACK/FORWARD
   // =========================================================
 
-  // Save initial state
   history.replaceState({ url: window.location.pathname }, '', window.location.pathname);
 
   window.addEventListener('popstate', function (event) {
     if (event.state && event.state.url) {
+      isPushState = false;
       navigateTo(event.state.url);
     }
   });
@@ -226,28 +208,19 @@
   // LOADING BAR
   // =========================================================
 
-  var loadingBar = null;
+  var loadingBar = document.createElement('div');
+  loadingBar.style.cssText = 'position:fixed;top:0;left:0;height:3px;background:var(--primary);z-index:9999;transition:width .3s;width:0;display:none;';
+  document.body.appendChild(loadingBar);
 
   function showLoadingBar() {
-    if (!loadingBar) {
-      loadingBar = document.createElement('div');
-      loadingBar.style.cssText = 'position:fixed;top:0;left:0;height:3px;background:var(--primary);z-index:9999;transition:width .3s;width:0;';
-      document.body.appendChild(loadingBar);
-    }
     loadingBar.style.width = '0';
     loadingBar.style.display = 'block';
-    requestAnimationFrame(function () {
-      loadingBar.style.width = '70%';
-    });
+    requestAnimationFrame(function () { loadingBar.style.width = '70%'; });
   }
 
   function hideLoadingBar() {
-    if (loadingBar) {
-      loadingBar.style.width = '100%';
-      setTimeout(function () {
-        loadingBar.style.display = 'none';
-      }, 300);
-    }
+    loadingBar.style.width = '100%';
+    setTimeout(function () { loadingBar.style.display = 'none'; }, 300);
   }
 
 })();
