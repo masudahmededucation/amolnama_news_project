@@ -2,14 +2,18 @@
 (function () {
   'use strict';
 
-  /* Preserve sidebar scroll position across page navigation — must run first */
+  /* Preserve sidebar scroll position across page navigation */
   var sidebarElement = document.querySelector('.sidebar-navigation');
   if (sidebarElement) {
-    var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
-    if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
-
+    // Save on page leave
     window.addEventListener('beforeunload', function () {
       sessionStorage.setItem('sidebar_scroll_position', sidebarElement.scrollTop);
+    });
+
+    // Restore after page fully loaded (not before — layout must be complete)
+    window.addEventListener('load', function () {
+      var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
+      if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
     });
   }
 
