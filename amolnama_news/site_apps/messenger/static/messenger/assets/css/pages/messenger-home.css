@@ -327,7 +327,7 @@
 
 .messenger-bubble-sent {
   align-self: flex-end;
-  background: #dcf8c6;
+  background: #c8f0b0;
   border-top-right-radius: 2px;
   margin-right: 8px;
 }
@@ -338,14 +338,14 @@
   right: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid #dcf8c6;
+  border-left: 8px solid #c8f0b0;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
 }
 
 .messenger-bubble-received {
   align-self: flex-start;
-  background: #e3f2fd;
+  background: #cce5ff;
   border-top-left-radius: 2px;
   margin-left: 8px;
 }
@@ -356,7 +356,7 @@
   left: -8px;
   width: 0;
   height: 0;
-  border-right: 8px solid #e3f2fd;
+  border-right: 8px solid #cce5ff;
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
 }
