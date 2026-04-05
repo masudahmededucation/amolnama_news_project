@@ -36,8 +36,18 @@ Rule 2: NEVER use requestAnimationFrame alone to reveal content.
         One frame (~16ms) is not enough. CSS download takes 50-500ms.
         Always use Promise-based CSS onload + timeout fallback.
 
-Rule 3: ALWAYS keep old content hidden during swap.
-        Set opacity:0 BEFORE innerHTML swap. Never clear → show blank → fill.
+Rule 3: DISABLE transition when hiding, ENABLE only when revealing.
+        CSS transitions animate opacity over time. If you set opacity:0 with a
+        transition active, and swap innerHTML in the same frame, the NEW content
+        is briefly visible during the fade-out animation. This IS the double flash.
+        Fix: transition='none' + opacity='0' + force reflow (void offsetHeight)
+        BEFORE innerHTML swap. Restore transition='opacity .15s ease' only in
+        the reveal step (requestAnimationFrame + opacity='1').
+
+Rule 3b: ALWAYS force reflow after hiding, before swapping.
+         void mainElement.offsetHeight between opacity:0 and innerHTML swap.
+         Without reflow, browser may batch the style change and swap together,
+         making the new content visible at old opacity.
 
 Rule 4: ALWAYS have a timeout fallback.
         If CSS fails or takes >500ms, show content anyway.

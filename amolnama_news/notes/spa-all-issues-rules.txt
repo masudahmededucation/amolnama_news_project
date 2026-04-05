@@ -1,0 +1,148 @@
+SPA Issues — Root Causes, Rules, and Implementation Plan
+=========================================================
+Created: 2026-04-05
+Stack: Django SSR + vanilla JS + WhiteNoise (no React/Vue/bundler)
+
+
+================================================================
+ISSUE 1: DOUBLE FLASH DURING SPA NAVIGATION
+================================================================
+
+ROOT CAUSE (verified by research):
+- The first-load cloak adds class html.spa-ready on DOMContentLoaded
+- html.spa-ready is NEVER removed after that
+- CSS rule: html.spa-ready main { opacity: 1 } — specificity 0,1,0,1
+- SPA sets mainElement.style.opacity = '0' — inline style wins (correct)
+- BUT: inline critical CSS main { opacity: 0 } has NO transition: none
+- When base.css loads, it applies transition: opacity .15s ease to main
+- This can cause the initial reveal to ANIMATE instead of being instant
+- Also: base.css transition rule may briefly conflict with JS transition='none'
+
+RULE:
+- Inline critical CSS must include transition: none on main
+- The spa-ready class approach is WRONG for SPA — it fights with SPA navigation
+- REDESIGN: Remove spa-ready class entirely. Use visibility: hidden (not opacity)
+  in inline CSS. SPA controls opacity via inline styles. First load reveals via
+  a one-time inline script that sets visibility: visible after DOMContentLoaded.
+  visibility: hidden prevents ALL rendering (no layout, no flash). opacity: 0
+  still paints (invisible but elements take space and can flash sub-elements).
+
+GOLD STANDARD APPROACH:
+- Inline CSS: main { visibility: hidden }
+- DOMContentLoaded: mainElement.style.visibility = 'visible'
+- SPA navigation: uses opacity for smooth fade (transition on reveal only)
+- No CSS class toggling. No specificity fights. Inline styles always win.
+
+
+================================================================
+ISSUE 2: SPA SCRIPT LOADING — CDN SCRIPTS FAIL
+================================================================
+
+ROOT CAUSE (verified by research):
+- loadPageJs() appends ALL scripts to DOM without waiting
+- External CDN scripts (Quill, Flatpickr) load async
+- Dependent local scripts execute immediately before CDN finishes
+- quill-editor.js line 40: new Quill(...) — NO guard check, crashes
+- news-quill-init.js: has guard for initQuillEditor but not for Quill itself
+- Tom Select and Leaflet have guard checks (typeof TomSelect/L === 'undefined')
+
+RULE:
+- loadPageJs() must wait for external scripts to load before executing
+  dependent scripts. Same Promise pattern as loadPageCss().
+- ALL scripts that depend on CDN libraries MUST have guard checks:
+  if (typeof Quill === 'undefined') return;
+- Script loading must preserve execution order: externals first, locals second.
+
+GOLD STANDARD APPROACH:
+- Split scripts into two groups: external (src with CDN URLs) and local
+- Load external scripts first, wait for all onload events via Promise.all
+- Then load local scripts in order
+- Also add typeof guard to quill-editor.js as defensive measure
+
+
+================================================================
+ISSUE 3: display-hidden CLASS FLASHES BEFORE CSS LOADS
+================================================================
+
+ROOT CAUSE (verified by research):
+- .display-hidden { display: none } defined in forms.css (line 73)
+- 355 HTML elements use class="display-hidden"
+- 373 JS instances toggle this class across 192 files
+- BEFORE forms.css loads, the class does nothing — elements are VISIBLE
+- Overlays, modals, hidden panels all flash on page load
+
+RULE:
+- Use HTML hidden attribute, NOT CSS class, for initial hiding
+- CSS rules with explicit display (flex, grid, block) OVERRIDE hidden attribute
+- Every element with display: flex/grid/block MUST use :not([hidden]) pattern:
+  .element:not([hidden]) { display: flex; }
+- photo-lightbox.css already demonstrates correct pattern (line 15-17)
+
+COMPLEXITY:
+- 355 HTML template changes (class="display-hidden" -> hidden attribute)
+- 373 JS changes (classList.add/remove/toggle/contains -> .hidden property)
+- CSS audit: find all elements that use display-hidden AND have explicit display rules
+- These elements need :not([hidden]) added to their CSS
+
+MIGRATION PATTERNS:
+  HTML:  class="display-hidden"           -> hidden
+  HTML:  class="foo display-hidden"       -> class="foo" hidden
+  JS:    classList.add('display-hidden')   -> element.hidden = true
+  JS:    classList.remove('display-hidden') -> element.hidden = false
+  JS:    classList.toggle('display-hidden') -> element.hidden = !element.hidden
+  JS:    classList.toggle('display-hidden', bool) -> element.hidden = bool
+  JS:    classList.contains('display-hidden') -> element.hidden
+  CSS:   .foo { display: flex }           -> .foo:not([hidden]) { display: flex }
+         (only if .foo elements also use hidden attribute)
+
+
+================================================================
+ISSUE 4: PLACEHOLDER TOGGLE NOT SAVING
+================================================================
+
+ROOT CAUSE (verified by research):
+- DB update works (tested via Django shell — row affected, value persists)
+- Most likely caused by Issue 2: SPA SyntaxError broke ALL JS on every page
+- The inline <script> on the placeholder admin page runs via loadPageJs()
+- If loadPageJs() crashed (Issue 2 - speculationrules JSON), the change
+  event listener never attached, so clicking toggle does nothing
+- Fixing Issue 2 (speculationrules skip) should fix this
+- NEEDS VERIFICATION after hard refresh with cache v433
+
+
+================================================================
+IMPLEMENTATION PLAN
+================================================================
+
+PHASE 1: DOUBLE FLASH — REDESIGN (not layer fix)
+  Step 1: Remove spa-ready class system from base.html
+  Step 2: Change inline CSS: main { visibility: hidden } (not opacity: 0)
+  Step 3: Inline script: DOMContentLoaded sets visibility: visible + 800ms fallback
+  Step 4: SPA navigation: keep opacity approach for fade transitions
+  Step 5: Remove transition from base.css main rule (SPA controls it via inline)
+  Step 6: Test first load + SPA navigation + back/forward
+
+PHASE 2: SCRIPT LOADING — REDESIGN loadPageJs()
+  Step 1: Split parsed scripts into external (CDN) and local groups
+  Step 2: Load external scripts with Promise.all(onload) — same as CSS
+  Step 3: After external Promise resolves, load local scripts in order
+  Step 4: Add typeof Quill guard to quill-editor.js
+  Step 5: Test SPA navigation to newshub multistep, travel-hub-add, beauty-hub
+
+PHASE 3: display-hidden -> hidden MIGRATION
+  Step 1: Audit CSS — find all elements with display-hidden that have explicit display
+  Step 2: Add :not([hidden]) to those CSS rules
+  Step 3: Batch-replace HTML templates (class="display-hidden" -> hidden)
+  Step 4: Batch-replace JS files (classList -> .hidden property)
+  Step 5: Keep .display-hidden CSS rule temporarily as fallback
+  Step 6: Test all pages — overlays, modals, toggles, form fields
+  Step 7: Remove .display-hidden CSS rule after full verification
+
+PHASE 4: VERIFY PLACEHOLDER + BUMP CACHE
+  Step 1: Verify placeholder toggle works after Issues 2 fix
+  Step 2: Bump service worker cache
+  Step 3: collectstatic
+  Step 4: Test all pages
+
+EXECUTION ORDER: Phase 1 -> Phase 2 -> Phase 4 -> Phase 3
+(Phase 3 is largest, do it last after critical fixes are verified)

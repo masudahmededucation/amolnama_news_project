@@ -32,6 +32,7 @@
    * @returns {{ quill, syncToHidden, setContent }}
    */
   function initQuillEditor(containerId, hiddenId, opts) {
+    if (typeof Quill === 'undefined') return null;
     opts = opts || {};
     const container = document.getElementById(containerId);
     const hidden = document.getElementById(hiddenId);

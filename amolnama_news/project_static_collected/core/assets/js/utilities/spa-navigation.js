@@ -14,7 +14,7 @@
   const sidebarNav = document.getElementById('sidebar-navigation');
   if (!sidebarNav) return;
 
-  // Prefetch on hover — start download before click + preload page CSS
+  // Prefetch on hover — start HTML download before click
   const prefetchCache = {};
   sidebarNav.addEventListener('mouseenter', function (event) {
     let link = event.target.closest('a.sidebar-navigation-item');
@@ -22,12 +22,7 @@
     let url = link.getAttribute('href');
     if (!url || url === window.location.pathname || prefetchCache[url]) return;
     prefetchCache[url] = fetch(url).then(function (response) {
-      if (!response.ok) return null;
-      return response.text().then(function (html) {
-        // Preload page-specific CSS so it's cached before navigation
-        preloadPageCss(html);
-        return html;
-      });
+      return response.ok ? response.text() : null;
     }).catch(function () { return null; });
   }, true);
 
@@ -86,13 +81,16 @@
           '', window.location.pathname
         );
 
-        // Step 1: Hide content instantly (prevents flash of old content)
+        // Step 1: Hide content INSTANTLY — disable transition so opacity jumps to 0
+        mainElement.style.transition = 'none';
         mainElement.style.opacity = '0';
+        // Force reflow — browser commits opacity:0 before we swap content
+        void mainElement.offsetHeight;
 
         // Step 2: Load CSS and wait for it to finish before showing content
         const cssReadyPromise = loadPageCss(parsed);
 
-        // Step 3: Swap content (hidden — opacity is 0)
+        // Step 3: Swap content (guaranteed hidden — opacity is 0, no transition)
         mainElement.innerHTML = newMain.innerHTML;
 
         // Step 4: Update title
@@ -120,6 +118,8 @@
         // Step 9: Show content ONLY after CSS is ready (or 500ms timeout)
         function revealContent() {
           requestAnimationFrame(function () {
+            // Restore transition for smooth fade-in (was disabled in Step 1)
+            mainElement.style.transition = 'opacity .15s ease';
             mainElement.style.opacity = '1';
           });
           hideLoadingBar();
@@ -167,24 +167,6 @@
     baseCssHrefs.add(link.getAttribute('href'));
   });
 
-  // Preload page-specific CSS from prefetched HTML (hover prefetch)
-  // Injects <link rel="preload" as="style"> so CSS is cached before navigation
-  function preloadPageCss(html) {
-    var parsed = new DOMParser().parseFromString(html, 'text/html');
-    parsed.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
-      var href = link.getAttribute('href');
-      if (!href || baseCssHrefs.has(href)) return;
-      // Skip if already preloaded or loaded
-      if (document.querySelector('link[href="' + href + '"]')) return;
-      var preload = document.createElement('link');
-      preload.rel = 'preload';
-      preload.as = 'style';
-      preload.href = href;
-      preload.setAttribute('data-spa-preload', 'true');
-      document.head.appendChild(preload);
-    });
-  }
-
   function loadPageCss(parsedDocument) {
     // Find what the new page needs (external CSS only — no inline styles in templates)
     const newPageCssHrefs = new Set();
@@ -202,11 +184,6 @@
     // Remove CSS that the new page doesn't need
     document.querySelectorAll('link[data-spa-css]').forEach(function (link) {
       if (!newPageCssHrefs.has(link.getAttribute('href'))) link.remove();
-    });
-
-    // Clean up preload hints (they've done their job — browser has cached the CSS)
-    document.querySelectorAll('link[data-spa-preload]').forEach(function (link) {
-      link.remove();
     });
 
     // Add CSS that's new (not already loaded) — return Promise that resolves when all loaded
@@ -249,22 +226,59 @@
     const parsedBody = parsedDocument.querySelector('body');
     if (!parsedBody) return;
 
+    // Split scripts into external (CDN) and local groups
+    // External CDN scripts must load FIRST — local scripts depend on them
+    const externalScripts = [];
+    const localScripts = [];
+
     parsedBody.querySelectorAll('script').forEach(function (script) {
+      // Skip non-JS script types (speculationrules, application/json, etc.)
+      const scriptType = script.getAttribute('type');
+      if (scriptType && scriptType !== 'text/javascript') return;
+
       const src = script.getAttribute('src');
 
       if (src) {
-        if (!baseScriptSrcs.has(src)) {
-          let newScript = document.createElement('script');
-          newScript.src = src;
-          newScript.setAttribute('data-spa-js', 'true');
-          document.body.appendChild(newScript);
+        if (baseScriptSrcs.has(src)) return; // Skip base scripts
+        // CDN = starts with http (not same origin)
+        if (src.startsWith('http')) {
+          externalScripts.push({ src: src });
+        } else {
+          localScripts.push({ src: src });
         }
       } else if (script.textContent.trim()) {
+        localScripts.push({ inline: script.textContent });
+      }
+    });
+
+    // Load external CDN scripts first — wait for all to finish
+    const externalLoadPromises = externalScripts.map(function (scriptInfo) {
+      return new Promise(function (resolve) {
         const newScript = document.createElement('script');
-        newScript.textContent = script.textContent;
+        newScript.src = scriptInfo.src;
+        newScript.setAttribute('data-spa-js', 'true');
+        newScript.onload = resolve;
+        newScript.onerror = resolve; // Don't block on CDN failure
+        document.body.appendChild(newScript);
+      });
+    });
+
+    // After external scripts are ready, load local scripts in order
+    const externalReady = externalLoadPromises.length > 0
+      ? Promise.all(externalLoadPromises)
+      : Promise.resolve();
+
+    externalReady.then(function () {
+      localScripts.forEach(function (scriptInfo) {
+        const newScript = document.createElement('script');
+        if (scriptInfo.src) {
+          newScript.src = scriptInfo.src;
+        } else {
+          newScript.textContent = scriptInfo.inline;
+        }
         newScript.setAttribute('data-spa-js', 'true');
         document.body.appendChild(newScript);
-      }
+      });
     });
   }
 
