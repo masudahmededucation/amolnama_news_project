@@ -78,10 +78,10 @@
         // Step 1: Hide content instantly (prevents flash of old content)
         mainElement.style.opacity = '0';
 
-        // Step 2: Start loading CSS (non-blocking)
-        loadPageCss(parsed);
+        // Step 2: Load CSS and wait for it to finish before showing content
+        const cssReadyPromise = loadPageCss(parsed);
 
-        // Step 3: Swap content immediately (CSS may still be loading but inline styles are ready)
+        // Step 3: Swap content (hidden — opacity is 0)
         mainElement.innerHTML = newMain.innerHTML;
 
         // Step 4: Update title
@@ -102,13 +102,25 @@
         mainElement.scrollTop = 0;
         window.scrollTo(0, 0);
 
-        // Step 9: Show content (fade in after one frame — CSS applied)
-        requestAnimationFrame(function () {
-          mainElement.style.opacity = '1';
-        });
+        // Step 9: Show content ONLY after CSS is ready (or 500ms timeout)
+        function revealContent() {
+          requestAnimationFrame(function () {
+            mainElement.style.opacity = '1';
+          });
+          hideLoadingBar();
+          isNavigating = false;
+        }
 
-        hideLoadingBar();
-        isNavigating = false;
+        // Race: CSS load vs 500ms timeout (never leave page invisible)
+        let revealed = false;
+        function revealOnce() {
+          if (revealed) return;
+          revealed = true;
+          revealContent();
+        }
+
+        cssReadyPromise.then(revealOnce);
+        setTimeout(revealOnce, 500);
       })
       .catch(function (error) {
         if (error.name === 'AbortError') return;
@@ -159,16 +171,24 @@
       if (!newPageCssHrefs.has(link.getAttribute('href'))) link.remove();
     });
 
-    // Add CSS that's new (not already loaded)
+    // Add CSS that's new (not already loaded) — return Promise that resolves when all loaded
+    const cssLoadPromises = [];
     newPageCssHrefs.forEach(function (href) {
       if (!currentSpaCssHrefs.has(href)) {
         const newLink = document.createElement('link');
         newLink.rel = 'stylesheet';
         newLink.href = href;
         newLink.setAttribute('data-spa-css', 'true');
+        cssLoadPromises.push(new Promise(function (resolve) {
+          newLink.onload = resolve;
+          newLink.onerror = resolve;
+        }));
         document.head.appendChild(newLink);
       }
     });
+
+    // If no new CSS needed, resolve immediately
+    return cssLoadPromises.length > 0 ? Promise.all(cssLoadPromises) : Promise.resolve();
   }
 
   // =========================================================
