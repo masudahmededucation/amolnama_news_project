@@ -1,4 +1,4 @@
---check
+
 
 --permission request
 ask for blanket permission once only.
@@ -37,6 +37,10 @@ otherwise too many jobs to do in future.
 fix all files.
 everything everywhere.
 make it 100% compliance
+-- css/js/ajax/html/etc
+no internal css unless absolute necessary
+use gold standard, professional practice best practice
+use optimum seo and faster app best practice
 
 
 --naming conventions
@@ -123,21 +127,12 @@ all.
 one source of truth.
 
 
---deep research
-deep research. 
-make it professional. 
-no rush and check. 
-check and check for unlimited time.
-no test and test, keep doing test.
-no layer on top of layer code.
-logic should be clean, clear, concise.
-no duplicate codes.
-yes, i want you to implement it. 
-But you have to promise me of no lying. 
-no cheating. 
-no shitty code. 
-no skipping. 
-no short cut. 
+--check css/js/ajax/html/etc
+best practice
+seo friendly practice
+faster load practice
+safe practice
+no shortcut dangerous practice
 
 --create or update documentation
 architecture, features, functions, and troubleshooting.

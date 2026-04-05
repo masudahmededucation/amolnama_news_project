@@ -91,3 +91,17 @@ don't change it.
 user maybe interested to look at it. 
 if the user scrolls past then change. 
 give it a minute or two if he is there.
+
+
+
+--promo card for each forms.
+promo general news promo card randomly.
+
+--promo admin panel
+i need a admin panel,
+where i should be able to turn on or off promo,
+for forms and article type.
+this is not for individual article admin panel.
+this is for type of promo allowed in the promo.
+for example, in a busy day, i want to stop promo for poems.
+i should have slider toggle button options like content dashboard.

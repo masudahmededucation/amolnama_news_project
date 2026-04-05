@@ -634,3 +634,5 @@ when i click on a item.
 it is already in the view. 
 there is no auto action need to happen, simple.
 unnecessary work
+we definitely need scrolling. 
+just need to stop the jumping.

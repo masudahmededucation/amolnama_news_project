@@ -16,3 +16,18 @@ The cure is SPA routing — but that's a different architecture
 The sidebar jump issue exists because I built this as a traditional multi-page Django app instead of an SPA. That was the wrong foundation for a social media platform.
 
 Want me to plan SPA routing as a future task, or is the sessionStorage fix acceptable for now?
+
+
+some page specific css or js load maybe slower. 
+because i can see there is subtle shift 
+of displaying after a sec or less than a sec.
+
+analytics and placeholders playing up - on f5 refresh - 
+it display fine. 
+then if i move to some other page and comeback to placeholder 
+then again the display is not correct. 
+same for analytics
+
+sometimes, i can see the jumps - intermittent jumps, 
+but not able to proof because it does not repeat again. 
+so there is some gap in logic or loading of files.

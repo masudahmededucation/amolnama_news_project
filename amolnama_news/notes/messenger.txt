@@ -172,8 +172,18 @@ chrome page - when the whole page scroll.
 then it goes out of sight.
 inside scroll is fixed.
 
+i know why it is happening. 
+because the height of the messenger is making the whole page scrolling. 
+but even in that case, 
+we should have a way to show the top action bar all the time, right?
 
+i think top action bar and the message typing box always should be in the view. 
+if the message can't fit inside the box. then only the message should scroll.
+so always message typing box gives user options 
+to type without scrolling. 
+otherwise it would be annoying.
 
+--auto delete options
 top right settings to auto delete options. 
 make it bigger. 
 icon is not correct. 

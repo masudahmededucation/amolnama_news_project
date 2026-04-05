@@ -234,3 +234,4 @@ but it jumps to portal nav menu and it is activated and selected.
 debate type?
 debate about person
 debate about topic
+
