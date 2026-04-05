@@ -201,9 +201,9 @@
     // Mark as read
     markAsRead(conversationId);
 
-    // Start polling
+    // Start WebSocket (falls back to polling if unavailable)
     stopPolling();
-    messagePollTimer = setInterval(function () { pollNewMessages(); pollTypingStatus(); }, 3000);
+    connectMessengerWebSocket(conversationId);
 
     // Focus textarea
     textarea.value = '';
@@ -761,6 +761,89 @@
 
   function stopPolling() {
     if (messagePollTimer) { clearInterval(messagePollTimer); messagePollTimer = null; }
+  }
+
+  // =========================================================
+  // WEBSOCKET (real-time — replaces 3s polling when available)
+  // =========================================================
+
+  let messengerWebSocket = null;
+
+  function connectMessengerWebSocket(conversationId) {
+    closeMessengerWebSocket();
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const webSocketUrl = protocol + '//' + window.location.host + '/ws/messenger/' + conversationId + '/';
+
+    try {
+      messengerWebSocket = new WebSocket(webSocketUrl);
+
+      messengerWebSocket.onopen = function () {
+        /* WebSocket connected — stop polling */
+        stopPolling();
+      };
+
+      messengerWebSocket.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'new_message' && data.message) {
+            const message = data.message;
+            /* Skip if already rendered (optimistic from sender) */
+            if (messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]')) return;
+
+            const html = buildMessagesHtml([message]);
+            const isAtBottom = isScrolledToBottom();
+            messagesContainer.insertAdjacentHTML('beforeend', html);
+
+            if (message.message_id > lastMessageId) lastMessageId = message.message_id;
+
+            if (isAtBottom) {
+              scrollToBottom(true);
+              markAsRead(activeConversationId);
+            } else {
+              newMessageCount += 1;
+              scrollBottomBadge.textContent = newMessageCount;
+              scrollBottomBadge.classList.remove('messenger-hidden');
+              scrollBottomButton.classList.remove('messenger-hidden');
+            }
+          } else if (data.type === 'typing') {
+            if (data.is_typing) {
+              headerStatus.textContent = 'টাইপ করছেন...';
+              headerStatus.classList.add('messenger-chat-header-status-typing');
+            } else {
+              headerStatus.textContent = '';
+              headerStatus.classList.remove('messenger-chat-header-status-typing');
+            }
+          }
+        } catch (parseError) { /* ignore malformed messages */ }
+      };
+
+      messengerWebSocket.onclose = function () {
+        messengerWebSocket = null;
+        /* Fall back to polling */
+        if (activeConversationId) {
+          messagePollTimer = setInterval(function () { pollNewMessages(); pollTypingStatus(); }, 3000);
+        }
+        /* Reconnect after 3 seconds */
+        if (activeConversationId) {
+          setTimeout(function () { connectMessengerWebSocket(activeConversationId); }, 3000);
+        }
+      };
+
+      messengerWebSocket.onerror = function () {
+        if (messengerWebSocket) messengerWebSocket.close();
+      };
+    } catch (webSocketError) {
+      /* WebSocket not available — use polling */
+      messagePollTimer = setInterval(function () { pollNewMessages(); pollTypingStatus(); }, 3000);
+    }
+  }
+
+  function closeMessengerWebSocket() {
+    if (messengerWebSocket) {
+      messengerWebSocket.onclose = null;
+      messengerWebSocket.close();
+      messengerWebSocket = null;
+    }
   }
 
   // Poll conversation list every 30 seconds

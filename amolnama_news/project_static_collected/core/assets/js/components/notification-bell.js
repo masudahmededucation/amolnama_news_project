@@ -100,7 +100,56 @@
       .catch(function () {});
   }
 
-  /* Initial check + interval */
+  /* WebSocket for real-time notifications (falls back to polling) */
+  let notificationWebSocket = null;
+  let notificationPollingInterval = null;
+
+  function connectNotificationWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const webSocketUrl = protocol + '//' + window.location.host + '/ws/notifications/';
+
+    try {
+      notificationWebSocket = new WebSocket(webSocketUrl);
+
+      notificationWebSocket.onopen = function () {
+        /* WebSocket connected — stop polling */
+        if (notificationPollingInterval) {
+          clearInterval(notificationPollingInterval);
+          notificationPollingInterval = null;
+        }
+      };
+
+      notificationWebSocket.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'new_notification') {
+            updateCountBadge(data.unread_count);
+          }
+        } catch (parseError) { /* ignore malformed messages */ }
+      };
+
+      notificationWebSocket.onclose = function () {
+        notificationWebSocket = null;
+        /* Fall back to polling on disconnect */
+        if (!notificationPollingInterval) {
+          notificationPollingInterval = setInterval(pollUnreadCount, 60000);
+        }
+        /* Reconnect after 5 seconds */
+        setTimeout(connectNotificationWebSocket, 5000);
+      };
+
+      notificationWebSocket.onerror = function () {
+        if (notificationWebSocket) notificationWebSocket.close();
+      };
+    } catch (webSocketError) {
+      /* WebSocket not available — use polling */
+      if (!notificationPollingInterval) {
+        notificationPollingInterval = setInterval(pollUnreadCount, 60000);
+      }
+    }
+  }
+
+  /* Initial check + start WebSocket (with polling fallback) */
   pollUnreadCount();
-  setInterval(pollUnreadCount, 60000);
+  connectNotificationWebSocket();
 })();

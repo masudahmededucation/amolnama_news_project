@@ -655,6 +655,158 @@ _FORM_TYPE_EDIT_BUILDERS = {
 }
 
 
+# =========================================================
+# FORM TYPE → JS SCRIPTS MAPPING (code splitting)
+# =========================================================
+
+_JS_PREFIX = 'newshub/assets/js/components/'
+
+# Common scripts needed by ALL form types
+COMMON_FORM_SCRIPTS = [
+    _JS_PREFIX + 'news-date-picker.js',
+    _JS_PREFIX + 'news-quill-init.js',
+    _JS_PREFIX + 'news-person-name.js',
+    _JS_PREFIX + 'news-person-identity.js',
+    _JS_PREFIX + 'news-person-party-details.js',
+    _JS_PREFIX + 'news-searchable-dropdown.js',
+    _JS_PREFIX + 'news-org-cascade.js',
+    _JS_PREFIX + 'news-contributor-self.js',
+    _JS_PREFIX + 'news-location-cascade.js',
+    _JS_PREFIX + 'news-location-search.js',
+    _JS_PREFIX + 'news-auto-location.js',
+    _JS_PREFIX + 'news-category-tag-cascade.js',
+    _JS_PREFIX + 'news-tag-search.js',
+    _JS_PREFIX + 'news-auto-tag.js',
+    _JS_PREFIX + 'news-geo-collect.js',
+    _JS_PREFIX + 'news-map-pinpoint.js',
+    _JS_PREFIX + 'news-map-reverse-geocode.js',
+    _JS_PREFIX + 'news-map-search.js',
+    _JS_PREFIX + 'news-map-location-autofill.js',
+    _JS_PREFIX + 'news-occurrence-time.js',
+    _JS_PREFIX + 'news-social-source-repeater.js',
+    _JS_PREFIX + 'news-file-compressor.js',
+    _JS_PREFIX + 'news-attachment-upload.js',
+    _JS_PREFIX + 'news-char-count.js',
+    _JS_PREFIX + 'news-form-validate.js',
+    _JS_PREFIX + 'news-form-clear.js',
+    _JS_PREFIX + 'news-form-persist.js',
+    _JS_PREFIX + 'news-form-stepper.js',
+]
+
+# Shared script groups (reused by multiple form types)
+_ACCUSED_SCRIPTS = [_JS_PREFIX + 'news-involved-parties.js', _JS_PREFIX + 'news-accused-repeater.js']
+_VICTIM_SCRIPTS = [_JS_PREFIX + 'news-victim-repeater.js']
+_WITNESS_SCRIPTS = [_JS_PREFIX + 'news-witness-repeater.js']
+_LEGAL_COMMON = [_JS_PREFIX + 'news-thana-search-select.js', _JS_PREFIX + 'news-law-gd-fir.js']
+
+# Form-type-specific scripts (only loaded for that form type)
+FORM_TYPE_SPECIFIC_SCRIPTS = {
+    'generic': [],
+
+    'extortion': (
+        _ACCUSED_SCRIPTS + _VICTIM_SCRIPTS + _WITNESS_SCRIPTS
+        + [_JS_PREFIX + 'news-extortion-incident.js']
+        + _LEGAL_COMMON + [_JS_PREFIX + 'news-extortion-legal.js']
+    ),
+
+    'crime_violence': (
+        _ACCUSED_SCRIPTS + [_JS_PREFIX + 'news-victim-repeater.js']
+        + _WITNESS_SCRIPTS
+        + [_JS_PREFIX + 'news-crime-casualties.js', _JS_PREFIX + 'news-crime-weapons.js']
+        + _LEGAL_COMMON + [_JS_PREFIX + 'news-crime-legal.js']
+    ),
+
+    'land_grabbing': (
+        _ACCUSED_SCRIPTS + _VICTIM_SCRIPTS + _WITNESS_SCRIPTS
+        + [_JS_PREFIX + 'news-land-grab-incident.js']
+        + _LEGAL_COMMON + [_JS_PREFIX + 'news-land-grab-legal.js']
+    ),
+
+    'price_hike': (
+        _ACCUSED_SCRIPTS + _VICTIM_SCRIPTS + _WITNESS_SCRIPTS
+        + [_JS_PREFIX + 'news-price-hike-price-gap.js', _JS_PREFIX + 'news-price-hike-stockpiling.js']
+    ),
+
+    'watchdog_bangladesh': [
+        _JS_PREFIX + 'news-watchdog-bangladesh-sub-type.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-contradiction.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-issue.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-party-change.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-proxy-puppet.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-bootlicker.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-women-fixer.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-section-switcher.js',
+        _JS_PREFIX + 'news-watchdog-bangladesh-context.js',
+    ] + _ACCUSED_SCRIPTS,
+
+    'civic_community': [
+        _JS_PREFIX + 'news-civic-sub-type.js',
+        _JS_PREFIX + 'news-civic-impact-duration.js',
+        _JS_PREFIX + 'news-civic-current-status.js',
+    ] + _ACCUSED_SCRIPTS + _VICTIM_SCRIPTS + _WITNESS_SCRIPTS,
+
+    'war_conflict': [
+        _JS_PREFIX + 'news-war-conflict-sub-type.js',
+        _JS_PREFIX + 'news-war-conflict-parties.js',
+        _JS_PREFIX + 'news-war-conflict-frontline.js',
+        _JS_PREFIX + 'news-war-conflict-humanitarian.js',
+        _JS_PREFIX + 'news-war-conflict-geopolitics.js',
+    ],
+
+    'global_news': [
+        _JS_PREFIX + 'news-global-news-sub-type.js',
+        _JS_PREFIX + 'news-global-news-countries.js',
+        _JS_PREFIX + 'news-global-news-classification.js',
+        _JS_PREFIX + 'news-global-news-bangladesh.js',
+        _JS_PREFIX + 'news-global-news-reaction.js',
+    ],
+
+    'sports': [
+        _JS_PREFIX + 'news-sports-sub-type.js',
+        _JS_PREFIX + 'news-sports-match-event.js',
+        _JS_PREFIX + 'news-sports-teams-result.js',
+        _JS_PREFIX + 'news-sports-key-performances.js',
+    ] + _ACCUSED_SCRIPTS,
+
+    'entertainment': [
+        _JS_PREFIX + 'news-entertainment-sub-type.js',
+        _JS_PREFIX + 'news-entertainment-production.js',
+        _JS_PREFIX + 'news-entertainment-cast-release.js',
+        _JS_PREFIX + 'news-entertainment-performance.js',
+    ] + _ACCUSED_SCRIPTS,
+
+    'july_uprising_2024': [
+        _JS_PREFIX + 'news-july-uprising-sub-type.js',
+        _JS_PREFIX + 'news-july-uprising-context.js',
+        _JS_PREFIX + 'news-july-martyr-home-location.js',
+        _JS_PREFIX + 'news-july-martyr-home-location-search.js',
+        _JS_PREFIX + 'news-july-uprising-martyr.js',
+        _JS_PREFIX + 'news-july-uprising-story.js',
+        _JS_PREFIX + 'news-july-uprising-cause.js',
+        _JS_PREFIX + 'news-july-uprising-oppressors.js',
+        _JS_PREFIX + 'news-july-uprising-evidence.js',
+    ],
+
+    'women_child_violence': [
+        _JS_PREFIX + 'news-wcv-violence-type.js',
+        _JS_PREFIX + 'news-wcv-victim.js',
+        _JS_PREFIX + 'news-wcv-condition-injury.js',
+        _JS_PREFIX + 'news-wcv-accused.js',
+    ] + _WITNESS_SCRIPTS + _LEGAL_COMMON + [_JS_PREFIX + 'news-wcv-legal.js'],
+}
+
+
+def get_form_scripts(form_type_code):
+    """Return the list of JS script paths for a given form type.
+    Common scripts + form-type-specific scripts, no duplicates."""
+    specific = FORM_TYPE_SPECIFIC_SCRIPTS.get(form_type_code, [])
+    all_scripts = list(COMMON_FORM_SCRIPTS)
+    for script in specific:
+        if script not in all_scripts:
+            all_scripts.append(script)
+    return all_scripts
+
+
 def build_edit_data(entry_id, form_type_code):
     """
     Reconstruct all form data from DB for edit pre-population.

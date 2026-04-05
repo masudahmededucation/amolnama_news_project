@@ -156,6 +156,11 @@ def _build_form_context(contributor_form, news_entry_form, attachment_form, soci
     }
     if extra:
         ctx.update(extra)
+    # Code splitting: resolve JS scripts for this form type
+    form_type = ctx.get('selected_form_type') or ctx.get('form_type_code') or 'generic'
+    if 'form_scripts' not in ctx:
+        from .helpers import get_form_scripts
+        ctx['form_scripts'] = get_form_scripts(form_type)
     return ctx
 
 

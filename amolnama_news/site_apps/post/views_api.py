@@ -272,6 +272,24 @@ def api_post_create(request):
         'request': request,
     })
 
+    # Broadcast new post to feed WebSocket group
+    try:
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                'feed_global',
+                {
+                    'type': 'new_post',
+                    'post_id': post.post_post_id,
+                    'author_display_name': user_profile.display_name or 'ব্যবহারকারী',
+                    'timestamp': post.created_at.isoformat() if post.created_at else '',
+                }
+            )
+    except Exception:
+        logger.exception('WebSocket broadcast failed for new post')
+
     return JsonResponse({
         'success': True,
         'post_post_id': post.post_post_id,

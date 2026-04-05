@@ -123,5 +123,22 @@
   <script defer src="{% static 'core/assets/js/pwa-register-sw.js' %}"></script>
   <script defer src="{% static 'core/assets/js/pwa-install-prompt.js' %}"></script>
   <script defer src="{% static 'core/assets/js/utilities/spa-navigation.js' %}"></script>
+
+  <script type="speculationrules">
+  {
+    "prerender": [
+      {
+        "where": { "selector_matches": ".sidebar-navigation-link" },
+        "eagerness": "moderate"
+      }
+    ],
+    "prefetch": [
+      {
+        "where": { "href_matches": "/*" },
+        "eagerness": "moderate"
+      }
+    ]
+  }
+  </script>
 </body>
 </html>

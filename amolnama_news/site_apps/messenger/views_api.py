@@ -344,6 +344,28 @@ def api_message_send(request, conversation_id):
         except Exception:
             logger.exception('Failed to send message notification')
 
+    # Broadcast via WebSocket to conversation participants
+    try:
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                f'messenger_conversation_{conversation_id}',
+                {
+                    'type': 'new_message',
+                    'message': {
+                        'message_id': message_id,
+                        'sender_user_profile_id': user_profile_id,
+                        'message_text': message_text,
+                        'created_at': created_at.isoformat() if created_at else '',
+                        'reply_to_message_id': reply_to_message_id,
+                    },
+                }
+            )
+    except Exception:
+        logger.exception('WebSocket broadcast failed for messenger')
+
     return JsonResponse({
         'success': True,
         'message_id': message_id,

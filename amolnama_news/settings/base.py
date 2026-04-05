@@ -16,6 +16,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 # Application definition
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -37,6 +38,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount.providers.facebook",
     "allauth.socialaccount.providers.apple",
     "allauth.socialaccount.providers.github",
+    "channels",
     "axes",
 ]
 
@@ -119,6 +121,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "amolnama_news.wsgi.application"
 ASGI_APPLICATION = "amolnama_news.asgi.application"
+
+# Channel Layers (WebSocket — messenger, notifications, live feed)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 # Database
 # Support either SQL authentication (user/password) or Windows Trusted Connection

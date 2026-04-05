@@ -31,6 +31,29 @@ def create_notification(recipient_user_profile_id, actor_user_profile_id, event_
     except Exception:
         logger.exception('Failed to create notification for user %s', recipient_user_profile_id)
 
+    # Broadcast via WebSocket to the recipient
+    try:
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            unread_count = get_unread_count(recipient_user_profile_id)
+            async_to_sync(channel_layer.group_send)(
+                f'notifications_user_{recipient_user_profile_id}',
+                {
+                    'type': 'new_notification',
+                    'notification': {
+                        'event_code': event_code,
+                        'source_app': source_app,
+                        'message': message,
+                        'url': url or '',
+                    },
+                    'unread_count': unread_count,
+                }
+            )
+    except Exception:
+        logger.exception('WebSocket broadcast failed for notification to user %s', recipient_user_profile_id)
+
 
 def get_unread_count(user_profile_id):
     """Get unread notification count for a user."""

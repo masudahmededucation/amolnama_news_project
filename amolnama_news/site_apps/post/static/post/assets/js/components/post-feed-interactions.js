@@ -1256,4 +1256,64 @@
     }
   });
 
+  /* ==================================================================
+     LIVE FEED — "New posts" pill via WebSocket
+     ================================================================== */
+
+  const feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
+  if (feedElement) {
+    let newPostCount = 0;
+    let feedWebSocket = null;
+
+    /* Create the pill element */
+    const newPostsPill = document.createElement('button');
+    newPostsPill.type = 'button';
+    newPostsPill.className = 'post-feed-new-posts-pill';
+    newPostsPill.hidden = true;
+    feedElement.parentNode.insertBefore(newPostsPill, feedElement);
+
+    newPostsPill.addEventListener('click', function () {
+      newPostsPill.hidden = true;
+      newPostCount = 0;
+      window.location.reload();
+    });
+
+    function updateNewPostsPill() {
+      if (newPostCount > 0) {
+        newPostsPill.textContent = newPostCount + ' নতুন পোস্ট দেখুন';
+        newPostsPill.hidden = false;
+      }
+    }
+
+    function connectFeedWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const webSocketUrl = protocol + '//' + window.location.host + '/ws/feed/';
+
+      try {
+        feedWebSocket = new WebSocket(webSocketUrl);
+
+        feedWebSocket.onmessage = function (event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'new_post') {
+              newPostCount++;
+              updateNewPostsPill();
+            }
+          } catch (parseError) { /* ignore */ }
+        };
+
+        feedWebSocket.onclose = function () {
+          feedWebSocket = null;
+          setTimeout(connectFeedWebSocket, 10000);
+        };
+
+        feedWebSocket.onerror = function () {
+          if (feedWebSocket) feedWebSocket.close();
+        };
+      } catch (webSocketError) { /* WebSocket not available */ }
+    }
+
+    connectFeedWebSocket();
+  }
+
 })();
