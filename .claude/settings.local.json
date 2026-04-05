@@ -105,7 +105,8 @@
       "Bash(grep -l \"function addCard\\\\|function createCard\" *.js)",
       "Bash(curl -s https://www.google.com/search?q=prothom+alo+website+layout+css+grid+dimensions+bengali+news -H 'User-Agent: Mozilla/5.0')",
       "WebFetch(domain:bbc.github.io)",
-      "Bash(do sed:*)"
+      "Bash(do sed:*)",
+      "Bash(find . -name \"models.py\" -exec grep -l \"gender\\\\|marital\\\\|religion\" {} \\\\;)"
     ],
     "additionalDirectories": [
       "C:\\Users\\mehfil\\.claude\\projects\\d--GoogleDrive-personal-folder-Apps-amolnama-news-amolnama-news-project\\b8ebc047-2223-42a8-9cca-35b8e28357d1\\tool-results"

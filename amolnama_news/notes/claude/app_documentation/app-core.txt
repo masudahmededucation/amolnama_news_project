@@ -104,6 +104,7 @@ No other CSS file should define :root. If colors misbehave, check for duplicate 
 | main.js                    | Global initialization            |
 | header-user-menu.js        | User dropdown menu               |
 | sidebar-navigation.js      | Sidebar collapse/expand          |
+| spa-navigation.js          | SPA hybrid navigation (PJAX)    |
 | pwa-register-sw.js         | Service worker registration      |
 | pwa-install-prompt.js      | PWA install banner               |
 | liveclock.js               | Live clock utility               |
@@ -111,6 +112,45 @@ No other CSS file should define :root. If colors misbehave, check for duplicate 
 | like-button.js             | Shared like button component     |
 | photo-card.js              | Shared photo card component      |
 | photo-lightbox.js          | Shared photo lightbox component  |
+
+## SPA Navigation (spa-navigation.js)
+
+PJAX-style hybrid SPA. Sidebar nav clicks swap only <main>, keeping
+sidebar/header/footer persistent. Full page loads for external/deep links.
+
+### Navigation Flow (10 steps)
+  Step 0: Save scroll position (history.replaceState with scrollY)
+  Step 1: Hide content (opacity: 0)
+  Step 2: Load page-specific CSS -> returns Promise
+  Step 3: Swap HTML (hidden)
+  Step 4: Update document title
+  Step 5: Update URL (pushState on click, skip on back/forward)
+  Step 6: Update sidebar active highlight
+  Step 7: Load page-specific JS
+  Step 8: Scroll (restore on back/forward, top on new navigation)
+  Step 9: Reveal content after CSS ready (Promise.then + 500ms timeout)
+
+### FOUC Prevention
+- Hover prefetch: HTML + CSS preloaded on mouseenter
+- CSS Promise: loadPageCss() returns Promise.all(onload events)
+- First-load cloak: html.spa-ready class added on DOMContentLoaded
+- 150ms opacity transition masks micro-flashes
+- 500ms timeout fallback — never leaves page invisible
+- Full rules: notes/spa-fouc-prevention-rules.txt
+
+### CSS Management
+- Base CSS: tracked in baseCssHrefs Set, never removed
+- Page CSS: marked with data-spa-css attribute, added/removed per page
+- Preload CSS: marked with data-spa-preload, cleaned up before new load
+
+### Scroll Restoration
+- Saves window.scrollY in history.state before navigating away
+- Restores on back/forward (popstate), scrolls to top on new navigation
+
+### Browser History
+- pushState on sidebar click navigation
+- popstate handler for back/forward buttons
+- AbortController cancels in-flight fetches on new navigation
 
 ## Troubleshooting
 

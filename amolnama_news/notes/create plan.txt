@@ -29,7 +29,7 @@ this way you know what is done and not.
 --start implementing
 
 
-create rule, documents, plan, deep research then implement.
+deep research, compare, create rule, documents, plan, then implement.
 --compare the plan
 at last check that you have completed the task properly
 
@@ -79,6 +79,13 @@ probashi news
 
 
 ####
-politbaj
+poltibaj
+
+
+###
+--similar posts
+--dilara jaman
+--salauddin ahmed - shilong
+
 
 

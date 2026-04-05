@@ -301,3 +301,35 @@ Original code pattern everywhere: `code_map[id] = row['status_code'].upper()` th
 
 ### Rule
 See [feedback_no_case_conversion.md](feedback_no_case_conversion.md)
+
+---
+
+## 12. SPA Double Flash / FOUC (Flash of Unstyled Content)
+
+### Symptom
+After moving from MPA to SPA, pages flash unstyled content for a split second during navigation. Content appears, then shifts/restyles when CSS loads. Also affects first page load on slow connections.
+
+### Root Cause
+SPA navigation swaps <main> innerHTML via fetch + DOMParser. New page may need different CSS files (page-specific CSS in {% block extra_css %}). If content is shown before CSS files finish loading, user sees FOUC.
+
+This is NOT hydration mismatch (React/Vue concept). This is purely CSS loading timing.
+
+### Fix (2026-04-05)
+1. loadPageCss() returns Promise that resolves when all new <link> elements fire onload
+2. Content hidden (opacity:0) before swap, revealed only after CSS Promise resolves
+3. 500ms timeout fallback — never leaves page invisible
+4. CSS prefetch on hover — parses prefetched HTML, injects <link rel="preload" as="style">
+5. First-load cloak — inline CSS hides main, html.spa-ready class added on DOMContentLoaded
+6. 150ms opacity transition (was 100ms) — masks micro-flashes
+7. Scroll position restore on back/forward via history.state.scrollY
+
+### Files
+- spa-navigation.js: full SPA navigation with FOUC prevention
+- base.html: inline cloak + DOMContentLoaded reveal
+- base.css: main { transition: opacity .15s ease }
+
+### Rule
+See notes/spa-fouc-prevention-rules.txt for full rules.
+NEVER use requestAnimationFrame alone to reveal SPA content.
+NEVER show content before CSS is loaded.
+ALWAYS have a timeout fallback.

@@ -1,0 +1,82 @@
+SPA FOUC (Flash of Unstyled Content) Prevention Rules
+======================================================
+Created: 2026-04-05
+Stack: Django SSR + vanilla JS + WhiteNoise (no React/Vue/bundler)
+
+WHAT IS THE DOUBLE FLASH?
+--------------------------
+When navigating via SPA (sidebar click), two visual glitches can occur:
+1. Old content disappears → blank white gap → new content appears (content flash)
+2. New content appears unstyled → CSS loads → content shifts/restyled (style flash)
+
+Both are caused by CSS loading timing, NOT hydration mismatch.
+This is NOT a React/Vue problem. Inertia.js, Vite, SSR with Node do NOT apply.
+
+ROOT CAUSE
+----------
+SPA navigation swaps <main> innerHTML via fetch + DOMParser.
+New page may need different CSS files (page-specific CSS in {% block extra_css %}).
+If content is shown before those CSS files finish loading → FOUC.
+
+THE FIX (implemented in spa-navigation.js)
+------------------------------------------
+Step 1: Hide instantly         → mainElement.style.opacity = '0'
+Step 2: Load CSS → Promise     → loadPageCss() returns Promise.all(onload events)
+Step 3: Swap HTML (hidden)     → mainElement.innerHTML = newMain.innerHTML
+Step 4: Wait for CSS           → cssReadyPromise.then(revealOnce)
+Step 5: Timeout fallback       → setTimeout(revealOnce, 500) — never leave invisible
+Step 6: Reveal                 → opacity = '1' via requestAnimationFrame
+
+RULES (NEVER BREAK THESE)
+--------------------------
+Rule 1: NEVER show content before CSS is loaded.
+        Always wait for Promise.all(cssLoadPromises) before setting opacity > 0.
+
+Rule 2: NEVER use requestAnimationFrame alone to reveal content.
+        One frame (~16ms) is not enough. CSS download takes 50-500ms.
+        Always use Promise-based CSS onload + timeout fallback.
+
+Rule 3: ALWAYS keep old content hidden during swap.
+        Set opacity:0 BEFORE innerHTML swap. Never clear → show blank → fill.
+
+Rule 4: ALWAYS have a timeout fallback.
+        If CSS fails or takes >500ms, show content anyway.
+        Never leave the page invisible forever.
+
+Rule 5: NEVER remove base CSS during SPA navigation.
+        Only page-specific CSS (marked data-spa-css) gets added/removed.
+        Base CSS (loaded in <head> of base.html) is permanent.
+
+Rule 6: First page load must also be protected.
+        Add html.spa-loading class → hide body → remove on DOMContentLoaded.
+        Critical inline CSS in <head> prevents total blank.
+
+Rule 7: CSS transition on main must be 150ms+ (not 100ms).
+        100ms is too fast to mask micro-flashes. 150-200ms is the sweet spot.
+        Professional apps (Twitter, Facebook) use 150-300ms fade transitions.
+
+Rule 8: Prefetch CSS on hover, not just HTML.
+        When hover-prefetching HTML, parse it and preload its CSS too.
+        This way CSS is already cached when navigation happens.
+
+Rule 9: Back/forward must restore scroll position.
+        Store scrollY in history.state before navigating away.
+        Restore on popstate. Don't always scroll to top.
+
+WHAT DOES NOT APPLY TO OUR STACK
+----------------------------------
+- Hydration mismatch → No React/Vue, no hydration step
+- Inertia.js → Requires React/Vue frontend
+- Vite / HMR → We serve JS directly, no bundler
+- SSR with Node.js → Django already does SSR
+- Island Architecture → React concept
+- v-cloak → Vue-specific directive
+- React Suspense/Streaming SSR → React-specific
+
+MONITORING
+----------
+Test SPA navigation on:
+- Fast connection (local dev) → should be instant, no flash
+- Slow 3G (DevTools throttle) → should show loading bar, then fade in
+- Offline (service worker) → cached pages should swap instantly
+- Back/forward buttons → should restore scroll, no flash

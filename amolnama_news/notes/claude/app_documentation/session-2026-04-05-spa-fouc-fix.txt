@@ -1,0 +1,91 @@
+Session 2026-04-05 — SPA FOUC (Double Flash) Prevention
+========================================================
+
+Problem: Moving from MPA (Multi-Page App) to SPA caused "double flash" —
+user sees unstyled content for a split second before CSS loads and content shifts.
+
+Root Cause: CSS loading timing during SPA <main> swap, NOT hydration mismatch.
+This is a Django SSR + vanilla JS app. React/Vue/Inertia.js do NOT apply.
+
+WHAT WAS ALREADY DONE (commit ba6b8ba)
+---------------------------------------
+- spa-navigation.js: loadPageCss() returns Promise
+- Content hidden (opacity:0) during swap
+- Reveal only after cssReadyPromise.then() + 500ms timeout fallback
+- requestAnimationFrame wraps opacity reveal
+
+GAPS FOUND AND FIXED (this session)
+-------------------------------------
+
+GAP 1: CSS PREFETCH ON HOVER
+  File: spa-navigation.js (lines 170-186)
+  Problem: HTML prefetched on hover, but page-specific CSS only loaded after parse
+  Fix: preloadPageCss() function — parses prefetched HTML, injects
+       <link rel="preload" as="style"> for page-specific CSS
+  Result: CSS already in browser cache when user clicks — zero CSS wait time
+
+GAP 2: FIRST-LOAD CLOAK (MPA FOUC protection)
+  File: base.html (lines 44-54)
+  Problem: SPA swap was protected, but initial Django page load had no cloak
+  Fix: Critical inline CSS sets main { opacity: 0 }
+       html.spa-ready main { opacity: 1 } — class added on DOMContentLoaded
+       800ms timeout fallback — never invisible forever
+  Result: First page load fades in smoothly after CSS is ready
+
+GAP 3: OPACITY TRANSITION DURATION
+  File: base.css (line 52)
+  Problem: 100ms transition too fast to mask micro-flashes
+  Fix: Changed from .1s to .15s (150ms)
+  Result: Professional-level fade that hides any remaining timing gaps
+
+GAP 4: SCROLL POSITION RESTORE ON BACK/FORWARD
+  File: spa-navigation.js (lines 83-87, 112-118, 270-276)
+  Problem: Always scrolled to top on back/forward — disorienting
+  Fix: Step 0 saves window.scrollY via history.replaceState before navigating
+       Step 8 restores scrollY on popstate, scrolls to top on new navigation
+       popstate handler passes event.state.scrollY to navigateTo()
+  Result: Back/forward returns user to exact scroll position
+
+GAP 5: PRELOAD CLEANUP
+  File: spa-navigation.js (lines 210-212)
+  Problem: <link rel="preload"> tags accumulate in <head> after multiple hovers
+  Fix: Remove all data-spa-preload links before loading new page CSS
+  Result: Clean <head>, no stale preload links
+
+CACHE BUMP
+----------
+Service worker: amolnama-v430 -> amolnama-v431 (seo/views.py:192)
+
+FILES CHANGED
+-------------
+1. site_apps/core/static/core/assets/js/utilities/spa-navigation.js
+   - preloadPageCss() function added (hover CSS prefetch)
+   - navigateTo() accepts restoreScrollY parameter
+   - Step 0: save scroll position before leaving
+   - Step 8: conditional scroll restore
+   - preload cleanup before CSS load
+   - popstate passes scrollY
+
+2. site_apps/core/templates/core/base.html
+   - Inline CSS: main { opacity: 0 } + html.spa-ready main { opacity: 1 }
+   - Inline script: DOMContentLoaded adds spa-ready class + 800ms fallback
+
+3. site_apps/core/static/core/assets/css/base.css
+   - main transition: .1s -> .15s
+
+4. site_apps/seo/views.py
+   - CACHE_NAME: amolnama-v430 -> amolnama-v431
+
+RULES DOCUMENT
+--------------
+Full rules saved in: amolnama_news/notes/spa-fouc-prevention-rules.txt
+Memory updated: feedback_spa_no_double_flash.md
+
+WHAT DOES NOT APPLY TO OUR STACK
+----------------------------------
+- Hydration mismatch (React/Vue concept)
+- Inertia.js (requires React/Vue frontend)
+- Vite / HMR (we serve JS directly, no bundler)
+- SSR with Node.js (Django already does SSR)
+- Island Architecture (React concept)
+- v-cloak (Vue-specific)

@@ -35,14 +35,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Critical inline CSS — page never looks broken even if external CSS fails (offline) -->
+  <!-- First-load cloak: hide main until CSS is ready, prevents FOUC on initial MPA render -->
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Noto Sans Bengali','Noto Sans',sans-serif;color:#1A1A1A;background:#fff;line-height:1.6}
     .page-wrapper{min-height:100vh;display:flex;flex-direction:column}
-    main{flex:1;max-width:1200px;margin:0 auto;padding:1rem;width:100%}
+    main{flex:1;max-width:1200px;margin:0 auto;padding:1rem;width:100%;opacity:0}
+    html.spa-ready main{opacity:1}
     a{text-decoration:none;color:inherit}
     img{max-width:100%}
   </style>
+  <script>
+    // Reveal main after all CSS is loaded (DOMContentLoaded = HTML parsed + sync CSS applied)
+    document.addEventListener('DOMContentLoaded', function () {
+      document.documentElement.classList.add('spa-ready');
+    });
+    // Fallback: never leave invisible longer than 800ms
+    setTimeout(function () {
+      document.documentElement.classList.add('spa-ready');
+    }, 800);
+  </script>
 
   <link rel="stylesheet" href="{% static 'core/assets/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/notification-bell.css' %}">
