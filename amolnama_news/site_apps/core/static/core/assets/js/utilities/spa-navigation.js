@@ -14,6 +14,18 @@
   var sidebarNav = document.getElementById('sidebar-navigation');
   if (!sidebarNav) return;
 
+  // Prefetch on hover — start download before click
+  var prefetchCache = {};
+  sidebarNav.addEventListener('mouseenter', function (event) {
+    var link = event.target.closest('a.sidebar-navigation-item');
+    if (!link) return;
+    var url = link.getAttribute('href');
+    if (!url || url === window.location.pathname || prefetchCache[url]) return;
+    prefetchCache[url] = fetch(url).then(function (response) {
+      return response.ok ? response.text() : null;
+    }).catch(function () { return null; });
+  }, true);
+
   // Intercept sidebar nav link clicks
   sidebarNav.addEventListener('click', function (event) {
     var link = event.target.closest('a.sidebar-navigation-item');
@@ -40,12 +52,20 @@
     currentAbortController = new AbortController();
     showLoadingBar();
 
-    fetch(url, { signal: currentAbortController.signal })
-      .then(function (response) {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        return response.text();
-      })
-      .then(function (html) {
+    // Use prefetch cache if available, otherwise fetch fresh
+    var fetchPromise = prefetchCache[url]
+      ? prefetchCache[url].then(function (cached) {
+          delete prefetchCache[url];
+          if (cached) return cached;
+          return fetch(url, { signal: currentAbortController.signal }).then(function (r) { return r.ok ? r.text() : null; });
+        })
+      : fetch(url, { signal: currentAbortController.signal }).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        });
+
+    fetchPromise.then(function (html) {
+        if (!html) { window.location.href = url; return; }
         var parsed = new DOMParser().parseFromString(html, 'text/html');
         var newMain = parsed.querySelector('main');
         var newTitle = parsed.querySelector('title');
