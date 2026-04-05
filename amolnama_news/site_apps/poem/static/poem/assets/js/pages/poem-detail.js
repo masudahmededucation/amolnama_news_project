@@ -3,29 +3,29 @@
  */
 (function () {
   "use strict";
-  var getCsrf = window.getCsrfTokenValue;
+  const getCsrf = window.getCsrfTokenValue;
 
   /* ── Collapsible sections ── */
   document.querySelectorAll(".poem-detail-section-toggle").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var targetId = btn.getAttribute("data-toggle");
-      var content = document.getElementById(targetId);
+      const targetId = btn.getAttribute("data-toggle");
+      let content = document.getElementById(targetId);
       if (!content) return;
 
-      var open = btn.getAttribute("aria-expanded") === "true";
+      let open = btn.getAttribute("aria-expanded") === "true";
       btn.setAttribute("aria-expanded", !open);
       content.classList.toggle("poem-detail-section-content--open", !open);
     });
   });
 
   /* ── Like toggle ── */
-  var likeBtn = document.getElementById("poemLikeBtn");
-  var likeCount = document.getElementById("poemLikeCount");
+  const likeBtn = document.getElementById("poemLikeBtn");
+  const likeCount = document.getElementById("poemLikeCount");
 
   if (likeBtn) {
     likeBtn.addEventListener("click", function () {
-      var poemId = likeBtn.dataset.poemId;
-      var csrf = getCsrf();
+      const poemId = likeBtn.dataset.poemId;
+      const csrf = getCsrf();
 
       fetch("/bangla-kobita-gaan/api/poems/" + poemId + "/like/", {
         method: "POST",
@@ -35,12 +35,12 @@
         },
         credentials: "same-origin",
       })
-        .then(function (r) { return r.json(); })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function (data) {
           if (!data.success) {
             if (data.error === "Login required") {
               /* Show friendly login prompt instead of redirecting */
-              var loginMsg = document.getElementById("poem-login-prompt");
+              let loginMsg = document.getElementById("poem-login-prompt");
               if (!loginMsg) {
                 loginMsg = document.createElement("div");
                 loginMsg.id = "poem-login-prompt";
@@ -61,10 +61,10 @@
   }
 
   /* ── Share button ── */
-  var shareBtn = document.getElementById("poemShareBtn");
+  const shareBtn = document.getElementById("poemShareBtn");
   if (shareBtn) {
     shareBtn.addEventListener("click", function () {
-      var url = window.location.href;
+      const url = window.location.href;
       if (navigator.share) {
         navigator.share({ title: document.title, url: url }).catch(function () {});
       } else if (navigator.clipboard) {

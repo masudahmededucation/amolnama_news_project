@@ -48,11 +48,20 @@
   color: #fff;
 }
 
+/* Title row (h1 + draft badge) */
+.poem-create-title-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
 /* Field groups */
 .poem-create-group {
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  margin-bottom: 1rem;
 }
 
 .poem-create-label {
@@ -249,7 +258,7 @@
   font-size: .85rem;
   font-weight: 600;
   color: var(--danger);
-  background: #FFF5F5;
+  background: var(--danger-light);
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;

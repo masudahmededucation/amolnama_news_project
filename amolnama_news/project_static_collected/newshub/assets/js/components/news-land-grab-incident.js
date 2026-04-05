@@ -37,49 +37,49 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('land-grab-incident-json');
+  const hiddenInput = document.getElementById('land-grab-incident-json');
   if (!hiddenInput) return;
 
   /* ---- Parse embedded JSON reference data ---- */
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var propertyTypeData       = parseJsonData('land-property-type-data');
-  var grabbingMethodData     = parseJsonData('land-grabbing-method-data');
-  var currentStatusData      = parseJsonData('land-current-status-data');
-  var docTitleStatusData     = parseJsonData('land-document-title-status-data');
-  var areaUnitData           = parseJsonData('land-area-unit-data');
+  const propertyTypeData       = parseJsonData('land-property-type-data');
+  const grabbingMethodData     = parseJsonData('land-grabbing-method-data');
+  const currentStatusData      = parseJsonData('land-current-status-data');
+  const docTitleStatusData     = parseJsonData('land-document-title-status-data');
+  const areaUnitData           = parseJsonData('land-area-unit-data');
 
   /* ---- Element references ---- */
-  var propertyTypeHidden    = document.getElementById('land-grab-property-type');
-  var propertyTypeOtherRow  = document.getElementById('land-grab-property-type-other-row');
-  var propertyTypeOtherEl   = document.getElementById('land-grab-property-type-other');
-  var mouzaEl               = document.getElementById('land-grab-mouza');
-  var daagEl                = document.getElementById('land-grab-daag');
-  var khatianEl             = document.getElementById('land-grab-khatian');
-  var areaAmountEl          = document.getElementById('land-grab-area-amount');
-  var areaUnitEl            = document.getElementById('land-grab-area-unit');
-  var methodOtherRow        = document.getElementById('land-grab-method-other-row');
-  var methodOtherDetailEl   = document.getElementById('land-grab-method-other-detail');
-  var familiesEl            = document.getElementById('land-grab-families-evicted');
-  var violenceEl            = document.getElementById('land-grab-violence-occurred');
-  var violenceDescRow       = document.getElementById('land-grab-violence-desc-row');
-  var violenceDescEl        = document.getElementById('land-grab-violence-desc');
-  var currentStatusHidden   = document.getElementById('land-grab-current-status');
+  const propertyTypeHidden    = document.getElementById('land-grab-property-type');
+  const propertyTypeOtherRow  = document.getElementById('land-grab-property-type-other-row');
+  const propertyTypeOtherEl   = document.getElementById('land-grab-property-type-other');
+  const mouzaEl               = document.getElementById('land-grab-mouza');
+  const daagEl                = document.getElementById('land-grab-daag');
+  const khatianEl             = document.getElementById('land-grab-khatian');
+  const areaAmountEl          = document.getElementById('land-grab-area-amount');
+  const areaUnitEl            = document.getElementById('land-grab-area-unit');
+  const methodOtherRow        = document.getElementById('land-grab-method-other-row');
+  const methodOtherDetailEl   = document.getElementById('land-grab-method-other-detail');
+  const familiesEl            = document.getElementById('land-grab-families-evicted');
+  const violenceEl            = document.getElementById('land-grab-violence-occurred');
+  const violenceDescRow       = document.getElementById('land-grab-violence-desc-row');
+  const violenceDescEl        = document.getElementById('land-grab-violence-desc');
+  const currentStatusHidden   = document.getElementById('land-grab-current-status');
 
   /* ---- Status IDs for "Other" detection ---- */
-  var propertyTypeOtherId = 0;
-  var methodOtherId       = 0;
-  for (var pi = 0; pi < propertyTypeData.length; pi++) {
+  let propertyTypeOtherId = 0;
+  let methodOtherId       = 0;
+  for (let pi = 0; pi < propertyTypeData.length; pi++) {
     if ((propertyTypeData[pi].status_code || '') === 'other') {
       propertyTypeOtherId = propertyTypeData[pi].status_id;
       break;
     }
   }
-  for (var mi = 0; mi < grabbingMethodData.length; mi++) {
+  for (let mi = 0; mi < grabbingMethodData.length; mi++) {
     if ((grabbingMethodData[mi].status_code || '') === 'other_method') {
       methodOtherId = grabbingMethodData[mi].status_id;
       break;
@@ -87,21 +87,21 @@
   }
 
   /* ---- Populate property type radio card grid ---- */
-  var propTypeGrid = document.getElementById('land-grab-property-type-grid');
+  const propTypeGrid = document.getElementById('land-grab-property-type-grid');
   if (propTypeGrid && propertyTypeData.length) {
-    for (var i = 0; i < propertyTypeData.length; i++) {
-      var pt = propertyTypeData[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < propertyTypeData.length; i++) {
+      const pt = propertyTypeData[i];
+      const label = document.createElement('label');
       label.className = 'radio-card';
-      var inp = document.createElement('input');
+      const inp = document.createElement('input');
       inp.type  = 'radio';
       inp.name  = 'land_grab_property_type_radio';
       inp.value = pt.status_id;
       inp.id    = 'land_grab_property_type_radio-' + pt.status_id;
-      var iconSpan  = document.createElement('span');
+      const iconSpan  = document.createElement('span');
       iconSpan.className = 'radio-card-icon';
       iconSpan.textContent = pt.status_icon || '';
-      var textSpan  = document.createElement('span');
+      const textSpan  = document.createElement('span');
       textSpan.className = 'radio-card-label';
       textSpan.textContent = (pt.status_name_bn || '') + ' (' + (pt.status_name_en || '') + ')';
       label.appendChild(inp);
@@ -113,9 +113,9 @@
 
   /* ---- Populate area unit select ---- */
   if (areaUnitEl && areaUnitData.length) {
-    for (var ai = 0; ai < areaUnitData.length; ai++) {
-      var au = areaUnitData[ai];
-      var opt = document.createElement('option');
+    for (let ai = 0; ai < areaUnitData.length; ai++) {
+      const au = areaUnitData[ai];
+      const opt = document.createElement('option');
       opt.value = au.status_id;
       opt.textContent = (au.status_name_bn || '') + ' (' + (au.status_name_en || '') + ')';
       areaUnitEl.appendChild(opt);
@@ -123,13 +123,13 @@
   }
 
   /* ---- Populate document title status checkboxes ---- */
-  var docContainer = document.getElementById('land-doc-title-status-checkboxes');
+  const docContainer = document.getElementById('land-doc-title-status-checkboxes');
   if (docContainer && docTitleStatusData.length) {
-    for (var di = 0; di < docTitleStatusData.length; di++) {
-      var ds = docTitleStatusData[di];
-      var dlabel = document.createElement('label');
+    for (let di = 0; di < docTitleStatusData.length; di++) {
+      const ds = docTitleStatusData[di];
+      const dlabel = document.createElement('label');
       dlabel.className = 'checkbox-label';
-      var dinp = document.createElement('input');
+      const dinp = document.createElement('input');
       dinp.type  = 'checkbox';
       dinp.name  = 'land_doc_title_status';
       dinp.value = ds.status_id;
@@ -144,13 +144,13 @@
   }
 
   /* ---- Populate grabbing method checkboxes ---- */
-  var methodContainer = document.getElementById('land-grabbing-method-checkboxes');
+  const methodContainer = document.getElementById('land-grabbing-method-checkboxes');
   if (methodContainer && grabbingMethodData.length) {
-    for (var gi = 0; gi < grabbingMethodData.length; gi++) {
-      var gm = grabbingMethodData[gi];
-      var glabel = document.createElement('label');
+    for (let gi = 0; gi < grabbingMethodData.length; gi++) {
+      const gm = grabbingMethodData[gi];
+      const glabel = document.createElement('label');
       glabel.className = 'checkbox-label';
-      var ginp = document.createElement('input');
+      const ginp = document.createElement('input');
       ginp.type  = 'checkbox';
       ginp.name  = 'land_grabbing_method';
       ginp.value = gm.status_id;
@@ -163,7 +163,7 @@
       /* Toggle "other method" row when OTHER_METHOD checkbox changes */
       if (gm.status_id === methodOtherId) {
         ginp.addEventListener('change', function () {
-          if (methodOtherRow) methodOtherRow.style.display = this.checked ? '' : 'none';
+          if (methodOtherRow) this.checked ? methodOtherRow.classList.remove('display-hidden') : methodOtherRow.classList.add('display-hidden');
           if (!this.checked && methodOtherDetailEl) methodOtherDetailEl.value = '';
           syncToHiddenInput();
         });
@@ -174,13 +174,13 @@
   }
 
   /* ---- Populate current status inline radios ---- */
-  var statusGroup = document.getElementById('land-grab-status-group');
+  const statusGroup = document.getElementById('land-grab-status-group');
   if (statusGroup && currentStatusData.length) {
-    for (var si = 0; si < currentStatusData.length; si++) {
-      var cs = currentStatusData[si];
-      var slabel = document.createElement('label');
+    for (let si = 0; si < currentStatusData.length; si++) {
+      const cs = currentStatusData[si];
+      const slabel = document.createElement('label');
       slabel.className = 'radio-inline';
-      var sinp = document.createElement('input');
+      const sinp = document.createElement('input');
       sinp.type  = 'radio';
       sinp.name  = 'land_grab_status_radio';
       sinp.value = cs.status_id;
@@ -197,10 +197,10 @@
   if (propTypeGrid && propertyTypeHidden) {
     propTypeGrid.addEventListener('change', function (e) {
       if (e.target.type === 'radio') {
-        var selectedId = parseInt(e.target.value, 10);
+        const selectedId = parseInt(e.target.value, 10);
         propertyTypeHidden.value = selectedId;
-        var isOther = (selectedId === propertyTypeOtherId);
-        if (propertyTypeOtherRow) propertyTypeOtherRow.style.display = isOther ? '' : 'none';
+        let isOther = (selectedId === propertyTypeOtherId);
+        if (propertyTypeOtherRow) isOther ? propertyTypeOtherRow.classList.remove('display-hidden') : propertyTypeOtherRow.classList.add('display-hidden');
         if (!isOther && propertyTypeOtherEl) propertyTypeOtherEl.value = '';
         syncToHiddenInput();
       }
@@ -220,16 +220,16 @@
   /* ---- Toggle violence description row ---- */
   if (violenceEl) {
     violenceEl.addEventListener('change', function () {
-      if (violenceDescRow) violenceDescRow.style.display = violenceEl.checked ? '' : 'none';
+      if (violenceDescRow) violenceEl.checked ? violenceDescRow.classList.remove('display-hidden') : violenceDescRow.classList.add('display-hidden');
       syncToHiddenInput();
     });
   }
 
   /* ---- Collect checked IDs by checkbox name ---- */
   function collectCheckedIds(name) {
-    var checked = document.querySelectorAll('input[name="' + name + '"]:checked');
-    var ids = [];
-    for (var ci = 0; ci < checked.length; ci++) {
+    const checked = document.querySelectorAll('input[name="' + name + '"]:checked');
+    const ids = [];
+    for (let ci = 0; ci < checked.length; ci++) {
       ids.push(parseInt(checked[ci].value, 10));
     }
     return ids;
@@ -264,39 +264,39 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
   /* Sync on any input/change inside the section */
-  var section = document.getElementById('section-land-grab-incident-details');
+  const section = document.getElementById('section-land-grab-incident-details');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
   /* Re-sync before form submit */
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     /* Property type radio */
     if (data.propertyTypeId) {
-      var propRadios = document.querySelectorAll('input[name="land_grab_property_type_radio"]');
-      for (var i = 0; i < propRadios.length; i++) {
+      let propRadios = document.querySelectorAll('input[name="land_grab_property_type_radio"]');
+      for (let i = 0; i < propRadios.length; i++) {
         if (parseInt(propRadios[i].value, 10) === data.propertyTypeId) {
           propRadios[i].checked = true;
           break;
         }
       }
       if (propertyTypeHidden) propertyTypeHidden.value = data.propertyTypeId;
-      var isOther = (data.propertyTypeId === propertyTypeOtherId);
-      if (propertyTypeOtherRow) propertyTypeOtherRow.style.display = isOther ? '' : 'none';
+      const isOther = (data.propertyTypeId === propertyTypeOtherId);
+      if (propertyTypeOtherRow) isOther ? propertyTypeOtherRow.classList.remove('display-hidden') : propertyTypeOtherRow.classList.add('display-hidden');
       if (isOther && propertyTypeOtherEl && data.propertyTypeOther) {
         propertyTypeOtherEl.value = data.propertyTypeOther;
       }
@@ -311,8 +311,8 @@
 
     /* Document title status checkboxes */
     if (data.documentIds && data.documentIds.length) {
-      var docCbs = document.querySelectorAll('input[name="land_doc_title_status"]');
-      for (var d = 0; d < docCbs.length; d++) {
+      let docCbs = document.querySelectorAll('input[name="land_doc_title_status"]');
+      for (let d = 0; d < docCbs.length; d++) {
         if (data.documentIds.indexOf(parseInt(docCbs[d].value, 10)) !== -1) {
           docCbs[d].checked = true;
         }
@@ -321,23 +321,23 @@
 
     /* Grabbing method checkboxes */
     if (data.methodIds && data.methodIds.length) {
-      var methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
-      for (var m = 0; m < methCbs.length; m++) {
+      let methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
+      for (let m = 0; m < methCbs.length; m++) {
         if (data.methodIds.indexOf(parseInt(methCbs[m].value, 10)) !== -1) {
           methCbs[m].checked = true;
         }
       }
       /* Show "other method" row if OTHER_METHOD is among saved methods */
       if (methodOtherId && data.methodIds.indexOf(methodOtherId) !== -1) {
-        if (methodOtherRow) methodOtherRow.style.display = '';
+        if (methodOtherRow) methodOtherRow.classList.remove('display-hidden');
         if (methodOtherDetailEl && data.methodOther) methodOtherDetailEl.value = data.methodOther;
       }
     }
 
     /* Current status radio */
     if (data.currentStatusId) {
-      var statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
-      for (var s = 0; s < statusRadios.length; s++) {
+      let statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
+      for (let s = 0; s < statusRadios.length; s++) {
         if (parseInt(statusRadios[s].value, 10) === data.currentStatusId) {
           statusRadios[s].checked = true;
           break;
@@ -349,7 +349,7 @@
     /* Human impact */
     if (familiesEl && data.familiesEvicted)  familiesEl.value   = data.familiesEvicted;
     if (violenceEl) violenceEl.checked = !!data.violenceOccurred;
-    if (violenceDescRow) violenceDescRow.style.display = data.violenceOccurred ? '' : 'none';
+    if (violenceDescRow) data.violenceOccurred ? violenceDescRow.classList.remove('display-hidden') : violenceDescRow.classList.add('display-hidden');
     if (violenceDescEl && data.violenceDesc) violenceDescEl.value = data.violenceDesc;
   }
   setTimeout(restoreFromSavedData, 100);
@@ -358,11 +358,11 @@
   window.newshubLandGrabIncident = {
     reset: function () {
       /* Property type radio cards */
-      var propRadios = document.querySelectorAll('input[name="land_grab_property_type_radio"]');
-      for (var i = 0; i < propRadios.length; i++) propRadios[i].checked = false;
+      const propRadios = document.querySelectorAll('input[name="land_grab_property_type_radio"]');
+      for (let i = 0; i < propRadios.length; i++) propRadios[i].checked = false;
       if (propertyTypeHidden)   propertyTypeHidden.value           = '';
       if (propertyTypeOtherEl)  propertyTypeOtherEl.value          = '';
-      if (propertyTypeOtherRow) propertyTypeOtherRow.style.display = 'none';
+      if (propertyTypeOtherRow) propertyTypeOtherRow.classList.add('display-hidden');
 
       /* Land record fields */
       if (mouzaEl)      mouzaEl.value      = '';
@@ -372,24 +372,24 @@
       if (areaUnitEl)   areaUnitEl.selectedIndex = 0;
 
       /* Document title status checkboxes */
-      var docCbs = document.querySelectorAll('input[name="land_doc_title_status"]');
-      for (var d = 0; d < docCbs.length; d++) docCbs[d].checked = false;
+      const docCbs = document.querySelectorAll('input[name="land_doc_title_status"]');
+      for (let d = 0; d < docCbs.length; d++) docCbs[d].checked = false;
 
       /* Method checkboxes */
-      var methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
-      for (var m = 0; m < methCbs.length; m++) methCbs[m].checked = false;
+      const methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
+      for (let m = 0; m < methCbs.length; m++) methCbs[m].checked = false;
       if (methodOtherDetailEl) methodOtherDetailEl.value        = '';
-      if (methodOtherRow)      methodOtherRow.style.display     = 'none';
+      if (methodOtherRow)      methodOtherRow.classList.add('display-hidden');
 
       /* Current status */
-      var statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
-      for (var s = 0; s < statusRadios.length; s++) statusRadios[s].checked = false;
+      const statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
+      for (let s = 0; s < statusRadios.length; s++) statusRadios[s].checked = false;
       if (currentStatusHidden) currentStatusHidden.value = '';
 
       /* Human impact */
       if (familiesEl)      familiesEl.value      = '';
       if (violenceEl)      violenceEl.checked    = false;
-      if (violenceDescRow) violenceDescRow.style.display = 'none';
+      if (violenceDescRow) violenceDescRow.classList.add('display-hidden');
       if (violenceDescEl)  violenceDescEl.value  = '';
 
       hiddenInput.value = '';

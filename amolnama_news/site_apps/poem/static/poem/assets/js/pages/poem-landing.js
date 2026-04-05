@@ -29,7 +29,7 @@
   /* ── Type tabs (সব / কবিতা / গানের কথা) ── */
   if (typeTabs) {
     typeTabs.addEventListener("click", function (e) {
-      const tab = e.target.closest(".poem-type-tab");
+      let tab = e.target.closest(".poem-type-tab");
       if (!tab) return;
 
       typeTabs.querySelectorAll(".poem-type-tab").forEach(function (t) {
@@ -48,7 +48,7 @@
   /* ── Category pills ── */
   if (pillContainer) {
     pillContainer.addEventListener("click", function (e) {
-      const pill = e.target.closest(".poem-filter-pill");
+      let pill = e.target.closest(".poem-filter-pill");
       if (!pill) return;
 
       pillContainer.querySelectorAll(".poem-filter-pill").forEach(function (p) {
@@ -67,7 +67,7 @@
   /* ── Filter breadcrumbs ── */
   function updateCrumbs() {
     if (!crumbsWrap) return;
-    var chips = [];
+    let chips = [];
 
     if (currentType) {
       chips.push({ label: currentTypeName, action: "clear-type" });
@@ -80,11 +80,11 @@
     }
 
     if (chips.length === 0) {
-      crumbsWrap.style.display = "none";
+      crumbsWrap.classList.add("display-hidden");
       return;
     }
 
-    crumbsWrap.style.display = "flex";
+    crumbsWrap.classList.remove("display-hidden");
     crumbsChips.innerHTML = chips.map(function (c) {
       return '<span class="poem-filter-chip">' + c.label +
         ' <button class="poem-filter-chip-remove" data-action="' + c.action + '">✕</button></span>';
@@ -92,7 +92,7 @@
 
     crumbsChips.querySelectorAll(".poem-filter-chip-remove").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var action = btn.getAttribute("data-action");
+        const action = btn.getAttribute("data-action");
         if (action === "clear-type") {
           currentType = "";
           currentTypeName = "";
@@ -185,14 +185,14 @@
       loadMoreBtn.textContent = "লোড হচ্ছে... (Loading...)";
     }
 
-    var params = new URLSearchParams();
+    const params = new URLSearchParams();
     params.set("page", currentPage);
     if (currentType) params.set("type", currentType);
     if (currentCategory) params.set("category", currentCategory);
     if (currentQuery) params.set("q", currentQuery);
 
     fetch("/bangla-kobita-gaan/api/poems/?" + params.toString())
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(function (data) {
         if (replace) {
           grid.innerHTML = "";
@@ -211,7 +211,7 @@
         });
 
         if (loadMoreWrap) {
-          loadMoreWrap.style.display = data.has_next ? "" : "none";
+          loadMoreWrap.classList.toggle("display-hidden", !data.has_next);
         }
         if (loadMoreBtn) {
           loadMoreBtn.disabled = false;
@@ -231,11 +231,11 @@
 
   /* ── Build card HTML (mirrors poem-card.html) ── */
   function buildCard(poem) {
-    var title = escHtml(poem.display_title);
-    var preview = escHtml(poem.body_preview);
-    var cat = escHtml(poem.category_name);
-    var author = escHtml(poem.author_display_name);
-    var lang = escHtml(poem.language || "bn");
+    const title = escHtml(poem.display_title);
+    const preview = escHtml(poem.body_preview);
+    const cat = escHtml(poem.category_name);
+    const author = escHtml(poem.author_display_name);
+    const lang = escHtml(poem.language || "bn");
 
     return (
       '<a href="' + (poem.url || '/bangla-kobita-gaan/id/' + poem.id + '/') + '" class="poem-card">' +
@@ -263,7 +263,7 @@
 
   function escHtml(str) {
     if (!str) return "";
-    var d = document.createElement("div");
+    const d = document.createElement("div");
     d.textContent = str;
     return d.innerHTML;
   }

@@ -180,16 +180,16 @@ main a, main a:hover, main a:focus { text-decoration: none; }
    ======================================== */
 
 .bangladesh-hub-card--beauty {
-  background: linear-gradient(135deg, #f0fdf4 0%, #e8f8ec 40%, #f5fdf7 100%);
+  background: linear-gradient(135deg, var(--success-light) 0%, #e8f8ec 40%, #f5fdf7 100%);
   border: 1.5px solid rgba(34, 197, 94, .18);
   box-shadow:
     0 1px 4px rgba(34, 197, 94, .06),
     0 0 0 1px rgba(34, 197, 94, .04);
-  border-left: 3.5px solid #22c55e;
+  border-left: 3.5px solid var(--success);
 }
 
 .bangladesh-hub-card--beauty:hover {
-  border-color: #22c55e;
+  border-color: var(--success);
   box-shadow:
     0 4px 16px rgba(34, 197, 94, .12),
     0 0 0 1px rgba(34, 197, 94, .08);
@@ -200,7 +200,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .bangladesh-hub-card--beauty .bangladesh-hub-card-arrow {
-  color: #22c55e;
+  color: var(--success);
 }
 
 .bangladesh-hub-card--beauty .bangladesh-hub-card-tag {
@@ -268,7 +268,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .bangladesh-hub-card--travel .bangladesh-hub-card-stat-value { color: #b07810; }
 .bangladesh-hub-card--travel .bangladesh-hub-card-stat-label { color: #c4922e; }
 .bangladesh-hub-card--beauty .bangladesh-hub-card-stat-value { color: #15803d; }
-.bangladesh-hub-card--beauty .bangladesh-hub-card-stat-label { color: #22c55e; }
+.bangladesh-hub-card--beauty .bangladesh-hub-card-stat-label { color: var(--success); }
 
 /* ---- Responsive ---- */
 

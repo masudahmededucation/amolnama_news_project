@@ -2,9 +2,9 @@
 (function () {
   'use strict';
 
-  var bellButton = document.getElementById('global-notification-bell');
-  var dropdown = document.getElementById('global-notification-dropdown');
-  var countBadge = document.getElementById('global-notification-count');
+  const bellButton = document.getElementById('global-notification-bell');
+  const dropdown = document.getElementById('global-notification-dropdown');
+  const countBadge = document.getElementById('global-notification-count');
   if (!bellButton || !dropdown || !countBadge) return;
 
 
@@ -23,18 +23,18 @@
     dropdown.classList.remove('global-notification-dropdown-hidden');
 
     fetch('/newsengine/api/notifications/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success || data.notifications.length === 0) {
           dropdown.innerHTML = '<div class="global-notification-empty">কোনো বিজ্ঞপ্তি নেই</div>';
           return;
         }
 
-        var html = '';
+        let html = '';
         data.notifications.forEach(function (notification) {
-          var readClass = notification.is_read ? '' : ' global-notification-item-unread';
-          var urlAttr = notification.url ? ' href="' + escapeHtml(notification.url) + '"' : '';
-          var tag = notification.url ? 'a' : 'div';
+          const readClass = notification.is_read ? '' : ' global-notification-item-unread';
+          const urlAttr = notification.url ? ' href="' + escapeHtml(notification.url) + '"' : '';
+          const tag = notification.url ? 'a' : 'div';
           html += '<' + tag + urlAttr + ' class="global-notification-item' + readClass + '">';
           html += '<div class="global-notification-item-message">';
           html += '<span class="global-notification-item-source">' + escapeHtml(notification.source_app) + '</span>';
@@ -51,17 +51,20 @@
         dropdown.innerHTML = html;
         updateCountBadge(data.unread_count);
 
-        var markReadButton = document.getElementById('global-notification-mark-read');
+        const markReadButton = document.getElementById('global-notification-mark-read');
         if (markReadButton) {
           markReadButton.addEventListener('click', function () {
             fetch('/newsengine/api/notifications/mark-read/', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
               body: JSON.stringify({}),
-            }).then(function () {
+            })
+            .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+            .then(function () {
               updateCountBadge(0);
               dropdown.classList.add('global-notification-dropdown-hidden');
-            });
+            })
+            .catch(function () {});
           });
         }
       })
@@ -90,7 +93,7 @@
   function pollUnreadCount() {
     if (document.visibilityState === 'hidden') return;
     fetch('/newsengine/api/notifications/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success) updateCountBadge(data.unread_count);
       })

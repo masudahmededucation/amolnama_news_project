@@ -3,17 +3,17 @@
  */
 (function () {
   "use strict";
-  var getCsrf = window.getCsrfTokenValue;
+  const getCsrf = window.getCsrfTokenValue;
 
   // Update labels based on ?type=song
-  var urlParams = new URLSearchParams(window.location.search);
-  var pageType = urlParams.get("type") || "poem";
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageType = urlParams.get("type") || "poem";
 
   if (pageType === "song") {
     document.title = "গানের কথা লিখুন · Amolnama News";
 
     // Update both visible text AND data-bn/data-en attributes
-    var swaps = {
+    const swaps = {
       "poemCreateTitle":       { bn: "গানের কথা লিখুন", en: "Write Song Lyrics" },
       "labelAuthor":           { bn: "গীতিকার / শিল্পীর নাম *", en: "Lyricist / Artist Name *" },
       "labelTitleBn":          { bn: "গানের নাম *", en: "Song Title *" },
@@ -29,8 +29,8 @@
       "poemDraftBadge":        { bn: "খসড়া সংরক্ষিত", en: "Draft saved" },
     };
 
-    for (var id in swaps) {
-      var el = document.getElementById(id);
+    for (const id in swaps) {
+      const el = document.getElementById(id);
       if (el) {
         el.setAttribute("data-bn", swaps[id].bn);
         el.setAttribute("data-en", swaps[id].en);
@@ -39,7 +39,7 @@
     }
 
     // Placeholders
-    var placeholders = {
+    const placeholders = {
       "poem-author-name":         "যেমন: জেমস, আইয়ুব বাচ্চু, নচিকেতা, রবীন্দ্রনাথ...",
       "poem-title-bn":            "যেমন: চোখে চোখে, হাওয়া, তুমি আমার...",
       "poem-body-bn":             "এখানে গানের কথা লিখুন...",
@@ -49,21 +49,21 @@
       "poem-audio-description":   "যেমন: জেমসের কণ্ঠে গান...",
     };
 
-    for (var pid in placeholders) {
-      var pel = document.getElementById(pid);
+    for (const pid in placeholders) {
+      const pel = document.getElementById(pid);
       if (pel) pel.placeholder = placeholders[pid];
     }
 
-    var emptyEl = document.querySelector(".poem-create-preview-empty");
+    const emptyEl = document.querySelector(".poem-create-preview-empty");
     if (emptyEl) emptyEl.textContent = "গানের কথা লিখতে শুরু করুন...";
   }
 
-  var form = document.getElementById("poemCreateForm");
-  var submitButton = document.getElementById("poem-submit-button");
-  var errorBox = document.getElementById("poemCreateError");
+  const form = document.getElementById("poemCreateForm");
+  const submitButton = document.getElementById("poem-submit-button");
+  const errorBox = document.getElementById("poemCreateError");
   if (!form) return;
 
-  var currentLang = "bn";
+  let currentLang = "bn";
 
   /* ── Language toggle — uses universal body[data-lang] system ── */
   document.querySelectorAll(".poem-create-lang-btn").forEach(function (btn) {
@@ -76,7 +76,7 @@
       // Set body data-lang — CSS handles visibility of .lang-field-bn / .lang-field-en
       document.body.setAttribute("data-lang", currentLang);
       // Sync header toggle
-      var headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
+      const headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
       if (headerRadio) headerRadio.checked = true;
     });
   });
@@ -92,16 +92,16 @@
   });
 
   /* ── Character/line counters ── */
-  var bodyBn = document.getElementById("poem-body-bn");
-  var bodyEn = document.getElementById("poem-body-en");
-  var counterBn = document.getElementById("poemBodyBnCounter");
-  var counterEn = document.getElementById("poemBodyEnCounter");
+  const bodyBn = document.getElementById("poem-body-bn");
+  const bodyEn = document.getElementById("poem-body-en");
+  const counterBn = document.getElementById("poemBodyBnCounter");
+  const counterEn = document.getElementById("poemBodyEnCounter");
 
   function updateCounter(textarea, counter, lang) {
     if (!textarea || !counter) return;
-    var val = textarea.value;
-    var lines = val ? val.split("\n").length : 0;
-    var chars = val.length;
+    const val = textarea.value;
+    const lines = val ? val.split("\n").length : 0;
+    const chars = val.length;
     if (lang === "bn") {
       counter.textContent = lines + " লাইন | " + chars + " অক্ষর";
     } else {
@@ -132,12 +132,12 @@
     e.preventDefault();
     hideError();
 
-    var authorName = (document.getElementById("poem-author-name").value || "").trim();
-    var titleBn = (document.getElementById("poem-title-bn").value || "").trim();
-    var titleEn = (document.getElementById("poem-title-en").value || "").trim();
-    var bodyBnVal = (document.getElementById("poem-body-bn").value || "").trim();
-    var bodyEnVal = (document.getElementById("poem-body-en").value || "").trim();
-    var category = document.getElementById("poem-category").value;
+    const authorName = (document.getElementById("poem-author-name").value || "").trim();
+    const titleBn = (document.getElementById("poem-title-bn").value || "").trim();
+    const titleEn = (document.getElementById("poem-title-en").value || "").trim();
+    const bodyBnVal = (document.getElementById("poem-body-bn").value || "").trim();
+    const bodyEnVal = (document.getElementById("poem-body-en").value || "").trim();
+    const category = document.getElementById("poem-category").value;
 
     if (!authorName) {
       showError("লেখকের নাম আবশ্যক (Writer's name is required)");
@@ -160,10 +160,10 @@
     submitButton.textContent = "প্রকাশ হচ্ছে... (Publishing...)";
 
     // Read type from URL query param (?type=poem or ?type=song)
-    var urlParams = new URLSearchParams(window.location.search);
-    var poemType = urlParams.get("type") || "poem";
+    const urlParamsSubmit = new URLSearchParams(window.location.search);
+    const poemType = urlParamsSubmit.get("type") || "poem";
 
-    var payload = {
+    const payload = {
       poem_type_code: poemType,
       poem_author_display_name: authorName,
       poem_language: currentLang,

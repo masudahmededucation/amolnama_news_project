@@ -21,16 +21,16 @@ Parameters:
   - area_list: Optional area info (for constituencies)
 {% endcomment %}
 
-<div style="margin-bottom: 3rem; border: 2px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card);">
-  <h4 style="margin: 0 0 0.5rem 0;">{{ heading }}</h4>
+<div class="location-result-card">
+  <h4 class="location-result-card-heading">{{ heading }}</h4>
 
   {% if area_list %}
-    <p style="margin: 0 0 0.5rem 0; color: var(--muted); font-size: 0.9rem;">
+    <p class="location-result-card-area">
       {{ area_list }}
     </p>
   {% endif %}
 
-  <p style="margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+  <p class="location-result-card-total">
     <span class="highlight-vote">মোট ভোট: {{ total_votes|floatformat:0 }}</span>
   </p>
 
@@ -38,15 +38,15 @@ Parameters:
     {% for party in parties %}
       {% include "evaluation_vote/components/party-result-item.html" with party=party %}
     {% empty %}
-      <li style="text-align: center; padding: 2rem; color: var(--muted);">
+      <li class="empty-state">
         No results found / কোনো ফলাফল পাওয়া যায়নি
       </li>
     {% endfor %}
   </ul>
 
   {% if drilldown_url %}
-    <div style="text-align: center; margin-top: 1rem;">
-      <a href="{{ drilldown_url }}" style="color: var(--primary); text-decoration: none; font-weight: bold;">
+    <div class="drilldown-container">
+      <a href="{{ drilldown_url }}" class="drilldown-link">
         {{ drilldown_text }} →
       </a>
     </div>

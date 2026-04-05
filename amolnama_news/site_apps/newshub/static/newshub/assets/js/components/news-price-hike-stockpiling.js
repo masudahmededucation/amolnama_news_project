@@ -18,27 +18,27 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('stockpiling-json');
-  var template = document.getElementById('stockpile-row-template');
-  var container = document.getElementById('stockpile-rows-container');
-  var addBtn = document.getElementById('btn-add-stockpile');
+  const hiddenJson = document.getElementById('stockpiling-json');
+  const template = document.getElementById('stockpile-row-template');
+  const container = document.getElementById('stockpile-rows-container');
+  const addBtn = document.getElementById('btn-add-stockpile');
 
   if (!hiddenJson || !template || !container) return;
 
   /* Read commodity API URL from CSP-safe JSON */
-  var apiUrl = '';
-  var urlDataEl = document.getElementById('stockpile-commodity-search-url-data');
+  let apiUrl = '';
+  const urlDataEl = document.getElementById('stockpile-commodity-search-url-data');
   if (urlDataEl) {
     try { apiUrl = JSON.parse(urlDataEl.textContent).url || ''; }
     catch (e) { /* ignore */ }
   }
 
-  var rowCounter = 0;
-  var tomInstances = {};  /* rowIndex → TomSelect instance */
+  let rowCounter = 0;
+  let tomInstances = {};  /* rowIndex → TomSelect instance */
 
   /* ---- Tom Select config ---- */
   function createTomSelect(selectEl, rowIndex) {
-    var ts = new TomSelect(selectEl, {
+    let ts = new TomSelect(selectEl, {
       valueField: 'id',
       labelField: 'label',
       searchField: ['name_bn', 'name_en', 'group_bn'],
@@ -47,15 +47,15 @@
       preload: 'focus',
 
       load: function (query, callback) {
-        var url = apiUrl;
+        let url = apiUrl;
         if (query && query.length > 0) {
           url += '?q=' + encodeURIComponent(query);
         }
         fetch(url)
-          .then(function (resp) { return resp.json(); })
+          .then(function (resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
           .then(function (data) {
-            var items = (data.commodities || []).map(function (c) {
-              var label = c.name_bn;
+            const items = (data.commodities || []).map(function (c) {
+              let label = c.name_bn;
               if (c.variant_bn) label += ' (' + c.variant_bn + ')';
               if (c.group_bn) label += ' — ' + c.group_bn;
               return {
@@ -75,7 +75,7 @@
 
       render: {
         option: function (item, escape) {
-          var html = '<div class="ts-option-commodity">';
+          let html = '<div class="ts-option-commodity">';
           html += '<span class="ts-commodity-name">' + escape(item.name_bn);
           if (item.variant_bn) html += ' <small>(' + escape(item.variant_bn) + ')</small>';
           html += '</span>';
@@ -84,7 +84,7 @@
           return html;
         },
         item: function (item, escape) {
-          var text = escape(item.name_bn);
+          let text = escape(item.name_bn);
           if (item.variant_bn) text += ' (' + escape(item.variant_bn) + ')';
           return '<div>' + text + '</div>';
         },
@@ -101,17 +101,17 @@
 
   /* ---- Add a new stockpile row ---- */
   function addRow() {
-    var index = rowCounter++;
-    var clone = template.content.cloneNode(true);
-    var rowEl = clone.querySelector('.stockpile-row');
+    let index = rowCounter++;
+    let clone = template.content.cloneNode(true);
+    let rowEl = clone.querySelector('.stockpile-row');
     rowEl.setAttribute('data-row-index', index);
 
     /* Row number label */
-    var numberLabel = rowEl.querySelector('.stockpile-row-number');
+    let numberLabel = rowEl.querySelector('.stockpile-row-number');
     if (numberLabel) numberLabel.textContent = 'পণ্য #' + (container.children.length + 1);
 
     /* Remove button */
-    var removeBtn = rowEl.querySelector('.btn-remove-stockpile');
+    let removeBtn = rowEl.querySelector('.btn-remove-stockpile');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl, index);
@@ -119,10 +119,10 @@
     }
 
     /* Input listeners */
-    var crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
-    var descEl = rowEl.querySelector('.stockpile-description');
-    var qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
-    var chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
+    let crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
+    let descEl = rowEl.querySelector('.stockpile-description');
+    let qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
+    let chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
 
     if (crisisEl) crisisEl.addEventListener('change', serialize);
     if (descEl) descEl.addEventListener('input', serialize);
@@ -132,7 +132,7 @@
     container.appendChild(rowEl);
 
     /* Initialize Tom Select on the select element */
-    var selectEl = rowEl.querySelector('.stockpile-commodity-select');
+    let selectEl = rowEl.querySelector('.stockpile-commodity-select');
     if (selectEl) createTomSelect(selectEl, index);
 
     updateRowNumbers();
@@ -151,32 +151,32 @@
 
   /* ---- Update row number labels after add/remove ---- */
   function updateRowNumbers() {
-    var rows = container.querySelectorAll('.stockpile-row');
-    for (var i = 0; i < rows.length; i++) {
-      var label = rows[i].querySelector('.stockpile-row-number');
+    let rows = container.querySelectorAll('.stockpile-row');
+    for (let i = 0; i < rows.length; i++) {
+      const label = rows[i].querySelector('.stockpile-row-number');
       if (label) label.textContent = 'পণ্য #' + (i + 1);
     }
   }
 
   /* ---- Serialize all rows ---- */
   function serialize() {
-    var commodities = [];
-    var rows = container.querySelectorAll('.stockpile-row');
+    let commodities = [];
+    const rows = container.querySelectorAll('.stockpile-row');
 
-    for (var i = 0; i < rows.length; i++) {
-      var rowEl = rows[i];
-      var index = parseInt(rowEl.getAttribute('data-row-index'), 10);
-      var ts = tomInstances[index];
+    for (let i = 0; i < rows.length; i++) {
+      let rowEl = rows[i];
+      let index = parseInt(rowEl.getAttribute('data-row-index'), 10);
+      let ts = tomInstances[index];
 
-      var commodityId = '';
+      let commodityId = '';
       if (ts && ts.getValue()) {
         commodityId = ts.getValue();
       }
 
-      var crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
-      var descEl = rowEl.querySelector('.stockpile-description');
-      var qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
-      var chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
+      let crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
+      let descEl = rowEl.querySelector('.stockpile-description');
+      let qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
+      let chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
 
       commodities.push({
         commodityId: commodityId,
@@ -193,7 +193,7 @@
   /* ---- Event listeners ---- */
   if (addBtn) addBtn.addEventListener('click', addRow);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Auto-add first row on init ---- */
@@ -202,31 +202,31 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
-    var commodities = data.commodities;
+    const commodities = data.commodities;
     if (!commodities || !commodities.length) return;
 
     /* Clear the auto-added first row */
-    for (var key in tomInstances) {
+    for (let key in tomInstances) {
       if (tomInstances[key]) tomInstances[key].destroy();
     }
     tomInstances = {};
     container.innerHTML = '';
     rowCounter = 0;
 
-    for (var i = 0; i < commodities.length; i++) {
-      var item = commodities[i];
-      var index = rowCounter++;
-      var clone = template.content.cloneNode(true);
-      var rowEl = clone.querySelector('.stockpile-row');
+    for (let i = 0; i < commodities.length; i++) {
+      const item = commodities[i];
+      const index = rowCounter++;
+      const clone = template.content.cloneNode(true);
+      const rowEl = clone.querySelector('.stockpile-row');
       rowEl.setAttribute('data-row-index', index);
 
-      var numberLabel = rowEl.querySelector('.stockpile-row-number');
+      const numberLabel = rowEl.querySelector('.stockpile-row-number');
       if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
 
-      var removeBtn = rowEl.querySelector('.btn-remove-stockpile');
+      const removeBtn = rowEl.querySelector('.btn-remove-stockpile');
       if (removeBtn) {
         (function (el, idx) {
           removeBtn.addEventListener('click', function () { removeRow(el, idx); });
@@ -234,10 +234,10 @@
       }
 
       /* Set field values */
-      var crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
-      var descEl = rowEl.querySelector('.stockpile-description');
-      var qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
-      var chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
+      const crisisEl = rowEl.querySelector('.stockpile-artificial-crisis');
+      const descEl = rowEl.querySelector('.stockpile-description');
+      const qtyEl = rowEl.querySelector('.stockpile-estimated-quantity');
+      const chainEl = rowEl.querySelector('.stockpile-supply-chain-issue');
 
       if (crisisEl && item.artificialCrisis) crisisEl.checked = true;
       if (descEl && item.description) descEl.value = item.description;
@@ -252,9 +252,9 @@
       container.appendChild(rowEl);
 
       /* Init Tom Select and restore commodity */
-      var selectEl = rowEl.querySelector('.stockpile-commodity-select');
+      const selectEl = rowEl.querySelector('.stockpile-commodity-select');
       if (selectEl && item.commodityId) {
-        var ts = createTomSelect(selectEl, index);
+        const ts = createTomSelect(selectEl, index);
         ts.addOption({
           id: item.commodityId,
           label: item.commodityId,
@@ -276,7 +276,7 @@
   /* ---- Public API for form-clear ---- */
   window.newshubStockpiling = {
     reset: function () {
-      for (var key in tomInstances) {
+      for (let key in tomInstances) {
         if (tomInstances[key]) tomInstances[key].destroy();
       }
       tomInstances = {};

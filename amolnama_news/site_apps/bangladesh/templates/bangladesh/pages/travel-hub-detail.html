@@ -28,7 +28,7 @@
 <article class="travel-hub-detail-article">
 
   {# ── Hero Image ── #}
-  <div class="travel-hub-detail-hero" id="travel-hub-detail-hero" style="{% if dest.cover_image_url %}background-image:url('{{ dest.cover_image_url }}');{% else %}display:none;{% endif %}"></div>
+  <div class="travel-hub-detail-hero{% if not dest.cover_image_url %} display-hidden{% endif %}" id="travel-hub-detail-hero" {% if dest.cover_image_url %}style="background-image:url('{{ dest.cover_image_url }}');"{% endif %}></div>
 
   {# ── Header ── #}
   <div class="travel-hub-detail-header">
@@ -80,7 +80,7 @@
     <div class="travel-hub-detail-media-grid" id="travel-hub-detail-photo-grid">
       {% for p in photos %}
       <div class="travel-hub-detail-media-card" data-photo-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}" data-photo-url="{{ p.photo_url }}" data-photo-thumbnail-url="{{ p.photo_thumbnail_url|default:p.photo_url }}">
-        <div class="travel-hub-detail-media-card-image travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" style="background-image:url('{{ p.photo_url }}');cursor:pointer;"></div>
+        <div class="travel-hub-detail-media-card-image travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" style="background-image:url('{{ p.photo_url }}');"></div>
         {% if can_edit %}
         {% with is_cover=dest.cover_image_url %}
         <button type="button" class="travel-hub-detail-set-cover-button{% if is_cover and is_cover == p.photo_url or is_cover and p.photo_thumbnail_url and is_cover == p.photo_thumbnail_url %} travel-hub-detail-set-cover-button-active{% endif %}" id="travel-hub-detail-set-cover-{{ p.bangladesh_coll_destination_photo_id }}" name="travel_hub_set_cover_{{ p.bangladesh_coll_destination_photo_id }}" data-photo-id="{{ p.bangladesh_coll_destination_photo_id }}" data-dest-id="{{ dest.bangladesh_coll_destination_id }}"><span class="travel-hub-detail-set-cover-label">{% if is_cover and is_cover == p.photo_url or is_cover and p.photo_thumbnail_url and is_cover == p.photo_thumbnail_url %}✓ কভার ছবি (Cover photo){% else %}☆ কভার ছবি সেট করুন (Set as cover){% endif %}</span></button>
@@ -174,7 +174,7 @@
       <div class="travel-hub-detail-add-form-row">
         <input type="url" id="travel-hub-detail-youtube-url" name="travel-hub-detail-youtube-url" placeholder="ভিডিও লিংক — YouTube, TikTok, Instagram, Facebook" class="travel-hub-detail-text-input travel-hub-detail-text-input-wide">
       </div>
-      <div style="font-size:.7rem;color:var(--muted);margin-bottom:.4rem;line-height:1.4;">
+      <div class="travel-hub-detail-video-hint">
         💡 YouTube: youtube.com/watch?v=... বা youtu.be/... &nbsp;·&nbsp; TikTok: tiktok.com/@user/video/... &nbsp;·&nbsp; যেকোনো ভিডিও লিংক যোগ করুন
       </div>
       <div class="travel-hub-detail-add-form-row">
@@ -291,8 +291,8 @@
     {% if user.is_authenticated %}
     <div class="travel-hub-detail-add-form" id="travel-hub-detail-review-form">
       <div class="travel-hub-detail-add-form-row">
-        <span style="font-size:.8rem;font-weight:600;color:var(--text);">আপনার রেটিং দিন ★</span>
-        <select id="travel-hub-detail-review-rating" name="travel-hub-detail-review-rating" class="travel-hub-detail-text-input" style="max-width:120px;">
+        <span class="travel-hub-detail-review-rating-label">আপনার রেটিং দিন ★</span>
+        <select id="travel-hub-detail-review-rating" name="travel-hub-detail-review-rating" class="travel-hub-detail-text-input travel-hub-detail-input-narrow">
           <option value="">রেটিং</option>
           <option value="5">★★★★★ (5)</option>
           <option value="4">★★★★ (4)</option>
@@ -305,11 +305,11 @@
         <input type="text" id="travel-hub-detail-review-title" name="travel-hub-detail-review-title" placeholder="রিভিউর শিরোনাম (Review Title)" class="travel-hub-detail-text-input" maxlength="200">
       </div>
       <div class="travel-hub-detail-add-form-row">
-        <textarea id="travel-hub-detail-review-body" name="travel-hub-detail-review-body" placeholder="আপনার অভিজ্ঞতা শেয়ার করুন... (Share your experience...)" class="travel-hub-detail-text-input" rows="3" maxlength="2000" style="min-width:100%;resize:vertical;"></textarea>
+        <textarea id="travel-hub-detail-review-body" name="travel-hub-detail-review-body" placeholder="আপনার অভিজ্ঞতা শেয়ার করুন... (Share your experience...)" class="travel-hub-detail-text-input travel-hub-detail-review-textarea" rows="3" maxlength="2000"></textarea>
       </div>
       <div class="travel-hub-detail-add-form-row">
-        <input type="date" id="travel-hub-detail-review-visited-at" name="travel-hub-detail-review-visited-at" class="travel-hub-detail-text-input" style="max-width:180px;">
-        <span style="font-size:.72rem;color:var(--muted);">ভ্রমণের তারিখ (Date visited)</span>
+        <input type="date" id="travel-hub-detail-review-visited-at" name="travel-hub-detail-review-visited-at" class="travel-hub-detail-text-input travel-hub-detail-input-date">
+        <span class="travel-hub-detail-review-date-label">ভ্রমণের তারিখ (Date visited)</span>
         <button type="button" id="travel-hub-detail-review-submit-button" name="travel_hub_detail_review_submit" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.bangladesh_coll_destination_id }}">+ রিভিউ দিন ⭐</button>
       </div>
     </div>
@@ -321,22 +321,12 @@
 
 </article>
 
-{# ── Photo Lightbox ── #}
-<div class="photo-lightbox" id="photo-lightbox" style="display:none;">
-  <div class="photo-lightbox-overlay" id="photo-lightbox-overlay"></div>
-  <button type="button" class="photo-lightbox-close" id="photo-lightbox-close-button" name="photo_lightbox_close" aria-label="Close">✕</button>
-  <button type="button" class="photo-lightbox-prev" id="photo-lightbox-previous-button" name="photo_lightbox_previous" aria-label="Previous">‹</button>
-  <button type="button" class="photo-lightbox-next" id="photo-lightbox-next-button" name="photo_lightbox_next" aria-label="Next">›</button>
-  <div class="photo-lightbox-content">
-    <img id="photo-lightbox-image" class="photo-lightbox-image" alt="">
-    <div class="photo-lightbox-caption" id="photo-lightbox-caption"></div>
-    <div class="photo-lightbox-counter" id="photo-lightbox-counter"></div>
-  </div>
-</div>
+{% include "core/components/photo-lightbox.html" %}
 
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/assets/js/components/actions-bar.js' %}"></script>
-<script src="{% static 'bangladesh/assets/js/pages/travel-hub-detail.js' %}"></script>
+<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
+<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
+<script src="{% static 'bangladesh/assets/js/pages/travel-hub-detail.js' %}" defer></script>
 {% endblock %}

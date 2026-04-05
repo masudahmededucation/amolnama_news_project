@@ -15,43 +15,43 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('involved-actors-json');
-  var listContainer = document.getElementById('involved-actors-list');
-  var addButtonsContainer = document.getElementById('actor-add-buttons');
-  var emptyState = document.getElementById('actor-empty-state');
+  const hiddenInput = document.getElementById('involved-actors-json');
+  const listContainer = document.getElementById('involved-actors-list');
+  const addButtonsContainer = document.getElementById('actor-add-buttons');
+  const emptyState = document.getElementById('actor-empty-state');
 
   if (!hiddenInput || !listContainer || !addButtonsContainer) return;
 
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent); } catch (e) { return []; }
   }
-  var involvementTypes = parseJsonData('actor-involvement-types-data');
-  var actorTypes = parseJsonData('actor-types-data');
-  var victimHealthStatuses = parseJsonData('victim-health-statuses-data');
+  const involvementTypes = parseJsonData('actor-involvement-types-data');
+  const actorTypes = parseJsonData('actor-types-data');
+  const victimHealthStatuses = parseJsonData('victim-health-statuses-data');
 
   /* Crime-specific config: victim condition & medical location fields.
      Only present on the crime/violence form (via crime-actor-config JSON element). */
-  var crimeActorConfig = (function () {
-    var el = document.getElementById('crime-actor-config');
+  const crimeActorConfig = (function () {
+    const el = document.getElementById('crime-actor-config');
     if (!el) return null;
     try { return JSON.parse(el.textContent); } catch (e) { return null; }
   })();
-  var showVictimCondition = crimeActorConfig && crimeActorConfig.showVictimCondition;
-  var showMedicalLocation = crimeActorConfig && crimeActorConfig.showMedicalLocation;
+  const showVictimCondition = crimeActorConfig && crimeActorConfig.showVictimCondition;
+  const showMedicalLocation = crimeActorConfig && crimeActorConfig.showMedicalLocation;
 
   /* Map role codes to involvement type IDs for quick-add buttons */
-  var roleToInvolvementId = {};
-  for (var i = 0; i < involvementTypes.length; i++) {
-    var code = (involvementTypes[i].status_code || '').toLowerCase();
+  const roleToInvolvementId = {};
+  for (let i = 0; i < involvementTypes.length; i++) {
+    const code = (involvementTypes[i].status_code || '').toLowerCase();
     roleToInvolvementId[code] = involvementTypes[i].status_id;
   }
 
   /* Role display config */
-  var ROLE_CONFIG = {
+  const ROLE_CONFIG = {
     accused: {
       labelBn: '\u0985\u09AD\u09BF\u09AF\u09C1\u0995\u09CD\u09A4',
       labelEn: 'Accused/Criminal',
@@ -76,7 +76,7 @@
 
   /* ========== State ========== */
 
-  var actors = [];
+  let actors = [];
 
   /* ========== Helpers ========== */
 
@@ -86,15 +86,15 @@
    * Victim / Witness → all types EXCEPT accused-only codes
    */
   /* status_codes that can only be an accused party, never a victim or witness */
-  var ACCUSED_ONLY_TYPE_CODES = { kishore_gang: true, local_group_syndicate: true };
+  const ACCUSED_ONLY_TYPE_CODES = { kishore_gang: true, local_group_syndicate: true };
 
   function getFilteredActorTypes(role) {
     if (!actorTypes.length) return [];
-    var roleUpper = (role || '');
+    const roleUpper = (role || '');
     if (roleUpper === 'accused' || roleUpper === 'politician') return actorTypes;
     /* Victim / Witness: exclude accused-only types */
-    var filtered = [];
-    for (var i = 0; i < actorTypes.length; i++) {
+    const filtered = [];
+    for (let i = 0; i < actorTypes.length; i++) {
       if (!ACCUSED_ONLY_TYPE_CODES[actorTypes[i].status_code]) {
         filtered.push(actorTypes[i]);
       }
@@ -106,7 +106,7 @@
    * Get the role string from an involvement type ID.
    */
   function getRoleFromInvolvementId(involvementTypeId) {
-    for (var code in roleToInvolvementId) {
+    for (let code in roleToInvolvementId) {
       if (roleToInvolvementId[code] === involvementTypeId) return code;
     }
     return 'accused'; /* fallback */
@@ -116,7 +116,7 @@
    * Get involvement type name for display.
    */
   function getInvolvementTypeName(involvementTypeId) {
-    for (var i = 0; i < involvementTypes.length; i++) {
+    for (let i = 0; i < involvementTypes.length; i++) {
       if (involvementTypes[i].status_id === involvementTypeId) {
         return involvementTypes[i].status_name_bn
           || involvementTypes[i].status_name_en
@@ -131,23 +131,23 @@
   function syncToHiddenInput() {
     hiddenInput.value = actors.length ? JSON.stringify(actors) : '';
     /* Trigger change for form persist */
-    var event = document.createEvent('Event');
+    const event = document.createEvent('Event');
     event.initEvent('change', true, true);
     hiddenInput.dispatchEvent(event);
   }
 
   /* ========== Build Card HTML ========== */
 
-  var UNKNOWN_TYPE_CODE = 'unidentified_anonymous';
+  const UNKNOWN_TYPE_CODE = 'unidentified_anonymous';
 
   function buildActorTypeOptions(role, selectedId) {
-    var types = getFilteredActorTypes(role);
-    var html = '<option value="">-- \u09A7\u09B0\u09A8 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select Type) --</option>';
+    const types = getFilteredActorTypes(role);
+    let html = '<option value="">-- \u09A7\u09B0\u09A8 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select Type) --</option>';
 
     // Put "অজ্ঞাতনামা ব্যক্তি" at the top, separated
-    var unknownType = null;
-    var otherTypes = [];
-    for (var i = 0; i < types.length; i++) {
+    let unknownType = null;
+    const otherTypes = [];
+    for (let i = 0; i < types.length; i++) {
       if ((types[i].status_code || '').toLowerCase() === UNKNOWN_TYPE_CODE) {
         unknownType = types[i];
       } else {
@@ -156,16 +156,16 @@
     }
 
     if (unknownType) {
-      var sel = (unknownType.status_id === selectedId) ? ' selected' : '';
+      let sel = (unknownType.status_id === selectedId) ? ' selected' : '';
       html += '<option value="' + unknownType.status_id + '"' + sel + '>'
         + (unknownType.status_name_bn || unknownType.status_name_en || '')
         + '</option>';
       html += '<option disabled>──────────────</option>';
     }
 
-    for (var j = 0; j < otherTypes.length; j++) {
-      var t = otherTypes[j];
-      var selected = (t.status_id === selectedId) ? ' selected' : '';
+    for (let j = 0; j < otherTypes.length; j++) {
+      const t = otherTypes[j];
+      const selected = (t.status_id === selectedId) ? ' selected' : '';
       html += '<option value="' + t.status_id + '"' + selected + '>'
         + (t.status_name_bn || t.status_name_en || '')
         + '</option>';
@@ -174,10 +174,10 @@
   }
 
   function buildCardHtml(actor, index) {
-    var role = actor.role || getRoleFromInvolvementId(actor.involvementTypeId);
-    var config = ROLE_CONFIG[role] || ROLE_CONFIG.accused;
+    let role = actor.role || getRoleFromInvolvementId(actor.involvementTypeId);
+    const config = ROLE_CONFIG[role] || ROLE_CONFIG.accused;
 
-    var html = '<div class="actor-card actor-card-' + role + '" data-index="' + index + '">';
+    let html = '<div class="actor-card actor-card-' + role + '" data-index="' + index + '">';
 
     /* Header: role badge + remove */
     html += '<div class="actor-card-header">';
@@ -271,9 +271,9 @@
       html += '<label>\u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Condition)</label>';
       html += '<select class="actor-field" data-index="' + index + '" data-field="conditionId">';
       html += '<option value="">-- \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select) --</option>';
-      for (var c = 0; c < victimHealthStatuses.length; c++) {
-        var hs = victimHealthStatuses[c];
-        var sel = (actor.conditionId === hs.status_id) ? ' selected' : '';
+      for (let c = 0; c < victimHealthStatuses.length; c++) {
+        const hs = victimHealthStatuses[c];
+        const sel = (actor.conditionId === hs.status_id) ? ' selected' : '';
         html += '<option value="' + hs.status_id + '"' + sel + '>'
           + hs.status_name_bn + ' (' + hs.status_name_en + ')</option>';
       }
@@ -325,8 +325,8 @@
       listContainer.innerHTML = '';
       if (emptyState) emptyState.style.display = '';
     } else {
-      var html = '';
-      for (var i = 0; i < actors.length; i++) {
+      let html = '';
+      for (let i = 0; i < actors.length; i++) {
         html += buildCardHtml(actors[i], i);
       }
       listContainer.innerHTML = html;
@@ -339,16 +339,16 @@
   /* ========== Button Count Badges ========== */
 
   function updateButtonCounts() {
-    var counts = { accused: 0, victim: 0, witness: 0, politician: 0 };
-    for (var i = 0; i < actors.length; i++) {
-      var r = actors[i].role || getRoleFromInvolvementId(actors[i].involvementTypeId);
+    const counts = { accused: 0, victim: 0, witness: 0, politician: 0 };
+    for (let i = 0; i < actors.length; i++) {
+      const r = actors[i].role || getRoleFromInvolvementId(actors[i].involvementTypeId);
       if (counts.hasOwnProperty(r)) counts[r]++;
     }
-    var btns = addButtonsContainer.querySelectorAll('.actor-add-btn');
-    for (var j = 0; j < btns.length; j++) {
-      var role = btns[j].getAttribute('data-role');
-      var badge = btns[j].querySelector('.actor-count-badge');
-      var count = counts[role] || 0;
+    const btns = addButtonsContainer.querySelectorAll('.actor-add-btn');
+    for (let j = 0; j < btns.length; j++) {
+      let role = btns[j].getAttribute('data-role');
+      let badge = btns[j].querySelector('.actor-count-badge');
+      const count = counts[role] || 0;
       if (count > 0) {
         if (!badge) {
           badge = document.createElement('span');
@@ -365,8 +365,8 @@
   /* ========== Add / Remove ========== */
 
   function addActor(role) {
-    var involvementTypeId = roleToInvolvementId[role] || 0;
-    var actor = {
+    const involvementTypeId = roleToInvolvementId[role] || 0;
+    const actor = {
       role: role,
       involvementTypeId: involvementTypeId,
       actorTypeId: 0,
@@ -399,30 +399,30 @@
 
   /* Quick-add buttons */
   addButtonsContainer.addEventListener('click', function (e) {
-    var btn = e.target.closest('.actor-add-btn');
+    const btn = e.target.closest('.actor-add-btn');
     if (!btn) return;
-    var role = btn.getAttribute('data-role');
+    const role = btn.getAttribute('data-role');
     if (role) addActor(role);
   });
 
   /* Card interactions: remove */
   listContainer.addEventListener('click', function (e) {
-    var removeBtn = e.target.closest('.actor-remove-btn');
+    const removeBtn = e.target.closest('.actor-remove-btn');
     if (removeBtn) {
-      var idx = parseInt(removeBtn.getAttribute('data-index'), 10);
+      let idx = parseInt(removeBtn.getAttribute('data-index'), 10);
       removeActor(idx);
     }
   });
 
   /* Field value changes — sync to actors array */
   listContainer.addEventListener('input', function (e) {
-    var field = e.target.closest('.actor-field');
+    let field = e.target.closest('.actor-field');
     if (!field) return;
-    var idx = parseInt(field.getAttribute('data-index'), 10);
-    var key = field.getAttribute('data-field');
+    let idx = parseInt(field.getAttribute('data-index'), 10);
+    let key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
 
-    if (field.tagName === 'select') {
+    if (field.tagName === 'SELECT') {
       actors[idx][key] = parseInt(field.value, 10) || 0;
     } else {
       actors[idx][key] = field.value;
@@ -431,19 +431,19 @@
   });
 
   /* Also catch change events on selects */
-  var integerSelectFields = { actorTypeId: true, conditionId: true };
+  const integerSelectFields = { actorTypeId: true, conditionId: true };
   listContainer.addEventListener('change', function (e) {
-    var field = e.target.closest('.actor-field');
+    const field = e.target.closest('.actor-field');
     if (!field || field.tagName !== 'select') return;
-    var idx = parseInt(field.getAttribute('data-index'), 10);
-    var key = field.getAttribute('data-field');
+    const idx = parseInt(field.getAttribute('data-index'), 10);
+    const key = field.getAttribute('data-field');
     if (isNaN(idx) || !key || !actors[idx]) return;
     actors[idx][key] = integerSelectFields[key] ? (parseInt(field.value, 10) || 0) : field.value;
     syncToHiddenInput();
   });
 
   /* Re-sync right before form submit */
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) {
     form.addEventListener('submit', function () {
       syncToHiddenInput();
@@ -453,10 +453,10 @@
   /* ========== Restore from Hidden Input ========== */
 
   function restoreFromHiddenInput() {
-    var raw = hiddenInput.value;
+    const raw = hiddenInput.value;
     if (!raw) return;
     try {
-      var parsed = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
         actors = parsed;
         render();
@@ -477,15 +477,15 @@
 
   /* ========== Step Validator: validate actor cards on Next ========== */
 
-  var partiesPanel = hiddenInput.closest('.step-panel[data-step]');
+  const partiesPanel = hiddenInput.closest('.step-panel[data-step]');
   if (partiesPanel) {
-    var partiesStep = parseInt(partiesPanel.getAttribute('data-step'), 10);
+    const partiesStep = parseInt(partiesPanel.getAttribute('data-step'), 10);
 
-    var validator = function () {
-      var warnings = [];
-      for (var i = 0; i < actors.length; i++) {
+    const validator = function () {
+      const warnings = [];
+      for (let i = 0; i < actors.length; i++) {
         if (!actors[i].firstNameEn || !actors[i].firstNameEn.trim()) {
-          var roleConfig = ROLE_CONFIG[actors[i].role] || ROLE_CONFIG.accused;
+          const roleConfig = ROLE_CONFIG[actors[i].role] || ROLE_CONFIG.accused;
           warnings.push(roleConfig.labelBn + ' #' + (i + 1) + ' — ইংরেজিতে প্রথম নাম দিন (Please enter a first name in English)');
         }
       }

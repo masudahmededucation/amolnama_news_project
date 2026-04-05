@@ -21,20 +21,20 @@
 (function () {
   'use strict';
 
-  var weaponType = document.getElementById('july-weapon-type');
-  var injurySite = document.getElementById('july-injury-site');
-  var timeOfInjury = document.getElementById('july-time-of-injury');
-  var hospital = document.getElementById('july-hospital');
-  var timeOfDeath = document.getElementById('july-time-of-death');
-  var autopsyDone = document.getElementById('july-autopsy-done');
-  var deathCertificate = document.getElementById('july-death-certificate');
-  var medicalDocs = document.getElementById('july-medical-docs');
-  var hiddenJson = document.getElementById('july-cause-json');
+  const weaponType = document.getElementById('july-weapon-type');
+  const injurySite = document.getElementById('july-injury-site');
+  const timeOfInjury = document.getElementById('july-time-of-injury');
+  const hospital = document.getElementById('july-hospital');
+  const timeOfDeath = document.getElementById('july-time-of-death');
+  const autopsyDone = document.getElementById('july-autopsy-done');
+  const deathCertificate = document.getElementById('july-death-certificate');
+  const medicalDocs = document.getElementById('july-medical-docs');
+  const hiddenJson = document.getElementById('july-cause-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       weaponType: weaponType ? weaponType.value : '',
       injurySite: injurySite ? injurySite.value : '',
       timeOfInjury: timeOfInjury ? timeOfInjury.value.trim() : '',
@@ -47,28 +47,28 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var changeFields = [weaponType, injurySite];
+  const changeFields = [weaponType, injurySite];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
-  var inputFields = [timeOfInjury, hospital, timeOfDeath];
+  const inputFields = [timeOfInjury, hospital, timeOfDeath];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
-  var checkboxes = [autopsyDone, deathCertificate, medicalDocs];
+  const checkboxes = [autopsyDone, deathCertificate, medicalDocs];
   checkboxes.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 

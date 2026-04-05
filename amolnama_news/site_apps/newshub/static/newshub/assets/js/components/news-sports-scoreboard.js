@@ -19,26 +19,26 @@
 (function () {
   'use strict';
 
-  var sportType = document.getElementById('sports-sport-type');
-  var competitionRadios = document.querySelectorAll('input[name="sports_competition_type"]');
-  var matchStatus = document.getElementById('sports-match-status');
-  var tournamentLevel = document.getElementById('sports-tournament-level');
-  var scoreA = document.getElementById('sports-score-a');
-  var scoreB = document.getElementById('sports-score-b');
-  var keyPerformance = document.getElementById('sports-key-performance');
-  var hiddenJson = document.getElementById('sports-scoreboard-json');
+  const sportType = document.getElementById('sports-sport-type');
+  const competitionRadios = document.querySelectorAll('input[name="sports_competition_type"]');
+  const matchStatus = document.getElementById('sports-match-status');
+  const tournamentLevel = document.getElementById('sports-tournament-level');
+  const scoreA = document.getElementById('sports-score-a');
+  const scoreB = document.getElementById('sports-score-b');
+  const keyPerformance = document.getElementById('sports-key-performance');
+  const hiddenJson = document.getElementById('sports-scoreboard-json');
 
   if (!hiddenJson) return;
 
   function getCompetitionType() {
-    for (var i = 0; i < competitionRadios.length; i++) {
+    for (let i = 0; i < competitionRadios.length; i++) {
       if (competitionRadios[i].checked) return competitionRadios[i].value;
     }
     return 'team_vs_team';
   }
 
   function serialize() {
-    var data = {
+    let data = {
       sportType: sportType ? sportType.value : '',
       competitionType: getCompetitionType(),
       matchStatus: matchStatus ? matchStatus.value : '',
@@ -52,24 +52,24 @@
   }
 
   /* Listen for changes on selects */
-  var changeFields = [sportType, matchStatus, tournamentLevel];
+  const changeFields = [sportType, matchStatus, tournamentLevel];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
   /* Listen for changes on competition type radios */
-  for (var i = 0; i < competitionRadios.length; i++) {
+  for (let i = 0; i < competitionRadios.length; i++) {
     competitionRadios[i].addEventListener('change', serialize);
   }
 
   /* Listen for input on text fields */
-  var inputFields = [scoreA, scoreB, keyPerformance];
+  const inputFields = [scoreA, scoreB, keyPerformance];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -77,12 +77,12 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (sportType && data.sportType)           sportType.value       = data.sportType;
     if (data.competitionType) {
-      for (var j = 0; j < competitionRadios.length; j++) {
+      for (let j = 0; j < competitionRadios.length; j++) {
         if (competitionRadios[j].value === data.competitionType) {
           competitionRadios[j].checked = true;
           break;
@@ -112,12 +112,12 @@
   };
 
   /* Step validator: require sport type */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!sportType || !sportType.value) {
         warnings.push('খেলার ধরন নির্বাচন করুন (Please select a sport type)');
       }

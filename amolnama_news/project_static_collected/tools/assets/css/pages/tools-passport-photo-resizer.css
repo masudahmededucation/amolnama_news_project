@@ -164,6 +164,12 @@
   margin-top: .35rem;
 }
 
+.photo-resizer-swatch--white      { background: var(--card); }
+.photo-resizer-swatch--light-blue { background: #D6EAF8; }
+.photo-resizer-swatch--blue       { background: #AED6F1; }
+.photo-resizer-swatch--light-grey { background: #E8E8E8; }
+.photo-resizer-swatch--red        { background: #FF0000; }
+
 .photo-resizer-swatch {
   width: 44px;
   height: 44px;

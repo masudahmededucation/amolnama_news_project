@@ -6,7 +6,7 @@
   border-radius: 12px;
   padding: .75rem 1rem;
   margin-bottom: .5rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, var(--card) 100%);
   transition: border-color .15s, box-shadow .15s;
 }
 .tools-promo-card:hover { border-color: #0ea5e9; box-shadow: 0 2px 12px rgba(14,165,233,.12); }
@@ -46,7 +46,7 @@
 .tools-promo-card-share-toggle:hover { border-color: #0ea5e9; color: #0ea5e9; }
 .tools-promo-card-share-dropdown {
   display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: .3rem;
-  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 170px; z-index: 200; overflow: hidden;
 }
 .tools-promo-card-share-dropdown-open { display: block; }
@@ -55,7 +55,7 @@
   border: none; background: none; font-size: .72rem; font-weight: 500;
   cursor: pointer; color: var(--text); text-decoration: none; transition: background .1s;
 }
-.tools-promo-card-share-item:hover { background: #f3f4f6; text-decoration: none; }
+.tools-promo-card-share-item:hover { background: var(--surface); text-decoration: none; }
 .tools-promo-card-share-icon { width: .85rem; height: .85rem; flex-shrink: 0; }
 
 @media (max-width: 640px) {

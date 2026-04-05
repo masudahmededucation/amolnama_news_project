@@ -24,17 +24,17 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('sports-key-performances-json');
+  const hiddenInput = document.getElementById('sports-key-performances-json');
   if (!hiddenInput) return;
 
-  var p1NameEl    = document.getElementById('sports-performer-1-name');
-  var p1DetEl     = document.getElementById('sports-performer-1-detail');
-  var p2NameEl    = document.getElementById('sports-performer-2-name');
-  var p2DetEl     = document.getElementById('sports-performer-2-detail');
-  var p3NameEl    = document.getElementById('sports-performer-3-name');
-  var p3DetEl     = document.getElementById('sports-performer-3-detail');
-  var recordsEl   = document.getElementById('sports-records-milestones');
-  var standingEl  = document.getElementById('sports-tournament-standing');
+  const p1NameEl    = document.getElementById('sports-performer-1-name');
+  const p1DetEl     = document.getElementById('sports-performer-1-detail');
+  const p2NameEl    = document.getElementById('sports-performer-2-name');
+  const p2DetEl     = document.getElementById('sports-performer-2-detail');
+  const p3NameEl    = document.getElementById('sports-performer-3-name');
+  const p3DetEl     = document.getElementById('sports-performer-3-detail');
+  const recordsEl   = document.getElementById('sports-records-milestones');
+  const standingEl  = document.getElementById('sports-tournament-standing');
 
   function v(el) { return el && el.value.trim() || ''; }
 
@@ -57,23 +57,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-sports-key-performances');
+  const section = document.getElementById('section-sports-key-performances');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (p1NameEl && data.performer1Name)     p1NameEl.value   = data.performer1Name;

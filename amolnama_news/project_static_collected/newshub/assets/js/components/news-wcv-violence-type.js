@@ -19,36 +19,36 @@
 (function () {
   'use strict';
 
-  var violenceTypesContainer = document.getElementById('wcv-violence-types-checkboxes');
-  var otherTypeRow = document.getElementById('wcv-other-type-row');
-  var otherTypeInput = document.getElementById('wcv-other-type');
-  var subTypeHidden = document.getElementById('wcv-sub-type');
-  var locationType = document.getElementById('wcv-location-type');
-  var recurringCb = document.getElementById('wcv-recurring');
-  var durationRow = document.getElementById('wcv-duration-row');
-  var duration = document.getElementById('wcv-duration');
-  var hiddenJson = document.getElementById('wcv-violence-context');
+  const violenceTypesContainer = document.getElementById('wcv-violence-types-checkboxes');
+  const otherTypeRow = document.getElementById('wcv-other-type-row');
+  const otherTypeInput = document.getElementById('wcv-other-type');
+  const subTypeHidden = document.getElementById('wcv-sub-type');
+  const locationType = document.getElementById('wcv-location-type');
+  const recurringCb = document.getElementById('wcv-recurring');
+  const durationRow = document.getElementById('wcv-duration-row');
+  const duration = document.getElementById('wcv-duration');
+  const hiddenJson = document.getElementById('wcv-violence-context');
 
   if (!hiddenJson) return;
 
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var violenceTypesData = parseJsonData('wcv-violence-types-data');
-  var locationTypesData = parseJsonData('wcv-location-types-data');
+  const violenceTypesData = parseJsonData('wcv-violence-types-data');
+  const locationTypesData = parseJsonData('wcv-location-types-data');
 
   /* ========== Populate location type select ========== */
 
   function populateSelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      const opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -61,17 +61,17 @@
 
   function populateCheckboxes(container, items) {
     if (!container || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < items.length; i++) {
+      const s = items[i];
+      const label = document.createElement('label');
       label.className = 'checkbox-inline';
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'checkbox';
       input.id = 'wcv_violence_type-' + s.status_id;
       input.name = 'wcv_violence_type';
       input.value = s.status_id;
       input.dataset.code = s.status_code || '';
-      var text = document.createTextNode(
+      const text = document.createTextNode(
         ' ' + (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')'
       );
       label.appendChild(input);
@@ -87,18 +87,18 @@
   populateCheckboxes(violenceTypesContainer, violenceTypesData);
 
   /* Re-query after dynamic population */
-  var violenceTypeCheckboxes = document.querySelectorAll('input[name="wcv_violence_type"]');
+  const violenceTypeCheckboxes = document.querySelectorAll('input[name="wcv_violence_type"]');
 
   /* Find the HAS_OTHER_VIOLENCE checkbox by data-code */
-  var otherViolenceCb = violenceTypesContainer
+  const otherViolenceCb = violenceTypesContainer
     ? violenceTypesContainer.querySelector('input[data-code="HAS_OTHER_VIOLENCE"]')
     : null;
 
   /* ========== Helpers ========== */
 
   function getCheckedIds(checkboxes) {
-    var ids = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    let ids = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) ids.push(parseInt(checkboxes[i].value, 10));
     }
     return ids;
@@ -107,14 +107,14 @@
   /* ========== Conditional toggles ========== */
 
   function toggleOtherType() {
-    var isOther = otherViolenceCb ? otherViolenceCb.checked : false;
-    if (otherTypeRow) otherTypeRow.style.display = isOther ? '' : 'none';
+    let isOther = otherViolenceCb ? otherViolenceCb.checked : false;
+    if (otherTypeRow) isOther ? otherTypeRow.classList.remove('display-hidden') : otherTypeRow.classList.add('display-hidden');
     if (!isOther && otherTypeInput) otherTypeInput.value = '';
   }
 
   function toggleDuration() {
     if (durationRow) {
-      durationRow.style.display = recurringCb && recurringCb.checked ? '' : 'none';
+      (recurringCb && recurringCb.checked) ? durationRow.classList.remove('display-hidden') : durationRow.classList.add('display-hidden');
     }
     if ((!recurringCb || !recurringCb.checked) && duration) duration.value = '';
   }
@@ -122,11 +122,11 @@
   /* ========== Serialize ========== */
 
   function serialize() {
-    var ids = getCheckedIds(violenceTypeCheckboxes);
+    const ids = getCheckedIds(violenceTypeCheckboxes);
     /* #wcv-sub-type: first checked ID (used by step validator) */
     if (subTypeHidden) subTypeHidden.value = ids.length ? String(ids[0]) : '';
-    var isOther = otherViolenceCb ? otherViolenceCb.checked : false;
-    var data = {
+    const isOther = otherViolenceCb ? otherViolenceCb.checked : false;
+    let data = {
       violenceTypeIds: ids,
       otherType: isOther && otherTypeInput ? otherTypeInput.value.trim() : '',
       locationTypeId: locationType ? (parseInt(locationType.value, 10) || 0) : 0,
@@ -145,7 +145,7 @@
   }
   if (duration) duration.addEventListener('input', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* Initial state */
@@ -155,14 +155,14 @@
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
     /* Violence type checkboxes */
     if (data.violenceTypeIds && data.violenceTypeIds.length) {
-      for (var c = 0; c < violenceTypeCheckboxes.length; c++) {
-        var val = parseInt(violenceTypeCheckboxes[c].value, 10);
+      for (let c = 0; c < violenceTypeCheckboxes.length; c++) {
+        const val = parseInt(violenceTypeCheckboxes[c].value, 10);
         violenceTypeCheckboxes[c].checked = data.violenceTypeIds.indexOf(val) !== -1;
       }
     }
@@ -197,7 +197,7 @@
 
   window.newshubWcvType = {
     reset: function () {
-      for (var i = 0; i < violenceTypeCheckboxes.length; i++) violenceTypeCheckboxes[i].checked = false;
+      for (let i = 0; i < violenceTypeCheckboxes.length; i++) violenceTypeCheckboxes[i].checked = false;
       if (subTypeHidden) subTypeHidden.value = '';
       if (otherTypeInput) otherTypeInput.value = '';
       if (locationType) locationType.selectedIndex = 0;
@@ -210,12 +210,12 @@
   };
 
   /* Step validator: require at least one violence type selected */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!getCheckedIds(violenceTypeCheckboxes).length) {
         warnings.push('সহিংসতার ধরন নির্বাচন করুন (Please select at least one violence type)');
       }

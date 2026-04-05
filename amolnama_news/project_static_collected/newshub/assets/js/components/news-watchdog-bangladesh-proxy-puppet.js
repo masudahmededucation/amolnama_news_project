@@ -18,19 +18,19 @@
 (function () {
   'use strict';
 
-  var master       = document.getElementById('proxy-puppet-master');
-  var frontPerson  = document.getElementById('proxy-front-person');
-  var relationship = document.getElementById('proxy-relationship');
-  var evidence     = document.getElementById('proxy-evidence-description');
-  var incidentDate = document.getElementById('proxy-incident-date');
-  var benefit      = document.getElementById('proxy-benefit-exchange');
-  var source       = document.getElementById('proxy-source');
-  var hiddenJson   = document.getElementById('proxy-puppet-json');
+  const master       = document.getElementById('proxy-puppet-master');
+  const frontPerson  = document.getElementById('proxy-front-person');
+  const relationship = document.getElementById('proxy-relationship');
+  const evidence     = document.getElementById('proxy-evidence-description');
+  const incidentDate = document.getElementById('proxy-incident-date');
+  const benefit      = document.getElementById('proxy-benefit-exchange');
+  const source       = document.getElementById('proxy-source');
+  const hiddenJson   = document.getElementById('proxy-puppet-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       puppetMaster:       master ? master.value.trim() : '',
       frontPerson:        frontPerson ? frontPerson.value.trim() : '',
       relationship:       relationship ? relationship.value.trim() : '',
@@ -42,20 +42,20 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [master, frontPerson, relationship, evidence, incidentDate, benefit, source];
+  const fields = [master, frontPerson, relationship, evidence, incidentDate, benefit, source];
   fields.forEach(function (el) {
     if (!el) return;
     el.addEventListener('input', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (master && data.puppetMaster)            master.value       = data.puppetMaster;
       if (frontPerson && data.frontPerson)        frontPerson.value  = data.frontPerson;
       if (relationship && data.relationship)      relationship.value = data.relationship;
@@ -76,14 +76,14 @@
   };
 
   /* Step validator: require puppet master + front person when section is visible */
-  var section = document.getElementById('section-watchdog-proxy-puppet');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-watchdog-proxy-puppet');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
       if (!master || !master.value.trim()) {
         warnings.push('\u09A8\u09C7\u09AA\u09A5\u09CD\u09AF\u09C7\u09B0 \u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF/\u0997\u09CB\u09B7\u09CD\u09A0\u09C0 \u09A6\u09BF\u09A8 (Please enter the person/group behind scenes)');
       }

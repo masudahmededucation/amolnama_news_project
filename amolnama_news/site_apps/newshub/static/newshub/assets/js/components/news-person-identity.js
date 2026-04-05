@@ -33,7 +33,7 @@
    * Each field: { key, type, labelBn, labelEn, phBn, phEn, ... }
    * Rows: fields with the same `row` value are placed side by side.
    */
-  var IDENTITY_ROWS = [
+  const IDENTITY_ROWS = [
     /* Row 1 — Gender + Religion (selects) */
     [
       { key: 'genderId',   type: 'select', ref: 'genders',   labelBn: '\u09B2\u09BF\u0999\u09CD\u0997', labelEn: 'Gender',   defaultBn: '\u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8', defaultEn: 'Select' },
@@ -74,12 +74,12 @@
 
   /* Build <select> HTML for gender/religion (status_id based) */
   function buildSelectHtml(index, fieldClass, field, items, selectedId) {
-    var html = '<div class="form-field">' + labelHtml(field)
+    let html = '<div class="form-field">' + labelHtml(field)
       + '<select class="' + fieldClass + '" data-index="' + index + '" data-field="' + field.key + '">'
       + defaultOptionHtml(field);
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var sel = (item.status_id === selectedId) ? ' selected' : '';
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let sel = (item.status_id === selectedId) ? ' selected' : '';
       html += '<option value="' + item.status_id + '"' + sel + '>'
         + (item.status_name_bn || '') + ' (' + (item.status_name_en || '') + ')</option>';
     }
@@ -89,12 +89,12 @@
 
   /* Build <select> HTML for district (district_id based) */
   function buildDistrictSelectHtml(index, field, items, selectedId) {
-    var html = '<div class="form-field">' + labelHtml(field)
+    let html = '<div class="form-field">' + labelHtml(field)
       + '<select class="actor-district-select" data-index="' + index + '">'
       + defaultOptionHtml(field);
-    for (var i = 0; i < items.length; i++) {
-      var d = items[i];
-      var sel = (d.district_id === selectedId) ? ' selected' : '';
+    for (let i = 0; i < items.length; i++) {
+      const d = items[i];
+      const sel = (d.district_id === selectedId) ? ' selected' : '';
       html += '<option value="' + d.district_id + '"' + sel + '>'
         + (d.district_name_bn || '') + ' (' + (d.district_name_en || '') + ')</option>';
     }
@@ -136,10 +136,10 @@
   /* ========== DOM helpers ========== */
 
   function makeDomFormField(labelBn, labelEn, inputEl) {
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.className = 'form-field';
-    var isDate = inputEl.type === 'date';
-    var label = document.createElement(isDate ? 'span' : 'label');
+    const isDate = inputEl.type === 'date';
+    const label = document.createElement(isDate ? 'span' : 'label');
     if (isDate) {
       label.className = 'form-field-label';
       if (inputEl.id) {
@@ -158,20 +158,20 @@
   }
 
   function makeDomSelect(classPrefix, field, items, isDistrict) {
-    var select = document.createElement('select');
-    var selectSuffix = field.key.replace(/Id$/, '').replace(/([A-Z])/g, function (m) { return '-' + m.toLowerCase(); });
+    const select = document.createElement('select');
+    const selectSuffix = field.key.replace(/Id$/, '').replace(/([A-Z])/g, function (m) { return '-' + m.toLowerCase(); });
     select.className = classPrefix + '-' + selectSuffix;
     select.id = classPrefix + '-' + selectSuffix;
     select.name = (classPrefix + '_' + selectSuffix).replace(/-/g, '_');
-    var def = document.createElement('option');
+    const def = document.createElement('option');
     def.value = '';
     def.setAttribute('data-bn', '-- ' + field.defaultBn + ' --');
     def.setAttribute('data-en', '-- ' + field.defaultEn + ' --');
     def.textContent = '-- ' + field.defaultBn + ' (' + field.defaultEn + ') --';
     select.appendChild(def);
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const opt = document.createElement('option');
       if (isDistrict) {
         opt.value = item.district_id;
         opt.textContent = (item.district_name_bn || '') + ' (' + (item.district_name_en || '') + ')';
@@ -185,7 +185,7 @@
   }
 
   function makeDomInput(classPrefix, field) {
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.type = field.type;
     input.className = classPrefix + '-' + field.key;
     input.id = classPrefix + '-' + field.key;
@@ -208,7 +208,7 @@
   /* ========== Template-mode helpers (prefix-based IDs) ========== */
 
   /* Suffix map: key → ID suffix (must match person-personal-info-fields.html) */
-  var TEMPLATE_FIELDS = [
+  const TEMPLATE_FIELDS = [
     { key: 'genderId',   suffix: 'gender',   type: 'select' },
     { key: 'religionId', suffix: 'religion',  type: 'select' },
     { key: 'age',        suffix: 'age',       type: 'number' },
@@ -226,10 +226,10 @@
     /* --- Template mode --- */
 
     read: function (prefix) {
-      var data = {};
-      for (var i = 0; i < TEMPLATE_FIELDS.length; i++) {
-        var f = TEMPLATE_FIELDS[i];
-        var el = tGetEl(prefix, f.suffix);
+      const data = {};
+      for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
+        let f = TEMPLATE_FIELDS[i];
+        let el = tGetEl(prefix, f.suffix);
         if (!el) { data[f.key] = f.type === 'text' || f.type === 'date' ? '' : 0; continue; }
         if (f.type === 'select') {
           data[f.key] = parseInt(el.value, 10) || 0;
@@ -245,9 +245,9 @@
     },
 
     bind: function (prefix, callback) {
-      for (var i = 0; i < TEMPLATE_FIELDS.length; i++) {
-        var f = TEMPLATE_FIELDS[i];
-        var el = tGetEl(prefix, f.suffix);
+      for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
+        let f = TEMPLATE_FIELDS[i];
+        let el = tGetEl(prefix, f.suffix);
         if (!el) continue;
         if (f.type === 'select' || f.type === 'date') {
           el.addEventListener('change', callback);
@@ -258,9 +258,9 @@
     },
 
     reset: function (prefix) {
-      for (var i = 0; i < TEMPLATE_FIELDS.length; i++) {
-        var f = TEMPLATE_FIELDS[i];
-        var el = tGetEl(prefix, f.suffix);
+      for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
+        let f = TEMPLATE_FIELDS[i];
+        let el = tGetEl(prefix, f.suffix);
         if (!el) continue;
         if (f.type === 'select') {
           el.selectedIndex = 0;
@@ -295,17 +295,17 @@
      * @returns {string} HTML string
      */
     buildIdentityGroupHtml: function (index, actor, fieldClass, refData) {
-      var html = '<div class="actor-group actor-group-identity">';
+      let html = '<div class="actor-group actor-group-identity">';
       html += '<h5 class="actor-group-title"'
         + ' data-bn="\u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF\u0997\u09A4 \u09AA\u09B0\u09BF\u099A\u09AF\u09BC"'
         + ' data-en="Personal Identity">'
         + '\u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF\u0997\u09A4 \u09AA\u09B0\u09BF\u099A\u09AF\u09BC (Personal Identity)</h5>';
 
-      for (var r = 0; r < IDENTITY_ROWS.length; r++) {
-        var row = IDENTITY_ROWS[r];
+      for (let r = 0; r < IDENTITY_ROWS.length; r++) {
+        let row = IDENTITY_ROWS[r];
         html += '<div class="form-row-half">';
-        for (var c = 0; c < row.length; c++) {
-          var f = row[c];
+        for (let c = 0; c < row.length; c++) {
+          let f = row[c];
           switch (f.type) {
             case 'select':
               html += buildSelectHtml(index, fieldClass, f, refData[f.ref] || [], actor[f.key] || 0);
@@ -339,27 +339,27 @@
      * @returns {{ element: HTMLElement, inputs: object }}
      */
     buildIdentityGroupDom: function (classPrefix, refData, borderColor) {
-      var group = document.createElement('div');
+      const group = document.createElement('div');
       group.className = 'actor-group actor-group-identity';
       if (borderColor) group.style.borderLeftColor = borderColor;
 
-      var h5 = document.createElement('h5');
+      const h5 = document.createElement('h5');
       h5.className = 'actor-group-title';
       h5.setAttribute('data-bn', '\u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF\u0997\u09A4 \u09AA\u09B0\u09BF\u099A\u09AF\u09BC');
       h5.setAttribute('data-en', 'Personal Identity');
       h5.textContent = '\u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF\u0997\u09A4 \u09AA\u09B0\u09BF\u099A\u09AF\u09BC (Personal Identity)';
       group.appendChild(h5);
 
-      var allInputs = {};
+      const allInputs = {};
 
-      for (var r = 0; r < IDENTITY_ROWS.length; r++) {
-        var row = IDENTITY_ROWS[r];
-        var rowDiv = document.createElement('div');
+      for (let r = 0; r < IDENTITY_ROWS.length; r++) {
+        const row = IDENTITY_ROWS[r];
+        const rowDiv = document.createElement('div');
         rowDiv.className = 'form-row-half';
 
-        for (var c = 0; c < row.length; c++) {
-          var f = row[c];
-          var el;
+        for (let c = 0; c < row.length; c++) {
+          const f = row[c];
+          let el;
           if (f.type === 'select' || f.type === 'district') {
             el = makeDomSelect(classPrefix, f, refData[f.ref] || [], f.type === 'district');
             rowDiv.appendChild(makeDomFormField(f.labelBn, f.labelEn, el));
@@ -385,9 +385,9 @@
      */
     initDistrictTomSelects: function (container, onChange) {
       if (typeof TomSelect === 'undefined') return;
-      var selects = container.querySelectorAll('.actor-district-select');
-      for (var i = 0; i < selects.length; i++) {
-        var el = selects[i];
+      const selects = container.querySelectorAll('.actor-district-select');
+      for (let i = 0; i < selects.length; i++) {
+        const el = selects[i];
         if (el.tomselect) continue;
         (function (selectEl) {
           new TomSelect(selectEl, {

@@ -4,179 +4,7 @@
 {% block title %}{{ profile.nameBn|default:"শহীদ" }} — জুলাই অভ্যুত্থান ২০২৪ | Amolnama News{% endblock %}
 
 {% block extra_css %}
-<style>
-  .martyr-profile {
-    max-width: 720px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    font-family: 'Noto Sans Bengali', 'Noto Sans', sans-serif;
-  }
-
-  /* Header */
-  .martyr-header {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    border-bottom: 3px solid #1a6b3a;
-    margin-bottom: 1.5rem;
-  }
-  .martyr-name-bn {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #111;
-    margin: 0;
-    line-height: 1.3;
-  }
-  .martyr-name-en {
-    font-size: 1.1rem;
-    color: #555;
-    margin-top: .3rem;
-  }
-  .martyr-status-badge {
-    display: inline-block;
-    padding: .35rem 1rem;
-    border-radius: 20px;
-    font-size: .9rem;
-    font-weight: 600;
-    margin-top: .75rem;
-    color: #fff;
-  }
-  .status-martyred       { background: #b91c1c; }
-  .status-critically_injured { background: #dc2626; }
-  .status-injured         { background: #ea580c; }
-  .status-eye_injured     { background: #9333ea; }
-  .status-missing         { background: #6b7280; }
-  .status-arrested        { background: #4b5563; }
-
-  /* Sections */
-  .martyr-section {
-    margin-bottom: 1.5rem;
-    padding: 1.25rem;
-    background: #fafafa;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-  }
-  .martyr-section h2 {
-    font-size: 1.1rem;
-    color: #1a6b3a;
-    margin: 0 0 .75rem 0;
-    padding-bottom: .5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .5rem .75rem;
-  }
-  .info-item label,
-  .info-item .form-field-label {
-    display: block;
-    font-size: .75rem;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
-  .info-item span {
-    font-size: .95rem;
-    color: #111;
-  }
-
-  .story-block {
-    margin-bottom: .75rem;
-  }
-  .story-block h3 {
-    font-size: .85rem;
-    color: #374151;
-    margin: 0 0 .25rem 0;
-  }
-  .story-block p {
-    margin: 0;
-    color: #111;
-    line-height: 1.6;
-    white-space: pre-line;
-  }
-
-  .force-tag {
-    display: inline-block;
-    padding: .2rem .6rem;
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-    border-radius: 4px;
-    font-size: .85rem;
-    margin: .15rem .2rem;
-  }
-  .evidence-badge {
-    display: inline-block;
-    padding: .2rem .6rem;
-    border-radius: 4px;
-    font-size: .85rem;
-    margin: .15rem .2rem;
-  }
-  .evidence-verified       { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-  .evidence-under_review   { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
-  .evidence-pending        { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-  .evidence-unverified     { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-
-  /* Share */
-  .share-section {
-    text-align: center;
-    padding: 1.5rem;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-  }
-  .share-section h2 {
-    font-size: 1rem;
-    color: #1a6b3a;
-    margin: 0 0 .75rem 0;
-  }
-  .share-buttons {
-    display: flex;
-    gap: .75rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .share-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .5rem 1rem;
-    border-radius: 6px;
-    font-size: .85rem;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-  }
-  .share-btn-copy {
-    background: #1a6b3a;
-    color: #fff;
-  }
-  .share-btn-whatsapp {
-    background: #25d366;
-    color: #fff;
-  }
-  .share-btn-facebook {
-    background: #1877f2;
-    color: #fff;
-  }
-
-  .martyr-footer {
-    text-align: center;
-    padding: 1rem;
-    color: #6b7280;
-    font-size: .8rem;
-    border-top: 1px solid #e5e7eb;
-    margin-top: 1rem;
-  }
-
-  @media (max-width: 600px) {
-    .info-grid { grid-template-columns: 1fr; }
-    .martyr-name-bn { font-size: 1.5rem; }
-  }
-</style>
+<link rel="stylesheet" href="{% static 'newshub/assets/css/pages/july-uprising-martyr-profile.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -359,7 +187,7 @@
       {% endif %}
     </div>
     {% if cause.autopsyDone or cause.deathCertificate or cause.medicalDocs %}
-    <div style="margin-top: .75rem;">
+    <div class="form-margin-top-small">
       {% if cause.autopsyDone %}<span class="evidence-badge evidence-verified">ময়নাতদন্ত হয়েছে</span>{% endif %}
       {% if cause.deathCertificate %}<span class="evidence-badge evidence-verified">মৃত্যু সনদ আছে</span>{% endif %}
       {% if cause.medicalDocs %}<span class="evidence-badge evidence-verified">চিকিৎসা নথি আছে</span>{% endif %}
@@ -373,7 +201,7 @@
   <div class="martyr-section">
     <h2>দমনকারী বাহিনী (Oppressive Forces)</h2>
     {% if oppressors.forces %}
-    <div style="margin-bottom: .75rem;">
+    <div class="form-margin-bottom-small">
       {% for force in oppressors.forces %}
         <span class="force-tag">
           {% if force == 'police' %}পুলিশ
@@ -411,7 +239,7 @@
       {% endif %}
     </div>
     {% if oppressors.directives %}
-      <div class="story-block" style="margin-top: .75rem;">
+      <div class="story-block form-margin-top-small">
         <h3>আদেশ/নির্দেশনা (Orders/Directives)</h3>
         <p>{{ oppressors.directives }}</p>
       </div>
@@ -424,7 +252,7 @@
   <div class="martyr-section">
     <h2>প্রমাণ ও যাচাই (Evidence & Verification)</h2>
     {% if evidence.verificationStatus %}
-    <div style="margin-bottom: .75rem;">
+    <div class="form-margin-bottom-small">
       <span class="evidence-badge evidence-{{ evidence.verificationStatus }}">
         {% if evidence.verificationStatus == 'verified' %}✅ যাচাইকৃত
         {% elif evidence.verificationStatus == 'under_review' %}🔍 পর্যালোচনাধীন
@@ -436,7 +264,7 @@
     </div>
     {% endif %}
     {% if evidence.evidenceTypes %}
-    <div style="margin-bottom: .75rem;">
+    <div class="form-margin-bottom-small">
       {% for etype in evidence.evidenceTypes %}
         <span class="evidence-badge evidence-verified">
           {% if etype == 'has_video' %}ভিডিও প্রমাণ

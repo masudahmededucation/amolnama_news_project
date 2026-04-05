@@ -4,17 +4,17 @@
 (function () {
   "use strict";
 
-  var previewTitle = document.getElementById("previewTitle");
-  var previewAuthor = document.getElementById("previewAuthor");
-  var previewBody = document.getElementById("previewBody");
-  var previewBackstory = document.getElementById("previewBackstory");
-  var previewBackstoryWrap = document.getElementById("previewBackstoryWrap");
-  var previewInterpretation = document.getElementById("previewInterpretation");
-  var previewInterpretationWrap = document.getElementById("previewInterpretationWrap");
+  const previewTitle = document.getElementById("previewTitle");
+  const previewAuthor = document.getElementById("previewAuthor");
+  const previewBody = document.getElementById("previewBody");
+  const previewBackstory = document.getElementById("previewBackstory");
+  const previewBackstoryWrap = document.getElementById("previewBackstoryWrap");
+  const previewInterpretation = document.getElementById("previewInterpretation");
+  const previewInterpretationWrap = document.getElementById("previewInterpretationWrap");
 
   if (!previewTitle) return;
 
-  var fields = [
+  const fields = [
     "poem-author-name",
     "poem-title-bn", "poem-title-en",
     "poem-body-bn", "poem-body-en",
@@ -23,26 +23,26 @@
   ];
 
   fields.forEach(function (id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (el) el.addEventListener("input", updatePreview);
   });
 
   function val(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     return el ? el.value.trim() : "";
   }
 
   function updatePreview() {
-    var title = val("poem-title-bn") || val("poem-title-en") || "";
+    const title = val("poem-title-bn") || val("poem-title-en") || "";
     previewTitle.textContent = title || "শিরোনামহীন";
 
-    var author = val("poem-author-name");
+    const author = val("poem-author-name");
     if (previewAuthor) {
       previewAuthor.textContent = author ? "— " + author : "";
-      previewAuthor.style.display = author ? "" : "none";
+      previewAuthor.classList.toggle("display-hidden", !author);
     }
 
-    var body = val("poem-body-bn") || val("poem-body-en") || "";
+    const body = val("poem-body-bn") || val("poem-body-en") || "";
     if (body) {
       previewBody.textContent = body;
       previewBody.classList.remove("poem-create-preview-empty");
@@ -50,20 +50,20 @@
       previewBody.innerHTML = '<span class="poem-create-preview-empty">কবিতা লিখতে শুরু করুন...</span>';
     }
 
-    var backstory = val("poem-backstory-bn") || val("poem-backstory-en") || "";
+    const backstory = val("poem-backstory-bn") || val("poem-backstory-en") || "";
     if (backstory) {
       previewBackstory.textContent = backstory;
-      previewBackstoryWrap.style.display = "";
+      previewBackstoryWrap.classList.remove("display-hidden");
     } else {
-      previewBackstoryWrap.style.display = "none";
+      previewBackstoryWrap.classList.add("display-hidden");
     }
 
-    var interpretation = val("poem-interpretation-bn") || val("poem-interpretation-en") || "";
+    const interpretation = val("poem-interpretation-bn") || val("poem-interpretation-en") || "";
     if (interpretation) {
       previewInterpretation.textContent = interpretation;
-      previewInterpretationWrap.style.display = "";
+      previewInterpretationWrap.classList.remove("display-hidden");
     } else {
-      previewInterpretationWrap.style.display = "none";
+      previewInterpretationWrap.classList.add("display-hidden");
     }
   }
 

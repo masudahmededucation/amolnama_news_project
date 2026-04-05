@@ -15,9 +15,12 @@ function selectDivision(id, nameEn, nameBn) {
   
   // Fetch districts from API
   fetch(`/evaluation_vote/api/districts/${id}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
-      const list = document.getElementById('district-list');
+      let list = document.getElementById('district-list');
       if (!list) return;
       
       list.innerHTML = '';
@@ -28,7 +31,7 @@ function selectDivision(id, nameEn, nameBn) {
       }
       
       data.districts.forEach(district => {
-        const li = document.createElement('li');
+        let li = document.createElement('li');
         li.onclick = () => selectDistrict(district.id, district.name_en, district.name_bn);
         li.innerHTML = `
           <span class="name-en">${district.name_en}</span>
@@ -61,7 +64,10 @@ function selectDistrict(id, nameEn, nameBn) {
   
   // Fetch constituencies from API
   fetch(`/evaluation_vote/api/constituencies/${id}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       const list = document.getElementById('constituency-list');
       if (!list) return;
@@ -116,7 +122,7 @@ function selectConstituency(id, nameEn, nameBn) {
  */
 function loadUpazilas() {
   const upazilaSelect = document.getElementById('upazila');
-  const unionSelect = document.getElementById('union');
+  let unionSelect = document.getElementById('union');
   
   if (!upazilaSelect || !unionSelect) return;
   
@@ -125,10 +131,13 @@ function loadUpazilas() {
   unionSelect.disabled = true;
   
   fetch(`/evaluation_vote/api/upazilas/${selectedDistrict.id}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       data.upazilas.forEach(upazila => {
-        const option = document.createElement('option');
+        let option = document.createElement('option');
         option.value = upazila.id;
         option.textContent = `${upazila.name_en} (${upazila.name_bn})`;
         upazilaSelect.appendChild(option);
@@ -154,7 +163,10 @@ function loadUnions() {
   if (!upazilaId) return;
   
   fetch(`/evaluation_vote/api/unions/${upazilaId}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       data.unions.forEach(union => {
         const option = document.createElement('option');
@@ -174,7 +186,10 @@ function loadUnions() {
  */
 function updatePartyListWithPercentages() {
   fetch('/evaluation_vote/api/vote-cast-current-results/')
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       // Update total vote count
       const totalVoteInfo = document.getElementById('total-vote-info');
@@ -186,18 +201,18 @@ function updatePartyListWithPercentages() {
       // Update party list with results
       const partyList = document.getElementById('party-list-success');
       if (!partyList) return;
-      
+
       partyList.innerHTML = '';
-      
+
       data.results.forEach(party => {
         const logoUrl = `/media/${party.file_path}${party.file_name}`;
 
         partyList.innerHTML += `
           <li>
             <div class="party-item">
-              <img 
-                src="${logoUrl}" 
-                alt="${party.party_short_name_bn}" 
+              <img
+                src="${logoUrl}"
+                alt="${party.party_short_name_bn}"
                 class="party-logo"
               >
               <div class="party-text">
@@ -218,5 +233,6 @@ function updatePartyListWithPercentages() {
           </li>
         `;
       });
-    });
+    })
+    .catch(function () {});
 }

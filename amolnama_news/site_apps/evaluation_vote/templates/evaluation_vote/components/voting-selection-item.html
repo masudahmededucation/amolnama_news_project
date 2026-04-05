@@ -20,10 +20,11 @@ Parameters:
     <!-- Party item with logo and progress -->
     <div class="party-item">
       {% if logo_url %}
-        <img 
+        <img
           src="{{ logo_url }}"
           alt="{{ name_bn }}"
           class="party-logo"
+          loading="lazy"
         />
       {% endif %}
       <div class="party-text">

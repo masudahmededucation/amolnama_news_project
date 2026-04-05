@@ -12,8 +12,8 @@
     return;
   }
 
-  var fields = document.querySelectorAll('input[type="text"]:not([data-no-bangla])');
-  for (var i = 0; i < fields.length; i++) {
+  const fields = document.querySelectorAll('input[type="text"]:not([data-no-bangla])');
+  for (let i = 0; i < fields.length; i++) {
     if (!fields[i].getAttribute('data-bangla-attached')) {
       BanglaInput.attach(fields[i]);
       fields[i].setAttribute('data-bangla-attached', '1');

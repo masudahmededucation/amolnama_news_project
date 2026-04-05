@@ -7,7 +7,7 @@
      ============================================================ */
 
   // ---- Extension → colour for the icon badge ----
-  var EXT_COLORS = {
+  const EXT_COLORS = {
     // Image
     png: '#4caf50', jpg: '#ff9800', jpeg: '#ff9800', ico: '#ff9800',
     webp: '#7b1fa2', bmp: '#795548', gif: '#e91e63', avif: '#7b1fa2',
@@ -36,8 +36,8 @@
   };
 
   // ---- Conversion map: loaded from API, with hardcoded fallback ----
-  var CONVERSION_MAP = null;
-  var CONVERSION_MAP_FALLBACK = {
+  let CONVERSION_MAP = null;
+  const CONVERSION_MAP_FALLBACK = {
     png:  ['jpg', 'jpeg', 'webp', 'bmp', 'gif', 'ico', 'pdf', 'svg'],
     jpg:  ['png', 'webp', 'bmp', 'gif', 'ico', 'pdf'],
     jpeg: ['png', 'webp', 'bmp', 'gif', 'ico', 'pdf'],
@@ -71,7 +71,10 @@
   // Load conversion map from API
   function loadConversionMap() {
     return fetch('/tools/api/file-conversion-map/')
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
       .then(function (data) {
         CONVERSION_MAP = data;
       })
@@ -85,48 +88,48 @@
   loadConversionMap();
 
   // ---- DOM refs ----
-  var dropzone      = document.getElementById('convert-dropzone');
-  var fileInput      = document.getElementById('convert-file-input');
-  var browseBtn      = document.getElementById('convert-browse-btn');
-  var panel          = document.getElementById('convert-panel');
-  var fileIcon       = document.getElementById('convert-file-icon');
-  var fileName       = document.getElementById('convert-file-name');
-  var fileMeta       = document.getElementById('convert-file-meta');
-  var changeBtn      = document.getElementById('convert-change-btn');
-  var removeBtn      = document.getElementById('convert-remove-btn');
-  var formatGrid     = document.getElementById('convert-format-grid');
-  var actionBtn      = document.getElementById('convert-action-btn');
-  var actionLabel    = actionBtn.querySelector('.convert-action-label');
-  var actionSpinner  = actionBtn.querySelector('.convert-action-spinner');
-  var resultSection  = document.getElementById('convert-result');
-  var resultInfo     = document.getElementById('convert-result-info');
-  var downloadBtn    = document.getElementById('convert-download-btn');
-  var anotherBtn     = document.getElementById('convert-another-btn');
+  const dropzone      = document.getElementById('convert-dropzone');
+  const fileInput      = document.getElementById('convert-file-input');
+  const browseBtn      = document.getElementById('convert-browse-btn');
+  const panel          = document.getElementById('convert-panel');
+  const fileIcon       = document.getElementById('convert-file-icon');
+  const fileName       = document.getElementById('convert-file-name');
+  const fileMeta       = document.getElementById('convert-file-meta');
+  const changeBtn      = document.getElementById('convert-change-btn');
+  const removeBtn      = document.getElementById('convert-remove-btn');
+  const formatGrid     = document.getElementById('convert-format-grid');
+  const actionBtn      = document.getElementById('convert-action-btn');
+  const actionLabel    = actionBtn.querySelector('.convert-action-label');
+  const actionSpinner  = actionBtn.querySelector('.convert-action-spinner');
+  const resultSection  = document.getElementById('convert-result');
+  const resultInfo     = document.getElementById('convert-result-info');
+  const downloadBtn    = document.getElementById('convert-download-btn');
+  const anotherBtn     = document.getElementById('convert-another-btn');
 
-  var currentFile     = null;
-  var currentExt      = '';
-  var selectedTarget  = '';
-  var resultBlob      = null;
-  var resultFileName  = '';
+  let currentFile     = null;
+  let currentExt      = '';
+  let selectedTarget  = '';
+  let resultBlob      = null;
+  let resultFileName  = '';
 
   // ---- Smooth show/hide helpers ----
 
   function showSection(el) {
-    el.style.display = '';
+    el.classList.remove('display-hidden');
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.style.display = 'none';
+    el.classList.add('display-hidden');
     el.classList.remove('tool-section-reveal');
   }
 
   // ---- Helpers ----
 
   function getExt(name) {
-    var parts = name.split('.');
+    let parts = name.split('.');
     return parts.length > 1 ? parts.pop().toLowerCase() : '';
   }
 
@@ -181,7 +184,7 @@
     hideSection(resultSection);
 
     // Icon
-    var extLabel = currentExt;
+    let extLabel = currentExt;
     if (extLabel.length > 4) extLabel = extLabel.substring(0, 4);
     fileIcon.textContent = extLabel;
     fileIcon.style.background = getExtColor(currentExt);
@@ -193,7 +196,7 @@
 
     // Build format buttons
     formatGrid.innerHTML = '';
-    var targets = CONVERSION_MAP[currentExt] || [];
+    const targets = CONVERSION_MAP[currentExt] || [];
     if (!targets.length) {
       formatGrid.innerHTML = '<p style="color:var(--muted);font-size:.85rem;">No conversion options available for this file type.</p>';
       actionBtn.disabled = true;
@@ -201,7 +204,7 @@
     }
 
     targets.forEach(function (ext) {
-      var btn = document.createElement('button');
+      const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'convert-format-btn';
       btn.textContent = ext;
@@ -244,7 +247,7 @@
     hideSection(resultSection);
     actionBtn.disabled = true;
     actionLabel.textContent = 'Convert';
-    actionSpinner.style.display = 'none';
+    actionSpinner.classList.add('display-hidden');
   }
 
   // ---- Convert action ----
@@ -257,24 +260,24 @@
   function startConversion() {
     actionBtn.disabled = true;
     actionLabel.textContent = 'Converting...';
-    actionSpinner.style.display = '';
+    actionSpinner.classList.remove('display-hidden');
 
-    var baseName = currentFile.name.replace(/\.[^.]+$/, '');
+    const baseName = currentFile.name.replace(/\.[^.]+$/, '');
     resultFileName = baseName + '.' + selectedTarget;
 
-    var IMAGE_EXTS = ['png','jpg','jpeg','webp','bmp','gif','svg','tiff','tif','ico','avif','heic','heif','dng'];
-    var IMAGE_TARGETS = ['png','jpg','jpeg','webp','bmp','gif','ico'];
-    var isImageSource = IMAGE_EXTS.indexOf(currentExt) !== -1;
-    var isImageTarget = IMAGE_TARGETS.indexOf(selectedTarget) !== -1;
-    var isDocxSource = currentExt === 'docx' || currentExt === 'doc';
-    var isMarkdownSource = currentExt === 'md' || currentExt === 'markdown';
-    var isHtmlSource = currentExt === 'html' || currentExt === 'htm';
-    var isCsvSource = currentExt === 'csv' || currentExt === 'tsv';
-    var isYamlSource = currentExt === 'yaml' || currentExt === 'yml';
-    var isCodeSource = currentExt === 'css' || currentExt === 'js' || currentExt === 'sql';
+    const IMAGE_EXTS = ['png','jpg','jpeg','webp','bmp','gif','svg','tiff','tif','ico','avif','heic','heif','dng'];
+    const IMAGE_TARGETS = ['png','jpg','jpeg','webp','bmp','gif','ico'];
+    const isImageSource = IMAGE_EXTS.indexOf(currentExt) !== -1;
+    const isImageTarget = IMAGE_TARGETS.indexOf(selectedTarget) !== -1;
+    const isDocxSource = currentExt === 'docx' || currentExt === 'doc';
+    const isMarkdownSource = currentExt === 'md' || currentExt === 'markdown';
+    const isHtmlSource = currentExt === 'html' || currentExt === 'htm';
+    const isCsvSource = currentExt === 'csv' || currentExt === 'tsv';
+    const isYamlSource = currentExt === 'yaml' || currentExt === 'yml';
+    const isCodeSource = currentExt === 'css' || currentExt === 'js' || currentExt === 'sql';
 
     // Build a lookup key for the conversion route
-    var promise = resolveConversion(
+    let promise = resolveConversion(
       currentExt, selectedTarget,
       isImageSource, isImageTarget,
       isDocxSource, isMarkdownSource, isHtmlSource,
@@ -292,12 +295,12 @@
       resultBlob = blob;
       showResult();
     }).catch(function (err) {
-      var errorElement = document.getElementById('tool-error-message');
-      if (errorElement) { errorElement.textContent = 'Conversion failed: ' + err.message; errorElement.style.display = 'block'; }
+      const errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'Conversion failed: ' + err.message; errorElement.classList.remove('display-hidden'); }
     }).finally(function () {
       actionBtn.disabled = false;
       actionLabel.textContent = 'Convert to ' + selectedTarget;
-      actionSpinner.style.display = 'none';
+      actionSpinner.classList.add('display-hidden');
     });
   }
 
@@ -402,8 +405,8 @@
 
   downloadBtn.addEventListener('click', function () {
     if (!resultBlob) return;
-    var url = URL.createObjectURL(resultBlob);
-    var a = document.createElement('a');
+    const url = URL.createObjectURL(resultBlob);
+    let a = document.createElement('a');
     a.href = url;
     a.download = resultFileName;
     document.body.appendChild(a);
@@ -420,14 +423,14 @@
 
   function convertImageToImage() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var img = new Image();
+        let img = new Image();
         img.onload = function () {
-          var canvas = document.createElement('canvas');
+          let canvas = document.createElement('canvas');
           canvas.width = img.naturalWidth;
           canvas.height = img.naturalHeight;
-          var ctx = canvas.getContext('2d');
+          let ctx = canvas.getContext('2d');
 
           // For JPG/BMP: fill white background (no transparency)
           if (selectedTarget === 'jpg' || selectedTarget === 'jpeg' || selectedTarget === 'bmp') {
@@ -436,9 +439,9 @@
           }
           ctx.drawImage(img, 0, 0);
 
-          var mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', bmp: 'image/bmp' };
-          var mime = mimeMap[selectedTarget] || 'image/png';
-          var quality = (selectedTarget === 'jpg' || selectedTarget === 'jpeg' || selectedTarget === 'webp') ? 0.92 : undefined;
+          let mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', bmp: 'image/bmp' };
+          let mime = mimeMap[selectedTarget] || 'image/png';
+          let quality = (selectedTarget === 'jpg' || selectedTarget === 'jpeg' || selectedTarget === 'webp') ? 0.92 : undefined;
 
           canvas.toBlob(function (blob) {
             if (blob) resolve(blob);
@@ -468,31 +471,31 @@
 
   function convertImageToPdf() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var img = new Image();
+        let img = new Image();
         img.onload = function () {
           try {
-            var w = img.naturalWidth;
-            var h = img.naturalHeight;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
             // PDF page in pt (72 pt/inch), fit image
-            var pdfW = w * 0.75; // px to pt
-            var pdfH = h * 0.75;
-            var orientation = pdfW > pdfH ? 'l' : 'p';
-            var doc = new jspdf.jsPDF({ orientation: orientation, unit: 'pt', format: [pdfW, pdfH] });
+            const pdfW = w * 0.75; // px to pt
+            const pdfH = h * 0.75;
+            const orientation = pdfW > pdfH ? 'l' : 'p';
+            let doc = new jspdf.jsPDF({ orientation: orientation, unit: 'pt', format: [pdfW, pdfH] });
 
             // Draw image onto a canvas to get data URL
-            var canvas = document.createElement('canvas');
+            let canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
-            var ctx = canvas.getContext('2d');
+            let ctx = canvas.getContext('2d');
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, w, h);
             ctx.drawImage(img, 0, 0);
-            var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
             doc.addImage(dataUrl, 'JPEG', 0, 0, pdfW, pdfH);
-            var blob = doc.output('blob');
+            let blob = doc.output('blob');
             resolve(blob);
           } catch (e) {
             reject(e);
@@ -510,27 +513,27 @@
 
   function convertDocxToPdf() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         mammoth.convertToHtml({ arrayBuffer: reader.result }).then(function (result) {
           try {
-            var doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-            var pageWidth = doc.internal.pageSize.getWidth();
-            var pageHeight = doc.internal.pageSize.getHeight();
-            var margin = 40;
-            var maxWidth = pageWidth - margin * 2;
+            let doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+            let pageWidth = doc.internal.pageSize.getWidth();
+            let pageHeight = doc.internal.pageSize.getHeight();
+            let margin = 40;
+            let maxWidth = pageWidth - margin * 2;
 
             // Strip HTML tags for plain text extraction
-            var tempDiv = document.createElement('div');
+            let tempDiv = document.createElement('div');
             tempDiv.innerHTML = result.value;
-            var text = tempDiv.textContent || tempDiv.innerText || '';
+            let text = tempDiv.textContent || tempDiv.innerText || '';
 
             doc.setFontSize(11);
-            var lines = doc.splitTextToSize(text, maxWidth);
-            var lineHeight = 14;
-            var y = margin;
+            let lines = doc.splitTextToSize(text, maxWidth);
+            let lineHeight = 14;
+            let y = margin;
 
-            for (var i = 0; i < lines.length; i++) {
+            for (let i = 0; i < lines.length; i++) {
               if (y + lineHeight > pageHeight - margin) {
                 doc.addPage();
                 y = margin;
@@ -554,25 +557,25 @@
 
   function convertPdfToImage() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var typedArray = new Uint8Array(reader.result);
+        let typedArray = new Uint8Array(reader.result);
 
         // Set worker
         if (typeof pdfjsLib !== 'undefined') {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
         }
 
-        var loadingTask = pdfjsLib.getDocument({ data: typedArray });
+        let loadingTask = pdfjsLib.getDocument({ data: typedArray });
         loadingTask.promise.then(function (pdfDoc) {
           // Convert first page
           pdfDoc.getPage(1).then(function (page) {
-            var scale = 2; // 2x for good quality
-            var viewport = page.getViewport({ scale: scale });
-            var canvas = document.createElement('canvas');
+            const scale = 2; // 2x for good quality
+            const viewport = page.getViewport({ scale: scale });
+            const canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            var ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d');
 
             if (selectedTarget === 'jpg' || selectedTarget === 'jpeg') {
               ctx.fillStyle = '#ffffff';
@@ -580,9 +583,9 @@
             }
 
             page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
-              var mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
-              var mime = mimeMap[selectedTarget] || 'image/png';
-              var quality = (selectedTarget === 'jpg' || selectedTarget === 'jpeg') ? 0.92 : undefined;
+              const mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
+              let mime = mimeMap[selectedTarget] || 'image/png';
+              const quality = (selectedTarget === 'jpg' || selectedTarget === 'jpeg') ? 0.92 : undefined;
 
               canvas.toBlob(function (blob) {
                 if (blob) {
@@ -607,25 +610,25 @@
 
   function convertCsvToJson() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var text = reader.result;
-          var lines = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
+          let text = reader.result;
+          let lines = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
           if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row');
 
-          var headers = parseCsvLine(lines[0]);
-          var data = [];
-          for (var i = 1; i < lines.length; i++) {
-            var values = parseCsvLine(lines[i]);
-            var obj = {};
+          const headers = parseCsvLine(lines[0]);
+          let data = [];
+          for (let i = 1; i < lines.length; i++) {
+            const values = parseCsvLine(lines[i]);
+            let obj = {};
             headers.forEach(function (h, idx) {
               obj[h.trim()] = (values[idx] || '').trim();
             });
             data.push(obj);
           }
 
-          var json = JSON.stringify(data, null, 2);
+          let json = JSON.stringify(data, null, 2);
           resolve(new Blob([json], { type: 'application/json' }));
         } catch (e) {
           reject(e);
@@ -637,11 +640,11 @@
   }
 
   function parseCsvLine(line) {
-    var result = [];
-    var current = '';
-    var inQuotes = false;
-    for (var i = 0; i < line.length; i++) {
-      var ch = line[i];
+    let result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
       if (inQuotes) {
         if (ch === '"' && line[i + 1] === '"') {
           current += '"';
@@ -670,25 +673,25 @@
 
   function convertJsonToCsv() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var data = JSON.parse(reader.result);
+          let data = JSON.parse(reader.result);
           if (!Array.isArray(data) || !data.length) throw new Error('JSON must be an array of objects');
 
           // Collect all keys
-          var keys = [];
+          let keys = [];
           data.forEach(function (row) {
             Object.keys(row).forEach(function (k) {
               if (keys.indexOf(k) === -1) keys.push(k);
             });
           });
 
-          var lines = [];
+          let lines = [];
           lines.push(keys.map(csvEscape).join(','));
           data.forEach(function (row) {
-            var vals = keys.map(function (k) {
-              var v = row[k];
+            const vals = keys.map(function (k) {
+              let v = row[k];
               if (v === null || v === undefined) return '';
               return csvEscape(String(v));
             });
@@ -716,30 +719,30 @@
 
   function convertTextToPdf() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var text = reader.result;
+          let text = reader.result;
 
           // If HTML, strip tags
           if (currentExt === 'html' || currentExt === 'htm') {
-            var tempDiv = document.createElement('div');
+            let tempDiv = document.createElement('div');
             tempDiv.innerHTML = text;
             text = tempDiv.textContent || tempDiv.innerText || '';
           }
 
-          var doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-          var pageWidth = doc.internal.pageSize.getWidth();
-          var pageHeight = doc.internal.pageSize.getHeight();
-          var margin = 40;
-          var maxWidth = pageWidth - margin * 2;
+          let doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+          let pageWidth = doc.internal.pageSize.getWidth();
+          let pageHeight = doc.internal.pageSize.getHeight();
+          let margin = 40;
+          let maxWidth = pageWidth - margin * 2;
 
           doc.setFontSize(11);
-          var lines = doc.splitTextToSize(text, maxWidth);
-          var lineHeight = 14;
-          var y = margin;
+          let lines = doc.splitTextToSize(text, maxWidth);
+          let lineHeight = 14;
+          let y = margin;
 
-          for (var i = 0; i < lines.length; i++) {
+          for (let i = 0; i < lines.length; i++) {
             if (y + lineHeight > pageHeight - margin) {
               doc.addPage();
               y = margin;
@@ -762,24 +765,24 @@
 
   function convertPdfToDocx() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var typedArray = new Uint8Array(reader.result);
+        let typedArray = new Uint8Array(reader.result);
 
         if (typeof pdfjsLib !== 'undefined') {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
         }
 
-        var loadingTask = pdfjsLib.getDocument({ data: typedArray });
+        let loadingTask = pdfjsLib.getDocument({ data: typedArray });
         loadingTask.promise.then(function (pdfDoc) {
-          var numPages = pdfDoc.numPages;
-          var pagePromises = [];
-          for (var p = 1; p <= numPages; p++) {
+          const numPages = pdfDoc.numPages;
+          let pagePromises = [];
+          for (let p = 1; p <= numPages; p++) {
             pagePromises.push(extractPageText(pdfDoc, p));
           }
           return Promise.all(pagePromises);
         }).then(function (pageTexts) {
-          var blob = buildDocxBlob(pageTexts);
+          const blob = buildDocxBlob(pageTexts);
           resolve(blob);
         }).catch(reject);
       };
@@ -793,12 +796,12 @@
       return page.getTextContent();
     }).then(function (content) {
       // Group text items by Y position to form lines
-      var lines = [];
-      var currentY = null;
-      var currentLine = '';
+      let lines = [];
+      let currentY = null;
+      let currentLine = '';
 
       content.items.forEach(function (item) {
-        var y = Math.round(item.transform[5]);
+        let y = Math.round(item.transform[5]);
         if (currentY === null || Math.abs(y - currentY) > 3) {
           if (currentLine) lines.push(currentLine);
           currentLine = item.str;
@@ -819,11 +822,11 @@
     // We build a minimal valid .docx using JSZip-like manual ZIP construction
     // For simplicity, use the docx library if available, otherwise build manually
 
-    var paragraphs = '';
+    let paragraphs = '';
     pageTexts.forEach(function (text, idx) {
-      var lines = text.split('\n');
+      let lines = text.split('\n');
       lines.forEach(function (line) {
-        var escaped = xmlEscape(line);
+        const escaped = xmlEscape(line);
         paragraphs += '<w:p><w:r><w:t xml:space="preserve">' + escaped + '</w:t></w:r></w:p>';
       });
       // Page break between pages (except last)
@@ -832,7 +835,7 @@
       }
     });
 
-    var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    const documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" ' +
       'xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" ' +
       'xmlns:o="urn:schemas-microsoft-com:office:office" ' +
@@ -852,19 +855,19 @@
       '<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>' +
       '</w:body></w:document>';
 
-    var contentTypesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    const contentTypesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
       '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
       '<Default Extension="xml" ContentType="application/xml"/>' +
       '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
       '</Types>';
 
-    var relsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    const relsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
       '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>' +
       '</Relationships>';
 
-    var wordRelsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    const wordRelsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
       '</Relationships>';
 
@@ -883,19 +886,19 @@
 
   // Minimal ZIP builder (no compression, store only — sufficient for text-based .docx)
   function createZipBlob(files) {
-    var localHeaders = [];
-    var centralHeaders = [];
-    var offset = 0;
+    const localHeaders = [];
+    const centralHeaders = [];
+    let offset = 0;
 
     files.forEach(function (file) {
-      var nameBytes = new TextEncoder().encode(file.name);
-      var dataBytes = new TextEncoder().encode(file.data);
-      var crc = crc32(dataBytes);
+      const nameBytes = new TextEncoder().encode(file.name);
+      const dataBytes = new TextEncoder().encode(file.data);
+      let crc = crc32(dataBytes);
 
       // Local file header (30 + name + data)
-      var localHeader = new ArrayBuffer(30 + nameBytes.length + dataBytes.length);
-      var lv = new DataView(localHeader);
-      var lba = new Uint8Array(localHeader);
+      const localHeader = new ArrayBuffer(30 + nameBytes.length + dataBytes.length);
+      const lv = new DataView(localHeader);
+      const lba = new Uint8Array(localHeader);
       lv.setUint32(0, 0x04034b50, true);  // signature
       lv.setUint16(4, 20, true);           // version needed
       lv.setUint16(6, 0, true);            // flags
@@ -912,9 +915,9 @@
       localHeaders.push(localHeader);
 
       // Central directory header (46 + name)
-      var centralHeader = new ArrayBuffer(46 + nameBytes.length);
-      var cv = new DataView(centralHeader);
-      var cba = new Uint8Array(centralHeader);
+      const centralHeader = new ArrayBuffer(46 + nameBytes.length);
+      const cv = new DataView(centralHeader);
+      const cba = new Uint8Array(centralHeader);
       cv.setUint32(0, 0x02014b50, true);   // signature
       cv.setUint16(4, 20, true);            // version made by
       cv.setUint16(6, 20, true);            // version needed
@@ -938,13 +941,13 @@
       offset += localHeader.byteLength;
     });
 
-    var centralDirOffset = offset;
-    var centralDirSize = 0;
+    const centralDirOffset = offset;
+    let centralDirSize = 0;
     centralHeaders.forEach(function (ch) { centralDirSize += ch.byteLength; });
 
     // End of central directory (22 bytes)
-    var eocd = new ArrayBuffer(22);
-    var ev = new DataView(eocd);
+    const eocd = new ArrayBuffer(22);
+    const ev = new DataView(eocd);
     ev.setUint32(0, 0x06054b50, true);       // signature
     ev.setUint16(4, 0, true);                 // disk number
     ev.setUint16(6, 0, true);                 // central dir disk
@@ -954,16 +957,16 @@
     ev.setUint32(16, centralDirOffset, true);  // central dir offset
     ev.setUint16(20, 0, true);                 // comment length
 
-    var parts = localHeaders.concat(centralHeaders, [eocd]);
+    let parts = localHeaders.concat(centralHeaders, [eocd]);
     return new Blob(parts, { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
   }
 
   // CRC32 lookup table
-  var crc32Table = (function () {
-    var table = new Uint32Array(256);
-    for (var i = 0; i < 256; i++) {
-      var c = i;
-      for (var j = 0; j < 8; j++) {
+  const crc32Table = (function () {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) {
         c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
       }
       table[i] = c;
@@ -972,8 +975,8 @@
   })();
 
   function crc32(bytes) {
-    var crc = 0xFFFFFFFF;
-    for (var i = 0; i < bytes.length; i++) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
       crc = crc32Table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
     }
     return (crc ^ 0xFFFFFFFF) >>> 0;
@@ -983,7 +986,7 @@
 
   function convertDataToText() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         resolve(new Blob([reader.result], { type: 'text/plain' }));
       };
@@ -996,11 +999,11 @@
 
   function convertHtmlToText() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var tempDiv = document.createElement('div');
+        let tempDiv = document.createElement('div');
         tempDiv.innerHTML = reader.result;
-        var text = tempDiv.textContent || tempDiv.innerText || '';
+        let text = tempDiv.textContent || tempDiv.innerText || '';
         resolve(new Blob([text], { type: 'text/plain' }));
       };
       reader.onerror = function () { reject(new Error('Could not read file')); };
@@ -1012,13 +1015,13 @@
 
   function convertImageToSvg() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var img = new Image();
+        const img = new Image();
         img.onload = function () {
-          var w = img.naturalWidth;
-          var h = img.naturalHeight;
-          var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+          const w = img.naturalWidth;
+          const h = img.naturalHeight;
+          const svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
             '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" ' +
             'width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">\n' +
             '  <image width="' + w + '" height="' + h + '" xlink:href="' + reader.result + '"/>\n' +
@@ -1037,16 +1040,16 @@
 
   function convertPdfToText() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var typedArray = new Uint8Array(reader.result);
+        let typedArray = new Uint8Array(reader.result);
         if (typeof pdfjsLib !== 'undefined') {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
         }
-        var loadingTask = pdfjsLib.getDocument({ data: typedArray });
+        let loadingTask = pdfjsLib.getDocument({ data: typedArray });
         loadingTask.promise.then(function (pdfDoc) {
-          var pagePromises = [];
-          for (var p = 1; p <= pdfDoc.numPages; p++) {
+          let pagePromises = [];
+          for (let p = 1; p <= pdfDoc.numPages; p++) {
             pagePromises.push(extractPageText(pdfDoc, p));
           }
           return Promise.all(pagePromises);
@@ -1063,7 +1066,7 @@
 
   function convertDocxToText() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         mammoth.extractRawText({ arrayBuffer: reader.result }).then(function (result) {
           resolve(new Blob([result.value], { type: 'text/plain' }));
@@ -1078,10 +1081,10 @@
 
   function convertDocxToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         mammoth.convertToHtml({ arrayBuffer: reader.result }).then(function (result) {
-          var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' +
+          let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' +
             xmlEscape(currentFile.name) + '</title>\n' +
             '<style>body{font-family:sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;line-height:1.6}</style>\n' +
             '</head>\n<body>\n' + result.value + '\n</body>\n</html>';
@@ -1097,23 +1100,23 @@
 
   function convertCsvTsv(fromType, toType) {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var text = reader.result;
-          var fromDelim = fromType === 'csv' ? ',' : '\t';
-          var toDelim = toType === 'csv' ? ',' : '\t';
-          var lines = text.split(/\r?\n/);
-          var converted = lines.map(function (line) {
+          let text = reader.result;
+          const fromDelim = fromType === 'csv' ? ',' : '\t';
+          const toDelim = toType === 'csv' ? ',' : '\t';
+          let lines = text.split(/\r?\n/);
+          const converted = lines.map(function (line) {
             if (!line.trim()) return '';
-            var fields = fromType === 'csv' ? parseCsvLine(line) : line.split('\t');
+            let fields = fromType === 'csv' ? parseCsvLine(line) : line.split('\t');
             if (toType === 'csv') {
               return fields.map(csvEscape).join(',');
             } else {
               return fields.join('\t');
             }
           });
-          var mime = toType === 'csv' ? 'text/csv' : 'text/tab-separated-values';
+          const mime = toType === 'csv' ? 'text/csv' : 'text/tab-separated-values';
           resolve(new Blob([converted.join('\r\n')], { type: mime }));
         } catch (e) {
           reject(e);
@@ -1128,21 +1131,21 @@
 
   function convertCsvToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var text = reader.result;
-          var delim = currentExt === 'tsv' ? '\t' : ',';
-          var lines = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
+          let text = reader.result;
+          const delim = currentExt === 'tsv' ? '\t' : ',';
+          let lines = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
           if (!lines.length) throw new Error('File is empty');
 
-          var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
+          let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
             '<style>table{border-collapse:collapse;width:100%;font-family:sans-serif}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5;font-weight:600}tr:nth-child(even){background:#fafafa}</style>\n' +
             '</head>\n<body>\n<table>\n';
 
           lines.forEach(function (line, idx) {
-            var fields = currentExt === 'tsv' ? line.split('\t') : parseCsvLine(line);
-            var tag = idx === 0 ? 'th' : 'td';
+            const fields = currentExt === 'tsv' ? line.split('\t') : parseCsvLine(line);
+            let tag = idx === 0 ? 'th' : 'td';
             html += '<tr>' + fields.map(function (f) {
               return '<' + tag + '>' + xmlEscape(f.trim()) + '</' + tag + '>';
             }).join('') + '</tr>\n';
@@ -1163,11 +1166,11 @@
 
   function convertJsonToYaml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var data = JSON.parse(reader.result);
-          var yaml = jsonToYaml(data, 0);
+          let data = JSON.parse(reader.result);
+          const yaml = jsonToYaml(data, 0);
           resolve(new Blob([yaml], { type: 'text/yaml' }));
         } catch (e) {
           reject(e);
@@ -1179,14 +1182,14 @@
   }
 
   function jsonToYaml(obj, indent) {
-    var pad = '  '.repeat(indent);
-    var lines = [];
+    let pad = '  '.repeat(indent);
+    let lines = [];
 
     if (Array.isArray(obj)) {
       obj.forEach(function (item) {
         if (typeof item === 'object' && item !== null) {
           lines.push(pad + '-');
-          var sub = jsonToYaml(item, indent + 1).trim();
+          const sub = jsonToYaml(item, indent + 1).trim();
           sub.split('\n').forEach(function (l) { lines.push(pad + '  ' + l.trim()); });
         } else {
           lines.push(pad + '- ' + yamlValue(item));
@@ -1194,7 +1197,7 @@
       });
     } else if (typeof obj === 'object' && obj !== null) {
       Object.keys(obj).forEach(function (key) {
-        var val = obj[key];
+        let val = obj[key];
         if (typeof val === 'object' && val !== null) {
           lines.push(pad + key + ':');
           lines.push(jsonToYaml(val, indent + 1));
@@ -1212,7 +1215,7 @@
     if (val === null || val === undefined) return 'null';
     if (typeof val === 'boolean') return val ? 'true' : 'false';
     if (typeof val === 'number') return String(val);
-    var s = String(val);
+    const s = String(val);
     if (s.indexOf(':') !== -1 || s.indexOf('#') !== -1 || s.indexOf('"') !== -1 || s.indexOf("'") !== -1 || s.trim() !== s) {
       return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
     }
@@ -1223,17 +1226,17 @@
 
   function convertJsonToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var data = JSON.parse(reader.result);
-          var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
+          let data = JSON.parse(reader.result);
+          let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
             '<style>body{font-family:sans-serif;max-width:960px;margin:2rem auto;padding:0 1rem}pre{background:#f5f5f5;padding:1rem;border-radius:4px;overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5;font-weight:600}</style>\n' +
             '</head>\n<body>\n';
 
           if (Array.isArray(data) && data.length && typeof data[0] === 'object') {
             // Array of objects → table
-            var keys = [];
+            let keys = [];
             data.forEach(function (row) {
               Object.keys(row).forEach(function (k) {
                 if (keys.indexOf(k) === -1) keys.push(k);
@@ -1242,7 +1245,7 @@
             html += '<table>\n<tr>' + keys.map(function (k) { return '<th>' + xmlEscape(k) + '</th>'; }).join('') + '</tr>\n';
             data.forEach(function (row) {
               html += '<tr>' + keys.map(function (k) {
-                var v = row[k];
+                const v = row[k];
                 return '<td>' + xmlEscape(v === null || v === undefined ? '' : String(v)) + '</td>';
               }).join('') + '</tr>\n';
             });
@@ -1266,14 +1269,14 @@
 
   function convertXmlToJson() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(reader.result, 'text/xml');
-          var error = doc.querySelector('parsererror');
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(reader.result, 'text/xml');
+          let error = doc.querySelector('parsererror');
           if (error) throw new Error('Invalid XML: ' + error.textContent.substring(0, 100));
-          var json = JSON.stringify(xmlNodeToObj(doc.documentElement), null, 2);
+          let json = JSON.stringify(xmlNodeToObj(doc.documentElement), null, 2);
           resolve(new Blob([json], { type: 'application/json' }));
         } catch (e) {
           reject(e);
@@ -1285,29 +1288,29 @@
   }
 
   function xmlNodeToObj(node) {
-    var obj = {};
+    const obj = {};
     // Attributes
     if (node.attributes && node.attributes.length) {
       obj['@attributes'] = {};
-      for (var i = 0; i < node.attributes.length; i++) {
+      for (let i = 0; i < node.attributes.length; i++) {
         obj['@attributes'][node.attributes[i].name] = node.attributes[i].value;
       }
     }
     // Children
     if (node.childNodes.length) {
-      var textOnly = true;
-      for (var j = 0; j < node.childNodes.length; j++) {
+      let textOnly = true;
+      for (let j = 0; j < node.childNodes.length; j++) {
         if (node.childNodes[j].nodeType !== 3) { textOnly = false; break; }
       }
       if (textOnly) {
-        var text = node.textContent.trim();
+        let text = node.textContent.trim();
         if (Object.keys(obj).length === 0) return text;
         obj['#text'] = text;
       } else {
-        for (var k = 0; k < node.childNodes.length; k++) {
-          var child = node.childNodes[k];
+        for (let k = 0; k < node.childNodes.length; k++) {
+          let child = node.childNodes[k];
           if (child.nodeType === 1) { // Element
-            var childObj = xmlNodeToObj(child);
+            const childObj = xmlNodeToObj(child);
             if (obj[child.nodeName]) {
               if (!Array.isArray(obj[child.nodeName])) {
                 obj[child.nodeName] = [obj[child.nodeName]];
@@ -1327,9 +1330,9 @@
 
   function convertXmlToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
+        let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
           '<style>body{font-family:monospace;max-width:960px;margin:2rem auto;padding:0 1rem}pre{background:#f5f5f5;padding:1rem;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-wrap:break-word}</style>\n' +
           '</head>\n<body>\n<pre>' + xmlEscape(reader.result) + '</pre>\n</body>\n</html>';
         resolve(new Blob([html], { type: 'text/html' }));
@@ -1343,11 +1346,11 @@
 
   function convertYamlToJson() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var data = parseSimpleYaml(reader.result);
-          var json = JSON.stringify(data, null, 2);
+          let data = parseSimpleYaml(reader.result);
+          let json = JSON.stringify(data, null, 2);
           resolve(new Blob([json], { type: 'application/json' }));
         } catch (e) {
           reject(new Error('YAML parse error: ' + e.message));
@@ -1359,32 +1362,32 @@
   }
 
   function parseSimpleYaml(text) {
-    var lines = text.split(/\r?\n/);
-    var result = {};
-    var stack = [{ obj: result, indent: -1 }];
+    let lines = text.split(/\r?\n/);
+    const result = {};
+    const stack = [{ obj: result, indent: -1 }];
 
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       if (!line.trim() || line.trim().charAt(0) === '#') continue;
 
-      var indent = line.search(/\S/);
-      var content = line.trim();
+      const indent = line.search(/\S/);
+      const content = line.trim();
 
       // Pop stack to correct level
       while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
         stack.pop();
       }
-      var parent = stack[stack.length - 1].obj;
+      let parent = stack[stack.length - 1].obj;
 
       // Array item
       if (content.charAt(0) === '-') {
         if (!Array.isArray(parent)) {
           // Convert parent property to array
-          var keys = Object.keys(parent);
+          let keys = Object.keys(parent);
           if (keys.length === 0) {
-            var grandparent = stack.length > 1 ? stack[stack.length - 2].obj : result;
+            const grandparent = stack.length > 1 ? stack[stack.length - 2].obj : result;
             // Replace last key's value with array
-            for (var gk in grandparent) {
+            for (let gk in grandparent) {
               if (grandparent[gk] === parent) {
                 grandparent[gk] = [];
                 parent = grandparent[gk];
@@ -1394,12 +1397,12 @@
             }
           }
         }
-        var arrVal = content.substring(1).trim();
+        const arrVal = content.substring(1).trim();
         if (arrVal.indexOf(':') !== -1) {
-          var arrObj = {};
-          var arrParts = arrVal.split(':');
-          var arrKey = arrParts[0].trim();
-          var arrV = arrParts.slice(1).join(':').trim();
+          const arrObj = {};
+          const arrParts = arrVal.split(':');
+          const arrKey = arrParts[0].trim();
+          const arrV = arrParts.slice(1).join(':').trim();
           arrObj[arrKey] = yamlParseValue(arrV);
           if (Array.isArray(parent)) parent.push(arrObj);
           stack.push({ obj: arrObj, indent: indent + 2 });
@@ -1410,10 +1413,10 @@
       }
 
       // Key: value
-      var colonIdx = content.indexOf(':');
+      const colonIdx = content.indexOf(':');
       if (colonIdx !== -1) {
-        var key = content.substring(0, colonIdx).trim();
-        var val = content.substring(colonIdx + 1).trim();
+        let key = content.substring(0, colonIdx).trim();
+        const val = content.substring(colonIdx + 1).trim();
         if (val === '' || val === '|' || val === '>') {
           // Nested object or block scalar
           parent[key] = {};
@@ -1444,12 +1447,12 @@
 
   function convertMarkdownToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var md = reader.result;
-          var bodyHtml = markdownToHtml(md);
-          var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
+          let md = reader.result;
+          let bodyHtml = markdownToHtml(md);
+          let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
             '<style>body{font-family:sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;line-height:1.6}code{background:#f5f5f5;padding:.15em .3em;border-radius:3px}pre code{display:block;padding:1rem;overflow-x:auto}blockquote{border-left:3px solid #ddd;margin-left:0;padding-left:1rem;color:#666}table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 10px}img{max-width:100%}</style>\n' +
             '</head>\n<body>\n' + bodyHtml + '\n</body>\n</html>';
           resolve(new Blob([html], { type: 'text/html' }));
@@ -1464,7 +1467,7 @@
 
   // Simple markdown parser
   function markdownToHtml(md) {
-    var html = md;
+    let html = md;
     // Code blocks
     html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
     // Headers
@@ -1500,11 +1503,11 @@
 
   function convertMarkdownToPdf() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
           // Strip markdown syntax for plain text PDF
-          var text = reader.result;
+          let text = reader.result;
           text = text.replace(/^#+\s+/gm, '');
           text = text.replace(/\*\*(.+?)\*\*/g, '$1');
           text = text.replace(/\*(.+?)\*/g, '$1');
@@ -1514,18 +1517,18 @@
           text = text.replace(/^[\-\*]\s+/gm, '  • ');
           text = text.replace(/^>\s+/gm, '  ');
 
-          var doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-          var pageWidth = doc.internal.pageSize.getWidth();
-          var pageHeight = doc.internal.pageSize.getHeight();
-          var margin = 40;
-          var maxWidth = pageWidth - margin * 2;
+          let doc = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const margin = 40;
+          const maxWidth = pageWidth - margin * 2;
 
           doc.setFontSize(11);
-          var lines = doc.splitTextToSize(text, maxWidth);
-          var lineHeight = 14;
-          var y = margin;
+          let lines = doc.splitTextToSize(text, maxWidth);
+          const lineHeight = 14;
+          let y = margin;
 
-          for (var i = 0; i < lines.length; i++) {
+          for (let i = 0; i < lines.length; i++) {
             if (y + lineHeight > pageHeight - margin) {
               doc.addPage();
               y = margin;
@@ -1548,12 +1551,12 @@
 
   function convertHtmlToMarkdown() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var tempDiv = document.createElement('div');
+          let tempDiv = document.createElement('div');
           tempDiv.innerHTML = reader.result;
-          var md = htmlNodeToMd(tempDiv);
+          let md = htmlNodeToMd(tempDiv);
           resolve(new Blob([md.trim()], { type: 'text/markdown' }));
         } catch (e) {
           reject(e);
@@ -1565,14 +1568,14 @@
   }
 
   function htmlNodeToMd(node) {
-    var md = '';
-    for (var i = 0; i < node.childNodes.length; i++) {
-      var child = node.childNodes[i];
+    let md = '';
+    for (let i = 0; i < node.childNodes.length; i++) {
+      const child = node.childNodes[i];
       if (child.nodeType === 3) {
         md += child.textContent;
       } else if (child.nodeType === 1) {
-        var tag = child.tagName.toLowerCase();
-        var inner = htmlNodeToMd(child);
+        let tag = child.tagName.toLowerCase();
+        const inner = htmlNodeToMd(child);
         if (tag === 'h1') md += '# ' + inner.trim() + '\n\n';
         else if (tag === 'h2') md += '## ' + inner.trim() + '\n\n';
         else if (tag === 'h3') md += '### ' + inner.trim() + '\n\n';
@@ -1600,11 +1603,11 @@
 
   function convertPlainToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var text = reader.result;
-        var bodyHtml = xmlEscape(text).replace(/\n/g, '<br>\n');
-        var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
+        let text = reader.result;
+        let bodyHtml = xmlEscape(text).replace(/\n/g, '<br>\n');
+        let html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n' +
           '<style>body{font-family:monospace;max-width:800px;margin:2rem auto;padding:0 1rem;line-height:1.6}</style>\n' +
           '</head>\n<body>\n' + bodyHtml + '\n</body>\n</html>';
         resolve(new Blob([html], { type: 'text/html' }));
@@ -1618,10 +1621,10 @@
 
   function convertTxtToJson() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var lines = reader.result.split(/\r?\n/);
-        var json = JSON.stringify(lines, null, 2);
+        const lines = reader.result.split(/\r?\n/);
+        const json = JSON.stringify(lines, null, 2);
         resolve(new Blob([json], { type: 'application/json' }));
       };
       reader.onerror = function () { reject(new Error('Could not read file')); };
@@ -1633,25 +1636,25 @@
 
   function convertPdfToHtml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
-        var typedArray = new Uint8Array(reader.result);
+        const typedArray = new Uint8Array(reader.result);
         if (typeof pdfjsLib !== 'undefined') {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
         }
-        var loadingTask = pdfjsLib.getDocument({ data: typedArray });
+        const loadingTask = pdfjsLib.getDocument({ data: typedArray });
         loadingTask.promise.then(function (pdfDoc) {
-          var pagePromises = [];
-          for (var p = 1; p <= pdfDoc.numPages; p++) {
+          const pagePromises = [];
+          for (let p = 1; p <= pdfDoc.numPages; p++) {
             pagePromises.push(extractPageText(pdfDoc, p));
           }
           return Promise.all(pagePromises);
         }).then(function (pageTexts) {
-          var bodyHtml = '';
+          let bodyHtml = '';
           pageTexts.forEach(function (text, idx) {
-            var paras = text.split(/\n\n+/);
+            const paras = text.split(/\n\n+/);
             paras.forEach(function (para) {
-              var trimmed = para.trim();
+              const trimmed = para.trim();
               if (trimmed) {
                 bodyHtml += '<p>' + xmlEscape(trimmed).replace(/\n/g, '<br>') + '</p>\n';
               }
@@ -1660,7 +1663,7 @@
               bodyHtml += '<hr>\n';
             }
           });
-          var html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' +
+          const html = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n<title>' +
             xmlEscape(currentFile.name) + '</title>\n' +
             '<style>body{font-family:sans-serif;max-width:800px;margin:2rem auto;padding:0 1rem;line-height:1.6}hr{border:none;border-top:1px solid #ddd;margin:2rem 0}</style>\n' +
             '</head>\n<body>\n' + bodyHtml + '</body>\n</html>';
@@ -1676,17 +1679,17 @@
 
   function convertJsonToXml() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var data = JSON.parse(reader.result);
-          var xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+          const data = JSON.parse(reader.result);
+          let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
           if (Array.isArray(data)) {
             xml += '<root>\n' + data.map(function (item) {
               return '  <item>' + jsonValueToXml(item, 2) + '</item>';
             }).join('\n') + '\n</root>';
           } else if (typeof data === 'object' && data !== null) {
-            var keys = Object.keys(data);
+            let keys = Object.keys(data);
             if (keys.length === 1) {
               xml += '<' + xmlTagName(keys[0]) + '>' + jsonValueToXml(data[keys[0]], 1) + '</' + xmlTagName(keys[0]) + '>';
             } else {
@@ -1707,14 +1710,14 @@
 
   function xmlTagName(name) {
     // Ensure valid XML tag: replace invalid chars, prepend _ if starts with digit
-    var safe = name.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
+    let safe = name.replace(/[^a-zA-Z0-9_\-\.]/g, '_');
     if (/^\d/.test(safe)) safe = '_' + safe;
     return safe || '_';
   }
 
   function jsonValueToXml(val, depth) {
-    var pad = '\n' + '  '.repeat(depth);
-    var padClose = '\n' + '  '.repeat(depth - 1);
+    const pad = '\n' + '  '.repeat(depth);
+    const padClose = '\n' + '  '.repeat(depth - 1);
     if (val === null || val === undefined) return '';
     if (typeof val !== 'object') return xmlEscape(String(val));
     if (Array.isArray(val)) {
@@ -1722,9 +1725,9 @@
         return pad + '<item>' + jsonValueToXml(item, depth + 1) + '</item>';
       }).join('') + padClose;
     }
-    var parts = '';
+    let parts = '';
     Object.keys(val).forEach(function (key) {
-      var tag = xmlTagName(key);
+      const tag = xmlTagName(key);
       parts += pad + '<' + tag + '>' + jsonValueToXml(val[key], depth + 1) + '</' + tag + '>';
     });
     return parts + padClose;
@@ -1734,42 +1737,42 @@
 
   function convertXmlToCsv() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var parser = new DOMParser();
-          var doc = parser.parseFromString(reader.result, 'text/xml');
-          var error = doc.querySelector('parsererror');
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(reader.result, 'text/xml');
+          const error = doc.querySelector('parsererror');
           if (error) throw new Error('Invalid XML: ' + error.textContent.substring(0, 100));
 
           // Find repeating child elements (rows)
-          var root = doc.documentElement;
-          var children = [];
-          for (var i = 0; i < root.children.length; i++) {
+          const root = doc.documentElement;
+          const children = [];
+          for (let i = 0; i < root.children.length; i++) {
             children.push(root.children[i]);
           }
           if (!children.length) throw new Error('No child elements found in XML');
 
           // Collect all unique keys from child elements
-          var keys = [];
-          var rows = [];
+          const keys = [];
+          const rows = [];
           children.forEach(function (child) {
-            var row = {};
-            for (var j = 0; j < child.children.length; j++) {
-              var el = child.children[j];
-              var key = el.tagName;
+            const row = {};
+            for (let j = 0; j < child.children.length; j++) {
+              const el = child.children[j];
+              const key = el.tagName;
               if (keys.indexOf(key) === -1) keys.push(key);
               row[key] = el.textContent.trim();
             }
             // Also handle text-only children (attributes as columns)
             if (child.children.length === 0 && child.textContent.trim()) {
-              var textKey = child.tagName;
+              const textKey = child.tagName;
               if (keys.indexOf(textKey) === -1) keys.push(textKey);
               row[textKey] = child.textContent.trim();
             }
             if (child.attributes.length) {
-              for (var a = 0; a < child.attributes.length; a++) {
-                var attrKey = '@' + child.attributes[a].name;
+              for (let a = 0; a < child.attributes.length; a++) {
+                const attrKey = '@' + child.attributes[a].name;
                 if (keys.indexOf(attrKey) === -1) keys.push(attrKey);
                 row[attrKey] = child.attributes[a].value;
               }
@@ -1778,7 +1781,7 @@
           });
 
           // Build CSV
-          var csvLines = [keys.map(csvEscape).join(',')];
+          const csvLines = [keys.map(csvEscape).join(',')];
           rows.forEach(function (row) {
             csvLines.push(keys.map(function (k) {
               return csvEscape(row[k] || '');
@@ -1799,10 +1802,10 @@
 
   function convertMarkdownToDocx() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var text = reader.result;
+          let text = reader.result;
           // Strip markdown syntax to plain text, then build DOCX
           text = text.replace(/```[\s\S]*?```/g, function (m) {
             return m.replace(/```\w*\n?/, '').replace(/```/, '');
@@ -1815,7 +1818,7 @@
           text = text.replace(/^[\-\*]\s+/gm, '  \u2022 ');
           text = text.replace(/^>\s+/gm, '  ');
 
-          var pages = [text];
+          let pages = [text];
           resolve(buildDocxBlob(pages));
         } catch (e) {
           reject(e);
@@ -1830,13 +1833,13 @@
 
   function convertHtmlToDocx() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function () {
         try {
-          var tempDiv = document.createElement('div');
+          const tempDiv = document.createElement('div');
           tempDiv.innerHTML = reader.result;
-          var text = tempDiv.textContent || tempDiv.innerText || '';
-          var pages = [text];
+          const text = tempDiv.textContent || tempDiv.innerText || '';
+          let pages = [text];
           resolve(buildDocxBlob(pages));
         } catch (e) {
           reject(e);
@@ -1851,10 +1854,10 @@
 
   function convertTextToDocx() {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = function () {
         try {
-          var pages = [reader.result];
+          const pages = [reader.result];
           resolve(buildDocxBlob(pages));
         } catch (e) {
           reject(e);

@@ -13,16 +13,16 @@
   'use strict';
 
   /* ===== Provider Config (swap for Google Geocoding API) ===== */
-  var NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
-  var REVERSE_GEOCODE_DEBOUNCE_MS = 1200;
+  const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
+  const REVERSE_GEOCODE_DEBOUNCE_MS = 1200;
 
   /* ===== State ===== */
-  var reverseGeocodeDebounceTimer = null;
+  let reverseGeocodeDebounceTimer = null;
 
   /* ========== Nominatim Reverse Geocode ========== */
 
   function nominatimReverseGeocodeRequest(latitude, longitude) {
-    var requestUrl = NOMINATIM_BASE_URL + '/reverse?format=json' +
+    const requestUrl = NOMINATIM_BASE_URL + '/reverse?format=json' +
       '&lat=' + latitude +
       '&lon=' + longitude +
       '&accept-language=bn' +
@@ -30,7 +30,7 @@
       '&addressdetails=1';
 
     fetch(requestUrl, { headers: { 'Accept': 'application/json' } })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data && data.display_name) {
           if (window.newshubMapPinpoint) {

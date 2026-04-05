@@ -1,5 +1,5 @@
 <!-- Party Selection (Step 4) -->
-<div id="party-view" style="display: none;">
+<div id="party-view" class="display-hidden">
   <button class="back-btn" onclick="navigateBackToConstituencies()">← Back / পিছনে</button>
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
@@ -15,6 +15,7 @@
             src="/media/{{ party.file_path }}{{ party.file_name }}"
             alt="{{ party.party_short_name_bn }}"
             class="party-logo"
+            loading="lazy"
           />
           <div class="party-text">
             <div class="party-info">

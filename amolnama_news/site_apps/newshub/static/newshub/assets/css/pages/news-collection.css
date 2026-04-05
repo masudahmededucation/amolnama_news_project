@@ -91,7 +91,7 @@
 
 .contributor-type-inline:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -160,7 +160,7 @@
 .form-field select:hover,
 .form-field textarea:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -247,7 +247,7 @@
 .occurrence-part input[type="date"]:hover,
 .occurrence-part select:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -382,10 +382,10 @@
   align-items: center;
   gap: .35rem;
   padding: .3rem .7rem;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--danger-border);
   border-radius: 1rem;
   background: var(--danger-light);
-  color: #dc2626;
+  color: var(--danger);
   font-size: .8rem;
   font-weight: 600;
   cursor: pointer;
@@ -396,9 +396,9 @@
 }
 
 .btn-repeater-delete:hover {
-  background: #dc2626;
+  background: var(--danger);
   color: #fff;
-  border-color: #dc2626;
+  border-color: var(--danger);
   box-shadow: 0 2px 6px rgba(220, 38, 38, .25);
 }
 
@@ -497,7 +497,7 @@
   margin-bottom: .5rem;
   border-radius: var(--radius-sm);
   background: var(--danger-light);
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--danger-border);
   color: var(--danger);
   font-size: .8rem;
   line-height: 1.5;
@@ -530,7 +530,7 @@
   font-size: .85rem;
   font-weight: 600;
   color: var(--danger);
-  background: #FFF5F5;
+  background: var(--danger-light);
   border: 1.5px solid rgba(197, 48, 48, .25);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -675,7 +675,7 @@
 
 .widget-location select:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -728,7 +728,7 @@
 
 .map-search-input:hover {
   border-color: #7C8A97;
-  background: #F8F9FA;
+  background: var(--surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
 }
 
@@ -849,18 +849,21 @@
   color: var(--text);
 }
 
-.widget-location .ts-control > input,
-.widget-category .ts-control > input,
-.widget-field .ts-control > input {
+.news-collection-form .widget-location .ts-wrapper .ts-control > input,
+.news-collection-form .widget-location .ts-wrapper.single.has-items .ts-control > input,
+.news-collection-form .widget-category .ts-wrapper .ts-control > input,
+.news-collection-form .widget-category .ts-wrapper.single.has-items .ts-control > input,
+.news-collection-form .widget-field .ts-wrapper .ts-control > input,
+.news-collection-form .widget-field .ts-wrapper.single.has-items .ts-control > input {
   height: 1.5rem;
   line-height: 1.5;
   font-size: inherit;
-  color: var(--text) !important;
+  color: var(--text);
   flex: 1 1 2rem;
-  min-width: 2rem !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
+  min-width: 2rem;
+  padding: 0;
+  margin: 0;
+  border: none;
   background: transparent;
 }
 
@@ -875,7 +878,7 @@
 .widget-location .ts-control:hover,
 .widget-category .ts-control:hover {
   border-color: #90CAF9;
-  background-color: #F0F7FF;
+  background-color: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -909,7 +912,7 @@
 
 .widget-location .ts-dropdown .active,
 .widget-category .ts-dropdown .active {
-  background: #F0F7FF;
+  background: var(--info-light);
   color: var(--text);
 }
 
@@ -934,7 +937,7 @@
 .sidebar .widget select:hover,
 .sidebar .widget input:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -1149,7 +1152,7 @@
 
 .form-field-thana-search .ts-control:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
 
@@ -1168,19 +1171,19 @@
 /* Dropdown — explicit white bg to override parent .form-field-thana-search blue bg */
 .form-field-thana-search .ts-dropdown,
 .form-field-thana-search .ts-dropdown-content {
-  background: #fff !important;
+  background: var(--card) !important;
   color: var(--text) !important;
 }
 
 .form-field-thana-search .ts-dropdown .option {
   color: var(--text) !important;
-  background: #fff !important;
+  background: var(--card) !important;
   padding: .4rem .65rem;
 }
 
 /* Active (hovered/keyboard-selected) option — light blue bg + dark text like upazila */
 .form-field-thana-search .ts-dropdown .active {
-  background: #F0F7FF !important;
+  background: var(--info-light) !important;
   color: var(--text) !important;
 }
 
@@ -1245,7 +1248,7 @@
 
 .village-other-input:hover {
   border-color: #90CAF9;
-  background: #F0F7FF;
+  background: var(--info-light);
 }
 
 .village-other-input:focus {
@@ -1275,7 +1278,7 @@
 
 .tag-search-input:hover {
   border-color: #7C8A97;
-  background: #F8F9FA;
+  background: var(--surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
 }
 
@@ -1423,7 +1426,7 @@
 }
 
 .tag-available-item:hover::before {
-  border-color: #fff;
+  border-color: var(--card);
 }
 
 .tag-hint {
@@ -1492,7 +1495,7 @@
 /* ---- Auth warning banner ---- */
 
 .auth-warning {
-  background: #FFF8E1;
+  background: var(--warning-light);
   border: 1px solid #F9A825;
   border-radius: var(--radius-sm);
   padding: .85rem 1.25rem;
@@ -1525,11 +1528,11 @@
 .form-message-success {
   background: var(--primary-light);
   border: 1px solid rgba(27, 107, 74, .25);
-  color: #145438;
+  color: var(--primary-hover);
 }
 
 .form-message-error {
-  background: #FFF5F5;
+  background: var(--danger-light);
   border: 1px solid rgba(197, 48, 48, .25);
   color: #922;
 }
@@ -1557,7 +1560,7 @@
   justify-content: space-between;
   padding: .5rem .85rem;
   margin: 0 -.85rem .75rem;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--info-light) 0%, #bbdefb 100%);
 }
 
 /* Row number pill badge */
@@ -1576,15 +1579,15 @@
 
 /* 1 — Blue (default) */
 .social-source-row:nth-child(5n+1) .social-source-row-header {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), #bbdefb);
 }
 .social-source-row:nth-child(5n+1) .social-source-row-number { color: #1565c0; }
 
 /* 2 — Green */
 .social-source-row:nth-child(5n+2) .social-source-row-header {
-  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
 }
-.social-source-row:nth-child(5n+2) .social-source-row-number { color: #2e7d32; }
+.social-source-row:nth-child(5n+2) .social-source-row-number { color: var(--primary); }
 
 /* 3 — Purple */
 .social-source-row:nth-child(5n+3) .social-source-row-header {
@@ -1594,7 +1597,7 @@
 
 /* 4 — Amber */
 .social-source-row:nth-child(5n+4) .social-source-row-header {
-  background: linear-gradient(135deg, #fff8e1, #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), #ffe082);
 }
 .social-source-row:nth-child(5n+4) .social-source-row-number { color: #e65100; }
 
@@ -1737,7 +1740,7 @@
   padding: .55rem 1.5rem;
   border: none;
   border-radius: 0;
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), #bbdefb);
 }
 
 .form-subsection-title:first-of-type {
@@ -1746,13 +1749,13 @@
 
 /* Color variants for different question sets within one step */
 .form-subsection-title.subsection-blue {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), #bbdefb);
   color: #1565c0;
 }
 
 .form-subsection-title.subsection-green {
-  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
-  color: #2e7d32;
+  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
+  color: var(--primary);
 }
 
 .form-subsection-title.subsection-purple {
@@ -1761,7 +1764,7 @@
 }
 
 .form-subsection-title.subsection-amber {
-  background: linear-gradient(135deg, #fff8e1, #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), #ffe082);
   color: #e65100;
 }
 
@@ -1817,7 +1820,7 @@
   justify-content: space-between;
   padding: .5rem .85rem;
   margin: 0 -.85rem .75rem;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--info-light) 0%, #bbdefb 100%);
 }
 
 /* Row number pill badge */
@@ -1836,15 +1839,15 @@
 
 /* 1 — Blue (default) */
 .commodity-price-row:nth-child(5n+1) .commodity-row-header {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), #bbdefb);
 }
 .commodity-price-row:nth-child(5n+1) .commodity-row-number { color: #1565c0; }
 
 /* 2 — Green */
 .commodity-price-row:nth-child(5n+2) .commodity-row-header {
-  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
 }
-.commodity-price-row:nth-child(5n+2) .commodity-row-number { color: #2e7d32; }
+.commodity-price-row:nth-child(5n+2) .commodity-row-number { color: var(--primary); }
 
 /* 3 — Purple */
 .commodity-price-row:nth-child(5n+3) .commodity-row-header {
@@ -1854,7 +1857,7 @@
 
 /* 4 — Amber */
 .commodity-price-row:nth-child(5n+4) .commodity-row-header {
-  background: linear-gradient(135deg, #fff8e1, #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), #ffe082);
 }
 .commodity-price-row:nth-child(5n+4) .commodity-row-number { color: #e65100; }
 
@@ -1972,7 +1975,7 @@
 .actor-add-victim { border-color: #a5d6a7; }
 .actor-add-victim:hover { border-color: #388e3c; background: #f1f8e9; }
 .actor-add-witness { border-color: #90caf9; }
-.actor-add-witness:hover { border-color: #1976d2; background: #e3f2fd; }
+.actor-add-witness:hover { border-color: #1976d2; background: var(--info-light); }
 
 .actor-count-badge {
   display: inline-flex;
@@ -2015,7 +2018,7 @@
   justify-content: space-between;
   padding: .5rem 1rem;
   margin: 0 -1rem .6rem;
-  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+  background: linear-gradient(135deg, var(--surface), var(--border));
 }
 
 /* Role-specific header gradients */
@@ -2023,10 +2026,10 @@
   background: linear-gradient(135deg, var(--danger-light), #ef9a9a);
 }
 .actor-card-victim .actor-card-header {
-  background: linear-gradient(135deg, #e8f5e9, #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
 }
 .actor-card-witness .actor-card-header {
-  background: linear-gradient(135deg, #e3f2fd, #90caf9);
+  background: linear-gradient(135deg, var(--info-light), #90caf9);
 }
 
 /* Role badge — frosted pill on colored header */
@@ -2043,7 +2046,7 @@
 }
 
 .role-accused { color: #c62828; }
-.role-victim  { color: #2e7d32; }
+.role-victim  { color: var(--primary); }
 .role-witness { color: #1565c0; }
 
 /* .actor-remove-btn — now styled by shared .btn-repeater-delete */
@@ -2144,7 +2147,7 @@
   border-radius: .5rem;
   padding: 0 .85rem .85rem;
   margin-bottom: .75rem;
-  background: #fff;
+  background: var(--card);
   overflow: hidden;
   transition: box-shadow .2s;
 }
@@ -2194,7 +2197,7 @@
 
 /* 4 — Amber */
 .wcv-accused-card:nth-child(5n+4) .wcv-accused-card-header {
-  background: linear-gradient(135deg, #fff8e1, #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), #ffe082);
 }
 .wcv-accused-card:nth-child(5n+4) .wcv-card-number { color: #e65100; }
 

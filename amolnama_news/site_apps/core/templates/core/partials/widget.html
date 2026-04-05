@@ -5,7 +5,7 @@
     {% for item in items %}
     <li>
       {% if item.image %}
-        <img src="{% static item.image %}" alt="">
+        <img src="{% static item.image %}" alt="" loading="lazy">
       {% endif %}
       <a href="{{ item.url }}">{{ item.label }}</a>
     </li>

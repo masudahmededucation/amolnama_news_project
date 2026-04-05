@@ -25,7 +25,7 @@
   </div>
 
   <!-- Search results (hidden by default, shown when user types) -->
-  <div class="search-page-results" id="search-page-results" style="display:none">
+  <div class="search-page-results display-hidden" id="search-page-results"
     <div class="search-page-results-count" id="search-page-results-count"></div>
   </div>
 
@@ -55,7 +55,8 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
-<script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}"></script>
-<script src="{% static 'search/assets/js/pages/search-home.js' %}"></script>
+<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}" defer></script>
+<script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}" defer></script>
+<script src="{% static 'search/assets/js/pages/search-home.js' %}" defer></script>
 {% endblock %}

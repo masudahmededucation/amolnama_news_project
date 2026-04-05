@@ -7,51 +7,51 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Smooth show / hide helpers ---- */
   function showSection(el) {
-    el.style.display = '';
+    el.classList.remove('display-hidden');
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
   function hideSection(el) {
-    el.style.display = 'none';
+    el.classList.add('display-hidden');
     el.classList.remove('tool-section-reveal');
   }
 
   /* ---- DOM refs ---- */
-  var dropzone      = document.getElementById('mgr-dropzone');
-  var fileInput      = document.getElementById('mgr-file-input');
-  var browseBtn      = document.getElementById('mgr-browse-btn');
-  var errorSection   = document.getElementById('mgr-error');
-  var errorText      = document.getElementById('mgr-error-text');
-  var tryAgainBtn    = document.getElementById('mgr-try-again-btn');
-  var workspace      = document.getElementById('mgr-workspace');
-  var fileGrid       = document.getElementById('mgr-file-grid');
-  var fileCountSpan  = document.getElementById('mgr-file-count');
-  var totalSizeSpan  = document.getElementById('mgr-total-size');
-  var sortAzBtn      = document.getElementById('mgr-sort-az');
-  var sortZaBtn      = document.getElementById('mgr-sort-za');
-  var addMoreBtn     = document.getElementById('mgr-add-more-btn');
-  var outputNameInput = document.getElementById('mgr-output-name');
-  var mergeBtn       = document.getElementById('mgr-merge-btn');
-  var resetBtn       = document.getElementById('mgr-reset-btn');
-  var progressSection = document.getElementById('mgr-progress');
-  var progressFill   = document.getElementById('mgr-progress-fill');
-  var progressText   = document.getElementById('mgr-progress-text');
-  var resultSection  = document.getElementById('mgr-result');
-  var resultPages    = document.getElementById('mgr-result-pages');
-  var resultSize     = document.getElementById('mgr-result-size');
-  var downloadBtn    = document.getElementById('mgr-download-btn');
+  const dropzone      = document.getElementById('mgr-dropzone');
+  const fileInput      = document.getElementById('mgr-file-input');
+  const browseBtn      = document.getElementById('mgr-browse-btn');
+  const errorSection   = document.getElementById('mgr-error');
+  const errorText      = document.getElementById('mgr-error-text');
+  const tryAgainBtn    = document.getElementById('mgr-try-again-btn');
+  const workspace      = document.getElementById('mgr-workspace');
+  const fileGrid       = document.getElementById('mgr-file-grid');
+  const fileCountSpan  = document.getElementById('mgr-file-count');
+  const totalSizeSpan  = document.getElementById('mgr-total-size');
+  const sortAzBtn      = document.getElementById('mgr-sort-az');
+  const sortZaBtn      = document.getElementById('mgr-sort-za');
+  const addMoreBtn     = document.getElementById('mgr-add-more-btn');
+  const outputNameInput = document.getElementById('mgr-output-name');
+  const mergeBtn       = document.getElementById('mgr-merge-btn');
+  const resetBtn       = document.getElementById('mgr-reset-btn');
+  const progressSection = document.getElementById('mgr-progress');
+  const progressFill   = document.getElementById('mgr-progress-fill');
+  const progressText   = document.getElementById('mgr-progress-text');
+  const resultSection  = document.getElementById('mgr-result');
+  const resultPages    = document.getElementById('mgr-result-pages');
+  const resultSize     = document.getElementById('mgr-result-size');
+  const downloadBtn    = document.getElementById('mgr-download-btn');
 
   /* ---- Constants ---- */
-  var MAX_FILES = 20;
-  var MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB per file
-  var ACCEPTED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+  const MAX_FILES = 20;
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB per file
+  const ACCEPTED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 
   /* ---- State ---- */
-  var fileEntries = [];  // { id, file, name, size, type, thumbUrl, pageCount }
-  var nextId = 1;
-  var mergedBlob = null;
-  var merging = false;
+  let fileEntries = [];  // { id, file, name, size, type, thumbUrl, pageCount }
+  let nextId = 1;
+  let mergedBlob = null;
+  let merging = false;
 
   /* ---- Helpers ---- */
   function formatSize(bytes) {
@@ -79,9 +79,9 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Update stats display ---- */
   function updateStats() {
-    var count = fileEntries.length;
-    var totalBytes = 0;
-    for (var i = 0; i < count; i++) totalBytes += fileEntries[i].size;
+    const count = fileEntries.length;
+    let totalBytes = 0;
+    for (let i = 0; i < count; i++) totalBytes += fileEntries[i].size;
     fileCountSpan.textContent = count + ' ফাইল (' + count + ' files)';
     totalSizeSpan.textContent = formatSize(totalBytes);
     mergeBtn.disabled = count === 0;
@@ -89,9 +89,9 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Update order badges ---- */
   function updateOrderBadges() {
-    var cards = fileGrid.querySelectorAll('.mgr-file-card');
+    let cards = fileGrid.querySelectorAll('.mgr-file-card');
     cards.forEach(function (card, idx) {
-      var badge = card.querySelector('.mgr-file-order');
+      let badge = card.querySelector('.mgr-file-order');
       if (badge) badge.textContent = idx + 1;
     });
   }
@@ -100,23 +100,23 @@ if (typeof pdfjsLib !== 'undefined') {
   function generateThumb(entry) {
     return new Promise(function (resolve) {
       if (isImage(entry.file)) {
-        var url = URL.createObjectURL(entry.file);
+        let url = URL.createObjectURL(entry.file);
         entry.thumbUrl = url;
         entry.pageCount = 1;
         resolve();
       } else if (isPdf(entry.file)) {
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.onload = function (e) {
-          var data = new Uint8Array(e.target.result);
+          const data = new Uint8Array(e.target.result);
           pdfjsLib.getDocument({ data: data }).promise.then(function (pdf) {
             entry.pageCount = pdf.numPages;
             return pdf.getPage(1);
           }).then(function (page) {
-            var viewport = page.getViewport({ scale: 0.5 });
-            var canvas = document.createElement('canvas');
+            const viewport = page.getViewport({ scale: 0.5 });
+            let canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            var ctx = canvas.getContext('2d');
+            let ctx = canvas.getContext('2d');
             return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
               entry.thumbUrl = canvas.toDataURL('image/jpeg', 0.6);
               resolve();
@@ -137,19 +137,19 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Create a file card DOM element ---- */
   function createFileCard(entry, index) {
-    var card = document.createElement('div');
+    let card = document.createElement('div');
     card.className = 'mgr-file-card';
     card.setAttribute('draggable', 'true');
     card.dataset.id = entry.id;
 
     /* Order badge */
-    var badge = document.createElement('span');
+    const badge = document.createElement('span');
     badge.className = 'mgr-file-order';
     badge.textContent = index + 1;
     card.appendChild(badge);
 
     /* Remove button */
-    var removeBtn = document.createElement('button');
+    const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'mgr-file-remove';
     removeBtn.textContent = '\u00D7';
@@ -161,16 +161,16 @@ if (typeof pdfjsLib !== 'undefined') {
     card.appendChild(removeBtn);
 
     /* Thumbnail */
-    var thumbWrap = document.createElement('div');
+    const thumbWrap = document.createElement('div');
     thumbWrap.className = 'mgr-file-thumb';
 
     if (entry.thumbUrl) {
-      var img = document.createElement('img');
+      let img = document.createElement('img');
       img.src = entry.thumbUrl;
       img.alt = entry.name;
       thumbWrap.appendChild(img);
     } else {
-      var icon = document.createElement('span');
+      const icon = document.createElement('span');
       icon.className = 'mgr-file-thumb-icon';
       icon.textContent = isPdf(entry.file) ? '📄' : '🖼️';
       thumbWrap.appendChild(icon);
@@ -178,16 +178,16 @@ if (typeof pdfjsLib !== 'undefined') {
     card.appendChild(thumbWrap);
 
     /* Name */
-    var nameEl = document.createElement('div');
+    const nameEl = document.createElement('div');
     nameEl.className = 'mgr-file-name';
     nameEl.textContent = entry.name;
     nameEl.title = entry.name;
     card.appendChild(nameEl);
 
     /* Meta */
-    var meta = document.createElement('div');
+    const meta = document.createElement('div');
     meta.className = 'mgr-file-meta';
-    var parts = [formatSize(entry.size)];
+    const parts = [formatSize(entry.size)];
     if (isPdf(entry.file) && entry.pageCount > 0) {
       parts.push(entry.pageCount + ' পৃষ্ঠা');
     }
@@ -200,8 +200,8 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- Render the file grid ---- */
   function renderGrid() {
     fileGrid.innerHTML = '';
-    for (var i = 0; i < fileEntries.length; i++) {
-      var card = createFileCard(fileEntries[i], i);
+    for (let i = 0; i < fileEntries.length; i++) {
+      let card = createFileCard(fileEntries[i], i);
       fileGrid.appendChild(card);
     }
     updateStats();
@@ -211,10 +211,10 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- Add files ---- */
   function addFiles(files) {
     clearError();
-    var validFiles = [];
+    const validFiles = [];
 
-    for (var i = 0; i < files.length; i++) {
-      var f = files[i];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
 
       /* Validate type */
       if (!isPdf(f) && !isImage(f)) {
@@ -240,14 +240,14 @@ if (typeof pdfjsLib !== 'undefined') {
     if (validFiles.length === 0) return;
 
     /* Show workspace if hidden */
-    if (workspace.style.display === 'none') {
+    if (workspace.classList.contains('display-hidden')) {
       showSection(workspace);
     }
 
     /* Create entries and generate thumbnails */
-    var newEntries = [];
-    for (var j = 0; j < validFiles.length; j++) {
-      var entry = {
+    const newEntries = [];
+    for (let j = 0; j < validFiles.length; j++) {
+      const entry = {
         id: nextId++,
         file: validFiles[j],
         name: validFiles[j].name,
@@ -264,7 +264,7 @@ if (typeof pdfjsLib !== 'undefined') {
     renderGrid();
 
     /* Generate thumbs async */
-    var thumbPromises = newEntries.map(function (entry) {
+    const thumbPromises = newEntries.map(function (entry) {
       return generateThumb(entry);
     });
 
@@ -278,7 +278,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Remove a file ---- */
   function removeFile(id) {
-    for (var i = 0; i < fileEntries.length; i++) {
+    for (let i = 0; i < fileEntries.length; i++) {
       if (fileEntries[i].id === id) {
         if (fileEntries[i].thumbUrl && isImage(fileEntries[i].file)) {
           URL.revokeObjectURL(fileEntries[i].thumbUrl);
@@ -299,8 +299,8 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- Sort files ---- */
   function sortFiles(order) {
     fileEntries.sort(function (a, b) {
-      var nameA = a.name.toLowerCase();
-      var nameB = b.name.toLowerCase();
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
       if (order === 'az') return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
       return nameA > nameB ? -1 : nameA < nameB ? 1 : 0;
     });
@@ -309,14 +309,14 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   /* ---- Drag-and-drop reorder with placeholder ---- */
-  var dragSrcId = null;
-  var placeholder = null;
-  var dropInsertIdx = -1; /* The index in fileEntries where the item will be inserted */
+  let dragSrcId = null;
+  let placeholder = null;
+  let dropInsertIdx = -1; /* The index in fileEntries where the item will be inserted */
 
   function createPlaceholder() {
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'mgr-drop-placeholder';
-    var txt = document.createElement('span');
+    const txt = document.createElement('span');
     txt.className = 'mgr-drop-placeholder-text';
     txt.textContent = 'এখানে ছাড়ুন (Drop here)';
     el.appendChild(txt);
@@ -341,14 +341,14 @@ if (typeof pdfjsLib !== 'undefined') {
    * calling this so that card positions are not shifted.
    */
   function findInsertPosition(clientX, clientY) {
-    var cards = fileGrid.querySelectorAll('.mgr-file-card');
+    let cards = fileGrid.querySelectorAll('.mgr-file-card');
     if (cards.length === 0) return 0;
 
-    for (var i = 0; i < cards.length; i++) {
+    for (let i = 0; i < cards.length; i++) {
       /* Skip the card being dragged — it's faded but still in flow */
       if (parseInt(cards[i].dataset.id, 10) === dragSrcId) continue;
 
-      var rect = cards[i].getBoundingClientRect();
+      const rect = cards[i].getBoundingClientRect();
 
       /* Cursor is above this card entirely → insert before it */
       if (clientY < rect.top) return i;
@@ -366,9 +366,9 @@ if (typeof pdfjsLib !== 'undefined') {
    * Counts only real cards (.mgr-file-card) before the given position.
    */
   function domIdxToEntryIdx(domIdx) {
-    var children = fileGrid.children;
-    var entryIdx = 0;
-    for (var i = 0; i < children.length && i < domIdx; i++) {
+    const children = fileGrid.children;
+    let entryIdx = 0;
+    for (let i = 0; i < children.length && i < domIdx; i++) {
       if (children[i].classList.contains('mgr-file-card')) entryIdx++;
     }
     return entryIdx;
@@ -380,16 +380,16 @@ if (typeof pdfjsLib !== 'undefined') {
       placeholder.parentNode.removeChild(placeholder);
     }
 
-    var cards = fileGrid.querySelectorAll('.mgr-file-card');
+    let cards = fileGrid.querySelectorAll('.mgr-file-card');
     if (cards.length === 0) return;
 
     /* Step 2: Compute insertion index against clean (un-shifted) layout */
-    var domIdx = findInsertPosition(clientX, clientY);
+    const domIdx = findInsertPosition(clientX, clientY);
 
     /* Step 3: Insert placeholder at computed position */
     if (!placeholder) placeholder = createPlaceholder();
 
-    var allChildren = fileGrid.children;
+    const allChildren = fileGrid.children;
     if (domIdx >= allChildren.length) {
       fileGrid.appendChild(placeholder);
     } else {
@@ -408,18 +408,18 @@ if (typeof pdfjsLib !== 'undefined') {
       return;
     }
 
-    var srcIdx = -1;
-    for (var i = 0; i < fileEntries.length; i++) {
+    let srcIdx = -1;
+    for (let i = 0; i < fileEntries.length; i++) {
       if (fileEntries[i].id === dragSrcId) { srcIdx = i; break; }
     }
     if (srcIdx === -1) { removePlaceholder(); return; }
 
-    var destIdx = dropInsertIdx;
+    let destIdx = dropInsertIdx;
     /* If dragging from before the destination, adjust because removing shifts indices */
     if (srcIdx < destIdx) destIdx--;
 
     if (srcIdx !== destIdx) {
-      var moved = fileEntries.splice(srcIdx, 1)[0];
+      const moved = fileEntries.splice(srcIdx, 1)[0];
       fileEntries.splice(destIdx, 0, moved);
     }
 
@@ -429,7 +429,7 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function setupDragAndDrop() {
-    var cards = fileGrid.querySelectorAll('.mgr-file-card');
+    const cards = fileGrid.querySelectorAll('.mgr-file-card');
 
     cards.forEach(function (card) {
       card.addEventListener('dragstart', function (e) {
@@ -438,7 +438,7 @@ if (typeof pdfjsLib !== 'undefined') {
         e.dataTransfer.setData('text/plain', card.dataset.id);
 
         /* Create a compact ghost image */
-        var ghost = card.cloneNode(true);
+        const ghost = card.cloneNode(true);
         ghost.style.width = card.offsetWidth + 'px';
         ghost.style.opacity = '0.8';
         ghost.style.transform = 'scale(0.85)';
@@ -478,14 +478,14 @@ if (typeof pdfjsLib !== 'undefined') {
   });
 
   /* ---- Touch drag reorder for mobile ---- */
-  var touchDragEntry = null;
-  var touchSrcCard = null;
-  var touchStartY = 0;
-  var touchStartX = 0;
-  var touchMoved = false;
+  let touchDragEntry = null;
+  let touchSrcCard = null;
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let touchMoved = false;
 
   fileGrid.addEventListener('touchstart', function (e) {
-    var card = e.target.closest('.mgr-file-card');
+    const card = e.target.closest('.mgr-file-card');
     if (!card || e.target.closest('.mgr-file-remove')) return;
 
     touchDragEntry = parseInt(card.dataset.id, 10);
@@ -498,8 +498,8 @@ if (typeof pdfjsLib !== 'undefined') {
   fileGrid.addEventListener('touchmove', function (e) {
     if (touchDragEntry === null) return;
 
-    var dx = e.touches[0].clientX - touchStartX;
-    var dy = e.touches[0].clientY - touchStartY;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
     if (!touchMoved && Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
 
     if (!touchMoved) {
@@ -540,24 +540,24 @@ if (typeof pdfjsLib !== 'undefined') {
     progressFill.style.width = '0%';
     progressText.textContent = 'মার্জ শুরু হচ্ছে… (Starting merge…)';
 
-    var PDFDocument = PDFLib.PDFDocument;
-    var total = fileEntries.length;
-    var totalPages = 0;
+    const PDFDocument = PDFLib.PDFDocument;
+    const total = fileEntries.length;
+    let totalPages = 0;
 
     PDFDocument.create().then(function (mergedPdf) {
-      var chain = Promise.resolve();
+      let chain = Promise.resolve();
 
       fileEntries.forEach(function (entry, idx) {
         chain = chain.then(function () {
-          var pct = Math.round(((idx + 1) / total) * 90);
+          const pct = Math.round(((idx + 1) / total) * 90);
           progressFill.style.width = pct + '%';
           progressText.textContent = (idx + 1) + '/' + total + ' প্রসেস হচ্ছে… (Processing ' + (idx + 1) + '/' + total + '…)';
 
           return readFileAsArrayBuffer(entry.file).then(function (arrayBuf) {
             if (isPdf(entry.file)) {
               return PDFLib.PDFDocument.load(arrayBuf, { ignoreEncryption: true }).then(function (srcPdf) {
-                var pageIndices = [];
-                for (var p = 0; p < srcPdf.getPageCount(); p++) pageIndices.push(p);
+                const pageIndices = [];
+                for (let p = 0; p < srcPdf.getPageCount(); p++) pageIndices.push(p);
                 totalPages += srcPdf.getPageCount();
                 return mergedPdf.copyPages(srcPdf, pageIndices);
               }).then(function (copiedPages) {
@@ -565,8 +565,8 @@ if (typeof pdfjsLib !== 'undefined') {
               });
             } else {
               /* Image — embed as a full page */
-              var bytes = new Uint8Array(arrayBuf);
-              var embedPromise;
+              const bytes = new Uint8Array(arrayBuf);
+              let embedPromise;
 
               if (entry.file.type === 'image/png') {
                 /* Try PNG embed, fall back to canvas conversion if file is mislabeled */
@@ -583,8 +583,8 @@ if (typeof pdfjsLib !== 'undefined') {
               }
 
               return embedPromise.then(function (image) {
-                var dims = image.scaleToFit(595.28, 841.89); /* A4 */
-                var page = mergedPdf.addPage([595.28, 841.89]);
+                const dims = image.scaleToFit(595.28, 841.89); /* A4 */
+                const page = mergedPdf.addPage([595.28, 841.89]);
                 page.drawImage(image, {
                   x: (595.28 - dims.width) / 2,
                   y: (841.89 - dims.height) / 2,
@@ -625,7 +625,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
   function readFileAsArrayBuffer(file) {
     return new Promise(function (resolve, reject) {
-      var reader = new FileReader();
+      let reader = new FileReader();
       reader.onload = function (e) { resolve(e.target.result); };
       reader.onerror = function () { reject(new Error('Failed to read file')); };
       reader.readAsArrayBuffer(file);
@@ -639,18 +639,18 @@ if (typeof pdfjsLib !== 'undefined') {
    */
   function convertImageToJpgBytes(file) {
     return new Promise(function (resolve, reject) {
-      var objectUrl = URL.createObjectURL(file);
-      var img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(objectUrl);
-        var canvas = document.createElement('canvas');
+        const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        var ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         canvas.toBlob(function (blob) {
           if (!blob) { reject(new Error('Canvas conversion failed')); return; }
-          var reader = new FileReader();
+          const reader = new FileReader();
           reader.onload = function (e) { resolve(new Uint8Array(e.target.result)); };
           reader.onerror = function () { reject(new Error('Failed to read blob')); };
           reader.readAsArrayBuffer(blob);
@@ -667,9 +667,9 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- Download merged PDF ---- */
   function downloadMerged() {
     if (!mergedBlob) return;
-    var name = (outputNameInput.value.trim() || 'merged-document') + '.pdf';
-    var url = URL.createObjectURL(mergedBlob);
-    var a = document.createElement('a');
+    const name = (outputNameInput.value.trim() || 'merged-document') + '.pdf';
+    const url = URL.createObjectURL(mergedBlob);
+    const a = document.createElement('a');
     a.href = url;
     a.download = name;
     document.body.appendChild(a);
@@ -687,7 +687,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Reset all ---- */
   function resetAll() {
-    for (var i = 0; i < fileEntries.length; i++) {
+    for (let i = 0; i < fileEntries.length; i++) {
       if (fileEntries[i].thumbUrl && isImage(fileEntries[i].file)) {
         URL.revokeObjectURL(fileEntries[i].thumbUrl);
       }

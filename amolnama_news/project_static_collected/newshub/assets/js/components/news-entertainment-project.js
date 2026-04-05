@@ -16,23 +16,23 @@
 (function () {
   'use strict';
 
-  var platform = document.getElementById('entertainment-platform');
-  var projectStage = document.getElementById('entertainment-project-stage');
-  var ipRadios = document.querySelectorAll('input[name="entertainment_ip_type"]');
-  var rumorCheckbox = document.getElementById('entertainment-rumor');
-  var hiddenJson = document.getElementById('entertainment-project-json');
+  const platform = document.getElementById('entertainment-platform');
+  const projectStage = document.getElementById('entertainment-project-stage');
+  const ipRadios = document.querySelectorAll('input[name="entertainment_ip_type"]');
+  const rumorCheckbox = document.getElementById('entertainment-rumor');
+  const hiddenJson = document.getElementById('entertainment-project-json');
 
   if (!hiddenJson) return;
 
   function getIpType() {
-    for (var i = 0; i < ipRadios.length; i++) {
+    for (let i = 0; i < ipRadios.length; i++) {
       if (ipRadios[i].checked) return ipRadios[i].value;
     }
     return 'original';
   }
 
   function serialize() {
-    var data = {
+    let data = {
       platform: platform ? platform.value : '',
       projectStage: projectStage ? projectStage.value : '',
       ipType: getIpType(),
@@ -43,13 +43,13 @@
   }
 
   /* Listen for changes on selects */
-  var changeFields = [platform, projectStage];
+  const changeFields = [platform, projectStage];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
   /* Listen for changes on IP type radios */
-  for (var i = 0; i < ipRadios.length; i++) {
+  for (let i = 0; i < ipRadios.length; i++) {
     ipRadios[i].addEventListener('change', serialize);
   }
 
@@ -59,7 +59,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -67,13 +67,13 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (platform && data.platform)         platform.value     = data.platform;
     if (projectStage && data.projectStage) projectStage.value = data.projectStage;
     if (data.ipType) {
-      for (var j = 0; j < ipRadios.length; j++) {
+      for (let j = 0; j < ipRadios.length; j++) {
         if (ipRadios[j].value === data.ipType) {
           ipRadios[j].checked = true;
           break;
@@ -96,12 +96,12 @@
   };
 
   /* Step validator: require platform selection */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!platform || !platform.value) {
         warnings.push('প্ল্যাটফর্ম নির্বাচন করুন (Please select a platform)');
       }

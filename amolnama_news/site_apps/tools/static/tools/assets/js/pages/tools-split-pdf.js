@@ -20,56 +20,56 @@ if (typeof pdfjsLib !== 'undefined') {
      DOM REFERENCES
      ================================================================ */
 
-  var dropzone      = document.getElementById('spl-dropzone');
-  var fileInput     = document.getElementById('spl-file-input');
-  var browseBtn     = document.getElementById('spl-browse-btn');
-  var errorSection  = document.getElementById('spl-error');
-  var errorText     = document.getElementById('spl-error-text');
-  var tryAgainBtn   = document.getElementById('spl-try-again-btn');
-  var workspace     = document.getElementById('spl-workspace');
-  var fileNameEl    = document.getElementById('spl-file-name');
-  var filePagesEl   = document.getElementById('spl-file-pages');
-  var fileSizeEl    = document.getElementById('spl-file-size');
-  var changeBtn     = document.getElementById('spl-change-btn');
-  var pageGrid      = document.getElementById('spl-page-grid');
-  var tabAll        = document.getElementById('spl-tab-all');     // Split All = Select All
-  var tabRange      = document.getElementById('spl-tab-range');
-  var panelRange    = document.getElementById('spl-panel-range');
-  var pickCounter   = document.getElementById('spl-pick-counter');
-  var pickOddBtn    = document.getElementById('spl-pick-odd');
-  var pickEvenBtn   = document.getElementById('spl-pick-even');
-  var pickNoneBtn   = document.getElementById('spl-pick-none');
-  var rangeInput    = document.getElementById('spl-range-input');
-  var rangeHint     = document.getElementById('spl-range-hint');
-  var outputName    = document.getElementById('spl-output-name');
-  var splitBtn      = document.getElementById('spl-split-btn');
-  var resetBtn      = document.getElementById('spl-reset-btn');
-  var progressEl    = document.getElementById('spl-progress');
-  var progressFill  = document.getElementById('spl-progress-fill');
-  var progressText  = document.getElementById('spl-progress-text');
-  var resultEl      = document.getElementById('spl-result');
-  var resultPages   = document.getElementById('spl-result-pages');
-  var resultSize    = document.getElementById('spl-result-size');
-  var downloadBtn   = document.getElementById('spl-download-btn');
+  const dropzone      = document.getElementById('spl-dropzone');
+  const fileInput     = document.getElementById('spl-file-input');
+  const browseBtn     = document.getElementById('spl-browse-btn');
+  const errorSection  = document.getElementById('spl-error');
+  const errorText     = document.getElementById('spl-error-text');
+  const tryAgainBtn   = document.getElementById('spl-try-again-btn');
+  const workspace     = document.getElementById('spl-workspace');
+  const fileNameEl    = document.getElementById('spl-file-name');
+  const filePagesEl   = document.getElementById('spl-file-pages');
+  const fileSizeEl    = document.getElementById('spl-file-size');
+  const changeBtn     = document.getElementById('spl-change-btn');
+  const pageGrid      = document.getElementById('spl-page-grid');
+  const tabAll        = document.getElementById('spl-tab-all');     // Split All = Select All
+  const tabRange      = document.getElementById('spl-tab-range');
+  const panelRange    = document.getElementById('spl-panel-range');
+  const pickCounter   = document.getElementById('spl-pick-counter');
+  const pickOddBtn    = document.getElementById('spl-pick-odd');
+  const pickEvenBtn   = document.getElementById('spl-pick-even');
+  const pickNoneBtn   = document.getElementById('spl-pick-none');
+  const rangeInput    = document.getElementById('spl-range-input');
+  const rangeHint     = document.getElementById('spl-range-hint');
+  const outputName    = document.getElementById('spl-output-name');
+  const splitBtn      = document.getElementById('spl-split-btn');
+  const resetBtn      = document.getElementById('spl-reset-btn');
+  const progressEl    = document.getElementById('spl-progress');
+  const progressFill  = document.getElementById('spl-progress-fill');
+  const progressText  = document.getElementById('spl-progress-text');
+  const resultEl      = document.getElementById('spl-result');
+  const resultPages   = document.getElementById('spl-result-pages');
+  const resultSize    = document.getElementById('spl-result-size');
+  const downloadBtn   = document.getElementById('spl-download-btn');
 
   /* ================================================================
      CONSTANTS
      ================================================================ */
 
-  var MAX_FILE_SIZE = 200 * 1024 * 1024; // 200 MB
-  var MODE_ALL   = 'all';
-  var MODE_RANGE = 'range';
+  const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200 MB
+  const MODE_ALL   = 'all';
+  const MODE_RANGE = 'range';
 
   /* ================================================================
      STATE
      ================================================================ */
 
-  var pdfBytes      = null;   // Uint8Array of loaded PDF
-  var totalPages    = 0;
-  var splitResult   = null;   // { type: 'zip'|'pdf', blob, fileName }
-  var splitting     = false;
-  var currentMode   = MODE_ALL;
-  var selectedPages = {};     // { 0: true, 2: true, ... }
+  let pdfBytes      = null;   // Uint8Array of loaded PDF
+  let totalPages    = 0;
+  let splitResult   = null;   // { type: 'zip'|'pdf', blob, fileName }
+  let splitting     = false;
+  let currentMode   = MODE_ALL;
+  let selectedPages = {};     // { 0: true, 2: true, ... }
 
   /* ================================================================
      HELPERS
@@ -82,47 +82,47 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function zeroPad(num, total) {
-    var digits = String(total).length;
+    let digits = String(total).length;
     if (digits < 4) digits = 4;
-    var s = String(num);
+    let s = String(num);
     while (s.length < digits) s = '0' + s;
     return s;
   }
 
   function showError(msg) {
     errorText.textContent = msg;
-    errorSection.style.display = '';
-    dropzone.style.display = 'none';
-    workspace.style.display = 'none';
+    errorSection.classList.remove('display-hidden');
+    dropzone.classList.add('display-hidden');
+    workspace.classList.add('display-hidden');
   }
 
   function clearError() {
-    errorSection.style.display = 'none';
+    errorSection.classList.add('display-hidden');
   }
 
   function hideResult() {
-    resultEl.style.display = 'none';
-    progressEl.style.display = 'none';
+    resultEl.classList.add('display-hidden');
+    progressEl.classList.add('display-hidden');
     splitResult = null;
   }
 
   function setProgress(pct, text) {
-    progressEl.style.display = '';
+    progressEl.classList.remove('display-hidden');
     progressFill.style.width = pct + '%';
     if (text) progressText.textContent = text;
   }
 
   function getSelectedCount() {
-    var count = 0;
-    for (var key in selectedPages) {
+    let count = 0;
+    for (let key in selectedPages) {
       if (selectedPages[key]) count++;
     }
     return count;
   }
 
   function getSelectedIndices() {
-    var indices = [];
-    for (var i = 0; i < totalPages; i++) {
+    let indices = [];
+    for (let i = 0; i < totalPages; i++) {
       if (selectedPages[i]) indices.push(i);
     }
     return indices;
@@ -132,27 +132,27 @@ if (typeof pdfjsLib !== 'undefined') {
      PAGE SELECTION — always active
      ================================================================ */
 
-  var allToolbarBtns = [tabAll, pickOddBtn, pickEvenBtn, pickNoneBtn, tabRange];
+  const allToolbarBtns = [tabAll, pickOddBtn, pickEvenBtn, pickNoneBtn, tabRange];
 
   function setActiveToolbarBtn(btn) {
-    for (var i = 0; i < allToolbarBtns.length; i++) {
+    for (let i = 0; i < allToolbarBtns.length; i++) {
       allToolbarBtns[i].classList.toggle('active', allToolbarBtns[i] === btn);
     }
   }
 
   function clearActiveToolbarBtn() {
-    for (var i = 0; i < allToolbarBtns.length; i++) {
+    for (let i = 0; i < allToolbarBtns.length; i++) {
       allToolbarBtns[i].classList.remove('active');
     }
   }
 
   function updatePickCounter() {
-    var count = getSelectedCount();
+    let count = getSelectedCount();
     if (count === 0) {
       pickCounter.textContent = 'কোনো পৃষ্ঠা নির্বাচিত নেই (No pages selected)';
       pickCounter.className = 'spl-pick-counter';
     } else {
-      var label = count + 'টি পৃষ্ঠা নির্বাচিত (' + count + ' page' + (count > 1 ? 's' : '') + ' selected)';
+      let label = count + 'টি পৃষ্ঠা নির্বাচিত (' + count + ' page' + (count > 1 ? 's' : '') + ' selected)';
       if (currentMode === MODE_ALL) {
         if (count === 1) {
           label += ' — সরাসরি PDF ডাউনলোড হবে';
@@ -171,18 +171,18 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function updateCardVisuals() {
-    var cards = pageGrid.querySelectorAll('.spl-page-card');
-    for (var i = 0; i < cards.length; i++) {
+    let cards = pageGrid.querySelectorAll('.spl-page-card');
+    for (let i = 0; i < cards.length; i++) {
       cards[i].classList.toggle('spl-selected', !!selectedPages[i]);
     }
   }
 
   // Auto-re-split after selection changes (debounced to avoid rapid re-triggers)
-  var autoSplitTimer = null;
+  let autoSplitTimer = null;
   function autoSplitAfterSelectionChange() {
     if (currentMode !== MODE_ALL) return;
     if (autoSplitTimer) clearTimeout(autoSplitTimer);
-    var count = getSelectedCount();
+    const count = getSelectedCount();
     if (count === 0) {
       hideResult();
       return;
@@ -193,7 +193,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
   function togglePageSelection(index) {
     selectedPages[index] = !selectedPages[index];
-    var cards = pageGrid.querySelectorAll('.spl-page-card');
+    const cards = pageGrid.querySelectorAll('.spl-page-card');
     if (cards[index]) {
       cards[index].classList.toggle('spl-selected', !!selectedPages[index]);
     }
@@ -203,7 +203,7 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function setAllSelections(value) {
-    for (var i = 0; i < totalPages; i++) {
+    for (let i = 0; i < totalPages; i++) {
       selectedPages[i] = value;
     }
     setActiveToolbarBtn(value ? tabAll : pickNoneBtn);
@@ -213,7 +213,7 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function selectOddPages() {
-    for (var i = 0; i < totalPages; i++) {
+    for (let i = 0; i < totalPages; i++) {
       selectedPages[i] = ((i + 1) % 2 !== 0);
     }
     setActiveToolbarBtn(pickOddBtn);
@@ -223,7 +223,7 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function selectEvenPages() {
-    for (var i = 0; i < totalPages; i++) {
+    for (let i = 0; i < totalPages; i++) {
       selectedPages[i] = ((i + 1) % 2 === 0);
     }
     setActiveToolbarBtn(pickEvenBtn);
@@ -241,13 +241,13 @@ if (typeof pdfjsLib !== 'undefined') {
     hideResult();
 
     // Range panel visibility
-    panelRange.style.display = mode === MODE_RANGE ? '' : 'none';
+    panelRange.classList.toggle('display-hidden', mode !== MODE_RANGE);
 
     // Toolbar button highlight
     if (mode === MODE_ALL) {
       setActiveToolbarBtn(tabAll);
       // Select all pages when switching to Split All
-      for (var i = 0; i < totalPages; i++) selectedPages[i] = true;
+      for (let i = 0; i < totalPages; i++) selectedPages[i] = true;
       updateCardVisuals();
       updatePickCounter();
     } else {
@@ -263,27 +263,27 @@ if (typeof pdfjsLib !== 'undefined') {
   function parseRanges(str) {
     if (!str || !str.trim()) return null;
 
-    var parts = str.split(',');
-    var groups = [];
+    const parts = str.split(',');
+    let groups = [];
 
-    for (var p = 0; p < parts.length; p++) {
-      var part = parts[p].trim();
+    for (let p = 0; p < parts.length; p++) {
+      const part = parts[p].trim();
       if (!part) continue;
 
-      var rangeParts = part.split('-');
-      var group = [];
+      let rangeParts = part.split('-');
+      let group = [];
 
       if (rangeParts.length === 1) {
-        var num = parseInt(rangeParts[0], 10);
+        const num = parseInt(rangeParts[0], 10);
         if (isNaN(num) || num < 1 || num > totalPages) return null;
         group.push(num - 1);
       } else if (rangeParts.length === 2) {
-        var start = parseInt(rangeParts[0], 10);
-        var end = parseInt(rangeParts[1], 10);
+        let start = parseInt(rangeParts[0], 10);
+        let end = parseInt(rangeParts[1], 10);
         if (isNaN(start) || isNaN(end)) return null;
         if (start < 1 || end < 1 || start > totalPages || end > totalPages) return null;
-        if (start > end) { var tmp = start; start = end; end = tmp; }
-        for (var j = start; j <= end; j++) {
+        if (start > end) { const tmp = start; start = end; end = tmp; }
+        for (let j = start; j <= end; j++) {
           group.push(j - 1);
         }
       } else {
@@ -297,7 +297,7 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function validateRangeInput() {
-    var val = rangeInput.value.trim();
+    const val = rangeInput.value.trim();
     if (!val) {
       rangeHint.textContent = '';
       rangeHint.className = 'spl-range-hint';
@@ -305,7 +305,7 @@ if (typeof pdfjsLib !== 'undefined') {
       return;
     }
 
-    var groups = parseRanges(val);
+    let groups = parseRanges(val);
     if (!groups) {
       rangeHint.textContent = '⚠ অবৈধ পরিসীমা — সঠিক ফরম্যাট: 1-3, 5, 8-10 (Invalid range)';
       rangeHint.className = 'spl-range-hint spl-range-hint--error';
@@ -313,13 +313,13 @@ if (typeof pdfjsLib !== 'undefined') {
       return;
     }
 
-    var totalPagesInRanges = 0;
-    for (var i = 0; i < groups.length; i++) totalPagesInRanges += groups[i].length;
+    let totalPagesInRanges = 0;
+    for (let i = 0; i < groups.length; i++) totalPagesInRanges += groups[i].length;
 
-    var desc = groups.length + 'টি PDF তৈরি হবে: ';
-    var rangeParts = [];
-    for (var i = 0; i < groups.length; i++) {
-      var g = groups[i];
+    const desc = groups.length + 'টি PDF তৈরি হবে: ';
+    const rangeParts = [];
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
       if (g.length === 1) {
         rangeParts.push('পৃষ্ঠা ' + (g[0] + 1));
       } else {
@@ -327,7 +327,7 @@ if (typeof pdfjsLib !== 'undefined') {
       }
     }
 
-    var hint = desc + rangeParts.join(', ');
+    let hint = desc + rangeParts.join(', ');
     if (groups.length === 1 && totalPagesInRanges === 1) {
       hint += ' — সরাসরি PDF ডাউনলোড হবে';
     } else {
@@ -354,13 +354,13 @@ if (typeof pdfjsLib !== 'undefined') {
     }
 
     clearError();
-    dropzone.style.display = 'none';
+    dropzone.classList.add('display-hidden');
 
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function () {
       pdfBytes = new Uint8Array(reader.result);
 
-      var loadingTask = pdfjsLib.getDocument({ data: pdfBytes.slice() });
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes.slice() });
       loadingTask.promise.then(function (pdfDoc) {
         totalPages = pdfDoc.numPages;
 
@@ -371,11 +371,11 @@ if (typeof pdfjsLib !== 'undefined') {
 
         // Select all pages by default
         selectedPages = {};
-        for (var i = 0; i < totalPages; i++) selectedPages[i] = true;
+        for (let i = 0; i < totalPages; i++) selectedPages[i] = true;
 
         buildPageGrid(pdfDoc);
 
-        workspace.style.display = '';
+        workspace.classList.remove('display-hidden');
         switchMode(MODE_ALL);
         setActiveToolbarBtn(tabAll);
 
@@ -398,26 +398,26 @@ if (typeof pdfjsLib !== 'undefined') {
   function buildPageGrid(pdfDoc) {
     pageGrid.innerHTML = '';
 
-    var pageIdx = 0;
+    let pageIdx = 0;
 
     function renderNext() {
       if (pageIdx >= totalPages) return;
-      var i = pageIdx;
+      let i = pageIdx;
       pageIdx++;
 
-      var card = createPageCard(i);
+      let card = createPageCard(i);
       pageGrid.appendChild(card);
 
       pdfDoc.getPage(i + 1).then(function (page) {
-        var scale = 0.4;
-        var viewport = page.getViewport({ scale: scale });
-        var canvas = document.createElement('canvas');
+        const scale = 0.4;
+        const viewport = page.getViewport({ scale: scale });
+        const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        var ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
 
         page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
-          var thumbContainer = card.querySelector('.spl-page-thumb');
+          const thumbContainer = card.querySelector('.spl-page-thumb');
           thumbContainer.innerHTML = '';
           thumbContainer.appendChild(canvas);
         });
@@ -430,28 +430,28 @@ if (typeof pdfjsLib !== 'undefined') {
   }
 
   function createPageCard(index) {
-    var card = document.createElement('div');
+    const card = document.createElement('div');
     card.className = 'spl-page-card spl-selectable';
     if (selectedPages[index]) card.classList.add('spl-selected');
     card.setAttribute('data-page-index', index);
 
-    var numBadge = document.createElement('span');
+    const numBadge = document.createElement('span');
     numBadge.className = 'spl-page-num';
     numBadge.textContent = index + 1;
     card.appendChild(numBadge);
 
     // Check circle
-    var check = document.createElement('span');
+    const check = document.createElement('span');
     check.className = 'spl-page-check';
     check.textContent = '✓';
     card.appendChild(check);
 
-    var thumb = document.createElement('div');
+    const thumb = document.createElement('div');
     thumb.className = 'spl-page-thumb';
     thumb.innerHTML = '<span style="color:var(--muted);font-size:.7rem;">লোড হচ্ছে…</span>';
     card.appendChild(thumb);
 
-    var label = document.createElement('span');
+    let label = document.createElement('span');
     label.className = 'spl-page-label';
     label.textContent = 'পৃষ্ঠা ' + (index + 1);
     card.appendChild(label);
@@ -472,12 +472,12 @@ if (typeof pdfjsLib !== 'undefined') {
     if (splitting || totalPages === 0) return;
 
     // Determine what to split
-    var groups; // array of arrays of 0-indexed page indices
+    let groups; // array of arrays of 0-indexed page indices
     if (currentMode === MODE_ALL) {
-      var indices = getSelectedIndices();
+      const indices = getSelectedIndices();
       if (indices.length === 0) return;
       groups = [];
-      for (var i = 0; i < indices.length; i++) {
+      for (let i = 0; i < indices.length; i++) {
         groups.push([indices[i]]);
       }
     } else {
@@ -488,33 +488,33 @@ if (typeof pdfjsLib !== 'undefined') {
     splitting = true;
     splitBtn.disabled = true;
     splitBtn.querySelector('.spl-btn-text').textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
-    resultEl.style.display = 'none';
+    resultEl.classList.add('display-hidden');
     setProgress(0, 'স্প্লিট হচ্ছে… (Splitting…)');
 
     // Smart download: 1 result → direct PDF, otherwise → ZIP
-    var isSinglePdf = (groups.length === 1);
+    const isSinglePdf = (groups.length === 1);
 
     setTimeout(function () {
-      var PDFLib = window.PDFLib;
-      var baseName = outputName.value.trim() || 'split';
+      const PDFLib = window.PDFLib;
+      const baseName = outputName.value.trim() || 'split';
 
       PDFLib.PDFDocument.load(pdfBytes.slice(), { ignoreEncryption: true }).then(function (srcDoc) {
-        var zip = isSinglePdf ? null : new JSZip();
-        var singlePdfBytes = null;
-        var singleFileName = '';
-        var idx = 0;
+        const zip = isSinglePdf ? null : new JSZip();
+        let singlePdfBytes = null;
+        let singleFileName = '';
+        let idx = 0;
 
         function splitNext() {
           if (idx >= groups.length) {
             if (isSinglePdf) {
-              var blob = new Blob([singlePdfBytes], { type: 'application/pdf' });
+              const blob = new Blob([singlePdfBytes], { type: 'application/pdf' });
               splitResult = { type: 'pdf', blob: blob, fileName: singleFileName };
 
               setProgress(100, 'সম্পন্ন! (Done!)');
               resultPages.textContent = '১টি PDF ফাইল';
               resultSize.textContent = formatSize(blob.size);
               downloadBtn.textContent = '⬇️ PDF ডাউনলোড (Download PDF)';
-              resultEl.style.display = '';
+              resultEl.classList.remove('display-hidden');
 
               splitting = false;
               splitBtn.disabled = false;
@@ -531,7 +531,7 @@ if (typeof pdfjsLib !== 'undefined') {
               resultPages.textContent = groups.length + 'টি PDF ফাইল';
               resultSize.textContent = formatSize(zipBlob.size);
               downloadBtn.textContent = '⬇️ ZIP ডাউনলোড (Download ZIP)';
-              resultEl.style.display = '';
+              resultEl.classList.remove('display-hidden');
 
               splitting = false;
               splitBtn.disabled = false;
@@ -539,9 +539,9 @@ if (typeof pdfjsLib !== 'undefined') {
             });
           }
 
-          var group = groups[idx];
-          var pct = Math.round((idx / groups.length) * (isSinglePdf ? 95 : 85));
-          var label;
+          const group = groups[idx];
+          const pct = Math.round((idx / groups.length) * (isSinglePdf ? 95 : 85));
+          let label;
 
           if (group.length === 1) {
             label = 'পৃষ্ঠা ' + (group[0] + 1);
@@ -552,12 +552,12 @@ if (typeof pdfjsLib !== 'undefined') {
 
           return PDFLib.PDFDocument.create().then(function (newDoc) {
             return newDoc.copyPages(srcDoc, group).then(function (copiedPages) {
-              for (var c = 0; c < copiedPages.length; c++) {
+              for (let c = 0; c < copiedPages.length; c++) {
                 newDoc.addPage(copiedPages[c]);
               }
               return newDoc.save();
             }).then(function (pdfBytesOut) {
-              var fileName;
+              let fileName;
               if (group.length === 1) {
                 fileName = baseName + '-' + zeroPad(group[0] + 1, totalPages) + '.pdf';
               } else {
@@ -583,7 +583,7 @@ if (typeof pdfjsLib !== 'undefined') {
         splitting = false;
         splitBtn.disabled = false;
         splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
-        progressEl.style.display = 'none';
+        progressEl.classList.add('display-hidden');
       });
     }, 50);
   }
@@ -594,8 +594,8 @@ if (typeof pdfjsLib !== 'undefined') {
 
   function downloadSplit() {
     if (!splitResult) return;
-    var url = URL.createObjectURL(splitResult.blob);
-    var a = document.createElement('a');
+    const url = URL.createObjectURL(splitResult.blob);
+    const a = document.createElement('a');
     a.href = url;
     a.download = splitResult.fileName;
     document.body.appendChild(a);
@@ -620,11 +620,11 @@ if (typeof pdfjsLib !== 'undefined') {
     rangeHint.textContent = '';
     pickCounter.textContent = '';
     outputName.value = 'split-document';
-    workspace.style.display = 'none';
-    resultEl.style.display = 'none';
-    progressEl.style.display = 'none';
+    workspace.classList.add('display-hidden');
+    resultEl.classList.add('display-hidden');
+    progressEl.classList.add('display-hidden');
     clearError();
-    dropzone.style.display = '';
+    dropzone.classList.remove('display-hidden');
     splitBtn.disabled = false;
     splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
     fileInput.value = '';
@@ -663,7 +663,7 @@ if (typeof pdfjsLib !== 'undefined') {
   dropzone.addEventListener('drop', function (e) {
     e.preventDefault();
     dropzone.classList.remove('dragover');
-    var files = e.dataTransfer.files;
+    const files = e.dataTransfer.files;
     if (files && files[0]) loadPdf(files[0]);
   });
 

@@ -15,37 +15,37 @@
 (function () {
   'use strict';
 
-  var picker = document.getElementById('civic-status-picker');
-  var descriptionEl = document.getElementById('civic-status-description');
-  var hiddenJson = document.getElementById('civic-status-json');
+  const picker = document.getElementById('civic-status-picker');
+  const descriptionEl = document.getElementById('civic-status-description');
+  const hiddenJson = document.getElementById('civic-status-json');
 
   if (!hiddenJson || !picker) return;
 
   /* ---- Parse JSON helper ---- */
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; }
     catch (e) { return []; }
   }
 
   /* ---- Build radio cards from DB data ---- */
-  var issueStatuses = parseJsonData('issue-statuses-data');
+  const issueStatuses = parseJsonData('issue-statuses-data');
   issueStatuses.forEach(function (status) {
-    var label = document.createElement('label');
+    const label = document.createElement('label');
     label.className = 'radio-list-item';
 
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.type = 'radio';
     input.name = 'civic_status_radio';
     input.value = status.status_id;
     input.id = 'civic_status_radio-' + status.status_id;
 
-    var iconSpan = document.createElement('span');
+    const iconSpan = document.createElement('span');
     iconSpan.className = 'radio-list-icon';
     iconSpan.textContent = status.status_icon || '';
 
-    var labelSpan = document.createElement('span');
+    const labelSpan = document.createElement('span');
     labelSpan.className = 'radio-list-label';
     labelSpan.textContent = status.status_name_bn + ' (' + status.status_name_en + ')';
 
@@ -58,16 +58,16 @@
   });
 
   function serialize() {
-    var radios = document.querySelectorAll('input[name="civic_status_radio"]');
-    var selectedStatusId = 0;
-    for (var i = 0; i < radios.length; i++) {
+    let radios = document.querySelectorAll('input[name="civic_status_radio"]');
+    let selectedStatusId = 0;
+    for (let i = 0; i < radios.length; i++) {
       if (radios[i].checked) {
         selectedStatusId = parseInt(radios[i].value, 10) || 0;
         break;
       }
     }
 
-    var data = {
+    let data = {
       issueStatusId: selectedStatusId,
       description: descriptionEl ? descriptionEl.value.trim() : '',
     };
@@ -81,7 +81,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -89,12 +89,12 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (data.issueStatusId) {
-      var radios = document.querySelectorAll('input[name="civic_status_radio"]');
-      for (var i = 0; i < radios.length; i++) {
+      let radios = document.querySelectorAll('input[name="civic_status_radio"]');
+      for (let i = 0; i < radios.length; i++) {
         if (parseInt(radios[i].value, 10) === data.issueStatusId) {
           radios[i].checked = true;
           break;
@@ -108,8 +108,8 @@
   /* Public API for form-clear */
   window.newshubCivicStatus = {
     reset: function () {
-      var radios = document.querySelectorAll('input[name="civic_status_radio"]');
-      for (var i = 0; i < radios.length; i++) {
+      const radios = document.querySelectorAll('input[name="civic_status_radio"]');
+      for (let i = 0; i < radios.length; i++) {
         radios[i].checked = false;
       }
       if (descriptionEl) descriptionEl.value = '';

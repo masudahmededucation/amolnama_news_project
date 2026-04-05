@@ -126,11 +126,11 @@
   <div class="album-bg-options">
     <span class="album-label" data-en="Background">ব্যাকগ্রাউন্ড (Background)</span>
     <div class="album-bg-swatches">
-      <span class="album-swatch" data-color="#FFFFFF" style="background:#FFFFFF" title="White"></span>
-      <span class="album-swatch" data-color="#F5F5F0" style="background:#F5F5F0" title="Cream"></span>
-      <span class="album-swatch" data-color="#2C2C2C" style="background:#2C2C2C" title="Dark"></span>
-      <span class="album-swatch" data-color="#1a1a2e" style="background:#1a1a2e" title="Navy"></span>
-      <span class="album-swatch" data-color="#f0e6d3" style="background:#f0e6d3" title="Beige"></span>
+      <span class="album-swatch album-swatch--white" data-color="#FFFFFF" title="White"></span>
+      <span class="album-swatch album-swatch--cream" data-color="#F5F5F0" title="Cream"></span>
+      <span class="album-swatch album-swatch--dark" data-color="#2C2C2C" title="Dark"></span>
+      <span class="album-swatch album-swatch--navy" data-color="#1a1a2e" title="Navy"></span>
+      <span class="album-swatch album-swatch--beige" data-color="#f0e6d3" title="Beige"></span>
       <input type="color" id="album-custom-color" name="album_custom_color" class="album-custom-color" value="#FFFFFF" title="Custom color">
     </div>
   </div>
@@ -171,7 +171,7 @@
   </div>
 
   <!-- ---- Result section (hidden until created) ---- -->
-  <div class="album-result" id="album-result" style="display:none">
+  <div class="album-result display-hidden" id="album-result">
     <h3 class="album-result-title" data-en="Album Created">অ্যালবাম তৈরি হয়েছে (Album Created)</h3>
     <div class="album-result-preview" id="album-result-preview">
       <!-- canvas rendered here -->
@@ -190,6 +190,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="{% static 'tools/assets/js/pages/tools-photo-album.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
+  <script src="{% static 'tools/assets/js/pages/tools-photo-album.js' %}" defer></script>
 {% endblock %}

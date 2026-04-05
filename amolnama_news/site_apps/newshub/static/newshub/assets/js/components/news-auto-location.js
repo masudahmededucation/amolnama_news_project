@@ -41,37 +41,37 @@
  * Requires: news-location-cascade.js (must load first for cascade listeners)
  */
 (function () {
-  var contentBody = document.getElementById('news-content-body-bn');
-  var districtSelect = document.getElementById('news-district-id');
-  var upazilaSelect = document.getElementById('news-upazila-id');
-  var unionSelect = document.getElementById('news-union-parishad-id');
+  const contentBody = document.getElementById('news-content-body-bn');
+  const districtSelect = document.getElementById('news-district-id');
+  const upazilaSelect = document.getElementById('news-upazila-id');
+  const unionSelect = document.getElementById('news-union-parishad-id');
 
   if (!contentBody || !districtSelect) return;
 
   /* ---- Constants ---- */
-  var AUTO_LOC_DELAY = 20000;      /* 20s debounce while typing */
-  var INITIAL_SCAN_DELAY = 3000;   /* 3s for form-persist restore */
-  var MIN_WORD_LEN = 2;
-  var WORD_SPLIT_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]+/;
+  const AUTO_LOC_DELAY = 20000;      /* 20s debounce while typing */
+  const INITIAL_SCAN_DELAY = 3000;   /* 3s for form-persist restore */
+  const MIN_WORD_LEN = 2;
+  const WORD_SPLIT_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]+/;
 
-  var autoLocTimer = null;
+  let autoLocTimer = null;
 
   /* ---- Location data from API ---- */
-  var allDistricts = [];       /* [{ id, name_bn, name_en }] */
-  var allUpazilas = [];        /* [{ id, name_bn, name_en, district_id }] */
-  var allUnions = [];          /* [{ id, name_bn, name_en, upazila_id }] */
-  var upazilaByDistrict = {};  /* district_id → [upazila, ...] */
-  var unionByUpazila = {};     /* upazila_id → [union, ...] */
-  var upazilaIndex = {};       /* upazila_id → upazila object (for reverse lookup) */
-  var dataFetched = false;
+  let allDistricts = [];       /* [{ id, name_bn, name_en }] */
+  let allUpazilas = [];        /* [{ id, name_bn, name_en, district_id }] */
+  let allUnions = [];          /* [{ id, name_bn, name_en, upazila_id }] */
+  const upazilaByDistrict = {};  /* district_id → [upazila, ...] */
+  const unionByUpazila = {};     /* upazila_id → [union, ...] */
+  const upazilaIndex = {};       /* upazila_id → upazila object (for reverse lookup) */
+  let dataFetched = false;
 
   /* ---- Manual override: single flag for the entire location section ----
    * Once the user physically touches ANY location select, auto-detect stops
    * entirely. mousedown/keydown fire only on real user interaction (not on
    * programmatic dispatchEvent), so form-persist restore and cascade resets
    * do not trigger the override. */
-  var userOverride = false;
-  var pendingInteraction = false;
+  let userOverride = false;
+  let pendingInteraction = false;
 
   function trackManualOverride(selectEl) {
     if (!selectEl) return;
@@ -101,7 +101,7 @@
     if (dataFetched) { callback(); return; }
 
     fetch('/newshub/api/locations/all/')
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (data) {
         allDistricts = data.districts || [];
         allUpazilas = data.upazilas || [];
@@ -132,17 +132,17 @@
   /* ---- Fallback: build district data from <option> elements ---- */
   function buildDistrictDataFromDOM() {
     if (allDistricts.length > 0) return;
-    var options = districtSelect.options;
-    for (var i = 0; i < options.length; i++) {
-      var opt = options[i];
+    const options = districtSelect.options;
+    for (let i = 0; i < options.length; i++) {
+      const opt = options[i];
       if (!opt.value) continue;
-      var text = opt.textContent.trim();
-      var name_bn = text;
-      var name_en = '';
-      var parenIdx = text.indexOf('(');
+      let text = opt.textContent.trim();
+      let name_bn = text;
+      let name_en = '';
+      const parenIdx = text.indexOf('(');
       if (parenIdx !== -1) {
         name_bn = text.substring(0, parenIdx).trim();
-        var closeIdx = text.lastIndexOf(')');
+        const closeIdx = text.lastIndexOf(')');
         if (closeIdx > parenIdx) name_en = text.substring(parenIdx + 1, closeIdx).trim();
       }
       allDistricts.push({ id: parseInt(opt.value, 10), name_bn: name_bn, name_en: name_en });
@@ -165,7 +165,7 @@
    *   -কে  (accusative)           -য়   (locative)
    *   -র   (possessive vowel)     -ে    (locative)
    */
-  var BN_SUFFIXES = [
+  const BN_SUFFIXES = [
     '\u09A4\u09C7\u0987',     /* তেই */
     '\u09A4\u09C7\u0993',     /* তেও */
     '\u09AF\u09BC\u09C7',     /* য়ে  */
@@ -179,8 +179,8 @@
   ];
 
   function stripBnSuffix(word) {
-    for (var i = 0; i < BN_SUFFIXES.length; i++) {
-      var sfx = BN_SUFFIXES[i];
+    for (let i = 0; i < BN_SUFFIXES.length; i++) {
+      const sfx = BN_SUFFIXES[i];
       /* Remaining word after stripping must be >= MIN_WORD_LEN */
       if (word.length >= sfx.length + MIN_WORD_LEN
           && word.substring(word.length - sfx.length) === sfx) {
@@ -197,14 +197,14 @@
    * ALL name words must match. */
   function matchBn(locationName, contentWords) {
     if (!locationName || locationName.length < MIN_WORD_LEN) return false;
-    var nameWords = locationName.split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
+    let nameWords = locationName.split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
     if (nameWords.length === 0) return false;
 
-    for (var i = 0; i < nameWords.length; i++) {
-      var nw = nameWords[i];
-      var found = false;
-      for (var j = 0; j < contentWords.length; j++) {
-        var cw = contentWords[j];
+    for (let i = 0; i < nameWords.length; i++) {
+      let nw = nameWords[i];
+      let found = false;
+      for (let j = 0; j < contentWords.length; j++) {
+        const cw = contentWords[j];
         /* Exact match */
         if (cw === nw) { found = true; break; }
         /* Suffix-stripped match */
@@ -218,13 +218,13 @@
   /* ---- Word-start matching (English, case-insensitive) ---- */
   function matchEn(locationName, contentWordsLower) {
     if (!locationName || locationName.length < MIN_WORD_LEN) return false;
-    var nameWords = locationName.toLowerCase().split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
+    const nameWords = locationName.toLowerCase().split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
     if (nameWords.length === 0) return false;
 
-    for (var i = 0; i < nameWords.length; i++) {
-      var nw = nameWords[i];
-      var found = false;
-      for (var j = 0; j < contentWordsLower.length; j++) {
+    for (let i = 0; i < nameWords.length; i++) {
+      const nw = nameWords[i];
+      let found = false;
+      for (let j = 0; j < contentWordsLower.length; j++) {
         if (contentWordsLower[j].indexOf(nw) === 0) { /* startsWith */
           found = true;
           break;
@@ -239,7 +239,7 @@
    * Prevents false positives like "দুল্লা" matching inside "আব্দুল্লাহ".
    * A match is valid only if it starts at position 0 or is preceded by
    * whitespace / punctuation (i.e., a real word boundary). */
-  var BOUNDARY_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]/;
+  const BOUNDARY_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]/;
 
   function isWordBoundary(text, pos) {
     return pos === 0 || BOUNDARY_RE.test(text.charAt(pos - 1));
@@ -248,9 +248,9 @@
   /* ---- Exact substring match against raw (unsplit) text ---- */
   function matchExactBn(name, rawText) {
     if (!name || name.length < MIN_WORD_LEN) return false;
-    var pos = 0;
+    let pos = 0;
     while (true) {
-      var idx = rawText.indexOf(name, pos);
+      let idx = rawText.indexOf(name, pos);
       if (idx === -1) return false;
       if (isWordBoundary(rawText, idx)) return true;
       pos = idx + 1;
@@ -259,10 +259,10 @@
 
   function matchExactEn(name, rawTextLower) {
     if (!name || name.length < MIN_WORD_LEN) return false;
-    var nameLower = name.toLowerCase();
-    var pos = 0;
+    const nameLower = name.toLowerCase();
+    let pos = 0;
     while (true) {
-      var idx = rawTextLower.indexOf(nameLower, pos);
+      const idx = rawTextLower.indexOf(nameLower, pos);
       if (idx === -1) return false;
       if (isWordBoundary(rawTextLower, idx)) return true;
       pos = idx + 1;
@@ -271,7 +271,7 @@
 
   /* ---- Two-pass find: exact substring first, then fuzzy word-start ---- */
   function findMatch(items, rawText, rawTextLower, contentWords, contentWordsLower) {
-    var i;
+    let i;
     /* Pass 1: exact substring in raw text */
     for (i = 0; i < items.length; i++) {
       if (matchExactBn(items[i].name_bn, rawText)) return items[i];
@@ -287,8 +287,8 @@
 
   /* ---- Poll until a select has options loaded (max 5s) ---- */
   function waitForOptions(selectEl, callback) {
-    var attempts = 0;
-    var interval = setInterval(function () {
+    let attempts = 0;
+    const interval = setInterval(function () {
       attempts++;
       if (selectEl.options.length > 1 || attempts > 50) { /* 50 × 100ms = 5s */
         clearInterval(interval);
@@ -305,7 +305,7 @@
   }
 
   /* ---- Track what was auto-filled so we can reset when content is cleared ---- */
-  var autoFilledDistrict = false;
+  let autoFilledDistrict = false;
 
   function resetAutoLocation() {
     if (!autoFilledDistrict) return;
@@ -318,7 +318,7 @@
   function scanAndAutoLocate() {
     if (userOverride) return;
 
-    var text = contentBody.value;
+    const text = contentBody.value;
 
     /* If content is emptied, reset auto-filled locations */
     if (!text || text.trim().length < 5) {
@@ -326,32 +326,32 @@
       return;
     }
 
-    var rawText = text;
-    var rawTextLower = text.toLowerCase();
+    const rawText = text;
+    const rawTextLower = text.toLowerCase();
 
     fetchAllLocations(function () {
       if (userOverride) return; /* re-check after async fetch */
 
-      var contentWords = splitWords(rawText);
-      var contentWordsLower = splitWords(rawTextLower);
+      const contentWords = splitWords(rawText);
+      const contentWordsLower = splitWords(rawTextLower);
 
       /* --- Determine district, upazila, union from content --- */
-      var detectedDistrictId = null;
-      var detectedUpazilaId = null;
-      var detectedUnionId = null;
+      let detectedDistrictId = null;
+      let detectedUpazilaId = null;
+      let detectedUnionId = null;
 
       /* Try matching a union parishad (most specific → infer upazila → district) */
-      var matchedUnion = findMatch(allUnions, rawText, rawTextLower, contentWords, contentWordsLower);
+      const matchedUnion = findMatch(allUnions, rawText, rawTextLower, contentWords, contentWordsLower);
       if (matchedUnion) {
         detectedUnionId = matchedUnion.id;
         detectedUpazilaId = matchedUnion.upazila_id;
-        var parentUpazila = upazilaIndex[matchedUnion.upazila_id];
+        const parentUpazila = upazilaIndex[matchedUnion.upazila_id];
         if (parentUpazila) detectedDistrictId = parentUpazila.district_id;
       }
 
       /* Try matching an upazila (infer district) */
       if (!detectedUpazilaId) {
-        var matchedUpazila = findMatch(allUpazilas, rawText, rawTextLower, contentWords, contentWordsLower);
+        const matchedUpazila = findMatch(allUpazilas, rawText, rawTextLower, contentWords, contentWordsLower);
         if (matchedUpazila) {
           detectedUpazilaId = matchedUpazila.id;
           detectedDistrictId = matchedUpazila.district_id;
@@ -360,21 +360,21 @@
 
       /* Try matching a district directly */
       if (!detectedDistrictId) {
-        var matchedDistrict = findMatch(allDistricts, rawText, rawTextLower, contentWords, contentWordsLower);
+        const matchedDistrict = findMatch(allDistricts, rawText, rawTextLower, contentWords, contentWordsLower);
         if (matchedDistrict) detectedDistrictId = matchedDistrict.id;
       }
 
       /* Also check: if district matched, try to find upazila within that district */
       if (detectedDistrictId && !detectedUpazilaId) {
-        var districtUpazilas = upazilaByDistrict[detectedDistrictId] || [];
-        var matchedInDistrict = findMatch(districtUpazilas, rawText, rawTextLower, contentWords, contentWordsLower);
+        const districtUpazilas = upazilaByDistrict[detectedDistrictId] || [];
+        const matchedInDistrict = findMatch(districtUpazilas, rawText, rawTextLower, contentWords, contentWordsLower);
         if (matchedInDistrict) detectedUpazilaId = matchedInDistrict.id;
       }
 
       /* Also check: if upazila matched, try to find union within that upazila */
       if (detectedUpazilaId && !detectedUnionId) {
-        var upazilaUnions = unionByUpazila[detectedUpazilaId] || [];
-        var matchedInUpazila = findMatch(upazilaUnions, rawText, rawTextLower, contentWords, contentWordsLower);
+        const upazilaUnions = unionByUpazila[detectedUpazilaId] || [];
+        const matchedInUpazila = findMatch(upazilaUnions, rawText, rawTextLower, contentWords, contentWordsLower);
         if (matchedInUpazila) detectedUnionId = matchedInUpazila.id;
       }
 

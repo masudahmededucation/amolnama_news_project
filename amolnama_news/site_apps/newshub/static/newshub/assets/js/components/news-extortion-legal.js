@@ -25,20 +25,20 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('ext-legal');
+  const hiddenJson = document.getElementById('ext-legal');
   if (!hiddenJson) return;
 
   /* ========== DOM references ========== */
 
-  var lawContainer         = document.getElementById('ext-applicable-law-checkboxes');
-  var caseStatus           = document.getElementById('ext-case-status');
-  var supportContainer     = document.getElementById('ext-support-service-checkboxes');
-  var retaliationContainer = document.getElementById('ext-retaliation-checkboxes');
-  var remarks              = document.getElementById('ext-remarks');
+  const lawContainer         = document.getElementById('ext-applicable-law-checkboxes');
+  const caseStatus           = document.getElementById('ext-case-status');
+  const supportContainer     = document.getElementById('ext-support-service-checkboxes');
+  const retaliationContainer = document.getElementById('ext-retaliation-checkboxes');
+  const remarks              = document.getElementById('ext-remarks');
 
   /* ========== Init shared GD/FIR module ========== */
 
-  var firApi = null;
+  let firApi = null;
   if (window.newshubLawGdFir) {
     firApi = window.newshubLawGdFir.initLawGdFirSection({
       prefix: 'legal',
@@ -49,25 +49,25 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var lawData         = parseJsonData('ext-applicable-law-data');
-  var caseStatusData  = parseJsonData('ext-case-status-data');
-  var supportData     = parseJsonData('ext-support-service-data');
-  var retaliationData = parseJsonData('ext-retaliation-data');
+  const lawData         = parseJsonData('ext-applicable-law-data');
+  const caseStatusData  = parseJsonData('ext-case-status-data');
+  const supportData     = parseJsonData('ext-support-service-data');
+  const retaliationData = parseJsonData('ext-retaliation-data');
 
   /* ========== Populate helpers ========== */
 
   function populateCheckboxes(container, checkboxName, items) {
     if (!container || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      const label = document.createElement('label');
       label.className = 'checkbox-inline';
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'checkbox';
       input.name = checkboxName;
       input.value = s.status_id;
@@ -83,9 +83,9 @@
 
   function populateSelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      const s = items[i];
+      const opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -106,8 +106,8 @@
   /* ========== Helpers ========== */
 
   function getCheckedIds(checkboxes) {
-    var ids = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const ids = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) ids.push(parseInt(checkboxes[i].value, 10));
     }
     return ids;
@@ -116,7 +116,7 @@
   /* ========== Serialize ========== */
 
   function serialize() {
-    var data = {
+    const data = {
       firStatusId:            firApi ? firApi.getFirStatusId()            : 0,
       policeStation:          firApi ? firApi.getPoliceStation()          : '',
       caseNumber:             firApi ? firApi.getCaseNumber()             : '',
@@ -136,7 +136,7 @@
   if (caseStatus) caseStatus.addEventListener('change', serialize);
   if (remarks)    remarks.addEventListener('input', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* Initial state — only serialize if hidden input is empty (skip if persist restored a value) */
@@ -144,12 +144,12 @@
 
   /* ========== Step validator ========== */
 
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!firApi || !firApi.getFirStatusId()) {
         warnings.push('এফআইআর/জিডি অবস্থা নির্বাচন করুন (Please select FIR/GD status)');
       }
@@ -162,14 +162,14 @@
 
   /* ========== Restore from saved hidden input (for form-persist) ========== */
   function restoreFromSavedData() {
-    var raw = hiddenJson.value;
+    const raw = hiddenJson.value;
     if (!raw) return;
-    var saved;
+    let saved;
     try { saved = JSON.parse(raw); } catch (e) { return; }
 
     /* FIR status radio */
     if (saved.firStatusId) {
-      var firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
+      const firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
       if (firRadio) {
         firRadio.checked = true;
         firRadio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -179,7 +179,7 @@
     /* Applicable law checkboxes */
     if (saved.applicableLawIds && saved.applicableLawIds.length) {
       saved.applicableLawIds.forEach(function (id) {
-        var cb = lawContainer && lawContainer.querySelector('input[value="' + id + '"]');
+        let cb = lawContainer && lawContainer.querySelector('input[value="' + id + '"]');
         if (cb) cb.checked = true;
       });
     }
@@ -190,7 +190,7 @@
     /* Support service checkboxes */
     if (saved.supportServiceIds && saved.supportServiceIds.length) {
       saved.supportServiceIds.forEach(function (id) {
-        var cb = supportContainer && supportContainer.querySelector('input[value="' + id + '"]');
+        let cb = supportContainer && supportContainer.querySelector('input[value="' + id + '"]');
         if (cb) cb.checked = true;
       });
     }
@@ -198,7 +198,7 @@
     /* Retaliation checkboxes */
     if (saved.retaliationIds && saved.retaliationIds.length) {
       saved.retaliationIds.forEach(function (id) {
-        var cb = retaliationContainer && retaliationContainer.querySelector('input[value="' + id + '"]');
+        const cb = retaliationContainer && retaliationContainer.querySelector('input[value="' + id + '"]');
         if (cb) cb.checked = true;
       });
     }
@@ -213,10 +213,10 @@
 
   window.newshubExtortionLegal = {
     reset: function () {
-      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
-      for (var i = 0; i < lc.length; i++) lc[i].checked = false;
-      for (var j = 0; j < sc.length; j++) sc[j].checked = false;
-      for (var k = 0; k < rc.length; k++) rc[k].checked = false;
+      const lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (let i = 0; i < lc.length; i++) lc[i].checked = false;
+      for (let j = 0; j < sc.length; j++) sc[j].checked = false;
+      for (let k = 0; k < rc.length; k++) rc[k].checked = false;
       if (caseStatus) caseStatus.selectedIndex = 0;
       if (remarks)    remarks.value = '';
       if (firApi) firApi.resetFir();

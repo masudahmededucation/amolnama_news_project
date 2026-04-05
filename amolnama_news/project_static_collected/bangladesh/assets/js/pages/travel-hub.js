@@ -17,7 +17,7 @@
   // Filter pills
   if (filterPillsContainer) {
     filterPillsContainer.addEventListener("click", (e) => {
-      const pill = e.target.closest(".travel-hub-filter-pill");
+      let pill = e.target.closest(".travel-hub-filter-pill");
       if (!pill) return;
       filterPillsContainer.querySelectorAll(".travel-hub-filter-pill").forEach((p) => p.classList.remove("travel-hub-filter-pill--active"));
       pill.classList.add("travel-hub-filter-pill--active");
@@ -58,6 +58,7 @@
 
     try {
       const response = await fetch(`/bangladesh-tourist-destinations/api/destinations/?${params}`);
+      if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
 
       if (replaceExisting) destinationGrid.innerHTML = "";
@@ -71,28 +72,28 @@
         card.href = destination.slug ? `/bangladesh-tourist-destinations/travel/${destination.slug}/` : `/bangladesh-tourist-destinations/travel/id/${destination.id}/`;
         card.className = "travel-hub-destination-card";
         const imageHtml = destination.cover_image
-          ? `<div class="travel-hub-destination-card-img" style="background-image:url('${destination.cover_image}');"></div>`
+          ? `<div class="travel-hub-destination-card-img" style="background-image:url('${escapeHtml(destination.cover_image)}');"></div>`
           : `<div class="travel-hub-destination-card-img travel-hub-destination-card-img--placeholder"><span>📍</span></div>`;
         card.innerHTML = `
           ${imageHtml}
           <div class="travel-hub-destination-card-body">
             <div class="travel-hub-destination-card-meta">
-              <span class="travel-hub-destination-card-category">${destination.category_name_bn}</span>
+              <span class="travel-hub-destination-card-category">${escapeHtml(destination.category_name_bn)}</span>
               ${destination.is_featured ? '<span class="travel-hub-destination-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>' : ""}
             </div>
-            <h3 class="travel-hub-destination-card-title">${destination.name_bn}</h3>
-            <p class="travel-hub-destination-card-desc">${destination.short_desc_bn || destination.short_desc_en || ""}</p>
+            <h3 class="travel-hub-destination-card-title">${escapeHtml(destination.name_bn)}</h3>
+            <p class="travel-hub-destination-card-desc">${escapeHtml(destination.short_desc_bn || destination.short_desc_en || "")}</p>
             <div class="travel-hub-destination-card-footer">
-              ${destination.avg_rating ? `<span class="travel-hub-destination-card-rating">★ ${destination.avg_rating}</span>` : ""}
-              <span class="travel-hub-destination-card-views">👁 ${destination.view_count}</span>
-              <span class="travel-hub-destination-card-time">${destination.time_ago}</span>
+              ${destination.avg_rating ? `<span class="travel-hub-destination-card-rating">★ ${escapeHtml(String(destination.avg_rating))}</span>` : ""}
+              <span class="travel-hub-destination-card-views">👁 ${escapeHtml(String(destination.view_count))}</span>
+              <span class="travel-hub-destination-card-time">${escapeHtml(destination.time_ago)}</span>
             </div>
           </div>`;
         destinationGrid.appendChild(card);
       });
 
       const loadMoreWrapper = document.getElementById("travel-hub-load-more");
-      if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
+      if (loadMoreWrapper) loadMoreWrapper.classList.toggle("display-hidden", !data.has_next);
     } catch (error) {
     } finally {
       isLoading = false;

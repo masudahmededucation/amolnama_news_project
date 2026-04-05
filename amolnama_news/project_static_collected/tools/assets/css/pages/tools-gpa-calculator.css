@@ -44,7 +44,7 @@
 .gpa-section {
   background: var(--card);
   border: 1px solid var(--border);
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid var(--info);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
@@ -59,6 +59,8 @@
   border-bottom: 1px solid var(--border);
 }
 
+.gpa-section--optional { margin-top: 1rem; }
+
 /* Hint text */
 .gpa-hint {
   display: block;
@@ -67,6 +69,8 @@
   margin-top: .35rem;
   line-height: 1.4;
 }
+
+.gpa-hint--spaced { margin-bottom: 1rem; }
 
 /* Grade reference table (collapsible) */
 .gpa-grade-ref {
@@ -129,7 +133,7 @@
 }
 
 .gpa-ssc-select:focus {
-  border-color: #6366f1;
+  border-color: var(--info);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .1);
 }
 
@@ -174,7 +178,7 @@
 
 .gpa-uni-row input:focus,
 .gpa-uni-row select:focus {
-  border-color: #6366f1;
+  border-color: var(--info);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .1);
 }
 
@@ -207,9 +211,9 @@
   padding: .4rem .75rem;
   font-size: .78rem;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--info);
   background: transparent;
-  border: 1px dashed #6366f1;
+  border: 1px dashed var(--info);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background .15s;
@@ -249,7 +253,7 @@
 }
 
 .gpa-target-field input:focus {
-  border-color: #6366f1;
+  border-color: var(--info);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .1);
 }
 
@@ -284,38 +288,38 @@
 }
 
 .gpa-result-badge--success {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .gpa-result-badge--golden {
   background: var(--warning-light);
-  color: #d97706;
+  color: var(--warning);
 }
 
 .gpa-result-badge--fail {
   background: var(--danger-light);
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .gpa-result-badge--warning {
   background: #fffbeb;
-  color: #d97706;
+  color: var(--warning);
 }
 
 .gpa-result-badge--impossible {
   background: var(--danger-light);
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .gpa-result-badge--easy {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--success-light);
+  color: var(--success);
 }
 
 .gpa-result-badge--challenging {
   background: #fffbeb;
-  color: #d97706;
+  color: var(--warning);
 }
 
 .gpa-result-value {
@@ -327,11 +331,11 @@
 }
 
 .gpa-result-value--fail {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .gpa-result-value--golden {
-  color: #d97706;
+  color: var(--warning);
 }
 
 .gpa-result-detail,
@@ -356,9 +360,9 @@
   transition: width .4s ease, background .3s;
 }
 
-.gpa-progress-fill--easy { background: #059669; }
-.gpa-progress-fill--moderate { background: #d97706; }
-.gpa-progress-fill--hard { background: #dc2626; }
+.gpa-progress-fill--easy { background: var(--success); }
+.gpa-progress-fill--moderate { background: var(--warning); }
+.gpa-progress-fill--hard { background: var(--danger); }
 .gpa-progress-fill--impossible { background: #9ca3af; }
 
 /* Responsive */

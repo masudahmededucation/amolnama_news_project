@@ -17,17 +17,17 @@
 (function () {
   'use strict';
 
-  var views = document.getElementById('entertainment-views');
-  var ratingSource = document.getElementById('entertainment-rating-source');
-  var ratingScore = document.getElementById('entertainment-rating-score');
-  var revenue = document.getElementById('entertainment-revenue');
-  var openingWeekend = document.getElementById('entertainment-opening-weekend');
-  var hiddenJson = document.getElementById('entertainment-metrics-json');
+  const views = document.getElementById('entertainment-views');
+  const ratingSource = document.getElementById('entertainment-rating-source');
+  const ratingScore = document.getElementById('entertainment-rating-score');
+  const revenue = document.getElementById('entertainment-revenue');
+  const openingWeekend = document.getElementById('entertainment-opening-weekend');
+  const hiddenJson = document.getElementById('entertainment-metrics-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       views: views ? views.value.trim() : '',
       ratingSource: ratingSource ? ratingSource.value : '',
       ratingScore: ratingScore ? ratingScore.value.trim() : '',
@@ -42,13 +42,13 @@
   if (ratingSource) ratingSource.addEventListener('change', serialize);
 
   /* Listen for input on text fields */
-  var inputFields = [views, ratingScore, revenue, openingWeekend];
+  const inputFields = [views, ratingScore, revenue, openingWeekend];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -56,7 +56,7 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (views && data.views)                     views.value        = data.views;

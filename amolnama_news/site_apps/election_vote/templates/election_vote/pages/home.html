@@ -18,7 +18,7 @@
   <h2 class="ev-section-title">Cast Your Vote</h2>
 
   <!-- Inline message area (replaces popup alerts) -->
-  <div id="page-message" class="page-message" style="display: none;"></div>
+  <div id="page-message" class="page-message display-hidden"></div>
 
   {% include "election_vote/components/election-selection.html" %}
   {% include "election_vote/components/breadcrumb-navigation.html" %}
@@ -49,10 +49,10 @@
 
 {% block extra_js %}
 <script>var isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
-<script src="{% static 'election_vote/assets/js/pages/home.js' %}"></script>
-<script src="{% static 'election_vote/assets/js/voting/voting-navigation.js' %}"></script>
-<script src="{% static 'election_vote/assets/js/voting/voting-selection.js' %}"></script>
-<script src="{% static 'election_vote/assets/js/voting/voting-receipt.js' %}"></script>
-<script src="{% static 'election_vote/assets/js/voting/voting-submission.js' %}"></script>
-<script src="{% static 'election_vote/assets/js/voting/voting-receipt-download.js' %}"></script>
+<script src="{% static 'election_vote/assets/js/pages/home.js' %}" defer></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-navigation.js' %}" defer></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-selection.js' %}" defer></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-receipt.js' %}" defer></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-submission.js' %}" defer></script>
+<script src="{% static 'election_vote/assets/js/voting/voting-receipt-download.js' %}" defer></script>
 {% endblock %}

@@ -4,12 +4,12 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "poem_draft";
-  var badge = document.getElementById("poemDraftBadge");
-  var form = document.getElementById("poemCreateForm");
+  const STORAGE_KEY = "poem_draft";
+  let badge = document.getElementById("poemDraftBadge");
+  const form = document.getElementById("poemCreateForm");
   if (!form) return;
 
-  var fieldIds = [
+  const fieldIds = [
     "poem-author-name",
     "poem-category",
     "poem-title-bn", "poem-title-en",
@@ -21,15 +21,15 @@
     "poem-audio-description",
   ];
 
-  var saveTimer = null;
+  let saveTimer = null;
 
   /* ── Restore draft on load ── */
   try {
-    var saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      var data = JSON.parse(saved);
+      let data = JSON.parse(saved);
       fieldIds.forEach(function (id) {
-        var el = document.getElementById(id);
+        let el = document.getElementById(id);
         if (el && data[id] !== undefined && data[id] !== null) {
           el.value = data[id];
           // Trigger input event for preview + counters
@@ -42,7 +42,7 @@
 
   /* ── Auto-save on input ── */
   fieldIds.forEach(function (id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (!el) return;
     el.addEventListener("input", scheduleSave);
     el.addEventListener("change", scheduleSave);
@@ -54,9 +54,9 @@
   }
 
   function saveDraft() {
-    var data = {};
+    const data = {};
     fieldIds.forEach(function (id) {
-      var el = document.getElementById(id);
+      const el = document.getElementById(id);
       if (el) data[id] = el.value;
     });
     try {

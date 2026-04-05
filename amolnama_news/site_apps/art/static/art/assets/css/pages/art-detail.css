@@ -197,7 +197,7 @@
 }
 
 .art-detail-youtube-play {
-  color: #dc2626;
+  color: var(--danger);
   font-size: 1.1rem;
 }
 
@@ -237,14 +237,14 @@
 
 .art-detail-like-button-active {
   background: var(--danger-light);
-  border-color: #fca5a5;
-  color: #dc2626;
+  border-color: var(--danger-border);
+  color: var(--danger);
 }
 
 .art-detail-bookmark-button-active {
   background: var(--warning-light);
   border-color: #fcd34d;
-  color: #d97706;
+  color: var(--warning);
 }
 
 .art-detail-action-count {

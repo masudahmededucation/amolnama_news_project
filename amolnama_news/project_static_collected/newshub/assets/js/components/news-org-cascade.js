@@ -5,19 +5,19 @@
  *    Selecting a suggestion sets the dropdown value.
  */
 (function () {
-  var typeSelect = document.getElementById('contributor-org-type');
-  var orgSelect = document.getElementById('contributor-organization');
-  var customInput = document.getElementById('contributor-org-custom');
+  const typeSelect = document.getElementById('contributor-org-type');
+  const orgSelect = document.getElementById('contributor-organization');
+  const customInput = document.getElementById('contributor-org-custom');
 
   if (!typeSelect || !orgSelect) return;
 
-  var contribTypeSelect = document.getElementById('contributor-type');
+  const contribTypeSelect = document.getElementById('contributor-type');
 
   /* ===== Contributor type → org type default ===== */
 
   function setOrgTypeDefault(contribTypeId) {
-    var id = parseInt(contribTypeId, 10);
-    var orgTypeId = (id === 1) ? '22' : '17';
+    const id = parseInt(contribTypeId, 10);
+    const orgTypeId = (id === 1) ? '22' : '17';
     if (typeSelect.value !== orgTypeId) {
       typeSelect.value = orgTypeId;
       loadOrgs(orgTypeId);
@@ -44,12 +44,12 @@
     }
 
     fetch('/newshub/api/organisations/' + typeId + '/')
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (data) {
-        var opts = '<option value="">-- প্রতিষ্ঠানের নাম (ঐচ্ছিক) --</option>';
+        let opts = '<option value="">-- প্রতিষ্ঠানের নাম (ঐচ্ছিক) --</option>';
         if (data.organisations && data.organisations.length > 0) {
           data.organisations.forEach(function (o) {
-            var label = o.name_bn || o.name_en;
+            let label = o.name_bn || o.name_en;
             if (o.name_en && o.name_bn) label = o.name_bn + ' (' + o.name_en + ')';
             opts += '<option value="' + o.id + '">' + label + '</option>';
           });
@@ -87,21 +87,21 @@
   if (!customInput) return;
 
   /* Build suggestions container */
-  var wrapper = customInput.parentElement;
+  const wrapper = customInput.parentElement;
   wrapper.style.position = 'relative';
 
-  var suggestBox = document.createElement('ul');
+  const suggestBox = document.createElement('ul');
   suggestBox.className = 'org-autocomplete';
   suggestBox.style.display = 'none';
   wrapper.appendChild(suggestBox);
 
-  var debounceTimer = null;
+  let debounceTimer = null;
 
   customInput.addEventListener('input', function () {
     /* Reset dropdown when typing */
     orgSelect.value = '';
 
-    var q = customInput.value.trim();
+    let q = customInput.value.trim();
     if (q.length < 2) {
       hideSuggestions();
       return;
@@ -112,12 +112,12 @@
   });
 
   function searchOrgs(q) {
-    var url = '/newshub/api/organisations/search/?q=' + encodeURIComponent(q);
-    var typeId = typeSelect.value;
+    let url = '/newshub/api/organisations/search/?q=' + encodeURIComponent(q);
+    const typeId = typeSelect.value;
     if (typeId) url += '&type_id=' + typeId;
 
     fetch(url)
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (data) {
         if (!data.organisations || data.organisations.length === 0) {
           hideSuggestions();
@@ -131,10 +131,10 @@
   function renderSuggestions(orgs) {
     suggestBox.innerHTML = '';
     orgs.forEach(function (o) {
-      var li = document.createElement('li');
+      const li = document.createElement('li');
       li.className = 'org-autocomplete-item';
 
-      var label = o.name_bn || o.name_en;
+      let label = o.name_bn || o.name_en;
       if (o.name_en && o.name_bn) label = o.name_bn + ' (' + o.name_en + ')';
       li.textContent = label;
 
@@ -150,8 +150,8 @@
 
   function selectSuggestion(o) {
     /* Try to select in the existing dropdown */
-    var found = false;
-    for (var i = 0; i < orgSelect.options.length; i++) {
+    let found = false;
+    for (let i = 0; i < orgSelect.options.length; i++) {
       if (orgSelect.options[i].value === String(o.id)) {
         orgSelect.value = String(o.id);
         found = true;
@@ -161,9 +161,9 @@
 
     /* If not in current list, add a temporary option */
     if (!found) {
-      var label = o.name_bn || o.name_en;
+      let label = o.name_bn || o.name_en;
       if (o.name_en && o.name_bn) label = o.name_bn + ' (' + o.name_en + ')';
-      var opt = document.createElement('option');
+      const opt = document.createElement('option');
       opt.value = o.id;
       opt.textContent = label;
       orgSelect.appendChild(opt);

@@ -17,7 +17,7 @@
  *   {prefix}-no-fir-reason            — textarea
  *
  * Usage:
- *   var firApi = window.newshubLawGdFir.initLawGdFirSection({
+ *   const firApi = window.newshubLawGdFir.initLawGdFirSection({
  *     prefix: 'legal',
  *     onChange: function () { serialize(); }
  *   });
@@ -35,7 +35,7 @@
   'use strict';
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
@@ -51,35 +51,35 @@
   function initLawGdFirSection(config) {
     if (!config || !config.prefix) return null;
 
-    var prefix = config.prefix;
-    var onChangeFn = typeof config.onChange === 'function' ? config.onChange : function () {};
+    const prefix = config.prefix;
+    const onChangeFn = typeof config.onChange === 'function' ? config.onChange : function () {};
 
     /* ---- DOM references ---- */
 
-    var radiosContainer     = document.getElementById(prefix + '-fir-status-radios');
-    var statusDataId        = prefix + '-fir-status-data';
-    var detailsRow          = document.getElementById(prefix + '-fir-details-row');
-    var policeStation       = document.getElementById(prefix + '-police-station');
-    var caseNumber          = document.getElementById(prefix + '-case-number');
-    var policeRefusedRow    = document.getElementById(prefix + '-police-refused-row');
-    var policeRefusalStmt   = document.getElementById(prefix + '-police-refusal-statement');
-    var noFirRow            = document.getElementById(prefix + '-no-fir-row');
-    var noFirReason         = document.getElementById(prefix + '-no-fir-reason');
+    const radiosContainer     = document.getElementById(prefix + '-fir-status-radios');
+    const statusDataId        = prefix + '-fir-status-data';
+    const detailsRow          = document.getElementById(prefix + '-fir-details-row');
+    const policeStation       = document.getElementById(prefix + '-police-station');
+    const caseNumber          = document.getElementById(prefix + '-case-number');
+    const policeRefusedRow    = document.getElementById(prefix + '-police-refused-row');
+    const policeRefusalStmt   = document.getElementById(prefix + '-police-refusal-statement');
+    const noFirRow            = document.getElementById(prefix + '-no-fir-row');
+    const noFirReason         = document.getElementById(prefix + '-no-fir-reason');
 
     if (!radiosContainer) return null;
 
     /* ---- Parse FIR status data ---- */
 
-    var firStatusData = parseJsonData(statusDataId);
-    var radioName = prefix + '_fir_status';
+    const firStatusData = parseJsonData(statusDataId);
+    const radioName = prefix + '_fir_status';
 
     /* ---- Build radio group ---- */
 
-    for (var i = 0; i < firStatusData.length; i++) {
-      var s = firStatusData[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < firStatusData.length; i++) {
+      const s = firStatusData[i];
+      const label = document.createElement('label');
       label.className = 'radio-inline';
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'radio';
       input.id = radioName + '-' + s.status_id;
       input.name = radioName;
@@ -96,25 +96,25 @@
     /* ---- Internal helpers ---- */
 
     function getSelectedFirRadio() {
-      var radios = document.querySelectorAll('input[name="' + radioName + '"]');
-      for (var j = 0; j < radios.length; j++) {
+      let radios = document.querySelectorAll('input[name="' + radioName + '"]');
+      for (let j = 0; j < radios.length; j++) {
         if (radios[j].checked) return radios[j];
       }
       return null;
     }
 
-    function isFirYes()           { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'yes'            : false; }
-    function isFirPoliceRefused() { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'police_refused' : false; }
-    function isFirNo()            { var r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'no'             : false; }
+    function isFirYes()           { let r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'yes'            : false; }
+    function isFirPoliceRefused() { let r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'police_refused' : false; }
+    function isFirNo()            { let r = getSelectedFirRadio(); return r ? (r.dataset.code || '') === 'no'             : false; }
 
     /* ---- Conditional row toggling ---- */
 
     function toggleFirDetails() {
-      var yes     = isFirYes();
-      var refused = isFirPoliceRefused();
-      var no      = isFirNo();
+      const yes     = isFirYes();
+      const refused = isFirPoliceRefused();
+      const no      = isFirNo();
 
-      if (detailsRow) detailsRow.style.display = yes ? '' : 'none';
+      if (detailsRow) yes ? detailsRow.classList.remove('display-hidden') : detailsRow.classList.add('display-hidden');
       if (!yes) {
         if (policeStation) {
           if (policeStation.tomselect) {
@@ -127,17 +127,17 @@
         if (caseNumber) caseNumber.value = '';
       }
 
-      if (policeRefusedRow) policeRefusedRow.style.display = refused ? '' : 'none';
+      if (policeRefusedRow) refused ? policeRefusedRow.classList.remove('display-hidden') : policeRefusedRow.classList.add('display-hidden');
       if (!refused && policeRefusalStmt) policeRefusalStmt.value = '';
 
-      if (noFirRow) noFirRow.style.display = no ? '' : 'none';
+      if (noFirRow) no ? noFirRow.classList.remove('display-hidden') : noFirRow.classList.add('display-hidden');
       if (!no && noFirReason) noFirReason.value = '';
     }
 
     /* ---- Custom event for form-specific JS to listen ---- */
 
     function fireFirChangedEvent() {
-      var event;
+      let event;
       try {
         event = new CustomEvent('law-gd-fir-changed', { bubbles: true });
       } catch (e) {
@@ -175,7 +175,7 @@
       isFirPoliceRefused: isFirPoliceRefused,
       isFirNo:            isFirNo,
       getFirStatusId: function () {
-        var r = getSelectedFirRadio();
+        const r = getSelectedFirRadio();
         return r ? (parseInt(r.value, 10) || 0) : 0;
       },
       getPoliceStation: function () {
@@ -191,8 +191,8 @@
         return (noFirReason && isFirNo()) ? noFirReason.value.trim() : '';
       },
       resetFir: function () {
-        var radios = document.querySelectorAll('input[name="' + radioName + '"]');
-        for (var k = 0; k < radios.length; k++) radios[k].checked = false;
+        const radios = document.querySelectorAll('input[name="' + radioName + '"]');
+        for (let k = 0; k < radios.length; k++) radios[k].checked = false;
         if (policeStation) {
           if (policeStation.tomselect) {
             policeStation.tomselect.clear(true);

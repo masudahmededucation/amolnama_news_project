@@ -18,27 +18,27 @@
 (function () {
   'use strict';
 
-  var config = {};
+  let config = {};
 
 
   function handleLikeClick(event) {
-    var likeButton = event.target.closest(config.buttonSelector);
+    const likeButton = event.target.closest(config.buttonSelector);
     if (!likeButton) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    var entityId = likeButton.getAttribute('data-entity-id');
+    const entityId = likeButton.getAttribute('data-entity-id');
     if (!entityId) return;
 
     likeButton.disabled = true;
 
-    var apiUrl = config.buildApiUrl(entityId);
+    const apiUrl = config.buildApiUrl(entityId);
     fetch(apiUrl, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       likeButton.disabled = false;
 
@@ -47,11 +47,11 @@
       }
 
       /* Update ALL like buttons for this entity (top + bottom bars) */
-      var allMatchingButtons = document.querySelectorAll(config.buttonSelector + '[data-entity-id="' + entityId + '"]');
-      for (var buttonIndex = 0; buttonIndex < allMatchingButtons.length; buttonIndex++) {
-        var matchingButton = allMatchingButtons[buttonIndex];
-        var matchingIconElement = matchingButton.querySelector('.like-button-icon');
-        var matchingCountElement = matchingButton.querySelector('.like-button-count');
+      const allMatchingButtons = document.querySelectorAll(config.buttonSelector + '[data-entity-id="' + entityId + '"]');
+      for (let buttonIndex = 0; buttonIndex < allMatchingButtons.length; buttonIndex++) {
+        const matchingButton = allMatchingButtons[buttonIndex];
+        const matchingIconElement = matchingButton.querySelector('.like-button-icon');
+        const matchingCountElement = matchingButton.querySelector('.like-button-count');
 
         if (data.liked) {
           matchingButton.classList.add('like-button-active');

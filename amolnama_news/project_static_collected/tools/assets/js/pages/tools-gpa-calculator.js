@@ -6,14 +6,14 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "gpa_calculator_state";
-  var debounceTimer = null;
+  const STORAGE_KEY = "gpa_calculator_state";
+  let debounceTimer = null;
 
   /* ═══════════════════════════════════════════
      TAB SWITCHING
      ═══════════════════════════════════════════ */
-  var tabs = document.querySelectorAll(".gpa-tab");
-  var panels = {
+  const tabs = document.querySelectorAll(".gpa-tab");
+  const panels = {
     ssc: document.getElementById("panel-ssc"),
     uni: document.getElementById("panel-uni"),
     target: document.getElementById("panel-target"),
@@ -24,9 +24,9 @@
       tabs.forEach(function (t) { t.classList.remove("gpa-tab--active"); });
       tab.classList.add("gpa-tab--active");
 
-      var id = tab.dataset.tab;
+      const id = tab.dataset.tab;
       Object.keys(panels).forEach(function (key) {
-        panels[key].style.display = key === id ? "" : "none";
+        panels[key].classList.toggle("display-hidden", key !== id);
       });
     });
   });
@@ -34,16 +34,16 @@
   /* ═══════════════════════════════════════════
      SSC/HSC GPA ENGINE (5.00 Scale)
      ═══════════════════════════════════════════ */
-  var sscSubjectsContainer = document.getElementById("gpaSscSubjects");
-  var sscAddBtn = document.getElementById("gpaSscAddSubject");
-  var sscOptional = document.getElementById("gpaSscOptional");
-  var sscResultCard = document.getElementById("gpaSscResult");
-  var sscResultValue = document.getElementById("gpaSscValue");
-  var sscResultBadge = document.getElementById("gpaSscBadge");
-  var sscResultDetail = document.getElementById("gpaSscDetail");
-  var sscSubjectCount = 6;
+  const sscSubjectsContainer = document.getElementById("gpaSscSubjects");
+  const sscAddBtn = document.getElementById("gpaSscAddSubject");
+  const sscOptional = document.getElementById("gpaSscOptional");
+  const sscResultCard = document.getElementById("gpaSscResult");
+  const sscResultValue = document.getElementById("gpaSscValue");
+  const sscResultBadge = document.getElementById("gpaSscBadge");
+  const sscResultDetail = document.getElementById("gpaSscDetail");
+  let sscSubjectCount = 6;
 
-  var GP_OPTIONS =
+  const GP_OPTIONS =
     '<option value="">গ্রেড</option>' +
     '<option value="5.00">A+ (5.00)</option>' +
     '<option value="4.00">A (4.00)</option>' +
@@ -57,7 +57,7 @@
   if (sscAddBtn) {
     sscAddBtn.addEventListener("click", function () {
       sscSubjectCount++;
-      var row = document.createElement("div");
+      let row = document.createElement("div");
       row.className = "gpa-ssc-row";
       row.innerHTML =
         '<label class="gpa-ssc-label">বিষয় ' + sscSubjectCount + " (Subject " + sscSubjectCount + ")</label>" +
@@ -82,19 +82,19 @@
   }
 
   function calculateSSC() {
-    var selects = sscSubjectsContainer.querySelectorAll("select[data-mandatory]");
-    var mandatoryGPs = [];
-    var allFilled = true;
-    var hasFail = false;
+    const selects = sscSubjectsContainer.querySelectorAll("select[data-mandatory]");
+    const mandatoryGPs = [];
+    let allFilled = true;
+    let hasFail = false;
 
     selects.forEach(function (sel) {
-      var row = sel.closest(".gpa-ssc-row");
+      let row = sel.closest(".gpa-ssc-row");
       if (sel.value === "") {
         allFilled = false;
         if (row) row.classList.remove("gpa-ssc-row--fail");
         return;
       }
-      var gp = parseFloat(sel.value);
+      let gp = parseFloat(sel.value);
       mandatoryGPs.push(gp);
       if (gp < 1.0) {
         hasFail = true;
@@ -105,7 +105,7 @@
     });
 
     if (mandatoryGPs.length === 0) {
-      sscResultCard.style.display = "none";
+      sscResultCard.classList.add("display-hidden");
       saveState();
       return;
     }
@@ -119,21 +119,21 @@
     }
 
     /* Optional subject bonus */
-    var optGP = sscOptional && sscOptional.value !== "" ? parseFloat(sscOptional.value) : 0;
-    var bonus = Math.max(0, optGP - 2);
+    const optGP = sscOptional && sscOptional.value !== "" ? parseFloat(sscOptional.value) : 0;
+    const bonus = Math.max(0, optGP - 2);
 
     /* Sum mandatory */
-    var totalPoints = 0;
+    let totalPoints = 0;
     mandatoryGPs.forEach(function (gp) { totalPoints += gp; });
 
     /* GPA */
-    var gpa = (totalPoints + bonus) / mandatoryGPs.length;
+    let gpa = (totalPoints + bonus) / mandatoryGPs.length;
     if (gpa > 5.00) gpa = 5.00;
 
     /* Golden A+ check */
-    var isGolden = mandatoryGPs.every(function (gp) { return gp === 5.00; }) && optGP === 5.00;
+    const isGolden = mandatoryGPs.every(function (gp) { return gp === 5.00; }) && optGP === 5.00;
 
-    var status, badgeClass;
+    let status, badgeClass;
     if (isGolden) {
       status = "Golden A+";
       badgeClass = "golden";
@@ -154,7 +154,7 @@
       badgeClass = "warning";
     }
 
-    var detail = "বাধ্যতামূলক বিষয়: " + mandatoryGPs.length + " | মোট পয়েন্ট: " + totalPoints.toFixed(2);
+    let detail = "বাধ্যতামূলক বিষয়: " + mandatoryGPs.length + " | মোট পয়েন্ট: " + totalPoints.toFixed(2);
     if (bonus > 0) detail += " | ৪র্থ বিষয় বোনাস: +" + bonus.toFixed(2);
 
     showSscResult(gpa, status, badgeClass, isGolden, detail);
@@ -162,7 +162,7 @@
   }
 
   function showSscResult(gpa, status, badgeClass, isGolden, detail) {
-    sscResultCard.style.display = "";
+    sscResultCard.classList.remove("display-hidden");
     sscResultValue.textContent = gpa.toFixed(2);
     sscResultValue.className = "gpa-result-value" + (gpa === 0 ? " gpa-result-value--fail" : "") + (isGolden ? " gpa-result-value--golden" : "");
     sscResultBadge.textContent = status;
@@ -173,14 +173,14 @@
   /* ═══════════════════════════════════════════
      UNIVERSITY CGPA ENGINE (4.00 Scale)
      ═══════════════════════════════════════════ */
-  var uniCoursesContainer = document.getElementById("gpaUniCourses");
-  var uniAddBtn = document.getElementById("gpaUniAddCourse");
-  var uniResultCard = document.getElementById("gpaUniResult");
-  var uniResultValue = document.getElementById("gpaUniValue");
-  var uniResultBadge = document.getElementById("gpaUniBadge");
-  var uniResultDetail = document.getElementById("gpaUniDetail");
+  const uniCoursesContainer = document.getElementById("gpaUniCourses");
+  const uniAddBtn = document.getElementById("gpaUniAddCourse");
+  const uniResultCard = document.getElementById("gpaUniResult");
+  const uniResultValue = document.getElementById("gpaUniValue");
+  const uniResultBadge = document.getElementById("gpaUniBadge");
+  const uniResultDetail = document.getElementById("gpaUniDetail");
 
-  var UNI_GP_OPTIONS =
+  const UNI_GP_OPTIONS =
     '<option value="">গ্রেড</option>' +
     '<option value="4.00">A+ (4.00)</option>' +
     '<option value="3.75">A (3.75)</option>' +
@@ -194,7 +194,7 @@
     '<option value="0">F (0.00)</option>';
 
   function addUniCourseRow(courseNum, credit, gp) {
-    var row = document.createElement("div");
+    const row = document.createElement("div");
     row.className = "gpa-uni-row";
     row.innerHTML =
       '<input type="text" name="uni-course-name" placeholder="কোর্স ' + courseNum + '" autocomplete="off" value="">' +
@@ -218,15 +218,15 @@
 
   /* Seed 6 course rows */
   function seedUniRows() {
-    for (var i = 1; i <= 6; i++) addUniCourseRow(i);
+    for (let i = 1; i <= 6; i++) addUniCourseRow(i);
   }
 
   if (uniAddBtn) {
     uniAddBtn.addEventListener("click", function () {
-      var count = uniCoursesContainer.querySelectorAll(".gpa-uni-row").length + 1;
+      const count = uniCoursesContainer.querySelectorAll(".gpa-uni-row").length + 1;
       addUniCourseRow(count);
-      var rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
-      var lastSelect = rows[rows.length - 1].querySelector("select");
+      let rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
+      const lastSelect = rows[rows.length - 1].querySelector("select");
       if (lastSelect) lastSelect.focus();
     });
   }
@@ -237,19 +237,19 @@
   }
 
   function calculateUni() {
-    var rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
-    var totalQP = 0;
-    var totalCredits = 0;
-    var hasFail = false;
-    var filledCount = 0;
+    let rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
+    let totalQP = 0;
+    let totalCredits = 0;
+    let hasFail = false;
+    let filledCount = 0;
 
     rows.forEach(function (row) {
-      var gpSel = row.querySelector('select[name="uni-gp"]');
-      var crInput = row.querySelector('input[name="uni-credit"]');
+      const gpSel = row.querySelector('select[name="uni-gp"]');
+      const crInput = row.querySelector('input[name="uni-credit"]');
       if (!gpSel || gpSel.value === "") return;
 
-      var gp = parseFloat(gpSel.value);
-      var cr = parseFloat(crInput.value) || 0;
+      const gp = parseFloat(gpSel.value);
+      const cr = parseFloat(crInput.value) || 0;
       if (cr <= 0) return;
 
       filledCount++;
@@ -259,14 +259,14 @@
     });
 
     if (filledCount === 0 || totalCredits === 0) {
-      uniResultCard.style.display = "none";
+      uniResultCard.classList.add("display-hidden");
       saveState();
       return;
     }
 
-    var cgpa = totalQP / totalCredits;
+    const cgpa = totalQP / totalCredits;
 
-    var academicClass, badgeClass;
+    let academicClass, badgeClass;
     if (hasFail) {
       academicClass = "ফেল গ্রেড আছে (F Grade Included)";
       badgeClass = "fail";
@@ -281,7 +281,7 @@
       badgeClass = "warning";
     }
 
-    uniResultCard.style.display = "";
+    uniResultCard.classList.remove("display-hidden");
     uniResultValue.textContent = cgpa.toFixed(2);
     uniResultValue.className = "gpa-result-value" + (hasFail ? " gpa-result-value--fail" : "");
     uniResultBadge.textContent = academicClass;
@@ -296,14 +296,14 @@
   /* ═══════════════════════════════════════════
      TARGET CGPA PLANNER
      ═══════════════════════════════════════════ */
-  var targetFields = ["gpa-target-current", "gpa-target-credits-done", "gpa-target-credits-next", "gpa-target-goal"];
-  var targetResultCard = document.getElementById("gpaTargetResult");
-  var targetValue = document.getElementById("gpaTargetValue");
-  var targetBadge = document.getElementById("gpaTargetBadge");
-  var targetMessage = document.getElementById("gpaTargetMessage");
+  const targetFields = ["gpa-target-current", "gpa-target-credits-done", "gpa-target-credits-next", "gpa-target-goal"];
+  const targetResultCard = document.getElementById("gpaTargetResult");
+  const targetValue = document.getElementById("gpaTargetValue");
+  const targetBadge = document.getElementById("gpaTargetBadge");
+  const targetMessage = document.getElementById("gpaTargetMessage");
 
   targetFields.forEach(function (id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (el) el.addEventListener("input", debounceTargetCalc);
   });
 
@@ -313,34 +313,34 @@
   }
 
   function calculateTarget() {
-    var currentCGPA = parseFloat(document.getElementById("gpa-target-current").value);
-    var creditsDone = parseFloat(document.getElementById("gpa-target-credits-done").value);
-    var creditsNext = parseFloat(document.getElementById("gpa-target-credits-next").value);
-    var targetCGPA = parseFloat(document.getElementById("gpa-target-goal").value);
+    const currentCGPA = parseFloat(document.getElementById("gpa-target-current").value);
+    const creditsDone = parseFloat(document.getElementById("gpa-target-credits-done").value);
+    const creditsNext = parseFloat(document.getElementById("gpa-target-credits-next").value);
+    const targetCGPA = parseFloat(document.getElementById("gpa-target-goal").value);
 
     if (isNaN(currentCGPA) || isNaN(creditsDone) || isNaN(creditsNext) || isNaN(targetCGPA) || creditsNext <= 0) {
-      targetResultCard.style.display = "none";
+      targetResultCard.classList.add("display-hidden");
       saveState();
       return;
     }
 
-    var currentPoints = currentCGPA * creditsDone;
-    var finalCredits = creditsDone + creditsNext;
-    var neededTotal = targetCGPA * finalCredits;
-    var neededNext = neededTotal - currentPoints;
-    var requiredGPA = neededNext / creditsNext;
+    const currentPoints = currentCGPA * creditsDone;
+    const finalCredits = creditsDone + creditsNext;
+    const neededTotal = targetCGPA * finalCredits;
+    const neededNext = neededTotal - currentPoints;
+    const requiredGPA = neededNext / creditsNext;
 
-    targetResultCard.style.display = "";
+    targetResultCard.classList.remove("display-hidden");
     targetValue.textContent = requiredGPA.toFixed(2);
 
-    var badgeText, badgeClass, message, progressClass;
-    var progressPct = Math.min(100, (requiredGPA / 4.00) * 100);
+    let badgeText, badgeClass, message, progressClass;
+    const progressPct = Math.min(100, (requiredGPA / 4.00) * 100);
 
     if (requiredGPA > 4.00) {
       badgeText = "অসম্ভব (Impossible)";
       badgeClass = "impossible";
       progressClass = "impossible";
-      var suggestedTarget = ((currentPoints + 4.00 * creditsNext) / finalCredits).toFixed(2);
+      const suggestedTarget = ((currentPoints + 4.00 * creditsNext) / finalCredits).toFixed(2);
       message = "এক সেমিস্টারে " + targetCGPA.toFixed(2) + " অর্জন সম্ভব নয় (GPA > 4.00 প্রয়োজন)। " +
         "বাস্তবসম্মত টার্গেট: " + suggestedTarget;
       targetValue.className = "gpa-result-value gpa-result-value--fail";
@@ -374,13 +374,13 @@
     targetBadge.className = "gpa-result-badge gpa-result-badge--" + badgeClass;
 
     /* Progress bar */
-    var existingBar = targetResultCard.querySelector(".gpa-progress-bar");
+    let existingBar = targetResultCard.querySelector(".gpa-progress-bar");
     if (!existingBar) {
-      var barHtml = '<div class="gpa-progress-bar"><div class="gpa-progress-fill"></div></div>';
+      const barHtml = '<div class="gpa-progress-bar"><div class="gpa-progress-fill"></div></div>';
       targetMessage.insertAdjacentHTML("beforebegin", barHtml);
       existingBar = targetResultCard.querySelector(".gpa-progress-bar");
     }
-    var fill = existingBar.querySelector(".gpa-progress-fill");
+    let fill = existingBar.querySelector(".gpa-progress-fill");
     fill.style.width = Math.max(0, Math.min(100, progressPct)) + "%";
     fill.className = "gpa-progress-fill gpa-progress-fill--" + progressClass;
 
@@ -393,7 +393,7 @@
      ═══════════════════════════════════════════ */
   function saveState() {
     try {
-      var state = { ssc: {}, uni: [], target: {} };
+      let state = { ssc: {}, uni: [], target: {} };
 
       /* SSC */
       sscSubjectsContainer.querySelectorAll("select").forEach(function (sel, i) {
@@ -412,7 +412,7 @@
 
       /* Target */
       targetFields.forEach(function (id) {
-        var el = document.getElementById(id);
+        let el = document.getElementById(id);
         if (el) state.target[id] = el.value;
       });
 
@@ -422,13 +422,13 @@
 
   function restoreState() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return false;
-      var state = JSON.parse(raw);
+      const state = JSON.parse(raw);
 
       /* SSC */
       if (state.ssc) {
-        var sscSelects = sscSubjectsContainer.querySelectorAll("select");
+        const sscSelects = sscSubjectsContainer.querySelectorAll("select");
         sscSelects.forEach(function (sel, i) {
           if (state.ssc["gp" + i] !== undefined) sel.value = state.ssc["gp" + i];
         });
@@ -440,8 +440,8 @@
         uniCoursesContainer.querySelectorAll(".gpa-uni-row").forEach(function (r) { r.remove(); });
         state.uni.forEach(function (c, i) {
           addUniCourseRow(i + 1, c.cr, c.gp);
-          var rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
-          var last = rows[rows.length - 1];
+          const rows = uniCoursesContainer.querySelectorAll(".gpa-uni-row");
+          const last = rows[rows.length - 1];
           if (last && c.name) last.querySelector('input[name="uni-course-name"]').value = c.name;
         });
         return true;
@@ -450,7 +450,7 @@
       /* Target */
       if (state.target) {
         targetFields.forEach(function (id) {
-          var el = document.getElementById(id);
+          const el = document.getElementById(id);
           if (el && state.target[id]) el.value = state.target[id];
         });
       }
@@ -464,7 +464,7 @@
   /* ═══════════════════════════════════════════
      INIT
      ═══════════════════════════════════════════ */
-  var restored = restoreState();
+  const restored = restoreState();
   if (!restored) seedUniRows();
 
   bindSscListeners();

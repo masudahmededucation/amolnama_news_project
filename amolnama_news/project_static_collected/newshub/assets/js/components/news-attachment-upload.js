@@ -14,8 +14,8 @@
 
   /* ===== Load file validation rules from ref_asset_type (CSP-safe JSON) ===== */
 
-  var assetTypeRules = (function () {
-    var el = document.getElementById('asset-type-rules-data');
+  const assetTypeRules = (function () {
+    const el = document.getElementById('asset-type-rules-data');
     if (!el) return [];
     try { return JSON.parse(el.textContent); } catch (e) { return []; }
   })();
@@ -28,8 +28,8 @@
     if (!assetTypeRules.length) return { rule: null, error: null };
 
     /* Find matching rule by MIME type */
-    var rule = null;
-    for (var i = 0; i < assetTypeRules.length; i++) {
+    let rule = null;
+    for (let i = 0; i < assetTypeRules.length; i++) {
       if (assetTypeRules[i].mime_type === file.type) {
         rule = assetTypeRules[i];
         break;
@@ -38,8 +38,8 @@
 
     /* Fallback: match by extension */
     if (!rule) {
-      var ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
-      for (var j = 0; j < assetTypeRules.length; j++) {
+      const ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+      for (let j = 0; j < assetTypeRules.length; j++) {
         if (assetTypeRules[j].allowed_extension === ext) {
           rule = assetTypeRules[j];
           break;
@@ -62,7 +62,7 @@
    * Returns null if type is valid, or an error message string.
    */
   function validateFileType(file) {
-    var result = findAssetRule(file);
+    const result = findAssetRule(file);
     return result.error;
   }
 
@@ -79,27 +79,27 @@
    * @returns {Object|null} public API or null if DOM elements missing
    */
   function initFileUploadSection(config) {
-    var MAX_COUNT = config.maxCount || 4;
+    const MAX_COUNT = config.maxCount || 4;
 
-    var filePicker = document.getElementById(config.pickerId);
-    var hiddenFileInput = document.getElementById(config.hiddenInputId);
-    var addFileButton = document.getElementById(config.addButtonId);
-    var fileListContainer = document.getElementById(config.fileListId);
-    var featuredInput = config.featuredInputId
+    const filePicker = document.getElementById(config.pickerId);
+    const hiddenFileInput = document.getElementById(config.hiddenInputId);
+    const addFileButton = document.getElementById(config.addButtonId);
+    const fileListContainer = document.getElementById(config.fileListId);
+    const featuredInput = config.featuredInputId
       ? document.getElementById(config.featuredInputId)
       : null;
-    var descriptionsInput = config.descriptionsInputId
+    const descriptionsInput = config.descriptionsInputId
       ? document.getElementById(config.descriptionsInputId)
       : null;
 
     if (!filePicker || !hiddenFileInput || !addFileButton || !fileListContainer) return null;
 
-    var attachedFiles = [];
-    var fileDescriptions = [];
-    var featuredIndex = -1;
+    let attachedFiles = [];
+    let fileDescriptions = [];
+    let featuredIndex = -1;
 
     /* Unique radio name per section to avoid conflicts */
-    var radioName = '_featured_radio_' + config.hiddenInputId;
+    const radioName = '_featured_radio_' + config.hiddenInputId;
 
     /* ===== Utilities ===== */
 
@@ -114,7 +114,7 @@
     }
 
     function isDuplicateFile(file) {
-      for (var i = 0; i < attachedFiles.length; i++) {
+      for (let i = 0; i < attachedFiles.length; i++) {
         if (attachedFiles[i].name === file.name && attachedFiles[i].size === file.size) {
           return true;
         }
@@ -138,7 +138,7 @@
         return;
       }
       featuredIndex = -1;
-      for (var i = 0; i < attachedFiles.length; i++) {
+      for (let i = 0; i < attachedFiles.length; i++) {
         if (isImageFile(attachedFiles[i])) {
           featuredIndex = i;
           break;
@@ -150,8 +150,8 @@
     /* ===== Sync files to hidden input ===== */
 
     function syncFilesToFormInput() {
-      var dataTransfer = new DataTransfer();
-      for (var i = 0; i < attachedFiles.length; i++) {
+      const dataTransfer = new DataTransfer();
+      for (let i = 0; i < attachedFiles.length; i++) {
         dataTransfer.items.add(attachedFiles[i]);
       }
       hiddenFileInput.files = dataTransfer.files;
@@ -167,10 +167,10 @@
     /* ===== Build file row HTML ===== */
 
     function buildFileRowHtml(file, index) {
-      var isImage = isImageFile(file);
-      var isChecked = featuredInput && (index === featuredIndex);
+      const isImage = isImageFile(file);
+      const isChecked = featuredInput && (index === featuredIndex);
 
-      var html = '<div class="file-info-block' + (isChecked ? ' file-info-featured' : '') + '">';
+      let html = '<div class="file-info-block' + (isChecked ? ' file-info-featured' : '') + '">';
 
       /* Top row: file meta + remove button */
       html += '<div class="file-info-row">';
@@ -191,7 +191,7 @@
 
       /* Description row */
       if (descriptionsInput) {
-        var desc = fileDescriptions[index] || '';
+        const desc = fileDescriptions[index] || '';
         html += '<div class="file-desc-row">'
           + '<input type="text" class="file-description-input" data-index="' + index + '"'
           + ' value="' + desc.replace(/"/g, '&quot;') + '"'
@@ -208,7 +208,7 @@
 
     function updateAddButtonState() {
       /* Read default label from data attribute so each section has its own label */
-      var defaultLabel = addFileButton.getAttribute('data-default-label')
+      const defaultLabel = addFileButton.getAttribute('data-default-label')
         || addFileButton.textContent;
       if (!addFileButton.getAttribute('data-default-label')) {
         addFileButton.setAttribute('data-default-label', defaultLabel);
@@ -233,15 +233,15 @@
     function renderFileList() {
       autoSelectFeatured();
       if (!attachedFiles.length) {
-        fileListContainer.style.display = 'none';
+        fileListContainer.classList.add('display-hidden');
         fileListContainer.innerHTML = '';
       } else {
-        var html = '';
-        for (var i = 0; i < attachedFiles.length; i++) {
+        let html = '';
+        for (let i = 0; i < attachedFiles.length; i++) {
           html += buildFileRowHtml(attachedFiles[i], i);
         }
         fileListContainer.innerHTML = html;
-        fileListContainer.style.display = 'block';
+        fileListContainer.classList.remove('display-hidden');
       }
       updateAddButtonState();
     }
@@ -249,9 +249,9 @@
     /* ===== Validation error display ===== */
 
     function showValidationErrors(errors) {
-      var existing = fileListContainer.parentNode.querySelector('.file-upload-errors');
+      let existing = fileListContainer.parentNode.querySelector('.file-upload-errors');
       if (existing) existing.parentNode.removeChild(existing);
-      var div = document.createElement('div');
+      let div = document.createElement('div');
       div.className = 'file-upload-errors';
       div.innerHTML = errors.join('<br>');
       fileListContainer.parentNode.insertBefore(div, fileListContainer);
@@ -263,10 +263,10 @@
     /* ===== Show compression warnings ===== */
 
     function showCompressionWarnings(warnings) {
-      var existing = fileListContainer.parentNode.querySelector('.file-upload-warnings');
+      const existing = fileListContainer.parentNode.querySelector('.file-upload-warnings');
       if (existing) existing.parentNode.removeChild(existing);
       if (!warnings.length) return;
-      var div = document.createElement('div');
+      const div = document.createElement('div');
       div.className = 'file-upload-warnings';
       div.innerHTML = warnings.join('<br>');
       fileListContainer.parentNode.insertBefore(div, fileListContainer);
@@ -278,16 +278,16 @@
     /* ===== Add selected files (with auto-compression) ===== */
 
     function addSelectedFiles(fileList) {
-      var slotsAvailable = MAX_COUNT - attachedFiles.length;
-      var errors = [];
-      var warnings = [];
-      var compressor = window.newshubFileCompressor;
+      const slotsAvailable = MAX_COUNT - attachedFiles.length;
+      const errors = [];
+      const warnings = [];
+      const compressor = window.newshubFileCompressor;
 
       /* Collect files that pass type validation */
-      var candidates = [];
-      for (var i = 0; i < fileList.length && candidates.length < slotsAvailable; i++) {
+      const candidates = [];
+      for (let i = 0; i < fileList.length && candidates.length < slotsAvailable; i++) {
         if (isDuplicateFile(fileList[i])) continue;
-        var typeErr = validateFileType(fileList[i]);
+        const typeErr = validateFileType(fileList[i]);
         if (typeErr) {
           errors.push(typeErr);
           continue;
@@ -301,12 +301,12 @@
       }
 
       /* Process each candidate — compress if oversized */
-      var promises = [];
-      for (var c = 0; c < candidates.length; c++) {
+      const promises = [];
+      for (let c = 0; c < candidates.length; c++) {
         (function (file) {
-          var ruleResult = findAssetRule(file);
-          var maxKb = ruleResult.rule ? ruleResult.rule.max_size_kb : 0;
-          var maxBytes = maxKb ? maxKb * 1024 : 0;
+          const ruleResult = findAssetRule(file);
+          const maxKb = ruleResult.rule ? ruleResult.rule.max_size_kb : 0;
+          const maxBytes = maxKb ? maxKb * 1024 : 0;
 
           if (!maxBytes || file.size <= maxBytes) {
             /* Already within limit */
@@ -330,14 +330,14 @@
       }
 
       Promise.all(promises).then(function (results) {
-        for (var r = 0; r < results.length; r++) {
-          var res = results[r];
+        for (let r = 0; r < results.length; r++) {
+          const res = results[r];
           attachedFiles.push(res.file);
           fileDescriptions.push('');
 
           if (res.wasCompressed) {
-            var origMb = (res.originalSize / (1024 * 1024)).toFixed(2);
-            var newMb = (res.file.size / (1024 * 1024)).toFixed(2);
+            const origMb = (res.originalSize / (1024 * 1024)).toFixed(2);
+            const newMb = (res.file.size / (1024 * 1024)).toFixed(2);
             warnings.push(
               res.file.name + ': \u09AB\u09BE\u0987\u09B2\u09C7\u09B0 \u0986\u0995\u09BE\u09B0 \u0995\u09AE\u09BE\u09A8\u09CB \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 '
               + origMb + ' MB \u2192 ' + newMb + ' MB '
@@ -385,13 +385,13 @@
     });
 
     fileListContainer.addEventListener('click', function (e) {
-      var removeButton = e.target.closest('.file-info-remove');
+      const removeButton = e.target.closest('.file-info-remove');
       if (removeButton) {
-        var index = parseInt(removeButton.getAttribute('data-index'), 10);
+        const index = parseInt(removeButton.getAttribute('data-index'), 10);
         removeFileAtIndex(index);
         return;
       }
-      var radio = e.target.closest('input[name="' + radioName + '"]');
+      const radio = e.target.closest('input[name="' + radioName + '"]');
       if (radio) {
         featuredIndex = parseInt(radio.value, 10);
         syncFeaturedInput();
@@ -401,9 +401,9 @@
 
     /* Description input changes */
     fileListContainer.addEventListener('input', function (e) {
-      var descInput = e.target.closest('.file-description-input');
+      const descInput = e.target.closest('.file-description-input');
       if (!descInput) return;
-      var idx = parseInt(descInput.getAttribute('data-index'), 10);
+      const idx = parseInt(descInput.getAttribute('data-index'), 10);
       if (!isNaN(idx) && idx < fileDescriptions.length) {
         fileDescriptions[idx] = descInput.value;
         syncDescriptions();
@@ -411,7 +411,7 @@
     });
 
     /* Re-sync right before form submit */
-    var form = hiddenFileInput.closest('form');
+    const form = hiddenFileInput.closest('form');
     if (form) {
       form.addEventListener('submit', function () {
         syncFilesToFormInput();
@@ -439,7 +439,7 @@
      {prefix}-file-list, {prefix}-descriptions-json
      Generated by shared template: file-upload-section.html */
 
-  var attachmentApi = initFileUploadSection({
+  const attachmentApi = initFileUploadSection({
     pickerId: 'attachment-picker',
     hiddenInputId: 'attachment-real',
     addButtonId: 'attachment-add-btn',
@@ -451,7 +451,7 @@
 
   /* Evidence section (extortion & land-grab forms — only if DOM exists) */
 
-  var evidenceApi = initFileUploadSection({
+  const evidenceApi = initFileUploadSection({
     pickerId: 'evidence-picker',
     hiddenInputId: 'evidence-real',
     addButtonId: 'evidence-add-btn',
@@ -463,7 +463,7 @@
 
   /* Crime evidence section (crime/violence form — only if DOM exists) */
 
-  var crimeEvidenceApi = initFileUploadSection({
+  const crimeEvidenceApi = initFileUploadSection({
     pickerId: 'crime-evidence-picker',
     hiddenInputId: 'crime-evidence-real',
     addButtonId: 'crime-evidence-add-btn',
@@ -475,7 +475,7 @@
 
   /* ===== Initialize accused photos section (accused step — only if DOM exists) ===== */
 
-  var accusedPhotosApi = initFileUploadSection({
+  const accusedPhotosApi = initFileUploadSection({
     pickerId: 'accused-photos-picker',
     hiddenInputId: 'accused-photos-real',
     addButtonId: 'accused-photos-add-btn',
@@ -487,7 +487,7 @@
 
   /* ===== Initialize victim photos section (victim step — only if DOM exists) ===== */
 
-  var victimPhotosApi = initFileUploadSection({
+  const victimPhotosApi = initFileUploadSection({
     pickerId: 'victim-photos-picker',
     hiddenInputId: 'victim-photos-real',
     addButtonId: 'victim-photos-add-btn',
@@ -499,7 +499,7 @@
 
   /* ===== Initialize witness photos section (witness step — only if DOM exists) ===== */
 
-  var witnessPhotosApi = initFileUploadSection({
+  const witnessPhotosApi = initFileUploadSection({
     pickerId: 'witness-photos-picker',
     hiddenInputId: 'witness-photos-real',
     addButtonId: 'witness-photos-add-btn',

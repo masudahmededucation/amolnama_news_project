@@ -19,20 +19,20 @@
 (function () {
   'use strict';
 
-  var topic          = document.getElementById('issue-topic');
-  var origStance     = document.getElementById('issue-original-stance');
-  var origDate       = document.getElementById('issue-original-date');
-  var origSource     = document.getElementById('issue-original-source');
-  var curStance      = document.getElementById('issue-current-stance');
-  var curDate        = document.getElementById('issue-current-date');
-  var curSource      = document.getElementById('issue-current-source');
-  var impact         = document.getElementById('issue-impact');
-  var hiddenJson     = document.getElementById('issue-watchdog-json');
+  const topic          = document.getElementById('issue-topic');
+  const origStance     = document.getElementById('issue-original-stance');
+  const origDate       = document.getElementById('issue-original-date');
+  const origSource     = document.getElementById('issue-original-source');
+  const curStance      = document.getElementById('issue-current-stance');
+  const curDate        = document.getElementById('issue-current-date');
+  const curSource      = document.getElementById('issue-current-source');
+  const impact         = document.getElementById('issue-impact');
+  const hiddenJson     = document.getElementById('issue-watchdog-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       topic:          topic ? topic.value.trim() : '',
       originalStance: origStance ? origStance.value.trim() : '',
       originalDate:   origDate ? origDate.value : '',
@@ -45,20 +45,20 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [topic, origStance, origDate, origSource, curStance, curDate, curSource, impact];
+  const fields = [topic, origStance, origDate, origSource, curStance, curDate, curSource, impact];
   fields.forEach(function (el) {
     if (!el) return;
     el.addEventListener('input', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (topic && data.topic)              topic.value      = data.topic;
       if (origStance && data.originalStance) origStance.value = data.originalStance;
       if (origDate && data.originalDate)    origDate.value    = data.originalDate;
@@ -80,14 +80,14 @@
   };
 
   /* Step validator: require topic + both stances when section is visible */
-  var section = document.getElementById('section-watchdog-issue');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-watchdog-issue');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
       if (!topic || !topic.value.trim()) {
         warnings.push('\u0987\u09B8\u09CD\u09AF\u09C1\u09B0 \u09AC\u09BF\u09B7\u09AF\u09BC \u09A6\u09BF\u09A8 (Please enter the issue topic)');
       }

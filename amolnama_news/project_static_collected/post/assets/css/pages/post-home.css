@@ -133,7 +133,7 @@
 }
 
 .post-composer-textarea::placeholder {
-  color: #94a3b8;
+  color: var(--muted);
   font-size: 1rem;
   font-weight: 500;
 }
@@ -188,8 +188,8 @@
 }
 
 .post-composer-media-option-photo-video { border-color: #bbf7d0; }
-.post-composer-media-option-photo-video:hover { border-color: #22c55e; color: #16a34a; box-shadow: 0 2px 8px rgba(34,197,94,.12); }
-.post-composer-media-option-photo-video .post-composer-media-option-icon { color: #22c55e; }
+.post-composer-media-option-photo-video:hover { border-color: var(--success); color: #16a34a; box-shadow: 0 2px 8px rgba(34,197,94,.12); }
+.post-composer-media-option-photo-video .post-composer-media-option-icon { color: var(--success); }
 .post-composer-media-option-emoji { border-color: #fde68a; }
 .post-composer-media-option-emoji:hover { border-color: var(--warning); color: var(--warning); box-shadow: 0 2px 8px rgba(245,158,11,.12); }
 .post-composer-media-option-emoji .post-composer-media-option-icon { color: var(--warning); }
@@ -225,7 +225,7 @@
 }
 
 .post-composer-emoji-tab-active {
-  background: #e7f3ff;
+  background: var(--info-light);
   border-bottom: 2px solid var(--primary, #1877f2);
 }
 
@@ -252,7 +252,7 @@
 }
 
 .post-composer-emoji-item:hover {
-  background: #e7f3ff;
+  background: var(--info-light);
   transform: scale(1.2);
 }
 
@@ -398,7 +398,7 @@
   padding: 2rem 1.5rem;
   border: 2px dashed var(--primary, #1877f2);
   border-radius: 16px;
-  background: #e7f3ff;
+  background: var(--info-light);
   color: var(--text);
   font-size: 1rem;
   margin-bottom: 1.5rem;
@@ -543,7 +543,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #e3f2fd;
+  background: var(--info-light);
   color: #1565c0;
   display: flex;
   align-items: center;
@@ -692,7 +692,7 @@
 
 .post-card-flag-success {
   font-size: .82rem;
-  color: #2e7d32;
+  color: var(--primary);
   font-weight: 600;
   padding: .25rem 0;
 }
@@ -821,7 +821,7 @@
   display: inline-flex;
   align-items: center;
   gap: .2rem;
-  background: #e7f3ff;
+  background: var(--info-light);
   padding: .15rem .45rem .15rem .25rem;
   border-radius: 20px;
   border: 1.5px solid #1877F2;
@@ -829,6 +829,17 @@
 }
 
 .post-card-verified-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  vertical-align: middle;
+}
+
+.post-card-verified-icon-small {
+  width: .9rem;
+  height: .9rem;
+}
+
+.post-card-share-icon-inline {
   width: 1.1rem;
   height: 1.1rem;
 }
@@ -841,7 +852,7 @@
 }
 
 .post-card:hover {
-  background: #f0f7ff;
+  background: var(--info-light);
 }
 
 .post-card-avatar {
@@ -1002,7 +1013,7 @@
 
 .post-entity-location {
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--primary);
   background: none;
 }
 
@@ -1074,7 +1085,7 @@
   font-size: .68rem;
   font-weight: 600;
   color: var(--primary, #1877f2);
-  background: #e7f3ff;
+  background: var(--info-light);
   border-radius: 12px;
   cursor: pointer;
   transition: background .15s;
@@ -1164,8 +1175,8 @@
 .post-card-poll { margin-top: .4rem; padding: .5rem; border: 1px solid var(--border); border-radius: 12px; }
 .post-card-poll-question { font-size: .85rem; font-weight: 700; margin-bottom: .4rem; }
 .post-card-poll-option { display: flex; align-items: center; width: 100%; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: 10px; background: var(--card); cursor: pointer; font-size: .8rem; font-weight: 600; margin-bottom: .3rem; position: relative; overflow: hidden; transition: all .15s; text-align: left; }
-.post-card-poll-option:hover { border-color: var(--primary); background: #f0f7ff; }
-.post-card-poll-option-voted { cursor: default; background: #f8fafc; }
+.post-card-poll-option:hover { border-color: var(--primary); background: var(--info-light); }
+.post-card-poll-option-voted { cursor: default; background: var(--surface); }
 .post-card-poll-option-text { position: relative; z-index: 1; flex: 1; }
 .post-card-poll-option-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(24,119,242,.1); border-radius: 10px; transition: width .3s; }
 .post-card-poll-option-percentage { position: relative; z-index: 1; font-size: .72rem; font-weight: 800; color: var(--primary); margin-left: .3rem; }
@@ -1187,15 +1198,15 @@
 
 /* Content category label */
 .post-card-category-label { font-size: .55rem; font-weight: 700; padding: .1rem .4rem; border-radius: 8px; text-transform: uppercase; display: inline-block; margin-bottom: .2rem; }
-.post-card-category-label-religion { background: #ede9fe; color: #6d28d9; }
+.post-card-category-label-religion { background: var(--purple-light); color: #6d28d9; }
 .post-card-category-label-politics { background: var(--warning-light); color: var(--warning-text); }
-.post-card-category-label-education { background: #d1fae5; color: #065f46; }
-.post-card-category-label-business { background: #dbeafe; color: #1e40af; }
+.post-card-category-label-education { background: var(--success-light); color: #065f46; }
+.post-card-category-label-business { background: var(--info-light); color: #1e40af; }
 .post-card-category-label-news { background: var(--danger-light); color: var(--danger-text); }
 .post-card-category-label-entertainment { background: #fce7f3; color: #9d174d; }
 .post-card-category-label-misinformation { background: var(--warning-light); color: var(--warning-text); }
-.post-card-category-label-advertisement { background: #f3f4f6; color: #6b7280; }
-.post-card-category-label-copyright { background: #f3f4f6; color: #6b7280; }
+.post-card-category-label-advertisement { background: var(--surface); color: var(--muted); }
+.post-card-category-label-copyright { background: var(--surface); color: var(--muted); }
 
 /* Fact-check banner */
 .post-card-fact-check-banner { font-size: .72rem; font-weight: 600; padding: .4rem .6rem; background: var(--warning-light); color: var(--warning-text); border: 1px solid var(--warning); border-radius: 8px; margin-bottom: .3rem; }
@@ -1205,7 +1216,7 @@
 
 /* Quote repost form */
 .post-card-quote-repost-form { padding: .5rem; border: 1px solid var(--border); border-radius: 10px; margin-top: .3rem; }
-.post-card-quote-repost-original { font-size: .72rem; color: var(--muted); padding: .3rem .4rem; background: #f8fafc; border-left: 2px solid var(--primary); border-radius: 4px; margin-bottom: .3rem; }
+.post-card-quote-repost-original { font-size: .72rem; color: var(--muted); padding: .3rem .4rem; background: var(--surface); border-left: 2px solid var(--primary); border-radius: 4px; margin-bottom: .3rem; }
 .post-card-quote-repost-original-author { font-weight: 700; color: var(--text); }
 .post-card-quote-repost-textarea { width: 100%; padding: .4rem; border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; font-family: inherit; resize: vertical; box-sizing: border-box; }
 .post-card-quote-repost-buttons { display: flex; gap: .3rem; margin-top: .3rem; }
@@ -1220,7 +1231,7 @@
 .post-card-mention-link:hover { text-decoration: none; opacity: .8; }
 
 /* Quote repost comment */
-.post-card-quote-comment { font-size: .88rem; font-weight: 600; margin-bottom: .3rem; padding: .4rem .6rem; background: #f0f7ff; border-left: 3px solid var(--primary); border-radius: 6px; line-height: 1.5; }
+.post-card-quote-comment { font-size: .88rem; font-weight: 600; margin-bottom: .3rem; padding: .4rem .6rem; background: var(--info-light); border-left: 3px solid var(--primary); border-radius: 6px; line-height: 1.5; }
 
 /* Scheduled badge */
 .post-card-scheduled-badge { font-size: .72rem; font-weight: 700; color: var(--warning); background: var(--warning-light); padding: .2rem .5rem; border-radius: 8px; display: inline-block; margin-bottom: .3rem; }
@@ -1272,7 +1283,7 @@
 }
 
 .post-card-action-button:hover {
-  background: #e7f3ff;
+  background: var(--info-light);
   color: var(--primary, #1877f2);
   transform: scale(1.08);
 }
@@ -1281,9 +1292,9 @@
   transform: none;
 }
 
-.post-card-like-button:hover { color: #1877f2; background: #e7f3ff; }
-.post-card-repost-button:hover { color: #22c55e; background: #ecfdf5; }
-.post-card-reply-button:hover { color: #3b82f6; background: #eff6ff; }
+.post-card-like-button:hover { color: #1877f2; background: var(--info-light); }
+.post-card-repost-button:hover { color: var(--success); background: var(--success-light); }
+.post-card-reply-button:hover { color: #3b82f6; background: var(--info-light); }
 .post-card-bookmark-button:hover { color: var(--warning); background: var(--warning-light); }
 .post-card-share-button:hover { color: #8b5cf6; background: #f5f3ff; }
 .post-card-delete-button:hover { color: var(--danger); background: var(--danger-light); }
@@ -1474,7 +1485,7 @@
   align-items: center;
   justify-content: center;
   padding: .5rem 1rem;
-  background: linear-gradient(135deg, #e3f2fd, #f0f7ff);
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
   color: #1877f2;
   font-size: .82rem;
   font-weight: 600;
@@ -1749,7 +1760,7 @@
 }
 
 .post-card-delete-confirm-yes-button:hover {
-  background: #b91c1c;
+  background: var(--danger-text);
 }
 
 .post-card-delete-confirm-yes-button:disabled {

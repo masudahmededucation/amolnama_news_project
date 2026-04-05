@@ -12,17 +12,17 @@
  *   2. Cascading dropdowns: district → upazila → union parishad
  */
 (function () {
-  var module = document.getElementById("address-module");
+  const module = document.getElementById("address-module");
   if (!module) return;
 
-  var apiUpazilasUrl = module.dataset.apiUpazilas;
-  var apiUnionsUrl   = module.dataset.apiUnions;
-  var savedUpazila   = module.dataset.savedUpazila;
-  var savedUnion     = module.dataset.savedUnion;
+  const apiUpazilasUrl = module.dataset.apiUpazilas;
+  const apiUnionsUrl   = module.dataset.apiUnions;
+  const savedUpazila   = module.dataset.savedUpazila;
+  const savedUnion     = module.dataset.savedUnion;
 
-  var countrySelect  = document.getElementById("id_country");
-  var bdFields       = document.getElementById("bd-address-fields");
-  var intlFields     = document.getElementById("intl-address-fields");
+  const countrySelect  = document.getElementById("id_country");
+  const bdFields       = document.getElementById("bd-address-fields");
+  const intlFields     = document.getElementById("intl-address-fields");
 
   // ── 1. Bangladesh / international toggle ──
 
@@ -31,7 +31,7 @@
   }
 
   function toggleAddressFields() {
-    var bd = isBangladesh();
+    const bd = isBangladesh();
     bdFields.style.display   = bd ? "" : "none";
     intlFields.style.display = bd ? "none" : "";
   }
@@ -43,9 +43,9 @@
 
   // ── 2. Cascading location dropdowns ──
 
-  var districtSelect = document.getElementById("id_link_district_id");
-  var upazilaSelect  = document.getElementById("id_link_upazila_id");
-  var unionSelect    = document.getElementById("id_link_union_parishad_id");
+  const districtSelect = document.getElementById("id_link_district_id");
+  const upazilaSelect  = document.getElementById("id_link_upazila_id");
+  const unionSelect    = document.getElementById("id_link_union_parishad_id");
 
   function resetSelect(sel, placeholder) {
     sel.innerHTML = '<option value="">' + placeholder + "</option>";
@@ -60,7 +60,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         data.forEach(function (u) {
-          var opt = document.createElement("option");
+          let opt = document.createElement("option");
           opt.value = u.upazila_id;
           opt.textContent = u.upazila_name_en;
           upazilaSelect.appendChild(opt);
@@ -80,7 +80,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         data.forEach(function (u) {
-          var opt = document.createElement("option");
+          const opt = document.createElement("option");
           opt.value = u.union_parishad_id;
           opt.textContent = u.union_parishad_name_en;
           unionSelect.appendChild(opt);

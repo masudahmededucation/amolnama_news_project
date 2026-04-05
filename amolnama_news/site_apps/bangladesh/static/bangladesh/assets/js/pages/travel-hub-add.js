@@ -2,15 +2,15 @@
 (function() {
   "use strict";
 
-  var form = document.getElementById("travel-hub-add-form");
-  var errorElement = document.getElementById("travel-hub-add-error");
-  var submitButton = document.getElementById("travel-hub-add-submit-button");
+  const form = document.getElementById("travel-hub-add-form");
+  const errorElement = document.getElementById("travel-hub-add-error");
+  const submitButton = document.getElementById("travel-hub-add-submit-button");
 
   if (!form) return;
 
   /* ---- Init Quill editors ---- */
-  var shortDescEditor = null;
-  var descEditor = null;
+  let shortDescEditor = null;
+  let descEditor = null;
 
   function initEditors() {
     if (typeof window.initQuillEditor !== 'function') {
@@ -28,10 +28,10 @@
     });
 
     /* Pre-populate edit data into Quill editors */
-    var editDataEl = document.getElementById("travel-hub-edit-data");
+    const editDataEl = document.getElementById("travel-hub-edit-data");
     if (editDataEl) {
       try {
-        var editData = JSON.parse(editDataEl.textContent);
+        const editData = JSON.parse(editDataEl.textContent);
         if (editData.short_desc_bn && shortDescEditor) shortDescEditor.setContent(editData.short_desc_bn);
         if (editData.desc_bn && descEditor) descEditor.setContent(editData.desc_bn);
       } catch (e) { /* ignore parse errors */ }
@@ -41,13 +41,13 @@
   initEditors();
 
   /* ---- Edit mode: pre-populate non-Quill fields ---- */
-  var editEntryIdEl = document.getElementById("travel-hub-edit-entry-id");
-  var editEntryId = editEntryIdEl ? editEntryIdEl.value : null;
+  const editEntryIdEl = document.getElementById("travel-hub-edit-entry-id");
+  const editEntryId = editEntryIdEl ? editEntryIdEl.value : null;
 
-  var editDataEl = document.getElementById("travel-hub-edit-data");
-  if (editDataEl) {
+  const editDataElFields = document.getElementById("travel-hub-edit-data");
+  if (editDataElFields) {
     try {
-      var d = JSON.parse(editDataEl.textContent);
+      const d = JSON.parse(editDataElFields.textContent);
       if (d.category_id) document.getElementById("travel-hub-category").value = String(d.category_id);
       if (d.name_bn) document.getElementById("travel-hub-name-bn").value = d.name_bn;
       if (d.name_en) document.getElementById("travel-hub-name-en").value = d.name_en;
@@ -61,7 +61,7 @@
   /* ---- Submit: create or update ---- */
   form.addEventListener("submit", function(e) {
     e.preventDefault();
-    errorElement.style.display = "none";
+    errorElement.classList.remove("form-error-visible");
     submitButton.disabled = true;
     submitButton.textContent = editEntryId ? "পরিবর্তন হচ্ছে..." : "প্রকাশ হচ্ছে...";
 
@@ -69,7 +69,7 @@
     if (shortDescEditor) shortDescEditor.syncToHidden();
     if (descEditor) descEditor.syncToHidden();
 
-    var payload = {
+    const payload = {
       link_destination_category_id: parseInt(document.getElementById("travel-hub-category").value) || null,
       destination_name_bn: document.getElementById("travel-hub-name-bn").value.trim(),
       destination_name_en: document.getElementById("travel-hub-name-en").value.trim(),
@@ -81,7 +81,7 @@
       visiting_hours_bn: document.getElementById("travel-hub-visiting-hours").value.trim() || null,
     };
 
-    var url = editEntryId
+    const url = editEntryId
       ? "/bangladesh-tourist-destinations/api/destinations/" + editEntryId + "/update/"
       : "/bangladesh-tourist-destinations/api/destinations/create/";
 
@@ -93,27 +93,27 @@
       },
       body: JSON.stringify(payload),
     })
-    .then(function(res) { return res.json(); })
+    .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
     .then(function(data) {
       if (data.success) {
         window.location.href = data.destination_slug ? "/bangladesh-tourist-destinations/travel/" + data.destination_slug + "/" : "/bangladesh-tourist-destinations/travel/id/" + data.destination_id + "/";
       } else {
         errorElement.textContent = data.error;
-        errorElement.style.display = "block";
+        errorElement.classList.add("form-error-visible");
         submitButton.disabled = false;
         submitButton.textContent = editEntryId ? "পরিবর্তন করুন (Update)" : "প্রকাশ করুন (Publish)";
       }
     })
     .catch(function() {
       errorElement.textContent = "সার্ভার ত্রুটি। আবার চেষ্টা করুন।";
-      errorElement.style.display = "block";
+      errorElement.classList.add("form-error-visible");
       submitButton.disabled = false;
       submitButton.textContent = editEntryId ? "পরিবর্তন করুন (Update)" : "প্রকাশ করুন (Publish)";
     });
   });
 
   function getCookie(name) {
-    var v = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+    const v = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
     return v ? v.pop() : "";
   }
 })();

@@ -33,18 +33,18 @@
   if (typeof TomSelect === 'undefined') return;
 
   function createLocationSearch(cfg) {
-    var searchSelect    = document.getElementById(cfg.searchInputId);
+    const searchSelect    = document.getElementById(cfg.searchInputId);
     if (!searchSelect) return null;
 
-    var districtSelect    = cfg.districtId  ? document.getElementById(cfg.districtId)  : null;
-    var subDistrictSelect = cfg.upazilaId   ? document.getElementById(cfg.upazilaId)   : null;
-    var localBodySelect   = cfg.localBodyId ? document.getElementById(cfg.localBodyId) : null;
-    var wardSelect        = cfg.wardId      ? document.getElementById(cfg.wardId)       : null;
-    var villageSelect     = cfg.villageId   ? document.getElementById(cfg.villageId)    : null;
-    var hasMap            = cfg.hasMap === true;
-    var placeholder       = cfg.placeholder || 'এলাকার নাম লিখে খুজুন';
+    const districtSelect    = cfg.districtId  ? document.getElementById(cfg.districtId)  : null;
+    const subDistrictSelect = cfg.upazilaId   ? document.getElementById(cfg.upazilaId)   : null;
+    const localBodySelect   = cfg.localBodyId ? document.getElementById(cfg.localBodyId) : null;
+    const wardSelect        = cfg.wardId      ? document.getElementById(cfg.wardId)       : null;
+    const villageSelect     = cfg.villageId   ? document.getElementById(cfg.villageId)    : null;
+    const hasMap            = cfg.hasMap === true;
+    const placeholder       = cfg.placeholder || 'এলাকার নাম লিখে খুজুন';
 
-    var ts = new TomSelect(searchSelect, {
+    const ts = new TomSelect(searchSelect, {
       valueField:  'id',
       labelField:  'title_bn',
       searchField: ['name_bn', 'name_en', 'title_bn', 'title_en'],
@@ -55,16 +55,16 @@
       load: function (query, callback) {
         if (query.length < 1) return callback();
         fetch('/newshub/api/locations/search/?q=' + encodeURIComponent(query))
-          .then(function (r) { return r.json(); })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (data) { callback(data.locations || []); })
           .catch(function () { callback(); });
       },
 
       render: {
         option: function (item, escape) {
-          var nameText = item.name_bn || '';
+          let nameText = item.name_bn || '';
           if (item.name_en) nameText += ' (' + item.name_en + ')';
-          var typeText = item.type || '';
+          const typeText = item.type || '';
           return '<div class="location-search-option">'
             + '<div class="location-search-header">'
               + (typeText ? '<span class="location-search-type-badge">' + escape(typeText) + '</span> ' : '')
@@ -75,7 +75,7 @@
           + '</div>';
         },
         item: function (item, escape) {
-          var nameText = item.name_bn || '';
+          let nameText = item.name_bn || '';
           if (item.name_en) nameText += ' (' + item.name_en + ')';
           return '<div>' + escape(nameText) + '</div>';
         },
@@ -86,7 +86,7 @@
 
       onChange: function (value) {
         if (!value) return;
-        var item = ts.options[value];
+        const item = ts.options[value];
         if (!item) return;
         resolveAndFillCascade(item);
         setTimeout(function () { ts.clear(true); ts.clearOptions(); }, 100);
@@ -96,11 +96,11 @@
     /* ---- Resolve parent IDs and fill cascade ---- */
 
     function resolveAndFillCascade(item) {
-      var url = '/newshub/api/locations/resolve/?table='
+      const url = '/newshub/api/locations/resolve/?table='
         + encodeURIComponent(item.table)
         + '&id=' + encodeURIComponent(item.entity_id);
       fetch(url)
-        .then(function (r) { return r.json(); })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (data) { fillCascade(data.parent_ids || {}); })
         .catch(function () {});
     }
@@ -113,7 +113,7 @@
         if (window.newshubMapPinpoint && window.newshubMapPinpoint.suppressNextDistrictCenter) {
           window.newshubMapPinpoint.suppressNextDistrictCenter();
         }
-        var cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
+        let cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
         if (cascadeApiObj && cascadeApiObj.suppressMapCenter) {
           cascadeApiObj.suppressMapCenter(true);
         }
@@ -123,8 +123,8 @@
       setSelectValue(districtSelect, String(ids.district_id));
 
       /* Step 2: Subdistrict (upazila, metro thana, city corporation, municipality) */
-      var subDistrictId = ids.upazila_id || ids.metropolitan_thana_id;
-      var directSubdistrict = false;
+      let subDistrictId = ids.upazila_id || ids.metropolitan_thana_id;
+      let directSubdistrict = false;
       if (!subDistrictId && ids.city_corporation_id) {
         subDistrictId = ids.city_corporation_id;
         directSubdistrict = true;
@@ -134,14 +134,14 @@
         directSubdistrict = true;
       }
       /* Metro thana, city corp, municipality all skip local body → wards directly */
-      var skipLocalBody = directSubdistrict || !!ids.metropolitan_thana_id;
+      const skipLocalBody = directSubdistrict || !!ids.metropolitan_thana_id;
 
       if (subDistrictId && subDistrictSelect) {
         waitForOptions(subDistrictSelect, function () {
           setSelectValue(subDistrictSelect, String(subDistrictId));
 
           if (skipLocalBody) {
-            var wardId = ids.city_corporation_ward_id || ids.municipality_ward_id;
+            let wardId = ids.city_corporation_ward_id || ids.municipality_ward_id;
             if (wardId && wardSelect) {
               waitForOptions(wardSelect, function () {
                 setSelectValue(wardSelect, String(wardId));
@@ -151,17 +151,17 @@
               endFillAndCenterMap();
             }
           } else {
-            var localBodyId = ids.union_parishad_id;
+            const localBodyId = ids.union_parishad_id;
             if (localBodyId && localBodySelect) {
               waitForOptions(localBodySelect, function () {
                 setSelectValue(localBodySelect, String(localBodyId));
 
-                var wardId = ids.union_parishad_ward_id;
+                const wardId = ids.union_parishad_ward_id;
                 if (wardId && wardSelect) {
                   waitForOptions(wardSelect, function () {
                     setSelectValue(wardSelect, String(wardId));
 
-                    var villageId = ids.union_parishad_village_id;
+                    const villageId = ids.union_parishad_village_id;
                     if (villageId && villageSelect) {
                       waitForOptions(villageSelect, function () {
                         setSelectValue(villageSelect, String(villageId));
@@ -188,13 +188,13 @@
     function endFillAndCenterMap() {
       if (!hasMap) return;
 
-      var cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
+      const cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
       if (cascadeApiObj && cascadeApiObj.suppressMapCenter) {
         cascadeApiObj.suppressMapCenter(false);
       }
       if (!window.newshubMapPinpoint) return;
 
-      var levels = [
+      const levels = [
         { el: villageSelect,     zoom: window.newshubMapPinpoint.VILLAGE_CENTER_ZOOM },
         { el: wardSelect,        zoom: window.newshubMapPinpoint.WARD_CENTER_ZOOM },
         { el: localBodySelect,   zoom: window.newshubMapPinpoint.LOCAL_BODY_CENTER_ZOOM },
@@ -202,9 +202,9 @@
         { el: districtSelect,    zoom: window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM },
       ];
 
-      var deepestZoom = window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM;
-      var deepestEl   = null;
-      for (var j = 0; j < levels.length; j++) {
+      let deepestZoom = window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM;
+      let deepestEl   = null;
+      for (let j = 0; j < levels.length; j++) {
         if (levels[j].el && levels[j].el.value) {
           deepestZoom = levels[j].zoom;
           deepestEl   = levels[j].el;
@@ -212,10 +212,10 @@
         }
       }
 
-      var addressText = buildCascadeAddressText();
+      const addressText = buildCascadeAddressText();
 
       if (deepestEl && deepestEl.value) {
-        var opt = deepestEl.options[deepestEl.selectedIndex];
+        let opt = deepestEl.options[deepestEl.selectedIndex];
         if (opt && opt.dataset && opt.dataset.lat && opt.dataset.lng) {
           window.newshubMapPinpoint.centerOn(opt.dataset.lat, opt.dataset.lng, deepestZoom);
           if (addressText) {
@@ -227,7 +227,7 @@
       }
 
       if (cascadeApiObj && cascadeApiObj.buildGeocodingQuery) {
-        var query = cascadeApiObj.buildGeocodingQuery(deepestEl);
+        const query = cascadeApiObj.buildGeocodingQuery(deepestEl);
         if (query) window.newshubMapPinpoint.geocodeAndCenter(query, deepestZoom);
       }
     }
@@ -235,14 +235,14 @@
     /* ---- Helpers ---- */
 
     function buildCascadeAddressText() {
-      var parts = [];
-      var selects = [villageSelect, wardSelect, localBodySelect, subDistrictSelect, districtSelect];
-      for (var i = 0; i < selects.length; i++) {
-        var sel = selects[i];
+      const parts = [];
+      const selects = [villageSelect, wardSelect, localBodySelect, subDistrictSelect, districtSelect];
+      for (let i = 0; i < selects.length; i++) {
+        const sel = selects[i];
         if (!sel || !sel.value) continue;
-        var opt = sel.options[sel.selectedIndex];
+        const opt = sel.options[sel.selectedIndex];
         if (opt && opt.textContent) {
-          var text = opt.textContent.trim();
+          const text = opt.textContent.trim();
           if (text) parts.push(text);
         }
       }
@@ -259,8 +259,8 @@
     }
 
     function waitForOptions(selectEl, callback) {
-      var attempts = 0;
-      var interval = setInterval(function () {
+      let attempts = 0;
+      const interval = setInterval(function () {
         attempts++;
         if (selectEl.options.length > 1 || attempts > 50) {
           clearInterval(interval);
@@ -271,7 +271,7 @@
 
     /* ---- Public API ---- */
 
-    var api = {
+    const api = {
       clear: function () { ts.clear(true); ts.clearOptions(); }
     };
 

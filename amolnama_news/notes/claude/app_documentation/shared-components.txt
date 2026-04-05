@@ -1,9 +1,10 @@
 Shared / Modular Components — Newshub Forms
 =============================================
-Last updated: 2026-03-22
+Last updated: 2026-04-05
 
 RULE: Never duplicate these. Always reuse via include or factory call.
-RULE: Case-insensitive comparison — always use .toUpperCase() or .toLowerCase() when comparing status_code or dataset.code.
+RULE: ALL comparisons use lowercase. Zero .upper()/.toUpperCase() anywhere. Display uppercase via CSS text-transform.
+RULE: tagName returns UPPERCASE in HTML — compare with uppercase string: field.tagName === 'SELECT' (not 'select').
 
 1. GD/FIR Toggle (General Diary / First Information Report)
    Template: law-gd-fir-section.html (include with fir_prefix="legal" or "wcv")
@@ -83,14 +84,22 @@ Form-Specific Legal Modules (each wraps shared GD/FIR + own fields):
   - news-land-grab-legal.js  → land-grab applicable laws, case status, support, retaliation
   - news-wcv-legal.js        → WCV applicable laws, case status, support, retaliation
 
-14. Photo Lightbox (Shared — used by article detail, extensible to other apps)
+14. Photo Lightbox (Shared — used by ALL pages with photo galleries)
     Template: core/templates/core/components/photo-lightbox.html
     CSS:      core/static/core/assets/css/components/photo-lightbox.css
     JS:       core/static/core/assets/js/components/photo-lightbox.js
-    API:      window.photoLightbox.init({ thumbSelector, gridSelector, excludeSelectors })
-              window.photoLightbox.open(index), window.photoLightbox.close()
-    Used by:  newshub article-detail (photos grouped by role)
-    Note:     Travel hub has its own lightbox with view-tracking API calls — not yet migrated.
+    HTML:     Parent div has `hidden` attribute (browser-native hide, no CSS dependency)
+    CSS:      `.photo-lightbox:not([hidden]) { display: flex }` — only shows when JS removes hidden
+    API:      window.photoLightbox.init({ thumbSelector, gridSelector, excludeSelectors, onView })
+              window.photoLightbox.open(index)         — open by thumb index (DOM-based)
+              window.photoLightbox.openWithUrls(urls, startIndex, onView) — open with URL array (no DOM thumbs needed)
+              window.photoLightbox.close()
+    Used by:  newshub article-detail, art-detail (via init + thumbSelector)
+              post-home, post-detail, post-bookmarks, pulse-home, search-home, social/user-profile (via openWithUrls)
+              bangladesh travel-hub-detail (via init + onView callback for view tracking)
+    Rule:     NEVER duplicate lightbox code. Use window.photoLightbox API.
+              NEVER set CSS `display` on base `.photo-lightbox` class — breaks `hidden` attribute.
+              Always load photo-lightbox.js BEFORE any script that calls window.photoLightbox.
 
 15. Article Photo Card (Newshub)
     Template: newshub/templates/newshub/components/article-detail-photo-card.html

@@ -26,22 +26,22 @@
  * Requires: news-category-tag-cascade.js (must load first for window.newshubTags)
  */
 (function () {
-  var api = window.newshubTags;
+  const api = window.newshubTags;
   if (!api) return;
 
-  var AUTO_TAG_DELAY = 20000; // 20 seconds debounce while typing
-  var INITIAL_SCAN_DELAY = 2000; // 2s delay for initial scan (wait for form-persist restore)
-  var MIN_WORD_LEN = 2;
-  var autoTagTimer = null;
+  const AUTO_TAG_DELAY = 20000; // 20 seconds debounce while typing
+  const INITIAL_SCAN_DELAY = 2000; // 2s delay for initial scan (wait for form-persist restore)
+  const MIN_WORD_LEN = 2;
+  let autoTagTimer = null;
 
-  var allTags = [];      // fetched from API
-  var tagsFetched = false;
+  let allTags = [];      // fetched from API
+  let tagsFetched = false;
 
-  var contentBody = document.getElementById('news-content-body-bn');
+  const contentBody = document.getElementById('news-content-body-bn');
   if (!contentBody) return;
 
   /* Regex to split content into words — whitespace + common Bengali/English punctuation */
-  var WORD_SPLIT_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]+/;
+  const WORD_SPLIT_RE = /[\s,।.!?;:'"()\[\]{}\-–—\u0964\u0965]+/;
 
   /* ---- fetchAllTags(callback) — fetch all tags from API, cache result ---- */
   function fetchAllTags(callback) {
@@ -51,7 +51,7 @@
     }
 
     fetch('/newshub/api/tags/all/')
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (data) {
         allTags = data.tags || [];
         tagsFetched = true;
@@ -59,7 +59,7 @@
       })
       .catch(function () {
         /* Fallback: try embedded JSON if API fails */
-        var el = document.getElementById('all-tags-data');
+        const el = document.getElementById('all-tags-data');
         if (el) {
           try {
             allTags = JSON.parse(el.textContent);
@@ -81,13 +81,13 @@
   function matchBn(tagName, contentWords) {
     if (!tagName || tagName.length < MIN_WORD_LEN) return false;
 
-    var tagWords = tagName.split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
+    let tagWords = tagName.split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
     if (tagWords.length === 0) return false;
 
-    for (var i = 0; i < tagWords.length; i++) {
-      var tw = tagWords[i];
-      var found = false;
-      for (var j = 0; j < contentWords.length; j++) {
+    for (let i = 0; i < tagWords.length; i++) {
+      let tw = tagWords[i];
+      let found = false;
+      for (let j = 0; j < contentWords.length; j++) {
         if (contentWords[j].indexOf(tw) === 0) { // startsWith
           found = true;
           break;
@@ -102,13 +102,13 @@
   function matchEn(tagName, contentWordsLower) {
     if (!tagName || tagName.length < MIN_WORD_LEN) return false;
 
-    var tagWords = tagName.toLowerCase().split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
+    const tagWords = tagName.toLowerCase().split(/\s+/).filter(function (w) { return w.length >= MIN_WORD_LEN; });
     if (tagWords.length === 0) return false;
 
-    for (var i = 0; i < tagWords.length; i++) {
-      var tw = tagWords[i];
-      var found = false;
-      for (var j = 0; j < contentWordsLower.length; j++) {
+    for (let i = 0; i < tagWords.length; i++) {
+      const tw = tagWords[i];
+      let found = false;
+      for (let j = 0; j < contentWordsLower.length; j++) {
         if (contentWordsLower[j].indexOf(tw) === 0) { // startsWith
           found = true;
           break;
@@ -121,19 +121,19 @@
 
   /* ---- scanAndAutoTag() — fetch tags then match against content body words ---- */
   function scanAndAutoTag() {
-    var text = contentBody.value;
+    const text = contentBody.value;
     if (!text || text.length < 5) return;
 
     fetchAllTags(function (tags) {
       if (tags.length === 0) return;
 
       /* Pre-split content into words once (used by all tag comparisons) */
-      var contentWords = splitWords(text);
-      var contentWordsLower = splitWords(text.toLowerCase());
-      var changed = false;
+      const contentWords = splitWords(text);
+      const contentWordsLower = splitWords(text.toLowerCase());
+      let changed = false;
 
       tags.forEach(function (tag) {
-        var id = String(tag.id);
+        const id = String(tag.id);
 
         /* Skip if already selected or manually removed by user */
         if (api.isSelected(id) || api.isRemovedByUser(id)) return;

@@ -1,0 +1,44 @@
+/* ========== Election Vote – Past Results Drillthrough ========== */
+
+.drillthrough-breadcrumb {
+  margin-bottom: 1rem;
+}
+
+.drillthrough-back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  color: var(--primary);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.drillthrough-party-list {
+  margin-top: 1rem;
+}
+
+.drillthrough-empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+
+.drillthrough-cta-wrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.drillthrough-cta-button {
+  padding: 0.75rem 2rem;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius);
+  display: inline-block;
+}
+
+.drillthrough-sidebar-empty {
+  text-align: center;
+  padding: 1rem;
+}

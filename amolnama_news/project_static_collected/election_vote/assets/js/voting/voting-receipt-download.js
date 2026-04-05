@@ -5,19 +5,19 @@
  * Draws receipt content onto a canvas and triggers a file download.
  */
 function downloadReceiptAsImage() {
-  var receiptCode = document.getElementById('receipt-code').textContent || '';
-  var electionName = selectedElection ? selectedElection.nameBn : '';
-  var constituencyName = selectedConstituency
+  const receiptCode = document.getElementById('receipt-code').textContent || '';
+  const electionName = selectedElection ? selectedElection.nameBn : '';
+  const constituencyName = selectedConstituency
     ? selectedConstituency.nameBn + ' (' + selectedConstituency.nameEn + ')'
     : '';
-  var partyName = selectedParty ? selectedParty.nameBn : '';
+  const partyName = selectedParty ? selectedParty.nameBn : '';
 
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
   // Canvas dimensions
-  var width = 600;
-  var height = 480;
+  const width = 600;
+  const height = 480;
   canvas.width = width;
   canvas.height = height;
 
@@ -73,7 +73,7 @@ function downloadReceiptAsImage() {
   ctx.textAlign = 'left';
   ctx.font = 'bold 14px Arial, sans-serif';
   ctx.fillStyle = '#495057';
-  var summaryY = 250;
+  let summaryY = 250;
 
   ctx.fillText('Election:', 60, summaryY);
   ctx.font = '14px Arial, sans-serif';
@@ -111,14 +111,14 @@ function downloadReceiptAsImage() {
   ctx.fillText('\u09A6\u09AF\u09BC\u09BE \u0995\u09B0\u09C7 \u098F\u0987 \u0995\u09CB\u09A1\u099F\u09BF \u0986\u09AA\u09A8\u09BE\u09B0 \u09B0\u09C7\u0995\u09B0\u09CD\u09A1\u09C7\u09B0 \u099C\u09A8\u09CD\u09AF \u09B8\u0982\u09B0\u0995\u09CD\u09B7\u09A3 \u0995\u09B0\u09C1\u09A8\u0964', width / 2, summaryY + 80);
 
   // Timestamp
-  var now = new Date();
-  var timestamp = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
+  const now = new Date();
+  const timestamp = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB');
   ctx.fillStyle = '#adb5bd';
   ctx.font = '11px Arial, sans-serif';
   ctx.fillText(timestamp, width / 2, height - 25);
 
   // Download
-  var link = document.createElement('a');
+  const link = document.createElement('a');
   link.download = 'vote-receipt-' + receiptCode + '.jpg';
   link.href = canvas.toDataURL('image/jpeg', 0.95);
   link.click();

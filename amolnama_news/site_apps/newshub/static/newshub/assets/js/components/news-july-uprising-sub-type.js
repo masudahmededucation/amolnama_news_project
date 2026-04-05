@@ -12,13 +12,13 @@
 (function () {
   'use strict';
 
-  var radios = document.querySelectorAll('input[name="july_sub_type_radio"]');
-  var hidden = document.getElementById('july-sub-type');
+  const radios = document.querySelectorAll('input[name="july_sub_type_radio"]');
+  const hidden = document.getElementById('july-sub-type');
 
   if (!hidden) return;
 
   function syncToHidden() {
-    for (var i = 0; i < radios.length; i++) {
+    for (let i = 0; i < radios.length; i++) {
       if (radios[i].checked) {
         hidden.value = radios[i].value;
         return;
@@ -27,13 +27,13 @@
     hidden.value = '';
   }
 
-  for (var i = 0; i < radios.length; i++) {
+  for (let i = 0; i < radios.length; i++) {
     radios[i].addEventListener('change', syncToHidden);
   }
 
   window.newshubJulySubType = {
     reset: function () {
-      for (var j = 0; j < radios.length; j++) {
+      for (let j = 0; j < radios.length; j++) {
         radios[j].checked = false;
       }
       hidden.value = '';

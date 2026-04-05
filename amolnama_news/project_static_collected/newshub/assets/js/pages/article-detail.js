@@ -4,10 +4,10 @@
 
   /* ---- Inline message helper (for non-photo features) ---- */
   function showInlineMessage(nearElement, text, isError) {
-    var existing = nearElement.parentNode.querySelector(".inline-message");
+    const existing = nearElement.parentNode.querySelector(".inline-message");
     if (existing) existing.remove();
 
-    var messageElement = document.createElement("div");
+    const messageElement = document.createElement("div");
     messageElement.className = "inline-message " + (isError ? "inline-message-error" : "inline-message-success");
     messageElement.textContent = text;
     nearElement.parentNode.insertBefore(messageElement, nearElement.nextSibling);
@@ -37,15 +37,15 @@
       },
       onDeleteCard: function () {
         /* Clean up empty groups after card deletion */
-        var allPhotoGrids = document.querySelectorAll('.photo-card-grid');
-        for (var gridIndex = 0; gridIndex < allPhotoGrids.length; gridIndex++) {
+        const allPhotoGrids = document.querySelectorAll('.photo-card-grid');
+        for (let gridIndex = 0; gridIndex < allPhotoGrids.length; gridIndex++) {
           if (allPhotoGrids[gridIndex].querySelectorAll('.photo-card').length === 0) {
-            var groupElement = allPhotoGrids[gridIndex].closest('.article-detail-photo-group');
+            const groupElement = allPhotoGrids[gridIndex].closest('.article-detail-photo-group');
             if (groupElement) groupElement.remove();
           }
         }
         /* If all groups gone, remove the entire section */
-        var photosSection = document.querySelector('.article-detail-photos');
+        const photosSection = document.querySelector('.article-detail-photos');
         if (photosSection && photosSection.querySelectorAll('.photo-card').length === 0) {
           photosSection.remove();
         }
@@ -71,23 +71,23 @@
   }
 
   /* ---- Comment submit ---- */
-  var commentSubmitButton = document.getElementById("article-comment-submit");
-  var commentTextarea = document.getElementById("article-comment-text");
+  const commentSubmitButton = document.getElementById("article-comment-submit");
+  const commentTextarea = document.getElementById("article-comment-text");
 
   if (commentSubmitButton && commentTextarea) {
     commentSubmitButton.addEventListener("click", function () {
-      var commentText = commentTextarea.value.trim();
+      const commentText = commentTextarea.value.trim();
       if (!commentText) {
         commentTextarea.focus();
         return;
       }
 
-      var articleId = commentSubmitButton.getAttribute("data-article-id");
+      const articleId = commentSubmitButton.getAttribute("data-article-id");
       commentSubmitButton.disabled = true;
       commentSubmitButton.textContent = "জমা হচ্ছে...";
 
       function getCookie(name) {
-        var cookieValue = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+        const cookieValue = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
         return cookieValue ? cookieValue.pop() : "";
       }
 
@@ -99,28 +99,28 @@
         },
         body: JSON.stringify({ comment_text: commentText }),
       })
-        .then(function (response) { return response.json(); })
+        .then(function (response) { if (!response.ok) throw new Error("HTTP " + response.status); return response.json(); })
         .then(function (data) {
           if (data.success) {
-            var commentsList = document.querySelector(".article-comments-list");
+            let commentsList = document.querySelector(".article-comments-list");
             if (!commentsList) {
               commentsList = document.createElement("div");
               commentsList.className = "article-comments-list";
-              var emptyMessage = document.querySelector(".article-comments p[style]");
+              const emptyMessage = document.querySelector(".article-comments p[style]");
               if (emptyMessage) emptyMessage.remove();
               document.querySelector(".article-comments").appendChild(commentsList);
             }
-            var newComment = document.createElement("div");
+            const newComment = document.createElement("div");
             newComment.className = "article-comment-card";
             newComment.innerHTML =
-              '<p class="article-comment-text">' + commentText.replace(/</g, "&lt;") + "</p>" +
+              '<p class="article-comment-text">' + escapeHtml(commentText) + "</p>" +
               '<span class="article-comment-meta">এইমাত্র</span>';
             commentsList.appendChild(newComment);
             commentTextarea.value = "";
 
-            var commentHeading = document.querySelector(".article-comments .article-section-title");
+            const commentHeading = document.querySelector(".article-comments .article-section-title");
             if (commentHeading) {
-              var currentCount = parseInt(commentHeading.textContent.match(/\d+/) || "0", 10);
+              const currentCount = parseInt(commentHeading.textContent.match(/\d+/) || "0", 10);
               commentHeading.innerHTML = '<span data-en="Comments">মন্তব্য</span> (' + (currentCount + 1) + ")";
             }
           } else {
@@ -138,25 +138,25 @@
   }
 
   /* ---- Publication status — toggle between badge and dropdown ---- */
-  var statusBadge = document.getElementById("article-status-badge");
-  var statusEditBtn = document.getElementById("article-status-edit-btn");
-  var statusSelect = document.getElementById("article-publication-status-select");
+  const statusBadge = document.getElementById("article-status-badge");
+  const statusEditBtn = document.getElementById("article-status-edit-btn");
+  const statusSelect = document.getElementById("article-publication-status-select");
 
   if (statusEditBtn && statusSelect && statusBadge) {
-    var originalStatusId = statusSelect.getAttribute("data-current");
-    var isEditing = false;
+    let originalStatusId = statusSelect.getAttribute("data-current");
+    let isEditing = false;
 
     function showBadgeMode() {
-      statusBadge.style.display = "";
-      statusEditBtn.style.display = "";
-      statusSelect.style.display = "none";
+      statusBadge.classList.remove("display-hidden");
+      statusEditBtn.classList.remove("display-hidden");
+      statusSelect.classList.add("display-hidden");
       isEditing = false;
     }
 
     function showDropdownMode() {
-      statusBadge.style.display = "none";
-      statusEditBtn.style.display = "none";
-      statusSelect.style.display = "";
+      statusBadge.classList.add("display-hidden");
+      statusEditBtn.classList.add("display-hidden");
+      statusSelect.classList.remove("display-hidden");
       statusSelect.focus();
       isEditing = true;
     }
@@ -167,16 +167,16 @@
     });
 
     statusSelect.addEventListener("change", function () {
-      var newStatusId = statusSelect.value;
+      const newStatusId = statusSelect.value;
       if (!newStatusId || newStatusId === originalStatusId) {
         showBadgeMode();
         return;
       }
 
-      var entryId = statusSelect.getAttribute("data-entry-id");
+      const entryId = statusSelect.getAttribute("data-entry-id");
 
       function getCookieValue(name) {
-        var cookieMatch = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+        const cookieMatch = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
         return cookieMatch ? cookieMatch.pop() : "";
       }
 
@@ -188,7 +188,7 @@
         },
         body: JSON.stringify({ status_id: parseInt(newStatusId, 10) }),
       })
-        .then(function (response) { return response.json(); })
+        .then(function (response) { if (!response.ok) throw new Error("HTTP " + response.status); return response.json(); })
         .then(function (data) {
           if (data.success) {
             statusBadge.className = "article-status-badge " + data.new_status_code;

@@ -213,10 +213,10 @@
 
 .bgr-checkerboard {
   background-image:
-    linear-gradient(45deg, #e0e0e0 25%, transparent 25%),
-    linear-gradient(-45deg, #e0e0e0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #e0e0e0 75%),
-    linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+    linear-gradient(45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border) 75%);
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
@@ -248,7 +248,7 @@
   flex-wrap: wrap;
   gap: .25rem .5rem;
   padding: .35rem .65rem;
-  background: #f0f7ff;
+  background: var(--info-light);
   border: 1px solid #bbdefb;
   border-radius: var(--radius-sm);
   margin-bottom: .5rem;
@@ -384,12 +384,17 @@
 .bgr-swatch:active { transform: scale(0.95); }
 .bgr-swatch.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
 
+.bgr-swatch--white      { background: var(--card); }
+.bgr-swatch--light-blue { background: #D6EAF8; }
+.bgr-swatch--red        { background: #FF0000; }
+.bgr-swatch--green      { background: #2ECC71; }
+
 .bgr-swatch--transparent {
   background-image:
-    linear-gradient(45deg, #ccc 25%, transparent 25%),
-    linear-gradient(-45deg, #ccc 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #ccc 75%),
-    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    linear-gradient(45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border) 75%);
   background-size: 8px 8px;
   background-position: 0 0, 0 4px, 4px -4px, -4px 0;
 }

@@ -1,0 +1,80 @@
+Session 2026-04-05 — Best Practice Audit (Full Stack Cleanup)
+=============================================================
+
+8-chunk audit of CSS/JS/AJAX/HTML across entire project.
+
+CHUNK 1: fetch() Error Handling — DONE
+  139 fetch() calls fixed across 47 files
+  Added .catch() + inline error messages for UI-facing fetches
+  Added if (!response.ok) checks before .json()
+
+CHUNK 2: CSS !important Removal — DONE
+  5 unnecessary !important removed (header-auth.css, marriage-form.css)
+  65 legitimate !important kept (print media, third-party overrides, utility classes)
+
+CHUNK 3: Hardcoded Colors -> CSS Variables — DONE
+  389 hex colors replaced with var() across 51 CSS files
+  1,082 skipped (brand colors, context-dependent)
+  Duplicate --accent in colors.css removed
+
+CHUNK 4: var -> const/let — DONE
+  4,279+ var declarations converted across 75+ files
+  Python script (convert_var.py) for bulk conversion
+  Post-conversion bug fixes:
+    - 65 const+varname concatenation bugs in post-home.js (missing space)
+    - 162 const->let fixes (reassigned variables incorrectly marked const)
+    - 1 duplicate const declaration (clickedPostCard in post-feed-interactions.js)
+    - 1 duplicate const (formTypeInput in news-category-tag-cascade.js)
+
+CHUNK 5: .style.display -> classList — DONE
+  23 conversions across 7 files
+  Skipped legitimate dynamic positioning (.style.left, .style.top, etc.)
+
+CHUNK 6: == to === — DONE
+  4 fixed, 2 skipped (third-party libraries)
+
+CHUNK 7: innerHTML Security Audit — DONE
+  10 XSS fixes across 4 files:
+    - article-detail.js: comment text escaping
+    - post-home.js: @mention dropdown, link preview
+    - post-feed-interactions.js: edit textarea, inline edit, feed link preview
+    - debate-arena.js: edit form (title, description, URLs, labels)
+  All fixed by wrapping user data with escapeHtml()
+
+CHUNK 8: |safe Filter Audit — DONE
+  All 124 |safe usages verified safe:
+    - JSON data in script tags
+    - Server-sanitized HTML (Quill editor with _sanitize_html())
+    - Admin-controlled content
+    - NER highlight output (text HTML-escaped before mark tags added)
+
+BUG SCAN (Post-Audit)
+  Security fixes:
+    - SSRF in link preview APIs (debate + newsengine) — added IP validation + @login_required
+    - XSS in debate-arena.js link preview — wrapped with escapeHtml()
+    - Stored XSS in travel-hub.js, beauty-hub.js — wrapped with escapeHtml()
+
+  Bug fixes:
+    - tagName === 'select' (always false) -> 'SELECT' in 4 repeater files
+    - Photo lightbox overlay showing on page load (CSS display:flex overriding hidden attribute)
+
+  Dead code cleanup:
+    - 8 unused Python imports removed
+    - 4 unused URL imports removed
+    - Leftover conversion scripts deleted
+
+  Photo lightbox modularization:
+    - Removed 3 duplicate lightbox implementations (post-feed-interactions.js, travel-hub-detail.js, travel-hub-detail.html)
+    - Single source of truth: photo-lightbox.js with init(), open(), openWithUrls(), close()
+    - HTML hidden attribute for reliable hiding (no CSS dependency)
+    - CSS uses :not([hidden]) selector to show
+
+PERFORMANCE RULE CREATED
+  - All <script> tags must use defer
+  - Hidden elements use HTML hidden attribute, not CSS display:none
+  - CSS must not set display on base class of hidden elements — use :not([hidden])
+  - Hero images get fetchpriority="high"
+  - Critical CSS/JS get rel="preload"
+
+Service worker cache: v424 -> v426
+collectstatic --clear: done

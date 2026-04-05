@@ -31,7 +31,7 @@
 }
 
 .field-mandatory-star {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .art-upload-input,

@@ -7,46 +7,46 @@
  */
 
 /* --- Voting State --- */
-var selectedElection = null;
-var selectedDivision = null;
-var selectedDistrict = null;
-var selectedConstituency = null;
-var selectedParty = null;
+let selectedElection = null;
+let selectedDivision = null;
+let selectedDistrict = null;
+let selectedConstituency = null;
+let selectedParty = null;
 
 /* --- Bot-Detection Metrics --- */
-var voteStartTime = null;
-var interactionCount = 0;
-var stepTimestamps = [];
+let voteStartTime = null;
+let interactionCount = 0;
+let stepTimestamps = [];
 
 /* --- Track user interactions for bot detection --- */
 document.addEventListener('click', function () { interactionCount++; });
 
 /* --- Inline Page Message --- */
 function showPageMessage(message, type) {
-  var container = document.getElementById('page-message');
+  let container = document.getElementById('page-message');
   if (!container) return;
   container.className = 'page-message page-message--' + (type || 'error');
   container.innerHTML = message;
-  container.style.display = 'block';
+  container.classList.remove('display-hidden');
   container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function clearPageMessage() {
-  var container = document.getElementById('page-message');
+  const container = document.getElementById('page-message');
   if (container) {
-    container.style.display = 'none';
+    container.classList.add('display-hidden');
     container.innerHTML = '';
   }
 }
 
 /* --- CSRF Helper --- */
 function getCSRFToken() {
-  var name = 'csrftoken';
-  var cookieValue = null;
+  const name = 'csrftoken';
+  let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = cookies[i].trim();
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
       if (cookie.substring(0, name.length + 1) === (name + '=')) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -58,13 +58,13 @@ function getCSRFToken() {
 
 /* --- Election selection via event delegation (no inline onclick) --- */
 document.addEventListener('click', function (event) {
-  var electionOption = event.target.closest('.election-selection-option');
+  const electionOption = event.target.closest('.election-selection-option');
   if (!electionOption) return;
 
-  var electionEvaluationId = parseInt(electionOption.getAttribute('data-election-evaluation-id'), 10);
-  var electionId = parseInt(electionOption.getAttribute('data-election-id'), 10);
-  var nameEn = electionOption.getAttribute('data-name-en');
-  var nameBn = electionOption.getAttribute('data-name-bn');
+  const electionEvaluationId = parseInt(electionOption.getAttribute('data-election-evaluation-id'), 10);
+  const electionId = parseInt(electionOption.getAttribute('data-election-id'), 10);
+  const nameEn = electionOption.getAttribute('data-name-en');
+  const nameBn = electionOption.getAttribute('data-name-bn');
 
   if (typeof handleElectionSelection === 'function') {
     handleElectionSelection(electionEvaluationId, electionId, nameEn, nameBn);

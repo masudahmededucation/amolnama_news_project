@@ -5,6 +5,7 @@
 @import url('components/voting-selection.css');
 @import url('components/voting-progress.css');
 @import url('components/voting-form.css');
+@import url('components/voting-results.css');
 
 /* Note: This file consolidates all CSS imports */
 /* Individual component files are organized in: */

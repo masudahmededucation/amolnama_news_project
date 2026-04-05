@@ -17,14 +17,14 @@
 (function () {
   'use strict';
 
-  var hiddenInput      = document.getElementById('entertainment-cast-release-json');
+  const hiddenInput      = document.getElementById('entertainment-cast-release-json');
   if (!hiddenInput) return;
 
-  var leadCastEl       = document.getElementById('entertainment-lead-cast');
-  var suppCastEl       = document.getElementById('entertainment-supporting-cast');
-  var releaseDateEl    = document.getElementById('entertainment-release-date');
-  var platformSelect   = document.getElementById('entertainment-platform-select');
-  var genreSelect      = document.getElementById('entertainment-genre-select');
+  const leadCastEl       = document.getElementById('entertainment-lead-cast');
+  const suppCastEl       = document.getElementById('entertainment-supporting-cast');
+  const releaseDateEl    = document.getElementById('entertainment-release-date');
+  const platformSelect   = document.getElementById('entertainment-platform-select');
+  const genreSelect      = document.getElementById('entertainment-genre-select');
 
   function collectData() {
     return {
@@ -41,23 +41,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-entertainment-cast-release');
+  const section = document.getElementById('section-entertainment-cast-release');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (leadCastEl && data.leadCast)         leadCastEl.value     = data.leadCast;

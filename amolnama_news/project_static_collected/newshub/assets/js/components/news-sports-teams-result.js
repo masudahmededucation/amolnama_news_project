@@ -20,17 +20,17 @@
 (function () {
   'use strict';
 
-  var hiddenInput    = document.getElementById('sports-teams-result-json');
+  const hiddenInput    = document.getElementById('sports-teams-result-json');
   if (!hiddenInput) return;
 
-  var teamAEl        = document.getElementById('sports-team-a');
-  var teamBEl        = document.getElementById('sports-team-b');
-  var scoreAEl       = document.getElementById('sports-score-a');
-  var scoreBEl       = document.getElementById('sports-score-b');
-  var resultEl       = document.getElementById('sports-result-summary');
-  var tossWinnerEl   = document.getElementById('sports-toss-winner');
-  var tossDecisionEl = document.getElementById('sports-toss-decision');
-  var potmEl         = document.getElementById('sports-player-of-match');
+  const teamAEl        = document.getElementById('sports-team-a');
+  const teamBEl        = document.getElementById('sports-team-b');
+  const scoreAEl       = document.getElementById('sports-score-a');
+  const scoreBEl       = document.getElementById('sports-score-b');
+  const resultEl       = document.getElementById('sports-result-summary');
+  const tossWinnerEl   = document.getElementById('sports-toss-winner');
+  const tossDecisionEl = document.getElementById('sports-toss-decision');
+  const potmEl         = document.getElementById('sports-player-of-match');
 
   function collectData() {
     return {
@@ -50,23 +50,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-sports-teams-result');
+  const section = document.getElementById('section-sports-teams-result');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (teamAEl && data.teamA)               teamAEl.value        = data.teamA;

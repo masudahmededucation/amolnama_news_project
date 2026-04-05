@@ -326,7 +326,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff;
+  border-top-color: var(--card);
   border-radius: 50%;
   animation: zip-spin .6s linear infinite;
 }
@@ -389,7 +389,7 @@
 }
 
 .zip-result-details .zip-savings-positive {
-  color: #2e7d32;
+  color: var(--primary);
 }
 
 .zip-result-details .zip-savings-neutral {
@@ -453,7 +453,7 @@
   font-size: .8rem;
   line-height: 1.5;
   color: #5d4037;
-  background: #fff8e1;
+  background: var(--warning-light);
   border: 1px solid #ffe082;
   border-radius: var(--radius-sm);
 }

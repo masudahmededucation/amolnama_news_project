@@ -14,36 +14,36 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('wcv-victim');
+  const hiddenJson = document.getElementById('wcv-victim');
   if (!hiddenJson) return;
 
   /* ---- WCV-specific fields (Group 3) ---- */
-  var marital         = document.getElementById('wcv-victim-marital');
-  var husbandRow      = document.getElementById('wcv-husband-row');
-  var husbandFirstName = document.getElementById('wcv-victim-husband-firstname');
-  var husbandLastName  = document.getElementById('wcv-victim-husband-lastname');
-  var marriageDate     = document.getElementById('wcv-victim-marriage-date');
-  var occupation       = document.getElementById('wcv-victim-occupation');
-  var institution      = document.getElementById('wcv-victim-institution');
+  const marital         = document.getElementById('wcv-victim-marital');
+  const husbandRow      = document.getElementById('wcv-husband-row');
+  const husbandFirstName = document.getElementById('wcv-victim-husband-firstname');
+  const husbandLastName  = document.getElementById('wcv-victim-husband-lastname');
+  const marriageDate     = document.getElementById('wcv-victim-marriage-date');
+  const occupation       = document.getElementById('wcv-victim-occupation');
+  const institution      = document.getElementById('wcv-victim-institution');
 
   /* ========== Parse reference data (for JS-populated fields only) ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var maritalStatuses   = parseJsonData('wcv-marital-statuses-data');
-  var victimOccupations = parseJsonData('wcv-victim-occupations-data');
+  const maritalStatuses   = parseJsonData('wcv-marital-statuses-data');
+  const victimOccupations = parseJsonData('wcv-victim-occupations-data');
 
   /* ========== Populate JS-driven selects (marital, occupation) ========== */
 
   function populateSelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      const s = items[i];
+      let opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -57,15 +57,15 @@
 
   function getSelectText(selectEl) {
     if (!selectEl || !selectEl.value) return '';
-    var opt = selectEl.options[selectEl.selectedIndex];
+    const opt = selectEl.options[selectEl.selectedIndex];
     return opt ? opt.textContent.trim() : '';
   }
 
   /* ========== Conditional: husband row ========== */
 
-  var marriedStatusIds = [];
-  for (var m = 0; m < maritalStatuses.length; m++) {
-    var code = (maritalStatuses[m].status_code || '');
+  const marriedStatusIds = [];
+  for (let m = 0; m < maritalStatuses.length; m++) {
+    const code = (maritalStatuses[m].status_code || '');
     if (code === 'married' || code === 'divorced' || code === 'widowed' || code === 'separated') {
       marriedStatusIds.push(String(maritalStatuses[m].status_id));
     }
@@ -73,8 +73,8 @@
 
   function toggleHusband() {
     if (!husbandRow || !marital) return;
-    var show = marriedStatusIds.indexOf(marital.value) !== -1;
-    husbandRow.style.display = show ? '' : 'none';
+    const show = marriedStatusIds.indexOf(marital.value) !== -1;
+    show ? husbandRow.classList.remove('display-hidden') : husbandRow.classList.add('display-hidden');
     if (!show) {
       if (husbandFirstName) husbandFirstName.value = '';
       if (husbandLastName)  husbandLastName.value  = '';
@@ -84,16 +84,16 @@
 
   /* ========== Serialize ========== */
 
-  var PREFIX = 'wcv-victim';
+  const PREFIX = 'wcv-victim';
 
   function serialize() {
     /* Read standard groups via shared modules */
-    var nameData     = window.newshubPersonName.read(PREFIX);
-    var identityData = window.newshubPersonIdentity.read(PREFIX);
+    let nameData     = window.newshubPersonName.read(PREFIX);
+    const identityData = window.newshubPersonIdentity.read(PREFIX);
 
     /* Merge with WCV-specific fields */
-    var data = {};
-    var k;
+    const data = {};
+    const k;
     for (k in nameData)     { data[k] = nameData[k]; }
     for (k in identityData) { data[k] = identityData[k]; }
 
@@ -117,15 +117,15 @@
   window.newshubPersonIdentity.bind(PREFIX, serialize);
 
   /* Age — extra validation (WCV-specific clamping) */
-  var ageEl = document.getElementById('wcv-victim-age');
+  const ageEl = document.getElementById('wcv-victim-age');
   if (ageEl) ageEl.addEventListener('input', function () {
-    var val = parseInt(this.value, 10);
-    var ageError   = document.getElementById('wcv-age-error');
-    var ageWarning = document.getElementById('wcv-age-warning');
-    var exceeded = !isNaN(val) && val > 100;
+    const val = parseInt(this.value, 10);
+    const ageError   = document.getElementById('wcv-age-error');
+    const ageWarning = document.getElementById('wcv-age-warning');
+    const exceeded = !isNaN(val) && val > 100;
     if (exceeded) this.value = 100;
-    if (ageError)   ageError.style.display   = exceeded ? '' : 'none';
-    if (ageWarning) ageWarning.style.display  = (!exceeded && !isNaN(val) && val > 50) ? '' : 'none';
+    if (ageError)   exceeded ? ageError.classList.remove('display-hidden') : ageError.classList.add('display-hidden');
+    if (ageWarning) (!exceeded && !isNaN(val) && val > 50) ? ageWarning.classList.remove('display-hidden') : ageWarning.classList.add('display-hidden');
     serialize();
   });
 
@@ -137,7 +137,7 @@
   if (occupation) occupation.addEventListener('change', serialize);
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* Initial state */
@@ -161,20 +161,20 @@
   };
 
   /* Step validator: require all mandatory victim fields */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
-      var nameData = window.newshubPersonName.read(PREFIX);
+      const warnings = [];
+      const nameData = window.newshubPersonName.read(PREFIX);
       if (!nameData.firstNameEn) {
         warnings.push('\u09AD\u09C1\u0995\u09CD\u09A4\u09AD\u09CB\u0997\u09C0\u09B0 \u09AA\u09CD\u09B0\u09A5\u09AE \u09A8\u09BE\u09AE (\u0987\u0982\u09B0\u09C7\u099C\u09BF) \u09A6\u09BF\u09A8 (Please enter victim first name in English)');
       }
       if (!nameData.lastNameEn) {
         warnings.push('\u09AD\u09C1\u0995\u09CD\u09A4\u09AD\u09CB\u0997\u09C0\u09B0 \u09B6\u09C7\u09B7 \u09A8\u09BE\u09AE (\u0987\u0982\u09B0\u09C7\u099C\u09BF) \u09A6\u09BF\u09A8 (Please enter victim last name in English)');
       }
-      var idData = window.newshubPersonIdentity.read(PREFIX);
+      const idData = window.newshubPersonIdentity.read(PREFIX);
       if (!idData.age || idData.age <= 0) {
         warnings.push('\u09AD\u09C1\u0995\u09CD\u09A4\u09AD\u09CB\u0997\u09C0\u09B0 \u09AC\u09AF\u09BC\u09B8 \u09A6\u09BF\u09A8 (Please enter victim age)');
       }

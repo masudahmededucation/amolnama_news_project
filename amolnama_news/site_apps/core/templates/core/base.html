@@ -29,6 +29,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.quilljs.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Critical inline CSS — page never looks broken even if external CSS fails (offline) -->
@@ -46,7 +49,8 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/colors.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/typography.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/utilities/spacing.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/animations.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/animations.css' %}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{% static 'core/assets/css/utilities/forms.css' %}">
 
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/header.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/layout/grid.css' %}">
@@ -57,10 +61,10 @@
   <link rel="stylesheet" href="{% static 'core/assets/css/components/navigation.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/cards.css' %}">
   <link rel="stylesheet" href="{% static 'core/assets/css/components/buttons.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/components/loading.css' %}">
-  <link rel="stylesheet" href="{% static 'core/assets/css/components/pwa-install-banner.css' %}">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/footer.css' %}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/modals.css' %}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/loading.css' %}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{% static 'core/assets/css/components/pwa-install-banner.css' %}" media="print" onload="this.media='all'">
 
   <link rel="stylesheet" href="{% static 'user_account/assets/css/layout/header-auth.css' %}">
   
@@ -97,23 +101,27 @@
     {% include "core/partials/right-panel.html" %}
   </div>
 
+  <!-- Sync utilities — page-specific inline scripts depend on these -->
   <script src="{% static 'core/assets/js/utilities/csrf-token.js' %}"></script>
   <script src="{% static 'core/assets/js/utilities/escape-html.js' %}"></script>
   <script src="{% static 'core/assets/js/components/file-dropzone.js' %}"></script>
-  <script src="{% static 'core/assets/js/components/notification-bell.js' %}"></script>
+
   {% block extra_js %}{% endblock %}
-  <script src="{% static 'core/assets/js/components/theme-toggle.js' %}"></script>
-  <script src="{% static 'core/assets/js/components/sidebar-navigation.js' %}"></script>
-  <script src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
-  <script src="{% static 'user_account/assets/js/header-user-menu.js' %}"></script>
-  <script src="{% static 'englishtobangla/assets/js/utilities/avro-phonetic.js' %}"></script>
-  <script src="{% static 'englishtobangla/assets/js/utilities/bangla-input.js' %}"></script>
-  <script src="{% static 'englishtobangla/assets/js/utilities/bangla-input-auto-attach.js' %}"></script>
-  <script src="{% static 'englishtobangla/assets/js/utilities/quill-avro.js' %}"></script>
-  <script src="{% static 'newshub/assets/js/components/news-form-lang.js' %}"></script>
-  <script src="{% static 'core/assets/js/components/right-panel-trending.js' %}"></script>
-  <script src="{% static 'core/assets/js/pwa-register-sw.js' %}"></script>
-  <script src="{% static 'core/assets/js/pwa-install-prompt.js' %}"></script>
-  <script src="{% static 'core/assets/js/utilities/spa-navigation.js' %}"></script>
+
+  <!-- Deferred — download in parallel, execute after HTML parsed, in order -->
+  <script defer src="{% static 'core/assets/js/components/notification-bell.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/components/theme-toggle.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/components/sidebar-navigation.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/utilities/liveclock.js' %}"></script>
+  <script defer src="{% static 'user_account/assets/js/header-user-menu.js' %}"></script>
+  <script defer src="{% static 'englishtobangla/assets/js/utilities/avro-phonetic.js' %}"></script>
+  <script defer src="{% static 'englishtobangla/assets/js/utilities/bangla-input.js' %}"></script>
+  <script defer src="{% static 'englishtobangla/assets/js/utilities/bangla-input-auto-attach.js' %}"></script>
+  <script defer src="{% static 'englishtobangla/assets/js/utilities/quill-avro.js' %}"></script>
+  <script defer src="{% static 'newshub/assets/js/components/news-form-lang.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/components/right-panel-trending.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/pwa-register-sw.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/pwa-install-prompt.js' %}"></script>
+  <script defer src="{% static 'core/assets/js/utilities/spa-navigation.js' %}"></script>
 </body>
 </html>

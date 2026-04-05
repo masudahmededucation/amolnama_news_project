@@ -2,15 +2,15 @@
 (function () {
   'use strict';
 
-  var dashboardElement = document.getElementById('content-dashboard');
+  const dashboardElement = document.getElementById('content-dashboard');
   if (!dashboardElement) return;
 
 
   /* ---- FILTER TABS ---- */
-  var filterButtons = document.querySelectorAll('.content-dashboard-filter');
+  const filterButtons = document.querySelectorAll('.content-dashboard-filter');
   filterButtons.forEach(function (filterButton) {
     filterButton.addEventListener('click', function () {
-      var filterValue = filterButton.getAttribute('data-filter');
+      const filterValue = filterButton.getAttribute('data-filter');
 
       /* Update active tab */
       filterButtons.forEach(function (otherButton) {
@@ -19,7 +19,7 @@
       filterButton.classList.add('content-dashboard-filter-active');
 
       /* Show/hide items */
-      var allItems = document.querySelectorAll('.content-dashboard-item');
+      const allItems = document.querySelectorAll('.content-dashboard-item');
       allItems.forEach(function (item) {
         if (filterValue === 'all' || item.getAttribute('data-content-type') === filterValue) {
           item.style.display = '';
@@ -32,12 +32,12 @@
 
   /* ---- PUBLISH/UNPUBLISH TOGGLE (checkbox slider) ---- */
   document.addEventListener('change', function (event) {
-    var toggleInput = event.target.closest('.content-dashboard-toggle-input');
+    const toggleInput = event.target.closest('.content-dashboard-toggle-input');
     if (!toggleInput) return;
 
-    var contentType = toggleInput.getAttribute('data-content-type');
-    var contentId = parseInt(toggleInput.getAttribute('data-content-id'), 10);
-    var newPublishState = toggleInput.checked;
+    const contentType = toggleInput.getAttribute('data-content-type');
+    const contentId = parseInt(toggleInput.getAttribute('data-content-id'), 10);
+    const newPublishState = toggleInput.checked;
 
     toggleInput.disabled = true;
 
@@ -50,12 +50,12 @@
         publish: newPublishState,
       }),
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
         /* Update status badge */
-        var itemRow = toggleInput.closest('.content-dashboard-item');
-        var statusBadge = itemRow.querySelector('.content-dashboard-item-status');
+        const itemRow = toggleInput.closest('.content-dashboard-item');
+        const statusBadge = itemRow.querySelector('.content-dashboard-item-status');
         if (statusBadge) {
           statusBadge.textContent = newPublishState ? 'Published' : 'Draft';
           statusBadge.className = 'content-dashboard-item-status ' +

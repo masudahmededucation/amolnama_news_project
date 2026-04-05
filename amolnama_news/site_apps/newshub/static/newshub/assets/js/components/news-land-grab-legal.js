@@ -25,20 +25,20 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('land-legal');
+  const hiddenJson = document.getElementById('land-legal');
   if (!hiddenJson) return;
 
   /* ========== DOM references ========== */
 
-  var lawContainer         = document.getElementById('land-applicable-law-checkboxes');
-  var caseStatus           = document.getElementById('land-case-status');
-  var supportContainer     = document.getElementById('land-support-service-checkboxes');
-  var retaliationContainer = document.getElementById('land-retaliation-checkboxes');
-  var remarks              = document.getElementById('land-remarks');
+  const lawContainer         = document.getElementById('land-applicable-law-checkboxes');
+  const caseStatus           = document.getElementById('land-case-status');
+  const supportContainer     = document.getElementById('land-support-service-checkboxes');
+  const retaliationContainer = document.getElementById('land-retaliation-checkboxes');
+  const remarks              = document.getElementById('land-remarks');
 
   /* ========== Init shared GD/FIR module ========== */
 
-  var firApi = null;
+  let firApi = null;
   if (window.newshubLawGdFir) {
     firApi = window.newshubLawGdFir.initLawGdFirSection({
       prefix: 'legal',
@@ -49,25 +49,25 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var lawData         = parseJsonData('land-applicable-law-data');
-  var caseStatusData  = parseJsonData('land-case-status-data');
-  var supportData     = parseJsonData('land-support-service-data');
-  var retaliationData = parseJsonData('land-retaliation-data');
+  const lawData         = parseJsonData('land-applicable-law-data');
+  const caseStatusData  = parseJsonData('land-case-status-data');
+  const supportData     = parseJsonData('land-support-service-data');
+  const retaliationData = parseJsonData('land-retaliation-data');
 
   /* ========== Populate helpers ========== */
 
   function populateCheckboxes(container, checkboxName, items) {
     if (!container || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      const label = document.createElement('label');
       label.className = 'checkbox-inline';
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'checkbox';
       input.name = checkboxName;
       input.value = s.status_id;
@@ -83,9 +83,9 @@
 
   function populateSelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      const s = items[i];
+      const opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -105,8 +105,8 @@
   /* ========== Helpers ========== */
 
   function getCheckedIds(checkboxes) {
-    var ids = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const ids = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) ids.push(parseInt(checkboxes[i].value, 10));
     }
     return ids;
@@ -115,7 +115,7 @@
   /* ========== Serialize ========== */
 
   function serialize() {
-    var data = {
+    const data = {
       firStatusId:            firApi ? firApi.getFirStatusId()            : 0,
       policeStation:          firApi ? firApi.getPoliceStation()          : '',
       caseNumber:             firApi ? firApi.getCaseNumber()             : '',
@@ -135,7 +135,7 @@
   if (caseStatus) caseStatus.addEventListener('change', serialize);
   if (remarks)    remarks.addEventListener('input', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* Initial state — skip if persist already restored a value */
@@ -143,12 +143,12 @@
 
   /* ========== Step validator ========== */
 
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!firApi || !firApi.getFirStatusId()) {
         warnings.push('এফআইআর/জিডি অবস্থা নির্বাচন করুন (Please select FIR/GD status)');
       }
@@ -163,12 +163,12 @@
 
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var saved;
+    let saved;
     try { saved = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!saved) return;
 
     if (saved.firStatusId) {
-      var firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
+      const firRadio = document.querySelector('input[name="legal_fir_status"][value="' + saved.firStatusId + '"]');
       if (firRadio) {
         firRadio.checked = true;
         firRadio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -176,8 +176,8 @@
     }
 
     if (saved.applicableLawIds && saved.applicableLawIds.length) {
-      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
-      for (var i = 0; i < lc.length; i++) {
+      let lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (let i = 0; i < lc.length; i++) {
         if (saved.applicableLawIds.indexOf(parseInt(lc[i].value, 10)) !== -1) {
           lc[i].checked = true;
         }
@@ -189,7 +189,7 @@
     }
 
     if (saved.supportServiceIds && saved.supportServiceIds.length) {
-      for (var j = 0; j < sc.length; j++) {
+      for (let j = 0; j < sc.length; j++) {
         if (saved.supportServiceIds.indexOf(parseInt(sc[j].value, 10)) !== -1) {
           sc[j].checked = true;
         }
@@ -197,7 +197,7 @@
     }
 
     if (saved.retaliationIds && saved.retaliationIds.length) {
-      for (var k = 0; k < rc.length; k++) {
+      for (let k = 0; k < rc.length; k++) {
         if (saved.retaliationIds.indexOf(parseInt(rc[k].value, 10)) !== -1) {
           rc[k].checked = true;
         }
@@ -215,10 +215,10 @@
 
   window.newshubLandGrabLegal = {
     reset: function () {
-      var lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
-      for (var i = 0; i < lc.length; i++)         lc[i].checked         = false;
-      for (var j = 0; j < sc.length; j++)     sc[j].checked     = false;
-      for (var k = 0; k < rc.length; k++) rc[k].checked = false;
+      const lc = getLawCheckboxes(), sc = getSupportCheckboxes(), rc = getRetaliationCheckboxes();
+      for (let i = 0; i < lc.length; i++)         lc[i].checked         = false;
+      for (let j = 0; j < sc.length; j++)     sc[j].checked     = false;
+      for (let k = 0; k < rc.length; k++) rc[k].checked = false;
       if (caseStatus) caseStatus.selectedIndex = 0;
       if (remarks)    remarks.value = '';
       if (firApi) firApi.resetFir();

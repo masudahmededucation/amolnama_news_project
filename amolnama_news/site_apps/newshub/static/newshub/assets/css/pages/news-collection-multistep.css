@@ -204,8 +204,8 @@
   background: rgba(0, 0, 0, .25);
 }
 .form-type-card[data-type="women_child_violence"]:hover {
-  border-color: #7c3aed;
-  background: #7c3aed;
+  border-color: var(--purple);
+  background: var(--purple);
 }
 .form-type-card[data-type="women_child_violence"].selected {
   border-color: #a855f7;
@@ -245,11 +245,11 @@
   text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
 }
 .form-type-card[data-type="july_uprising_2024"]:hover {
-  border-color: #b91c1c;
+  border-color: var(--danger-text);
   background: #145a2f;
 }
 .form-type-card[data-type="july_uprising_2024"].selected {
-  border-color: #b91c1c;
+  border-color: var(--danger-text);
   background: #145a2f;
   box-shadow: 0 0 0 3px rgba(185, 28, 28, .3);
 }
@@ -261,22 +261,22 @@
   inset: 0;
   background:
     /* Splat 1: top-right — overlapping ellipses form irregular blob */
-    radial-gradient(22px 16px at 94% 14%, #a30000 99%, transparent 100%),
-    radial-gradient(14px 20px at 90% 8%,  #a30000 99%, transparent 100%),
-    radial-gradient(10px 8px  at 98% 24%, #8b0000 99%, transparent 100%),
-    radial-gradient(7px  12px at 86% 18%, #a30000 99%, transparent 100%),
-    radial-gradient(5px  5px  at 83% 6%,  #a30000 99%, transparent 100%),
-    radial-gradient(3px  3px  at 80% 12%, #8b0000 99%, transparent 100%),
+    radial-gradient(22px 16px at 94% 14%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(14px 20px at 90% 8%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(10px 8px  at 98% 24%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(7px  12px at 86% 18%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(5px  5px  at 83% 6%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(3px  3px  at 80% 12%, var(--danger-text) 99%, transparent 100%),
     /* Splat 2: bottom-right corner */
-    radial-gradient(18px 14px at 96% 82%, #a30000 99%, transparent 100%),
-    radial-gradient(12px 16px at 100% 76%, #8b0000 99%, transparent 100%),
-    radial-gradient(8px  6px  at 92% 90%, #a30000 99%, transparent 100%),
-    radial-gradient(4px  4px  at 88% 86%, #a30000 99%, transparent 100%),
+    radial-gradient(18px 14px at 96% 82%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(12px 16px at 100% 76%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(8px  6px  at 92% 90%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(4px  4px  at 88% 86%, var(--danger-text) 99%, transparent 100%),
     /* Splat 3: bottom-left — smaller blob */
-    radial-gradient(14px 12px at 5% 86%,  #a30000 99%, transparent 100%),
-    radial-gradient(10px 14px at 8% 92%,  #8b0000 99%, transparent 100%),
-    radial-gradient(6px  5px  at 12% 82%, #a30000 99%, transparent 100%),
-    radial-gradient(3px  3px  at 14% 94%, #a30000 99%, transparent 100%);
+    radial-gradient(14px 12px at 5% 86%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(10px 14px at 8% 92%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(6px  5px  at 12% 82%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(3px  3px  at 14% 94%, var(--danger-text) 99%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -287,19 +287,19 @@
   inset: 0;
   background:
     /* Small splat: mid-right */
-    radial-gradient(8px  6px  at 92% 48%, #a30000 99%, transparent 100%),
-    radial-gradient(5px  8px  at 95% 44%, #8b0000 99%, transparent 100%),
-    radial-gradient(3px  3px  at 88% 52%, #a30000 99%, transparent 100%),
+    radial-gradient(8px  6px  at 92% 48%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(5px  8px  at 95% 44%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(3px  3px  at 88% 52%, var(--danger-text) 99%, transparent 100%),
     /* Small splat: top-left */
-    radial-gradient(8px  10px at 6%  12%, #8b0000 99%, transparent 100%),
-    radial-gradient(6px  5px  at 10% 8%,  #a30000 99%, transparent 100%),
-    radial-gradient(3px  3px  at 3%  18%, #a30000 99%, transparent 100%),
+    radial-gradient(8px  10px at 6%  12%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(6px  5px  at 10% 8%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(3px  3px  at 3%  18%, var(--danger-text) 99%, transparent 100%),
     /* Scattered lone droplets */
-    radial-gradient(3px  3px  at 76% 92%, #a30000 99%, transparent 100%),
-    radial-gradient(2px  2px  at 22% 5%,  #8b0000 99%, transparent 100%),
-    radial-gradient(2px  3px  at 70% 6%,  #a30000 99%, transparent 100%),
-    radial-gradient(2px  2px  at 82% 30%, #8b0000 99%, transparent 100%),
-    radial-gradient(2px  2px  at 16% 70%, #a30000 99%, transparent 100%);
+    radial-gradient(3px  3px  at 76% 92%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(2px  2px  at 22% 5%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(2px  3px  at 70% 6%,  var(--danger-text) 99%, transparent 100%),
+    radial-gradient(2px  2px  at 82% 30%, var(--danger-text) 99%, transparent 100%),
+    radial-gradient(2px  2px  at 16% 70%, var(--danger-text) 99%, transparent 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -511,8 +511,8 @@
 /* ---- Step validation warnings (shown when Next blocked by repeater validation) ---- */
 .step-validation-messages {
   background: var(--danger-light);
-  border: 1px solid #fca5a5;
-  border-left: 4px solid #ef4444;
+  border: 1px solid var(--danger-border);
+  border-left: 4px solid var(--danger);
   border-radius: 0 .375rem .375rem 0;
   padding: .75rem 1rem;
   margin-bottom: 1rem;
@@ -934,7 +934,7 @@ span.flatpickr-weekday {
 
 .contradiction-block-then {
   border-left-color: #1976D2;
-  background: #E3F2FD;
+  background: var(--info-light);
 }
 
 .contradiction-block-then .contradiction-block-title {
@@ -976,7 +976,7 @@ span.flatpickr-weekday {
 /* Statement Watchdog — Blue */
 .radio-card-group[data-group="watchdog_bangladesh_form_watchdog_statment"] {
   border-left-color: #1976D2;
-  background: #E3F2FD;
+  background: var(--info-light);
 }
 .radio-card-group[data-group="watchdog_bangladesh_form_watchdog_statment"] .radio-card-group-title {
   color: #1565C0;
@@ -1038,7 +1038,7 @@ span.flatpickr-weekday {
   border-radius: 6px;
   padding: .75rem 1rem;
   margin-bottom: 1rem;
-  background: #F5F5F5;
+  background: var(--surface);
 }
 
 .watchdog-selection-info {
@@ -1084,4 +1084,21 @@ span.flatpickr-weekday {
   background: linear-gradient(135deg, #1565C0, #0D47A1);
   box-shadow: 0 3px 10px rgba(25, 118, 210, .45);
   transform: translateY(-1px);
+}
+
+/* ======== Inline-style migration: component utility classes ======== */
+
+/* WCV victim form — green left border on actor groups */
+.actor-group-victim {
+  border-left-color: #66bb6a;
+}
+
+/* Land grab — area input + unit select flex layout */
+.land-grab-area-amount-input {
+  flex: 1;
+}
+
+.land-grab-area-unit-select {
+  flex: 0 0 auto;
+  min-width: 130px;
 }

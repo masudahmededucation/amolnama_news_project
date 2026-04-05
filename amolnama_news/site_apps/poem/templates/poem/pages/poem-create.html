@@ -13,7 +13,7 @@
 
   {# ── Form Panel ── #}
   <div class="poem-create-form-panel">
-    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+    <div class="poem-create-title-row">
       <h1 id="poemCreateTitle" data-bn="কবিতা লিখুন" data-en="Write a Poem">কবিতা লিখুন (Write a Poem)</h1>
       <span class="poem-create-draft-badge" id="poemDraftBadge" data-bn="খসড়া সংরক্ষিত" data-en="Draft saved">খসড়া সংরক্ষিত (Draft saved)</span>
     </div>
@@ -24,7 +24,7 @@
 
     <form id="poemCreateForm" novalidate>
       {# Category #}
-      <div class="poem-create-group" style="margin-bottom:1rem;">
+      <div class="poem-create-group">
         <label class="poem-create-label" for="poem-category" data-bn="ধরন *" data-en="Category *">ধরন (Category) *</label>
         <select class="poem-create-select" id="poem-category" name="poem-category" required>
           <option value="" data-bn="-- বাছাই করুন --" data-en="-- Select --">-- বাছাই করুন (Select) --</option>
@@ -35,82 +35,82 @@
       </div>
 
       {# Writer's Name / Pen Name #}
-      <div class="poem-create-group" style="margin-bottom:1rem;">
+      <div class="poem-create-group">
         <label class="poem-create-label" id="labelAuthor" for="poem-author-name" data-bn="লেখকের নাম / ছদ্মনাম *" data-en="Writer's Name / Pen Name *">লেখকের নাম / ছদ্মনাম (Writer's Name / Pen Name) *</label>
         <input type="text" class="poem-create-input" id="poem-author-name" name="poem-author-name" maxlength="200" autocomplete="off" placeholder="যেমন: রবীন্দ্রনাথ ঠাকুর, কাজী নজরুল ইসলাম...">
-        <small id="hintAuthor" style="color:var(--muted);font-size:.72rem;" data-bn="আপনার আসল নাম বা কলমের নাম" data-en="Your real name or pen name">আপনার আসল নাম বা কলমের নাম (Your real name or pen name)</small>
+        <small id="hintAuthor" class="form-hint" data-bn="আপনার আসল নাম বা কলমের নাম" data-en="Your real name or pen name">আপনার আসল নাম বা কলমের নাম (Your real name or pen name)</small>
       </div>
 
       {# Title — Bengali #}
-      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-bn">
         <label class="poem-create-label" id="labelTitleBn" for="poem-title-bn" data-bn="শিরোনাম *" data-en="Title *">শিরোনাম *</label>
         <input type="text" class="poem-create-input" id="poem-title-bn" name="poem-title-bn" maxlength="200" autocomplete="off" placeholder="যেমন: আমার সোনার বাংলা, বিদ্রোহী, মৃত্যুক্ষুধা...">
       </div>
 
       {# Title — English #}
-      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden">
         <label class="poem-create-label" for="poem-title-en">Title (English)</label>
         <input type="text" class="poem-create-input" id="poem-title-en" name="poem-title-en" maxlength="200" autocomplete="off" placeholder="e.g. The Rebel, Death Hunger, Golden Bengal...">
       </div>
 
       {# Body — Bengali #}
-      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-bn">
         <label class="poem-create-label" id="labelBodyBn" for="poem-body-bn" data-bn="কবিতা *" data-en="Poem *">কবিতা *</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-bn" name="poem-body-bn" placeholder="এখানে আপনার কবিতা লিখুন..."></textarea>
         <span class="poem-create-counter" id="poemBodyBnCounter">০ লাইন | ০ অক্ষর</span>
       </div>
 
       {# Body — English #}
-      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden">
         <label class="poem-create-label" for="poem-body-en">Poem (English)</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-en" name="poem-body-en" placeholder="Write your poem here..."></textarea>
         <span class="poem-create-counter" id="poemBodyEnCounter">0 lines | 0 chars</span>
       </div>
 
       {# Backstory — Bengali #}
-      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-bn">
         <label class="poem-create-label" id="labelBackstoryBn" for="poem-backstory-bn" data-bn="রচনার গল্প (ঐচ্ছিক)" data-en="Story Behind (optional)">রচনার গল্প (Story Behind) ঐচ্ছিক</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-backstory-bn" name="poem-backstory-bn" placeholder="এই কবিতা লেখার পেছনের গল্প বা অনুপ্রেরণা..."></textarea>
       </div>
 
       {# Backstory — English #}
-      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden">
         <label class="poem-create-label" for="poem-backstory-en">Story Behind <small>optional</small></label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-backstory-en" name="poem-backstory-en" placeholder="The story or inspiration behind this poem..."></textarea>
       </div>
 
       {# Interpretation — Bengali #}
-      <div class="poem-create-group lang-field-bn" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-bn">
         <label class="poem-create-label" id="labelInterpretationBn" for="poem-interpretation-bn" data-bn="কবির ভাবনা (ঐচ্ছিক)" data-en="Poet's Interpretation (optional)">কবির ভাবনা (Poet's Interpretation) ঐচ্ছিক</label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-interpretation-bn" name="poem-interpretation-bn" placeholder="কবিতার অর্থ বা কবি কী বোঝাতে চেয়েছেন..."></textarea>
       </div>
 
       {# Interpretation — English #}
-      <div class="poem-create-group lang-field-en lang-hidden" style="margin-bottom:1rem;">
+      <div class="poem-create-group lang-field-en lang-hidden">
         <label class="poem-create-label" for="poem-interpretation-en">Poet's Interpretation <small>optional</small></label>
         <textarea class="poem-create-textarea poem-create-textarea--secondary" id="poem-interpretation-en" name="poem-interpretation-en" placeholder="What the poet intended to convey..."></textarea>
       </div>
 
       {# Audio URL #}
-      <div class="poem-create-group" style="margin-bottom:1rem;">
+      <div class="poem-create-group">
         <label class="poem-create-label" id="labelAudioUrl" for="poem-audio-url" data-bn="অডিও লিংক (ঐচ্ছিক)" data-en="Audio URL (optional)">অডিও লিংক (Audio URL) ঐচ্ছিক</label>
         <input type="url" class="poem-create-input" id="poem-audio-url" name="poem-audio-url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
-        <small id="hintAudioUrl" style="color:var(--muted);font-size:.72rem;" data-bn="YouTube, SoundCloud বা যেকোনো অডিও লিংক" data-en="YouTube, SoundCloud, or any audio link">YouTube, SoundCloud বা যেকোনো অডিও লিংক (YouTube, SoundCloud, or any audio link)</small>
+        <small id="hintAudioUrl" class="form-hint" data-bn="YouTube, SoundCloud বা যেকোনো অডিও লিংক" data-en="YouTube, SoundCloud, or any audio link">YouTube, SoundCloud বা যেকোনো অডিও লিংক (YouTube, SoundCloud, or any audio link)</small>
       </div>
 
       {# Audio Reciter Name #}
-      <div class="poem-create-group" style="margin-bottom:1rem;">
+      <div class="poem-create-group">
         <label class="poem-create-label" id="labelReciter" for="poem-audio-reciter-name" data-bn="আবৃত্তিকারের নাম (ঐচ্ছিক)" data-en="Reciter Name (optional)">আবৃত্তিকারের নাম (Reciter Name) ঐচ্ছিক</label>
         <input type="text" class="poem-create-input" id="poem-audio-reciter-name" name="poem-audio-reciter-name" maxlength="200" autocomplete="off" placeholder="যেমন: শামসুর রাহমান, সুবর্ণা মুস্তাফা...">
       </div>
 
       {# Audio Description #}
-      <div class="poem-create-group" style="margin-bottom:1rem;">
+      <div class="poem-create-group">
         <label class="poem-create-label" id="labelAudioDesc" for="poem-audio-description" data-bn="অডিও বিবরণ (ঐচ্ছিক)" data-en="Audio Description (optional)">অডিও বিবরণ (Audio Description) ঐচ্ছিক</label>
         <input type="text" class="poem-create-input" id="poem-audio-description" name="poem-audio-description" maxlength="500" autocomplete="off" placeholder="যেমন: সুবর্ণা মুস্তাফার কণ্ঠে আবৃত্তি...">
       </div>
 
-      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+      <div class="form-actions">
         <button type="submit" class="poem-create-submit" id="poem-submit-button" name="poem_submit" data-bn="প্রকাশ করুন" data-en="Publish">প্রকাশ করুন (Publish)</button>
         <button type="button" id="poem-clear-form-button" name="poem_clear_form" class="poem-clear-form-button" data-bn="তথ্য মুছুন (Clear Form)" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>
       </div>
@@ -125,11 +125,11 @@
     <div class="poem-create-preview-body" id="previewBody">
       <span class="poem-create-preview-empty">কবিতা লিখতে শুরু করুন...</span>
     </div>
-    <div class="poem-create-preview-section" id="previewBackstoryWrap" style="display:none;">
+    <div class="poem-create-preview-section display-hidden" id="previewBackstoryWrap">
       <div class="poem-create-preview-section-title" data-bn="রচনার গল্প" data-en="Story Behind">রচনার গল্প (Story Behind)</div>
       <div class="poem-create-preview-section-text" id="previewBackstory"></div>
     </div>
-    <div class="poem-create-preview-section" id="previewInterpretationWrap" style="display:none;">
+    <div class="poem-create-preview-section display-hidden" id="previewInterpretationWrap">
       <div class="poem-create-preview-section-title" data-bn="কবির ভাবনা" data-en="Poet's Interpretation">কবির ভাবনা (Poet's Interpretation)</div>
       <div class="poem-create-preview-section-text" id="previewInterpretation"></div>
     </div>
@@ -140,9 +140,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'poem/assets/js/pages/poem-create.js' %}"></script>
-<script src="{% static 'poem/assets/js/pages/poem-create-preview.js' %}"></script>
-<script src="{% static 'poem/assets/js/pages/poem-create-persist.js' %}"></script>
-<script src="{% static 'poem/assets/js/pages/poem-create-clear.js' %}"></script>
-<script src="{% static 'poem/assets/js/components/poem-avro-hook.js' %}"></script>
+<script src="{% static 'poem/assets/js/pages/poem-create.js' %}" defer></script>
+<script src="{% static 'poem/assets/js/pages/poem-create-preview.js' %}" defer></script>
+<script src="{% static 'poem/assets/js/pages/poem-create-persist.js' %}" defer></script>
+<script src="{% static 'poem/assets/js/pages/poem-create-clear.js' %}" defer></script>
+<script src="{% static 'poem/assets/js/components/poem-avro-hook.js' %}" defer></script>
 {% endblock %}

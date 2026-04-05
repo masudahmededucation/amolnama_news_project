@@ -16,7 +16,7 @@
   <div class="user-profile-header">
     <div class="user-profile-avatar">
       {% if avatar_url %}
-      <img src="{{ avatar_url }}" alt="{{ profile.display_name }}" class="user-profile-avatar-image">
+      <img src="{{ avatar_url }}" alt="{{ profile.display_name }}" class="user-profile-avatar-image" loading="lazy">
       {% elif profile.display_name %}
       <span class="user-profile-avatar-initials">{{ profile.display_name|first }}</span>
       {% else %}
@@ -77,6 +77,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}"></script>
-<script src="{% static 'social/assets/js/pages/user-profile.js' %}"></script>
+<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
+<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}" defer></script>
+<script src="{% static 'social/assets/js/pages/user-profile.js' %}" defer></script>
 {% endblock %}

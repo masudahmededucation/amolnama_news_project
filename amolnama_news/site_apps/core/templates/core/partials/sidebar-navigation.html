@@ -4,7 +4,7 @@
 
   <div class="sidebar-navigation-header" id="sidebar-navigation-header">
     <a href="{% url 'core:home' %}" title="আমলনামা নিউজ — হোম" class="sidebar-navigation-logo" id="sidebar-navigation-logo">
-      <img src="{% static 'core/assets/img/logo.png' %}" alt="আমলনামা নিউজ" class="sidebar-navigation-logo-image" id="sidebar-navigation-logo-image">
+      <img src="{% static 'core/assets/img/logo.png' %}" alt="আমলনামা নিউজ" class="sidebar-navigation-logo-image" id="sidebar-navigation-logo-image" fetchpriority="high">
     </a>
     <button type="button" class="sidebar-navigation-toggle" id="sidebar-navigation-toggle" name="sidebar_navigation_toggle" title="মেনু বড়/ছোট করুন (Toggle menu)" aria-label="Toggle sidebar">
       <span class="sidebar-navigation-toggle-icon" id="sidebar-navigation-toggle-icon">«</span>

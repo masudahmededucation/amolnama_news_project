@@ -287,7 +287,7 @@
   justify-content: center;
   overflow: hidden;
   border-radius: 4px;
-  background: #f8f9fa;
+  background: var(--surface);
   margin-bottom: .5rem;
 }
 
@@ -460,7 +460,7 @@
 .mgr-result {
   margin-top: 1.25rem;
   padding: 1rem 1.25rem;
-  background: #f0fdf4;
+  background: var(--success-light);
   border: 1px solid #86efac;
   border-radius: var(--radius-sm);
   text-align: center;

@@ -1,0 +1,123 @@
+/* ========== VOTING RESULTS - Result Cards, Drillthrough & Empty States ========== */
+/* Uses global variables from colors.css — do NOT redefine :root here */
+
+/* Location result card */
+.location-result-card {
+  margin-bottom: 3rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  background: var(--card);
+}
+
+.location-result-card-heading {
+  margin: 0 0 0.5rem 0;
+}
+
+.location-result-card-area {
+  margin: 0 0 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.location-result-card-total {
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Drilldown link container and link */
+.drilldown-container {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.drilldown-container-spaced {
+  margin-top: 2rem;
+}
+
+.drilldown-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Drillthrough page breadcrumb spacing */
+.breadcrumb-spaced {
+  margin-bottom: 1rem;
+}
+
+/* Drillthrough back button (anchor styled as button) */
+.back-button-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  color: var(--primary);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Drillthrough primary action button */
+.drillthrough-action-button {
+  padding: 0.75rem 2rem;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius);
+  display: inline-block;
+}
+
+/* Party list top margin for national level */
+.party-list-spaced {
+  margin-top: 1rem;
+}
+
+/* Empty state for lists and results */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+
+/* Empty state variant with less padding (sidebar) */
+.empty-state-compact {
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Party logo placeholder (no image) */
+.party-logo-placeholder {
+  background: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* Success tick icon in voting feedback */
+.success-tick-icon {
+  color: #0a0;
+  font-size: 2em;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+/* Success tick text beside icon */
+.success-tick-text {
+  margin-left: 10px;
+}
+
+/* ========== RESPONSIVE - RESULTS ========== */
+
+/* Mobile phones (480px) */
+@media (max-width: 480px) {
+  .location-result-card {
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .drillthrough-action-button {
+    padding: 0.6rem 1.5rem;
+  }
+}

@@ -6,7 +6,7 @@
   border-radius: 12px;
   padding: .85rem 1rem;
   margin-bottom: .5rem;
-  background: #fff;
+  background: var(--card);
   transition: border-color .15s, box-shadow .15s;
   cursor: pointer;
   text-decoration: none;

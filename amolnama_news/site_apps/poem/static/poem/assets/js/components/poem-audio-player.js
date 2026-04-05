@@ -5,45 +5,45 @@
 (function() {
   "use strict";
 
-  var container = document.getElementById("poemAudioPlayer");
+  const container = document.getElementById("poemAudioPlayer");
   if (!container) return;
 
-  var url = container.getAttribute("data-url") || "";
-  var videoId = extractYouTubeId(url);
+  let url = container.getAttribute("data-url") || "";
+  const videoId = extractYouTubeId(url);
   if (!videoId) return;
 
   // Elements
-  var playBtn = document.getElementById("poemAudioPlayBtn");
-  var iconPlay = document.getElementById("poemAudioIconPlay");
-  var iconPause = document.getElementById("poemAudioIconPause");
-  var progressFill = document.getElementById("poemAudioProgressFill");
-  var progressBar = document.querySelector(".poem-audio-progress-bar");
-  var timeEl = document.getElementById("poemAudioTime");
-  var volBtn = document.getElementById("poemAudioVolBtn");
-  var iconVol = document.getElementById("poemAudioIconVol");
-  var iconMute = document.getElementById("poemAudioIconMute");
-  var videoBtn = document.getElementById("poemAudioVideoBtn");
-  var videoWrap = document.getElementById("poemAudioVideoWrap");
-  var collapseBtn = document.getElementById("poemAudioCollapseBtn");
+  const playBtn = document.getElementById("poemAudioPlayBtn");
+  const iconPlay = document.getElementById("poemAudioIconPlay");
+  const iconPause = document.getElementById("poemAudioIconPause");
+  const progressFill = document.getElementById("poemAudioProgressFill");
+  const progressBar = document.querySelector(".poem-audio-progress-bar");
+  const timeEl = document.getElementById("poemAudioTime");
+  const volBtn = document.getElementById("poemAudioVolBtn");
+  const iconVol = document.getElementById("poemAudioIconVol");
+  const iconMute = document.getElementById("poemAudioIconMute");
+  const videoBtn = document.getElementById("poemAudioVideoBtn");
+  const videoWrap = document.getElementById("poemAudioVideoWrap");
+  const collapseBtn = document.getElementById("poemAudioCollapseBtn");
 
-  var player = null;
-  var progressTimer = null;
-  var isMuted = false;
-  var isVideoExpanded = false;
-  var isTransitioning = false;  // true while loading a new video after autoplay transition
-  var transitionRetryCount = 0;
+  let player = null;
+  let progressTimer = null;
+  let isMuted = false;
+  let isVideoExpanded = false;
+  let isTransitioning = false;  // true while loading a new video after autoplay transition
+  let transitionRetryCount = 0;
 
   // Extract YouTube video ID from various URL formats
   function extractYouTubeId(url) {
     if (!url) return null;
-    var match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return match ? match[1] : null;
   }
 
   function formatTime(seconds) {
     if (isNaN(seconds) || seconds < 0) return "0:00";
-    var m = Math.floor(seconds / 60);
-    var s = Math.floor(seconds % 60);
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
     return m + ":" + (s < 10 ? "0" : "") + s;
   }
 
@@ -55,7 +55,7 @@
     }
     // Set callback before loading script
     window.onYouTubeIframeAPIReady = initPlayer;
-    var tag = document.createElement("script");
+    const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
   }
@@ -89,14 +89,14 @@
 
   function onStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-      iconPlay.style.display = "none";
-      iconPause.style.display = "block";
+      iconPlay.classList.add("display-hidden");
+      iconPause.classList.remove("display-hidden");
       isTransitioning = false;
       transitionRetryCount = 0;
       startProgressUpdate();
     } else if (event.data === YT.PlayerState.PAUSED) {
-      iconPlay.style.display = "block";
-      iconPause.style.display = "none";
+      iconPlay.classList.remove("display-hidden");
+      iconPause.classList.add("display-hidden");
       stopProgressUpdate();
 
       /* If we just loaded a new video (transition) and it paused immediately,
@@ -111,8 +111,8 @@
         }, 800 * transitionRetryCount);
       }
     } else if (event.data === YT.PlayerState.ENDED) {
-      iconPlay.style.display = "block";
-      iconPause.style.display = "none";
+      iconPlay.classList.remove("display-hidden");
+      iconPause.classList.add("display-hidden");
       stopProgressUpdate();
       progressFill.style.width = "100%";
       isTransitioning = false;
@@ -132,10 +132,10 @@
 
   function updateProgress() {
     if (!player || !player.getDuration) return;
-    var duration = player.getDuration();
-    var current = player.getCurrentTime();
+    const duration = player.getDuration();
+    const current = player.getCurrentTime();
     if (duration > 0) {
-      var pct = (current / duration) * 100;
+      let pct = (current / duration) * 100;
       progressFill.style.width = pct + "%";
       timeEl.textContent = formatTime(current) + " / " + formatTime(duration);
     }
@@ -146,7 +146,7 @@
   // Play / Pause
   playBtn.addEventListener("click", function() {
     if (!player || !player.getPlayerState) return;
-    var state = player.getPlayerState();
+    const state = player.getPlayerState();
     if (state === YT.PlayerState.PLAYING) {
       player.pauseVideo();
     } else {
@@ -155,13 +155,13 @@
   });
 
   // Click + drag on progress bar to seek
-  var isDragging = false;
+  let isDragging = false;
 
   function seekToPosition(e) {
     if (!player || !player.getDuration) return;
-    var rect = progressBar.getBoundingClientRect();
-    var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    var seekTo = pct * player.getDuration();
+    const rect = progressBar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const seekTo = pct * player.getDuration();
     player.seekTo(seekTo, true);
     progressFill.style.width = (pct * 100) + "%";
     updateProgress();
@@ -207,12 +207,12 @@
     if (!player) return;
     if (isMuted) {
       player.unMute();
-      iconVol.style.display = "block";
-      iconMute.style.display = "none";
+      iconVol.classList.remove("display-hidden");
+      iconMute.classList.add("display-hidden");
     } else {
       player.mute();
-      iconVol.style.display = "none";
-      iconMute.style.display = "block";
+      iconVol.classList.add("display-hidden");
+      iconMute.classList.remove("display-hidden");
     }
     isMuted = !isMuted;
   });
@@ -220,59 +220,59 @@
   // Watch Video — expand
   videoBtn.addEventListener("click", function() {
     if (!player) return;
-    videoWrap.style.display = "block";
+    videoWrap.classList.remove("display-hidden");
     // Resize player to visible video
-    var iframe = document.querySelector("#poemYTPlayer");
+    let iframe = document.querySelector("#poemYTPlayer");
     if (iframe) {
       iframe.style.width = "100%";
       iframe.style.height = "";
       iframe.style.aspectRatio = "16/9";
     }
     isVideoExpanded = true;
-    videoBtn.style.display = "none";
+    videoBtn.classList.add("display-hidden");
   });
 
   // Collapse video
   collapseBtn.addEventListener("click", function() {
-    videoWrap.style.display = "none";
-    var iframe = document.querySelector("#poemYTPlayer");
+    videoWrap.classList.add("display-hidden");
+    const iframe = document.querySelector("#poemYTPlayer");
     if (iframe) {
       iframe.style.width = "0";
       iframe.style.height = "0";
       iframe.style.aspectRatio = "";
     }
     isVideoExpanded = false;
-    videoBtn.style.display = "";
+    videoBtn.classList.remove("display-hidden");
   });
 
   // ---- Radio Autoplay ----
-  var radioNextEl = document.getElementById("poemRadioNext");
-  var radioCountdownEl = document.getElementById("poemRadioCountdown");
-  var radioCancelBtn = document.getElementById("poemRadioCancelBtn");
-  var radioNextTitle = document.getElementById("poemRadioNextTitle");
-  var radioNextAuthor = document.getElementById("poemRadioNextAuthor");
-  var radioNextPreview = document.getElementById("poemRadioNextPreview");
-  var radioTimer = null;
-  var radioCancelled = false;
-  var playedIds = [];          // track poems already played in this session
-  var exhaustedCategories = []; // categories fully played
+  const radioNextEl = document.getElementById("poemRadioNext");
+  const radioCountdownEl = document.getElementById("poemRadioCountdown");
+  const radioCancelBtn = document.getElementById("poemRadioCancelBtn");
+  const radioNextTitle = document.getElementById("poemRadioNextTitle");
+  const radioNextAuthor = document.getElementById("poemRadioNextAuthor");
+  const radioNextPreview = document.getElementById("poemRadioNextPreview");
+  let radioTimer = null;
+  let radioCancelled = false;
+  let playedIds = [];          // track poems already played in this session
+  let exhaustedCategories = []; // categories fully played
 
   // Add current poem to played list
-  var initialPoemId = document.querySelector(".poem-detail") ?
+  const initialPoemId = document.querySelector(".poem-detail") ?
     parseInt(document.querySelector(".poem-detail").getAttribute("data-poem-id")) : null;
   if (initialPoemId) playedIds.push(initialPoemId);
 
   function fetchNextPoem() {
     if (!radioNextEl) return;
-    var article = document.querySelector(".poem-detail");
-    var poemId = article ? article.getAttribute("data-poem-id") : null;
+    let article = document.querySelector(".poem-detail");
+    const poemId = article ? article.getAttribute("data-poem-id") : null;
     if (!poemId) return;
 
-    var params = "?played=" + playedIds.join(",") +
+    const params = "?played=" + playedIds.join(",") +
                  "&exhausted=" + exhaustedCategories.join(",");
 
     fetch("/bangla-kobita-gaan/api/poems/" + poemId + "/next/" + params)
-      .then(function(r) { return r.json(); })
+      .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(function(data) {
         if (!data.success || !data.next) return;
 
@@ -300,9 +300,9 @@
     radioNextTitle.textContent = (categoryChanged ? "🔀 " : "") + next.title;
     radioNextAuthor.textContent = "— " + next.author + (categoryChanged ? " (" + next.category + ")" : "");
     radioNextPreview.textContent = next.body.substring(0, 150) + (next.body.length > 150 ? "..." : "");
-    radioNextEl.style.display = "block";
+    radioNextEl.classList.remove("display-hidden");
 
-    var countdown = 5;
+    let countdown = 5;
     radioCountdownEl.textContent = countdown;
 
     radioTimer = setInterval(function() {
@@ -322,19 +322,19 @@
     radioCancelBtn.addEventListener("click", function() {
       radioCancelled = true;
       if (radioTimer) clearInterval(radioTimer);
-      radioNextEl.style.display = "none";
+      radioNextEl.classList.add("display-hidden");
     });
   }
 
   function transitionToPoem(next) {
     // Update page content without reload
-    var article = document.querySelector(".poem-detail");
+    const article = document.querySelector(".poem-detail");
 
     // Update poem body
-    var titleEl = document.querySelector(".poem-detail-title");
-    var authorEl = document.querySelector(".poem-detail-author");
-    var bodyEl = document.querySelector(".poem-detail-text");
-    var categoryEl = document.querySelector(".poem-detail-category");
+    const titleEl = document.querySelector(".poem-detail-title");
+    const authorEl = document.querySelector(".poem-detail-author");
+    const bodyEl = document.querySelector(".poem-detail-text");
+    const categoryEl = document.querySelector(".poem-detail-category");
 
     if (titleEl) titleEl.textContent = next.title;
     if (authorEl) authorEl.textContent = "— " + next.author;
@@ -349,37 +349,37 @@
     }
 
     // Update edit button link
-    var editBtn = document.querySelector(".poem-detail-edit-btn");
+    const editBtn = document.querySelector(".poem-detail-edit-btn");
     if (editBtn) editBtn.href = (next.url || "/bangla-kobita-gaan/id/" + next.id + "/").replace(/\/$/, "/edit/");
 
     // Update like button
-    var likeBtn = document.getElementById("poemLikeBtn");
+    const likeBtn = document.getElementById("poemLikeBtn");
     if (likeBtn) {
       likeBtn.setAttribute("data-poem-id", next.id);
       likeBtn.setAttribute("data-liked", "false");
       likeBtn.classList.remove("poem-detail-action-btn--liked");
     }
-    var likeCount = document.getElementById("poemLikeCount");
+    const likeCount = document.getElementById("poemLikeCount");
     if (likeCount) likeCount.textContent = next.like_count || 0;
 
     // Update meta bar
-    var langEl = document.querySelector(".poem-detail-lang");
+    const langEl = document.querySelector(".poem-detail-lang");
     if (langEl) { langEl.textContent = next.language || "bn"; langEl.style.textTransform = 'uppercase'; }
 
-    var timeEl2 = document.querySelector(".poem-detail-time");
+    const timeEl2 = document.querySelector(".poem-detail-time");
     if (timeEl2) timeEl2.textContent = "এইমাত্র";
 
     // Update view count
-    var viewsEl = document.querySelector(".poem-detail-views");
+    const viewsEl = document.querySelector(".poem-detail-views");
     if (viewsEl) {
-      var svgHtml = viewsEl.querySelector("svg") ? viewsEl.querySelector("svg").outerHTML : "";
+      const svgHtml = viewsEl.querySelector("svg") ? viewsEl.querySelector("svg").outerHTML : "";
       viewsEl.innerHTML = svgHtml + " " + (next.view_count || 0);
     }
 
     // Update audio info
-    var audioTitle = container.querySelector(".poem-audio-title");
+    const audioTitle = container.querySelector(".poem-audio-title");
     if (audioTitle) audioTitle.textContent = next.audio_reciter ? "আবৃত্তি: " + next.audio_reciter : "অডিও শুনুন";
-    var audioDesc = container.querySelector(".poem-audio-desc");
+    const audioDesc = container.querySelector(".poem-audio-desc");
     if (audioDesc) audioDesc.textContent = next.audio_description || "";
 
     // Update browser URL without reload
@@ -389,32 +389,32 @@
     document.title = next.title + " — কবিতা ও গান · আমলনামা নিউজ";
 
     // Update backstory/interpretation sections
-    var backstoryContent = document.getElementById("backstory");
-    var backstoryToggle = document.querySelector("[data-toggle='backstory']");
+    const backstoryContent = document.getElementById("backstory");
+    const backstoryToggle = document.querySelector("[data-toggle='backstory']");
     if (backstoryContent && backstoryToggle) {
       if (next.backstory) {
         backstoryContent.textContent = next.backstory;
-        backstoryToggle.closest(".poem-detail-section").style.display = "";
+        backstoryToggle.closest(".poem-detail-section").classList.remove("display-hidden");
       } else {
-        backstoryToggle.closest(".poem-detail-section").style.display = "none";
+        backstoryToggle.closest(".poem-detail-section").classList.add("display-hidden");
       }
     }
-    var interpContent = document.getElementById("interpretation");
-    var interpToggle = document.querySelector("[data-toggle='interpretation']");
+    const interpContent = document.getElementById("interpretation");
+    const interpToggle = document.querySelector("[data-toggle='interpretation']");
     if (interpContent && interpToggle) {
       if (next.interpretation) {
         interpContent.textContent = next.interpretation;
-        interpToggle.closest(".poem-detail-section").style.display = "";
+        interpToggle.closest(".poem-detail-section").classList.remove("display-hidden");
       } else {
-        interpToggle.closest(".poem-detail-section").style.display = "none";
+        interpToggle.closest(".poem-detail-section").classList.add("display-hidden");
       }
     }
 
     // Hide the "Up Next" banner
-    radioNextEl.style.display = "none";
+    radioNextEl.classList.add("display-hidden");
 
     // Load new YouTube video
-    var newVideoId = extractYouTubeId(next.audio_url);
+    const newVideoId = extractYouTubeId(next.audio_url);
     if (newVideoId && player && player.loadVideoById) {
       isTransitioning = true;
       transitionRetryCount = 0;
@@ -433,27 +433,27 @@
     if (container) container.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
     // Update related poems section — uses same smart helper as autoplay
-    var relatedSection = document.querySelector(".poem-detail-related");
+    const relatedSection = document.querySelector(".poem-detail-related");
     if (relatedSection) {
       fetch("/bangla-kobita-gaan/api/poems/" + next.id + "/related/")
-        .then(function(r) { return r.json(); })
+        .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
         .then(function(data) {
-          var grid = relatedSection.querySelector(".poem-detail-related-grid");
+          const grid = relatedSection.querySelector(".poem-detail-related-grid");
           if (!grid || !data.poems) return;
-          if (!data.poems.length) { relatedSection.style.display = "none"; return; }
-          relatedSection.style.display = "";
+          if (!data.poems.length) { relatedSection.classList.add("display-hidden"); return; }
+          relatedSection.classList.remove("display-hidden");
           /* Mark as autoplay-active so queue numbers become visible */
           relatedSection.classList.add("poem-detail-related-autoplay-active");
-          var html = "";
+          let html = "";
           data.poems.forEach(function(p, index) {
-            var title = p.display_title || p.title_bn || p.title || "";
-            var snippet = p.body_preview || (p.body || "").substring(0, 120);
-            var category = p.category_name || p.category || "";
-            var lang = p.language || "bn";
-            var author = p.author_display_name || p.author || "";
-            var likes = p.like_count || 0;
-            var timeAgo = p.time_ago || "";
-            var url = p.url || "/bangla-kobita-gaan/id/" + p.id + "/";
+            const title = p.display_title || p.title_bn || p.title || "";
+            const snippet = p.body_preview || (p.body || "").substring(0, 120);
+            const category = p.category_name || p.category || "";
+            const lang = p.language || "bn";
+            const author = p.author_display_name || p.author || "";
+            const likes = p.like_count || 0;
+            const timeAgo = p.time_ago || "";
+            const url = p.url || "/bangla-kobita-gaan/id/" + p.id + "/";
             html += '<a href="' + url + '" class="poem-card">'
               + '<span class="poem-card-queue-number">' + (index + 1) + '</span>'
               + '<div class="poem-card-body">'

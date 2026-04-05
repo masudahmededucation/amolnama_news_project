@@ -10,7 +10,7 @@
  * @param {string} constituencyBn - Constituency name (BN, optional)
  */
 function updateBreadcrumb(division, divisionBn, district, districtBn, constituency, constituencyBn) {
-  const bc = document.getElementById('breadcrumb');
+  let bc = document.getElementById('breadcrumb');
   if (!bc) return;
 
   let html = `<a href="#" onclick="goBackToDivisions(); return false;">Division / বিভাগ</a>`;
@@ -43,11 +43,11 @@ function showView(viewId) {
   const views = ['division-view', 'district-view', 'constituency-view', 'party-view', 'success-view'];
   views.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    if (el) el.classList.add('display-hidden');
   });
-  
+
   const showEl = document.getElementById(viewId);
-  if (showEl) showEl.style.display = 'block';
+  if (showEl) showEl.classList.remove('display-hidden');
 }
 
 /**
@@ -59,7 +59,7 @@ function goBackToDivisions() {
   selectedConstituency = null;
   selectedParty = null;
   
-  const bc = document.getElementById('breadcrumb');
+  let bc = document.getElementById('breadcrumb');
   if (bc) bc.innerHTML = '<span class="current">Division / বিভাগ</span>';
   
   showView('division-view');
@@ -112,7 +112,7 @@ function startNewVote() {
   
   const bc = document.getElementById('breadcrumb');
   if (bc) {
-    bc.style.display = 'flex';
+    bc.classList.remove('display-hidden');
     bc.innerHTML = '<span class="current">Division / বিভাগ</span>';
   }
   

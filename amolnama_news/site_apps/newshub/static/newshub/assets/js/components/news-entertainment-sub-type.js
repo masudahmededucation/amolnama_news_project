@@ -16,14 +16,14 @@
 (function () {
   'use strict';
 
-  var subTypeHidden  = document.getElementById('entertainment-sub-type');
-  var mediumHidden   = document.getElementById('entertainment-medium-id');
+  const subTypeHidden  = document.getElementById('entertainment-sub-type');
+  const mediumHidden   = document.getElementById('entertainment-medium-id');
 
   /* Guard — only active on the Entertainment form page */
   if (!subTypeHidden && !mediumHidden) return;
 
   /* ---- Medium dropdown ---- */
-  var mediumSelect = document.getElementById('entertainment-medium-select');
+  const mediumSelect = document.getElementById('entertainment-medium-select');
   if (mediumSelect && mediumHidden) {
     mediumSelect.addEventListener('change', function () {
       mediumHidden.value = mediumSelect.value;
@@ -31,7 +31,7 @@
   }
 
   /* ---- Sub-type radio cards ---- */
-  var grid = document.getElementById('entertainment-sub-type-grid');
+  const grid = document.getElementById('entertainment-sub-type-grid');
   if (grid && subTypeHidden) {
     grid.addEventListener('change', function (e) {
       if (e.target.type === 'radio') {

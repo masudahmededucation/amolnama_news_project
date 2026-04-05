@@ -19,34 +19,34 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('global-news-bangladesh-json');
+  const hiddenInput = document.getElementById('global-news-bangladesh-json');
   if (!hiddenInput) return;
 
-  var relevanceHidden   = document.getElementById('global-news-bd-relevance');
-  var stakeEl           = document.getElementById('global-news-bd-stake');
-  var expatCbEl         = document.getElementById('global-news-bd-expat-affected');
-  var expatRow          = document.getElementById('global-news-bd-expat-row');
-  var expatCountEl      = document.getElementById('global-news-bd-expat-count');
-  var expatDescEl       = document.getElementById('global-news-bd-expat-desc');
-  var economicImpactEl  = document.getElementById('global-news-bd-economic-impact');
-  var govtPositionEl    = document.getElementById('global-news-bd-govt-position');
+  const relevanceHidden   = document.getElementById('global-news-bd-relevance');
+  const stakeEl           = document.getElementById('global-news-bd-stake');
+  const expatCbEl         = document.getElementById('global-news-bd-expat-affected');
+  const expatRow          = document.getElementById('global-news-bd-expat-row');
+  const expatCountEl      = document.getElementById('global-news-bd-expat-count');
+  const expatDescEl       = document.getElementById('global-news-bd-expat-desc');
+  const economicImpactEl  = document.getElementById('global-news-bd-economic-impact');
+  const govtPositionEl    = document.getElementById('global-news-bd-govt-position');
 
   /* ---- Build BD relevance radios from JSON embed ---- */
-  var relevanceGroup = document.getElementById('global-news-bd-relevance-group');
-  var relDataEl = document.getElementById('bd-relevance-data');
+  const relevanceGroup = document.getElementById('global-news-bd-relevance-group');
+  const relDataEl = document.getElementById('bd-relevance-data');
   if (relevanceGroup && relDataEl) {
     try {
-      var relOptions = JSON.parse(relDataEl.textContent || '[]');
+      const relOptions = JSON.parse(relDataEl.textContent || '[]');
       relevanceGroup.innerHTML = '';
       relOptions.forEach(function (opt) {
-        var label = document.createElement('label');
+        const label = document.createElement('label');
         label.className = 'radio-inline';
-        var radio = document.createElement('input');
+        const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'global_news_bd_relevance_radio';
         radio.value = opt.status_id;
         radio.id = 'global_news_bd_relevance_radio-' + opt.status_id;
-        var icon = opt.status_icon ? opt.status_icon + ' ' : '';
+        const icon = opt.status_icon ? opt.status_icon + ' ' : '';
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + icon + opt.status_name_bn + ' (' + opt.status_name_en + ')'));
         relevanceGroup.appendChild(label);
@@ -67,7 +67,7 @@
   /* Toggle expat impact rows */
   if (expatCbEl) {
     expatCbEl.addEventListener('change', function () {
-      if (expatRow) expatRow.style.display = expatCbEl.checked ? '' : 'none';
+      if (expatRow) expatCbEl.checked ? expatRow.classList.remove('display-hidden') : expatRow.classList.add('display-hidden');
       syncToHiddenInput();
     });
   }
@@ -89,34 +89,34 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-global-news-bangladesh');
+  const section = document.getElementById('section-global-news-bangladesh');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
     try {
-      var data = JSON.parse(hiddenInput.value);
+      const data = JSON.parse(hiddenInput.value);
       if (data.relevanceId && relevanceHidden) {
         relevanceHidden.value = data.relevanceId;
-        var relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');
-        for (var i = 0; i < relRadios.length; i++) {
-          relRadios[i].checked = (relRadios[i].value == data.relevanceId);
+        let relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');
+        for (let i = 0; i < relRadios.length; i++) {
+          relRadios[i].checked = (relRadios[i].value === String(data.relevanceId));
         }
       }
       if (stakeEl && data.stake)                   stakeEl.value          = data.stake;
       if (expatCbEl)                               expatCbEl.checked      = !!data.expatAffected;
-      if (expatRow)                                expatRow.style.display = expatCbEl && expatCbEl.checked ? '' : 'none';
+      if (expatRow)                                (expatCbEl && expatCbEl.checked) ? expatRow.classList.remove('display-hidden') : expatRow.classList.add('display-hidden');
       if (expatCountEl && data.expatCount)         expatCountEl.value     = data.expatCount;
       if (expatDescEl && data.expatDesc)           expatDescEl.value      = data.expatDesc;
       if (economicImpactEl && data.economicImpact) economicImpactEl.value = data.economicImpact;
@@ -128,12 +128,12 @@
 
   window.newshubGlobalNewsBangladesh = {
     reset: function () {
-      var relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');
-      for (var i = 0; i < relRadios.length; i++) relRadios[i].checked = false;
+      const relRadios = document.querySelectorAll('input[name="global_news_bd_relevance_radio"]');
+      for (let i = 0; i < relRadios.length; i++) relRadios[i].checked = false;
       if (relevanceHidden)  relevanceHidden.value  = '';
       if (stakeEl)          stakeEl.value          = '';
       if (expatCbEl)        expatCbEl.checked       = false;
-      if (expatRow)         expatRow.style.display  = 'none';
+      if (expatRow)         expatRow.classList.add('display-hidden');
       if (expatCountEl)     expatCountEl.value      = '';
       if (expatDescEl)      expatDescEl.value       = '';
       if (economicImpactEl) economicImpactEl.value  = '';

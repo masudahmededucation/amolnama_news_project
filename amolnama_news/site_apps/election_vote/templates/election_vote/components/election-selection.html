@@ -1,6 +1,6 @@
 <!-- Election Selection (Step 0) -->
 <!-- CSRF token for API calls -->
-<form style="display:none">{% csrf_token %}</form>
+<form class="display-hidden">{% csrf_token %}</form>
 
 <div id="election-view">
   {% if not user.is_authenticated %}

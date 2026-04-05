@@ -5,15 +5,15 @@
  * @param {string} receiptCode - The unique ballot receipt code (XXXXX-NNNNN).
  */
 function displayVoteReceipt(receiptCode) {
-  var breadcrumb = document.getElementById('breadcrumb');
-  if (breadcrumb) breadcrumb.style.display = 'none';
+  const breadcrumb = document.getElementById('breadcrumb');
+  if (breadcrumb) breadcrumb.classList.add('display-hidden');
 
   showVotingStep('receipt-view');
 
-  var codeElement = document.getElementById('receipt-code');
+  const codeElement = document.getElementById('receipt-code');
   if (codeElement) codeElement.textContent = receiptCode;
 
-  var summaryElement = document.getElementById('receipt-summary');
+  const summaryElement = document.getElementById('receipt-summary');
   if (summaryElement) {
     summaryElement.innerHTML =
       '<p><strong>Election:</strong> ' + (selectedElection ? selectedElection.nameBn : '') + '</p>' +
@@ -37,11 +37,14 @@ function displayVoteReceipt(receiptCode) {
  */
 function fetchNationalResults(electionEvaluationId, attempt) {
   fetch('/election_vote/api/national-results/' + electionEvaluationId + '/')
-    .then(function (response) { return response.json(); })
+    .then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(function (data) {
-      var container = document.getElementById('national-results-container');
-      var totalVotesEl = document.getElementById('national-total-votes');
-      var listEl = document.getElementById('national-results-list');
+      const container = document.getElementById('national-results-container');
+      const totalVotesEl = document.getElementById('national-total-votes');
+      const listEl = document.getElementById('national-results-list');
 
       if (!container || !listEl) return;
 
@@ -62,7 +65,7 @@ function fetchNationalResults(electionEvaluationId, attempt) {
       }
 
       // Build progress bar items
-      var html = '';
+      let html = '';
       data.results.forEach(function (party) {
         html += '<li><div class="party-item">';
 
@@ -72,7 +75,7 @@ function fetchNationalResults(electionEvaluationId, attempt) {
             '" alt="' + (party.party_short_name || '') + '" class="party-logo" />';
         }
 
-        html += '<div class="party-text" style="flex: 1;">';
+        html += '<div class="party-text party-text-flex">';
         html += '<div class="party-info">';
         if (party.party_short_name) {
           html += '<span class="party-short">' + party.party_short_name + '</span>';
@@ -92,7 +95,7 @@ function fetchNationalResults(electionEvaluationId, attempt) {
       });
 
       listEl.innerHTML = html;
-      container.style.display = 'block';
+      container.classList.remove('display-hidden');
     })
     .catch(function (error) {
     });

@@ -79,7 +79,7 @@
   font-size: .92rem;
   border: 1.5px solid #d4d4de;
   border-radius: 8px;
-  background: #fff;
+  background: var(--card);
   color: var(--text);
   box-sizing: border-box;
   transition: border-color .2s, box-shadow .2s;
@@ -125,7 +125,7 @@
   top: calc(100% + 6px);
   left: 0;
   z-index: 100;
-  background: #fff;
+  background: var(--card);
   border: 1.5px solid #d4d4de;
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0,0,0,.12);
@@ -234,11 +234,11 @@
 }
 
 .age-cal-day.is-other-month {
-  color: #ccc;
+  color: var(--border);
 }
 
 .age-cal-day.is-future {
-  color: #ccc;
+  color: var(--border);
   pointer-events: none;
 }
 

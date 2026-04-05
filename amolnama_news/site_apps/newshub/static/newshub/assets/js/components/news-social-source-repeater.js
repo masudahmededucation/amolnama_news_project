@@ -16,14 +16,14 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('social-source-json');
-  var template = document.getElementById('social-source-row-template');
-  var container = document.getElementById('social-source-rows-container');
-  var addBtn = document.getElementById('btn-add-social-source');
+  const hiddenJson = document.getElementById('social-source-json');
+  const template = document.getElementById('social-source-row-template');
+  const container = document.getElementById('social-source-rows-container');
+  const addBtn = document.getElementById('btn-add-social-source');
 
   if (!hiddenJson || !template || !container) return;
 
-  var rowCounter = 0;
+  let rowCounter = 0;
 
   /* ---- URL ↔ Platform helpers ---- */
 
@@ -36,7 +36,7 @@
   }
 
   function getPlatformHost(option) {
-    var base = option.getAttribute('data-base-url');
+    let base = option.getAttribute('data-base-url');
     if (!base) return '';
     if (base.indexOf('://') === -1) base = 'https://' + base;
     return getHost(base);
@@ -44,69 +44,69 @@
 
   function detectPlatform(platformSelect, urlHost) {
     if (!urlHost) return null;
-    var options = platformSelect.querySelectorAll('option[data-base-url]');
-    for (var i = 0; i < options.length; i++) {
-      var pHost = getPlatformHost(options[i]);
+    const options = platformSelect.querySelectorAll('option[data-base-url]');
+    for (let i = 0; i < options.length; i++) {
+      const pHost = getPlatformHost(options[i]);
       if (pHost && urlHost.indexOf(pHost) !== -1) return options[i];
     }
     return null;
   }
 
   function checkUrlMatch(rowEl) {
-    var platformSelect = rowEl.querySelector('.social-row-platform');
-    var urlInput = rowEl.querySelector('.social-row-url');
-    var warningEl = rowEl.querySelector('.social-url-mismatch');
+    let platformSelect = rowEl.querySelector('.social-row-platform');
+    let urlInput = rowEl.querySelector('.social-row-url');
+    const warningEl = rowEl.querySelector('.social-url-mismatch');
     if (!platformSelect || !urlInput || !warningEl) return;
 
-    var url = urlInput.value.trim();
-    if (!url) { warningEl.style.display = 'none'; return; }
+    let url = urlInput.value.trim();
+    if (!url) { warningEl.classList.add('display-hidden'); return; }
 
-    var urlHost = getHost(url);
-    if (!urlHost) { warningEl.style.display = 'none'; return; }
+    const urlHost = getHost(url);
+    if (!urlHost) { warningEl.classList.add('display-hidden'); return; }
 
-    var selectedOption = platformSelect.options[platformSelect.selectedIndex];
+    const selectedOption = platformSelect.options[platformSelect.selectedIndex];
 
     /* Auto-select platform if none chosen */
     if (!platformSelect.value) {
-      var match = detectPlatform(platformSelect, urlHost);
+      const match = detectPlatform(platformSelect, urlHost);
       if (match) {
         platformSelect.value = match.value;
         platformSelect.dispatchEvent(new Event('change'));
       }
-      warningEl.style.display = 'none';
+      warningEl.classList.add('display-hidden');
       return;
     }
 
     /* Check mismatch */
-    var platformHost = getPlatformHost(selectedOption);
+    const platformHost = getPlatformHost(selectedOption);
     if (platformHost && urlHost.indexOf(platformHost) === -1) {
-      var detected = detectPlatform(platformSelect, urlHost);
-      var hint = detected ? detected.textContent.trim() : urlHost;
+      const detected = detectPlatform(platformSelect, urlHost);
+      const hint = detected ? detected.textContent.trim() : urlHost;
       warningEl.textContent = '\u09B2\u09BF\u0982\u0995\u099F\u09BF '
         + selectedOption.textContent.trim()
         + ' \u098F\u09B0 \u09A8\u09AF\u09BC, \u09AE\u09A8\u09C7 \u09B9\u099A\u09CD\u099B\u09C7 '
         + hint
         + ' (URL doesn\'t match ' + selectedOption.textContent.trim() + ')';
-      warningEl.style.display = 'block';
+      warningEl.classList.remove('display-hidden');
     } else {
-      warningEl.style.display = 'none';
+      warningEl.classList.add('display-hidden');
     }
   }
 
   /* ---- Add row ---- */
 
   function addRow() {
-    var index = rowCounter++;
-    var clone = template.content.cloneNode(true);
-    var rowEl = clone.querySelector('.social-source-row');
+    const index = rowCounter++;
+    const clone = template.content.cloneNode(true);
+    let rowEl = clone.querySelector('.social-source-row');
     rowEl.setAttribute('data-row-index', index);
 
     /* Row number label */
-    var numEl = rowEl.querySelector('.social-source-row-number');
+    let numEl = rowEl.querySelector('.social-source-row-number');
     if (numEl) numEl.textContent = '\u09B8\u09C2\u09A4\u09CD\u09B0 #' + (index + 1);
 
     /* Wire remove button */
-    var removeBtn = rowEl.querySelector('.btn-remove-social-source');
+    const removeBtn = rowEl.querySelector('.btn-remove-social-source');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl);
@@ -114,8 +114,8 @@
     }
 
     /* Wire URL check listeners */
-    var urlInput = rowEl.querySelector('.social-row-url');
-    var platformSelect = rowEl.querySelector('.social-row-platform');
+    let urlInput = rowEl.querySelector('.social-row-url');
+    let platformSelect = rowEl.querySelector('.social-row-platform');
     if (urlInput) {
       urlInput.addEventListener('input', function () { checkUrlMatch(rowEl); });
       urlInput.addEventListener('change', function () { checkUrlMatch(rowEl); });
@@ -138,9 +138,9 @@
   /* ---- Update row numbers after add/remove ---- */
 
   function updateRowNumbers() {
-    var rows = container.querySelectorAll('.social-source-row');
-    for (var i = 0; i < rows.length; i++) {
-      var numEl = rows[i].querySelector('.social-source-row-number');
+    let rows = container.querySelectorAll('.social-source-row');
+    for (let i = 0; i < rows.length; i++) {
+      const numEl = rows[i].querySelector('.social-source-row-number');
       if (numEl) numEl.textContent = '\u09B8\u09C2\u09A4\u09CD\u09B0 #' + (i + 1);
     }
   }
@@ -148,19 +148,19 @@
   /* ---- Serialize ---- */
 
   function serialize() {
-    var rows = container.querySelectorAll('.social-source-row');
-    var sources = [];
-    for (var i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      var platformSelect = row.querySelector('.social-row-platform');
-      var urlInput = row.querySelector('.social-row-url');
-      var embedInput = row.querySelector('.social-row-embed');
+    let rows = container.querySelectorAll('.social-source-row');
+    let sources = [];
+    for (let i = 0; i < rows.length; i++) {
+      let row = rows[i];
+      let platformSelect = row.querySelector('.social-row-platform');
+      let urlInput = row.querySelector('.social-row-url');
+      let embedInput = row.querySelector('.social-row-embed');
 
-      var url = urlInput ? urlInput.value.trim() : '';
+      const url = urlInput ? urlInput.value.trim() : '';
       if (!url) continue;  /* skip empty rows */
 
-      var platformId = platformSelect ? parseInt(platformSelect.value, 10) || 0 : 0;
-      var platformName = '';
+      const platformId = platformSelect ? parseInt(platformSelect.value, 10) || 0 : 0;
+      let platformName = '';
       if (platformSelect && platformSelect.selectedIndex > 0) {
         platformName = platformSelect.options[platformSelect.selectedIndex].textContent.trim();
       }
@@ -187,7 +187,7 @@
 
   /* ---- Wire form submit ---- */
 
-  var form = container.closest('form');
+  const form = container.closest('form');
   if (form) {
     form.addEventListener('submit', function () { serialize(); });
   }
@@ -199,23 +199,23 @@
 
   /* ---- Restore from hidden input (for edit mode pre-population) ---- */
   function restoreFromHiddenInput() {
-    var raw = hiddenJson.value;
+    const raw = hiddenJson.value;
     if (!raw) return false;
-    var parsed;
+    let parsed;
     try { parsed = JSON.parse(raw); } catch (e) { return false; }
-    var sources = parsed.sources || parsed;
+    const sources = parsed.sources || parsed;
     if (!Array.isArray(sources) || !sources.length) return false;
 
     container.innerHTML = '';
     rowCounter = 0;
 
-    for (var i = 0; i < sources.length; i++) {
+    for (let i = 0; i < sources.length; i++) {
       addRow();
-      var rows = container.querySelectorAll('.social-source-row');
-      var rowEl = rows[rows.length - 1];
-      var platformSelect = rowEl.querySelector('.social-row-platform');
-      var urlInput = rowEl.querySelector('.social-row-url');
-      var embedInput = rowEl.querySelector('.social-row-embed');
+      const rows = container.querySelectorAll('.social-source-row');
+      const rowEl = rows[rows.length - 1];
+      const platformSelect = rowEl.querySelector('.social-row-platform');
+      const urlInput = rowEl.querySelector('.social-row-url');
+      const embedInput = rowEl.querySelector('.social-row-embed');
 
       if (urlInput) urlInput.value = sources[i].url || '';
       if (embedInput) embedInput.value = sources[i].embedCode || '';

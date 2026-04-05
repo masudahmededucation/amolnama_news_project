@@ -17,25 +17,25 @@
 (function () {
   'use strict';
 
-  var container = document.getElementById('section-watchdog-bangladesh-sub-type');
-  var hidden    = document.getElementById('watchdog-bangladesh-sub-type');
+  const container = document.getElementById('section-watchdog-bangladesh-sub-type');
+  const hidden    = document.getElementById('watchdog-bangladesh-sub-type');
 
   /* Guard — only active on watchdog_bangladesh form */
   if (!container || !hidden) return;
 
-  var groups = container.querySelectorAll('.radio-card-group');
-  var selectionSummary = null; /* created lazily on first selection */
+  const groups = container.querySelectorAll('.radio-card-group');
+  let selectionSummary = null; /* created lazily on first selection */
 
   /* ---- Collapse: hide all groups, show summary bar ---- */
   function collapse(selectedRadio) {
-    var label = selectedRadio.closest('label');
-    var group = selectedRadio.closest('.radio-card-group');
-    var groupTitle = group ? group.querySelector('.radio-card-group-title') : null;
+    const label = selectedRadio.closest('label');
+    let group = selectedRadio.closest('.radio-card-group');
+    const groupTitle = group ? group.querySelector('.radio-card-group-title') : null;
 
     /* Extract display text */
-    var icon  = label.querySelector('.radio-card-icon');
-    var text  = label.querySelector('.radio-card-label');
-    var groupLabel = groupTitle ? groupTitle.textContent : '';
+    const icon  = label.querySelector('.radio-card-icon');
+    const text  = label.querySelector('.radio-card-label');
+    const groupLabel = groupTitle ? groupTitle.textContent : '';
 
     /* Hide all groups */
     groups.forEach(function (g) { g.style.display = 'none'; });
@@ -45,10 +45,10 @@
       selectionSummary = document.createElement('div');
       selectionSummary.className = 'watchdog-selection-summary';
 
-      var infoSpan = document.createElement('span');
+      const infoSpan = document.createElement('span');
       infoSpan.className = 'watchdog-selection-info';
 
-      var changeBtn = document.createElement('button');
+      const changeBtn = document.createElement('button');
       changeBtn.type = 'button';
       changeBtn.className = 'watchdog-selection-change';
       changeBtn.textContent = '\u21BB \u09AA\u09B0\u09BF\u09AC\u09B0\u09CD\u09A4\u09A8 \u0995\u09B0\u09C1\u09A8 (Change)';
@@ -58,7 +58,7 @@
       selectionSummary.appendChild(changeBtn);
 
       /* Insert after the h3 title */
-      var sectionTitle = container.querySelector('.form-section-title');
+      const sectionTitle = container.querySelector('.form-section-title');
       if (sectionTitle && sectionTitle.nextSibling) {
         container.insertBefore(selectionSummary, sectionTitle.nextSibling.nextSibling);
       } else {
@@ -66,17 +66,17 @@
       }
     }
 
-    var infoEl = selectionSummary.querySelector('.watchdog-selection-info');
+    const infoEl = selectionSummary.querySelector('.watchdog-selection-info');
     infoEl.innerHTML = '';
 
     /* Group badge */
-    var badge = document.createElement('span');
+    const badge = document.createElement('span');
     badge.className = 'watchdog-selection-group';
     badge.textContent = groupLabel;
     infoEl.appendChild(badge);
 
     /* Selected item */
-    var itemSpan = document.createElement('span');
+    const itemSpan = document.createElement('span');
     itemSpan.className = 'watchdog-selection-item';
     itemSpan.textContent = (icon ? icon.textContent + ' ' : '') + (text ? text.textContent : '');
     infoEl.appendChild(itemSpan);
@@ -84,7 +84,7 @@
     selectionSummary.style.display = 'flex';
 
     /* Copy the group's border-left color to the summary bar */
-    var groupColor = window.getComputedStyle(group).borderLeftColor;
+    const groupColor = window.getComputedStyle(group).borderLeftColor;
     selectionSummary.style.borderLeftColor = groupColor;
 
     /* Smooth scroll to page top after collapse (wait for DOM reflow) */
@@ -105,8 +105,8 @@
 
     hidden.value = e.target.value;
 
-    var group = e.target.closest('.radio-card-group');
-    var groupCode = group ? group.getAttribute('data-group') : '';
+    const group = e.target.closest('.radio-card-group');
+    const groupCode = group ? group.getAttribute('data-group') : '';
 
     /* Collapse after selection */
     collapse(e.target);

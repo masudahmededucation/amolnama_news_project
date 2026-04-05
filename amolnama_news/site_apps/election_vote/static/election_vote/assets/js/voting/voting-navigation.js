@@ -5,27 +5,27 @@
  * @param {string} stepId - The DOM id of the step to display.
  */
 function showVotingStep(stepId) {
-  var allSteps = [
+  const allSteps = [
     'election-view', 'division-view', 'district-view',
     'constituency-view', 'party-view', 'receipt-view',
   ];
   allSteps.forEach(function (id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    const el = document.getElementById(id);
+    if (el) el.classList.add('display-hidden');
   });
-  var target = document.getElementById(stepId);
-  if (target) target.style.display = 'block';
+  const target = document.getElementById(stepId);
+  if (target) target.classList.remove('display-hidden');
 }
 
 /**
  * Update the breadcrumb trail to reflect the current navigation depth.
  */
 function updateBreadcrumbTrail(election, division, district, constituency) {
-  var breadcrumb = document.getElementById('breadcrumb');
+  let breadcrumb = document.getElementById('breadcrumb');
   if (!breadcrumb) return;
-  breadcrumb.style.display = 'flex';
+  breadcrumb.classList.remove('display-hidden');
 
-  var html = '';
+  let html = '';
 
   if (election) {
     html += '<a href="#" onclick="navigateBackToElections(); return false;">Election</a>';
@@ -60,8 +60,8 @@ function navigateBackToElections() {
   selectedConstituency = null;
   selectedParty = null;
 
-  var breadcrumb = document.getElementById('breadcrumb');
-  if (breadcrumb) breadcrumb.style.display = 'none';
+  const breadcrumb = document.getElementById('breadcrumb');
+  if (breadcrumb) breadcrumb.classList.add('display-hidden');
 
   showVotingStep('election-view');
 }

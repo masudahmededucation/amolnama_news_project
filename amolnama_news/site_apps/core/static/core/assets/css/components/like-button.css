@@ -20,13 +20,13 @@
 
 .like-button:hover {
   color: #1877f2;
-  background: #e7f3ff;
+  background: var(--info-light);
   border-color: #1877f2;
 }
 
 .like-button-active {
   color: #1877f2;
-  background: #e7f3ff;
+  background: var(--info-light);
   border-color: #1877f2;
 }
 

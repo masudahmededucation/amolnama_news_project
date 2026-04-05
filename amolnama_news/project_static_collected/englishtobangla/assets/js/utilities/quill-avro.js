@@ -13,21 +13,21 @@
  *
  * Rich text formatting works normally — bold, italic, color, etc.
  */
-var QuillAvro = (function () {
+const QuillAvro = (function () {
   'use strict';
 
-  var enabled = false;
-  var instances = [];
+  let enabled = false;
+  const instances = [];
 
   /* ---- Avro + Dictionary (reuse from BanglaInput internals) ---- */
 
-  var avroAvailable = typeof OmicronLab !== 'undefined' && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
-  var dictionary = null;
-  var dictLoading = false;
-  var dictCallbacks = [];
-  var wordIndex = {};
+  const avroAvailable = typeof OmicronLab !== 'undefined' && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
+  let dictionary = null;
+  let dictLoading = false;
+  let dictCallbacks = [];
+  let wordIndex = {};
 
-  var BN_SUFFIXES = ['র', 'ে', 'ের', 'তে', 'দের', 'কে', 'য়', 'ই', 'ও', 'তা', 'না', 'লা', 'গুলো', 'সব', 'টা', 'টি'];
+  const BN_SUFFIXES = ['র', 'ে', 'ের', 'তে', 'দের', 'কে', 'য়', 'ই', 'ও', 'তা', 'না', 'লা', 'গুলো', 'সব', 'টা', 'টি'];
 
   function loadDictionary(callback) {
     if (dictionary) { callback(); return; }
@@ -35,14 +35,17 @@ var QuillAvro = (function () {
     if (dictLoading) return;
     dictLoading = true;
 
-    var scripts = document.querySelectorAll("script[src*='bangla-input']");
-    var base = '';
+    const scripts = document.querySelectorAll("script[src*='bangla-input']");
+    let base = '';
     if (scripts.length > 0) {
       base = scripts[0].src.replace(/\/js\/utilities\/bangla-input\.js.*$/, '/js/utilities/');
     }
 
     fetch(base + 'bangla-dictionary.json', { cache: 'force-cache' })
-      .then(function (response) { return response.json(); })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
       .then(function (data) {
         dictionary = data;
         buildWordIndex();
@@ -57,8 +60,8 @@ var QuillAvro = (function () {
   function buildWordIndex() {
     if (!dictionary) return;
     wordIndex = {};
-    for (var i = 0; i < dictionary.length; i++) {
-      var firstChar = dictionary[i].charAt(0);
+    for (let i = 0; i < dictionary.length; i++) {
+      const firstChar = dictionary[i].charAt(0);
       if (!wordIndex[firstChar]) wordIndex[firstChar] = [];
       wordIndex[firstChar].push(dictionary[i]);
     }
@@ -66,26 +69,26 @@ var QuillAvro = (function () {
 
   function lookupWords(englishText) {
     if (!avroAvailable || !dictionary) return [];
-    var avroResult = OmicronLab.Avro.Phonetic.parse(englishText);
+    const avroResult = OmicronLab.Avro.Phonetic.parse(englishText);
     if (!avroResult) return [];
 
-    var candidates = [];
-    var found = {};
+    const candidates = [];
+    const found = {};
     found[avroResult] = true;
     candidates.push(avroResult);
 
-    var dictWords = wordIndex[avroResult.charAt(0)] || [];
-    for (var prefixLength = Math.min(avroResult.length, 4); prefixLength >= 1; prefixLength--) {
-      var bengaliPrefix = avroResult.substring(0, prefixLength);
-      for (var i = 0; i < dictWords.length; i++) {
+    const dictWords = wordIndex[avroResult.charAt(0)] || [];
+    for (let prefixLength = Math.min(avroResult.length, 4); prefixLength >= 1; prefixLength--) {
+      const bengaliPrefix = avroResult.substring(0, prefixLength);
+      for (let i = 0; i < dictWords.length; i++) {
         if (dictWords[i].length < 2) continue;
         if (!dictWords[i].startsWith(bengaliPrefix)) continue;
         if (Math.abs(dictWords[i].length - avroResult.length) <= 2 && !found[dictWords[i]]) {
           found[dictWords[i]] = true;
           candidates.push(dictWords[i]);
         }
-        for (var s = 0; s < BN_SUFFIXES.length && candidates.length < 10; s++) {
-          var combined = dictWords[i] + BN_SUFFIXES[s];
+        for (let s = 0; s < BN_SUFFIXES.length && candidates.length < 10; s++) {
+          const combined = dictWords[i] + BN_SUFFIXES[s];
           if (!found[combined] && combined.length >= 2 && Math.abs(combined.length - avroResult.length) <= 1) {
             if (combined.substring(0, 2) === avroResult.substring(0, Math.min(2, avroResult.length))) {
               found[combined] = true;
@@ -103,7 +106,7 @@ var QuillAvro = (function () {
   /* ---- Suggestion Dropdown ---- */
 
   function createSuggestionBox() {
-    var box = document.createElement('div');
+    const box = document.createElement('div');
     box.className = 'quill-avro-suggestions';
     box.style.cssText = 'position:absolute;z-index:9999;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-width:280px;display:none;font-family:"Noto Sans Bengali",sans-serif;';
     document.body.appendChild(box);
@@ -113,12 +116,12 @@ var QuillAvro = (function () {
   /* ---- Per-Quill Instance ---- */
 
   function attachToQuill(quill) {
-    var suggestBox = createSuggestionBox();
-    var wordBuffer = '';
-    var wordStartIndex = 0;  // Quill index where the English word starts
-    var bestSuggestion = '';
-    var suggestTimer = null;
-    var suggestCache = {};
+    const suggestBox = createSuggestionBox();
+    let wordBuffer = '';
+    let wordStartIndex = 0;  // Quill index where the English word starts
+    let bestSuggestion = '';
+    let suggestTimer = null;
+    const suggestCache = {};
 
     function hideSuggestions() {
       suggestBox.style.display = 'none';
@@ -129,8 +132,8 @@ var QuillAvro = (function () {
       if (!suggestions || suggestions.length === 0) { hideSuggestions(); return; }
       bestSuggestion = suggestions[0];
 
-      var html = suggestions.map(function (suggestion, index) {
-        var activeStyle = index === 0
+      const html = suggestions.map(function (suggestion, index) {
+        const activeStyle = index === 0
           ? ' data-active="1" style="padding:.35rem .65rem;font-size:.85rem;cursor:pointer;border-bottom:1px solid #f0f0f0;background:#4a6fa5;color:#fff;font-weight:600;"'
           : ' style="padding:.35rem .65rem;font-size:.85rem;cursor:pointer;border-bottom:1px solid #f0f0f0;"';
         return '<div class="quill-avro-item" data-index="' + index + '"' + activeStyle + '>' + suggestion + '</div>';
@@ -140,10 +143,10 @@ var QuillAvro = (function () {
       suggestBox.style.display = 'block';
 
       /* Position near cursor */
-      var selection = quill.getSelection();
+      let selection = quill.getSelection();
       if (selection) {
-        var bounds = quill.getBounds(selection.index);
-        var editorRect = quill.container.getBoundingClientRect();
+        const bounds = quill.getBounds(selection.index);
+        const editorRect = quill.container.getBoundingClientRect();
         suggestBox.style.left = (editorRect.left + bounds.left + window.scrollX) + 'px';
         suggestBox.style.top = (editorRect.top + bounds.bottom + window.scrollY + 4) + 'px';
       }
@@ -176,7 +179,7 @@ var QuillAvro = (function () {
 
     function pickSuggestion(bengaliText) {
       /* Replace the English word in Quill with Bengali text + space */
-      var currentFormat = quill.getFormat(wordStartIndex);
+      const currentFormat = quill.getFormat(wordStartIndex);
       quill.deleteText(wordStartIndex, wordBuffer.length);
       quill.insertText(wordStartIndex, bengaliText + ' ', currentFormat);
       quill.setSelection(wordStartIndex + bengaliText.length + 1);
@@ -188,7 +191,7 @@ var QuillAvro = (function () {
       clearTimeout(suggestTimer);
       if (!englishText || englishText.length < 1) { hideSuggestions(); return; }
 
-      var offlineResults = lookupWords(englishText);
+      const offlineResults = lookupWords(englishText);
       if (offlineResults.length > 0) {
         if (suggestCache[englishText]) {
           showSuggestions(mergeResults(suggestCache[englishText], offlineResults));
@@ -200,9 +203,12 @@ var QuillAvro = (function () {
       if (englishText.length >= 2) {
         suggestTimer = setTimeout(function () {
           fetch('/tools/api/transliterate/?text=' + encodeURIComponent(englishText))
-            .then(function (response) { return response.json(); })
+            .then(function (response) {
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              return response.json();
+            })
             .then(function (data) {
-              var googleResults = data.suggestions || [];
+              const googleResults = data.suggestions || [];
               if (googleResults.length > 0) {
                 suggestCache[englishText] = googleResults;
                 if (wordBuffer === englishText) {
@@ -216,11 +222,11 @@ var QuillAvro = (function () {
     }
 
     function mergeResults(googleResults, offlineResults) {
-      var merged = [];
-      for (var i = 0; i < googleResults.length && merged.length < 6; i++) {
+      const merged = [];
+      for (let i = 0; i < googleResults.length && merged.length < 6; i++) {
         if (googleResults[i].length >= 2 && merged.indexOf(googleResults[i]) === -1) merged.push(googleResults[i]);
       }
-      for (var j = 0; j < offlineResults.length && merged.length < 6; j++) {
+      for (let j = 0; j < offlineResults.length && merged.length < 6; j++) {
         if (offlineResults[j].length >= 2 && merged.indexOf(offlineResults[j]) === -1) merged.push(offlineResults[j]);
       }
       return merged;
@@ -231,18 +237,18 @@ var QuillAvro = (function () {
     quill.on('text-change', function (delta, oldDelta, source) {
       if (!enabled || source !== 'user') return;
 
-      var selection = quill.getSelection();
+      const selection = quill.getSelection();
       if (!selection) return;
 
-      var cursorIndex = selection.index;
-      var fullText = quill.getText();
-      var textUpToCursor = fullText.substring(0, cursorIndex);
+      const cursorIndex = selection.index;
+      const fullText = quill.getText();
+      const textUpToCursor = fullText.substring(0, cursorIndex);
 
       /* Find the current English word being typed */
-      var lastSpace = textUpToCursor.lastIndexOf(' ');
-      var lastNewline = textUpToCursor.lastIndexOf('\n');
-      var wordStart = Math.max(lastSpace, lastNewline) + 1;
-      var currentWord = textUpToCursor.substring(wordStart);
+      const lastSpace = textUpToCursor.lastIndexOf(' ');
+      const lastNewline = textUpToCursor.lastIndexOf('\n');
+      const wordStart = Math.max(lastSpace, lastNewline) + 1;
+      const currentWord = textUpToCursor.substring(wordStart);
 
       if (/^[a-zA-Z]+$/.test(currentWord)) {
         wordBuffer = currentWord;
@@ -255,7 +261,7 @@ var QuillAvro = (function () {
     });
 
     /* Keyboard handling — must use native DOM event on Quill's editor */
-    var editorElement = quill.root;
+    const editorElement = quill.root;
     editorElement.addEventListener('keydown', function (event) {
       if (!enabled) return;
 
@@ -269,7 +275,7 @@ var QuillAvro = (function () {
       if (suggestBox.style.display === 'none') {
         /* Enter with buffer — flush with Avro fallback */
         if (event.key === 'Enter' && wordBuffer.length > 0 && avroAvailable) {
-          var fallback = OmicronLab.Avro.Phonetic.parse(wordBuffer);
+          const fallback = OmicronLab.Avro.Phonetic.parse(wordBuffer);
           if (fallback) {
             event.preventDefault();
             pickSuggestion(fallback);
@@ -278,13 +284,13 @@ var QuillAvro = (function () {
         return;
       }
 
-      var items = suggestBox.querySelectorAll('.quill-avro-item');
-      var activeItem = suggestBox.querySelector('.quill-avro-item[data-active]');
-      var activeIndex = activeItem ? parseInt(activeItem.getAttribute('data-index')) : -1;
+      const items = suggestBox.querySelectorAll('.quill-avro-item');
+      const activeItem = suggestBox.querySelector('.quill-avro-item[data-active]');
+      const activeIndex = activeItem ? parseInt(activeItem.getAttribute('data-index')) : -1;
 
       if (event.key === 'ArrowDown') {
         event.preventDefault();
-        var nextIndex = Math.min(activeIndex + 1, items.length - 1);
+        const nextIndex = Math.min(activeIndex + 1, items.length - 1);
         clearActive();
         items[nextIndex].setAttribute('data-active', '1');
         items[nextIndex].style.background = '#4a6fa5';
@@ -293,7 +299,7 @@ var QuillAvro = (function () {
         bestSuggestion = items[nextIndex].textContent;
       } else if (event.key === 'ArrowUp') {
         event.preventDefault();
-        var previousIndex = Math.max(activeIndex - 1, 0);
+        const previousIndex = Math.max(activeIndex - 1, 0);
         clearActive();
         items[previousIndex].setAttribute('data-active', '1');
         items[previousIndex].style.background = '#4a6fa5';

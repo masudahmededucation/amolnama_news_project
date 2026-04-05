@@ -18,23 +18,23 @@
   <input type="hidden" id="wcv-victim" name="wcv_victim" value="">
 
   {# ======== Group 1 — Name ======== #}
-  <div class="actor-group" style="border-left-color: #66bb6a;">
+  <div class="actor-group actor-group-victim">
     <h5 class="actor-group-title" data-bn="নাম" data-en="Name">নাম (Name)</h5>
     {% include "newshub/components/person-name-alias-fields.html" with prefix="wcv-victim" label_main="ভুক্তভোগীর নাম" %}
   </div>
 
   {# ======== Group 2 — Personal Identity (universal) ======== #}
-  <div class="actor-group" style="border-left-color: #66bb6a;">
+  <div class="actor-group actor-group-victim">
     <h5 class="actor-group-title" data-bn="ব্যক্তিগত পরিচয়" data-en="Personal Identity">ব্যক্তিগত পরিচয় (Personal Identity)</h5>
     {% include "newshub/components/person-personal-info-fields.html" with prefix="wcv-victim" genders=wcv_victim_genders religions=wcv_victim_religions districts=wcv_victim_districts %}
 
     {# Age validation messages (WCV-specific — attached to universal #wcv-victim-age) #}
-    <p class="form-field-error" id="wcv-age-error" style="display: none;"
+    <p class="form-field-error display-hidden" id="wcv-age-error"
        data-bn="⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে"
        data-en="⛔ Age cannot exceed 100 years — value clamped to 100">
       ⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে
     </p>
-    <p class="form-field-warning" id="wcv-age-warning" style="display: none;"
+    <p class="form-field-warning display-hidden" id="wcv-age-warning"
        data-bn="⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন"
        data-en="⚠️ Age is over 50 — please verify">
       ⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন
@@ -42,7 +42,7 @@
   </div>
 
   {# ======== Group 3 — Marital & Occupation (WCV-specific) ======== #}
-  <div class="actor-group" style="border-left-color: #66bb6a;">
+  <div class="actor-group actor-group-victim">
     <h5 class="actor-group-title" data-bn="বৈবাহিক অবস্থা ও পেশা" data-en="Marital Status & Occupation">বৈবাহিক অবস্থা ও পেশা (Marital Status & Occupation)</h5>
 
     {# ---- Marital status ---- #}
@@ -56,7 +56,7 @@
     </div>
 
     {# ---- Husband's name + marriage date (conditional, shown when married) ---- #}
-    <div id="wcv-husband-row" style="display: none;">
+    <div id="wcv-husband-row" class="display-hidden">
       <div class="form-field">
         <span class="form-field-label" data-bn="স্বামীর নাম" data-en="Husband's Name">স্বামীর নাম (Husband's Name) <span class="field-required">*</span></span>
         <div class="form-name-split">
@@ -75,10 +75,10 @@
                    placeholder="স্বামীর শেষ নাম (বাংলা)...">
           </div>
         </div>
-        <div style="margin-top: 0.75rem;">
+        <div class="form-margin-top-small">
           <span class="form-name-sublabel form-field-label" id="wcv-victim-marriage-date-label"
                  data-bn="বিয়ের তারিখ" data-en="Marriage Date">বিয়ের তারিখ (Marriage Date)</span>
-          <input type="date" id="wcv-victim-marriage-date" name="wcv_victim_marriage_date" aria-labelledby="wcv-victim-marriage-date-label" style="max-width: 200px;">
+          <input type="date" id="wcv-victim-marriage-date" name="wcv_victim_marriage_date" aria-labelledby="wcv-victim-marriage-date-label" class="form-input-max-200">
         </div>
       </div>
     </div>

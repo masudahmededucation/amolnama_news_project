@@ -4,20 +4,20 @@
 (function () {
   'use strict';
 
-  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
                   || (window.navigator.standalone === true);
   if (isStandalone) return;
 
-  var ua = navigator.userAgent || '';
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  var isAndroid = /Android/.test(ua);
-  var isChromium = /Chrome|Edg/.test(ua) && !isIOS;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isAndroid = /Android/.test(ua);
+  const isChromium = /Chrome|Edg/.test(ua) && !isIOS;
 
-  var headerBtn = document.getElementById('pwa-header-install');
-  var deferredPrompt = null;
-  var pendingClick = false;
+  const headerBtn = document.getElementById('pwa-header-install');
+  let deferredPrompt = null;
+  let pendingClick = false;
 
-  if (headerBtn) headerBtn.style.display = '';
+  if (headerBtn) headerBtn.classList.remove('display-hidden');
 
   /* ---- Capture beforeinstallprompt ---- */
   window.addEventListener('beforeinstallprompt', function (e) {
@@ -90,8 +90,8 @@
 
   /* ====== Tooltip ====== */
 
-  var tooltipEl = null;
-  var tooltipTimer = null;
+  let tooltipEl = null;
+  let tooltipTimer = null;
 
   function showTooltip(msg) {
     removeTooltip();
@@ -101,7 +101,7 @@
     document.body.appendChild(tooltipEl);
 
     if (headerBtn) {
-      var rect = headerBtn.getBoundingClientRect();
+      const rect = headerBtn.getBoundingClientRect();
       tooltipEl.style.top = (rect.bottom + 8) + 'px';
       tooltipEl.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
     }
@@ -121,7 +121,7 @@
     document.removeEventListener('click', onOutsideClick, true);
     if (tooltipEl) {
       tooltipEl.classList.remove('pwa-tooltip--visible');
-      var el = tooltipEl;
+      const el = tooltipEl;
       tooltipEl = null;
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
     }

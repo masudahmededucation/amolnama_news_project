@@ -22,7 +22,7 @@
 
   /* ========== Field definitions (single source of truth) ========== */
 
-  var PARTY_FIELDS = [
+  const PARTY_FIELDS = [
     { key: 'organization', type: 'text',     labelBn: '\u09B8\u0982\u0997\u09A0\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE',                          labelEn: 'Organization Name',  phBn: '\u09B8\u0982\u09B6\u09CD\u09B2\u09BF\u09B7\u09CD\u099F \u09B8\u0982\u0997\u09A0\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE',           phEn: 'Organization name...', maxlength: 200 },
     { key: 'designation',  type: 'text',     labelBn: '\u09AA\u09A6\u09AC\u09C0',                                       labelEn: 'Designation',        phBn: '\u09AF\u09C7\u09AE\u09A8: \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u0995\u09AE\u09BF\u09B6\u09A8\u09BE\u09B0, \u099B\u09BE\u09A4\u09CD\u09B0, \u0997\u09C3\u09B9\u09BF\u09A3\u09C0', phEn: 'e.g. Ward Commissioner, Student, Homemaker', maxlength: 100 },
     { key: 'patron',       type: 'text',     labelBn: '\u0986\u09B6\u09CD\u09B0\u09AF\u09BC\u09A6\u09BE\u09A4\u09BE/\u09AA\u09C3\u09B7\u09CD\u09A0\u09AA\u09CB\u09B7\u0995', labelEn: 'Patron',             phBn: '\u0997\u09A1\u09AB\u09BE\u09A6\u09BE\u09B0, \u0986\u09B6\u09CD\u09B0\u09AF\u09BC\u09A6\u09BE\u09A4\u09BE \u09AC\u09BE \u09AC\u09A1\u09BC \u09AD\u09BE\u0987\u09AF\u09BC\u09C7\u09B0 \u09A8\u09BE\u09AE', phEn: 'Godfather, patron or elder name', maxlength: 200 },
@@ -30,7 +30,7 @@
   ];
 
   /* Group title */
-  var GROUP_TITLE = {
+  const GROUP_TITLE = {
     bn: '\u09B8\u0982\u09B6\u09CD\u09B2\u09BF\u09B7\u09CD\u099F \u09AA\u0995\u09CD\u09B7\u09C7\u09B0 \u09AC\u09BF\u09B8\u09CD\u09A4\u09BE\u09B0\u09BF\u09A4',
     en: 'Party Details'
   };
@@ -75,9 +75,9 @@
   /* ========== DOM helpers ========== */
 
   function makeDomFormField(labelBn, labelEn, inputEl) {
-    var wrap = document.createElement('div');
+    const wrap = document.createElement('div');
     wrap.className = 'form-field';
-    var label = document.createElement('label');
+    const label = document.createElement('label');
     if (inputEl.id) label.setAttribute('for', inputEl.id);
     label.setAttribute('data-bn', labelBn);
     label.setAttribute('data-en', labelEn);
@@ -88,7 +88,7 @@
   }
 
   function makeDomInput(classPrefix, field) {
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.type = 'text';
     input.id = classPrefix + '-' + field.key;
     input.name = classPrefix.replace(/-/g, '_') + '_' + field.key;
@@ -103,7 +103,7 @@
   }
 
   function makeDomTextarea(classPrefix, field) {
-    var textarea = document.createElement('textarea');
+    const textarea = document.createElement('textarea');
     textarea.id = classPrefix + '-' + field.key;
     textarea.name = classPrefix.replace(/-/g, '_') + '_' + field.key;
     textarea.className = classPrefix + '-' + field.key;
@@ -142,14 +142,14 @@
      * @returns {string} HTML string
      */
     buildPartyDetailsGroupHtml: function (index, actor, fieldClass) {
-      var html = '<div class="actor-group actor-group-party">';
+      let html = '<div class="actor-group actor-group-party">';
       html += '<h5 class="actor-group-title"'
         + ' data-bn="' + escapeAttr(GROUP_TITLE.bn) + '"'
         + ' data-en="' + escapeAttr(GROUP_TITLE.en) + '">'
         + GROUP_TITLE.bn + ' (' + GROUP_TITLE.en + ')</h5>';
 
-      for (var i = 0; i < PARTY_FIELDS.length; i++) {
-        var f = PARTY_FIELDS[i];
+      for (let i = 0; i < PARTY_FIELDS.length; i++) {
+        let f = PARTY_FIELDS[i];
         if (f.type === 'textarea') {
           html += buildTextareaHtml(index, fieldClass, f, actor[f.key]);
         } else {
@@ -168,22 +168,22 @@
      * @returns {{ element: HTMLElement, inputs: object }}
      */
     buildPartyDetailsGroupDom: function (classPrefix, borderColor) {
-      var group = document.createElement('div');
+      const group = document.createElement('div');
       group.className = 'actor-group actor-group-party';
       if (borderColor) group.style.borderLeftColor = borderColor;
 
-      var h5 = document.createElement('h5');
+      const h5 = document.createElement('h5');
       h5.className = 'actor-group-title';
       h5.setAttribute('data-bn', GROUP_TITLE.bn);
       h5.setAttribute('data-en', GROUP_TITLE.en);
       h5.textContent = GROUP_TITLE.bn + ' (' + GROUP_TITLE.en + ')';
       group.appendChild(h5);
 
-      var allInputs = {};
+      const allInputs = {};
 
-      for (var i = 0; i < PARTY_FIELDS.length; i++) {
-        var f = PARTY_FIELDS[i];
-        var el;
+      for (let i = 0; i < PARTY_FIELDS.length; i++) {
+        const f = PARTY_FIELDS[i];
+        let el;
         if (f.type === 'textarea') {
           el = makeDomTextarea(classPrefix, f);
         } else {

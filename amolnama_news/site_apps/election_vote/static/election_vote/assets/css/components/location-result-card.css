@@ -1,0 +1,30 @@
+/* ========== Election Vote – Location Result Card ========== */
+
+.location-result-card {
+  margin-bottom: 3rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  background: var(--card);
+}
+
+.location-result-card-heading {
+  margin: 0 0 0.5rem 0;
+}
+
+.location-result-card-total-votes {
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.location-result-card-drilldown {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.location-result-card-drilldown-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: bold;
+}

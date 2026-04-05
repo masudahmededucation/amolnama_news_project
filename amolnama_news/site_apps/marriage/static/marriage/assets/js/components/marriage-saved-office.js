@@ -5,20 +5,20 @@
  */
 (function () {
   'use strict';
-  var getCsrf = window.getCsrfTokenValue;
+  const getCsrf = window.getCsrfTokenValue;
 
-  var bar = document.getElementById('saved-office-bar');
+  const bar = document.getElementById('saved-office-bar');
   if (!bar) return;
 
-  var select    = document.getElementById('saved-office-select');
-  var btnLoad   = document.getElementById('btn-load-office');
-  var btnDelete = document.getElementById('btn-delete-office');
-  var btnSave   = document.getElementById('btn-save-office');
-  var labelInput = document.getElementById('save-office-label');
-  var defaultChk = document.getElementById('save-office-default');
+  const select    = document.getElementById('saved-office-select');
+  const btnLoad   = document.getElementById('btn-load-office');
+  const btnDelete = document.getElementById('btn-delete-office');
+  const btnSave   = document.getElementById('btn-save-office');
+  const labelInput = document.getElementById('save-office-label');
+  const defaultChk = document.getElementById('save-office-default');
 
   /* Field IDs that map to the saved office columns */
-  var FIELD_MAP = {
+  const FIELD_MAP = {
     'govt_title':     'cert-govt-title',
     'office_name':    'cert-office-name',
     'office_address': 'cert-office-address',
@@ -26,24 +26,27 @@
     'office_date':    'cert-date'
   };
 
-  var API_LIST   = '/bangladesh-marriage-registration/api/saved-offices/';
-  var API_SAVE   = '/bangladesh-marriage-registration/api/saved-offices/save/';
-  var API_DELETE  = '/bangladesh-marriage-registration/api/saved-offices/delete/';
+  const API_LIST   = '/bangladesh-marriage-registration/api/saved-offices/';
+  const API_SAVE   = '/bangladesh-marriage-registration/api/saved-offices/save/';
+  const API_DELETE  = '/bangladesh-marriage-registration/api/saved-offices/delete/';
 
   /* ── CSRF ── */
 
   /* ── Populate select dropdown ── */
   function loadList() {
     fetch(API_LIST, { credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
       .then(function (offices) {
         /* Clear existing options except placeholder */
         while (select.options.length > 1) select.remove(1);
 
         offices.forEach(function (o) {
-          var opt = document.createElement('option');
+          let opt = document.createElement('option');
           opt.value = o.user_saved_office_id;
-          var label = o.office_label || o.office_name || 'Office #' + o.user_saved_office_id;
+          let label = o.office_label || o.office_name || 'Office #' + o.user_saved_office_id;
           if (o.is_default) label += ' *';
           opt.textContent = label;
           opt.dataset.office = JSON.stringify(o);
@@ -51,28 +54,29 @@
         });
 
         /* Auto-select and load default office */
-        var defaultOffice = offices.find(function (o) { return o.is_default; });
+        const defaultOffice = offices.find(function (o) { return o.is_default; });
         if (defaultOffice) {
           select.value = defaultOffice.user_saved_office_id;
           fillForm(defaultOffice);
           updateButtons();
         }
-      });
+      })
+      .catch(function () {});
   }
 
   /* ── Fill form fields from office data ── */
   function fillForm(office) {
     Object.keys(FIELD_MAP).forEach(function (key) {
-      var el = document.getElementById(FIELD_MAP[key]);
+      let el = document.getElementById(FIELD_MAP[key]);
       if (el) el.value = office[key] || '';
     });
   }
 
   /* ── Read form fields into object ── */
   function readForm() {
-    var data = {};
+    let data = {};
     Object.keys(FIELD_MAP).forEach(function (key) {
-      var el = document.getElementById(FIELD_MAP[key]);
+      const el = document.getElementById(FIELD_MAP[key]);
       data[key] = el ? el.value : '';
     });
     return data;
@@ -80,7 +84,7 @@
 
   /* ── Enable/disable load & delete buttons ── */
   function updateButtons() {
-    var hasSelection = select.value !== '';
+    const hasSelection = select.value !== '';
     btnLoad.disabled = !hasSelection;
     btnDelete.disabled = !hasSelection;
   }
@@ -89,14 +93,14 @@
   select.addEventListener('change', updateButtons);
 
   btnLoad.addEventListener('click', function () {
-    var opt = select.options[select.selectedIndex];
+    const opt = select.options[select.selectedIndex];
     if (!opt || !opt.dataset.office) return;
-    var office = JSON.parse(opt.dataset.office);
+    const office = JSON.parse(opt.dataset.office);
     fillForm(office);
   });
 
   btnSave.addEventListener('click', function () {
-    var data = readForm();
+    const data = readForm();
     data.office_label = (labelInput.value || '').trim();
     data.is_default = defaultChk.checked;
 
@@ -114,17 +118,21 @@
       },
       body: JSON.stringify(data)
     })
-    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function (result) {
       if (result.ok) {
         loadList();
         labelInput.value = '';
         defaultChk.checked = false;
       }
-    });
+    })
+    .catch(function () {});
   });
 
-  var deleteConfirmPending = false;
+  let deleteConfirmPending = false;
   btnDelete.addEventListener('click', function () {
     if (!select.value) return;
     if (!deleteConfirmPending) {
@@ -147,7 +155,10 @@
       },
       body: JSON.stringify({ office_id: parseInt(select.value, 10) })
     })
-    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function (result) {
       if (result.ok) loadList();
     })

@@ -4,134 +4,134 @@
 
   /* ---- Smooth show / hide helpers ---- */
   function showSection(el) {
-    el.style.display = '';
+    el.classList.remove('display-hidden');
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
   function hideSection(el) {
-    el.style.display = 'none';
+    el.classList.add('display-hidden');
     el.classList.remove('tool-section-reveal');
   }
 
   /* ---- DOM refs ---- */
-  var dropzone        = document.getElementById('bgr-dropzone');
-  var fileInput       = document.getElementById('bgr-file-input');
-  var browseBtn       = document.getElementById('bgr-browse-btn');
-  var processingOverlay = document.getElementById('bgr-processing-overlay');
-  var processingText  = document.getElementById('bgr-processing-text');
-  var errorSection    = document.getElementById('bgr-error');
-  var errorText       = document.getElementById('bgr-error-text');
-  var tryAgainBtn     = document.getElementById('bgr-try-again-btn');
-  var editor          = document.getElementById('bgr-editor');
-  var originalCanvas  = document.getElementById('bgr-original-canvas');
-  var resultCanvas    = document.getElementById('bgr-result-canvas');
-  var resultWrap      = document.getElementById('bgr-result-wrap');
-  var swatches        = document.querySelectorAll('.bgr-swatch');
-  var customColorInput = document.getElementById('bgr-custom-color');
-  var edgeSlider      = document.getElementById('bgr-edge-slider');
-  var edgeValue       = document.getElementById('bgr-edge-value');
-  var downloadPng     = document.getElementById('bgr-download-png');
-  var downloadJpg     = document.getElementById('bgr-download-jpg');
-  var resetBtn        = document.getElementById('bgr-reset-btn');
+  const dropzone        = document.getElementById('bgr-dropzone');
+  const fileInput       = document.getElementById('bgr-file-input');
+  const browseBtn       = document.getElementById('bgr-browse-btn');
+  const processingOverlay = document.getElementById('bgr-processing-overlay');
+  const processingText  = document.getElementById('bgr-processing-text');
+  const errorSection    = document.getElementById('bgr-error');
+  const errorText       = document.getElementById('bgr-error-text');
+  const tryAgainBtn     = document.getElementById('bgr-try-again-btn');
+  const editor          = document.getElementById('bgr-editor');
+  const originalCanvas  = document.getElementById('bgr-original-canvas');
+  const resultCanvas    = document.getElementById('bgr-result-canvas');
+  const resultWrap      = document.getElementById('bgr-result-wrap');
+  const swatches        = document.querySelectorAll('.bgr-swatch');
+  const customColorInput = document.getElementById('bgr-custom-color');
+  const edgeSlider      = document.getElementById('bgr-edge-slider');
+  const edgeValue       = document.getElementById('bgr-edge-value');
+  const downloadPng     = document.getElementById('bgr-download-png');
+  const downloadJpg     = document.getElementById('bgr-download-jpg');
+  const resetBtn        = document.getElementById('bgr-reset-btn');
 
   /* Brush DOM refs */
-  var brushTools      = document.getElementById('bgr-brush-tools');
-  var brushMoveBtn    = document.getElementById('bgr-brush-move');
-  var brushEraseBtn   = document.getElementById('bgr-brush-erase');
-  var brushRestoreBtn = document.getElementById('bgr-brush-restore');
-  var brushUndoBtn    = document.getElementById('bgr-brush-undo');
-  var brushSizeSlider = document.getElementById('bgr-brush-size');
-  var brushSizeValue  = document.getElementById('bgr-brush-size-value');
-  var brushCursor     = document.getElementById('bgr-brush-cursor');
+  const brushTools      = document.getElementById('bgr-brush-tools');
+  const brushMoveBtn    = document.getElementById('bgr-brush-move');
+  const brushEraseBtn   = document.getElementById('bgr-brush-erase');
+  const brushRestoreBtn = document.getElementById('bgr-brush-restore');
+  const brushUndoBtn    = document.getElementById('bgr-brush-undo');
+  const brushSizeSlider = document.getElementById('bgr-brush-size');
+  const brushSizeValue  = document.getElementById('bgr-brush-size-value');
+  const brushCursor     = document.getElementById('bgr-brush-cursor');
 
   /* Auto-refine DOM refs */
-  var autoRefineBtn   = document.getElementById('bgr-auto-refine');
+  const autoRefineBtn   = document.getElementById('bgr-auto-refine');
 
   /* Zoom & compare DOM refs */
-  var resultTools     = document.getElementById('bgr-result-tools');
-  var tipsBar         = document.getElementById('bgr-tips');
-  var compareBtn      = document.getElementById('bgr-compare-btn');
-  var zoomInBtn       = document.getElementById('bgr-zoom-in');
-  var zoomOutBtn      = document.getElementById('bgr-zoom-out');
-  var zoomLevelSpan   = document.getElementById('bgr-zoom-level');
+  const resultTools     = document.getElementById('bgr-result-tools');
+  const tipsBar         = document.getElementById('bgr-tips');
+  const compareBtn      = document.getElementById('bgr-compare-btn');
+  const zoomInBtn       = document.getElementById('bgr-zoom-in');
+  const zoomOutBtn      = document.getElementById('bgr-zoom-out');
+  const zoomLevelSpan   = document.getElementById('bgr-zoom-level');
 
   /* Edge shift DOM refs */
-  var edgeShiftSlider = document.getElementById('bgr-edge-shift');
-  var edgeShiftValue  = document.getElementById('bgr-edge-shift-value');
+  const edgeShiftSlider = document.getElementById('bgr-edge-shift');
+  const edgeShiftValue  = document.getElementById('bgr-edge-shift-value');
 
   /* Shadow DOM refs */
-  var shadowBlurSlider = document.getElementById('bgr-shadow-blur');
-  var shadowBlurValue = document.getElementById('bgr-shadow-blur-value');
+  const shadowBlurSlider = document.getElementById('bgr-shadow-blur');
+  const shadowBlurValue = document.getElementById('bgr-shadow-blur-value');
 
   /* Copy & clipboard */
-  var copyBtn         = document.getElementById('bgr-copy-btn');
+  const copyBtn         = document.getElementById('bgr-copy-btn');
 
   /* ---- State ---- */
-  var segmenter     = null;
-  var modelLoaded   = false;
-  var processing    = false;
-  var originalImage = null;
-  var maskData      = null;
-  var maskWidth     = 0;
-  var maskHeight    = 0;
-  var currentBg     = 'transparent';
-  var fileName      = 'image';
+  let segmenter     = null;
+  let modelLoaded   = false;
+  let processing    = false;
+  let originalImage = null;
+  let maskData      = null;
+  let maskWidth     = 0;
+  let maskHeight    = 0;
+  let currentBg     = 'transparent';
+  let fileName      = 'image';
 
   /* Mask layers */
-  var featheredMask = null;
-  var brushDelta    = null;
-  var workingMask   = null;
+  let featheredMask = null;
+  let brushDelta    = null;
+  let workingMask   = null;
 
   /* Brush state */
-  var brushMode     = null;
-  var painting      = false;
-  var lastPaintX    = -1;
-  var lastPaintY    = -1;
+  let brushMode     = null;
+  let painting      = false;
+  let lastPaintX    = -1;
+  let lastPaintY    = -1;
 
   /* Undo history */
-  var undoStack     = [];
-  var MAX_UNDO      = 30;
+  let undoStack     = [];
+  const MAX_UNDO      = 30;
 
   /* Auto-refine state */
-  var autoRefineOn      = false;
-  var refinedPixelData  = null;
+  let autoRefineOn      = false;
+  let refinedPixelData  = null;
 
   /* Zoom state */
-  var zoomLevel         = 1;
-  var ZOOM_STEPS        = [1, 1.5, 2, 3, 4];
-  var baseCanvasWidth   = 0;
-  var baseCanvasHeight  = 0;
+  let zoomLevel         = 1;
+  const ZOOM_STEPS        = [1, 1.5, 2, 3, 4];
+  let baseCanvasWidth   = 0;
+  let baseCanvasHeight  = 0;
 
   /* Shadow state */
-  var shadowBlur        = 0;
+  let shadowBlur        = 0;
 
   /* Compare state */
-  var comparing         = false;
-  var savedResultData   = null;
+  let comparing         = false;
+  let savedResultData   = null;
 
   /* Pan state */
-  var panning           = false;
-  var panStartX         = 0;
-  var panStartY         = 0;
-  var panScrollStartX   = 0;
-  var panScrollStartY   = 0;
-  var spaceHeld         = false;
+  let panning           = false;
+  let panStartX         = 0;
+  let panStartY         = 0;
+  let panScrollStartX   = 0;
+  let panScrollStartY   = 0;
+  let spaceHeld         = false;
 
   /* Touch pan state */
-  var touchPanning      = false;
-  var touchStartX       = 0;
-  var touchStartY       = 0;
-  var touchScrollStartX = 0;
-  var touchScrollStartY = 0;
+  let touchPanning      = false;
+  let touchStartX       = 0;
+  let touchStartY       = 0;
+  let touchScrollStartX = 0;
+  let touchScrollStartY = 0;
 
   /* Cached original pixel data */
-  var origPixelData = null;
+  let origPixelData = null;
 
   /* ---- Constants ---- */
-  var MAX_FILE_SIZE = 10 * 1024 * 1024;
-  var MAX_IMAGE_DIM = 2048; /* Cap image size to prevent browser freeze */
-  var BRUSH_INTENSITY = 0.35;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  const MAX_IMAGE_DIM = 2048; /* Cap image size to prevent browser freeze */
+  const BRUSH_INTENSITY = 0.35;
 
   /* ---- Enable / disable controls while processing ---- */
   function setControlsEnabled(enabled) {
@@ -160,28 +160,28 @@
         segmenter.setOptions({ modelSelection: 1 });
 
         segmenter.onResults(function (results) {
-          var mask = results.segmentationMask;
-          var tempCanvas = document.createElement('canvas');
+          let mask = results.segmentationMask;
+          const tempCanvas = document.createElement('canvas');
           tempCanvas.width = mask.width;
           tempCanvas.height = mask.height;
-          var ctx = tempCanvas.getContext('2d');
+          let ctx = tempCanvas.getContext('2d');
           ctx.drawImage(mask, 0, 0);
-          var imgData = ctx.getImageData(0, 0, mask.width, mask.height);
+          const imgData = ctx.getImageData(0, 0, mask.width, mask.height);
 
           maskWidth = mask.width;
           maskHeight = mask.height;
           maskData = new Float32Array(mask.width * mask.height);
-          for (var i = 0; i < maskData.length; i++) {
+          for (let i = 0; i < maskData.length; i++) {
             maskData[i] = imgData.data[i * 4] / 255;
           }
 
           modelLoaded = true;
 
-          var w = originalImage.naturalWidth;
-          var h = originalImage.naturalHeight;
+          let w = originalImage.naturalWidth;
+          let h = originalImage.naturalHeight;
 
           /* Downscale if too large */
-          var scale = 1;
+          let scale = 1;
           if (w > MAX_IMAGE_DIM || h > MAX_IMAGE_DIM) {
             scale = Math.min(MAX_IMAGE_DIM / w, MAX_IMAGE_DIM / h);
             w = Math.round(w * scale);
@@ -198,8 +198,8 @@
           /* Use async composite to avoid freeze */
           compositeResultAsync(function () {
             showSection(brushTools);
-            resultTools.style.display = '';
-            if (tipsBar) tipsBar.style.display = '';
+            resultTools.classList.remove('display-hidden');
+            if (tipsBar) tipsBar.classList.remove('display-hidden');
             hideSection(processingOverlay);
             setControlsEnabled(true);
             requestAnimationFrame(function () { captureBaseSize(); });
@@ -223,14 +223,14 @@
   function boxBlurFast(src, w, h, radius) {
     if (radius < 1) return new Float32Array(src);
 
-    var buf = new Float32Array(src);
-    var out = new Float32Array(src.length);
-    var i, x, y, sum, count, li, ri;
+    const buf = new Float32Array(src);
+    let out = new Float32Array(src.length);
+    let i, x, y, sum, count, li, ri;
 
-    for (var pass = 0; pass < 3; pass++) {
+    for (let pass = 0; pass < 3; pass++) {
       /* Horizontal pass */
       for (y = 0; y < h; y++) {
-        var rowOff = y * w;
+        const rowOff = y * w;
         sum = 0;
         count = 0;
         /* Seed the window */
@@ -273,11 +273,11 @@
   function applyThreshold(mask, low, high) {
     if (low === undefined) low = 0.15;
     if (high === undefined) high = 0.85;
-    var range = high - low;
+    let range = high - low;
     if (range <= 0) range = 0.01;
-    var out = new Float32Array(mask.length);
-    for (var i = 0; i < mask.length; i++) {
-      var v = mask[i];
+    let out = new Float32Array(mask.length);
+    for (let i = 0; i < mask.length; i++) {
+      let v = mask[i];
       if (v <= low) { out[i] = 0; }
       else if (v >= high) { out[i] = 1; }
       else {
@@ -290,7 +290,7 @@
 
   function featherMaskFn(raw, w, h, radius, threshLow, threshHigh) {
     if (radius < 1) return applyThreshold(raw, threshLow, threshHigh);
-    var blurred = boxBlurFast(raw, w, h, radius);
+    const blurred = boxBlurFast(raw, w, h, radius);
     return applyThreshold(blurred, threshLow, threshHigh);
   }
 
@@ -299,12 +299,12 @@
      ============================================================ */
   function buildWorkingMask() {
     if (!featheredMask || !brushDelta) return;
-    var len = featheredMask.length;
+    const len = featheredMask.length;
     if (!workingMask || workingMask.length !== len) {
       workingMask = new Float32Array(len);
     }
-    for (var i = 0; i < len; i++) {
-      var v = featheredMask[i] + brushDelta[i];
+    for (let i = 0; i < len; i++) {
+      let v = featheredMask[i] + brushDelta[i];
       workingMask[i] = v < 0 ? 0 : v > 1 ? 1 : v;
     }
   }
@@ -315,42 +315,42 @@
   function computeEdgeRefinement(callback) {
     if (!workingMask || !origPixelData) { if (callback) callback(); return; }
 
-    var w = resultCanvas.width;
-    var h = resultCanvas.height;
-    var src = origPixelData.data;
-    var refined = new Uint8ClampedArray(src);
+    let w = resultCanvas.width;
+    let h = resultCanvas.height;
+    let src = origPixelData.data;
+    const refined = new Uint8ClampedArray(src);
 
-    var EDGE_LOW  = 0.02;
-    var EDGE_HIGH = 0.92;
-    var SEARCH_R  = 5;
+    const EDGE_LOW  = 0.02;
+    const EDGE_HIGH = 0.92;
+    const SEARCH_R  = 5;
 
-    var y = 0;
-    var CHUNK = 50; /* rows per frame */
+    let y = 0;
+    const CHUNK = 50; /* rows per frame */
 
     function processChunk() {
-      var yEnd = Math.min(y + CHUNK, h);
+      const yEnd = Math.min(y + CHUNK, h);
 
       for (; y < yEnd; y++) {
-        for (var x = 0; x < w; x++) {
-          var idx = y * w + x;
-          var alpha = workingMask[idx];
+        for (let x = 0; x < w; x++) {
+          let idx = y * w + x;
+          let alpha = workingMask[idx];
           if (alpha <= EDGE_LOW || alpha >= EDGE_HIGH) continue;
 
-          var sumR = 0, sumG = 0, sumB = 0, totalW = 0;
-          var nx0 = Math.max(0, x - SEARCH_R);
-          var nx1 = Math.min(w - 1, x + SEARCH_R);
-          var ny0 = Math.max(0, y - SEARCH_R);
-          var ny1 = Math.min(h - 1, y + SEARCH_R);
+          let sumR = 0, sumG = 0, sumB = 0, totalW = 0;
+          const nx0 = Math.max(0, x - SEARCH_R);
+          const nx1 = Math.min(w - 1, x + SEARCH_R);
+          const ny0 = Math.max(0, y - SEARCH_R);
+          const ny1 = Math.min(h - 1, y + SEARCH_R);
 
-          for (var ny = ny0; ny <= ny1; ny++) {
-            for (var nx = nx0; nx <= nx1; nx++) {
-              var nIdx = ny * w + nx;
+          for (let ny = ny0; ny <= ny1; ny++) {
+            for (let nx = nx0; nx <= nx1; nx++) {
+              const nIdx = ny * w + nx;
               if (workingMask[nIdx] < EDGE_HIGH) continue;
-              var ddx = nx - x, ddy = ny - y;
-              var dist = Math.sqrt(ddx * ddx + ddy * ddy);
+              const ddx = nx - x, ddy = ny - y;
+              let dist = Math.sqrt(ddx * ddx + ddy * ddy);
               if (dist > SEARCH_R) continue;
-              var wt = 1 / (1 + dist);
-              var pIdx = nIdx * 4;
+              const wt = 1 / (1 + dist);
+              const pIdx = nIdx * 4;
               sumR += src[pIdx] * wt;
               sumG += src[pIdx + 1] * wt;
               sumB += src[pIdx + 2] * wt;
@@ -359,9 +359,9 @@
           }
 
           if (totalW > 0) {
-            var pIdx2 = idx * 4;
-            var t = (alpha - EDGE_LOW) / (EDGE_HIGH - EDGE_LOW);
-            var fgR = sumR / totalW, fgG = sumG / totalW, fgB = sumB / totalW;
+            const pIdx2 = idx * 4;
+            let t = (alpha - EDGE_LOW) / (EDGE_HIGH - EDGE_LOW);
+            const fgR = sumR / totalW, fgG = sumG / totalW, fgB = sumB / totalW;
             refined[pIdx2]     = Math.round(src[pIdx2] * t + fgR * (1 - t));
             refined[pIdx2 + 1] = Math.round(src[pIdx2 + 1] * t + fgG * (1 - t));
             refined[pIdx2 + 2] = Math.round(src[pIdx2 + 2] * t + fgB * (1 - t));
@@ -412,14 +412,14 @@
   }
 
   function zoomIn() {
-    for (var i = 0; i < ZOOM_STEPS.length; i++) {
+    for (let i = 0; i < ZOOM_STEPS.length; i++) {
       if (ZOOM_STEPS[i] > zoomLevel) { zoomLevel = ZOOM_STEPS[i]; break; }
     }
     applyZoom();
   }
 
   function zoomOut() {
-    for (var i = ZOOM_STEPS.length - 1; i >= 0; i--) {
+    for (let i = ZOOM_STEPS.length - 1; i >= 0; i--) {
       if (ZOOM_STEPS[i] < zoomLevel) { zoomLevel = ZOOM_STEPS[i]; break; }
     }
     applyZoom();
@@ -435,37 +435,37 @@
      ============================================================ */
 
   /* Generation counter — prevents stale callbacks from old operations */
-  var opGen = 0;
+  let opGen = 0;
 
   /* Reusable offscreen canvas for shadow compositing */
-  var shadowCanvas = null;
-  var shadowCtx = null;
+  let shadowCanvas = null;
+  let shadowCtx = null;
 
   function renderFullResult() {
     if (!workingMask || !origPixelData) return;
 
-    var w = resultCanvas.width;
-    var h = resultCanvas.height;
-    var resCtx = resultCanvas.getContext('2d');
+    let w = resultCanvas.width;
+    let h = resultCanvas.height;
+    let resCtx = resultCanvas.getContext('2d');
 
-    var bgR = 0, bgG = 0, bgB = 0;
+    let bgR = 0, bgG = 0, bgB = 0;
     if (currentBg !== 'transparent') {
-      var parsed = parseHexColor(currentBg);
+      let parsed = parseHexColor(currentBg);
       bgR = parsed.r; bgG = parsed.g; bgB = parsed.b;
       resultWrap.classList.remove('bgr-checkerboard');
     } else {
       resultWrap.classList.add('bgr-checkerboard');
     }
 
-    var result = resCtx.createImageData(w, h);
-    var srcData = getSourcePixels();
-    var src = srcData.data;
-    var dst = result.data;
-    var isTransp = (currentBg === 'transparent');
+    const result = resCtx.createImageData(w, h);
+    let srcData = getSourcePixels();
+    let src = srcData.data;
+    let dst = result.data;
+    const isTransp = (currentBg === 'transparent');
 
-    for (var i = 0; i < workingMask.length; i++) {
-      var alpha = workingMask[i];
-      var idx = i * 4;
+    for (let i = 0; i < workingMask.length; i++) {
+      const alpha = workingMask[i];
+      const idx = i * 4;
 
       if (isTransp) {
         dst[idx]     = src[idx];
@@ -489,11 +489,11 @@
       shadowCanvas.width = w;
       shadowCanvas.height = h;
 
-      var transpResult = shadowCtx.createImageData(w, h);
-      var transpDst = transpResult.data;
-      for (var j = 0; j < workingMask.length; j++) {
-        var a2 = workingMask[j];
-        var j4 = j * 4;
+      const transpResult = shadowCtx.createImageData(w, h);
+      const transpDst = transpResult.data;
+      for (let j = 0; j < workingMask.length; j++) {
+        const a2 = workingMask[j];
+        const j4 = j * 4;
         transpDst[j4]     = src[j4];
         transpDst[j4 + 1] = src[j4 + 1];
         transpDst[j4 + 2] = src[j4 + 2];
@@ -522,27 +522,27 @@
    * so the browser can paint and handle input between each step.
    * A generation counter cancels stale callbacks if a new operation starts.
    */
-  var compositeTimer = null;
+  let compositeTimer = null;
 
   function compositeResultAsync(callback) {
     if (!originalImage || !maskData) return;
 
-    var gen = ++opGen;
+    let gen = ++opGen;
     processingText.textContent = 'প্রয়োগ হচ্ছে… (Applying…)';
-    processingOverlay.style.display = '';
+    processingOverlay.classList.remove('display-hidden');
     clearTimeout(compositeTimer);
 
-    var w = originalCanvas.width;
-    var h = originalCanvas.height;
-    var radius = parseInt(edgeSlider.value, 10);
-    var shift = parseInt(edgeShiftSlider.value, 10);
-    var threshLow = Math.max(0.01, 0.15 - shift * 0.04);
-    var threshHigh = Math.min(0.99, 0.85 - shift * 0.04);
+    let w = originalCanvas.width;
+    let h = originalCanvas.height;
+    const radius = parseInt(edgeSlider.value, 10);
+    const shift = parseInt(edgeShiftSlider.value, 10);
+    const threshLow = Math.max(0.01, 0.15 - shift * 0.04);
+    const threshHigh = Math.min(0.99, 0.85 - shift * 0.04);
 
     /* Step 1: Scale mask (yield) */
     compositeTimer = setTimeout(function () {
       if (gen !== opGen) return; /* cancelled */
-      var scaledMask = scaleMask(maskData, maskWidth, maskHeight, w, h);
+      const scaledMask = scaleMask(maskData, maskWidth, maskHeight, w, h);
 
       /* Step 2: Blur + threshold (yield) */
       setTimeout(function () {
@@ -560,12 +560,12 @@
             computeEdgeRefinement(function () {
               if (gen !== opGen) return;
               renderFullResult();
-              processingOverlay.style.display = 'none';
+              processingOverlay.classList.add('display-hidden');
               if (callback) callback();
             });
           } else {
             renderFullResult();
-            processingOverlay.style.display = 'none';
+            processingOverlay.classList.add('display-hidden');
             if (callback) callback();
           }
         }, 0);
@@ -575,14 +575,14 @@
 
   /* Quick render-only async (bg/shadow changes — no re-feathering needed) */
   function renderAsync(callback) {
-    var gen = ++opGen;
+    const gen = ++opGen;
     processingText.textContent = 'প্রয়োগ হচ্ছে… (Applying…)';
-    processingOverlay.style.display = '';
+    processingOverlay.classList.remove('display-hidden');
     clearTimeout(compositeTimer);
     compositeTimer = setTimeout(function () {
       if (gen !== opGen) return;
       renderFullResult();
-      processingOverlay.style.display = 'none';
+      processingOverlay.classList.add('display-hidden');
       if (callback) callback();
     }, 0);
   }
@@ -592,9 +592,9 @@
      ============================================================ */
 
   function pointerToCanvas(e) {
-    var rect = resultCanvas.getBoundingClientRect();
-    var scaleX = resultCanvas.width / rect.width;
-    var scaleY = resultCanvas.height / rect.height;
+    let rect = resultCanvas.getBoundingClientRect();
+    const scaleX = resultCanvas.width / rect.width;
+    const scaleY = resultCanvas.height / rect.height;
     return {
       x: (e.clientX - rect.left) * scaleX,
       y: (e.clientY - rect.top) * scaleY
@@ -602,56 +602,56 @@
   }
 
   function getBrushCanvasRadius() {
-    var displayPx = parseInt(brushSizeSlider.value, 10);
-    var rect = resultCanvas.getBoundingClientRect();
-    var scale = resultCanvas.width / rect.width;
+    const displayPx = parseInt(brushSizeSlider.value, 10);
+    let rect = resultCanvas.getBoundingClientRect();
+    let scale = resultCanvas.width / rect.width;
     return displayPx * scale * 0.5;
   }
 
   function paintDab(cx, cy) {
     if (!workingMask || !origPixelData) return;
 
-    var w = resultCanvas.width;
-    var h = resultCanvas.height;
-    var r = getBrushCanvasRadius();
-    var rSq = r * r;
+    let w = resultCanvas.width;
+    let h = resultCanvas.height;
+    let r = getBrushCanvasRadius();
+    const rSq = r * r;
 
-    var x0 = Math.max(0, Math.floor(cx - r));
-    var y0 = Math.max(0, Math.floor(cy - r));
-    var x1 = Math.min(w, Math.ceil(cx + r));
-    var y1 = Math.min(h, Math.ceil(cy + r));
+    let x0 = Math.max(0, Math.floor(cx - r));
+    let y0 = Math.max(0, Math.floor(cy - r));
+    let x1 = Math.min(w, Math.ceil(cx + r));
+    let y1 = Math.min(h, Math.ceil(cy + r));
 
     if (x0 >= x1 || y0 >= y1) return;
 
-    var rw = x1 - x0;
-    var rh = y1 - y0;
-    var resCtx = resultCanvas.getContext('2d');
-    var regionData = resCtx.getImageData(x0, y0, rw, rh);
-    var dst = regionData.data;
-    var srcData = getSourcePixels();
-    var src = srcData.data;
+    const rw = x1 - x0;
+    const rh = y1 - y0;
+    let resCtx = resultCanvas.getContext('2d');
+    const regionData = resCtx.getImageData(x0, y0, rw, rh);
+    const dst = regionData.data;
+    const srcData = getSourcePixels();
+    const src = srcData.data;
 
-    var bgR = 0, bgG = 0, bgB = 0;
-    var isTransparent = (currentBg === 'transparent');
+    let bgR = 0, bgG = 0, bgB = 0;
+    const isTransparent = (currentBg === 'transparent');
     if (!isTransparent) {
-      var parsed = parseHexColor(currentBg);
+      const parsed = parseHexColor(currentBg);
       bgR = parsed.r; bgG = parsed.g; bgB = parsed.b;
     }
 
-    var erasing = (brushMode === 'erase');
+    const erasing = (brushMode === 'erase');
 
-    for (var py = y0; py < y1; py++) {
-      for (var px = x0; px < x1; px++) {
-        var dx = px - cx;
-        var dy = py - cy;
-        var distSq = dx * dx + dy * dy;
+    for (let py = y0; py < y1; py++) {
+      for (let px = x0; px < x1; px++) {
+        let dx = px - cx;
+        let dy = py - cy;
+        const distSq = dx * dx + dy * dy;
         if (distSq > rSq) continue;
 
-        var dist = Math.sqrt(distSq);
-        var strength = 1 - (dist / r);
+        let dist = Math.sqrt(distSq);
+        let strength = 1 - (dist / r);
         strength = strength * strength * BRUSH_INTENSITY;
 
-        var maskIdx = py * w + px;
+        const maskIdx = py * w + px;
 
         if (erasing) {
           brushDelta[maskIdx] -= strength;
@@ -659,12 +659,12 @@
           brushDelta[maskIdx] += strength;
         }
 
-        var v = featheredMask[maskIdx] + brushDelta[maskIdx];
+        let v = featheredMask[maskIdx] + brushDelta[maskIdx];
         v = v < 0 ? 0 : v > 1 ? 1 : v;
         workingMask[maskIdx] = v;
 
-        var localIdx = ((py - y0) * rw + (px - x0)) * 4;
-        var srcIdx = maskIdx * 4;
+        const localIdx = ((py - y0) * rw + (px - x0)) * 4;
+        const srcIdx = maskIdx * 4;
 
         if (isTransparent) {
           dst[localIdx]     = src[srcIdx];
@@ -684,15 +684,15 @@
   }
 
   function paintLine(fromX, fromY, toX, toY) {
-    var dx = toX - fromX;
-    var dy = toY - fromY;
-    var dist = Math.sqrt(dx * dx + dy * dy);
-    var r = getBrushCanvasRadius();
-    var step = Math.max(1, r * 0.3);
-    var steps = Math.ceil(dist / step);
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const r = getBrushCanvasRadius();
+    const step = Math.max(1, r * 0.3);
+    const steps = Math.ceil(dist / step);
 
-    for (var i = 0; i <= steps; i++) {
-      var t = steps === 0 ? 0 : i / steps;
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
       paintDab(fromX + dx * t, fromY + dy * t);
     }
   }
@@ -702,10 +702,10 @@
      ============================================================ */
   function updateBrushCursor(e) {
     if (!brushMode) return;
-    var rect = resultWrap.getBoundingClientRect();
-    var x = e.clientX - rect.left + resultWrap.scrollLeft;
-    var y = e.clientY - rect.top + resultWrap.scrollTop;
-    var size = parseInt(brushSizeSlider.value, 10);
+    const rect = resultWrap.getBoundingClientRect();
+    let x = e.clientX - rect.left + resultWrap.scrollLeft;
+    let y = e.clientY - rect.top + resultWrap.scrollTop;
+    const size = parseInt(brushSizeSlider.value, 10);
     brushCursor.style.width = size + 'px';
     brushCursor.style.height = size + 'px';
     brushCursor.style.left = x + 'px';
@@ -723,28 +723,28 @@
   function scaleMask(mask, mw, mh, tw, th) {
     if (mw === tw && mh === th) return new Float32Array(mask);
 
-    var out = new Float32Array(tw * th);
-    var xRatio = mw / tw;
-    var yRatio = mh / th;
+    const out = new Float32Array(tw * th);
+    const xRatio = mw / tw;
+    const yRatio = mh / th;
 
-    for (var y = 0; y < th; y++) {
-      for (var x = 0; x < tw; x++) {
-        var srcX = x * xRatio;
-        var srcY = y * yRatio;
-        var x0 = Math.floor(srcX);
-        var y0 = Math.floor(srcY);
-        var x1 = Math.min(x0 + 1, mw - 1);
-        var y1 = Math.min(y0 + 1, mh - 1);
-        var xFrac = srcX - x0;
-        var yFrac = srcY - y0;
+    for (let y = 0; y < th; y++) {
+      for (let x = 0; x < tw; x++) {
+        const srcX = x * xRatio;
+        const srcY = y * yRatio;
+        const x0 = Math.floor(srcX);
+        const y0 = Math.floor(srcY);
+        const x1 = Math.min(x0 + 1, mw - 1);
+        const y1 = Math.min(y0 + 1, mh - 1);
+        const xFrac = srcX - x0;
+        const yFrac = srcY - y0;
 
-        var tl = mask[y0 * mw + x0];
-        var tr = mask[y0 * mw + x1];
-        var bl = mask[y1 * mw + x0];
-        var br = mask[y1 * mw + x1];
+        const tl = mask[y0 * mw + x0];
+        const tr = mask[y0 * mw + x1];
+        const bl = mask[y1 * mw + x0];
+        const br = mask[y1 * mw + x1];
 
-        var top = tl + (tr - tl) * xFrac;
-        var bot = bl + (br - bl) * xFrac;
+        const top = tl + (tr - tl) * xFrac;
+        const bot = bl + (br - bl) * xFrac;
         out[y * tw + x] = top + (bot - top) * yFrac;
       }
     }
@@ -775,15 +775,15 @@
 
     fileName = file.name.replace(/\.[^.]+$/, '') || 'image';
 
-    var img = new Image();
+    const img = new Image();
     img.onload = function () {
       originalImage = img;
 
-      var w = img.naturalWidth;
-      var h = img.naturalHeight;
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
 
       /* Downscale for processing if too large */
-      var scale = 1;
+      let scale = 1;
       if (w > MAX_IMAGE_DIM || h > MAX_IMAGE_DIM) {
         scale = Math.min(MAX_IMAGE_DIM / w, MAX_IMAGE_DIM / h);
         w = Math.round(w * scale);
@@ -818,7 +818,7 @@
       showError('ছবি পড়তে সমস্যা হয়েছে (Failed to read image)');
     };
 
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function (e) { img.src = e.target.result; };
     reader.readAsDataURL(file);
   }
@@ -860,8 +860,8 @@
     deactivateBrush();
     updateUndoBtn();
     resetZoom();
-    resultTools.style.display = 'none';
-    if (tipsBar) tipsBar.style.display = 'none';
+    resultTools.classList.add('display-hidden');
+    if (tipsBar) tipsBar.classList.add('display-hidden');
 
     swatches.forEach(function (s) { s.classList.remove('active'); });
     document.querySelector('.bgr-swatch--transparent').classList.add('active');
@@ -873,16 +873,16 @@
      ============================================================ */
   function downloadCanvas(format) {
     if (!resultCanvas.width || processing) return;
-    var mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
-    var ext = format === 'jpg' ? '.jpg' : '.png';
-    var quality = format === 'jpg' ? 0.92 : undefined;
+    const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+    const ext = format === 'jpg' ? '.jpg' : '.png';
+    const quality = format === 'jpg' ? 0.92 : undefined;
 
-    var canvas = resultCanvas;
+    let canvas = resultCanvas;
     if (format === 'jpg' && currentBg === 'transparent') {
       canvas = document.createElement('canvas');
       canvas.width = resultCanvas.width;
       canvas.height = resultCanvas.height;
-      var ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(resultCanvas, 0, 0);
@@ -890,8 +890,8 @@
 
     canvas.toBlob(function (blob) {
       if (!blob) return;
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
       a.download = fileName + '-no-bg' + ext;
       document.body.appendChild(a);
@@ -953,7 +953,7 @@
   swatches.forEach(function (swatch) {
     swatch.addEventListener('click', function () {
       if (processing) return;
-      var bg = swatch.getAttribute('data-bg');
+      const bg = swatch.getAttribute('data-bg');
       if (!bg) return;
 
       swatches.forEach(function (s) { s.classList.remove('active'); });
@@ -968,7 +968,7 @@
   customColorInput.addEventListener('input', function () {
     if (processing) return;
     swatches.forEach(function (s) { s.classList.remove('active'); });
-    var customSwatch = document.querySelector('.bgr-swatch--custom');
+    const customSwatch = document.querySelector('.bgr-swatch--custom');
     customSwatch.classList.add('active');
     customSwatch.style.background = customColorInput.value;
     currentBg = customColorInput.value;
@@ -1009,7 +1009,7 @@
     comparing = true;
     compareBtn.classList.add('active');
 
-    var resCtx = resultCanvas.getContext('2d');
+    const resCtx = resultCanvas.getContext('2d');
     savedResultData = resCtx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
     resCtx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
     resCtx.drawImage(originalCanvas, 0, 0, resultCanvas.width, resultCanvas.height);
@@ -1060,12 +1060,12 @@
 
   /* Paste from clipboard */
   document.addEventListener('paste', function (e) {
-    var items = e.clipboardData && e.clipboardData.items;
+    const items = e.clipboardData && e.clipboardData.items;
     if (!items) return;
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       if (items[i].type.indexOf('image') !== -1) {
         e.preventDefault();
-        var file = items[i].getAsFile();
+        const file = items[i].getAsFile();
         if (file) processImage(file);
         break;
       }
@@ -1089,10 +1089,10 @@
 
     if (autoRefineOn) {
       processingText.textContent = 'কিনারা পরিষ্কার হচ্ছে… (Refining edges…)';
-      processingOverlay.style.display = '';
+      processingOverlay.classList.remove('display-hidden');
       computeEdgeRefinement(function () {
         renderFullResult();
-        processingOverlay.style.display = 'none';
+        processingOverlay.classList.add('display-hidden');
       });
     } else {
       refinedPixelData = null;
@@ -1130,7 +1130,7 @@
 
   brushUndoBtn.addEventListener('click', function () {
     if (!brushDelta || undoStack.length === 0) return;
-    var snapshot = undoStack.pop();
+    const snapshot = undoStack.pop();
     brushDelta = snapshot;
     buildWorkingMask();
     renderFullResult();
@@ -1155,7 +1155,7 @@
     }
 
     painting = true;
-    var pt = pointerToCanvas(e);
+    let pt = pointerToCanvas(e);
     lastPaintX = pt.x;
     lastPaintY = pt.y;
     paintDab(pt.x, pt.y);
@@ -1165,7 +1165,7 @@
     updateBrushCursor(e);
     if (!painting) return;
     e.preventDefault();
-    var pt = pointerToCanvas(e);
+    const pt = pointerToCanvas(e);
     paintLine(lastPaintX, lastPaintY, pt.x, pt.y);
     lastPaintX = pt.x;
     lastPaintY = pt.y;
@@ -1252,8 +1252,8 @@
     if (e.touches.length === 2 && zoomLevel > 1) {
       e.preventDefault();
       touchPanning = true;
-      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      let midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      let midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       touchStartX = midX;
       touchStartY = midY;
       touchScrollStartX = resultWrap.scrollLeft;
@@ -1264,8 +1264,8 @@
   resultWrap.addEventListener('touchmove', function (e) {
     if (!touchPanning || e.touches.length < 2) return;
     e.preventDefault();
-    var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
     resultWrap.scrollLeft = touchScrollStartX - (midX - touchStartX);
     resultWrap.scrollTop = touchScrollStartY - (midY - touchStartY);
   }, { passive: false });

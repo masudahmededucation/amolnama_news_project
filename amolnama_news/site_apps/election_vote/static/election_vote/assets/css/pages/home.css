@@ -48,7 +48,7 @@
   background: var(--danger);
   color: #fff;
   border-color: var(--danger);
-  border-left-color: #fff;
+  border-left-color: var(--card);
   transform: translateX(4px);
   box-shadow: var(--shadow-md);
 }
@@ -102,6 +102,21 @@
 }
 
 .page-message--warning a { color: #664d03; }
+
+/* --- Interaction Disabled State --- */
+.pointer-events-disabled {
+  pointer-events: none;
+}
+
+/* --- Party Text Flex --- */
+.party-text-flex {
+  flex: 1;
+}
+
+/* --- National Results Container --- */
+.national-results-section {
+  margin-top: 2rem;
+}
 
 /* ---- Mobile ---- */
 @media (max-width: 640px) {

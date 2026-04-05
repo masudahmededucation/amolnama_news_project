@@ -44,6 +44,10 @@
   border: 1px solid var(--border);
 }
 
+/* Newsletter form */
+.newsletter-form-row { grid-template-columns: 1fr auto; }
+.newsletter-email-input { height: 44px; border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: .5rem .75rem; }
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .widget {

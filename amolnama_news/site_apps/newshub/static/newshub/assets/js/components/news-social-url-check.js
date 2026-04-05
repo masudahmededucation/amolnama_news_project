@@ -5,12 +5,12 @@
  * - Warns if URL doesn't match the selected platform.
  */
 (function () {
-  var platformSelect = document.getElementById('social-platform-type');
-  var urlInput = document.getElementById('social-source-url');
+  const platformSelect = document.getElementById('social-platform-type');
+  const urlInput = document.getElementById('social-source-url');
   if (!platformSelect || !urlInput) return;
 
-  var urlField = urlInput.closest('.form-field');
-  var warningEl = document.createElement('div');
+  const urlField = urlInput.closest('.form-field');
+  const warningEl = document.createElement('div');
   warningEl.className = 'social-url-mismatch';
   warningEl.style.display = 'none';
   urlField.appendChild(warningEl);
@@ -30,7 +30,7 @@
    * Extract hostname from a platform's base_url data attribute.
    */
   function getPlatformHost(option) {
-    var base = option.getAttribute('data-base-url');
+    let base = option.getAttribute('data-base-url');
     if (!base) return '';
     /* Add protocol if missing so URL constructor works */
     if (base.indexOf('://') === -1) base = 'https://' + base;
@@ -43,32 +43,32 @@
    */
   function detectPlatform(urlHost) {
     if (!urlHost) return null;
-    var options = platformSelect.querySelectorAll('option[data-base-url]');
-    for (var i = 0; i < options.length; i++) {
-      var pHost = getPlatformHost(options[i]);
+    const options = platformSelect.querySelectorAll('option[data-base-url]');
+    for (let i = 0; i < options.length; i++) {
+      const pHost = getPlatformHost(options[i]);
       if (pHost && urlHost.indexOf(pHost) !== -1) return options[i];
     }
     return null;
   }
 
   function check() {
-    var url = urlInput.value.trim();
+    const url = urlInput.value.trim();
     if (!url) {
       warningEl.style.display = 'none';
       return;
     }
 
-    var urlHost = getHost(url);
+    const urlHost = getHost(url);
     if (!urlHost) {
       warningEl.style.display = 'none';
       return;
     }
 
-    var selectedOption = platformSelect.options[platformSelect.selectedIndex];
+    const selectedOption = platformSelect.options[platformSelect.selectedIndex];
 
     /* Auto-select platform if none chosen */
     if (!platformSelect.value) {
-      var match = detectPlatform(urlHost);
+      const match = detectPlatform(urlHost);
       if (match) {
         platformSelect.value = match.value;
         platformSelect.dispatchEvent(new Event('change'));
@@ -78,10 +78,10 @@
     }
 
     /* Check if URL matches selected platform */
-    var platformHost = getPlatformHost(selectedOption);
+    const platformHost = getPlatformHost(selectedOption);
     if (platformHost && urlHost.indexOf(platformHost) === -1) {
-      var detected = detectPlatform(urlHost);
-      var hint = detected ? detected.textContent.trim() : urlHost;
+      const detected = detectPlatform(urlHost);
+      const hint = detected ? detected.textContent.trim() : urlHost;
       warningEl.textContent = 'লিঙ্কটি ' + selectedOption.textContent.trim()
         + ' এর নয়, মনে হচ্ছে ' + hint + ' (URL doesn\'t match ' + selectedOption.textContent.trim() + ')';
       warningEl.style.display = 'block';

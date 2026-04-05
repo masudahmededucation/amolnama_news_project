@@ -2,7 +2,7 @@
 <article class="post-card" id="post-card-{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">
   <div class="post-card-avatar" id="post-card-avatar-{{ post_item.post_post_id }}">
     {% if post_item.author_avatar_url %}
-    <img src="{{ post_item.author_avatar_url }}" alt="{{ post_item.author_display_name }}" class="post-card-avatar-image" id="post-card-avatar-image-{{ post_item.post_post_id }}">
+    <img src="{{ post_item.author_avatar_url }}" alt="{{ post_item.author_display_name }}" class="post-card-avatar-image" id="post-card-avatar-image-{{ post_item.post_post_id }}" loading="lazy">
     {% elif post_item.author_display_name %}
     <span class="post-card-avatar-initials">{{ post_item.author_display_name|first }}</span>
     {% else %}
@@ -19,12 +19,12 @@
           <div class="post-card-profile-popup" id="post-card-profile-popup-repost-{{ post_item.post_post_id }}">
             <div class="post-card-profile-popup-header">
               {% if post_item.original_author_avatar_url %}
-              <img src="{{ post_item.original_author_avatar_url }}" alt="" class="post-card-profile-popup-avatar">
+              <img src="{{ post_item.original_author_avatar_url }}" alt="" class="post-card-profile-popup-avatar" loading="lazy">
               {% else %}
               <span class="post-card-profile-popup-avatar-initials">{{ post_item.original_author_display_name|first }}</span>
               {% endif %}
               <div class="post-card-profile-popup-info">
-                <span class="post-card-profile-popup-name">{{ post_item.original_author_display_name }}{% if post_item.original_author_is_verified %} <svg class="post-card-verified-icon" viewBox="0 0 24 24" fill="#1877F2" style="width:.9rem;height:.9rem;vertical-align:middle;"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}</span>
+                <span class="post-card-profile-popup-name">{{ post_item.original_author_display_name }}{% if post_item.original_author_is_verified %} <svg class="post-card-verified-icon post-card-verified-icon-small" viewBox="0 0 24 24" fill="#1877F2"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}</span>
                 {% if post_item.original_author_username_handle %}<span class="post-card-profile-popup-handle">@{{ post_item.original_author_username_handle }}</span>{% endif %}
               </div>
             </div>
@@ -78,12 +78,12 @@
           <div class="post-card-profile-popup" id="post-card-profile-popup-{{ post_item.post_post_id }}">
             <div class="post-card-profile-popup-header">
               {% if post_item.author_avatar_url %}
-              <img src="{{ post_item.author_avatar_url }}" alt="" class="post-card-profile-popup-avatar">
+              <img src="{{ post_item.author_avatar_url }}" alt="" class="post-card-profile-popup-avatar" loading="lazy">
               {% else %}
               <span class="post-card-profile-popup-avatar-initials">{{ post_item.author_display_name|first }}</span>
               {% endif %}
               <div class="post-card-profile-popup-info">
-                <span class="post-card-profile-popup-name">{{ post_item.author_display_name }}{% if post_item.author_is_verified %} <svg class="post-card-verified-icon" viewBox="0 0 24 24" fill="#1877F2" style="width:.9rem;height:.9rem;vertical-align:middle;"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}</span>
+                <span class="post-card-profile-popup-name">{{ post_item.author_display_name }}{% if post_item.author_is_verified %} <svg class="post-card-verified-icon post-card-verified-icon-small" viewBox="0 0 24 24" fill="#1877F2"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}</span>
                 {% if post_item.author_username_handle %}<span class="post-card-profile-popup-handle">@{{ post_item.author_username_handle }}</span>{% endif %}
               </div>
             </div>
@@ -150,7 +150,7 @@
       </div>
       {% elif post_item.media_urls|length == 1 %}
       <div class="post-card-media-item post-card-media-item-single" data-photo-url="{{ media_url }}">
-        <img src="{{ media_url }}" alt="" class="post-card-media-image-full">
+        <img src="{{ media_url }}" alt="" class="post-card-media-image-full" loading="lazy">
       </div>
       {% else %}
       <div class="post-card-media-item" style="background-image:url('{{ media_url }}');" data-photo-url="{{ media_url }}"></div>
@@ -211,7 +211,7 @@
       </button>
       <div class="post-card-share-menu-wrapper">
         <button type="button" class="post-card-action-button post-card-share-menu-toggle" id="post-card-share-toggle-{{ post_item.post_post_id }}" name="post_card_share_toggle_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" title="শেয়ার (Share)">
-          <span class="post-card-action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1rem;height:1.1rem;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
+          <span class="post-card-action-icon"><svg class="post-card-share-icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
           <span class="post-card-action-label">শেয়ার</span>
         </button>
         <div class="post-card-share-menu-dropdown" id="post-card-share-dropdown-{{ post_item.post_post_id }}">

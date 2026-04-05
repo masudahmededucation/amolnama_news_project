@@ -25,35 +25,35 @@
 (function () {
   'use strict';
 
-  var tournamentName = document.getElementById('sports-tournament-name');
-  var milestones = document.getElementById('sports-records-milestones');
-  var transferSection = document.getElementById('sports-transfer-section');
-  var transferFrom = document.getElementById('sports-transfer-from');
-  var transferTo = document.getElementById('sports-transfer-to');
-  var transferFee = document.getElementById('sports-transfer-fee');
-  var transferDuration = document.getElementById('sports-transfer-duration');
-  var injurySection = document.getElementById('sports-injury-section');
-  var injuryType = document.getElementById('sports-injury-type');
-  var injuryRecovery = document.getElementById('sports-injury-recovery');
-  var subTypeHidden = document.getElementById('sports-sub-type');
-  var hiddenJson = document.getElementById('sports-records-json');
+  const tournamentName = document.getElementById('sports-tournament-name');
+  const milestones = document.getElementById('sports-records-milestones');
+  const transferSection = document.getElementById('sports-transfer-section');
+  const transferFrom = document.getElementById('sports-transfer-from');
+  const transferTo = document.getElementById('sports-transfer-to');
+  const transferFee = document.getElementById('sports-transfer-fee');
+  const transferDuration = document.getElementById('sports-transfer-duration');
+  const injurySection = document.getElementById('sports-injury-section');
+  const injuryType = document.getElementById('sports-injury-type');
+  const injuryRecovery = document.getElementById('sports-injury-recovery');
+  const subTypeHidden = document.getElementById('sports-sub-type');
+  const hiddenJson = document.getElementById('sports-records-json');
 
   if (!hiddenJson) return;
 
   /* Toggle conditional sections based on sub-type */
   function toggleSections() {
-    var subType = subTypeHidden ? subTypeHidden.value : '';
+    let subType = subTypeHidden ? subTypeHidden.value : '';
     if (transferSection) {
-      transferSection.style.display = (subType === 'transfer') ? '' : 'none';
+      (subType === 'transfer') ? transferSection.classList.remove('display-hidden') : transferSection.classList.add('display-hidden');
     }
     if (injurySection) {
-      injurySection.style.display = (subType === 'injury') ? '' : 'none';
+      (subType === 'injury') ? injurySection.classList.remove('display-hidden') : injurySection.classList.add('display-hidden');
     }
   }
 
   function serialize() {
-    var subType = subTypeHidden ? subTypeHidden.value : '';
-    var data = {
+    const subType = subTypeHidden ? subTypeHidden.value : '';
+    let data = {
       tournamentName: tournamentName ? tournamentName.value.trim() : '',
       milestones: milestones ? milestones.value.trim() : '',
     };
@@ -76,7 +76,7 @@
   }
 
   /* Listen for input changes on text fields */
-  var inputFields = [tournamentName, milestones,
+  const inputFields = [tournamentName, milestones,
                      transferFrom, transferTo, transferFee, transferDuration,
                      injuryType, injuryRecovery];
   inputFields.forEach(function (el) {
@@ -86,8 +86,8 @@
   /* Watch sub-type hidden input for value changes (set by radio picker in step 3) */
   if (subTypeHidden) {
     /* Listen to sub-type radio changes directly (more reliable than MutationObserver) */
-    var subTypeRadios = document.querySelectorAll('input[name="sports_sub_type_radio"]');
-    for (var i = 0; i < subTypeRadios.length; i++) {
+    const subTypeRadios = document.querySelectorAll('input[name="sports_sub_type_radio"]');
+    for (let i = 0; i < subTypeRadios.length; i++) {
       subTypeRadios[i].addEventListener('change', function () {
         toggleSections();
         serialize();
@@ -96,7 +96,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -107,7 +107,7 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (tournamentName && data.tournamentName)     tournamentName.value   = data.tournamentName;

@@ -151,6 +151,12 @@
   align-items: center;
 }
 
+.album-swatch--white { background: var(--card); }
+.album-swatch--cream { background: #F5F5F0; }
+.album-swatch--dark  { background: #2C2C2C; }
+.album-swatch--navy  { background: #1a1a2e; }
+.album-swatch--beige { background: #f0e6d3; }
+
 .album-swatch {
   width: 36px;
   height: 36px;
@@ -203,7 +209,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--surface);
 }
 
 .album-canvas-inner {

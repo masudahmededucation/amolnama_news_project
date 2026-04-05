@@ -9,18 +9,18 @@
 (function () {
   'use strict';
 
-  var button = document.getElementById('communityvoice-clear-form-button');
-  var form = document.querySelector('.community-form');
+  const button = document.getElementById('communityvoice-clear-form-button');
+  const form = document.querySelector('.community-form');
   if (!button || !form) return;
 
   /* Inline confirmation message element */
-  var messageElement = document.createElement('span');
+  const messageElement = document.createElement('span');
   messageElement.className = 'communityvoice-clear-form-message';
   messageElement.style.display = 'none';
   button.parentNode.insertBefore(messageElement, button);
 
-  var confirmTimer = null;
-  var awaitingConfirm = false;
+  let confirmTimer = null;
+  let awaitingConfirm = false;
 
   button.addEventListener('click', function () {
     /* First click — show inline confirmation */
@@ -45,24 +45,24 @@
     setTimeout(function () { messageElement.style.display = 'none'; }, 3000);
 
     /* 1. Clear all form fields */
-    var elements = form.elements;
-    for (var i = 0; i < elements.length; i++) {
-      var element = elements[i];
+    const elements = form.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
       if (element.type === 'submit' || element.type === 'button') continue;
       if (element.name === 'csrfmiddlewaretoken') continue;
       element.value = '';
     }
 
     /* 2. Hide link previews */
-    var youtubePreview = document.getElementById('youtubePreview');
-    var facebookPreview = document.getElementById('facebookPreview');
-    var externalPreview = document.getElementById('externalPreview');
-    if (youtubePreview) youtubePreview.style.display = 'none';
-    if (facebookPreview) facebookPreview.style.display = 'none';
-    if (externalPreview) externalPreview.style.display = 'none';
+    const youtubePreview = document.getElementById('youtubePreview');
+    const facebookPreview = document.getElementById('facebookPreview');
+    const externalPreview = document.getElementById('externalPreview');
+    if (youtubePreview) youtubePreview.classList.add('display-hidden');
+    if (facebookPreview) facebookPreview.classList.add('display-hidden');
+    if (externalPreview) externalPreview.classList.add('display-hidden');
 
     /* 3. Clear iframe src */
-    var youtubeFrame = document.getElementById('youtubeFrame');
+    const youtubeFrame = document.getElementById('youtubeFrame');
     if (youtubeFrame) youtubeFrame.src = '';
   });
 

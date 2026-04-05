@@ -21,19 +21,19 @@
 (function () {
   'use strict';
 
-  var sentimentRadios = document.querySelectorAll('input[name="entertainment_sentiment"]');
-  var trendingHashtag = document.getElementById('entertainment-trending-hashtag');
-  var memeFactor = document.getElementById('entertainment-meme-factor');
-  var plagiarismCheck = document.getElementById('entertainment-plagiarism-check');
-  var plagiarismRow = document.getElementById('entertainment-plagiarism-row');
-  var plagiarismSource = document.getElementById('entertainment-plagiarism-source');
-  var boycottLevel = document.getElementById('entertainment-boycott-level');
-  var hiddenJson = document.getElementById('entertainment-buzz-json');
+  const sentimentRadios = document.querySelectorAll('input[name="entertainment_sentiment"]');
+  const trendingHashtag = document.getElementById('entertainment-trending-hashtag');
+  const memeFactor = document.getElementById('entertainment-meme-factor');
+  const plagiarismCheck = document.getElementById('entertainment-plagiarism-check');
+  const plagiarismRow = document.getElementById('entertainment-plagiarism-row');
+  const plagiarismSource = document.getElementById('entertainment-plagiarism-source');
+  const boycottLevel = document.getElementById('entertainment-boycott-level');
+  const hiddenJson = document.getElementById('entertainment-buzz-json');
 
   if (!hiddenJson) return;
 
   function getSentiment() {
-    for (var i = 0; i < sentimentRadios.length; i++) {
+    for (let i = 0; i < sentimentRadios.length; i++) {
       if (sentimentRadios[i].checked) return sentimentRadios[i].value;
     }
     return '';
@@ -42,12 +42,12 @@
   /* Toggle plagiarism source row based on checkbox */
   function togglePlagiarismRow() {
     if (plagiarismRow) {
-      plagiarismRow.style.display = (plagiarismCheck && plagiarismCheck.checked) ? '' : 'none';
+      (plagiarismCheck && plagiarismCheck.checked) ? plagiarismRow.classList.remove('display-hidden') : plagiarismRow.classList.add('display-hidden');
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       sentiment: getSentiment(),
       trendingHashtag: trendingHashtag ? trendingHashtag.value.trim() : '',
       memeFactor: memeFactor ? memeFactor.value : '',
@@ -61,18 +61,18 @@
   }
 
   /* Listen for changes on sentiment radios */
-  for (var i = 0; i < sentimentRadios.length; i++) {
+  for (let i = 0; i < sentimentRadios.length; i++) {
     sentimentRadios[i].addEventListener('change', serialize);
   }
 
   /* Listen for input on text fields */
-  var inputFields = [trendingHashtag, plagiarismSource];
+  const inputFields = [trendingHashtag, plagiarismSource];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
   /* Listen for changes on selects */
-  var changeFields = [memeFactor, boycottLevel];
+  const changeFields = [memeFactor, boycottLevel];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
@@ -86,7 +86,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -97,11 +97,11 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (data.sentiment) {
-      for (var j = 0; j < sentimentRadios.length; j++) {
+      for (let j = 0; j < sentimentRadios.length; j++) {
         if (sentimentRadios[j].value === data.sentiment) {
           sentimentRadios[j].checked = true;
           break;
@@ -120,7 +120,7 @@
   /* Public API for form-clear */
   window.newshubEntertainmentBuzz = {
     reset: function () {
-      for (var j = 0; j < sentimentRadios.length; j++) {
+      for (let j = 0; j < sentimentRadios.length; j++) {
         sentimentRadios[j].checked = false;
       }
       if (trendingHashtag) trendingHashtag.value = '';

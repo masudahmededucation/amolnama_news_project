@@ -21,25 +21,25 @@
 (function () {
   'use strict';
 
-  var lastWords = document.getElementById('july-last-words');
-  var lifeStory = document.getElementById('july-life-story');
-  var howJoined = document.getElementById('july-how-joined');
-  var breadwinner = document.getElementById('july-breadwinner');
-  var dependentsRow = document.getElementById('july-dependents-row');
-  var dependents = document.getElementById('july-dependents');
-  var familyImpact = document.getElementById('july-family-impact');
-  var hiddenJson = document.getElementById('july-story-json');
+  const lastWords = document.getElementById('july-last-words');
+  const lifeStory = document.getElementById('july-life-story');
+  const howJoined = document.getElementById('july-how-joined');
+  const breadwinner = document.getElementById('july-breadwinner');
+  const dependentsRow = document.getElementById('july-dependents-row');
+  const dependents = document.getElementById('july-dependents');
+  const familyImpact = document.getElementById('july-family-impact');
+  const hiddenJson = document.getElementById('july-story-json');
 
   if (!hiddenJson) return;
 
   function toggleDependentsRow() {
     if (dependentsRow) {
-      dependentsRow.style.display = (breadwinner && breadwinner.checked) ? '' : 'none';
+      (breadwinner && breadwinner.checked) ? dependentsRow.classList.remove('display-hidden') : dependentsRow.classList.add('display-hidden');
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       lastWords: lastWords ? lastWords.value.trim() : '',
       lifeStory: lifeStory ? lifeStory.value.trim() : '',
       howJoined: howJoined ? howJoined.value.trim() : '',
@@ -50,7 +50,7 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var textFields = [lastWords, lifeStory, howJoined, familyImpact];
+  const textFields = [lastWords, lifeStory, howJoined, familyImpact];
   textFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
@@ -64,7 +64,7 @@
     });
   }
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   toggleDependentsRow();
@@ -72,7 +72,7 @@
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 

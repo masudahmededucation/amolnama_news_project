@@ -57,7 +57,7 @@
       <button type="button" class="debate-arena-download-button" id="debate-arena-download-button" name="debate_arena_download_button" data-filename="{{ topic.topic_title }}">📥 PDF ডাউনলোড</button>
       <div class="debate-arena-share-wrapper" id="debate-arena-share-wrapper">
         <button type="button" class="debate-arena-share-toggle" id="debate-arena-share-toggle" name="debate_arena_share_toggle" title="শেয়ার করুন (Share)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1rem;height:1rem;vertical-align:middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> শেয়ার
+          <svg class="debate-arena-share-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> শেয়ার
         </button>
         <div class="debate-arena-share-dropdown" id="debate-arena-share-dropdown">
           <button type="button" class="debate-arena-share-item debate-arena-share-copy-link" id="debate-arena-share-copy-link" name="debate_arena_share_copy_link"><svg class="debate-arena-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Copy Link</button>
@@ -209,7 +209,7 @@
       <div class="debate-arena-board-media" id="debate-arena-board-media-blue">
         <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-blue">📎 মিডিয়া</span>
         {% if topic.blue_side_image_url %}
-        <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-blue">
+        <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-blue">
         {% endif %}
         {% if topic.blue_side_video_url %}
         <a href="{{ topic.blue_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-blue">
@@ -264,7 +264,7 @@
       <div class="debate-arena-board-media" id="debate-arena-board-media-red">
         <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-red">📎 মিডিয়া</span>
         {% if topic.red_side_image_url %}
-        <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" id="debate-arena-board-media-image-red">
+        <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-red">
         {% endif %}
         {% if topic.red_side_video_url %}
         <a href="{{ topic.red_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-red">
@@ -318,5 +318,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'debate/assets/js/pages/debate-arena.js' %}"></script>
+<script src="{% static 'debate/assets/js/pages/debate-arena.js' %}" defer></script>
 {% endblock %}

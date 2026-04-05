@@ -52,6 +52,7 @@ function handleElectionSelection(electionEvaluationId, electionId, nameEn, nameB
     })
     .catch(function (err) {
       if (err === 'not_authenticated') return;
+      showPageMessage('তথ্য লোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন। (Failed to load data. Please try again.)', 'error');
     });
 }
 
@@ -70,9 +71,12 @@ function handleDivisionSelection(id, nameEn, nameBn) {
   showVotingStep('district-view');
 
   fetch('/evaluation_vote/api/districts/' + id + '/')
-    .then(function (response) { return response.json(); })
+    .then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(function (data) {
-      var districtList = document.getElementById('district-list');
+      let districtList = document.getElementById('district-list');
       if (!districtList) return;
       districtList.innerHTML = '';
 
@@ -82,7 +86,7 @@ function handleDivisionSelection(id, nameEn, nameBn) {
       }
 
       data.districts.forEach(function (district) {
-        var li = document.createElement('li');
+        let li = document.createElement('li');
         li.onclick = function () {
           handleDistrictSelection(district.id, district.name_en, district.name_bn);
         };
@@ -92,6 +96,10 @@ function handleDivisionSelection(id, nameEn, nameBn) {
         districtList.appendChild(li);
       });
     })
+    .catch(function () {
+      const districtList = document.getElementById('district-list');
+      if (districtList) districtList.innerHTML = '<li>তথ্য লোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন। (Failed to load data.)</li>';
+    });
 }
 
 /**
@@ -108,9 +116,12 @@ function handleDistrictSelection(id, nameEn, nameBn) {
   showVotingStep('constituency-view');
 
   fetch('/evaluation_vote/api/constituencies/' + id + '/')
-    .then(function (response) { return response.json(); })
+    .then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(function (data) {
-      var constituencyList = document.getElementById('constituency-list');
+      let constituencyList = document.getElementById('constituency-list');
       if (!constituencyList) return;
       constituencyList.innerHTML = '';
 
@@ -120,7 +131,7 @@ function handleDistrictSelection(id, nameEn, nameBn) {
       }
 
       data.constituencies.forEach(function (constituency) {
-        var li = document.createElement('li');
+        const li = document.createElement('li');
         li.onclick = function () {
           handleConstituencySelection(constituency.id, constituency.name_en, constituency.name_bn);
         };
@@ -131,6 +142,10 @@ function handleDistrictSelection(id, nameEn, nameBn) {
         constituencyList.appendChild(li);
       });
     })
+    .catch(function () {
+      const constituencyList = document.getElementById('constituency-list');
+      if (constituencyList) constituencyList.innerHTML = '<li>তথ্য লোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন। (Failed to load data.)</li>';
+    });
 }
 
 /**

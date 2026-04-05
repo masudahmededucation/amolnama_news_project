@@ -18,15 +18,15 @@
 (function () {
   'use strict';
 
-  var config = {};
+  let config = {};
 
 
   /* ---- Like toggle ---- */
 
-  var likeRequestInProgress = {};
+  const likeRequestInProgress = {};
 
   document.addEventListener('click', function (event) {
-    var likeButton = event.target.closest('.actions-bar-like-button');
+    const likeButton = event.target.closest('.actions-bar-like-button');
     if (!likeButton) return;
 
     event.preventDefault();
@@ -34,26 +34,26 @@
 
     if (typeof config.buildLikeApiUrl !== 'function') return;
 
-    var entityId = likeButton.getAttribute('data-entity-id');
+    const entityId = likeButton.getAttribute('data-entity-id');
     if (!entityId || likeRequestInProgress[entityId]) return;
 
     likeRequestInProgress[entityId] = true;
 
-    var apiUrl = config.buildLikeApiUrl(entityId);
+    const apiUrl = config.buildLikeApiUrl(entityId);
     fetch(apiUrl, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       likeRequestInProgress[entityId] = false;
       if (!data.success) return;
 
       /* Update ALL like buttons for this entity (top + bottom bars) */
-      var allButtons = document.querySelectorAll('.actions-bar-like-button[data-entity-id="' + entityId + '"]');
-      for (var buttonIndex = 0; buttonIndex < allButtons.length; buttonIndex++) {
-        var matchingButton = allButtons[buttonIndex];
-        var countElement = matchingButton.querySelector('.actions-bar-like-count');
+      const allButtons = document.querySelectorAll('.actions-bar-like-button[data-entity-id="' + entityId + '"]');
+      for (let buttonIndex = 0; buttonIndex < allButtons.length; buttonIndex++) {
+        const matchingButton = allButtons[buttonIndex];
+        const countElement = matchingButton.querySelector('.actions-bar-like-count');
         if (data.liked) {
           matchingButton.classList.add('actions-bar-like-button-active');
         } else {
@@ -70,19 +70,19 @@
   /* ---- Share ---- */
 
   document.addEventListener('click', function (event) {
-    var shareButton = event.target.closest('.actions-bar-share-button');
+    const shareButton = event.target.closest('.actions-bar-share-button');
     if (!shareButton) return;
 
     event.preventDefault();
-    var shareTitle = shareButton.getAttribute('data-title') || '';
-    var shareUrl = window.location.href;
+    const shareTitle = shareButton.getAttribute('data-title') || '';
+    const shareUrl = window.location.href;
 
     if (navigator.share) {
       navigator.share({ title: shareTitle, url: shareUrl });
     } else {
       navigator.clipboard.writeText(shareUrl).then(function () {
         /* Brief visual feedback */
-        var originalHtml = shareButton.innerHTML;
+        const originalHtml = shareButton.innerHTML;
         shareButton.innerHTML = '✓ লিংক কপি হয়েছে';
         setTimeout(function () { shareButton.innerHTML = originalHtml; }, 2000);
       });

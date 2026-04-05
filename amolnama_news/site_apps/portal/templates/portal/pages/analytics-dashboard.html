@@ -4,30 +4,7 @@
 {% block title %}Analytics Dashboard — আমলনামা নিউজ{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'portal/assets/css/pages/content-dashboard.css' %}">
-<style>
-  .analytics-dashboard { max-width: 900px; margin: 0 auto; padding: 1rem; }
-  .analytics-dashboard-title { font-size: 1.3rem; font-weight: 800; margin: 0 0 1rem; }
-  .analytics-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .5rem; margin-bottom: 1.5rem; }
-  .analytics-stat-card { padding: .75rem; border: 1px solid var(--border); border-radius: 10px; text-align: center; }
-  .analytics-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-  .analytics-stat-label { font-size: .7rem; color: var(--muted); margin-top: .15rem; }
-  .analytics-section-title { font-size: .95rem; font-weight: 700; margin: 1rem 0 .5rem; }
-  .analytics-content-bar { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
-  .analytics-content-bar-label { font-size: .75rem; font-weight: 600; min-width: 120px; }
-  .analytics-content-bar-track { flex: 1; height: 20px; background: #f3f4f6; border-radius: 6px; overflow: hidden; }
-  .analytics-content-bar-fill { height: 100%; border-radius: 6px; transition: width .3s; }
-  .analytics-content-bar-fill-rose { background: #e11d48; }
-  .analytics-content-bar-fill-purple { background: #7c3aed; }
-  .analytics-content-bar-fill-amber { background: #d97706; }
-  .analytics-content-bar-fill-blue { background: #2563eb; }
-  .analytics-content-bar-fill-green { background: #059669; }
-  .analytics-content-bar-count { font-size: .72rem; font-weight: 700; min-width: 30px; }
-  .analytics-top-posts { margin-top: .5rem; }
-  .analytics-top-post-item { display: flex; justify-content: space-between; align-items: center; padding: .5rem .6rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: .3rem; font-size: .78rem; }
-  .analytics-top-post-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: .5rem; }
-  .analytics-top-post-stats { display: flex; gap: .5rem; font-size: .68rem; color: var(--muted); flex-shrink: 0; }
-</style>
+<link rel="stylesheet" href="{% static 'portal/assets/css/pages/analytics-dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -66,6 +43,14 @@
 
   <h2 class="analytics-section-title" id="analytics-section-top-posts">Top Performing Posts</h2>
   <div class="analytics-top-posts" id="analytics-top-posts">
+    <div class="analytics-top-post-header" id="analytics-top-post-header">
+      <span class="analytics-top-post-header-text">পোস্ট</span>
+      <div class="analytics-top-post-header-stats">
+        <span>❤️ লাইক</span>
+        <span>👁 ভিউ</span>
+        <span>💬 রিপ্লাই</span>
+      </div>
+    </div>
     {% for post in top_posts %}
     <div class="analytics-top-post-item" id="analytics-top-post-{{ post.post_post_id }}">
       <span class="analytics-top-post-text">{{ post.post_text_preview }}</span>
@@ -76,7 +61,7 @@
       </div>
     </div>
     {% empty %}
-    <p style="color: var(--muted); font-size: .8rem;">কোনো পোস্ট নেই</p>
+    <p class="analytics-top-posts-empty">��োনো পোস্ট নেই</p>
     {% endfor %}
   </div>
 </div>

@@ -128,7 +128,7 @@
       <button type="button" class="gpa-add-subject-btn" id="gpaSscAddSubject" data-en="+ Add Subject">+ আরও বিষয় যোগ করুন (Add Subject)</button>
 
       {# 4th Subject (Optional) #}
-      <div class="gpa-section" style="margin-top:1rem;">
+      <div class="gpa-section gpa-section--optional">
         <div class="gpa-section-title" data-en="4th / Optional Subject">চতুর্থ বিষয় / ঐচ্ছিক (4th / Optional Subject)</div>
         <div class="gpa-ssc-row">
           <label class="gpa-ssc-label" for="gpaSscOptional" data-en="4th Subject">৪র্থ বিষয়</label>
@@ -148,7 +148,7 @@
     </div>
 
     {# SSC Result #}
-    <div class="gpa-result-card" id="gpaSscResult" style="display:none;">
+    <div class="gpa-result-card display-hidden" id="gpaSscResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Your GPA">আপনার জিপিএ (Your GPA)</span>
         <span class="gpa-result-badge" id="gpaSscBadge"></span>
@@ -159,7 +159,7 @@
   </div>
 
   {# ═══════════════ TAB 2: UNIVERSITY ═══════════════ #}
-  <div class="gpa-panel" id="panel-uni" style="display:none;">
+  <div class="gpa-panel display-hidden" id="panel-uni">
 
     <div class="gpa-section">
       <div class="gpa-section-title" data-en="Courses, Credits &amp; Grade Points">কোর্স, ক্রেডিট ও গ্রেড পয়েন্ট (Courses, Credits &amp; Grade Points)</div>
@@ -197,7 +197,7 @@
     </div>
 
     {# University Result #}
-    <div class="gpa-result-card" id="gpaUniResult" style="display:none;">
+    <div class="gpa-result-card display-hidden" id="gpaUniResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Your CGPA">আপনার সিজিপিএ (Your CGPA)</span>
         <span class="gpa-result-badge" id="gpaUniBadge"></span>
@@ -208,11 +208,11 @@
   </div>
 
   {# ═══════════════ TAB 3: TARGET PLANNER ═══════════════ #}
-  <div class="gpa-panel" id="panel-target" style="display:none;">
+  <div class="gpa-panel display-hidden" id="panel-target">
 
     <div class="gpa-section">
       <div class="gpa-section-title" data-en="Academic Path Planner">একাডেমিক পাথ প্ল্যানার (Academic Path Planner)</div>
-      <p class="gpa-hint" style="margin-bottom:1rem;" data-en="Define your goal. We'll calculate exactly what's needed.">আপনার লক্ষ্য নির্ধারণ করুন — আমরা হিসাব করে বলব ঠিক কতটুকু দরকার।<br>Define your goal. We'll calculate exactly what's needed.</p>
+      <p class="gpa-hint gpa-hint--spaced" data-en="Define your goal. We'll calculate exactly what's needed.">আপনার লক্ষ্য নির্ধারণ করুন — আমরা হিসাব করে বলব ঠিক কতটুকু দরকার।<br>Define your goal. We'll calculate exactly what's needed.</p>
 
       <div class="gpa-target-fields">
         <div class="gpa-target-field">
@@ -235,7 +235,7 @@
     </div>
 
     {# Target Result #}
-    <div class="gpa-result-card" id="gpaTargetResult" style="display:none;">
+    <div class="gpa-result-card display-hidden" id="gpaTargetResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Required GPA">প্রয়োজনীয় জিপিএ (Required GPA)</span>
         <span class="gpa-result-badge" id="gpaTargetBadge"></span>
@@ -249,5 +249,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'tools/assets/js/pages/tools-gpa-calculator.js' %}"></script>
+<script src="{% static 'tools/assets/js/pages/tools-gpa-calculator.js' %}" defer></script>
 {% endblock %}

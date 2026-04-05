@@ -16,13 +16,13 @@
 (function () {
   'use strict';
 
-  var hiddenInput         = document.getElementById('entertainment-performance-json');
+  const hiddenInput         = document.getElementById('entertainment-performance-json');
   if (!hiddenInput) return;
 
-  var boxOfficeEl         = document.getElementById('entertainment-box-office');
-  var viewsStreamsEl      = document.getElementById('entertainment-views-streams');
-  var ratingEl            = document.getElementById('entertainment-rating');
-  var audienceSelect      = document.getElementById('entertainment-audience-response-select');
+  const boxOfficeEl         = document.getElementById('entertainment-box-office');
+  const viewsStreamsEl      = document.getElementById('entertainment-views-streams');
+  const ratingEl            = document.getElementById('entertainment-rating');
+  const audienceSelect      = document.getElementById('entertainment-audience-response-select');
 
   function v(el) { return el && el.value.trim() || ''; }
   function sel(el) { return el && el.value || ''; }
@@ -41,23 +41,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-entertainment-performance');
+  const section = document.getElementById('section-entertainment-performance');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (boxOfficeEl && data.boxOffice)         boxOfficeEl.value    = data.boxOffice;

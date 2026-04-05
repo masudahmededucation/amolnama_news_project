@@ -12,16 +12,16 @@
  * Requires: news-category-tag-cascade.js (must load first for window.newshubTags)
  */
 (function () {
-  var api = window.newshubTags;
+  const api = window.newshubTags;
   if (!api) return;
 
-  var input = document.getElementById('tag-search-input');
-  var resultsList = document.getElementById('tag-search-results');
-  var allTagsEl = document.getElementById('all-tags-data');
+  const input = document.getElementById('tag-search-input');
+  const resultsList = document.getElementById('tag-search-results');
+  const allTagsEl = document.getElementById('all-tags-data');
   if (!input || !resultsList || !allTagsEl) return;
 
-  var MAX_RESULTS = 10;
-  var allTags = [];
+  const MAX_RESULTS = 10;
+  let allTags = [];
 
   /* Parse embedded JSON */
   try {
@@ -34,17 +34,17 @@
   function search(query) {
     if (!query || query.length < 1) return [];
 
-    var q = query.toLowerCase();
-    var results = [];
+    let q = query.toLowerCase();
+    let results = [];
 
-    for (var i = 0; i < allTags.length; i++) {
-      var tag = allTags[i];
+    for (let i = 0; i < allTags.length; i++) {
+      let tag = allTags[i];
       /* Skip already-selected tags */
       if (api.isSelected(String(tag.id))) continue;
 
-      var bnMatch = tag.name_bn && tag.name_bn.indexOf(q) !== -1;
-      var enMatch = tag.name_en && tag.name_en.toLowerCase().indexOf(q) !== -1;
-      var aliasMatch = tag.aliases && tag.aliases.toLowerCase().indexOf(q) !== -1;
+      const bnMatch = tag.name_bn && tag.name_bn.indexOf(q) !== -1;
+      const enMatch = tag.name_en && tag.name_en.toLowerCase().indexOf(q) !== -1;
+      const aliasMatch = tag.aliases && tag.aliases.toLowerCase().indexOf(q) !== -1;
 
       if (bnMatch || enMatch || aliasMatch) {
         results.push(tag);
@@ -62,10 +62,10 @@
       return;
     }
 
-    var html = '';
-    for (var i = 0; i < results.length; i++) {
-      var tag = results[i];
-      var label = escapeHtml(tag.name_bn);
+    let html = '';
+    for (let i = 0; i < results.length; i++) {
+      let tag = results[i];
+      let label = escapeHtml(tag.name_bn);
       if (tag.name_en) label += ' (' + escapeHtml(tag.name_en) + ')';
       html += '<li class="tag-search-item" data-tag-idx="' + i + '">' + label + '</li>';
     }
@@ -78,14 +78,14 @@
 
   /* ---- Input event — search as user types ---- */
   input.addEventListener('input', function () {
-    var results = search(input.value.trim());
+    let results = search(input.value.trim());
     renderResults(results);
   });
 
   /* ---- autoSelectCategory() — set category dropdown when tag is picked ---- */
   function autoSelectCategory(categoryId) {
     if (!categoryId) return;
-    var categorySelect = document.getElementById('news-category-id');
+    const categorySelect = document.getElementById('news-category-id');
     if (!categorySelect) return;
 
     /* Only auto-select if no category is currently chosen */
@@ -104,14 +104,14 @@
 
   /* ---- Click result — add tag ---- */
   resultsList.addEventListener('click', function (e) {
-    var item = e.target.closest('.tag-search-item');
+    const item = e.target.closest('.tag-search-item');
     if (!item) return;
 
-    var idx = parseInt(item.getAttribute('data-tag-idx'), 10);
-    var results = resultsList._results;
+    const idx = parseInt(item.getAttribute('data-tag-idx'), 10);
+    let results = resultsList._results;
     if (!results || !results[idx]) return;
 
-    var tag = results[idx];
+    const tag = results[idx];
     api.add(tag);
     api.save();
     api.render();
@@ -134,9 +134,9 @@
 
   /* ---- Show results again when input is focused with text ---- */
   input.addEventListener('focus', function () {
-    var q = input.value.trim();
+    const q = input.value.trim();
     if (q) {
-      var results = search(q);
+      const results = search(q);
       renderResults(results);
     }
   });

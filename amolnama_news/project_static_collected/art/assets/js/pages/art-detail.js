@@ -3,9 +3,9 @@
   'use strict';
 
 
-  var artDetailElement = document.querySelector('.art-detail');
+  const artDetailElement = document.querySelector('.art-detail');
   if (!artDetailElement) return;
-  var artworkId = artDetailElement.getAttribute('data-artwork-id');
+  const artworkId = artDetailElement.getAttribute('data-artwork-id');
 
   /* ---- View count on page load ---- */
   if (artworkId) {
@@ -15,15 +15,15 @@
   }
 
   /* ---- Photo lightbox ---- */
-  var galleryItems = document.querySelectorAll('.art-detail-gallery-item');
-  for (var galleryIndex = 0; galleryIndex < galleryItems.length; galleryIndex++) {
+  const galleryItems = document.querySelectorAll('.art-detail-gallery-item');
+  for (let galleryIndex = 0; galleryIndex < galleryItems.length; galleryIndex++) {
     galleryItems[galleryIndex].addEventListener('click', function () {
-      var photoUrl = this.getAttribute('data-photo-url');
+      const photoUrl = this.getAttribute('data-photo-url');
       if (photoUrl && window.photoLightbox) {
-        var allPhotos = [];
-        var clickedIndex = 0;
-        var allItems = document.querySelectorAll('.art-detail-gallery-item[data-photo-url]');
-        for (var itemIndex = 0; itemIndex < allItems.length; itemIndex++) {
+        const allPhotos = [];
+        let clickedIndex = 0;
+        const allItems = document.querySelectorAll('.art-detail-gallery-item[data-photo-url]');
+        for (let itemIndex = 0; itemIndex < allItems.length; itemIndex++) {
           allPhotos.push({ url: allItems[itemIndex].getAttribute('data-photo-url'), caption: '' });
           if (allItems[itemIndex] === this) clickedIndex = itemIndex;
         }
@@ -34,20 +34,20 @@
 
   /* ---- Single delegated click handler ---- */
   document.addEventListener('click', function (event) {
-    var target = event.target;
+    const target = event.target;
 
     /* Like toggle */
-    var likeButton = target.closest('.art-detail-like-button');
+    const likeButton = target.closest('.art-detail-like-button');
     if (likeButton) {
       event.preventDefault();
-      var likeArtworkId = likeButton.getAttribute('data-artwork-id');
+      const likeArtworkId = likeButton.getAttribute('data-artwork-id');
       if (!likeArtworkId) return;
 
       /* Optimistic UI */
-      var likeIcon = likeButton.querySelector('.art-detail-action-icon');
-      var likeCount = likeButton.querySelector('.art-detail-like-count');
-      var wasLiked = likeButton.classList.contains('art-detail-like-button-active');
-      var currentCount = parseInt(likeCount ? likeCount.textContent : '0', 10) || 0;
+      const likeIcon = likeButton.querySelector('.art-detail-action-icon');
+      const likeCount = likeButton.querySelector('.art-detail-like-count');
+      const wasLiked = likeButton.classList.contains('art-detail-like-button-active');
+      const currentCount = parseInt(likeCount ? likeCount.textContent : '0', 10) || 0;
 
       if (wasLiked) {
         likeButton.classList.remove('art-detail-like-button-active');
@@ -65,7 +65,7 @@
       fetch('/art-and-craft/api/' + likeArtworkId + '/like/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && likeCount) likeCount.textContent = data.like_count;
       })
@@ -84,16 +84,16 @@
     }
 
     /* Bookmark toggle */
-    var bookmarkButton = target.closest('.art-detail-bookmark-button');
+    const bookmarkButton = target.closest('.art-detail-bookmark-button');
     if (bookmarkButton) {
       event.preventDefault();
-      var bookmarkArtworkId = bookmarkButton.getAttribute('data-artwork-id');
+      const bookmarkArtworkId = bookmarkButton.getAttribute('data-artwork-id');
       if (!bookmarkArtworkId) return;
 
-      var bookmarkIcon = bookmarkButton.querySelector('.art-detail-action-icon');
-      var bookmarkCount = bookmarkButton.querySelector('.art-detail-bookmark-count');
-      var wasBookmarked = bookmarkButton.classList.contains('art-detail-bookmark-button-active');
-      var currentBookmarkCount = parseInt(bookmarkCount ? bookmarkCount.textContent : '0', 10) || 0;
+      const bookmarkIcon = bookmarkButton.querySelector('.art-detail-action-icon');
+      const bookmarkCount = bookmarkButton.querySelector('.art-detail-bookmark-count');
+      const wasBookmarked = bookmarkButton.classList.contains('art-detail-bookmark-button-active');
+      const currentBookmarkCount = parseInt(bookmarkCount ? bookmarkCount.textContent : '0', 10) || 0;
 
       if (wasBookmarked) {
         bookmarkButton.classList.remove('art-detail-bookmark-button-active');
@@ -111,7 +111,7 @@
       fetch('/art-and-craft/api/' + bookmarkArtworkId + '/bookmark/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && bookmarkCount) bookmarkCount.textContent = data.bookmark_count;
       })

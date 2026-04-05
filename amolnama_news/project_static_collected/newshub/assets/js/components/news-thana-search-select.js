@@ -10,7 +10,7 @@
  * Falls back gracefully to plain <input> when Tom Select is unavailable.
  *
  * Usage:
- *   var ts = window.newshubThanaSearchSelect.initThanaSearchSelect(inputEl, {
+ *   const ts = window.newshubThanaSearchSelect.initThanaSearchSelect(inputEl, {
  *     onChange: function () { serialize(); }
  *   });
  *
@@ -31,9 +31,9 @@
    * @param {fn}     escape — Tom Select HTML-escape helper
    */
   function renderThanaDropdownOption(item, escape) {
-    var displayName = item.name_bn || '';
+    let displayName = item.name_bn || '';
     if (item.name_en) displayName += ' (' + item.name_en + ')';
-    var typeLabel = item.type === 'metropolitan_thana' ? 'মেট্রো থানা' : 'উপজেলা থানা';
+    const typeLabel = item.type === 'metropolitan_thana' ? 'মেট্রো থানা' : 'উপজেলা থানা';
 
     return '<div class="thana-search-option">'
       + '<div class="thana-search-header">'
@@ -61,7 +61,7 @@
   function fetchThanaSearchResults(query, callback) {
     if (query.length < 2) return callback();
     fetch('/newshub/api/thana/search/?q=' + encodeURIComponent(query))
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) { callback(data.results || []); })
       .catch(function () { callback(); });
   }
@@ -79,8 +79,8 @@
     if (!inputEl) return null;
     if (typeof TomSelect === 'undefined') return null;
 
-    var opts = options || {};
-    var onChangeFn = typeof opts.onChange === 'function' ? opts.onChange : function () {};
+    const opts = options || {};
+    const onChangeFn = typeof opts.onChange === 'function' ? opts.onChange : function () {};
 
     try {
       return new TomSelect(inputEl, {

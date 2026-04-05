@@ -16,16 +16,16 @@
 (function () {
   'use strict';
 
-  var hiddenInput     = document.getElementById('entertainment-production-json');
+  const hiddenInput     = document.getElementById('entertainment-production-json');
   if (!hiddenInput) return;
 
-  var titleEl         = document.getElementById('entertainment-title');
-  var languageSelect  = document.getElementById('entertainment-language-select');
-  var industrySelect  = document.getElementById('entertainment-industry-select');
-  var directorEl      = document.getElementById('entertainment-director');
-  var producerEl      = document.getElementById('entertainment-producer');
-  var writerEl        = document.getElementById('entertainment-writer');
-  var musicEl         = document.getElementById('entertainment-music-director');
+  const titleEl         = document.getElementById('entertainment-title');
+  const languageSelect  = document.getElementById('entertainment-language-select');
+  const industrySelect  = document.getElementById('entertainment-industry-select');
+  const directorEl      = document.getElementById('entertainment-director');
+  const producerEl      = document.getElementById('entertainment-producer');
+  const writerEl        = document.getElementById('entertainment-writer');
+  const musicEl         = document.getElementById('entertainment-music-director');
 
   function v(el) { return el && el.value.trim() || ''; }
   function sel(el) { return el && el.value || ''; }
@@ -48,23 +48,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-entertainment-production');
+  const section = document.getElementById('section-entertainment-production');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (titleEl && data.title)               titleEl.value        = data.title;

@@ -3,32 +3,32 @@
  */
 (function () {
   "use strict";
-  var getCsrf = window.getCsrfTokenValue;
+  const getCsrf = window.getCsrfTokenValue;
 
-  var form = document.getElementById("poemEditForm");
-  var submitButton = document.getElementById("poem-submit-button");
-  var errorBox = document.getElementById("poemCreateError");
+  const form = document.getElementById("poemEditForm");
+  const submitButton = document.getElementById("poem-submit-button");
+  const errorBox = document.getElementById("poemCreateError");
   if (!form) return;
 
-  var poemId = form.dataset.poemId;
-  var poemType = form.dataset.poemType || "poem";
-  var currentLang = document.querySelector(".poem-create-lang-btn--active");
+  const poemId = form.dataset.poemId;
+  const poemType = form.dataset.poemType || "poem";
+  let currentLang = document.querySelector(".poem-create-lang-btn--active");
   currentLang = currentLang ? currentLang.dataset.lang : "bn";
 
   // Song type label overrides
   if (poemType === "song") {
     document.title = "গানের কথা সম্পাদনা · Amolnama News";
-    var swaps = {
+    const swaps = {
       "poemEditForm":   null, // skip form element
     };
-    var labelSwaps = {
+    const labelSwaps = {
       // Find labels by for attribute since edit form doesn't have same IDs
     };
     // Update h1
-    var h1 = document.querySelector(".poem-create-form-panel h1");
+    const h1 = document.querySelector(".poem-create-form-panel h1");
     if (h1) { h1.setAttribute("data-bn", "গানের কথা সম্পাদনা"); h1.setAttribute("data-en", "Edit Song Lyrics"); h1.textContent = "গানের কথা সম্পাদনা"; }
     // Update labels
-    var lbls = {
+    const lbls = {
       "poem-author-name":        { bn: "গীতিকার / শিল্পীর নাম *", en: "Lyricist / Artist Name *" },
       "poem-title-bn":           { bn: "গানের নাম *", en: "Song Title *" },
       "poem-body-bn":            { bn: "গানের কথা *", en: "Song Lyrics *" },
@@ -38,15 +38,15 @@
       "poem-audio-reciter-name": { bn: "শিল্পীর নাম (ঐচ্ছিক)", en: "Singer Name (optional)" },
       "poem-audio-description":  { bn: "গানের বিবরণ (ঐচ্ছিক)", en: "Song Description (optional)" },
     };
-    for (var forAttr in lbls) {
-      var lbl = document.querySelector('label[for="' + forAttr + '"]');
+    for (const forAttr in lbls) {
+      const lbl = document.querySelector('label[for="' + forAttr + '"]');
       if (lbl) {
         lbl.setAttribute("data-bn", lbls[forAttr].bn);
         lbl.setAttribute("data-en", lbls[forAttr].en);
         lbl.textContent = lbls[forAttr].bn;
       }
     }
-    var submitElement = document.getElementById("poem-submit-button");
+    const submitElement = document.getElementById("poem-submit-button");
     if (submitElement) { submitElement.setAttribute("data-bn", "আপডেট করুন"); submitElement.setAttribute("data-en", "Update"); submitElement.textContent = "আপডেট করুন"; }
   }
 
@@ -59,7 +59,7 @@
       btn.classList.add("poem-create-lang-btn--active");
       currentLang = btn.dataset.lang;
       document.body.setAttribute("data-lang", currentLang);
-      var headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
+      const headerRadio = document.querySelector('input[name="form_lang"][value="' + currentLang + '"]');
       if (headerRadio) headerRadio.checked = true;
     });
   });
@@ -74,16 +74,16 @@
   });
 
   /* ── Character/line counters ── */
-  var bodyBn = document.getElementById("poem-body-bn");
-  var bodyEn = document.getElementById("poem-body-en");
-  var counterBn = document.getElementById("poemBodyBnCounter");
-  var counterEn = document.getElementById("poemBodyEnCounter");
+  const bodyBn = document.getElementById("poem-body-bn");
+  const bodyEn = document.getElementById("poem-body-en");
+  const counterBn = document.getElementById("poemBodyBnCounter");
+  const counterEn = document.getElementById("poemBodyEnCounter");
 
   function updateCounter(textarea, counter, lang) {
     if (!textarea || !counter) return;
-    var val = textarea.value;
-    var lines = val ? val.split("\n").length : 0;
-    var chars = val.length;
+    const val = textarea.value;
+    const lines = val ? val.split("\n").length : 0;
+    const chars = val.length;
     if (lang === "bn") {
       counter.textContent = lines + " লাইন | " + chars + " অক্ষর";
     } else {
@@ -120,12 +120,12 @@
     e.preventDefault();
     hideError();
 
-    var authorName = (document.getElementById("poem-author-name").value || "").trim();
-    var titleBn = (document.getElementById("poem-title-bn").value || "").trim();
-    var titleEn = (document.getElementById("poem-title-en").value || "").trim();
-    var bodyBnVal = (document.getElementById("poem-body-bn").value || "").trim();
-    var bodyEnVal = (document.getElementById("poem-body-en").value || "").trim();
-    var category = document.getElementById("poem-category").value;
+    const authorName = (document.getElementById("poem-author-name").value || "").trim();
+    const titleBn = (document.getElementById("poem-title-bn").value || "").trim();
+    const titleEn = (document.getElementById("poem-title-en").value || "").trim();
+    const bodyBnVal = (document.getElementById("poem-body-bn").value || "").trim();
+    const bodyEnVal = (document.getElementById("poem-body-en").value || "").trim();
+    const category = document.getElementById("poem-category").value;
 
     if (!authorName) {
       showError("লেখকের নাম আবশ্যক (Writer's name is required)");
@@ -147,7 +147,7 @@
     submitButton.disabled = true;
     submitButton.textContent = "সংরক্ষণ হচ্ছে... (Saving...)";
 
-    var payload = {
+    const payload = {
       poem_author_display_name: authorName,
       poem_language: currentLang,
       poem_title_bn: titleBn || null,
@@ -186,8 +186,8 @@
       .then(function (data) {
         if (data.success) {
           /* Navigate to poem detail — extract slug from current edit URL */
-          var currentPath = window.location.pathname;
-          var poemSlug = currentPath.replace(/\/edit\/$/, "/").replace(/^\/bangla-kobita-gaan\//, "");
+          const currentPath = window.location.pathname;
+          const poemSlug = currentPath.replace(/\/edit\/$/, "/").replace(/^\/bangla-kobita-gaan\//, "");
           window.location.href = "/bangla-kobita-gaan/" + poemSlug;
         } else {
           showError(data.error || "কিছু ভুল হয়েছে (Something went wrong)");

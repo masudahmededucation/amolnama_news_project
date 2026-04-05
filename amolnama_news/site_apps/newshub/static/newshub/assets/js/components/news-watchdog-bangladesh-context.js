@@ -13,21 +13,21 @@
 (function () {
   'use strict';
 
-  var checkboxes = document.querySelectorAll('input[name="political_motive"]');
-  var descriptionEl = document.getElementById('political-context-description');
-  var hiddenJson = document.getElementById('political-context-json');
+  const checkboxes = document.querySelectorAll('input[name="political_motive"]');
+  const descriptionEl = document.getElementById('political-context-description');
+  const hiddenJson = document.getElementById('political-context-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var motives = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const motives = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) {
         motives.push(checkboxes[i].value);
       }
     }
 
-    var data = {
+    let data = {
       motives: motives,
       description: descriptionEl ? descriptionEl.value.trim() : '',
     };
@@ -36,7 +36,7 @@
   }
 
   /* Listen for changes on checkboxes */
-  for (var i = 0; i < checkboxes.length; i++) {
+  for (let i = 0; i < checkboxes.length; i++) {
     checkboxes[i].addEventListener('change', serialize);
   }
 
@@ -46,7 +46,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -55,9 +55,9 @@
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (data.motives && Array.isArray(data.motives)) {
-        for (var i = 0; i < checkboxes.length; i++) {
+        for (let i = 0; i < checkboxes.length; i++) {
           checkboxes[i].checked = data.motives.indexOf(checkboxes[i].value) !== -1;
         }
       }
@@ -70,7 +70,7 @@
   /* Public API for form-clear */
   window.newshubPoliticalContext = {
     reset: function () {
-      for (var i = 0; i < checkboxes.length; i++) {
+      for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = false;
       }
       if (descriptionEl) descriptionEl.value = '';

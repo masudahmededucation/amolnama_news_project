@@ -3,9 +3,9 @@
   'use strict';
 
 
-  var storyDetailElement = document.querySelector('.stories-detail');
+  const storyDetailElement = document.querySelector('.stories-detail');
   if (!storyDetailElement) return;
-  var storyId = storyDetailElement.getAttribute('data-story-id');
+  const storyId = storyDetailElement.getAttribute('data-story-id');
 
   /* ---- View count on page load ---- */
   if (storyId) {
@@ -15,15 +15,15 @@
   }
 
   /* ---- Page navigation ---- */
-  var currentPage = 1;
-  var allPages = document.querySelectorAll('.stories-detail-page');
-  var totalPages = allPages.length;
-  var prevButton = document.getElementById('stories-detail-page-prev-button');
-  var nextButton = document.getElementById('stories-detail-page-next-button');
-  var pageCounter = document.getElementById('stories-detail-page-counter');
+  let currentPage = 1;
+  const allPages = document.querySelectorAll('.stories-detail-page');
+  const totalPages = allPages.length;
+  const prevButton = document.getElementById('stories-detail-page-prev-button');
+  const nextButton = document.getElementById('stories-detail-page-next-button');
+  const pageCounter = document.getElementById('stories-detail-page-counter');
 
   function showPage(pageNumber) {
-    for (var pageIndex = 0; pageIndex < allPages.length; pageIndex++) {
+    for (let pageIndex = 0; pageIndex < allPages.length; pageIndex++) {
       allPages[pageIndex].style.display = (pageIndex + 1 === pageNumber) ? 'block' : 'none';
     }
     currentPage = pageNumber;
@@ -46,19 +46,19 @@
 
   /* ---- Single delegated click handler ---- */
   document.addEventListener('click', function (event) {
-    var target = event.target;
+    const target = event.target;
 
     /* Like toggle */
-    var likeButton = target.closest('.stories-detail-like-button');
+    const likeButton = target.closest('.stories-detail-like-button');
     if (likeButton) {
       event.preventDefault();
-      var likeStoryId = likeButton.getAttribute('data-story-id');
+      const likeStoryId = likeButton.getAttribute('data-story-id');
       if (!likeStoryId) return;
 
-      var likeIcon = likeButton.querySelector('.stories-detail-action-icon');
-      var likeCount = likeButton.querySelector('.stories-detail-like-count');
-      var wasLiked = likeButton.classList.contains('stories-detail-like-button-active');
-      var currentCount = parseInt(likeCount ? likeCount.textContent : '0', 10) || 0;
+      const likeIcon = likeButton.querySelector('.stories-detail-action-icon');
+      const likeCount = likeButton.querySelector('.stories-detail-like-count');
+      const wasLiked = likeButton.classList.contains('stories-detail-like-button-active');
+      const currentCount = parseInt(likeCount ? likeCount.textContent : '0', 10) || 0;
 
       if (wasLiked) {
         likeButton.classList.remove('stories-detail-like-button-active');
@@ -76,7 +76,7 @@
       fetch('/stories-for-kids/api/' + likeStoryId + '/like/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && likeCount) likeCount.textContent = data.like_count;
       })
@@ -89,16 +89,16 @@
     }
 
     /* Bookmark toggle */
-    var bookmarkButton = target.closest('.stories-detail-bookmark-button');
+    const bookmarkButton = target.closest('.stories-detail-bookmark-button');
     if (bookmarkButton) {
       event.preventDefault();
-      var bookmarkStoryId = bookmarkButton.getAttribute('data-story-id');
+      const bookmarkStoryId = bookmarkButton.getAttribute('data-story-id');
       if (!bookmarkStoryId) return;
 
-      var bookmarkIcon = bookmarkButton.querySelector('.stories-detail-action-icon');
-      var bookmarkCount = bookmarkButton.querySelector('.stories-detail-bookmark-count');
-      var wasBookmarked = bookmarkButton.classList.contains('stories-detail-bookmark-button-active');
-      var currentBookmarkCount = parseInt(bookmarkCount ? bookmarkCount.textContent : '0', 10) || 0;
+      const bookmarkIcon = bookmarkButton.querySelector('.stories-detail-action-icon');
+      const bookmarkCount = bookmarkButton.querySelector('.stories-detail-bookmark-count');
+      const wasBookmarked = bookmarkButton.classList.contains('stories-detail-bookmark-button-active');
+      const currentBookmarkCount = parseInt(bookmarkCount ? bookmarkCount.textContent : '0', 10) || 0;
 
       if (wasBookmarked) {
         bookmarkButton.classList.remove('stories-detail-bookmark-button-active');
@@ -116,7 +116,7 @@
       fetch('/stories-for-kids/api/' + bookmarkStoryId + '/bookmark/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && bookmarkCount) bookmarkCount.textContent = data.bookmark_count;
       })

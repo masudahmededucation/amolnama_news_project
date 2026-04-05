@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var dashboardElement = document.querySelector('.textextractor-dashboard');
+  const dashboardElement = document.querySelector('.textextractor-dashboard');
   if (!dashboardElement) return;
 
 
@@ -13,12 +13,12 @@
       fileInputElement: document.getElementById('textextractor-dashboard-file-input'),
       activeClass: 'textextractor-dashboard-dropzone-active',
       onFilesSelected: function (files) {
-        var totalFiles = files.length;
-        var uploadedCount = 0;
+        const totalFiles = files.length;
+        let uploadedCount = 0;
 
-        for (var index = 0; index < files.length; index++) {
+        for (let index = 0; index < files.length; index++) {
           (function (file) {
-            var formData = new FormData();
+            const formData = new FormData();
             formData.append('extraction_file', file);
             fetch('/text-extractor/api/upload/', {
               method: 'POST',
@@ -40,35 +40,38 @@
   }
 
   /* ---- Live Progress Polling — ONLY when processing jobs exist ---- */
-  var processingJobElements = document.querySelectorAll('.textextractor-job-progress-row');
-  var pollingActive = processingJobElements.length > 0;
+  const processingJobElements = document.querySelectorAll('.textextractor-job-progress-row');
+  let pollingActive = processingJobElements.length > 0;
 
   function pollProcessingJobs() {
     if (!pollingActive) return;
 
-    var stillProcessing = false;
+    let stillProcessing = false;
 
     processingJobElements.forEach(function (progressRowElement) {
-      var processingJobId = progressRowElement.getAttribute('data-job-id');
+      const processingJobId = progressRowElement.getAttribute('data-job-id');
 
       fetch('/text-extractor/api/status/' + processingJobId + '/')
-        .then(function (response) { return response.json(); })
+        .then(function (response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
         .then(function (data) {
           if (!data.success) return;
 
           if (data.status_code === 'processing') {
             stillProcessing = true;
 
-            var progressBarElement = document.getElementById('textextractor-job-progress-bar-' + processingJobId);
-            var progressLogElement = document.getElementById('textextractor-job-progress-log-' + processingJobId);
+            const progressBarElement = document.getElementById('textextractor-job-progress-bar-' + processingJobId);
+            const progressLogElement = document.getElementById('textextractor-job-progress-log-' + processingJobId);
 
             /* Update progress bar */
             if (data.page_count && data.page_count > 0 && data.progress_message) {
-              var currentPageMatch = data.progress_message.match(/(\d+)\/(\d+) pages/);
+              const currentPageMatch = data.progress_message.match(/(\d+)\/(\d+) pages/);
               if (currentPageMatch) {
-                var currentPage = parseInt(currentPageMatch[1], 10);
-                var totalPages = parseInt(currentPageMatch[2], 10);
-                var percent = Math.round((currentPage / totalPages) * 100);
+                const currentPage = parseInt(currentPageMatch[1], 10);
+                const totalPages = parseInt(currentPageMatch[2], 10);
+                const percent = Math.round((currentPage / totalPages) * 100);
                 if (progressBarElement) {
                   progressBarElement.style.width = percent + '%';
                 }
@@ -102,27 +105,29 @@
 
   /* ---- Cancel / Delete ---- */
   document.addEventListener('click', function (event) {
-    var cancelButton = event.target.closest('.textextractor-job-cancel-button');
+    const cancelButton = event.target.closest('.textextractor-job-cancel-button');
     if (cancelButton) {
       event.preventDefault();
       event.stopPropagation();
       cancelButton.disabled = true;
       fetch('/text-extractor/api/cancel/' + cancelButton.getAttribute('data-job-id') + '/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
-      }).then(function () { window.location.href = '/text-extractor/'; });
+      }).then(function () { window.location.href = '/text-extractor/'; })
+        .catch(function () { cancelButton.disabled = false; });
       return;
     }
 
-    var deleteButton = event.target.closest('.textextractor-job-delete-button');
+    const deleteButton = event.target.closest('.textextractor-job-delete-button');
     if (deleteButton) {
       event.preventDefault();
       event.stopPropagation();
-      var jobCard = deleteButton.closest('.textextractor-job-card');
+      const jobCard = deleteButton.closest('.textextractor-job-card');
       fetch('/text-extractor/api/delete/' + deleteButton.getAttribute('data-job-id') + '/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       }).then(function () {
         if (jobCard) { jobCard.style.opacity = '0'; setTimeout(function () { jobCard.remove(); }, 300); }
-      });
+      })
+        .catch(function () {});
       return;
     }
   });

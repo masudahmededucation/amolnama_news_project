@@ -12,40 +12,40 @@
  *    → Switching away clears auto-filled values and shows fields
  */
 (function () {
-  var section = document.getElementById('section-contributor-info');
+  const section = document.getElementById('section-contributor-info');
   if (!section) return;
 
-  var typeSelect = document.getElementById('contributor-type');
+  const typeSelect = document.getElementById('contributor-type');
   if (!typeSelect) return;
 
   /* === IDs === */
-  var SELF_TYPE_ID = '1';
-  var CITIZEN_TYPE_ID = '2';
-  var CITIZEN_ORG_TYPE_ID = '22';
-  var MEDIA_ORG_TYPE_ID = '17';
+  const SELF_TYPE_ID = '1';
+  const CITIZEN_TYPE_ID = '2';
+  const CITIZEN_ORG_TYPE_ID = '22';
+  const MEDIA_ORG_TYPE_ID = '17';
 
   /* === DOM refs === */
-  var nameInput = document.getElementById('contributor-full-name');
-  var emailInput = document.getElementById('contributor-email');
-  var phoneInput = document.getElementById('contributor-phone');
-  var details = document.getElementById('contributor-details');
-  var orgTypeSelect = document.getElementById('contributor-org-type');
+  const nameInput = document.getElementById('contributor-full-name');
+  const emailInput = document.getElementById('contributor-email');
+  const phoneInput = document.getElementById('contributor-phone');
+  const details = document.getElementById('contributor-details');
+  const orgTypeSelect = document.getElementById('contributor-org-type');
 
   /* === Self profile data (logged-in only) === */
-  var isSelfAvailable = section.hasAttribute('data-is-self');
-  var selfName = section.getAttribute('data-self-name') || '';
-  var selfEmail = section.getAttribute('data-self-email') || '';
-  var selfPhone = section.getAttribute('data-self-phone') || '';
+  const isSelfAvailable = section.hasAttribute('data-is-self');
+  const selfName = section.getAttribute('data-self-name') || '';
+  const selfEmail = section.getAttribute('data-self-email') || '';
+  const selfPhone = section.getAttribute('data-self-phone') || '';
 
-  var autoFilled = false;
-  var userChangedOrg = false;
+  let autoFilled = false;
+  let userChangedOrg = false;
 
   function applyState() {
-    var selectedType = typeSelect.value;
+    const selectedType = typeSelect.value;
 
     /* --- Default org type based on contributor type --- */
     if (orgTypeSelect && !userChangedOrg) {
-      var targetOrg = (selectedType === CITIZEN_TYPE_ID) ? CITIZEN_ORG_TYPE_ID : MEDIA_ORG_TYPE_ID;
+      const targetOrg = (selectedType === CITIZEN_TYPE_ID) ? CITIZEN_ORG_TYPE_ID : MEDIA_ORG_TYPE_ID;
       if (selectedType && selectedType !== SELF_TYPE_ID) {
         orgTypeSelect.value = targetOrg;
         orgTypeSelect.dispatchEvent(new Event('change'));

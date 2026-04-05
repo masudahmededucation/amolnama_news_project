@@ -251,7 +251,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255,255,255,.3);
-  border-top-color: #fff;
+  border-top-color: var(--card);
   border-radius: 50%;
   animation: convert-spin .6s linear infinite;
 }

@@ -35,7 +35,7 @@
   </div>
 
   <!-- ===== File List ===== -->
-  <div class="zip-panel" id="zip-panel" style="display:none">
+  <div class="zip-panel display-hidden" id="zip-panel">
 
     <!-- Add more files bar -->
     <div class="zip-add-bar">
@@ -70,12 +70,12 @@
     <!-- Create button -->
     <button type="button" class="zip-action-btn" id="zip-action-btn">
       <span class="zip-action-label" data-en="Create ZIP">ZIP তৈরি করুন (Create ZIP)</span>
-      <span class="zip-action-spinner" style="display:none"></span>
+      <span class="zip-action-spinner display-hidden"></span>
     </button>
   </div>
 
   <!-- ===== Result ===== -->
-  <div class="zip-result" id="zip-result" style="display:none">
+  <div class="zip-result display-hidden" id="zip-result">
     <div class="zip-result-header">
       <h3 data-en="ZIP Archive Created">ZIP আর্কাইভ তৈরি হয়েছে (ZIP Created)</h3>
     </div>
@@ -90,5 +90,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'tools/assets/js/pages/tools-zip-creator.js' %}"></script>
+  <script src="{% static 'tools/assets/js/pages/tools-zip-creator.js' %}" defer></script>
 {% endblock %}

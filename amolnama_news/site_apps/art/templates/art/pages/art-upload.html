@@ -80,11 +80,11 @@
       <button type="submit" class="art-upload-submit-button" id="art-upload-submit-button" name="art_upload_submit_button">আপলোড করুন</button>
     </div>
 
-    <div class="art-upload-error-message" id="art-upload-error-message" style="display:none;"></div>
+    <div class="art-upload-error-message display-hidden" id="art-upload-error-message"></div>
   </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'art/assets/js/pages/art-upload.js' %}"></script>
+<script src="{% static 'art/assets/js/pages/art-upload.js' %}" defer></script>
 {% endblock %}

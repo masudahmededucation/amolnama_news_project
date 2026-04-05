@@ -1,6 +1,5 @@
 """Poem app — page views."""
 
-import re
 from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 
 from django.contrib.auth.decorators import login_required

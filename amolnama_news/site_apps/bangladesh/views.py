@@ -9,7 +9,6 @@ from django.db.models import F
 from django.http import Http404
 from django.shortcuts import redirect, render
 from amolnama_news.site_apps.core.utils import bangla_slugify
-from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from amolnama_news.site_apps.user_account.models import UserProfile

@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   window.getCsrfTokenValue = function () {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
+    const cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
     return cookieMatch ? cookieMatch.pop() : '';
   };
 })();

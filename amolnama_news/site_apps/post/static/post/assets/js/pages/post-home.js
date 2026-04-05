@@ -5,14 +5,14 @@
 
   /* ---- Composer expand/collapse ---- */
 
-  var composerElement = document.getElementById('post-composer');
+  let composerElement = document.getElementById('post-composer');
   if (composerElement) {
-    var composerFullPlaceholder = '';
+    let composerFullPlaceholder = '';
 
     /* Expand on click/focus anywhere inside the composer */
     composerElement.addEventListener('click', function () {
       composerElement.classList.remove('post-composer-collapsed');
-      var textarea = composerElement.querySelector('.post-composer-textarea');
+      let textarea = composerElement.querySelector('.post-composer-textarea');
       if (textarea) {
         textarea.setAttribute('rows', '3');
         if (composerFullPlaceholder) textarea.placeholder = composerFullPlaceholder;
@@ -20,19 +20,19 @@
     });
 
     /* Draft mode — don't collapse if user has content, files, or file picker is open */
-    var filePickerIsOpen = false;
+    let filePickerIsOpen = false;
 
     function isComposerInDraftMode() {
       if (filePickerIsOpen) return true;
-      var textarea = composerElement.querySelector('.post-composer-textarea');
-      var hasText = textarea && textarea.value.trim().length > 0;
-      var previewContainer = document.getElementById('post-composer-media-preview');
-      var hasFiles = previewContainer && previewContainer.children.length > 0;
+      let textarea = composerElement.querySelector('.post-composer-textarea');
+      const hasText = textarea && textarea.value.trim().length > 0;
+      const previewContainer = document.getElementById('post-composer-media-preview');
+      const hasFiles = previewContainer && previewContainer.children.length > 0;
       return hasText || hasFiles;
     }
 
     /* Track file picker open/close */
-    var mediaFileInput = document.getElementById('post-composer-media-input');
+    const mediaFileInput = document.getElementById('post-composer-media-input');
     if (mediaFileInput) {
       mediaFileInput.addEventListener('click', function () {
         filePickerIsOpen = true;
@@ -48,7 +48,7 @@
       if (composerElement.classList.contains('post-composer-collapsed')) return;
       if (isComposerInDraftMode()) return;
       composerElement.classList.add('post-composer-collapsed');
-      var textarea = composerElement.querySelector('.post-composer-textarea');
+      const textarea = composerElement.querySelector('.post-composer-textarea');
       if (textarea) {
         textarea.setAttribute('rows', '1');
         textarea.style.height = 'auto';
@@ -65,14 +65,14 @@
     });
 
     /* Collapse on scroll — only if not in draft mode */
-    var scrollCollapseTimer = null;
+    let scrollCollapseTimer = null;
     window.addEventListener('scroll', function () {
       if (scrollCollapseTimer) clearTimeout(scrollCollapseTimer);
       scrollCollapseTimer = setTimeout(collapseComposer, 500);
     });
 
     /* Collapse on textarea blur — only if not in draft mode */
-    var composerTextareaForBlur = composerElement.querySelector('.post-composer-textarea');
+    const composerTextareaForBlur = composerElement.querySelector('.post-composer-textarea');
     if (composerTextareaForBlur) {
       composerTextareaForBlur.addEventListener('blur', function () {
         setTimeout(collapseComposer, 200);
@@ -84,7 +84,7 @@
 
   /* ---- Rotating placeholder ---- */
 
-  var composerPlaceholders = [
+  const composerPlaceholders = [
     /* সুনির্দিষ্ট সমস্যা (Specific issues) */
     'আপনার এলাকায় কী ঘটছে?',
     'কীভাবে দুর্নীতি বন্ধ করা যাবে?',
@@ -135,15 +135,15 @@
     'আপনার এলাকার উন্নয়ন কেমন হচ্ছে?',
   ];
 
-  var composerTextareaElement = document.getElementById('post-composer-textarea');
+  const composerTextareaElement = document.getElementById('post-composer-textarea');
   if (composerTextareaElement) {
     // Set random fallback immediately (instant UI)
-    var randomPlaceholderIndex = Math.floor(Math.random() * composerPlaceholders.length);
+    const randomPlaceholderIndex = Math.floor(Math.random() * composerPlaceholders.length);
     composerTextareaElement.placeholder = composerPlaceholders[randomPlaceholderIndex];
 
     // Then fetch from API (may override with featured or DB-managed placeholder)
     fetch('/post/api/composer-placeholder/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && data.placeholder) {
           composerTextareaElement.placeholder = data.placeholder;
@@ -154,17 +154,17 @@
 
   /* ---- Character counter ---- */
 
-  var composerTextarea = document.getElementById('post-composer-textarea');
-  var characterCountElement = document.getElementById('post-composer-character-count');
-  var submitButton = document.getElementById('post-composer-submit-button');
+  const composerTextarea = document.getElementById('post-composer-textarea');
+  const characterCountElement = document.getElementById('post-composer-character-count');
+  const submitButton = document.getElementById('post-composer-submit-button');
 
   if (composerTextarea && characterCountElement && submitButton) {
     /* BanglaInput auto-attached by news-form-lang.js MutationObserver — no manual attach needed */
 
     /* ---- Draft auto-save to localStorage ---- */
-    var draftStorageKey = 'post_composer_draft';
-    var draftSaveTimer = null;
-    var savedDraft = localStorage.getItem(draftStorageKey);
+    const draftStorageKey = 'post_composer_draft';
+    let draftSaveTimer = null;
+    const savedDraft = localStorage.getItem(draftStorageKey);
     if (savedDraft) {
       composerTextarea.value = savedDraft;
       composerTextarea.dispatchEvent(new Event('input'));
@@ -177,7 +177,7 @@
       composerTextarea.style.height = 'auto';
       composerTextarea.style.height = (composerTextarea.scrollHeight + 60) + 'px';
 
-      var currentLength = composerTextarea.value.length;
+      const currentLength = composerTextarea.value.length;
       characterCountElement.textContent = currentLength + '/1000';
 
       /* Save draft (debounced — writes to localStorage after 500ms of inactivity) */
@@ -189,8 +189,8 @@
           localStorage.removeItem(draftStorageKey);
         }
       }, 500);
-      var isTextOnly = selectedMediaFiles.length === 0;
-      var tooShortForTextOnly = isTextOnly && currentLength > 0 && currentLength < 150;
+      const isTextOnly = selectedMediaFiles.length === 0;
+      const tooShortForTextOnly = isTextOnly && currentLength > 0 && currentLength < 150;
       submitButton.disabled = (currentLength === 0 && selectedMediaFiles.length === 0) || currentLength > 1000 || tooShortForTextOnly;
 
       if (currentLength > 900) {
@@ -205,34 +205,34 @@
     });
 
     /* ---- Link preview in composer (debounced URL detection) ---- */
-    var linkPreviewContainer = document.getElementById('post-composer-link-preview');
-    var linkPreviewTimer = null;
-    var linkPreviewCurrentUrl = '';
+    const linkPreviewContainer = document.getElementById('post-composer-link-preview');
+    let linkPreviewTimer = null;
+    let linkPreviewCurrentUrl = '';
 
     composerTextarea.addEventListener('input', function () {
       if (!linkPreviewContainer) return;
       clearTimeout(linkPreviewTimer);
       linkPreviewTimer = setTimeout(function () {
-        var textValue = composerTextarea.value || '';
-        var urlMatch = textValue.match(/https?:\/\/[^\s<>"']+/);
-        var detectedUrl = urlMatch ? urlMatch[0] : '';
+        const textValue = composerTextarea.value || '';
+        const urlMatch = textValue.match(/https?:\/\/[^\s<>"']+/);
+        const detectedUrl = urlMatch ? urlMatch[0] : '';
 
         if (!detectedUrl || detectedUrl === linkPreviewCurrentUrl) return;
         linkPreviewCurrentUrl = detectedUrl;
 
         fetch('/newsengine/api/link-preview/?url=' + encodeURIComponent(detectedUrl))
-          .then(function (response) { return response.json(); })
+          .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
           .then(function (data) {
             if (!data.success || (!data.title && !data.description)) {
               linkPreviewContainer.style.display = 'none';
               return;
             }
-            var previewHtml = '<div class="post-composer-link-preview-card">';
-            if (data.image) previewHtml += '<img src="' + data.image + '" alt="" class="post-composer-link-preview-image" onerror="this.style.display=\'none\'">';
+            let previewHtml = '<div class="post-composer-link-preview-card">';
+            if (data.image) previewHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="post-composer-link-preview-image" onerror="this.classList.add(\'display-hidden\')">';
             previewHtml += '<div class="post-composer-link-preview-info">';
-            if (data.title) previewHtml += '<div class="post-composer-link-preview-title">' + data.title + '</div>';
-            if (data.description) previewHtml += '<div class="post-composer-link-preview-description">' + data.description + '</div>';
-            previewHtml += '<div class="post-composer-link-preview-domain">' + detectedUrl.replace(/^https?:\/\//, '').split('/')[0] + '</div>';
+            if (data.title) previewHtml += '<div class="post-composer-link-preview-title">' + escapeHtml(data.title) + '</div>';
+            if (data.description) previewHtml += '<div class="post-composer-link-preview-description">' + escapeHtml(data.description) + '</div>';
+            previewHtml += '<div class="post-composer-link-preview-domain">' + escapeHtml(detectedUrl.replace(/^https?:\/\//, '').split('/')[0]) + '</div>';
             previewHtml += '</div>';
             previewHtml += '<button type="button" class="post-composer-link-preview-dismiss" id="post-composer-link-preview-dismiss" name="post_composer_link_preview_dismiss" title="বাতিল">✕</button>';
             previewHtml += '</div>';
@@ -253,24 +253,24 @@
   /* ---- @Mention autocomplete in composer ---- */
   (function () {
     if (!composerTextarea) return;
-    var mentionDropdown = null;
-    var mentionTimer = null;
+    let mentionDropdown = null;
+    let mentionTimer = null;
 
     composerTextarea.addEventListener('input', function () {
       clearTimeout(mentionTimer);
-      var cursorPosition = composerTextarea.selectionStart;
-      var textBeforeCursor = composerTextarea.value.substring(0, cursorPosition);
-      var mentionMatch = textBeforeCursor.match(/@([\w.-]*)$/);
+      let cursorPosition = composerTextarea.selectionStart;
+      const textBeforeCursor = composerTextarea.value.substring(0, cursorPosition);
+      const mentionMatch = textBeforeCursor.match(/@([\w.-]*)$/);
 
       if (!mentionMatch || mentionMatch[1].length < 1) {
         if (mentionDropdown) mentionDropdown.style.display = 'none';
         return;
       }
 
-      var mentionQuery = mentionMatch[1];
+      const mentionQuery = mentionMatch[1];
       mentionTimer = setTimeout(function () {
         fetch('/post/api/mentions/autocomplete/?q=' + encodeURIComponent(mentionQuery))
-          .then(function (response) { return response.json(); })
+          .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
           .then(function (data) {
             if (!data.success || !data.users || data.users.length === 0) {
               if (mentionDropdown) mentionDropdown.style.display = 'none';
@@ -284,14 +284,14 @@
               composerTextarea.parentNode.appendChild(mentionDropdown);
             }
             mentionDropdown.innerHTML = data.users.map(function (user) {
-              var avatarHtml = user.avatar_url
-                ? '<img src="' + user.avatar_url + '" alt="" class="post-composer-mention-avatar">'
-                : '<span class="post-composer-mention-avatar-initials">' + (user.display_name || user.handle).charAt(0) + '</span>';
-              return '<div class="post-composer-mention-item" data-handle="' + user.handle + '">'
+              const avatarHtml = user.avatar_url
+                ? '<img src="' + escapeHtml(user.avatar_url) + '" alt="" class="post-composer-mention-avatar">'
+                : '<span class="post-composer-mention-avatar-initials">' + escapeHtml((user.display_name || user.handle).charAt(0)) + '</span>';
+              return '<div class="post-composer-mention-item" data-handle="' + escapeHtml(user.handle) + '">'
                 + avatarHtml
                 + '<div class="post-composer-mention-info">'
-                + '<span class="post-composer-mention-name">' + (user.display_name || '') + '</span>'
-                + '<span class="post-composer-mention-handle">@' + user.handle + '</span>'
+                + '<span class="post-composer-mention-name">' + escapeHtml(user.display_name || '') + '</span>'
+                + '<span class="post-composer-mention-handle">@' + escapeHtml(user.handle) + '</span>'
                 + '</div></div>';
             }).join('');
             mentionDropdown.style.display = 'block';
@@ -299,11 +299,11 @@
             mentionDropdown.querySelectorAll('.post-composer-mention-item').forEach(function (item) {
               item.addEventListener('mousedown', function (mouseDownEvent) {
                 mouseDownEvent.preventDefault();
-                var selectedHandle = item.getAttribute('data-handle');
-                var beforeMention = textBeforeCursor.substring(0, textBeforeCursor.lastIndexOf('@'));
-                var afterCursor = composerTextarea.value.substring(cursorPosition);
+                const selectedHandle = item.getAttribute('data-handle');
+                const beforeMention = textBeforeCursor.substring(0, textBeforeCursor.lastIndexOf('@'));
+                const afterCursor = composerTextarea.value.substring(cursorPosition);
                 composerTextarea.value = beforeMention + '@' + selectedHandle + ' ' + afterCursor;
-                var newPosition = beforeMention.length + selectedHandle.length + 2;
+                const newPosition = beforeMention.length + selectedHandle.length + 2;
                 composerTextarea.setSelectionRange(newPosition, newPosition);
                 composerTextarea.focus();
                 mentionDropdown.style.display = 'none';
@@ -322,7 +322,7 @@
 
   /* ---- Emoji picker ---- */
 
-  var emojiCategories = {
+  const emojiCategories = {
     smileys: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','😮','😯','😲','😳','🥺','😢','😭','😤','😠','😡','🤬','😈','💀','💩','🤡','👻','👽','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾'],
     gestures: ['👍','👎','👊','✊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💪','🦾','🖕','☝️','👆','👇','👈','👉','👋','🤚','🖐️','✋','🖖','🤟','🤘','🤙','👌','🤌','🤏','✌️','🤞','🫰','🫵','👈','👉','👆','👇','☝️','✋','🤚','🖐️','🖖','👋','🤙'],
     hearts: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','🫶','💑','💏','💋','🌹','🥀','💐','🌸','🌺','🌻','🌷'],
@@ -331,16 +331,16 @@
     flags: ['🇧🇩','🇮🇳','🇵🇰','🇸🇦','🇦🇪','🇲🇾','🇬🇧','🇺🇸','🇨🇦','🇦🇺','🇯🇵','🇰🇷','🇨🇳','🇫🇷','🇩🇪','🇮🇹','🇪🇸','🇧🇷','🇹🇷','🇶🇦','🇰🇼','🇴🇲','🇧🇭','🇯🇴','🇱🇧','🇮🇶','🇪🇬','🏳️','🏴','🏁','🚩','🏳️‍🌈'],
   };
 
-  var emojiPickerElement = document.getElementById('post-composer-emoji-picker');
-  var emojiGridElement = document.getElementById('post-composer-emoji-grid');
-  var emojiButton = document.getElementById('post-composer-emoji-button');
+  const emojiPickerElement = document.getElementById('post-composer-emoji-picker');
+  const emojiGridElement = document.getElementById('post-composer-emoji-grid');
+  const emojiButton = document.getElementById('post-composer-emoji-button');
 
   function renderEmojiCategory(categoryName) {
     if (!emojiGridElement) return;
-    var emojis = emojiCategories[categoryName] || [];
+    const emojis = emojiCategories[categoryName] || [];
     emojiGridElement.innerHTML = '';
-    for (var emojiIndex = 0; emojiIndex < emojis.length; emojiIndex++) {
-      var emojiItem = document.createElement('button');
+    for (let emojiIndex = 0; emojiIndex < emojis.length; emojiIndex++) {
+      let emojiItem = document.createElement('button');
       emojiItem.type = 'button';
       emojiItem.className = 'post-composer-emoji-item';
       emojiItem.textContent = emojis[emojiIndex];
@@ -352,16 +352,16 @@
   if (emojiButton && emojiPickerElement) {
     /* Toggle picker */
     emojiButton.addEventListener('click', function () {
-      var isVisible = emojiPickerElement.style.display !== 'none';
+      const isVisible = emojiPickerElement.style.display !== 'none';
       emojiPickerElement.style.display = isVisible ? 'none' : 'block';
       if (!isVisible) renderEmojiCategory('smileys');
     });
 
     /* Tab switching */
-    var emojiTabs = document.querySelectorAll('.post-composer-emoji-tab');
-    for (var tabIndex = 0; tabIndex < emojiTabs.length; tabIndex++) {
+    const emojiTabs = document.querySelectorAll('.post-composer-emoji-tab');
+    for (let tabIndex = 0; tabIndex < emojiTabs.length; tabIndex++) {
       emojiTabs[tabIndex].addEventListener('click', function () {
-        for (var removeIndex = 0; removeIndex < emojiTabs.length; removeIndex++) {
+        for (let removeIndex = 0; removeIndex < emojiTabs.length; removeIndex++) {
           emojiTabs[removeIndex].classList.remove('post-composer-emoji-tab-active');
         }
         this.classList.add('post-composer-emoji-tab-active');
@@ -371,12 +371,12 @@
 
     /* Insert emoji into textarea */
     emojiGridElement.addEventListener('click', function (event) {
-      var emojiItem = event.target.closest('.post-composer-emoji-item');
+      const emojiItem = event.target.closest('.post-composer-emoji-item');
       if (!emojiItem || !composerTextarea) return;
-      var emoji = emojiItem.getAttribute('data-emoji');
-      var cursorPosition = composerTextarea.selectionStart;
-      var textBefore = composerTextarea.value.substring(0, cursorPosition);
-      var textAfter = composerTextarea.value.substring(composerTextarea.selectionEnd);
+      const emoji = emojiItem.getAttribute('data-emoji');
+      const cursorPosition = composerTextarea.selectionStart;
+      const textBefore = composerTextarea.value.substring(0, cursorPosition);
+      const textAfter = composerTextarea.value.substring(composerTextarea.selectionEnd);
       composerTextarea.value = textBefore + emoji + textAfter;
       composerTextarea.selectionStart = composerTextarea.selectionEnd = cursorPosition + emoji.length;
       composerTextarea.focus();
@@ -385,8 +385,8 @@
   }
 
   /* ---- Schedule toggle ---- */
-  var scheduleButton = document.getElementById('post-composer-schedule-button');
-  var scheduleInput = document.getElementById('post-composer-schedule-input');
+  const scheduleButton = document.getElementById('post-composer-schedule-button');
+  const scheduleInput = document.getElementById('post-composer-schedule-input');
   if (scheduleButton && scheduleInput) {
     scheduleButton.addEventListener('click', function () {
       scheduleInput.classList.toggle('post-composer-schedule-input-hidden');
@@ -398,13 +398,13 @@
 
   /* ---- Media preview ---- */
 
-  var mediaInput = document.getElementById('post-composer-media-input');
-  var mediaPreviewContainer = document.getElementById('post-composer-media-preview');
-  var selectedMediaFiles = [];
+  const mediaInput = document.getElementById('post-composer-media-input');
+  const mediaPreviewContainer = document.getElementById('post-composer-media-preview');
+  let selectedMediaFiles = [];
 
   if (mediaInput && mediaPreviewContainer) {
     mediaInput.addEventListener('change', function () {
-      var files = Array.from(mediaInput.files);
+      const files = Array.from(mediaInput.files);
       if (selectedMediaFiles.length + files.length > 4) {
         return;
       }
@@ -421,14 +421,14 @@
 
   if (composerTextarea) {
     composerTextarea.addEventListener('paste', function (pasteEvent) {
-      var clipboardItems = (pasteEvent.clipboardData || {}).items;
+      const clipboardItems = (pasteEvent.clipboardData || {}).items;
       if (!clipboardItems) return;
 
-      var pastedImageFiles = [];
-      for (var itemIndex = 0; itemIndex < clipboardItems.length; itemIndex++) {
-        var clipboardItem = clipboardItems[itemIndex];
+      const pastedImageFiles = [];
+      for (let itemIndex = 0; itemIndex < clipboardItems.length; itemIndex++) {
+        const clipboardItem = clipboardItems[itemIndex];
         if (clipboardItem.type.indexOf('image') !== -1) {
-          var pastedFile = clipboardItem.getAsFile();
+          const pastedFile = clipboardItem.getAsFile();
           if (pastedFile) pastedImageFiles.push(pastedFile);
         }
       }
@@ -453,17 +453,17 @@
   function renderMediaPreviews() {
     if (!mediaPreviewContainer) return;
     mediaPreviewContainer.innerHTML = '';
-    for (var fileIndex = 0; fileIndex < selectedMediaFiles.length; fileIndex++) {
-      var previewItem = document.createElement('div');
+    for (let fileIndex = 0; fileIndex < selectedMediaFiles.length; fileIndex++) {
+      const previewItem = document.createElement('div');
       previewItem.className = 'post-composer-media-preview-item';
-      var currentFile = selectedMediaFiles[fileIndex];
+      const currentFile = selectedMediaFiles[fileIndex];
       if (currentFile.type.startsWith('video/')) {
-        var videoElement = document.createElement('video');
+        const videoElement = document.createElement('video');
         videoElement.src = URL.createObjectURL(currentFile);
         videoElement.className = 'post-composer-media-preview-video';
         videoElement.muted = true;
         previewItem.appendChild(videoElement);
-        var videoLabel = document.createElement('span');
+        const videoLabel = document.createElement('span');
         videoLabel.className = 'post-composer-media-preview-video-label';
         videoLabel.textContent = '▶ ভিডিও';
         previewItem.appendChild(videoLabel);
@@ -471,7 +471,7 @@
         previewItem.style.backgroundImage = 'url(' + URL.createObjectURL(currentFile) + ')';
       }
 
-      var removeButton = document.createElement('button');
+      const removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.id = 'post-composer-media-remove-' + fileIndex;
       removeButton.name = 'post_composer_media_remove_' + fileIndex;
@@ -479,7 +479,7 @@
       removeButton.textContent = '✕';
       removeButton.setAttribute('data-file-index', fileIndex);
       removeButton.addEventListener('click', function () {
-        var removeIndex = parseInt(this.getAttribute('data-file-index'), 10);
+        const removeIndex = parseInt(this.getAttribute('data-file-index'), 10);
         selectedMediaFiles.splice(removeIndex, 1);
         renderMediaPreviews();
       });
@@ -488,7 +488,7 @@
 
       /* Alt text input for images */
       if (currentFile.type.startsWith('image/')) {
-        var altTextInput = document.createElement('input');
+        const altTextInput = document.createElement('input');
         altTextInput.type = 'text';
         altTextInput.className = 'post-composer-media-alt-text-input';
         altTextInput.id = 'post-composer-media-alt-text-' + fileIndex;
@@ -506,25 +506,25 @@
 
   if (submitButton) {
     submitButton.addEventListener('click', function () {
-      var postText = (composerTextarea.value || '').trim();
+      const postText = (composerTextarea.value || '').trim();
       if (!postText && selectedMediaFiles.length === 0) return;
 
       submitButton.disabled = true;
       submitButton.textContent = 'পোস্ট হচ্ছে...';
 
       /* Build FormData (supports both text and files) */
-      var formData = new FormData();
+      const formData = new FormData();
       formData.append('post_text', postText);
-      var visibilitySelect = document.getElementById('post-composer-visibility-select');
+      const visibilitySelect = document.getElementById('post-composer-visibility-select');
       formData.append('visibility_code', visibilitySelect ? visibilitySelect.value : 'public');
-      var scheduleInputValue = document.getElementById('post-composer-schedule-input');
+      const scheduleInputValue = document.getElementById('post-composer-schedule-input');
       if (scheduleInputValue && scheduleInputValue.value) {
         formData.append('scheduled_publish_at', scheduleInputValue.value);
       }
-      var altTexts = [];
-      for (var uploadIndex = 0; uploadIndex < selectedMediaFiles.length; uploadIndex++) {
+      const altTexts = [];
+      for (let uploadIndex = 0; uploadIndex < selectedMediaFiles.length; uploadIndex++) {
         formData.append('post_media_files', selectedMediaFiles[uploadIndex]);
-        var altInput = document.getElementById('post-composer-media-alt-text-' + uploadIndex);
+        const altInput = document.getElementById('post-composer-media-alt-text-' + uploadIndex);
         altTexts.push(altInput ? altInput.value.trim() : '');
       }
       formData.append('alt_texts_json', JSON.stringify(altTexts));
@@ -534,7 +534,7 @@
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
         body: formData,
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         submitButton.disabled = false;
         submitButton.textContent = 'পোস্ট';
@@ -548,18 +548,18 @@
           submitButton.disabled = true;
           localStorage.removeItem(draftStorageKey);
 
-          var feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
-          var emptyElement = document.getElementById('post-feed-empty') || document.getElementById('pulse-feed-empty');
+          const feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
+          const emptyElement = document.getElementById('post-feed-empty') || document.getElementById('pulse-feed-empty');
           if (emptyElement) emptyElement.remove();
 
           /* Server-rendered post card HTML — single source of truth (post-card.html template) */
-          var newPostHtml = data.post_card_html || '';
+          const newPostHtml = data.post_card_html || '';
           if (!newPostHtml) { showPostComposerError('পোস্ট তৈরি হয়েছে কিন্তু প্রদর্শন করা যায়নি। পেইজ রিফ্রেশ করুন।'); return; }
 
           /* Insert with smooth fade-in animation */
-          var tempContainer = document.createElement('div');
+          const tempContainer = document.createElement('div');
           tempContainer.innerHTML = newPostHtml;
-          var newPostElement = tempContainer.firstElementChild;
+          const newPostElement = tempContainer.firstElementChild;
           newPostElement.style.opacity = '0';
           newPostElement.style.transform = 'translateY(-10px)';
           newPostElement.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
@@ -590,7 +590,7 @@
 
   /* ---- Warn before leaving with unsaved draft ---- */
 
-  var postComposerUserConfirmedLeave = false;
+  let postComposerUserConfirmedLeave = false;
   window.addEventListener('beforeunload', function (event) {
     if (composerTextarea && composerTextarea.value.trim().length > 0) {
       postComposerUserConfirmedLeave = true;
@@ -609,14 +609,14 @@
      are now in post-feed-interactions.js — shared between post and pulse pages. */
 
   /* escapeHtmlText is shared — defined in post-feed-interactions.js, exposed on window */
-  var escapeHtmlText = window.escapeHtmlText || function (text) { return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+  const escapeHtmlText = window.escapeHtmlText || function (text) { return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
 
   function showPostComposerError(errorText) {
-    var composerElement = document.getElementById('post-composer');
+    const composerElement = document.getElementById('post-composer');
     if (!composerElement) return;
-    var existingError = composerElement.querySelector('.post-composer-error-message');
+    const existingError = composerElement.querySelector('.post-composer-error-message');
     if (existingError) existingError.remove();
-    var errorElement = document.createElement('div');
+    const errorElement = document.createElement('div');
     errorElement.className = 'post-composer-error-message';
     errorElement.textContent = errorText;
     composerElement.appendChild(errorElement);

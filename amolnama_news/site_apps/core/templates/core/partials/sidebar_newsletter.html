@@ -2,10 +2,8 @@
   <h4>Newsletter</h4>
   <p>Get the best of Amolnama News in your inbox every morning.</p>
   <form onsubmit="event.preventDefault(); var emailInput = this.querySelector('input[type=email]'); if (emailInput) { emailInput.value = ''; emailInput.placeholder = 'শীঘ্রই আসছে!'; }">
-    <div class="grid-2" style="grid-template-columns:1fr auto;">
-      <input type="email" id="newsletter-email" name="email" required placeholder="you@example.com" aria-label="Email" autocomplete="email"
-             style="height:44px;border:1px solid var(--border);background:var(--card);
-                    border-radius:10px;padding:.5rem .75rem;"/>
+    <div class="grid-2 newsletter-form-row">
+      <input type="email" class="newsletter-email-input" id="newsletter-email" name="email" required placeholder="you@example.com" aria-label="Email" autocomplete="email"/>
       <button class="btn primary" type="submit">Subscribe</button>
     </div>
   </form>

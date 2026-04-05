@@ -13,29 +13,29 @@
 (function () {
   'use strict';
 
-  var picker = document.getElementById('civic-sub-type-picker');
-  var hidden = document.getElementById('civic-sub-type');
-  var dataEl = document.getElementById('issue-sub-types-data');
+  const picker = document.getElementById('civic-sub-type-picker');
+  const hidden = document.getElementById('civic-sub-type');
+  const dataEl = document.getElementById('issue-sub-types-data');
   if (!picker || !hidden || !dataEl) return;
 
-  var subTypes = [];
+  let subTypes = [];
   try { subTypes = JSON.parse(dataEl.textContent) || []; } catch (e) { return; }
 
   subTypes.forEach(function (st) {
-    var label = document.createElement('label');
+    const label = document.createElement('label');
     label.className = 'radio-card';
 
-    var input = document.createElement('input');
+    const input = document.createElement('input');
     input.type = 'radio';
     input.name = 'civic_sub_type_radio';
     input.value = st.status_id;
     input.id = 'civic_sub_type_radio-' + st.status_id;
 
-    var iconSpan = document.createElement('span');
+    const iconSpan = document.createElement('span');
     iconSpan.className = 'radio-card-icon';
     iconSpan.textContent = st.status_icon || '';
 
-    var labelSpan = document.createElement('span');
+    const labelSpan = document.createElement('span');
     labelSpan.className = 'radio-card-label';
     labelSpan.textContent = st.status_name_bn + ' (' + st.status_name_en + ')';
 
@@ -50,8 +50,8 @@
   /* Public API for form-clear */
   window.newshubCivicSubType = {
     reset: function () {
-      var radios = document.querySelectorAll('input[name="civic_sub_type_radio"]');
-      for (var i = 0; i < radios.length; i++) {
+      const radios = document.querySelectorAll('input[name="civic_sub_type_radio"]');
+      for (let i = 0; i < radios.length; i++) {
         radios[i].checked = false;
       }
       hidden.value = '';

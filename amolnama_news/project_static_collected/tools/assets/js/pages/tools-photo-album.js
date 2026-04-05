@@ -6,9 +6,9 @@
      CONSTANTS
      ================================================================ */
 
-  var DPI = 300;
+  const DPI = 300;
 
-  var PAGE_SIZES = {
+  const PAGE_SIZES = {
     '5x7':      { label: '5″ × 7″ (Portrait)',  wInch: 5,     hInch: 7     },
     '7x5':      { label: '7″ × 5″ (Landscape)',  wInch: 7,     hInch: 5     },
     '4x6':      { label: '4″ × 6″ (Portrait)',   wInch: 4,     hInch: 6     },
@@ -23,13 +23,13 @@
 
   // Generate 2-column grid layout: cols=2, rows=N, gap=2%, margin=2%
   function makeGrid(cols, rows) {
-    var mx = 2, my = 1.5;
-    var gx = 2, gy = 2;
-    var fw = (100 - mx * 2 - gx * (cols - 1)) / cols;
-    var fh = (100 - my * 2 - gy * (rows - 1)) / rows;
-    var frames = [];
-    for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
+    const mx = 2, my = 1.5;
+    const gx = 2, gy = 2;
+    let fw = (100 - mx * 2 - gx * (cols - 1)) / cols;
+    let fh = (100 - my * 2 - gy * (rows - 1)) / rows;
+    let frames = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
         frames.push({
           x: mx + c * (fw + gx),
           y: my + r * (fh + gy),
@@ -41,7 +41,7 @@
     return frames;
   }
 
-  var LAYOUTS = [
+  const LAYOUTS = [
     { id: '2h',   frames: [{ x:2,y:5,w:47,h:90 },{ x:51,y:5,w:47,h:90 }] },
     { id: '3h',   frames: [{ x:2,y:5,w:30.67,h:90 },{ x:34.67,y:5,w:30.67,h:90 },{ x:67.33,y:5,w:30.67,h:90 }] },
     { id: '1',    frames: [{ x:3,y:3,w:94,h:94 }] },
@@ -62,58 +62,58 @@
      DOM REFS
      ================================================================ */
 
-  var pageSizeSelect    = document.getElementById('album-page-size');
-  var canvasWrap        = document.getElementById('album-canvas-wrap');
-  var canvasInner       = document.getElementById('album-canvas-inner');
-  var borderSlider      = document.getElementById('album-border-slider');
-  var borderValue       = document.getElementById('album-border-value');
-  var roundSlider       = document.getElementById('album-round-slider');
-  var roundValue        = document.getElementById('album-round-value');
-  var createBtn         = document.getElementById('album-create-btn');
-  var resetBtn          = document.getElementById('album-reset-btn');
-  var swapHint          = document.getElementById('album-swap-hint');
-  var infoEl            = document.getElementById('album-info');
-  var customColorPicker = document.getElementById('album-custom-color');
-  var resultSection     = document.getElementById('album-result');
-  var resultPreview     = document.getElementById('album-result-preview');
-  var resultInfo        = document.getElementById('album-result-info');
-  var dlJpgBtn          = document.getElementById('album-dl-jpg');
-  var dlPngBtn          = document.getElementById('album-dl-png');
-  var dlPdfBtn          = document.getElementById('album-dl-pdf');
+  const pageSizeSelect    = document.getElementById('album-page-size');
+  const canvasWrap        = document.getElementById('album-canvas-wrap');
+  const canvasInner       = document.getElementById('album-canvas-inner');
+  const borderSlider      = document.getElementById('album-border-slider');
+  const borderValue       = document.getElementById('album-border-value');
+  const roundSlider       = document.getElementById('album-round-slider');
+  const roundValue        = document.getElementById('album-round-value');
+  const createBtn         = document.getElementById('album-create-btn');
+  const resetBtn          = document.getElementById('album-reset-btn');
+  const swapHint          = document.getElementById('album-swap-hint');
+  const infoEl            = document.getElementById('album-info');
+  const customColorPicker = document.getElementById('album-custom-color');
+  const resultSection     = document.getElementById('album-result');
+  const resultPreview     = document.getElementById('album-result-preview');
+  const resultInfo        = document.getElementById('album-result-info');
+  const dlJpgBtn          = document.getElementById('album-dl-jpg');
+  const dlPngBtn          = document.getElementById('album-dl-png');
+  const dlPdfBtn          = document.getElementById('album-dl-pdf');
 
   /* ================================================================
      STATE
      ================================================================ */
 
-  var currentPageSize = '5x7';
-  var currentLayout   = LAYOUTS[0];
-  var bgColor         = '#FFFFFF';
-  var borderPx        = 12;
-  var roundPx         = 0;
-  var frameImages     = [];       // Image objects or null
-  var frameObjectUrls = [];       // blob URLs to revoke
-  var framePans       = [];       // { x: 0, y: 0 } — pan offset in display px
-  var frameZooms      = [];       // per-frame zoom multiplier (1.0 = contain fit)
-  var swapSourceIdx   = -1;
-  var displayScale    = 1;
+  let currentPageSize = '5x7';
+  let currentLayout   = LAYOUTS[0];
+  let bgColor         = '#FFFFFF';
+  let borderPx        = 12;
+  let roundPx         = 0;
+  let frameImages     = [];       // Image objects or null
+  let frameObjectUrls = [];       // blob URLs to revoke
+  let framePans       = [];       // { x: 0, y: 0 } — pan offset in display px
+  let frameZooms      = [];       // per-frame zoom multiplier (1.0 = contain fit)
+  let swapSourceIdx   = -1;
+  let displayScale    = 1;
 
   // Drag-to-reposition state
-  var panDragIdx      = -1;
-  var panDragStartX   = 0;
-  var panDragStartY   = 0;
-  var panDragOrigX    = 0;
-  var panDragOrigY    = 0;
-  var panRafPending   = false;  // rAF throttle for pan moves
+  let panDragIdx      = -1;
+  let panDragStartX   = 0;
+  let panDragStartY   = 0;
+  let panDragOrigX    = 0;
+  let panDragOrigY    = 0;
+  let panRafPending   = false;  // rAF throttle for pan moves
 
   // Keyboard/pinch zoom state
-  var activeFrameIdx  = -1;    // last hovered/touched frame (for Ctrl+/- zoom)
-  var pinchStartDist  = 0;     // initial pinch distance
-  var pinchStartZoom  = 1;     // zoom at pinch start
-  var pinchFrameIdx   = -1;    // frame being pinch-zoomed
-  var pinchRafPending = false; // rAF throttle for pinch rebuilds
+  let activeFrameIdx  = -1;    // last hovered/touched frame (for Ctrl+/- zoom)
+  let pinchStartDist  = 0;     // initial pinch distance
+  let pinchStartZoom  = 1;     // zoom at pinch start
+  let pinchFrameIdx   = -1;    // frame being pinch-zoomed
+  let pinchRafPending = false; // rAF throttle for pinch rebuilds
 
   // Result
-  var resultCanvas    = null;
+  let resultCanvas    = null;
 
   /* ================================================================
      INIT
@@ -133,16 +133,16 @@
      ================================================================ */
 
   function buildLayoutButtons() {
-    var btns = document.querySelectorAll('.album-layout-btn');
-    for (var i = 0; i < btns.length; i++) {
+    const btns = document.querySelectorAll('.album-layout-btn');
+    for (let i = 0; i < btns.length; i++) {
       (function (btn) {
         btn.addEventListener('click', function () {
-          var id = btn.getAttribute('data-layout');
-          for (var j = 0; j < LAYOUTS.length; j++) {
+          const id = btn.getAttribute('data-layout');
+          for (let j = 0; j < LAYOUTS.length; j++) {
             if (LAYOUTS[j].id === id) { currentLayout = LAYOUTS[j]; break; }
           }
-          var all = document.querySelectorAll('.album-layout-btn');
-          for (var k = 0; k < all.length; k++) all[k].classList.remove('active');
+          let all = document.querySelectorAll('.album-layout-btn');
+          for (let k = 0; k < all.length; k++) all[k].classList.remove('active');
           btn.classList.add('active');
           hideResult();
           applyLayout();
@@ -165,11 +165,11 @@
   }
 
   function getPagePixels() {
-    var ps = PAGE_SIZES[currentPageSize];
-    var w = Math.round(ps.wInch * DPI);
-    var h = Math.round(ps.hInch * DPI);
+    let ps = PAGE_SIZES[currentPageSize];
+    let w = Math.round(ps.wInch * DPI);
+    let h = Math.round(ps.hInch * DPI);
     // For tall multi-row layouts, multiply height by ratio
-    var hr = currentLayout.heightRatio || 1;
+    const hr = currentLayout.heightRatio || 1;
     return { w: w, h: Math.round(h * hr) };
   }
 
@@ -178,12 +178,12 @@
      ================================================================ */
 
   function bindBgSwatches() {
-    var swatches = document.querySelectorAll('.album-swatch');
-    for (var i = 0; i < swatches.length; i++) {
+    const swatches = document.querySelectorAll('.album-swatch');
+    for (let i = 0; i < swatches.length; i++) {
       (function (sw) {
         sw.addEventListener('click', function () {
-          var all = document.querySelectorAll('.album-swatch');
-          for (var j = 0; j < all.length; j++) all[j].classList.remove('active');
+          let all = document.querySelectorAll('.album-swatch');
+          for (let j = 0; j < all.length; j++) all[j].classList.remove('active');
           sw.classList.add('active');
           bgColor = sw.getAttribute('data-color');
           if (customColorPicker) customColorPicker.value = bgColor;
@@ -197,8 +197,8 @@
     if (customColorPicker) {
       customColorPicker.addEventListener('input', function () {
         bgColor = this.value;
-        var all = document.querySelectorAll('.album-swatch');
-        for (var j = 0; j < all.length; j++) all[j].classList.remove('active');
+        const all = document.querySelectorAll('.album-swatch');
+        for (let j = 0; j < all.length; j++) all[j].classList.remove('active');
         applyBackground();
         hideResult();
       });
@@ -233,34 +233,34 @@
      ================================================================ */
 
   function applyLayout() {
-    var pp = getPagePixels();
-    var containerW = canvasWrap.parentElement.offsetWidth;
-    var maxDisplayW = Math.min(containerW, 800);
+    let pp = getPagePixels();
+    let containerW = canvasWrap.parentElement.offsetWidth;
+    let maxDisplayW = Math.min(containerW, 800);
     displayScale = maxDisplayW / pp.w;
-    var displayW = Math.round(pp.w * displayScale);
-    var displayH = Math.round(pp.h * displayScale);
+    let displayW = Math.round(pp.w * displayScale);
+    let displayH = Math.round(pp.h * displayScale);
 
     canvasWrap.style.width = displayW + 'px';
     canvasWrap.style.height = displayH + 'px';
     applyBackground();
 
     // Preserve existing images
-    var oldImages = frameImages.slice();
-    var oldUrls = frameObjectUrls.slice();
-    var oldPans = framePans.slice();
-    var oldZooms = frameZooms.slice();
-    var frameCount = currentLayout.frames.length;
+    const oldImages = frameImages.slice();
+    const oldUrls = frameObjectUrls.slice();
+    const oldPans = framePans.slice();
+    const oldZooms = frameZooms.slice();
+    let frameCount = currentLayout.frames.length;
     frameImages = [];
     frameObjectUrls = [];
     framePans = [];
     frameZooms = [];
-    for (var i = 0; i < frameCount; i++) {
+    for (let i = 0; i < frameCount; i++) {
       frameImages[i] = (i < oldImages.length) ? oldImages[i] : null;
       frameObjectUrls[i] = (i < oldUrls.length) ? oldUrls[i] : null;
       framePans[i] = (i < oldPans.length) ? oldPans[i] : { x: 0, y: 0 };
       frameZooms[i] = (i < oldZooms.length) ? oldZooms[i] : 1;
     }
-    for (var j = frameCount; j < oldUrls.length; j++) {
+    for (let j = frameCount; j < oldUrls.length; j++) {
       if (oldUrls[j]) URL.revokeObjectURL(oldUrls[j]);
     }
 
@@ -270,7 +270,7 @@
     updateSwapHint('');
 
     canvasInner.innerHTML = '';
-    for (var fi = 0; fi < frameCount; fi++) {
+    for (let fi = 0; fi < frameCount; fi++) {
       createFrameElement(fi, displayW, displayH);
     }
 
@@ -283,17 +283,17 @@
      ================================================================ */
 
   function createFrameElement(idx, displayW, displayH) {
-    var fd = currentLayout.frames[idx];
-    var padScale = borderPx * displayScale;
+    let fd = currentLayout.frames[idx];
+    let padScale = borderPx * displayScale;
 
-    var fx = (fd.x / 100) * displayW + padScale;
-    var fy = (fd.y / 100) * displayH + padScale;
-    var fw = (fd.w / 100) * displayW - padScale * 2;
-    var fh = (fd.h / 100) * displayH - padScale * 2;
+    const fx = (fd.x / 100) * displayW + padScale;
+    const fy = (fd.y / 100) * displayH + padScale;
+    let fw = (fd.w / 100) * displayW - padScale * 2;
+    let fh = (fd.h / 100) * displayH - padScale * 2;
     if (fw < 40) fw = 40;
     if (fh < 40) fh = 40;
 
-    var frame = document.createElement('div');
+    let frame = document.createElement('div');
     frame.className = 'album-frame';
     frame.setAttribute('data-idx', idx);
     frame.style.left = fx + 'px';
@@ -302,7 +302,7 @@
     frame.style.height = fh + 'px';
     frame.style.borderRadius = roundPx + 'px';
 
-    var fileInput = document.createElement('input');
+    const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.id = 'album-frame-file-' + idx;
     fileInput.name = 'album_frame_file_' + idx;
@@ -310,26 +310,26 @@
     frame.appendChild(fileInput);
 
     if (frameImages[idx]) {
-      var zoom = frameZooms[idx] || 1;
+      let zoom = frameZooms[idx] || 1;
 
       // Positioned image — manual absolute position for pan + zoom
-      var img = document.createElement('img');
+      let img = document.createElement('img');
       img.src = frameImages[idx].src;
       img.draggable = false;
       img.style.borderRadius = Math.max(0, roundPx - 2) + 'px';
 
       // Calculate cover dimensions × zoom
-      var con = getContainDimensions(frameImages[idx], fw, fh);
-      var zoomedW = con.w * zoom;
-      var zoomedH = con.h * zoom;
+      let con = getContainDimensions(frameImages[idx], fw, fh);
+      let zoomedW = con.w * zoom;
+      let zoomedH = con.h * zoom;
       img.style.width = zoomedW + 'px';
       img.style.height = zoomedH + 'px';
       img.style.position = 'absolute';
 
       // Apply pan with clamping
-      var pan = framePans[idx];
-      var clampedX = clampPan(pan.x, zoomedW, fw);
-      var clampedY = clampPan(pan.y, zoomedH, fh);
+      let pan = framePans[idx];
+      const clampedX = clampPan(pan.x, zoomedW, fw);
+      const clampedY = clampPan(pan.y, zoomedH, fh);
       img.style.left = clampedX + 'px';
       img.style.top = clampedY + 'px';
 
@@ -337,17 +337,17 @@
       frame.classList.add('has-image');
 
       // Action toolbar (top-right, hover): swap, remove
-      var actionBar = document.createElement('div');
+      const actionBar = document.createElement('div');
       actionBar.className = 'album-frame-toolbar';
 
-      var swapBtn = document.createElement('button');
+      const swapBtn = document.createElement('button');
       swapBtn.className = 'album-frame-tool-btn';
       swapBtn.type = 'button';
       swapBtn.title = 'Swap';
       swapBtn.textContent = '↔';
       actionBar.appendChild(swapBtn);
 
-      var removeBtn = document.createElement('button');
+      const removeBtn = document.createElement('button');
       removeBtn.className = 'album-frame-tool-btn';
       removeBtn.type = 'button';
       removeBtn.title = 'Remove';
@@ -357,17 +357,17 @@
       frame.appendChild(actionBar);
 
       // Zoom toolbar (bottom-right, always visible)
-      var zoomBar = document.createElement('div');
+      const zoomBar = document.createElement('div');
       zoomBar.className = 'album-frame-zoom-bar';
 
-      var zoomOutBtn = document.createElement('button');
+      const zoomOutBtn = document.createElement('button');
       zoomOutBtn.className = 'album-frame-tool-btn';
       zoomOutBtn.type = 'button';
       zoomOutBtn.title = 'Zoom out';
       zoomOutBtn.textContent = '−';
       zoomBar.appendChild(zoomOutBtn);
 
-      var zoomInBtn = document.createElement('button');
+      const zoomInBtn = document.createElement('button');
       zoomInBtn.className = 'album-frame-tool-btn';
       zoomInBtn.type = 'button';
       zoomInBtn.title = 'Zoom in';
@@ -378,7 +378,7 @@
 
       // Zoom indicator (bottom-left, only if not 1x)
       if (zoom !== 1) {
-        var zoomBadge = document.createElement('span');
+        const zoomBadge = document.createElement('span');
         zoomBadge.className = 'album-frame-zoom-badge';
         zoomBadge.textContent = Math.round(zoom * 100) + '%';
         frame.appendChild(zoomBadge);
@@ -404,7 +404,7 @@
       // Mouse wheel zoom on frame (also handles Ctrl+wheel)
       frame.addEventListener('wheel', function (e) {
         e.preventDefault();
-        var delta = e.deltaY < 0 ? 0.05 : -0.05;
+        const delta = e.deltaY < 0 ? 0.05 : -0.05;
         applyFrameZoom(idx, delta);
       }, { passive: false });
 
@@ -417,7 +417,7 @@
       // Drag to reposition + pinch-to-zoom
       bindFramePan(frame, idx);
     } else {
-      var ph = document.createElement('div');
+      const ph = document.createElement('div');
       ph.className = 'album-frame-placeholder';
       ph.innerHTML = '<span class="album-frame-placeholder-icon">🖼️</span>' +
                      '<span class="album-frame-placeholder-text">Drop or Click</span>';
@@ -453,7 +453,7 @@
       e.preventDefault();
       frame.classList.remove('dragover');
       if (swapSourceIdx >= 0) { completeSwap(idx); return; }
-      var files = e.dataTransfer.files;
+      const files = e.dataTransfer.files;
       if (files && files[0] && files[0].type.indexOf('image') === 0) {
         loadImageToFrame(idx, files[0]);
       }
@@ -468,11 +468,11 @@
 
   // Contain-fit: entire image visible within frame (may have gaps)
   function getContainDimensions(img, frameW, frameH) {
-    var iw = img.naturalWidth;
-    var ih = img.naturalHeight;
-    var frameRatio = frameW / frameH;
-    var imgRatio = iw / ih;
-    var w, h;
+    let iw = img.naturalWidth;
+    let ih = img.naturalHeight;
+    let frameRatio = frameW / frameH;
+    let imgRatio = iw / ih;
+    let w, h;
     if (imgRatio > frameRatio) {
       // Image wider → width fits, height has gaps
       w = frameW;
@@ -487,11 +487,11 @@
 
   // Cover-fit: frame fully filled (image may overflow)
   function getCoverDimensions(img, frameW, frameH) {
-    var iw = img.naturalWidth;
-    var ih = img.naturalHeight;
-    var frameRatio = frameW / frameH;
-    var imgRatio = iw / ih;
-    var w, h;
+    let iw = img.naturalWidth;
+    let ih = img.naturalHeight;
+    const frameRatio = frameW / frameH;
+    const imgRatio = iw / ih;
+    let w, h;
     if (imgRatio > frameRatio) {
       h = frameH;
       w = frameH * imgRatio;
@@ -503,14 +503,14 @@
   }
 
   function clampPan(offset, imgDim, frameDim) {
-    var center = (frameDim - imgDim) / 2;
+    const center = (frameDim - imgDim) / 2;
     if (imgDim <= frameDim) {
       // Image smaller than frame — center it, no panning allowed
       return center;
     }
     // Image larger than frame — allow panning within bounds
-    var min = frameDim - imgDim;
-    var max = 0;
+    const min = frameDim - imgDim;
+    const max = 0;
     return Math.max(min, Math.min(max, center + offset));
   }
 
@@ -519,7 +519,7 @@
      ================================================================ */
 
   function applyFrameZoom(idx, delta) {
-    var newZoom = (frameZooms[idx] || 1) + delta;
+    let newZoom = (frameZooms[idx] || 1) + delta;
     newZoom = Math.max(1, Math.min(5, Math.round(newZoom * 100) / 100));
     frameZooms[idx] = newZoom;
     hideResult();
@@ -528,27 +528,27 @@
 
   // In-place zoom update — no DOM removal, just update img size/position + badge
   function updateFrameZoomVisual(idx) {
-    var zoom = frameZooms[idx] || 1;
-    var frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
+    const zoom = frameZooms[idx] || 1;
+    let frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
     if (!frame || !frameImages[idx]) return;
-    var img = frame.querySelector('img');
+    let img = frame.querySelector('img');
     if (!img) return;
 
-    var fw = frame.offsetWidth;
-    var fh = frame.offsetHeight;
+    let fw = frame.offsetWidth;
+    let fh = frame.offsetHeight;
     // Base = contain-fit (whole image visible), zoom multiplies from there
-    var con = getContainDimensions(frameImages[idx], fw, fh);
-    var zoomedW = con.w * zoom;
-    var zoomedH = con.h * zoom;
+    const con = getContainDimensions(frameImages[idx], fw, fh);
+    const zoomedW = con.w * zoom;
+    const zoomedH = con.h * zoom;
     img.style.width = zoomedW + 'px';
     img.style.height = zoomedH + 'px';
 
-    var pan = framePans[idx];
+    const pan = framePans[idx];
     img.style.left = clampPan(pan.x, zoomedW, fw) + 'px';
     img.style.top = clampPan(pan.y, zoomedH, fh) + 'px';
 
     // Update zoom badge
-    var badge = frame.querySelector('.album-frame-zoom-badge');
+    let badge = frame.querySelector('.album-frame-zoom-badge');
     if (zoom !== 1) {
       if (!badge) {
         badge = document.createElement('span');
@@ -602,8 +602,8 @@
   }
 
   function getTouchDistance(touches) {
-    var dx = touches[0].clientX - touches[1].clientX;
-    var dy = touches[0].clientY - touches[1].clientY;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
@@ -614,7 +614,7 @@
     panDragOrigX = framePans[idx].x;
     panDragOrigY = framePans[idx].y;
 
-    var frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
+    let frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
     if (frame) frame.classList.add('panning');
   }
 
@@ -629,14 +629,14 @@
       requestAnimationFrame(function () {
         panRafPending = false;
         if (panDragIdx < 0) return;
-        var frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
+        let frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
         if (!frame) return;
-        var img = frame.querySelector('img');
+        let img = frame.querySelector('img');
         if (!img) return;
-        var fw = frame.offsetWidth;
-        var fh = frame.offsetHeight;
-        var imgW = parseFloat(img.style.width);
-        var imgH = parseFloat(img.style.height);
+        const fw = frame.offsetWidth;
+        const fh = frame.offsetHeight;
+        const imgW = parseFloat(img.style.width);
+        const imgH = parseFloat(img.style.height);
         img.style.left = clampPan(framePans[panDragIdx].x, imgW, fw) + 'px';
         img.style.top = clampPan(framePans[panDragIdx].y, imgH, fh) + 'px';
       });
@@ -645,7 +645,7 @@
 
   function endPanDrag() {
     if (panDragIdx >= 0) {
-      var frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
+      const frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
       if (frame) frame.classList.remove('panning');
       hideResult();
     }
@@ -661,9 +661,9 @@
     // Pinch-to-zoom (two fingers on a frame) — rAF throttled, in-place update
     if (pinchFrameIdx >= 0 && e.touches.length === 2) {
       e.preventDefault();
-      var dist = getTouchDistance(e.touches);
-      var scale = dist / pinchStartDist;
-      var newZoom = Math.max(1, Math.min(3, Math.round(pinchStartZoom * scale * 100) / 100));
+      const dist = getTouchDistance(e.touches);
+      const scale = dist / pinchStartDist;
+      const newZoom = Math.max(1, Math.min(3, Math.round(pinchStartZoom * scale * 100) / 100));
       if (newZoom !== frameZooms[pinchFrameIdx]) {
         frameZooms[pinchFrameIdx] = newZoom;
         if (!pinchRafPending) {
@@ -713,10 +713,10 @@
      ================================================================ */
 
   function applyFrameStyles() {
-    var frames = canvasInner.querySelectorAll('.album-frame');
-    for (var i = 0; i < frames.length; i++) {
+    let frames = canvasInner.querySelectorAll('.album-frame');
+    for (let i = 0; i < frames.length; i++) {
       frames[i].style.borderRadius = roundPx + 'px';
-      var img = frames[i].querySelector('img');
+      let img = frames[i].querySelector('img');
       if (img) img.style.borderRadius = Math.max(0, roundPx - 2) + 'px';
     }
   }
@@ -731,11 +731,11 @@
       frameObjectUrls[idx] = null;
     }
 
-    var url = URL.createObjectURL(file);
+    let url = URL.createObjectURL(file);
     frameObjectUrls[idx] = url;
 
     // Use createImageBitmap for non-blocking decode when available
-    var img = new Image();
+    const img = new Image();
     img.onload = function () {
       if (typeof createImageBitmap === 'function') {
         // Decode off main thread, then close bitmap to free GPU memory
@@ -765,25 +765,25 @@
   }
 
   function rebuildFrame(idx) {
-    var pp = getPagePixels();
-    var containerW = canvasWrap.parentElement.offsetWidth;
-    var maxDisplayW = Math.min(containerW, 800);
+    let pp = getPagePixels();
+    const containerW = canvasWrap.parentElement.offsetWidth;
+    const maxDisplayW = Math.min(containerW, 800);
     displayScale = maxDisplayW / pp.w;
-    var displayW = Math.round(pp.w * displayScale);
-    var displayH = Math.round(pp.h * displayScale);
+    const displayW = Math.round(pp.w * displayScale);
+    const displayH = Math.round(pp.h * displayScale);
 
-    var oldFrame = canvasInner.querySelector('[data-idx="' + idx + '"]');
+    const oldFrame = canvasInner.querySelector('[data-idx="' + idx + '"]');
     if (oldFrame) oldFrame.remove();
 
     createFrameElement(idx, displayW, displayH);
 
     // Re-sort by data-idx
-    var allFrames = canvasInner.querySelectorAll('.album-frame');
-    var sorted = Array.prototype.slice.call(allFrames);
+    const allFrames = canvasInner.querySelectorAll('.album-frame');
+    const sorted = Array.prototype.slice.call(allFrames);
     sorted.sort(function (a, b) {
       return parseInt(a.getAttribute('data-idx'), 10) - parseInt(b.getAttribute('data-idx'), 10);
     });
-    for (var i = 0; i < sorted.length; i++) canvasInner.appendChild(sorted[i]);
+    for (let i = 0; i < sorted.length; i++) canvasInner.appendChild(sorted[i]);
   }
 
   /* ================================================================
@@ -809,10 +809,10 @@
 
   function startSwap(idx) {
     swapSourceIdx = idx;
-    var frames = canvasInner.querySelectorAll('.album-frame');
-    for (var i = 0; i < frames.length; i++) {
+    let frames = canvasInner.querySelectorAll('.album-frame');
+    for (let i = 0; i < frames.length; i++) {
       frames[i].classList.remove('swap-source', 'swap-target');
-      var fi = parseInt(frames[i].getAttribute('data-idx'), 10);
+      let fi = parseInt(frames[i].getAttribute('data-idx'), 10);
       if (fi === idx) frames[i].classList.add('swap-source');
       else frames[i].classList.add('swap-target');
     }
@@ -823,11 +823,11 @@
     if (swapSourceIdx < 0 || swapSourceIdx === targetIdx) { cancelSwap(); return; }
 
     // Swap images, URLs, pans, and zooms
-    var srcIdx = swapSourceIdx;
-    var tmpImg = frameImages[srcIdx];
-    var tmpUrl = frameObjectUrls[srcIdx];
-    var tmpPan = framePans[srcIdx];
-    var tmpZoom = frameZooms[srcIdx];
+    const srcIdx = swapSourceIdx;
+    const tmpImg = frameImages[srcIdx];
+    const tmpUrl = frameObjectUrls[srcIdx];
+    const tmpPan = framePans[srcIdx];
+    const tmpZoom = frameZooms[srcIdx];
     frameImages[srcIdx] = frameImages[targetIdx];
     frameObjectUrls[srcIdx] = frameObjectUrls[targetIdx];
     framePans[srcIdx] = framePans[targetIdx];
@@ -845,8 +845,8 @@
 
   function cancelSwap() {
     swapSourceIdx = -1;
-    var frames = canvasInner.querySelectorAll('.album-frame');
-    for (var i = 0; i < frames.length; i++) {
+    const frames = canvasInner.querySelectorAll('.album-frame');
+    for (let i = 0; i < frames.length; i++) {
       frames[i].classList.remove('swap-source', 'swap-target');
     }
     updateSwapHint('');
@@ -879,24 +879,24 @@
 
     // Yield to let UI show the loading state, then render frame-by-frame
     setTimeout(function () {
-      var pp = getPagePixels();
-      var canvas = document.createElement('canvas');
+      let pp = getPagePixels();
+      const canvas = document.createElement('canvas');
       canvas.width = pp.w;
       canvas.height = pp.h;
-      var ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
 
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, pp.w, pp.h);
 
-      var wrapW = canvasWrap.offsetWidth || 1;
-      var wrapH = canvasWrap.offsetHeight || 1;
-      var printScale = pp.w / wrapW;
-      var borderPrint = Math.round(borderPx * displayScale * printScale);
-      var roundPrint = Math.round(roundPx * displayScale * printScale);
-      var padScale = borderPx * displayScale;
+      const wrapW = canvasWrap.offsetWidth || 1;
+      const wrapH = canvasWrap.offsetHeight || 1;
+      const printScale = pp.w / wrapW;
+      const borderPrint = Math.round(borderPx * displayScale * printScale);
+      const roundPrint = Math.round(roundPx * displayScale * printScale);
+      const padScale = borderPx * displayScale;
 
-      var frameCount = currentLayout.frames.length;
-      var fi = 0;
+      const frameCount = currentLayout.frames.length;
+      let fi = 0;
 
       // Draw one frame per rAF tick to prevent jank on large images
       function drawNextFrame() {
@@ -909,16 +909,16 @@
         }
 
         if (frameImages[fi]) {
-          var fd = currentLayout.frames[fi];
-          var dfw = (fd.w / 100) * wrapW - padScale * 2;
-          var dfh = (fd.h / 100) * wrapH - padScale * 2;
+          const fd = currentLayout.frames[fi];
+          let dfw = (fd.w / 100) * wrapW - padScale * 2;
+          let dfh = (fd.h / 100) * wrapH - padScale * 2;
           if (dfw < 40) dfw = 40;
           if (dfh < 40) dfh = 40;
 
-          var pfx = (fd.x / 100) * pp.w + borderPrint;
-          var pfy = (fd.y / 100) * pp.h + borderPrint;
-          var pfw = (fd.w / 100) * pp.w - borderPrint * 2;
-          var pfh = (fd.h / 100) * pp.h - borderPrint * 2;
+          const pfx = (fd.x / 100) * pp.w + borderPrint;
+          const pfy = (fd.y / 100) * pp.h + borderPrint;
+          let pfw = (fd.w / 100) * pp.w - borderPrint * 2;
+          let pfh = (fd.h / 100) * pp.h - borderPrint * 2;
           if (pfw < 1) pfw = 1;
           if (pfh < 1) pfh = 1;
 
@@ -942,25 +942,25 @@
   }
 
   function drawCoverWithPan(ctx, img, dx, dy, dw, dh, pan, zoom, displayFrameW, displayFrameH) {
-    var iw = img.naturalWidth;
-    var ih = img.naturalHeight;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
 
     // Calculate contain-fit dimensions in display space
-    var displayCon = getContainDimensions(img, displayFrameW, displayFrameH);
-    var zoomedDisplayW = displayCon.w * zoom;
-    var zoomedDisplayH = displayCon.h * zoom;
+    const displayCon = getContainDimensions(img, displayFrameW, displayFrameH);
+    const zoomedDisplayW = displayCon.w * zoom;
+    const zoomedDisplayH = displayCon.h * zoom;
 
     // Scale ratio from display frame to print frame
-    var scaleX = dw / displayFrameW;
-    var scaleY = dh / displayFrameH;
+    const scaleX = dw / displayFrameW;
+    const scaleY = dh / displayFrameH;
 
     // Calculate where the image sits in the print frame
-    var printImgW = zoomedDisplayW * scaleX;
-    var printImgH = zoomedDisplayH * scaleY;
+    const printImgW = zoomedDisplayW * scaleX;
+    const printImgH = zoomedDisplayH * scaleY;
 
     // Apply pan (clamped same way as display)
-    var printLeft = clampPan(pan.x * scaleX, printImgW, dw);
-    var printTop  = clampPan(pan.y * scaleY, printImgH, dh);
+    const printLeft = clampPan(pan.x * scaleX, printImgW, dw);
+    const printTop  = clampPan(pan.y * scaleY, printImgH, dh);
 
     // Draw the entire source image into the calculated print rectangle
     // Source: full image. Dest: positioned within the frame.
@@ -992,15 +992,15 @@
     resultCanvas.style.maxWidth = '100%';
     resultCanvas.style.height = 'auto';
 
-    var pp = getPagePixels();
-    var ps = PAGE_SIZES[currentPageSize];
+    let pp = getPagePixels();
+    let ps = PAGE_SIZES[currentPageSize];
     resultInfo.textContent = ps.label + ' — ' + pp.w + '×' + pp.h + 'px @ ' + DPI + ' DPI';
-    resultSection.style.display = '';
+    resultSection.classList.remove('display-hidden');
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function hideResult() {
-    resultSection.style.display = 'none';
+    resultSection.classList.add('display-hidden');
     resultCanvas = null;
     resultPreview.innerHTML = '';
   }
@@ -1012,8 +1012,8 @@
   function downloadAs(format) {
     if (!resultCanvas) return;
 
-    var ps = PAGE_SIZES[currentPageSize];
-    var baseName = 'album-' + ps.wInch + 'x' + ps.hInch;
+    let ps = PAGE_SIZES[currentPageSize];
+    const baseName = 'album-' + ps.wInch + 'x' + ps.hInch;
 
     if (format === 'jpg') {
       resultCanvas.toBlob(function (blob) {
@@ -1029,22 +1029,22 @@
   }
 
   function downloadAsPdf(baseName) {
-    var jsPDF = window.jspdf && window.jspdf.jsPDF;
+    const jsPDF = window.jspdf && window.jspdf.jsPDF;
     if (!jsPDF) {
       infoEl.textContent = 'PDF library not loaded — try JPG or PNG instead';
       return;
     }
 
-    var ps = PAGE_SIZES[currentPageSize];
-    var orientation = ps.wInch > ps.hInch ? 'l' : 'p';
-    var pdfW = Math.min(ps.wInch, ps.hInch);
-    var pdfH = Math.max(ps.wInch, ps.hInch);
+    let ps = PAGE_SIZES[currentPageSize];
+    const orientation = ps.wInch > ps.hInch ? 'l' : 'p';
+    const pdfW = Math.min(ps.wInch, ps.hInch);
+    const pdfH = Math.max(ps.wInch, ps.hInch);
 
-    var doc = new jsPDF({ orientation: orientation, unit: 'in', format: [pdfW, pdfH] });
-    var imgData = resultCanvas.toDataURL('image/jpeg', 0.95);
+    const doc = new jsPDF({ orientation: orientation, unit: 'in', format: [pdfW, pdfH] });
+    const imgData = resultCanvas.toDataURL('image/jpeg', 0.95);
 
-    var pageW = orientation === 'l' ? pdfH : pdfW;
-    var pageH = orientation === 'l' ? pdfW : pdfH;
+    const pageW = orientation === 'l' ? pdfH : pdfW;
+    const pageH = orientation === 'l' ? pdfW : pdfH;
     doc.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
 
     doc.save(baseName + '.pdf');
@@ -1052,8 +1052,8 @@
 
   function triggerDownload(blob, filename) {
     if (!blob) return;
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -1067,7 +1067,7 @@
      ================================================================ */
 
   function resetAll() {
-    for (var i = 0; i < frameObjectUrls.length; i++) {
+    for (let i = 0; i < frameObjectUrls.length; i++) {
       if (frameObjectUrls[i]) URL.revokeObjectURL(frameObjectUrls[i]);
     }
     frameImages = [];
@@ -1085,8 +1085,8 @@
      ================================================================ */
 
   function updateCreateState() {
-    var hasAny = false;
-    for (var i = 0; i < frameImages.length; i++) {
+    let hasAny = false;
+    for (let i = 0; i < frameImages.length; i++) {
       if (frameImages[i]) { hasAny = true; break; }
     }
     createBtn.disabled = !hasAny;
@@ -1094,8 +1094,8 @@
 
   function updateInfo(msg) {
     if (msg) { infoEl.textContent = msg; return; }
-    var pp = getPagePixels();
-    var ps = PAGE_SIZES[currentPageSize];
+    const pp = getPagePixels();
+    const ps = PAGE_SIZES[currentPageSize];
     infoEl.textContent = ps.label + ' — ' + pp.w + '×' + pp.h + 'px @ ' + DPI + ' DPI — ' +
                          currentLayout.frames.length + ' frame' + (currentLayout.frames.length > 1 ? 's' : '');
   }
@@ -1104,7 +1104,7 @@
      WINDOW RESIZE
      ================================================================ */
 
-  var resizeTimer;
+  let resizeTimer;
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () { applyLayout(); }, 200);

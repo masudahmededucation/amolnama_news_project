@@ -18,44 +18,45 @@
   if (!uploadForm) return;
 
   // Init Quill rich text editor for description
-  var descriptionEditor = window.initQuillEditor ? window.initQuillEditor('quill-beauty-hub-description', 'beauty-hub-description-bn', {
+  const descriptionEditor = window.initQuillEditor ? window.initQuillEditor('quill-beauty-hub-description', 'beauty-hub-description-bn', {
     placeholder: 'ছবি বা ভিডিওর বিবরণ... (Describe the photo or video...)',
     minHeight: '120px',
   }) : null;
 
   // Show/hide festival fields based on category
   categorySelect.addEventListener("change", function() {
-    var selectedText = categorySelect.options[categorySelect.selectedIndex]?.text || "";
-    festivalFields.style.display = (selectedText.toLowerCase().includes("festival") || selectedText.includes("উৎসব")) ? "block" : "none";
+    const selectedText = categorySelect.options[categorySelect.selectedIndex]?.text || "";
+    const isFestival = selectedText.toLowerCase().includes("festival") || selectedText.includes("উৎসব");
+    festivalFields.classList.toggle("display-hidden", !isFestival);
   });
 
   // File preview
   fileInput.addEventListener("change", function() {
-    var file = fileInput.files[0];
-    if (!file) { filePreviewWrapper.style.display = "none"; return; }
+    let file = fileInput.files[0];
+    if (!file) { filePreviewWrapper.classList.add("display-hidden"); return; }
 
-    filePreviewWrapper.style.display = "block";
-    imagePreview.style.display = "none";
-    videoPreview.style.display = "none";
-    uploadError.style.display = "none";
+    filePreviewWrapper.classList.remove("display-hidden");
+    imagePreview.classList.add("display-hidden");
+    videoPreview.classList.add("display-hidden");
+    uploadError.classList.add("display-hidden");
 
     if (file.type.startsWith("image/")) {
-      var objectUrl = URL.createObjectURL(file);
+      const objectUrl = URL.createObjectURL(file);
       imagePreview.src = objectUrl;
-      imagePreview.style.display = "block";
+      imagePreview.classList.remove("display-hidden");
     } else if (file.type.startsWith("video/")) {
       if (file.size > 50 * 1024 * 1024) {
         uploadError.textContent = "ভিডিও ৫০MB এর বেশি হতে পারবে না।";
-        uploadError.style.display = "block";
+        uploadError.classList.remove("display-hidden");
         return;
       }
-      var videoObjectUrl = URL.createObjectURL(file);
+      const videoObjectUrl = URL.createObjectURL(file);
       videoPreview.src = videoObjectUrl;
-      videoPreview.style.display = "block";
+      videoPreview.classList.remove("display-hidden");
       videoPreview.onloadedmetadata = function() {
         if (videoPreview.duration > 40) {
           uploadError.textContent = "ভিডিও সর্বোচ্চ ৪০ সেকেন্ড হতে পারবে।";
-          uploadError.style.display = "block";
+          uploadError.classList.remove("display-hidden");
         }
       };
     }
@@ -64,16 +65,16 @@
   // Upload
   uploadForm.addEventListener("submit", function(event) {
     event.preventDefault();
-    uploadError.style.display = "none";
+    uploadError.classList.add("display-hidden");
 
-    var file = fileInput.files[0];
-    if (!file) { uploadError.textContent = "ফাইল নির্বাচন করুন"; uploadError.style.display = "block"; return; }
-    if (!categorySelect.value) { uploadError.textContent = "ধরন নির্বাচন করুন"; uploadError.style.display = "block"; return; }
+    const file = fileInput.files[0];
+    if (!file) { uploadError.textContent = "ফাইল নির্বাচন করুন"; uploadError.classList.remove("display-hidden"); return; }
+    if (!categorySelect.value) { uploadError.textContent = "ধরন নির্বাচন করুন"; uploadError.classList.remove("display-hidden"); return; }
 
     // Sync Quill content to hidden textarea
     if (descriptionEditor) descriptionEditor.syncToHidden();
 
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append("file", file);
     formData.append("link_media_category_id", categorySelect.value);
     formData.append("media_title_bn", (document.getElementById("beauty-hub-title-bn").value || "").trim());
@@ -87,40 +88,40 @@
     formData.append("is_yearly_event", document.getElementById("beauty-hub-yearly-event").checked ? "1" : "0");
 
     submitButton.disabled = true;
-    uploadProgress.style.display = "block";
+    uploadProgress.classList.remove("display-hidden");
 
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.upload.addEventListener("progress", function(progressEvent) {
       if (progressEvent.lengthComputable) {
-        var percentage = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+        const percentage = Math.round((progressEvent.loaded / progressEvent.total) * 100);
         progressBar.style.width = percentage + "%";
         progressText.textContent = percentage + "% আপলোড হচ্ছে...";
       }
     });
     xhr.addEventListener("load", function() {
       try {
-        var data = JSON.parse(xhr.responseText);
+        const data = JSON.parse(xhr.responseText);
         if (data.success) {
           progressText.textContent = "সফল! পুনঃনির্দেশ হচ্ছে...";
           window.location.href = "/bangladesh-tourist-destinations/beauty/";
         } else {
           uploadError.textContent = data.error;
-          uploadError.style.display = "block";
+          uploadError.classList.remove("display-hidden");
           submitButton.disabled = false;
-          uploadProgress.style.display = "none";
+          uploadProgress.classList.add("display-hidden");
         }
       } catch (parseError) {
         uploadError.textContent = "সার্ভার ত্রুটি";
-        uploadError.style.display = "block";
+        uploadError.classList.remove("display-hidden");
         submitButton.disabled = false;
-        uploadProgress.style.display = "none";
+        uploadProgress.classList.add("display-hidden");
       }
     });
     xhr.addEventListener("error", function() {
       uploadError.textContent = "নেটওয়ার্ক ত্রুটি";
-      uploadError.style.display = "block";
+      uploadError.classList.remove("display-hidden");
       submitButton.disabled = false;
-      uploadProgress.style.display = "none";
+      uploadProgress.classList.add("display-hidden");
     });
 
     xhr.open("POST", "/bangladesh-tourist-destinations/api/media/upload/");

@@ -17,35 +17,35 @@
  * localStorage key: newshub_draft_tags
  */
 (function () {
-  var categorySelect = document.getElementById('news-category-id');
-  var availableList = document.getElementById('tag-available-list');
-  var selectedArea = document.getElementById('selected-tags-area');
+  const categorySelect = document.getElementById('news-category-id');
+  const availableList = document.getElementById('tag-available-list');
+  const selectedArea = document.getElementById('selected-tags-area');
 
   if (!categorySelect || !availableList || !selectedArea) return;
 
-  var formTypeInput = document.getElementById('news-form-type');
-  var formTypeCode = formTypeInput ? formTypeInput.value : '';
-  var STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
-  var MAX_BOX_SIZE = 6;   // max tags per box — larger groups get split
-  var MERGE_THRESHOLD = 2; // groups with ≤2 tags get combined with others
+  let formTypeInput = document.getElementById('news-form-type');
+  const formTypeCode = formTypeInput ? formTypeInput.value : '';
+  const STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
+  const MAX_BOX_SIZE = 6;   // max tags per box — larger groups get split
+  const MERGE_THRESHOLD = 2; // groups with ≤2 tags get combined with others
 
   /* ---- State ---- */
-  var selectedTags = {};       // { id: { id, name_bn, name_en, group_code } }
-  var currentAvailable = [];   // tags from the latest category API fetch
-  var removedByUser = {};      // { id: true } — manually removed, skip auto-re-add
+  let selectedTags = {};       // { id: { id, name_bn, name_en, group_code } }
+  let currentAvailable = [];   // tags from the latest category API fetch
+  let removedByUser = {};      // { id: true } — manually removed, skip auto-re-add
 
   /* ---- escapeHtml() — prevent XSS in tag names ---- */
 
   /* ---- tagLabel() — formatted display: "বাংলা (English)" ---- */
   function tagLabel(tag) {
-    var label = escapeHtml(tag.name_bn);
+    let label = escapeHtml(tag.name_bn);
     if (tag.name_en) label += ' (' + escapeHtml(tag.name_en) + ')';
     return label;
   }
 
   /* ---- saveTags() — persist selectedTags to localStorage ---- */
   function saveTags() {
-    var data = [];
+    const data = [];
     Object.keys(selectedTags).forEach(function (id) {
       data.push(selectedTags[id]);
     });
@@ -54,10 +54,10 @@
 
   /* ---- loadTags() — restore selectedTags from localStorage ---- */
   function loadTags() {
-    var raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     try {
-      var parsed = JSON.parse(raw);
+      let parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
         parsed.forEach(function (tag) {
           selectedTags[String(tag.id)] = tag;
@@ -72,23 +72,23 @@
   }
 
   /* ---- Clear saved tags on form success (but keep initializing event listeners) ---- */
-  var isSuccessPage = !!document.querySelector('.form-message-success');
+  const isSuccessPage = !!document.querySelector('.form-message-success');
   if (isSuccessPage) {
     clearTagStorage();
   }
 
   /* ---- renderSelected() — chips + hidden inputs for form submission ---- */
   function renderSelected() {
-    var ids = Object.keys(selectedTags);
+    const ids = Object.keys(selectedTags);
     if (ids.length === 0) {
       selectedArea.style.display = 'none';
       selectedArea.innerHTML = '';
       return;
     }
     selectedArea.style.display = '';
-    var html = '';
+    let html = '';
     ids.forEach(function (id) {
-      var tag = selectedTags[id];
+      let tag = selectedTags[id];
       html += '<input type="hidden" name="tag_ids" value="' + id + '">';
       html += '<span class="selected-tag-chip" data-tag-id="' + id + '">'
         + tagLabel(tag)
@@ -104,7 +104,7 @@
 
   /* ---- renderAvailable() — available tags grouped by group_code ---- */
   function renderAvailable() {
-    var available = currentAvailable.filter(function (tag) {
+    const available = currentAvailable.filter(function (tag) {
       return !(String(tag.id) in selectedTags);
     });
 
@@ -118,10 +118,10 @@
     }
 
     /* Group tags by group_code (preserve API order) */
-    var groups = {};
-    var groupOrder = [];
+    const groups = {};
+    const groupOrder = [];
     available.forEach(function (tag) {
-      var code = tag.group_code || '_other';
+      const code = tag.group_code || '_other';
       if (!(code in groups)) {
         groups[code] = [];
         groupOrder.push(code);
@@ -131,8 +131,8 @@
 
     /* Merge small groups (≤ MERGE_THRESHOLD) into a pool,
        then chunk everything into boxes of MAX_BOX_SIZE */
-    var bigGroups = [];
-    var smallPool = [];
+    const bigGroups = [];
+    let smallPool = [];
     groupOrder.forEach(function (code) {
       if (groups[code].length > MERGE_THRESHOLD) {
         bigGroups.push(groups[code]);
@@ -142,9 +142,9 @@
     });
 
     /* Split big groups and the merged pool into chunks of MAX_BOX_SIZE */
-    var boxes = [];
+    const boxes = [];
     function chunkIntoBoxes(tags) {
-      for (var i = 0; i < tags.length; i += MAX_BOX_SIZE) {
+      for (let i = 0; i < tags.length; i += MAX_BOX_SIZE) {
         boxes.push(tags.slice(i, i + MAX_BOX_SIZE));
       }
     }
@@ -152,7 +152,7 @@
     if (smallPool.length > 0) { chunkIntoBoxes(smallPool); }
 
     /* Render each box as a <li class="tag-group-box"> */
-    var html = '';
+    let html = '';
     boxes.forEach(function (boxTags) {
       html += '<li class="tag-group-box">';
       boxTags.forEach(function (tag) {
@@ -166,10 +166,10 @@
 
   /* ---- Click: add tag from available list ---- */
   availableList.addEventListener('click', function (e) {
-    var item = e.target.closest('.tag-available-item');
+    const item = e.target.closest('.tag-available-item');
     if (!item) return;
-    var id = item.getAttribute('data-tag-id');
-    var tag = currentAvailable.find(function (t) { return String(t.id) === id; });
+    let id = item.getAttribute('data-tag-id');
+    const tag = currentAvailable.find(function (t) { return String(t.id) === id; });
     if (!tag) return;
     delete removedByUser[id];
     selectedTags[id] = tag;
@@ -193,9 +193,9 @@
     }
 
     /* Single tag remove button */
-    var btn = e.target.closest('.selected-tag-remove');
+    const btn = e.target.closest('.selected-tag-remove');
     if (!btn) return;
-    var id = btn.getAttribute('data-tag-id');
+    let id = btn.getAttribute('data-tag-id');
     delete selectedTags[id];
     removedByUser[id] = true;
     saveTags();
@@ -204,7 +204,7 @@
   });
 
   /* Default category per form type — shown when no category selected */
-  var FORM_TYPE_CATEGORY = {
+  const FORM_TYPE_CATEGORY = {
     crime_violence:    12,  // Crime (অপরাধ)
     extortion_land:    25,  // Extortion (চাঁদাবাজ)
     price_syndicate:    8,  // Essentials & Market (নিত্যপণ্য ও বাজার)
@@ -216,16 +216,16 @@
     july_uprising_2024: 20, // Violence (সহিংসতা)
     women_child_violence: 20  // Violence (সহিংসতা)
   };
-  var formTypeInput = document.getElementById('news-form-type');
-  var formType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
-  var DEFAULT_CATEGORY_ID = FORM_TYPE_CATEGORY[formType] || 12;
+  formTypeInput = document.getElementById('news-form-type');
+  const formType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
+  const DEFAULT_CATEGORY_ID = FORM_TYPE_CATEGORY[formType] || 12;
 
   /* ---- fetchCategoryTags() — load tags for a given category ID ---- */
   function fetchCategoryTags(categoryId) {
     availableList.innerHTML = '<li class="tag-hint">\u099F\u09CD\u09AF\u09BE\u0997 \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7...</li>';
 
     fetch('/newshub/api/tags/' + categoryId + '/')
-      .then(function (r) { return r.json(); })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (data) {
         currentAvailable = data.tags || [];
         renderAvailable();
@@ -238,7 +238,7 @@
 
   /* ---- Category change → fetch tags via API ---- */
   categorySelect.addEventListener('change', function () {
-    var categoryId = categorySelect.value;
+    const categoryId = categorySelect.value;
     fetchCategoryTags(categoryId || DEFAULT_CATEGORY_ID);
   });
 
@@ -248,11 +248,11 @@
   if (!isSuccessPage) loadTags();
 
   /* 2. Merge with server-rendered JSON (POST re-render with validation errors) */
-  var initialEl = document.getElementById('initial-selected-tags');
+  const initialEl = document.getElementById('initial-selected-tags');
   if (initialEl) {
     try {
-      var text = initialEl.textContent.replace(/,\s*]/, ']');
-      var parsed = JSON.parse(text);
+      const text = initialEl.textContent.replace(/,\s*]/, ']');
+      const parsed = JSON.parse(text);
       parsed.forEach(function (tag) {
         selectedTags[String(tag.id)] = tag;
       });
@@ -276,7 +276,7 @@
   window.newshubTags = {
     /** add(tag) — add a tag { id, name_bn, name_en }. Returns true if added, false if already present. */
     add: function (tag) {
-      var id = String(tag.id);
+      const id = String(tag.id);
       if (id in selectedTags) return false;
       selectedTags[id] = tag;
       return true;

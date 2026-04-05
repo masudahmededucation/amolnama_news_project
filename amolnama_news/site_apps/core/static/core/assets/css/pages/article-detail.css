@@ -64,6 +64,9 @@
   margin-bottom: .25rem;
 }
 
+/* Article not found back link */
+.article-not-found-back-link { color: #0066cc; text-decoration: underline; }
+
 @media (max-width: 640px) {
   .article-detail { padding: 1rem; }
   .article-hero-image { max-height: 280px; }

@@ -15,19 +15,19 @@
   'use strict';
 
   /* ===== Provider Config (swap for Google Places API) ===== */
-  var NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
-  var SEARCH_DEBOUNCE_MS = 500;
-  var SEARCH_MINIMUM_CHARACTERS = 3;
-  var SEARCH_MAX_RESULTS = 5;
+  const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
+  const SEARCH_DEBOUNCE_MS = 500;
+  const SEARCH_MINIMUM_CHARACTERS = 3;
+  const SEARCH_MAX_RESULTS = 5;
 
   /* ===== DOM References ===== */
-  var searchInputElement = document.getElementById('map-search-input');
+  const searchInputElement = document.getElementById('map-search-input');
 
   if (!searchInputElement) return;
 
   /* ===== State ===== */
-  var searchResultsListElement = null;
-  var searchDebounceTimer = null;
+  let searchResultsListElement = null;
+  let searchDebounceTimer = null;
 
   /* ========== Initialise Search UI ========== */
 
@@ -55,7 +55,7 @@
 
   function mapSearchHandleInputChange() {
     clearTimeout(searchDebounceTimer);
-    var queryText = searchInputElement.value.trim();
+    const queryText = searchInputElement.value.trim();
     if (queryText.length < SEARCH_MINIMUM_CHARACTERS) {
       mapSearchResultsHide();
       return;
@@ -68,7 +68,7 @@
   /* ========== Nominatim Place Search ========== */
 
   function nominatimPlaceSearchRequest(queryText) {
-    var requestUrl = NOMINATIM_BASE_URL + '/search?format=json' +
+    const requestUrl = NOMINATIM_BASE_URL + '/search?format=json' +
       '&q=' + encodeURIComponent(queryText) +
       '&countrycodes=bd' +
       '&limit=' + SEARCH_MAX_RESULTS +
@@ -76,7 +76,7 @@
       '&addressdetails=1';
 
     fetch(requestUrl, { headers: { 'Accept': 'application/json' } })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (results) {
         mapSearchResultsRender(results);
       })
@@ -93,7 +93,7 @@
     }
 
     results.forEach(function (result) {
-      var listItem = document.createElement('li');
+      const listItem = document.createElement('li');
       listItem.className = 'map-search-item';
       listItem.textContent = result.display_name;
       listItem.addEventListener('click', function () {
@@ -115,12 +115,12 @@
     searchInputElement.value = selectedResult.display_name;
     mapSearchResultsHide();
 
-    var latitude = parseFloat(selectedResult.lat);
-    var longitude = parseFloat(selectedResult.lon);
+    const latitude = parseFloat(selectedResult.lat);
+    const longitude = parseFloat(selectedResult.lon);
 
     if (!window.newshubMapPinpoint) return;
 
-    var leafletMap = window.newshubMapPinpoint.getMap();
+    const leafletMap = window.newshubMapPinpoint.getMap();
     if (leafletMap) {
       leafletMap.setView([latitude, longitude], window.newshubMapPinpoint.MARKER_PINPOINT_ZOOM);
     }

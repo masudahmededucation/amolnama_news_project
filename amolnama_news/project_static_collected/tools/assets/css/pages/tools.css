@@ -107,7 +107,7 @@
 /* ---- ZIP Creator card — soft amber ---- */
 
 .tool-card--zip {
-  background: linear-gradient(135deg, #fffdf5 0%, #fff8e1 100%);
+  background: linear-gradient(135deg, #fffdf5 0%, var(--warning-light) 100%);
   border: 1.5px solid var(--border);
   box-shadow: var(--shadow);
   border-left: 3px solid #ffa000;
@@ -239,14 +239,14 @@
 /* ---- GPA Calculator card — academic indigo ---- */
 
 .tool-card--gpa {
-  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  background: linear-gradient(135deg, #f5f3ff 0%, var(--purple-light) 100%);
   border: 1.5px solid var(--border);
   box-shadow: var(--shadow);
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid var(--info);
 }
 
 .tool-card--gpa:hover {
-  border-color: #6366f1;
+  border-color: var(--info);
   box-shadow: var(--shadow-md);
 }
 
@@ -501,7 +501,7 @@
 .tool-card--merge-docs:active    { border-color: #e17055; box-shadow: var(--shadow-md); }
 .tool-card--split-pdf:active     { border-color: #5c7cba; box-shadow: var(--shadow-md); }
 .tool-card--photo-album:active   { border-color: #d4845a; box-shadow: var(--shadow-md); }
-.tool-card--gpa:active           { border-color: #6366f1; box-shadow: var(--shadow-md); }
+.tool-card--gpa:active           { border-color: var(--info); box-shadow: var(--shadow-md); }
 .tool-card--age:active           { border-color: #e91e63; box-shadow: var(--shadow-md); }
 
 /* ---- Responsive ---- */

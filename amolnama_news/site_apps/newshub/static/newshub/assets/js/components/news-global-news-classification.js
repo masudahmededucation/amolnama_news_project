@@ -18,30 +18,30 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('global-news-classification-json');
+  const hiddenInput = document.getElementById('global-news-classification-json');
   if (!hiddenInput) return;
 
-  var significanceHidden = document.getElementById('global-news-significance');
-  var isDevelopingEl     = document.getElementById('global-news-is-developing');
-  var isBreakingEl      = document.getElementById('global-news-is-breaking');
-  var hasBdAngleEl      = document.getElementById('global-news-has-bangladesh-angle');
+  const significanceHidden = document.getElementById('global-news-significance');
+  const isDevelopingEl     = document.getElementById('global-news-is-developing');
+  const isBreakingEl      = document.getElementById('global-news-is-breaking');
+  const hasBdAngleEl      = document.getElementById('global-news-has-bangladesh-angle');
 
   /* ---- Build significance radios from JSON embed ---- */
-  var sigGroup = document.getElementById('global-news-significance-group');
-  var sigDataEl = document.getElementById('news-significance-data');
+  const sigGroup = document.getElementById('global-news-significance-group');
+  const sigDataEl = document.getElementById('news-significance-data');
   if (sigGroup && sigDataEl) {
     try {
-      var sigOptions = JSON.parse(sigDataEl.textContent || '[]');
+      const sigOptions = JSON.parse(sigDataEl.textContent || '[]');
       sigGroup.innerHTML = '';
       sigOptions.forEach(function (opt) {
-        var label = document.createElement('label');
+        const label = document.createElement('label');
         label.className = 'radio-inline';
-        var radio = document.createElement('input');
+        const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'global_news_significance_radio';
         radio.value = opt.status_id;
         radio.id = 'global_news_significance_radio-' + opt.status_id;
-        var icon = opt.status_icon ? opt.status_icon + ' ' : '';
+        const icon = opt.status_icon ? opt.status_icon + ' ' : '';
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + icon + opt.status_name_bn + ' (' + opt.status_name_en + ')'));
         sigGroup.appendChild(label);
@@ -73,29 +73,29 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-global-news-classification');
+  const section = document.getElementById('section-global-news-classification');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
     try {
-      var data = JSON.parse(hiddenInput.value);
+      const data = JSON.parse(hiddenInput.value);
       if (data.significanceId && significanceHidden) {
         significanceHidden.value = data.significanceId;
-        var sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
-        for (var s = 0; s < sigRadios.length; s++) {
-          sigRadios[s].checked = (sigRadios[s].value == data.significanceId);
+        let sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
+        for (let s = 0; s < sigRadios.length; s++) {
+          sigRadios[s].checked = (sigRadios[s].value === String(data.significanceId));
         }
       }
       if (isDevelopingEl) isDevelopingEl.checked = !!data.isDeveloping;
@@ -108,8 +108,8 @@
 
   window.newshubGlobalNewsClassification = {
     reset: function () {
-      var sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
-      for (var s = 0; s < sigRadios.length; s++) sigRadios[s].checked = false;
+      const sigRadios = document.querySelectorAll('input[name="global_news_significance_radio"]');
+      for (let s = 0; s < sigRadios.length; s++) sigRadios[s].checked = false;
       if (significanceHidden) significanceHidden.value = '';
 
       if (isDevelopingEl) isDevelopingEl.checked = false;

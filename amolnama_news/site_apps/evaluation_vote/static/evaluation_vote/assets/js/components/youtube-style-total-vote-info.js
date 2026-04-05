@@ -26,7 +26,10 @@ function updateTotalVoteInfo(totalVotes, elementId = 'total-vote-info') {
  */
 function fetchAndDisplayTotalVotes(apiUrl, elementId = 'total-vote-info') {
   fetch(apiUrl)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       if (data.results && data.results.length > 0) {
         const totalVotes = data.results[0].total_vote_count;

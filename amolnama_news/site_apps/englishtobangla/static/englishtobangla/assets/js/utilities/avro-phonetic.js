@@ -25,30 +25,30 @@
     =============================================================================
 */
 
-var OmicronLab = {};
+const OmicronLab = {};
 OmicronLab.Avro = {};
 
 OmicronLab.Avro.Phonetic = {
     parse: function(input) {
-        var fixed = this.fixString(input);
-        var output = "";
-        for(var cur = 0; cur < fixed.length; ++cur) {
-            var start = cur, end = cur + 1, prev = start - 1;
-            var matched = false;
+        let fixed = this.fixString(input);
+        let output = "";
+        for(let cur = 0; cur < fixed.length; ++cur) {
+            let start = cur, end = cur + 1, prev = start - 1;
+            let matched = false;
 
-            for(var i = 0; i < this.data.patterns.length; ++i) {
-                var pattern = this.data.patterns[i];
+            for(let i = 0; i < this.data.patterns.length; ++i) {
+                const pattern = this.data.patterns[i];
                 end = cur + pattern.find.length;
                 if(end <= fixed.length && fixed.substring(start, end) == pattern.find) {
                     prev = start - 1;
                     if(typeof pattern.rules !== 'undefined') {
-                        for(var j = 0; j < pattern.rules.length; ++j) {
-                            var rule = pattern.rules[j];
-                            var replace = true;
+                        for(let j = 0; j < pattern.rules.length; ++j) {
+                            const rule = pattern.rules[j];
+                            let replace = true;
 
-                            var chk = 0;
-                            for(var k=0; k < rule.matches.length; ++k) {
-                                var match = rule.matches[k];
+                            let chk = 0;
+                            for(let k=0; k < rule.matches.length; ++k) {
+                                const match = rule.matches[k];
 
                                 if(match.type === "suffix") {
                                     chk = end;
@@ -115,7 +115,7 @@ OmicronLab.Avro.Phonetic = {
                                 }
                                 // Exact
                                 else if(match.scope === "exact") {
-                                    var s, e;
+                                    let s, e;
                                     if(match.type === "suffix") {
                                         s = end;
                                         e = end + match.value.length;
@@ -158,9 +158,9 @@ OmicronLab.Avro.Phonetic = {
         return output;
     },
     fixString: function(input) {
-        var fixed = '';
-        for(var i=0; i < input.length; ++i) {
-            var cChar = input.charAt(i);
+        let fixed = '';
+        for(let i=0; i < input.length; ++i) {
+            const cChar = input.charAt(i);
             if(this.isCaseSensitive(cChar)) {
                 fixed += cChar;
             } else {

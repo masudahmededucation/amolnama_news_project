@@ -20,12 +20,12 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('weapons-evidence-json');
+  const hiddenInput = document.getElementById('weapons-evidence-json');
   if (!hiddenInput) return;
 
-  var section = document.getElementById('section-weapons-evidence');
-  var otherText = document.getElementById('weapon-other-text');
-  var recoveredEl = document.getElementById('evidence-recovered');
+  const section = document.getElementById('section-weapons-evidence');
+  const otherText = document.getElementById('weapon-other-text');
+  const recoveredEl = document.getElementById('evidence-recovered');
 
   /* Find the DB-driven "Other" checkbox by data-code="OTHER" */
   function getOtherCb() {
@@ -34,26 +34,26 @@
 
   /* Show/hide the "other" text input based on whether the OTHER checkbox is checked */
   function updateOtherTextVisibility() {
-    var otherCb = getOtherCb();
+    let otherCb = getOtherCb();
     if (!otherText) return;
-    var checked = !!(otherCb && otherCb.checked);
-    otherText.style.display = checked ? '' : 'none';
+    const checked = !!(otherCb && otherCb.checked);
+    checked ? otherText.classList.remove('display-hidden') : otherText.classList.add('display-hidden');
     if (!checked) otherText.value = '';
   }
 
   function collectWeaponTypeIds() {
-    var ids = [];
-    var checkboxes = document.querySelectorAll('.weapon-type-cb:checked');
-    for (var i = 0; i < checkboxes.length; i++) {
-      var id = parseInt(checkboxes[i].value, 10);
+    const ids = [];
+    let checkboxes = document.querySelectorAll('.weapon-type-cb:checked');
+    for (let i = 0; i < checkboxes.length; i++) {
+      const id = parseInt(checkboxes[i].value, 10);
       if (id > 0) ids.push(id);
     }
     return ids;
   }
 
   function collectData() {
-    var otherCb = getOtherCb();
-    var otherDetail = '';
+    let otherCb = getOtherCb();
+    let otherDetail = '';
     if (otherCb && otherCb.checked && otherText) {
       otherDetail = otherText.value.trim();
     }
@@ -65,8 +65,8 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
-    var hasData = data.weaponTypeIds.length > 0 || data.recoveredEvidence.trim();
+    let data = collectData();
+    const hasData = data.weaponTypeIds.length > 0 || data.recoveredEvidence.trim();
     hiddenInput.value = hasData ? JSON.stringify(data) : '';
   }
 
@@ -82,19 +82,19 @@
   }
 
   /* Re-sync right before form submit */
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) {
     form.addEventListener('submit', syncToHiddenInput);
   }
 
   /* Step validator: if OTHER checked, require description */
-  var panel = hiddenInput.closest('.step-panel[data-step]');
+  const panel = hiddenInput.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
-      var otherCb = getOtherCb();
+      const warnings = [];
+      const otherCb = getOtherCb();
       if (otherCb && otherCb.checked && otherText && !otherText.value.trim()) {
         warnings.push('"অন্যান্য" অস্ত্রের বিবরণ দিন (Please describe the other weapon)');
       }
@@ -105,14 +105,14 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     /* Re-check weapon type checkboxes */
     if (data.weaponTypeIds && data.weaponTypeIds.length) {
-      var allCbs = document.querySelectorAll('.weapon-type-cb');
-      for (var i = 0; i < allCbs.length; i++) {
-        var cbId = parseInt(allCbs[i].value, 10);
+      const allCbs = document.querySelectorAll('.weapon-type-cb');
+      for (let i = 0; i < allCbs.length; i++) {
+        const cbId = parseInt(allCbs[i].value, 10);
         if (data.weaponTypeIds.indexOf(cbId) !== -1) {
           allCbs[i].checked = true;
         }
@@ -135,11 +135,11 @@
   /* Public API for form-clear.js */
   window.newshubCrimeWeapons = {
     reset: function () {
-      var checkboxes = document.querySelectorAll('.weapon-type-cb');
-      for (var i = 0; i < checkboxes.length; i++) {
+      const checkboxes = document.querySelectorAll('.weapon-type-cb');
+      for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = false;
       }
-      if (otherText) { otherText.value = ''; otherText.style.display = 'none'; }
+      if (otherText) { otherText.value = ''; otherText.classList.add('display-hidden'); }
       if (recoveredEl) recoveredEl.value = '';
       hiddenInput.value = '';
     }

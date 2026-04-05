@@ -106,7 +106,7 @@
 .article-landing-card-breaking {
   font-size: .7rem;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .article-landing-card-headline {

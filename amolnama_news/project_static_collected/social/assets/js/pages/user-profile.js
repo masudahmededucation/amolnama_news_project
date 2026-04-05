@@ -4,15 +4,15 @@
 
 
   /* ---- Follow toggle ---- */
-  var followButton = document.getElementById('user-profile-follow-button');
+  const followButton = document.getElementById('user-profile-follow-button');
   if (followButton) {
     followButton.addEventListener('click', function () {
-      var userProfileId = followButton.getAttribute('data-user-profile-id');
+      let userProfileId = followButton.getAttribute('data-user-profile-id');
       fetch('/social/api/follow/' + userProfileId + '/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success) return;
         if (data.following) {
@@ -28,15 +28,15 @@
   }
 
   /* ---- Block toggle ---- */
-  var blockButton = document.getElementById('user-profile-block-button');
+  const blockButton = document.getElementById('user-profile-block-button');
   if (blockButton) {
     blockButton.addEventListener('click', function () {
-      var userProfileId = blockButton.getAttribute('data-user-profile-id');
+      const userProfileId = blockButton.getAttribute('data-user-profile-id');
       fetch('/social/api/block/' + userProfileId + '/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success) return;
         if (data.blocked) {

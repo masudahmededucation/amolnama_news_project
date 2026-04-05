@@ -18,19 +18,19 @@
 (function () {
   'use strict';
 
-  var prevParty  = document.getElementById('party-change-previous-party');
-  var curParty   = document.getElementById('party-change-current-party');
-  var changeDate = document.getElementById('party-change-date');
-  var reason     = document.getElementById('party-change-reason');
-  var benefit    = document.getElementById('party-change-benefit');
-  var history    = document.getElementById('party-change-history');
-  var source     = document.getElementById('party-change-source');
-  var hiddenJson = document.getElementById('party-change-json');
+  const prevParty  = document.getElementById('party-change-previous-party');
+  const curParty   = document.getElementById('party-change-current-party');
+  const changeDate = document.getElementById('party-change-date');
+  const reason     = document.getElementById('party-change-reason');
+  const benefit    = document.getElementById('party-change-benefit');
+  const history    = document.getElementById('party-change-history');
+  const source     = document.getElementById('party-change-source');
+  const hiddenJson = document.getElementById('party-change-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       previousParty: prevParty ? prevParty.value.trim() : '',
       currentParty:  curParty ? curParty.value.trim() : '',
       changeDate:    changeDate ? changeDate.value : '',
@@ -42,20 +42,20 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [prevParty, curParty, changeDate, reason, benefit, history, source];
+  const fields = [prevParty, curParty, changeDate, reason, benefit, history, source];
   fields.forEach(function (el) {
     if (!el) return;
     el.addEventListener('input', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (prevParty && data.previousParty)  prevParty.value  = data.previousParty;
       if (curParty && data.currentParty)    curParty.value   = data.currentParty;
       if (changeDate && data.changeDate)    changeDate.value = data.changeDate;
@@ -76,14 +76,14 @@
   };
 
   /* Step validator: require previous + current party when section is visible */
-  var section = document.getElementById('section-watchdog-party-change');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-watchdog-party-change');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
       if (!prevParty || !prevParty.value.trim()) {
         warnings.push('\u0986\u0997\u09C7\u09B0 \u09A6\u09B2 \u09A6\u09BF\u09A8 (Please enter the previous party)');
       }

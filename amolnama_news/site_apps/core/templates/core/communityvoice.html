@@ -19,13 +19,13 @@
       <span class="badge">Readers' Voice</span>
     </header>
 
-    <p class="muted" style="margin-bottom:1rem;">
+    <p class="muted communityvoice-intro-text">
       This is a space for our readers to share their experiences, perspectives, and local stories.
       Your voice matters — contribute to shaping our community conversation.
     </p>
 
     {# SUBMISSION FORM #}
-    <article class="widget" style="margin-bottom:2rem;">
+    <article class="widget communityvoice-form-widget">
       <h3>Write Your Story</h3>
       <p>
         Share a local event, a personal experience, or an issue that matters to you.
@@ -78,7 +78,7 @@
           placeholder="https://www.youtube.com/watch?v=...">
 
         {# LINK PREVIEW AREA (NOW DIRECTLY UNDER YOUTUBE LINK) #}
-        <div id="youtubePreview" class="link-preview-block" style="margin-top:.75rem; display:none;">
+        <div id="youtubePreview" class="link-preview-block communityvoice-preview-block display-hidden">
           <h4>YouTube preview</h4>
           <div class="link-preview-embed">
             <iframe
@@ -92,32 +92,32 @@
         </div>
 
         {# FACEBOOK LINK #}
-        <label for="id_facebook_url" style="margin-top:1rem;">Facebook link (optional)</label>
+        <label for="id_facebook_url" class="communityvoice-label-spaced">Facebook link (optional)</label>
         <input
           type="url"
           id="id_facebook_url"
           name="facebook_url"
           placeholder="https://www.facebook.com/...">
 
-        <div id="facebookPreview" class="link-preview-block" style="margin-top:.4rem; display:none;">
+        <div id="facebookPreview" class="link-preview-block communityvoice-preview-block-small display-hidden">
           <h4>Facebook link</h4>
           <p id="facebookPreviewText" class="muted"></p>
         </div>
 
         {# OTHER LINK #}
-        <label for="id_external_url" style="margin-top:1rem;">Any other relevant link (optional)</label>
+        <label for="id_external_url" class="communityvoice-label-spaced">Any other relevant link (optional)</label>
         <input
           type="url"
           id="id_external_url"
           name="external_url"
           placeholder="https://example.com/related-article">
 
-        <div id="externalPreview" class="link-preview-block" style="margin-top:.4rem; display:none;">
+        <div id="externalPreview" class="link-preview-block communityvoice-preview-block-small display-hidden">
           <h4>External link</h4>
           <p id="externalPreviewText" class="muted"></p>
         </div>
 
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-top:1rem;">
+        <div class="communityvoice-form-actions">
           <button class="btn primary communityvoice-submit-button" type="submit" id="communityvoice-submit-button" name="communityvoice_submit">
             Submit Story
           </button>
@@ -137,9 +137,9 @@
       {% for post in community_posts %}
         <article class="article">
           {% if post.image %}
-            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
           {% else %}
-            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="placeholder">
+            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="placeholder" loading="lazy">
           {% endif %}
 
           <div class="content">
@@ -173,6 +173,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'core/assets/js/pages/communityvoice.js' %}"></script>
-  <script src="{% static 'core/assets/js/pages/communityvoice-clear.js' %}"></script>
+  <script src="{% static 'core/assets/js/pages/communityvoice.js' %}" defer></script>
+  <script src="{% static 'core/assets/js/pages/communityvoice-clear.js' %}" defer></script>
 {% endblock %}

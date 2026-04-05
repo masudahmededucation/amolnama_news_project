@@ -17,14 +17,14 @@
 (function () {
   'use strict';
 
-  var subTypeHidden   = document.getElementById('sports-sub-type');
-  var sportTypeHidden = document.getElementById('sports-sport-type');
+  const subTypeHidden   = document.getElementById('sports-sub-type');
+  const sportTypeHidden = document.getElementById('sports-sport-type');
 
   /* Guard — only active on the Sports form page */
   if (!subTypeHidden && !sportTypeHidden) return;
 
   /* ---- Sport type dropdown ---- */
-  var sportSelect = document.getElementById('sports-sport-type-select');
+  const sportSelect = document.getElementById('sports-sport-type-select');
   if (sportSelect && sportTypeHidden) {
     sportSelect.addEventListener('change', function () {
       sportTypeHidden.value = sportSelect.value;
@@ -35,7 +35,7 @@
   }
 
   /* ---- Sub-type radio cards ---- */
-  var grid = document.getElementById('sports-sub-type-grid');
+  const grid = document.getElementById('sports-sub-type-grid');
   if (grid && subTypeHidden) {
     grid.addEventListener('change', function (e) {
       if (e.target.type === 'radio') {

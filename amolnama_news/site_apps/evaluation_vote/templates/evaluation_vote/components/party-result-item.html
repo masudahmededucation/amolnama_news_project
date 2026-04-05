@@ -16,9 +16,10 @@ Expected party dict keys:
         src="/media/{{ party.file_path }}{{ party.file_name }}"
         alt="{{ party.party_short_name }}"
         class="party-logo"
+        loading="lazy"
       />
     {% else %}
-      <div class="party-logo" style="background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+      <div class="party-logo party-logo-placeholder">
         &#x1F3DB;&#xFE0F;
       </div>
     {% endif %}

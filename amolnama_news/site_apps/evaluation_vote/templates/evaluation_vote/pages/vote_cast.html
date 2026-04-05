@@ -39,10 +39,10 @@
 
 {% block extra_js %}
 <!-- Import all modular JavaScript modules -->
-<script src="{% static 'evaluation_vote/assets/js/components/youtube-style-total-vote-info.js' %}"></script>
-<script src="{% static 'evaluation_vote/assets/js/voting/voting-navigation.js' %}"></script>
-<script src="{% static 'evaluation_vote/assets/js/voting/voting-selection.js' %}"></script>
-<script src="{% static 'evaluation_vote/assets/js/voting/voting-submission.js' %}"></script>
-<script src="{% static 'evaluation_vote/assets/js/voting/voting-tracker.js' %}"></script>
-<script src="{% static 'evaluation_vote/assets/js/pages/home.js' %}?v=2"></script>
+<script src="{% static 'evaluation_vote/assets/js/components/youtube-style-total-vote-info.js' %}" defer></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-navigation.js' %}" defer></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-selection.js' %}" defer></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-submission.js' %}" defer></script>
+<script src="{% static 'evaluation_vote/assets/js/voting/voting-tracker.js' %}" defer></script>
+<script src="{% static 'evaluation_vote/assets/js/pages/home.js' %}?v=2" defer></script>
 {% endblock %}

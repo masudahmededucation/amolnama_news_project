@@ -3,8 +3,8 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'theme_preference';
-  var savedTheme = null;
+  const STORAGE_KEY = 'theme_preference';
+  let savedTheme = null;
   try { savedTheme = localStorage.getItem(STORAGE_KEY); } catch (storageError) {}
 
   /* Apply saved theme immediately (before paint) */
@@ -16,17 +16,17 @@
   /* If no saved preference, system preference handles it via CSS @media */
 
   /* Toggle button — updates icon + theme */
-  var themeToggleButton = document.getElementById('theme-toggle-button');
+  const themeToggleButton = document.getElementById('theme-toggle-button');
   if (themeToggleButton) {
     /* Set initial icon */
-    var isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
     themeToggleButton.textContent = isDark ? '☀️' : '🌙';
     themeToggleButton.title = isDark ? 'লাইট মোড (Light mode)' : 'ডার্ক মোড (Dark mode)';
 
     themeToggleButton.addEventListener('click', function () {
-      var currentTheme = document.documentElement.getAttribute('data-theme');
-      var currentlyDark = currentTheme === 'dark' || (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      var newTheme = currentlyDark ? 'light' : 'dark';
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const currentlyDark = currentTheme === 'dark' || (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const newTheme = currentlyDark ? 'light' : 'dark';
 
       document.documentElement.setAttribute('data-theme', newTheme);
       try { localStorage.setItem(STORAGE_KEY, newTheme); } catch (storageError) {}

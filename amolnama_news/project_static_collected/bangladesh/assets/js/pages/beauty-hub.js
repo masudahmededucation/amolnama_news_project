@@ -18,7 +18,7 @@
   // Filter pills
   if (filterPillsContainer) {
     filterPillsContainer.addEventListener("click", (event) => {
-      const pill = event.target.closest(".beauty-hub-filter-pill");
+      let pill = event.target.closest(".beauty-hub-filter-pill");
       if (!pill) return;
       filterPillsContainer.querySelectorAll(".beauty-hub-filter-pill").forEach((pillElement) => pillElement.classList.remove("beauty-hub-filter-pill--active"));
       pill.classList.add("beauty-hub-filter-pill--active");
@@ -67,6 +67,7 @@
 
     try {
       const response = await fetch(`/bangladesh-tourist-destinations/api/media/?${params}`);
+      if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
 
       if (replaceExisting) mediaGallery.innerHTML = "";
@@ -81,26 +82,26 @@
         card.dataset.id = entry.id;
         const videoBadge = entry.media_type === "video" ? '<span class="beauty-hub-card-video-badge">▶ ভিডিও</span>' : "";
         card.innerHTML = `
-          <div class="beauty-hub-card-img" style="background-image:url('${entry.thumbnail_url}');">
+          <div class="beauty-hub-card-img" style="background-image:url('${escapeHtml(entry.thumbnail_url)}');">
             ${videoBadge}
           </div>
           <div class="beauty-hub-card-body">
-            <h3 class="beauty-hub-card-title">${entry.display_title}</h3>
+            <h3 class="beauty-hub-card-title">${escapeHtml(entry.display_title)}</h3>
             <div class="beauty-hub-card-meta">
-              <span class="beauty-hub-card-category">${entry.category_name_bn}</span>
-              ${entry.location_bn ? `<span class="beauty-hub-card-location">📍 ${entry.location_bn}</span>` : ""}
+              <span class="beauty-hub-card-category">${escapeHtml(entry.category_name_bn)}</span>
+              ${entry.location_bn ? `<span class="beauty-hub-card-location">📍 ${escapeHtml(entry.location_bn)}</span>` : ""}
             </div>
             <div class="beauty-hub-card-footer">
-              <span class="beauty-hub-card-stat">❤️ ${entry.like_count}</span>
-              <span class="beauty-hub-card-stat">👁 ${entry.view_count}</span>
-              <span class="beauty-hub-card-time">${entry.time_ago}</span>
+              <span class="beauty-hub-card-stat">❤️ ${escapeHtml(String(entry.like_count))}</span>
+              <span class="beauty-hub-card-stat">👁 ${escapeHtml(String(entry.view_count))}</span>
+              <span class="beauty-hub-card-time">${escapeHtml(entry.time_ago)}</span>
             </div>
           </div>`;
         mediaGallery.appendChild(card);
       });
 
       const loadMoreWrapper = document.getElementById("beauty-hub-load-more");
-      if (loadMoreWrapper) loadMoreWrapper.style.display = data.has_next ? "" : "none";
+      if (loadMoreWrapper) loadMoreWrapper.classList.toggle("display-hidden", !data.has_next);
     } catch (error) {
     } finally {
       isLoading = false;

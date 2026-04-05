@@ -7,7 +7,7 @@
   "use strict";
 
   /* ── Phonetic rules (longest match first) ───────────────────── */
-  var RULES = [
+  const RULES = [
     /* conjuncts / digraphs */
     ["shh", "ষ"],  ["ssh", "ষ"],
     ["bhl", "ভ্ল"], ["phl", "ফ্ল"],
@@ -64,19 +64,19 @@
   ];
 
   /* Standalone vowel forms (beginning of word / after vowel) */
-  var VOWEL_STANDALONE = {
+  const VOWEL_STANDALONE = {
     "a": "আ", "i": "ই", "u": "উ", "e": "এ", "o": "ও",
     "ou": "ঔ", "oi": "ঐ", "ee": "ঈ", "oo": "ঊ",
     "ai": "ঐ", "au": "ঔ",
   };
 
   /* Set of vowel matras for detecting "after vowel" context */
-  var VOWEL_MATRAS = new Set([
+  const VOWEL_MATRAS = new Set([
     "া", "ি", "ী", "ু", "ূ", "ে", "ৈ", "ো", "ৌ",
     "আ", "ই", "ঈ", "উ", "ঊ", "এ", "ঐ", "ও", "ঔ", "অ",
   ]);
 
-  var VOWEL_KEYS = new Set(["a", "e", "i", "o", "u"]);
+  const VOWEL_KEYS = new Set(["a", "e", "i", "o", "u"]);
 
   function isVowelKey(ch) {
     return VOWEL_KEYS.has(ch.toLowerCase());
@@ -87,10 +87,10 @@
    */
   function transliterate(input) {
     if (!input) return "";
-    var result = "";
-    var i = 0;
-    var afterConsonant = false;
-    var wordStart = true;
+    let result = "";
+    let i = 0;
+    let afterConsonant = false;
+    let wordStart = true;
 
     while (i < input.length) {
       /* skip spaces / non-alpha */
@@ -102,12 +102,12 @@
         continue;
       }
 
-      var matched = false;
+      let matched = false;
 
       /* try longest match first (up to 3 chars) */
-      for (var len = 3; len >= 1; len--) {
-        var chunk = input.substr(i, len);
-        var chunkLower = chunk.toLowerCase();
+      for (let len = 3; len >= 1; len--) {
+        const chunk = input.substr(i, len);
+        const chunkLower = chunk.toLowerCase();
 
         /* check if this is a vowel pattern at word start */
         if (wordStart || !afterConsonant) {
@@ -122,9 +122,9 @@
         }
 
         /* search in rules */
-        for (var r = 0; r < RULES.length; r++) {
+        for (let r = 0; r < RULES.length; r++) {
           if (RULES[r][0] === chunk || RULES[r][0] === chunkLower) {
-            var bengali = RULES[r][1];
+            const bengali = RULES[r][1];
             result += bengali;
             i += len;
             matched = true;
@@ -151,19 +151,19 @@
   /* ── DOM wiring ─────────────────────────────────────────────── */
 
   function setup() {
-    var enFirst = document.getElementById("id_first_name_en");
-    var enLast  = document.getElementById("id_last_name_en");
-    var bnFirst = document.getElementById("id_first_name_bn");
-    var bnLast  = document.getElementById("id_last_name_bn");
+    const enFirst = document.getElementById("id_first_name_en");
+    const enLast  = document.getElementById("id_last_name_en");
+    const bnFirst = document.getElementById("id_first_name_bn");
+    const bnLast  = document.getElementById("id_last_name_bn");
 
     if (!enFirst || !bnFirst) return;
 
-    var HINT_TEXT = "Auto-transliterated — not saved yet";
+    const HINT_TEXT = "Auto-transliterated — not saved yet";
 
     /* Show a hint message below a Bengali field */
     function addHint(bnField) {
       if (bnField.nextElementSibling && bnField.nextElementSibling.classList.contains("transliterate-hint")) return;
-      var hint = document.createElement("small");
+      const hint = document.createElement("small");
       hint.className = "transliterate-hint";
       hint.textContent = HINT_TEXT;
       hint.style.color = "#888";
@@ -174,7 +174,7 @@
 
     /* Remove the hint message */
     function removeHint(bnField) {
-      var next = bnField.nextElementSibling;
+      const next = bnField.nextElementSibling;
       if (next && next.classList.contains("transliterate-hint")) {
         next.remove();
       }
@@ -183,7 +183,7 @@
     /* Auto-fill a Bengali field and show hint */
     function autoFill(enField, bnField) {
       if (bnField.value.trim()) return;
-      var cur = enField.value.trim();
+      const cur = enField.value.trim();
       if (!cur) return;
       bnField.value = transliterate(cur);
       addHint(bnField);

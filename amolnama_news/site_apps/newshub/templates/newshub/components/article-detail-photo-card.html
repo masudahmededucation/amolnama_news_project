@@ -1,6 +1,6 @@
 {# Article photo card — included by article-detail.html for each photo. Context variables: photo (dict with user_liked), entry, cover_image_url, can_edit #}
 <div class="article-detail-photo-card" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">
-  <div class="article-detail-photo-card-image" data-photo-url="{{ photo.file_url }}" data-photo-caption="{{ photo.news_asset_caption_bn|default:'' }}" style="background-image:url('{{ photo.file_url }}');cursor:pointer;"></div>
+  <div class="article-detail-photo-card-image" data-photo-url="{{ photo.file_url }}" data-photo-caption="{{ photo.news_asset_caption_bn|default:'' }}" style="background-image:url('{{ photo.file_url }}');"></div>
 
   {% if can_edit %}
   <button type="button" class="article-detail-set-cover-button{% if cover_image_url and cover_image_url == photo.file_url %} article-detail-set-cover-button-active{% endif %}" id="article-detail-set-cover-{{ photo.link_asset_id }}" name="article_set_cover_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">

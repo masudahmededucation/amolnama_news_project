@@ -31,7 +31,7 @@
 }
 
 .field-mandatory-star {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .stories-submit-input,
@@ -50,7 +50,7 @@
 .stories-submit-textarea:focus,
 .stories-submit-select:focus {
   outline: none;
-  border-color: #7c3aed;
+  border-color: var(--purple);
   box-shadow: 0 0 0 2px rgba(124, 58, 237, .1);
 }
 
@@ -87,7 +87,7 @@
   padding: .6rem 1.5rem;
   border: none;
   border-radius: 25px;
-  background: #7c3aed;
+  background: var(--purple);
   color: #fff;
   font-size: .9rem;
   font-weight: 700;

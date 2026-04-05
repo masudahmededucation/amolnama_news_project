@@ -8,8 +8,8 @@
 
   if (!window.initQuillEditor) return;
 
-  var summaryContainer = document.getElementById('quill-news-summary');
-  var bodyContainer = document.getElementById('quill-news-body');
+  const summaryContainer = document.getElementById('quill-news-summary');
+  const bodyContainer = document.getElementById('quill-news-body');
 
   if (summaryContainer) {
     window.__quillNewsSummary = window.initQuillEditor('quill-news-summary', 'news-summary-bn', {
@@ -26,7 +26,7 @@
   }
 
   /* Sync Quill to hidden textareas on form submit */
-  var form = document.querySelector('.news-multistep-form');
+  const form = document.querySelector('.news-multistep-form');
   if (form) {
     form.addEventListener('submit', function () {
       if (window.__quillNewsSummary) window.__quillNewsSummary.syncToHidden();

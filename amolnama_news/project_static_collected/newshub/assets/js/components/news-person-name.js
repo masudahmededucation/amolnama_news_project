@@ -26,7 +26,7 @@
 
   /* ========== Template-mode helpers (prefix-based IDs) ========== */
 
-  var SUFFIXES = [
+  const SUFFIXES = [
     'first-name-en', 'last-name-en',
     'first-name-bn', 'last-name-bn',
     'alias',
@@ -38,7 +38,7 @@
   }
 
   function val(prefix, suffix) {
-    var el = getEl(prefix, suffix);
+    let el = getEl(prefix, suffix);
     return el ? el.value.trim() : '';
   }
 
@@ -59,7 +59,7 @@
    * Structure: [ [field1, field2], ... ]
    * Each field: { key, labelBn, labelEn, phBn, phEn }
    */
-  var NAME_ROWS = [
+  const NAME_ROWS = [
     /* Row 1 — English names */
     [
       { key: 'firstNameEn', labelBn: '\u09AA\u09CD\u09B0\u09A5\u09AE \u09A8\u09BE\u09AE', labelEn: 'First Name \u2014 English', phBn: '\u09AA\u09CD\u09B0\u09A5\u09AE \u09A8\u09BE\u09AE (\u0987\u0982\u09B0\u09C7\u099C\u09BF\u09A4\u09C7)...', phEn: 'First name (English)...', required: true },
@@ -78,10 +78,10 @@
   ];
 
   /* Alias — single field after the rows */
-  var ALIAS_FIELD = { key: 'alias', labelBn: '\u09A1\u09BE\u0995\u09A8\u09BE\u09AE \u09AC\u09BE \u09AA\u09B0\u09BF\u099A\u09BF\u09A4 \u09A8\u09BE\u09AE', labelEn: 'Alias / Nickname', phBn: '\u09A1\u09BE\u0995\u09A8\u09BE\u09AE (\u09AC\u09BE\u0982\u09B2\u09BE)...', phEn: 'Alias...' };
+  const ALIAS_FIELD = { key: 'alias', labelBn: '\u09A1\u09BE\u0995\u09A8\u09BE\u09AE \u09AC\u09BE \u09AA\u09B0\u09BF\u099A\u09BF\u09A4 \u09A8\u09BE\u09AE', labelEn: 'Alias / Nickname', phBn: '\u09A1\u09BE\u0995\u09A8\u09BE\u09AE (\u09AC\u09BE\u0982\u09B2\u09BE)...', phEn: 'Alias...' };
 
   /* Row-level block labels — shared by HTML-string and DOM builders */
-  var ROW_LABELS = [
+  const ROW_LABELS = [
     { bn: '\u09A8\u09BE\u09AE \u2014 \u0987\u0982\u09B0\u09C7\u099C\u09BF', en: 'Name \u2014 English' },
     { bn: '\u09A8\u09BE\u09AE \u2014 \u09AC\u09BE\u0982\u09B2\u09BE',       en: 'Name \u2014 Bengali' },
     { bn: '\u09AA\u09BF\u09A4\u09BE\u09B0 \u09A8\u09BE\u09AE',              en: "Father's Name" }
@@ -99,16 +99,16 @@
    * Matches template (person-name-core-fields.html) and DOM (buildNameGroupDom) output.
    */
   function makeNameRowHtml(index, fieldClass, rowIndex, rowFields, actor) {
-    var rl = ROW_LABELS[rowIndex];
-    var html = '<div class="form-field">';
+    let rl = ROW_LABELS[rowIndex];
+    let html = '<div class="form-field">';
     html += '<label class="field-label-block" data-bn="' + escapeAttr(rl.bn)
       + '" data-en="' + escapeAttr(rl.en) + '">'
       + rl.bn + ' (' + rl.en + ')';
     if (rowIndex === 0) html += ' <span class="field-required">*</span>';
     html += '</label>';
     html += '<div class="form-name-split">';
-    for (var c = 0; c < rowFields.length; c++) {
-      var f = rowFields[c];
+    for (let c = 0; c < rowFields.length; c++) {
+      let f = rowFields[c];
       html += '<div>';
       html += '<label class="form-name-sublabel" data-bn="' + escapeAttr(f.labelBn)
         + '" data-en="' + escapeAttr(f.labelEn) + '">' + f.labelBn + '</label>';
@@ -124,7 +124,7 @@
   /* ========== DOM-mode helpers (createElement builder) ========== */
 
   /* Map camelCase keys → CSS class suffixes (must match existing querySelector usage) */
-  var KEY_TO_CLASS_SUFFIX = {
+  const KEY_TO_CLASS_SUFFIX = {
     firstNameEn: 'firstname-en',
     lastNameEn: 'lastname-en',
     firstNameBn: 'firstname-bn',
@@ -135,21 +135,21 @@
   };
 
   function makeDomNameRow(classPrefix, fieldDefs) {
-    var row = document.createElement('div');
+    const row = document.createElement('div');
     row.className = 'form-name-split';
-    var inputs = {};
-    for (var i = 0; i < fieldDefs.length; i++) {
-      var f = fieldDefs[i];
-      var wrap = document.createElement('div');
-      var inputId = classPrefix + '-' + (KEY_TO_CLASS_SUFFIX[f.key] || f.key) + '-' + i;
-      var inputName = inputId.replace(/-/g, '_');
-      var sublabel = document.createElement('label');
+    const inputs = {};
+    for (let i = 0; i < fieldDefs.length; i++) {
+      const f = fieldDefs[i];
+      const wrap = document.createElement('div');
+      const inputId = classPrefix + '-' + (KEY_TO_CLASS_SUFFIX[f.key] || f.key) + '-' + i;
+      const inputName = inputId.replace(/-/g, '_');
+      const sublabel = document.createElement('label');
       sublabel.className = 'form-name-sublabel';
       sublabel.setAttribute('for', inputId);
       sublabel.setAttribute('data-bn', f.labelBn);
       sublabel.setAttribute('data-en', f.labelEn);
       sublabel.textContent = f.labelBn;
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'text';
       input.id = inputId;
       input.name = inputName;
@@ -172,8 +172,8 @@
     /* --- Template mode --- */
 
     read: function (prefix) {
-      var firstEn = val(prefix, 'first-name-en');
-      var lastEn  = val(prefix, 'last-name-en');
+      const firstEn = val(prefix, 'first-name-en');
+      const lastEn  = val(prefix, 'last-name-en');
       return {
         firstNameEn:     firstEn,
         lastNameEn:      lastEn,
@@ -188,14 +188,14 @@
 
     bind: function (prefix, callback) {
       SUFFIXES.forEach(function (suffix) {
-        var el = getEl(prefix, suffix);
+        let el = getEl(prefix, suffix);
         if (el) el.addEventListener('input', callback);
       });
     },
 
     reset: function (prefix) {
       SUFFIXES.forEach(function (suffix) {
-        var el = getEl(prefix, suffix);
+        const el = getEl(prefix, suffix);
         if (el) el.value = '';
       });
     },
@@ -226,7 +226,7 @@
      * @returns {string} HTML string
      */
     buildNameGroupHtml: function (index, actor, fieldClass) {
-      var html = '<div class="actor-group actor-group-name">';
+      let html = '<div class="actor-group actor-group-name">';
       html += '<h5 class="actor-group-title" data-bn="\u09A8\u09BE\u09AE" data-en="Name">\u09A8\u09BE\u09AE (Name)</h5>';
 
       /* Rows 0-1: EN names, BN names — block label + form-name-split */
@@ -260,34 +260,34 @@
      *                     fatherFirstName, fatherLastName, alias
      */
     buildNameGroupDom: function (classPrefix, borderColor) {
-      var group = document.createElement('div');
+      const group = document.createElement('div');
       group.className = 'actor-group actor-group-name';
       if (borderColor) group.style.borderLeftColor = borderColor;
-      var h5 = document.createElement('h5');
+      const h5 = document.createElement('h5');
       h5.className = 'actor-group-title';
       h5.setAttribute('data-bn', '\u09A8\u09BE\u09AE');
       h5.setAttribute('data-en', 'Name');
       h5.textContent = '\u09A8\u09BE\u09AE (Name)';
       group.appendChild(h5);
 
-      var allInputs = {};
+      const allInputs = {};
 
       function appendNameRow(r) {
-        var rowDef = NAME_ROWS[r];
-        var formField = document.createElement('div');
+        const rowDef = NAME_ROWS[r];
+        const formField = document.createElement('div');
         formField.className = 'form-field';
-        var rl = ROW_LABELS[r] || { bn: '', en: '' };
-        var rowLabel = document.createElement('span');
+        const rl = ROW_LABELS[r] || { bn: '', en: '' };
+        const rowLabel = document.createElement('span');
         rowLabel.className = 'field-label-block form-field-label';
         rowLabel.setAttribute('data-bn', rl.bn);
         rowLabel.setAttribute('data-en', rl.en);
         rowLabel.textContent = rl.bn + ' (' + rl.en + ')';
         if (r === 0) rowLabel.innerHTML += ' <span class="field-required">*</span>';
         formField.appendChild(rowLabel);
-        var result = makeDomNameRow(classPrefix, rowDef);
+        const result = makeDomNameRow(classPrefix, rowDef);
         formField.appendChild(result.row);
         group.appendChild(formField);
-        for (var k in result.inputs) { allInputs[k] = result.inputs[k]; }
+        for (const k in result.inputs) { allInputs[k] = result.inputs[k]; }
       }
 
       /* Rows 0-1: EN names, BN names */
@@ -295,16 +295,16 @@
       appendNameRow(1);
 
       /* Alias (before Father) */
-      var aliasField = document.createElement('div');
+      const aliasField = document.createElement('div');
       aliasField.className = 'form-field';
-      var aliasId = classPrefix + '-alias';
-      var aliasLabel = document.createElement('label');
+      const aliasId = classPrefix + '-alias';
+      const aliasLabel = document.createElement('label');
       aliasLabel.setAttribute('for', aliasId);
       aliasLabel.setAttribute('data-bn', ALIAS_FIELD.labelBn);
       aliasLabel.setAttribute('data-en', ALIAS_FIELD.labelEn);
       aliasLabel.textContent = ALIAS_FIELD.labelBn + ' (' + ALIAS_FIELD.labelEn + ')';
       aliasField.appendChild(aliasLabel);
-      var aliasInput = document.createElement('input');
+      const aliasInput = document.createElement('input');
       aliasInput.type = 'text';
       aliasInput.id = aliasId;
       aliasInput.name = aliasId.replace(/-/g, '_');

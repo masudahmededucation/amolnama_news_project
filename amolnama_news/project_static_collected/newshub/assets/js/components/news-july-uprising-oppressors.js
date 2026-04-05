@@ -17,25 +17,25 @@
 (function () {
   'use strict';
 
-  var forceCheckboxes = document.querySelectorAll('input[name="july_force"]');
-  var unitBadge = document.getElementById('july-unit-badge');
-  var commandingOfficer = document.getElementById('july-commanding-officer');
-  var ocDc = document.getElementById('july-oc-dc');
-  var directives = document.getElementById('july-directives');
-  var hiddenJson = document.getElementById('july-oppressors-json');
+  const forceCheckboxes = document.querySelectorAll('input[name="july_force"]');
+  const unitBadge = document.getElementById('july-unit-badge');
+  const commandingOfficer = document.getElementById('july-commanding-officer');
+  const ocDc = document.getElementById('july-oc-dc');
+  const directives = document.getElementById('july-directives');
+  const hiddenJson = document.getElementById('july-oppressors-json');
 
   if (!hiddenJson) return;
 
   function getForces() {
-    var forces = [];
-    for (var i = 0; i < forceCheckboxes.length; i++) {
+    const forces = [];
+    for (let i = 0; i < forceCheckboxes.length; i++) {
       if (forceCheckboxes[i].checked) forces.push(forceCheckboxes[i].value);
     }
     return forces;
   }
 
   function serialize() {
-    var data = {
+    let data = {
       forces: getForces(),
       unitBadge: unitBadge ? unitBadge.value.trim() : '',
       commandingOfficer: commandingOfficer ? commandingOfficer.value.trim() : '',
@@ -45,30 +45,30 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  for (var i = 0; i < forceCheckboxes.length; i++) {
+  for (let i = 0; i < forceCheckboxes.length; i++) {
     forceCheckboxes[i].addEventListener('change', serialize);
   }
 
-  var inputFields = [unitBadge, commandingOfficer, ocDc];
+  const inputFields = [unitBadge, commandingOfficer, ocDc];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
   if (directives) directives.addEventListener('input', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
     /* Force checkboxes */
     if (data.forces && data.forces.length) {
-      for (var f = 0; f < forceCheckboxes.length; f++) {
+      for (let f = 0; f < forceCheckboxes.length; f++) {
         forceCheckboxes[f].checked = data.forces.indexOf(forceCheckboxes[f].value) !== -1;
       }
     }
@@ -83,7 +83,7 @@
 
   window.newshubJulyOppressors = {
     reset: function () {
-      for (var j = 0; j < forceCheckboxes.length; j++) {
+      for (let j = 0; j < forceCheckboxes.length; j++) {
         forceCheckboxes[j].checked = false;
       }
       if (unitBadge) unitBadge.value = '';

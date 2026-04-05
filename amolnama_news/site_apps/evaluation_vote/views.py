@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 from django.db.models.functions import Cast
-from django.db.models import IntegerField, Q
+from django.db.models import IntegerField
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 import json
@@ -13,7 +13,6 @@ from amolnama_news.site_apps.locations.models import Division, District, Constit
 from .models import RefEvaluation, RefParty, EvaluationResponse, UserDevice, UserProfile, UserSession
 from amolnama_news.site_apps.locations.models import get_or_create_geo_source
 from django.db import connection
-from amolnama_news.site_apps.multimedia.models import AppAsset
 from .models import AppGetEvaluation, AppGetPartyDetails, AppSidebarPastResults
 
 

@@ -1,7 +1,7 @@
 {# Shared photo card component. Context: photo_card (dict), photo_card_can_edit (bool) #}
 {# photo_card keys: id, parent_id, file_url, caption, like_count, view_count, user_liked, is_cover, uploader_name (optional), time_ago (optional) #}
 <div class="photo-card" data-photo-id="{{ photo_card.id }}" data-parent-id="{{ photo_card.parent_id }}">
-  <div class="photo-card-image" data-photo-url="{{ photo_card.file_url }}" data-photo-caption="{{ photo_card.caption|default:'' }}" style="background-image:url('{{ photo_card.file_url }}');cursor:pointer;"></div>
+  <div class="photo-card-image" data-photo-url="{{ photo_card.file_url }}" data-photo-caption="{{ photo_card.caption|default:'' }}" style="background-image:url('{{ photo_card.file_url }}');"></div>
 
   {% if photo_card_can_edit %}
   <button type="button" class="photo-card-set-cover-button{% if photo_card.is_cover %} photo-card-set-cover-button-active{% endif %}" id="photo-card-set-cover-{{ photo_card.id }}" name="photo_card_set_cover_{{ photo_card.id }}">

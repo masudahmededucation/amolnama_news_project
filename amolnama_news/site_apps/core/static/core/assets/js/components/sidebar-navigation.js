@@ -3,7 +3,7 @@
   'use strict';
 
   /* Preserve sidebar scroll position across page navigation */
-  var sidebarElement = document.querySelector('.sidebar-navigation');
+  const sidebarElement = document.querySelector('.sidebar-navigation');
   if (sidebarElement) {
     // Save on page leave
     window.addEventListener('beforeunload', function () {
@@ -12,19 +12,19 @@
 
     // Restore after page fully loaded (not before — layout must be complete)
     window.addEventListener('load', function () {
-      var savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
+      const savedScrollPosition = sessionStorage.getItem('sidebar_scroll_position');
       if (savedScrollPosition) sidebarElement.scrollTop = parseInt(savedScrollPosition, 10);
     });
   }
 
-  var appLayoutElement = document.getElementById('app-layout');
-  var toggleButton = document.getElementById('sidebar-navigation-toggle');
-  var toggleIconElement = document.getElementById('sidebar-navigation-toggle-icon');
+  const appLayoutElement = document.getElementById('app-layout');
+  const toggleButton = document.getElementById('sidebar-navigation-toggle');
+  const toggleIconElement = document.getElementById('sidebar-navigation-toggle-icon');
 
   if (!appLayoutElement || !toggleButton) return;
 
   /* Restore saved state from localStorage (expanded = default) */
-  var savedState = localStorage.getItem('sidebar_navigation_collapsed');
+  const savedState = localStorage.getItem('sidebar_navigation_collapsed');
   if (savedState === 'true') {
     appLayoutElement.classList.add('app-layout-collapsed');
     toggleIconElement.textContent = '»';
@@ -33,18 +33,18 @@
   }
 
   toggleButton.addEventListener('click', function () {
-    var isCollapsed = appLayoutElement.classList.toggle('app-layout-collapsed');
+    const isCollapsed = appLayoutElement.classList.toggle('app-layout-collapsed');
     toggleIconElement.textContent = isCollapsed ? '»' : '«';
     localStorage.setItem('sidebar_navigation_collapsed', isCollapsed ? 'true' : 'false');
   });
 
   /* ---- Messenger unread badge polling ---- */
-  var messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
+  const messengerBadge = document.getElementById('sidebar-messenger-unread-badge');
   if (messengerBadge) {
     function pollMessengerUnreadCount() {
       if (document.visibilityState === 'hidden') return;
       fetch('/messenger/api/unread-count/')
-        .then(function (response) { return response.json(); })
+        .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
         .then(function (data) {
           if (!data.success) return;
           if (data.unread_count > 0) {

@@ -1,0 +1,89 @@
+/* ========== Shared Form Utilities ========== */
+/* Single source of truth for form styling across all apps.
+   Replaces 500+ inline style="" attributes with reusable classes. */
+
+/* ---- Form groups and spacing ---- */
+
+.form-group { margin-bottom: 1rem; }
+.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.form-row-item { flex: 1; }
+.form-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+
+/* ---- Labels ---- */
+
+.form-label { font-weight: 600; font-size: .85rem; display: block; margin-bottom: .3rem; }
+.form-hint { font-size: .72rem; color: var(--muted); }
+
+/* ---- Inputs ---- */
+
+.form-input {
+  width: 100%;
+  padding: .45rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-family: inherit;
+  background: var(--card);
+  color: var(--text);
+}
+.form-input:focus { border-color: var(--primary); outline: none; }
+.form-input-narrow { max-width: 120px; }
+.form-input-medium { max-width: 180px; }
+.form-input-wide { max-width: 300px; }
+.form-textarea { min-width: 100%; resize: vertical; }
+.form-label-small { font-size: .8rem; display: block; margin-bottom: .2rem; }
+.form-input-small { width: 100%; padding: .4rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .82rem; font-family: inherit; background: var(--card); color: var(--text); }
+.form-input-small:focus { border-color: var(--primary); outline: none; }
+
+/* ---- Buttons ---- */
+
+.form-button-primary {
+  padding: .55rem 1.5rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+}
+.form-button-primary:hover { background: var(--primary-hover); }
+
+.form-button-secondary {
+  padding: .55rem 1.5rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.form-button-secondary:hover { background: var(--border); }
+
+/* ---- Error messages ---- */
+
+.form-error-message { color: var(--danger); font-size: .82rem; margin-bottom: .75rem; display: none; }
+
+/* ---- Visibility ---- */
+
+.display-hidden { display: none; }
+
+/* ---- Text utilities ---- */
+
+.text-center { text-align: center; }
+.text-muted { color: var(--muted); }
+
+/* ---- Width constraints ---- */
+
+.form-input-max-150 { max-width: 150px; }
+.form-input-max-200 { max-width: 200px; }
+
+/* ---- Spacing utilities ---- */
+
+.form-label-spaced { margin-top: 8px; }
+.form-margin-top-small { margin-top: .75rem; }
+.form-margin-bottom-small { margin-bottom: .75rem; }

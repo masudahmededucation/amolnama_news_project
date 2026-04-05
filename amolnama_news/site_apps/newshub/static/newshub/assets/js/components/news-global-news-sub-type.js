@@ -16,22 +16,22 @@
 (function () {
   'use strict';
 
-  var selectEl  = document.getElementById('global-news-sub-type');
-  var dataEl    = document.getElementById('global-news-sub-types-data');
-  var otherRow  = document.getElementById('global-news-sub-type-other-row');
-  var otherText = document.getElementById('global-news-sub-type-other-detail');
+  const selectEl  = document.getElementById('global-news-sub-type');
+  const dataEl    = document.getElementById('global-news-sub-types-data');
+  const otherRow  = document.getElementById('global-news-sub-type-other-row');
+  const otherText = document.getElementById('global-news-sub-type-other-detail');
   if (!selectEl || !dataEl) return;
 
-  var subTypes = [];
+  let subTypes = [];
   try { subTypes = JSON.parse(dataEl.textContent) || []; } catch (e) { return; }
 
   /* Track which status_id is the "Other" option */
-  var otherStatusId = '';
+  let otherStatusId = '';
 
   subTypes.forEach(function (st) {
-    var option = document.createElement('option');
+    const option = document.createElement('option');
     option.value = st.status_id;
-    var icon = st.status_icon ? st.status_icon + ' ' : '';
+    const icon = st.status_icon ? st.status_icon + ' ' : '';
     option.textContent = icon + st.status_name_bn + ' (' + st.status_name_en + ')';
     option.dataset.statusCode = st.status_code || '';
     selectEl.appendChild(option);
@@ -44,7 +44,7 @@
   /* Toggle "Other" detail row */
   selectEl.addEventListener('change', function () {
     if (otherRow) {
-      otherRow.style.display = (selectEl.value === otherStatusId) ? '' : 'none';
+      (selectEl.value === otherStatusId) ? otherRow.classList.remove('display-hidden') : otherRow.classList.add('display-hidden');
     }
     if (otherText && selectEl.value !== otherStatusId) {
       otherText.value = '';
@@ -55,7 +55,7 @@
   window.newshubGlobalNewsSubType = {
     reset: function () {
       selectEl.value = '';
-      if (otherRow)  otherRow.style.display = 'none';
+      if (otherRow)  otherRow.classList.add('display-hidden');
       if (otherText) otherText.value = '';
     },
   };

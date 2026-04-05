@@ -35,7 +35,7 @@
   <div class="embed-card">
     <div class="embed-header">
       {% if post_item.author_avatar_url %}
-      <img src="{{ post_item.author_avatar_url }}" alt="" class="embed-avatar">
+      <img src="{{ post_item.author_avatar_url }}" alt="" class="embed-avatar" loading="lazy">
       {% else %}
       <span class="embed-avatar-initials">{{ post_item.author_display_name|first }}</span>
       {% endif %}
@@ -50,7 +50,7 @@
     {% endif %}
 
     {% if post_item.media_urls %}
-    <img src="{{ post_item.media_urls.0 }}" alt="" class="embed-image">
+    <img src="{{ post_item.media_urls.0 }}" alt="" class="embed-image" loading="lazy">
     {% endif %}
 
     <div class="embed-stats">

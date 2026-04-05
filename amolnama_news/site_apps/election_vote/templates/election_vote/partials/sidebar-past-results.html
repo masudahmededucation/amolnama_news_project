@@ -6,14 +6,14 @@
       {% if past_elections %}
         {% for election in past_elections %}
           <li>
-            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="">
+            <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="" loading="lazy">
             <a href="{% url 'election_vote:past_results' election.election_evaluation_id %}">
               {{ election.evaluation_name_bn }}
             </a>
           </li>
         {% endfor %}
       {% else %}
-        <li style="text-align: center; padding: 1rem;">
+        <li class="drillthrough-sidebar-empty">
           কোনো বিগত নির্বাচন পাওয়া যায়নি
         </li>
       {% endif %}

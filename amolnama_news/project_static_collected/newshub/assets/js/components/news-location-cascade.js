@@ -37,37 +37,37 @@
   'use strict';
 
   function createCascade(cfg) {
-    var districtSelect    = document.getElementById(cfg.districtId);
-    var subDistrictSelect = cfg.upazilaId        ? document.getElementById(cfg.upazilaId)        : null;
-    var localBodySelect   = cfg.localBodyId      ? document.getElementById(cfg.localBodyId)      : null;
-    var wardSelect        = cfg.wardId           ? document.getElementById(cfg.wardId)           : null;
-    var villageSelect     = cfg.villageId        ? document.getElementById(cfg.villageId)        : null;
-    var villageOtherInput = cfg.villageOtherId   ? document.getElementById(cfg.villageOtherId)   : null;
-    var villageRow        = cfg.villageRowId     ? document.getElementById(cfg.villageRowId)     : null;
-    var constituencyInput = cfg.constituencyId   ? document.getElementById(cfg.constituencyId)   : null;
-    var subDistrictTypeInput = cfg.subdistrictTypeId ? document.getElementById(cfg.subdistrictTypeId) : null;
-    var localBodyTypeInput   = cfg.localBodyTypeId   ? document.getElementById(cfg.localBodyTypeId)   : null;
-    var wardTypeInput        = cfg.wardTypeId        ? document.getElementById(cfg.wardTypeId)        : null;
-    var upazilaNameInput  = cfg.upazilaNameId    ? document.getElementById(cfg.upazilaNameId)    : null;
-    var wardNameInput     = cfg.wardNameId       ? document.getElementById(cfg.wardNameId)       : null;
-    var villageNameInput  = cfg.villageNameId    ? document.getElementById(cfg.villageNameId)    : null;
-    var fullAddressInput  = cfg.fullAddressId    ? document.getElementById(cfg.fullAddressId)    : null;
-    var hasMap            = cfg.hasMap           !== false;
+    const districtSelect    = document.getElementById(cfg.districtId);
+    const subDistrictSelect = cfg.upazilaId        ? document.getElementById(cfg.upazilaId)        : null;
+    const localBodySelect   = cfg.localBodyId      ? document.getElementById(cfg.localBodyId)      : null;
+    const wardSelect        = cfg.wardId           ? document.getElementById(cfg.wardId)           : null;
+    const villageSelect     = cfg.villageId        ? document.getElementById(cfg.villageId)        : null;
+    const villageOtherInput = cfg.villageOtherId   ? document.getElementById(cfg.villageOtherId)   : null;
+    const villageRow        = cfg.villageRowId     ? document.getElementById(cfg.villageRowId)     : null;
+    const constituencyInput = cfg.constituencyId   ? document.getElementById(cfg.constituencyId)   : null;
+    const subDistrictTypeInput = cfg.subdistrictTypeId ? document.getElementById(cfg.subdistrictTypeId) : null;
+    const localBodyTypeInput   = cfg.localBodyTypeId   ? document.getElementById(cfg.localBodyTypeId)   : null;
+    const wardTypeInput        = cfg.wardTypeId        ? document.getElementById(cfg.wardTypeId)        : null;
+    const upazilaNameInput  = cfg.upazilaNameId    ? document.getElementById(cfg.upazilaNameId)    : null;
+    const wardNameInput     = cfg.wardNameId       ? document.getElementById(cfg.wardNameId)       : null;
+    const villageNameInput  = cfg.villageNameId    ? document.getElementById(cfg.villageNameId)    : null;
+    const fullAddressInput  = cfg.fullAddressId    ? document.getElementById(cfg.fullAddressId)    : null;
+    const hasMap            = cfg.hasMap           !== false;
 
     if (!districtSelect) return null;
 
-    var cachedConstituencies = [];
-    var suppressMapCenter    = false;
+    let cachedConstituencies = [];
+    let suppressMapCenter    = false;
 
     /* ========== Helpers ========== */
 
     function getSelectedType(selectEl) {
       if (!selectEl || selectEl.selectedIndex < 0) return '';
-      var opt = selectEl.options[selectEl.selectedIndex];
+      let opt = selectEl.options[selectEl.selectedIndex];
       return (opt && opt.dataset && opt.dataset.type) || '';
     }
 
-    var TYPE_LABELS = {
+    const TYPE_LABELS = {
       'upazila':            'উপজেলা',
       'metropolitan_thana': 'থানা',
       'city_corporation':   'সিটি কর্পোরেশন',
@@ -79,22 +79,22 @@
     };
 
     function buildTypedOptions(items, placeholder) {
-      var opts = '<option value="">' + placeholder + '</option>';
-      var currentGroup = null;
+      let opts = '<option value="">' + placeholder + '</option>';
+      let currentGroup = null;
       items.forEach(function (item) {
         if (item.group && item.group !== currentGroup) {
           if (currentGroup !== null) opts += '</optgroup>';
           opts += '<optgroup label="' + escapeHtml(item.group) + '">';
           currentGroup = item.group;
         }
-        var label = item.name_bn || '';
+        let label = item.name_bn || '';
         if (item.name_en) label += ' (' + item.name_en + ')';
         if (!item.group) {
-          var typeLabel = TYPE_LABELS[item.type] || '';
+          const typeLabel = TYPE_LABELS[item.type] || '';
           if (typeLabel) label += ' [' + typeLabel + ']';
         }
-        var latAttr = item.lat != null ? ' data-lat="' + item.lat + '"' : '';
-        var lngAttr = item.lng != null ? ' data-lng="' + item.lng + '"' : '';
+        let latAttr = item.lat != null ? ' data-lat="' + item.lat + '"' : '';
+        let lngAttr = item.lng != null ? ' data-lng="' + item.lng + '"' : '';
         opts += '<option value="' + item.id + '" data-type="' + (item.type || '') + '"'
               + latAttr + lngAttr + '>'
               + escapeHtml(label) + '</option>';
@@ -106,32 +106,32 @@
     function centerMapOnSelected(selectEl, zoom) {
       if (!hasMap || suppressMapCenter) return;
       if (!selectEl || selectEl.selectedIndex < 0) return;
-      var opt = selectEl.options[selectEl.selectedIndex];
+      let opt = selectEl.options[selectEl.selectedIndex];
       if (!opt || !opt.value) return;
-      var lat = opt.dataset.lat;
-      var lng = opt.dataset.lng;
+      let lat = opt.dataset.lat;
+      let lng = opt.dataset.lng;
       if (lat && lng && window.newshubMapPinpoint) {
         window.newshubMapPinpoint.centerOn(lat, lng, zoom);
       } else if (window.newshubMapPinpoint && window.newshubMapPinpoint.geocodeAndCenter) {
-        var query = buildGeocodingQuery(selectEl);
+        const query = buildGeocodingQuery(selectEl);
         if (query) window.newshubMapPinpoint.geocodeAndCenter(query, zoom);
       }
     }
 
     function buildGeocodingQuery(upToSelect) {
-      var parts = [];
-      var selects = [villageSelect, wardSelect, localBodySelect, subDistrictSelect, districtSelect];
-      var reached = false;
-      for (var i = 0; i < selects.length; i++) {
-        var sel = selects[i];
+      let parts = [];
+      const selects = [villageSelect, wardSelect, localBodySelect, subDistrictSelect, districtSelect];
+      let reached = false;
+      for (let i = 0; i < selects.length; i++) {
+        const sel = selects[i];
         if (sel === upToSelect) reached = true;
         if (!reached) continue;
         if (!sel || !sel.value) continue;
-        var opt = sel.options[sel.selectedIndex];
+        let opt = sel.options[sel.selectedIndex];
         if (opt && opt.textContent) {
-          var fullText = opt.textContent.trim();
-          var match = fullText.match(/\(([^)]+)\)/);
-          var text = match ? match[1].trim() : fullText.split('(')[0].trim();
+          const fullText = opt.textContent.trim();
+          const match = fullText.match(/\(([^)]+)\)/);
+          let text = match ? match[1].trim() : fullText.split('(')[0].trim();
           if (text) parts.push(text);
         }
       }
@@ -143,9 +143,9 @@
 
     function getBnName(selectEl) {
       if (!selectEl || !selectEl.value) return '';
-      var opt = selectEl.options[selectEl.selectedIndex];
+      let opt = selectEl.options[selectEl.selectedIndex];
       if (!opt) return '';
-      var text = opt.textContent.trim();
+      let text = opt.textContent.trim();
       text = text.replace(/\s*\[.*?\]\s*$/, '');
       text = text.replace(/\s*\(.*?\)\s*$/, '');
       return text.trim();
@@ -155,20 +155,20 @@
 
     function matchConstituencyByUpazila() {
       if (!constituencyInput || !subDistrictSelect) return;
-      var type = getSelectedType(subDistrictSelect);
+      const type = getSelectedType(subDistrictSelect);
       if (type !== 'upazila') {
         constituencyInput.value = '';
         return;
       }
-      var selectedOption = subDistrictSelect.options[subDistrictSelect.selectedIndex];
+      const selectedOption = subDistrictSelect.options[subDistrictSelect.selectedIndex];
       if (!selectedOption || !selectedOption.value) {
         constituencyInput.value = '';
         return;
       }
-      var upazilaText = selectedOption.textContent.trim();
-      var upazilaName = upazilaText.split('(')[0].trim();
-      for (var i = 0; i < cachedConstituencies.length; i++) {
-        var c = cachedConstituencies[i];
+      const upazilaText = selectedOption.textContent.trim();
+      const upazilaName = upazilaText.split('(')[0].trim();
+      for (let i = 0; i < cachedConstituencies.length; i++) {
+        const c = cachedConstituencies[i];
         if (c.area_bn && c.area_bn.indexOf(upazilaName) !== -1) {
           constituencyInput.value = c.id;
           return;
@@ -202,11 +202,11 @@
 
     function resetVillageOptions() {
       if (villageSelect) {
-        villageSelect.style.display = '';
+        villageSelect.classList.remove('display-hidden');
         villageSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
       }
       if (villageOtherInput) {
-        villageOtherInput.style.display = 'none';
+        villageOtherInput.classList.add('display-hidden');
         villageOtherInput.value = '';
       }
     }
@@ -217,13 +217,13 @@
     }
 
     function showVillageRow(show) {
-      if (villageRow) villageRow.style.display = show ? '' : 'none';
+      if (villageRow) show ? villageRow.classList.remove('display-hidden') : villageRow.classList.add('display-hidden');
     }
 
     /* ========== District Change ========== */
 
     districtSelect.addEventListener('change', function () {
-      var districtId = districtSelect.value;
+      const districtId = districtSelect.value;
 
       cachedConstituencies = [];
       if (constituencyInput) constituencyInput.value = '';
@@ -242,7 +242,7 @@
 
       if (constituencyInput) {
         fetch('/newshub/api/constituencies/' + districtId + '/')
-          .then(function (r) { return r.json(); })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (data) {
             cachedConstituencies = data.constituencies || [];
             if (subDistrictSelect && subDistrictSelect.value) {
@@ -254,9 +254,9 @@
 
       if (subDistrictSelect) {
         fetch('/newshub/api/subdistricts/' + districtId + '/')
-          .then(function (r) { return r.json(); })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function (data) {
-            var items = data.subdistricts || [];
+            let items = data.subdistricts || [];
             subDistrictSelect.innerHTML = buildTypedOptions(
               items, '-- \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
             );
@@ -271,8 +271,8 @@
 
     if (subDistrictSelect) {
       subDistrictSelect.addEventListener('change', function () {
-        var subDistrictId   = subDistrictSelect.value;
-        var subDistrictType = getSelectedType(subDistrictSelect);
+        const subDistrictId   = subDistrictSelect.value;
+        const subDistrictType = getSelectedType(subDistrictSelect);
 
         if (subDistrictTypeInput) subDistrictTypeInput.value = subDistrictType;
         matchConstituencyByUpazila();
@@ -289,13 +289,13 @@
           resetLocalBody();
           if (localBodyTypeInput) localBodyTypeInput.value = subDistrictType;
 
-          if (villageSelect) villageSelect.style.display = 'none';
-          if (villageOtherInput) villageOtherInput.style.display = '';
+          if (villageSelect) villageSelect.classList.add('display-hidden');
+          if (villageOtherInput) villageOtherInput.classList.remove('display-hidden');
           showVillageRow(villageOtherInput != null);
 
           if (wardSelect) {
             wardSelect.innerHTML = '<option value="">-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
-            var wardUrl;
+            let wardUrl;
             if (subDistrictType === 'city_corporation') {
               wardUrl = '/newshub/api/city-corporation-wards/' + subDistrictId + '/';
             } else if (subDistrictType === 'metropolitan_thana') {
@@ -304,7 +304,7 @@
               wardUrl = '/newshub/api/municipality-wards/' + subDistrictId + '/';
             }
             fetch(wardUrl)
-              .then(function (r) { return r.json(); })
+              .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
               .then(function (data) {
                 wardSelect.innerHTML = buildTypedOptions(
                   data.wards || [], '-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
@@ -320,9 +320,9 @@
         if (localBodySelect) {
           localBodySelect.innerHTML = '<option value="">-- \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
           fetch('/newshub/api/local-bodies/?parent_type=' + subDistrictType + '&parent_id=' + subDistrictId)
-            .then(function (r) { return r.json(); })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(function (data) {
-              var items = data.local_bodies || [];
+              const items = data.local_bodies || [];
               localBodySelect.innerHTML = buildTypedOptions(
                 items, '-- \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
               );
@@ -338,8 +338,8 @@
 
     if (localBodySelect) {
       localBodySelect.addEventListener('change', function () {
-        var localBodyId   = localBodySelect.value;
-        var localBodyType = getSelectedType(localBodySelect);
+        const localBodyId   = localBodySelect.value;
+        const localBodyType = getSelectedType(localBodySelect);
 
         if (localBodyTypeInput) localBodyTypeInput.value = localBodyType;
         centerMapOnSelected(localBodySelect, window.newshubMapPinpoint ? window.newshubMapPinpoint.LOCAL_BODY_CENTER_ZOOM : 13);
@@ -360,7 +360,7 @@
 
         if (wardSelect) {
           wardSelect.innerHTML = '<option value="">-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
-          var wardUrl;
+          let wardUrl;
           if (localBodyType === 'union_parishad') {
             wardUrl = '/newshub/api/union-parishad-wards/' + localBodyId + '/';
           } else if (localBodyType === 'municipality') {
@@ -372,7 +372,7 @@
             return;
           }
           fetch(wardUrl)
-            .then(function (r) { return r.json(); })
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
             .then(function (data) {
               wardSelect.innerHTML = buildTypedOptions(
                 data.wards || [], '-- \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 (\u0990\u099A\u09CD\u099B\u09BF\u0995) --'
@@ -389,7 +389,7 @@
 
     if (wardSelect) {
       wardSelect.addEventListener('change', function () {
-        var wardType = getSelectedType(wardSelect);
+        const wardType = getSelectedType(wardSelect);
         if (wardTypeInput) wardTypeInput.value = wardType;
         centerMapOnSelected(wardSelect, window.newshubMapPinpoint ? window.newshubMapPinpoint.WARD_CENTER_ZOOM : 14);
       });
@@ -401,15 +401,15 @@
       if (!villageSelect || !unionParishadId) return;
       villageSelect.innerHTML = '<option value="">-- \u0997\u09CD\u09B0\u09BE\u09AE \u09B2\u09CB\u09A1 \u09B9\u099A\u09CD\u099B\u09C7... --</option>';
       fetch('/newshub/api/union-parishad-villages/' + unionParishadId + '/')
-        .then(function (r) { return r.json(); })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (data) {
-          var opts = '<option value="">-- \u0997\u09CD\u09B0\u09BE\u09AE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --</option>';
+          let opts = '<option value="">-- \u0997\u09CD\u09B0\u09BE\u09AE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --</option>';
           if (data.villages && data.villages.length > 0) {
             data.villages.forEach(function (v) {
-              var label = v.name_bn || '';
+              let label = v.name_bn || '';
               if (v.name_en) label += ' (' + v.name_en + ')';
-              var latAttr = v.lat != null ? ' data-lat="' + v.lat + '"' : '';
-              var lngAttr = v.lng != null ? ' data-lng="' + v.lng + '"' : '';
+              const latAttr = v.lat != null ? ' data-lat="' + v.lat + '"' : '';
+              const lngAttr = v.lng != null ? ' data-lng="' + v.lng + '"' : '';
               opts += '<option value="' + v.id + '"' + latAttr + lngAttr + '>' + escapeHtml(label) + '</option>';
             });
           }
@@ -426,9 +426,9 @@
     if (villageSelect) {
       villageSelect.addEventListener('change', function () {
         if (villageSelect.value === 'other') {
-          if (villageOtherInput) { villageOtherInput.style.display = ''; villageOtherInput.focus(); }
+          if (villageOtherInput) { villageOtherInput.classList.remove('display-hidden'); villageOtherInput.focus(); }
         } else {
-          if (villageOtherInput) { villageOtherInput.style.display = 'none'; villageOtherInput.value = ''; }
+          if (villageOtherInput) { villageOtherInput.classList.add('display-hidden'); villageOtherInput.value = ''; }
           centerMapOnSelected(villageSelect, window.newshubMapPinpoint ? window.newshubMapPinpoint.VILLAGE_CENTER_ZOOM : 15);
         }
       });
@@ -436,7 +436,7 @@
 
     /* ========== Full Address & Name Sync ========== */
 
-    var ADDRESS_LABELS = {
+    const ADDRESS_LABELS = {
       'upazila':            '\u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (Upazila/Thana/City Corporation)',
       'metropolitan_thana': '\u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (Upazila/Thana/City Corporation)',
       'city_corporation':   '\u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (Upazila/Thana/City Corporation)',
@@ -446,15 +446,15 @@
 
     function getCleanOptionText(selectEl) {
       if (!selectEl || !selectEl.value) return '';
-      var opt = selectEl.options[selectEl.selectedIndex];
+      const opt = selectEl.options[selectEl.selectedIndex];
       if (!opt) return '';
       return opt.textContent.trim().replace(/\s*\[.*?\]\s*$/, '');
     }
 
     function buildFullAddress() {
-      var parts = [];
-      var villageName = '';
-      if (villageRow && villageRow.style.display !== 'none') {
+      const parts = [];
+      let villageName = '';
+      if (villageRow && !villageRow.classList.contains('display-hidden')) {
         if (villageSelect && villageSelect.value && villageSelect.value !== 'other') {
           villageName = getCleanOptionText(villageSelect);
         } else if (villageOtherInput && villageOtherInput.value.trim()) {
@@ -462,21 +462,21 @@
         }
       }
       if (villageName) parts.push('\u0997\u09CD\u09B0\u09BE\u09AE/\u09AE\u09B9\u09B2\u09CD\u09B2\u09BE (Village/Moholla): ' + villageName);
-      var wardName = getCleanOptionText(wardSelect);
+      const wardName = getCleanOptionText(wardSelect);
       if (wardName) parts.push('\u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 (Ward): ' + wardName);
-      var localBodyName = getCleanOptionText(localBodySelect);
+      const localBodyName = getCleanOptionText(localBodySelect);
       if (localBodyName) {
-        var lbType  = getSelectedType(localBodySelect);
-        var lbLabel = ADDRESS_LABELS[lbType] || '\u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09AF\u09BC \u09B8\u09B0\u0995\u09BE\u09B0 (Local Body)';
+        const lbType  = getSelectedType(localBodySelect);
+        const lbLabel = ADDRESS_LABELS[lbType] || '\u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09AF\u09BC \u09B8\u09B0\u0995\u09BE\u09B0 (Local Body)';
         parts.push(lbLabel + ': ' + localBodyName);
       }
-      var subDistrictName = getCleanOptionText(subDistrictSelect);
+      const subDistrictName = getCleanOptionText(subDistrictSelect);
       if (subDistrictName) {
-        var sdType  = getSelectedType(subDistrictSelect);
-        var sdLabel = ADDRESS_LABELS[sdType] || '\u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (Upazila/Thana/City Corporation)';
+        const sdType  = getSelectedType(subDistrictSelect);
+        const sdLabel = ADDRESS_LABELS[sdType] || '\u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE/\u09B8\u09BF\u099F\u09BF \u0995\u09B0\u09CD\u09AA\u09CB\u09B0\u09C7\u09B6\u09A8 (Upazila/Thana/City Corporation)';
         parts.push(sdLabel + ': ' + subDistrictName);
       }
-      var districtName = getCleanOptionText(districtSelect);
+      const districtName = getCleanOptionText(districtSelect);
       if (districtName) parts.push('\u099C\u09C7\u09B2\u09BE (District): ' + districtName);
       return parts.join(', ');
     }
@@ -485,9 +485,9 @@
       if (upazilaNameInput) upazilaNameInput.value = getBnName(subDistrictSelect) || '';
       if (wardNameInput)    wardNameInput.value    = getBnName(wardSelect)        || '';
       if (villageNameInput) {
-        var vName = '';
-        if (villageRow && villageRow.style.display !== 'none') {
-          if (villageOtherInput && villageOtherInput.style.display !== 'none' && villageOtherInput.value.trim()) {
+        let vName = '';
+        if (villageRow && !villageRow.classList.contains('display-hidden')) {
+          if (villageOtherInput && !villageOtherInput.classList.contains('display-hidden') && villageOtherInput.value.trim()) {
             vName = villageOtherInput.value.trim();
           } else if (villageSelect && villageSelect.value && villageSelect.value !== 'other') {
             vName = getBnName(villageSelect);
@@ -497,9 +497,9 @@
       }
     }
 
-    var locationForm = fullAddressInput || upazilaNameInput || districtSelect;
+    const locationForm = fullAddressInput || upazilaNameInput || districtSelect;
     if (locationForm) {
-      var addrForm = locationForm.closest('form');
+      const addrForm = locationForm.closest('form');
       if (addrForm) {
         addrForm.addEventListener('submit', function () {
           if (fullAddressInput) fullAddressInput.value = buildFullAddress() || '';
@@ -510,7 +510,7 @@
 
     /* ========== Public API ========== */
 
-    var api = {
+    const api = {
       /* Standard incident location API (backward compatible) */
       getConstituencies: function () { return cachedConstituencies; },
       setConstituency:   function (id) { if (constituencyInput) constituencyInput.value = id || ''; },

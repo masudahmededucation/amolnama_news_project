@@ -7,14 +7,14 @@
 .debate-arena-header { text-align: center; padding: .75rem 1rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; background: var(--card, #fff); }
 .debate-arena-header-status { display: flex; justify-content: center; align-items: center; gap: .5rem; margin-bottom: .4rem; }
 .debate-arena-status-badge { font-size: .68rem; font-weight: 700; padding: .15rem .6rem; border-radius: 10px; text-transform: uppercase; }
-.debate-arena-status-badge-draft { background: #f3f4f6; color: #6b7280; }
+.debate-arena-status-badge-draft { background: var(--surface); color: var(--muted); }
 .debate-arena-status-badge-scheduled { background: var(--warning-light); color: var(--warning-text); }
-.debate-arena-status-badge-live { background: #dcfce7; color: #166534; animation: debate-live-pulse 2s infinite; }
+.debate-arena-status-badge-live { background: var(--success-light); color: var(--primary); animation: debate-live-pulse 2s infinite; }
 .debate-arena-status-badge-paused { background: var(--warning-light); color: var(--warning-text); }
-.debate-arena-status-badge-closed { background: #f3f4f6; color: var(--text); }
+.debate-arena-status-badge-closed { background: var(--surface); color: var(--text); }
 .debate-arena-countdown { font-size: .78rem; font-weight: 700; color: var(--warning); }
 .debate-arena-topic-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .3rem; }
-.debate-arena-edit-button { background: #fbbf24; border: none; border-radius: 16px; padding: .3rem .8rem; font-size: .72rem; font-weight: 700; color: #1e293b; cursor: pointer; transition: all .15s; margin-top: .3rem; }
+.debate-arena-edit-button { background: var(--warning); border: none; border-radius: 16px; padding: .3rem .8rem; font-size: .72rem; font-weight: 700; color: #1e293b; cursor: pointer; transition: all .15s; margin-top: .3rem; }
 .debate-arena-edit-button:hover { background: #f59e0b; }
 .debate-arena-edit-form { background: var(--card, #fff); border: 1px solid var(--border); border-radius: 10px; padding: .75rem; margin: .5rem 0; }
 .debate-arena-edit-form-label { display: block; font-size: .72rem; font-weight: 700; margin-bottom: .2rem; margin-top: .4rem; }
@@ -39,19 +39,19 @@
 
 /* Passion Board — tug-of-war stats */
 .debate-passion-board { position: sticky; top: auto; z-index: 49; background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 12px; padding: .75rem 1rem; margin: .5rem 0; color: #fff; }
-.debate-passion-board-title { text-align: center; font-size: .82rem; font-weight: 800; letter-spacing: .05em; margin-bottom: .3rem; text-transform: uppercase; color: #fbbf24; }
+.debate-passion-board-title { text-align: center; font-size: .82rem; font-weight: 800; letter-spacing: .05em; margin-bottom: .3rem; text-transform: uppercase; color: var(--warning); }
 
 /* Winner banner in passion board */
 .debate-passion-winner { text-align: center; font-size: 1.1rem; font-weight: 900; padding: .5rem .75rem; border-radius: 10px; margin-bottom: .5rem; animation: debate-winner-pulse 2s infinite; letter-spacing: .02em; }
 .debate-passion-winner-blue { background: rgba(37,99,235,.25); color: #93c5fd; border: 1px solid rgba(37,99,235,.4); }
-.debate-passion-winner-red { background: rgba(239,68,68,.25); color: #fca5a5; border: 1px solid rgba(239,68,68,.4); }
-.debate-passion-winner-tie { background: rgba(251,191,36,.2); color: #fbbf24; border: 1px solid rgba(251,191,36,.4); font-size: 1.2rem; }
+.debate-passion-winner-red { background: rgba(239,68,68,.25); color: var(--danger-border); border: 1px solid rgba(239,68,68,.4); }
+.debate-passion-winner-tie { background: rgba(251,191,36,.2); color: var(--warning); border: 1px solid rgba(251,191,36,.4); font-size: 1.2rem; }
 
 /* Score display — transparent, shows both sides */
 .debate-passion-score-display { display: flex; justify-content: center; align-items: center; gap: .6rem; margin-bottom: .4rem; }
 .debate-passion-score-blue { font-size: 1rem; font-weight: 900; color: #60a5fa; }
 .debate-passion-score-red { font-size: 1rem; font-weight: 900; color: #f87171; }
-.debate-passion-score-vs { font-size: .7rem; color: #94a3b8; font-weight: 600; }
+.debate-passion-score-vs { font-size: .7rem; color: var(--muted); font-weight: 600; }
 @keyframes debate-winner-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .75; } }
 
 /* Crown on board headers — big and noticeable */
@@ -63,7 +63,7 @@
 .debate-passion-row { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: .3rem; margin-bottom: .4rem; }
 .debate-passion-left { display: flex; align-items: center; gap: .3rem; justify-content: flex-end; }
 .debate-passion-right { display: flex; align-items: center; gap: .3rem; }
-.debate-passion-label { font-size: .65rem; color: #94a3b8; white-space: nowrap; }
+.debate-passion-label { font-size: .65rem; color: var(--muted); white-space: nowrap; }
 .debate-passion-value { font-size: .9rem; font-weight: 900; min-width: 24px; }
 .debate-passion-value-blue { color: #60a5fa; }
 .debate-passion-value-red { color: #f87171; }
@@ -71,7 +71,7 @@
 /* Tug-of-war bar */
 .debate-passion-bar-track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: #334155; position: relative; }
 .debate-passion-bar-blue { background: linear-gradient(90deg, var(--info), #3b82f6); height: 100%; min-width: 2px; transition: width .5s ease; border-radius: 7px 0 0 7px; box-shadow: 0 0 8px rgba(37,99,235,.5); }
-.debate-passion-bar-red { background: linear-gradient(90deg, #ef4444, var(--danger)); height: 100%; min-width: 2px; transition: width .5s ease; border-radius: 0 7px 7px 0; box-shadow: 0 0 8px rgba(239,68,68,.5); }
+.debate-passion-bar-red { background: linear-gradient(90deg, var(--danger), var(--danger)); height: 100%; min-width: 2px; transition: width .5s ease; border-radius: 0 7px 7px 0; box-shadow: 0 0 8px rgba(239,68,68,.5); }
 
 /* Glow pulse when one side is dominating */
 .debate-passion-bar-blue[style*="width: 7"], .debate-passion-bar-blue[style*="width: 8"], .debate-passion-bar-blue[style*="width: 9"] {
@@ -99,7 +99,7 @@
 /* Board */
 .debate-arena-board { min-height: 300px; display: flex; flex-direction: column; }
 .debate-arena-board-header { display: flex; align-items: center; justify-content: space-between; padding: .5rem .75rem; border-radius: 8px; margin-bottom: .5rem; font-size: .82rem; font-weight: 700; }
-.debate-arena-board-header-blue { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.debate-arena-board-header-blue { background: var(--info-light); color: #1d4ed8; border: 1px solid #bfdbfe; }
 .debate-arena-board-header-red { background: var(--danger-light); color: var(--danger-text); border: 1px solid var(--danger-border); }
 .debate-arena-board-count { font-size: .72rem; background: rgba(0,0,0,.08); padding: .1rem .4rem; border-radius: 6px; }
 
@@ -113,7 +113,7 @@
 .debate-arena-composer-textarea { width: 100%; padding: .6rem; border: 2px solid var(--border); border-radius: 8px; font-size: .85rem; resize: vertical; min-height: 60px; font-family: inherit; box-sizing: border-box; }
 .debate-arena-composer-blue .debate-arena-composer-textarea { border-color: #93c5fd; }
 .debate-arena-composer-blue .debate-arena-composer-textarea:focus { border-color: var(--info); outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
-.debate-arena-composer-red .debate-arena-composer-textarea { border-color: #fca5a5; }
+.debate-arena-composer-red .debate-arena-composer-textarea { border-color: var(--danger-border); }
 .debate-arena-composer-red .debate-arena-composer-textarea:focus { border-color: var(--danger); outline: none; box-shadow: 0 0 0 3px rgba(220,38,38,.15); }
 .debate-arena-composer-footer { display: flex; justify-content: space-between; align-items: center; margin-top: .3rem; }
 .debate-arena-composer-char-count { font-size: .7rem; color: var(--muted); }
@@ -121,7 +121,7 @@
 .debate-arena-composer-submit-blue { background: var(--info); }
 .debate-arena-composer-submit-blue:hover { background: #1d4ed8; }
 .debate-arena-composer-submit-red { background: var(--danger); }
-.debate-arena-composer-submit-red:hover { background: #b91c1c; }
+.debate-arena-composer-submit-red:hover { background: var(--danger-text); }
 
 /* Argument Card */
 .debate-argument-card { padding: .75rem; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .5rem; background: var(--card, #fff); transition: border-color .15s; }
@@ -139,7 +139,7 @@
 .debate-argument-card-actions { display: flex; align-items: center; gap: .5rem; font-size: .72rem; }
 .debate-argument-vote-button { background: none; border: 1px solid var(--border); border-radius: 4px; padding: .1rem .3rem; cursor: pointer; font-size: .72rem; transition: all .1s; }
 .debate-argument-vote-button:hover { border-color: var(--primary); }
-.debate-argument-upvote-button:hover { color: #059669; border-color: #059669; }
+.debate-argument-upvote-button:hover { color: var(--success); border-color: var(--success); }
 .debate-argument-downvote-button:hover { color: var(--danger); border-color: var(--danger); }
 .debate-argument-vote-count { font-weight: 700; }
 .debate-argument-reply-count { color: var(--muted); }
@@ -149,7 +149,7 @@
 /* Rebuttal Cards (nested) */
 .debate-rebuttal-list { margin-top: .4rem; padding-left: .5rem; border-left: 2px solid var(--border); }
 .debate-rebuttal-card { padding: .5rem .6rem; border-radius: 8px; margin-bottom: .3rem; font-size: .82rem; }
-.debate-rebuttal-card-blue { background: #eff6ff; border-left: 2px solid var(--info); }
+.debate-rebuttal-card-blue { background: var(--info-light); border-left: 2px solid var(--info); }
 .debate-rebuttal-card-red { background: var(--danger-light); border-left: 2px solid var(--danger); }
 .debate-rebuttal-card-header { display: flex; align-items: center; gap: .3rem; margin-bottom: .2rem; font-size: .7rem; }
 .debate-rebuttal-card-side-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -176,21 +176,22 @@
 /* Inline message for errors */
 .debate-arena-inline-message { font-size: .78rem; padding: .4rem .6rem; border-radius: 6px; margin-top: .3rem; }
 .debate-arena-inline-message-error { background: var(--danger-light); color: var(--danger-text); border: 1px solid var(--danger-border); }
-.debate-arena-inline-message-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.debate-arena-inline-message-success { background: var(--success-light); color: var(--primary); border: 1px solid #bbf7d0; }
 
 /* Download PDF button */
-.debate-arena-download-button { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; margin-left: .5rem; }
+.debate-arena-download-button { background: none; border: 1px solid var(--muted); border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; margin-left: .5rem; }
 .debate-arena-download-button:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
 /* Share button + dropdown */
 .debate-arena-share-wrapper { position: relative; display: inline-block; margin-left: .3rem; }
-.debate-arena-share-toggle { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; }
+.debate-arena-share-toggle { background: none; border: 1px solid var(--muted); border-radius: 16px; padding: .2rem .6rem; font-size: .7rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .15s; }
 .debate-arena-share-toggle:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-.debate-arena-share-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: .3rem; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 180px; z-index: 200; overflow: hidden; }
+.debate-arena-share-dropdown { display: none; position: absolute; top: 100%; right: 0; margin-top: .3rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 180px; z-index: 200; overflow: hidden; }
 .debate-arena-share-dropdown-open { display: block; }
 .debate-arena-share-item { display: flex; align-items: center; gap: .4rem; width: 100%; padding: .5rem .75rem; border: none; background: none; font-size: .75rem; font-weight: 500; cursor: pointer; color: var(--text); text-decoration: none; transition: background .1s; }
-.debate-arena-share-item:hover { background: #f3f4f6; text-decoration: none; }
+.debate-arena-share-item:hover { background: var(--surface); text-decoration: none; }
 .debate-arena-share-icon { width: .9rem; height: .9rem; flex-shrink: 0; }
+.debate-arena-share-toggle-icon { width: 1rem; height: 1rem; vertical-align: middle; }
 
 /* Citation in composer */
 .debate-arena-composer-citation { margin-top: .3rem; }
@@ -201,7 +202,7 @@
 .debate-arena-composer-citation-url, .debate-arena-composer-citation-text { width: 100%; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .75rem; font-family: inherit; box-sizing: border-box; }
 
 /* Citation display on argument card */
-.debate-argument-citation { font-size: .7rem; margin-top: .3rem; padding: .25rem .4rem; background: #f8fafc; border-radius: 6px; border-left: 2px solid #94a3b8; }
+.debate-argument-citation { font-size: .7rem; margin-top: .3rem; padding: .25rem .4rem; background: var(--surface); border-radius: 6px; border-left: 2px solid var(--muted); }
 .debate-argument-citation-label { color: var(--muted); margin-right: .2rem; }
 .debate-argument-citation-link { color: var(--primary); word-break: break-all; }
 
@@ -217,7 +218,7 @@
 
 /* Link embed preview */
 .debate-argument-link-embeds { margin-top: .3rem; }
-.debate-argument-link-embed-card { display: flex; gap: .4rem; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; margin-top: .2rem; font-size: .7rem; text-decoration: none; color: inherit; transition: border-color .15s; }
+.debate-argument-link-embed-card { display: flex; gap: .4rem; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); margin-top: .2rem; font-size: .7rem; text-decoration: none; color: inherit; transition: border-color .15s; }
 .debate-argument-link-embed-card:hover { border-color: var(--primary); text-decoration: none; }
 .debate-argument-link-embed-image { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
 .debate-argument-link-embed-info { flex: 1; min-width: 0; }
@@ -228,7 +229,7 @@
 .debate-arena-board-media { margin-bottom: .5rem; border: 1px solid var(--border); border-radius: 10px; padding: .5rem .6rem; }
 .debate-arena-board-media-title { font-size: .7rem; font-weight: 700; color: var(--muted); display: block; margin-bottom: .3rem; }
 .debate-arena-board-media-image { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; display: block; }
-.debate-arena-board-media-video { display: flex; align-items: center; gap: .3rem; padding: .35rem .6rem; background: #f3f4f6; border-radius: 8px; font-size: .72rem; font-weight: 600; color: var(--danger); text-decoration: none; margin-top: .3rem; transition: background .15s; }
+.debate-arena-board-media-video { display: flex; align-items: center; gap: .3rem; padding: .35rem .6rem; background: var(--surface); border-radius: 8px; font-size: .72rem; font-weight: 600; color: var(--danger); text-decoration: none; margin-top: .3rem; transition: background .15s; }
 .debate-arena-board-media-video:hover { background: var(--border); text-decoration: none; }
 .debate-arena-board-media-video-play { font-size: 1rem; }
 
@@ -236,11 +237,11 @@
 .debate-argument-strength { display: flex; align-items: center; gap: .3rem; margin-top: .3rem; font-size: .6rem; color: var(--muted); }
 .debate-argument-strength-label { white-space: nowrap; }
 .debate-argument-strength-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; max-width: 60px; }
-.debate-argument-strength-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, #059669); border-radius: 2px; transition: width .3s; }
+.debate-argument-strength-fill { height: 100%; background: linear-gradient(90deg, #f59e0b, var(--success)); border-radius: 2px; transition: width .3s; }
 
 /* Audience voting */
 .debate-audience-vote { text-align: center; padding: .5rem .75rem; margin-top: .3rem; border-top: 1px solid rgba(255,255,255,.1); }
-.debate-audience-vote-title { font-size: .72rem; font-weight: 700; color: #fbbf24; margin-bottom: .4rem; }
+.debate-audience-vote-title { font-size: .72rem; font-weight: 700; color: var(--warning); margin-bottom: .4rem; }
 .debate-audience-vote-buttons { display: flex; align-items: center; gap: .5rem; }
 .debate-audience-vote-button {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem;
@@ -263,28 +264,28 @@
 .debate-audience-vote-tick {
   position: absolute; top: 4px; right: 4px;
   width: 18px; height: 18px; border-radius: 50%;
-  background: #059669; color: #fff; font-size: .6rem; font-weight: 900;
+  background: var(--success); color: #fff; font-size: .6rem; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 1px 4px rgba(0,0,0,.2);
 }
-.debate-audience-vote-action-label { font-size: .65rem; font-weight: 600; color: #94a3b8; }
+.debate-audience-vote-action-label { font-size: .65rem; font-weight: 600; color: var(--muted); }
 .debate-audience-vote-side-label { font-size: .85rem; font-weight: 800; color: #1e293b; text-align: center; line-height: 1.3; }
 .debate-audience-vote-bar { flex: 0 0 80px; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: #334155; }
 .debate-audience-vote-bar-blue { background: var(--info); height: 100%; min-width: 2px; }
-.debate-audience-vote-bar-red { background: #ef4444; height: 100%; min-width: 2px; }
+.debate-audience-vote-bar-red { background: var(--danger); height: 100%; min-width: 2px; }
 .debate-audience-vote-total { font-size: .75rem; font-weight: 700; color: #e2e8f0; margin-top: .4rem; }
 
 /* Notification bell */
 .debate-arena-notification-wrapper { position: relative; display: inline-block; margin-left: .3rem; }
-.debate-arena-notification-bell { background: none; border: 1px solid #94a3b8; border-radius: 16px; padding: .15rem .5rem; font-size: .75rem; cursor: pointer; transition: all .15s; color: var(--muted); }
-.debate-arena-notification-bell:hover { border-color: #fbbf24; }
+.debate-arena-notification-bell { background: none; border: 1px solid var(--muted); border-radius: 16px; padding: .15rem .5rem; font-size: .75rem; cursor: pointer; transition: all .15s; color: var(--muted); }
+.debate-arena-notification-bell:hover { border-color: var(--warning); }
 .debate-arena-notification-bell-empty { opacity: .6; }
-.debate-arena-notification-count { background: #ef4444; color: #fff; font-size: .55rem; font-weight: 800; padding: .05rem .3rem; border-radius: 8px; margin-left: .15rem; }
-.debate-arena-notification-dropdown { position: absolute; top: 100%; right: 0; margin-top: .3rem; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 260px; max-height: 300px; overflow-y: auto; z-index: 200; }
+.debate-arena-notification-count { background: var(--danger); color: #fff; font-size: .55rem; font-weight: 800; padding: .05rem .3rem; border-radius: 8px; margin-left: .15rem; }
+.debate-arena-notification-dropdown { position: absolute; top: 100%; right: 0; margin-top: .3rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 260px; max-height: 300px; overflow-y: auto; z-index: 200; }
 .debate-arena-notification-dropdown-hidden { display: none; }
-.debate-arena-notification-item { padding: .5rem .7rem; border-bottom: 1px solid #f3f4f6; font-size: .72rem; cursor: pointer; transition: background .1s; }
-.debate-arena-notification-item:hover { background: #f8fafc; }
-.debate-arena-notification-item-unread { background: #eff6ff; }
+.debate-arena-notification-item { padding: .5rem .7rem; border-bottom: 1px solid var(--surface); font-size: .72rem; cursor: pointer; transition: background .1s; }
+.debate-arena-notification-item:hover { background: var(--surface); }
+.debate-arena-notification-item-unread { background: var(--info-light); }
 .debate-arena-notification-item-time { font-size: .6rem; color: var(--muted); margin-top: .1rem; }
 .debate-arena-notification-empty { padding: .75rem; text-align: center; font-size: .72rem; color: var(--muted); }
 .debate-arena-notification-mark-read { display: block; padding: .4rem; text-align: center; font-size: .65rem; font-weight: 600; color: var(--primary); cursor: pointer; border-top: 1px solid var(--border); }
@@ -324,11 +325,11 @@
   /* Cards — keep border colors */
   .debate-argument-card-blue { border-left-color: var(--info) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .debate-argument-card-red { border-left-color: var(--danger) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .debate-rebuttal-card-blue { background: #eff6ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .debate-rebuttal-card-blue { background: var(--info-light) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .debate-rebuttal-card-red { background: var(--danger-light) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
   /* Board headers */
-  .debate-arena-board-header-blue { background: #eff6ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .debate-arena-board-header-blue { background: var(--info-light) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .debate-arena-board-header-red { background: var(--danger-light) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
   /* Winner banner */

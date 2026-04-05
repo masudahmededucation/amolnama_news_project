@@ -12,7 +12,7 @@
 
   {% if story.cover_url %}
   <div class="stories-detail-cover">
-    <img src="{{ story.cover_url }}" alt="{{ story.title_bn }}" class="stories-detail-cover-image">
+    <img src="{{ story.cover_url }}" alt="{{ story.title_bn }}" class="stories-detail-cover-image" loading="lazy">
   </div>
   {% endif %}
 
@@ -43,7 +43,7 @@
   {% if story.pages %}
   <div class="stories-detail-pages" id="stories-detail-pages">
     {% for page in story.pages %}
-    <div class="stories-detail-page" id="stories-detail-page-{{ page.page_number }}" data-page-number="{{ page.page_number }}" {% if not forloop.first %}style="display:none;"{% endif %}>
+    <div class="stories-detail-page{% if not forloop.first %} display-hidden{% endif %}" id="stories-detail-page-{{ page.page_number }}" data-page-number="{{ page.page_number }}">
       <div class="stories-detail-page-content">{{ page.page_content_html_bn|safe }}</div>
     </div>
     {% endfor %}
@@ -85,5 +85,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'stories/assets/js/pages/stories-detail.js' %}"></script>
+<script src="{% static 'stories/assets/js/pages/stories-detail.js' %}" defer></script>
 {% endblock %}

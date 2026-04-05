@@ -20,18 +20,18 @@
 (function () {
   'use strict';
 
-  var hiddenInput       = document.getElementById('sports-match-event-json');
+  const hiddenInput       = document.getElementById('sports-match-event-json');
   if (!hiddenInput) return;
 
-  var competitionNameEl = document.getElementById('sports-competition-name');
-  var stageSelect       = document.getElementById('sports-match-stage-select');
-  var venueEl           = document.getElementById('sports-venue');
-  var matchDateEl       = document.getElementById('sports-match-date');
-  var statusSelect      = document.getElementById('sports-match-status-select');
+  const competitionNameEl = document.getElementById('sports-competition-name');
+  const stageSelect       = document.getElementById('sports-match-stage-select');
+  const venueEl           = document.getElementById('sports-venue');
+  const matchDateEl       = document.getElementById('sports-match-date');
+  const statusSelect      = document.getElementById('sports-match-status-select');
 
   function collectData() {
-    var stageVal  = (stageSelect  && stageSelect.value)  || '';
-    var stageName = '';
+    const stageVal  = (stageSelect  && stageSelect.value)  || '';
+    let stageName = '';
     if (stageSelect && stageSelect.selectedIndex > 0) {
       stageName = stageSelect.options[stageSelect.selectedIndex].text || '';
     }
@@ -50,23 +50,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-sports-match-event');
+  const section = document.getElementById('section-sports-match-event');
   if (section) {
     section.addEventListener('input',  syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (competitionNameEl && data.competitionName) competitionNameEl.value = data.competitionName;

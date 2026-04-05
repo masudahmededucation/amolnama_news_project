@@ -1,5 +1,5 @@
 <article class="article">
-  <img src="{{ article.image_url }}" alt="Article image"/>
+  <img src="{{ article.image_url }}" alt="Article image" loading="lazy"/>
   <div class="content">
     <div class="kicker">{{ article.section }}</div>
     <h3><a href="{% url 'core:article_detail' slug=article.slug %}">{{ article.title }}</a></h3>

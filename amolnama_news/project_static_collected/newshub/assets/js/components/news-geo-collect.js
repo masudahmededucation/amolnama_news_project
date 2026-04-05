@@ -6,8 +6,8 @@
   if (!navigator.geolocation) return;
 
   navigator.geolocation.getCurrentPosition(function (pos) {
-    var lat = document.getElementById('news-latitude');
-    var lng = document.getElementById('news-longitude');
+    const lat = document.getElementById('news-latitude');
+    const lng = document.getElementById('news-longitude');
     if (lat) lat.value = pos.coords.latitude.toFixed(6);
     if (lng) lng.value = pos.coords.longitude.toFixed(6);
 

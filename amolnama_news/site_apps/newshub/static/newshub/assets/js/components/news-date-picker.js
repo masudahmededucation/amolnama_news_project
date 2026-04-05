@@ -20,7 +20,7 @@
 
   if (typeof flatpickr === 'undefined') return;
 
-  var OPTIONS = {
+  const OPTIONS = {
     dateFormat:    'Y-m-d',              /* value stored — Django ISO */
     altInput:      true,                 /* show user-friendly format */
     altFormat:     'd/m/Y',             /* dd/mm/yyyy */
@@ -29,18 +29,18 @@
     locale:        { firstDayOfWeek: 0 },
     disableMobile: false,               /* native picker on mobile */
     onReady: function (selectedDates, dateStr, instance) {
-      var origId = instance.input.id || '';
-      var nameBase = origId.replace(/-/g, '_');
+      const origId = instance.input.id || '';
+      const nameBase = origId.replace(/-/g, '_');
 
       /* Alt input (desktop) — visible formatted input */
       if (instance.altInput) {
         instance.altInput.placeholder = 'DD/MM/YYYY';
         if (origId) {
-          var altId = origId + '-visible';
+          const altId = origId + '-visible';
           instance.altInput.id = altId;
           instance.altInput.setAttribute('name', nameBase + '_visible');
           /* Update any label that references the original hidden input or has matching id pattern */
-          var label = document.querySelector('label[for="' + origId + '"]') ||
+          const label = document.querySelector('label[for="' + origId + '"]') ||
                       document.getElementById(origId + '-label');
           if (label) label.setAttribute('for', altId);
         }
@@ -54,12 +54,12 @@
 
       /* Flatpickr internal calendar elements — add id/name to suppress browser warnings */
       if (instance.calendarContainer && origId) {
-        var monthDropdown = instance.calendarContainer.querySelector('.flatpickr-monthDropdown-months');
+        const monthDropdown = instance.calendarContainer.querySelector('.flatpickr-monthDropdown-months');
         if (monthDropdown && !monthDropdown.id) {
           monthDropdown.id = origId + '-flatpickr-month';
           monthDropdown.setAttribute('name', nameBase + '_flatpickr_month');
         }
-        var yearInput = instance.calendarContainer.querySelector('.cur-year');
+        const yearInput = instance.calendarContainer.querySelector('.cur-year');
         if (yearInput && !yearInput.id) {
           yearInput.id = origId + '-flatpickr-year';
           yearInput.setAttribute('name', nameBase + '_flatpickr_year');
@@ -69,13 +69,13 @@
   };
 
   function initAll() {
-    var scope = document.querySelector('.news-multistep-form') || document;
-    var inputs = scope.querySelectorAll('input[type="date"]');
+    const scope = document.querySelector('.news-multistep-form') || document;
+    const inputs = scope.querySelectorAll('input[type="date"]');
     inputs.forEach(function (input) {
       if (input._flatpickr) return;  /* skip already-initialized */
-      var opts = Object.assign({}, OPTIONS);
-      var maxAttr = input.getAttribute('max');
-      var minAttr = input.getAttribute('min');
+      const opts = Object.assign({}, OPTIONS);
+      const maxAttr = input.getAttribute('max');
+      const minAttr = input.getAttribute('min');
       if (maxAttr) opts.maxDate = maxAttr;
       if (minAttr) opts.minDate = minAttr;
       flatpickr(input, opts);

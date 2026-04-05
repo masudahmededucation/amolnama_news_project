@@ -15,15 +15,15 @@
 (function () {
   'use strict';
 
-  var scale = document.getElementById('july-scale');
-  var internetStatus = document.getElementById('july-internet-status');
-  var curfewStatus = document.getElementById('july-curfew-status');
-  var hiddenJson = document.getElementById('july-context-json');
+  const scale = document.getElementById('july-scale');
+  const internetStatus = document.getElementById('july-internet-status');
+  const curfewStatus = document.getElementById('july-curfew-status');
+  const hiddenJson = document.getElementById('july-context-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       scale: scale ? scale.value : '',
       internetStatus: internetStatus ? internetStatus.value : '',
       curfewStatus: curfewStatus ? curfewStatus.value : '',
@@ -31,18 +31,18 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [scale, internetStatus, curfewStatus];
+  const fields = [scale, internetStatus, curfewStatus];
   fields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 

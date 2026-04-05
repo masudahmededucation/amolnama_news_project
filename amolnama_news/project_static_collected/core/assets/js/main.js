@@ -34,7 +34,7 @@
       saved = saved === 'light' ? 'dark' : saved === 'dark' ? 'auto' : 'light';
       localStorage.setItem('theme', saved);
       apply(saved);
-      var label = themeBtn.querySelector('span');
+      const label = themeBtn.querySelector('span');
       label.textContent = saved;
       label.style.textTransform = 'uppercase';
     });
@@ -45,7 +45,7 @@
   if(form){
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const q = (searchInput?.value || '').trim();
+      let q = (searchInput?.value || '').trim();
       if(q){
         window.location.href = '/search/?q=' + encodeURIComponent(q);
       }

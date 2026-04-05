@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var toggle = document.querySelector(".header-user-menu-toggle");
+  const toggle = document.querySelector(".header-user-menu-toggle");
   if (!toggle) return;
 
-  var dropdown = toggle.nextElementSibling;
+  const dropdown = toggle.nextElementSibling;
 
   toggle.addEventListener("click", function (e) {
     e.stopPropagation();
-    var expanded = toggle.getAttribute("aria-expanded") === "true";
+    const expanded = toggle.getAttribute("aria-expanded") === "true";
     toggle.setAttribute("aria-expanded", String(!expanded));
     dropdown.classList.toggle("open");
   });

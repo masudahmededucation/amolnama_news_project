@@ -10,23 +10,23 @@
  *   #news-content-body-bn  — content body textarea (no max, DB: nvarchar(max))
  */
 (function () {
-  var fields = [
+  const fields = [
     { id: 'news-headline-bn',     max: 100 },
     { id: 'news-summary-bn',      max: 400 },
     { id: 'news-content-body-bn', max: 0 }    /* 0 = no limit, count only */
   ];
 
   fields.forEach(function (cfg) {
-    var el = document.getElementById(cfg.id);
+    const el = document.getElementById(cfg.id);
     if (!el) return;
 
     /* Create counter element */
-    var counter = document.createElement('div');
+    const counter = document.createElement('div');
     counter.className = 'char-count';
     el.parentNode.appendChild(counter);
 
     function update() {
-      var len = el.value.normalize('NFKC').length;
+      const len = el.value.normalize('NFKC').length;
       if (cfg.max > 0) {
         counter.textContent = len + '/' + cfg.max;
         if (len > cfg.max) {
@@ -46,7 +46,7 @@
 
     /* Trim leading/trailing spaces when user leaves the field */
     el.addEventListener('blur', function () {
-      var trimmed = el.value.replace(/^\s+|\s+$/g, '');
+      const trimmed = el.value.replace(/^\s+|\s+$/g, '');
       if (trimmed !== el.value) {
         el.value = trimmed;
         update();

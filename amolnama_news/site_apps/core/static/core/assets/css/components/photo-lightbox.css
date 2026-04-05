@@ -8,9 +8,12 @@
   width: 100%;
   height: 100%;
   z-index: 9999;
-  display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.photo-lightbox:not([hidden]) {
+  display: flex;
 }
 
 .photo-lightbox-overlay {

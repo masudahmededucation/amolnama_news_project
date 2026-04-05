@@ -18,28 +18,28 @@
 (function () {
   'use strict';
 
-  var BENGALI_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  const BENGALI_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
-  var stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  var btnPrev = document.getElementById('btn-step-prev');
-  var btnNext = document.getElementById('btn-step-next');
-  var stepCounter = document.getElementById('step-counter');
-  var stepperContainer = document.getElementById('stepper');
-  var formTypeInput = document.getElementById('news-form-type');
-  var formTypePicker = document.getElementById('form-type-picker');
+  const stepPanels = document.querySelectorAll('.step-panel[data-step]');
+  const btnPrev = document.getElementById('btn-step-prev');
+  const btnNext = document.getElementById('btn-step-next');
+  const stepCounter = document.getElementById('step-counter');
+  const stepperContainer = document.getElementById('stepper');
+  const formTypeInput = document.getElementById('news-form-type');
+  const formTypePicker = document.getElementById('form-type-picker');
 
   if (!stepPanels.length || !btnNext) return;
 
-  var totalSteps = stepPanels.length;
-  var realTotalSteps = totalSteps;  /* actual panels on this page */
-  var currentStep = 1;
-  var selectedFormType = '';
-  var stepDots = [];  /* populated by buildStepper() */
-  var isPreviewMode = false;  /* true when showing a different form type's steps */
-  var stepValidators = {};  /* step number → [validatorFn, ...] */
+  let totalSteps = stepPanels.length;
+  const realTotalSteps = totalSteps;  /* actual panels on this page */
+  let currentStep = 1;
+  let selectedFormType = '';
+  let stepDots = [];  /* populated by buildStepper() */
+  let isPreviewMode = false;  /* true when showing a different form type's steps */
+  const stepValidators = {};  /* step number → [validatorFn, ...] */
 
   /* Detect which step contains the Leaflet map (needs invalidateSize on show) */
-  var mapStep = 0;
+  let mapStep = 0;
   stepPanels.forEach(function (panel) {
     if (panel.querySelector('#widget-location') || panel.querySelector('.news-map-pinpoint')) {
       mapStep = parseInt(panel.getAttribute('data-step'), 10);
@@ -61,34 +61,34 @@
     stepperContainer.innerHTML = '';
 
     stepPanels.forEach(function (panel, index) {
-      var step = parseInt(panel.getAttribute('data-step'), 10);
-      var labelBn = panel.getAttribute('data-step-label-bn') || '';
+      let step = parseInt(panel.getAttribute('data-step'), 10);
+      const labelBn = panel.getAttribute('data-step-label-bn') || '';
 
       /* Connecting line before each dot (except the first) */
       if (index > 0) {
-        var line = document.createElement('div');
+        let line = document.createElement('div');
         line.className = 'step-line';
         stepperContainer.appendChild(line);
       }
 
       /* Dot */
-      var dot = document.createElement('div');
+      let dot = document.createElement('div');
       dot.className = 'step-dot';
       dot.setAttribute('data-step', step);
 
-      var numSpan = document.createElement('span');
+      let numSpan = document.createElement('span');
       numSpan.className = 'step-num';
       numSpan.textContent = toBengaliNumber(step);
       dot.appendChild(numSpan);
 
-      var labelSpan = document.createElement('span');
+      let labelSpan = document.createElement('span');
       labelSpan.className = 'step-label';
       labelSpan.textContent = labelBn;
       dot.appendChild(labelSpan);
 
       /* Click handler */
       dot.addEventListener('click', function () {
-        var targetStep = parseInt(dot.getAttribute('data-step'), 10);
+        const targetStep = parseInt(dot.getAttribute('data-step'), 10);
         showStep(targetStep);
       });
 
@@ -114,26 +114,26 @@
     totalSteps = labels.length;
 
     labels.forEach(function (label, index) {
-      var step = index + 1;
+      let step = index + 1;
 
       /* Connecting line before each dot (except the first) */
       if (index > 0) {
-        var line = document.createElement('div');
+        const line = document.createElement('div');
         line.className = 'step-line';
         stepperContainer.appendChild(line);
       }
 
       /* Dot */
-      var dot = document.createElement('div');
+      const dot = document.createElement('div');
       dot.className = 'step-dot' + (step === 1 ? ' active' : ' preview');
       dot.setAttribute('data-step', step);
 
-      var numSpan = document.createElement('span');
+      const numSpan = document.createElement('span');
       numSpan.className = 'step-num';
       numSpan.textContent = toBengaliNumber(step);
       dot.appendChild(numSpan);
 
-      var labelSpan = document.createElement('span');
+      const labelSpan = document.createElement('span');
       labelSpan.className = 'step-label';
       labelSpan.textContent = label;
       dot.appendChild(labelSpan);
@@ -164,10 +164,10 @@
   /* ========== Form Type Card Selection ========== */
 
   /* The form type that this page was built for (from view context) */
-  var pageFormType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
+  const pageFormType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
 
   if (formTypePicker) {
-    var cards = formTypePicker.querySelectorAll('.form-type-card');
+    const cards = formTypePicker.querySelectorAll('.form-type-card');
     cards.forEach(function (card) {
       card.addEventListener('click', function () {
         /* Deselect all */
@@ -179,10 +179,10 @@
 
         /* Preview the stepper for the selected form type.
            Always show preview so the user sees the step layout instantly. */
-        var labelsJson = card.getAttribute('data-step-labels');
+        const labelsJson = card.getAttribute('data-step-labels');
         if (labelsJson) {
           try {
-            var labels = JSON.parse(labelsJson);
+            const labels = JSON.parse(labelsJson);
             buildStepperPreview(labels);
           } catch (e) {
             /* Invalid JSON — ignore */
@@ -205,10 +205,10 @@
   /* ========== Error Detection ========== */
 
   function detectErrorSteps() {
-    var errors = {};
+    const errors = {};
     stepPanels.forEach(function (panel) {
-      var step = parseInt(panel.getAttribute('data-step'), 10);
-      var fieldErrors = panel.querySelectorAll('.field-errors li');
+      const step = parseInt(panel.getAttribute('data-step'), 10);
+      const fieldErrors = panel.querySelectorAll('.field-errors li');
       if (fieldErrors.length > 0) {
         errors[step] = true;
       }
@@ -218,15 +218,15 @@
 
   /* ========== Step Navigation ========== */
 
-  var errorSteps = {};
-  var isInitialLoad = true;
+  let errorSteps = {};
+  let isInitialLoad = true;
 
   function showStep(step) {
     currentStep = step;
 
     /* Panels */
     stepPanels.forEach(function (panel) {
-      var panelStep = parseInt(panel.getAttribute('data-step'), 10);
+      const panelStep = parseInt(panel.getAttribute('data-step'), 10);
       if (panelStep === currentStep) {
         panel.classList.add('active');
       } else {
@@ -236,7 +236,7 @@
 
     /* Dots */
     stepDots.forEach(function (dot) {
-      var dotStep = parseInt(dot.getAttribute('data-step'), 10);
+      let dotStep = parseInt(dot.getAttribute('data-step'), 10);
       dot.classList.remove('active', 'completed');
       if (dotStep === currentStep) {
         dot.classList.add('active');
@@ -251,7 +251,7 @@
     });
 
     /* Lines */
-    var stepLines = document.querySelectorAll('.step-line');
+    const stepLines = document.querySelectorAll('.step-line');
     stepLines.forEach(function (line, index) {
       if (index < currentStep - 1) {
         line.classList.add('completed');
@@ -266,14 +266,14 @@
     }
 
     /* Clear form button — hide on step 1 (form type selection), show on step 2+ */
-    var clearFormButton = document.getElementById('news-clear-form-button');
+    const clearFormButton = document.getElementById('news-clear-form-button');
     if (clearFormButton) {
       clearFormButton.style.display = currentStep === 1 ? 'none' : 'inline-block';
     }
 
     /* Next button — hide on last step (use real total when in preview, user is on step 1) */
     if (btnNext) {
-      var effectiveTotal = isPreviewMode ? realTotalSteps : totalSteps;
+      const effectiveTotal = isPreviewMode ? realTotalSteps : totalSteps;
       btnNext.style.display = currentStep === effectiveTotal ? 'none' : '';
     }
 
@@ -288,7 +288,7 @@
     if (!isInitialLoad) {
       requestAnimationFrame(function () {
         if (!stepperContainer) return;
-        var headerEl = document.querySelector('.header');
+        const headerEl = document.querySelector('.header');
         stepperContainer.style.scrollMarginTop = (headerEl ? headerEl.offsetHeight : 0) + 'px';
         stepperContainer.scrollIntoView({ block: 'start' });
       });
@@ -297,7 +297,7 @@
     /* Leaflet map fix */
     if (mapStep && currentStep === mapStep && window.newshubMapPinpoint) {
       setTimeout(function () {
-        var map = window.newshubMapPinpoint.getMap();
+        const map = window.newshubMapPinpoint.getMap();
         if (map) map.invalidateSize();
       }, 200);
     }
@@ -306,25 +306,25 @@
   /* ========== Step Validation Helpers ========== */
 
   function getStepPanel(step) {
-    for (var i = 0; i < stepPanels.length; i++) {
+    for (let i = 0; i < stepPanels.length; i++) {
       if (parseInt(stepPanels[i].getAttribute('data-step'), 10) === step) return stepPanels[i];
     }
     return null;
   }
 
   function showStepWarnings(step, warnings) {
-    var panel = getStepPanel(step);
+    let panel = getStepPanel(step);
     if (!panel) return;
 
-    var container = panel.querySelector('.step-validation-messages');
+    let container = panel.querySelector('.step-validation-messages');
     if (!container) {
       container = document.createElement('div');
       container.className = 'step-validation-messages';
       panel.insertBefore(container, panel.firstChild);
     }
 
-    var html = '';
-    for (var i = 0; i < warnings.length; i++) {
+    let html = '';
+    for (let i = 0; i < warnings.length; i++) {
       html += '<div class="step-validation-msg">' + warnings[i] + '</div>';
     }
     container.innerHTML = html;
@@ -334,17 +334,17 @@
   }
 
   function clearStepWarnings(step) {
-    var panel = getStepPanel(step);
+    const panel = getStepPanel(step);
     if (!panel) return;
-    var container = panel.querySelector('.step-validation-messages');
+    const container = panel.querySelector('.step-validation-messages');
     if (container) container.style.display = 'none';
   }
 
   function runStepValidators(step) {
     if (!stepValidators[step]) return [];
-    var allWarnings = [];
-    for (var i = 0; i < stepValidators[step].length; i++) {
-      var result = stepValidators[step][i]();
+    let allWarnings = [];
+    for (let i = 0; i < stepValidators[step].length; i++) {
+      const result = stepValidators[step][i]();
       if (result && result.warnings && result.warnings.length) {
         allWarnings = allWarnings.concat(result.warnings);
       }
@@ -360,7 +360,7 @@
   function goNext() {
     /* If a form-type picker exists on the current step, require selection */
     if (formTypePicker) {
-      var pickerPanel = formTypePicker.closest('.step-panel[data-step]');
+      const pickerPanel = formTypePicker.closest('.step-panel[data-step]');
       if (pickerPanel && parseInt(pickerPanel.getAttribute('data-step'), 10) === currentStep) {
         if (!selectedFormType) {
           formTypePicker.classList.add('shake');
@@ -368,9 +368,9 @@
           return;
         }
         /* Redirect to form-type-specific URL if different from current page */
-        var selectedCard = formTypePicker.querySelector('.form-type-card.selected');
+        const selectedCard = formTypePicker.querySelector('.form-type-card.selected');
         if (selectedCard) {
-          var targetUrl = selectedCard.getAttribute('data-url');
+          const targetUrl = selectedCard.getAttribute('data-url');
           if (targetUrl && targetUrl !== window.location.pathname) {
             /* Remember to auto-advance past step 1 after redirect */
             try { sessionStorage.setItem('newshub_advance', '1'); } catch (e) {}
@@ -386,7 +386,7 @@
     }
 
     /* Run registered step validators for the current step */
-    var warnings = runStepValidators(currentStep);
+    const warnings = runStepValidators(currentStep);
     if (warnings.length) {
       showStepWarnings(currentStep, warnings);
       return;
@@ -418,8 +418,8 @@
   /* ========== Public API (for validation and other scripts) ========== */
 
   /* Drain deferred validators queued by component scripts that loaded before us */
-  var deferredQueue = window.__newshubStepValidators || [];
-  for (var q = 0; q < deferredQueue.length; q++) {
+  const deferredQueue = window.__newshubStepValidators || [];
+  for (let q = 0; q < deferredQueue.length; q++) {
     registerStepValidator(deferredQueue[q].step, deferredQueue[q].fn);
   }
 
@@ -428,7 +428,7 @@
      *  @param {Object} steps — e.g. { 2: true, 5: true, 7: true }  */
     showErrors: function (steps) {
       errorSteps = steps;
-      var sorted = Object.keys(steps).map(Number).sort(function (a, b) { return a - b; });
+      const sorted = Object.keys(steps).map(Number).sort(function (a, b) { return a - b; });
       if (sorted.length) showStep(sorted[0]);
     },
 
@@ -436,7 +436,7 @@
     updateErrors: function (steps) {
       errorSteps = steps;
       stepDots.forEach(function (dot) {
-        var dotStep = parseInt(dot.getAttribute('data-step'), 10);
+        const dotStep = parseInt(dot.getAttribute('data-step'), 10);
         if (errorSteps[dotStep]) {
           dot.classList.add('has-error');
         } else {
@@ -451,20 +451,20 @@
 
   /* ========== AJAX Form Submit (no page reload on error) ========== */
 
-  var mainForm = document.querySelector('form.multistep-form') || document.querySelector('form');
+  const mainForm = document.querySelector('form.multistep-form') || document.querySelector('form');
   if (mainForm) {
     mainForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      var submitBtn = document.getElementById('news-submit-btn');
-      var errorBanner = document.getElementById('ajax-submit-error');
+      const submitBtn = document.getElementById('news-submit-btn');
+      let errorBanner = document.getElementById('ajax-submit-error');
 
       /* Create error banner if it doesn't exist */
       if (!errorBanner) {
         errorBanner = document.createElement('div');
         errorBanner.id = 'ajax-submit-error';
         errorBanner.style.cssText = 'display:none;background:#fde8e8;color:#c0392b;padding:12px 16px;border-radius:6px;margin:10px 0;font-size:.9rem;font-weight:600;border:1px solid #f5c6cb;';
-        var submitWidget = document.getElementById('widget-submit');
+        let submitWidget = document.getElementById('widget-submit');
         if (submitWidget) {
           submitWidget.insertBefore(errorBanner, submitWidget.firstChild);
         }
@@ -479,7 +479,7 @@
         submitBtn.textContent = 'জমা হচ্ছে... (Submitting...)';
       }
 
-      var formData = new FormData(mainForm);
+      const formData = new FormData(mainForm);
 
       fetch(mainForm.action || window.location.href, {
         method: 'POST',
@@ -497,8 +497,8 @@
         if (result.data.success) {
           /* Clear localStorage draft (per-form-type) */
           try {
-            var ftInput = document.getElementById('news-form-type');
-            var ftCode = ftInput ? ftInput.value : '';
+            const ftInput = document.getElementById('news-form-type');
+            const ftCode = ftInput ? ftInput.value : '';
             localStorage.removeItem(ftCode ? ('newshub_draft_' + ftCode) : 'newshub_draft');
             localStorage.removeItem(ftCode ? ('newshub_draft_tags_' + ftCode) : 'newshub_draft_tags');
           } catch (ex) {}
@@ -523,11 +523,11 @@
   buildStepper();
 
   errorSteps = detectErrorSteps();
-  var hasErrors = Object.keys(errorSteps).length > 0;
+  const hasErrors = Object.keys(errorSteps).length > 0;
 
-  var startStep = 1;
+  let startStep = 1;
   if (hasErrors) {
-    var errorStepNumbers = Object.keys(errorSteps).map(Number).sort();
+    const errorStepNumbers = Object.keys(errorSteps).map(Number).sort();
     startStep = errorStepNumbers[0];
   }
 
@@ -552,14 +552,14 @@
 
   /* Show submission error from previous attempt (stored in sessionStorage before reload) */
   try {
-    var savedError = sessionStorage.getItem('newshub_submit_error');
+    const savedError = sessionStorage.getItem('newshub_submit_error');
     if (savedError) {
       sessionStorage.removeItem('newshub_submit_error');
-      var errorBanner = document.createElement('div');
+      const errorBanner = document.createElement('div');
       errorBanner.id = 'ajax-submit-error';
       errorBanner.style.cssText = 'background:#fde8e8;color:#c0392b;padding:12px 16px;border-radius:6px;margin:10px 0;font-size:.9rem;font-weight:600;border:1px solid #f5c6cb;';
       errorBanner.textContent = savedError;
-      var submitWidget = document.getElementById('widget-submit');
+      const submitWidget = document.getElementById('widget-submit');
       if (submitWidget) {
         submitWidget.insertBefore(errorBanner, submitWidget.firstChild);
       }

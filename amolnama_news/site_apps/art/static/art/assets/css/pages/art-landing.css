@@ -126,7 +126,7 @@
   width: 100%;
   height: 100%;
   font-size: 3rem;
-  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  background: linear-gradient(135deg, var(--info-light), #f3e5f5);
 }
 
 .art-gallery-card-tutorial-badge {

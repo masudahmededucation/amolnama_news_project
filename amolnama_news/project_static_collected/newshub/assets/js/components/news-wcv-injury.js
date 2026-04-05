@@ -8,30 +8,30 @@
 (function () {
   'use strict';
 
-  var injuryTypes = document.querySelectorAll('input[name="wcv_injury_type"]');
-  var severityRadios = document.querySelectorAll('input[name="wcv_injury_severity"]');
-  var psychSymptoms = document.querySelectorAll('input[name="wcv_psych_symptom"]');
-  var hiddenJson = document.getElementById('wcv-injury');
+  const injuryTypes = document.querySelectorAll('input[name="wcv_injury_type"]');
+  const severityRadios = document.querySelectorAll('input[name="wcv_injury_severity"]');
+  const psychSymptoms = document.querySelectorAll('input[name="wcv_psych_symptom"]');
+  const hiddenJson = document.getElementById('wcv-injury');
 
   if (!hiddenJson) return;
 
   function getRadio(radios) {
-    for (var i = 0; i < radios.length; i++) {
+    for (let i = 0; i < radios.length; i++) {
       if (radios[i].checked) return radios[i].value;
     }
     return '';
   }
 
   function getCheckedValues(checkboxes) {
-    var values = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const values = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) values.push(checkboxes[i].value);
     }
     return values;
   }
 
   function serialize() {
-    var data = {
+    let data = {
       injuryTypes: getCheckedValues(injuryTypes),
       severity: getRadio(severityRadios),
       psychSymptoms: getCheckedValues(psychSymptoms)
@@ -41,37 +41,37 @@
 
   /* Listeners */
   [injuryTypes, psychSymptoms].forEach(function (group) {
-    for (var i = 0; i < group.length; i++) group[i].addEventListener('change', serialize);
+    for (let i = 0; i < group.length; i++) group[i].addEventListener('change', serialize);
   });
-  for (var i = 0; i < severityRadios.length; i++) severityRadios[i].addEventListener('change', serialize);
+  for (let i = 0; i < severityRadios.length; i++) severityRadios[i].addEventListener('change', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
     /* Injury type checkboxes */
     if (data.injuryTypes && data.injuryTypes.length) {
-      for (var i = 0; i < injuryTypes.length; i++) {
+      for (let i = 0; i < injuryTypes.length; i++) {
         injuryTypes[i].checked = data.injuryTypes.indexOf(injuryTypes[i].value) !== -1;
       }
     }
 
     /* Severity radio */
     if (data.severity) {
-      for (var s = 0; s < severityRadios.length; s++) {
+      for (let s = 0; s < severityRadios.length; s++) {
         severityRadios[s].checked = (severityRadios[s].value === String(data.severity));
       }
     }
 
     /* Psychological symptoms checkboxes */
     if (data.psychSymptoms && data.psychSymptoms.length) {
-      for (var p = 0; p < psychSymptoms.length; p++) {
+      for (let p = 0; p < psychSymptoms.length; p++) {
         psychSymptoms[p].checked = data.psychSymptoms.indexOf(psychSymptoms[p].value) !== -1;
       }
     }
@@ -82,21 +82,21 @@
   window.newshubWcvInjury = {
     reset: function () {
       [injuryTypes, psychSymptoms].forEach(function (group) {
-        for (var i = 0; i < group.length; i++) group[i].checked = false;
+        for (let i = 0; i < group.length; i++) group[i].checked = false;
       });
-      for (var j = 0; j < severityRadios.length; j++) severityRadios[j].checked = false;
+      for (let j = 0; j < severityRadios.length; j++) severityRadios[j].checked = false;
       hiddenJson.value = '';
     }
   };
 
   /* Step validator: if injury types selected, require severity */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
-      var hasInjuryType = getCheckedValues(injuryTypes).length > 0;
+      const warnings = [];
+      const hasInjuryType = getCheckedValues(injuryTypes).length > 0;
       if (hasInjuryType && !getRadio(severityRadios)) {
         warnings.push('আঘাতের তীব্রতা নির্বাচন করুন (Please select injury severity)');
       }

@@ -16,9 +16,10 @@ Expected party dict keys:
         src="/media/{{ party.file_path }}{{ party.file_name }}"
         alt="{{ party.party_short_name }}"
         class="party-logo"
+        loading="lazy"
       />
     {% endif %}
-    <div class="party-text" style="flex: 1;">
+    <div class="party-text party-text-flex">
       <div class="party-info">
         {% if party.party_short_name %}
           <span class="party-short">{{ party.party_short_name }}</span>

@@ -2,16 +2,16 @@
 (function () {
   'use strict';
 
-  var dropzoneElement = document.getElementById('textextractor-upload-dropzone');
-  var fileInputElement = document.getElementById('textextractor-upload-file-input');
-  var progressSection = document.getElementById('textextractor-upload-progress');
-  var progressFilename = document.getElementById('textextractor-upload-progress-filename');
-  var progressBar = document.getElementById('textextractor-upload-progress-bar');
-  var progressStatus = document.getElementById('textextractor-upload-progress-status');
-  var resultSection = document.getElementById('textextractor-upload-result');
-  var resultPreview = document.getElementById('textextractor-upload-result-preview');
-  var resultViewButton = document.getElementById('textextractor-upload-result-view-button');
-  var errorSection = document.getElementById('textextractor-upload-error');
+  const dropzoneElement = document.getElementById('textextractor-upload-dropzone');
+  const fileInputElement = document.getElementById('textextractor-upload-file-input');
+  const progressSection = document.getElementById('textextractor-upload-progress');
+  const progressFilename = document.getElementById('textextractor-upload-progress-filename');
+  const progressBar = document.getElementById('textextractor-upload-progress-bar');
+  const progressStatus = document.getElementById('textextractor-upload-progress-status');
+  const resultSection = document.getElementById('textextractor-upload-result');
+  const resultPreview = document.getElementById('textextractor-upload-result-preview');
+  const resultViewButton = document.getElementById('textextractor-upload-result-view-button');
+  const errorSection = document.getElementById('textextractor-upload-error');
 
   if (!dropzoneElement) return;
 
@@ -32,7 +32,7 @@
     if (progressStatus) progressStatus.textContent = 'Uploading...';
     if (dropzoneElement) dropzoneElement.style.display = 'none';
 
-    var formData = new FormData();
+    const formData = new FormData();
     formData.append('extraction_file', file);
 
     fetch('/text-extractor/api/upload/', {
@@ -40,7 +40,10 @@
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
       body: formData,
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(function (data) {
       if (!data.success) { showError(data.error || 'Upload failed'); return; }
       if (progressBar) progressBar.style.width = '60%';
@@ -53,9 +56,12 @@
   }
 
   function pollJobStatus(jobId) {
-    var pollInterval = setInterval(function () {
+    const pollInterval = setInterval(function () {
       fetch('/text-extractor/api/status/' + jobId + '/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
       .then(function (data) {
         if (data.status_code === 'completed') {
           clearInterval(pollInterval);
@@ -73,9 +79,9 @@
         } else if (data.status_code === 'processing' && data.progress_message) {
           if (progressStatus) progressStatus.textContent = data.progress_message;
           /* Extract percent from message like "Processing page 3 of 15 (20%)" */
-          var percentMatch = data.progress_message.match(/\((\d+)%\)/);
+          const percentMatch = data.progress_message.match(/\((\d+)%\)/);
           if (percentMatch && progressBar) {
-            var percent = parseInt(percentMatch[1], 10);
+            const percent = parseInt(percentMatch[1], 10);
             progressBar.style.width = Math.max(10, percent) + '%';
             progressBar.style.animation = 'none';
           }

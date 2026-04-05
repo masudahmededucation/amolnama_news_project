@@ -4,21 +4,21 @@
 (function () {
   'use strict';
 
-  var attachedElements = new WeakSet();
-  var SKIP_INPUT_TYPES = { date: 1, number: 1, email: 1, url: 1, password: 1, hidden: 1, file: 1 };
+  const attachedElements = new WeakSet();
+  const SKIP_INPUT_TYPES = { date: 1, number: 1, email: 1, url: 1, password: 1, hidden: 1, file: 1 };
 
   function attachBanglaInputToAllFields() {
     if (typeof BanglaInput === 'undefined') return;
 
-    var fields = document.querySelectorAll('input[type="text"]:not([data-bangla-attached]):not([data-no-bangla]), textarea:not([data-bangla-attached]):not([data-no-bangla])');
-    for (var fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
-      var field = fields[fieldIndex];
+    const fields = document.querySelectorAll('input[type="text"]:not([data-bangla-attached]):not([data-no-bangla]), textarea:not([data-bangla-attached]):not([data-no-bangla])');
+    for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
+      const field = fields[fieldIndex];
 
       if (attachedElements.has(field)) continue;
 
       /* Skip English-only fields (name contains _en but not _bn) */
-      var fieldId = (field.id || '');
-      var fieldName = (field.name || '');
+      const fieldId = (field.id || '');
+      const fieldName = (field.name || '');
       if ((fieldId.indexOf('-en') > -1 || fieldName.indexOf('_en') > -1) &&
           fieldId.indexOf('-bn') === -1 && fieldName.indexOf('_bn') === -1) continue;
 
@@ -34,11 +34,11 @@
   attachBanglaInputToAllFields();
 
   /* Re-attach when DOM changes (for dynamically created fields) */
-  var mutationDebounceTimer = null;
-  var domObserver = new MutationObserver(function (mutations) {
+  let mutationDebounceTimer = null;
+  const domObserver = new MutationObserver(function (mutations) {
     /* Only react if nodes were actually added */
-    var hasNewNodes = false;
-    for (var mutationIndex = 0; mutationIndex < mutations.length; mutationIndex++) {
+    let hasNewNodes = false;
+    for (let mutationIndex = 0; mutationIndex < mutations.length; mutationIndex++) {
       if (mutations[mutationIndex].addedNodes.length > 0) {
         hasNewNodes = true;
         break;

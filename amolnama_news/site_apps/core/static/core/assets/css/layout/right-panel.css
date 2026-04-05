@@ -46,7 +46,7 @@
 
 .right-panel-ticker-label {
   display: inline-block;
-  background: #dc2626;
+  background: var(--danger);
   color: #fff;
   font-size: .65rem;
   font-weight: 700;

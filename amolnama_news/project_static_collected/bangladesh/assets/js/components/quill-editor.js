@@ -2,7 +2,7 @@
  * quill-editor.js — Reusable Quill rich text editor initializer.
  *
  * Usage:
- *   var editor = window.initQuillEditor('quill-container-id', 'hidden-textarea-id', {
+ *   const editor = window.initQuillEditor('quill-container-id', 'hidden-textarea-id', {
  *     placeholder: 'Write here...',
  *     minHeight: '150px'
  *   });
@@ -14,7 +14,7 @@
 (function () {
   'use strict';
 
-  var TOOLBAR = [
+  const TOOLBAR = [
     ['bold', 'italic', 'underline'],
     [{ 'header': [2, 3, false] }],
     [{ 'color': [] }, { 'background': [] }],
@@ -33,32 +33,32 @@
    */
   function initQuillEditor(containerId, hiddenId, opts) {
     opts = opts || {};
-    var container = document.getElementById(containerId);
-    var hidden = document.getElementById(hiddenId);
+    const container = document.getElementById(containerId);
+    const hidden = document.getElementById(hiddenId);
     if (!container || !hidden) return null;
 
-    var quill = new Quill('#' + containerId, {
+    const quill = new Quill('#' + containerId, {
       theme: 'snow',
       modules: { toolbar: TOOLBAR },
       placeholder: opts.placeholder || '',
     });
 
     /* Set min-height on editor area */
-    var editorEl = container.querySelector('.ql-editor');
+    const editorEl = container.querySelector('.ql-editor');
     if (editorEl && opts.minHeight) {
       editorEl.style.minHeight = opts.minHeight;
     }
 
     /* Add id+name to Quill's internal elements (browser audit compliance) */
-    var toolbarSelects = container.parentNode.querySelectorAll('.ql-toolbar select');
-    for (var i = 0; i < toolbarSelects.length; i++) {
-      var cls = toolbarSelects[i].className.replace('ql-', '').trim();
+    const toolbarSelects = container.parentNode.querySelectorAll('.ql-toolbar select');
+    for (let i = 0; i < toolbarSelects.length; i++) {
+      const cls = toolbarSelects[i].className.replace('ql-', '').trim();
       toolbarSelects[i].id = containerId + '-toolbar-' + cls;
       toolbarSelects[i].name = containerId + '_toolbar_' + cls;
     }
     /* Quill tooltip input (link/formula/video) */
-    var tooltipInputs = container.parentNode.querySelectorAll('.ql-tooltip input[type="text"]');
-    for (var j = 0; j < tooltipInputs.length; j++) {
+    const tooltipInputs = container.parentNode.querySelectorAll('.ql-tooltip input[type="text"]');
+    for (let j = 0; j < tooltipInputs.length; j++) {
       tooltipInputs[j].id = containerId + '-tooltip-input-' + j;
       tooltipInputs[j].name = containerId + '_tooltip_input_' + j;
     }
@@ -70,7 +70,7 @@
 
     /* Sync Quill HTML to hidden textarea */
     function syncToHidden() {
-      var html = quill.root.innerHTML;
+      const html = quill.root.innerHTML;
       /* Quill uses <p><br></p> for empty — treat as empty */
       if (html === '<p><br></p>' || html === '<p></p>') {
         hidden.value = '';

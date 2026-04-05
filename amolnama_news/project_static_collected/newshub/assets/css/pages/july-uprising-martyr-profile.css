@@ -1,0 +1,164 @@
+/* ========== July Uprising Martyr Profile ========== */
+
+.martyr-profile {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Noto Sans Bengali', 'Noto Sans', sans-serif;
+}
+
+/* Header */
+.martyr-header {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-bottom: 3px solid #1a6b3a;
+  margin-bottom: 1.5rem;
+}
+.martyr-name-bn {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+  line-height: 1.3;
+}
+.martyr-name-en {
+  font-size: 1.1rem;
+  color: #555;
+  margin-top: .3rem;
+}
+.martyr-status-badge {
+  display: inline-block;
+  padding: .35rem 1rem;
+  border-radius: 20px;
+  font-size: .9rem;
+  font-weight: 600;
+  margin-top: .75rem;
+  color: #fff;
+}
+.status-martyred { background: var(--danger-text); }
+.status-critically_injured { background: var(--danger); }
+.status-injured { background: #ea580c; }
+.status-eye_injured { background: #9333ea; }
+.status-missing { background: var(--muted); }
+.status-arrested { background: #4b5563; }
+
+/* Sections */
+.martyr-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.martyr-section h2 {
+  font-size: 1.1rem;
+  color: #1a6b3a;
+  margin: 0 0 .75rem 0;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem .75rem;
+}
+.info-item label,
+.info-item .form-field-label {
+  display: block;
+  font-size: .75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.info-item span {
+  font-size: .95rem;
+  color: #111;
+}
+
+.story-block {
+  margin-bottom: .75rem;
+}
+.story-block h3 {
+  font-size: .85rem;
+  color: #374151;
+  margin: 0 0 .25rem 0;
+}
+.story-block p {
+  margin: 0;
+  color: #111;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.force-tag {
+  display: inline-block;
+  padding: .2rem .6rem;
+  background: var(--danger-light);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+  border-radius: 4px;
+  font-size: .85rem;
+  margin: .15rem .2rem;
+}
+.evidence-badge {
+  display: inline-block;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  font-size: .85rem;
+  margin: .15rem .2rem;
+}
+.evidence-verified { background: var(--success-light); color: var(--primary); border: 1px solid #bbf7d0; }
+.evidence-under_review { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+.evidence-pending { background: var(--surface); color: #374151; border: 1px solid #d1d5db; }
+.evidence-unverified { background: var(--danger-light); color: var(--danger-text); border: 1px solid var(--danger-border); }
+
+/* Share */
+.share-section {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--success-light);
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+.share-section h2 {
+  font-size: 1rem;
+  color: #1a6b3a;
+  margin: 0 0 .75rem 0;
+}
+.share-buttons {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem 1rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+.share-btn-copy { background: #1a6b3a; color: #fff; }
+.share-btn-whatsapp { background: #25d366; color: #fff; }
+.share-btn-facebook { background: #1877f2; color: #fff; }
+
+.martyr-footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: .8rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .info-grid { grid-template-columns: 1fr; }
+  .martyr-name-bn { font-size: 1.5rem; }
+}

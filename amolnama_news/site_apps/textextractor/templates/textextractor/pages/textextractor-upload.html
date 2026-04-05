@@ -21,7 +21,7 @@
     <input type="file" class="textextractor-upload-file-input" id="textextractor-upload-file-input" name="extraction_file" accept="image/*,.pdf,.mp3,.mp4,.wav,.mkv,.txt,.csv,.md,.html">
   </div>
 
-  <div class="textextractor-upload-progress" id="textextractor-upload-progress" style="display:none;">
+  <div class="textextractor-upload-progress display-hidden" id="textextractor-upload-progress">
     <div class="textextractor-upload-progress-filename" id="textextractor-upload-progress-filename"></div>
     <div class="textextractor-upload-progress-bar-wrapper">
       <div class="textextractor-upload-progress-bar" id="textextractor-upload-progress-bar"></div>
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <div class="textextractor-upload-result" id="textextractor-upload-result" style="display:none;">
+  <div class="textextractor-upload-result display-hidden" id="textextractor-upload-result">
     <div class="textextractor-upload-result-header">
       <span class="textextractor-upload-result-icon">✅</span>
       <span class="textextractor-upload-result-text">Extraction complete!</span>
@@ -38,10 +38,10 @@
     <a href="" class="textextractor-upload-result-view-button" id="textextractor-upload-result-view-button">View Full Result</a>
   </div>
 
-  <div class="textextractor-upload-error" id="textextractor-upload-error" style="display:none;"></div>
+  <div class="textextractor-upload-error display-hidden" id="textextractor-upload-error"></div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'textextractor/assets/js/pages/textextractor-upload.js' %}"></script>
+<script src="{% static 'textextractor/assets/js/pages/textextractor-upload.js' %}" defer></script>
 {% endblock %}

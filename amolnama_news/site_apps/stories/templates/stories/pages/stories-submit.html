@@ -74,11 +74,11 @@
       <button type="submit" class="stories-submit-button" id="stories-submit-button" name="stories_submit_button">জমা দিন</button>
     </div>
 
-    <div class="stories-submit-error-message" id="stories-submit-error-message" style="display:none;"></div>
+    <div class="stories-submit-error-message display-hidden" id="stories-submit-error-message"></div>
   </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'stories/assets/js/pages/stories-submit.js' %}"></script>
+<script src="{% static 'stories/assets/js/pages/stories-submit.js' %}" defer></script>
 {% endblock %}

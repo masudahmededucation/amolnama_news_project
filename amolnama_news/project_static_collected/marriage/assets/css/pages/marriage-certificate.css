@@ -25,7 +25,7 @@
   font-size: .85rem;
   border: 1px solid var(--border);
   border-radius: 3px;
-  background: #fff;
+  background: var(--card);
 }
 
 .saved-office-save-row {
@@ -85,7 +85,7 @@
 
 .btn-saved-office--delete {
   background: #fde8e8;
-  color: #c53030;
+  color: var(--danger);
 }
 
 .btn-saved-office--delete:hover:not(:disabled) {
@@ -559,7 +559,7 @@ span.flatpickr-weekday {
    ============================================================ */
 
 .cert-preview {
-  background: #fff;
+  background: var(--card);
   border: 3px double #8b6914;
   border-radius: 4px;
   max-width: 800px;

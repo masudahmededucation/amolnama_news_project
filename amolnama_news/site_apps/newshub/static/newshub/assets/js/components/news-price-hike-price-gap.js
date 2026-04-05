@@ -18,27 +18,27 @@
 (function () {
   'use strict';
 
-  var hiddenJson = document.getElementById('price-gap-json');
-  var template = document.getElementById('commodity-row-template');
-  var container = document.getElementById('commodity-rows-container');
-  var addBtn = document.getElementById('btn-add-commodity');
+  const hiddenJson = document.getElementById('price-gap-json');
+  const template = document.getElementById('commodity-row-template');
+  const container = document.getElementById('commodity-rows-container');
+  const addBtn = document.getElementById('btn-add-commodity');
 
   if (!hiddenJson || !template || !container) return;
 
   /* Read commodity API URL from CSP-safe JSON */
-  var apiUrl = '';
-  var urlDataEl = document.getElementById('commodity-search-url-data');
+  let apiUrl = '';
+  const urlDataEl = document.getElementById('commodity-search-url-data');
   if (urlDataEl) {
     try { apiUrl = JSON.parse(urlDataEl.textContent).url || ''; }
     catch (e) { /* ignore */ }
   }
 
-  var rowCounter = 0;
-  var tomInstances = {};  /* rowIndex → TomSelect instance */
+  let rowCounter = 0;
+  let tomInstances = {};  /* rowIndex → TomSelect instance */
 
   /* ---- Tom Select config ---- */
   function createTomSelect(selectEl, rowIndex) {
-    var ts = new TomSelect(selectEl, {
+    let ts = new TomSelect(selectEl, {
       valueField: 'id',
       labelField: 'label',
       searchField: ['name_bn', 'name_en', 'group_bn'],
@@ -47,15 +47,15 @@
       preload: 'focus',
 
       load: function (query, callback) {
-        var url = apiUrl;
+        let url = apiUrl;
         if (query && query.length > 0) {
           url += '?q=' + encodeURIComponent(query);
         }
         fetch(url)
-          .then(function (resp) { return resp.json(); })
+          .then(function (resp) { if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.json(); })
           .then(function (data) {
-            var items = (data.commodities || []).map(function (c) {
-              var label = c.name_bn;
+            const items = (data.commodities || []).map(function (c) {
+              let label = c.name_bn;
               if (c.variant_bn) label += ' (' + c.variant_bn + ')';
               if (c.group_bn) label += ' — ' + c.group_bn;
               return {
@@ -75,7 +75,7 @@
 
       render: {
         option: function (item, escape) {
-          var html = '<div class="ts-option-commodity">';
+          let html = '<div class="ts-option-commodity">';
           html += '<span class="ts-commodity-name">' + escape(item.name_bn);
           if (item.variant_bn) html += ' <small>(' + escape(item.variant_bn) + ')</small>';
           html += '</span>';
@@ -84,7 +84,7 @@
           return html;
         },
         item: function (item, escape) {
-          var text = escape(item.name_bn);
+          let text = escape(item.name_bn);
           if (item.variant_bn) text += ' (' + escape(item.variant_bn) + ')';
           return '<div>' + text + '</div>';
         },
@@ -92,20 +92,20 @@
 
       onChange: function (value) {
         /* Update commodity detail display in this row */
-        var row = selectEl.closest('.commodity-price-row');
-        var detailDisplay = row ? row.querySelector('.commodity-detail-display') : null;
-        var groupDisplay = row ? row.querySelector('.commodity-row-group') : null;
-        var variantDisplay = row ? row.querySelector('.commodity-row-variant') : null;
-        var unitDisplay = row ? row.querySelector('.commodity-row-unit') : null;
+        let row = selectEl.closest('.commodity-price-row');
+        const detailDisplay = row ? row.querySelector('.commodity-detail-display') : null;
+        const groupDisplay = row ? row.querySelector('.commodity-row-group') : null;
+        const variantDisplay = row ? row.querySelector('.commodity-row-variant') : null;
+        const unitDisplay = row ? row.querySelector('.commodity-row-unit') : null;
 
         if (value && this.options[value]) {
-          var opt = this.options[value];
+          let opt = this.options[value];
           if (groupDisplay) groupDisplay.textContent = opt.group_bn || '—';
           if (variantDisplay) variantDisplay.textContent = opt.variant_bn || '—';
           if (unitDisplay) unitDisplay.textContent = opt.unit || '—';
-          if (detailDisplay) detailDisplay.style.display = '';
+          if (detailDisplay) detailDisplay.classList.remove('display-hidden');
         } else {
-          if (detailDisplay) detailDisplay.style.display = 'none';
+          if (detailDisplay) detailDisplay.classList.add('display-hidden');
         }
 
         serialize();
@@ -118,39 +118,39 @@
 
   /* ---- Calculate gap/markup display for a single row ---- */
   function calculateRow(rowEl) {
-    var govtInput = rowEl.querySelector('.commodity-govt-rate');
-    var marketInput = rowEl.querySelector('.commodity-market-rate');
-    var gapDisplay = rowEl.querySelector('.commodity-gap-display');
-    var diffDisplay = rowEl.querySelector('.commodity-gap-diff');
-    var markupDisplay = rowEl.querySelector('.commodity-gap-markup');
+    let govtInput = rowEl.querySelector('.commodity-govt-rate');
+    let marketInput = rowEl.querySelector('.commodity-market-rate');
+    const gapDisplay = rowEl.querySelector('.commodity-gap-display');
+    const diffDisplay = rowEl.querySelector('.commodity-gap-diff');
+    const markupDisplay = rowEl.querySelector('.commodity-gap-markup');
 
-    var govt = parseFloat(govtInput.value) || 0;
-    var market = parseFloat(marketInput.value) || 0;
+    let govt = parseFloat(govtInput.value) || 0;
+    let market = parseFloat(marketInput.value) || 0;
 
     if (govt > 0 || market > 0) {
-      var gap = market - govt;
-      var markup = govt > 0 ? ((gap / govt) * 100) : 0;
+      let gap = market - govt;
+      let markup = govt > 0 ? ((gap / govt) * 100) : 0;
       if (diffDisplay) diffDisplay.textContent = gap.toFixed(2) + ' টাকা';
       if (markupDisplay) markupDisplay.textContent = markup.toFixed(2) + '%';
-      if (gapDisplay) gapDisplay.style.display = '';
+      if (gapDisplay) gapDisplay.classList.remove('display-hidden');
     } else {
-      if (gapDisplay) gapDisplay.style.display = 'none';
+      if (gapDisplay) gapDisplay.classList.add('display-hidden');
     }
   }
 
   /* ---- Add a new commodity row ---- */
   function addRow() {
-    var index = rowCounter++;
-    var clone = template.content.cloneNode(true);
-    var rowEl = clone.querySelector('.commodity-price-row');
+    let index = rowCounter++;
+    let clone = template.content.cloneNode(true);
+    let rowEl = clone.querySelector('.commodity-price-row');
     rowEl.setAttribute('data-row-index', index);
 
     /* Row number label */
-    var numberLabel = rowEl.querySelector('.commodity-row-number');
+    let numberLabel = rowEl.querySelector('.commodity-row-number');
     if (numberLabel) numberLabel.textContent = 'পণ্য #' + (container.children.length + 1);
 
     /* Remove button */
-    var removeBtn = rowEl.querySelector('.btn-remove-commodity');
+    let removeBtn = rowEl.querySelector('.btn-remove-commodity');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl, index);
@@ -158,19 +158,19 @@
     }
 
     /* Price input listeners */
-    var govtInput = rowEl.querySelector('.commodity-govt-rate');
-    var marketInput = rowEl.querySelector('.commodity-market-rate');
+    let govtInput = rowEl.querySelector('.commodity-govt-rate');
+    let marketInput = rowEl.querySelector('.commodity-market-rate');
     if (govtInput) govtInput.addEventListener('input', function () { calculateRow(rowEl); serialize(); });
     if (marketInput) marketInput.addEventListener('input', function () { calculateRow(rowEl); serialize(); });
 
     /* Consumer impact listener */
-    var impactEl = rowEl.querySelector('.commodity-consumer-impact');
+    let impactEl = rowEl.querySelector('.commodity-consumer-impact');
     if (impactEl) impactEl.addEventListener('input', serialize);
 
     container.appendChild(rowEl);
 
     /* Initialize Tom Select on the select element */
-    var selectEl = rowEl.querySelector('.commodity-select');
+    let selectEl = rowEl.querySelector('.commodity-select');
     if (selectEl) createTomSelect(selectEl, index);
 
     updateRowNumbers();
@@ -190,44 +190,44 @@
 
   /* ---- Update row number labels after add/remove ---- */
   function updateRowNumbers() {
-    var rows = container.querySelectorAll('.commodity-price-row');
-    for (var i = 0; i < rows.length; i++) {
-      var label = rows[i].querySelector('.commodity-row-number');
+    let rows = container.querySelectorAll('.commodity-price-row');
+    for (let i = 0; i < rows.length; i++) {
+      const label = rows[i].querySelector('.commodity-row-number');
       if (label) label.textContent = 'পণ্য #' + (i + 1);
     }
   }
 
   /* ---- Serialize all rows ---- */
   function serialize() {
-    var commodities = [];
-    var rows = container.querySelectorAll('.commodity-price-row');
+    let commodities = [];
+    let rows = container.querySelectorAll('.commodity-price-row');
 
-    for (var i = 0; i < rows.length; i++) {
-      var rowEl = rows[i];
-      var index = parseInt(rowEl.getAttribute('data-row-index'), 10);
-      var ts = tomInstances[index];
+    for (let i = 0; i < rows.length; i++) {
+      let rowEl = rows[i];
+      let index = parseInt(rowEl.getAttribute('data-row-index'), 10);
+      let ts = tomInstances[index];
 
-      var commodityId = '';
-      var commodityNameBn = '';
-      var unit = '';
+      let commodityId = '';
+      let commodityNameBn = '';
+      let unit = '';
 
       if (ts && ts.getValue()) {
-        var val = ts.getValue();
+        const val = ts.getValue();
         commodityId = val;
-        var opt = ts.options[val];
+        let opt = ts.options[val];
         if (opt) {
           commodityNameBn = opt.name_bn || '';
           unit = opt.unit || '';
         }
       }
 
-      var govtInput = rowEl.querySelector('.commodity-govt-rate');
-      var marketInput = rowEl.querySelector('.commodity-market-rate');
-      var impactEl = rowEl.querySelector('.commodity-consumer-impact');
-      var govt = parseFloat(govtInput ? govtInput.value : '') || 0;
-      var market = parseFloat(marketInput ? marketInput.value : '') || 0;
-      var gap = market - govt;
-      var markup = govt > 0 ? ((gap / govt) * 100) : 0;
+      let govtInput = rowEl.querySelector('.commodity-govt-rate');
+      let marketInput = rowEl.querySelector('.commodity-market-rate');
+      let impactEl = rowEl.querySelector('.commodity-consumer-impact');
+      const govt = parseFloat(govtInput ? govtInput.value : '') || 0;
+      const market = parseFloat(marketInput ? marketInput.value : '') || 0;
+      const gap = market - govt;
+      const markup = govt > 0 ? ((gap / govt) * 100) : 0;
 
       commodities.push({
         commodityId: commodityId,
@@ -247,7 +247,7 @@
   /* ---- Event listeners ---- */
   if (addBtn) addBtn.addEventListener('click', addRow);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Auto-add first row on init ---- */
@@ -256,31 +256,31 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
-    var commodities = data.commodities;
+    const commodities = data.commodities;
     if (!commodities || !commodities.length) return;
 
     /* Clear the auto-added first row */
-    for (var key in tomInstances) {
+    for (let key in tomInstances) {
       if (tomInstances[key]) tomInstances[key].destroy();
     }
     tomInstances = {};
     container.innerHTML = '';
     rowCounter = 0;
 
-    for (var i = 0; i < commodities.length; i++) {
-      var item = commodities[i];
-      var index = rowCounter++;
-      var clone = template.content.cloneNode(true);
-      var rowEl = clone.querySelector('.commodity-price-row');
+    for (let i = 0; i < commodities.length; i++) {
+      const item = commodities[i];
+      let index = rowCounter++;
+      const clone = template.content.cloneNode(true);
+      let rowEl = clone.querySelector('.commodity-price-row');
       rowEl.setAttribute('data-row-index', index);
 
-      var numberLabel = rowEl.querySelector('.commodity-row-number');
+      const numberLabel = rowEl.querySelector('.commodity-row-number');
       if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
 
-      var removeBtn = rowEl.querySelector('.btn-remove-commodity');
+      const removeBtn = rowEl.querySelector('.btn-remove-commodity');
       if (removeBtn) {
         (function (el, idx) {
           removeBtn.addEventListener('click', function () { removeRow(el, idx); });
@@ -288,9 +288,9 @@
       }
 
       /* Set price inputs */
-      var govtInput = rowEl.querySelector('.commodity-govt-rate');
-      var marketInput = rowEl.querySelector('.commodity-market-rate');
-      var impactEl = rowEl.querySelector('.commodity-consumer-impact');
+      let govtInput = rowEl.querySelector('.commodity-govt-rate');
+      let marketInput = rowEl.querySelector('.commodity-market-rate');
+      const impactEl = rowEl.querySelector('.commodity-consumer-impact');
       if (govtInput && item.govtRate) govtInput.value = item.govtRate;
       if (marketInput && item.marketRate) marketInput.value = item.marketRate;
       if (impactEl && item.consumerImpact) impactEl.value = item.consumerImpact;
@@ -302,10 +302,10 @@
       container.appendChild(rowEl);
 
       /* Init Tom Select and restore commodity */
-      var selectEl = rowEl.querySelector('.commodity-select');
+      const selectEl = rowEl.querySelector('.commodity-select');
       if (selectEl && item.commodityId) {
-        var ts = createTomSelect(selectEl, index);
-        var opt = {
+        let ts = createTomSelect(selectEl, index);
+        const opt = {
           id: item.commodityId,
           label: item.commodityNameBn || '',
           name_bn: item.commodityNameBn || '',
@@ -330,7 +330,7 @@
   window.newshubPriceGap = {
     reset: function () {
       /* Destroy all Tom Select instances */
-      for (var key in tomInstances) {
+      for (let key in tomInstances) {
         if (tomInstances[key]) tomInstances[key].destroy();
       }
       tomInstances = {};
@@ -343,25 +343,25 @@
   };
 
   /* ---- Step validator: validate commodity rows on Next ---- */
-  var priceGapPanel = hiddenJson.closest('.step-panel[data-step]');
+  const priceGapPanel = hiddenJson.closest('.step-panel[data-step]');
   if (priceGapPanel) {
-    var priceGapStep = parseInt(priceGapPanel.getAttribute('data-step'), 10);
+    const priceGapStep = parseInt(priceGapPanel.getAttribute('data-step'), 10);
 
-    var validator = function () {
-      var warnings = [];
-      var rows = container.querySelectorAll('.commodity-price-row');
-      var filledRows = 0;
+    const validator = function () {
+      const warnings = [];
+      const rows = container.querySelectorAll('.commodity-price-row');
+      let filledRows = 0;
 
-      for (var i = 0; i < rows.length; i++) {
-        var rowEl = rows[i];
-        var index = parseInt(rowEl.getAttribute('data-row-index'), 10);
-        var ts = tomInstances[index];
-        var hasCommodity = ts && ts.getValue();
-        var govtInput = rowEl.querySelector('.commodity-govt-rate');
-        var marketInput = rowEl.querySelector('.commodity-market-rate');
-        var hasGovt = govtInput && parseFloat(govtInput.value) > 0;
-        var hasMarket = marketInput && parseFloat(marketInput.value) > 0;
-        var hasPrice = hasGovt || hasMarket;
+      for (let i = 0; i < rows.length; i++) {
+        const rowEl = rows[i];
+        const index = parseInt(rowEl.getAttribute('data-row-index'), 10);
+        const ts = tomInstances[index];
+        const hasCommodity = ts && ts.getValue();
+        const govtInput = rowEl.querySelector('.commodity-govt-rate');
+        const marketInput = rowEl.querySelector('.commodity-market-rate');
+        const hasGovt = govtInput && parseFloat(govtInput.value) > 0;
+        const hasMarket = marketInput && parseFloat(marketInput.value) > 0;
+        const hasPrice = hasGovt || hasMarket;
 
         if (hasCommodity || hasPrice) {
           filledRows++;

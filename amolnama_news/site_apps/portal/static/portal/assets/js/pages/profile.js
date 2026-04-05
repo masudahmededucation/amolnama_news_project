@@ -1,7 +1,7 @@
 /* Profile page: sync country select → phone code prefix */
 (function () {
-  var countrySelect = document.getElementById("id_country");
-  var codePrefix    = document.getElementById("phone-code-prefix");
+  const countrySelect = document.getElementById("id_country");
+  const codePrefix    = document.getElementById("phone-code-prefix");
   if (!countrySelect || !codePrefix) return;
 
   function updateCodePrefix() {

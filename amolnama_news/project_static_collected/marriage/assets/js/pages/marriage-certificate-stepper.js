@@ -6,46 +6,46 @@
 (function () {
   'use strict';
 
-  var BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
+  const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
-  var stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  var btnPrev = document.getElementById('btn-step-prev');
-  var btnNext = document.getElementById('btn-step-next');
-  var stepCounter = document.getElementById('step-counter');
-  var stepperContainer = document.getElementById('stepper');
+  const stepPanels = document.querySelectorAll('.step-panel[data-step]');
+  const btnPrev = document.getElementById('btn-step-prev');
+  const btnNext = document.getElementById('btn-step-next');
+  const stepCounter = document.getElementById('step-counter');
+  const stepperContainer = document.getElementById('stepper');
 
   if (!stepPanels.length || !btnNext) return;
 
-  var totalSteps = stepPanels.length;
-  var currentStep = 1;
-  var stepDots = [];
-  var isInitialLoad = true;
+  const totalSteps = stepPanels.length;
+  let currentStep = 1;
+  let stepDots = [];
+  let isInitialLoad = true;
 
   /* ========== Language Toggle ========== */
 
   /* Use header toggle (form_lang) instead of cert-specific toggle */
-  var langRadios = document.querySelectorAll('input[name="form_lang"]');
-  var currentLang = 'bn';
-  for (var lr = 0; lr < langRadios.length; lr++) {
+  const langRadios = document.querySelectorAll('input[name="form_lang"]');
+  let currentLang = 'bn';
+  for (let lr = 0; lr < langRadios.length; lr++) {
     if (langRadios[lr].checked) { currentLang = langRadios[lr].value; break; }
   }
 
   function setLang(lang) {
     currentLang = lang;
-    var bnEls = document.querySelectorAll('.lbl-bn');
-    var enEls = document.querySelectorAll('.lbl-en');
+    const bnEls = document.querySelectorAll('.lbl-bn');
+    const enEls = document.querySelectorAll('.lbl-en');
     if (lang === 'en') {
-      bnEls.forEach(function (el) { el.style.display = 'none'; });
-      enEls.forEach(function (el) { el.style.display = ''; });
+      bnEls.forEach(function (el) { el.classList.add('display-hidden'); });
+      enEls.forEach(function (el) { el.classList.remove('display-hidden'); });
     } else {
-      bnEls.forEach(function (el) { el.style.display = ''; });
-      enEls.forEach(function (el) { el.style.display = 'none'; });
+      bnEls.forEach(function (el) { el.classList.remove('display-hidden'); });
+      enEls.forEach(function (el) { el.classList.add('display-hidden'); });
     }
 
     /* Swap placeholders */
-    var key = 'placeholder' + (lang === 'en' ? 'En' : 'Bn');
+    const key = 'placeholder' + (lang === 'en' ? 'En' : 'Bn');
     document.querySelectorAll('[data-placeholder-bn]').forEach(function (el) {
-      var newPh = el.dataset[key];
+      const newPh = el.dataset[key];
       if (newPh) el.placeholder = newPh;
     });
   }
@@ -60,8 +60,8 @@
   setLang(currentLang);
 
   /* Re-apply when body data-lang changes (set by news-form-lang.js) */
-  var langObserver = new MutationObserver(function () {
-    var bodyLang = document.body.getAttribute('data-lang');
+  const langObserver = new MutationObserver(function () {
+    const bodyLang = document.body.getAttribute('data-lang');
     if (bodyLang && bodyLang !== currentLang) setLang(bodyLang);
   });
   langObserver.observe(document.body, { attributes: true, attributeFilter: ['data-lang'] });
@@ -81,31 +81,31 @@
     stepperContainer.innerHTML = '';
 
     stepPanels.forEach(function (panel, index) {
-      var step = parseInt(panel.getAttribute('data-step'), 10);
-      var labelBn = panel.getAttribute('data-step-label-bn') || '';
+      const step = parseInt(panel.getAttribute('data-step'), 10);
+      const labelBn = panel.getAttribute('data-step-label-bn') || '';
 
       if (index > 0) {
-        var line = document.createElement('div');
+        const line = document.createElement('div');
         line.className = 'step-line';
         stepperContainer.appendChild(line);
       }
 
-      var dot = document.createElement('div');
+      const dot = document.createElement('div');
       dot.className = 'step-dot';
       dot.setAttribute('data-step', step);
 
-      var numSpan = document.createElement('span');
+      const numSpan = document.createElement('span');
       numSpan.className = 'step-num';
       numSpan.textContent = toBengaliNumber(step);
       dot.appendChild(numSpan);
 
-      var labelSpan = document.createElement('span');
+      const labelSpan = document.createElement('span');
       labelSpan.className = 'step-label';
       labelSpan.textContent = labelBn;
       dot.appendChild(labelSpan);
 
       dot.addEventListener('click', function () {
-        var targetStep = parseInt(dot.getAttribute('data-step'), 10);
+        const targetStep = parseInt(dot.getAttribute('data-step'), 10);
         showStep(targetStep);
       });
 
@@ -121,7 +121,7 @@
     currentStep = step;
 
     stepPanels.forEach(function (panel) {
-      var panelStep = parseInt(panel.getAttribute('data-step'), 10);
+      const panelStep = parseInt(panel.getAttribute('data-step'), 10);
       if (panelStep === currentStep) {
         panel.classList.add('active');
       } else {
@@ -130,7 +130,7 @@
     });
 
     stepDots.forEach(function (dot) {
-      var dotStep = parseInt(dot.getAttribute('data-step'), 10);
+      const dotStep = parseInt(dot.getAttribute('data-step'), 10);
       dot.classList.remove('active', 'completed');
       if (dotStep === currentStep) {
         dot.classList.add('active');
@@ -139,7 +139,7 @@
       }
     });
 
-    var stepLines = document.querySelectorAll('.step-line');
+    const stepLines = document.querySelectorAll('.step-line');
     stepLines.forEach(function (line, index) {
       if (index < currentStep - 1) {
         line.classList.add('completed');
@@ -149,11 +149,11 @@
     });
 
     if (btnPrev) {
-      btnPrev.style.display = currentStep === 1 ? 'none' : '';
+      btnPrev.classList.toggle('display-hidden', currentStep === 1);
     }
 
     if (btnNext) {
-      btnNext.style.display = currentStep === totalSteps ? 'none' : '';
+      btnNext.classList.toggle('display-hidden', currentStep === totalSteps);
     }
 
     if (stepCounter) {
@@ -163,7 +163,7 @@
     if (!isInitialLoad) {
       requestAnimationFrame(function () {
         if (!stepperContainer) return;
-        var headerEl = document.querySelector('.header');
+        const headerEl = document.querySelector('.header');
         stepperContainer.style.scrollMarginTop = (headerEl ? headerEl.offsetHeight : 0) + 'px';
         stepperContainer.scrollIntoView({ block: 'start' });
       });
@@ -175,29 +175,29 @@
   /* ========== Signature Upload Previews ========== */
 
   function setupSigUpload(inputId, dropId) {
-    var input = document.getElementById(inputId);
-    var drop = document.getElementById(dropId);
+    const input = document.getElementById(inputId);
+    const drop = document.getElementById(dropId);
     if (!input || !drop) return;
 
     input.addEventListener('change', function () {
       if (!input.files || !input.files[0]) return;
-      var file = input.files[0];
-      var reader = new FileReader();
+      const file = input.files[0];
+      const reader = new FileReader();
       reader.onload = function () {
         /* Store data URL on the drop element for preview JS to read */
         drop.dataset.sigUrl = reader.result;
         /* Show inline preview */
-        var existing = drop.querySelector('.cert-sig-preview');
+        const existing = drop.querySelector('.cert-sig-preview');
         if (existing) existing.remove();
-        var img = document.createElement('img');
+        const img = document.createElement('img');
         img.className = 'cert-sig-preview';
         img.src = reader.result;
         drop.appendChild(img);
         /* Hide placeholder text */
-        var icon = drop.querySelector('.sig-icon');
-        var texts = drop.querySelectorAll('.sig-text');
-        if (icon) icon.style.display = 'none';
-        texts.forEach(function (t) { t.style.display = 'none'; });
+        const icon = drop.querySelector('.sig-icon');
+        const texts = drop.querySelectorAll('.sig-text');
+        if (icon) icon.classList.add('display-hidden');
+        texts.forEach(function (t) { t.classList.add('display-hidden'); });
       };
       reader.readAsDataURL(file);
     });

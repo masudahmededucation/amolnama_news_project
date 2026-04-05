@@ -11,16 +11,16 @@
    - Enter/Tab = pick selected
    - Escape = dismiss
    ============================================================ */
-var BanglaInput = (function() {
+const BanglaInput = (function() {
   "use strict";
 
-  var dictionary = null;       // loaded once, shared across all instances
-  var dictLoading = false;
-  var dictCallbacks = [];
-  var avroAvailable = typeof OmicronLab !== "undefined" && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
+  let dictionary = null;       // loaded once, shared across all instances
+  let dictLoading = false;
+  let dictCallbacks = [];
+  const avroAvailable = typeof OmicronLab !== "undefined" && OmicronLab.Avro && OmicronLab.Avro.Phonetic;
   // Default to saved preference, fallback to Bengali enabled
-  var savedLanguagePreference = localStorage.getItem('bangla_input_enabled');
-  var globalBengaliKeyboardEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
+  const savedLanguagePreference = localStorage.getItem('bangla_input_enabled');
+  let globalBengaliKeyboardEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
 
   // ---- Load dictionary ----
   function loadDictionary(cb) {
@@ -30,14 +30,17 @@ var BanglaInput = (function() {
     dictLoading = true;
 
     // Find the script tag to resolve the static URL base
-    var scripts = document.querySelectorAll("script[src*='bangla-input']");
-    var base = "";
+    const scripts = document.querySelectorAll("script[src*='bangla-input']");
+    let base = "";
     if (scripts.length > 0) {
       base = scripts[0].src.replace(/\/js\/utilities\/bangla-input\.js.*$/, "/js/utilities/");
     }
 
     fetch(base + "bangla-dictionary.json", { cache: "force-cache" })
-      .then(function(r) { return r.json(); })
+      .then(function(r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
       .then(function(data) {
         dictionary = data;
         buildWordIndex();
@@ -53,15 +56,15 @@ var BanglaInput = (function() {
   }
 
   // ---- Flatten dictionary into a single sorted array (built once) ----
-  var allWords = null;
+  let allWords = null;
 
   function buildWordIndex() {
     if (allWords) return;
     allWords = [];
-    var keys = Object.keys(dictionary);
-    for (var k = 0; k < keys.length; k++) {
-      var arr = dictionary[keys[k]];
-      for (var i = 0; i < arr.length; i++) {
+    const keys = Object.keys(dictionary);
+    for (let k = 0; k < keys.length; k++) {
+      const arr = dictionary[keys[k]];
+      for (let i = 0; i < arr.length; i++) {
         if (arr[i].length >= 2) allWords.push(arr[i]);
       }
     }
@@ -70,9 +73,9 @@ var BanglaInput = (function() {
 
   // Binary search for first word starting with prefix
   function binarySearchPrefix(prefix) {
-    var lo = 0, hi = allWords.length - 1, result = -1;
+    let lo = 0, hi = allWords.length - 1, result = -1;
     while (lo <= hi) {
-      var mid = (lo + hi) >> 1;
+      const mid = (lo + hi) >> 1;
       if (allWords[mid] >= prefix) { result = mid; hi = mid - 1; }
       else lo = mid + 1;
     }
@@ -80,7 +83,7 @@ var BanglaInput = (function() {
   }
 
   // Common Bengali suffixes — used to generate word+suffix combinations
-  var BN_SUFFIXES = ["ই","ও","এ","তে","তো","র","ের","দের","কে","গুলো","গুলি","টা","টি","টুকু","খানা","খানি","য়","ে","া","ি","ী","ো","ু","ূ"];
+  const BN_SUFFIXES = ["ই","ও","এ","তে","তো","র","ের","দের","কে","গুলো","গুলি","টা","টি","টুকু","খানা","খানি","য়","ে","া","ি","ী","ো","ু","ূ"];
 
   // ---- Dictionary lookup ----
   // Strategy: For input "ektai" → Avro gives "এক্তাই"
@@ -89,23 +92,23 @@ var BanglaInput = (function() {
   // 3. Also search for words starting with same Bengali prefix
   function lookupWords(englishWord) {
     if (!englishWord) return [];
-    var word = englishWord.toLowerCase();
+    const word = englishWord.toLowerCase();
 
-    var avroResult = avroAvailable ? OmicronLab.Avro.Phonetic.parse(word) : "";
+    const avroResult = avroAvailable ? OmicronLab.Avro.Phonetic.parse(word) : "";
     if (!avroResult) return [];
 
-    var candidates = [];
-    var found = {};
+    const candidates = [];
+    const found = {};
 
     // Determine the dictionary key — first 1-3 chars of English input mapped to phonetic key
-    var dictKey = findDictKey(word);
-    var dictWords = dictKey && dictionary[dictKey] ? dictionary[dictKey] : [];
+    const dictKey = findDictKey(word);
+    const dictWords = dictKey && dictionary[dictKey] ? dictionary[dictKey] : [];
 
     // Strategy 1: Find dictionary words that START with same Bengali chars as Avro result
     // Try progressively shorter Bengali prefix (3 chars, 2 chars, 1 char)
-    for (var pLen = Math.min(avroResult.length, 4); pLen >= 1; pLen--) {
-      var bnPrefix = avroResult.substring(0, pLen);
-      for (var i = 0; i < dictWords.length; i++) {
+    for (let pLen = Math.min(avroResult.length, 4); pLen >= 1; pLen--) {
+      const bnPrefix = avroResult.substring(0, pLen);
+      for (let i = 0; i < dictWords.length; i++) {
         if (dictWords[i].length < 2) continue;
         if (!dictWords[i].startsWith(bnPrefix)) continue;
 
@@ -116,8 +119,8 @@ var BanglaInput = (function() {
         }
 
         // Check: can base word + suffix = avro result or similar?
-        for (var s = 0; s < BN_SUFFIXES.length && candidates.length < 10; s++) {
-          var combined = dictWords[i] + BN_SUFFIXES[s];
+        for (let s = 0; s < BN_SUFFIXES.length && candidates.length < 10; s++) {
+          const combined = dictWords[i] + BN_SUFFIXES[s];
           if (!found[combined] && combined.length >= 2 && Math.abs(combined.length - avroResult.length) <= 1) {
             // Combined word should share at least first 2 Bengali chars with avro result
             if (combined.substring(0, 2) === avroResult.substring(0, Math.min(2, avroResult.length))) {
@@ -134,11 +137,11 @@ var BanglaInput = (function() {
 
     // Strategy 2: Also use the sorted allWords index for broader Bengali prefix search
     if (allWords && candidates.length < 4) {
-      for (var pl = Math.min(avroResult.length, 3); pl >= 1 && candidates.length < 6; pl--) {
-        var bp = avroResult.substring(0, pl);
-        var idx = binarySearchPrefix(bp);
+      for (let pl = Math.min(avroResult.length, 3); pl >= 1 && candidates.length < 6; pl--) {
+        const bp = avroResult.substring(0, pl);
+        let idx = binarySearchPrefix(bp);
         if (idx === -1) continue;
-        for (var j = idx; j < allWords.length && j < idx + 100 && candidates.length < 6; j++) {
+        for (let j = idx; j < allWords.length && j < idx + 100 && candidates.length < 6; j++) {
           if (!allWords[j].startsWith(bp)) break;
           if (allWords[j].length < 2 || found[allWords[j]]) continue;
           if (Math.abs(allWords[j].length - avroResult.length) <= 2) {
@@ -151,7 +154,7 @@ var BanglaInput = (function() {
 
     // Always include Avro result — put it first if not already there
     if (found[avroResult]) {
-      var avroIdx = candidates.indexOf(avroResult);
+      const avroIdx = candidates.indexOf(avroResult);
       if (avroIdx > 0) { candidates.splice(avroIdx, 1); candidates.unshift(avroResult); }
     } else {
       candidates.unshift(avroResult);
@@ -161,13 +164,13 @@ var BanglaInput = (function() {
   }
 
   // Map English input to the dictionary key (phonetic consonant cluster)
-  var DICT_KEYS_SORTED = []; // sorted by length desc for greedy match
+  let DICT_KEYS_SORTED = []; // sorted by length desc for greedy match
   function findDictKey(engWord) {
     if (DICT_KEYS_SORTED.length === 0 && dictionary) {
       DICT_KEYS_SORTED = Object.keys(dictionary).sort(function(a, b) { return b.length - a.length; });
     }
-    var lower = engWord.toLowerCase();
-    for (var i = 0; i < DICT_KEYS_SORTED.length; i++) {
+    const lower = engWord.toLowerCase();
+    for (let i = 0; i < DICT_KEYS_SORTED.length; i++) {
       if (lower.startsWith(DICT_KEYS_SORTED[i])) return DICT_KEYS_SORTED[i];
     }
     // Fallback: first char
@@ -179,11 +182,11 @@ var BanglaInput = (function() {
     if (!inputEl) return;
     options = options || {};
 
-    var suggestBox = null;
-    var wordBuffer = "";
-    var wordStart = 0;
-    var bestSuggestion = "";
-    var trailingPunctuation = "";
+    let suggestBox = null;
+    let wordBuffer = "";
+    let wordStart = 0;
+    let bestSuggestion = "";
+    let trailingPunctuation = "";
 
     // Create suggest dropdown
     function ensureSuggestBox() {
@@ -191,7 +194,7 @@ var BanglaInput = (function() {
       suggestBox = document.createElement("div");
       suggestBox.className = "bangla-input-suggest";
       suggestBox.style.cssText = "display:none;position:absolute;z-index:200;background:#fff;border:1.5px solid #d4d4de;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:320px;min-width:160px;overflow:hidden;";
-      var parent = inputEl.parentNode;
+      const parent = inputEl.parentNode;
       if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
       parent.appendChild(suggestBox);
     }
@@ -206,8 +209,8 @@ var BanglaInput = (function() {
       if (!suggestions || suggestions.length === 0) { hideSuggestions(); return; }
       bestSuggestion = suggestions[0];
 
-      var html = suggestions.map(function(s, i) {
-        var sel = i === 0
+      const html = suggestions.map(function(s, i) {
+        const sel = i === 0
           ? ' data-active="1" style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;background:#4a6fa5;color:#fff;font-weight:600;"'
           : ' style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;"';
         return '<div class="bangla-input-item" data-idx="' + i + '"' + sel + '>' + s + '</div>';
@@ -242,13 +245,13 @@ var BanglaInput = (function() {
     }
 
     function pickSuggestion(bangla) {
-      var val = inputEl.value;
-      var before = val.substring(0, wordStart);
-      var replaceLength = wordBuffer.length + trailingPunctuation.length;
-      var after = val.substring(wordStart + replaceLength);
-      var insertText = bangla + trailingPunctuation + ' ';
+      let val = inputEl.value;
+      let before = val.substring(0, wordStart);
+      const replaceLength = wordBuffer.length + trailingPunctuation.length;
+      let after = val.substring(wordStart + replaceLength);
+      const insertText = bangla + trailingPunctuation + ' ';
       inputEl.value = before + insertText + after;
-      var newPos = before.length + insertText.length;
+      let newPos = before.length + insertText.length;
       inputEl.setSelectionRange(newPos, newPos);
       inputEl.focus();
       wordBuffer = '';
@@ -257,15 +260,15 @@ var BanglaInput = (function() {
       inputEl.dispatchEvent(new Event('bangla-input-change', { bubbles: true }));
     }
 
-    var suggestTimer = null;
-    var suggestCache = {};
+    let suggestTimer = null;
+    const suggestCache = {};
 
     function updateSuggestions(text) {
       clearTimeout(suggestTimer);
       if (!text || text.length < 1) { hideSuggestions(); return; }
 
       // Step 1: INSTANT — show Avro + dictionary results immediately
-      var offlineResults = lookupWords(text);
+      const offlineResults = lookupWords(text);
       if (offlineResults.length > 0) {
         // Check Google cache first
         if (suggestCache[text]) {
@@ -279,13 +282,16 @@ var BanglaInput = (function() {
       if (text.length >= 2) {
         suggestTimer = setTimeout(function() {
           fetch("/tools/api/transliterate/?text=" + encodeURIComponent(text))
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+              if (!r.ok) throw new Error("HTTP " + r.status);
+              return r.json();
+            })
             .then(function(data) {
-              var googleResults = data.suggestions || [];
+              const googleResults = data.suggestions || [];
               if (googleResults.length > 0) {
                 suggestCache[text] = googleResults;
                 if (wordBuffer === text) {
-                  var merged = mergeResults(googleResults, offlineResults);
+                  let merged = mergeResults(googleResults, offlineResults);
                   showSuggestions(merged);
                   // Google's first result is the best — update bestSuggestion
                   if (merged.length > 0) bestSuggestion = merged[0];
@@ -299,13 +305,13 @@ var BanglaInput = (function() {
 
     // Merge Google (better quality, goes FIRST) with offline, dedup, max 6
     function mergeResults(googleResults, offlineResults) {
-      var merged = [];
+      const merged = [];
       // Google results first — they have dictionary-quality ranking
-      for (var i = 0; i < googleResults.length && merged.length < 6; i++) {
+      for (let i = 0; i < googleResults.length && merged.length < 6; i++) {
         if (googleResults[i].length >= 2 && merged.indexOf(googleResults[i]) === -1) merged.push(googleResults[i]);
       }
       // Then offline results that aren't already in the list
-      for (var j = 0; j < offlineResults.length && merged.length < 6; j++) {
+      for (let j = 0; j < offlineResults.length && merged.length < 6; j++) {
         if (offlineResults[j].length >= 2 && merged.indexOf(offlineResults[j]) === -1) merged.push(offlineResults[j]);
       }
       return merged;
@@ -314,16 +320,16 @@ var BanglaInput = (function() {
     // ---- Event handlers ----
     inputEl.addEventListener("input", function() {
       if (!globalBengaliKeyboardEnabled) { wordBuffer = ''; hideSuggestions(); return; }
-      var val = inputEl.value;
-      var cursor = inputEl.selectionStart;
-      var textUpToCursor = val.substring(0, cursor);
-      var lastSpace = textUpToCursor.lastIndexOf(" ");
+      let val = inputEl.value;
+      const cursor = inputEl.selectionStart;
+      const textUpToCursor = val.substring(0, cursor);
+      const lastSpace = textUpToCursor.lastIndexOf(" ");
       wordStart = lastSpace + 1;
-      var currentWord = textUpToCursor.substring(wordStart);
+      const currentWord = textUpToCursor.substring(wordStart);
 
       /* Strip trailing punctuation — let transliteration work with commas, periods, etc. */
-      var punctuationMatch = currentWord.match(/^([a-zA-Z]+)([,.\-;:!?।\u0964\u0965'"()]+)$/);
-      var cleanWord = punctuationMatch ? punctuationMatch[1] : currentWord;
+      const punctuationMatch = currentWord.match(/^([a-zA-Z]+)([,.\-;:!?।\u0964\u0965'"()]+)$/);
+      const cleanWord = punctuationMatch ? punctuationMatch[1] : currentWord;
       trailingPunctuation = punctuationMatch ? punctuationMatch[2] : '';
 
       if (/^[a-zA-Z]+$/.test(cleanWord)) {
@@ -336,7 +342,7 @@ var BanglaInput = (function() {
       }
     });
 
-    var PUNCTUATION_KEYS = { ',': 1, '.': 1, ';': 1, ':': 1, '!': 1, '?': 1, '-': 1, "'": 1, '"': 1, '(': 1, ')': 1 };
+    const PUNCTUATION_KEYS = { ',': 1, '.': 1, ';': 1, ':': 1, '!': 1, '?': 1, '-': 1, "'": 1, '"': 1, '(': 1, ')': 1 };
 
     inputEl.addEventListener("keydown", function(e) {
       if (!globalBengaliKeyboardEnabled) return;
@@ -348,11 +354,11 @@ var BanglaInput = (function() {
         } else {
           /* Punctuation: pick suggestion, let the punctuation character be typed naturally */
           trailingPunctuation = '';
-          var val = inputEl.value;
-          var before = val.substring(0, wordStart);
-          var after = val.substring(wordStart + wordBuffer.length);
+          const val = inputEl.value;
+          const before = val.substring(0, wordStart);
+          const after = val.substring(wordStart + wordBuffer.length);
           inputEl.value = before + bestSuggestion + after;
-          var newPos = before.length + bestSuggestion.length;
+          const newPos = before.length + bestSuggestion.length;
           inputEl.setSelectionRange(newPos, newPos);
           wordBuffer = '';
           hideSuggestions();
@@ -365,7 +371,7 @@ var BanglaInput = (function() {
       if (!suggestBox || suggestBox.style.display === "none") {
         // Enter with buffer — flush with Avro fallback
         if (e.key === "Enter" && wordBuffer.length > 0 && avroAvailable) {
-          var fb = OmicronLab.Avro.Phonetic.parse(wordBuffer);
+          const fb = OmicronLab.Avro.Phonetic.parse(wordBuffer);
           if (fb) {
             e.preventDefault();
             pickSuggestion(fb);
@@ -374,13 +380,13 @@ var BanglaInput = (function() {
         return;
       }
 
-      var items = suggestBox.querySelectorAll(".bangla-input-item");
-      var active = suggestBox.querySelector(".bangla-input-item[data-active]");
-      var activeIdx = active ? parseInt(active.getAttribute("data-idx")) : -1;
+      const items = suggestBox.querySelectorAll(".bangla-input-item");
+      const active = suggestBox.querySelector(".bangla-input-item[data-active]");
+      const activeIdx = active ? parseInt(active.getAttribute("data-idx")) : -1;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        var next = Math.min(activeIdx + 1, items.length - 1);
+        const next = Math.min(activeIdx + 1, items.length - 1);
         clearActive();
         items[next].setAttribute("data-active", "1");
         items[next].style.background = "#4a6fa5";
@@ -389,7 +395,7 @@ var BanglaInput = (function() {
         bestSuggestion = items[next].textContent;
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        var prev = Math.max(activeIdx - 1, 0);
+        const prev = Math.max(activeIdx - 1, 0);
         clearActive();
         items[prev].setAttribute("data-active", "1");
         items[prev].style.background = "#4a6fa5";
@@ -431,7 +437,7 @@ var BanglaInput = (function() {
 // ---- Global header toggle listener ----
 // Works on every page — syncs header বাংলা/English radio with BanglaInput
 (function() {
-  var headerRadios = document.querySelectorAll('input[name="form_lang"]');
+  const headerRadios = document.querySelectorAll('input[name="form_lang"]');
   if (!headerRadios.length) return;
   headerRadios.forEach(function(radio) {
     radio.addEventListener('change', function() {
@@ -441,8 +447,8 @@ var BanglaInput = (function() {
     });
   });
   // Sync header radio to match saved preference on page load
-  var savedEnabled = typeof BanglaInput !== 'undefined' && BanglaInput.isEnabled();
-  var targetRadio = document.getElementById(savedEnabled ? 'form-lang-bn' : 'form-lang-en');
+  const savedEnabled = typeof BanglaInput !== 'undefined' && BanglaInput.isEnabled();
+  const targetRadio = document.getElementById(savedEnabled ? 'form-lang-bn' : 'form-lang-en');
   if (targetRadio && !targetRadio.checked) {
     targetRadio.checked = true;
   }

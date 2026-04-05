@@ -17,18 +17,18 @@
 (function () {
   'use strict';
 
-  var targetPerson = document.getElementById('bootlicker-target-person');
-  var statement    = document.getElementById('bootlicker-statement');
-  var stmtDate     = document.getElementById('bootlicker-statement-date');
-  var context      = document.getElementById('bootlicker-context');
-  var benefit      = document.getElementById('bootlicker-benefit');
-  var source       = document.getElementById('bootlicker-source');
-  var hiddenJson   = document.getElementById('bootlicker-json');
+  const targetPerson = document.getElementById('bootlicker-target-person');
+  const statement    = document.getElementById('bootlicker-statement');
+  const stmtDate     = document.getElementById('bootlicker-statement-date');
+  const context      = document.getElementById('bootlicker-context');
+  const benefit      = document.getElementById('bootlicker-benefit');
+  const source       = document.getElementById('bootlicker-source');
+  const hiddenJson   = document.getElementById('bootlicker-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       targetPerson:  targetPerson ? targetPerson.value.trim() : '',
       statement:     statement ? statement.value.trim() : '',
       statementDate: stmtDate ? stmtDate.value : '',
@@ -39,20 +39,20 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [targetPerson, statement, stmtDate, context, benefit, source];
+  const fields = [targetPerson, statement, stmtDate, context, benefit, source];
   fields.forEach(function (el) {
     if (!el) return;
     el.addEventListener('input', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (targetPerson && data.targetPerson)  targetPerson.value = data.targetPerson;
       if (statement && data.statement)        statement.value    = data.statement;
       if (stmtDate && data.statementDate)     stmtDate.value     = data.statementDate;
@@ -72,14 +72,14 @@
   };
 
   /* Step validator: require target person + statement when section is visible */
-  var section = document.getElementById('section-watchdog-bootlicker');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-watchdog-bootlicker');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
       if (!targetPerson || !targetPerson.value.trim()) {
         warnings.push('\u09AF\u09BE\u0995\u09C7 \u09A4\u09CB\u09B7\u09BE\u09AE\u09CB\u09A6 \u0995\u09B0\u09BE \u09B9\u099A\u09CD\u099B\u09C7 \u09A4\u09BE\u09B0 \u09A8\u09BE\u09AE \u09A6\u09BF\u09A8 (Please enter who is being flattered)');
       }

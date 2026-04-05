@@ -13,10 +13,10 @@
 (function () {
   'use strict';
 
-  var editDataEl = document.getElementById('edit-data');
+  const editDataEl = document.getElementById('edit-data');
   if (!editDataEl) return;
 
-  var data;
+  let data;
   try { data = JSON.parse(editDataEl.textContent); } catch (e) { return; }
   if (!data || typeof data !== 'object') return;
 
@@ -26,8 +26,8 @@
   /* Clear any saved draft so it doesn't interfere with edit data.
      Use per-form-type keys if available (set by news-form-persist.js),
      but also clear legacy key in case old drafts exist. */
-  var formTypeInput = document.getElementById('news-form-type');
-  var formTypeCode = formTypeInput ? formTypeInput.value : '';
+  const formTypeInput = document.getElementById('news-form-type');
+  const formTypeCode = formTypeInput ? formTypeInput.value : '';
   if (formTypeCode) {
     localStorage.removeItem('newshub_draft_' + formTypeCode);
     localStorage.removeItem('newshub_draft_tags_' + formTypeCode);
@@ -38,7 +38,7 @@
   /* ========== PHASE 1: Immediate — set values BEFORE component scripts run ========== */
 
   /* --- Step 2: Contributor fields --- */
-  var c = data.contributor || {};
+  const c = data.contributor || {};
   setFieldValue('contributor-full-name', c.full_name_bn);
   setFieldValue('contributor-type', c.type_id);
   setFieldValue('contributor-email', c.email);
@@ -46,12 +46,12 @@
   /* Organization will be set in deferred phase (needs cascade) */
 
   /* --- Step 3: News content fields --- */
-  var n = data.news_entry || {};
+  let n = data.news_entry || {};
   setFieldValue('news-headline-bn', n.headline_bn);
   setFieldValue('news-summary-bn', n.summary_bn);
   setFieldValue('news-content-body-bn', n.content_body_bn);
   /* Occurrence date set via setAttribute for MutationObserver */
-  var occHidden = document.getElementById('news-occurrence-at');
+  const occHidden = document.getElementById('news-occurrence-at');
   if (occHidden && n.occurrence_at) {
     occHidden.setAttribute('value', n.occurrence_at);
   }
@@ -84,7 +84,7 @@
 
   /* --- Breaking news checkbox --- */
   if (data.is_breaking) {
-    var breakingCb = document.getElementById('news-is-breaking');
+    const breakingCb = document.getElementById('news-is-breaking');
     if (breakingCb) breakingCb.checked = true;
   }
 
@@ -97,14 +97,14 @@
 
   function populateCascadeFields() {
     /* --- Quill editors: ensure content is loaded (backup in case init ran before hidden values set) --- */
-    var n = data.news_entry || {};
+    const n = data.news_entry || {};
     if (n.summary_bn && window.__quillNewsSummary) window.__quillNewsSummary.setContent(n.summary_bn);
     if (n.content_body_bn && window.__quillNewsBody) window.__quillNewsBody.setContent(n.content_body_bn);
 
-    var loc = data.location || {};
+    const loc = data.location || {};
 
     /* --- Step 9: Location cascade --- */
-    var districtSelect = document.getElementById('news-district-id');
+    const districtSelect = document.getElementById('news-district-id');
     if (districtSelect && loc.district_id) {
       /* Use Tom Select if available */
       if (districtSelect.tomselect) {
@@ -115,13 +115,13 @@
       districtSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
       /* Constituency (hidden input) */
-      var constituencySelect = document.getElementById('news-constituency-id');
+      const constituencySelect = document.getElementById('news-constituency-id');
       if (constituencySelect && loc.constituency_id) {
         constituencySelect.value = String(loc.constituency_id);
       }
 
       /* Subdistrict (upazila) — wait for cascade to load options */
-      var upazilaSelect = document.getElementById('news-upazila-id');
+      const upazilaSelect = document.getElementById('news-upazila-id');
       if (upazilaSelect && loc.upazila_city_corporation_name) {
         waitForOptions(upazilaSelect, function () {
           /* Try to find option by text match since we store name, not ID */
@@ -129,7 +129,7 @@
           upazilaSelect.dispatchEvent(new Event('change', { bubbles: true }));
 
           /* Union parishad */
-          var unionSelect = document.getElementById('news-union-parishad-id');
+          const unionSelect = document.getElementById('news-union-parishad-id');
           if (unionSelect && loc.union_parishad_id) {
             waitForOptions(unionSelect, function () {
               unionSelect.value = String(loc.union_parishad_id);
@@ -151,7 +151,7 @@
     }
 
     /* --- Step 11: Category & Tags --- */
-    var catSelect = document.getElementById('news-category-id');
+    const catSelect = document.getElementById('news-category-id');
     if (catSelect && data.category_id) {
       if (catSelect.tomselect) {
         catSelect.tomselect.setValue(String(data.category_id), true);
@@ -169,7 +169,7 @@
     }
 
     /* --- Contributor type — dispatch change to trigger Self hide/show logic --- */
-    var ctypeSelect = document.getElementById('contributor-type');
+    const ctypeSelect = document.getElementById('contributor-type');
     if (ctypeSelect && c.type_id) {
       ctypeSelect.value = String(c.type_id);
       ctypeSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -180,18 +180,18 @@
 
   function setFieldValue(id, value) {
     if (!value && value !== 0) return;
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (el) el.value = String(value);
   }
 
   function setHiddenJson(id, data) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (el) el.value = JSON.stringify(data);
   }
 
   function waitForOptions(selectEl, callback) {
-    var attempts = 0;
-    var interval = setInterval(function () {
+    let attempts = 0;
+    const interval = setInterval(function () {
       attempts++;
       if (selectEl.options.length > 1 || attempts > 80) {
         clearInterval(interval);
@@ -202,9 +202,9 @@
 
   function selectOptionByText(selectEl, text) {
     if (!text) return;
-    var normalizedText = text.trim().toLowerCase();
-    for (var i = 0; i < selectEl.options.length; i++) {
-      var optText = selectEl.options[i].textContent.trim().toLowerCase();
+    const normalizedText = text.trim().toLowerCase();
+    for (let i = 0; i < selectEl.options.length; i++) {
+      const optText = selectEl.options[i].textContent.trim().toLowerCase();
       if (optText.indexOf(normalizedText) !== -1 || normalizedText.indexOf(optText) !== -1) {
         selectEl.value = selectEl.options[i].value;
         return;
@@ -216,7 +216,7 @@
     /* Tags use chip-based selection via window.newshubTags API */
     if (!window.newshubTags) return;
 
-    for (var i = 0; i < tags.length; i++) {
+    for (let i = 0; i < tags.length; i++) {
       window.newshubTags.add(tags[i]);
     }
     /* Persist to localStorage so tag cascade doesn't overwrite on category fetch */

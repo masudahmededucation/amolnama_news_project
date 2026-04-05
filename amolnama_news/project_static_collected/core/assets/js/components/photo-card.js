@@ -23,7 +23,7 @@
 (function () {
   'use strict';
 
-  var config = {};
+  let config = {};
 
   /* ---- CSRF token ---- */
 
@@ -42,10 +42,10 @@
 
   function showInlineMessage(nearElement, text, isError) {
     if (!nearElement || !nearElement.parentNode) return;
-    var existing = nearElement.parentNode.querySelector('.photo-card-inline-message');
+    const existing = nearElement.parentNode.querySelector('.photo-card-inline-message');
     if (existing) existing.remove();
 
-    var messageElement = document.createElement('div');
+    const messageElement = document.createElement('div');
     messageElement.className = 'photo-card-inline-message '
       + (isError ? 'photo-card-inline-message-error' : 'photo-card-inline-message-success');
     messageElement.textContent = text;
@@ -67,11 +67,11 @@
 
   /* ---- SET COVER ---- */
 
-  var COVER_LABEL_ACTIVE = '✓ কভার ছবি (Cover photo)';
-  var COVER_LABEL_SET = '☆ কভার ছবি সেট করুন (Set as cover)';
+  const COVER_LABEL_ACTIVE = '✓ কভার ছবি (Cover photo)';
+  const COVER_LABEL_SET = '☆ কভার ছবি সেট করুন (Set as cover)';
 
   function handleSetCover(event) {
-    var setCoverButton = event.target.closest('.photo-card-set-cover-button');
+    const setCoverButton = event.target.closest('.photo-card-set-cover-button');
     if (!setCoverButton) return;
 
     event.preventDefault();
@@ -79,20 +79,20 @@
 
     if (setCoverButton.classList.contains('photo-card-set-cover-button-active')) return;
 
-    var cardElement = setCoverButton.closest(config.cardSelector);
+    let cardElement = setCoverButton.closest(config.cardSelector);
     if (!cardElement) return;
 
-    var ids = getCardIds(cardElement);
+    let ids = getCardIds(cardElement);
     if (!ids.photoId || !ids.parentId) return;
 
     setCoverButton.disabled = true;
 
-    var apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'set-cover');
+    let apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'set-cover');
     fetch(apiUrl, {
       method: 'PATCH',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       setCoverButton.disabled = false;
 
@@ -102,24 +102,24 @@
       }
 
       /* Reset all cover buttons */
-      var allCoverButtons = document.querySelectorAll('.photo-card-set-cover-button');
-      for (var buttonIndex = 0; buttonIndex < allCoverButtons.length; buttonIndex++) {
+      const allCoverButtons = document.querySelectorAll('.photo-card-set-cover-button');
+      for (let buttonIndex = 0; buttonIndex < allCoverButtons.length; buttonIndex++) {
         allCoverButtons[buttonIndex].classList.remove('photo-card-set-cover-button-active');
-        var labelElement = allCoverButtons[buttonIndex].querySelector('.photo-card-set-cover-label');
+        const labelElement = allCoverButtons[buttonIndex].querySelector('.photo-card-set-cover-label');
         if (labelElement) labelElement.textContent = COVER_LABEL_SET;
       }
 
       /* Mark this one as active */
       setCoverButton.classList.add('photo-card-set-cover-button-active');
-      var activeLabel = setCoverButton.querySelector('.photo-card-set-cover-label');
+      const activeLabel = setCoverButton.querySelector('.photo-card-set-cover-label');
       if (activeLabel) activeLabel.textContent = COVER_LABEL_ACTIVE;
 
       /* Update hero image */
       if (config.heroElementId && data.cover_image_url) {
-        var heroElement = document.getElementById(config.heroElementId);
+        const heroElement = document.getElementById(config.heroElementId);
         if (heroElement) {
           heroElement.style.backgroundImage = "url('" + data.cover_image_url + "')";
-          heroElement.style.display = '';
+          heroElement.classList.remove('display-hidden');
         }
       }
 
@@ -134,26 +134,26 @@
   /* ---- LIKE TOGGLE ---- */
 
   function handleLikeToggle(event) {
-    var likeButton = event.target.closest('.photo-card-like-button');
+    const likeButton = event.target.closest('.photo-card-like-button');
     if (!likeButton) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    var cardElement = likeButton.closest(config.cardSelector);
+    let cardElement = likeButton.closest(config.cardSelector);
     if (!cardElement) return;
 
-    var ids = getCardIds(cardElement);
+    let ids = getCardIds(cardElement);
     if (!ids.photoId || !ids.parentId) return;
 
     likeButton.disabled = true;
 
-    var apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'like');
+    let apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'like');
     fetch(apiUrl, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       likeButton.disabled = false;
 
@@ -162,8 +162,8 @@
         return;
       }
 
-      var likeIconElement = likeButton.querySelector('.photo-card-like-icon');
-      var likeCountElement = likeButton.querySelector('.photo-card-like-count');
+      const likeIconElement = likeButton.querySelector('.photo-card-like-icon');
+      const likeCountElement = likeButton.querySelector('.photo-card-like-count');
 
       if (data.liked) {
         likeButton.classList.add('photo-card-like-button-active');
@@ -182,7 +182,7 @@
   /* ---- VIEW COUNT (fire and forget on image click) ---- */
 
   function handleViewCount(event) {
-    var imageElement = event.target.closest(config.imageSelector + '[data-photo-url]');
+    let imageElement = event.target.closest(config.imageSelector + '[data-photo-url]');
     if (!imageElement) return;
 
     /* Skip clicks on buttons inside the card */
@@ -190,23 +190,23 @@
     if (event.target.closest('.photo-card-set-cover-button')) return;
     if (event.target.closest('.photo-card-actions')) return;
 
-    var cardElement = imageElement.closest(config.cardSelector);
+    let cardElement = imageElement.closest(config.cardSelector);
     if (!cardElement) return;
 
-    var ids = getCardIds(cardElement);
+    let ids = getCardIds(cardElement);
     if (!ids.photoId || !ids.parentId) return;
 
-    var apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'view');
+    let apiUrl = config.buildApiUrl(ids.parentId, ids.photoId, 'view');
     fetch(apiUrl, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
-        var viewCountElement = cardElement.querySelector('.photo-card-view-count');
+        const viewCountElement = cardElement.querySelector('.photo-card-view-count');
         if (viewCountElement) {
-          var currentViewCount = parseInt(viewCountElement.textContent.replace(/[^\d]/g, '') || '0', 10);
+          const currentViewCount = parseInt(viewCountElement.textContent.replace(/[^\d]/g, '') || '0', 10);
           viewCountElement.innerHTML = '👁️ <span class="photo-card-view-label">ভিউ</span> ' + (currentViewCount + 1);
         }
       }
@@ -218,22 +218,22 @@
   /* ---- EDIT CAPTION ---- */
 
   function handleEditClick(event) {
-    var editButton = event.target.closest('.photo-card-edit-button');
+    const editButton = event.target.closest('.photo-card-edit-button');
     if (!editButton) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    var cardElement = editButton.closest(config.cardSelector);
+    let cardElement = editButton.closest(config.cardSelector);
     if (!cardElement) return;
 
     /* Don't open if already editing */
     if (cardElement.querySelector('.photo-card-edit-form')) return;
 
-    var ids = getCardIds(cardElement);
-    var currentCaption = editButton.getAttribute('data-caption') || '';
+    let ids = getCardIds(cardElement);
+    const currentCaption = editButton.getAttribute('data-caption') || '';
 
-    var editFormElement = document.createElement('div');
+    let editFormElement = document.createElement('div');
     editFormElement.className = 'photo-card-edit-form';
     editFormElement.innerHTML = '<input type="text" '
       + 'id="photo-card-edit-input-' + ids.photoId + '" '
@@ -255,21 +255,21 @@
   }
 
   function handleEditSave(event) {
-    var saveButton = event.target.closest('.photo-card-save-button');
+    const saveButton = event.target.closest('.photo-card-save-button');
     if (!saveButton) return;
 
     event.stopPropagation();
 
-    var photoId = saveButton.getAttribute('data-photo-id');
-    var parentId = saveButton.getAttribute('data-parent-id');
-    var editFormElement = saveButton.closest('.photo-card-edit-form');
-    var captionInput = editFormElement.querySelector('input');
-    var newCaption = (captionInput.value || '').trim();
+    let photoId = saveButton.getAttribute('data-photo-id');
+    let parentId = saveButton.getAttribute('data-parent-id');
+    let editFormElement = saveButton.closest('.photo-card-edit-form');
+    const captionInput = editFormElement.querySelector('input');
+    const newCaption = (captionInput.value || '').trim();
 
     saveButton.disabled = true;
     saveButton.textContent = 'সংরক্ষণ হচ্ছে...';
 
-    var apiUrl = config.buildApiUrl(parentId, photoId, 'caption');
+    let apiUrl = config.buildApiUrl(parentId, photoId, 'caption');
     fetch(apiUrl, {
       method: 'PATCH',
       headers: {
@@ -278,24 +278,24 @@
       },
       body: JSON.stringify({ caption_bn: newCaption }),
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
-      var cardElement = editFormElement.closest(config.cardSelector);
+      let cardElement = editFormElement.closest(config.cardSelector);
       editFormElement.remove();
 
       if (data.success) {
-        var savedCaption = data.caption_bn || '';
+        const savedCaption = data.caption_bn || '';
 
         /* Update caption display */
-        var captionElement = cardElement.querySelector('.photo-card-caption');
+        const captionElement = cardElement.querySelector('.photo-card-caption');
         if (captionElement) captionElement.textContent = savedCaption;
 
         /* Update data-caption on edit button for next edit */
-        var editButtonElement = cardElement.querySelector('.photo-card-edit-button');
+        const editButtonElement = cardElement.querySelector('.photo-card-edit-button');
         if (editButtonElement) editButtonElement.setAttribute('data-caption', savedCaption);
 
         /* Update data-photo-caption on image for lightbox */
-        var imageElement = cardElement.querySelector(config.imageSelector);
+        const imageElement = cardElement.querySelector(config.imageSelector);
         if (imageElement) imageElement.setAttribute('data-photo-caption', savedCaption);
 
         showInlineMessage(cardElement, 'ক্যাপশন পরিবর্তন হয়েছে (Caption updated)', false);
@@ -304,7 +304,7 @@
       }
     })
     .catch(function (networkError) {
-      var cardElement = editFormElement.closest(config.cardSelector);
+      let cardElement = editFormElement.closest(config.cardSelector);
       editFormElement.remove();
       if (cardElement) {
         showInlineMessage(cardElement, 'নেটওয়ার্ক ত্রুটি (Network error)', true);
@@ -313,30 +313,30 @@
   }
 
   function handleEditCancel(event) {
-    var cancelButton = event.target.closest('.photo-card-cancel-button');
+    const cancelButton = event.target.closest('.photo-card-cancel-button');
     if (!cancelButton) return;
     event.stopPropagation();
-    var editFormElement = cancelButton.closest('.photo-card-edit-form');
+    const editFormElement = cancelButton.closest('.photo-card-edit-form');
     if (editFormElement) editFormElement.remove();
   }
 
   /* ---- DELETE PHOTO ---- */
 
   function handleDeleteClick(event) {
-    var deleteButton = event.target.closest('.photo-card-delete-button');
+    const deleteButton = event.target.closest('.photo-card-delete-button');
     if (!deleteButton) return;
 
     event.preventDefault();
     event.stopPropagation();
 
-    var cardElement = deleteButton.closest(config.cardSelector);
+    let cardElement = deleteButton.closest(config.cardSelector);
     if (!cardElement) return;
 
     if (cardElement.querySelector('.photo-card-delete-confirm')) return;
 
-    var ids = getCardIds(cardElement);
+    const ids = getCardIds(cardElement);
 
-    var confirmBarElement = document.createElement('div');
+    let confirmBarElement = document.createElement('div');
     confirmBarElement.className = 'photo-card-delete-confirm';
     confirmBarElement.innerHTML = '<span>মুছে ফেলতে চান? (Delete this photo?)</span>'
       + '<button type="button" class="photo-card-confirm-delete-button" '
@@ -353,24 +353,24 @@
   }
 
   function handleDeleteConfirm(event) {
-    var confirmDeleteButton = event.target.closest('.photo-card-confirm-delete-button');
+    const confirmDeleteButton = event.target.closest('.photo-card-confirm-delete-button');
     if (!confirmDeleteButton) return;
 
     event.stopPropagation();
 
-    var photoId = confirmDeleteButton.getAttribute('data-photo-id');
-    var parentId = confirmDeleteButton.getAttribute('data-parent-id');
-    var cardElement = confirmDeleteButton.closest(config.cardSelector);
+    const photoId = confirmDeleteButton.getAttribute('data-photo-id');
+    const parentId = confirmDeleteButton.getAttribute('data-parent-id');
+    const cardElement = confirmDeleteButton.closest(config.cardSelector);
 
     confirmDeleteButton.disabled = true;
     confirmDeleteButton.textContent = 'মুছে ফেলা হচ্ছে...';
 
-    var apiUrl = config.buildApiUrl(parentId, photoId, 'delete');
+    const apiUrl = config.buildApiUrl(parentId, photoId, 'delete');
     fetch(apiUrl, {
       method: 'DELETE',
       headers: { 'X-CSRFToken': getCsrfTokenValue() },
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
         cardElement.remove();
@@ -393,10 +393,10 @@
   }
 
   function handleDeleteCancel(event) {
-    var cancelDeleteButton = event.target.closest('.photo-card-cancel-delete-button');
+    const cancelDeleteButton = event.target.closest('.photo-card-cancel-delete-button');
     if (!cancelDeleteButton) return;
     event.stopPropagation();
-    var confirmBarElement = cancelDeleteButton.closest('.photo-card-delete-confirm');
+    const confirmBarElement = cancelDeleteButton.closest('.photo-card-delete-confirm');
     if (confirmBarElement) confirmBarElement.remove();
   }
 

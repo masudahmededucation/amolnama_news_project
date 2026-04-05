@@ -6,18 +6,18 @@
  * - On input/change: clears warnings and re-evaluates step error dots.
  */
 (function () {
-  var form = document.querySelector('.news-collection-form, .news-multistep-form');
+  const form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
 
-  var isMultistep = form.classList.contains('news-multistep-form');
+  const isMultistep = form.classList.contains('news-multistep-form');
 
   /* ========== Prevent Enter-key form submission ========== */
   /* Text/number inputs submit on Enter by default — block this globally.
      The form should only submit via the explicit Submit button. */
   form.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter') return;
-    var tag = e.target.tagName;
-    var type = (e.target.type || '').toLowerCase();
+    const tag = e.target.tagName;
+    const type = (e.target.type || '').toLowerCase();
     if (tag === 'INPUT' && (type === 'text' || type === 'number' || type === 'search' || type === 'tel' || type === 'url')) {
       e.preventDefault();
     }
@@ -25,7 +25,7 @@
 
   /* ========== Validation Rules ========== */
 
-  var MANDATORY = [
+  const MANDATORY = [
     {
       id: 'contributor-full-name',
       msg: 'নাম লিখুন (Please enter your name)',
@@ -61,7 +61,7 @@
       msg: 'অন্তত একটি ট্যাগ যুক্ত করুন (Please add at least one tag)',
       getContainer: function () { return document.getElementById('widget-tags'); },
       customCheck: function () {
-        var area = document.getElementById('selected-tags-area');
+        const area = document.getElementById('selected-tags-area');
         return area && area.querySelector('input[name="tag_ids"]');
       }
     },
@@ -83,7 +83,7 @@
       msg: 'ভুক্তভোগীর বয়স দিন (Please enter victim age)',
       getContainer: function (el) { return el.closest('.form-field'); },
       customCheck: function () {
-        var el = document.getElementById('wcv-victim-age');
+        let el = document.getElementById('wcv-victim-age');
         return el && el.value && parseInt(el.value, 10) > 0;
       }
     },
@@ -173,7 +173,7 @@
     }
   ];
 
-  var LENGTH_LIMITS = [
+  const LENGTH_LIMITS = [
     { id: 'news-headline-bn', max: 100, label: 'শিরোনাম (Headline)' },
     { id: 'news-summary-bn', max: 400, label: 'সংক্ষেপ (Summary)' }
   ];
@@ -182,12 +182,12 @@
 
   /* Mandatory field warnings + stars (hidden until triggered) */
   MANDATORY.forEach(function (field) {
-    var el = document.getElementById(field.id);
+    let el = document.getElementById(field.id);
     if (!el) return;
-    var container = field.getContainer(el);
+    let container = field.getContainer(el);
     if (!container) return;
 
-    var label = container.querySelector('label[for="' + field.id + '"]')
+    const label = container.querySelector('label[for="' + field.id + '"]')
              || container.querySelector('label')
              || container.querySelector('.field-label')
              || container.querySelector('.contributor-type-label')
@@ -198,13 +198,13 @@
         && !label.querySelector('.field-mandatory-star')
         && !label.querySelector('.required-mark')
         && label.textContent.indexOf('*') === -1) {
-      var star = document.createElement('span');
+      const star = document.createElement('span');
       star.className = 'field-mandatory-star';
       star.textContent = ' *';
       label.appendChild(star);
     }
 
-    var warning = document.createElement('span');
+    let warning = document.createElement('span');
     warning.className = 'field-warning';
     warning.textContent = field.msg;
 
@@ -217,12 +217,12 @@
 
   /* Length limit warnings (hidden until triggered) */
   LENGTH_LIMITS.forEach(function (rule) {
-    var el = document.getElementById(rule.id);
+    let el = document.getElementById(rule.id);
     if (!el) return;
-    var container = el.closest('.form-field');
+    let container = el.closest('.form-field');
     if (!container) return;
 
-    var warning = document.createElement('span');
+    let warning = document.createElement('span');
     warning.className = 'field-warning field-warning-length';
     warning.setAttribute('data-limit-for', rule.id);
     container.appendChild(warning);
@@ -234,17 +234,17 @@
   form.addEventListener('change', onFieldChange);
 
   function onFieldChange(e) {
-    var targetId = e.target.id;
+    const targetId = e.target.id;
 
     /* Clear server-rendered field errors when the user edits the field */
-    var fieldContainer = e.target.closest('.form-field');
+    const fieldContainer = e.target.closest('.form-field');
     if (fieldContainer) {
-      var serverErrors = fieldContainer.querySelector('.field-errors');
+      const serverErrors = fieldContainer.querySelector('.field-errors');
       if (serverErrors) serverErrors.remove();
     }
 
     /* Clear mandatory field warning if filled */
-    for (var i = 0; i < MANDATORY.length; i++) {
+    for (let i = 0; i < MANDATORY.length; i++) {
       if (MANDATORY[i].id === targetId ||
           (MANDATORY[i].checkName && e.target.name === MANDATORY[i].checkName)) {
         clearMandatoryWarning(MANDATORY[i]);
@@ -260,17 +260,17 @@
   }
 
   function clearMandatoryWarning(field) {
-    var el = document.getElementById(field.id);
+    let el = document.getElementById(field.id);
     if (!el) return;
 
-    var isFilled = field.customCheck
+    const isFilled = field.customCheck
       ? field.customCheck()
       : (el.value && el.value.trim());
     if (!isFilled) return;
 
-    var container = field.getContainer(el);
+    let container = field.getContainer(el);
     if (!container) return;
-    var warning = container.querySelector('.field-warning:not(.field-warning-length)');
+    let warning = container.querySelector('.field-warning:not(.field-warning-length)');
     if (warning) warning.style.display = '';
     container.classList.remove('field-shake');
   }
@@ -278,12 +278,12 @@
   /** Show/hide inline length warnings as the user types. */
   function checkLengthLimits() {
     LENGTH_LIMITS.forEach(function (rule) {
-      var el = document.getElementById(rule.id);
+      let el = document.getElementById(rule.id);
       if (!el) return;
-      var warning = form.querySelector('.field-warning-length[data-limit-for="' + rule.id + '"]');
+      let warning = form.querySelector('.field-warning-length[data-limit-for="' + rule.id + '"]');
       if (!warning) return;
 
-      var len = (el.value || '').trim().length;
+      const len = (el.value || '').trim().length;
       if (len > rule.max) {
         warning.textContent = rule.label + ' সর্বোচ্চ ' + rule.max + ' অক্ষর, বর্তমানে ' + len + ' অক্ষর। (Max ' + rule.max + ' chars, currently ' + len + ')';
         warning.style.display = 'inline';
@@ -294,10 +294,10 @@
   }
 
   /* Watch tags area for chip add/remove (DOM mutations) */
-  var tagsArea = document.getElementById('selected-tags-area');
+  const tagsArea = document.getElementById('selected-tags-area');
   if (tagsArea) {
     new MutationObserver(function () {
-      var tagField = MANDATORY[MANDATORY.length - 1];
+      const tagField = MANDATORY[MANDATORY.length - 1];
       if (tagField.id === 'selected-tags-area') {
         clearMandatoryWarning(tagField);
         if (isMultistep) reevaluateStepErrors();
@@ -315,10 +315,10 @@
    */
   function reevaluateStepErrors() {
     if (!window.newshubStepper) return;
-    var remaining = {};
+    const remaining = {};
 
     document.querySelectorAll('.step-panel[data-step]').forEach(function (panel) {
-      var step = parseInt(panel.getAttribute('data-step'), 10);
+      const step = parseInt(panel.getAttribute('data-step'), 10);
 
       /* Server-rendered errors */
       if (panel.querySelector('.field-errors li')) {
@@ -327,8 +327,8 @@
       }
 
       /* Any visible .field-warning (from any validation source) */
-      var warnings = panel.querySelectorAll('.field-warning');
-      for (var i = 0; i < warnings.length; i++) {
+      const warnings = panel.querySelectorAll('.field-warning');
+      for (let i = 0; i < warnings.length; i++) {
         if (warnings[i].style.display === 'inline') {
           remaining[step] = true;
           return;
@@ -345,17 +345,17 @@
   /* ========== Validate on Submit ========== */
 
   form.addEventListener('submit', function (e) {
-    var firstEmptyContainer = null;
-    var errorStepNumbers = {};
+    let firstEmptyContainer = null;
+    const errorStepNumbers = {};
 
     MANDATORY.forEach(function (field) {
-      var el = document.getElementById(field.id);
+      let el = document.getElementById(field.id);
       if (!el) return;
-      var container = field.getContainer(el);
+      const container = field.getContainer(el);
       if (!container) return;
-      var warning = container.querySelector('.field-warning:not(.field-warning-length)');
+      const warning = container.querySelector('.field-warning:not(.field-warning-length)');
 
-      var isEmpty = field.customCheck
+      const isEmpty = field.customCheck
         ? !field.customCheck()
         : (!el.value || !el.value.trim());
 
@@ -365,7 +365,7 @@
         if (!firstEmptyContainer) firstEmptyContainer = container;
 
         if (isMultistep) {
-          var panel = el.closest('.step-panel[data-step]');
+          let panel = el.closest('.step-panel[data-step]');
           if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
         }
       } else {
@@ -376,7 +376,7 @@
 
     /* Also block submit if length limits exceeded */
     LENGTH_LIMITS.forEach(function (rule) {
-      var el = document.getElementById(rule.id);
+      const el = document.getElementById(rule.id);
       if (!el || !el.value) return;
       if (el.value.trim().length > rule.max) {
         e.preventDefault();
@@ -384,7 +384,7 @@
           firstEmptyContainer = el.closest('.form-field');
         }
         if (isMultistep) {
-          var panel = el.closest('.step-panel[data-step]');
+          const panel = el.closest('.step-panel[data-step]');
           if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
         }
       }
@@ -393,7 +393,7 @@
     if (!firstEmptyContainer) return;
 
     if (isMultistep && window.newshubStepper) {
-      var numericSteps = {};
+      const numericSteps = {};
       Object.keys(errorStepNumbers).forEach(function (step) {
         numericSteps[parseInt(step, 10)] = true;
       });

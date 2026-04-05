@@ -293,7 +293,7 @@
   height: 20px;
   border-radius: 50%;
   border: 1.5px solid var(--border);
-  background: #fff;
+  background: var(--card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -336,7 +336,7 @@
   justify-content: center;
   overflow: hidden;
   border-radius: 3px;
-  background: #f8f9fa;
+  background: var(--surface);
   margin-bottom: .25rem;
 }
 
@@ -517,7 +517,7 @@
 .spl-result {
   margin-top: 1.25rem;
   padding: 1rem 1.25rem;
-  background: #f0fdf4;
+  background: var(--success-light);
   border: 1px solid #86efac;
   border-radius: var(--radius-sm);
   text-align: center;

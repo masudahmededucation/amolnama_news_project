@@ -22,60 +22,60 @@
   /* ========== DOM references ========== */
 
   /* Section A: Condition attributes */
-  var pregnantCb = document.getElementById('wcv-victim-pregnant');
-  var pregnantMonthsRow = document.getElementById('wcv-pregnant-months-row');
-  var pregnantMonths = document.getElementById('wcv-victim-pregnant-months');
-  var childrenCb = document.getElementById('wcv-victim-has-children');
-  var childrenCountRow = document.getElementById('wcv-children-count-row');
-  var childrenCount = document.getElementById('wcv-victim-children-count');
-  var dependentCb = document.getElementById('wcv-victim-dependent');
-  var disabilityCb = document.getElementById('wcv-victim-disability');
-  var disabilityTypeRow = document.getElementById('wcv-disability-type-row');
-  var disabilityType = document.getElementById('wcv-victim-disability-type');
+  const pregnantCb = document.getElementById('wcv-victim-pregnant');
+  const pregnantMonthsRow = document.getElementById('wcv-pregnant-months-row');
+  const pregnantMonths = document.getElementById('wcv-victim-pregnant-months');
+  const childrenCb = document.getElementById('wcv-victim-has-children');
+  const childrenCountRow = document.getElementById('wcv-children-count-row');
+  const childrenCount = document.getElementById('wcv-victim-children-count');
+  const dependentCb = document.getElementById('wcv-victim-dependent');
+  const disabilityCb = document.getElementById('wcv-victim-disability');
+  const disabilityTypeRow = document.getElementById('wcv-disability-type-row');
+  const disabilityType = document.getElementById('wcv-victim-disability-type');
 
   /* Section B: Injury (DB-driven containers) */
-  var injuryTypesContainer = document.getElementById('wcv-injury-types-checkboxes');
-  var severityContainer = document.getElementById('wcv-injury-severity-radios');
-  var psychSymptomsContainer = document.getElementById('wcv-psych-symptoms-checkboxes');
+  const injuryTypesContainer = document.getElementById('wcv-injury-types-checkboxes');
+  const severityContainer = document.getElementById('wcv-injury-severity-radios');
+  const psychSymptomsContainer = document.getElementById('wcv-psych-symptoms-checkboxes');
 
   /* Section C: Medical, Safety, Consent (DB-driven containers) */
-  var conditionContainer = document.getElementById('wcv-condition-radios');
-  var safetyContainer = document.getElementById('wcv-safety-radios');
-  var consentContainer = document.getElementById('wcv-consent-radios');
+  const conditionContainer = document.getElementById('wcv-condition-radios');
+  const safetyContainer = document.getElementById('wcv-safety-radios');
+  const consentContainer = document.getElementById('wcv-consent-radios');
 
-  var hiddenJson = document.getElementById('wcv-condition-injury');
+  const hiddenJson = document.getElementById('wcv-condition-injury');
 
   if (!hiddenJson) return;
 
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var injuryTypesData = parseJsonData('wcv-injury-types-data');
-  var injurySeverityData = parseJsonData('wcv-injury-severity-data');
-  var psychSymptomsData = parseJsonData('wcv-psychological-symptoms-data');
-  var medicalConditions = parseJsonData('wcv-medical-conditions-data');
-  var safetyStatuses = parseJsonData('wcv-safety-statuses-data');
-  var consentStatuses = parseJsonData('wcv-consent-statuses-data');
+  const injuryTypesData = parseJsonData('wcv-injury-types-data');
+  const injurySeverityData = parseJsonData('wcv-injury-severity-data');
+  const psychSymptomsData = parseJsonData('wcv-psychological-symptoms-data');
+  const medicalConditions = parseJsonData('wcv-medical-conditions-data');
+  const safetyStatuses = parseJsonData('wcv-safety-statuses-data');
+  const consentStatuses = parseJsonData('wcv-consent-statuses-data');
 
   /* ========== Populate radio groups ========== */
 
   function populateCheckboxes(container, checkboxName, items) {
     if (!container || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      let label = document.createElement('label');
       label.className = 'checkbox-inline';
-      var input = document.createElement('input');
+      let input = document.createElement('input');
       input.type = 'checkbox';
       input.id = checkboxName + '-' + s.status_id;
       input.name = checkboxName;
       input.value = s.status_id;
-      var text = document.createTextNode(
+      let text = document.createTextNode(
         ' ' + (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')'
       );
       label.appendChild(input);
@@ -87,16 +87,16 @@
 
   function populateRadios(container, radioName, items) {
     if (!container || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var label = document.createElement('label');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      const label = document.createElement('label');
       label.className = 'radio-inline';
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'radio';
       input.id = radioName + '-' + s.status_id;
       input.name = radioName;
       input.value = s.status_id;
-      var text = document.createTextNode(
+      const text = document.createTextNode(
         ' ' + (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')'
       );
       label.appendChild(input);
@@ -117,40 +117,40 @@
   populateRadios(consentContainer, 'wcv_victim_consent', consentStatuses);
 
   /* Re-query after dynamic population */
-  var injuryTypeCheckboxes = document.querySelectorAll('input[name="wcv_injury_type"]');
-  var severityRadios = document.querySelectorAll('input[name="wcv_injury_severity"]');
-  var psychSymptoms = document.querySelectorAll('input[name="wcv_psych_symptom"]');
-  var conditionRadios = document.querySelectorAll('input[name="wcv_victim_condition"]');
-  var safetyRadios = document.querySelectorAll('input[name="wcv_victim_safety"]');
-  var consentRadios = document.querySelectorAll('input[name="wcv_victim_consent"]');
+  const injuryTypeCheckboxes = document.querySelectorAll('input[name="wcv_injury_type"]');
+  const severityRadios = document.querySelectorAll('input[name="wcv_injury_severity"]');
+  const psychSymptoms = document.querySelectorAll('input[name="wcv_psych_symptom"]');
+  const conditionRadios = document.querySelectorAll('input[name="wcv_victim_condition"]');
+  const safetyRadios = document.querySelectorAll('input[name="wcv_victim_safety"]');
+  const consentRadios = document.querySelectorAll('input[name="wcv_victim_consent"]');
 
   /* ========== Helpers ========== */
 
   function getRadioValue(radios) {
-    for (var i = 0; i < radios.length; i++) {
+    for (let i = 0; i < radios.length; i++) {
       if (radios[i].checked) return parseInt(radios[i].value, 10) || 0;
     }
     return 0;
   }
 
   function getRadioString(radios) {
-    for (var i = 0; i < radios.length; i++) {
+    for (let i = 0; i < radios.length; i++) {
       if (radios[i].checked) return radios[i].value;
     }
     return '';
   }
 
   function getCheckedIds(checkboxes) {
-    var ids = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const ids = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) ids.push(parseInt(checkboxes[i].value, 10));
     }
     return ids;
   }
 
   function getCheckedStrings(checkboxes) {
-    var values = [];
-    for (var i = 0; i < checkboxes.length; i++) {
+    const values = [];
+    for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) values.push(checkboxes[i].value);
     }
     return values;
@@ -159,41 +159,41 @@
   /* ========== Conditional toggles ========== */
 
   function togglePregnancy() {
-    if (pregnantMonthsRow) pregnantMonthsRow.style.display = pregnantCb && pregnantCb.checked ? '' : 'none';
+    if (pregnantMonthsRow) (pregnantCb && pregnantCb.checked) ? pregnantMonthsRow.classList.remove('display-hidden') : pregnantMonthsRow.classList.add('display-hidden');
     if (!pregnantCb || !pregnantCb.checked) {
       if (pregnantMonths) pregnantMonths.value = '';
-      var w = document.getElementById('wcv-pregnant-months-warning');
-      if (w) w.style.display = 'none';
+      let w = document.getElementById('wcv-pregnant-months-warning');
+      if (w) w.classList.add('display-hidden');
     }
   }
 
   function toggleChildren() {
-    if (childrenCountRow) childrenCountRow.style.display = childrenCb && childrenCb.checked ? '' : 'none';
+    if (childrenCountRow) (childrenCb && childrenCb.checked) ? childrenCountRow.classList.remove('display-hidden') : childrenCountRow.classList.add('display-hidden');
     if (!childrenCb || !childrenCb.checked) {
       if (childrenCount) childrenCount.value = '';
-      var e = document.getElementById('wcv-children-count-error');
-      var w = document.getElementById('wcv-children-count-warning');
-      if (e) e.style.display = 'none';
-      if (w) w.style.display = 'none';
+      const e = document.getElementById('wcv-children-count-error');
+      const w = document.getElementById('wcv-children-count-warning');
+      if (e) e.classList.add('display-hidden');
+      if (w) w.classList.add('display-hidden');
     }
   }
 
   function checkChildrenCountWarning() {
-    var warning = document.getElementById('wcv-children-count-warning');
+    let warning = document.getElementById('wcv-children-count-warning');
     if (!warning) return;
-    var count = childrenCount ? parseInt(childrenCount.value, 10) : 0;
-    warning.style.display = (childrenCb && childrenCb.checked && count > 4) ? '' : 'none';
+    const count = childrenCount ? parseInt(childrenCount.value, 10) : 0;
+    (childrenCb && childrenCb.checked && count > 4) ? warning.classList.remove('display-hidden') : warning.classList.add('display-hidden');
   }
 
   function toggleDisability() {
-    if (disabilityTypeRow) disabilityTypeRow.style.display = disabilityCb && disabilityCb.checked ? '' : 'none';
+    if (disabilityTypeRow) (disabilityCb && disabilityCb.checked) ? disabilityTypeRow.classList.remove('display-hidden') : disabilityTypeRow.classList.add('display-hidden');
     if (!disabilityCb || !disabilityCb.checked) { if (disabilityType) disabilityType.value = ''; }
   }
 
   /* ========== Serialize ========== */
 
   function serialize() {
-    var data = {
+    let data = {
       /* Section A: Condition attributes */
       pregnant: pregnantCb ? pregnantCb.checked : false,
       pregnantMonths: pregnantCb && pregnantCb.checked && pregnantMonths
@@ -228,24 +228,24 @@
   if (dependentCb) dependentCb.addEventListener('change', serialize);
 
   if (pregnantMonths) pregnantMonths.addEventListener('input', function () {
-    var val = parseInt(this.value, 10);
-    var warning = document.getElementById('wcv-pregnant-months-warning');
-    var exceeded = !isNaN(val) && val > 10;
+    let val = parseInt(this.value, 10);
+    let warning = document.getElementById('wcv-pregnant-months-warning');
+    let exceeded = !isNaN(val) && val > 10;
     if (exceeded) this.value = 10;
-    if (warning) warning.style.display = exceeded ? '' : 'none';
+    if (warning) exceeded ? warning.classList.remove('display-hidden') : warning.classList.add('display-hidden');
     serialize();
   });
   if (childrenCount) childrenCount.addEventListener('input', function () {
-    var val = parseInt(this.value, 10);
-    var error   = document.getElementById('wcv-children-count-error');
-    var warning = document.getElementById('wcv-children-count-warning');
-    var exceeded = !isNaN(val) && val > 20;
+    let val = parseInt(this.value, 10);
+    const error   = document.getElementById('wcv-children-count-error');
+    const warning = document.getElementById('wcv-children-count-warning');
+    const exceeded = !isNaN(val) && val > 20;
     if (exceeded) {
       this.value = '';
-      if (error)   error.style.display   = '';
-      if (warning) warning.style.display = 'none';
+      if (error)   error.classList.remove('display-hidden');
+      if (warning) warning.classList.add('display-hidden');
     } else {
-      if (error) error.style.display = 'none';
+      if (error) error.classList.add('display-hidden');
       checkChildrenCountWarning();
     }
     serialize();
@@ -255,7 +255,7 @@
   /* Section B psych symptoms — change listeners wired by populateCheckboxes */
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* Initial state */
@@ -266,7 +266,7 @@
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
@@ -285,40 +285,40 @@
 
     /* Section B: Injury types (checkboxes) */
     if (data.injuryTypeIds && data.injuryTypeIds.length) {
-      for (var i = 0; i < injuryTypeCheckboxes.length; i++) {
-        var val = parseInt(injuryTypeCheckboxes[i].value, 10);
+      for (let i = 0; i < injuryTypeCheckboxes.length; i++) {
+        const val = parseInt(injuryTypeCheckboxes[i].value, 10);
         injuryTypeCheckboxes[i].checked = data.injuryTypeIds.indexOf(val) !== -1;
       }
     }
 
     /* Severity radio */
     if (data.severityId) {
-      for (var s = 0; s < severityRadios.length; s++) {
+      for (let s = 0; s < severityRadios.length; s++) {
         severityRadios[s].checked = (parseInt(severityRadios[s].value, 10) === data.severityId);
       }
     }
 
     /* Psych symptoms (checkboxes) */
     if (data.psychSymptoms && data.psychSymptoms.length) {
-      for (var p = 0; p < psychSymptoms.length; p++) {
-        var pVal = parseInt(psychSymptoms[p].value, 10);
+      for (let p = 0; p < psychSymptoms.length; p++) {
+        const pVal = parseInt(psychSymptoms[p].value, 10);
         psychSymptoms[p].checked = data.psychSymptoms.indexOf(pVal) !== -1;
       }
     }
 
     /* Section C: Medical, Safety, Consent (radios) */
     if (data.conditionId) {
-      for (var ci = 0; ci < conditionRadios.length; ci++) {
+      for (let ci = 0; ci < conditionRadios.length; ci++) {
         conditionRadios[ci].checked = (parseInt(conditionRadios[ci].value, 10) === data.conditionId);
       }
     }
     if (data.safetyStatusId) {
-      for (var si = 0; si < safetyRadios.length; si++) {
+      for (let si = 0; si < safetyRadios.length; si++) {
         safetyRadios[si].checked = (parseInt(safetyRadios[si].value, 10) === data.safetyStatusId);
       }
     }
     if (data.consentId) {
-      for (var cn = 0; cn < consentRadios.length; cn++) {
+      for (let cn = 0; cn < consentRadios.length; cn++) {
         consentRadios[cn].checked = (parseInt(consentRadios[cn].value, 10) === data.consentId);
       }
     }
@@ -342,13 +342,13 @@
       toggleDisability();
 
       /* Section B */
-      for (var i = 0; i < injuryTypeCheckboxes.length; i++) injuryTypeCheckboxes[i].checked = false;
-      for (var j = 0; j < severityRadios.length; j++) severityRadios[j].checked = false;
-      for (var k = 0; k < psychSymptoms.length; k++) psychSymptoms[k].checked = false;
+      for (let i = 0; i < injuryTypeCheckboxes.length; i++) injuryTypeCheckboxes[i].checked = false;
+      for (let j = 0; j < severityRadios.length; j++) severityRadios[j].checked = false;
+      for (let k = 0; k < psychSymptoms.length; k++) psychSymptoms[k].checked = false;
 
       /* Section C */
       [conditionRadios, safetyRadios, consentRadios].forEach(function (radios) {
-        for (var i = 0; i < radios.length; i++) radios[i].checked = false;
+        for (let i = 0; i < radios.length; i++) radios[i].checked = false;
       });
 
       hiddenJson.value = '';
@@ -356,12 +356,12 @@
   };
 
   /* Step validator: injury type + all radio groups mandatory */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
+      const warnings = [];
       if (!getCheckedIds(injuryTypeCheckboxes).length) {
         warnings.push('আঘাতের ধরন নির্বাচন করুন (Please select at least one injury type)');
       }

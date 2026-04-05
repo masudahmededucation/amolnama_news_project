@@ -11,13 +11,13 @@
     return;
   }
 
-  var fields = document.querySelectorAll(
+  const fields = document.querySelectorAll(
     '#poem-author-name, #poem-title-bn, #poem-body-bn, '
     + '#poem-backstory-bn, #poem-interpretation-bn, '
     + '#poem-audio-reciter-name, #poem-audio-description'
   );
 
-  for (var i = 0; i < fields.length; i++) {
+  for (let i = 0; i < fields.length; i++) {
     if (!fields[i].getAttribute('data-bangla-attached')) {
       BanglaInput.attach(fields[i]);
       fields[i].setAttribute('data-bangla-attached', '1');

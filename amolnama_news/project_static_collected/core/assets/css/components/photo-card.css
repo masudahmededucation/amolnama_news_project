@@ -111,7 +111,7 @@
 
 .photo-card-like-button:hover {
   color: var(--accent);
-  background: #e7f3ff;
+  background: var(--info-light);
 }
 
 .photo-card-like-button-active {
@@ -188,7 +188,7 @@
 }
 
 .photo-card-delete-button:hover {
-  color: #dc2626;
+  color: var(--danger);
   background: rgba(220, 38, 38, .08);
 }
 
@@ -276,7 +276,7 @@
 }
 
 .photo-card-confirm-delete-button {
-  background: #dc2626;
+  background: var(--danger);
   color: #fff;
 }
 
@@ -290,7 +290,7 @@
 }
 
 .photo-card-cancel-delete-button {
-  background: #fff;
+  background: var(--card);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
 }
@@ -315,7 +315,7 @@
 }
 
 .photo-card-inline-message-success {
-  background: #ecfdf5;
+  background: var(--success-light);
   color: #065f46;
   border: 1px solid #a7f3d0;
 }

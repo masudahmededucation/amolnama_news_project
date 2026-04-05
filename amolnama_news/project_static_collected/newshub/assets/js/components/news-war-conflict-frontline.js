@@ -19,33 +19,33 @@
 (function () {
   'use strict';
 
-  var territoryStatus = document.getElementById('global-territory-status');
-  var territoryDesc = document.getElementById('global-territory-description');
-  var intensity = document.getElementById('global-conflict-intensity');
-  var weaponClass = document.getElementById('global-weapon-class');
-  var involvement = document.getElementById('global-involvement-level');
-  var hiddenJson = document.getElementById('global-frontline-json');
+  const territoryStatus = document.getElementById('global-territory-status');
+  const territoryDesc = document.getElementById('global-territory-description');
+  const intensity = document.getElementById('global-conflict-intensity');
+  const weaponClass = document.getElementById('global-weapon-class');
+  const involvement = document.getElementById('global-involvement-level');
+  const hiddenJson = document.getElementById('global-frontline-json');
 
   if (!hiddenJson) return;
 
   /* ========== Populate territory status dropdown from DB data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var territoryStatuses = parseJsonData('territory-statuses-data');
-  var conflictIntensities = parseJsonData('conflict-intensity-data');
-  var weaponClasses = parseJsonData('weapon-classes-data');
-  var involvementLevels = parseJsonData('involvement-levels-data');
+  const territoryStatuses = parseJsonData('territory-statuses-data');
+  const conflictIntensities = parseJsonData('conflict-intensity-data');
+  const weaponClasses = parseJsonData('weapon-classes-data');
+  const involvementLevels = parseJsonData('involvement-levels-data');
 
   function populateSelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      let s = items[i];
+      let opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -55,9 +55,9 @@
   /* Intensity: stores status_id (FK), shows status_code number in label */
   function populateIntensitySelect(selectEl, items) {
     if (!selectEl || !items.length) return;
-    for (var i = 0; i < items.length; i++) {
-      var s = items[i];
-      var opt = document.createElement('option');
+    for (let i = 0; i < items.length; i++) {
+      const s = items[i];
+      const opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = s.status_code + ' — ' + (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       selectEl.appendChild(opt);
@@ -70,7 +70,7 @@
   populateSelect(involvement, involvementLevels);
 
   function serialize() {
-    var data = {
+    let data = {
       territoryStatusId: territoryStatus ? (parseInt(territoryStatus.value, 10) || 0) : 0,
       territoryDescription: territoryDesc ? territoryDesc.value.trim() : '',
       conflictIntensityId: intensity ? (parseInt(intensity.value, 10) || 0) : 0,
@@ -84,13 +84,13 @@
   /* Listen for input changes */
   if (territoryDesc) territoryDesc.addEventListener('input', serialize);
 
-  var changeFields = [territoryStatus, intensity, weaponClass, involvement];
+  const changeFields = [territoryStatus, intensity, weaponClass, involvement];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -99,7 +99,7 @@
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (territoryStatus && data.territoryStatusId)   territoryStatus.value = data.territoryStatusId;
       if (territoryDesc && data.territoryDescription)   territoryDesc.value   = data.territoryDescription;
       if (intensity && data.conflictIntensityId)        intensity.value       = data.conflictIntensityId;

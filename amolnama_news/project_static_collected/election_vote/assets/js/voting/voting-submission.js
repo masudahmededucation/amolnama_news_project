@@ -20,12 +20,12 @@ function handlePartySelectionAndCastVote(id, nameEn, nameBn, event) {
   selectedParty = { id: id, nameEn: nameEn, nameBn: nameBn };
 
   stepTimestamps.push(Date.now());
-  var voteDurationMs = Date.now() - (voteStartTime || Date.now());
-  var questionAvgSeconds = stepTimestamps.length > 1
+  const voteDurationMs = Date.now() - (voteStartTime || Date.now());
+  const questionAvgSeconds = stepTimestamps.length > 1
     ? (voteDurationMs / (stepTimestamps.length - 1)) / 1000
     : 0;
 
-  var votePayload = {
+  const votePayload = {
     election_evaluation_id: selectedElection ? selectedElection.electionEvaluationId : null,
     election_id: selectedElection ? selectedElection.electionId : null,
     constituency_id: selectedConstituency ? selectedConstituency.id : null,
@@ -40,8 +40,8 @@ function handlePartySelectionAndCastVote(id, nameEn, nameBn, event) {
   };
 
   // Disable party list to prevent double-click
-  var partyListElement = document.getElementById('party-list-selection');
-  if (partyListElement) partyListElement.style.pointerEvents = 'none';
+  const partyListElement = document.getElementById('party-list-selection');
+  if (partyListElement) partyListElement.classList.add('pointer-events-disabled');
 
   fetch('/election_vote/api/cast-vote/', {
     method: 'POST',
@@ -57,7 +57,7 @@ function handlePartySelectionAndCastVote(id, nameEn, nameBn, event) {
           '\u09AD\u09CB\u099F \u09A6\u09BF\u09A4\u09C7 \u0985\u09A8\u09C1\u0997\u09CD\u09B0\u09B9 \u0995\u09B0\u09C7 <a href="/account/login/">\u09B2\u0997\u0987\u09A8</a> \u0995\u09B0\u09C1\u09A8\u0964 (Please <a href="/account/login/">log in</a> to cast your vote.)',
           'warning'
         );
-        if (partyListElement) partyListElement.style.pointerEvents = 'auto';
+        if (partyListElement) partyListElement.classList.remove('pointer-events-disabled');
         return Promise.reject('not_authenticated');
       }
       return response.json();
@@ -69,12 +69,12 @@ function handlePartySelectionAndCastVote(id, nameEn, nameBn, event) {
         displayVoteReceipt(data.receipt_code);
       } else {
         showPageMessage(data.error || 'Vote submission failed.', 'error');
-        if (partyListElement) partyListElement.style.pointerEvents = 'auto';
+        if (partyListElement) partyListElement.classList.remove('pointer-events-disabled');
       }
     })
     .catch(function (error) {
       if (error === 'not_authenticated') return;
       showPageMessage('ভোট জমা ব্যর্থ হয়েছে। আবার চেষ্টা করুন। (Vote submission failed. Please try again.)', 'error');
-      if (partyListElement) partyListElement.style.pointerEvents = 'auto';
+      if (partyListElement) partyListElement.classList.remove('pointer-events-disabled');
     });
 }

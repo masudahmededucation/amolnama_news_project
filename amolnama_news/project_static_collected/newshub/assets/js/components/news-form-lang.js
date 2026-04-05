@@ -22,15 +22,15 @@
 
   /* ========== Detect initial language from toggle state ========== */
 
-  var radios = document.querySelectorAll('input[name="form_lang"]');
+  const radios = document.querySelectorAll('input[name="form_lang"]');
   // Prefer localStorage (client-side preference) over server-rendered radio (always defaults to bn)
-  var savedBanglaPreference = null;
+  let savedBanglaPreference = null;
   try { savedBanglaPreference = localStorage.getItem('bangla_input_enabled'); } catch (storageError) {}
-  var currentLang = 'bn';
+  let currentLang = 'bn';
   if (savedBanglaPreference !== null) {
     currentLang = savedBanglaPreference === 'true' ? 'bn' : 'en';
   } else {
-    for (var r = 0; r < radios.length; r++) {
+    for (let r = 0; r < radios.length; r++) {
       if (radios[r].checked) { currentLang = radios[r].value; break; }
     }
   }
@@ -39,14 +39,14 @@
   /* ========== Apply language to all labelled elements ========== */
 
   /* Save original mixed text as data-bn for elements that only have data-en */
-  var defaultsSaved = false;
+  let defaultsSaved = false;
   function saveDefaults() {
     if (defaultsSaved) return;
     defaultsSaved = true;
     try {
       document.querySelectorAll('[data-en]:not([data-bn])').forEach(function (el) {
-        var textOnly = '';
-        for (var c = 0; c < el.childNodes.length; c++) {
+        let textOnly = '';
+        for (let c = 0; c < el.childNodes.length; c++) {
           if (el.childNodes[c].nodeType === Node.TEXT_NODE) textOnly += el.childNodes[c].textContent;
         }
         el.setAttribute('data-bn', textOnly.trim());
@@ -62,13 +62,13 @@
     saveDefaults();
 
     /* Static labels, headings, option text — only elements with BOTH data-bn AND data-en */
-    var labelled = document.querySelectorAll('[data-bn][data-en]');
-    for (var i = 0; i < labelled.length; i++) {
-      var el = labelled[i];
-      var text = el.getAttribute('data-' + lang);
+    const labelled = document.querySelectorAll('[data-bn][data-en]');
+    for (let i = 0; i < labelled.length; i++) {
+      const el = labelled[i];
+      const text = el.getAttribute('data-' + lang);
       if (text !== null) {
         /* Preserve non-text child nodes (e.g. .field-mandatory-star spans, checkboxes) */
-        var kids = Array.prototype.slice.call(el.childNodes).filter(function (n) {
+        const kids = Array.prototype.slice.call(el.childNodes).filter(function (n) {
           return n.nodeType !== Node.TEXT_NODE;
         });
         el.textContent = text;
@@ -77,9 +77,9 @@
     }
 
     /* Input / textarea placeholders */
-    var inputs = document.querySelectorAll('[data-ph-bn][data-ph-en]');
-    for (var j = 0; j < inputs.length; j++) {
-      var ph = inputs[j].getAttribute('data-ph-' + lang);
+    const inputs = document.querySelectorAll('[data-ph-bn][data-ph-en]');
+    for (let j = 0; j < inputs.length; j++) {
+      const ph = inputs[j].getAttribute('data-ph-' + lang);
       if (ph !== null) inputs[j].placeholder = ph;
     }
 
@@ -89,22 +89,22 @@
     document.body.setAttribute('data-lang', lang);
 
     /* Toggle lang-field-bn / lang-field-en visibility */
-    var bnFields = document.querySelectorAll('.lang-field-bn, .lang-inline-bn');
-    var enFields = document.querySelectorAll('.lang-field-en, .lang-inline-en');
-    for (var b = 0; b < bnFields.length; b++) {
+    const bnFields = document.querySelectorAll('.lang-field-bn, .lang-inline-bn');
+    const enFields = document.querySelectorAll('.lang-field-en, .lang-inline-en');
+    for (let b = 0; b < bnFields.length; b++) {
       bnFields[b].classList.toggle('lang-hidden', lang !== 'bn');
     }
-    for (var e = 0; e < enFields.length; e++) {
+    for (let e = 0; e < enFields.length; e++) {
       enFields[e].classList.toggle('lang-hidden', lang !== 'en');
     }
 
     /* Keep toggle radios in sync */
-    for (var k = 0; k < radios.length; k++) {
+    for (let k = 0; k < radios.length; k++) {
       radios[k].checked = (radios[k].value === lang);
     }
 
     /* Update data-lang on the multistep form if present on this page */
-    var form = document.querySelector('form.news-multistep-form');
+    const form = document.querySelector('form.news-multistep-form');
     if (form) form.setAttribute('data-lang', lang);
   }
 
@@ -114,20 +114,20 @@
   /* ========== AJAX save ========== */
 
   function saveLangPref(lang) {
-    var csrf = getCsrfTokenValue();
+    const csrf = getCsrfTokenValue();
     if (!csrf) return;
-    var body = new URLSearchParams();
+    const body = new URLSearchParams();
     body.append('lang', lang);
     fetch('/account/api/language-pref/', {
       method: 'POST',
       headers: { 'X-CSRFToken': csrf },
       body: body,
-    });
+    }).catch(function () {});
   }
 
   /* ========== Toggle event listeners ========== */
 
-  for (var lr = 0; lr < radios.length; lr++) {
+  for (let lr = 0; lr < radios.length; lr++) {
     radios[lr].addEventListener('change', function () {
       applyLanguage(this.value);
       saveLangPref(this.value);
@@ -148,9 +148,9 @@
       return;
     }
     /* Attach to all known Quill editors */
-    var quillKeys = ['__quillNewsSummary', '__quillNewsBody', '__quillShortDesc', '__quillDesc'];
-    for (var qi = 0; qi < quillKeys.length; qi++) {
-      var editor = window[quillKeys[qi]];
+    const quillKeys = ['__quillNewsSummary', '__quillNewsBody', '__quillShortDesc', '__quillDesc'];
+    for (let qi = 0; qi < quillKeys.length; qi++) {
+      const editor = window[quillKeys[qi]];
       if (editor && editor.quill && !editor.quill.__avroAttached) {
         QuillAvro.attach(editor.quill);
         editor.quill.__avroAttached = true;
@@ -163,7 +163,7 @@
   setTimeout(attachQuillAvro, 600);
 
   /* Hook language toggle → enable/disable QuillAvro */
-  var originalApplyForQuill = applyLanguage;
+  const originalApplyForQuill = applyLanguage;
   applyLanguage = function (lang) {
     originalApplyForQuill(lang);
     currentLang = lang;

@@ -29,19 +29,19 @@
   </div>
 </section>
 
-<form id="beauty-hub-upload-form" enctype="multipart/form-data" novalidate style="max-width:700px;">
-  <div style="margin-bottom:1rem;">
-    <label for="beauty-hub-file" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Choose File *">ফাইল আপলোড করুন *</label>
-    <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required style="font-size:.85rem;">
-    <div id="beauty-hub-file-preview" style="margin-top:.5rem;display:none;">
-      <img id="beauty-hub-image-preview" style="max-width:300px;max-height:200px;border-radius:var(--radius);display:none;">
-      <video id="beauty-hub-video-preview" style="max-width:300px;max-height:200px;border-radius:var(--radius);display:none;" controls></video>
+<form id="beauty-hub-upload-form" class="beauty-hub-upload-form" enctype="multipart/form-data" novalidate>
+  <div class="form-group">
+    <label for="beauty-hub-file" class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
+    <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input">
+    <div id="beauty-hub-file-preview" class="beauty-hub-file-preview display-hidden">
+      <img id="beauty-hub-image-preview" class="beauty-hub-media-preview display-hidden">
+      <video id="beauty-hub-video-preview" class="beauty-hub-media-preview display-hidden" controls></video>
     </div>
   </div>
 
-  <div style="margin-bottom:1rem;">
-    <label for="beauty-hub-category" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Category *">ধরন (Category) *</label>
-    <select id="beauty-hub-category" name="beauty_hub_category" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" required>
+  <div class="form-group">
+    <label for="beauty-hub-category" class="form-label" data-en="Category *">ধরন (Category) *</label>
+    <select id="beauty-hub-category" name="beauty_hub_category" class="form-input" required>
       <option value="" data-en="-- Select --">-- বাছাই করুন --</option>
       {% for cat in categories %}
         <option value="{{ cat.bangladesh_ref_media_category_id }}" data-en="{{ cat.media_category_name_en }}">{{ cat.media_category_name_bn }} ({{ cat.media_category_name_en }})</option>
@@ -50,43 +50,43 @@
   </div>
 
   {# Festival date fields — shown only when Festival category selected #}
-  <div id="beauty-hub-festival-fields" style="display:none;margin-bottom:1rem;background:var(--surface);border-radius:var(--radius);padding:.85rem;">
-    <div style="font-weight:600;font-size:.82rem;margin-bottom:.5rem;" data-en="Festival Details">উৎসবের তথ্য (Festival Details)</div>
-    <div style="display:flex;gap:1rem;margin-bottom:.5rem;">
-      <div style="flex:1;">
-        <label for="beauty-hub-event-date-from" style="font-size:.8rem;display:block;margin-bottom:.2rem;" data-en="Date From">তারিখ থেকে (Date From)</label>
-        <input type="date" id="beauty-hub-event-date-from" name="beauty_hub_event_date_from" style="width:100%;padding:.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+  <div id="beauty-hub-festival-fields" class="beauty-hub-festival-panel display-hidden">
+    <div class="beauty-hub-festival-heading" data-en="Festival Details">উৎসবের তথ্য (Festival Details)</div>
+    <div class="beauty-hub-festival-date-row">
+      <div class="form-row-item">
+        <label for="beauty-hub-event-date-from" class="form-label-small" data-en="Date From">তারিখ থেকে (Date From)</label>
+        <input type="date" id="beauty-hub-event-date-from" name="beauty_hub_event_date_from" class="form-input-small">
       </div>
-      <div style="flex:1;">
-        <label for="beauty-hub-event-date-to" style="font-size:.8rem;display:block;margin-bottom:.2rem;" data-en="Date To">তারিখ পর্যন্ত (Date To)</label>
-        <input type="date" id="beauty-hub-event-date-to" name="beauty_hub_event_date_to" style="width:100%;padding:.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+      <div class="form-row-item">
+        <label for="beauty-hub-event-date-to" class="form-label-small" data-en="Date To">তারিখ পর্যন্ত (Date To)</label>
+        <input type="date" id="beauty-hub-event-date-to" name="beauty_hub_event_date_to" class="form-input-small">
       </div>
     </div>
-    <label style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;cursor:pointer;" data-en="Yearly recurring event">
-      <input type="checkbox" id="beauty-hub-yearly-event" name="beauty_hub_yearly_event" style="width:16px;height:16px;">
+    <label class="beauty-hub-festival-checkbox-label" data-en="Yearly recurring event">
+      <input type="checkbox" id="beauty-hub-yearly-event" name="beauty_hub_yearly_event" class="beauty-hub-checkbox">
       প্রতি বছর পুনরাবৃত্তি হয় (Yearly recurring event)
     </label>
   </div>
 
-  <div style="margin-bottom:1rem;">
-    <label for="beauty-hub-title-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Title">শিরোনাম</label>
-    <input type="text" id="beauty-hub-title-bn" name="beauty_hub_title_bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: সুন্দরবনের সূর্যাস্ত" data-ph-en="e.g. Sunset at Sundarbans">
+  <div class="form-group">
+    <label for="beauty-hub-title-bn" class="form-label" data-en="Title">শিরোনাম</label>
+    <input type="text" id="beauty-hub-title-bn" name="beauty_hub_title_bn" maxlength="300" class="form-input" placeholder="যেমন: সুন্দরবনের সূর্যাস্ত" data-ph-en="e.g. Sunset at Sundarbans">
   </div>
 
-  <div style="margin-bottom:1rem;">
-    <span style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Description">বিবরণ (Description)</span>
+  <div class="form-group">
+    <span class="form-label" data-en="Description">বিবরণ (Description)</span>
     <div id="quill-beauty-hub-description"></div>
-    <textarea id="beauty-hub-desc-bn" name="beauty_hub_desc_bn" style="display:none;"></textarea>
+    <textarea id="beauty-hub-desc-bn" name="beauty_hub_desc_bn" class="display-hidden"></textarea>
   </div>
 
-  <div style="display:flex;gap:1rem;margin-bottom:1rem;">
-    <div style="flex:1;">
-      <label for="beauty-hub-location-bn" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Location">স্থান (Location)</label>
-      <input type="text" id="beauty-hub-location-bn" name="beauty_hub_location_bn" maxlength="300" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: কক্সবাজার, বান্দরবান" data-ph-en="e.g. Cox's Bazar, Bandarban">
+  <div class="form-row">
+    <div class="form-row-item">
+      <label for="beauty-hub-location-bn" class="form-label" data-en="Location">স্থান (Location)</label>
+      <input type="text" id="beauty-hub-location-bn" name="beauty_hub_location_bn" maxlength="300" class="form-input" placeholder="যেমন: কক্সবাজার, বান্দরবান" data-ph-en="e.g. Cox's Bazar, Bandarban">
     </div>
-    <div style="flex:1;">
-      <label for="beauty-hub-season" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Season">ঋতু (Season)</label>
-      <select id="beauty-hub-season" name="beauty_hub_season" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
+    <div class="form-row-item">
+      <label for="beauty-hub-season" class="form-label" data-en="Season">ঋতু (Season)</label>
+      <select id="beauty-hub-season" name="beauty_hub_season" class="form-input">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         {% for s in seasons %}
           <option value="{{ s.bangladesh_ref_season_id }}" data-en="{{ s.season_name_en }}">{{ s.season_name_bn }}</option>
@@ -95,14 +95,14 @@
     </div>
   </div>
 
-  <div style="display:flex;gap:1rem;margin-bottom:1rem;">
-    <div style="flex:1;">
-      <label for="beauty-hub-camera" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Camera Model">ক্যামেরা মডেল</label>
-      <input type="text" id="beauty-hub-camera" name="beauty_hub_camera" maxlength="100" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;" placeholder="যেমন: Canon EOS R5, iPhone 15 Pro" data-no-bangla>
+  <div class="form-row">
+    <div class="form-row-item">
+      <label for="beauty-hub-camera" class="form-label" data-en="Camera Model">ক্যামেরা মডেল</label>
+      <input type="text" id="beauty-hub-camera" name="beauty_hub_camera" maxlength="100" class="form-input" placeholder="যেমন: Canon EOS R5, iPhone 15 Pro" data-no-bangla>
     </div>
-    <div style="flex:1;">
-      <label for="beauty-hub-time-of-day" style="font-weight:600;font-size:.85rem;display:block;margin-bottom:.3rem;" data-en="Time of Day">সময় (Time of Day)</label>
-      <select id="beauty-hub-time-of-day" name="beauty_hub_time_of_day" style="width:100%;padding:.45rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
+    <div class="form-row-item">
+      <label for="beauty-hub-time-of-day" class="form-label" data-en="Time of Day">সময় (Time of Day)</label>
+      <select id="beauty-hub-time-of-day" name="beauty_hub_time_of_day" class="form-input">
         <option value="" data-en="-- Optional --">-- ঐচ্ছিক --</option>
         <option value="dawn" data-en="Dawn">ভোর (Dawn)</option>
         <option value="morning" data-en="Morning">সকাল (Morning)</option>
@@ -116,17 +116,17 @@
     </div>
   </div>
 
-  <div id="beauty-hub-upload-progress" style="display:none;margin-bottom:.75rem;">
-    <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
-      <div id="beauty-hub-progress-bar" style="width:0%;height:100%;background:var(--primary);transition:width .2s;"></div>
+  <div id="beauty-hub-upload-progress" class="display-hidden form-group">
+    <div class="beauty-hub-progress-track">
+      <div id="beauty-hub-progress-bar" class="beauty-hub-progress-bar" style="width:0%"></div>
     </div>
-    <span id="beauty-hub-progress-text" style="font-size:.72rem;color:var(--muted);" data-en="Uploading...">আপলোড হচ্ছে...</span>
+    <span id="beauty-hub-progress-text" class="form-hint" data-en="Uploading...">আপলোড হচ্ছে...</span>
   </div>
 
-  <div id="beauty-hub-upload-error" style="color:#e74c3c;font-size:.82rem;margin-bottom:.75rem;display:none;"></div>
+  <div id="beauty-hub-upload-error" class="form-error-message"></div>
 
-  <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-    <button type="submit" id="beauty-hub-upload-submit-button" style="padding:.55rem 1.5rem;font-size:.88rem;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:var(--radius);cursor:pointer;" data-en="Upload">
+  <div class="form-actions">
+    <button type="submit" id="beauty-hub-upload-submit-button" class="form-button-primary" data-en="Upload">
       আপলোড করুন (Upload)
     </button>
     <button type="button" id="beauty-hub-clear-form-button" name="beauty_hub_clear_form" class="beauty-hub-clear-form-button" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>
@@ -136,9 +136,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<script src="{% static 'bangladesh/assets/js/components/quill-editor.js' %}"></script>
-<script src="{% static 'bangladesh/assets/js/pages/beauty-hub-upload.js' %}"></script>
-<script src="{% static 'bangladesh/assets/js/pages/beauty-hub-upload-clear.js' %}"></script>
-<script src="{% static 'bangladesh/assets/js/components/bangladesh-avro-hook.js' %}"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js" defer></script>
+<script src="{% static 'bangladesh/assets/js/components/quill-editor.js' %}" defer></script>
+<script src="{% static 'bangladesh/assets/js/pages/beauty-hub-upload.js' %}" defer></script>
+<script src="{% static 'bangladesh/assets/js/pages/beauty-hub-upload-clear.js' %}" defer></script>
+<script src="{% static 'bangladesh/assets/js/components/bangladesh-avro-hook.js' %}" defer></script>
 {% endblock %}

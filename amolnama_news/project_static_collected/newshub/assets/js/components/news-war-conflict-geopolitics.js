@@ -33,34 +33,34 @@
 (function () {
   'use strict';
 
-  var globalReaction = document.getElementById('global-reaction');
-  var globalReactionDetails = document.getElementById('global-reaction-details');
-  var strategicCurrencyEconomy = document.getElementById('global-strategic-currency-economy');
-  var strategicFoodSupply = document.getElementById('global-strategic-food-supply');
-  var strategicOilEnergy = document.getElementById('global-strategic-oil-energy');
-  var strategicShippingLanes = document.getElementById('global-strategic-shipping-lanes');
-  var localImpact = document.getElementById('global-local-impact');
-  var localImpactDesc = document.getElementById('global-local-impact-description');
-  var localImpactRow = document.getElementById('global-local-impact-row');
-  var hiddenJson = document.getElementById('global-geopolitics-json');
+  const globalReaction = document.getElementById('global-reaction');
+  const globalReactionDetails = document.getElementById('global-reaction-details');
+  const strategicCurrencyEconomy = document.getElementById('global-strategic-currency-economy');
+  const strategicFoodSupply = document.getElementById('global-strategic-food-supply');
+  const strategicOilEnergy = document.getElementById('global-strategic-oil-energy');
+  const strategicShippingLanes = document.getElementById('global-strategic-shipping-lanes');
+  const localImpact = document.getElementById('global-local-impact');
+  const localImpactDesc = document.getElementById('global-local-impact-description');
+  const localImpactRow = document.getElementById('global-local-impact-row');
+  const hiddenJson = document.getElementById('global-geopolitics-json');
 
   if (!hiddenJson) return;
 
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var globalReactions = parseJsonData('global-reactions-data');
+  const globalReactions = parseJsonData('global-reactions-data');
 
   /* Populate global reaction dropdown */
   if (globalReaction && globalReactions.length) {
-    for (var r = 0; r < globalReactions.length; r++) {
-      var s = globalReactions[r];
-      var opt = document.createElement('option');
+    for (let r = 0; r < globalReactions.length; r++) {
+      const s = globalReactions[r];
+      const opt = document.createElement('option');
       opt.value = s.status_id;
       opt.textContent = (s.status_name_bn || '') + ' (' + (s.status_name_en || '') + ')';
       globalReaction.appendChild(opt);
@@ -70,14 +70,14 @@
   /* Toggle local impact row visibility */
   function toggleLocalImpactRow() {
     if (!localImpact || !localImpactRow) return;
-    localImpactRow.style.display = localImpact.checked ? '' : 'none';
+    localImpact.checked ? localImpactRow.classList.remove('display-hidden') : localImpactRow.classList.add('display-hidden');
     if (!localImpact.checked && localImpactDesc) {
       localImpactDesc.value = '';
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       globalReactionId: globalReaction ? (parseInt(globalReaction.value, 10) || 0) : 0,
       globalReactionDetails: globalReactionDetails ? globalReactionDetails.value.trim() : '',
       strategicCurrencyEconomy: strategicCurrencyEconomy ? strategicCurrencyEconomy.checked : false,
@@ -95,8 +95,8 @@
   if (globalReaction) globalReaction.addEventListener('change', serialize);
   if (globalReactionDetails) globalReactionDetails.addEventListener('input', serialize);
 
-  var strategicCheckboxes = [strategicCurrencyEconomy, strategicFoodSupply, strategicOilEnergy, strategicShippingLanes];
-  for (var i = 0; i < strategicCheckboxes.length; i++) {
+  const strategicCheckboxes = [strategicCurrencyEconomy, strategicFoodSupply, strategicOilEnergy, strategicShippingLanes];
+  for (let i = 0; i < strategicCheckboxes.length; i++) {
     if (strategicCheckboxes[i]) strategicCheckboxes[i].addEventListener('change', serialize);
   }
 
@@ -113,7 +113,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -125,7 +125,7 @@
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (globalReaction && data.globalReactionId)             globalReaction.value        = data.globalReactionId;
       if (globalReactionDetails && data.globalReactionDetails) globalReactionDetails.value = data.globalReactionDetails;
       if (strategicCurrencyEconomy) strategicCurrencyEconomy.checked = !!data.strategicCurrencyEconomy;
@@ -145,7 +145,7 @@
     reset: function () {
       if (globalReaction) globalReaction.selectedIndex = 0;
       if (globalReactionDetails) globalReactionDetails.value = '';
-      for (var i = 0; i < strategicCheckboxes.length; i++) {
+      for (let i = 0; i < strategicCheckboxes.length; i++) {
         if (strategicCheckboxes[i]) strategicCheckboxes[i].checked = false;
       }
       if (localImpact) localImpact.checked = false;

@@ -23,16 +23,16 @@
 (function () {
   'use strict';
 
-  var districtSelect = document.getElementById('news-district-id');
-  var upazilaSelect = document.getElementById('news-upazila-id');
-  var unionSelect = document.getElementById('news-union-parishad-id');
+  const districtSelect = document.getElementById('news-district-id');
+  const upazilaSelect = document.getElementById('news-upazila-id');
+  const unionSelect = document.getElementById('news-union-parishad-id');
 
   if (!districtSelect) return;
 
   /* ========== Name Extraction from Nominatim Response ========== */
 
   function extractLocationNames(address, displayName) {
-    var result = { district: '', upazila: '', union: '' };
+    const result = { district: '', upazila: '', union: '' };
 
     if (!address) return result;
 
@@ -47,16 +47,16 @@
     }
 
     /* Union: best-effort from address.village, town, or suburb */
-    var unionCandidate = address.village || address.town || address.suburb || '';
+    const unionCandidate = address.village || address.town || address.suburb || '';
     if (unionCandidate && unionCandidate !== result.upazila) {
       result.union = unionCandidate.trim();
     }
 
     /* Fallback: always parse display_name for district if not found */
     if (displayName) {
-      var parts = displayName.split(',');
-      for (var i = 0; i < parts.length; i++) {
-        var part = parts[i].trim();
+      const parts = displayName.split(',');
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i].trim();
         if (!result.district && part.indexOf('জেলা') !== -1) {
           result.district = extractNameBefore(part, 'জেলা');
         }
@@ -70,7 +70,7 @@
   }
 
   function extractNameBefore(text, keyword) {
-    var idx = text.indexOf(keyword);
+    const idx = text.indexOf(keyword);
     if (idx === -1) return text.trim();
     return text.substring(0, idx).trim();
   }
@@ -79,28 +79,28 @@
 
   function matchDropdownOption(selectEl, searchName) {
     if (!searchName || !selectEl) return null;
-    var normalized = searchName.trim();
+    const normalized = searchName.trim();
     if (!normalized) return null;
 
-    var bestMatch = null;
-    var bestScore = 0;
+    let bestMatch = null;
+    let bestScore = 0;
 
-    for (var i = 0; i < selectEl.options.length; i++) {
-      var opt = selectEl.options[i];
+    for (let i = 0; i < selectEl.options.length; i++) {
+      const opt = selectEl.options[i];
       if (!opt.value) continue;
 
       /* Extract Bengali part (before parentheses with English name) */
-      var optText = opt.textContent.trim();
-      var bnPart = optText.split('(')[0].trim();
+      const optText = opt.textContent.trim();
+      const bnPart = optText.split('(')[0].trim();
 
       /* Exact match — best */
       if (bnPart === normalized) return opt;
 
       /* Substring match — score by length similarity */
       if (bnPart.indexOf(normalized) !== -1 || normalized.indexOf(bnPart) !== -1) {
-        var shorter = Math.min(bnPart.length, normalized.length);
-        var longer = Math.max(bnPart.length, normalized.length);
-        var score = shorter / longer;
+        const shorter = Math.min(bnPart.length, normalized.length);
+        const longer = Math.max(bnPart.length, normalized.length);
+        const score = shorter / longer;
         if (score > bestScore) {
           bestScore = score;
           bestMatch = opt;
@@ -127,9 +127,9 @@
   function waitForOptionsAndSelect(selectEl, name) {
     if (!name || !selectEl) return;
 
-    var observer = new MutationObserver(function () {
+    const observer = new MutationObserver(function () {
       observer.disconnect();
-      var matched = matchDropdownOption(selectEl, name);
+      const matched = matchDropdownOption(selectEl, name);
       if (matched) {
         setSelectValue(selectEl, matched.value);
       }
@@ -141,23 +141,23 @@
   /* ========== Main: Auto-Fill Location Dropdowns ========== */
 
   function fillLocationFromAddress(address, displayName, latitude, longitude) {
-    var names = extractLocationNames(address, displayName);
+    const names = extractLocationNames(address, displayName);
 
     /* 1. Match district by text */
-    var districtOption = null;
+    let districtOption = null;
     if (names.district) {
       districtOption = matchDropdownOption(districtSelect, names.district);
     }
     if (!districtOption) return;
 
     /* Skip if already the correct district */
-    var currentDistrict = districtSelect.tomselect ? districtSelect.tomselect.getValue() : districtSelect.value;
+    const currentDistrict = districtSelect.tomselect ? districtSelect.tomselect.getValue() : districtSelect.value;
     if (currentDistrict === districtOption.value) {
       if (names.upazila) {
         /* Constituency is auto-matched by news-location-cascade.js when upazila changes */
         /* Upazila */
         if (upazilaSelect && upazilaSelect.options.length > 1) {
-          var upazilaMatch = matchDropdownOption(upazilaSelect, names.upazila);
+          let upazilaMatch = matchDropdownOption(upazilaSelect, names.upazila);
           if (upazilaMatch && upazilaSelect.value !== upazilaMatch.value) {
             setSelectValue(upazilaSelect, upazilaMatch.value);
             if (names.union) waitForOptionsAndSelect(unionSelect, names.union);
@@ -179,9 +179,9 @@
 
     /* 2. Wait for upazila cascade, then match */
     if (names.upazila && upazilaSelect) {
-      var upazilaObserver = new MutationObserver(function () {
+      const upazilaObserver = new MutationObserver(function () {
         upazilaObserver.disconnect();
-        var upazilaMatch = matchDropdownOption(upazilaSelect, names.upazila);
+        const upazilaMatch = matchDropdownOption(upazilaSelect, names.upazila);
         if (upazilaMatch) {
           setSelectValue(upazilaSelect, upazilaMatch.value);
 

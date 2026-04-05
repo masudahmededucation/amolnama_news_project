@@ -2,65 +2,65 @@
 (function () {
   'use strict';
 
-  var messengerElement = document.getElementById('messenger');
+  const messengerElement = document.getElementById('messenger');
   if (!messengerElement) return;
 
 
-  var sidebar = document.getElementById('messenger-sidebar');
-  var conversationListContainer = document.getElementById('messenger-conversation-list');
-  var chatEmpty = document.getElementById('messenger-chat-empty');
-  var chatHeader = document.getElementById('messenger-chat-header');
-  var messagesContainer = document.getElementById('messenger-messages');
-  var inputArea = document.getElementById('messenger-input-area');
-  var textarea = document.getElementById('messenger-input-textarea');
-  var sendButton = document.getElementById('messenger-send-button');
-  var backButton = document.getElementById('messenger-chat-back-button');
-  var scrollBottomButton = document.getElementById('messenger-scroll-bottom-button');
-  var scrollBottomBadge = document.getElementById('messenger-scroll-bottom-badge');
-  var headerName = document.getElementById('messenger-chat-header-name');
-  var headerStatus = document.getElementById('messenger-chat-header-status');
-  var headerAvatar = document.getElementById('messenger-chat-header-avatar');
+  const sidebar = document.getElementById('messenger-sidebar');
+  const conversationListContainer = document.getElementById('messenger-conversation-list');
+  const chatEmpty = document.getElementById('messenger-chat-empty');
+  const chatHeader = document.getElementById('messenger-chat-header');
+  const messagesContainer = document.getElementById('messenger-messages');
+  const inputArea = document.getElementById('messenger-input-area');
+  const textarea = document.getElementById('messenger-input-textarea');
+  const sendButton = document.getElementById('messenger-send-button');
+  const backButton = document.getElementById('messenger-chat-back-button');
+  const scrollBottomButton = document.getElementById('messenger-scroll-bottom-button');
+  const scrollBottomBadge = document.getElementById('messenger-scroll-bottom-badge');
+  const headerName = document.getElementById('messenger-chat-header-name');
+  const headerStatus = document.getElementById('messenger-chat-header-status');
+  const headerAvatar = document.getElementById('messenger-chat-header-avatar');
 
-  var activeConversationId = null;
-  var lastMessageId = 0;
-  var messagePollTimer = null;
-  var conversationPollTimer = null;
-  var replyToMessageId = null;
-  var replyPreview = document.getElementById('messenger-reply-preview');
-  var replyPreviewContent = document.getElementById('messenger-reply-preview-content');
-  var replyPreviewClose = document.getElementById('messenger-reply-preview-close');
-  var typingTimer = null;
-  var newMessageCount = 0;
-  var messageTextMap = {};
-  var otherUserName = '';
-  var otherUserAvatar = '';
+  let activeConversationId = null;
+  let lastMessageId = 0;
+  let messagePollTimer = null;
+  let conversationPollTimer = null;
+  let replyToMessageId = null;
+  const replyPreview = document.getElementById('messenger-reply-preview');
+  const replyPreviewContent = document.getElementById('messenger-reply-preview-content');
+  const replyPreviewClose = document.getElementById('messenger-reply-preview-close');
+  let typingTimer = null;
+  let newMessageCount = 0;
+  const messageTextMap = {};
+  let otherUserName = '';
+  let otherUserAvatar = '';
 
 
-  var dayNames = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+  const dayNames = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
 
   function formatTime(isoString) {
     if (!isoString) return '';
-    var date = new Date(isoString);
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var ampm = hours >= 12 ? 'PM' : 'AM';
+    let date = new Date(isoString);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    var time = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
-    var dd = ('0' + date.getDate()).slice(-2);
-    var mm = ('0' + (date.getMonth() + 1)).slice(-2);
-    var yyyy = date.getFullYear();
-    var dayName = dayNames[date.getDay()];
+    const time = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
+    let dd = ('0' + date.getDate()).slice(-2);
+    let mm = ('0' + (date.getMonth() + 1)).slice(-2);
+    let yyyy = date.getFullYear();
+    let dayName = dayNames[date.getDay()];
     return dd + '/' + mm + '/' + yyyy + ' ' + dayName + ' ' + time;
   }
 
   function formatDateSeparator(isoString) {
     if (!isoString) return '';
-    var date = new Date(isoString);
+    const date = new Date(isoString);
 
-    var dd = ('0' + date.getDate()).slice(-2);
-    var mm = ('0' + (date.getMonth() + 1)).slice(-2);
-    var yyyy = date.getFullYear();
-    var dayName = dayNames[date.getDay()];
+    const dd = ('0' + date.getDate()).slice(-2);
+    const mm = ('0' + (date.getMonth() + 1)).slice(-2);
+    const yyyy = date.getFullYear();
+    const dayName = dayNames[date.getDay()];
     return dd + '/' + mm + '/' + yyyy + ' ' + dayName;
   }
 
@@ -80,7 +80,7 @@
 
   function loadConversationList() {
     fetch('/messenger/api/conversations/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success || !data.conversations.length) {
           conversationListContainer.innerHTML = '<div class="messenger-conversation-list-loading">কোনো কথোপকথন নেই</div>';
@@ -94,10 +94,10 @@
   }
 
   function renderConversationList(conversations) {
-    var html = '';
+    let html = '';
     conversations.forEach(function (conversation) {
-      var isActive = conversation.conversation_id === activeConversationId;
-      var initial = (conversation.title || '?').charAt(0);
+      const isActive = conversation.conversation_id === activeConversationId;
+      const initial = (conversation.title || '?').charAt(0);
 
       html += '<div class="messenger-conversation-item' + (isActive ? ' messenger-conversation-item-active' : '') + '" data-conversation-id="' + conversation.conversation_id + '" data-title="' + escapeHtml(conversation.title) + '" data-avatar="' + escapeHtml(conversation.avatar_url) + '" data-other-user-profile-id="' + (conversation.other_user_profile_id || '') + '" data-auto-delete="' + (conversation.auto_delete_after_seconds || 0) + '">';
 
@@ -126,23 +126,23 @@
 
   // Conversation item click
   conversationListContainer.addEventListener('click', function (event) {
-    var item = event.target.closest('.messenger-conversation-item');
+    let item = event.target.closest('.messenger-conversation-item');
     if (!item) return;
-    var conversationId = parseInt(item.getAttribute('data-conversation-id'), 10);
-    var title = item.getAttribute('data-title');
-    var avatarUrl = item.getAttribute('data-avatar');
-    var autoDeleteSeconds = parseInt(item.getAttribute('data-auto-delete'), 10) || 0;
+    const conversationId = parseInt(item.getAttribute('data-conversation-id'), 10);
+    let title = item.getAttribute('data-title');
+    const avatarUrl = item.getAttribute('data-avatar');
+    const autoDeleteSeconds = parseInt(item.getAttribute('data-auto-delete'), 10) || 0;
     openConversation(conversationId, title, avatarUrl, autoDeleteSeconds);
   });
 
   // Conversation search filter (client-side)
-  var sidebarSearchInput = document.getElementById('messenger-sidebar-search-input');
+  const sidebarSearchInput = document.getElementById('messenger-sidebar-search-input');
   if (sidebarSearchInput) {
     sidebarSearchInput.addEventListener('input', function () {
-      var query = sidebarSearchInput.value.trim().toLowerCase();
-      var items = conversationListContainer.querySelectorAll('.messenger-conversation-item');
+      const query = sidebarSearchInput.value.trim().toLowerCase();
+      let items = conversationListContainer.querySelectorAll('.messenger-conversation-item');
       items.forEach(function (item) {
-        var name = (item.getAttribute('data-title') || '').toLowerCase();
+        const name = (item.getAttribute('data-title') || '').toLowerCase();
         item.style.display = name.indexOf(query) !== -1 ? '' : 'none';
       });
     });
@@ -159,7 +159,7 @@
     hasOlderMessages = true;
 
     // Highlight active auto-delete option
-    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    let autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
     if (autoDeleteSubmenu) {
       autoDeleteSubmenu.querySelectorAll('.messenger-chat-settings-subitem').forEach(function (button) {
         button.classList.toggle('messenger-chat-settings-subitem-active', parseInt(button.getAttribute('data-auto-delete'), 10) === (autoDeleteSeconds || 0));
@@ -189,7 +189,7 @@
     messengerElement.classList.add('messenger-chat-open');
 
     // Highlight active conversation in list
-    var items = conversationListContainer.querySelectorAll('.messenger-conversation-item');
+    const items = conversationListContainer.querySelectorAll('.messenger-conversation-item');
     items.forEach(function (item) {
       item.classList.toggle('messenger-conversation-item-active', parseInt(item.getAttribute('data-conversation-id'), 10) === conversationId);
     });
@@ -216,11 +216,11 @@
   // =========================================================
 
   function loadMessages(conversationId, beforeMessageId) {
-    var url = '/messenger/api/messages/' + conversationId + '/';
+    let url = '/messenger/api/messages/' + conversationId + '/';
     if (beforeMessageId) url += '?before=' + beforeMessageId;
 
     fetch(url)
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success) return;
         if (!beforeMessageId) {
@@ -231,7 +231,7 @@
           prependMessages(data.messages);
         }
         if (data.messages.length > 0) {
-          var lastMessage = data.messages[data.messages.length - 1];
+          const lastMessage = data.messages[data.messages.length - 1];
           if (lastMessage.message_id > lastMessageId) {
             lastMessageId = lastMessage.message_id;
           }
@@ -247,27 +247,27 @@
       messagesContainer.innerHTML = '<div class="messenger-messages-loading">কোনো মেসেজ নেই — প্রথম মেসেজ পাঠান!</div>';
       return;
     }
-    var html = buildMessagesHtml(messages);
+    let html = buildMessagesHtml(messages);
     messagesContainer.innerHTML = html;
   }
 
   function prependMessages(messages) {
     if (!messages.length) return;
-    var scrollHeightBefore = messagesContainer.scrollHeight;
-    var html = buildMessagesHtml(messages);
+    const scrollHeightBefore = messagesContainer.scrollHeight;
+    let html = buildMessagesHtml(messages);
     messagesContainer.insertAdjacentHTML('afterbegin', html);
     // Preserve scroll position
     messagesContainer.scrollTop = messagesContainer.scrollHeight - scrollHeightBefore;
   }
 
   function buildMessagesHtml(messages) {
-    var html = '';
-    var lastDate = '';
-    var lastSenderId = null;
+    let html = '';
+    let lastDate = '';
+    let lastSenderId = null;
 
     messages.forEach(function (message) {
       // Date separator
-      var messageDate = message.created_at ? message.created_at.split('T')[0] : '';
+      const messageDate = message.created_at ? message.created_at.split('T')[0] : '';
       if (messageDate && messageDate !== lastDate) {
         html += '<div class="messenger-date-separator"><span class="messenger-date-separator-pill">' + formatDateSeparator(message.created_at) + '</span></div>';
         lastDate = messageDate;
@@ -280,8 +280,8 @@
         return;
       }
 
-      var isMine = message.sender_user_profile_id === window.messengerCurrentUserProfileId;
-      var bubbleClass = isMine ? 'messenger-bubble-sent' : 'messenger-bubble-received';
+      let isMine = message.sender_user_profile_id === window.messengerCurrentUserProfileId;
+      const bubbleClass = isMine ? 'messenger-bubble-sent' : 'messenger-bubble-received';
 
       messageTextMap[message.message_id] = message.message_text || '';
       html += '<div class="messenger-bubble ' + bubbleClass + '" data-message-id="' + message.message_id + '">';
@@ -298,7 +298,7 @@
 
       // Quoted reply
       if (message.reply_to_message_id) {
-        var quoteText = message.reply_to_text ? escapeHtml(message.reply_to_text) : 'মেসেজ';
+        const quoteText = message.reply_to_text ? escapeHtml(message.reply_to_text) : 'মেসেজ';
         html += '<div class="messenger-bubble-quote" data-quote-id="' + message.reply_to_message_id + '">↩ ' + quoteText + '</div>';
       }
 
@@ -348,20 +348,20 @@
   // Reply button click + quote click (delegated on messages container)
   messagesContainer.addEventListener('click', function (event) {
     // Reply button
-    var replyButton = event.target.closest('.messenger-bubble-reply-button');
+    const replyButton = event.target.closest('.messenger-bubble-reply-button');
     if (replyButton) {
-      var messageId = replyButton.getAttribute('data-reply-id');
-      var bubble = replyButton.closest('.messenger-bubble');
-      var messageText = bubble ? messageTextMap[bubble.getAttribute('data-message-id')] || '' : '';
+      const messageId = replyButton.getAttribute('data-reply-id');
+      let bubble = replyButton.closest('.messenger-bubble');
+      let messageText = bubble ? messageTextMap[bubble.getAttribute('data-message-id')] || '' : '';
       setReplyTo(parseInt(messageId, 10), messageText);
       return;
     }
 
     // Quote click — scroll to original message
-    var quote = event.target.closest('.messenger-bubble-quote');
+    const quote = event.target.closest('.messenger-bubble-quote');
     if (quote) {
-      var quoteId = quote.getAttribute('data-quote-id');
-      var originalBubble = messagesContainer.querySelector('[data-message-id="' + quoteId + '"]');
+      const quoteId = quote.getAttribute('data-quote-id');
+      const originalBubble = messagesContainer.querySelector('[data-message-id="' + quoteId + '"]');
       if (originalBubble) {
         originalBubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
         originalBubble.style.outline = '2px solid var(--primary)';
@@ -379,15 +379,15 @@
   // CONTEXT MENU (right-click / long-press on bubble)
   // =========================================================
 
-  var contextMenu = document.getElementById('messenger-context-menu');
-  var contextMenuTargetMessageId = null;
-  var contextMenuTargetBubble = null;
-  var longPressTimer = null;
+  const contextMenu = document.getElementById('messenger-context-menu');
+  let contextMenuTargetMessageId = null;
+  let contextMenuTargetBubble = null;
+  let longPressTimer = null;
 
   function showContextMenu(bubble, clientX, clientY) {
     contextMenuTargetBubble = bubble;
     contextMenuTargetMessageId = parseInt(bubble.getAttribute('data-message-id'), 10);
-    var isMine = bubble.classList.contains('messenger-bubble-sent');
+    const isMine = bubble.classList.contains('messenger-bubble-sent');
 
     // Show/hide own-message-only options
     contextMenu.querySelectorAll('.messenger-context-menu-item-own').forEach(function (item) {
@@ -399,7 +399,7 @@
     contextMenu.classList.remove('messenger-hidden');
 
     // Adjust if overflowing viewport
-    var rect = contextMenu.getBoundingClientRect();
+    const rect = contextMenu.getBoundingClientRect();
     if (rect.right > window.innerWidth) contextMenu.style.left = (clientX - rect.width) + 'px';
     if (rect.bottom > window.innerHeight) contextMenu.style.top = (clientY - rect.height) + 'px';
   }
@@ -412,7 +412,7 @@
 
   // Right-click on bubble
   messagesContainer.addEventListener('contextmenu', function (event) {
-    var bubble = event.target.closest('.messenger-bubble');
+    let bubble = event.target.closest('.messenger-bubble');
     if (!bubble) return;
     event.preventDefault();
     showContextMenu(bubble, event.clientX, event.clientY);
@@ -420,10 +420,10 @@
 
   // Long-press on bubble (mobile)
   messagesContainer.addEventListener('touchstart', function (event) {
-    var bubble = event.target.closest('.messenger-bubble');
+    let bubble = event.target.closest('.messenger-bubble');
     if (!bubble) return;
     longPressTimer = setTimeout(function () {
-      var touch = event.touches[0];
+      const touch = event.touches[0];
       showContextMenu(bubble, touch.clientX, touch.clientY);
     }, 500);
   });
@@ -437,26 +437,26 @@
 
   // Context menu actions
   contextMenu.addEventListener('click', function (event) {
-    var button = event.target.closest('.messenger-context-menu-item');
+    const button = event.target.closest('.messenger-context-menu-item');
     if (!button || !contextMenuTargetMessageId) return;
-    var action = button.getAttribute('data-action');
+    const action = button.getAttribute('data-action');
 
     if (action === 'reply') {
-      var messageText = contextMenuTargetBubble ? messageTextMap[contextMenuTargetBubble.getAttribute('data-message-id')] || '' : '';
+      const messageText = contextMenuTargetBubble ? messageTextMap[contextMenuTargetBubble.getAttribute('data-message-id')] || '' : '';
       setReplyTo(contextMenuTargetMessageId, messageText);
     }
 
     if (action === 'copy') {
-      var text = contextMenuTargetBubble ? (contextMenuTargetBubble.querySelector('.messenger-bubble-text') || {}).textContent : '';
+      let text = contextMenuTargetBubble ? (contextMenuTargetBubble.querySelector('.messenger-bubble-text') || {}).textContent : '';
       if (text) navigator.clipboard.writeText(text).catch(function () {});
     }
 
     if (action === 'edit') {
-      var editBubble = contextMenuTargetBubble;
-      var editMessageId = contextMenuTargetMessageId;
-      var textElement = editBubble ? editBubble.querySelector('.messenger-bubble-text') : null;
+      const editBubble = contextMenuTargetBubble;
+      const editMessageId = contextMenuTargetMessageId;
+      const textElement = editBubble ? editBubble.querySelector('.messenger-bubble-text') : null;
       if (textElement) {
-        var originalText = textElement.textContent;
+        const originalText = textElement.textContent;
         textElement.contentEditable = 'true';
         textElement.focus();
         textElement.addEventListener('keydown', function handleEditKey(keyEvent) {
@@ -464,14 +464,14 @@
             keyEvent.preventDefault();
             textElement.contentEditable = 'false';
             textElement.removeEventListener('keydown', handleEditKey);
-            var newText = textElement.textContent.trim();
+            const newText = textElement.textContent.trim();
             if (newText && newText !== originalText) {
               fetch('/messenger/api/messages/' + activeConversationId + '/edit/' + editMessageId + '/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
                 body: JSON.stringify({ message_text: newText }),
               })
-              .then(function (response) { return response.json(); })
+              .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
               .then(function (data) {
                 if (!data.success) {
                   textElement.textContent = originalText;
@@ -493,13 +493,13 @@
     }
 
     if (action === 'delete_for_me') {
-      var deleteMessageId = contextMenuTargetMessageId;
-      var deleteBubble = contextMenuTargetBubble;
+      const deleteMessageId = contextMenuTargetMessageId;
+      const deleteBubble = contextMenuTargetBubble;
       fetch('/messenger/api/messages/' + activeConversationId + '/delete-for-me/' + deleteMessageId + '/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && deleteBubble) deleteBubble.remove();
         else if (data.error) showInputError(data.error);
@@ -508,18 +508,18 @@
     }
 
     if (action === 'delete_for_everyone') {
-      var deleteEveryoneMessageId = contextMenuTargetMessageId;
-      var deleteEveryoneBubble = contextMenuTargetBubble;
+      const deleteEveryoneMessageId = contextMenuTargetMessageId;
+      const deleteEveryoneBubble = contextMenuTargetBubble;
       fetch('/messenger/api/messages/' + activeConversationId + '/delete-for-everyone/' + deleteEveryoneMessageId + '/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && deleteEveryoneBubble) {
-          var textEl = deleteEveryoneBubble.querySelector('.messenger-bubble-text');
+          const textEl = deleteEveryoneBubble.querySelector('.messenger-bubble-text');
           if (textEl) textEl.outerHTML = '<span class="messenger-bubble-deleted">এই মেসেজটি মুছে ফেলা হয়েছে</span>';
-          var replyBtn = deleteEveryoneBubble.querySelector('.messenger-bubble-reply-button');
+          const replyBtn = deleteEveryoneBubble.querySelector('.messenger-bubble-reply-button');
           if (replyBtn) replyBtn.remove();
         } else if (data.error) {
           showInputError(data.error);
@@ -536,15 +536,15 @@
   // =========================================================
 
   function sendMessage() {
-    var text = textarea.value.trim();
+    let text = textarea.value.trim();
     if (!text || !activeConversationId) return;
 
     // Optimistic: show message immediately (with quote if replying)
-    var tempId = 'temp-' + Date.now();
-    var now = new Date().toISOString();
-    var optimisticHtml = '<div class="messenger-bubble messenger-bubble-sent" data-message-id="' + tempId + '">';
+    let tempId = 'temp-' + Date.now();
+    const now = new Date().toISOString();
+    let optimisticHtml = '<div class="messenger-bubble messenger-bubble-sent" data-message-id="' + tempId + '">';
     if (replyToMessageId) {
-      var replyText = replyPreviewContent.textContent || 'মেসেজ';
+      const replyText = replyPreviewContent.textContent || 'মেসেজ';
       optimisticHtml += '<div class="messenger-bubble-quote" data-quote-id="' + replyToMessageId + '">↩ ' + escapeHtml(replyText) + '</div>';
     }
     optimisticHtml += '<span class="messenger-bubble-text">' + escapeHtml(text) + '</span>';
@@ -556,7 +556,7 @@
     scrollToBottom(true);
 
     // Capture reply ID before clearing (needed for fetch below)
-    var sendReplyToMessageId = replyToMessageId;
+    const sendReplyToMessageId = replyToMessageId;
 
     // Clear input + reply
     textarea.value = '';
@@ -571,11 +571,11 @@
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
       body: JSON.stringify({ message_text: text, reply_to_message_id: sendReplyToMessageId }),
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
         // Replace temp ID with real ID
-        var tempBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
+        const tempBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
         if (tempBubble) {
           tempBubble.setAttribute('data-message-id', data.message_id);
         }
@@ -590,11 +590,11 @@
   }
 
   function markBubbleFailed(tempId, messageText, replyId, errorMessage) {
-    var failedBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
+    const failedBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
     if (!failedBubble) return;
     failedBubble.classList.add('messenger-bubble-failed');
     // Replace checkmark with error + retry
-    var metaElement = failedBubble.querySelector('.messenger-bubble-meta');
+    let metaElement = failedBubble.querySelector('.messenger-bubble-meta');
     if (metaElement) {
       metaElement.innerHTML = '<span class="messenger-bubble-failed-text">⚠ ' + escapeHtml(errorMessage) + '</span>' +
         '<button type="button" class="messenger-bubble-retry-button" data-retry-text="' + tempId + '">আবার চেষ্টা করুন</button>';
@@ -606,26 +606,26 @@
   }
 
   function saveFailedMessageToStorage(conversationId, messageText, replyId) {
-    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
-    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    let key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
+    let failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.push({ text: messageText, reply_id: replyId || null, timestamp: new Date().toISOString() });
     localStorage.setItem(key, JSON.stringify(failed));
   }
 
   function removeFailedMessageFromStorage(conversationId, messageText) {
-    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
-    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    let key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
+    let failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed = failed.filter(function (item) { return item.text !== messageText; });
     if (failed.length) localStorage.setItem(key, JSON.stringify(failed));
     else localStorage.removeItem(key);
   }
 
   function loadFailedMessagesFromStorage(conversationId) {
-    var key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
-    var failed = JSON.parse(localStorage.getItem(key) || '[]');
+    const key = 'messenger_failed_' + window.messengerCurrentUserProfileId + '_' + conversationId;
+    const failed = JSON.parse(localStorage.getItem(key) || '[]');
     failed.forEach(function (item) {
-      var tempId = 'failed-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
-      var html = '<div class="messenger-bubble messenger-bubble-sent messenger-bubble-failed" data-message-id="' + tempId + '" data-retry-message-text="' + escapeHtml(item.text) + '" data-retry-reply-id="' + (item.reply_id || '') + '">';
+      const tempId = 'failed-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      let html = '<div class="messenger-bubble messenger-bubble-sent messenger-bubble-failed" data-message-id="' + tempId + '" data-retry-message-text="' + escapeHtml(item.text) + '" data-retry-reply-id="' + (item.reply_id || '') + '">';
       html += '<span class="messenger-bubble-text">' + escapeHtml(item.text) + '</span>';
       html += '<div class="messenger-bubble-meta">';
       html += '<span class="messenger-bubble-failed-text">⚠ পাঠানো যায়নি</span>';
@@ -637,18 +637,18 @@
 
   // Retry click handler
   messagesContainer.addEventListener('click', function (event) {
-    var retryButton = event.target.closest('.messenger-bubble-retry-button');
+    const retryButton = event.target.closest('.messenger-bubble-retry-button');
     if (!retryButton) return;
-    var bubble = retryButton.closest('.messenger-bubble');
+    const bubble = retryButton.closest('.messenger-bubble');
     if (!bubble || !activeConversationId) return;
 
-    var retryText = bubble.getAttribute('data-retry-message-text');
-    var retryReplyId = bubble.getAttribute('data-retry-reply-id') || null;
+    const retryText = bubble.getAttribute('data-retry-message-text');
+    let retryReplyId = bubble.getAttribute('data-retry-reply-id') || null;
     if (retryReplyId) retryReplyId = parseInt(retryReplyId, 10);
 
     // Update UI to show sending
     bubble.classList.remove('messenger-bubble-failed');
-    var metaElement = bubble.querySelector('.messenger-bubble-meta');
+    const metaElement = bubble.querySelector('.messenger-bubble-meta');
     if (metaElement) {
       metaElement.innerHTML = '<span class="messenger-bubble-time">পাঠানো হচ্ছে...</span>';
     }
@@ -658,7 +658,7 @@
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
       body: JSON.stringify({ message_text: retryText, reply_to_message_id: retryReplyId }),
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
         removeFailedMessageFromStorage(activeConversationId, retryText);
@@ -680,9 +680,9 @@
   });
 
   function showInputError(message) {
-    var existing = document.getElementById('messenger-input-error');
+    const existing = document.getElementById('messenger-input-error');
     if (existing) existing.remove();
-    var errorElement = document.createElement('div');
+    const errorElement = document.createElement('div');
     errorElement.id = 'messenger-input-error';
     errorElement.style.cssText = 'color:var(--danger);font-size:.72rem;padding:.2rem .75rem;';
     errorElement.textContent = message;
@@ -698,21 +698,21 @@
     if (!activeConversationId || document.visibilityState === 'hidden') return;
 
     fetch('/messenger/api/messages/' + activeConversationId + '/poll/?after=' + lastMessageId)
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success || !data.messages.length) return;
 
         // Filter out messages we already have (optimistic)
-        var newMessages = data.messages.filter(function (message) {
+        const newMessages = data.messages.filter(function (message) {
           return !messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]');
         });
 
         if (!newMessages.length) {
           // Update statuses for existing messages
           data.messages.forEach(function (message) {
-            var existingBubble = messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]');
+            const existingBubble = messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]');
             if (existingBubble) {
-              var checkElement = existingBubble.querySelector('.messenger-bubble-check');
+              const checkElement = existingBubble.querySelector('.messenger-bubble-check');
               if (checkElement) {
                 checkElement.outerHTML = checkmarkHtml(message.message_status_code);
               }
@@ -721,11 +721,11 @@
           return;
         }
 
-        var html = buildMessagesHtml(newMessages);
-        var isAtBottom = isScrolledToBottom();
+        const html = buildMessagesHtml(newMessages);
+        const isAtBottom = isScrolledToBottom();
         messagesContainer.insertAdjacentHTML('beforeend', html);
 
-        var lastNew = newMessages[newMessages.length - 1];
+        const lastNew = newMessages[newMessages.length - 1];
         if (lastNew.message_id > lastMessageId) lastMessageId = lastNew.message_id;
 
         if (isAtBottom) {
@@ -744,7 +744,7 @@
   function pollTypingStatus() {
     if (!activeConversationId || document.visibilityState === 'hidden') return;
     fetch('/messenger/api/typing/' + activeConversationId + '/status/')
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success && data.is_typing) {
           headerStatus.textContent = 'টাইপ করছেন...';
@@ -781,8 +781,8 @@
     return messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 50;
   }
 
-  var isLoadingOlder = false;
-  var hasOlderMessages = true;
+  let isLoadingOlder = false;
+  let hasOlderMessages = true;
 
   messagesContainer.addEventListener('scroll', function () {
     if (isScrolledToBottom()) {
@@ -794,20 +794,20 @@
 
     // Load older messages when scrolled to top
     if (messagesContainer.scrollTop < 50 && activeConversationId && !isLoadingOlder && hasOlderMessages) {
-      var firstBubble = messagesContainer.querySelector('.messenger-bubble');
+      const firstBubble = messagesContainer.querySelector('.messenger-bubble');
       if (!firstBubble) return;
-      var oldestMessageId = firstBubble.getAttribute('data-message-id');
+      const oldestMessageId = firstBubble.getAttribute('data-message-id');
       if (!oldestMessageId || oldestMessageId.toString().startsWith('temp-')) return;
 
       isLoadingOlder = true;
-      var loadingElement = document.createElement('div');
+      const loadingElement = document.createElement('div');
       loadingElement.className = 'messenger-messages-loading';
       loadingElement.textContent = 'পুরানো মেসেজ লোড হচ্ছে...';
       messagesContainer.insertBefore(loadingElement, messagesContainer.firstChild);
 
-      var url = '/messenger/api/messages/' + activeConversationId + '/?before=' + oldestMessageId;
+      const url = '/messenger/api/messages/' + activeConversationId + '/?before=' + oldestMessageId;
       fetch(url)
-        .then(function (response) { return response.json(); })
+        .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
         .then(function (data) {
           loadingElement.remove();
           if (data.success && data.messages.length > 0) {
@@ -905,11 +905,11 @@
   // SIDEBAR COLLAPSE TOGGLE
   // =========================================================
 
-  var collapseButton = document.getElementById('messenger-sidebar-collapse-button');
+  const collapseButton = document.getElementById('messenger-sidebar-collapse-button');
   if (collapseButton) {
     collapseButton.addEventListener('click', function () {
       messengerElement.classList.toggle('messenger-sidebar-collapsed');
-      var isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
+      const isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
       collapseButton.textContent = isCollapsed ? '▶' : '◀';
       collapseButton.title = isCollapsed ? 'বিস্তারিত করুন' : 'সংকুচিত করুন';
     });
@@ -919,10 +919,10 @@
   // CHAT SETTINGS (auto-delete + clear all)
   // =========================================================
 
-  var settingsButton = document.getElementById('messenger-chat-settings-button');
-  var settingsDropdown = document.getElementById('messenger-chat-settings-dropdown');
-  var clearAllButton = document.getElementById('messenger-chat-clear-all-button');
-  var clearAllConfirmPending = false;
+  const settingsButton = document.getElementById('messenger-chat-settings-button');
+  const settingsDropdown = document.getElementById('messenger-chat-settings-dropdown');
+  const clearAllButton = document.getElementById('messenger-chat-clear-all-button');
+  let clearAllConfirmPending = false;
 
   if (settingsButton && settingsDropdown) {
     settingsButton.addEventListener('click', function () {
@@ -937,8 +937,8 @@
     });
 
     // Auto-delete submenu toggle
-    var autoDeleteToggle = document.getElementById('messenger-auto-delete-toggle');
-    var autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
+    const autoDeleteToggle = document.getElementById('messenger-auto-delete-toggle');
+    const autoDeleteSubmenu = document.getElementById('messenger-auto-delete-submenu');
     if (autoDeleteToggle && autoDeleteSubmenu) {
       autoDeleteToggle.addEventListener('click', function () {
         autoDeleteSubmenu.classList.toggle('messenger-hidden');
@@ -948,16 +948,16 @@
 
     // Auto-delete timer buttons
     settingsDropdown.addEventListener('click', function (event) {
-      var item = event.target.closest('[data-auto-delete]');
+      let item = event.target.closest('[data-auto-delete]');
       if (!item || !activeConversationId) return;
-      var seconds = parseInt(item.getAttribute('data-auto-delete'), 10);
+      const seconds = parseInt(item.getAttribute('data-auto-delete'), 10);
 
       fetch('/messenger/api/conversations/' + activeConversationId + '/set-auto-delete/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
         body: JSON.stringify({ auto_delete_after_seconds: seconds }),
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success) {
           settingsDropdown.classList.add('messenger-hidden');
@@ -992,7 +992,7 @@
           method: 'POST',
           headers: { 'X-CSRFToken': getCsrfTokenValue() },
         })
-        .then(function (response) { return response.json(); })
+        .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
         .then(function (data) {
           if (data.success) {
             settingsDropdown.classList.add('messenger-hidden');
@@ -1010,12 +1010,12 @@
   // EMOJI PICKER
   // =========================================================
 
-  var emojiToggle = document.getElementById('messenger-emoji-toggle');
-  var emojiPicker = document.getElementById('messenger-emoji-picker');
-  var commonEmojis = ['😊','😂','❤️','👍','🙏','😢','😡','🔥','💯','✅','👏','🎉','😍','🤔','😎','💪','🥰','😭','🤣','👀','💀','🫡','😤','🥺','😅','🙄','😳','🤝','💜','🌹','🇧🇩','⭐','💬','📌','🗑','✏️','↩','📋','🔗','👁','📩','🔔','❌','⚡','🎯','💡','📸','🎵','🏆','🌟'];
+  const emojiToggle = document.getElementById('messenger-emoji-toggle');
+  const emojiPicker = document.getElementById('messenger-emoji-picker');
+  const commonEmojis = ['😊','😂','❤️','👍','🙏','😢','😡','🔥','💯','✅','👏','🎉','😍','🤔','😎','💪','🥰','😭','🤣','👀','💀','🫡','😤','🥺','😅','🙄','😳','🤝','💜','🌹','🇧🇩','⭐','💬','📌','🗑','✏️','↩','📋','🔗','👁','📩','🔔','❌','⚡','🎯','💡','📸','🎵','🏆','🌟'];
 
   if (emojiToggle && emojiPicker) {
-    var emojiHtml = '';
+    let emojiHtml = '';
     commonEmojis.forEach(function (emoji) {
       emojiHtml += '<button type="button" class="messenger-emoji-item">' + emoji + '</button>';
     });
@@ -1026,12 +1026,12 @@
     });
 
     emojiPicker.addEventListener('click', function (event) {
-      var item = event.target.closest('.messenger-emoji-item');
+      const item = event.target.closest('.messenger-emoji-item');
       if (!item) return;
-      var emoji = item.textContent;
-      var cursorPosition = textarea.selectionStart;
-      var before = textarea.value.substring(0, cursorPosition);
-      var after = textarea.value.substring(cursorPosition);
+      const emoji = item.textContent;
+      const cursorPosition = textarea.selectionStart;
+      const before = textarea.value.substring(0, cursorPosition);
+      const after = textarea.value.substring(cursorPosition);
       textarea.value = before + emoji + after;
       textarea.selectionStart = textarea.selectionEnd = cursorPosition + emoji.length;
       textarea.focus();
@@ -1045,27 +1045,27 @@
   // =========================================================
 
   // Set current user profile ID (used to determine sent vs received)
-  var parsedProfileId = parseInt(messengerElement.getAttribute('data-current-user-profile-id'), 10);
+  const parsedProfileId = parseInt(messengerElement.getAttribute('data-current-user-profile-id'), 10);
   window.messengerCurrentUserProfileId = isNaN(parsedProfileId) ? null : parsedProfileId;
 
   // Load conversation list
   loadConversationList();
 
   // Auto-open conversation if ?conversation= in URL
-  var initialConversationId = messengerElement.getAttribute('data-initial-conversation');
+  const initialConversationId = messengerElement.getAttribute('data-initial-conversation');
   if (initialConversationId) {
     openConversation(parseInt(initialConversationId, 10), '', '');
   }
 
   // Auto-start conversation if ?start= in URL (from profile page Message button)
-  var startWithUserId = messengerElement.getAttribute('data-start-with-user');
+  const startWithUserId = messengerElement.getAttribute('data-start-with-user');
   if (startWithUserId && !initialConversationId) {
     fetch('/messenger/api/conversations/start/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
       body: JSON.stringify({ other_user_profile_id: parseInt(startWithUserId, 10) }),
     })
-    .then(function (response) { return response.json(); })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
         openConversation(data.conversation_id, '', '');

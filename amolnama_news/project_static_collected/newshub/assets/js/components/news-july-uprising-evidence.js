@@ -21,26 +21,26 @@
 (function () {
   'use strict';
 
-  var verificationRadios = document.querySelectorAll('input[name="july_verification_status"]');
-  var evidenceCheckboxes = document.querySelectorAll('input[name="july_evidence_type"]');
-  var hasEyewitness = document.getElementById('july-has-eyewitness');
-  var eyewitnessCountRow = document.getElementById('july-eyewitness-count-row');
-  var eyewitnessCount = document.getElementById('july-eyewitness-count');
-  var memorialRef = document.getElementById('july-memorial-ref');
-  var hiddenJson = document.getElementById('july-evidence-json');
+  const verificationRadios = document.querySelectorAll('input[name="july_verification_status"]');
+  const evidenceCheckboxes = document.querySelectorAll('input[name="july_evidence_type"]');
+  const hasEyewitness = document.getElementById('july-has-eyewitness');
+  const eyewitnessCountRow = document.getElementById('july-eyewitness-count-row');
+  const eyewitnessCount = document.getElementById('july-eyewitness-count');
+  const memorialRef = document.getElementById('july-memorial-ref');
+  const hiddenJson = document.getElementById('july-evidence-json');
 
   if (!hiddenJson) return;
 
   function getVerificationStatus() {
-    for (var i = 0; i < verificationRadios.length; i++) {
+    for (let i = 0; i < verificationRadios.length; i++) {
       if (verificationRadios[i].checked) return verificationRadios[i].value;
     }
     return '';
   }
 
   function getEvidenceTypes() {
-    var types = [];
-    for (var i = 0; i < evidenceCheckboxes.length; i++) {
+    const types = [];
+    for (let i = 0; i < evidenceCheckboxes.length; i++) {
       if (evidenceCheckboxes[i].checked) types.push(evidenceCheckboxes[i].value);
     }
     return types;
@@ -48,12 +48,12 @@
 
   function toggleEyewitnessCount() {
     if (eyewitnessCountRow) {
-      eyewitnessCountRow.style.display = (hasEyewitness && hasEyewitness.checked) ? '' : 'none';
+      (hasEyewitness && hasEyewitness.checked) ? eyewitnessCountRow.classList.remove('display-hidden') : eyewitnessCountRow.classList.add('display-hidden');
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       verificationStatus: getVerificationStatus(),
       evidenceTypes: getEvidenceTypes(),
       eyewitnessCount: (hasEyewitness && hasEyewitness.checked && eyewitnessCount)
@@ -63,11 +63,11 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  for (var i = 0; i < verificationRadios.length; i++) {
+  for (let i = 0; i < verificationRadios.length; i++) {
     verificationRadios[i].addEventListener('change', serialize);
   }
 
-  for (var j = 0; j < evidenceCheckboxes.length; j++) {
+  for (let j = 0; j < evidenceCheckboxes.length; j++) {
     evidenceCheckboxes[j].addEventListener('change', function () {
       toggleEyewitnessCount();
       serialize();
@@ -77,7 +77,7 @@
   if (eyewitnessCount) eyewitnessCount.addEventListener('input', serialize);
   if (memorialRef) memorialRef.addEventListener('input', serialize);
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   toggleEyewitnessCount();
@@ -85,20 +85,20 @@
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
     /* Verification status radios */
     if (data.verificationStatus) {
-      for (var r = 0; r < verificationRadios.length; r++) {
+      for (let r = 0; r < verificationRadios.length; r++) {
         verificationRadios[r].checked = (verificationRadios[r].value === String(data.verificationStatus));
       }
     }
 
     /* Evidence type checkboxes */
     if (data.evidenceTypes && data.evidenceTypes.length) {
-      for (var c = 0; c < evidenceCheckboxes.length; c++) {
+      for (let c = 0; c < evidenceCheckboxes.length; c++) {
         evidenceCheckboxes[c].checked = data.evidenceTypes.indexOf(evidenceCheckboxes[c].value) !== -1;
       }
     }
@@ -116,10 +116,10 @@
 
   window.newshubJulyEvidence = {
     reset: function () {
-      for (var k = 0; k < verificationRadios.length; k++) {
+      for (let k = 0; k < verificationRadios.length; k++) {
         verificationRadios[k].checked = false;
       }
-      for (var m = 0; m < evidenceCheckboxes.length; m++) {
+      for (let m = 0; m < evidenceCheckboxes.length; m++) {
         evidenceCheckboxes[m].checked = false;
       }
       if (eyewitnessCount) eyewitnessCount.value = '';

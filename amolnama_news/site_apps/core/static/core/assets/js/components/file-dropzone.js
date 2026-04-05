@@ -15,24 +15,24 @@
   'use strict';
 
   function initDropzone(options) {
-    var dropzoneElement = options.dropzoneElement;
-    var fileInputElement = options.fileInputElement;
-    var onFileSelected = options.onFileSelected;
-    var onFilesSelected = options.onFilesSelected;
-    var maxSizeBytes = options.maxSizeBytes || 50 * 1024 * 1024;
-    var onError = options.onError || function () {};
-    var activeClass = options.activeClass || 'file-dropzone-active';
+    const dropzoneElement = options.dropzoneElement;
+    const fileInputElement = options.fileInputElement;
+    const onFileSelected = options.onFileSelected;
+    const onFilesSelected = options.onFilesSelected;
+    const maxSizeBytes = options.maxSizeBytes || 50 * 1024 * 1024;
+    const onError = options.onError || function () {};
+    const activeClass = options.activeClass || 'file-dropzone-active';
 
     if (!dropzoneElement || (!onFileSelected && !onFilesSelected)) return;
 
     function handleFiles(fileList) {
       if (!fileList || fileList.length === 0) return;
 
-      var validFiles = [];
-      for (var fileIndex = 0; fileIndex < fileList.length; fileIndex++) {
-        var file = fileList[fileIndex];
+      const validFiles = [];
+      for (let fileIndex = 0; fileIndex < fileList.length; fileIndex++) {
+        const file = fileList[fileIndex];
         if (file.size > maxSizeBytes) {
-          var maxSizeMegabytes = Math.round(maxSizeBytes / (1024 * 1024));
+          const maxSizeMegabytes = Math.round(maxSizeBytes / (1024 * 1024));
           onError(file.name + ' too large (max ' + maxSizeMegabytes + 'MB)');
           continue;
         }
@@ -42,7 +42,7 @@
       if (onFilesSelected && validFiles.length > 0) {
         onFilesSelected(validFiles);
       } else if (onFileSelected) {
-        for (var validIndex = 0; validIndex < validFiles.length; validIndex++) {
+        for (let validIndex = 0; validIndex < validFiles.length; validIndex++) {
           onFileSelected(validFiles[validIndex]);
         }
       }

@@ -19,16 +19,16 @@
 .header-signup-link:focus {
   font-size: .85rem;
   font-weight: 600;
-  color: var(--muted) !important;
-  text-decoration: none !important;
+  color: var(--muted);
+  text-decoration: none;
   cursor: pointer;
   padding: .3rem 0;
 }
 
 .header-login-link:hover,
 .header-signup-link:hover {
-  color: var(--text) !important;
-  text-decoration: none !important;
+  color: var(--text);
+  text-decoration: none;
 }
 
 .header-auth-controls .header-login-link::after {

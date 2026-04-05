@@ -7,7 +7,7 @@
      ============================================================ */
 
   // ---- Already-compressed formats (DEFLATE won't help) ----
-  var COMPRESSED_EXTS = {
+  const COMPRESSED_EXTS = {
     png:1, jpg:1, jpeg:1, gif:1, webp:1, avif:1, heic:1, heif:1,
     pdf:1, zip:1, rar:1, '7z':1, gz:1, bz2:1, xz:1, zst:1, br:1, lz4:1,
     mp3:1, aac:1, ogg:1, opus:1, flac:1, m4a:1, wma:1,
@@ -17,7 +17,7 @@
   };
 
   // ---- Extension → colour for the icon badge ----
-  var EXT_COLORS = {
+  const EXT_COLORS = {
     png: '#4caf50', jpg: '#ff9800', jpeg: '#ff9800', ico: '#ff9800',
     webp: '#7b1fa2', bmp: '#795548', gif: '#e91e63', svg: '#00bcd4',
     tiff: '#607d8b', tif: '#607d8b', avif: '#7b1fa2',
@@ -36,47 +36,47 @@
   };
 
   // ---- DOM refs ----
-  var dropzone     = document.getElementById('zip-dropzone');
-  var fileInput    = document.getElementById('zip-file-input');
-  var browseBtn    = document.getElementById('zip-browse-btn');
-  var panel        = document.getElementById('zip-panel');
-  var addBtn       = document.getElementById('zip-add-btn');
-  var clearBtn     = document.getElementById('zip-clear-btn');
-  var fileList     = document.getElementById('zip-file-list');
-  var fileCountEl  = document.getElementById('zip-file-count');
-  var totalSizeEl  = document.getElementById('zip-total-size');
-  var nameInput    = document.getElementById('zip-name-input');
-  var actionBtn    = document.getElementById('zip-action-btn');
-  var actionLabel  = actionBtn.querySelector('.zip-action-label');
-  var actionSpinner = actionBtn.querySelector('.zip-action-spinner');
-  var resultSection = document.getElementById('zip-result');
-  var resultDetails = document.getElementById('zip-result-details');
-  var downloadBtn  = document.getElementById('zip-download-btn');
-  var anotherBtn   = document.getElementById('zip-another-btn');
+  const dropzone     = document.getElementById('zip-dropzone');
+  const fileInput    = document.getElementById('zip-file-input');
+  const browseBtn    = document.getElementById('zip-browse-btn');
+  const panel        = document.getElementById('zip-panel');
+  const addBtn       = document.getElementById('zip-add-btn');
+  const clearBtn     = document.getElementById('zip-clear-btn');
+  const fileList     = document.getElementById('zip-file-list');
+  const fileCountEl  = document.getElementById('zip-file-count');
+  const totalSizeEl  = document.getElementById('zip-total-size');
+  const nameInput    = document.getElementById('zip-name-input');
+  const actionBtn    = document.getElementById('zip-action-btn');
+  const actionLabel  = actionBtn.querySelector('.zip-action-label');
+  const actionSpinner = actionBtn.querySelector('.zip-action-spinner');
+  const resultSection = document.getElementById('zip-result');
+  const resultDetails = document.getElementById('zip-result-details');
+  const downloadBtn  = document.getElementById('zip-download-btn');
+  const anotherBtn   = document.getElementById('zip-another-btn');
 
-  var files = [];        // Array of File objects
-  var resultBlob = null;
-  var resultFileName = '';
-  var lastZipStats = [];  // per-file compression stats
+  let files = [];        // Array of File objects
+  let resultBlob = null;
+  let resultFileName = '';
+  let lastZipStats = [];  // per-file compression stats
 
   // ---- Smooth show/hide helpers ----
 
   function showSection(el) {
-    el.style.display = '';
+    el.classList.remove('display-hidden');
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.style.display = 'none';
+    el.classList.add('display-hidden');
     el.classList.remove('tool-section-reveal');
   }
 
   // ---- Helpers ----
 
   function getExt(name) {
-    var parts = name.split('.');
+    let parts = name.split('.');
     return parts.length > 1 ? parts.pop().toLowerCase() : '';
   }
 
@@ -92,8 +92,8 @@
   }
 
   function formatDate(date) {
-    var d = new Date(date);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d = new Date(date);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() +
       ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
@@ -129,10 +129,10 @@
   // ---- Add files to list ----
 
   function addFiles(newFiles) {
-    for (var i = 0; i < newFiles.length; i++) {
+    for (let i = 0; i < newFiles.length; i++) {
       // Skip duplicates (same name + same size + same lastModified)
-      var dup = false;
-      for (var j = 0; j < files.length; j++) {
+      let dup = false;
+      for (let j = 0; j < files.length; j++) {
         if (files[j].name === newFiles[i].name &&
             files[j].size === newFiles[i].size &&
             files[j].lastModified === newFiles[i].lastModified) {
@@ -150,31 +150,31 @@
 
   function renderFileList() {
     fileList.innerHTML = '';
-    var totalSize = 0;
+    let totalSize = 0;
 
     files.forEach(function (file, idx) {
       totalSize += file.size;
-      var ext = getExt(file.name);
-      var extLabel = ext;
+      let ext = getExt(file.name);
+      let extLabel = ext;
       if (extLabel.length > 4) extLabel = extLabel.substring(0, 4);
 
-      var item = document.createElement('div');
+      const item = document.createElement('div');
       item.className = 'zip-file-item';
 
-      var icon = document.createElement('div');
+      const icon = document.createElement('div');
       icon.className = 'zip-file-item-icon';
       icon.textContent = extLabel || '?';
       icon.style.background = getExtColor(ext);
       icon.style.fontSize = extLabel.length > 3 ? '.65rem' : '.75rem';
 
-      var info = document.createElement('div');
+      const info = document.createElement('div');
       info.className = 'zip-file-item-info';
 
-      var name = document.createElement('div');
+      const name = document.createElement('div');
       name.className = 'zip-file-item-name';
       name.textContent = file.name;
 
-      var meta = document.createElement('div');
+      const meta = document.createElement('div');
       meta.className = 'zip-file-item-meta';
       meta.textContent = formatSize(file.size) + ' \u00B7 ' + (ext || 'Unknown') +
         ' \u00B7 ' + formatDate(file.lastModified);
@@ -182,7 +182,7 @@
       info.appendChild(name);
       info.appendChild(meta);
 
-      var removeBtn = document.createElement('button');
+      const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'zip-file-item-remove';
       removeBtn.innerHTML = '&times;';
@@ -234,7 +234,7 @@
     hideSection(panel);
     hideSection(resultSection);
     actionLabel.textContent = 'Create ZIP';
-    actionSpinner.style.display = 'none';
+    actionSpinner.classList.add('display-hidden');
     actionBtn.disabled = false;
   }
 
@@ -248,15 +248,15 @@
   function createZip() {
     actionBtn.disabled = true;
     actionLabel.textContent = 'Creating ZIP...';
-    actionSpinner.style.display = '';
+    actionSpinner.classList.remove('display-hidden');
 
-    var zipName = (nameInput.value.trim() || 'archive') + '.zip';
+    const zipName = (nameInput.value.trim() || 'archive') + '.zip';
     resultFileName = zipName;
 
     // Read all files as ArrayBuffer
-    var fileReads = files.map(function (file) {
+    const fileReads = files.map(function (file) {
       return new Promise(function (resolve, reject) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function () {
           resolve({
             name: file.name,
@@ -276,12 +276,12 @@
       lastZipStats = result.stats;
       showResult();
     }).catch(function (err) {
-      var errorElement = document.getElementById('tool-error-message');
-      if (errorElement) { errorElement.textContent = 'ZIP creation failed: ' + err.message; errorElement.style.display = 'block'; }
+      const errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'ZIP creation failed: ' + err.message; errorElement.classList.remove('display-hidden'); }
     }).finally(function () {
       actionBtn.disabled = false;
       actionLabel.textContent = 'Create ZIP';
-      actionSpinner.style.display = 'none';
+      actionSpinner.classList.add('display-hidden');
     });
   }
 
@@ -290,8 +290,8 @@
   function deflateData(data) {
     // Use browser-native DEFLATE (CompressionStream 'deflate-raw')
     if (typeof CompressionStream !== 'undefined') {
-      var cs = new CompressionStream('deflate-raw');
-      var writer = cs.writable.getWriter();
+      const cs = new CompressionStream('deflate-raw');
+      const writer = cs.writable.getWriter();
       writer.write(data);
       writer.close();
       return new Response(cs.readable).arrayBuffer().then(function (buf) {
@@ -306,8 +306,8 @@
 
   function buildZipBlob(entries) {
     // Compress all entries in parallel; skip DEFLATE for already-compressed formats
-    var compressionPromises = entries.map(function (entry) {
-      var ext = getExt(entry.name);
+    const compressionPromises = entries.map(function (entry) {
+      let ext = getExt(entry.name);
       if (COMPRESSED_EXTS[ext]) {
         // Already compressed — DEFLATE would make it larger, skip
         return Promise.resolve({
@@ -320,7 +320,7 @@
         });
       }
       return deflateData(entry.data).then(function (compressed) {
-        var useDeflate = typeof CompressionStream !== 'undefined' && compressed.length < entry.data.length;
+        const useDeflate = typeof CompressionStream !== 'undefined' && compressed.length < entry.data.length;
         return {
           name: entry.name,
           rawData: entry.data,
@@ -333,26 +333,26 @@
     });
 
     return Promise.all(compressionPromises).then(function (prepared) {
-      var localHeaders = [];
-      var centralHeaders = [];
-      var offset = 0;
+      const localHeaders = [];
+      const centralHeaders = [];
+      let offset = 0;
 
       prepared.forEach(function (entry) {
-        var nameBytes = new TextEncoder().encode(entry.name);
-        var compData = entry.compressedData;
-        var rawSize = entry.rawData.length;
-        var compSize = compData.length;
-        var crc = crc32(entry.rawData);
+        const nameBytes = new TextEncoder().encode(entry.name);
+        const compData = entry.compressedData;
+        const rawSize = entry.rawData.length;
+        const compSize = compData.length;
+        let crc = crc32(entry.rawData);
 
         // DOS date/time
-        var dt = entry.lastModified;
-        var dosTime = ((dt.getHours() & 0x1f) << 11) | ((dt.getMinutes() & 0x3f) << 5) | ((dt.getSeconds() >> 1) & 0x1f);
-        var dosDate = (((dt.getFullYear() - 1980) & 0x7f) << 9) | (((dt.getMonth() + 1) & 0x0f) << 5) | (dt.getDate() & 0x1f);
+        const dt = entry.lastModified;
+        const dosTime = ((dt.getHours() & 0x1f) << 11) | ((dt.getMinutes() & 0x3f) << 5) | ((dt.getSeconds() >> 1) & 0x1f);
+        const dosDate = (((dt.getFullYear() - 1980) & 0x7f) << 9) | (((dt.getMonth() + 1) & 0x0f) << 5) | (dt.getDate() & 0x1f);
 
         // Local file header (30 + name + compressed data)
-        var localHeader = new ArrayBuffer(30 + nameBytes.length + compSize);
-        var lv = new DataView(localHeader);
-        var lba = new Uint8Array(localHeader);
+        const localHeader = new ArrayBuffer(30 + nameBytes.length + compSize);
+        const lv = new DataView(localHeader);
+        const lba = new Uint8Array(localHeader);
         lv.setUint32(0, 0x04034b50, true);  // signature
         lv.setUint16(4, 20, true);           // version needed
         lv.setUint16(6, 0, true);            // flags
@@ -369,9 +369,9 @@
         localHeaders.push(localHeader);
 
         // Central directory header (46 + name)
-        var centralHeader = new ArrayBuffer(46 + nameBytes.length);
-        var cv = new DataView(centralHeader);
-        var cba = new Uint8Array(centralHeader);
+        const centralHeader = new ArrayBuffer(46 + nameBytes.length);
+        const cv = new DataView(centralHeader);
+        const cba = new Uint8Array(centralHeader);
         cv.setUint32(0, 0x02014b50, true);
         cv.setUint16(4, 20, true);            // version made by
         cv.setUint16(6, 20, true);            // version needed
@@ -395,13 +395,13 @@
         offset += localHeader.byteLength;
       });
 
-      var centralDirOffset = offset;
-      var centralDirSize = 0;
+      const centralDirOffset = offset;
+      let centralDirSize = 0;
       centralHeaders.forEach(function (ch) { centralDirSize += ch.byteLength; });
 
       // End of central directory (22 bytes)
-      var eocd = new ArrayBuffer(22);
-      var ev = new DataView(eocd);
+      const eocd = new ArrayBuffer(22);
+      const ev = new DataView(eocd);
       ev.setUint32(0, 0x06054b50, true);
       ev.setUint16(4, 0, true);
       ev.setUint16(6, 0, true);
@@ -411,11 +411,11 @@
       ev.setUint32(16, centralDirOffset, true);
       ev.setUint16(20, 0, true);
 
-      var parts = localHeaders.concat(centralHeaders, [eocd]);
-      var blob = new Blob(parts, { type: 'application/zip' });
+      const parts = localHeaders.concat(centralHeaders, [eocd]);
+      const blob = new Blob(parts, { type: 'application/zip' });
 
       // Gather per-file stats
-      var stats = prepared.map(function (entry) {
+      const stats = prepared.map(function (entry) {
         return {
           name: entry.name,
           originalSize: entry.rawData.length,
@@ -431,11 +431,11 @@
 
   // ---- CRC32 ----
 
-  var crc32Table = (function () {
-    var table = new Uint32Array(256);
-    for (var i = 0; i < 256; i++) {
-      var c = i;
-      for (var j = 0; j < 8; j++) {
+  const crc32Table = (function () {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) {
         c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
       }
       table[i] = c;
@@ -444,8 +444,8 @@
   })();
 
   function crc32(bytes) {
-    var crc = 0xFFFFFFFF;
-    for (var i = 0; i < bytes.length; i++) {
+    let crc = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) {
       crc = crc32Table[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
     }
     return (crc ^ 0xFFFFFFFF) >>> 0;
@@ -456,36 +456,36 @@
   function showResult() {
     showSection(resultSection);
 
-    var totalOriginal = 0;
+    let totalOriginal = 0;
     files.forEach(function (f) { totalOriginal += f.size; });
-    var zipSize = resultBlob.size;
-    var saved = totalOriginal - zipSize;
-    var pct = totalOriginal > 0 ? ((saved / totalOriginal) * 100).toFixed(1) : '0.0';
-    var savingsClass = saved > 0 ? 'zip-savings-positive' : 'zip-savings-neutral';
+    const zipSize = resultBlob.size;
+    const saved = totalOriginal - zipSize;
+    const pct = totalOriginal > 0 ? ((saved / totalOriginal) * 100).toFixed(1) : '0.0';
+    const savingsClass = saved > 0 ? 'zip-savings-positive' : 'zip-savings-neutral';
 
     // Count file types
-    var typeCounts = {};
+    const typeCounts = {};
     files.forEach(function (f) {
-      var ext = getExt(f.name) || 'OTHER';
+      let ext = getExt(f.name) || 'OTHER';
       typeCounts[ext] = (typeCounts[ext] || 0) + 1;
     });
-    var typeBreakdown = Object.keys(typeCounts).map(function (ext) {
+    const typeBreakdown = Object.keys(typeCounts).map(function (ext) {
       return typeCounts[ext] + ' ' + ext;
     }).join(', ');
 
     // Find largest/smallest file
-    var largest = files[0];
-    var smallest = files[0];
+    let largest = files[0];
+    let smallest = files[0];
     files.forEach(function (f) {
       if (f.size > largest.size) largest = f;
       if (f.size < smallest.size) smallest = f;
     });
 
     // Build per-file compression breakdown
-    var compressedCount = 0;
-    var storedCount = 0;
-    var alreadyCompressedCount = 0;
-    var perFileRows = '';
+    let compressedCount = 0;
+    let storedCount = 0;
+    let alreadyCompressedCount = 0;
+    let perFileRows = '';
     lastZipStats.forEach(function (s) {
       if (s.method === 8) {
         compressedCount++;
@@ -493,10 +493,10 @@
         storedCount++;
         if (s.skippedReason === 'already-compressed') alreadyCompressedCount++;
       }
-      var fileSaved = s.originalSize - s.compressedSize;
-      var filePct = s.originalSize > 0 ? ((fileSaved / s.originalSize) * 100).toFixed(1) : '0.0';
-      var methodLabel = s.method === 8 ? 'DEFLATE' : 'STORE';
-      var reasonNote = s.skippedReason === 'already-compressed' ? ' (already compressed)' : '';
+      const fileSaved = s.originalSize - s.compressedSize;
+      const filePct = s.originalSize > 0 ? ((fileSaved / s.originalSize) * 100).toFixed(1) : '0.0';
+      const methodLabel = s.method === 8 ? 'DEFLATE' : 'STORE';
+      const reasonNote = s.skippedReason === 'already-compressed' ? ' (already compressed)' : '';
       perFileRows +=
         '<tr>' +
           '<td>' + truncName(s.name, 24) + '</td>' +
@@ -508,7 +508,7 @@
     });
 
     // Note about already-compressed formats
-    var compressionNote = '';
+    let compressionNote = '';
     if (alreadyCompressedCount > 0) {
       compressionNote =
         '<div class="zip-compression-note">' +
@@ -546,9 +546,9 @@
 
   function truncName(name, maxLen) {
     if (name.length <= maxLen) return name;
-    var ext = getExt(name);
-    var base = name.substring(0, name.length - ext.length - 1);
-    var keep = maxLen - ext.length - 4; // 4 for "..." + "."
+    const ext = getExt(name);
+    const base = name.substring(0, name.length - ext.length - 1);
+    const keep = maxLen - ext.length - 4; // 4 for "..." + "."
     return base.substring(0, keep) + '...' + (ext ? '.' + ext : '');
   }
 
@@ -556,8 +556,8 @@
 
   downloadBtn.addEventListener('click', function () {
     if (!resultBlob) return;
-    var url = URL.createObjectURL(resultBlob);
-    var a = document.createElement('a');
+    const url = URL.createObjectURL(resultBlob);
+    const a = document.createElement('a');
     a.href = url;
     a.download = resultFileName;
     document.body.appendChild(a);

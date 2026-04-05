@@ -18,33 +18,33 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('global-conflict-parties-json');
-  var listContainer = document.getElementById('conflict-parties-list');
-  var addButtonsContainer = document.getElementById('conflict-party-add-buttons');
-  var emptyState = document.getElementById('conflict-party-empty-state');
+  const hiddenInput = document.getElementById('global-conflict-parties-json');
+  const listContainer = document.getElementById('conflict-parties-list');
+  const addButtonsContainer = document.getElementById('conflict-party-add-buttons');
+  const emptyState = document.getElementById('conflict-party-empty-state');
 
   if (!hiddenInput || !listContainer || !addButtonsContainer) return;
 
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
   }
 
-  var involvementTypes = parseJsonData('actor-involvement-types-data');
-  var countries = parseJsonData('countries-data');
+  const involvementTypes = parseJsonData('actor-involvement-types-data');
+  const countries = parseJsonData('countries-data');
 
   /* Map role codes to involvement type IDs for quick-add buttons */
-  var roleToInvolvementId = {};
-  for (var i = 0; i < involvementTypes.length; i++) {
-    var code = (involvementTypes[i].status_code || '').toLowerCase();
+  const roleToInvolvementId = {};
+  for (let i = 0; i < involvementTypes.length; i++) {
+    const code = (involvementTypes[i].status_code || '').toLowerCase();
     roleToInvolvementId[code] = involvementTypes[i].status_id;
   }
 
   /* Role display config — keys match actor_involvement_type_code (lowercased) */
-  var ROLE_CONFIG = {
+  const ROLE_CONFIG = {
     accused: {
       labelBn: '\u0986\u0995\u09CD\u09B0\u09AE\u09A3\u0995\u09BE\u09B0\u09C0',
       labelEn: 'Aggressor',
@@ -67,8 +67,8 @@
 
   /* ========== State ========== */
 
-  var parties = [];
-  var tomSelectInstances = [];
+  let parties = [];
+  let tomSelectInstances = [];
 
   /* ========== Helpers ========== */
 
@@ -81,7 +81,7 @@
 
   function syncToHiddenInput() {
     hiddenInput.value = parties.length ? JSON.stringify(parties) : '';
-    var event = document.createEvent('Event');
+    const event = document.createEvent('Event');
     event.initEvent('change', true, true);
     hiddenInput.dispatchEvent(event);
   }
@@ -89,10 +89,10 @@
   /* ========== Build Card HTML ========== */
 
   function buildCountryOptions(selectedId) {
-    var html = '<option value="">-- \u09A6\u09C7\u09B6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select Country) --</option>';
-    for (var i = 0; i < countries.length; i++) {
-      var c = countries[i];
-      var selected = (c.country_id === selectedId) ? ' selected' : '';
+    let html = '<option value="">-- \u09A6\u09C7\u09B6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 (Select Country) --</option>';
+    for (let i = 0; i < countries.length; i++) {
+      const c = countries[i];
+      const selected = (c.country_id === selectedId) ? ' selected' : '';
       html += '<option value="' + c.country_id + '"' + selected + '>'
         + (c.country_name_bn || '') + ' (' + (c.country_name_en || '') + ')'
         + '</option>';
@@ -101,9 +101,9 @@
   }
 
   function buildCardHtml(party, index) {
-    var config = ROLE_CONFIG[party.role] || ROLE_CONFIG.accused;
+    let config = ROLE_CONFIG[party.role] || ROLE_CONFIG.accused;
 
-    var html = '<div class="actor-card ' + config.cardClass + '" data-index="' + index + '">';
+    let html = '<div class="actor-card ' + config.cardClass + '" data-index="' + index + '">';
 
     /* Header: role badge + remove */
     html += '<div class="actor-card-header">';
@@ -156,7 +156,7 @@
 
   function render() {
     /* Destroy existing Tom Select instances */
-    for (var t = 0; t < tomSelectInstances.length; t++) {
+    for (let t = 0; t < tomSelectInstances.length; t++) {
       tomSelectInstances[t].destroy();
     }
     tomSelectInstances = [];
@@ -170,17 +170,17 @@
 
     if (emptyState) emptyState.style.display = 'none';
 
-    var html = '';
-    for (var i = 0; i < parties.length; i++) {
+    let html = '';
+    for (let i = 0; i < parties.length; i++) {
       html += buildCardHtml(parties[i], i);
     }
     listContainer.innerHTML = html;
 
     /* Init Tom Select on country dropdowns */
-    var selects = listContainer.querySelectorAll('.conflict-party-country');
-    for (var s = 0; s < selects.length; s++) {
+    const selects = listContainer.querySelectorAll('.conflict-party-country');
+    for (let s = 0; s < selects.length; s++) {
       try {
-        var ts = new TomSelect(selects[s], {
+        const ts = new TomSelect(selects[s], {
           allowEmptyOption: true,
           create: false,
           sortField: { field: 'text', direction: 'asc' }
@@ -200,23 +200,23 @@
 
   function wireCardEvents() {
     /* Field changes */
-    var fields = listContainer.querySelectorAll('.conflict-party-field');
-    for (var i = 0; i < fields.length; i++) {
+    const fields = listContainer.querySelectorAll('.conflict-party-field');
+    for (let i = 0; i < fields.length; i++) {
       fields[i].addEventListener('input', onFieldChange);
       fields[i].addEventListener('change', onFieldChange);
     }
 
     /* Remove buttons */
-    var removeBtns = listContainer.querySelectorAll('.actor-remove-btn');
-    for (var r = 0; r < removeBtns.length; r++) {
+    const removeBtns = listContainer.querySelectorAll('.actor-remove-btn');
+    for (let r = 0; r < removeBtns.length; r++) {
       removeBtns[r].addEventListener('click', onRemove);
     }
   }
 
   function onFieldChange(e) {
-    var el = e.target;
-    var idx = parseInt(el.getAttribute('data-index'), 10);
-    var field = el.getAttribute('data-field');
+    const el = e.target;
+    let idx = parseInt(el.getAttribute('data-index'), 10);
+    const field = el.getAttribute('data-field');
     if (isNaN(idx) || !field || !parties[idx]) return;
 
     if (field === 'countryId') {
@@ -228,7 +228,7 @@
   }
 
   function onRemove(e) {
-    var idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+    const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
     if (isNaN(idx)) return;
     parties.splice(idx, 1);
     render();
@@ -237,7 +237,7 @@
   /* ========== Add Party ========== */
 
   function addParty(role) {
-    var involvementTypeId = roleToInvolvementId[role] || 0;
+    const involvementTypeId = roleToInvolvementId[role] || 0;
     parties.push({
       role: role,
       involvementTypeId: involvementTypeId,
@@ -251,16 +251,16 @@
 
   /* ========== Button Wiring ========== */
 
-  var addButtons = addButtonsContainer.querySelectorAll('.actor-add-btn');
-  for (var b = 0; b < addButtons.length; b++) {
+  const addButtons = addButtonsContainer.querySelectorAll('.actor-add-btn');
+  for (let b = 0; b < addButtons.length; b++) {
     addButtons[b].addEventListener('click', function () {
-      var role = this.getAttribute('data-role') || 'accused';
+      const role = this.getAttribute('data-role') || 'accused';
       addParty(role);
     });
   }
 
   /* Serialize before form submit */
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) {
     form.addEventListener('submit', syncToHiddenInput);
   }
@@ -272,10 +272,10 @@
       panelId: 'section-conflict-parties',
       validate: function () {
         if (!parties.length) return [];
-        var errors = [];
-        for (var i = 0; i < parties.length; i++) {
+        const errors = [];
+        for (let i = 0; i < parties.length; i++) {
           if (!parties[i].countryId) {
-            var config = ROLE_CONFIG[parties[i].role] || ROLE_CONFIG.accused;
+            const config = ROLE_CONFIG[parties[i].role] || ROLE_CONFIG.accused;
             errors.push(config.labelBn + ' #' + (i + 1) + ': \u09A6\u09C7\u09B6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 (Select a country)');
           }
         }
@@ -293,7 +293,7 @@
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
     try {
-      var saved = JSON.parse(hiddenInput.value);
+      const saved = JSON.parse(hiddenInput.value);
       if (!Array.isArray(saved) || !saved.length) return;
       parties = saved;
       render();

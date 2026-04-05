@@ -3,7 +3,7 @@
 
 <section class="hero" aria-label="Top stories">
   <a class="main" href="{% url 'core:article_detail' slug='city-commute' %}">
-    <img src="{% static 'core/assets/img/hero.svg' %}" alt="Lead story image"/>
+    <img src="{% static 'core/assets/img/hero.svg' %}" alt="Lead story image" fetchpriority="high"/>
     <div class="ribbon">
       <div class="kicker">Exclusive</div>
       <h1>Inside the race to reinvent the city commute</h1>
@@ -14,18 +14,18 @@
   <div class="side">
     {% for dest in dests %}
     <article class="card">
-      <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="Story thumbnail"/>
+      <img src="{% static 'core/assets/img/thumb-1.svg' %}" alt="Story thumbnail" loading="lazy"/>
       <div>
         <div class="kicker">World of war</div>
         <h3><a href="{% url 'core:article_detail' slug=dest.slug %}">{{ dest.name }}</a></h3>
-        <img src="{{ baseUrl }}/{{ dest.img }}" alt="image missing"/>
+        <img src="{{ baseUrl }}/{{ dest.img }}" alt="image missing" loading="lazy"/>
         <div class="meta">4 min read · 12 comments</div>
       </div>
     </article>
     {% endfor %}
 
     <article class="card">
-      <img src="{% static 'core/assets/img/thumb-2.svg' %}" alt="Story thumbnail"/>
+      <img src="{% static 'core/assets/img/thumb-2.svg' %}" alt="Story thumbnail" loading="lazy"/>
       <div>
         <div class="kicker">Business</div>
         <h3><a href="{% url 'core:article_detail' slug='chip-demand-surges' %}">Chip demand surges as AI boom accelerates</a></h3>
@@ -34,7 +34,7 @@
     </article>
 
     <article class="card">
-      <img src="{% static 'core/assets/img/thumb-3.svg' %}" alt="Story thumbnail"/>
+      <img src="{% static 'core/assets/img/thumb-3.svg' %}" alt="Story thumbnail" loading="lazy"/>
       <div>
         <div class="kicker">Culture</div>
         <h3><a href="{% url 'core:article_detail' slug='indie-festival' %}">The indie festival rewriting the rules</a></h3>

@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from amolnama_news.site_apps.core.utils import time_ago as _calculate_time_ago
 from django.http import Http404
 from django.shortcuts import render
-from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import (

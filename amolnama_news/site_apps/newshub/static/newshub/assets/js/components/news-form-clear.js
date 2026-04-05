@@ -13,18 +13,18 @@
  *   news-attachment-upload.js      → window.newshubAttachments.reset()
  */
 (function () {
-  var button = document.getElementById('news-clear-form-button');
-  var form = document.querySelector('.news-collection-form, .news-multistep-form');
+  const button = document.getElementById('news-clear-form-button');
+  const form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!button || !form) return;
 
   /* Inline confirmation message element */
-  var messageElement = document.createElement('span');
+  const messageElement = document.createElement('span');
   messageElement.className = 'news-clear-form-message';
-  messageElement.style.display = 'none';
+  messageElement.classList.add('display-hidden');
   button.parentNode.insertBefore(messageElement, button);
 
-  var confirmTimer = null;
-  var awaitingConfirm = false;
+  let confirmTimer = null;
+  let awaitingConfirm = false;
 
   button.addEventListener('click', function () {
     /* First click — show inline confirmation, wait for second click */
@@ -33,13 +33,13 @@
       button.textContent = '\u09B9\u09CD\u09AF\u09BE\u0981, \u09AE\u09C1\u099B\u09C1\u09A8 (Yes, Clear)';
       button.classList.add('news-clear-form-button-confirm');
       messageElement.textContent = '\u09A8\u09BF\u09B6\u09CD\u099A\u09BF\u09A4? (Sure?)';
-      messageElement.style.display = '';
+      messageElement.classList.remove('display-hidden');
       /* Auto-revert after 4 seconds if no second click */
       confirmTimer = setTimeout(function () {
         awaitingConfirm = false;
         button.textContent = '\u09A4\u09A5\u09CD\u09AF \u09AE\u09C1\u099B\u09C1\u09A8 (Clear Form)';
         button.classList.remove('news-clear-form-button-confirm');
-        messageElement.style.display = 'none';
+        messageElement.classList.add('display-hidden');
       }, 4000);
       return;
     }
@@ -50,14 +50,14 @@
     button.textContent = '\u09A4\u09A5\u09CD\u09AF \u09AE\u09C1\u099B\u09C1\u09A8 (Clear Form)';
     button.classList.remove('news-clear-form-button-confirm');
     messageElement.textContent = '\u09AE\u09C1\u099B\u09C7 \u09AB\u09C7\u09B2\u09BE \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 (Cleared!)';
-    messageElement.style.display = '';
-    setTimeout(function () { messageElement.style.display = 'none'; }, 3000);
+    messageElement.classList.remove('display-hidden');
+    setTimeout(function () { messageElement.classList.add('display-hidden'); }, 3000);
 
     /* 1. Clear all form controls via form.elements (works even with display:contents) */
-    var elements = form.elements;
-    for (var i = 0; i < elements.length; i++) {
-      var element = elements[i];
-      var type = element.type;
+    const elements = form.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+      const type = element.type;
       if (element.name === 'csrfmiddlewaretoken') continue;
       if (type === 'submit' || type === 'button') continue;
 
@@ -75,40 +75,40 @@
 
     /* 5. Reset occurrence time custom selects (not inside form.elements) */
     ['occ-date', 'occ-hour', 'occ-minute'].forEach(function (fieldId) {
-      var field = document.getElementById(fieldId);
+      let field = document.getElementById(fieldId);
       if (field) field.value = '';
     });
-    var occPeriod = document.getElementById('occ-period');
+    const occPeriod = document.getElementById('occ-period');
     if (occPeriod) occPeriod.selectedIndex = 0;
 
     /* 6. Reset location cascade selects to placeholder-only state */
-    var constituencySelect = document.getElementById('news-constituency-id');
-    var upazilaSelect = document.getElementById('news-upazila-id');
-    var unionSelect = document.getElementById('news-union-parishad-id');
-    var wardSelect = document.getElementById('news-ward-id');
-    var villageSelect = document.getElementById('news-village-id');
-    var villageOtherInput = document.getElementById('news-village-other');
-    var villageRow = document.getElementById('news-village-row');
+    const constituencySelect = document.getElementById('news-constituency-id');
+    const upazilaSelect = document.getElementById('news-upazila-id');
+    const unionSelect = document.getElementById('news-union-parishad-id');
+    const wardSelect = document.getElementById('news-ward-id');
+    const villageSelect = document.getElementById('news-village-id');
+    const villageOtherInput = document.getElementById('news-village-other');
+    const villageRow = document.getElementById('news-village-row');
     if (constituencySelect) constituencySelect.value = '';
     if (upazilaSelect) upazilaSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u099C\u09C7\u09B2\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     if (unionSelect) unionSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     if (wardSelect) wardSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09AF\u09BC \u09B8\u09B0\u0995\u09BE\u09B0 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     if (villageSelect) villageSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
-    if (villageOtherInput) { villageOtherInput.style.display = 'none'; villageOtherInput.value = ''; }
-    if (villageRow) villageRow.style.display = 'none';
+    if (villageOtherInput) { villageOtherInput.classList.add('display-hidden'); villageOtherInput.value = ''; }
+    if (villageRow) villageRow.classList.add('display-hidden');
     /* Clear type tracking hidden inputs */
     ['news-subdistrict-type', 'news-local-body-type', 'news-ward-type'].forEach(function (fieldId) {
-      var field = document.getElementById(fieldId);
+      const field = document.getElementById(fieldId);
       if (field) field.value = '';
     });
 
     /* 8. Reset organisation cascade */
-    var organizationSelect = document.getElementById('contributor-organization');
+    const organizationSelect = document.getElementById('contributor-organization');
     if (organizationSelect) organizationSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A4\u09BF\u09B7\u09CD\u09A0\u09BE\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE (\u0990\u099A\u09CD\u099B\u09BF\u0995) --</option>';
 
     /* 8b. Reset Tom Select instances (district, category, location search) */
     ['news-district-id', 'news-category-id'].forEach(function (selectId) {
-      var selectElement = document.getElementById(selectId);
+      const selectElement = document.getElementById(selectId);
       if (selectElement && selectElement.tomselect) selectElement.tomselect.clear(true);
     });
 
@@ -210,9 +210,9 @@
       window.newshubWatchdogSectionSwitcher.reset();
     }
     /* Clear political sub-type radios */
-    var politicalRadios = document.querySelectorAll('input[name="political_sub_type_radio"]');
-    for (var p = 0; p < politicalRadios.length; p++) { politicalRadios[p].checked = false; }
-    var politicalHidden = document.getElementById('political-sub-type');
+    const politicalRadios = document.querySelectorAll('input[name="political_sub_type_radio"]');
+    for (let p = 0; p < politicalRadios.length; p++) { politicalRadios[p].checked = false; }
+    const politicalHidden = document.getElementById('political-sub-type');
     if (politicalHidden) politicalHidden.value = '';
 
     /* 11f. Clear civic & community fields (impact, status) */
@@ -223,9 +223,9 @@
       window.newshubCivicStatus.reset();
     }
     /* Clear civic sub-type radios */
-    var civicRadios = document.querySelectorAll('input[name="civic_sub_type_radio"]');
-    for (var c = 0; c < civicRadios.length; c++) { civicRadios[c].checked = false; }
-    var civicHidden = document.getElementById('civic-sub-type');
+    const civicRadios = document.querySelectorAll('input[name="civic_sub_type_radio"]');
+    for (let c = 0; c < civicRadios.length; c++) { civicRadios[c].checked = false; }
+    const civicHidden = document.getElementById('civic-sub-type');
     if (civicHidden) civicHidden.value = '';
 
     /* 11g. Clear global news / war & conflict fields (sub-type, parties, frontline, humanitarian, geopolitics) */
@@ -245,8 +245,8 @@
       window.newshubGlobalGeopolitics.reset();
     }
     /* Clear strategic impact checkboxes */
-    var strategicCheckboxes = document.querySelectorAll('input[name="strategic_impact"]');
-    for (var s = 0; s < strategicCheckboxes.length; s++) { strategicCheckboxes[s].checked = false; }
+    const strategicCheckboxes = document.querySelectorAll('input[name="strategic_impact"]');
+    for (let s = 0; s < strategicCheckboxes.length; s++) { strategicCheckboxes[s].checked = false; }
 
     /* 11g2. Clear general global news fields (sub-type, countries, classification, bangladesh, reaction) */
     if (window.newshubGlobalNewsSubType && window.newshubGlobalNewsSubType.reset) {
@@ -344,26 +344,26 @@
       window.newshubJulyEvidence.reset();
     }
     /* Clear july uprising sub-type radios */
-    var julyRadios = document.querySelectorAll('input[name="july_sub_type_radio"]');
-    for (var jr = 0; jr < julyRadios.length; jr++) { julyRadios[jr].checked = false; }
-    var julyHidden = document.getElementById('july-sub-type');
+    const julyRadios = document.querySelectorAll('input[name="july_sub_type_radio"]');
+    for (let jr = 0; jr < julyRadios.length; jr++) { julyRadios[jr].checked = false; }
+    const julyHidden = document.getElementById('july-sub-type');
     if (julyHidden) julyHidden.value = '';
 
     /* 12. Clear localStorage drafts (per-form-type) */
-    var formTypeInput = document.getElementById('news-form-type');
-    var formTypeCode = formTypeInput ? formTypeInput.value : '';
-    var draftKey = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
-    var draftTagsKey = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
+    const formTypeInput = document.getElementById('news-form-type');
+    const formTypeCode = formTypeInput ? formTypeInput.value : '';
+    const draftKey = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
+    const draftTagsKey = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
     localStorage.removeItem(draftKey);
     localStorage.removeItem(draftTagsKey);
 
     /* 13. Clear any validation warnings */
-    var warnings = form.querySelectorAll('.field-warning');
-    for (var m = 0; m < warnings.length; m++) {
-      warnings[m].style.display = 'none';
+    const warnings = form.querySelectorAll('.field-warning');
+    for (let m = 0; m < warnings.length; m++) {
+      warnings[m].classList.add('display-hidden');
     }
-    var shakes = form.querySelectorAll('.field-shake');
-    for (var n = 0; n < shakes.length; n++) {
+    const shakes = form.querySelectorAll('.field-shake');
+    for (let n = 0; n < shakes.length; n++) {
       shakes[n].classList.remove('field-shake');
     }
 

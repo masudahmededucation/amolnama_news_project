@@ -19,61 +19,61 @@
   'use strict';
 
   /* ===== DOM refs ===== */
-  var modeButtons     = document.querySelectorAll('.photo-resizer-mode-btn');
-  var presetSelect    = document.getElementById('photo-resizer-preset-select');
-  var widthInput      = document.getElementById('photo-resizer-width');
-  var heightInput     = document.getElementById('photo-resizer-height');
-  var minKbInput      = document.getElementById('photo-resizer-min-kb');
-  var maxKbInput      = document.getElementById('photo-resizer-max-kb');
-  var bgOptions       = document.getElementById('photo-resizer-bg-options');
-  var bgSwatches      = document.querySelectorAll('.photo-resizer-swatch');
-  var dropzone        = document.getElementById('photo-resizer-dropzone');
-  var fileInput       = document.getElementById('photo-resizer-file-input');
-  var browseBtn       = document.getElementById('photo-resizer-browse-btn');
-  var editor          = document.getElementById('photo-resizer-editor');
-  var viewport        = document.getElementById('photo-resizer-viewport');
-  var sourceImg       = document.getElementById('photo-resizer-source-img');
-  var cropFrame       = document.getElementById('photo-resizer-crop-frame');
-  var zoomRange       = document.getElementById('photo-resizer-zoom-range');
-  var zoomValueEl     = document.getElementById('photo-resizer-zoom-value');
-  var previewCanvas   = document.getElementById('photo-resizer-preview-canvas');
-  var previewCtx      = previewCanvas.getContext('2d');
-  var infoEl          = document.getElementById('photo-resizer-info');
-  var cropBtn         = document.getElementById('photo-resizer-crop-btn');
-  var downloadBtn     = document.getElementById('photo-resizer-download-btn');
-  var resetBtn        = document.getElementById('photo-resizer-reset-btn');
+  const modeButtons     = document.querySelectorAll('.photo-resizer-mode-btn');
+  const presetSelect    = document.getElementById('photo-resizer-preset-select');
+  const widthInput      = document.getElementById('photo-resizer-width');
+  const heightInput     = document.getElementById('photo-resizer-height');
+  const minKbInput      = document.getElementById('photo-resizer-min-kb');
+  const maxKbInput      = document.getElementById('photo-resizer-max-kb');
+  const bgOptions       = document.getElementById('photo-resizer-bg-options');
+  const bgSwatches      = document.querySelectorAll('.photo-resizer-swatch');
+  const dropzone        = document.getElementById('photo-resizer-dropzone');
+  const fileInput       = document.getElementById('photo-resizer-file-input');
+  const browseBtn       = document.getElementById('photo-resizer-browse-btn');
+  const editor          = document.getElementById('photo-resizer-editor');
+  const viewport        = document.getElementById('photo-resizer-viewport');
+  const sourceImg       = document.getElementById('photo-resizer-source-img');
+  const cropFrame       = document.getElementById('photo-resizer-crop-frame');
+  const zoomRange       = document.getElementById('photo-resizer-zoom-range');
+  const zoomValueEl     = document.getElementById('photo-resizer-zoom-value');
+  const previewCanvas   = document.getElementById('photo-resizer-preview-canvas');
+  const previewCtx      = previewCanvas.getContext('2d');
+  const infoEl          = document.getElementById('photo-resizer-info');
+  const cropBtn         = document.getElementById('photo-resizer-crop-btn');
+  const downloadBtn     = document.getElementById('photo-resizer-download-btn');
+  const resetBtn        = document.getElementById('photo-resizer-reset-btn');
 
   /* ===== State ===== */
-  var currentMode     = 'photo';
-  var bgColor         = '#FFFFFF';
-  var originalImage   = null;
-  var resultBlob      = null;
+  let currentMode     = 'photo';
+  let bgColor         = '#FFFFFF';
+  let originalImage   = null;
+  let resultBlob      = null;
 
   // Image display state (pixels within the viewport)
-  var imgLeft = 0;          // image CSS left
-  var imgTop = 0;           // image CSS top
-  var baseW = 0;            // image display width at zoom=1
-  var baseH = 0;            // image display height at zoom=1
-  var currentZoom = 1;
+  let imgLeft = 0;          // image CSS left
+  let imgTop = 0;           // image CSS top
+  let baseW = 0;            // image display width at zoom=1
+  let baseH = 0;            // image display height at zoom=1
+  let currentZoom = 1;
 
   // Drag state
-  var isDragging = false;
-  var dragStartX, dragStartY;
-  var dragImgLeft, dragImgTop;
+  let isDragging = false;
+  let dragStartX, dragStartY;
+  let dragImgLeft, dragImgTop;
 
   // Pinch-to-zoom state
-  var isPinching = false;
-  var pinchStartDist = 0;
-  var pinchStartZoom = 1;
-  var pinchCenterX = 0;
-  var pinchCenterY = 0;
-  var pinchStartImgLeft = 0;
-  var pinchStartImgTop = 0;
+  let isPinching = false;
+  let pinchStartDist = 0;
+  let pinchStartZoom = 1;
+  let pinchCenterX = 0;
+  let pinchCenterY = 0;
+  let pinchStartImgLeft = 0;
+  let pinchStartImgTop = 0;
 
   /* ===== Preset dimensions map ===== */
   /* minKb: minimum file size (0 = no minimum) */
   /* kb: maximum file size */
-  var PRESETS = {
+  const PRESETS = {
     /* সরকারি চাকরি (Government Jobs — Teletalk / BPSC) */
     'teletalk_photo':     { w: 300, h: 300, minKb: 0,  kb: 100  },
     'teletalk_sig':       { w: 300, h: 80,  minKb: 0,  kb: 60   },
@@ -96,14 +96,14 @@
   /* ===== Smooth show/hide helpers ===== */
 
   function showSection(el) {
-    el.style.display = '';
+    el.classList.remove('display-hidden');
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.style.display = 'none';
+    el.classList.add('display-hidden');
     el.classList.remove('tool-section-reveal');
   }
 
@@ -114,14 +114,14 @@
 
   /** Calculate crop frame size (pixels) to fit within viewport while keeping target aspect ratio */
   function getCropFrameSize() {
-    var tw = getTargetW();
-    var th = getTargetH();
-    var ratio = tw / th;
-    var vpW = viewport.clientWidth;
-    var vpH = viewport.clientHeight;
-    var maxFrameW = vpW * 0.85;
-    var maxFrameH = vpH * 0.85;
-    var frameW, frameH;
+    let tw = getTargetW();
+    let th = getTargetH();
+    const ratio = tw / th;
+    let vpW = viewport.clientWidth;
+    let vpH = viewport.clientHeight;
+    const maxFrameW = vpW * 0.85;
+    const maxFrameH = vpH * 0.85;
+    let frameW, frameH;
 
     if (ratio >= 1) {
       frameW = Math.min(maxFrameW, maxFrameH * ratio);
@@ -140,9 +140,9 @@
 
   /** Position crop frame centered in viewport */
   function updateCropFrame() {
-    var size = getCropFrameSize();
-    var vpW = viewport.clientWidth;
-    var vpH = viewport.clientHeight;
+    const size = getCropFrameSize();
+    let vpW = viewport.clientWidth;
+    let vpH = viewport.clientHeight;
 
     cropFrame.style.width = size.w + 'px';
     cropFrame.style.height = size.h + 'px';
@@ -153,13 +153,13 @@
   /** Position the image in the viewport (center it initially) */
   function centerImage() {
     if (!originalImage) return;
-    var vpW = viewport.clientWidth;
-    var vpH = viewport.clientHeight;
+    let vpW = viewport.clientWidth;
+    let vpH = viewport.clientHeight;
 
     // Fit image to viewport at zoom=1
-    var natW = originalImage.naturalWidth;
-    var natH = originalImage.naturalHeight;
-    var scale = Math.min(vpW / natW, vpH / natH);
+    let natW = originalImage.naturalWidth;
+    let natH = originalImage.naturalHeight;
+    let scale = Math.min(vpW / natW, vpH / natH);
     baseW = Math.round(natW * scale);
     baseH = Math.round(natH * scale);
 
@@ -172,8 +172,8 @@
 
   /** Apply current position + zoom to the <img> element */
   function applyImagePosition() {
-    var w = Math.round(baseW * currentZoom);
-    var h = Math.round(baseH * currentZoom);
+    const w = Math.round(baseW * currentZoom);
+    const h = Math.round(baseH * currentZoom);
 
     // When zooming, keep the center of the image at the same viewport position
     // Adjust left/top so the center stays put
@@ -190,32 +190,32 @@
    * with proper clamping so partial overlaps don't stretch.
    */
   function getCropRegion(tw, th) {
-    var frameSize = getCropFrameSize();
-    var vpW = viewport.clientWidth;
-    var vpH = viewport.clientHeight;
+    const frameSize = getCropFrameSize();
+    let vpW = viewport.clientWidth;
+    let vpH = viewport.clientHeight;
 
-    var frameLeft = (vpW - frameSize.w) / 2;
-    var frameTop = (vpH - frameSize.h) / 2;
+    const frameLeft = (vpW - frameSize.w) / 2;
+    const frameTop = (vpH - frameSize.h) / 2;
 
-    var dispW = baseW * currentZoom;
-    var dispH = baseH * currentZoom;
-    var natW = originalImage.naturalWidth;
-    var natH = originalImage.naturalHeight;
-    var pxRatioX = natW / dispW;
-    var pxRatioY = natH / dispH;
+    const dispW = baseW * currentZoom;
+    const dispH = baseH * currentZoom;
+    const natW = originalImage.naturalWidth;
+    const natH = originalImage.naturalHeight;
+    const pxRatioX = natW / dispW;
+    const pxRatioY = natH / dispH;
 
     // Unclamped source region
-    var srcX = (frameLeft - imgLeft) * pxRatioX;
-    var srcY = (frameTop - imgTop) * pxRatioY;
-    var srcW = frameSize.w * pxRatioX;
-    var srcH = frameSize.h * pxRatioY;
+    let srcX = (frameLeft - imgLeft) * pxRatioX;
+    let srcY = (frameTop - imgTop) * pxRatioY;
+    let srcW = frameSize.w * pxRatioX;
+    let srcH = frameSize.h * pxRatioY;
 
     // Destination starts at (0,0) filling full canvas
-    var dstX = 0, dstY = 0, dstW = tw, dstH = th;
+    let dstX = 0, dstY = 0, dstW = tw, dstH = th;
 
     // Scale factor: how many destination pixels per source pixel
-    var scaleX = tw / srcW;
-    var scaleY = th / srcH;
+    const scaleX = tw / srcW;
+    const scaleY = th / srcH;
 
     // Clamp left/top — shift destination proportionally
     if (srcX < 0) {
@@ -233,12 +233,12 @@
 
     // Clamp right/bottom
     if (srcX + srcW > natW) {
-      var overshoot = (srcX + srcW) - natW;
+      const overshoot = (srcX + srcW) - natW;
       srcW -= overshoot;
       dstW -= overshoot * scaleX;
     }
     if (srcY + srcH > natH) {
-      var overshootY = (srcY + srcH) - natH;
+      const overshootY = (srcY + srcH) - natH;
       srcH -= overshootY;
       dstH -= overshootY * scaleY;
     }
@@ -253,8 +253,8 @@
   function updatePreview() {
     if (!originalImage) return;
 
-    var tw = getTargetW();
-    var th = getTargetH();
+    let tw = getTargetW();
+    let th = getTargetH();
 
     previewCanvas.width = tw;
     previewCanvas.height = th;
@@ -264,7 +264,7 @@
     previewCtx.fillStyle = currentMode === 'background' ? bgColor : '#FFFFFF';
     previewCtx.fillRect(0, 0, tw, th);
 
-    var r = getCropRegion(tw, th);
+    let r = getCropRegion(tw, th);
     if (r.srcW > 0 && r.srcH > 0 && r.dstW > 0 && r.dstH > 0) {
       previewCtx.drawImage(originalImage,
         r.srcX, r.srcY, r.srcW, r.srcH,
@@ -294,7 +294,7 @@
 
   /* ===== Preset change ===== */
   presetSelect.addEventListener('change', function () {
-    var preset = PRESETS[presetSelect.value];
+    const preset = PRESETS[presetSelect.value];
     if (preset) {
       widthInput.value = preset.w;
       heightInput.value = preset.h;
@@ -324,19 +324,19 @@
 
   /* ===== Zoom ===== */
   zoomRange.addEventListener('input', function () {
-    var oldZoom = currentZoom;
+    let oldZoom = currentZoom;
     currentZoom = parseFloat(zoomRange.value);
     zoomValueEl.textContent = Math.round(currentZoom * 100) + '%';
 
     // Zoom from center of viewport
-    var vpW = viewport.clientWidth;
-    var vpH = viewport.clientHeight;
-    var cx = vpW / 2;
-    var cy = vpH / 2;
+    const vpW = viewport.clientWidth;
+    const vpH = viewport.clientHeight;
+    let cx = vpW / 2;
+    let cy = vpH / 2;
 
     // The point under viewport center before zoom
-    var imgCenterX = (cx - imgLeft) / (baseW * oldZoom);
-    var imgCenterY = (cy - imgTop) / (baseH * oldZoom);
+    const imgCenterX = (cx - imgLeft) / (baseW * oldZoom);
+    const imgCenterY = (cy - imgTop) / (baseH * oldZoom);
 
     // After zoom, keep that point under center
     imgLeft = Math.round(cx - imgCenterX * baseW * currentZoom);
@@ -351,17 +351,17 @@
     if (!originalImage) return;
     e.preventDefault();
 
-    var oldZoom = currentZoom;
-    var delta = e.deltaY > 0 ? -0.1 : 0.1;
+    const oldZoom = currentZoom;
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
     currentZoom = Math.min(3, Math.max(0.2, currentZoom + delta));
 
     // Zoom towards mouse pointer
-    var rect = viewport.getBoundingClientRect();
-    var cx = e.clientX - rect.left;
-    var cy = e.clientY - rect.top;
+    let rect = viewport.getBoundingClientRect();
+    let cx = e.clientX - rect.left;
+    let cy = e.clientY - rect.top;
 
-    var imgPointX = (cx - imgLeft) / (baseW * oldZoom);
-    var imgPointY = (cy - imgTop) / (baseH * oldZoom);
+    let imgPointX = (cx - imgLeft) / (baseW * oldZoom);
+    let imgPointY = (cy - imgTop) / (baseH * oldZoom);
 
     imgLeft = Math.round(cx - imgPointX * baseW * currentZoom);
     imgTop = Math.round(cy - imgPointY * baseH * currentZoom);
@@ -398,14 +398,14 @@
   function loadImage(file) {
     if (!file.type.startsWith('image/')) return;
     if (file.size > 10 * 1024 * 1024) {
-      var errorElement = document.getElementById('tool-error-message');
-      if (errorElement) { errorElement.textContent = 'ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।'; errorElement.style.display = 'block'; }
+      const errorElement = document.getElementById('tool-error-message');
+      if (errorElement) { errorElement.textContent = 'ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।'; errorElement.classList.remove('display-hidden'); }
       return;
     }
 
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function (e) {
-      var img = new Image();
+      const img = new Image();
       img.onload = function () {
         originalImage = img;
         sourceImg.src = img.src;
@@ -468,8 +468,8 @@
 
   /* ===== Touch: single-finger drag + two-finger pinch-to-zoom ===== */
   function getTouchDist(t1, t2) {
-    var dx = t1.clientX - t2.clientX;
-    var dy = t1.clientY - t2.clientY;
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
@@ -489,7 +489,7 @@
       pinchStartImgLeft = imgLeft;
       pinchStartImgTop = imgTop;
 
-      var center = getTouchCenter(e.touches[0], e.touches[1]);
+      const center = getTouchCenter(e.touches[0], e.touches[1]);
       pinchCenterX = center.x;
       pinchCenterY = center.y;
     } else if (e.touches.length === 1 && !isPinching) {
@@ -506,18 +506,18 @@
   document.addEventListener('touchmove', function (e) {
     if (isPinching && e.touches.length === 2) {
       e.preventDefault();
-      var newDist = getTouchDist(e.touches[0], e.touches[1]);
-      var scale = newDist / pinchStartDist;
-      var newZoom = Math.min(3, Math.max(0.2, pinchStartZoom * scale));
+      const newDist = getTouchDist(e.touches[0], e.touches[1]);
+      const scale = newDist / pinchStartDist;
+      const newZoom = Math.min(3, Math.max(0.2, pinchStartZoom * scale));
 
       // Zoom around the pinch center point
-      var rect = viewport.getBoundingClientRect();
-      var cx = pinchCenterX - rect.left;
-      var cy = pinchCenterY - rect.top;
+      const rect = viewport.getBoundingClientRect();
+      const cx = pinchCenterX - rect.left;
+      const cy = pinchCenterY - rect.top;
 
       // Image point under pinch center at start
-      var imgPointX = (cx - pinchStartImgLeft) / (baseW * pinchStartZoom);
-      var imgPointY = (cy - pinchStartImgTop) / (baseH * pinchStartZoom);
+      const imgPointX = (cx - pinchStartImgLeft) / (baseW * pinchStartZoom);
+      const imgPointY = (cy - pinchStartImgTop) / (baseH * pinchStartZoom);
 
       currentZoom = newZoom;
       imgLeft = Math.round(cx - imgPointX * baseW * currentZoom);
@@ -557,10 +557,10 @@
   cropBtn.addEventListener('click', function () {
     if (!originalImage) return;
 
-    var tw = getTargetW();
-    var th = getTargetH();
-    var minKb = parseInt(minKbInput.value, 10) || 0;
-    var maxKb = parseInt(maxKbInput.value, 10) || 100;
+    const tw = getTargetW();
+    const th = getTargetH();
+    const minKb = parseInt(minKbInput.value, 10) || 0;
+    const maxKb = parseInt(maxKbInput.value, 10) || 100;
 
     previewCanvas.width = tw;
     previewCanvas.height = th;
@@ -570,7 +570,7 @@
     previewCtx.fillStyle = currentMode === 'background' ? bgColor : '#FFFFFF';
     previewCtx.fillRect(0, 0, tw, th);
 
-    var r = getCropRegion(tw, th);
+    const r = getCropRegion(tw, th);
     if (r.srcW > 0 && r.srcH > 0 && r.dstW > 0 && r.dstH > 0) {
       previewCtx.drawImage(originalImage,
         r.srcX, r.srcY, r.srcW, r.srcH,
@@ -579,8 +579,8 @@
 
     compressToRange(previewCanvas, minKb, maxKb, function (blob, quality, warning) {
       resultBlob = blob;
-      var sizeKb = (blob.size / 1024).toFixed(1);
-      var info =
+      const sizeKb = (blob.size / 1024).toFixed(1);
+      let info =
         'আউটপুট: ' + tw + '×' + th + 'px | ' +
         sizeKb + ' KB | ' +
         'কোয়ালিটি: ' + Math.round(quality * 100) + '%';
@@ -592,11 +592,11 @@
 
   /* ===== Compress JPEG to fit within min–max KB range ===== */
   function compressToRange(canvas, minKb, maxKb, callback) {
-    var quality = 0.95;
-    var minQuality = 0.1;
-    var step = 0.05;
-    var minBytes = minKb * 1024;
-    var maxBytes = maxKb * 1024;
+    let quality = 0.95;
+    const minQuality = 0.1;
+    const step = 0.05;
+    const minBytes = minKb * 1024;
+    const maxBytes = maxKb * 1024;
 
     function tryCompress() {
       canvas.toBlob(function (blob) {
@@ -604,7 +604,7 @@
 
         if (blob.size <= maxBytes || quality <= minQuality) {
           // Fits within max (or we hit minimum quality)
-          var warning = '';
+          let warning = '';
           if (minKb > 0 && blob.size < minBytes) {
             warning = 'ফাইল সর্বনিম্ন ' + minKb + 'KB এর নিচে — ছবির রেজোলিউশন বাড়ান (Below min ' + minKb + 'KB — use a higher resolution image)';
           }
@@ -615,7 +615,7 @@
         } else {
           // Still over max — if lowering quality would drop below min, stop here
           if (minKb > 0) {
-            var nextQuality = quality - step;
+            let nextQuality = quality - step;
             if (nextQuality < minQuality) nextQuality = minQuality;
             canvas.toBlob(function (testBlob) {
               if (testBlob && testBlob.size < minBytes) {
@@ -641,7 +641,7 @@
   /* ===== Download ===== */
   downloadBtn.addEventListener('click', function () {
     if (!resultBlob) return;
-    var a = document.createElement('a');
+    const a = document.createElement('a');
     a.href = URL.createObjectURL(resultBlob);
     a.download = 'photo-' + getTargetW() + 'x' + getTargetH() + '.jpg';
     document.body.appendChild(a);

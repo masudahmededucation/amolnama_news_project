@@ -26,7 +26,7 @@
  */
 function selectParty(id, nameEn, nameBn, event) {
   if (event) event.preventDefault();
-  
+
   selectedParty = { id, nameEn, nameBn };
   submitVote();
 }
@@ -49,7 +49,7 @@ function submitVote() {
       constituency_name_bn: selectedConstituency?.nameBn,
       party_name_bn: selectedParty?.nameBn
     };
-    
+
 
     fetch('/evaluation_vote/api/submit-vote/', {
       method: 'POST',
@@ -59,7 +59,10 @@ function submitVote() {
       },
       body: JSON.stringify(voteData),
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           currentVoteId = data.vote_id;
@@ -72,13 +75,13 @@ function submitVote() {
           showSuccessView();
           updatePartyListWithPercentages();
         } else {
-          var errorContainer = document.getElementById('vote-error-message');
-          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
+          let errorContainer = document.getElementById('vote-error-message');
+          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.classList.remove('display-hidden'); }
         }
       })
       .catch(function () {
-        var errorContainer = document.getElementById('vote-error-message');
-        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.style.display = 'block'; }
+        const errorContainer = document.getElementById('vote-error-message');
+        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.classList.remove('display-hidden'); }
       });
   });
 }
@@ -103,23 +106,23 @@ function updateSummaryLine(division, district, constituency, party) {
  */
 function showSuccessView() {
   if (!selectedDivision || !selectedDistrict || !selectedConstituency || !selectedParty) return;
-  
+
   showView('success-view');
-  
+
   const bc = document.getElementById('breadcrumb');
-  if (bc) bc.style.display = 'none';
-  
+  if (bc) bc.classList.add('display-hidden');
+
   const reasonLabel = document.getElementById('reason-label');
   if (reasonLabel) {
     reasonLabel.innerHTML = `এই দলটিকে (<strong>${selectedParty.nameBn}</strong>) বেছে নেওয়ার মূল কারণ কী?`;
   }
-  
+
   const voteReason = document.getElementById('vote-reason');
   if (voteReason) voteReason.value = '';
-  
+
   const charCount = document.getElementById('char-count');
   if (charCount) charCount.textContent = '0';
-  
+
   loadUpazilas();
 }
 
@@ -130,23 +133,23 @@ function showSuccessView() {
 function updateVote() {
   const reason = document.getElementById('vote-reason').value.trim();
   const unionId = document.getElementById('union').value;
-  
+
   if (!reason && !unionId) {
     return;
   }
-  
+
   const updateData = {
     vote_id: currentVoteId,
   };
-  
+
   if (reason) {
     updateData.remarks_bn = reason;
   }
-  
+
   if (unionId) {
     updateData.union_parishad_id = unionId;
   }
-  
+
   fetch('/evaluation_vote/api/update-vote/', {
     method: 'POST',
     headers: {
@@ -155,7 +158,10 @@ function updateVote() {
     },
     body: JSON.stringify(updateData),
   })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.json();
+    })
     .then(data => {
       if (data.success) {
         const successMsg = document.getElementById('update-success');

@@ -25,13 +25,13 @@
   </div>
 
   <!-- ===== Error Section ===== -->
-  <div class="bgr-error" id="bgr-error" style="display:none">
+  <div class="bgr-error display-hidden" id="bgr-error">
     <p id="bgr-error-text"></p>
     <button type="button" class="bgr-try-again-btn" id="bgr-try-again-btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
   </div>
 
   <!-- ===== Editor ===== -->
-  <div class="bgr-editor" id="bgr-editor" style="display:none">
+  <div class="bgr-editor display-hidden" id="bgr-editor">
 
     <!-- Side-by-side preview -->
     <div class="bgr-preview-grid">
@@ -44,7 +44,7 @@
       <div class="bgr-preview-col">
         <div class="bgr-result-header">
           <h3 data-en="Result">ব্যাকগ্রাউন্ড ছাড়া (Result)</h3>
-          <div class="bgr-result-tools" id="bgr-result-tools" style="display:none">
+          <div class="bgr-result-tools display-hidden" id="bgr-result-tools">
             <button type="button" class="bgr-zoom-btn bgr-compare-btn" id="bgr-compare-btn" title="চেপে ধরে তুলনা করুন (Hold to Compare)">👁</button>
             <span class="bgr-result-tools-divider"></span>
             <button type="button" class="bgr-zoom-btn" id="bgr-zoom-out" title="ছোট করুন (Zoom Out)">−</button>
@@ -57,7 +57,7 @@
           <!-- Brush cursor circle -->
           <div class="bgr-brush-cursor" id="bgr-brush-cursor"></div>
           <!-- Processing overlay — shown while AI is working -->
-          <div class="bgr-processing-overlay" id="bgr-processing-overlay" style="display:none">
+          <div class="bgr-processing-overlay display-hidden" id="bgr-processing-overlay">
             <div class="bgr-loading-spinner"></div>
             <p class="bgr-processing-text" id="bgr-processing-text" data-en="Loading AI model…">AI মডেল লোড হচ্ছে… (Loading AI model…)</p>
             <p class="bgr-processing-hint" data-en="May take a few seconds the first time">প্রথমবার কয়েক সেকেন্ড সময় লাগতে পারে</p>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Usage tips -->
-    <div class="bgr-tips" id="bgr-tips" style="display:none">
+    <div class="bgr-tips display-hidden" id="bgr-tips">
       <span class="bgr-tip" data-en="🔍 Ctrl + Mouse Wheel = Zoom">🔍 <strong>Ctrl + মাউস হুইল</strong> = জুম ইন/আউট (Zoom)</span>
       <span class="bgr-tip-divider">·</span>
       <span class="bgr-tip" data-en="🖱️ Click + Drag = Pan image">🖱️ <strong>ক্লিক + টানুন</strong> = ছবি সরান (Drag to pan)</span>
@@ -81,7 +81,7 @@
     <div class="bgr-settings-panel">
 
       <!-- Brush / refine toolbar (hidden until AI finishes) -->
-      <div class="bgr-brush-tools" id="bgr-brush-tools" style="display:none">
+      <div class="bgr-brush-tools display-hidden" id="bgr-brush-tools">
         <div class="bgr-toolbar-row">
           <button type="button" class="bgr-brush-btn bgr-brush-btn--move active" id="bgr-brush-move" data-mode="move" data-en="🤚 Hand">🤚 হ্যান্ড (Hand)</button>
           <button type="button" class="bgr-brush-btn" id="bgr-brush-erase" data-mode="erase" data-en="🧹 Eraser">🧹 ইরেজার (Eraser)</button>
@@ -101,10 +101,10 @@
         <span class="bgr-label-sm form-field-label" data-en="Background (BG)">ব্যাকগ্রাউন্ড (BG)</span>
         <div class="bgr-swatches">
           <button type="button" class="bgr-swatch bgr-swatch--transparent active" data-bg="transparent" title="স্বচ্ছ (Transparent)"></button>
-          <button type="button" class="bgr-swatch" data-bg="#FFFFFF" style="background:#FFFFFF" title="সাদা (White)"></button>
-          <button type="button" class="bgr-swatch" data-bg="#D6EAF8" style="background:#D6EAF8" title="হালকা নীল (Light Blue)"></button>
-          <button type="button" class="bgr-swatch" data-bg="#FF0000" style="background:#FF0000" title="লাল (Red)"></button>
-          <button type="button" class="bgr-swatch" data-bg="#2ECC71" style="background:#2ECC71" title="সবুজ (Green)"></button>
+          <button type="button" class="bgr-swatch bgr-swatch--white" data-bg="#FFFFFF" title="সাদা (White)"></button>
+          <button type="button" class="bgr-swatch bgr-swatch--light-blue" data-bg="#D6EAF8" title="হালকা নীল (Light Blue)"></button>
+          <button type="button" class="bgr-swatch bgr-swatch--red" data-bg="#FF0000" title="লাল (Red)"></button>
+          <button type="button" class="bgr-swatch bgr-swatch--green" data-bg="#2ECC71" title="সবুজ (Green)"></button>
           <div class="bgr-swatch-custom-wrap">
             <label class="bgr-swatch bgr-swatch--custom" title="কাস্টম রঙ (Custom Color)">
               <input type="color" id="bgr-custom-color" name="bgr_custom_color" value="#cccccc">
@@ -145,6 +145,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js"></script>
-  <script src="{% static 'tools/assets/js/pages/tools-background-remover.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js" defer></script>
+  <script src="{% static 'tools/assets/js/pages/tools-background-remover.js' %}" defer></script>
 {% endblock %}

@@ -247,7 +247,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   transition: color .15s;
 }
 
-.travel-hub-detail-media-like-button:hover { color: #1877f2; background: #e7f3ff; }
+.travel-hub-detail-media-like-button:hover { color: #1877f2; background: var(--info-light); }
 .travel-hub-detail-media-like-button-active { color: #1877f2; }
 
 .travel-hub-detail-media-like-label,
@@ -553,6 +553,16 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 .travel-hub-detail-text-input-wide { min-width: 100%; }
 
+.travel-hub-detail-input-narrow { max-width: 120px; }
+.travel-hub-detail-input-date { max-width: 180px; }
+
+.travel-hub-detail-review-textarea { min-width: 100%; resize: vertical; }
+
+.travel-hub-detail-review-rating-label { font-size: .8rem; font-weight: 600; color: var(--text); }
+.travel-hub-detail-review-date-label { font-size: .72rem; color: var(--muted); }
+
+.travel-hub-detail-video-hint { font-size: .7rem; color: var(--muted); margin-bottom: .4rem; line-height: 1.4; }
+
 .travel-hub-detail-file-input {
   font-size: .75rem;
   flex: 1;
@@ -587,7 +597,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   margin-top: .4rem;
 }
 
-.travel-hub-detail-inline-message-success { background: #dcfce7; color: #166534; }
+.travel-hub-detail-inline-message-success { background: var(--success-light); color: var(--primary); }
 .travel-hub-detail-inline-message-error   { background: var(--danger-light); color: var(--danger-text); }
 
 /* Contribution meta (uploader name + edit/delete) */
@@ -632,7 +642,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-contribution-delete-button:hover {
-  color: #dc2626;
+  color: var(--danger);
   background: rgba(220,38,38,.08);
 }
 
@@ -663,7 +673,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-photo-thumb .travel-hub-detail-contribution-delete-button:hover {
-  color: #fca5a5;
+  color: var(--danger-border);
   background: rgba(255,255,255,.15);
 }
 
@@ -746,7 +756,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-contribution-confirm-yes-button {
-  background: #dc2626;
+  background: var(--danger);
   color: #fff;
 }
 
@@ -758,7 +768,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-contribution-confirm-no-button {
-  background: #fff;
+  background: var(--card);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
 }

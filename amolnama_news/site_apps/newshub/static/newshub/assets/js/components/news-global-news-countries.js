@@ -15,16 +15,16 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('global-news-countries-json');
+  const hiddenInput = document.getElementById('global-news-countries-json');
   if (!hiddenInput) return;
 
-  var primaryCountryEl    = document.getElementById('global-news-primary-country');
-  var countriesInvolvedEl = document.getElementById('global-news-countries-involved');
-  var orgOtherRow         = document.getElementById('global-news-org-other-row');
-  var orgOtherNameEl      = document.getElementById('global-news-org-other-name');
+  const primaryCountryEl    = document.getElementById('global-news-primary-country');
+  const countriesInvolvedEl = document.getElementById('global-news-countries-involved');
+  const orgOtherRow         = document.getElementById('global-news-org-other-row');
+  const orgOtherNameEl      = document.getElementById('global-news-org-other-name');
 
   /* Checkbox ID → JSON key mapping */
-  var orgMap = {
+  const orgMap = {
     'global-news-org-un':        'orgUN',
     'global-news-org-eu':        'orgEU',
     'global-news-org-nato':      'orgNATO',
@@ -43,24 +43,24 @@
   };
 
   /* Toggle "other org name" field */
-  var orgOtherCb = document.getElementById('global-news-org-other');
+  const orgOtherCb = document.getElementById('global-news-org-other');
   if (orgOtherCb) {
     orgOtherCb.addEventListener('change', function () {
-      if (orgOtherRow) orgOtherRow.style.display = orgOtherCb.checked ? '' : 'none';
+      if (orgOtherRow) orgOtherCb.checked ? orgOtherRow.classList.remove('display-hidden') : orgOtherRow.classList.add('display-hidden');
       syncToHiddenInput();
     });
   }
 
   function collectData() {
-    var data = {
+    let data = {
       primaryCountry:    (primaryCountryEl    && primaryCountryEl.value.trim())    || '',
       involvedCountries: (countriesInvolvedEl && countriesInvolvedEl.value.trim()) || '',
       otherOrgName:      (orgOtherNameEl      && orgOtherNameEl.value.trim())      || ''
     };
     /* Add each org as a boolean flag */
-    var keys = Object.keys(orgMap);
-    for (var i = 0; i < keys.length; i++) {
-      var el = document.getElementById(keys[i]);
+    let keys = Object.keys(orgMap);
+    for (let i = 0; i < keys.length; i++) {
+      let el = document.getElementById(keys[i]);
       data[orgMap[keys[i]]] = !!(el && el.checked);
     }
     return data;
@@ -68,41 +68,41 @@
 
   function hasAnyData(d) {
     if (d.primaryCountry || d.involvedCountries) return true;
-    var keys = Object.keys(orgMap);
-    for (var i = 0; i < keys.length; i++) {
+    let keys = Object.keys(orgMap);
+    for (let i = 0; i < keys.length; i++) {
       if (d[orgMap[keys[i]]]) return true;
     }
     return false;
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-global-news-countries');
+  const section = document.getElementById('section-global-news-countries');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
     try {
-      var data = JSON.parse(hiddenInput.value);
+      const data = JSON.parse(hiddenInput.value);
       if (primaryCountryEl && data.primaryCountry)       primaryCountryEl.value    = data.primaryCountry;
       if (countriesInvolvedEl && data.involvedCountries)  countriesInvolvedEl.value = data.involvedCountries;
       if (orgOtherNameEl && data.otherOrgName)            orgOtherNameEl.value      = data.otherOrgName;
-      var keys = Object.keys(orgMap);
-      for (var i = 0; i < keys.length; i++) {
-        var el = document.getElementById(keys[i]);
+      let keys = Object.keys(orgMap);
+      for (let i = 0; i < keys.length; i++) {
+        let el = document.getElementById(keys[i]);
         if (el) el.checked = !!data[orgMap[keys[i]]];
       }
-      if (orgOtherCb && orgOtherRow) orgOtherRow.style.display = orgOtherCb.checked ? '' : 'none';
+      if (orgOtherCb && orgOtherRow) orgOtherCb.checked ? orgOtherRow.classList.remove('display-hidden') : orgOtherRow.classList.add('display-hidden');
     } catch (e) { /* ignore parse errors */ }
   }
 
@@ -112,12 +112,12 @@
     reset: function () {
       if (primaryCountryEl)    primaryCountryEl.value    = '';
       if (countriesInvolvedEl) countriesInvolvedEl.value = '';
-      var keys = Object.keys(orgMap);
-      for (var i = 0; i < keys.length; i++) {
-        var el = document.getElementById(keys[i]);
+      const keys = Object.keys(orgMap);
+      for (let i = 0; i < keys.length; i++) {
+        const el = document.getElementById(keys[i]);
         if (el) el.checked = false;
       }
-      if (orgOtherRow)    orgOtherRow.style.display = 'none';
+      if (orgOtherRow)    orgOtherRow.classList.add('display-hidden');
       if (orgOtherNameEl) orgOtherNameEl.value = '';
       hiddenInput.value = '';
     }

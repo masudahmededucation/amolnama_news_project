@@ -31,22 +31,22 @@
 (function () {
   'use strict';
 
-  var alias       = document.getElementById('july-martyr-alias');
-  var gender      = document.getElementById('july-martyr-gender');
-  var religion    = document.getElementById('july-martyr-religion');
-  var age         = document.getElementById('july-martyr-age');
-  var dob         = document.getElementById('july-martyr-dob');
-  var district    = document.getElementById('july-martyr-district');
-  var contact     = document.getElementById('july-martyr-contact');
-  var occupation  = document.getElementById('july-martyr-occupation');
-  var institution = document.getElementById('july-martyr-institution');
-  var statusRadios = document.querySelectorAll('input[name="july_martyr_status"]');
+  const alias       = document.getElementById('july-martyr-alias');
+  const gender      = document.getElementById('july-martyr-gender');
+  const religion    = document.getElementById('july-martyr-religion');
+  const age         = document.getElementById('july-martyr-age');
+  const dob         = document.getElementById('july-martyr-dob');
+  const district    = document.getElementById('july-martyr-district');
+  const contact     = document.getElementById('july-martyr-contact');
+  const occupation  = document.getElementById('july-martyr-occupation');
+  const institution = document.getElementById('july-martyr-institution');
+  const statusRadios = document.querySelectorAll('input[name="july_martyr_status"]');
   /* Father name now comes from person-name-fields.html (Name module) */
-  var fatherFirst = document.getElementById('july-martyr-father-firstname');
-  var fatherLast  = document.getElementById('july-martyr-father-lastname');
-  var motherFirst = document.getElementById('july-martyr-mother-first');
-  var motherLast  = document.getElementById('july-martyr-mother-last');
-  var hiddenJson = document.getElementById('july-martyr-json');
+  const fatherFirst = document.getElementById('july-martyr-father-firstname');
+  const fatherLast  = document.getElementById('july-martyr-father-lastname');
+  const motherFirst = document.getElementById('july-martyr-mother-first');
+  const motherLast  = document.getElementById('july-martyr-mother-last');
+  const hiddenJson = document.getElementById('july-martyr-json');
 
   if (!hiddenJson) return;
 
@@ -54,16 +54,16 @@
   if (dob) dob.max = '2024-08-07';
 
   function getStatus() {
-    for (var i = 0; i < statusRadios.length; i++) {
+    for (let i = 0; i < statusRadios.length; i++) {
       if (statusRadios[i].checked) return statusRadios[i].value;
     }
     return '';
   }
 
   function serialize() {
-    var name = window.newshubPersonName ? window.newshubPersonName.read('july-martyr') : {};
-    var loc  = window.julyMartyrHomeLocation ? window.julyMartyrHomeLocation.read() : {};
-    var data = {
+    const name = window.newshubPersonName ? window.newshubPersonName.read('july-martyr') : {};
+    const loc  = window.julyMartyrHomeLocation ? window.julyMartyrHomeLocation.read() : {};
+    let data = {
       firstNameEn:      name.firstNameEn || '',
       lastNameEn:       name.lastNameEn  || '',
       firstNameBn:      name.firstNameBn || '',
@@ -105,7 +105,7 @@
 
   /* Listen for input on text/number fields */
   /* Father name listeners handled by newshubPersonName.bind() above */
-  var inputFields = [alias, age, institution, contact, motherFirst, motherLast];
+  const inputFields = [alias, age, institution, contact, motherFirst, motherLast];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
@@ -117,28 +117,28 @@
   if (occupation) occupation.addEventListener('change', serialize);
 
   /* Listen for status radios (lives in Step 5) */
-  for (var i = 0; i < statusRadios.length; i++) {
+  for (let i = 0; i < statusRadios.length; i++) {
     statusRadios[i].addEventListener('change', serialize);
   }
 
   /* Re-serialize when home location changes */
-  var homeDistrict  = document.getElementById('martyr-home-district-id');
-  var homeUpazila   = document.getElementById('martyr-home-upazila-id');
-  var homeLocalBody = document.getElementById('martyr-home-local-body-id');
-  var homeWard      = document.getElementById('martyr-home-ward-id');
+  const homeDistrict  = document.getElementById('martyr-home-district-id');
+  const homeUpazila   = document.getElementById('martyr-home-upazila-id');
+  const homeLocalBody = document.getElementById('martyr-home-local-body-id');
+  const homeWard      = document.getElementById('martyr-home-ward-id');
   if (homeDistrict)  homeDistrict.addEventListener('change', serialize);
   if (homeUpazila)   homeUpazila.addEventListener('change', serialize);
   if (homeLocalBody) homeLocalBody.addEventListener('change', serialize);
   if (homeWard)      homeWard.addEventListener('change', serialize);
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ========== Restore from saved data ========== */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
     if (!data || typeof data !== 'object') return;
 
@@ -178,7 +178,7 @@
 
     /* Status radios */
     if (data.status) {
-      for (var r = 0; r < statusRadios.length; r++) {
+      for (let r = 0; r < statusRadios.length; r++) {
         statusRadios[r].checked = (statusRadios[r].value === data.status);
       }
     }
@@ -217,7 +217,7 @@
       if (contact)     contact.value     = '';
       if (occupation) occupation.selectedIndex = 0;
       if (institution) institution.value = '';
-      for (var k = 0; k < statusRadios.length; k++) {
+      for (let k = 0; k < statusRadios.length; k++) {
         statusRadios[k].checked = false;
       }
       /* Father reset handled by newshubPersonName.reset() above */
@@ -229,14 +229,14 @@
   };
 
   /* Step validator: require martyr first name (English + Bengali) */
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      var warnings = [];
-      var firstEn = document.getElementById('july-martyr-first-name-en');
-      var firstBn = document.getElementById('july-martyr-first-name-bn');
+      const warnings = [];
+      const firstEn = document.getElementById('july-martyr-first-name-en');
+      const firstBn = document.getElementById('july-martyr-first-name-bn');
       if (!firstEn || !firstEn.value.trim()) {
         warnings.push('\u09B6\u09B9\u09BF\u09A6\u09C7\u09B0 \u09AA\u09CD\u09B0\u09A5\u09AE \u09A8\u09BE\u09AE (English) \u09A6\u09BF\u09A8');
       }

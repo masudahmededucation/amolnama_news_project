@@ -2,14 +2,14 @@
 (function () {
   'use strict';
 
-  var fileInput = document.getElementById('avatar-upload-file-input');
-  var cropperModal = document.getElementById('avatar-cropper-modal');
-  var cropperImage = document.getElementById('avatar-cropper-image');
-  var saveButton = document.getElementById('avatar-cropper-save-button');
-  var cancelButton = document.getElementById('avatar-cropper-cancel-button');
-  var messageElement = document.getElementById('avatar-cropper-message');
-  var previewElement = document.getElementById('avatar-upload-preview');
-  var cropperInstance = null;
+  const fileInput = document.getElementById('avatar-upload-file-input');
+  const cropperModal = document.getElementById('avatar-cropper-modal');
+  const cropperImage = document.getElementById('avatar-cropper-image');
+  const saveButton = document.getElementById('avatar-cropper-save-button');
+  const cancelButton = document.getElementById('avatar-cropper-cancel-button');
+  const messageElement = document.getElementById('avatar-cropper-message');
+  const previewElement = document.getElementById('avatar-upload-preview');
+  let cropperInstance = null;
 
   if (!fileInput || !cropperModal || !cropperImage) return;
 
@@ -17,7 +17,7 @@
   /* ---- File selected → open cropper modal ---- */
 
   fileInput.addEventListener('change', function () {
-    var file = fileInput.files[0];
+    const file = fileInput.files[0];
     if (!file) return;
 
     /* Validate file */
@@ -29,7 +29,7 @@
     }
 
     /* Load image into cropper */
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function (event) {
       cropperImage.src = event.target.result;
       cropperModal.style.display = 'flex';
@@ -53,35 +53,35 @@
         highlight: false,
         ready: function () {
           /* Add circular mask overlay via CSS */
-          var cropBox = document.querySelector('.cropper-crop-box');
+          const cropBox = document.querySelector('.cropper-crop-box');
           if (cropBox) cropBox.style.borderRadius = '50%';
-          var viewBox = document.querySelector('.cropper-view-box');
+          const viewBox = document.querySelector('.cropper-view-box');
           if (viewBox) {
             viewBox.style.borderRadius = '50%';
             viewBox.style.outline = '0';
           }
-          var cropFace = document.querySelector('.cropper-face');
+          const cropFace = document.querySelector('.cropper-face');
           if (cropFace) cropFace.style.borderRadius = '50%';
 
           /* Auto-detect face and center crop on it (Chrome/Edge only) */
           if (typeof FaceDetector !== 'undefined') {
-            var faceDetector = new FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+            const faceDetector = new FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
             faceDetector.detect(cropperImage)
               .then(function (detectedFaces) {
                 if (detectedFaces.length > 0) {
-                  var detectedFace = detectedFaces[0].boundingBox;
-                  var imageData = cropperInstance.getImageData();
-                  var canvasData = cropperInstance.getCanvasData();
+                  const detectedFace = detectedFaces[0].boundingBox;
+                  const imageData = cropperInstance.getImageData();
+                  const canvasData = cropperInstance.getCanvasData();
 
                   /* Calculate face center relative to canvas */
-                  var scaleX = canvasData.width / imageData.naturalWidth;
-                  var scaleY = canvasData.height / imageData.naturalHeight;
-                  var faceCenterX = canvasData.left + (detectedFace.x + detectedFace.width / 2) * scaleX;
-                  var faceCenterY = canvasData.top + (detectedFace.y + detectedFace.height / 2) * scaleY;
+                  const scaleX = canvasData.width / imageData.naturalWidth;
+                  const scaleY = canvasData.height / imageData.naturalHeight;
+                  const faceCenterX = canvasData.left + (detectedFace.x + detectedFace.width / 2) * scaleX;
+                  const faceCenterY = canvasData.top + (detectedFace.y + detectedFace.height / 2) * scaleY;
 
                   /* Size crop box to fit face with padding */
-                  var faceSize = Math.max(detectedFace.width, detectedFace.height) * scaleX * 1.8;
-                  var containerData = cropperInstance.getContainerData();
+                  let faceSize = Math.max(detectedFace.width, detectedFace.height) * scaleX * 1.8;
+                  const containerData = cropperInstance.getContainerData();
                   faceSize = Math.min(faceSize, containerData.width * 0.9, containerData.height * 0.9);
                   faceSize = Math.max(faceSize, 100);
 
@@ -127,7 +127,7 @@
     messageElement.textContent = '';
 
     /* Get cropped canvas (square, 400x400) */
-    var croppedCanvas = cropperInstance.getCroppedCanvas({
+    const croppedCanvas = cropperInstance.getCroppedCanvas({
       width: 400,
       height: 400,
       imageSmoothingEnabled: true,
@@ -142,7 +142,7 @@
 
     /* Convert to blob and upload */
     croppedCanvas.toBlob(function (blob) {
-      var formData = new FormData();
+      const formData = new FormData();
       formData.append('avatar_image', blob, 'avatar.jpg');
 
       fetch('/portal/api/avatar/upload/', {
@@ -150,7 +150,7 @@
         headers: { 'X-CSRFToken': getCsrfTokenValue() },
         body: formData,
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         saveButton.disabled = false;
         saveButton.textContent = 'সংরক্ষণ করুন (Save)';

@@ -119,7 +119,7 @@
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #ede9fe, #fef3c7);
+  background: linear-gradient(135deg, var(--purple-light), var(--warning-light));
 }
 
 .stories-card-image {

@@ -132,7 +132,7 @@
 .stories-detail-page-prev-button:hover,
 .stories-detail-page-next-button:hover {
   background: var(--surface);
-  border-color: #7c3aed;
+  border-color: var(--purple);
   transform: scale(1.02);
 }
 
@@ -191,14 +191,14 @@
 
 .stories-detail-like-button-active {
   background: var(--danger-light);
-  border-color: #fca5a5;
-  color: #dc2626;
+  border-color: var(--danger-border);
+  color: var(--danger);
 }
 
 .stories-detail-bookmark-button-active {
   background: var(--warning-light);
   border-color: #fcd34d;
-  color: #d97706;
+  color: var(--warning);
 }
 
 .stories-detail-action-count {

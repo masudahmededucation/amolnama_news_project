@@ -6,14 +6,14 @@
   border-radius: 12px;
   padding: .85rem 1rem;
   margin-bottom: .5rem;
-  background: linear-gradient(135deg, #fefce8 0%, #fff 40%, #eff6ff 100%);
+  background: linear-gradient(135deg, #fefce8 0%, var(--card) 40%, var(--info-light) 100%);
   transition: border-color .15s, box-shadow .15s;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
 }
 .debate-promo-card:hover {
-  border-color: #fbbf24;
+  border-color: var(--warning);
   box-shadow: 0 2px 12px rgba(251,191,36,.15);
   text-decoration: none;
 }
@@ -22,13 +22,13 @@
 .debate-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
 .debate-promo-card-badge {
   font-size: .6rem; font-weight: 800; letter-spacing: .08em;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #f59e0b, var(--danger));
   color: #fff; padding: .1rem .5rem; border-radius: 10px;
 }
 .debate-promo-card-status { font-size: .6rem; font-weight: 700; padding: .1rem .4rem; border-radius: 8px; }
-.debate-promo-card-status-live { background: #dcfce7; color: #166534; }
+.debate-promo-card-status-live { background: var(--success-light); color: var(--primary); }
 .debate-promo-card-status-scheduled { background: var(--warning-light); color: var(--warning-text); }
-.debate-promo-card-status-closed { background: #f3f4f6; color: #374151; }
+.debate-promo-card-status-closed { background: var(--surface); color: #374151; }
 .debate-promo-card-status-paused { background: var(--warning-light); color: var(--warning-text); }
 
 /* Title */
@@ -38,16 +38,16 @@
 /* Side labels + mini passion bar */
 .debate-promo-card-sides { display: flex; align-items: center; gap: .4rem; margin-bottom: .5rem; }
 .debate-promo-card-side-label { font-size: .68rem; font-weight: 700; white-space: nowrap; }
-.debate-promo-card-side-label-blue { color: #2563eb; }
+.debate-promo-card-side-label-blue { color: var(--info); }
 .debate-promo-card-side-label-red { color: var(--danger); }
 .debate-promo-card-passion-bar { flex: 1; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--border); }
-.debate-promo-card-passion-bar-blue { background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; min-width: 2px; border-radius: 4px 0 0 4px; }
-.debate-promo-card-passion-bar-red { background: linear-gradient(90deg, #ef4444, var(--danger)); height: 100%; min-width: 2px; border-radius: 0 4px 4px 0; }
+.debate-promo-card-passion-bar-blue { background: linear-gradient(90deg, var(--info), #3b82f6); height: 100%; min-width: 2px; border-radius: 4px 0 0 4px; }
+.debate-promo-card-passion-bar-red { background: linear-gradient(90deg, var(--danger), var(--danger)); height: 100%; min-width: 2px; border-radius: 0 4px 4px 0; }
 
 /* Argument snippets */
 .debate-promo-card-arguments { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-bottom: .5rem; }
 .debate-promo-card-argument { padding: .4rem .5rem; border-radius: 8px; font-size: .75rem; line-height: 1.4; }
-.debate-promo-card-argument-blue { background: #eff6ff; border-left: 2px solid #2563eb; }
+.debate-promo-card-argument-blue { background: var(--info-light); border-left: 2px solid var(--info); }
 .debate-promo-card-argument-red { background: var(--danger-light); border-left: 2px solid var(--danger); }
 .debate-promo-card-argument-author { font-size: .65rem; font-weight: 700; display: block; margin-bottom: .15rem; }
 .debate-promo-card-argument-text { margin: 0; color: #374151; }
@@ -58,7 +58,7 @@
 .debate-promo-card-stat { white-space: nowrap; }
 .debate-promo-card-cta {
   font-size: .75rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #f59e0b, var(--danger));
   padding: .25rem .75rem; border-radius: 14px;
   transition: opacity .15s;
 }

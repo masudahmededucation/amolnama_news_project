@@ -25,35 +25,35 @@
   if (typeof L === 'undefined') return;
 
   /* ===== Provider Config (swap these for Google Maps) ===== */
-  var TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-  var TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+  const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
   /* ===== Map Constants ===== */
-  var BANGLADESH_CENTER_LATITUDE = 23.685;
-  var BANGLADESH_CENTER_LONGITUDE = 90.3563;
-  var BANGLADESH_DEFAULT_ZOOM = 7;
-  var MARKER_PINPOINT_ZOOM = 13;
-  var DISTRICT_CENTER_ZOOM = 10;
-  var SUBDISTRICT_CENTER_ZOOM = 12;
-  var LOCAL_BODY_CENTER_ZOOM = 13;
-  var WARD_CENTER_ZOOM = 14;
-  var VILLAGE_CENTER_ZOOM = 15;
+  const BANGLADESH_CENTER_LATITUDE = 23.685;
+  const BANGLADESH_CENTER_LONGITUDE = 90.3563;
+  const BANGLADESH_DEFAULT_ZOOM = 7;
+  const MARKER_PINPOINT_ZOOM = 13;
+  const DISTRICT_CENTER_ZOOM = 10;
+  const SUBDISTRICT_CENTER_ZOOM = 12;
+  const LOCAL_BODY_CENTER_ZOOM = 13;
+  const WARD_CENTER_ZOOM = 14;
+  const VILLAGE_CENTER_ZOOM = 15;
 
   /* ===== DOM References ===== */
-  var mapContainerElement = document.getElementById('map-pinpoint-container');
-  var latitudeHiddenInput = document.getElementById('news-latitude');
-  var longitudeHiddenInput = document.getElementById('news-longitude');
-  var formattedAddressHiddenInput = document.getElementById('news-formatted-address-bn');
-  var addressDisplayElement = document.getElementById('map-address-display');
-  var districtSelectElement = document.getElementById('news-district-id');
+  const mapContainerElement = document.getElementById('map-pinpoint-container');
+  const latitudeHiddenInput = document.getElementById('news-latitude');
+  const longitudeHiddenInput = document.getElementById('news-longitude');
+  const formattedAddressHiddenInput = document.getElementById('news-formatted-address-bn');
+  const addressDisplayElement = document.getElementById('map-address-display');
+  const districtSelectElement = document.getElementById('news-district-id');
 
   if (!mapContainerElement) return;
 
   /* ===== State ===== */
-  var leafletMap = null;
-  var draggableMarker = null;
-  var suppressAutoCenter = false;
-  var isZoomingOrPanning = false;
+  let leafletMap = null;
+  let draggableMarker = null;
+  let suppressAutoCenter = false;
+  let isZoomingOrPanning = false;
 
   /* ========== Map Initialisation ========== */
 
@@ -123,7 +123,7 @@
   }
 
   function mapMarkerHandleDragEnd() {
-    var position = draggableMarker.getLatLng();
+    const position = draggableMarker.getLatLng();
     mapMarkerUpdateHiddenInputs(position.lat, position.lng);
 
     if (window.newshubMapReverseGeocode) {
@@ -134,8 +134,8 @@
   /* ========== Marker: Restore from Saved Values ========== */
 
   function mapMarkerRestoreFromHiddenInputs() {
-    var latitude = parseFloat(latitudeHiddenInput.value);
-    var longitude = parseFloat(longitudeHiddenInput.value);
+    let latitude = parseFloat(latitudeHiddenInput.value);
+    let longitude = parseFloat(longitudeHiddenInput.value);
     if (!isNaN(latitude) && !isNaN(longitude) && latitude !== 0 && longitude !== 0) {
       mapMarkerPlaceOrMove(latitude, longitude, false);
       leafletMap.setView([latitude, longitude], MARKER_PINPOINT_ZOOM);
@@ -152,11 +152,11 @@
     if (suppressAutoCenter) { suppressAutoCenter = false; return; }
 
     if (!districtSelectElement) return;
-    var selectedOption = districtSelectElement.options[districtSelectElement.selectedIndex];
+    const selectedOption = districtSelectElement.options[districtSelectElement.selectedIndex];
     if (!selectedOption || !selectedOption.value) return;
 
-    var latitude = parseFloat(selectedOption.dataset.lat);
-    var longitude = parseFloat(selectedOption.dataset.lng);
+    let latitude = parseFloat(selectedOption.dataset.lat);
+    let longitude = parseFloat(selectedOption.dataset.lng);
     if (!isNaN(latitude) && !isNaN(longitude) && latitude !== 0 && longitude !== 0) {
       leafletMap.setView([latitude, longitude], DISTRICT_CENTER_ZOOM);
     }
@@ -232,15 +232,15 @@
     /** Geocode a text query via Nominatim, center map and place marker on first result */
     geocodeAndCenter: function (queryText, zoom) {
       if (!leafletMap || !queryText) return;
-      var url = 'https://nominatim.openstreetmap.org/search?format=json'
+      const url = 'https://nominatim.openstreetmap.org/search?format=json'
         + '&q=' + encodeURIComponent(queryText)
         + '&countrycodes=bd&limit=1&accept-language=en';
       fetch(url, { headers: { 'Accept': 'application/json' } })
-        .then(function (r) { return r.json(); })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (results) {
           if (results && results.length > 0) {
-            var lat = parseFloat(results[0].lat);
-            var lon = parseFloat(results[0].lon);
+            const lat = parseFloat(results[0].lat);
+            const lon = parseFloat(results[0].lon);
             if (!isNaN(lat) && !isNaN(lon)) {
               leafletMap.setView([lat, lon], zoom || DISTRICT_CENTER_ZOOM);
               mapMarkerPlaceOrMove(lat, lon, false);

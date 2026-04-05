@@ -19,6 +19,14 @@
   color: var(--text);
 }
 
+/* ---- Community voice page layout ---- */
+.communityvoice-intro-text { margin-bottom: 1rem; }
+.communityvoice-form-widget { margin-bottom: 2rem; }
+.communityvoice-preview-block { margin-top: .75rem; }
+.communityvoice-preview-block-small { margin-top: .4rem; }
+.communityvoice-label-spaced { margin-top: 1rem; }
+.communityvoice-form-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+
 /* ---- Clear form button ---- */
 
 .communityvoice-clear-form-button {
@@ -26,7 +34,7 @@
   font-size: .85rem;
   font-weight: 600;
   color: var(--danger);
-  background: #FFF5F5;
+  background: var(--danger-light);
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;

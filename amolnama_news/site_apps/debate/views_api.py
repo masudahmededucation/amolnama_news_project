@@ -890,14 +890,28 @@ def api_post_fact_check_flag(request, post_id):
 # LINK PREVIEW (og:tags proxy)
 # =========================================================
 
+@login_required
 def api_link_preview(request):
     """Fetch og:title, og:description, og:image for a URL. GET ?url=..."""
     import urllib.request
     import urllib.parse
+    import ipaddress
     from html.parser import HTMLParser
 
     target_url = request.GET.get('url', '').strip()
     if not target_url or not target_url.startswith('http'):
+        return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
+
+    # SSRF protection — block internal/private IPs
+    try:
+        parsed_hostname = urllib.parse.urlparse(target_url).hostname or ''
+        if parsed_hostname.lower() in ('localhost', '127.0.0.1', '::1', '0.0.0.0'):
+            return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
+        import socket
+        resolved_ip = socket.getaddrinfo(parsed_hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)[0][4][0]
+        if ipaddress.ip_address(resolved_ip).is_private:
+            return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
+    except Exception:
         return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
 
     try:

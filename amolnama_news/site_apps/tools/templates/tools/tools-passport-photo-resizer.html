@@ -76,14 +76,14 @@
   </div>
 
   <!-- ===== Background Color (for background mode) ===== -->
-  <div class="photo-resizer-bg-options" id="photo-resizer-bg-options" style="display:none">
+  <div class="photo-resizer-bg-options display-hidden" id="photo-resizer-bg-options">
     <label class="photo-resizer-label" for="photo-resizer-bg-color" data-en="Background Color">ব্যাকগ্রাউন্ড রঙ (Background Color)</label>
     <div class="photo-resizer-bg-swatches">
-      <button type="button" class="photo-resizer-swatch active" data-color="#FFFFFF" style="background:#FFFFFF" title="সাদা (White)"></button>
-      <button type="button" class="photo-resizer-swatch" data-color="#D6EAF8" style="background:#D6EAF8" title="হালকা নীল (Light Blue)"></button>
-      <button type="button" class="photo-resizer-swatch" data-color="#AED6F1" style="background:#AED6F1" title="নীল (Blue)"></button>
-      <button type="button" class="photo-resizer-swatch" data-color="#E8E8E8" style="background:#E8E8E8" title="হালকা ধূসর (Light Grey)"></button>
-      <button type="button" class="photo-resizer-swatch" data-color="#FF0000" style="background:#FF0000" title="লাল (Red)"></button>
+      <button type="button" class="photo-resizer-swatch photo-resizer-swatch--white active" data-color="#FFFFFF" title="সাদা (White)"></button>
+      <button type="button" class="photo-resizer-swatch photo-resizer-swatch--light-blue" data-color="#D6EAF8" title="হালকা নীল (Light Blue)"></button>
+      <button type="button" class="photo-resizer-swatch photo-resizer-swatch--blue" data-color="#AED6F1" title="নীল (Blue)"></button>
+      <button type="button" class="photo-resizer-swatch photo-resizer-swatch--light-grey" data-color="#E8E8E8" title="হালকা ধূসর (Light Grey)"></button>
+      <button type="button" class="photo-resizer-swatch photo-resizer-swatch--red" data-color="#FF0000" title="লাল (Red)"></button>
     </div>
   </div>
 
@@ -98,7 +98,7 @@
   </div>
 
   <!-- ===== Editor (interactive crop + preview) ===== -->
-  <div class="photo-resizer-editor" id="photo-resizer-editor" style="display:none">
+  <div class="photo-resizer-editor display-hidden" id="photo-resizer-editor">
     <p class="photo-resizer-drag-hint" data-en="Drag the image to position it inside the crop frame">ছবি টেনে সরান — ক্রপ ফ্রেমের ভেতরে যা আছে তা-ই রাখা হবে (Drag the image to position it inside the crop frame)</p>
 
     <div class="photo-resizer-editor-layout">
@@ -129,7 +129,7 @@
 
     <div class="photo-resizer-actions">
       <button type="button" class="photo-resizer-btn photo-resizer-btn--crop" id="photo-resizer-crop-btn" data-en="✂️ Crop &amp; Resize">✂️ ক্রপ ও রিসাইজ (Crop &amp; Resize)</button>
-      <button type="button" class="photo-resizer-btn photo-resizer-btn--download" id="photo-resizer-download-btn" style="display:none" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--download display-hidden" id="photo-resizer-download-btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
       <button type="button" class="photo-resizer-btn photo-resizer-btn--reset" id="photo-resizer-reset-btn" data-en="🔄 New Image">🔄 নতুন ছবি (New Image)</button>
     </div>
   </div>
@@ -138,5 +138,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script src="{% static 'tools/assets/js/pages/tools-passport-photo-resizer.js' %}"></script>
+  <script src="{% static 'tools/assets/js/pages/tools-passport-photo-resizer.js' %}" defer></script>
 {% endblock %}

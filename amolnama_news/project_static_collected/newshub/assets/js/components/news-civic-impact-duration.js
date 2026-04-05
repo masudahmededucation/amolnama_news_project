@@ -21,31 +21,31 @@
 (function () {
   'use strict';
 
-  var peopleAffected = document.getElementById('civic-people-affected');
-  var impactType = document.getElementById('civic-impact-type');
-  var durationValue = document.getElementById('civic-duration-value');
-  var durationUnit = document.getElementById('civic-duration-unit');
-  var prevComplaint = document.getElementById('civic-previous-complaint');
-  var complaintDetails = document.getElementById('civic-complaint-details');
-  var complaintRow = document.getElementById('civic-complaint-details-row');
-  var budgetInfo = document.getElementById('civic-budget-info');
-  var hiddenJson = document.getElementById('civic-impact-json');
+  const peopleAffected = document.getElementById('civic-people-affected');
+  const impactType = document.getElementById('civic-impact-type');
+  const durationValue = document.getElementById('civic-duration-value');
+  const durationUnit = document.getElementById('civic-duration-unit');
+  const prevComplaint = document.getElementById('civic-previous-complaint');
+  const complaintDetails = document.getElementById('civic-complaint-details');
+  const complaintRow = document.getElementById('civic-complaint-details-row');
+  const budgetInfo = document.getElementById('civic-budget-info');
+  const hiddenJson = document.getElementById('civic-impact-json');
 
   if (!hiddenJson) return;
 
   /* ---- Parse JSON helper ---- */
   function parseJsonData(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     if (!el) return [];
     try { return JSON.parse(el.textContent) || []; }
     catch (e) { return []; }
   }
 
   /* ---- Populate impact type select from DB ---- */
-  var impactCategories = parseJsonData('impact-categories-data');
+  const impactCategories = parseJsonData('impact-categories-data');
   if (impactType && impactCategories.length) {
     impactCategories.forEach(function (cat) {
-      var opt = document.createElement('option');
+      let opt = document.createElement('option');
       opt.value = cat.status_id;
       opt.textContent = cat.status_name_bn + ' (' + cat.status_name_en + ')';
       impactType.appendChild(opt);
@@ -53,10 +53,10 @@
   }
 
   /* ---- Populate duration unit select from DB ---- */
-  var durationUnits = parseJsonData('duration-units-data');
+  const durationUnits = parseJsonData('duration-units-data');
   if (durationUnit && durationUnits.length) {
     durationUnits.forEach(function (unit) {
-      var opt = document.createElement('option');
+      const opt = document.createElement('option');
       opt.value = unit.status_id;
       opt.textContent = unit.status_name_bn + ' (' + unit.status_name_en + ')';
       durationUnit.appendChild(opt);
@@ -66,14 +66,14 @@
   /* Toggle complaint details row visibility */
   function toggleComplaintRow() {
     if (!prevComplaint || !complaintRow) return;
-    complaintRow.style.display = prevComplaint.checked ? '' : 'none';
+    prevComplaint.checked ? complaintRow.classList.remove('display-hidden') : complaintRow.classList.add('display-hidden');
     if (!prevComplaint.checked && complaintDetails) {
       complaintDetails.value = '';
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       peopleAffected: peopleAffected ? (parseInt(peopleAffected.value, 10) || 0) : 0,
       impactCategoryId: impactType ? (parseInt(impactType.value, 10) || 0) : 0,
       durationValue: durationValue ? (parseInt(durationValue.value, 10) || 0) : 0,
@@ -87,12 +87,12 @@
   }
 
   /* Listen for input changes on all fields */
-  var inputFields = [peopleAffected, durationValue, complaintDetails, budgetInfo];
+  const inputFields = [peopleAffected, durationValue, complaintDetails, budgetInfo];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
 
-  var changeFields = [impactType, durationUnit];
+  const changeFields = [impactType, durationUnit];
   changeFields.forEach(function (el) {
     if (el) el.addEventListener('change', serialize);
   });
@@ -106,7 +106,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -117,7 +117,7 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenJson.value); } catch (e) { return; }
 
     if (peopleAffected && data.peopleAffected)     peopleAffected.value = data.peopleAffected;

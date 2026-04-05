@@ -6,16 +6,16 @@
 (function () {
   'use strict';
 
-  var previewEl = document.getElementById('cert-preview');
-  var printBtn = document.getElementById('btn-cert-print');
-  var editBtn = document.getElementById('btn-cert-edit');
+  const previewEl = document.getElementById('cert-preview');
+  const printBtn = document.getElementById('btn-cert-print');
+  const editBtn = document.getElementById('btn-cert-edit');
 
   if (!previewEl) return;
 
   /* ---- Helpers ---- */
 
   function val(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     return el ? (el.value || '').trim() : '';
   }
 
@@ -27,71 +27,71 @@
   }
 
   function escHtml(str) {
-    var div = document.createElement('div');
+    const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
   }
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
-    var parts = dateStr.split('-');
+    const parts = dateStr.split('-');
     if (parts.length !== 3) return dateStr;
-    var months = ['January', 'February', 'March', 'April', 'May', 'June',
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
-    var y = parts[0];
-    var m = parseInt(parts[1], 10);
-    var d = parseInt(parts[2], 10);
+    const y = parts[0];
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
     return d + ' ' + months[m - 1] + ' ' + y;
   }
 
   function getSigUrl(dropId) {
-    var drop = document.getElementById(dropId);
+    const drop = document.getElementById(dropId);
     return drop ? (drop.dataset.sigUrl || '') : '';
   }
 
   /* ---- Build Certificate ---- */
 
   function buildCertificate() {
-    var govtTitle = val('cert-govt-title') || 'Government Of The People\'s Republic Of Bangladesh';
-    var officeName = val('cert-office-name') || 'Office of the Muslim Marriage Register & Kazi';
-    var officeAddr = val('cert-office-address');
-    var regNo = val('cert-reg-no');
-    var certDate = val('cert-date');
+    const govtTitle = val('cert-govt-title') || 'Government Of The People\'s Republic Of Bangladesh';
+    const officeName = val('cert-office-name') || 'Office of the Muslim Marriage Register & Kazi';
+    const officeAddr = val('cert-office-address');
+    const regNo = val('cert-reg-no');
+    const certDate = val('cert-date');
 
-    var groomName = val('cert-groom-name');
-    var groomDob = val('cert-groom-dob');
-    var groomFather = val('cert-groom-father');
-    var groomMother = val('cert-groom-mother');
-    var groomAddress = val('cert-groom-address');
+    const groomName = val('cert-groom-name');
+    const groomDob = val('cert-groom-dob');
+    const groomFather = val('cert-groom-father');
+    const groomMother = val('cert-groom-mother');
+    const groomAddress = val('cert-groom-address');
 
-    var brideName = val('cert-bride-name');
-    var brideDob = val('cert-bride-dob');
-    var brideFather = val('cert-bride-father');
-    var brideMother = val('cert-bride-mother');
-    var brideAddress = val('cert-bride-address');
+    const brideName = val('cert-bride-name');
+    const brideDob = val('cert-bride-dob');
+    const brideFather = val('cert-bride-father');
+    const brideMother = val('cert-bride-mother');
+    const brideAddress = val('cert-bride-address');
 
-    var marriageDate = val('cert-marriage-date');
-    var bookNo = val('cert-book-no');
-    var volumeNo = val('cert-volume-no');
-    var pageNo = val('cert-page-no');
-    var entryNo = val('cert-entry-no');
-    var regYear = val('cert-reg-year');
+    const marriageDate = val('cert-marriage-date');
+    const bookNo = val('cert-book-no');
+    const volumeNo = val('cert-volume-no');
+    const pageNo = val('cert-page-no');
+    const entryNo = val('cert-entry-no');
+    const regYear = val('cert-reg-year');
 
-    var issueDate = val('cert-issue-date');
-    var attestedName = val('cert-attested-name');
-    var attestedQual = val('cert-attested-qualification');
-    var attestedDesg = val('cert-attested-designation');
-    var attestedPlace = val('cert-attested-place');
-    var attestedDate = val('cert-attested-date');
-    var attestedSig = getSigUrl('sig-attested-drop');
+    const issueDate = val('cert-issue-date');
+    const attestedName = val('cert-attested-name');
+    const attestedQual = val('cert-attested-qualification');
+    const attestedDesg = val('cert-attested-designation');
+    const attestedPlace = val('cert-attested-place');
+    const attestedDate = val('cert-attested-date');
+    const attestedSig = getSigUrl('sig-attested-drop');
 
-    var registrarName = val('cert-registrar-name');
-    var registrarDesg = val('cert-registrar-designation');
-    var registrarOffice = val('cert-registrar-office');
-    var registrarDate = val('cert-registrar-date');
-    var registrarSig = getSigUrl('sig-registrar-drop');
+    const registrarName = val('cert-registrar-name');
+    const registrarDesg = val('cert-registrar-designation');
+    const registrarOffice = val('cert-registrar-office');
+    const registrarDate = val('cert-registrar-date');
+    const registrarSig = getSigUrl('sig-registrar-drop');
 
-    var html = '';
+    let html = '';
 
     /* ---- Header ---- */
     html += '<div class="cert-header">';
@@ -188,8 +188,8 @@
   /* ---- Rebuild preview when entering the last step ---- */
 
   document.addEventListener('certificate:stepChanged', function (e) {
-    var panels = document.querySelectorAll('.step-panel[data-step]');
-    var lastStep = panels.length;
+    const panels = document.querySelectorAll('.step-panel[data-step]');
+    const lastStep = panels.length;
     if (e.detail.step === lastStep) {
       buildCertificate();
     }
@@ -205,40 +205,40 @@
 
   /* ---- Download as PDF ---- */
 
-  var pdfBtn = document.getElementById('btn-cert-pdf');
+  const pdfBtn = document.getElementById('btn-cert-pdf');
   if (pdfBtn) {
     pdfBtn.addEventListener('click', function () {
       if (!previewEl) return;
       pdfBtn.disabled = true;
       pdfBtn.textContent = 'PDF তৈরি হচ্ছে...';
       html2canvas(previewEl, { scale: 2, useCORS: true }).then(function (canvas) {
-        var imgData = canvas.toDataURL('image/jpeg', 0.95);
-        var pdf = new window.jspdf.jsPDF({
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new window.jspdf.jsPDF({
           orientation: canvas.width > canvas.height ? 'l' : 'p',
           unit: 'mm',
           format: 'a4'
         });
-        var pageWidth = pdf.internal.pageSize.getWidth();
-        var pageHeight = pdf.internal.pageSize.getHeight();
-        var margin = 10;
-        var imgWidth = pageWidth - margin * 2;
-        var imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const imgWidth = pageWidth - margin * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         if (imgHeight <= pageHeight - margin * 2) {
           pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
         } else {
-          var pageContentHeight = pageHeight - margin * 2;
-          var srcPageHeight = (pageContentHeight * canvas.width) / imgWidth;
-          var pages = Math.ceil(canvas.height / srcPageHeight);
-          for (var i = 0; i < pages; i++) {
+          const pageContentHeight = pageHeight - margin * 2;
+          const srcPageHeight = (pageContentHeight * canvas.width) / imgWidth;
+          const pages = Math.ceil(canvas.height / srcPageHeight);
+          for (let i = 0; i < pages; i++) {
             if (i > 0) pdf.addPage();
-            var sliceCanvas = document.createElement('canvas');
+            const sliceCanvas = document.createElement('canvas');
             sliceCanvas.width = canvas.width;
             sliceCanvas.height = Math.min(srcPageHeight, canvas.height - i * srcPageHeight);
-            var ctx = sliceCanvas.getContext('2d');
+            const ctx = sliceCanvas.getContext('2d');
             ctx.drawImage(canvas, 0, -i * srcPageHeight);
-            var sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
-            var sliceImgH = (sliceCanvas.height * imgWidth) / sliceCanvas.width;
+            const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+            const sliceImgH = (sliceCanvas.height * imgWidth) / sliceCanvas.width;
             pdf.addImage(sliceData, 'JPEG', margin, margin, imgWidth, sliceImgH);
           }
         }

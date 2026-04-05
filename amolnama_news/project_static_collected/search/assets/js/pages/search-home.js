@@ -2,14 +2,14 @@
 (function () {
   'use strict';
 
-  var searchInput = document.getElementById('search-page-input');
-  var searchButton = document.getElementById('search-page-button');
-  var feedContainer = document.getElementById('search-feed-container');
-  var resultsContainer = document.getElementById('search-page-results');
+  const searchInput = document.getElementById('search-page-input');
+  const searchButton = document.getElementById('search-page-button');
+  const feedContainer = document.getElementById('search-feed-container');
+  const resultsContainer = document.getElementById('search-page-results');
   if (!searchInput || !feedContainer || !resultsContainer) return;
 
-  var debounceTimer = null;
-  var lastSearchedQuery = '';
+  let debounceTimer = null;
+  let lastSearchedQuery = '';
 
 
   function cleanQuery(raw) {
@@ -17,13 +17,13 @@
   }
 
   function showFeed() {
-    feedContainer.style.display = '';
-    resultsContainer.style.display = 'none';
+    feedContainer.classList.remove('display-hidden');
+    resultsContainer.classList.add('display-hidden');
   }
 
   function showResults() {
-    feedContainer.style.display = 'none';
-    resultsContainer.style.display = '';
+    feedContainer.classList.add('display-hidden');
+    resultsContainer.classList.remove('display-hidden');
   }
 
   function performSearch(query) {
@@ -41,14 +41,14 @@
     resultsContainer.innerHTML = '<div class="search-page-results-loading">অনুসন্ধান হচ্ছে...</div>';
 
     fetch('/search/api/search/?q=' + encodeURIComponent(query))
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (!data.success || data.results.length === 0) {
           resultsContainer.innerHTML = '<div class="search-page-no-results">কোনো ফলাফল পাওয়া যায়নি — "' + escapeHtml(query) + '"</div>';
           return;
         }
 
-        var html = '';
+        let html = '';
         if (data.hashtag && data.hashtag_post_count) {
           html += '<div class="search-page-hashtag-stats">';
           html += '<span class="search-page-hashtag-name">#' + escapeHtml(data.hashtag) + '</span>';

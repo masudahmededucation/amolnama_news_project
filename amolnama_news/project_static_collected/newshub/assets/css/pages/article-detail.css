@@ -68,11 +68,11 @@
 
 /* Colour variants by entity type */
 .article-sidenote-item[data-type="date"]   { border-left: 3px solid #3b82f6; }
-.article-sidenote-item[data-type="place"]  { border-left: 3px solid #22c55e; }
-.article-sidenote-item[data-type="person"] { border-left: 3px solid #ef4444; }
+.article-sidenote-item[data-type="place"]  { border-left: 3px solid var(--success); }
+.article-sidenote-item[data-type="person"] { border-left: 3px solid var(--danger); }
 .article-sidenote-item[data-type="amount"] { border-left: 3px solid #eab308; }
 .article-sidenote-item[data-type="legal"]  { border-left: 3px solid #8b5cf6; }
-.article-sidenote-item[data-type="status"] { border-left: 3px solid #6b7280; }
+.article-sidenote-item[data-type="status"] { border-left: 3px solid var(--muted); }
 .article-sidenote-item[data-type="info"]   { border-left: 3px solid #06b6d4; }
 
 /* ---- Remove underline on all text hover ---- */
@@ -110,7 +110,7 @@
 }
 
 .article-status-badge.pending  { background: var(--warning-light); color: var(--warning-text); }
-.article-status-badge.approved { background: #dcfce7; color: #166534; }
+.article-status-badge.approved { background: var(--success-light); color: var(--primary); }
 .article-status-badge.rejected { background: var(--danger-light); color: var(--danger-text); }
 
 .article-status-edit-btn {
@@ -192,7 +192,7 @@
   display: inline-flex;
   align-items: center;
   gap: .2rem;
-  color: #dc2626;
+  color: var(--danger);
   font-weight: 700;
   font-size: .75rem;
 }
@@ -319,7 +319,7 @@
   .article-sidenote {
     position: static;
     border-right: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--border);
     page-break-after: avoid;
   }
 
@@ -337,8 +337,8 @@
 }
 
 .inline-message-success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-light);
+  color: var(--primary);
 }
 
 .inline-message-error {
@@ -391,3 +391,43 @@
 }
 
 /* Photo card grid/image/footer/buttons now provided by shared photo-card.css */
+
+/* ======== Inline-style migration: article-detail utility classes ======== */
+
+.article-detail-photo-card-image {
+  cursor: pointer;
+}
+
+.article-detail-empty-sidenote {
+  font-size: .8rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.article-comment-textarea {
+  width: 100%;
+  padding: .6rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: .88rem;
+  resize: vertical;
+}
+
+.article-comment-submit-wrapper {
+  margin-top: .5rem;
+}
+
+.article-login-prompt {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.article-comment-nested {
+  margin-left: 2rem;
+}
+
+.article-no-comments {
+  font-size: .85rem;
+  color: var(--muted);
+  font-style: italic;
+}

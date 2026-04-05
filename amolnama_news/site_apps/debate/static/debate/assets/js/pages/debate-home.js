@@ -3,7 +3,7 @@
   'use strict';
 
   /* ---- Search / Filter topics ---- */
-  var searchInput = document.getElementById('debate-home-search-input');
+  const searchInput = document.getElementById('debate-home-search-input');
   if (searchInput) {
     function normalizeBengali(text) {
       /* NFC normalize + strip optional Bengali marks (chandrabindu, anusvara, visarga) for fuzzy match + lowercase */
@@ -11,106 +11,106 @@
     }
 
     searchInput.addEventListener('input', function () {
-      var query = normalizeBengali(searchInput.value);
-      var topicCards = document.querySelectorAll('.debate-topic-card');
+      const query = normalizeBengali(searchInput.value);
+      const topicCards = document.querySelectorAll('.debate-topic-card');
       topicCards.forEach(function (card) {
-        var title = normalizeBengali((card.querySelector('.debate-topic-card-title') || {}).textContent);
-        var description = normalizeBengali((card.querySelector('.debate-topic-card-description') || {}).textContent);
+        const title = normalizeBengali((card.querySelector('.debate-topic-card-title') || {}).textContent);
+        const description = normalizeBengali((card.querySelector('.debate-topic-card-description') || {}).textContent);
         /* Each word in query must match somewhere (title OR description) */
-        var combined = title + ' ' + description;
-        var queryWords = query.split(' ').filter(function (word) { return word.length > 0; });
-        var match = queryWords.length === 0 || queryWords.every(function (word) { return combined.indexOf(word) !== -1; });
-        card.style.display = match ? '' : 'none';
+        const combined = title + ' ' + description;
+        const queryWords = query.split(' ').filter(function (word) { return word.length > 0; });
+        const match = queryWords.length === 0 || queryWords.every(function (word) { return combined.indexOf(word) !== -1; });
+        match ? card.classList.remove('display-hidden') : card.classList.add('display-hidden');
       });
     });
   }
 
-  var createButton = document.getElementById('debate-home-create-button');
+  const createButton = document.getElementById('debate-home-create-button');
   if (!createButton) return;
 
-  var formVisible = false;
+  let formVisible = false;
 
 
   createButton.addEventListener('click', function () {
     if (formVisible) return;
     formVisible = true;
-    createButton.style.display = 'none';
+    createButton.classList.add('display-hidden');
 
     /* Build inline form */
-    var formContainer = document.createElement('div');
+    const formContainer = document.createElement('div');
     formContainer.className = 'debate-home-create-form';
     formContainer.id = 'debate-home-create-form';
 
-    var titleLabel = document.createElement('label');
+    const titleLabel = document.createElement('label');
     titleLabel.setAttribute('for', 'debate-home-create-title-input');
     titleLabel.className = 'debate-home-create-label';
     titleLabel.textContent = 'বিতর্কের বিষয়';
 
-    var titleInput = document.createElement('input');
+    const titleInput = document.createElement('input');
     titleInput.type = 'text';
     titleInput.className = 'debate-home-create-input';
     titleInput.id = 'debate-home-create-title-input';
     titleInput.name = 'debate_home_create_title_input';
     titleInput.placeholder = 'কমপক্ষে ১০ অক্ষর লিখুন';
 
-    var timeLabel = document.createElement('label');
+    const timeLabel = document.createElement('label');
     timeLabel.setAttribute('for', 'debate-home-create-time-input');
     timeLabel.className = 'debate-home-create-label';
     timeLabel.textContent = 'সময়সূচী (Scheduled Date)';
 
-    var timeInput = document.createElement('input');
+    const timeInput = document.createElement('input');
     timeInput.type = 'datetime-local';
     timeInput.className = 'debate-home-create-input';
     timeInput.id = 'debate-home-create-time-input';
     timeInput.name = 'debate_home_create_time_input';
 
-    var descriptionLabel = document.createElement('label');
+    const descriptionLabel = document.createElement('label');
     descriptionLabel.setAttribute('for', 'debate-home-create-description-textarea');
     descriptionLabel.className = 'debate-home-create-label';
     descriptionLabel.textContent = 'বিস্তারিত বিবরণ (ঐচ্ছিক)';
 
-    var descriptionTextarea = document.createElement('textarea');
+    const descriptionTextarea = document.createElement('textarea');
     descriptionTextarea.className = 'debate-home-create-textarea';
     descriptionTextarea.id = 'debate-home-create-description-textarea';
     descriptionTextarea.name = 'debate_home_create_description_textarea';
     descriptionTextarea.placeholder = 'বিষয়ের পটভূমি ও প্রসঙ্গ লিখুন...';
     descriptionTextarea.rows = 6;
 
-    var blueSideLabelLabel = document.createElement('label');
+    const blueSideLabelLabel = document.createElement('label');
     blueSideLabelLabel.setAttribute('for', 'debate-home-create-blue-side-label-input');
     blueSideLabelLabel.className = 'debate-home-create-label';
     blueSideLabelLabel.textContent = '🔵 পক্ষের নাম (ঐচ্ছিক)';
 
-    var blueSideLabelInput = document.createElement('input');
+    const blueSideLabelInput = document.createElement('input');
     blueSideLabelInput.type = 'text';
     blueSideLabelInput.className = 'debate-home-create-input';
     blueSideLabelInput.id = 'debate-home-create-blue-side-label-input';
     blueSideLabelInput.name = 'debate_home_create_blue_side_label_input';
     blueSideLabelInput.placeholder = 'যেমন: পার্থ সাহেবের পক্ষে, সংবিধান রক্ষার পক্ষে';
 
-    var redSideLabelLabel = document.createElement('label');
+    const redSideLabelLabel = document.createElement('label');
     redSideLabelLabel.setAttribute('for', 'debate-home-create-red-side-label-input');
     redSideLabelLabel.className = 'debate-home-create-label';
     redSideLabelLabel.textContent = '🔴 বিপক্ষের নাম (ঐচ্ছিক)';
 
-    var redSideLabelInput = document.createElement('input');
+    const redSideLabelInput = document.createElement('input');
     redSideLabelInput.type = 'text';
     redSideLabelInput.className = 'debate-home-create-input';
     redSideLabelInput.id = 'debate-home-create-red-side-label-input';
     redSideLabelInput.name = 'debate_home_create_red_side_label_input';
     redSideLabelInput.placeholder = 'যেমন: পার্থ সাহেবের বিপক্ষে, সংবিধান পরিবর্তনের পক্ষে';
 
-    var buttonRow = document.createElement('div');
+    const buttonRow = document.createElement('div');
     buttonRow.className = 'debate-home-create-button-row';
 
-    var submitButton = document.createElement('button');
+    const submitButton = document.createElement('button');
     submitButton.type = 'button';
     submitButton.className = 'debate-home-create-submit-button';
     submitButton.id = 'debate-home-create-submit-button';
     submitButton.name = 'debate_home_create_submit_button';
     submitButton.textContent = 'তৈরি করুন';
 
-    var cancelButton = document.createElement('button');
+    const cancelButton = document.createElement('button');
     cancelButton.type = 'button';
     cancelButton.className = 'debate-home-create-cancel-button';
     cancelButton.id = 'debate-home-create-cancel-button';
@@ -130,58 +130,58 @@
     formContainer.appendChild(redSideLabelInput);
 
     /* Media URL fields — video + image per side */
-    var mediaSection = document.createElement('div');
+    const mediaSection = document.createElement('div');
     mediaSection.className = 'debate-home-create-media-section';
 
-    var mediaSectionToggle = document.createElement('button');
+    const mediaSectionToggle = document.createElement('button');
     mediaSectionToggle.type = 'button';
     mediaSectionToggle.className = 'debate-home-create-media-toggle';
     mediaSectionToggle.id = 'debate-home-create-media-toggle';
     mediaSectionToggle.name = 'debate_home_create_media_toggle';
     mediaSectionToggle.textContent = '📎 ভিডিও/ছবি যোগ করুন (ঐচ্ছিক)';
 
-    var mediaFields = document.createElement('div');
+    const mediaFields = document.createElement('div');
     mediaFields.className = 'debate-home-create-media-fields debate-home-create-media-fields-hidden';
     mediaFields.id = 'debate-home-create-media-fields';
 
-    var blueVideoLabel = document.createElement('label');
+    const blueVideoLabel = document.createElement('label');
     blueVideoLabel.setAttribute('for', 'debate-home-create-blue-video-url');
     blueVideoLabel.className = 'debate-home-create-label';
     blueVideoLabel.textContent = '🔵 পক্ষের ভিডিও URL (YouTube)';
-    var blueVideoInput = document.createElement('input');
+    const blueVideoInput = document.createElement('input');
     blueVideoInput.type = 'url';
     blueVideoInput.className = 'debate-home-create-input';
     blueVideoInput.id = 'debate-home-create-blue-video-url';
     blueVideoInput.name = 'debate_home_create_blue_video_url';
     blueVideoInput.placeholder = 'https://youtube.com/watch?v=...';
 
-    var redVideoLabel = document.createElement('label');
+    const redVideoLabel = document.createElement('label');
     redVideoLabel.setAttribute('for', 'debate-home-create-red-video-url');
     redVideoLabel.className = 'debate-home-create-label';
     redVideoLabel.textContent = '🔴 বিপক্ষের ভিডিও URL (YouTube)';
-    var redVideoInput = document.createElement('input');
+    const redVideoInput = document.createElement('input');
     redVideoInput.type = 'url';
     redVideoInput.className = 'debate-home-create-input';
     redVideoInput.id = 'debate-home-create-red-video-url';
     redVideoInput.name = 'debate_home_create_red_video_url';
     redVideoInput.placeholder = 'https://youtube.com/watch?v=...';
 
-    var blueImageLabel = document.createElement('label');
+    const blueImageLabel = document.createElement('label');
     blueImageLabel.setAttribute('for', 'debate-home-create-blue-image-url');
     blueImageLabel.className = 'debate-home-create-label';
     blueImageLabel.textContent = '🔵 পক্ষের ছবি URL';
-    var blueImageInput = document.createElement('input');
+    const blueImageInput = document.createElement('input');
     blueImageInput.type = 'url';
     blueImageInput.className = 'debate-home-create-input';
     blueImageInput.id = 'debate-home-create-blue-image-url';
     blueImageInput.name = 'debate_home_create_blue_image_url';
     blueImageInput.placeholder = 'https://example.com/image.jpg';
 
-    var redImageLabel = document.createElement('label');
+    const redImageLabel = document.createElement('label');
     redImageLabel.setAttribute('for', 'debate-home-create-red-image-url');
     redImageLabel.className = 'debate-home-create-label';
     redImageLabel.textContent = '🔴 বিপক্ষের ছবি URL';
-    var redImageInput = document.createElement('input');
+    const redImageInput = document.createElement('input');
     redImageInput.type = 'url';
     redImageInput.className = 'debate-home-create-input';
     redImageInput.id = 'debate-home-create-red-image-url';
@@ -215,17 +215,17 @@
     /* Cancel */
     cancelButton.addEventListener('click', function () {
       formContainer.remove();
-      createButton.style.display = '';
+      createButton.classList.remove('display-hidden');
       formVisible = false;
     });
 
     /* Submit */
     submitButton.addEventListener('click', function () {
-      var topicTitle = titleInput.value.trim();
-      var scheduledTime = timeInput.value;
-      var topicDescription = descriptionTextarea.value.trim() || null;
-      var blueSideLabel = blueSideLabelInput.value.trim() || null;
-      var redSideLabel = redSideLabelInput.value.trim() || null;
+      const topicTitle = titleInput.value.trim();
+      const scheduledTime = timeInput.value;
+      const topicDescription = descriptionTextarea.value.trim() || null;
+      const blueSideLabel = blueSideLabelInput.value.trim() || null;
+      const redSideLabel = redSideLabelInput.value.trim() || null;
 
       if (!topicTitle || topicTitle.length < 10) {
         titleInput.style.borderColor = '#dc2626';
@@ -253,14 +253,14 @@
           scheduled_start_at: scheduledTime,
         }),
       })
-      .then(function (response) { return response.json(); })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success) {
           window.location.href = '/debate/topic/' + data.debate_coll_topic_id + '/';
         } else {
-          var errorElement = formContainer.querySelector('.debate-arena-inline-message');
+          const errorElement = formContainer.querySelector('.debate-arena-inline-message');
           if (errorElement) errorElement.remove();
-          var errorMessage = document.createElement('div');
+          let errorMessage = document.createElement('div');
           errorMessage.className = 'debate-arena-inline-message debate-arena-inline-message-error';
           errorMessage.textContent = data.error;
           formContainer.appendChild(errorMessage);
@@ -268,7 +268,7 @@
         }
       })
       .catch(function () {
-        var errorMessage = document.createElement('div');
+        const errorMessage = document.createElement('div');
         errorMessage.style.cssText = 'color:var(--danger);font-size:.78rem;margin-top:.4rem;';
         errorMessage.textContent = 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।';
         formContainer.appendChild(errorMessage);

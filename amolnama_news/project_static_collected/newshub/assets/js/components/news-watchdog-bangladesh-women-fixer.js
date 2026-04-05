@@ -18,19 +18,19 @@
 (function () {
   'use strict';
 
-  var incidentType = document.getElementById('women-fixer-incident-type');
-  var description  = document.getElementById('women-fixer-incident-description');
-  var incidentDate = document.getElementById('women-fixer-incident-date');
-  var victimCount  = document.getElementById('women-fixer-victim-count');
-  var network      = document.getElementById('women-fixer-network-description');
-  var legalAction  = document.getElementById('women-fixer-legal-action');
-  var source       = document.getElementById('women-fixer-source');
-  var hiddenJson   = document.getElementById('women-fixer-json');
+  const incidentType = document.getElementById('women-fixer-incident-type');
+  const description  = document.getElementById('women-fixer-incident-description');
+  const incidentDate = document.getElementById('women-fixer-incident-date');
+  const victimCount  = document.getElementById('women-fixer-victim-count');
+  const network      = document.getElementById('women-fixer-network-description');
+  const legalAction  = document.getElementById('women-fixer-legal-action');
+  const source       = document.getElementById('women-fixer-source');
+  const hiddenJson   = document.getElementById('women-fixer-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       incidentType:       incidentType ? incidentType.value : '',
       incidentDescription: description ? description.value.trim() : '',
       incidentDate:       incidentDate ? incidentDate.value : '',
@@ -42,21 +42,21 @@
     hiddenJson.value = JSON.stringify(data);
   }
 
-  var fields = [incidentType, description, incidentDate, victimCount, network, legalAction, source];
+  const fields = [incidentType, description, incidentDate, victimCount, network, legalAction, source];
   fields.forEach(function (el) {
     if (!el) return;
     el.addEventListener('input', serialize);
     el.addEventListener('change', serialize);
   });
 
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) form.addEventListener('submit', serialize);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (incidentType && data.incidentType)              incidentType.value = data.incidentType;
       if (description && data.incidentDescription)        description.value  = data.incidentDescription;
       if (incidentDate && data.incidentDate)              incidentDate.value = data.incidentDate;
@@ -84,14 +84,14 @@
   };
 
   /* Step validator: require incident type + description when section is visible */
-  var section = document.getElementById('section-watchdog-women-fixer');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-watchdog-women-fixer');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
       if (!incidentType || !incidentType.value) {
         warnings.push('\u0998\u099F\u09A8\u09BE\u09B0 \u09A7\u09B0\u09A8 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 (Please select the incident type)');
       }

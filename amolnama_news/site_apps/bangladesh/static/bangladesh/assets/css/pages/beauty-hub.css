@@ -55,8 +55,20 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .beauty-hub-load-more-btn { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
 .beauty-hub-load-more-btn:hover { background:var(--primary); color:#fff; }
 
+/* ---- Upload form ---- */
+.beauty-hub-upload-form { max-width: 700px; }
+.beauty-hub-file-preview { margin-top: .5rem; }
+.beauty-hub-media-preview { max-width: 300px; max-height: 200px; border-radius: var(--radius); }
+.beauty-hub-festival-panel { margin-bottom: 1rem; background: var(--surface); border-radius: var(--radius); padding: .85rem; }
+.beauty-hub-festival-heading { font-weight: 600; font-size: .82rem; margin-bottom: .5rem; }
+.beauty-hub-festival-date-row { display: flex; gap: 1rem; margin-bottom: .5rem; }
+.beauty-hub-festival-checkbox-label { display: flex; align-items: center; gap: .4rem; font-size: .82rem; cursor: pointer; }
+.beauty-hub-checkbox { width: 16px; height: 16px; }
+.beauty-hub-progress-track { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+.beauty-hub-progress-bar { height: 100%; background: var(--primary); transition: width .2s; }
+
 /* ---- Clear form button (beauty hub upload) ---- */
-.beauty-hub-clear-form-button { padding:.35rem .85rem; font-size:.85rem; font-weight:600; color:var(--danger); background:#FFF5F5; border:1.5px solid var(--danger); border-radius:var(--radius); cursor:pointer; transition:all .2s; }
+.beauty-hub-clear-form-button { padding:.35rem .85rem; font-size:.85rem; font-weight:600; color:var(--danger); background:var(--danger-light); border:1.5px solid var(--danger); border-radius:var(--radius); cursor:pointer; transition:all .2s; }
 .beauty-hub-clear-form-button:hover { color:#fff; background:var(--danger); border-color:var(--danger); }
 .beauty-hub-clear-form-button-confirm { color:#fff; background:var(--danger); border-color:var(--danger); }
 .beauty-hub-clear-form-message { font-size:.75rem; color:var(--muted); white-space:nowrap; }

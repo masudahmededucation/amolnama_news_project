@@ -41,17 +41,17 @@
   <a href="{% url 'user_account:forgot_password' %}">Reset via email</a>
 </p>
 
-<hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border);">
+<hr class="profile-settings-divider">
 
 <h2 class="profile-section-title" id="muted-words-section-title">🔇 Muted Words</h2>
-<p style="font-size:.78rem; color:var(--muted); margin-bottom:.5rem;">এই শব্দগুলো থাকলে পোস্ট আপনার ফিডে দেখাবে না।</p>
+<p class="muted-words-description">এই শব্দগুলো থাকলে পোস্ট আপনার ফিডে দেখাবে না।</p>
 
 <div class="muted-words-container" id="muted-words-container">
-  <div class="muted-words-input-row" id="muted-words-input-row" style="display:flex;gap:.4rem;margin-bottom:.5rem;">
-    <input type="text" class="muted-words-input" id="muted-words-input" name="muted_words_input" placeholder="শব্দ লিখুন..." style="flex:1;padding:.4rem .6rem;border:1px solid var(--border);border-radius:8px;font-size:.82rem;">
-    <button type="button" class="muted-words-add-button" id="muted-words-add-button" name="muted_words_add_button" style="padding:.4rem .8rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;">যোগ করুন</button>
+  <div class="muted-words-input-row" id="muted-words-input-row">
+    <input type="text" class="muted-words-input" id="muted-words-input" name="muted_words_input" placeholder="শব্দ লিখুন...">
+    <button type="button" class="muted-words-add-button" id="muted-words-add-button" name="muted_words_add_button">যোগ করুন</button>
   </div>
-  <div class="muted-words-list" id="muted-words-list" style="display:flex;flex-wrap:wrap;gap:.3rem;"></div>
+  <div class="muted-words-list" id="muted-words-list"></div>
 </div>
 
 <script>
@@ -71,8 +71,8 @@
     mutedWordListContainer.innerHTML = '';
     words.forEach(function (word) {
       var tag = document.createElement('span');
-      tag.style.cssText = 'display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .5rem;background:#f3f4f6;border-radius:14px;font-size:.75rem;';
-      tag.innerHTML = word + ' <button type="button" style="background:none;border:none;font-size:.8rem;cursor:pointer;color:#dc2626;padding:0;" data-muted-word="' + word + '">✕</button>';
+      tag.className = 'muted-words-tag';
+      tag.innerHTML = word + ' <button type="button" class="muted-words-tag-remove-button" data-muted-word="' + word + '">✕</button>';
       mutedWordListContainer.appendChild(tag);
     });
   }

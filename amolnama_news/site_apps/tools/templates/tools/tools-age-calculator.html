@@ -40,7 +40,7 @@
   </div>
 
   {# ── Results — hidden until calculated ── #}
-  <div id="ageResults" class="age-results" style="display:none;">
+  <div id="ageResults" class="age-results display-hidden">
 
     {# Primary age display #}
     <div class="age-primary-card">
@@ -108,6 +108,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'tools/assets/js/pages/tools-age-datepicker.js' %}"></script>
-<script src="{% static 'tools/assets/js/pages/tools-age-calculator.js' %}"></script>
+<script src="{% static 'tools/assets/js/pages/tools-age-datepicker.js' %}" defer></script>
+<script src="{% static 'tools/assets/js/pages/tools-age-calculator.js' %}" defer></script>
 {% endblock %}

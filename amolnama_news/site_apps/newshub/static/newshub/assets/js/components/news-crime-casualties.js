@@ -15,14 +15,14 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('casualties-impact-json');
+  const hiddenInput = document.getElementById('casualties-impact-json');
   if (!hiddenInput) return;
 
-  var deathCountEl = document.getElementById('impact-death-count');
-  var injuryCountEl = document.getElementById('impact-injury-count');
-  var propertyDestructionEl = document.getElementById('impact-property-destruction');
-  var damageAmountEl = document.getElementById('impact-damage-amount');
-  var isOngoingEl = document.getElementById('impact-is-ongoing');
+  const deathCountEl = document.getElementById('impact-death-count');
+  const injuryCountEl = document.getElementById('impact-injury-count');
+  const propertyDestructionEl = document.getElementById('impact-property-destruction');
+  const damageAmountEl = document.getElementById('impact-damage-amount');
+  const isOngoingEl = document.getElementById('impact-is-ongoing');
 
   function collectData() {
     return {
@@ -35,23 +35,23 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     /* Only serialize if at least one field has a value */
-    var hasData = data.deathCount > 0 || data.injuryCount > 0
+    const hasData = data.deathCount > 0 || data.injuryCount > 0
       || data.propertyDestruction.trim() || data.damageAmount > 0
       || data.isOngoing;
     hiddenInput.value = hasData ? JSON.stringify(data) : '';
   }
 
   /* Sync on any input change within the section */
-  var section = document.getElementById('section-casualties-impact');
+  const section = document.getElementById('section-casualties-impact');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
   /* Re-sync right before form submit */
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) {
     form.addEventListener('submit', syncToHiddenInput);
   }
@@ -59,7 +59,7 @@
   /* ---- Restore from saved data ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
-    var data;
+    let data;
     try { data = JSON.parse(hiddenInput.value); } catch (e) { return; }
 
     if (deathCountEl && data.deathCount)   deathCountEl.value   = data.deathCount;

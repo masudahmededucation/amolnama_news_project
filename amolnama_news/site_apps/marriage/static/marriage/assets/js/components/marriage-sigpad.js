@@ -6,33 +6,33 @@
 (function () {
   'use strict';
 
-  var MIN_WIDTH = 1;
-  var MAX_WIDTH = 3.5;
-  var VELOCITY_FILTER = 0.7; /* smoothing factor for velocity (0–1, higher = smoother) */
-  var WIDTH_FILTER = 0.6;    /* smoothing factor for line width transitions */
+  const MIN_WIDTH = 1;
+  const MAX_WIDTH = 3.5;
+  const VELOCITY_FILTER = 0.7; /* smoothing factor for velocity (0–1, higher = smoother) */
+  const WIDTH_FILTER = 0.6;    /* smoothing factor for line width transitions */
 
-  var zones = document.querySelectorAll('.sig-zone');
+  const zones = document.querySelectorAll('.sig-zone');
   if (!zones.length) return;
 
   zones.forEach(function (zone) {
-    var key = zone.dataset.sigKey;
-    var canvas = zone.querySelector('.sig-canvas');
-    var drawArea = zone.querySelector('.sig-draw-area');
-    var uploadArea = zone.querySelector('.marriage-sig-upload') || zone.querySelector('.cert-sig-upload');
-    var clearBtn = zone.querySelector('.sig-clear-btn');
-    var radios = zone.querySelectorAll('input[name="sig-mode-' + key + '"]');
-    var dropEl = document.getElementById('sig-' + key + '-drop');
+    const key = zone.dataset.sigKey;
+    const canvas = zone.querySelector('.sig-canvas');
+    const drawArea = zone.querySelector('.sig-draw-area');
+    const uploadArea = zone.querySelector('.marriage-sig-upload') || zone.querySelector('.cert-sig-upload');
+    const clearBtn = zone.querySelector('.sig-clear-btn');
+    const radios = zone.querySelectorAll('input[name="sig-mode-' + key + '"]');
+    const dropEl = document.getElementById('sig-' + key + '-drop');
 
     if (!canvas || !drawArea) return;
 
-    var ctx = canvas.getContext('2d');
-    var drawing = false;
-    var hasStrokes = false;
-    var lastX = 0;
-    var lastY = 0;
-    var lastTime = 0;
-    var lastVelocity = 0;
-    var lastWidth = (MIN_WIDTH + MAX_WIDTH) / 2;
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let hasStrokes = false;
+    let lastX = 0;
+    let lastY = 0;
+    let lastTime = 0;
+    let lastVelocity = 0;
+    let lastWidth = (MIN_WIDTH + MAX_WIDTH) / 2;
 
     /* --- Base style --- */
     function styleCtx() {
@@ -43,8 +43,8 @@
 
     /* --- Canvas sizing --- */
     function resizeCanvas() {
-      var cssW = canvas.offsetWidth || 400;
-      var cssH = canvas.offsetHeight || 120;
+      const cssW = canvas.offsetWidth || 400;
+      const cssH = canvas.offsetHeight || 120;
       if (canvas.width !== cssW || canvas.height !== cssH) {
         canvas.width = cssW;
         canvas.height = cssH;
@@ -55,10 +55,10 @@
 
     /* --- Get mouse/touch position --- */
     function getPos(e) {
-      var rect = canvas.getBoundingClientRect();
-      var touch = e.touches ? e.touches[0] : e;
-      var scaleX = canvas.width / rect.width;
-      var scaleY = canvas.height / rect.height;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches ? e.touches[0] : e;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
       return {
         x: (touch.clientX - rect.left) * scaleX,
         y: (touch.clientY - rect.top) * scaleY
@@ -68,8 +68,8 @@
     /* --- Compute line width from velocity --- */
     function widthFromVelocity(velocity) {
       /* Higher velocity → thinner line (like a real pen) */
-      var clamped = Math.min(velocity, 6);
-      var target = MAX_WIDTH - (MAX_WIDTH - MIN_WIDTH) * (clamped / 6);
+      const clamped = Math.min(velocity, 6);
+      const target = MAX_WIDTH - (MAX_WIDTH - MIN_WIDTH) * (clamped / 6);
       return target;
     }
 
@@ -85,7 +85,7 @@
     function startDraw(e) {
       e.preventDefault();
       drawing = true;
-      var pos = getPos(e);
+      let pos = getPos(e);
       lastX = pos.x;
       lastY = pos.y;
       lastTime = Date.now();
@@ -102,23 +102,23 @@
     function moveDraw(e) {
       if (!drawing) return;
       e.preventDefault();
-      var pos = getPos(e);
-      var now = Date.now();
+      const pos = getPos(e);
+      const now = Date.now();
       hasStrokes = true;
 
       /* Calculate velocity (pixels per millisecond) */
-      var dx = pos.x - lastX;
-      var dy = pos.y - lastY;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var elapsed = now - lastTime || 1;
-      var velocity = dist / elapsed;
+      const dx = pos.x - lastX;
+      const dy = pos.y - lastY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const elapsed = now - lastTime || 1;
+      const velocity = dist / elapsed;
 
       /* Smooth velocity to avoid jumps */
-      var smoothVelocity = VELOCITY_FILTER * velocity + (1 - VELOCITY_FILTER) * lastVelocity;
+      const smoothVelocity = VELOCITY_FILTER * velocity + (1 - VELOCITY_FILTER) * lastVelocity;
 
       /* Calculate target width and smooth it */
-      var targetWidth = widthFromVelocity(smoothVelocity);
-      var smoothWidth = WIDTH_FILTER * lastWidth + (1 - WIDTH_FILTER) * targetWidth;
+      const targetWidth = widthFromVelocity(smoothVelocity);
+      const smoothWidth = WIDTH_FILTER * lastWidth + (1 - WIDTH_FILTER) * targetWidth;
 
       drawSegment(lastX, lastY, pos.x, pos.y, smoothWidth);
 
@@ -162,22 +162,22 @@
     radios.forEach(function (radio) {
       radio.addEventListener('change', function () {
         if (radio.value === 'draw') {
-          drawArea.style.display = '';
-          if (uploadArea) uploadArea.style.display = 'none';
+          drawArea.classList.remove('display-hidden');
+          if (uploadArea) uploadArea.classList.add('display-hidden');
           setTimeout(resizeCanvas, 0);
         } else {
-          drawArea.style.display = 'none';
-          if (uploadArea) uploadArea.style.display = '';
+          drawArea.classList.add('display-hidden');
+          if (uploadArea) uploadArea.classList.remove('display-hidden');
         }
       });
     });
 
     /* Resize canvas on window resize (debounced) */
-    var resizeTimer;
+    let resizeTimer;
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        if (drawArea.style.display !== 'none') {
+        if (!drawArea.classList.contains('display-hidden')) {
           resizeCanvas();
         }
       }, 200);

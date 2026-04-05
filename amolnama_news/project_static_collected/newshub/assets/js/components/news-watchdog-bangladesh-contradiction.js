@@ -17,18 +17,18 @@
 (function () {
   'use strict';
 
-  var originalStatement = document.getElementById('contradiction-original-statement');
-  var originalDate = document.getElementById('contradiction-original-date');
-  var originalSource = document.getElementById('contradiction-original-source');
-  var currentStatement = document.getElementById('contradiction-current-statement');
-  var currentDate = document.getElementById('contradiction-current-date');
-  var proofUrl = document.getElementById('contradiction-proof-url');
-  var hiddenJson = document.getElementById('contradiction-json');
+  const originalStatement = document.getElementById('contradiction-original-statement');
+  const originalDate = document.getElementById('contradiction-original-date');
+  const originalSource = document.getElementById('contradiction-original-source');
+  const currentStatement = document.getElementById('contradiction-current-statement');
+  const currentDate = document.getElementById('contradiction-current-date');
+  const proofUrl = document.getElementById('contradiction-proof-url');
+  const hiddenJson = document.getElementById('contradiction-json');
 
   if (!hiddenJson) return;
 
   function serialize() {
-    var data = {
+    let data = {
       originalStatement: originalStatement ? originalStatement.value.trim() : '',
       originalDate: originalDate ? originalDate.value : '',
       originalSource: originalSource ? originalSource.value.trim() : '',
@@ -41,7 +41,7 @@
   }
 
   /* Listen for input changes on all fields */
-  var fields = [originalStatement, originalDate, originalSource,
+  const fields = [originalStatement, originalDate, originalSource,
                 currentStatement, currentDate, proofUrl];
   fields.forEach(function (el) {
     if (!el) return;
@@ -49,7 +49,7 @@
   });
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -58,7 +58,7 @@
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (originalStatement && data.originalStatement) originalStatement.value = data.originalStatement;
       if (originalDate && data.originalDate)           originalDate.value      = data.originalDate;
       if (originalSource && data.originalSource)       originalSource.value    = data.originalSource;
@@ -84,17 +84,17 @@
   };
 
   /* Step validator: require both statements when this section is visible */
-  var section = document.getElementById('section-contradiction');
-  var panel = hiddenJson.closest('.step-panel[data-step]');
+  const section = document.getElementById('section-contradiction');
+  const panel = hiddenJson.closest('.step-panel[data-step]');
   if (panel) {
-    var step = parseInt(panel.getAttribute('data-step'), 10);
+    const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
       /* Only validate when this section is the active one */
-      if (section && section.style.display === 'none') return { warnings: [] };
-      var warnings = [];
-      var hasOriginal = originalStatement && originalStatement.value.trim();
-      var hasCurrent = currentStatement && currentStatement.value.trim();
+      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      const warnings = [];
+      const hasOriginal = originalStatement && originalStatement.value.trim();
+      const hasCurrent = currentStatement && currentStatement.value.trim();
       if (!hasOriginal) {
         warnings.push('\u09AA\u09C2\u09B0\u09CD\u09AC\u09C7\u09B0 \u09AC\u0995\u09CD\u09A4\u09AC\u09CD\u09AF \u09A6\u09BF\u09A8 (Please enter the original statement)');
       }

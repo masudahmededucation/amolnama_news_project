@@ -18,27 +18,27 @@
 (function () {
   'use strict';
 
-  var militaryCasualties = document.getElementById('global-military-casualties');
-  var civilianCasualties = document.getElementById('global-civilian-casualties');
-  var refugees = document.getElementById('global-refugees');
-  var warCrimes = document.getElementById('global-war-crimes');
-  var warCrimesDesc = document.getElementById('global-war-crimes-description');
-  var warCrimesRow = document.getElementById('global-war-crimes-details-row');
-  var hiddenJson = document.getElementById('global-humanitarian-json');
+  const militaryCasualties = document.getElementById('global-military-casualties');
+  const civilianCasualties = document.getElementById('global-civilian-casualties');
+  const refugees = document.getElementById('global-refugees');
+  const warCrimes = document.getElementById('global-war-crimes');
+  const warCrimesDesc = document.getElementById('global-war-crimes-description');
+  const warCrimesRow = document.getElementById('global-war-crimes-details-row');
+  const hiddenJson = document.getElementById('global-humanitarian-json');
 
   if (!hiddenJson) return;
 
   /* Toggle war crimes details row visibility */
   function toggleWarCrimesRow() {
     if (!warCrimes || !warCrimesRow) return;
-    warCrimesRow.style.display = warCrimes.checked ? '' : 'none';
+    warCrimes.checked ? warCrimesRow.classList.remove('display-hidden') : warCrimesRow.classList.add('display-hidden');
     if (!warCrimes.checked && warCrimesDesc) {
       warCrimesDesc.value = '';
     }
   }
 
   function serialize() {
-    var data = {
+    let data = {
       militaryCasualties: militaryCasualties ? (parseInt(militaryCasualties.value, 10) || 0) : 0,
       civilianCasualties: civilianCasualties ? (parseInt(civilianCasualties.value, 10) || 0) : 0,
       refugees: refugees ? (parseInt(refugees.value, 10) || 0) : 0,
@@ -50,7 +50,7 @@
   }
 
   /* Listen for input changes on number fields */
-  var inputFields = [militaryCasualties, civilianCasualties, refugees, warCrimesDesc];
+  const inputFields = [militaryCasualties, civilianCasualties, refugees, warCrimesDesc];
   inputFields.forEach(function (el) {
     if (el) el.addEventListener('input', serialize);
   });
@@ -64,7 +64,7 @@
   }
 
   /* Serialize before form submit */
-  var form = hiddenJson.closest('form');
+  const form = hiddenJson.closest('form');
   if (form) {
     form.addEventListener('submit', serialize);
   }
@@ -76,7 +76,7 @@
   function restoreFromSavedData() {
     if (!hiddenJson.value) return;
     try {
-      var data = JSON.parse(hiddenJson.value);
+      const data = JSON.parse(hiddenJson.value);
       if (militaryCasualties && data.militaryCasualties) militaryCasualties.value = data.militaryCasualties;
       if (civilianCasualties && data.civilianCasualties) civilianCasualties.value = data.civilianCasualties;
       if (refugees && data.refugees)                     refugees.value           = data.refugees;

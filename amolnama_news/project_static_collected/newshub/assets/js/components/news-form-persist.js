@@ -14,18 +14,18 @@
  * fetches from overwriting saved values with empty strings.
  */
 (function () {
-  var formTypeInput = document.getElementById('news-form-type');
-  var formTypeCode = formTypeInput ? formTypeInput.value : '';
-  var STORAGE_KEY = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
-  var TAGS_STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
+  const formTypeInput = document.getElementById('news-form-type');
+  const formTypeCode = formTypeInput ? formTypeInput.value : '';
+  const STORAGE_KEY = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
+  const TAGS_STORAGE_KEY = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
 
-  var SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status',
+  const SKIP_NAMES = ['csrfmiddlewaretoken', 'tag_ids', 'news_form_type', 'wcv_fir_status',
     'accused_json', 'victim_json', 'witness_json'];
-  var form = document.querySelector('.news-collection-form, .news-multistep-form');
+  const form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
 
   /* --- If submission succeeded, clear draft but keep save listeners active --- */
-  var isSuccessPage = !!document.querySelector('.form-message-success');
+  const isSuccessPage = !!document.querySelector('.form-message-success');
   if (isSuccessPage) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(TAGS_STORAGE_KEY);
@@ -33,18 +33,18 @@
 
   /* ========== SAVE ========== */
 
-  var saveTimer = null;
-  var isRestoring = false; // blocks saves during restore to prevent race conditions
+  let saveTimer = null;
+  let isRestoring = false; // blocks saves during restore to prevent race conditions
 
   function saveDraft() {
     if (isRestoring) return;
 
-    var data = {};
-    var elements = form.querySelectorAll('input, select, textarea');
+    const data = {};
+    const elements = form.querySelectorAll('input, select, textarea');
 
-    for (var i = 0; i < elements.length; i++) {
-      var el = elements[i];
-      var name = el.name;
+    for (let i = 0; i < elements.length; i++) {
+      let el = elements[i];
+      let name = el.name;
       if (!name || SKIP_NAMES.indexOf(name) !== -1) continue;
       if (el.type === 'file') continue;
 
@@ -78,15 +78,15 @@
   /* Skip localStorage restore in edit mode — server data takes priority */
   if (window.__EDIT_MODE__) return;
 
-  var raw = localStorage.getItem(STORAGE_KEY);
+  const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return;
 
-  var saved;
+  let saved;
   try { saved = JSON.parse(raw); } catch (e) { return; }
   if (!saved || typeof saved !== 'object') return;
 
   /* Purge skipped keys from saved data so stale values never linger */
-  var purged = false;
+  let purged = false;
   SKIP_NAMES.forEach(function (k) {
     if (saved.hasOwnProperty(k)) { delete saved[k]; purged = true; }
   });
@@ -97,7 +97,7 @@
   isRestoring = true;
 
   /* Fields restored via cascade (skip in the simple loop) */
-  var CASCADE = [
+  const CASCADE = [
     'district_id', 'constituency_id', 'upazila_id', 'union_parishad_id',
     'ward_id', 'village_id',
     'news_category_id',
@@ -110,13 +110,13 @@
     if (CASCADE.indexOf(name) !== -1) return;
     if (SKIP_NAMES.indexOf(name) !== -1) return;
 
-    var els = form.querySelectorAll('[name="' + name + '"]');
+    const els = form.querySelectorAll('[name="' + name + '"]');
     if (!els.length) return;
 
-    var el = els[0];
+    const el = els[0];
     if (el.type === 'radio') {
       /* Find and check the radio with the saved value, dispatch change for conditional rows */
-      for (var r = 0; r < els.length; r++) {
+      for (let r = 0; r < els.length; r++) {
         if (els[r].value === saved[name]) {
           els[r].checked = true;
           els[r].dispatchEvent(new Event('change', { bubbles: true }));
@@ -125,8 +125,8 @@
       }
     } else if (el.type === 'checkbox') {
       /* Restore checkboxes — saved as comma-separated values */
-      var savedValues = (saved[name] || '').split(',');
-      for (var c = 0; c < els.length; c++) {
+      const savedValues = (saved[name] || '').split(',');
+      for (let c = 0; c < els.length; c++) {
         els[c].checked = savedValues.indexOf(els[c].value) !== -1;
       }
     } else {
@@ -135,20 +135,20 @@
   });
 
   /* 1b. Re-trigger contributor type so Self hide/show logic runs with restored value */
-  var ctypeSelect = document.getElementById('contributor-type');
+  const ctypeSelect = document.getElementById('contributor-type');
   if (ctypeSelect && saved.contributor_type_id) {
     ctypeSelect.dispatchEvent(new Event('change'));
   }
 
   /* 2. Occurrence time — setAttribute so MutationObserver in occurrence-time.js fires */
-  var occHidden = document.getElementById('news-occurrence-at');
+  const occHidden = document.getElementById('news-occurrence-at');
   if (occHidden && saved.occurrence_at) {
     occHidden.setAttribute('value', saved.occurrence_at);
   }
 
   /* 3. Organisation type → org name cascade */
-  var organizationTypeSelect = document.getElementById('contributor-org-type');
-  var organizationNameSelect = document.getElementById('contributor-organization');
+  const organizationTypeSelect = document.getElementById('contributor-org-type');
+  const organizationNameSelect = document.getElementById('contributor-organization');
 
   if (organizationTypeSelect && saved.organisation_type_id) {
     organizationTypeSelect.value = saved.organisation_type_id;
@@ -162,12 +162,12 @@
   }
 
   /* 4. Location cascade: district → constituency + subdistrict → local body → ward → village */
-  var districtSelect = document.getElementById('news-district-id');
-  var constituencySelect = document.getElementById('news-constituency-id');
-  var upazilaSelect = document.getElementById('news-upazila-id');
-  var unionSelect = document.getElementById('news-union-parishad-id');
-  var wardSelect = document.getElementById('news-ward-id');
-  var villageSelect = document.getElementById('news-village-id');
+  const districtSelect = document.getElementById('news-district-id');
+  const constituencySelect = document.getElementById('news-constituency-id');
+  const upazilaSelect = document.getElementById('news-upazila-id');
+  const unionSelect = document.getElementById('news-union-parishad-id');
+  const wardSelect = document.getElementById('news-ward-id');
+  const villageSelect = document.getElementById('news-village-id');
 
   if (districtSelect && saved.district_id) {
     districtSelect.value = saved.district_id;
@@ -210,7 +210,7 @@
   }
 
   /* 5. Category → tags cascade */
-  var catSelect = document.getElementById('news-category-id');
+  const catSelect = document.getElementById('news-category-id');
 
   if (saved.news_category_id && catSelect) {
     catSelect.value = saved.news_category_id;
@@ -230,8 +230,8 @@
   /* ========== Helpers ========== */
 
   function waitForOptions(selectEl, callback) {
-    var attempts = 0;
-    var interval = setInterval(function () {
+    let attempts = 0;
+    const interval = setInterval(function () {
       attempts++;
       if (selectEl.options.length > 1 || attempts > 50) {
         clearInterval(interval);

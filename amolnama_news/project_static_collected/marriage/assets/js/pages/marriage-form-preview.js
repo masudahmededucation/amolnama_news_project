@@ -6,33 +6,33 @@
 (function () {
   'use strict';
 
-  var BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
+  const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
-  var previewBody = document.getElementById('marriage-preview-body');
-  var printBtn = document.getElementById('btn-marriage-print');
-  var editBtn = document.getElementById('btn-marriage-edit');
+  const previewBody = document.getElementById('marriage-preview-body');
+  const printBtn = document.getElementById('btn-marriage-print');
+  const editBtn = document.getElementById('btn-marriage-edit');
 
   if (!previewBody) return;
 
   /* ---- Helpers ---- */
 
   function val(id) {
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     if (!el) return '';
     if (el.tagName === 'SELECT') {
-      var opt = el.options[el.selectedIndex];
+      const opt = el.options[el.selectedIndex];
       return opt && opt.value ? opt.textContent : '';
     }
     return (el.value || '').trim();
   }
 
   function rawVal(id) {
-    var el = document.getElementById(id);
+    const el = document.getElementById(id);
     return el ? (el.value || '').trim() : '';
   }
 
   function escHtml(str) {
-    var div = document.createElement('div');
+    const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
   }
@@ -45,12 +45,12 @@
   }
 
   function getSigUrl(dropId) {
-    var drop = document.getElementById(dropId);
+    const drop = document.getElementById(dropId);
     return drop ? (drop.dataset.sigUrl || '') : '';
   }
 
   function sigImg(dropId) {
-    var url = getSigUrl(dropId);
+    const url = getSigUrl(dropId);
     if (url) {
       return '<img src="' + url + '" style="max-height:50px;max-width:180px;object-fit:contain">';
     }
@@ -76,10 +76,10 @@
   /* ---- Build all content blocks as an array ---- */
 
   function buildContentBlocks() {
-    var blocks = [];
+    let blocks = [];
 
     /* Registration header — certificate-style */
-    var hdr = '<div class="preview-reg-header">';
+    let hdr = '<div class="preview-reg-header">';
     hdr += '<h3 class="preview-reg-title">\u09A8\u09BF\u0995\u09BE\u09B9\u09A8\u09BE\u09AE\u09BE</h3>';
     hdr += '<p class="preview-reg-subtitle">Note: \u09AE\u09C1\u09B8\u09B2\u09BF\u09AE \u09AC\u09BF\u09AC\u09BE\u09B9 \u0993 \u09A4\u09BE\u09B2\u09BE\u0995 (\u09A8\u09BF\u09AC\u09A8\u09CD\u09A7\u09A8) \u09AC\u09BF\u09A7\u09BF\u09AE\u09BE\u09B2\u09BE, \u09E8\u09E6\u09E6\u09EF \u098F\u09B0 \u09AC\u09BF\u09A7\u09BF \u09E8\u09EE(\u09E7) (\u0998) \u0985\u09A8\u09C1\u09AF\u09BE\u09AF\u09BC\u09C0 \u09AC\u09BF\u09AC\u09BE\u09B9 \u09AB\u09B0\u09CD\u09AE</p>';
     hdr += '<div class="preview-reg-row">';
@@ -124,7 +124,7 @@
     }
 
     /* Q2 */
-    var q2 = qRow('\u09E8\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09A8\u09BE\u09AE (Groom)', field(val('groom-name-bn')) + (rawVal('groom-name-en') ? ' (' + escHtml(val('groom-name-en')) + ')' : ''));
+    let q2 = qRow('\u09E8\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09A8\u09BE\u09AE (Groom)', field(val('groom-name-bn')) + (rawVal('groom-name-en') ? ' (' + escHtml(val('groom-name-en')) + ')' : ''));
     q2 += subRow('\u09AA\u09BF\u09A4\u09BE (Father)', field(val('groom-father')));
     q2 += subRow('\u09AE\u09BE\u09A4\u09BE (Mother)', field(val('groom-mother')));
     q2 += subRow('\u09AC\u09B0\u09CD\u09A4\u09AE\u09BE\u09A8 \u09A0\u09BF\u0995\u09BE\u09A8\u09BE (Present)', field(val('groom-present-address')));
@@ -132,7 +132,7 @@
     blocks.push(tableWrap(q2));
 
     /* Q3 */
-    var q3 = qRow('\u09E9\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AC\u09AF\u09BC\u09B8/DOB, NID, \u09AA\u09C7\u09B6\u09BE, \u09A7\u09B0\u09CD\u09AE, \u099C\u09BE\u09A4\u09C0\u09AF\u09BC\u09A4\u09BE', '');
+    let q3 = qRow('\u09E9\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AC\u09AF\u09BC\u09B8/DOB, NID, \u09AA\u09C7\u09B6\u09BE, \u09A7\u09B0\u09CD\u09AE, \u099C\u09BE\u09A4\u09C0\u09AF\u09BC\u09A4\u09BE', '');
     q3 += subRow('\u099C\u09A8\u09CD\u09AE \u09A4\u09BE\u09B0\u09BF\u0996 (DOB)', field(val('groom-dob')));
     q3 += subRow('NID', field(val('groom-nid')));
     q3 += subRow('\u09AA\u09C7\u09B6\u09BE (Occupation)', field(val('groom-occupation')));
@@ -142,7 +142,7 @@
     blocks.push(tableWrap(q3));
 
     /* Q4 */
-    var q4 = qRow('\u09EA\u0964', '\u0995\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE (Bride)', field(val('bride-name-bn')) + (rawVal('bride-name-en') ? ' (' + escHtml(val('bride-name-en')) + ')' : ''));
+    let q4 = qRow('\u09EA\u0964', '\u0995\u09A8\u09C7\u09B0 \u09A8\u09BE\u09AE (Bride)', field(val('bride-name-bn')) + (rawVal('bride-name-en') ? ' (' + escHtml(val('bride-name-en')) + ')' : ''));
     q4 += subRow('\u09AA\u09BF\u09A4\u09BE (Father)', field(val('bride-father')));
     q4 += subRow('\u09AE\u09BE\u09A4\u09BE (Mother)', field(val('bride-mother')));
     q4 += subRow('\u09AC\u09B0\u09CD\u09A4\u09AE\u09BE\u09A8 \u09A0\u09BF\u0995\u09BE\u09A8\u09BE (Present)', field(val('bride-present-address')));
@@ -150,7 +150,7 @@
     blocks.push(tableWrap(q4));
 
     /* Q5 */
-    var q5 = qRow('\u09EB\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AC\u09AF\u09BC\u09B8/DOB, NID, \u09AA\u09C7\u09B6\u09BE, \u09A7\u09B0\u09CD\u09AE, \u099C\u09BE\u09A4\u09C0\u09AF\u09BC\u09A4\u09BE', '');
+    let q5 = qRow('\u09EB\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AC\u09AF\u09BC\u09B8/DOB, NID, \u09AA\u09C7\u09B6\u09BE, \u09A7\u09B0\u09CD\u09AE, \u099C\u09BE\u09A4\u09C0\u09AF\u09BC\u09A4\u09BE', '');
     q5 += subRow('\u099C\u09A8\u09CD\u09AE \u09A4\u09BE\u09B0\u09BF\u0996 (DOB)', field(val('bride-dob')));
     q5 += subRow('NID', field(val('bride-nid')));
     q5 += subRow('\u09AA\u09C7\u09B6\u09BE (Occupation)', field(val('bride-occupation')));
@@ -160,59 +160,59 @@
     blocks.push(tableWrap(q5));
 
     /* Q6 */
-    var q6 = qRow('\u09EC\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AC\u09C8\u09AC\u09BE\u09B9\u09BF\u0995 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Marital Status)', field(val('bride-marital-status')));
+    let q6 = qRow('\u09EC\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AC\u09C8\u09AC\u09BE\u09B9\u09BF\u0995 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Marital Status)', field(val('bride-marital-status')));
     if (rawVal('bride-prev-husband')) {
       q6 += subRow('\u09AA\u09C2\u09B0\u09CD\u09AC\u09AC\u09B0\u09CD\u09A4\u09C0 \u09B8\u09CD\u09AC\u09BE\u09AE\u09C0 (Previous Husband)', field(val('bride-prev-husband')));
     }
     blocks.push(tableWrap(q6));
 
     /* Q7 */
-    var q7 = qRow('\u09ED\u0964', '\u0995\u09A8\u09C7\u09B0 \u0989\u0995\u09BF\u09B2 (Bride\'s Advocate)', field(val('bride-advocate-name')));
+    let q7 = qRow('\u09ED\u0964', '\u0995\u09A8\u09C7\u09B0 \u0989\u0995\u09BF\u09B2 (Bride\'s Advocate)', field(val('bride-advocate-name')));
     q7 += subRow('\u09AA\u09BF\u09A4\u09BE (Father)', field(val('bride-advocate-father')));
     q7 += subRow('\u09A0\u09BF\u0995\u09BE\u09A8\u09BE (Address)', field(val('bride-advocate-address')));
     q7 += subRow('\u09B8\u09AE\u09CD\u09AA\u09B0\u09CD\u0995 (Relation)', field(val('bride-advocate-relation')));
     blocks.push(tableWrap(q7));
 
     /* Q8 */
-    var q8 = qRow('\u09EE\u0964', '\u09AC\u09B0\u09C7\u09B0 \u0989\u0995\u09BF\u09B2 (Groom\'s Advocate)', field(val('groom-advocate-name')));
+    let q8 = qRow('\u09EE\u0964', '\u09AC\u09B0\u09C7\u09B0 \u0989\u0995\u09BF\u09B2 (Groom\'s Advocate)', field(val('groom-advocate-name')));
     q8 += subRow('\u09AA\u09BF\u09A4\u09BE (Father)', field(val('groom-advocate-father')));
     q8 += subRow('\u09A0\u09BF\u0995\u09BE\u09A8\u09BE (Address)', field(val('groom-advocate-address')));
     q8 += subRow('\u09B8\u09AE\u09CD\u09AA\u09B0\u09CD\u0995 (Relation)', field(val('groom-advocate-relation')));
     blocks.push(tableWrap(q8));
 
     /* Q9 */
-    var q9 = qRow('\u09EF\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AA\u0995\u09CD\u09B7\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Bride\'s Witnesses)', '');
+    let q9 = qRow('\u09EF\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AA\u0995\u09CD\u09B7\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Bride\'s Witnesses)', '');
     q9 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E7 (Witness 1)', field(val('bride-witness1-name')) + ' \u2014 ' + field(val('bride-witness1-address')));
     q9 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E8 (Witness 2)', field(val('bride-witness2-name')) + ' \u2014 ' + field(val('bride-witness2-address')));
     blocks.push(tableWrap(q9));
 
     /* Q10 */
-    var q10 = qRow('\u09E7\u09E6\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AA\u0995\u09CD\u09B7\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Groom\'s Witnesses)', '');
+    let q10 = qRow('\u09E7\u09E6\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AA\u0995\u09CD\u09B7\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Groom\'s Witnesses)', '');
     q10 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E7 (Witness 1)', field(val('groom-witness1-name')) + ' \u2014 ' + field(val('groom-witness1-address')));
     q10 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E8 (Witness 2)', field(val('groom-witness2-name')) + ' \u2014 ' + field(val('groom-witness2-address')));
     blocks.push(tableWrap(q10));
 
     /* Q11 */
-    var q11 = qRow('\u09E7\u09E7\u0964', '\u09AC\u09BF\u09AC\u09BE\u09B9\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Marriage Witnesses)', '');
+    let q11 = qRow('\u09E7\u09E7\u0964', '\u09AC\u09BF\u09AC\u09BE\u09B9\u09C7\u09B0 \u09B8\u09BE\u0995\u09CD\u09B7\u09C0 (Marriage Witnesses)', '');
     q11 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E7', field(val('marriage-witness1-name')) + ' \u2014 ' + field(val('marriage-witness1-address')));
     q11 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E8', field(val('marriage-witness2-name')) + ' \u2014 ' + field(val('marriage-witness2-address')));
     q11 += subRow('\u09B8\u09BE\u0995\u09CD\u09B7\u09C0 \u09E9', field(val('marriage-witness3-name')) + ' \u2014 ' + field(val('marriage-witness3-address')));
     blocks.push(tableWrap(q11));
 
     /* Q12 */
-    var q12 = qRow('\u09E7\u09E8\u0964', '\u09AF\u09BF\u09A8\u09BF \u09AC\u09BF\u09AC\u09BE\u09B9 \u09AA\u09A1\u09BC\u09BE\u0987\u09AF\u09BC\u09BE\u099B\u09C7\u09A8 (Solemnizer)', field(val('solemnizer-name')));
+    let q12 = qRow('\u09E7\u09E8\u0964', '\u09AF\u09BF\u09A8\u09BF \u09AC\u09BF\u09AC\u09BE\u09B9 \u09AA\u09A1\u09BC\u09BE\u0987\u09AF\u09BC\u09BE\u099B\u09C7\u09A8 (Solemnizer)', field(val('solemnizer-name')));
     q12 += subRow('\u09A0\u09BF\u0995\u09BE\u09A8\u09BE (Address)', field(val('solemnizer-address')));
     blocks.push(tableWrap(q12));
 
     /* Q13 */
-    var q13 = qRow('\u09E7\u09E9\u0964', '\u09AE\u09CB\u099F \u09A6\u09C7\u09A8\u09AE\u09CB\u09B9\u09B0 (Total Mehr)', field(val('mehr-total')));
+    let q13 = qRow('\u09E7\u09E9\u0964', '\u09AE\u09CB\u099F \u09A6\u09C7\u09A8\u09AE\u09CB\u09B9\u09B0 (Total Mehr)', field(val('mehr-total')));
     if (rawVal('mehr-total-words')) {
       q13 += subRow('\u0995\u09A5\u09BE\u09AF\u09BC (In Words)', field(val('mehr-total-words')));
     }
     blocks.push(tableWrap(q13));
 
     /* Q14 */
-    var q14 = qRow('\u09E7\u09EA\u0964', '\u09A4\u09BE\u09CE\u0995\u09CD\u09B7\u09A3\u09BF\u0995 \u09A6\u09C7\u09A8\u09AE\u09CB\u09B9\u09B0 (Prompt Mehr)', field(val('mehr-prompt')));
+    let q14 = qRow('\u09E7\u09EA\u0964', '\u09A4\u09BE\u09CE\u0995\u09CD\u09B7\u09A3\u09BF\u0995 \u09A6\u09C7\u09A8\u09AE\u09CB\u09B9\u09B0 (Prompt Mehr)', field(val('mehr-prompt')));
     if (rawVal('mehr-prompt-paid')) {
       q14 += subRow('\u09AA\u09B0\u09BF\u09B6\u09CB\u09A7\u09BF\u09A4 (Paid?)', field(val('mehr-prompt-paid')));
     }
@@ -231,7 +231,7 @@
     blocks.push(tableWrap(qRow('\u09E7\u09EE\u0964', '\u09AC\u09BF\u09AC\u09BE\u09B9\u09C7\u09B0 \u09B6\u09B0\u09CD\u09A4 (Marriage Conditions)', field(val('marriage-conditions')))));
 
     /* Q19 */
-    var q19 = qRow('\u09E7\u09EF\u0964', '\u09A4\u09BE\u09B2\u09BE\u0995 \u09AA\u09CD\u09B0\u09A6\u09BE\u09A8\u09C7\u09B0 \u0995\u09CD\u09B7\u09AE\u09A4\u09BE (Divorce Delegation)', field(val('divorce-delegation')));
+    let q19 = qRow('\u09E7\u09EF\u0964', '\u09A4\u09BE\u09B2\u09BE\u0995 \u09AA\u09CD\u09B0\u09A6\u09BE\u09A8\u09C7\u09B0 \u0995\u09CD\u09B7\u09AE\u09A4\u09BE (Divorce Delegation)', field(val('divorce-delegation')));
     if (rawVal('divorce-delegation-details')) {
       q19 += subRow('\u09B6\u09B0\u09CD\u09A4 (Conditions)', field(val('divorce-delegation-details')));
     }
@@ -241,7 +241,7 @@
     blocks.push(tableWrap(qRow('\u09E8\u09E6\u0964', '\u09B8\u0982\u09AF\u09C1\u0995\u09CD\u09A4 \u09A6\u09B2\u09BF\u09B2 (Attached Documents)', field(val('attached-documents')))));
 
     /* Q21 */
-    var q21 = qRow('\u09E8\u09E7\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AC\u09C8\u09AC\u09BE\u09B9\u09BF\u0995 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Groom Marital Status)', field(val('groom-marital-status')));
+    let q21 = qRow('\u09E8\u09E7\u0964', '\u09AC\u09B0\u09C7\u09B0 \u09AC\u09C8\u09AC\u09BE\u09B9\u09BF\u0995 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Groom Marital Status)', field(val('groom-marital-status')));
     if (rawVal('groom-living-wives')) {
       q21 += subRow('\u099C\u09C0\u09AC\u09BF\u09A4 \u09B8\u09CD\u09A4\u09CD\u09B0\u09C0\u09B0 \u09B8\u0982\u0996\u09CD\u09AF\u09BE (Living Wives)', field(val('groom-living-wives')));
     }
@@ -249,7 +249,7 @@
 
     /* Q22 */
     if (rawVal('groom-arbitration')) {
-      var q22 = qRow('\u09E8\u09E8\u0964', '\u09B8\u09BE\u09B2\u09BF\u09B6\u09C0 \u09AA\u09B0\u09BF\u09B7\u09A6\u09C7\u09B0 \u0985\u09A8\u09C1\u09AE\u09A4\u09BF (Arbitration Permission)', field(val('groom-arbitration')));
+      let q22 = qRow('\u09E8\u09E8\u0964', '\u09B8\u09BE\u09B2\u09BF\u09B6\u09C0 \u09AA\u09B0\u09BF\u09B7\u09A6\u09C7\u09B0 \u0985\u09A8\u09C1\u09AE\u09A4\u09BF (Arbitration Permission)', field(val('groom-arbitration')));
       if (rawVal('groom-arbitration-details')) {
         q22 += subRow('\u09AC\u09BF\u09AC\u09B0\u09A3 (Details)', field(val('groom-arbitration-details')));
       }
@@ -260,7 +260,7 @@
     blocks.push(tableWrap(qRow('\u09E8\u09E9\u0964', '\u09AC\u09BF\u09AC\u09BE\u09B9\u09C7\u09B0 \u09A4\u09BE\u09B0\u09BF\u0996 \u0993 \u09B8\u09CD\u09A5\u09BE\u09A8 (Marriage Date & Place)', field(val('reg-marriage-date')) + ' \u2014 ' + field(val('reg-marriage-place')))));
 
     /* Q24 */
-    var q24 = qRow('\u09E8\u09EA\u0964', '\u09A8\u09BF\u09AC\u09A8\u09CD\u09A7\u09A8\u09C7\u09B0 \u09A4\u09BE\u09B0\u09BF\u0996 (Registration Date)', field(val('reg-reg-date')));
+    let q24 = qRow('\u09E8\u09EA\u0964', '\u09A8\u09BF\u09AC\u09A8\u09CD\u09A7\u09A8\u09C7\u09B0 \u09A4\u09BE\u09B0\u09BF\u0996 (Registration Date)', field(val('reg-reg-date')));
     q24 += subRow('\u09A8\u09BF\u09AC\u09A8\u09CD\u09A7\u09A8 \u09AB\u09BF (Registration Fee)', field(val('reg-fee')));
     blocks.push(tableWrap(q24));
 
@@ -268,7 +268,7 @@
     blocks.push(tableWrap(qRow('\u09E8\u09EB\u0964', '\u09AE\u09A8\u09CD\u09A4\u09AC\u09CD\u09AF (Remarks)', field(val('reg-remarks')))));
 
     /* Signatures section — matches real Nikah Nama layout */
-    var sig = '<div class="preview-signatures">';
+    let sig = '<div class="preview-signatures">';
 
     /* Row 1: Groom sig + Groom advocate sig */
     sig += '<div class="preview-sig-line-row">';
@@ -372,20 +372,20 @@
    *   side padding accounted in CSS
    * Usable content: 297 - 20 - 20 - 8 ≈ 249mm ≈ 940px at 96dpi
    */
-  var PAGE_CONTENT_HEIGHT = 940;
+  const PAGE_CONTENT_HEIGHT = 940;
 
   function paginateBlocks(blocks) {
     /* Stage: render blocks offscreen to measure heights */
-    var stage = document.createElement('div');
+    const stage = document.createElement('div');
     stage.className = 'preview-a4-page-content';
     stage.style.position = 'absolute';
     stage.style.left = '-9999px';
     stage.style.width = '680px'; /* matches page width minus padding */
     document.body.appendChild(stage);
 
-    var measured = [];
+    const measured = [];
     blocks.forEach(function (html) {
-      var wrapper = document.createElement('div');
+      const wrapper = document.createElement('div');
       wrapper.innerHTML = html;
       stage.appendChild(wrapper);
       measured.push({ html: html, height: wrapper.offsetHeight });
@@ -395,9 +395,9 @@
     document.body.removeChild(stage);
 
     /* Distribute blocks across pages */
-    var pages = [];
-    var currentPageBlocks = [];
-    var currentHeight = 0;
+    let pages = [];
+    let currentPageBlocks = [];
+    let currentHeight = 0;
 
     measured.forEach(function (item) {
       if (currentHeight + item.height > PAGE_CONTENT_HEIGHT && currentPageBlocks.length > 0) {
@@ -419,13 +419,13 @@
   /* ---- Render pages ---- */
 
   function buildPreview() {
-    var blocks = buildContentBlocks();
-    var pages = paginateBlocks(blocks);
-    var totalPages = pages.length;
+    const blocks = buildContentBlocks();
+    const pages = paginateBlocks(blocks);
+    const totalPages = pages.length;
 
-    var html = '';
+    let html = '';
     pages.forEach(function (pageBlocks, index) {
-      var pageNum = index + 1;
+      let pageNum = index + 1;
       html += '<div class="preview-a4-page">';
 
       /* Top seal/stamp reserved space */
@@ -450,7 +450,7 @@
     });
 
     /* ---- Photo pages (from Step 8) ---- */
-    var photoHtml = buildPhotoPages(totalPages);
+    const photoHtml = buildPhotoPages(totalPages);
     html += photoHtml;
 
     previewBody.innerHTML = html;
@@ -459,9 +459,9 @@
   /* Build photo preview pages from marriagePhotos store — one photo per page at 5"x7" */
   function buildPhotoPages(startPageNum) {
     if (typeof window.marriagePhotos === 'undefined') return '';
-    var store = window.marriagePhotos.getStore();
+    const store = window.marriagePhotos.getStore();
 
-    var SECTION_LABELS = {
+    const SECTION_LABELS = {
       first_meet:       '💕 প্রথম দেখা',
       gaye_holud:       '🌼 গায়ে হলুদ',
       bor_jatra:        '🎺 বরযাত্রা',
@@ -471,22 +471,22 @@
     };
 
     // Collect all photos with section labels
-    var allPhotos = [];
-    for (var section in SECTION_LABELS) {
+    const allPhotos = [];
+    for (const section in SECTION_LABELS) {
       if (!store[section]) continue;
-      for (var i = 0; i < store[section].length; i++) {
+      for (let i = 0; i < store[section].length; i++) {
         allPhotos.push({ url: store[section][i].url, label: SECTION_LABELS[section], num: i + 1 });
       }
     }
     if (allPhotos.length === 0) return '';
 
-    var html = '';
-    var pageNum = startPageNum;
+    let html = '';
+    let pageNum = startPageNum;
 
-    for (var p = 0; p < allPhotos.length; p++) {
+    for (let p = 0; p < allPhotos.length; p++) {
       pageNum++;
-      var photo = allPhotos[p];
-      var isFirst = (p === 0);
+      const photo = allPhotos[p];
+      const isFirst = (p === 0);
 
       html += '<div class="preview-page-gap"></div>';
       html += '<div class="preview-a4-page">';
@@ -517,8 +517,8 @@
 
   /* ---- Pre-printed form toggle ---- */
 
-  var preprintedChk = document.getElementById('chk-preprinted');
-  var previewContainer = document.querySelector('.marriage-preview');
+  const preprintedChk = document.getElementById('chk-preprinted');
+  const previewContainer = document.querySelector('.marriage-preview');
 
   if (preprintedChk && previewContainer) {
     preprintedChk.addEventListener('change', function () {
@@ -533,8 +533,8 @@
   /* ---- Rebuild preview when entering the last step ---- */
 
   document.addEventListener('marriage:stepChanged', function (e) {
-    var panels = document.querySelectorAll('.step-panel[data-step]');
-    var lastStep = panels.length;
+    const panels = document.querySelectorAll('.step-panel[data-step]');
+    const lastStep = panels.length;
     if (e.detail.step === lastStep) {
       buildPreview();
     }
@@ -550,21 +550,21 @@
 
   /* ---- Download as PDF ---- */
 
-  var pdfBtn = document.getElementById('btn-marriage-pdf');
+  const pdfBtn = document.getElementById('btn-marriage-pdf');
   if (pdfBtn) {
     pdfBtn.addEventListener('click', function () {
-      var pageEls = document.querySelectorAll('.preview-a4-page');
+      const pageEls = document.querySelectorAll('.preview-a4-page');
       if (!pageEls.length) return;
       pdfBtn.disabled = true;
       pdfBtn.textContent = 'PDF \u09A4\u09C8\u09B0\u09BF \u09B9\u099A\u09CD\u099B\u09C7...';
 
-      var pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      var pageWidth = pdf.internal.pageSize.getWidth();
-      var pageHeight = pdf.internal.pageSize.getHeight();
-      var margin = 8;
-      var imgWidth = pageWidth - margin * 2;
+      const pdf = new window.jspdf.jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 8;
+      const imgWidth = pageWidth - margin * 2;
 
-      var captureNext = function (idx) {
+      const captureNext = function (idx) {
         if (idx >= pageEls.length) {
           pdf.save('nikah-nama.pdf');
           pdfBtn.disabled = false;
@@ -573,20 +573,20 @@
         }
         if (idx > 0) pdf.addPage();
         html2canvas(pageEls[idx], { scale: 2, useCORS: true }).then(function (canvas) {
-          var imgData = canvas.toDataURL('image/jpeg', 0.95);
-          var maxW = pageWidth - margin * 2;
-          var maxH = pageHeight - margin * 2;
-          var ratio = canvas.width / canvas.height;
-          var fitW = maxW;
-          var fitH = fitW / ratio;
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const maxW = pageWidth - margin * 2;
+          const maxH = pageHeight - margin * 2;
+          const ratio = canvas.width / canvas.height;
+          let fitW = maxW;
+          let fitH = fitW / ratio;
           // If too tall, scale down by height instead
           if (fitH > maxH) {
             fitH = maxH;
             fitW = fitH * ratio;
           }
           // Center on page
-          var offsetX = margin + (maxW - fitW) / 2;
-          var offsetY = margin + (maxH - fitH) / 2;
+          const offsetX = margin + (maxW - fitW) / 2;
+          const offsetY = margin + (maxH - fitH) / 2;
           pdf.addImage(imgData, 'JPEG', offsetX, offsetY, fitW, fitH);
           captureNext(idx + 1);
         });

@@ -22,30 +22,30 @@
 (function () {
   'use strict';
 
-  var hiddenInput = document.getElementById('global-news-reaction-json');
+  const hiddenInput = document.getElementById('global-news-reaction-json');
   if (!hiddenInput) return;
 
-  var worldReactionHidden  = document.getElementById('global-news-world-reaction');
-  var intlStatementEl      = document.getElementById('global-news-intl-statement');
-  var sanctionsCbEl        = document.getElementById('global-news-sanctions-imposed');
-  var sanctionsRow         = document.getElementById('global-news-sanctions-row');
-  var sanctionsDescEl      = document.getElementById('global-news-sanctions-desc');
-  var agreementCbEl        = document.getElementById('global-news-agreement-reached');
-  var agreementRow         = document.getElementById('global-news-agreement-row');
-  var agreementDescEl      = document.getElementById('global-news-agreement-desc');
-  var mediaCoverageHidden  = document.getElementById('global-news-media-coverage');
+  const worldReactionHidden  = document.getElementById('global-news-world-reaction');
+  const intlStatementEl      = document.getElementById('global-news-intl-statement');
+  const sanctionsCbEl        = document.getElementById('global-news-sanctions-imposed');
+  const sanctionsRow         = document.getElementById('global-news-sanctions-row');
+  const sanctionsDescEl      = document.getElementById('global-news-sanctions-desc');
+  const agreementCbEl        = document.getElementById('global-news-agreement-reached');
+  const agreementRow         = document.getElementById('global-news-agreement-row');
+  const agreementDescEl      = document.getElementById('global-news-agreement-desc');
+  const mediaCoverageHidden  = document.getElementById('global-news-media-coverage');
 
   /* ---- Build world reaction radios from JSON embed ---- */
-  var reactionGroup = document.getElementById('global-news-world-reaction-group');
-  var rxnDataEl = document.getElementById('global-reactions-data');
+  const reactionGroup = document.getElementById('global-news-world-reaction-group');
+  const rxnDataEl = document.getElementById('global-reactions-data');
   if (reactionGroup && rxnDataEl) {
     try {
-      var rxnOptions = JSON.parse(rxnDataEl.textContent || '[]');
+      const rxnOptions = JSON.parse(rxnDataEl.textContent || '[]');
       reactionGroup.innerHTML = '';
       rxnOptions.forEach(function (opt) {
-        var label = document.createElement('label');
+        let label = document.createElement('label');
         label.className = 'radio-inline';
-        var radio = document.createElement('input');
+        let radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'global_news_world_reaction_radio';
         radio.value = opt.status_id;
@@ -58,21 +58,21 @@
   }
 
   /* ---- Build media coverage radios from JSON embed ---- */
-  var coverageGroup = document.getElementById('global-news-media-coverage-group');
-  var covDataEl = document.getElementById('media-coverage-data');
+  const coverageGroup = document.getElementById('global-news-media-coverage-group');
+  const covDataEl = document.getElementById('media-coverage-data');
   if (coverageGroup && covDataEl) {
     try {
-      var covOptions = JSON.parse(covDataEl.textContent || '[]');
+      const covOptions = JSON.parse(covDataEl.textContent || '[]');
       coverageGroup.innerHTML = '';
       covOptions.forEach(function (opt) {
-        var label = document.createElement('label');
+        const label = document.createElement('label');
         label.className = 'radio-inline';
-        var radio = document.createElement('input');
+        const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'global_news_media_coverage_radio';
         radio.value = opt.status_id;
         radio.id = 'global_news_media_coverage_radio-' + opt.status_id;
-        var icon = opt.status_icon ? opt.status_icon + ' ' : '';
+        const icon = opt.status_icon ? opt.status_icon + ' ' : '';
         label.appendChild(radio);
         label.appendChild(document.createTextNode(' ' + icon + opt.status_name_bn + ' (' + opt.status_name_en + ')'));
         coverageGroup.appendChild(label);
@@ -103,13 +103,13 @@
   /* Toggle conditional rows */
   if (sanctionsCbEl) {
     sanctionsCbEl.addEventListener('change', function () {
-      if (sanctionsRow) sanctionsRow.style.display = sanctionsCbEl.checked ? '' : 'none';
+      if (sanctionsRow) sanctionsCbEl.checked ? sanctionsRow.classList.remove('display-hidden') : sanctionsRow.classList.add('display-hidden');
       syncToHiddenInput();
     });
   }
   if (agreementCbEl) {
     agreementCbEl.addEventListener('change', function () {
-      if (agreementRow) agreementRow.style.display = agreementCbEl.checked ? '' : 'none';
+      if (agreementRow) agreementCbEl.checked ? agreementRow.classList.remove('display-hidden') : agreementRow.classList.add('display-hidden');
       syncToHiddenInput();
     });
   }
@@ -132,43 +132,43 @@
   }
 
   function syncToHiddenInput() {
-    var data = collectData();
+    let data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
   }
 
-  var section = document.getElementById('section-global-news-reaction');
+  const section = document.getElementById('section-global-news-reaction');
   if (section) {
     section.addEventListener('input', syncToHiddenInput);
     section.addEventListener('change', syncToHiddenInput);
   }
 
-  var form = hiddenInput.closest('form');
+  const form = hiddenInput.closest('form');
   if (form) form.addEventListener('submit', syncToHiddenInput);
 
   /* ---- Restore UI from saved hidden input JSON ---- */
   function restoreFromSavedData() {
     if (!hiddenInput.value) return;
     try {
-      var data = JSON.parse(hiddenInput.value);
+      const data = JSON.parse(hiddenInput.value);
       if (data.worldReactionId && worldReactionHidden) {
         worldReactionHidden.value = data.worldReactionId;
-        var reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');
-        for (var i = 0; i < reactionRadios.length; i++) {
-          reactionRadios[i].checked = (reactionRadios[i].value == data.worldReactionId);
+        let reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');
+        for (let i = 0; i < reactionRadios.length; i++) {
+          reactionRadios[i].checked = (reactionRadios[i].value === String(data.worldReactionId));
         }
       }
       if (intlStatementEl && data.intlStatement)   intlStatementEl.value     = data.intlStatement;
       if (sanctionsCbEl)                           sanctionsCbEl.checked     = !!data.sanctionsImposed;
-      if (sanctionsRow)                            sanctionsRow.style.display = sanctionsCbEl && sanctionsCbEl.checked ? '' : 'none';
+      if (sanctionsRow)                            (sanctionsCbEl && sanctionsCbEl.checked) ? sanctionsRow.classList.remove('display-hidden') : sanctionsRow.classList.add('display-hidden');
       if (sanctionsDescEl && data.sanctionsDesc)   sanctionsDescEl.value     = data.sanctionsDesc;
       if (agreementCbEl)                           agreementCbEl.checked     = !!data.agreementReached;
-      if (agreementRow)                            agreementRow.style.display = agreementCbEl && agreementCbEl.checked ? '' : 'none';
+      if (agreementRow)                            (agreementCbEl && agreementCbEl.checked) ? agreementRow.classList.remove('display-hidden') : agreementRow.classList.add('display-hidden');
       if (agreementDescEl && data.agreementDesc)   agreementDescEl.value     = data.agreementDesc;
       if (data.mediaCoverageId && mediaCoverageHidden) {
         mediaCoverageHidden.value = data.mediaCoverageId;
-        var coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');
-        for (var c = 0; c < coverageRadios.length; c++) {
-          coverageRadios[c].checked = (coverageRadios[c].value == data.mediaCoverageId);
+        let coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');
+        for (let c = 0; c < coverageRadios.length; c++) {
+          coverageRadios[c].checked = (coverageRadios[c].value === String(data.mediaCoverageId));
         }
       }
     } catch (e) { /* ignore parse errors */ }
@@ -178,21 +178,21 @@
 
   window.newshubGlobalNewsReaction = {
     reset: function () {
-      var reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');
-      for (var i = 0; i < reactionRadios.length; i++) reactionRadios[i].checked = false;
+      const reactionRadios = document.querySelectorAll('input[name="global_news_world_reaction_radio"]');
+      for (let i = 0; i < reactionRadios.length; i++) reactionRadios[i].checked = false;
       if (worldReactionHidden) worldReactionHidden.value = '';
       if (intlStatementEl)     intlStatementEl.value     = '';
 
       if (sanctionsCbEl)  sanctionsCbEl.checked  = false;
-      if (sanctionsRow)   sanctionsRow.style.display  = 'none';
+      if (sanctionsRow)   sanctionsRow.classList.add('display-hidden');
       if (sanctionsDescEl) sanctionsDescEl.value = '';
 
       if (agreementCbEl)  agreementCbEl.checked  = false;
-      if (agreementRow)   agreementRow.style.display  = 'none';
+      if (agreementRow)   agreementRow.classList.add('display-hidden');
       if (agreementDescEl) agreementDescEl.value = '';
 
-      var coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');
-      for (var c = 0; c < coverageRadios.length; c++) coverageRadios[c].checked = false;
+      const coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');
+      for (let c = 0; c < coverageRadios.length; c++) coverageRadios[c].checked = false;
       if (mediaCoverageHidden) mediaCoverageHidden.value = '';
 
       hiddenInput.value = '';
