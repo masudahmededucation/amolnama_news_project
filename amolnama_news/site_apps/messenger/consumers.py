@@ -47,7 +47,7 @@ class MessengerConsumer(AsyncWebsocketConsumer):
                 self.group_name,
                 {
                     'type': 'typing_indicator',
-                    'user_id': self.scope['user'].id,
+                    'user_id': self.scope['user'].pk,
                     'is_typing': data.get('is_typing', False),
                 }
             )
@@ -61,7 +61,7 @@ class MessengerConsumer(AsyncWebsocketConsumer):
 
     async def typing_indicator(self, event):
         """Broadcast typing status to other participants."""
-        if event['user_id'] != self.scope['user'].id:
+        if event['user_id'] != self.scope['user'].pk:
             await self.send(text_data=json.dumps({
                 'type': 'typing',
                 'user_id': event['user_id'],

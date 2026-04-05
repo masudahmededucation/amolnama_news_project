@@ -4,6 +4,13 @@
 (function () {
   'use strict';
 
+  /* ---- Virtual scroll — init if available (loaded via virtual-scroll.js) ---- */
+  if (window.virtualScroll) {
+    const feedContainer = document.getElementById('post-feed') || document.getElementById('pulse-feed');
+    if (feedContainer) {
+      window.virtualScroll.init({ cardSelector: '.post-card', feedSelector: '#' + feedContainer.id });
+    }
+  }
 
   /* ---- SVG templates (defined once, reused) ---- */
   const LIKE_SVG_PATH = '<svg viewBox="0 0 24 24" class="post-card-like-svg LIKECLASS"><path d="M2 20h2V8H2v12zm22-11a2 2 0 0 0-2-2h-6.31l.95-4.57.03-.32a1.49 1.49 0 0 0-.44-1.06L15.17 0 7.59 7.59C7.22 7.95 7 8.45 7 9v10a2 2 0 0 0 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>';
@@ -1207,6 +1214,40 @@
     if (newHtml !== html) {
       textElement.innerHTML = newHtml;
     }
+  });
+
+  /* ---- VIDEO AUTO-PLAY ON SCROLL — play when 50%+ visible, pause when not ---- */
+  const videoAutoPlayObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      const videoElement = entry.target;
+      if (entry.isIntersecting) {
+        videoElement.play().catch(function () { /* autoplay blocked — ignore */ });
+      } else {
+        videoElement.pause();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  function observeVideoAutoPlay(containerElement) {
+    const videos = (containerElement || document).querySelectorAll('.post-card-media-video-full');
+    videos.forEach(function (videoElement) {
+      videoAutoPlayObserver.observe(videoElement);
+    });
+  }
+
+  /* Observe initial videos on page */
+  observeVideoAutoPlay();
+
+  /* Unmute button toggle */
+  document.addEventListener('click', function (event) {
+    const unmuteButton = event.target.closest('.post-card-media-video-unmute-button');
+    if (!unmuteButton) return;
+    const wrapper = unmuteButton.closest('.post-card-media-item-video-wrapper');
+    if (!wrapper) return;
+    const videoElement = wrapper.querySelector('.post-card-media-video-full');
+    if (!videoElement) return;
+    videoElement.muted = !videoElement.muted;
+    unmuteButton.textContent = videoElement.muted ? '🔇' : '🔊';
   });
 
   /* ---- VIDEO THUMBNAIL — extract frame at 1s, skip black/solid frames ---- */

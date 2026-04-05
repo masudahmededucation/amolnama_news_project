@@ -76,6 +76,7 @@
 
 {% block extra_js %}
 <script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
+<script src="{% static 'core/assets/js/utilities/virtual-scroll.js' %}" defer></script>
 <script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}" defer></script>
 <script src="{% static 'post/assets/js/pages/post-home.js' %}" defer></script>
 <script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}" defer></script>
@@ -124,6 +125,11 @@
   }, { rootMargin: '200px' });
 
   observer.observe(sentinel);
+
+  /* Virtual scroll — recycle off-screen post cards to keep DOM lean */
+  if (window.virtualScroll) {
+    window.virtualScroll.init({ cardSelector: '.post-card', feedSelector: '#pulse-feed' });
+  }
 })();
 </script>
 {% endblock %}
