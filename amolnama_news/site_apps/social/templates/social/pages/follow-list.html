@@ -68,7 +68,7 @@
               id="follow-list-follow-button-{{ user.user_profile_id }}"
               name="follow_list_follow_button_{{ user.user_profile_id }}"
               data-user-profile-id="{{ user.user_profile_id }}">
-        {% if user.is_following %}Following{% else %}Follow{% endif %}
+        {% if user.is_following %}Unfollow{% else %}Follow{% endif %}
       </button>
       {% endif %}
     </div>

@@ -92,7 +92,7 @@
     var followButtonHtml = '';
     if (!user.is_own_profile) {
       var buttonClass = user.is_following ? ' follow-list-follow-button-active' : '';
-      var buttonText = user.is_following ? 'Following' : 'Follow';
+      var buttonText = user.is_following ? 'Unfollow' : 'Follow';
       followButtonHtml = '<button type="button" class="follow-list-follow-button' + buttonClass + '" id="follow-list-follow-button-' + user.user_profile_id + '" name="follow_list_follow_button_' + user.user_profile_id + '" data-user-profile-id="' + user.user_profile_id + '">' + buttonText + '</button>';
     }
 
@@ -139,7 +139,7 @@
         followButton.disabled = false;
         if (data.success) {
           if (data.following) {
-            followButton.textContent = 'Following';
+            followButton.textContent = 'Unfollow';
             followButton.classList.add('follow-list-follow-button-active');
           } else {
             followButton.textContent = 'Follow';
