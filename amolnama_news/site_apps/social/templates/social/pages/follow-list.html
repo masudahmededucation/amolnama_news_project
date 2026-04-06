@@ -56,7 +56,8 @@
           <div class="follow-list-user-name-row">
             <span class="follow-list-user-display-name">{{ user.display_name|default:'ব্যবহারকারী' }}</span>
             {% if user.is_verified %}<svg class="follow-list-user-verified-badge" viewBox="0 0 24 24" fill="#1877F2" width="14" height="14"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}
-            {% if user.follows_you %}<span class="follow-list-user-follows-you-badge">Follows you</span>{% endif %}
+            {% if list_type == 'followers' %}<span class="follow-list-user-relationship-badge">Follows you</span>{% else %}<span class="follow-list-user-relationship-badge">You follow</span>{% endif %}
+            {% if user.follows_you and list_type == 'following' %}<span class="follow-list-user-follows-you-badge">Follows you back</span>{% endif %}
           </div>
           <span class="follow-list-user-handle">@{{ user.username_handle }}</span>
           {% if user.professional_bio_summary %}<p class="follow-list-user-bio">{{ user.professional_bio_summary }}</p>{% endif %}

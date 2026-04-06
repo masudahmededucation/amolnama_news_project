@@ -38,6 +38,7 @@
 .follow-list-user-name-row { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
 .follow-list-user-display-name { font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .follow-list-user-verified-badge { flex-shrink: 0; }
+.follow-list-user-relationship-badge { font-size: .6rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: .1rem .35rem; border-radius: 4px; white-space: nowrap; }
 .follow-list-user-follows-you-badge { font-size: .6rem; font-weight: 700; color: var(--muted); background: var(--surface); padding: .1rem .35rem; border-radius: 4px; white-space: nowrap; }
 .follow-list-user-handle { font-size: .78rem; color: var(--muted); display: block; }
 .follow-list-user-bio { font-size: .78rem; color: var(--muted); margin: .2rem 0 0; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
