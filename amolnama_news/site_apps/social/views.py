@@ -5,7 +5,30 @@ from django.shortcuts import render
 
 
 def home(request):
-    return render(request, 'core/base.html')
+    """Social home — shows current user's followers/following, or login prompt."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from .models import UserFollow
+
+    if not request.user.is_authenticated:
+        return render(request, 'social/pages/social-home.html', {
+            'seo': {'title': 'সামাজিক — আমলনামা নিউজ', 'noindex': True},
+        })
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return render(request, 'social/pages/social-home.html', {
+            'seo': {'title': 'সামাজিক — আমলনামা নিউজ', 'noindex': True},
+        })
+
+    # Redirect to the user's own followers page
+    from django.shortcuts import redirect
+    if current_profile.username_handle:
+        return redirect('social:followers_page', username_handle=current_profile.username_handle)
+
+    return render(request, 'social/pages/social-home.html', {
+        'seo': {'title': 'সামাজিক — আমলনামা নিউজ', 'noindex': True},
+    })
 
 
 def public_profile(request, username_handle):
