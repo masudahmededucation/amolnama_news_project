@@ -37,7 +37,7 @@
   function hideAll() {
     ALL_SECTION_IDS.forEach(function (id) {
       let el = document.getElementById(id);
-      if (el) el.classList.add('display-hidden');
+      if (el) el.hidden = true;
     });
   }
 
@@ -47,7 +47,7 @@
     const sectionId = GROUP_TO_SECTION[groupCode];
     if (!sectionId) return;
     const el = document.getElementById(sectionId);
-    if (el) el.classList.remove('display-hidden');
+    if (el) el.hidden = false;
   }
 
   /* Listen for sub-type changes */

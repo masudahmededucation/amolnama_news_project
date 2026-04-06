@@ -61,10 +61,13 @@
 
 /* ---- Processing overlay ---- */
 
+.bgr-processing-overlay:not([hidden]) {
+  display: flex;
+}
+
 .bgr-processing-overlay {
   position: absolute;
   inset: 0;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -223,7 +226,8 @@
 
 /* ---- Result tools bar (compare + zoom) ---- */
 
-.bgr-result-tools { display: flex; align-items: center; gap: .35rem; }
+.bgr-result-tools:not([hidden]) { display: flex; }
+.bgr-result-tools { align-items: center; gap: .35rem; }
 
 .bgr-result-tools-divider {
   width: 1px;
@@ -242,8 +246,11 @@
 
 /* ---- Tips bar ---- */
 
-.bgr-tips {
+.bgr-tips:not([hidden]) {
   display: flex;
+}
+
+.bgr-tips {
   align-items: center;
   flex-wrap: wrap;
   gap: .25rem .5rem;

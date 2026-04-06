@@ -31,7 +31,7 @@
   </div>
 
   {# Shown when FIR = YES #}
-  <div id="{{ fir_prefix }}-fir-details-row" class="display-hidden">
+  <div id="{{ fir_prefix }}-fir-details-row" hidden>
     <div class="form-field form-field-thana-search">
       <label for="{{ fir_prefix }}-police-station">🔍 থানার নাম অনুসন্ধান করুন (Search Police Station)</label>
       <input type="text" id="{{ fir_prefix }}-police-station" name="{{ fir_prefix }}_police_station"
@@ -45,7 +45,7 @@
   </div>
 
   {# Shown when FIR = POLICE_REFUSED #}
-  <div id="{{ fir_prefix }}-police-refused-row" class="display-hidden">
+  <div id="{{ fir_prefix }}-police-refused-row" hidden>
     <div class="form-field">
       <label for="{{ fir_prefix }}-police-refusal-statement">পুলিশের অস্বীকারের বিবৃতি (Police Refusal Statement)</label>
       <textarea id="{{ fir_prefix }}-police-refusal-statement" name="{{ fir_prefix }}_police_refusal_statement" rows="3"
@@ -54,7 +54,7 @@
   </div>
 
   {# Shown when FIR = NO #}
-  <div id="{{ fir_prefix }}-no-fir-row" class="display-hidden">
+  <div id="{{ fir_prefix }}-no-fir-row" hidden>
     <div class="form-field">
       <label for="{{ fir_prefix }}-no-fir-reason">মামলা না করার কারণ ও ভবিষ্যৎ পরিকল্পনা (Reason for Not Filing & Plans)</label>
       <textarea id="{{ fir_prefix }}-no-fir-reason" name="{{ fir_prefix }}_no_fir_reason" rows="3"

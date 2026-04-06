@@ -162,12 +162,12 @@
     radios.forEach(function (radio) {
       radio.addEventListener('change', function () {
         if (radio.value === 'draw') {
-          drawArea.classList.remove('display-hidden');
-          if (uploadArea) uploadArea.classList.add('display-hidden');
+          drawArea.hidden = false;
+          if (uploadArea) uploadArea.hidden = true;
           setTimeout(resizeCanvas, 0);
         } else {
-          drawArea.classList.add('display-hidden');
-          if (uploadArea) uploadArea.classList.remove('display-hidden');
+          drawArea.hidden = true;
+          if (uploadArea) uploadArea.hidden = false;
         }
       });
     });
@@ -177,7 +177,7 @@
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        if (!drawArea.classList.contains('display-hidden')) {
+        if (!drawArea.hidden) {
           resizeCanvas();
         }
       }, 200);

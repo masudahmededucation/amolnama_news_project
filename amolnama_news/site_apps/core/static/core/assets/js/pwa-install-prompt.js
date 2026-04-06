@@ -17,7 +17,7 @@
   let deferredPrompt = null;
   let pendingClick = false;
 
-  if (headerBtn) headerBtn.classList.remove('display-hidden');
+  if (headerBtn) headerBtn.hidden = false;
 
   /* ---- Capture beforeinstallprompt ---- */
   window.addEventListener('beforeinstallprompt', function (e) {

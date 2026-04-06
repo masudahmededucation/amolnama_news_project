@@ -6,7 +6,7 @@
  */
 function displayVoteReceipt(receiptCode) {
   const breadcrumb = document.getElementById('breadcrumb');
-  if (breadcrumb) breadcrumb.classList.add('display-hidden');
+  if (breadcrumb) breadcrumb.hidden = true;
 
   showVotingStep('receipt-view');
 
@@ -95,7 +95,7 @@ function fetchNationalResults(electionEvaluationId, attempt) {
       });
 
       listEl.innerHTML = html;
-      container.classList.remove('display-hidden');
+      container.hidden = false;
     })
     .catch(function (error) {
     });

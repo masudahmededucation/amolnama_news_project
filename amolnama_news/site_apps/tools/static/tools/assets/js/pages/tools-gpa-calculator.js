@@ -26,7 +26,7 @@
 
       const id = tab.dataset.tab;
       Object.keys(panels).forEach(function (key) {
-        panels[key].classList.toggle("display-hidden", key !== id);
+        panels[key].hidden = key !== id;
       });
     });
   });
@@ -105,7 +105,7 @@
     });
 
     if (mandatoryGPs.length === 0) {
-      sscResultCard.classList.add("display-hidden");
+      sscResultCard.hidden = true;
       saveState();
       return;
     }
@@ -162,7 +162,7 @@
   }
 
   function showSscResult(gpa, status, badgeClass, isGolden, detail) {
-    sscResultCard.classList.remove("display-hidden");
+    sscResultCard.hidden = false;
     sscResultValue.textContent = gpa.toFixed(2);
     sscResultValue.className = "gpa-result-value" + (gpa === 0 ? " gpa-result-value--fail" : "") + (isGolden ? " gpa-result-value--golden" : "");
     sscResultBadge.textContent = status;
@@ -259,7 +259,7 @@
     });
 
     if (filledCount === 0 || totalCredits === 0) {
-      uniResultCard.classList.add("display-hidden");
+      uniResultCard.hidden = true;
       saveState();
       return;
     }
@@ -281,7 +281,7 @@
       badgeClass = "warning";
     }
 
-    uniResultCard.classList.remove("display-hidden");
+    uniResultCard.hidden = false;
     uniResultValue.textContent = cgpa.toFixed(2);
     uniResultValue.className = "gpa-result-value" + (hasFail ? " gpa-result-value--fail" : "");
     uniResultBadge.textContent = academicClass;
@@ -319,7 +319,7 @@
     const targetCGPA = parseFloat(document.getElementById("gpa-target-goal").value);
 
     if (isNaN(currentCGPA) || isNaN(creditsDone) || isNaN(creditsNext) || isNaN(targetCGPA) || creditsNext <= 0) {
-      targetResultCard.classList.add("display-hidden");
+      targetResultCard.hidden = true;
       saveState();
       return;
     }
@@ -330,7 +330,7 @@
     const neededNext = neededTotal - currentPoints;
     const requiredGPA = neededNext / creditsNext;
 
-    targetResultCard.classList.remove("display-hidden");
+    targetResultCard.hidden = false;
     targetValue.textContent = requiredGPA.toFixed(2);
 
     let badgeText, badgeClass, message, progressClass;

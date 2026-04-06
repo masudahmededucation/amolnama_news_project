@@ -17,13 +17,13 @@
   }
 
   function showFeed() {
-    feedContainer.classList.remove('display-hidden');
-    resultsContainer.classList.add('display-hidden');
+    feedContainer.hidden = false;
+    resultsContainer.hidden = true;
   }
 
   function showResults() {
-    feedContainer.classList.add('display-hidden');
-    resultsContainer.classList.remove('display-hidden');
+    feedContainer.hidden = true;
+    resultsContainer.hidden = false;
   }
 
   function performSearch(query) {

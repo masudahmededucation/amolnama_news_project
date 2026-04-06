@@ -16,14 +16,14 @@
       <label class="post-composer-media-option post-composer-media-option-photo-video" id="post-composer-photo-video-option" name="post_composer_photo_video_option" title="ছবি/ভিডিও যোগ করুন (Add photo/video)">
         <span class="post-composer-media-option-icon">🖼️ 🎥</span>
         <span class="post-composer-media-option-label">ছবি/ভিডিও</span>
-        <input type="file" id="post-composer-media-input" name="post_composer_media_input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple class="display-hidden">
+        <input type="file" id="post-composer-media-input" name="post_composer_media_input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple hidden>
       </label>
       <button type="button" class="post-composer-media-option post-composer-media-option-emoji" id="post-composer-emoji-button" name="post_composer_emoji_button" title="ইমোজি (Emoji)">
         <span class="post-composer-media-option-icon">😊</span>
         <span class="post-composer-media-option-label">ইমোজি</span>
       </button>
     </div>
-    <div class="post-composer-emoji-picker display-hidden" id="post-composer-emoji-picker">
+    <div class="post-composer-emoji-picker" hidden id="post-composer-emoji-picker">
       <div class="post-composer-emoji-tabs" id="post-composer-emoji-tabs">
         <button type="button" class="post-composer-emoji-tab post-composer-emoji-tab-active" data-category="smileys" id="post-composer-emoji-tab-smileys" name="post_composer_emoji_tab_smileys">😊</button>
         <button type="button" class="post-composer-emoji-tab" data-category="gestures" id="post-composer-emoji-tab-gestures" name="post_composer_emoji_tab_gestures">👍</button>
@@ -52,6 +52,6 @@
       </div>
     </div>
     <div class="post-composer-media-preview" id="post-composer-media-preview"></div>
-    <div class="post-composer-link-preview display-hidden" id="post-composer-link-preview"></div>
+    <div class="post-composer-link-preview" hidden id="post-composer-link-preview"></div>
   </div>
 </div>

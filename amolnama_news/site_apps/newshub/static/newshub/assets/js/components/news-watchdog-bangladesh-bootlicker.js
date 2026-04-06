@@ -78,7 +78,7 @@
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!targetPerson || !targetPerson.value.trim()) {
         warnings.push('\u09AF\u09BE\u0995\u09C7 \u09A4\u09CB\u09B7\u09BE\u09AE\u09CB\u09A6 \u0995\u09B0\u09BE \u09B9\u099A\u09CD\u099B\u09C7 \u09A4\u09BE\u09B0 \u09A8\u09BE\u09AE \u09A6\u09BF\u09A8 (Please enter who is being flattered)');

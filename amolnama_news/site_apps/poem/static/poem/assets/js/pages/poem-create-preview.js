@@ -39,7 +39,7 @@
     const author = val("poem-author-name");
     if (previewAuthor) {
       previewAuthor.textContent = author ? "— " + author : "";
-      previewAuthor.classList.toggle("display-hidden", !author);
+      previewAuthor.hidden = !author;
     }
 
     const body = val("poem-body-bn") || val("poem-body-en") || "";
@@ -53,17 +53,17 @@
     const backstory = val("poem-backstory-bn") || val("poem-backstory-en") || "";
     if (backstory) {
       previewBackstory.textContent = backstory;
-      previewBackstoryWrap.classList.remove("display-hidden");
+      previewBackstoryWrap.hidden = false;
     } else {
-      previewBackstoryWrap.classList.add("display-hidden");
+      previewBackstoryWrap.hidden = true;
     }
 
     const interpretation = val("poem-interpretation-bn") || val("poem-interpretation-en") || "";
     if (interpretation) {
       previewInterpretation.textContent = interpretation;
-      previewInterpretationWrap.classList.remove("display-hidden");
+      previewInterpretationWrap.hidden = false;
     } else {
-      previewInterpretationWrap.classList.add("display-hidden");
+      previewInterpretationWrap.hidden = true;
     }
   }
 

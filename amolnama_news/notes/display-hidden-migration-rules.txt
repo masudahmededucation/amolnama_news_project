@@ -1,0 +1,135 @@
+display-hidden to hidden Attribute Migration — Rules & Plan
+=============================================================
+Created: 2026-04-05
+Scope: 355 HTML templates + 373 JS instances + 42 CSS rules
+
+
+PROBLEM
+-------
+.display-hidden { display: none } is a CSS class in forms.css (line 73).
+Before CSS loads, the class does nothing — elements are VISIBLE.
+Overlays, modals, hidden panels, toggle elements all flash on page load.
+
+
+ROOT CAUSE
+----------
+CSS classes only work after CSS files load. HTML hidden attribute works
+immediately — browser default [hidden] { display: none } is built-in.
+
+
+PROVEN PATTERN (already in project)
+------------------------------------
+photo-lightbox.html: <div class="photo-lightbox" id="photo-lightbox" hidden>
+photo-lightbox.css:  .photo-lightbox:not([hidden]) { display: flex; }
+photo-lightbox.js:   lightboxElement.hidden = false; // show
+                     lightboxElement.hidden = true;  // hide
+
+post-feed-interactions.js: newPostsPill.hidden = true/false;
+post-home.css: .post-feed-new-posts-pill:not([hidden]) { display: block; }
+
+
+MIGRATION RULES
+---------------
+Rule 1: HTML — replace class="display-hidden" with hidden attribute
+  Before: <div class="foo-bar display-hidden" id="my-element">
+  After:  <div class="foo-bar" id="my-element" hidden>
+
+Rule 2: CSS — add :not([hidden]) ONLY where element has explicit display rule
+  Before: .foo-bar { display: flex; align-items: center; }
+  After:  .foo-bar:not([hidden]) { display: flex; } .foo-bar { align-items: center; }
+  OR:     .foo-bar:not([hidden]) { display: flex; align-items: center; }
+
+  If element has NO explicit display rule, no CSS change needed.
+
+Rule 3: JS — replace classList methods with .hidden property
+  classList.add('display-hidden')           -> element.hidden = true
+  classList.remove('display-hidden')        -> element.hidden = false
+  classList.toggle('display-hidden')        -> element.hidden = !element.hidden
+  classList.toggle('display-hidden', bool)  -> element.hidden = bool
+  classList.contains('display-hidden')      -> element.hidden
+
+Rule 4: Keep .display-hidden CSS rule as fallback until ALL files migrated
+  Remove it ONLY after 100% verification.
+
+
+42 CSS CLASSES NEEDING :not([hidden]) (have explicit display rules)
+-------------------------------------------------------------------
+1.  bgr-processing-overlay       → display: flex   (tools-background-remover.css)
+2.  bgr-editor                   → display: grid   (tools-background-remover.css)
+3.  bgr-result-tools             → display: flex   (tools-background-remover.css)
+4.  bgr-tips                     → display: flex   (tools-background-remover.css)
+5.  beauty-hub-file-preview      → display: flex   (beauty-hub.css)
+6.  beauty-hub-media-preview     → display: flex   (beauty-hub.css)
+7.  beauty-hub-festival-panel    → display: flex   (beauty-hub.css)
+8.  compress-file-list           → display: flex   (tools-reduce-file-size.css)
+9.  compress-results             → display: flex   (tools-reduce-file-size.css)
+10. compress-compare-overlay     → display: flex   (tools-reduce-file-size.css)
+11. tool-card                    → display: flex   (tools.css)
+12. breadcrumb                   → display: flex   (voting-selection.css)
+13. poem-audio-video-wrap        → display: block  (poem-detail.css)
+14. poem-radio-next              → display: flex   (poem-detail.css)
+15. post-composer-emoji-picker   → display: flex   (post-home.css)
+16. post-composer-link-preview   → display: flex   (post-home.css)
+17. zip-panel                    → display: flex   (tools-zip-creator.css)
+18. search-page-results          → display: flex   (search-home.css)
+19. avatar-cropper-modal         → display: flex   (avatar-upload.css)
+20. convert-panel                → display: flex   (tools-file-conversion.css)
+21. communityvoice-preview-block      → display: flex (communityvoice.css)
+22. communityvoice-preview-block-small → display: flex (communityvoice.css)
+23. gpa-result-card              → display: flex   (tools-gpa-calculator.css)
+24. mgr-workspace                → display: flex   (tools-merge-documents.css)
+25. photo-resizer-bg-options     → display: flex   (tools-passport-photo-resizer.css)
+26. poem-filter-crumbs           → display: flex   (poem-landing.css)
+27. spl-workspace                → display: flex   (tools-split-pdf.css)
+28. spl-range-panel              → display: grid   (tools-split-pdf.css)
+29. textextractor-upload-progress → display: flex  (textextractor-upload.css)
+30. textextractor-upload-result  → display: flex   (textextractor-upload.css)
+31. pwa-header-install           → display: inline-flex (pwa-install-banner.css)
+32. file-info                    → display: flex   (news-collection.css)
+33. village-other-input          → display: block  (news-collection.css)
+34. commodity-detail-display     → display: flex   (news-collection.css)
+35. price-gap-calculated         → display: flex   (news-collection.css)
+36-42. Additional widget/form descendants in news-collection.css
+
+
+34 CSS CLASSES SAFE TO MIGRATE (no display override)
+-----------------------------------------------------
+age-results, album-result, art-upload-error-message, article-status-select,
+compress-action-spinner, compress-settings, convert-action-spinner, convert-result,
+form-field-error, form-field-warning, lbl-en, link-preview-block, mgr-error,
+mgr-progress, mgr-result, national-results-section, page-message,
+photo-resizer-btn, photo-resizer-btn--download, photo-resizer-editor,
+poem-create-preview-section, sig-text, social-url-mismatch, spl-error,
+spl-progress, spl-result, sports-conditional-section, stories-submit-error-message,
+textextractor-upload-error, tool-card--marriage, weapon-other-input,
+zip-action-spinner, zip-result, beauty-hub-desc-bn
+
+
+IMPLEMENTATION PLAN — SPLIT INTO CHUNKS
+-----------------------------------------
+Process per chunk: CSS first (add :not([hidden])), then HTML, then JS.
+Test each chunk before moving to next.
+
+CHUNK 1: Core shared components
+  - photo-lightbox (already done — verify)
+  - pwa-install-banner
+  - communityvoice
+
+CHUNK 2: Tools app (tools-reduce-file-size, tools-background-remover,
+  tools-passport-photo, tools-zip, tools-split-pdf, tools-merge,
+  tools-file-conversion, tools-gpa-calculator, tools-photo-album)
+
+CHUNK 3: Post app (post-composer, post-feed)
+
+CHUNK 4: Bangladesh app (beauty-hub, travel-hub)
+
+CHUNK 5: Election + evaluation vote apps
+
+CHUNK 6: Newshub app (news-collection forms — largest, most complex)
+
+CHUNK 7: Marriage, poem, art, stories, search, portal, textextractor
+
+CHUNK 8: Final cleanup
+  - Verify ALL pages
+  - Remove .display-hidden CSS rule from forms.css
+  - Bump cache + collectstatic

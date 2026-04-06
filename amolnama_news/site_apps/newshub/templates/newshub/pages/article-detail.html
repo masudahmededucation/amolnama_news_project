@@ -14,7 +14,7 @@
 {% block content %}
 
 {# ======== Hero Cover Image ======== #}
-<div class="article-detail-hero{% if not cover_image_url %} display-hidden{% endif %}" id="article-detail-hero" {% if cover_image_url %}style="background-image:url('{{ cover_image_url }}');"{% endif %}></div>
+<div class="article-detail-hero" {% if not cover_image_url %}hidden{% endif %} id="article-detail-hero" {% if cover_image_url %}style="background-image:url('{{ cover_image_url }}');"{% endif %}></div>
 
 <div class="article-detail-container">
 
@@ -62,7 +62,7 @@
         </span>
         {% if can_edit %}
         <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" name="article_status_edit" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
-        <select class="article-status-select display-hidden" id="article-publication-status-select"
+        <select class="article-status-select" hidden id="article-publication-status-select"
                 name="article_publication_status"
                 data-entry-id="{{ entry.newshub_coll_news_entry_id }}"
                 data-current="{{ entry.link_ref_status_article_publication_status_id }}"

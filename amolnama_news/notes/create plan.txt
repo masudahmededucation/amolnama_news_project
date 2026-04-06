@@ -1,38 +1,40 @@
 --deep research
-deep research. 
-make it professional. 
-no rush and check. 
-check and check for unlimited time.
-no test and test, keep doing test.
+deep research, compare, create rule, documents, plan, then implement.
+make it professional.
+gold standard business practice.
+competitive app design practice.
+safe practice.
+no shortcut dangerous practice.
 no layer on top of layer code.
 logic should be clean, clear, concise.
 no duplicate codes.
-yes, i want you to implement it. 
-But you have to promise me of no lying. 
-no cheating. 
-no shitty code. 
-no skipping. 
-safe practice
-no shortcut dangerous practice
-gold standard business practice
-competitive app design practice
-
+no shitty code.
+no skipping.
+no lying.
+no cheating.
+no later later game.
+redesign, rewrite everything everywhere.
+no rush and check.
+check and check for unlimited time.
+no test and test, keep doing test.
+re-check everything now.
+yes, i want you to implement it.
 
 --create implementation plan
-can you create a robust plan. 
-then check for bugs in the plan again. 
-then continue implementing it. 
+can you create a robust plan.
+then check for bugs in the plan again.
+then continue implementing it.
+
 --split into smaller tasks
-you should be writing plan 
-and implementing step 1 to... and mark them once done. 
+you should be writing plan.
+implementing step 1 to... and mark them once done.
 this way you know what is done and not.
+
 --start implementing
+start implementing.
 
-
-deep research, compare, create rule, documents, plan, then implement.
 --compare the plan
-at last check that you have completed the task properly
-
+at last check that you have completed the task properly.
 
 #################
 --auto posting app

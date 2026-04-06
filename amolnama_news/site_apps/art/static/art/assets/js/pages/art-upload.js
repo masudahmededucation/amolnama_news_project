@@ -14,8 +14,8 @@
   function showError(text) {
     if (errorMessage) {
       errorMessage.textContent = text;
-      errorMessage.classList.remove('display-hidden');
-      setTimeout(function () { errorMessage.classList.add('display-hidden'); }, 5000);
+      errorMessage.hidden = false;
+      setTimeout(function () { errorMessage.hidden = true; }, 5000);
     }
   }
 

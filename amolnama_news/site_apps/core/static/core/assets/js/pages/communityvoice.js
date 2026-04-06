@@ -27,10 +27,10 @@ function updateYouTubePreview(url) {
     if (id) {
         // Basic embed URL. You can add params if you want.
         youtubeFrame.src = "https://www.youtube.com/embed/" + encodeURIComponent(id) + "?rel=0";
-        youtubePreview.classList.remove('display-hidden');
+        youtubePreview.hidden = false;
     } else {
         youtubeFrame.src = "";
-        youtubePreview.classList.add('display-hidden');
+        youtubePreview.hidden = true;
     }
 }
 
@@ -44,10 +44,10 @@ function updateSimplePreview(inputId, previewBlockId, previewTextId) {
     function refresh() {
         if (input.value.trim()) {
             previewText.textContent = input.value.trim();
-            previewBlock.classList.remove('display-hidden');
+            previewBlock.hidden = false;
         } else {
             previewText.textContent = "";
-            previewBlock.classList.add('display-hidden');
+            previewBlock.hidden = true;
         }
     }
 

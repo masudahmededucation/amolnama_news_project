@@ -16,7 +16,7 @@
   /* Inline confirmation message element */
   const messageElement = document.createElement('span');
   messageElement.className = 'poem-clear-form-message';
-  messageElement.classList.add('display-hidden');
+  messageElement.hidden = true;
   button.parentNode.insertBefore(messageElement, button);
 
   let confirmTimer = null;
@@ -29,7 +29,7 @@
       button.textContent = '\u09B9\u09CD\u09AF\u09BE\u0981, \u09AE\u09C1\u099B\u09C1\u09A8 (Yes, Clear)';
       button.classList.add('poem-clear-form-button-confirm');
       messageElement.textContent = '\u09A8\u09BF\u09B6\u09CD\u099A\u09BF\u09A4? (Sure?)';
-      messageElement.classList.remove('display-hidden');
+      messageElement.hidden = false;
       confirmTimer = setTimeout(function () {
         resetButtonState();
       }, 4000);
@@ -41,8 +41,8 @@
     clearTimeout(confirmTimer);
     resetButtonState();
     messageElement.textContent = '\u09AE\u09C1\u099B\u09C7 \u09AB\u09C7\u09B2\u09BE \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 (Cleared!)';
-    messageElement.classList.remove('display-hidden');
-    setTimeout(function () { messageElement.classList.add('display-hidden'); }, 3000);
+    messageElement.hidden = false;
+    setTimeout(function () { messageElement.hidden = true; }, 3000);
 
     /* 1. Clear all form fields */
     const elements = form.elements;
@@ -69,8 +69,8 @@
     if (previewTitle) previewTitle.textContent = '';
     if (previewAuthor) previewAuthor.textContent = '';
     if (previewBody) previewBody.innerHTML = '<span class="poem-create-preview-empty">\u0995\u09AC\u09BF\u09A4\u09BE \u09B2\u09BF\u0996\u09A4\u09C7 \u09B6\u09C1\u09B0\u09C1 \u0995\u09B0\u09C1\u09A8...</span>';
-    if (previewBackstoryWrap) previewBackstoryWrap.classList.add('display-hidden');
-    if (previewInterpretationWrap) previewInterpretationWrap.classList.add('display-hidden');
+    if (previewBackstoryWrap) previewBackstoryWrap.hidden = true;
+    if (previewInterpretationWrap) previewInterpretationWrap.hidden = true;
 
     /* 4. Reset counters */
     const counterBn = document.getElementById('poemBodyBnCounter');
@@ -87,6 +87,6 @@
     awaitingConfirm = false;
     button.textContent = '\u09A4\u09A5\u09CD\u09AF \u09AE\u09C1\u099B\u09C1\u09A8 (Clear Form)';
     button.classList.remove('poem-clear-form-button-confirm');
-    messageElement.classList.add('display-hidden');
+    messageElement.hidden = true;
   }
 })();

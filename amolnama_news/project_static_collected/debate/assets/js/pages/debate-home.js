@@ -20,7 +20,7 @@
         const combined = title + ' ' + description;
         const queryWords = query.split(' ').filter(function (word) { return word.length > 0; });
         const match = queryWords.length === 0 || queryWords.every(function (word) { return combined.indexOf(word) !== -1; });
-        match ? card.classList.remove('display-hidden') : card.classList.add('display-hidden');
+        match ? card.hidden = false : card.hidden = true;
       });
     });
   }
@@ -34,7 +34,7 @@
   createButton.addEventListener('click', function () {
     if (formVisible) return;
     formVisible = true;
-    createButton.classList.add('display-hidden');
+    createButton.hidden = true;
 
     /* Build inline form */
     const formContainer = document.createElement('div');
@@ -215,7 +215,7 @@
     /* Cancel */
     cancelButton.addEventListener('click', function () {
       formContainer.remove();
-      createButton.classList.remove('display-hidden');
+      createButton.hidden = false;
       formVisible = false;
     });
 

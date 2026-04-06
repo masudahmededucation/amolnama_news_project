@@ -89,14 +89,14 @@
 
   function onStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-      iconPlay.classList.add("display-hidden");
-      iconPause.classList.remove("display-hidden");
+      iconPlay.hidden = true;
+      iconPause.hidden = false;
       isTransitioning = false;
       transitionRetryCount = 0;
       startProgressUpdate();
     } else if (event.data === YT.PlayerState.PAUSED) {
-      iconPlay.classList.remove("display-hidden");
-      iconPause.classList.add("display-hidden");
+      iconPlay.hidden = false;
+      iconPause.hidden = true;
       stopProgressUpdate();
 
       /* If we just loaded a new video (transition) and it paused immediately,
@@ -111,8 +111,8 @@
         }, 800 * transitionRetryCount);
       }
     } else if (event.data === YT.PlayerState.ENDED) {
-      iconPlay.classList.remove("display-hidden");
-      iconPause.classList.add("display-hidden");
+      iconPlay.hidden = false;
+      iconPause.hidden = true;
       stopProgressUpdate();
       progressFill.style.width = "100%";
       isTransitioning = false;
@@ -207,12 +207,12 @@
     if (!player) return;
     if (isMuted) {
       player.unMute();
-      iconVol.classList.remove("display-hidden");
-      iconMute.classList.add("display-hidden");
+      iconVol.hidden = false;
+      iconMute.hidden = true;
     } else {
       player.mute();
-      iconVol.classList.add("display-hidden");
-      iconMute.classList.remove("display-hidden");
+      iconVol.hidden = true;
+      iconMute.hidden = false;
     }
     isMuted = !isMuted;
   });
@@ -220,7 +220,7 @@
   // Watch Video — expand
   videoBtn.addEventListener("click", function() {
     if (!player) return;
-    videoWrap.classList.remove("display-hidden");
+    videoWrap.hidden = false;
     // Resize player to visible video
     let iframe = document.querySelector("#poemYTPlayer");
     if (iframe) {
@@ -229,12 +229,12 @@
       iframe.style.aspectRatio = "16/9";
     }
     isVideoExpanded = true;
-    videoBtn.classList.add("display-hidden");
+    videoBtn.hidden = true;
   });
 
   // Collapse video
   collapseBtn.addEventListener("click", function() {
-    videoWrap.classList.add("display-hidden");
+    videoWrap.hidden = true;
     const iframe = document.querySelector("#poemYTPlayer");
     if (iframe) {
       iframe.style.width = "0";
@@ -242,7 +242,7 @@
       iframe.style.aspectRatio = "";
     }
     isVideoExpanded = false;
-    videoBtn.classList.remove("display-hidden");
+    videoBtn.hidden = false;
   });
 
   // ---- Radio Autoplay ----
@@ -300,7 +300,7 @@
     radioNextTitle.textContent = (categoryChanged ? "🔀 " : "") + next.title;
     radioNextAuthor.textContent = "— " + next.author + (categoryChanged ? " (" + next.category + ")" : "");
     radioNextPreview.textContent = next.body.substring(0, 150) + (next.body.length > 150 ? "..." : "");
-    radioNextEl.classList.remove("display-hidden");
+    radioNextEl.hidden = false;
 
     let countdown = 5;
     radioCountdownEl.textContent = countdown;
@@ -322,7 +322,7 @@
     radioCancelBtn.addEventListener("click", function() {
       radioCancelled = true;
       if (radioTimer) clearInterval(radioTimer);
-      radioNextEl.classList.add("display-hidden");
+      radioNextEl.hidden = true;
     });
   }
 
@@ -394,9 +394,9 @@
     if (backstoryContent && backstoryToggle) {
       if (next.backstory) {
         backstoryContent.textContent = next.backstory;
-        backstoryToggle.closest(".poem-detail-section").classList.remove("display-hidden");
+        backstoryToggle.closest(".poem-detail-section").hidden = false;
       } else {
-        backstoryToggle.closest(".poem-detail-section").classList.add("display-hidden");
+        backstoryToggle.closest(".poem-detail-section").hidden = true;
       }
     }
     const interpContent = document.getElementById("interpretation");
@@ -404,14 +404,14 @@
     if (interpContent && interpToggle) {
       if (next.interpretation) {
         interpContent.textContent = next.interpretation;
-        interpToggle.closest(".poem-detail-section").classList.remove("display-hidden");
+        interpToggle.closest(".poem-detail-section").hidden = false;
       } else {
-        interpToggle.closest(".poem-detail-section").classList.add("display-hidden");
+        interpToggle.closest(".poem-detail-section").hidden = true;
       }
     }
 
     // Hide the "Up Next" banner
-    radioNextEl.classList.add("display-hidden");
+    radioNextEl.hidden = true;
 
     // Load new YouTube video
     const newVideoId = extractYouTubeId(next.audio_url);
@@ -440,8 +440,8 @@
         .then(function(data) {
           const grid = relatedSection.querySelector(".poem-detail-related-grid");
           if (!grid || !data.poems) return;
-          if (!data.poems.length) { relatedSection.classList.add("display-hidden"); return; }
-          relatedSection.classList.remove("display-hidden");
+          if (!data.poems.length) { relatedSection.hidden = true; return; }
+          relatedSection.hidden = false;
           /* Mark as autoplay-active so queue numbers become visible */
           relatedSection.classList.add("poem-detail-related-autoplay-active");
           let html = "";

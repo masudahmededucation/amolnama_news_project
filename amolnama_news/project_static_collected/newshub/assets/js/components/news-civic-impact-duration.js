@@ -66,7 +66,7 @@
   /* Toggle complaint details row visibility */
   function toggleComplaintRow() {
     if (!prevComplaint || !complaintRow) return;
-    prevComplaint.checked ? complaintRow.classList.remove('display-hidden') : complaintRow.classList.add('display-hidden');
+    complaintRow.hidden = !prevComplaint.checked;
     if (!prevComplaint.checked && complaintDetails) {
       complaintDetails.value = '';
     }

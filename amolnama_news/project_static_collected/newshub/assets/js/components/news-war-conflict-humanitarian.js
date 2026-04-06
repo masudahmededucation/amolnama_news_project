@@ -31,7 +31,7 @@
   /* Toggle war crimes details row visibility */
   function toggleWarCrimesRow() {
     if (!warCrimes || !warCrimesRow) return;
-    warCrimes.checked ? warCrimesRow.classList.remove('display-hidden') : warCrimesRow.classList.add('display-hidden');
+    warCrimesRow.hidden = !warCrimes.checked;
     if (!warCrimes.checked && warCrimesDesc) {
       warCrimesDesc.value = '';
     }

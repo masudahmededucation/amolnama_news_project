@@ -11,10 +11,10 @@ function showVotingStep(stepId) {
   ];
   allSteps.forEach(function (id) {
     const el = document.getElementById(id);
-    if (el) el.classList.add('display-hidden');
+    if (el) el.hidden = true;
   });
   const target = document.getElementById(stepId);
-  if (target) target.classList.remove('display-hidden');
+  if (target) target.hidden = false;
 }
 
 /**
@@ -23,7 +23,7 @@ function showVotingStep(stepId) {
 function updateBreadcrumbTrail(election, division, district, constituency) {
   let breadcrumb = document.getElementById('breadcrumb');
   if (!breadcrumb) return;
-  breadcrumb.classList.remove('display-hidden');
+  breadcrumb.hidden = false;
 
   let html = '';
 
@@ -61,7 +61,7 @@ function navigateBackToElections() {
   selectedParty = null;
 
   const breadcrumb = document.getElementById('breadcrumb');
-  if (breadcrumb) breadcrumb.classList.add('display-hidden');
+  if (breadcrumb) breadcrumb.hidden = true;
 
   showVotingStep('election-view');
 }

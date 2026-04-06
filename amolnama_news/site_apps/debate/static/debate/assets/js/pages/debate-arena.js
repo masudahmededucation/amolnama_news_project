@@ -428,7 +428,7 @@
           shareDropdown.classList.remove('debate-arena-share-dropdown-open');
         });
       } else {
-        nativeShareButton.classList.add('display-hidden');
+        nativeShareButton.hidden = true;
       }
     }
   }
@@ -603,7 +603,7 @@
 
           let embedHtml = '';
           if (data.image) {
-            embedHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="debate-argument-link-embed-image" onerror="this.classList.add(\'display-hidden\')">';
+            embedHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="debate-argument-link-embed-image" onerror="this.hidden=true">';
           }
           embedHtml += '<div class="debate-argument-link-embed-info">';
           embedHtml += '<span class="debate-argument-link-embed-title">' + escapeHtml(data.title) + '</span>';
@@ -663,16 +663,16 @@
 
         /* Update winner banner */
         const winnerElements = document.querySelectorAll('.debate-passion-winner');
-        winnerElements.forEach(function (element) { element.classList.add('display-hidden'); });
+        winnerElements.forEach(function (element) { element.hidden = true; });
         if (data.winning_side === 'blue') {
           const blueWinner = document.querySelector('.debate-passion-winner-blue');
-          if (blueWinner) blueWinner.classList.remove('display-hidden');
+          if (blueWinner) blueWinner.hidden = false;
         } else if (data.winning_side === 'red') {
           const redWinner = document.querySelector('.debate-passion-winner-red');
-          if (redWinner) redWinner.classList.remove('display-hidden');
+          if (redWinner) redWinner.hidden = false;
         } else {
           const tieWinner = document.querySelector('.debate-passion-winner-tie');
-          if (tieWinner) tieWinner.classList.remove('display-hidden');
+          if (tieWinner) tieWinner.hidden = false;
         }
 
         /* Tick circle — show on voted button, remove from other */
@@ -743,7 +743,7 @@
                   body: JSON.stringify({}),
                 }).then(function () {
                   let countBadge = document.getElementById('debate-arena-notification-count');
-                  if (countBadge) countBadge.classList.add('display-hidden');
+                  if (countBadge) countBadge.hidden = true;
                   notificationDropdown.classList.add('debate-arena-notification-dropdown-hidden');
                 }).catch(function () {});
               });
@@ -772,7 +772,7 @@
             const countBadge = document.getElementById('debate-arena-notification-count');
             if (countBadge && data.unread_count > 0) {
               countBadge.textContent = data.unread_count;
-              countBadge.classList.remove('display-hidden');
+              countBadge.hidden = false;
             }
           }
         })

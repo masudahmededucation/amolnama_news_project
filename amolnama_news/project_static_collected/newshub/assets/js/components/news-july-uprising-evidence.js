@@ -48,7 +48,7 @@
 
   function toggleEyewitnessCount() {
     if (eyewitnessCountRow) {
-      (hasEyewitness && hasEyewitness.checked) ? eyewitnessCountRow.classList.remove('display-hidden') : eyewitnessCountRow.classList.add('display-hidden');
+      (hasEyewitness && eyewitnessCountRow.hidden = !hasEyewitness.checked);
     }
   }
 

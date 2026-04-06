@@ -43,7 +43,7 @@
   {% if story.pages %}
   <div class="stories-detail-pages" id="stories-detail-pages">
     {% for page in story.pages %}
-    <div class="stories-detail-page{% if not forloop.first %} display-hidden{% endif %}" id="stories-detail-page-{{ page.page_number }}" data-page-number="{{ page.page_number }}">
+    <div class="stories-detail-page" {% if not forloop.first %}hidden{% endif %} id="stories-detail-page-{{ page.page_number }}" data-page-number="{{ page.page_number }}">
       <div class="stories-detail-page-content">{{ page.page_content_html_bn|safe }}</div>
     </div>
     {% endfor %}

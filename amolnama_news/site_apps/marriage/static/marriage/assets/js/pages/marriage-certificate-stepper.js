@@ -35,11 +35,11 @@
     const bnEls = document.querySelectorAll('.lbl-bn');
     const enEls = document.querySelectorAll('.lbl-en');
     if (lang === 'en') {
-      bnEls.forEach(function (el) { el.classList.add('display-hidden'); });
-      enEls.forEach(function (el) { el.classList.remove('display-hidden'); });
+      bnEls.forEach(function (el) { el.hidden = true; });
+      enEls.forEach(function (el) { el.hidden = false; });
     } else {
-      bnEls.forEach(function (el) { el.classList.remove('display-hidden'); });
-      enEls.forEach(function (el) { el.classList.add('display-hidden'); });
+      bnEls.forEach(function (el) { el.hidden = false; });
+      enEls.forEach(function (el) { el.hidden = true; });
     }
 
     /* Swap placeholders */
@@ -149,11 +149,11 @@
     });
 
     if (btnPrev) {
-      btnPrev.classList.toggle('display-hidden', currentStep === 1);
+      btnPrev.hidden = (currentStep === 1);
     }
 
     if (btnNext) {
-      btnNext.classList.toggle('display-hidden', currentStep === totalSteps);
+      btnNext.hidden = (currentStep === totalSteps);
     }
 
     if (stepCounter) {
@@ -196,8 +196,8 @@
         /* Hide placeholder text */
         const icon = drop.querySelector('.sig-icon');
         const texts = drop.querySelectorAll('.sig-text');
-        if (icon) icon.classList.add('display-hidden');
-        texts.forEach(function (t) { t.classList.add('display-hidden'); });
+        if (icon) icon.hidden = true;
+        texts.forEach(function (t) { t.hidden = true; });
       };
       reader.readAsDataURL(file);
     });

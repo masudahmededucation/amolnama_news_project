@@ -34,7 +34,7 @@
 
   function toggleDependentsRow() {
     if (dependentsRow) {
-      (breadwinner && breadwinner.checked) ? dependentsRow.classList.remove('display-hidden') : dependentsRow.classList.add('display-hidden');
+      (breadwinner && dependentsRow.hidden = !breadwinner.checked);
     }
   }
 

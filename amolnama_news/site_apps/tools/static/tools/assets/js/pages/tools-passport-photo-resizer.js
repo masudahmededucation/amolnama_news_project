@@ -96,14 +96,14 @@
   /* ===== Smooth show/hide helpers ===== */
 
   function showSection(el) {
-    el.classList.remove('display-hidden');
+    el.hidden = false;
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.classList.add('display-hidden');
+    el.hidden = true;
     el.classList.remove('tool-section-reveal');
   }
 
@@ -399,7 +399,7 @@
     if (!file.type.startsWith('image/')) return;
     if (file.size > 10 * 1024 * 1024) {
       const errorElement = document.getElementById('tool-error-message');
-      if (errorElement) { errorElement.textContent = 'ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।'; errorElement.classList.remove('display-hidden'); }
+      if (errorElement) { errorElement.textContent = 'ফাইল সাইজ ১০ MB এর বেশি হতে পারবে না।'; errorElement.hidden = false; }
       return;
     }
 

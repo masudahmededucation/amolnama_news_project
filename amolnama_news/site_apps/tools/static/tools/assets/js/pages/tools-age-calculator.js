@@ -176,7 +176,7 @@
     document.getElementById("ageMilestones").innerHTML = milestonesHtml;
 
     // Show results with animation (no scroll jump)
-    resultsDiv.classList.remove("display-hidden");
+    resultsDiv.hidden = false;
 
     // Live seconds counter
     startLiveCounter(dob);

@@ -70,7 +70,7 @@
   /* Toggle local impact row visibility */
   function toggleLocalImpactRow() {
     if (!localImpact || !localImpactRow) return;
-    localImpact.checked ? localImpactRow.classList.remove('display-hidden') : localImpactRow.classList.add('display-hidden');
+    localImpactRow.hidden = !localImpact.checked;
     if (!localImpact.checked && localImpactDesc) {
       localImpactDesc.value = '';
     }

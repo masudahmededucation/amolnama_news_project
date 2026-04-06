@@ -228,7 +228,7 @@
               return;
             }
             let previewHtml = '<div class="post-composer-link-preview-card">';
-            if (data.image) previewHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="post-composer-link-preview-image" onerror="this.classList.add(\'display-hidden\')">';
+            if (data.image) previewHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="post-composer-link-preview-image" onerror="this.hidden=true">';
             previewHtml += '<div class="post-composer-link-preview-info">';
             if (data.title) previewHtml += '<div class="post-composer-link-preview-title">' + escapeHtml(data.title) + '</div>';
             if (data.description) previewHtml += '<div class="post-composer-link-preview-description">' + escapeHtml(data.description) + '</div>';

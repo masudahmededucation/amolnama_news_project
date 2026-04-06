@@ -91,7 +91,7 @@
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
       /* Only validate when this section is the active one */
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       const hasOriginal = originalStatement && originalStatement.value.trim();
       const hasCurrent = currentStatement && currentStatement.value.trim();

@@ -44,7 +44,7 @@
   /* Toggle "Other" detail row */
   selectEl.addEventListener('change', function () {
     if (otherRow) {
-      (selectEl.value === otherStatusId) ? otherRow.classList.remove('display-hidden') : otherRow.classList.add('display-hidden');
+      otherRow.hidden = (selectEl.value !== otherStatusId);
     }
     if (otherText && selectEl.value !== otherStatusId) {
       otherText.value = '';
@@ -55,7 +55,7 @@
   window.newshubGlobalNewsSubType = {
     reset: function () {
       selectEl.value = '';
-      if (otherRow)  otherRow.classList.add('display-hidden');
+      if (otherRow)  otherRow.hidden = true;
       if (otherText) otherText.value = '';
     },
   };

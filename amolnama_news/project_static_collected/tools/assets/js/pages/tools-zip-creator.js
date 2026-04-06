@@ -62,14 +62,14 @@
   // ---- Smooth show/hide helpers ----
 
   function showSection(el) {
-    el.classList.remove('display-hidden');
+    el.hidden = false;
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.classList.add('display-hidden');
+    el.hidden = true;
     el.classList.remove('tool-section-reveal');
   }
 
@@ -234,7 +234,7 @@
     hideSection(panel);
     hideSection(resultSection);
     actionLabel.textContent = 'Create ZIP';
-    actionSpinner.classList.add('display-hidden');
+    actionSpinner.hidden = true;
     actionBtn.disabled = false;
   }
 
@@ -248,7 +248,7 @@
   function createZip() {
     actionBtn.disabled = true;
     actionLabel.textContent = 'Creating ZIP...';
-    actionSpinner.classList.remove('display-hidden');
+    actionSpinner.hidden = false;
 
     const zipName = (nameInput.value.trim() || 'archive') + '.zip';
     resultFileName = zipName;
@@ -277,11 +277,11 @@
       showResult();
     }).catch(function (err) {
       const errorElement = document.getElementById('tool-error-message');
-      if (errorElement) { errorElement.textContent = 'ZIP creation failed: ' + err.message; errorElement.classList.remove('display-hidden'); }
+      if (errorElement) { errorElement.textContent = 'ZIP creation failed: ' + err.message; errorElement.hidden = false; }
     }).finally(function () {
       actionBtn.disabled = false;
       actionLabel.textContent = 'Create ZIP';
-      actionSpinner.classList.add('display-hidden');
+      actionSpinner.hidden = true;
     });
   }
 

@@ -103,9 +103,9 @@
           if (groupDisplay) groupDisplay.textContent = opt.group_bn || '—';
           if (variantDisplay) variantDisplay.textContent = opt.variant_bn || '—';
           if (unitDisplay) unitDisplay.textContent = opt.unit || '—';
-          if (detailDisplay) detailDisplay.classList.remove('display-hidden');
+          if (detailDisplay) detailDisplay.hidden = false;
         } else {
-          if (detailDisplay) detailDisplay.classList.add('display-hidden');
+          if (detailDisplay) detailDisplay.hidden = true;
         }
 
         serialize();
@@ -132,9 +132,9 @@
       let markup = govt > 0 ? ((gap / govt) * 100) : 0;
       if (diffDisplay) diffDisplay.textContent = gap.toFixed(2) + ' টাকা';
       if (markupDisplay) markupDisplay.textContent = markup.toFixed(2) + '%';
-      if (gapDisplay) gapDisplay.classList.remove('display-hidden');
+      if (gapDisplay) gapDisplay.hidden = false;
     } else {
-      if (gapDisplay) gapDisplay.classList.add('display-hidden');
+      if (gapDisplay) gapDisplay.hidden = true;
     }
   }
 

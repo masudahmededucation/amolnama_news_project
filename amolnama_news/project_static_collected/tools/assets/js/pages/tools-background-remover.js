@@ -4,13 +4,13 @@
 
   /* ---- Smooth show / hide helpers ---- */
   function showSection(el) {
-    el.classList.remove('display-hidden');
+    el.hidden = false;
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
   function hideSection(el) {
-    el.classList.add('display-hidden');
+    el.hidden = true;
     el.classList.remove('tool-section-reveal');
   }
 
@@ -198,8 +198,8 @@
           /* Use async composite to avoid freeze */
           compositeResultAsync(function () {
             showSection(brushTools);
-            resultTools.classList.remove('display-hidden');
-            if (tipsBar) tipsBar.classList.remove('display-hidden');
+            resultTools.hidden = false;
+            if (tipsBar) tipsBar.hidden = false;
             hideSection(processingOverlay);
             setControlsEnabled(true);
             requestAnimationFrame(function () { captureBaseSize(); });
@@ -529,7 +529,7 @@
 
     let gen = ++opGen;
     processingText.textContent = 'প্রয়োগ হচ্ছে… (Applying…)';
-    processingOverlay.classList.remove('display-hidden');
+    processingOverlay.hidden = false;
     clearTimeout(compositeTimer);
 
     let w = originalCanvas.width;
@@ -560,12 +560,12 @@
             computeEdgeRefinement(function () {
               if (gen !== opGen) return;
               renderFullResult();
-              processingOverlay.classList.add('display-hidden');
+              processingOverlay.hidden = true;
               if (callback) callback();
             });
           } else {
             renderFullResult();
-            processingOverlay.classList.add('display-hidden');
+            processingOverlay.hidden = true;
             if (callback) callback();
           }
         }, 0);
@@ -577,12 +577,12 @@
   function renderAsync(callback) {
     const gen = ++opGen;
     processingText.textContent = 'প্রয়োগ হচ্ছে… (Applying…)';
-    processingOverlay.classList.remove('display-hidden');
+    processingOverlay.hidden = false;
     clearTimeout(compositeTimer);
     compositeTimer = setTimeout(function () {
       if (gen !== opGen) return;
       renderFullResult();
-      processingOverlay.classList.add('display-hidden');
+      processingOverlay.hidden = true;
       if (callback) callback();
     }, 0);
   }
@@ -860,8 +860,8 @@
     deactivateBrush();
     updateUndoBtn();
     resetZoom();
-    resultTools.classList.add('display-hidden');
-    if (tipsBar) tipsBar.classList.add('display-hidden');
+    resultTools.hidden = true;
+    if (tipsBar) tipsBar.hidden = true;
 
     swatches.forEach(function (s) { s.classList.remove('active'); });
     document.querySelector('.bgr-swatch--transparent').classList.add('active');
@@ -1089,10 +1089,10 @@
 
     if (autoRefineOn) {
       processingText.textContent = 'কিনারা পরিষ্কার হচ্ছে… (Refining edges…)';
-      processingOverlay.classList.remove('display-hidden');
+      processingOverlay.hidden = false;
       computeEdgeRefinement(function () {
         renderFullResult();
-        processingOverlay.classList.add('display-hidden');
+        processingOverlay.hidden = true;
       });
     } else {
       refinedPixelData = null;

@@ -57,9 +57,9 @@
     const youtubePreview = document.getElementById('youtubePreview');
     const facebookPreview = document.getElementById('facebookPreview');
     const externalPreview = document.getElementById('externalPreview');
-    if (youtubePreview) youtubePreview.classList.add('display-hidden');
-    if (facebookPreview) facebookPreview.classList.add('display-hidden');
-    if (externalPreview) externalPreview.classList.add('display-hidden');
+    if (youtubePreview) youtubePreview.hidden = true;
+    if (facebookPreview) facebookPreview.hidden = true;
+    if (externalPreview) externalPreview.hidden = true;
 
     /* 3. Clear iframe src */
     const youtubeFrame = document.getElementById('youtubeFrame');

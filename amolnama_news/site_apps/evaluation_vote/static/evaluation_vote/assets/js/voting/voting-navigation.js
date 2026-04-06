@@ -43,11 +43,11 @@ function showView(viewId) {
   const views = ['division-view', 'district-view', 'constituency-view', 'party-view', 'success-view'];
   views.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.classList.add('display-hidden');
+    if (el) el.hidden = true;
   });
 
   const showEl = document.getElementById(viewId);
-  if (showEl) showEl.classList.remove('display-hidden');
+  if (showEl) showEl.hidden = false;
 }
 
 /**
@@ -112,7 +112,7 @@ function startNewVote() {
   
   const bc = document.getElementById('breadcrumb');
   if (bc) {
-    bc.classList.remove('display-hidden');
+    bc.hidden = false;
     bc.innerHTML = '<span class="current">Division / বিভাগ</span>';
   }
   

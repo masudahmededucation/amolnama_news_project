@@ -1190,7 +1190,7 @@
           previewCard.className = 'post-card-link-preview-card';
           let previewHtml = '';
           if (data.image) {
-            previewHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="post-card-link-preview-image" onerror="this.classList.add(\'display-hidden\')">';
+            previewHtml += '<img src="' + escapeHtml(data.image) + '" alt="" class="post-card-link-preview-image" onerror="this.hidden=true">';
           }
           previewHtml += '<div class="post-card-link-preview-info">';
           previewHtml += '<span class="post-card-link-preview-title">' + escapeHtml(data.title) + '</span>';

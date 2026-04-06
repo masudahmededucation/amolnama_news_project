@@ -74,7 +74,7 @@
   function toggleHusband() {
     if (!husbandRow || !marital) return;
     const show = marriedStatusIds.indexOf(marital.value) !== -1;
-    show ? husbandRow.classList.remove('display-hidden') : husbandRow.classList.add('display-hidden');
+    husbandRow.hidden = !show;
     if (!show) {
       if (husbandFirstName) husbandFirstName.value = '';
       if (husbandLastName)  husbandLastName.value  = '';
@@ -124,8 +124,8 @@
     const ageWarning = document.getElementById('wcv-age-warning');
     const exceeded = !isNaN(val) && val > 100;
     if (exceeded) this.value = 100;
-    if (ageError)   exceeded ? ageError.classList.remove('display-hidden') : ageError.classList.add('display-hidden');
-    if (ageWarning) (!exceeded && !isNaN(val) && val > 50) ? ageWarning.classList.remove('display-hidden') : ageWarning.classList.add('display-hidden');
+    if (ageError)   ageError.hidden = !exceeded;
+    if (ageWarning) (!exceeded && !isNaN(val) && val > ageWarning.hidden = !50);
     serialize();
   });
 

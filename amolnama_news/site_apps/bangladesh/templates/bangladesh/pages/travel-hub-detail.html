@@ -28,7 +28,7 @@
 <article class="travel-hub-detail-article">
 
   {# ── Hero Image ── #}
-  <div class="travel-hub-detail-hero{% if not dest.cover_image_url %} display-hidden{% endif %}" id="travel-hub-detail-hero" {% if dest.cover_image_url %}style="background-image:url('{{ dest.cover_image_url }}');"{% endif %}></div>
+  <div class="travel-hub-detail-hero" id="travel-hub-detail-hero" {% if not dest.cover_image_url %}hidden{% endif %} {% if dest.cover_image_url %}style="background-image:url('{{ dest.cover_image_url }}');"{% endif %}></div>
 
   {# ── Header ── #}
   <div class="travel-hub-detail-header">

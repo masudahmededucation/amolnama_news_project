@@ -82,7 +82,7 @@
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!prevParty || !prevParty.value.trim()) {
         warnings.push('\u0986\u0997\u09C7\u09B0 \u09A6\u09B2 \u09A6\u09BF\u09A8 (Please enter the previous party)');

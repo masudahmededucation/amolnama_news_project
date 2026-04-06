@@ -108,13 +108,13 @@
 
   function toggleOtherType() {
     let isOther = otherViolenceCb ? otherViolenceCb.checked : false;
-    if (otherTypeRow) isOther ? otherTypeRow.classList.remove('display-hidden') : otherTypeRow.classList.add('display-hidden');
+    if (otherTypeRow) otherTypeRow.hidden = !isOther;
     if (!isOther && otherTypeInput) otherTypeInput.value = '';
   }
 
   function toggleDuration() {
     if (durationRow) {
-      (recurringCb && recurringCb.checked) ? durationRow.classList.remove('display-hidden') : durationRow.classList.add('display-hidden');
+      (recurringCb && durationRow.hidden = !recurringCb.checked);
     }
     if ((!recurringCb || !recurringCb.checked) && duration) duration.value = '';
   }

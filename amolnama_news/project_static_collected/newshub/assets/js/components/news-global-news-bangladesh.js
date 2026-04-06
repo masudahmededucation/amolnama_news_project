@@ -67,7 +67,7 @@
   /* Toggle expat impact rows */
   if (expatCbEl) {
     expatCbEl.addEventListener('change', function () {
-      if (expatRow) expatCbEl.checked ? expatRow.classList.remove('display-hidden') : expatRow.classList.add('display-hidden');
+      if (expatRow) expatRow.hidden = !expatCbEl.checked;
       syncToHiddenInput();
     });
   }
@@ -116,7 +116,7 @@
       }
       if (stakeEl && data.stake)                   stakeEl.value          = data.stake;
       if (expatCbEl)                               expatCbEl.checked      = !!data.expatAffected;
-      if (expatRow)                                (expatCbEl && expatCbEl.checked) ? expatRow.classList.remove('display-hidden') : expatRow.classList.add('display-hidden');
+      if (expatRow)                                (expatCbEl && expatRow.hidden = !expatCbEl.checked);
       if (expatCountEl && data.expatCount)         expatCountEl.value     = data.expatCount;
       if (expatDescEl && data.expatDesc)           expatDescEl.value      = data.expatDesc;
       if (economicImpactEl && data.economicImpact) economicImpactEl.value = data.economicImpact;
@@ -133,7 +133,7 @@
       if (relevanceHidden)  relevanceHidden.value  = '';
       if (stakeEl)          stakeEl.value          = '';
       if (expatCbEl)        expatCbEl.checked       = false;
-      if (expatRow)         expatRow.classList.add('display-hidden');
+      if (expatRow)         expatRow.hidden = true;
       if (expatCountEl)     expatCountEl.value      = '';
       if (expatDescEl)      expatDescEl.value       = '';
       if (economicImpactEl) economicImpactEl.value  = '';

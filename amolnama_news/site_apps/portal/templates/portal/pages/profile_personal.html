@@ -29,14 +29,14 @@
   <div class="avatar-upload-controls" id="avatar-upload-controls">
     <label class="avatar-upload-button" id="avatar-upload-button" name="avatar_upload_button">
       📷 ছবি আপলোড করুন
-      <input type="file" id="avatar-upload-file-input" name="avatar_upload_file_input" accept="image/jpeg,image/png,image/webp" class="display-hidden">
+      <input type="file" id="avatar-upload-file-input" name="avatar_upload_file_input" accept="image/jpeg,image/png,image/webp" hidden>
     </label>
     <span class="avatar-upload-hint">JPG, PNG বা WebP — সর্বোচ্চ 5MB</span>
   </div>
 </div>
 
 {# ---- Cropper Modal ---- #}
-<div class="avatar-cropper-modal display-hidden" id="avatar-cropper-modal">
+<div class="avatar-cropper-modal" hidden id="avatar-cropper-modal">
   <div class="avatar-cropper-modal-content" id="avatar-cropper-modal-content">
     <h3 class="avatar-cropper-modal-title">ছবি ক্রপ করুন (Crop your photo)</h3>
     <div class="avatar-cropper-container" id="avatar-cropper-container">

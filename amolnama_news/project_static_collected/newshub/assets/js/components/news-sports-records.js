@@ -44,10 +44,10 @@
   function toggleSections() {
     let subType = subTypeHidden ? subTypeHidden.value : '';
     if (transferSection) {
-      (subType === 'transfer') ? transferSection.classList.remove('display-hidden') : transferSection.classList.add('display-hidden');
+      transferSection.hidden = (subType !== 'transfer');
     }
     if (injurySection) {
-      (subType === 'injury') ? injurySection.classList.remove('display-hidden') : injurySection.classList.add('display-hidden');
+      injurySection.hidden = (subType !== 'injury');
     }
   }
 

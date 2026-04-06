@@ -119,7 +119,7 @@
         const heroElement = document.getElementById(config.heroElementId);
         if (heroElement) {
           heroElement.style.backgroundImage = "url('" + data.cover_image_url + "')";
-          heroElement.classList.remove('display-hidden');
+          heroElement.hidden = false;
         }
       }
 

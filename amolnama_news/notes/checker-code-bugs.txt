@@ -1,91 +1,131 @@
-
+--deep research
+deep research, compare, create rule, documents, plan, then implement.
+make it professional.
+gold standard business practice.
+competitive app design practice.
+safe practice.
+no shortcut dangerous practice.
+no layer on top of layer code.
+logic should be clean, clear, concise.
+no duplicate codes.
+no shitty code.
+no skipping.
+no lying.
+no cheating.
+no later later game.
+redesign, rewrite everything everywhere.
+no rush and check.
+check and check for unlimited time.
+no test and test, keep doing test.
+re-check everything now.
+yes, i want you to implement it.
 
 --permission request
 ask for blanket permission once only.
 it is annoying to accept too many permission request.
-rather than individual file or small section
+rather than individual file or small section.
 
+--create implementation plan
+can you create a robust plan.
+then check for bugs in the plan again.
+then continue implementing it.
+
+--split into smaller tasks
+you should be writing plan.
+implementing step 1 to... and mark them once done.
+this way you know what is done and not.
 
 ----database
 whenever you need to create db table or column.
 give me script, i will check and run myself.
-never user alias when there is no collision among names
-never user shortcut alias name.
+never use alias when there is no collision among names.
+never use shortcut alias name.
 use full name when possible.
 when there are group of columns.
 use group as the prefix for column names.
 follow standard rules already placed in table and column creation.
-
-
---create styling rule
-make professional
-do some research
-minimal
-fast
-attractive
-gen z proof
-competitive styling
-full of life
-good feel
-no amateur look. 
-buttons and display should be polished. 
-no dull and basic.
-make it responsive for all kind of devices
-mobile user UX UI
-full mobile responsiveness need to start now. 
-otherwise too many jobs to do in future.
-fix all files.
-everything everywhere.
-make it 100% compliance
--- css/js/ajax/html/etc
-no internal css unless absolute necessary
-use gold standard, professional practice best practice
-use optimum seo and faster app best practice
-
+do you think we should use prefix to name table?
+for example: fact_check for fact check tables?
+for ref table ref_fact_check as part of the table name.
+as a result to identify group of table for fact check? for all other group of works.
+should we rename our table like that?
 
 --naming conventions
-check name rules
-seo friendly name 
+check name rules.
+seo friendly name.
 check variables, filename, functions, features.
-all files css, js, ajax, html
+all files css, js, ajax, html.
 use large descriptive name always.
 do not use partial name or short name.
-update documents
-update troubleshooting documents
+update documents.
+update troubleshooting documents.
+
+--attribute naming convention
+all attributes should have its id and name.
+
+--modularise everything
+make a rule - any new features - should be modularised.
+even used in one place.
+then first thing before implementing a new feature is to check, is this feature already exists?
+if the feature not exists then create a new modularised feature.
+make that rule modularise everything - not just when needed or not.
+everything every time.
+all.
+one source of truth.
+must modularise whenever possible.
+check possibility.
+no lazy tries.
+Write once, reuse everywhere.
+no copy cat, duplicate code.
+it stops bugs and reduces effort.
 don't make file too large which would be harder to manage and modify.
 split larger files into smaller unit and files.
 split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
-check name rules
 
-do you think we should use prefix to name table? 
-for example: fact_check for fact check tables?
-for ref table ref_fact_check as part of the table name. 
-as a result to identify group of table for fact check? for all other group of works. 
-should we rename our table like that?
+--create styling rule
+make professional.
+do some research.
+minimal.
+fast.
+attractive.
+gen z proof.
+competitive styling.
+full of life.
+good feel.
+no amateur look.
+buttons and display should be polished.
+no dull and basic.
+make it responsive for all kind of devices.
+mobile user UX UI.
+full mobile responsiveness need to start now.
+otherwise too many jobs to do in future.
+fix all files.
+everything everywhere.
+make it 100% compliance.
 
---attribute naming convention 
-all attributes should have its id and name 
+--css/js/ajax/html/etc
+no internal css unless absolute necessary.
+use gold standard, professional practice best practice.
+use optimum seo and faster app best practice.
+best practice.
+seo friendly practice.
+faster load practice.
+safe practice.
+no shortcut dangerous practice.
 
---check for bugs
-check for bugs, bad code, broken code, illegal code, dead code. 
-sql injection risk
-duplicates
-remove debug code? 
-clear clean code of error handing
-CSS bugs
-SQL bugs
-JS null checks
-Duplicate listeners
-Banned alert()
-Banned confirm()
-Debug console.*	
-Missing .catch()
-XSS vulnerabilities
-tech debt item
+--immediate load
+Show UI immediately, load data in background.
+apply this to all interactions.
 
+--faster load
+load UI immediate, load data in the background.
+keep loading related data in the background.
+ready to show the data once user asks.
+proactive prefetch.
+bump cache + Collect-static + service worker cache.
 
---check code for faster and efficiency. 
+--check code for faster and efficiency
 Optimize code for speed and efficiency.
 Avoid unnecessary or long logic for small tasks.
 Ensure efficiency does not sacrifice the goal.
@@ -97,50 +137,32 @@ Eliminate waste without changing functionality or removing features.
 Handle edge cases without leaving technical landmines.
 Write simple code that is easy to read and maintain.
 
---immediate load
-Show UI immediately, load data in background"
-apply this to all interactions.
-
---faster load
-load UI immediate, load data in the background
-keep loading related data in the background.
-ready to show the data once user asks.
-proactive prefetch.
-
---modularise code
-must modularise whenever possible.
-check possibility. 
-no lazy tries. 
-Write once, reuse everywhere. 
-no copy cat, duplicate code.
-it stops bugs and reduces effort.
-
---modularise everything
-make a rule - any new features - should be modularised. 
-even used in one place. 
-then first thing before implementing a new feature is to check, 
-is this feature already exists? 
-if the feature not exists then create a new modularised feature.
-make that rule modularise everything - not just when needed or not. 
-everything every time. 
-all.
-one source of truth.
-
-
---check css/js/ajax/html/etc
-best practice
-seo friendly practice
-faster load practice
-safe practice
-no shortcut dangerous practice
+--check for bugs
+check for bugs, bad code, broken code, illegal code, dead code.
+sql injection risk.
+duplicates.
+remove debug code?
+clear clean code of error handing.
+CSS bugs.
+SQL bugs.
+JS null checks.
+Duplicate listeners.
+Banned alert().
+Banned confirm().
+Debug console.*
+Missing .catch().
+XSS vulnerabilities.
+tech debt item.
 
 --create or update documentation
 architecture, features, functions, and troubleshooting.
-folders
-\notes\claude\app_documentation\
+folders.
+\notes\claude\app_documentation
+
 \notes\claude\memory-training\
 
---bump cache + Collect-static + service worker cache
+--start implementing
+start implementing.
 
-
-
+--compare the plan
+at last check that you have completed the task properly.

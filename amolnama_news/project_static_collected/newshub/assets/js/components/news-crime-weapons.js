@@ -37,7 +37,7 @@
     let otherCb = getOtherCb();
     if (!otherText) return;
     const checked = !!(otherCb && otherCb.checked);
-    checked ? otherText.classList.remove('display-hidden') : otherText.classList.add('display-hidden');
+    otherText.hidden = !checked;
     if (!checked) otherText.value = '';
   }
 
@@ -139,7 +139,7 @@
       for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = false;
       }
-      if (otherText) { otherText.value = ''; otherText.classList.add('display-hidden'); }
+      if (otherText) { otherText.value = ''; otherText.hidden = true; }
       if (recoveredEl) recoveredEl.value = '';
       hiddenInput.value = '';
     }

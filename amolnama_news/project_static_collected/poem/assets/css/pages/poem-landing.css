@@ -206,7 +206,7 @@
 }
 
 /* Active filter breadcrumbs */
-.poem-filter-crumbs {
+.poem-filter-crumbs:not([hidden]) {
   display: flex;
   align-items: center;
   gap: .4rem;

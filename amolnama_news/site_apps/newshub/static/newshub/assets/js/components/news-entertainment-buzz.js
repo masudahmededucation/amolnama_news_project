@@ -42,7 +42,7 @@
   /* Toggle plagiarism source row based on checkbox */
   function togglePlagiarismRow() {
     if (plagiarismRow) {
-      (plagiarismCheck && plagiarismCheck.checked) ? plagiarismRow.classList.remove('display-hidden') : plagiarismRow.classList.add('display-hidden');
+      (plagiarismCheck && plagiarismRow.hidden = !plagiarismCheck.checked);
     }
   }
 

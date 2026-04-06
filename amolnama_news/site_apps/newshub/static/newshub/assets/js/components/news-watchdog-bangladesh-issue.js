@@ -86,7 +86,7 @@
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!topic || !topic.value.trim()) {
         warnings.push('\u0987\u09B8\u09CD\u09AF\u09C1\u09B0 \u09AC\u09BF\u09B7\u09AF\u09BC \u09A6\u09BF\u09A8 (Please enter the issue topic)');

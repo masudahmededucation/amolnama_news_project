@@ -147,16 +147,16 @@
     let isEditing = false;
 
     function showBadgeMode() {
-      statusBadge.classList.remove("display-hidden");
-      statusEditBtn.classList.remove("display-hidden");
-      statusSelect.classList.add("display-hidden");
+      statusBadge.hidden = false;
+      statusEditBtn.hidden = false;
+      statusSelect.hidden = true;
       isEditing = false;
     }
 
     function showDropdownMode() {
-      statusBadge.classList.add("display-hidden");
-      statusEditBtn.classList.add("display-hidden");
-      statusSelect.classList.remove("display-hidden");
+      statusBadge.hidden = true;
+      statusEditBtn.hidden = true;
+      statusSelect.hidden = false;
       statusSelect.focus();
       isEditing = true;
     }

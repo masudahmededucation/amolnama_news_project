@@ -24,21 +24,21 @@ Displays the multi-step voting flow: Division → District → Constituency → 
 </div>
 
 <!-- District Selection View (hidden initially) -->
-<div id="district-view" class="display-hidden">
+<div id="district-view" hidden>
   <button class="back-btn" onclick="goBackToDivisions()">← Back / পিছনে</button>
   <h3>Select Your District (আপনার জেলা নির্বাচন করুন)</h3>
   <ul class="selection-list" id="district-list"></ul>
 </div>
 
 <!-- Constituency Selection View (hidden initially) -->
-<div id="constituency-view" class="display-hidden">
+<div id="constituency-view" hidden>
   <button class="back-btn" onclick="goBackToDistricts()">← Back / পিছনে</button>
   <h3>Select Your Constituency (আপনার নির্বাচনী এলাকা নির্বাচন করুন)</h3>
   <ul class="selection-list" id="constituency-list"></ul>
 </div>
 
 <!-- Party Selection View (hidden initially) -->
-<div id="party-view" class="display-hidden">
+<div id="party-view" hidden>
   <button class="back-btn" onclick="goBackToConstituencies()">← Back / পিছনে</button>
   <h3>Select Party (দল নির্বাচন করুন)</h3>
   <ul class="selection-list party-list" id="party-list-selection">

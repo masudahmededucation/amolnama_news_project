@@ -35,7 +35,7 @@
 
       if (remaining <= 0) {
         const warningElement = document.getElementById('photo-upload-warning');
-        if (warningElement) { warningElement.textContent = "সর্বোচ্চ " + MAX_PER_SECTION + "টি ছবি আপলোড করা যাবে এই বিভাগে"; warningElement.classList.remove('display-hidden'); setTimeout(function () { warningElement.classList.add('display-hidden'); }, 4000); }
+        if (warningElement) { warningElement.textContent = "সর্বোচ্চ " + MAX_PER_SECTION + "টি ছবি আপলোড করা যাবে এই বিভাগে"; warningElement.hidden = false; setTimeout(function () { warningElement.hidden = true; }, 4000); }
         this.value = "";
         return;
       }

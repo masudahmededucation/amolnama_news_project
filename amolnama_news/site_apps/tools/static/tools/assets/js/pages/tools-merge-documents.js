@@ -7,13 +7,13 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ---- Smooth show / hide helpers ---- */
   function showSection(el) {
-    el.classList.remove('display-hidden');
+    el.hidden = false;
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
   function hideSection(el) {
-    el.classList.add('display-hidden');
+    el.hidden = true;
     el.classList.remove('tool-section-reveal');
   }
 
@@ -240,7 +240,7 @@ if (typeof pdfjsLib !== 'undefined') {
     if (validFiles.length === 0) return;
 
     /* Show workspace if hidden */
-    if (workspace.classList.contains('display-hidden')) {
+    if (workspace.hidden) {
       showSection(workspace);
     }
 

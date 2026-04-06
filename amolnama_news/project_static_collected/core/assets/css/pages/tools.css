@@ -20,9 +20,12 @@
   padding: .5rem 0 2rem;
 }
 
+.tool-card:not([hidden]) {
+  display: flex;
+}
+
 .tool-card {
   position: relative;
-  display: flex;
   flex-direction: column;
   padding: 1.25rem 1.25rem 1rem;
   border-radius: var(--radius);

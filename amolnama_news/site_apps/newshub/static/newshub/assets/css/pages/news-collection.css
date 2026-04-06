@@ -1231,7 +1231,7 @@
 
 /* Village "other" text input */
 
-.village-other-input {
+.village-other-input:not([hidden]) {
   display: block;
   width: 100%;
   margin-top: .3rem;
@@ -1868,7 +1868,7 @@
 .commodity-price-row:nth-child(5n+5) .commodity-row-number { color: #00695c; }
 
 /* ---- Commodity detail tags ---- */
-.commodity-detail-display {
+.commodity-detail-display:not([hidden]) {
   display: flex;
   flex-wrap: wrap;
   gap: .35rem;
@@ -1896,7 +1896,7 @@
 }
 
 /* ---- Price gap calculated display ---- */
-.price-gap-calculated {
+.price-gap-calculated:not([hidden]) {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem 1.5rem;

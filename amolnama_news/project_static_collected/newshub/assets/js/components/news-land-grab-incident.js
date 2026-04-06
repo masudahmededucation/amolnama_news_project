@@ -163,7 +163,7 @@
       /* Toggle "other method" row when OTHER_METHOD checkbox changes */
       if (gm.status_id === methodOtherId) {
         ginp.addEventListener('change', function () {
-          if (methodOtherRow) this.checked ? methodOtherRow.classList.remove('display-hidden') : methodOtherRow.classList.add('display-hidden');
+          if (methodOtherRow) methodOtherRow.hidden = !this.checked;
           if (!this.checked && methodOtherDetailEl) methodOtherDetailEl.value = '';
           syncToHiddenInput();
         });
@@ -200,7 +200,7 @@
         const selectedId = parseInt(e.target.value, 10);
         propertyTypeHidden.value = selectedId;
         let isOther = (selectedId === propertyTypeOtherId);
-        if (propertyTypeOtherRow) isOther ? propertyTypeOtherRow.classList.remove('display-hidden') : propertyTypeOtherRow.classList.add('display-hidden');
+        if (propertyTypeOtherRow) propertyTypeOtherRow.hidden = !isOther;
         if (!isOther && propertyTypeOtherEl) propertyTypeOtherEl.value = '';
         syncToHiddenInput();
       }
@@ -220,7 +220,7 @@
   /* ---- Toggle violence description row ---- */
   if (violenceEl) {
     violenceEl.addEventListener('change', function () {
-      if (violenceDescRow) violenceEl.checked ? violenceDescRow.classList.remove('display-hidden') : violenceDescRow.classList.add('display-hidden');
+      if (violenceDescRow) violenceDescRow.hidden = !violenceEl.checked;
       syncToHiddenInput();
     });
   }
@@ -296,7 +296,7 @@
       }
       if (propertyTypeHidden) propertyTypeHidden.value = data.propertyTypeId;
       const isOther = (data.propertyTypeId === propertyTypeOtherId);
-      if (propertyTypeOtherRow) isOther ? propertyTypeOtherRow.classList.remove('display-hidden') : propertyTypeOtherRow.classList.add('display-hidden');
+      if (propertyTypeOtherRow) propertyTypeOtherRow.hidden = !isOther;
       if (isOther && propertyTypeOtherEl && data.propertyTypeOther) {
         propertyTypeOtherEl.value = data.propertyTypeOther;
       }
@@ -329,7 +329,7 @@
       }
       /* Show "other method" row if OTHER_METHOD is among saved methods */
       if (methodOtherId && data.methodIds.indexOf(methodOtherId) !== -1) {
-        if (methodOtherRow) methodOtherRow.classList.remove('display-hidden');
+        if (methodOtherRow) methodOtherRow.hidden = false;
         if (methodOtherDetailEl && data.methodOther) methodOtherDetailEl.value = data.methodOther;
       }
     }
@@ -349,7 +349,7 @@
     /* Human impact */
     if (familiesEl && data.familiesEvicted)  familiesEl.value   = data.familiesEvicted;
     if (violenceEl) violenceEl.checked = !!data.violenceOccurred;
-    if (violenceDescRow) data.violenceOccurred ? violenceDescRow.classList.remove('display-hidden') : violenceDescRow.classList.add('display-hidden');
+    if (violenceDescRow) violenceDescRow.hidden = !data.violenceOccurred;
     if (violenceDescEl && data.violenceDesc) violenceDescEl.value = data.violenceDesc;
   }
   setTimeout(restoreFromSavedData, 100);
@@ -362,7 +362,7 @@
       for (let i = 0; i < propRadios.length; i++) propRadios[i].checked = false;
       if (propertyTypeHidden)   propertyTypeHidden.value           = '';
       if (propertyTypeOtherEl)  propertyTypeOtherEl.value          = '';
-      if (propertyTypeOtherRow) propertyTypeOtherRow.classList.add('display-hidden');
+      if (propertyTypeOtherRow) propertyTypeOtherRow.hidden = true;
 
       /* Land record fields */
       if (mouzaEl)      mouzaEl.value      = '';
@@ -379,7 +379,7 @@
       const methCbs = document.querySelectorAll('input[name="land_grabbing_method"]');
       for (let m = 0; m < methCbs.length; m++) methCbs[m].checked = false;
       if (methodOtherDetailEl) methodOtherDetailEl.value        = '';
-      if (methodOtherRow)      methodOtherRow.classList.add('display-hidden');
+      if (methodOtherRow)      methodOtherRow.hidden = true;
 
       /* Current status */
       const statusRadios = document.querySelectorAll('input[name="land_grab_status_radio"]');
@@ -389,7 +389,7 @@
       /* Human impact */
       if (familiesEl)      familiesEl.value      = '';
       if (violenceEl)      violenceEl.checked    = false;
-      if (violenceDescRow) violenceDescRow.classList.add('display-hidden');
+      if (violenceDescRow) violenceDescRow.hidden = true;
       if (violenceDescEl)  violenceDescEl.value  = '';
 
       hiddenInput.value = '';

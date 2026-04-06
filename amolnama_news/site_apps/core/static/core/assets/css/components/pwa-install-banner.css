@@ -1,7 +1,10 @@
 /* ========== Header Install Button (next to lang toggle) ========== */
 
-.pwa-header-install {
+.pwa-header-install:not([hidden]) {
   display: inline-flex;
+}
+
+.pwa-header-install {
   align-items: center;
   gap: .35rem;
   padding: .2rem .6rem .2rem .25rem;

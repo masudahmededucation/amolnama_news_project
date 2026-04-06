@@ -76,12 +76,12 @@ function submitVote() {
           updatePartyListWithPercentages();
         } else {
           let errorContainer = document.getElementById('vote-error-message');
-          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.classList.remove('display-hidden'); }
+          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.hidden = false; }
         }
       })
       .catch(function () {
         const errorContainer = document.getElementById('vote-error-message');
-        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.classList.remove('display-hidden'); }
+        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.hidden = false; }
       });
   });
 }
@@ -110,7 +110,7 @@ function showSuccessView() {
   showView('success-view');
 
   const bc = document.getElementById('breadcrumb');
-  if (bc) bc.classList.add('display-hidden');
+  if (bc) bc.hidden = true;
 
   const reasonLabel = document.getElementById('reason-label');
   if (reasonLabel) {

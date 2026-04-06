@@ -20,7 +20,7 @@
   /* Inline confirmation message element */
   const messageElement = document.createElement('span');
   messageElement.className = 'news-clear-form-message';
-  messageElement.classList.add('display-hidden');
+  messageElement.hidden = true;
   button.parentNode.insertBefore(messageElement, button);
 
   let confirmTimer = null;
@@ -33,13 +33,13 @@
       button.textContent = '\u09B9\u09CD\u09AF\u09BE\u0981, \u09AE\u09C1\u099B\u09C1\u09A8 (Yes, Clear)';
       button.classList.add('news-clear-form-button-confirm');
       messageElement.textContent = '\u09A8\u09BF\u09B6\u09CD\u099A\u09BF\u09A4? (Sure?)';
-      messageElement.classList.remove('display-hidden');
+      messageElement.hidden = false;
       /* Auto-revert after 4 seconds if no second click */
       confirmTimer = setTimeout(function () {
         awaitingConfirm = false;
         button.textContent = '\u09A4\u09A5\u09CD\u09AF \u09AE\u09C1\u099B\u09C1\u09A8 (Clear Form)';
         button.classList.remove('news-clear-form-button-confirm');
-        messageElement.classList.add('display-hidden');
+        messageElement.hidden = true;
       }, 4000);
       return;
     }
@@ -50,8 +50,8 @@
     button.textContent = '\u09A4\u09A5\u09CD\u09AF \u09AE\u09C1\u099B\u09C1\u09A8 (Clear Form)';
     button.classList.remove('news-clear-form-button-confirm');
     messageElement.textContent = '\u09AE\u09C1\u099B\u09C7 \u09AB\u09C7\u09B2\u09BE \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 (Cleared!)';
-    messageElement.classList.remove('display-hidden');
-    setTimeout(function () { messageElement.classList.add('display-hidden'); }, 3000);
+    messageElement.hidden = false;
+    setTimeout(function () { messageElement.hidden = true; }, 3000);
 
     /* 1. Clear all form controls via form.elements (works even with display:contents) */
     const elements = form.elements;
@@ -94,8 +94,8 @@
     if (unionSelect) unionSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0989\u09AA\u099C\u09C7\u09B2\u09BE/\u09A5\u09BE\u09A8\u09BE \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     if (wardSelect) wardSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u09B8\u09CD\u09A5\u09BE\u09A8\u09C0\u09AF\u09BC \u09B8\u09B0\u0995\u09BE\u09B0 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
     if (villageSelect) villageSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
-    if (villageOtherInput) { villageOtherInput.classList.add('display-hidden'); villageOtherInput.value = ''; }
-    if (villageRow) villageRow.classList.add('display-hidden');
+    if (villageOtherInput) { villageOtherInput.hidden = true; villageOtherInput.value = ''; }
+    if (villageRow) villageRow.hidden = true;
     /* Clear type tracking hidden inputs */
     ['news-subdistrict-type', 'news-local-body-type', 'news-ward-type'].forEach(function (fieldId) {
       const field = document.getElementById(fieldId);
@@ -360,7 +360,7 @@
     /* 13. Clear any validation warnings */
     const warnings = form.querySelectorAll('.field-warning');
     for (let m = 0; m < warnings.length; m++) {
-      warnings[m].classList.add('display-hidden');
+      warnings[m].hidden = true;
     }
     const shakes = form.querySelectorAll('.field-shake');
     for (let n = 0; n < shakes.length; n++) {

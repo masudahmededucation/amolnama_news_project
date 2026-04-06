@@ -25,13 +25,12 @@
 <div class="form-field">
   <span class="field-label">{{ upload_label }}</span>
   {# Hidden real input — JS syncs files into this before submit #}
-  <input type="file" id="{{ upload_prefix }}-real" name="{{ upload_name }}"
-         class="display-hidden" multiple>
+  <input type="file" id="{{ upload_prefix }}-real" name="{{ upload_name }}" hidden multiple>
   {# Picker trigger — hidden, opened by JS #}
   <input type="file" id="{{ upload_prefix }}-picker"
-         accept="{{ upload_accept }}" class="display-hidden" multiple>
+         accept="{{ upload_accept }}" hidden multiple>
   <button type="button" id="{{ upload_prefix }}-add-btn" class="btn-add-file">{{ upload_btn_label }}</button>
-  <div id="{{ upload_prefix }}-file-list" class="file-info display-hidden"></div>
+  <div id="{{ upload_prefix }}-file-list" class="file-info" hidden></div>
 
   {% if upload_show_featured %}
   {# Featured image — tracked per-file via radio buttons in the file list (JS) #}

@@ -91,23 +91,23 @@ if (typeof pdfjsLib !== 'undefined') {
 
   function showError(msg) {
     errorText.textContent = msg;
-    errorSection.classList.remove('display-hidden');
-    dropzone.classList.add('display-hidden');
-    workspace.classList.add('display-hidden');
+    errorSection.hidden = false;
+    dropzone.hidden = true;
+    workspace.hidden = true;
   }
 
   function clearError() {
-    errorSection.classList.add('display-hidden');
+    errorSection.hidden = true;
   }
 
   function hideResult() {
-    resultEl.classList.add('display-hidden');
-    progressEl.classList.add('display-hidden');
+    resultEl.hidden = true;
+    progressEl.hidden = true;
     splitResult = null;
   }
 
   function setProgress(pct, text) {
-    progressEl.classList.remove('display-hidden');
+    progressEl.hidden = false;
     progressFill.style.width = pct + '%';
     if (text) progressText.textContent = text;
   }
@@ -241,7 +241,7 @@ if (typeof pdfjsLib !== 'undefined') {
     hideResult();
 
     // Range panel visibility
-    panelRange.classList.toggle('display-hidden', mode !== MODE_RANGE);
+    panelRange.hidden = mode !== MODE_RANGE;
 
     // Toolbar button highlight
     if (mode === MODE_ALL) {
@@ -354,7 +354,7 @@ if (typeof pdfjsLib !== 'undefined') {
     }
 
     clearError();
-    dropzone.classList.add('display-hidden');
+    dropzone.hidden = true;
 
     const reader = new FileReader();
     reader.onload = function () {
@@ -375,7 +375,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
         buildPageGrid(pdfDoc);
 
-        workspace.classList.remove('display-hidden');
+        workspace.hidden = false;
         switchMode(MODE_ALL);
         setActiveToolbarBtn(tabAll);
 
@@ -488,7 +488,7 @@ if (typeof pdfjsLib !== 'undefined') {
     splitting = true;
     splitBtn.disabled = true;
     splitBtn.querySelector('.spl-btn-text').textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
-    resultEl.classList.add('display-hidden');
+    resultEl.hidden = true;
     setProgress(0, 'স্প্লিট হচ্ছে… (Splitting…)');
 
     // Smart download: 1 result → direct PDF, otherwise → ZIP
@@ -514,7 +514,7 @@ if (typeof pdfjsLib !== 'undefined') {
               resultPages.textContent = '১টি PDF ফাইল';
               resultSize.textContent = formatSize(blob.size);
               downloadBtn.textContent = '⬇️ PDF ডাউনলোড (Download PDF)';
-              resultEl.classList.remove('display-hidden');
+              resultEl.hidden = false;
 
               splitting = false;
               splitBtn.disabled = false;
@@ -531,7 +531,7 @@ if (typeof pdfjsLib !== 'undefined') {
               resultPages.textContent = groups.length + 'টি PDF ফাইল';
               resultSize.textContent = formatSize(zipBlob.size);
               downloadBtn.textContent = '⬇️ ZIP ডাউনলোড (Download ZIP)';
-              resultEl.classList.remove('display-hidden');
+              resultEl.hidden = false;
 
               splitting = false;
               splitBtn.disabled = false;
@@ -583,7 +583,7 @@ if (typeof pdfjsLib !== 'undefined') {
         splitting = false;
         splitBtn.disabled = false;
         splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
-        progressEl.classList.add('display-hidden');
+        progressEl.hidden = true;
       });
     }, 50);
   }
@@ -620,11 +620,11 @@ if (typeof pdfjsLib !== 'undefined') {
     rangeHint.textContent = '';
     pickCounter.textContent = '';
     outputName.value = 'split-document';
-    workspace.classList.add('display-hidden');
-    resultEl.classList.add('display-hidden');
-    progressEl.classList.add('display-hidden');
+    workspace.hidden = true;
+    resultEl.hidden = true;
+    progressEl.hidden = true;
     clearError();
-    dropzone.classList.remove('display-hidden');
+    dropzone.hidden = false;
     splitBtn.disabled = false;
     splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
     fileInput.value = '';

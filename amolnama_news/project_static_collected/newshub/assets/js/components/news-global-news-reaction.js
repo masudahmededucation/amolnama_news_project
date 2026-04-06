@@ -103,13 +103,13 @@
   /* Toggle conditional rows */
   if (sanctionsCbEl) {
     sanctionsCbEl.addEventListener('change', function () {
-      if (sanctionsRow) sanctionsCbEl.checked ? sanctionsRow.classList.remove('display-hidden') : sanctionsRow.classList.add('display-hidden');
+      if (sanctionsRow) sanctionsRow.hidden = !sanctionsCbEl.checked;
       syncToHiddenInput();
     });
   }
   if (agreementCbEl) {
     agreementCbEl.addEventListener('change', function () {
-      if (agreementRow) agreementCbEl.checked ? agreementRow.classList.remove('display-hidden') : agreementRow.classList.add('display-hidden');
+      if (agreementRow) agreementRow.hidden = !agreementCbEl.checked;
       syncToHiddenInput();
     });
   }
@@ -159,10 +159,10 @@
       }
       if (intlStatementEl && data.intlStatement)   intlStatementEl.value     = data.intlStatement;
       if (sanctionsCbEl)                           sanctionsCbEl.checked     = !!data.sanctionsImposed;
-      if (sanctionsRow)                            (sanctionsCbEl && sanctionsCbEl.checked) ? sanctionsRow.classList.remove('display-hidden') : sanctionsRow.classList.add('display-hidden');
+      if (sanctionsRow)                            (sanctionsCbEl && sanctionsRow.hidden = !sanctionsCbEl.checked);
       if (sanctionsDescEl && data.sanctionsDesc)   sanctionsDescEl.value     = data.sanctionsDesc;
       if (agreementCbEl)                           agreementCbEl.checked     = !!data.agreementReached;
-      if (agreementRow)                            (agreementCbEl && agreementCbEl.checked) ? agreementRow.classList.remove('display-hidden') : agreementRow.classList.add('display-hidden');
+      if (agreementRow)                            (agreementCbEl && agreementRow.hidden = !agreementCbEl.checked);
       if (agreementDescEl && data.agreementDesc)   agreementDescEl.value     = data.agreementDesc;
       if (data.mediaCoverageId && mediaCoverageHidden) {
         mediaCoverageHidden.value = data.mediaCoverageId;
@@ -184,11 +184,11 @@
       if (intlStatementEl)     intlStatementEl.value     = '';
 
       if (sanctionsCbEl)  sanctionsCbEl.checked  = false;
-      if (sanctionsRow)   sanctionsRow.classList.add('display-hidden');
+      if (sanctionsRow)   sanctionsRow.hidden = true;
       if (sanctionsDescEl) sanctionsDescEl.value = '';
 
       if (agreementCbEl)  agreementCbEl.checked  = false;
-      if (agreementRow)   agreementRow.classList.add('display-hidden');
+      if (agreementRow)   agreementRow.hidden = true;
       if (agreementDescEl) agreementDescEl.value = '';
 
       const coverageRadios = document.querySelectorAll('input[name="global_news_media_coverage_radio"]');

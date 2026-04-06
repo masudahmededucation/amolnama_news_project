@@ -114,7 +114,7 @@
       const refused = isFirPoliceRefused();
       const no      = isFirNo();
 
-      if (detailsRow) yes ? detailsRow.classList.remove('display-hidden') : detailsRow.classList.add('display-hidden');
+      if (detailsRow) detailsRow.hidden = !yes;
       if (!yes) {
         if (policeStation) {
           if (policeStation.tomselect) {
@@ -127,10 +127,10 @@
         if (caseNumber) caseNumber.value = '';
       }
 
-      if (policeRefusedRow) refused ? policeRefusedRow.classList.remove('display-hidden') : policeRefusedRow.classList.add('display-hidden');
+      if (policeRefusedRow) policeRefusedRow.hidden = !refused;
       if (!refused && policeRefusalStmt) policeRefusalStmt.value = '';
 
-      if (noFirRow) no ? noFirRow.classList.remove('display-hidden') : noFirRow.classList.add('display-hidden');
+      if (noFirRow) noFirRow.hidden = !no;
       if (!no && noFirReason) noFirReason.value = '';
     }
 

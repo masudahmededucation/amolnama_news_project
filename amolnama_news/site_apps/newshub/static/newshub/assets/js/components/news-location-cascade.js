@@ -202,11 +202,11 @@
 
     function resetVillageOptions() {
       if (villageSelect) {
-        villageSelect.classList.remove('display-hidden');
+        villageSelect.hidden = false;
         villageSelect.innerHTML = '<option value="">-- \u09AA\u09CD\u09B0\u09A5\u09AE\u09C7 \u0987\u0989\u09A8\u09BF\u09AF\u09BC\u09A8 \u09AA\u09B0\u09BF\u09B7\u09A6 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 --</option>';
       }
       if (villageOtherInput) {
-        villageOtherInput.classList.add('display-hidden');
+        villageOtherInput.hidden = true;
         villageOtherInput.value = '';
       }
     }
@@ -217,7 +217,7 @@
     }
 
     function showVillageRow(show) {
-      if (villageRow) show ? villageRow.classList.remove('display-hidden') : villageRow.classList.add('display-hidden');
+      if (villageRow) villageRow.hidden = !show;
     }
 
     /* ========== District Change ========== */
@@ -289,8 +289,8 @@
           resetLocalBody();
           if (localBodyTypeInput) localBodyTypeInput.value = subDistrictType;
 
-          if (villageSelect) villageSelect.classList.add('display-hidden');
-          if (villageOtherInput) villageOtherInput.classList.remove('display-hidden');
+          if (villageSelect) villageSelect.hidden = true;
+          if (villageOtherInput) villageOtherInput.hidden = false;
           showVillageRow(villageOtherInput != null);
 
           if (wardSelect) {
@@ -426,9 +426,9 @@
     if (villageSelect) {
       villageSelect.addEventListener('change', function () {
         if (villageSelect.value === 'other') {
-          if (villageOtherInput) { villageOtherInput.classList.remove('display-hidden'); villageOtherInput.focus(); }
+          if (villageOtherInput) { villageOtherInput.hidden = false; villageOtherInput.focus(); }
         } else {
-          if (villageOtherInput) { villageOtherInput.classList.add('display-hidden'); villageOtherInput.value = ''; }
+          if (villageOtherInput) { villageOtherInput.hidden = true; villageOtherInput.value = ''; }
           centerMapOnSelected(villageSelect, window.newshubMapPinpoint ? window.newshubMapPinpoint.VILLAGE_CENTER_ZOOM : 15);
         }
       });
@@ -454,7 +454,7 @@
     function buildFullAddress() {
       const parts = [];
       let villageName = '';
-      if (villageRow && !villageRow.classList.contains('display-hidden')) {
+      if (villageRow && !villageRow.hidden) {
         if (villageSelect && villageSelect.value && villageSelect.value !== 'other') {
           villageName = getCleanOptionText(villageSelect);
         } else if (villageOtherInput && villageOtherInput.value.trim()) {
@@ -486,8 +486,8 @@
       if (wardNameInput)    wardNameInput.value    = getBnName(wardSelect)        || '';
       if (villageNameInput) {
         let vName = '';
-        if (villageRow && !villageRow.classList.contains('display-hidden')) {
-          if (villageOtherInput && !villageOtherInput.classList.contains('display-hidden') && villageOtherInput.value.trim()) {
+        if (villageRow && !villageRow.hidden) {
+          if (villageOtherInput && !villageOtherInput.hidden && villageOtherInput.value.trim()) {
             vName = villageOtherInput.value.trim();
           } else if (villageSelect && villageSelect.value && villageSelect.value !== 'other') {
             vName = getBnName(villageSelect);

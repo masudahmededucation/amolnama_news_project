@@ -59,10 +59,10 @@
     if (!platformSelect || !urlInput || !warningEl) return;
 
     let url = urlInput.value.trim();
-    if (!url) { warningEl.classList.add('display-hidden'); return; }
+    if (!url) { warningEl.hidden = true; return; }
 
     const urlHost = getHost(url);
-    if (!urlHost) { warningEl.classList.add('display-hidden'); return; }
+    if (!urlHost) { warningEl.hidden = true; return; }
 
     const selectedOption = platformSelect.options[platformSelect.selectedIndex];
 
@@ -73,7 +73,7 @@
         platformSelect.value = match.value;
         platformSelect.dispatchEvent(new Event('change'));
       }
-      warningEl.classList.add('display-hidden');
+      warningEl.hidden = true;
       return;
     }
 
@@ -87,9 +87,9 @@
         + ' \u098F\u09B0 \u09A8\u09AF\u09BC, \u09AE\u09A8\u09C7 \u09B9\u099A\u09CD\u099B\u09C7 '
         + hint
         + ' (URL doesn\'t match ' + selectedOption.textContent.trim() + ')';
-      warningEl.classList.remove('display-hidden');
+      warningEl.hidden = false;
     } else {
-      warningEl.classList.add('display-hidden');
+      warningEl.hidden = true;
     }
   }
 

@@ -90,7 +90,7 @@
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!incidentType || !incidentType.value) {
         warnings.push('\u0998\u099F\u09A8\u09BE\u09B0 \u09A7\u09B0\u09A8 \u09A8\u09BF\u09B0\u09CD\u09AC\u09BE\u099A\u09A8 \u0995\u09B0\u09C1\u09A8 (Please select the incident type)');

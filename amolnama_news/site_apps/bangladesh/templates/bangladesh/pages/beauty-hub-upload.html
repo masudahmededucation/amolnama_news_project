@@ -33,9 +33,9 @@
   <div class="form-group">
     <label for="beauty-hub-file" class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
     <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input">
-    <div id="beauty-hub-file-preview" class="beauty-hub-file-preview display-hidden">
-      <img id="beauty-hub-image-preview" class="beauty-hub-media-preview display-hidden">
-      <video id="beauty-hub-video-preview" class="beauty-hub-media-preview display-hidden" controls></video>
+    <div id="beauty-hub-file-preview" class="beauty-hub-file-preview" hidden>
+      <img id="beauty-hub-image-preview" class="beauty-hub-media-preview" hidden>
+      <video id="beauty-hub-video-preview" class="beauty-hub-media-preview" hidden controls></video>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
   </div>
 
   {# Festival date fields — shown only when Festival category selected #}
-  <div id="beauty-hub-festival-fields" class="beauty-hub-festival-panel display-hidden">
+  <div id="beauty-hub-festival-fields" class="beauty-hub-festival-panel" hidden>
     <div class="beauty-hub-festival-heading" data-en="Festival Details">উৎসবের তথ্য (Festival Details)</div>
     <div class="beauty-hub-festival-date-row">
       <div class="form-row-item">
@@ -76,7 +76,7 @@
   <div class="form-group">
     <span class="form-label" data-en="Description">বিবরণ (Description)</span>
     <div id="quill-beauty-hub-description"></div>
-    <textarea id="beauty-hub-desc-bn" name="beauty_hub_desc_bn" class="display-hidden"></textarea>
+    <textarea id="beauty-hub-desc-bn" name="beauty_hub_desc_bn" hidden></textarea>
   </div>
 
   <div class="form-row">
@@ -116,7 +116,7 @@
     </div>
   </div>
 
-  <div id="beauty-hub-upload-progress" class="display-hidden form-group">
+  <div id="beauty-hub-upload-progress" class="form-group" hidden>
     <div class="beauty-hub-progress-track">
       <div id="beauty-hub-progress-bar" class="beauty-hub-progress-bar" style="width:0%"></div>
     </div>

@@ -233,7 +233,7 @@
     function renderFileList() {
       autoSelectFeatured();
       if (!attachedFiles.length) {
-        fileListContainer.classList.add('display-hidden');
+        fileListContainer.hidden = true;
         fileListContainer.innerHTML = '';
       } else {
         let html = '';
@@ -241,7 +241,7 @@
           html += buildFileRowHtml(attachedFiles[i], i);
         }
         fileListContainer.innerHTML = html;
-        fileListContainer.classList.remove('display-hidden');
+        fileListContainer.hidden = false;
       }
       updateAddButtonState();
     }

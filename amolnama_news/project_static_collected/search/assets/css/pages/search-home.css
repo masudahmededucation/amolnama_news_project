@@ -24,7 +24,7 @@
 .search-page-button-label { white-space: nowrap; }
 
 /* Results */
-.search-page-results { display: flex; flex-direction: column; gap: .4rem; }
+.search-page-results:not([hidden]) { display: flex; flex-direction: column; gap: .4rem; }
 .search-page-results-loading { text-align: center; padding: 1rem; color: var(--muted); font-size: .82rem; }
 .search-page-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
 .search-page-results-count { font-size: .72rem; color: var(--muted); margin-bottom: .5rem; }

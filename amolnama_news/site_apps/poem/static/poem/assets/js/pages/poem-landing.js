@@ -80,11 +80,11 @@
     }
 
     if (chips.length === 0) {
-      crumbsWrap.classList.add("display-hidden");
+      crumbsWrap.hidden = true;
       return;
     }
 
-    crumbsWrap.classList.remove("display-hidden");
+    crumbsWrap.hidden = false;
     crumbsChips.innerHTML = chips.map(function (c) {
       return '<span class="poem-filter-chip">' + c.label +
         ' <button class="poem-filter-chip-remove" data-action="' + c.action + '">✕</button></span>';
@@ -211,7 +211,7 @@
         });
 
         if (loadMoreWrap) {
-          loadMoreWrap.classList.toggle("display-hidden", !data.has_next);
+          loadMoreWrap.hidden = !data.has_next;
         }
         if (loadMoreBtn) {
           loadMoreBtn.disabled = false;

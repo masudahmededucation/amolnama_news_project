@@ -82,7 +82,7 @@
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({ step: step, fn: function () {
-      if (section && section.classList.contains('display-hidden')) return { warnings: [] };
+      if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!master || !master.value.trim()) {
         warnings.push('\u09A8\u09C7\u09AA\u09A5\u09CD\u09AF\u09C7\u09B0 \u09AC\u09CD\u09AF\u0995\u09CD\u09A4\u09BF/\u0997\u09CB\u09B7\u09CD\u09A0\u09C0 \u09A6\u09BF\u09A8 (Please enter the person/group behind scenes)');

@@ -903,7 +903,7 @@
       const heroElement = document.getElementById('travel-hub-detail-hero');
       if (heroElement && data.cover_image_url) {
         heroElement.style.backgroundImage = "url('" + data.cover_image_url + "')";
-        heroElement.classList.remove('display-hidden');
+        heroElement.hidden = false;
       }
 
       showInlineMessage(cardElement, '\u0995\u09AD\u09BE\u09B0 \u099B\u09AC\u09BF \u09B8\u09C7\u099F \u09B9\u09AF\u09BC\u09C7\u099B\u09C7 (Cover set)', false);

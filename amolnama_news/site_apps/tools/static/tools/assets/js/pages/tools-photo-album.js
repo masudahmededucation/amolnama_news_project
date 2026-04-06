@@ -995,12 +995,12 @@
     let pp = getPagePixels();
     let ps = PAGE_SIZES[currentPageSize];
     resultInfo.textContent = ps.label + ' — ' + pp.w + '×' + pp.h + 'px @ ' + DPI + ' DPI';
-    resultSection.classList.remove('display-hidden');
+    resultSection.hidden = false;
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function hideResult() {
-    resultSection.classList.add('display-hidden');
+    resultSection.hidden = true;
     resultCanvas = null;
     resultPreview.innerHTML = '';
   }

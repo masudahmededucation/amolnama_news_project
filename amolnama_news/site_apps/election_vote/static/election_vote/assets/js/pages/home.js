@@ -27,14 +27,14 @@ function showPageMessage(message, type) {
   if (!container) return;
   container.className = 'page-message page-message--' + (type || 'error');
   container.innerHTML = message;
-  container.classList.remove('display-hidden');
+  container.hidden = false;
   container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function clearPageMessage() {
   const container = document.getElementById('page-message');
   if (container) {
-    container.classList.add('display-hidden');
+    container.hidden = true;
     container.innerHTML = '';
   }
 }

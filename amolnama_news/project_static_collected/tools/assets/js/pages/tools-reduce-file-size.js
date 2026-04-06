@@ -116,14 +116,14 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ====== Smooth show/hide ====== */
 
   function showSection(el) {
-    el.classList.remove('display-hidden');
+    el.hidden = false;
     el.classList.remove('tool-section-reveal');
     void el.offsetWidth;
     el.classList.add('tool-section-reveal');
   }
 
   function hideSection(el) {
-    el.classList.add('display-hidden');
+    el.hidden = true;
     el.classList.remove('tool-section-reveal');
   }
 
@@ -607,7 +607,7 @@ if (typeof pdfjsLib !== 'undefined') {
     const labelEl = actionBtn.querySelector('.compress-action-label');
     const spinnerEl = actionBtn.querySelector('.compress-action-spinner');
     labelEl.textContent = 'Compressing...';
-    spinnerEl.classList.remove('display-hidden');
+    spinnerEl.hidden = false;
     actionBtn.disabled = true;
 
     revokeResultThumbs();
@@ -628,7 +628,7 @@ if (typeof pdfjsLib !== 'undefined') {
     function processNext() {
       if (idx >= queue.length) {
         labelEl.textContent = 'Compress Files';
-        spinnerEl.classList.add('display-hidden');
+        spinnerEl.hidden = true;
         actionBtn.disabled = false;
         renderResults();
         return;
@@ -824,7 +824,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
     compareSlider.value = 50;
     updateComparePosition(50);
-    compareOverlay.classList.remove('display-hidden');
+    compareOverlay.hidden = false;
   }
 
   function updateComparePosition(val) {
@@ -838,17 +838,17 @@ if (typeof pdfjsLib !== 'undefined') {
   });
 
   compareClose.addEventListener('click', function () {
-    compareOverlay.classList.add('display-hidden');
+    compareOverlay.hidden = true;
   });
 
   compareOverlay.addEventListener('click', function (e) {
-    if (e.target === compareOverlay) compareOverlay.classList.add('display-hidden');
+    if (e.target === compareOverlay) compareOverlay.hidden = true;
   });
 
   // Escape key closes modal
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !compareOverlay.classList.contains('display-hidden')) {
-      compareOverlay.classList.add('display-hidden');
+    if (e.key === 'Escape' && !compareOverlay.hidden) {
+      compareOverlay.hidden = true;
     }
   });
 

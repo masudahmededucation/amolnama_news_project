@@ -71,10 +71,10 @@
 
   /* Category → show/hide sub-rows (uses data-code since value is a status_id) */
   bindRadioCardGroup('extortion-category-grid', categoryHidden, function (val, code) {
-    if (otherSectorRow)  (code === 'other')             ? otherSectorRow.classList.remove('display-hidden')  : otherSectorRow.classList.add('display-hidden');
+    if (otherSectorRow)  otherSectorRow.hidden = (code !== 'other');
     if (code !== 'other' && otherSectorDetail) otherSectorDetail.value = '';
-    if (transportLocRow) (code === 'transport_vehicle') ? transportLocRow.classList.remove('display-hidden') : transportLocRow.classList.add('display-hidden');
-    if (garmentTypeRow)  (code === 'garment_factory')   ? garmentTypeRow.classList.remove('display-hidden')  : garmentTypeRow.classList.add('display-hidden');
+    if (transportLocRow) transportLocRow.hidden = (code !== 'transport_vehicle');
+    if (garmentTypeRow)  garmentTypeRow.hidden = (code !== 'garment_factory');
   });
 
   bindInlineRadioGroup('extortion-transport-location-group', transportLocHidden);
@@ -137,12 +137,12 @@
   function syncToHiddenInput() {
     /* Update party name row (shown when POLITICAL_PARTY_STUDENT_YOUTH_WING is checked) */
     let hasPolitic = containerHasCode(affiliationContainer, 'POLITICAL_PARTY_STUDENT_YOUTH_WING');
-    if (partyNameRow) hasPolitic ? partyNameRow.classList.remove('display-hidden') : partyNameRow.classList.add('display-hidden');
+    if (partyNameRow) partyNameRow.hidden = !hasPolitic;
     if (!hasPolitic && partyNameEl) partyNameEl.value = '';
 
     /* Update damage detail rows (shown when PROPERTY_VANDALIZED_ARSON is checked) */
     let hasDamage = containerHasCode(consequenceContainer, 'PROPERTY_VANDALIZED_ARSON');
-    if (damageRows) hasDamage ? damageRows.classList.remove('display-hidden') : damageRows.classList.add('display-hidden');
+    if (damageRows) damageRows.hidden = !hasDamage;
 
     const data = collectData();
     hiddenInput.value = hasAnyData(data) ? JSON.stringify(data) : '';
@@ -173,9 +173,9 @@
         sectorRadio.checked = true;
         if (categoryHidden) categoryHidden.value = saved.sectorId;
         const code = (sectorRadio.dataset.code || '');
-        if (otherSectorRow) (code === 'other') ? otherSectorRow.classList.remove('display-hidden') : otherSectorRow.classList.add('display-hidden');
-        if (transportLocRow) (code === 'transport_vehicle') ? transportLocRow.classList.remove('display-hidden') : transportLocRow.classList.add('display-hidden');
-        if (garmentTypeRow) (code === 'garment_factory') ? garmentTypeRow.classList.remove('display-hidden') : garmentTypeRow.classList.add('display-hidden');
+        if (otherSectorRow) otherSectorRow.hidden = (code !== 'other');
+        if (transportLocRow) transportLocRow.hidden = (code !== 'transport_vehicle');
+        if (garmentTypeRow) garmentTypeRow.hidden = (code !== 'garment_factory');
       }
     }
     if (saved.sectorOther && otherSectorDetail) otherSectorDetail.value = saved.sectorOther;
@@ -207,7 +207,7 @@
       });
       /* Show party name row if political affiliation checked */
       const hasPolitic = containerHasCode(affiliationContainer, 'POLITICAL_PARTY_STUDENT_YOUTH_WING');
-      if (partyNameRow) hasPolitic ? partyNameRow.classList.remove('display-hidden') : partyNameRow.classList.add('display-hidden');
+      if (partyNameRow) partyNameRow.hidden = !hasPolitic;
     }
     if (saved.partyName && partyNameEl) partyNameEl.value = saved.partyName;
 
@@ -226,7 +226,7 @@
         if (cb) cb.checked = true;
       });
       const hasDamage = containerHasCode(consequenceContainer, 'PROPERTY_VANDALIZED_ARSON');
-      if (damageRows) hasDamage ? damageRows.classList.remove('display-hidden') : damageRows.classList.add('display-hidden');
+      if (damageRows) damageRows.hidden = !hasDamage;
     }
     if (saved.damageAmount && damageAmount) damageAmount.value = saved.damageAmount;
     if (saved.damageDesc && damageDesc) damageDesc.value = saved.damageDesc;
@@ -253,13 +253,13 @@
       document.querySelectorAll('input[name="extortion_category_radio"]')
         .forEach(function (r) { r.checked = false; });
       if (categoryHidden) categoryHidden.value = '';
-      if (otherSectorRow) otherSectorRow.classList.add('display-hidden');
+      if (otherSectorRow) otherSectorRow.hidden = true;
       if (otherSectorDetail) otherSectorDetail.value = '';
-      if (transportLocRow) transportLocRow.classList.add('display-hidden');
+      if (transportLocRow) transportLocRow.hidden = true;
       document.querySelectorAll('input[name="extortion_transport_location_radio"]')
         .forEach(function (r) { r.checked = false; });
       if (transportLocHidden) transportLocHidden.value = '';
-      if (garmentTypeRow) garmentTypeRow.classList.add('display-hidden');
+      if (garmentTypeRow) garmentTypeRow.hidden = true;
       document.querySelectorAll('input[name="extortion_garment_type_radio"]')
         .forEach(function (r) { r.checked = false; });
       if (garmentTypeHidden) garmentTypeHidden.value = '';
@@ -276,7 +276,7 @@
         affiliationContainer.querySelectorAll('input[type="checkbox"]')
           .forEach(function (cb) { cb.checked = false; });
       }
-      if (partyNameRow) partyNameRow.classList.add('display-hidden');
+      if (partyNameRow) partyNameRow.hidden = true;
       if (partyNameEl)  partyNameEl.value = '';
 
       /* 4. Threat methods */
@@ -290,7 +290,7 @@
         consequenceContainer.querySelectorAll('input[type="checkbox"]')
           .forEach(function (cb) { cb.checked = false; });
       }
-      if (damageRows)   damageRows.classList.add('display-hidden');
+      if (damageRows)   damageRows.hidden = true;
       if (damageAmount) damageAmount.value = '';
       if (damageDesc)   damageDesc.value   = '';
 

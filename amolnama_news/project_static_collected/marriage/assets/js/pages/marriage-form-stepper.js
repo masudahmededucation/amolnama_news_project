@@ -36,11 +36,11 @@
     const bnEls = document.querySelectorAll('.lbl-bn');
     const enEls = document.querySelectorAll('.lbl-en');
     if (lang === 'en') {
-      bnEls.forEach(function (el) { el.classList.add('display-hidden'); });
-      enEls.forEach(function (el) { el.classList.remove('display-hidden'); });
+      bnEls.forEach(function (el) { el.hidden = true; });
+      enEls.forEach(function (el) { el.hidden = false; });
     } else {
-      bnEls.forEach(function (el) { el.classList.remove('display-hidden'); });
-      enEls.forEach(function (el) { el.classList.add('display-hidden'); });
+      bnEls.forEach(function (el) { el.hidden = false; });
+      enEls.forEach(function (el) { el.hidden = true; });
     }
 
     /* Swap placeholders */
@@ -162,12 +162,12 @@
 
     /* Prev button */
     if (btnPrev) {
-      btnPrev.classList.toggle('display-hidden', currentStep === 1);
+      btnPrev.hidden = (currentStep === 1);
     }
 
     /* Next button — hide on last step */
     if (btnNext) {
-      btnNext.classList.toggle('display-hidden', currentStep === totalSteps);
+      btnNext.hidden = (currentStep === totalSteps);
     }
 
     /* Counter */
@@ -210,8 +210,8 @@
         drop.appendChild(img);
         const icon = drop.querySelector('.sig-icon');
         const texts = drop.querySelectorAll('.sig-text');
-        if (icon) icon.classList.add('display-hidden');
-        texts.forEach(function (t) { t.classList.add('display-hidden'); });
+        if (icon) icon.hidden = true;
+        texts.forEach(function (t) { t.hidden = true; });
       };
       reader.readAsDataURL(file);
     });
@@ -234,8 +234,8 @@
     groomMaritalStatus.addEventListener('change', function () {
       let val = groomMaritalStatus.value;
       const showExtra = (val === 'married');
-      if (groomWivesWrap) groomWivesWrap.classList.toggle('display-hidden', !showExtra);
-      if (groomArbitrationWrap) groomArbitrationWrap.classList.toggle('display-hidden', !showExtra);
+      if (groomWivesWrap) groomWivesWrap.hidden = !showExtra;
+      if (groomArbitrationWrap) groomArbitrationWrap.hidden = !showExtra;
     });
   }
 
@@ -247,7 +247,7 @@
     brideMaritalStatus.addEventListener('change', function () {
       const val = brideMaritalStatus.value;
       const showPrev = (val === 'widow' || val === 'divorced');
-      if (bridePrevHusbandWrap) bridePrevHusbandWrap.classList.toggle('display-hidden', !showPrev);
+      if (bridePrevHusbandWrap) bridePrevHusbandWrap.hidden = !showPrev;
     });
   }
 

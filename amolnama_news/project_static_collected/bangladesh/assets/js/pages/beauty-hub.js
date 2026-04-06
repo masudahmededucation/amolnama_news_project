@@ -101,7 +101,7 @@
       });
 
       const loadMoreWrapper = document.getElementById("beauty-hub-load-more");
-      if (loadMoreWrapper) loadMoreWrapper.classList.toggle("display-hidden", !data.has_next);
+      if (loadMoreWrapper) loadMoreWrapper.hidden = !data.has_next);
     } catch (error) {
     } finally {
       isLoading = false;

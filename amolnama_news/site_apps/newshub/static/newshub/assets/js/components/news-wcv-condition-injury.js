@@ -159,22 +159,22 @@
   /* ========== Conditional toggles ========== */
 
   function togglePregnancy() {
-    if (pregnantMonthsRow) (pregnantCb && pregnantCb.checked) ? pregnantMonthsRow.classList.remove('display-hidden') : pregnantMonthsRow.classList.add('display-hidden');
+    if (pregnantMonthsRow) (pregnantCb && pregnantMonthsRow.hidden = !pregnantCb.checked);
     if (!pregnantCb || !pregnantCb.checked) {
       if (pregnantMonths) pregnantMonths.value = '';
       let w = document.getElementById('wcv-pregnant-months-warning');
-      if (w) w.classList.add('display-hidden');
+      if (w) w.hidden = true;
     }
   }
 
   function toggleChildren() {
-    if (childrenCountRow) (childrenCb && childrenCb.checked) ? childrenCountRow.classList.remove('display-hidden') : childrenCountRow.classList.add('display-hidden');
+    if (childrenCountRow) (childrenCb && childrenCountRow.hidden = !childrenCb.checked);
     if (!childrenCb || !childrenCb.checked) {
       if (childrenCount) childrenCount.value = '';
       const e = document.getElementById('wcv-children-count-error');
       const w = document.getElementById('wcv-children-count-warning');
-      if (e) e.classList.add('display-hidden');
-      if (w) w.classList.add('display-hidden');
+      if (e) e.hidden = true;
+      if (w) w.hidden = true;
     }
   }
 
@@ -182,11 +182,11 @@
     let warning = document.getElementById('wcv-children-count-warning');
     if (!warning) return;
     const count = childrenCount ? parseInt(childrenCount.value, 10) : 0;
-    (childrenCb && childrenCb.checked && count > 4) ? warning.classList.remove('display-hidden') : warning.classList.add('display-hidden');
+    (childrenCb && childrenCb.checked && count > warning.hidden = !4);
   }
 
   function toggleDisability() {
-    if (disabilityTypeRow) (disabilityCb && disabilityCb.checked) ? disabilityTypeRow.classList.remove('display-hidden') : disabilityTypeRow.classList.add('display-hidden');
+    if (disabilityTypeRow) (disabilityCb && disabilityTypeRow.hidden = !disabilityCb.checked);
     if (!disabilityCb || !disabilityCb.checked) { if (disabilityType) disabilityType.value = ''; }
   }
 
@@ -232,7 +232,7 @@
     let warning = document.getElementById('wcv-pregnant-months-warning');
     let exceeded = !isNaN(val) && val > 10;
     if (exceeded) this.value = 10;
-    if (warning) exceeded ? warning.classList.remove('display-hidden') : warning.classList.add('display-hidden');
+    if (warning) warning.hidden = !exceeded;
     serialize();
   });
   if (childrenCount) childrenCount.addEventListener('input', function () {
@@ -242,10 +242,10 @@
     const exceeded = !isNaN(val) && val > 20;
     if (exceeded) {
       this.value = '';
-      if (error)   error.classList.remove('display-hidden');
-      if (warning) warning.classList.add('display-hidden');
+      if (error)   error.hidden = false;
+      if (warning) warning.hidden = true;
     } else {
-      if (error) error.classList.add('display-hidden');
+      if (error) error.hidden = true;
       checkChildrenCountWarning();
     }
     serialize();
