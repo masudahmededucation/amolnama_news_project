@@ -71,7 +71,10 @@
       return Promise.resolve({ file: file, wasCompressed: false });
     }
 
-    return loadImage(file).then(function (img) {
+    return loadImage(file).catch(function (error) {
+      console.error('Image load failed during compression:', error);
+      throw error;
+    }).then(function (img) {
       const mimeType = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
       let width = img.naturalWidth;
       let height = img.naturalHeight;
@@ -79,7 +82,10 @@
       const MAX_ATTEMPTS = 4;
 
       function attempt(w, h, q, n) {
-        return canvasToBlob(img, w, h, mimeType, q).then(function (blob) {
+        return canvasToBlob(img, w, h, mimeType, q).catch(function (error) {
+          console.error('Canvas compression attempt ' + n + ' failed:', error);
+          throw error;
+        }).then(function (blob) {
           if (blob.size <= maxSizeBytes || n >= MAX_ATTEMPTS) {
             /* Build a new File with the original name and type */
             const compressed = new File([blob], file.name, {

@@ -20,6 +20,7 @@
     <div class="poem-create-error" id="poemCreateError"></div>
 
     <form id="poemEditForm" data-poem-id="{{ poem.poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
+      {% csrf_token %}
       {# Category #}
       <div class="poem-create-group">
         <label class="poem-create-label" for="poem-category" data-bn="ধরন *" data-en="Category *">ধরন (Category) *</label>

@@ -69,6 +69,8 @@
           upazilaSelect.value = preselect;
           loadUnions(preselect, savedUnion);
         }
+      }).catch(function (error) {
+        console.error('Failed to load upazilas for district ' + districtId + ':', error);
       });
   }
 
@@ -86,6 +88,8 @@
           unionSelect.appendChild(opt);
         });
         if (preselect) unionSelect.value = preselect;
+      }).catch(function (error) {
+        console.error('Failed to load unions for upazila ' + upazilaId + ':', error);
       });
   }
 

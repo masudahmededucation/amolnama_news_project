@@ -30,6 +30,7 @@
 </section>
 
 <form id="beauty-hub-upload-form" class="beauty-hub-upload-form" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
   <div class="form-group">
     <label for="beauty-hub-file" class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
     <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input">

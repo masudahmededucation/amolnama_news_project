@@ -747,6 +747,14 @@
           hideResult();
           rebuildFrame(idx);
           updateCreateState();
+        }).catch(function (error) {
+          console.error('createImageBitmap failed for frame ' + idx + ':', error);
+          frameImages[idx] = img;
+          framePans[idx] = { x: 0, y: 0 };
+          frameZooms[idx] = 1;
+          hideResult();
+          rebuildFrame(idx);
+          updateCreateState();
         });
       } else {
         frameImages[idx] = img;

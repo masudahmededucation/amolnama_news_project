@@ -454,24 +454,24 @@
             const likes = p.like_count || 0;
             const timeAgo = p.time_ago || "";
             const url = p.url || "/bangla-kobita-gaan/id/" + p.id + "/";
-            html += '<a href="' + url + '" class="poem-card">'
+            html += '<a href="' + escapeHtml(url) + '" class="poem-card">'
               + '<span class="poem-card-queue-number">' + (index + 1) + '</span>'
               + '<div class="poem-card-body">'
               + '<div class="poem-card-header">'
-              + '<span class="poem-card-category-badge">' + category + '</span>'
-              + '<span class="poem-card-lang">' + lang + '</span>'
+              + '<span class="poem-card-category-badge">' + escapeHtml(category) + '</span>'
+              + '<span class="poem-card-lang">' + escapeHtml(lang) + '</span>'
               + '</div>'
-              + '<h3 class="poem-card-title">' + title + '</h3>'
-              + '<p class="poem-card-preview">' + snippet + '</p>'
+              + '<h3 class="poem-card-title">' + escapeHtml(title) + '</h3>'
+              + '<p class="poem-card-preview">' + escapeHtml(snippet) + '</p>'
               + '</div>'
               + '<div class="poem-card-footer">'
-              + '<span class="poem-card-author">' + author + '</span>'
+              + '<span class="poem-card-author">' + escapeHtml(author) + '</span>'
               + '<div class="poem-card-stats">'
               + '<span class="poem-card-stat">'
               + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
               + ' ' + likes
               + '</span>'
-              + '<span class="poem-card-time">' + timeAgo + '</span>'
+              + '<span class="poem-card-time">' + escapeHtml(timeAgo) + '</span>'
               + '</div>'
               + '</div>'
               + '</a>';

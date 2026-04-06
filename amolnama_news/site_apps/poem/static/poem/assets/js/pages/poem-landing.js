@@ -86,8 +86,8 @@
 
     crumbsWrap.hidden = false;
     crumbsChips.innerHTML = chips.map(function (c) {
-      return '<span class="poem-filter-chip">' + c.label +
-        ' <button class="poem-filter-chip-remove" data-action="' + c.action + '">✕</button></span>';
+      return '<span class="poem-filter-chip">' + escapeHtml(c.label) +
+        ' <button class="poem-filter-chip-remove" data-action="' + escapeHtml(c.action) + '">✕</button></span>';
     }).join("");
 
     crumbsChips.querySelectorAll(".poem-filter-chip-remove").forEach(function (btn) {
@@ -238,7 +238,7 @@
     const lang = escHtml(poem.language || "bn");
 
     return (
-      '<a href="' + (poem.url || '/bangla-kobita-gaan/id/' + poem.id + '/') + '" class="poem-card">' +
+      '<a href="' + escHtml(poem.url || '/bangla-kobita-gaan/id/' + poem.id + '/') + '" class="poem-card">' +
         '<div class="poem-card-body">' +
           '<div class="poem-card-header">' +
             '<span class="poem-card-category-badge">' + cat + "</span>" +

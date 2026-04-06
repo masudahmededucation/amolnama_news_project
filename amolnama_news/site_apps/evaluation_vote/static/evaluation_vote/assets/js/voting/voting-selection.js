@@ -34,8 +34,8 @@ function selectDivision(id, nameEn, nameBn) {
         let li = document.createElement('li');
         li.onclick = () => selectDistrict(district.id, district.name_en, district.name_bn);
         li.innerHTML = `
-          <span class="name-en">${district.name_en}</span>
-          <span class="name-bn">(${district.name_bn})</span>
+          <span class="name-en">${escapeHtml(district.name_en)}</span>
+          <span class="name-bn">(${escapeHtml(district.name_bn)})</span>
         `;
         list.appendChild(li);
       });
@@ -83,9 +83,9 @@ function selectDistrict(id, nameEn, nameBn) {
         const li = document.createElement('li');
         li.onclick = () => selectConstituency(constituency.id, constituency.name_en, constituency.name_bn);
         li.innerHTML = `
-          <span class="name-en">${constituency.name_en}</span>
-          <span class="name-bn">(${constituency.name_bn})</span>
-          ${constituency.area_bn ? `<div class="area-info">${constituency.area_bn}</div>` : ''}
+          <span class="name-en">${escapeHtml(constituency.name_en)}</span>
+          <span class="name-bn">(${escapeHtml(constituency.name_bn)})</span>
+          ${constituency.area_bn ? `<div class="area-info">${escapeHtml(constituency.area_bn)}</div>` : ''}
         `;
         list.appendChild(li);
       });

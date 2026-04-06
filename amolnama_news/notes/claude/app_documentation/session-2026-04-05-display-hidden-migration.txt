@@ -1,0 +1,49 @@
+Session 2026-04-05 — display-hidden to hidden Attribute Migration
+==================================================================
+
+Migrated CSS class .display-hidden to HTML hidden attribute across
+entire project. 230 files changed across all 15 apps.
+
+PROBLEM
+-------
+.display-hidden { display: none } is a CSS class in forms.css.
+Before CSS loads, the class does nothing — overlays, modals, hidden
+panels flash on page load. HTML hidden attribute works immediately
+because browser default [hidden] { display: none } is built-in.
+
+PROVEN PATTERN (photo-lightbox, post-feed-new-posts-pill)
+---------------------------------------------------------
+HTML: <div class="photo-lightbox" id="photo-lightbox" hidden>
+CSS:  .photo-lightbox:not([hidden]) { display: flex; }
+JS:   lightboxElement.hidden = false; // show
+      lightboxElement.hidden = true;  // hide
+
+MIGRATION SCOPE
+---------------
+355 HTML template instances (class="display-hidden" -> hidden attribute)
+373 JS instances (classList.add/remove/toggle/contains -> .hidden property)
+12 CSS selectors with :not([hidden]) added (where explicit display rules exist)
+
+APPS MIGRATED
+-------------
+core, tools (9 pages), post, bangladesh, election_vote, evaluation_vote,
+newshub (31 JS + 29 HTML), marriage, poem, art, stories, search, portal,
+textextractor, debate
+
+CSS :not([hidden]) ADDED TO
+----------------------------
+pwa-install-banner.css: .pwa-header-install
+tools-background-remover.css: .bgr-processing-overlay, .bgr-result-tools, .bgr-tips
+tools-reduce-file-size.css: .compress-compare-overlay
+tools.css: .tool-card
+search-home.css: .search-page-results
+avatar-upload.css: .avatar-cropper-modal
+poem-landing.css: .poem-filter-crumbs
+news-collection.css: .village-other-input, .commodity-detail-display, .price-gap-calculated
+
+FALLBACK
+--------
+.display-hidden { display: none } kept in forms.css as temporary fallback.
+Remove after full production verification.
+
+COMMIT: 8134ffe

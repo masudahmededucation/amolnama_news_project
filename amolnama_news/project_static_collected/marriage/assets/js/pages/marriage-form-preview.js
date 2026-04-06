@@ -589,6 +589,10 @@
           const offsetY = margin + (maxH - fitH) / 2;
           pdf.addImage(imgData, 'JPEG', offsetX, offsetY, fitW, fitH);
           captureNext(idx + 1);
+        }).catch(function (error) {
+          console.error('Nikah nama PDF page ' + idx + ' capture failed:', error);
+          pdfBtn.disabled = false;
+          pdfBtn.textContent = '\uD83D\uDCC4 PDF \u09A1\u09BE\u0989\u09A8\u09B2\u09CB\u09A1 (Download PDF)';
         });
       };
 

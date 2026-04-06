@@ -157,7 +157,7 @@
 
         if (data.success) {
           /* Update preview with new avatar */
-          previewElement.innerHTML = '<img src="' + data.avatar_url + '" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image">';
+          previewElement.innerHTML = '<img src="' + escapeHtml(data.avatar_url) + '" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image">';
 
           /* Close modal */
           cropperModal.style.display = 'none';

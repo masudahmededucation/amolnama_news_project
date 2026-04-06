@@ -114,7 +114,7 @@ function showSuccessView() {
 
   const reasonLabel = document.getElementById('reason-label');
   if (reasonLabel) {
-    reasonLabel.innerHTML = `এই দলটিকে (<strong>${selectedParty.nameBn}</strong>) বেছে নেওয়ার মূল কারণ কী?`;
+    reasonLabel.innerHTML = `এই দলটিকে (<strong>${escapeHtml(selectedParty.nameBn)}</strong>) বেছে নেওয়ার মূল কারণ কী?`;
   }
 
   const voteReason = document.getElementById('vote-reason');

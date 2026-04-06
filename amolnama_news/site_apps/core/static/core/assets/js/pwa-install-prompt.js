@@ -35,6 +35,8 @@
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(function () {
       deferredPrompt = null;
+    }).catch(function (error) {
+      console.error('PWA install prompt userChoice failed:', error);
     });
   }
 

@@ -35,6 +35,7 @@
 </section>
 
 <form id="travel-hub-add-form" class="travel-hub-add-form" novalidate>
+  {% csrf_token %}
   {% if edit_entry_id %}
     <input type="hidden" id="travel-hub-edit-entry-id" name="travel_hub_edit_entry_id" value="{{ edit_entry_id }}">
   {% endif %}

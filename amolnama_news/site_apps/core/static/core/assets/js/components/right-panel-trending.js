@@ -16,8 +16,8 @@
       for (let hashtagIndex = 0; hashtagIndex < data.hashtags.length && hashtagIndex < 8; hashtagIndex++) {
         let hashtag = data.hashtags[hashtagIndex];
         hashtagHtml += '<a href="/search/?hashtag=' + encodeURIComponent(hashtag.hashtag_text) + '" class="right-panel-trending-hashtag-item">'
-          + '<span class="right-panel-trending-hashtag-text">#' + hashtag.hashtag_text + '</span>'
-          + '<span class="right-panel-trending-hashtag-count">' + hashtag.post_count + ' পোস্ট</span>'
+          + '<span class="right-panel-trending-hashtag-text">#' + escapeHtml(hashtag.hashtag_text) + '</span>'
+          + '<span class="right-panel-trending-hashtag-count">' + escapeHtml(String(hashtag.post_count)) + ' পোস্ট</span>'
           + '</a>';
       }
       hashtagHtml += '</div>';

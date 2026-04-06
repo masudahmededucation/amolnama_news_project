@@ -211,7 +211,10 @@
       if (!previewEl) return;
       pdfBtn.disabled = true;
       pdfBtn.textContent = 'PDF তৈরি হচ্ছে...';
-      html2canvas(previewEl, { scale: 2, useCORS: true }).then(function (canvas) {
+      html2canvas(previewEl, { scale: 2, useCORS: true }).catch(function (error) {
+        console.error('Certificate PDF generation failed:', error);
+      }).then(function (canvas) {
+        if (!canvas) return;
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdf = new window.jspdf.jsPDF({
           orientation: canvas.width > canvas.height ? 'l' : 'p',

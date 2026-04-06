@@ -23,6 +23,7 @@
     <div class="poem-create-error" id="poemCreateError"></div>
 
     <form id="poemCreateForm" novalidate>
+      {% csrf_token %}
       {# Category #}
       <div class="poem-create-group">
         <label class="poem-create-label" for="poem-category" data-bn="ধরন *" data-en="Category *">ধরন (Category) *</label>

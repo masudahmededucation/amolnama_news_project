@@ -26,7 +26,7 @@
         const originalHtml = copyLinkButton.innerHTML;
         copyLinkButton.textContent = '✓ Copied!';
         setTimeout(function () { copyLinkButton.innerHTML = originalHtml; }, 2000);
-      });
+      }).catch(function () { /* clipboard fallback — silent OK */ });
       const parentDropdown = copyLinkButton.closest('.tools-promo-card-share-dropdown');
       if (parentDropdown) parentDropdown.classList.remove('tools-promo-card-share-dropdown-open');
       return;

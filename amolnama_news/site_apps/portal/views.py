@@ -592,7 +592,7 @@ def moderation_queue_view(request):
     for post in auto_flagged_posts:
         flagged_items.append({
             'content_type': 'auto_flagged_post',
-            'content_type_label': (post.content_category_code or 'flagged').upper(),
+            'content_type_label': post.content_category_code or 'flagged',
             'content_type_color': 'rose',
             'content_id': post.post_post_id,
             'content_preview': (post.post_text or '')[:100],

@@ -478,7 +478,7 @@ def bookmarks(request):
             color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
             universal_bookmarks.append({
                 'item_type': 'content_promo', 'promo_id': bookmark.newsengine_bookmark_content_id,
-                'promo_badge': bookmark.content_type_code.upper(), 'promo_color': color_map.get(bookmark.content_type_code, 'blue'),
+                'promo_badge': bookmark.content_type_code, 'promo_color': color_map.get(bookmark.content_type_code, 'blue'),
                 'promo_title': bookmark.content_title or '',
                 'promo_description': '', 'promo_url': bookmark.content_url or '',
                 'promo_author': None, 'promo_date_formatted': '',
