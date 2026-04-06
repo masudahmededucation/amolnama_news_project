@@ -122,13 +122,14 @@
       fetch('/portal/api/placeholders/feature/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-        body: JSON.stringify({ placeholder_id: placeholderId, duration_minutes: 30 }),
+        body: JSON.stringify({ placeholder_id: placeholderId, is_featured: input.checked, duration_minutes: 30 }),
       })
       .then(function (response) { return response.json(); })
       .then(function (data) {
         if (data.success) {
-          item.classList.toggle('placeholder-item-featured', input.checked);
-          showMessage('৩০ মিনিটের জন্য ফিচার করা হয়েছে', false);
+          item.classList.toggle('placeholder-item-featured', data.is_featured);
+          input.checked = data.is_featured;
+          showMessage(data.is_featured ? '৩০ মিনিটের জন্য ফিচার করা হয়েছে' : 'ফিচার বন্ধ করা হয়েছে', false);
         } else {
           input.checked = !input.checked;
           showMessage(data.error || 'ফিচার করা যায়নি', true);

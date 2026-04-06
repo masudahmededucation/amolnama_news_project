@@ -284,11 +284,9 @@ def api_placeholder_toggle(request):
         return JsonResponse({'success': False, 'error': 'পাওয়া যায়নি'}, status=404)
 
     new_value = not placeholder.is_active
-    from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            UPDATE [post].[ref_composer_placeholder] SET [is_active] = %s WHERE [post_ref_composer_placeholder_id] = %s
-        """, [new_value, placeholder_id])
+    RefComposerPlaceholder.objects.filter(
+        post_ref_composer_placeholder_id=placeholder_id
+    ).update(is_active=new_value)
 
     return JsonResponse({'success': True, 'is_active': new_value})
 
@@ -312,18 +310,23 @@ def api_placeholder_feature(request):
         return JsonResponse({'success': False, 'error': 'Invalid data'}, status=400)
 
     from django.utils import timezone
-    from django.db import connection
+    from amolnama_news.site_apps.post.models import RefComposerPlaceholder
 
-    # Clear any existing featured, then set new one
-    with connection.cursor() as cursor:
-        cursor.execute("UPDATE [post].[ref_composer_placeholder] SET [is_featured] = 0")
-        cursor.execute("""
-            UPDATE [post].[ref_composer_placeholder]
-            SET [is_featured] = 1, [featured_start_at] = %s, [featured_duration_minutes] = %s
-            WHERE [post_ref_composer_placeholder_id] = %s
-        """, [timezone.now(), duration_minutes, placeholder_id])
+    is_featured = data.get('is_featured', True)
 
-    return JsonResponse({'success': True})
+    # Clear any existing featured
+    RefComposerPlaceholder.objects.all().update(is_featured=False)
+
+    if is_featured:
+        RefComposerPlaceholder.objects.filter(
+            post_ref_composer_placeholder_id=placeholder_id
+        ).update(
+            is_featured=True,
+            featured_start_at=timezone.now(),
+            featured_duration_minutes=duration_minutes,
+        )
+
+    return JsonResponse({'success': True, 'is_featured': is_featured})
 
 
 @require_POST
@@ -343,8 +346,9 @@ def api_placeholder_delete(request):
     except (ValueError, TypeError):
         return JsonResponse({'success': False, 'error': 'Invalid ID'}, status=400)
 
-    from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute("DELETE FROM [post].[ref_composer_placeholder] WHERE [post_ref_composer_placeholder_id] = %s", [placeholder_id])
+    from amolnama_news.site_apps.post.models import RefComposerPlaceholder
+    RefComposerPlaceholder.objects.filter(
+        post_ref_composer_placeholder_id=placeholder_id
+    ).delete()
 
     return JsonResponse({'success': True})
