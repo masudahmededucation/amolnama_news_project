@@ -19,6 +19,8 @@
 /* Stats */
 .user-profile-stats { display: flex; gap: 1.2rem; margin-top: .6rem; font-size: .85rem; color: var(--text); }
 .user-profile-stat strong { font-weight: 800; }
+.user-profile-stat-link { text-decoration: none; color: var(--text); transition: color .15s; cursor: pointer; }
+.user-profile-stat-link:hover { color: var(--primary); text-decoration: none; }
 
 /* Actions */
 .user-profile-actions { display: flex; gap: .5rem; margin-top: .8rem; }

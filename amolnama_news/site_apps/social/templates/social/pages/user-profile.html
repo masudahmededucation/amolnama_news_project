@@ -36,8 +36,8 @@
       </div>
       <div class="user-profile-stats">
         <span class="user-profile-stat"><strong>{{ post_count }}</strong> পোস্ট</span>
-        <span class="user-profile-stat"><strong>{{ follower_count }}</strong> অনুসরণকারী</span>
-        <span class="user-profile-stat"><strong>{{ following_count }}</strong> অনুসরণ করছেন</span>
+        <a href="/social/@{{ profile.username_handle }}/followers/" class="user-profile-stat user-profile-stat-link" id="user-profile-stat-followers" name="user_profile_stat_followers"><strong>{{ follower_count }}</strong> অনুসরণকারী</a>
+        <a href="/social/@{{ profile.username_handle }}/following/" class="user-profile-stat user-profile-stat-link" id="user-profile-stat-following" name="user_profile_stat_following"><strong>{{ following_count }}</strong> অনুসরণ করছেন</a>
       </div>
       {% if not is_own_profile and user.is_authenticated %}
       <div class="user-profile-actions">

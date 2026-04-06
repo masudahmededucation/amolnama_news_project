@@ -1,4 +1,4 @@
-"""Social views — home, user lists, public profiles."""
+"""Social views — home, user lists, public profiles, followers/following."""
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -125,4 +125,139 @@ def lists_page(request):
     return render(request, 'social/pages/social-lists.html', {
         'lists': list_items,
         'seo': {'title': 'তালিকা — আমলনামা নিউজ', 'noindex': True, 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সামাজিক', 'url': '/social/'}, {'name': 'তালিকা'}]},
+    })
+
+
+def _build_follow_user_list(user_profile_ids, current_user_profile_id=None):
+    """Build list of user data dicts from a list of profile IDs.
+    Shared helper for followers and following views."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
+
+    if not user_profile_ids:
+        return []
+
+    profiles = UserProfile.objects.filter(
+        user_profile_id__in=user_profile_ids,
+    ).order_by('display_name')
+
+    # Batch check: which of these does the current user follow?
+    current_following_ids = set()
+    if current_user_profile_id:
+        current_following_ids = set(
+            UserFollow.objects.filter(
+                link_follower_user_profile_id=current_user_profile_id,
+                link_following_user_profile_id__in=user_profile_ids,
+                is_active=True,
+            ).values_list('link_following_user_profile_id', flat=True)
+        )
+
+    # Batch check: which of these follow the target user? (for "follows you" badge)
+    follows_back_ids = set()
+    if current_user_profile_id:
+        follows_back_ids = set(
+            UserFollow.objects.filter(
+                link_follower_user_profile_id__in=user_profile_ids,
+                link_following_user_profile_id=current_user_profile_id,
+                is_active=True,
+            ).values_list('link_follower_user_profile_id', flat=True)
+        )
+
+    user_list = []
+    for profile in profiles:
+        user_list.append({
+            'user_profile_id': profile.user_profile_id,
+            'display_name': profile.display_name or '',
+            'username_handle': profile.username_handle or '',
+            'avatar_url': get_user_avatar_url(profile),
+            'professional_bio_summary': profile.professional_bio_summary or '',
+            'is_verified': profile.is_verified or False,
+            'is_following': profile.user_profile_id in current_following_ids,
+            'follows_you': profile.user_profile_id in follows_back_ids,
+            'is_own_profile': profile.user_profile_id == current_user_profile_id,
+        })
+    return user_list
+
+
+def followers_page(request, username_handle):
+    """View a user's followers list."""
+    return _follow_list_page(request, username_handle, list_type='followers')
+
+
+def following_page(request, username_handle):
+    """View a user's following list."""
+    return _follow_list_page(request, username_handle, list_type='following')
+
+
+def _follow_list_page(request, username_handle, list_type):
+    """Shared view for followers and following pages."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from .models import UserFollow
+
+    profile = UserProfile.objects.filter(username_handle=username_handle).first()
+    if not profile:
+        return render(request, 'social/pages/user-profile-not-found.html', {
+            'username_handle': username_handle,
+            'seo': {'title': 'প্রোফাইল পাওয়া যায়নি', 'noindex': True},
+        })
+
+    # Get current user profile ID
+    current_user_profile_id = None
+    if request.user.is_authenticated:
+        try:
+            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            current_user_profile_id = current_profile.user_profile_id
+        except UserProfile.DoesNotExist:
+            pass
+
+    # Get follower/following counts (for tabs)
+    follower_count = UserFollow.objects.filter(
+        link_following_user_profile_id=profile.user_profile_id, is_active=True,
+    ).count()
+    following_count = UserFollow.objects.filter(
+        link_follower_user_profile_id=profile.user_profile_id, is_active=True,
+    ).count()
+
+    # Get user IDs for the active tab (first 50 — SSR)
+    if list_type == 'followers':
+        user_profile_ids = list(
+            UserFollow.objects.filter(
+                link_following_user_profile_id=profile.user_profile_id, is_active=True,
+            ).order_by('-created_at').values_list('link_follower_user_profile_id', flat=True)[:50]
+        )
+    else:
+        user_profile_ids = list(
+            UserFollow.objects.filter(
+                link_follower_user_profile_id=profile.user_profile_id, is_active=True,
+            ).order_by('-created_at').values_list('link_following_user_profile_id', flat=True)[:50]
+        )
+
+    users = _build_follow_user_list(user_profile_ids, current_user_profile_id)
+
+    # Avatar for profile header
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
+    avatar_url = get_user_avatar_url(profile)
+
+    tab_label = 'অনুসরণকারী' if list_type == 'followers' else 'অনুসরণ করছেন'
+    total_count = follower_count if list_type == 'followers' else following_count
+
+    return render(request, 'social/pages/follow-list.html', {
+        'profile': profile,
+        'avatar_url': avatar_url,
+        'list_type': list_type,
+        'users': users,
+        'follower_count': follower_count,
+        'following_count': following_count,
+        'total_count': total_count,
+        'has_more': total_count > 50,
+        'seo': {
+            'title': f'{profile.display_name or username_handle} — {tab_label} — আমলনামা নিউজ',
+            'description': f'{profile.display_name or username_handle}-এর {tab_label} তালিকা',
+            'noindex': False,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': profile.display_name or username_handle, 'url': f'/social/@{username_handle}/'},
+                {'name': tab_label},
+            ],
+        },
     })

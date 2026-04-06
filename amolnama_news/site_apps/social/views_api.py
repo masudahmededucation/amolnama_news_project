@@ -1,4 +1,4 @@
-"""Social API views — follow/unfollow, block/unblock, lists."""
+"""Social API views — follow/unfollow, block/unblock, lists, followers/following."""
 
 import json
 
@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.http import JsonResponse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 from .models import UserBlock, UserList, UserListMember, UserFollow
 
@@ -186,3 +186,49 @@ def api_list_member_toggle(request):
                 VALUES (%s, %s)
             """, [list_id, member_user_profile_id])
         return JsonResponse({'success': True, 'action': 'added'})
+
+
+# =========================================================
+# FOLLOWERS / FOLLOWING LIST API (pagination)
+# =========================================================
+
+@require_GET
+def api_follow_list(request, user_profile_id):
+    """Get paginated followers or following list for a user.
+    Query params: type=followers|following, offset=0, limit=50"""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    list_type = request.GET.get('type', 'followers')
+    offset = int(request.GET.get('offset', 0))
+    limit = min(int(request.GET.get('limit', 50)), 100)
+
+    if list_type == 'followers':
+        user_profile_ids = list(
+            UserFollow.objects.filter(
+                link_following_user_profile_id=user_profile_id, is_active=True,
+            ).order_by('-created_at').values_list('link_follower_user_profile_id', flat=True)[offset:offset + limit]
+        )
+    else:
+        user_profile_ids = list(
+            UserFollow.objects.filter(
+                link_follower_user_profile_id=user_profile_id, is_active=True,
+            ).order_by('-created_at').values_list('link_following_user_profile_id', flat=True)[offset:offset + limit]
+        )
+
+    # Get current user profile ID for follow state
+    current_user_profile_id = None
+    if request.user.is_authenticated:
+        try:
+            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            current_user_profile_id = current_profile.user_profile_id
+        except UserProfile.DoesNotExist:
+            pass
+
+    from .views import _build_follow_user_list
+    users = _build_follow_user_list(user_profile_ids, current_user_profile_id)
+
+    return JsonResponse({
+        'success': True,
+        'users': users,
+        'has_more': len(user_profile_ids) == limit,
+    })

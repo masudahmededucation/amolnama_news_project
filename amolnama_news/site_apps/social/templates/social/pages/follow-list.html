@@ -1,0 +1,94 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'social/assets/css/pages/follow-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="follow-list-page" id="follow-list-page" data-user-profile-id="{{ profile.user_profile_id }}" data-list-type="{{ list_type }}">
+
+  {# ---- Profile Mini Header ---- #}
+  <div class="follow-list-profile-header">
+    <a href="/social/@{{ profile.username_handle }}/" class="follow-list-profile-link" id="follow-list-profile-link" name="follow_list_profile_link">
+      {% if avatar_url %}
+      <img src="{{ avatar_url }}" alt="{{ profile.display_name }}" class="follow-list-profile-avatar" loading="lazy">
+      {% else %}
+      <span class="follow-list-profile-avatar-initials">{{ profile.display_name|default:'?'|first }}</span>
+      {% endif %}
+      <span class="follow-list-profile-name">{{ profile.display_name|default:'ব্যবহারকারী' }}</span>
+    </a>
+  </div>
+
+  {# ---- Tabs ---- #}
+  <div class="follow-list-tabs" id="follow-list-tabs">
+    <a href="/social/@{{ profile.username_handle }}/followers/"
+       class="follow-list-tab{% if list_type == 'followers' %} follow-list-tab-active{% endif %}"
+       id="follow-list-tab-followers" name="follow_list_tab_followers">
+      <strong>{{ follower_count }}</strong> অনুসরণকারী
+    </a>
+    <a href="/social/@{{ profile.username_handle }}/following/"
+       class="follow-list-tab{% if list_type == 'following' %} follow-list-tab-active{% endif %}"
+       id="follow-list-tab-following" name="follow_list_tab_following">
+      <strong>{{ following_count }}</strong> অনুসরণ করছেন
+    </a>
+  </div>
+
+  {# ---- Search Filter ---- #}
+  <div class="follow-list-search-wrapper">
+    <input type="text" class="follow-list-search-input" id="follow-list-search-input"
+           name="follow_list_search_input" placeholder="খুঁজুন... (Search)">
+  </div>
+
+  {# ---- User Cards (SSR first 50) ---- #}
+  <div class="follow-list-users" id="follow-list-users">
+    {% for user in users %}
+    <div class="follow-list-user-card" id="follow-list-user-card-{{ user.user_profile_id }}" data-user-profile-id="{{ user.user_profile_id }}" data-display-name="{{ user.display_name }}" data-username-handle="{{ user.username_handle }}">
+      <a href="/social/@{{ user.username_handle }}/" class="follow-list-user-link" id="follow-list-user-link-{{ user.user_profile_id }}" name="follow_list_user_link_{{ user.user_profile_id }}">
+        {% if user.avatar_url %}
+        <img src="{{ user.avatar_url }}" alt="{{ user.display_name }}" class="follow-list-user-avatar" loading="lazy">
+        {% else %}
+        <span class="follow-list-user-avatar-initials">{{ user.display_name|default:'?'|first }}</span>
+        {% endif %}
+        <div class="follow-list-user-info">
+          <div class="follow-list-user-name-row">
+            <span class="follow-list-user-display-name">{{ user.display_name|default:'ব্যবহারকারী' }}</span>
+            {% if user.is_verified %}<svg class="follow-list-user-verified-badge" viewBox="0 0 24 24" fill="#1877F2" width="14" height="14"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg>{% endif %}
+            {% if user.follows_you %}<span class="follow-list-user-follows-you-badge">Follows you</span>{% endif %}
+          </div>
+          <span class="follow-list-user-handle">@{{ user.username_handle }}</span>
+          {% if user.professional_bio_summary %}<p class="follow-list-user-bio">{{ user.professional_bio_summary }}</p>{% endif %}
+        </div>
+      </a>
+      {% if not user.is_own_profile and request.user.is_authenticated %}
+      <button type="button"
+              class="follow-list-follow-button{% if user.is_following %} follow-list-follow-button-active{% endif %}"
+              id="follow-list-follow-button-{{ user.user_profile_id }}"
+              name="follow_list_follow_button_{{ user.user_profile_id }}"
+              data-user-profile-id="{{ user.user_profile_id }}">
+        {% if user.is_following %}Following{% else %}Follow{% endif %}
+      </button>
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="follow-list-empty" id="follow-list-empty">
+      {% if list_type == 'followers' %}এখনো কেউ অনুসরণ করেনি{% else %}এখনো কাউকে অনুসরণ করেননি{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {# ---- Load More ---- #}
+  {% if has_more %}
+  <div class="follow-list-load-more-wrapper" id="follow-list-load-more-wrapper">
+    <button type="button" class="follow-list-load-more-button" id="follow-list-load-more-button" name="follow_list_load_more_button">আরও দেখুন (Load more)</button>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'social/assets/js/pages/follow-list.js' %}" defer></script>
+{% endblock %}

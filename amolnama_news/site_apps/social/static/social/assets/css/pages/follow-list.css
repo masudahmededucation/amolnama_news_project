@@ -1,0 +1,66 @@
+/* Followers / Following List Page */
+
+.follow-list-page { max-width: 680px; margin: 0 auto; padding: 1rem; }
+
+/* ---- Profile Mini Header ---- */
+.follow-list-profile-header { margin-bottom: 1rem; }
+.follow-list-profile-link { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--text); }
+.follow-list-profile-link:hover { text-decoration: none; }
+.follow-list-profile-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+.follow-list-profile-avatar-initials { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1rem; font-weight: 700; }
+.follow-list-profile-name { font-size: 1rem; font-weight: 700; }
+
+/* ---- Tabs ---- */
+.follow-list-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.follow-list-tab { flex: 1; text-align: center; padding: .75rem .5rem; font-size: .88rem; color: var(--muted); text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; transition: color .15s, border-color .15s; }
+.follow-list-tab:hover { color: var(--text); text-decoration: none; }
+.follow-list-tab-active { color: var(--primary); border-bottom-color: var(--primary); }
+.follow-list-tab strong { font-weight: 800; }
+
+/* ---- Search ---- */
+.follow-list-search-wrapper { margin-bottom: 1rem; }
+.follow-list-search-input { width: 100%; padding: .6rem .9rem; border: 1.5px solid var(--border); border-radius: 20px; font-size: .85rem; background: var(--card); color: var(--text); outline: none; transition: border-color .15s; }
+.follow-list-search-input:focus { border-color: var(--primary); }
+
+/* ---- User Cards ---- */
+.follow-list-users { display: flex; flex-direction: column; gap: .25rem; }
+
+.follow-list-user-card { display: flex; align-items: center; justify-content: space-between; padding: .7rem .8rem; border-radius: var(--radius-sm, 8px); transition: background .15s; }
+.follow-list-user-card:hover { background: var(--surface); }
+
+.follow-list-user-link { display: flex; align-items: center; gap: .7rem; text-decoration: none; color: var(--text); flex: 1; min-width: 0; }
+.follow-list-user-link:hover { text-decoration: none; }
+
+.follow-list-user-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.follow-list-user-avatar-initials { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.2rem; font-weight: 700; flex-shrink: 0; }
+
+.follow-list-user-info { flex: 1; min-width: 0; }
+.follow-list-user-name-row { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.follow-list-user-display-name { font-size: .92rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.follow-list-user-verified-badge { flex-shrink: 0; }
+.follow-list-user-follows-you-badge { font-size: .6rem; font-weight: 700; color: var(--muted); background: var(--surface); padding: .1rem .35rem; border-radius: 4px; white-space: nowrap; }
+.follow-list-user-handle { font-size: .78rem; color: var(--muted); display: block; }
+.follow-list-user-bio { font-size: .78rem; color: var(--muted); margin: .2rem 0 0; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+
+/* ---- Follow Button ---- */
+.follow-list-follow-button { padding: .35rem 1rem; background: var(--primary); color: #fff; border: 1.5px solid var(--primary); border-radius: 20px; font-size: .78rem; font-weight: 700; cursor: pointer; transition: background .15s, border-color .15s, color .15s; flex-shrink: 0; white-space: nowrap; }
+.follow-list-follow-button:hover { background: var(--primary-hover); }
+.follow-list-follow-button-active { background: var(--card); color: var(--text); border-color: var(--border); }
+.follow-list-follow-button-active:hover { background: var(--primary-light); color: var(--danger); border-color: var(--danger); }
+
+/* ---- Empty State ---- */
+.follow-list-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .9rem; }
+
+/* ---- Load More ---- */
+.follow-list-load-more-wrapper { text-align: center; padding: 1rem 0; }
+.follow-list-load-more-button { padding: .5rem 1.5rem; background: var(--card); color: var(--primary); border: 1.5px solid var(--primary); border-radius: 20px; font-size: .85rem; font-weight: 700; cursor: pointer; transition: background .15s; }
+.follow-list-load-more-button:hover { background: var(--primary-light); }
+
+/* ---- Mobile ---- */
+@media (max-width: 640px) {
+  .follow-list-page { padding: .5rem; }
+  .follow-list-user-card { padding: .5rem .6rem; }
+  .follow-list-user-avatar, .follow-list-user-avatar-initials { width: 40px; height: 40px; font-size: 1rem; }
+  .follow-list-follow-button { padding: .3rem .8rem; font-size: .72rem; min-height: 36px; }
+  .follow-list-search-input { font-size: .82rem; }
+}
