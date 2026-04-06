@@ -85,6 +85,15 @@
   /* Expose public API */
   window.newshubDatePicker = { init: initAll };
 
+  /* Register SPA cleanup — destroy all flatpickr instances properly */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      document.querySelectorAll('[data-date-picker]').forEach(function (input) {
+        if (input._flatpickr) input._flatpickr.destroy();
+      });
+    });
+  }
+
   /* Auto-init — scripts are at bottom so DOM is already parsed */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAll);

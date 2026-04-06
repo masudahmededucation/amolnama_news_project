@@ -310,4 +310,14 @@
       render();
     }
   };
+
+  /* SPA cleanup — destroy Tom Select instances on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      for (var i = 0; i < tomSelectInstances.length; i++) {
+        tomSelectInstances[i].destroy();
+      }
+      tomSelectInstances = [];
+    });
+  }
 })();

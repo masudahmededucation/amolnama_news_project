@@ -297,4 +297,13 @@
   /* Expose factory for additional instances */
   window.newshubCreateLocationSearch = createLocationSearch;
 
+  /* SPA cleanup — destroy Tom Select instances on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      document.querySelectorAll('select').forEach(function (s) {
+        if (s.tomselect) s.tomselect.destroy();
+      });
+    });
+  }
+
 })();

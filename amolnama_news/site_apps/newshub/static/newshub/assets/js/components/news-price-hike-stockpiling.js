@@ -286,4 +286,14 @@
       addRow();
     },
   };
+
+  /* SPA cleanup — destroy Tom Select instances on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      for (var key in tomInstances) {
+        if (tomInstances[key]) tomInstances[key].destroy();
+      }
+      tomInstances = {};
+    });
+  }
 })();

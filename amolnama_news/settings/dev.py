@@ -10,6 +10,17 @@ MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 INTERNAL_IPS = ["127.0.0.1"]
 
+# Hide DJDT on SPA navigation (AJAX) — prevents raw SVG/calendar/toolbar HTML
+# from being included in SPA-fetched responses
+def show_toolbar_callback(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return False
+    return DEBUG and request.META.get('REMOTE_ADDR') in INTERNAL_IPS
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'amolnama_news.settings.dev.show_toolbar_callback',
+}
+
 # Dev: serve static files directly without filename hashing or caching.
 # This ensures CSS/JS changes take effect immediately on refresh.
 STORAGES = {

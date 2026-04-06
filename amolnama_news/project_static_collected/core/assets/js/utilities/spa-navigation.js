@@ -1,6 +1,23 @@
 /* spa-navigation.js — SPA hybrid navigation (PJAX pattern)
    Intercepts sidebar nav clicks, fetches content via AJAX, swaps <main> only.
    Sidebar/header/footer never reload. URL updates via pushState. SEO untouched. */
+
+/* ---- SPA Cleanup Registry ----
+   Page-specific scripts register cleanup functions (e.g., flatpickr.destroy()).
+   SPA navigation calls all registered cleanups before swapping content. */
+(function () {
+  var cleanupFunctions = [];
+  window.spaCleanupRegister = function (fn) {
+    if (typeof fn === 'function') cleanupFunctions.push(fn);
+  };
+  window.spaCleanupRun = function () {
+    cleanupFunctions.forEach(function (fn) {
+      try { fn(); } catch (error) { console.error('SPA cleanup error:', error); }
+    });
+    cleanupFunctions = [];
+  };
+})();
+
 (function () {
   'use strict';
 
@@ -21,7 +38,7 @@
     if (!link) return;
     let url = link.getAttribute('href');
     if (!url || url === window.location.pathname || prefetchCache[url]) return;
-    prefetchCache[url] = fetch(url).then(function (response) {
+    prefetchCache[url] = fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(function (response) {
       return response.ok ? response.text() : null;
     }).catch(function () { return null; });
   }, true);
@@ -57,9 +74,9 @@
       ? prefetchCache[url].then(function (cached) {
           delete prefetchCache[url];
           if (cached) return cached;
-          return fetch(url, { signal: currentAbortController.signal }).then(function (r) { return r.ok ? r.text() : null; }).catch(function () { return null; });
+          return fetch(url, { signal: currentAbortController.signal, headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(function (r) { return r.ok ? r.text() : null; }).catch(function () { return null; });
         })
-      : fetch(url, { signal: currentAbortController.signal }).then(function (r) {
+      : fetch(url, { signal: currentAbortController.signal, headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.text();
         });
@@ -80,6 +97,16 @@
           { url: window.location.pathname, scrollY: window.scrollY },
           '', window.location.pathname
         );
+
+        // Step 0b: Run registered cleanup functions (destroy third-party instances)
+        window.spaCleanupRun();
+
+        // Step 0c: Fallback — remove any orphaned DOM that destroy() missed
+        document.querySelectorAll(
+          '.flatpickr-calendar, .ts-dropdown, .pwa-tooltip, .quill-avro-suggestions'
+        ).forEach(function (orphan) {
+          orphan.remove();
+        });
 
         // Step 1: Hide content INSTANTLY — disable transition so opacity jumps to 0
         mainElement.style.transition = 'none';

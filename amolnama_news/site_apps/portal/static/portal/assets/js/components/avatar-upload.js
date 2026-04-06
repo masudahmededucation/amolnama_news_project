@@ -180,4 +180,14 @@
       });
     }, 'image/jpeg', 0.9);
   });
+
+  /* Register SPA cleanup — destroy Cropper.js instance */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      if (cropperInstance) {
+        cropperInstance.destroy();
+        cropperInstance = null;
+      }
+    });
+  }
 })();

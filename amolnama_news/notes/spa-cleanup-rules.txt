@@ -1,0 +1,61 @@
+SPA Third-Party Library Cleanup — Rules
+========================================
+Created: 2026-04-06
+
+PROBLEM
+-------
+Third-party libraries (Flatpickr, Tom Select, Quill, Leaflet, Cropper.js)
+inject elements into <body> or create internal state (event listeners, timers,
+memory). SPA only swaps <main> — these persist after navigation, causing:
+- Visible orphaned elements (calendars, dropdowns) at bottom of pages
+- Memory leaks (event listeners never removed)
+- Stale instances interfering with new page
+
+BAND-AID (what was done first — WRONG)
+---------------------------------------
+document.querySelectorAll('.flatpickr-calendar, .ts-dropdown').forEach(el => el.remove())
+This removes DOM but doesn't call destroy(). Leaks event listeners and memory.
+
+GOLD STANDARD (proper cleanup)
+-------------------------------
+Every page-specific script that creates a third-party instance must:
+1. Register a cleanup function via window.spaCleanupRegister(fn)
+2. The cleanup function calls instance.destroy() or equivalent
+3. SPA navigation calls all registered cleanups BEFORE swapping content
+
+PATTERN
+-------
+// In page-specific JS:
+const flatpickrInstance = flatpickr(input, opts);
+window.spaCleanupRegister(function () {
+  flatpickrInstance.destroy();
+});
+
+// In spa-navigation.js (before Step 1):
+window.spaCleanupRun();  // calls all registered fns, then clears the list
+
+REGISTRY API
+------------
+window.spaCleanupRegister(fn) — register a cleanup function
+window.spaCleanupRun()        — run all registered fns, clear list
+
+INSTANCES THAT NEED CLEANUP
+-----------------------------
+1. Flatpickr — news-date-picker.js (instance via input._flatpickr)
+2. Tom Select — news-location-search.js, news-price-hike-stockpiling.js,
+   news-price-hike-price-gap.js, news-searchable-dropdown.js,
+   news-thana-search-select.js, news-war-conflict-parties.js,
+   news-person-identity.js
+3. Quill — quill-editor.js (via returned object)
+4. Leaflet — news-map-pinpoint.js (leafletMap variable)
+5. Cropper.js — avatar-upload.js (cropperInstance variable)
+
+FALLBACK
+--------
+Keep DOM .remove() as fallback AFTER destroy() calls — catches anything
+that destroy() missed or libraries that don't have destroy().
+
+RULE FOR NEW CODE
+-----------------
+Any new third-party library instance MUST register cleanup via
+window.spaCleanupRegister(). No exceptions. This prevents future orphans.

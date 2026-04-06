@@ -154,11 +154,11 @@ Missing .catch().
 XSS vulnerabilities.
 tech debt item.
 
+
 --create or update documentation
 architecture, features, functions, and troubleshooting.
 folders.
 \notes\claude\app_documentation
-
 \notes\claude\memory-training\
 
 --start implementing
@@ -166,3 +166,9 @@ start implementing.
 
 --compare the plan
 at last check that you have completed the task properly.
+
+--best practice 
+so have you resolved the issue? 
+what is the gold standard best practice for professional website? 
+are we following those practices to solve these issues? 
+or are we masking issues?

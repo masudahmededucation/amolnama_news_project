@@ -121,4 +121,13 @@
     initThanaSearchSelect: initThanaSearchSelect,
   };
 
+  /* SPA cleanup — destroy Tom Select instances on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      document.querySelectorAll('select, input').forEach(function (el) {
+        if (el.tomselect) el.tomselect.destroy();
+      });
+    });
+  }
+
 })();

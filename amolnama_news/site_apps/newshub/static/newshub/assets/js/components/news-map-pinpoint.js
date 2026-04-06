@@ -269,6 +269,17 @@
     VILLAGE_CENTER_ZOOM: VILLAGE_CENTER_ZOOM
   };
 
+  /* Register SPA cleanup — properly destroy Leaflet map */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      if (leafletMap) {
+        leafletMap.remove();
+        leafletMap = null;
+      }
+      draggableMarker = null;
+    });
+  }
+
   /* ===== Init ===== */
   mapInitialise();
 })();

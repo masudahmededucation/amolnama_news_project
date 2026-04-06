@@ -103,4 +103,12 @@
   }
 
   window.initQuillEditor = initQuillEditor;
+
+  /* Register SPA cleanup — Quill has no destroy(), so disable and clean up DOM */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      document.querySelectorAll('.ql-toolbar').forEach(function (toolbar) { toolbar.remove(); });
+      document.querySelectorAll('.ql-tooltip').forEach(function (tooltip) { tooltip.remove(); });
+    });
+  }
 })();

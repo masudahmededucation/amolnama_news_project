@@ -19,4 +19,13 @@
     sortField: { field: 'text', direction: 'asc' },
     searchField: ['text', 'aliases']
   });
+
+  /* SPA cleanup — destroy Tom Select instances on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      document.querySelectorAll('select').forEach(function (s) {
+        if (s.tomselect) s.tomselect.destroy();
+      });
+    });
+  }
 })();
