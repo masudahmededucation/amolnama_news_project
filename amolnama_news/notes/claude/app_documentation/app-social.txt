@@ -112,3 +112,44 @@ If counts seem wrong, check for orphan records where is_active logic may have be
 - User's posts rendered via shared build_post_feed_items()
 - 404 page for non-existent handles
 - Author name in post-card.html links to profile (guarded for empty username_handle)
+
+## New Features (2026-04-06) — Followers/Following List Page
+
+### Pages
+- /social/@{handle}/followers/ — list of users following this profile
+- /social/@{handle}/following/ — list of users this profile follows
+- /social/ — redirects logged-in users to their own followers page
+
+### View Functions (views.py)
+- followers_page(request, username_handle) → renders follow-list.html (list_type=followers)
+- following_page(request, username_handle) → renders follow-list.html (list_type=following)
+- _follow_list_page(request, username_handle, list_type) — shared logic, SSR first 50
+- _build_follow_user_list(user_profile_ids, current_user_profile_id) — batch query helper
+  Returns: user_profile_id, display_name, username_handle, avatar_url, bio, is_verified,
+  is_following (does current user follow this person), follows_you (does this person follow current user)
+
+### API (views_api.py)
+- GET /social/api/follow-list/{user_profile_id}/?type=followers|following&offset=0&limit=50
+  Paginated list for "load more" button
+
+### Template (follow-list.html)
+- Profile mini header (avatar + name, links back to profile)
+- Tabs: Followers / Following with counts
+- Search filter (client-side, instant)
+- User cards: avatar, name, handle, bio, verified badge, "Follows you" badge
+- Follow/Unfollow button per user
+- Load more pagination
+
+### Files
+- social/views.py — followers_page, following_page, _follow_list_page, _build_follow_user_list
+- social/views_api.py — api_follow_list
+- social/urls.py — @{handle}/followers/, @{handle}/following/, api/follow-list/
+- social/templates/social/pages/follow-list.html
+- social/templates/social/pages/social-home.html (login prompt for non-auth)
+- social/static/social/assets/css/pages/follow-list.css
+- social/static/social/assets/js/pages/follow-list.js
+- social/static/social/assets/css/pages/user-profile.css — clickable stat links added
+
+### Profile Page Changes
+- Follower/following counts on user-profile.html are now clickable <a> links
+- .user-profile-stat-link CSS class for hover state

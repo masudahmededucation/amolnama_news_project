@@ -156,6 +156,7 @@ def _build_follow_user_list(user_profile_ids, current_user_profile_id=None):
     Shared helper for followers and following views."""
     from amolnama_news.site_apps.user_account.models import UserProfile
     from amolnama_news.site_apps.core.utils import get_user_avatar_url
+    from .models import UserFollow
 
     if not user_profile_ids:
         return []

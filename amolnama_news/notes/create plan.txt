@@ -36,7 +36,8 @@ start implementing.
 --compare the plan
 at last check that you have completed the task properly.
 
---report what you have done 
+--report 
+report what you have done 
 
 #################
 --auto posting app
