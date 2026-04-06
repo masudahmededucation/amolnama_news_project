@@ -1,6 +1,8 @@
 """Content recommendations — "You liked X, you might like Y".
-Simple collaborative filtering: same category + popular with similar users.
-No external API, pure SQL queries on existing engagement data."""
+Two strategies:
+1. Category-based collaborative filtering (fast, always works)
+2. Vector similarity via sentence-transformers embeddings (semantic, requires model)
+Falls back to category-based if embeddings are unavailable."""
 
 import logging
 
@@ -129,3 +131,83 @@ def _get_global_popular(limit=5):
         logger.exception('Failed to get global popular posts')
 
     return items[:limit]
+
+
+def get_similar_posts(post_post_id, limit=5):
+    """Get semantically similar posts using vector embeddings.
+    Returns list of dicts with content_type, title, url, similarity score.
+    Falls back to empty list if embeddings unavailable."""
+    try:
+        from .embeddings import find_similar_content
+        similar_items = find_similar_content('post', post_post_id, limit=limit)
+
+        if not similar_items:
+            return []
+
+        # Enrich with post data
+        from amolnama_news.site_apps.post.models import Post
+        post_ids = [item['content_id'] for item in similar_items]
+        posts = {
+            post.post_post_id: post
+            for post in Post.objects.filter(
+                post_post_id__in=post_ids, is_published=True, is_active=True,
+            )
+        }
+
+        results = []
+        for item in similar_items:
+            post = posts.get(item['content_id'])
+            if post:
+                results.append({
+                    'content_type': 'post',
+                    'title': (post.post_text or '')[:80],
+                    'url': f'/post/{post.post_post_id}/',
+                    'like_count': post.like_count or 0,
+                    'similarity': item['similarity'],
+                })
+        return results
+
+    except Exception:
+        logger.exception('Vector similarity search failed for post %s', post_post_id)
+        return []
+
+
+def get_recommendations_for_user_enhanced(user_profile_id, limit=5):
+    """Enhanced recommendations: vector similarity + category fallback.
+    Tries semantic search first using user's most-liked posts, falls back to category-based."""
+    if not user_profile_id:
+        return _get_global_popular(limit)
+
+    # Try vector-based first: find user's most-liked post, get similar content
+    try:
+        from amolnama_news.site_apps.post.models import PostLike, Post
+        recent_liked_post_ids = list(
+            PostLike.objects.filter(
+                link_user_profile_id=user_profile_id, is_active=True,
+            ).order_by('-created_at').values_list('link_post_id', flat=True)[:3]
+        )
+
+        if recent_liked_post_ids:
+            vector_results = []
+            seen_post_ids = set()
+            for liked_post_id in recent_liked_post_ids:
+                similar = get_similar_posts(liked_post_id, limit=3)
+                for item in similar:
+                    # Extract post_id from URL
+                    post_id = item.get('url', '').split('/post/')[1].rstrip('/') if '/post/' in item.get('url', '') else None
+                    if post_id and post_id not in seen_post_ids:
+                        seen_post_ids.add(post_id)
+                        vector_results.append(item)
+
+            if len(vector_results) >= limit:
+                return vector_results[:limit]
+
+            # Fill remaining with category-based
+            category_results = get_recommendations_for_user(user_profile_id, limit - len(vector_results))
+            return vector_results + category_results
+
+    except Exception:
+        logger.exception('Enhanced recommendations failed, falling back to category-based')
+
+    # Fallback: original category-based
+    return get_recommendations_for_user(user_profile_id, limit)

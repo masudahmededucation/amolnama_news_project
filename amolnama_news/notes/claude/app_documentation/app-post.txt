@@ -255,3 +255,55 @@ POST /post/api/<id>/pin/
 - Edit mode blocks all other post actions (stopImmediatePropagation)
 - Composer collapses after successful post
 - Server-rendered post card on create (single source of truth — post-card.html)
+
+## Performance Optimizations (2026-04-06)
+
+### Skeleton Screens
+- CSS-only pulse animation matching post-card layout (avatar + text lines + action bar)
+- `window.postFeedSkeleton.show(container, count)` returns remove function
+- Used during: infinite scroll load, WebSocket new posts fetch
+- Classes: `.post-card-skeleton`, `.post-card-skeleton-avatar`, `.post-card-skeleton-line-{short,medium,long}`, `.post-card-skeleton-actions`
+- CSS in: `post-home.css` (bottom section)
+
+### Optimistic UI with Rollback
+- Like, Bookmark, Follow, Vote all toggle instantly before server responds
+- Pattern: save previous state → toggle UI → fetch → on success correct count from server → on failure/network error revert to saved state
+- Repost already had this pattern — now consistent across all actions
+- Follow updates ALL buttons for same user across all posts (querySelectorAll by data-user-profile-id)
+
+### WebSocket Live Post Injection
+- "X নতুন পোস্ট দেখুন" pill now fetches via `/newsengine/api/feed/` and injects cards with fade-in animation (no page reload)
+- Shows skeleton cards while fetching
+- Falls back to page reload on API failure
+- Re-observes new cards for view tracking + video autoplay
+
+### Virtual Scroll Cache Limit
+- `MAX_CACHE_SIZE = 100` in `virtual-scroll.js`
+- `cardCacheOrder[]` tracks insertion order
+- Evicts oldest cached card HTML when limit exceeded (prevents unbounded memory growth)
+
+### JSON-LD Structured Data
+- `SocialMediaPosting` schema on post detail page (`/post/{id}/`)
+- Includes: headline, articleBody, author (Person), datePublished, url
+- InteractionStatistic: LikeAction, ViewAction, CommentAction counts
+- Optional: image, author URL
+
+## Infrastructure Requirements (Not Yet Implemented)
+
+### Redis Cache Layer (Fan-out Architecture)
+- **What**: Cache hot feed data in Redis to avoid DB queries on every page load
+- **Why**: When a user with 100k followers posts, fan-out write is expensive
+- **How**: Redis sorted sets per user feed, TTL 24h. Power user posts go to global cache, pulled on read
+- **Prerequisite**: Redis server (AWS ElastiCache or self-hosted)
+
+### HLS/DASH Adaptive Video Streaming
+- **What**: Transcode videos to multiple quality levels (360p/720p/1080p), serve via HLS manifest
+- **Why**: Raw mp4 forces full download. Users on slow connections get stuck
+- **How**: FFmpeg transcoding pipeline → S3 storage → CloudFront/CDN delivery
+- **Prerequisite**: FFmpeg worker, S3 bucket, CDN
+
+### Vector Embeddings (AI Discovery)
+- **What**: Encode posts as vectors, find semantically similar content for recommendations
+- **Why**: Current collaborative filtering is category-based. Vector search understands concepts
+- **How**: Sentence-BERT/multilingual model → pgvector or Pinecone → nearest-neighbor search
+- **Prerequisite**: ML model serving, vector database

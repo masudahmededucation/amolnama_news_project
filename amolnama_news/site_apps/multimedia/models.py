@@ -106,3 +106,28 @@ class SocialUrlLibrary(models.Model):
 
     def __str__(self):
         return f"SocialUrl({self.social_media_url_library_id})"
+
+
+# ========== Video Transcode ==========
+
+class FactVideoTranscodeJob(models.Model):
+    """Video transcoding job queue — tracks FFmpeg HLS conversion progress."""
+    fact_video_transcode_job_id = models.BigAutoField(primary_key=True)
+    link_asset_id = models.BigIntegerField()
+    transcode_source_path = models.CharField(max_length=500)
+    transcode_output_directory = models.CharField(max_length=500, blank=True, null=True)
+    transcode_status_code = models.CharField(max_length=20, default='pending')
+    transcode_error_message = models.CharField(max_length=1000, blank=True, null=True)
+    transcode_quality_360p_path = models.CharField(max_length=500, blank=True, null=True)
+    transcode_quality_720p_path = models.CharField(max_length=500, blank=True, null=True)
+    transcode_hls_manifest_path = models.CharField(max_length=500, blank=True, null=True)
+    transcode_duration_seconds = models.IntegerField(blank=True, null=True)
+    transcode_started_at = models.DateTimeField(blank=True, null=True)
+    transcode_completed_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[media].[fact_video_transcode_job]'

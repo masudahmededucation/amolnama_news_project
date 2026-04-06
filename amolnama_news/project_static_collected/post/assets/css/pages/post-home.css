@@ -1916,3 +1916,56 @@
   background: var(--primary);
   color: var(--card);
 }
+
+/* ---- Skeleton Screen — pulsing placeholder matching post-card layout ---- */
+
+@keyframes post-card-skeleton-pulse {
+  0%, 100% { opacity: .6; }
+  50% { opacity: .3; }
+}
+
+.post-card-skeleton {
+  display: flex;
+  gap: .75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  animation: post-card-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.post-card-skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.post-card-skeleton-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.post-card-skeleton-line {
+  height: .75rem;
+  border-radius: 4px;
+  background: var(--border);
+}
+
+.post-card-skeleton-line-short { width: 40%; }
+.post-card-skeleton-line-medium { width: 70%; }
+.post-card-skeleton-line-long { width: 90%; }
+
+.post-card-skeleton-actions {
+  display: flex;
+  gap: 2rem;
+  margin-top: .25rem;
+}
+
+.post-card-skeleton-action {
+  width: 3rem;
+  height: .65rem;
+  border-radius: 4px;
+  background: var(--border);
+}

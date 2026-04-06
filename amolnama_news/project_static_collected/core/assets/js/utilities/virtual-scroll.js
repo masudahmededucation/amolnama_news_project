@@ -18,6 +18,8 @@
   'use strict';
 
   const cardCache = new Map();
+  const cardCacheOrder = []; /* Track insertion order for eviction */
+  const MAX_CACHE_SIZE = 100; /* Cap memory — evict oldest when exceeded */
   let feedElement = null;
   let cardSelector = '.post-card';
   let bufferSize = 2000;
@@ -37,6 +39,13 @@
 
     const cardHeight = cardElement.offsetHeight;
     cardCache.set(cardId, cardElement.outerHTML);
+    cardCacheOrder.push(cardId);
+
+    /* Evict oldest cached cards when limit exceeded */
+    while (cardCacheOrder.length > MAX_CACHE_SIZE) {
+      var evictId = cardCacheOrder.shift();
+      cardCache.delete(evictId);
+    }
 
     const placeholder = document.createElement('div');
     placeholder.className = 'post-card-placeholder';
@@ -65,6 +74,8 @@
 
     placeholderElement.replaceWith(restoredCard);
     cardCache.delete(cardId);
+    var orderIndex = cardCacheOrder.indexOf(cardId);
+    if (orderIndex !== -1) cardCacheOrder.splice(orderIndex, 1);
 
     if (restoreObserver) restoreObserver.unobserve(placeholderElement);
     if (recycleObserver) recycleObserver.observe(restoredCard);

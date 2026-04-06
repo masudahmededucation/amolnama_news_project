@@ -7,7 +7,8 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger {
   display: grid;
   grid-template-columns: 280px 1fr;
-  height: calc(100dvh - 130px);
+  height: calc(100vh - 200px);
+  margin-bottom: 1rem;
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
@@ -725,7 +726,7 @@ main:has(.messenger) { padding-top: .25rem; }
 @media (max-width: 640px) {
   .messenger {
     grid-template-columns: 1fr;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 120px);
     border: none;
     border-radius: 0;
   }

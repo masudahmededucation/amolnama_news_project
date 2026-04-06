@@ -213,3 +213,52 @@ Link Preview API (shared):
 ## New Features (2026-04-03)
 - Trending hashtags widget: right-panel-trending.js fetches /newsengine/api/hashtags/trending/, renders top 8 in right sidebar
 - Fixed trending.py bug: is_deleted=False → is_active=True (Post has no is_deleted)
+
+## New Features (2026-04-06) — Feed Cache + Embeddings + Video Transcoding
+
+### Feed Score Caching (feed_cache.py)
+- Populates [newsengine].[fact_feed_content_score] with pre-calculated ranking scores
+- MERGE (upsert) pattern — insert on post create, update on engagement change
+- Triggered from: api_post_create, api_post_like_toggle, api_post_vote_toggle, api_post_repost (all via _refresh_post_feed_score_background)
+- Scores: engagement, trending, recency, total (same formula as ranking.py)
+- refresh_stale_scores() for periodic background refresh of old scores
+- get_cached_scores() for batch read of cached scores
+- Replaces per-request recalculation with cached values
+
+### Content Embeddings (embeddings.py)
+- sentence-transformers model: paraphrase-multilingual-MiniLM-L12-v2 (384-dim, supports Bengali+English)
+- Lazy-loaded singleton — thread-safe, first load ~500MB, then ~150MB RAM
+- encode_and_store_embedding() — encode text + upsert into [newsengine].[fact_content_embedding]
+- encode_and_store_embedding_background() — non-blocking background thread version
+- find_similar_content() — cosine similarity via numpy (same content type)
+- find_similar_content_cross_type() — cross-app semantic search
+- Wired into post create (background thread after fact-check)
+
+### Enhanced Recommendations (recommendations.py)
+- get_recommendations_for_user_enhanced() — vector similarity + category fallback
+- Strategy: find user's most-liked posts → get semantically similar content → fill with category-based
+- get_similar_posts() — individual post similarity lookup
+- API endpoint /newsengine/api/recommendations/ now uses enhanced version
+
+### Video Transcoding (post/video_transcoder.py)
+- FFmpeg HLS adaptive bitrate conversion in background thread
+- queue_video_transcode() called after video upload in api_post_create
+- Creates 360p (800kbps) and 720p (2500kbps) quality variants
+- Generates HLS master manifest (.m3u8) for adaptive streaming
+- Job tracking in [media].[fact_video_transcode_job] (pending → processing → completed/failed)
+- get_hls_manifest_url() for retrieving completed transcode output
+- Requires: FFmpeg binary installed (winget install ffmpeg)
+
+### New DB Tables
+- [newsengine].[fact_content_embedding] — vector storage (384-dim JSON arrays)
+- [media].[fact_video_transcode_job] — transcode job queue
+- Index on [newsengine].[fact_feed_user_content_view] — speeds up 3 view history queries
+
+### New Django Models
+- FactContentEmbedding (newsengine/models.py)
+- FactVideoTranscodeJob (multimedia/models.py)
+
+### pip Dependencies (install when ready)
+- sentence-transformers — for embeddings (pip install sentence-transformers)
+- numpy — for cosine similarity (pip install numpy)
+- FFmpeg binary — for video transcoding (winget install ffmpeg)

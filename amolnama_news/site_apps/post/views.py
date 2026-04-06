@@ -523,6 +523,41 @@ def post_detail(request, post_post_id):
         breadcrumbs.append({'name': 'অনুসন্ধান', 'url': referer})
     breadcrumbs.append({'name': 'পোস্ট'})
 
+    # JSON-LD structured data — SocialMediaPosting schema
+    json_ld = {
+        '@context': 'https://schema.org',
+        '@type': 'SocialMediaPosting',
+        'headline': og_description[:110] if og_description else 'পোস্ট',
+        'articleBody': post_text_plain,
+        'author': {
+            '@type': 'Person',
+            'name': author_display_name,
+        },
+        'datePublished': post.created_at.isoformat() if post.created_at else '',
+        'url': canonical_url,
+        'interactionStatistic': [
+            {
+                '@type': 'InteractionCounter',
+                'interactionType': 'https://schema.org/LikeAction',
+                'userInteractionCount': post.like_count or 0,
+            },
+            {
+                '@type': 'InteractionCounter',
+                'interactionType': 'https://schema.org/ViewAction',
+                'userInteractionCount': post.view_count or 0,
+            },
+            {
+                '@type': 'InteractionCounter',
+                'interactionType': 'https://schema.org/CommentAction',
+                'userInteractionCount': post.reply_count or 0,
+            },
+        ],
+    }
+    if og_image:
+        json_ld['image'] = request.build_absolute_uri(og_image)
+    if post_item.get('author_username_handle'):
+        json_ld['author']['url'] = request.build_absolute_uri(f'/social/@{post_item["author_username_handle"]}/')
+
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,
         'seo': {
@@ -531,6 +566,7 @@ def post_detail(request, post_post_id):
             'og_image': request.build_absolute_uri(og_image) if og_image else '',
             'og_type': 'article',
             'canonical': canonical_url,
+            'json_ld': json_ld,
             'breadcrumbs': breadcrumbs,
         },
     })

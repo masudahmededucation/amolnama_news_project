@@ -247,6 +247,27 @@ class RefFactCheckBlacklistedDomain(models.Model):
         db_table = '[newsengine].[ref_fact_check_blacklisted_domain]'
 
 
+# =========================================================
+# GROUP: embedding_
+# =========================================================
+
+class FactContentEmbedding(models.Model):
+    """Vector embedding for AI-driven content discovery — stores 384-dim float vectors as JSON."""
+    fact_content_embedding_id = models.BigAutoField(primary_key=True)
+    embedding_content_type_code = models.CharField(max_length=30)
+    embedding_content_id = models.BigIntegerField()
+    embedding_vector_json = models.TextField()
+    embedding_model_name = models.CharField(max_length=100)
+    embedding_dimension_count = models.IntegerField(default=384)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_content_embedding]'
+
+
 class RefFactCheckMisinformationPattern(models.Model):
     """Misinformation pattern — sensationalism/manipulation phrases."""
     newsengine_ref_fact_check_misinformation_pattern_id = models.AutoField(primary_key=True)

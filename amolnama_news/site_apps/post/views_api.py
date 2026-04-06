@@ -24,6 +24,34 @@ MEDIA_EXTENSION_MAP = {
 }
 
 
+def _refresh_post_feed_score_background(post_post_id):
+    """Refresh cached feed score for a post after engagement change (like/vote/repost/reply).
+    Runs in background thread — does not block the API response."""
+    import threading
+
+    def _background_refresh(background_post_id):
+        try:
+            post = Post.objects.filter(post_post_id=background_post_id).first()
+            if not post:
+                return
+            from amolnama_news.site_apps.newsengine.feed_cache import cache_content_score
+            post_item = {
+                'created_at_raw': post.created_at,
+                'like_count': post.like_count or 0,
+                'view_count': post.view_count or 0,
+                'reply_count': post.reply_count or 0,
+                'repost_count': post.repost_count or 0,
+                'vote_score_count': post.vote_score_count or 0,
+                'post_text': post.post_text or '',
+                'author_contribution_score': 0,
+            }
+            cache_content_score('post', background_post_id, post_item)
+        except Exception:
+            logger.exception('Feed score refresh failed for post %s', background_post_id)
+
+    threading.Thread(target=_background_refresh, args=(post_post_id,), daemon=True).start()
+
+
 @require_POST
 @login_required
 def api_post_create(request):
@@ -229,6 +257,44 @@ def api_post_create(request):
             except Exception:
                 logger.exception('Fact-check failed for post %s', background_post_id)
         threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text), daemon=True).start()
+
+    # Cache content score — populate fact_feed_content_score for feed ranking cache
+    try:
+        import threading
+        def _background_cache_content_score(background_post_id, background_post_item):
+            try:
+                from amolnama_news.site_apps.newsengine.feed_cache import cache_content_score
+                cache_content_score('post', background_post_id, background_post_item)
+            except Exception:
+                logger.exception('Feed score caching failed for post %s', background_post_id)
+        cache_item = {
+            'created_at_raw': post.created_at,
+            'like_count': 0, 'view_count': 0, 'reply_count': 0,
+            'repost_count': 0, 'vote_score_count': 0,
+            'post_text': post_text or '', 'author_contribution_score': 0,
+        }
+        threading.Thread(target=_background_cache_content_score, args=(post.post_post_id, cache_item), daemon=True).start()
+    except Exception:
+        logger.exception('Feed cache thread failed for post %s', post.post_post_id)
+
+    # Encode content embedding — vector for AI-driven discovery
+    if post_text and len(post_text) >= 10:
+        try:
+            from amolnama_news.site_apps.newsengine.embeddings import encode_and_store_embedding_background
+            encode_and_store_embedding_background('post', post.post_post_id, post_text)
+        except Exception:
+            logger.exception('Embedding encoding failed for post %s', post.post_post_id)
+
+    # Queue video transcoding — FFmpeg HLS conversion for uploaded videos
+    for media_url in media_urls:
+        if any(media_url.endswith(video_extension) for video_extension in ('.mp4', '.webm', '.mov')):
+            try:
+                from .video_transcoder import queue_video_transcode
+                # Extract relative path (strip leading /media/)
+                relative_media_path = media_url.lstrip('/media/')
+                queue_video_transcode(asset_id, relative_media_path)
+            except Exception:
+                logger.exception('Video transcode queue failed for %s', media_url)
 
     # Render the post card HTML server-side — single source of truth (post-card.html template)
     from django.template.loader import render_to_string
@@ -542,6 +608,9 @@ def api_post_like_toggle(request, post_post_id):
         post_post_id=post_post_id
     ).values_list('like_count', flat=True).first() or 0
 
+    # Refresh cached feed score after engagement change
+    _refresh_post_feed_score_background(post_post_id)
+
     return JsonResponse({'success': True, 'liked': liked, 'like_count': new_like_count})
 
 
@@ -667,6 +736,8 @@ def api_post_repost(request, post_post_id):
     ).filter(Q(post_type_code='repost') | Q(post_type_code='quote_repost')).count()
     Post.objects.filter(post_post_id=post_post_id).update(repost_count=actual_repost_count)
     new_repost_count = actual_repost_count
+
+    _refresh_post_feed_score_background(post_post_id)
 
     return JsonResponse({'success': True, 'reposted': reposted, 'repost_count': new_repost_count})
 
@@ -938,6 +1009,8 @@ def api_post_vote_toggle(request, post_post_id):
         args=(post.link_user_profile_id,),
         daemon=True,
     ).start()
+
+    _refresh_post_feed_score_background(post_post_id)
 
     return JsonResponse({'success': True, 'voted': voted, 'vote_score_count': actual_vote_count})
 

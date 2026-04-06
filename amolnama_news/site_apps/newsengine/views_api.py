@@ -154,8 +154,8 @@ def api_recommendations(request):
     """GET — personalized content recommendations for current user."""
     user_profile_id = _get_user_profile_id(request)
 
-    from .recommendations import get_recommendations_for_user
-    items = get_recommendations_for_user(user_profile_id, limit=5)
+    from .recommendations import get_recommendations_for_user_enhanced
+    items = get_recommendations_for_user_enhanced(user_profile_id, limit=5)
 
     return JsonResponse({'success': True, 'recommendations': items})
 

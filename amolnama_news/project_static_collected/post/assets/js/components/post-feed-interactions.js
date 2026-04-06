@@ -181,60 +181,122 @@
       }
     }
 
-    /* ---- Follow/Unfollow toggle ---- */
+    /* ---- Follow/Unfollow toggle (optimistic UI with rollback) ---- */
     const followButton = target.closest('.post-card-follow-button');
     if (followButton) {
       event.preventDefault();
       const followUserProfileId = followButton.getAttribute('data-user-profile-id');
       if (!followUserProfileId) return;
+
+      const FOLLOW_SVG_FOLLOWING = '<svg class="post-card-follow-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Following';
+      const FOLLOW_SVG_FOLLOW = '<svg class="post-card-follow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> Follow';
+
+      /* Save previous state for rollback */
+      const allFollowButtons = document.querySelectorAll('.post-card-follow-button[data-user-profile-id="' + followUserProfileId + '"]');
+      const followWasActive = followButton.classList.contains('post-card-follow-button-active');
+
+      /* Optimistic toggle — instant UI feedback on ALL buttons for this user */
+      for (let followIndex = 0; followIndex < allFollowButtons.length; followIndex++) {
+        if (followWasActive) {
+          allFollowButtons[followIndex].classList.remove('post-card-follow-button-active');
+          allFollowButtons[followIndex].innerHTML = FOLLOW_SVG_FOLLOW;
+        } else {
+          allFollowButtons[followIndex].classList.add('post-card-follow-button-active');
+          allFollowButtons[followIndex].innerHTML = FOLLOW_SVG_FOLLOWING;
+        }
+      }
+
+      /* Server sync */
       fetch('/social/api/follow/' + followUserProfileId + '/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
-        if (!data.success) return;
-        /* Update ALL follow buttons for this user across all posts */
-        const allFollowButtons = document.querySelectorAll('.post-card-follow-button[data-user-profile-id="' + followUserProfileId + '"]');
-        for (let followIndex = 0; followIndex < allFollowButtons.length; followIndex++) {
-          const followIconSvg = data.following
-            ? '<svg class="post-card-follow-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Following'
-            : '<svg class="post-card-follow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> Follow';
-          if (data.following) {
-            allFollowButtons[followIndex].classList.add('post-card-follow-button-active');
-          } else {
-            allFollowButtons[followIndex].classList.remove('post-card-follow-button-active');
+        if (!data.success) {
+          /* Revert optimistic UI on server rejection */
+          for (let revertIndex = 0; revertIndex < allFollowButtons.length; revertIndex++) {
+            if (followWasActive) {
+              allFollowButtons[revertIndex].classList.add('post-card-follow-button-active');
+              allFollowButtons[revertIndex].innerHTML = FOLLOW_SVG_FOLLOWING;
+            } else {
+              allFollowButtons[revertIndex].classList.remove('post-card-follow-button-active');
+              allFollowButtons[revertIndex].innerHTML = FOLLOW_SVG_FOLLOW;
+            }
           }
-          allFollowButtons[followIndex].innerHTML = followIconSvg;
         }
+        /* Server confirmed — no correction needed, optimistic state matches */
       })
-      .catch(function () {});
+      .catch(function () {
+        /* Network error — revert optimistic UI */
+        for (let errorIndex = 0; errorIndex < allFollowButtons.length; errorIndex++) {
+          if (followWasActive) {
+            allFollowButtons[errorIndex].classList.add('post-card-follow-button-active');
+            allFollowButtons[errorIndex].innerHTML = FOLLOW_SVG_FOLLOWING;
+          } else {
+            allFollowButtons[errorIndex].classList.remove('post-card-follow-button-active');
+            allFollowButtons[errorIndex].innerHTML = FOLLOW_SVG_FOLLOW;
+          }
+        }
+      });
       return;
     }
 
-    /* ---- Upvote toggle ---- */
+    /* ---- Upvote toggle (optimistic UI with rollback) ---- */
     const voteButton = target.closest('.post-card-vote-button');
     if (voteButton) {
       event.preventDefault();
       const votePostId = voteButton.getAttribute('data-post-id');
       if (!votePostId) return;
+
+      /* Save previous state for rollback */
+      const voteCountElement = voteButton.querySelector('.post-card-vote-count');
+      const voteIconElement = voteButton.querySelector('.post-card-vote-icon');
+      const voteWasActive = voteButton.classList.contains('post-card-vote-button-active');
+      const voteCurrentCount = parseInt(voteCountElement ? voteCountElement.textContent : '0', 10) || 0;
+
+      /* Optimistic toggle — instant UI feedback */
+      if (voteWasActive) {
+        voteButton.classList.remove('post-card-vote-button-active');
+        if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-empty');
+        if (voteCountElement) voteCountElement.textContent = Math.max(0, voteCurrentCount - 1);
+      } else {
+        voteButton.classList.add('post-card-vote-button-active');
+        if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-filled');
+        if (voteCountElement) voteCountElement.textContent = voteCurrentCount + 1;
+      }
+
+      /* Server sync — correct from actual data */
       fetch('/post/api/' + votePostId + '/vote/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
-        if (!data.success) return;
-        const voteCountElement = voteButton.querySelector('.post-card-vote-count');
+        if (!data.success) {
+          /* Revert optimistic UI on server rejection */
+          if (voteWasActive) {
+            voteButton.classList.add('post-card-vote-button-active');
+            if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-filled');
+          } else {
+            voteButton.classList.remove('post-card-vote-button-active');
+            if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-empty');
+          }
+          if (voteCountElement) voteCountElement.textContent = voteCurrentCount;
+          return;
+        }
+        /* Correct count from server (actual data) */
         if (voteCountElement) voteCountElement.textContent = data.vote_score_count;
-        const voteIconElement = voteButton.querySelector('.post-card-vote-icon');
-        if (data.voted) {
+      })
+      .catch(function () {
+        /* Network error — revert optimistic UI */
+        if (voteWasActive) {
           voteButton.classList.add('post-card-vote-button-active');
           if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-filled');
         } else {
           voteButton.classList.remove('post-card-vote-button-active');
           if (voteIconElement) voteIconElement.innerHTML = VOTE_SVG_PATH.replace('VOTECLASS', 'post-card-vote-svg-empty');
         }
-      })
-      .catch(function () {});
+        if (voteCountElement) voteCountElement.textContent = voteCurrentCount;
+      });
       return;
     }
 
@@ -253,7 +315,7 @@
         if (!data.success) return;
         followPostButton.textContent = data.following ? '🔔 Unfollow Post' : '🔔 Follow Post';
       })
-      .catch(function () {});
+      .catch(function (followPostError) { console.error('Follow post toggle failed:', followPostError); });
       return;
     }
 
@@ -420,59 +482,116 @@
       return;
     }
 
-    /* ---- Like toggle ---- */
+    /* ---- Like toggle (optimistic UI with rollback) ---- */
     const likeButton = target.closest('.post-card-like-button');
     if (likeButton) {
       event.preventDefault();
       const likePostId = likeButton.getAttribute('data-post-id');
       if (!likePostId) return;
+
+      /* Save previous state for rollback */
+      const likeCountElement = likeButton.querySelector('.post-card-like-count');
+      const likeIconElement = likeButton.querySelector('.post-card-like-icon');
+      const likeWasActive = likeButton.classList.contains('post-card-like-button-active');
+      const likeCurrentCount = parseInt(likeCountElement ? likeCountElement.textContent : '0', 10) || 0;
+
+      /* Optimistic toggle — instant UI feedback */
+      if (likeWasActive) {
+        likeButton.classList.remove('post-card-like-button-active');
+        if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-empty');
+        if (likeCountElement) likeCountElement.textContent = Math.max(0, likeCurrentCount - 1);
+      } else {
+        likeButton.classList.add('post-card-like-button-active');
+        if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-filled');
+        if (likeCountElement) likeCountElement.textContent = likeCurrentCount + 1;
+      }
+
+      /* Server sync — correct from actual data */
       fetch('/post/api/' + likePostId + '/like/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
-        if (!data.success) return;
-        const likeCountElement = likeButton.querySelector('.post-card-like-count');
+        if (!data.success) {
+          /* Revert optimistic UI on server rejection */
+          if (likeWasActive) {
+            likeButton.classList.add('post-card-like-button-active');
+            if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-filled');
+          } else {
+            likeButton.classList.remove('post-card-like-button-active');
+            if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-empty');
+          }
+          if (likeCountElement) likeCountElement.textContent = likeCurrentCount;
+          return;
+        }
+        /* Correct count from server (actual data, not optimistic guess) */
         if (likeCountElement) likeCountElement.textContent = data.like_count;
-        const likeIconElement = likeButton.querySelector('.post-card-like-icon');
-        if (data.liked) {
+      })
+      .catch(function () {
+        /* Network error — revert optimistic UI */
+        if (likeWasActive) {
           likeButton.classList.add('post-card-like-button-active');
           if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-filled');
         } else {
           likeButton.classList.remove('post-card-like-button-active');
           if (likeIconElement) likeIconElement.innerHTML = LIKE_SVG_PATH.replace('LIKECLASS', 'post-card-like-svg-empty');
         }
-      })
-      .catch(function () {});
+        if (likeCountElement) likeCountElement.textContent = likeCurrentCount;
+      });
       return;
     }
 
-    /* ---- Bookmark toggle ---- */
+    /* ---- Bookmark toggle (optimistic UI with rollback) ---- */
     const bookmarkButton = target.closest('.post-card-bookmark-button');
     if (bookmarkButton) {
       event.preventDefault();
       const bookmarkPostId = bookmarkButton.getAttribute('data-post-id');
       if (!bookmarkPostId) return;
+
+      /* Save previous state for rollback */
+      const bookmarkIconElement = bookmarkButton.querySelector('.post-card-bookmark-icon');
+      const bookmarkWasActive = bookmarkButton.classList.contains('post-card-bookmark-button-active');
+
+      /* Optimistic toggle — instant UI feedback */
+      if (bookmarkWasActive) {
+        bookmarkButton.classList.remove('post-card-bookmark-button-active');
+        if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-empty');
+      } else {
+        bookmarkButton.classList.add('post-card-bookmark-button-active');
+        if (bookmarkIconElement) {
+          bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-filled');
+          bookmarkIconElement.classList.add('post-card-bookmark-icon-animate');
+          setTimeout(function () { bookmarkIconElement.classList.remove('post-card-bookmark-icon-animate'); }, 400);
+        }
+      }
+
+      /* Server sync */
       fetch('/post/api/' + bookmarkPostId + '/bookmark/', {
         method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
       })
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
-        if (!data.success) return;
-        const bookmarkIconElement = bookmarkButton.querySelector('.post-card-bookmark-icon');
-        if (data.bookmarked) {
-          bookmarkButton.classList.add('post-card-bookmark-button-active');
-          if (bookmarkIconElement) {
-            bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-filled');
-            bookmarkIconElement.classList.add('post-card-bookmark-icon-animate');
-            setTimeout(function () { bookmarkIconElement.classList.remove('post-card-bookmark-icon-animate'); }, 400);
+        if (!data.success) {
+          /* Revert optimistic UI on server rejection */
+          if (bookmarkWasActive) {
+            bookmarkButton.classList.add('post-card-bookmark-button-active');
+            if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-filled');
+          } else {
+            bookmarkButton.classList.remove('post-card-bookmark-button-active');
+            if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-empty');
           }
+        }
+      })
+      .catch(function () {
+        /* Network error — revert optimistic UI */
+        if (bookmarkWasActive) {
+          bookmarkButton.classList.add('post-card-bookmark-button-active');
+          if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-filled');
         } else {
           bookmarkButton.classList.remove('post-card-bookmark-button-active');
           if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-empty');
         }
-      })
-      .catch(function () {});
+      });
       return;
     }
 
@@ -1015,7 +1134,7 @@
         const textElement = postCard.querySelector('.post-card-text');
         if (textElement) textElement.insertAdjacentHTML('afterend', historyHtml);
       })
-      .catch(function () {});
+      .catch(function (editHistoryError) { console.error('Edit history fetch failed:', editHistoryError); });
   });
 
   /* ---- POST ANALYTICS — inline card ---- */
@@ -1098,7 +1217,7 @@
           setTimeout(function () { quoteForm.remove(); }, 2000);
         }
       })
-      .catch(function () {});
+      .catch(function (quoteRepostError) { console.error('Quote repost failed:', quoteRepostError); });
     });
   });
 
@@ -1201,7 +1320,7 @@
           previewCard.innerHTML = previewHtml;
           previewContainer.appendChild(previewCard);
         })
-        .catch(function () {});
+        .catch(function (linkPreviewError) { console.error('Link preview fetch failed:', linkPreviewError); });
     });
   });
 
@@ -1298,12 +1417,56 @@
   });
 
   /* ==================================================================
+     SKELETON SCREENS — show pulsing placeholders during load
+     ================================================================== */
+
+  function buildSkeletonCardHtml() {
+    return '<div class="post-card-skeleton">'
+      + '<div class="post-card-skeleton-avatar"></div>'
+      + '<div class="post-card-skeleton-body">'
+      + '<div class="post-card-skeleton-line post-card-skeleton-line-short"></div>'
+      + '<div class="post-card-skeleton-line post-card-skeleton-line-long"></div>'
+      + '<div class="post-card-skeleton-line post-card-skeleton-line-medium"></div>'
+      + '<div class="post-card-skeleton-actions">'
+      + '<div class="post-card-skeleton-action"></div>'
+      + '<div class="post-card-skeleton-action"></div>'
+      + '<div class="post-card-skeleton-action"></div>'
+      + '<div class="post-card-skeleton-action"></div>'
+      + '</div></div></div>';
+  }
+
+  /**
+   * Show N skeleton cards inside a container.
+   * Returns a function to remove them all.
+   */
+  function showSkeletonCards(containerElement, count) {
+    var skeletonHtml = '';
+    for (var skeletonIndex = 0; skeletonIndex < count; skeletonIndex++) {
+      skeletonHtml += buildSkeletonCardHtml();
+    }
+    var skeletonWrapper = document.createElement('div');
+    skeletonWrapper.className = 'post-card-skeleton-wrapper';
+    skeletonWrapper.innerHTML = skeletonHtml;
+    containerElement.appendChild(skeletonWrapper);
+    return function removeSkeletons() {
+      if (skeletonWrapper.parentNode) skeletonWrapper.remove();
+    };
+  }
+
+  /* Expose for infinite scroll / page-level usage */
+  window.postFeedSkeleton = {
+    show: showSkeletonCards,
+    buildHtml: buildSkeletonCardHtml,
+  };
+
+  /* ==================================================================
      LIVE FEED — "New posts" pill via WebSocket
      ================================================================== */
 
   const feedElement = document.getElementById('post-feed') || document.getElementById('pulse-feed');
   if (feedElement) {
     let newPostCount = 0;
+    let pendingPostIds = [];
     let feedWebSocket = null;
 
     /* Create the pill element */
@@ -1314,9 +1477,65 @@
     feedElement.parentNode.insertBefore(newPostsPill, feedElement);
 
     newPostsPill.addEventListener('click', function () {
-      newPostsPill.hidden = true;
-      newPostCount = 0;
-      window.location.reload();
+      newPostsPill.disabled = true;
+      newPostsPill.textContent = 'লোড হচ্ছে...';
+
+      /* Show skeleton while fetching */
+      var removeSkeletons = showSkeletonCards(feedElement, Math.min(newPostCount, 5));
+
+      /* Fetch new posts via API and inject (no page reload) */
+      fetch('/newsengine/api/feed/?page=1&page_size=' + Math.min(newPostCount, 20), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      })
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+      .then(function (data) {
+        removeSkeletons();
+        if (data.success && data.items_html) {
+          var tempContainer = document.createElement('div');
+          tempContainer.innerHTML = data.items_html;
+          var existingFirstCard = feedElement.firstElementChild;
+
+          /* Insert each new card at the top with smooth fade-in */
+          while (tempContainer.firstElementChild) {
+            var newCard = tempContainer.firstElementChild;
+            newCard.style.opacity = '0';
+            newCard.style.transform = 'translateY(-10px)';
+            newCard.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            feedElement.insertBefore(newCard, existingFirstCard);
+            (function (cardElement) {
+              requestAnimationFrame(function () {
+                cardElement.style.opacity = '1';
+                cardElement.style.transform = 'translateY(0)';
+              });
+            })(newCard);
+
+            /* Observe for view tracking */
+            if (newCard.classList && newCard.classList.contains('post-card')) {
+              postCardObserver.observe(newCard);
+            }
+          }
+
+          /* Re-observe videos for autoplay */
+          observeVideoAutoPlay(feedElement);
+
+          /* Remove empty state if it exists */
+          var emptyElement = document.getElementById('post-feed-empty') || document.getElementById('pulse-feed-empty');
+          if (emptyElement) emptyElement.remove();
+        }
+        newPostCount = 0;
+        pendingPostIds = [];
+        newPostsPill.hidden = true;
+        newPostsPill.disabled = false;
+      })
+      .catch(function () {
+        removeSkeletons();
+        /* Fallback: reload page on API failure */
+        newPostCount = 0;
+        pendingPostIds = [];
+        newPostsPill.hidden = true;
+        newPostsPill.disabled = false;
+        window.location.reload();
+      });
     });
 
     function updateNewPostsPill() {
@@ -1338,9 +1557,10 @@
             const data = JSON.parse(event.data);
             if (data.type === 'new_post') {
               newPostCount++;
+              if (data.post_id) pendingPostIds.push(data.post_id);
               updateNewPostsPill();
             }
-          } catch (parseError) { /* ignore */ }
+          } catch (parseError) { console.error('WebSocket message parse error:', parseError); }
         };
 
         feedWebSocket.onclose = function () {
@@ -1351,7 +1571,7 @@
         feedWebSocket.onerror = function () {
           if (feedWebSocket) feedWebSocket.close();
         };
-      } catch (webSocketError) { /* WebSocket not available */ }
+      } catch (webSocketError) { console.error('WebSocket connection failed:', webSocketError); }
     }
 
     connectFeedWebSocket();
