@@ -1,0 +1,57 @@
+Session 2026-04-06 — SPA Cleanup Registry + Dark Mode Fixes
+=============================================================
+
+PART 1: SPA Third-Party Library Cleanup (Gold Standard)
+--------------------------------------------------------
+Problem: Flatpickr calendars, Tom Select dropdowns, Quill toolbars,
+Leaflet maps persist in <body> after SPA navigation. Orphaned elements
+appear at bottom of pages. Memory leaks from undestroyed instances.
+
+Solution: Cleanup registry pattern.
+- window.spaCleanupRegister(fn) — page scripts register cleanup
+- window.spaCleanupRun() — SPA calls all cleanups before swap
+- DOM fallback removes orphaned elements after destroy()
+
+Files changed:
+- spa-navigation.js — cleanup registry + DOM fallback + X-Requested-With header
+- news-date-picker.js — Flatpickr destroy via input._flatpickr.destroy()
+- 7 newshub component files — Tom Select destroy via instance.destroy()
+- quill-editor.js — toolbar/tooltip DOM cleanup
+- news-map-pinpoint.js — Leaflet map.remove()
+- avatar-upload.js — Cropper.js instance.destroy()
+- dev.py — DJDT SHOW_TOOLBAR_CALLBACK skips AJAX requests
+
+Commit: c320b49
+
+PART 2: Speculationrules Selector Fix
+--------------------------------------
+Problem: .sidebar-navigation-link doesn't exist — correct class is
+.sidebar-navigation-item. Prerender was silently failing.
+Fix: Changed selector in base.html speculation rules.
+Commit: 58abeab
+
+PART 3: Placeholder Toggle Fix
+-------------------------------
+Problem: Raw SQL cursor.execute() wasn't committing with SQL Server.
+Feature toggle only set ON, never OFF.
+Fix: Replaced all 3 APIs (toggle/feature/delete) with ORM .update()/.delete().
+Feature API now handles is_featured: true/false from JS.
+Commit: 11762b9
+
+PART 4: Dark Mode Copy-Paste Fix
+---------------------------------
+Problem: Copy from dark mode includes dark background colors in clipboard.
+Pasting into Word/Gmail/Docs shows dark background — hard to remove.
+Fix: clipboard-clean-copy.js intercepts copy event, strips background
+and background-color from inline styles, preserves formatting.
+Loaded globally via base.html (defer).
+Commit: fcfb786
+
+PART 5: Dark Mode Color Adjustment
+------------------------------------
+Problem: Dark mode (#0D0F0E) was darker than professional apps.
+Fix: Adjusted to Material Design / Spotify range:
+- --bg: #0d0f0e -> #121212
+- --surface: #141a17 -> #1a1f1c
+- --card: #161c19 -> #1e2421
+- --border: #253028 -> #2d3830

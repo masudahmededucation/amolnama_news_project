@@ -40,16 +40,16 @@
 
 /* Dark mode — manual toggle via [data-theme="dark"] on <html> */
 [data-theme="dark"] {
-  --bg: #0d0f0e;
-  --surface: #141a17;
+  --bg: #121212;
+  --surface: #1a1f1c;
   --text: #eef0f3;
   --muted: #9aa1ab;
   --primary: #2d9d6a;
-  --primary-light: #162b20;
+  --primary-light: #1a3226;
   --primary-hover: #24805a;
   --danger: #e05555;
-  --card: #161c19;
-  --border: #253028;
+  --card: #1e2421;
+  --border: #2d3830;
   --shadow: 0 2px 8px rgba(0, 0, 0, .4);
   --shadow-md: 0 6px 20px rgba(0, 0, 0, .5);
   --accent: #4a9ede;
