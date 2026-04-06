@@ -1,0 +1,45 @@
+Dark Mode Copy-Paste — Rules
+==============================
+Created: 2026-04-06
+
+PROBLEM
+-------
+When users copy text from dark mode, the clipboard includes dark background
+colors (--bg, --card, --surface). When pasted into Word/Gmail/Docs, the dark
+background appears and is nearly impossible to remove.
+
+This is a known issue in VS Code, Obsidian, Simplenote, and many apps.
+
+ROOT CAUSE
+----------
+Browsers copy computed CSS styles into clipboard HTML. In dark mode:
+- background: #0d0f0e (--bg)
+- background: #141a17 (--surface)
+- background: #1a2520 (--card)
+These get included in clipboard HTML as inline styles.
+
+GOLD STANDARD SOLUTION
+-----------------------
+Intercept the `copy` event on document. When user copies:
+1. Get the selected HTML from the range
+2. Strip all background/background-color styles from the HTML
+3. Set the cleaned HTML back to clipboardData
+4. Also set plain text (text/plain) as fallback
+
+This preserves formatting (bold, links, colors) but removes backgrounds.
+
+IMPLEMENTATION
+--------------
+File: core/static/core/assets/js/utilities/clipboard-clean-copy.js
+- Listen to document 'copy' event
+- Get selection as HTML via Range.cloneContents() + XMLSerializer
+- Regex strip: background-color:[^;]+; and background:[^;]+;
+- Set both text/html (clean) and text/plain (plain) to clipboardData
+- Loaded globally via base.html (defer)
+
+WHAT NOT TO DO
+--------------
+- Don't disable copy (bad UX)
+- Don't only provide text/plain (loses formatting)
+- Don't use user-select: none (prevents legitimate copying)
+- Don't strip ALL styles (loses bold, links, etc.)
