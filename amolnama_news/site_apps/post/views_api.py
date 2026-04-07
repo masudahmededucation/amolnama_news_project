@@ -24,6 +24,13 @@ MEDIA_EXTENSION_MAP = {
 }
 
 
+def _run_background_task(target_function, *args):
+    """Run a function in a background daemon thread. Shared helper to avoid
+    repeating 'import threading; threading.Thread(target=..., daemon=True).start()' everywhere."""
+    import threading
+    threading.Thread(target=target_function, args=args, daemon=True).start()
+
+
 def _refresh_post_feed_score_background(post_post_id):
     """Refresh cached feed score for a post after engagement change (like/vote/repost/reply).
     Runs in background thread — does not block the API response."""

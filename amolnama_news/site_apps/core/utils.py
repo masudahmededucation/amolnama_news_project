@@ -217,85 +217,85 @@ def build_related_content_items(text, content_type_code, content_id, limit=5):
         return []
 
 
+# Data-driven config for related content enrichment — one source of truth
+_RELATED_CONTENT_ENRICHMENT_MAP = {
+    'post': {
+        'query': "SELECT post_text, post_post_id FROM [post].[coll_post] WHERE post_post_id = %s AND is_active = 1",
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/post/{slug}/',
+        'author_index': None,
+        'title_max_length': 80,
+    },
+    'poem': {
+        'query': "SELECT poem_title_bn, poem_slug, poem_author_display_name FROM [poem].[coll_poem_entry] WHERE poem_coll_poem_entry_id = %s AND is_active = 1",
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/bangla-kobita-gaan/{slug}/',
+        'url_fallback': '/bangla-kobita-gaan/',
+        'author_index': 2,
+    },
+    'story': {
+        'query': "SELECT story_title_bn, story_slug FROM [stories].[coll_story] WHERE story_coll_story_id = %s AND is_active = 1",
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/stories-for-kids/{slug}/',
+        'url_fallback': '/stories-for-kids/',
+    },
+    'art': {
+        'query': "SELECT artwork_title_bn, artwork_slug FROM [art].[coll_artwork] WHERE art_coll_artwork_id = %s AND is_active = 1",
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/art/{slug}/',
+        'url_fallback': '/art/',
+    },
+    'destination': {
+        'query': "SELECT destination_name_bn, destination_slug FROM [bangladesh].[coll_destination] WHERE bangladesh_coll_destination_id = %s AND is_active = 1",
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/bangladesh-tourist-destinations/travel/{slug}/',
+        'url_fallback': '/bangladesh-tourist-destinations/travel/',
+    },
+}
+
+
 def _enrich_related_content_item(content_type_code, content_id):
-    """Fetch title, URL, author name for a related content item."""
+    """Fetch title, URL, author name for a related content item.
+    Uses data-driven config map — zero duplication."""
+    import logging
+    logger = logging.getLogger(__name__)
+
+    config = _RELATED_CONTENT_ENRICHMENT_MAP.get(content_type_code)
+    if not config:
+        return None
+
     try:
-        if content_type_code == 'post':
-            from amolnama_news.site_apps.post.models import Post
-            post = Post.objects.filter(
-                post_post_id=content_id, is_published=True, is_active=True,
-            ).first()
-            if post:
-                return {
-                    'title': (post.post_text or '')[:80],
-                    'url': f'/post/{content_id}/',
-                    'author_name': None,
-                }
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute(config['query'], [content_id])
+            row = cursor.fetchone()
 
-        elif content_type_code == 'poem':
-            from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT poem_title_bn, poem_slug, poem_author_display_name
-                    FROM [poem].[coll_poem_entry]
-                    WHERE poem_coll_poem_entry_id = %s AND is_active = 1
-                """, [content_id])
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'title': row[0] or '',
-                        'url': f'/bangla-kobita-gaan/{row[1]}/' if row[1] else f'/bangla-kobita-gaan/',
-                        'author_name': row[2] or None,
-                    }
+        if not row:
+            return None
 
-        elif content_type_code == 'story':
-            from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT story_title_bn, story_slug
-                    FROM [stories].[coll_story]
-                    WHERE story_coll_story_id = %s AND is_active = 1
-                """, [content_id])
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'title': row[0] or '',
-                        'url': f'/stories-for-kids/{row[1]}/' if row[1] else '/stories-for-kids/',
-                        'author_name': None,
-                    }
+        title = (row[config['title_index']] or '')
+        if config.get('title_max_length'):
+            title = title[:config['title_max_length']]
 
-        elif content_type_code == 'art':
-            from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT artwork_title_bn, artwork_slug
-                    FROM [art].[coll_artwork]
-                    WHERE art_coll_artwork_id = %s AND is_active = 1
-                """, [content_id])
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'title': row[0] or '',
-                        'url': f'/art/{row[1]}/' if row[1] else '/art/',
-                        'author_name': None,
-                    }
+        slug = row[config['slug_index']]
+        url = config['url_template'].format(slug=slug) if slug else config.get('url_fallback', '/')
 
-        elif content_type_code == 'destination':
-            from django.db import connection
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT destination_name_bn, destination_slug
-                    FROM [bangladesh].[coll_destination]
-                    WHERE bangladesh_coll_destination_id = %s AND is_active = 1
-                """, [content_id])
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        'title': row[0] or '',
-                        'url': f'/bangladesh-tourist-destinations/travel/{row[1]}/' if row[1] else '/bangladesh-tourist-destinations/travel/',
-                        'author_name': None,
-                    }
+        author_name = None
+        if config.get('author_index') is not None and len(row) > config['author_index']:
+            author_name = row[config['author_index']] or None
 
-    except Exception:
-        pass
-    return None
+        return {
+            'title': title,
+            'url': url,
+            'author_name': author_name,
+        }
+
+    except Exception as enrich_error:
+        logger.error('_enrich_related_content_item failed for %s:%s — %s',
+                     content_type_code, content_id, enrich_error)
+        return None
