@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/<int:post_post_id>/flag/', views_api.api_post_flag_create, name='api_post_flag_create'),
     path('api/<int:post_post_id>/bookmark/', views_api.api_post_bookmark_toggle, name='api_post_bookmark_toggle'),
     path('api/<int:post_post_id>/view/', views_api.api_post_view_increment, name='api_post_view_increment'),
+    path('api/<int:post_post_id>/dwell/', views_api.api_post_dwell_time, name='api_post_dwell_time'),
     path('api/<int:post_post_id>/repost/', views_api.api_post_repost, name='api_post_repost'),
     path('api/<int:post_post_id>/reply/', views_api.api_post_reply, name='api_post_reply'),
     path('api/<int:post_post_id>/edit/', views_api.api_post_edit, name='api_post_edit'),

@@ -281,3 +281,95 @@ class RefFactCheckMisinformationPattern(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[ref_fact_check_misinformation_pattern]'
+
+
+# =========================================================
+# GROUP: graph_ (MS SQL Graph — Node and Edge tables)
+# Note: $node_id, $from_id, $to_id are hidden graph columns
+# managed by SQL Server. All graph MATCH queries use raw SQL.
+# These models are for ORM reads of the user-defined columns only.
+# =========================================================
+
+class GraphUserNode(models.Model):
+    """Graph node referencing [account].[user_profile]."""
+    link_user_profile_id = models.BigIntegerField()
+    user_credibility_score = models.FloatField(default=1.0)
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[graph_user_node]'
+
+
+class GraphTopicNode(models.Model):
+    """Graph node for topics (hashtags + auto-extracted keywords)."""
+    topic_name = models.CharField(max_length=200)
+    topic_name_normalized = models.CharField(max_length=200)
+    link_hashtag_item_id = models.BigIntegerField(blank=True, null=True)
+    topic_post_count = models.IntegerField(default=0)
+    topic_velocity_score = models.FloatField(default=0.0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[graph_topic_node]'
+
+
+class GraphPostNode(models.Model):
+    """Graph node referencing [post].[coll_post]."""
+    link_post_id = models.BigIntegerField()
+    link_author_user_profile_id = models.BigIntegerField()
+    post_created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[graph_post_node]'
+
+
+# =========================================================
+# GROUP: feed_cache_
+# =========================================================
+
+class RefFeedCacheReason(models.Model):
+    """Lookup table for feed cache reason codes."""
+    feed_cache_reason_id = models.SmallAutoField(primary_key=True)
+    feed_cache_reason_code = models.CharField(max_length=30)
+    feed_cache_reason_name_en = models.CharField(max_length=100)
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[ref_feed_cache_reason]'
+
+
+class FactUserFeedCache(models.Model):
+    """Pre-computed user feed — fan-out target for personalized delivery."""
+    fact_user_feed_cache_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    link_post_id = models.BigIntegerField()
+    feed_cache_score = models.FloatField(default=0)
+    link_feed_cache_reason_id = models.SmallIntegerField(default=1)
+    feed_cache_is_delivered = models.BooleanField(default=False)
+    feed_cache_delivered_at = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_user_feed_cache]'
+
+
+# =========================================================
+# GROUP: dwell_time_
+# =========================================================
+
+class FactUserDwellTimeLog(models.Model):
+    """Raw dwell time log — seconds spent viewing each post."""
+    fact_user_dwell_time_log_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    link_post_id = models.BigIntegerField()
+    dwell_duration_seconds = models.FloatField()
+    dwell_recorded_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_user_dwell_time_log]'

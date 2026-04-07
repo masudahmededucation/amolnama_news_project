@@ -258,7 +258,83 @@ Link Preview API (shared):
 - FactContentEmbedding (newsengine/models.py)
 - FactVideoTranscodeJob (multimedia/models.py)
 
-### pip Dependencies (install when ready)
-- sentence-transformers — for embeddings (pip install sentence-transformers)
-- numpy — for cosine similarity (pip install numpy)
-- FFmpeg binary — for video transcoding (winget install ffmpeg)
+### pip Dependencies (installed)
+- sentence-transformers — for embeddings
+- numpy — for cosine similarity
+- FFmpeg binary — for video transcoding
+
+## Interest Engine (2026-04-06) — MS SQL Graph + Dwell Time + Fan-out
+
+### Architecture
+Twitter-style implicit interest engine using MS SQL Graph tables.
+User behavior (dwell time, likes, follows) builds weighted interest edges.
+Posts are auto-tagged with topics. Feed is personalized via graph MATCH traversal.
+
+### Graph Tables (AS NODE / AS EDGE)
+**Nodes:**
+- `[newsengine].[graph_user_node]` — references user_profile by link_user_profile_id
+- `[newsengine].[graph_topic_node]` — topics (hashtags + auto-extracted keywords) + velocity score
+- `[newsengine].[graph_post_node]` — references coll_post by link_post_id
+
+**Edges:**
+- `graph_user_follows_user` — synced from social.user_follow on follow/unfollow
+- `graph_user_interested_in_topic` — weight updated from dwell time + engagement
+- `graph_post_belongs_to_topic` — created on post publish by topic_extractor
+- `graph_user_dwell_on_post` — upserted on each dwell time report (UPDATE existing, not INSERT duplicate)
+
+### Regular Tables
+- `[newsengine].[fact_user_feed_cache]` — pre-computed personalized feed (fan-out target)
+- `[newsengine].[ref_feed_cache_reason]` — TINYINT lookup (interest/following/breaking/trending)
+- `[newsengine].[fact_user_dwell_time_log]` — raw dwell time log
+- `[account].[user_profile].user_credibility_score` — FLOAT, default 1.0
+
+### Stored Procedures
+- `[newsengine].[GetPersonalizedFeed](@UserId, @Limit)` — graph MATCH: user→interest→topic←post, ranked by weight × relevance × LOG10 decay
+- `[newsengine].[DiscoverTopicsFromFriends](@UserId, @Limit)` — find topics friends like that user doesn't follow yet
+
+### Python Modules
+- `interest_graph.py` — graph edge CRUD, dwell time → interest weight updates, follow sync
+  - ensure_user_node_exists(), create_post_node(), ensure_topic_node_exists()
+  - create_follow_edge(), remove_follow_edge()
+  - record_dwell_time() — logs dwell + upserts edge + updates interest weights
+  - record_engagement_interest() — updates interest weights on like/bookmark/repost/reply
+  - All have _background() thread wrappers
+- `topic_extractor.py` — extract topics from post text
+  - Hashtag extraction (#topic pattern)
+  - Keyword matching against existing topic nodes
+  - Content category as topic
+  - Creates graph_post_belongs_to_topic edges
+- `feed_fanout.py` — pre-compute user feed on post create
+  - fanout_post_to_interested_users() — fans to followers + interest-matched users
+  - _fanout_to_followers() — INSERT INTO fact_user_feed_cache from social.user_follow
+  - _fanout_to_interested_users_by_topic() — graph MATCH: post→topic←interest←user
+  - _fanout_breaking_news() — push to all users
+  - get_cached_feed_for_user() — read pre-computed feed
+  - get_graph_ranked_feed() — call GetPersonalizedFeed stored procedure
+  - discover_topics_for_user() — call DiscoverTopicsFromFriends stored procedure
+
+### API Endpoint
+- `POST /post/api/{id}/dwell/` — receives {dwell_duration_seconds: float} from JS
+
+### JS Changes (post-feed-interactions.js)
+- IntersectionObserver now tracks enter/exit timestamps per post
+- On post leaving viewport: calculates duration, sends to /dwell/ API if >= 2 seconds
+- Variables: dwellStartTimestamps{}, DWELL_MIN_SECONDS_TO_REPORT
+
+### Data Flow
+1. User opens feed → JS IntersectionObserver starts
+2. Post enters viewport → dwellStartTimestamps[postId] = Date.now()
+3. Post leaves viewport → duration calculated → POST /dwell/ API
+4. API calls record_dwell_time_background() → logs raw dwell + upserts graph edge + updates interest weights
+5. User likes/bookmarks/reposts → record_engagement_interest_background() → updates interest weights
+6. User follows someone → sync_follow_to_graph_background() → creates/removes graph edge
+7. New post created → topic_extractor → link post to topics → feed_fanout → push to interested users' caches
+8. Next feed load → GetPersonalizedFeed stored procedure → graph-ranked results
+
+### Weight Configuration (interest_graph.py)
+- WEIGHT_INCREMENT_DWELL_PER_SECOND = 0.01 (10s dwell = +0.1)
+- WEIGHT_INCREMENT_LIKE = 0.3
+- WEIGHT_INCREMENT_BOOKMARK = 0.4
+- WEIGHT_INCREMENT_REPOST = 0.5
+- WEIGHT_INCREMENT_REPLY = 0.2
+- WEIGHT_MAX = 10.0 (cap)

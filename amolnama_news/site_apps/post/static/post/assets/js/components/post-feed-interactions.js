@@ -938,10 +938,12 @@
     .catch(function () { delete replyPrefetchCache[postId]; });
   }
 
-  /* ---- View count — meaningful impression (3s dwell time, 50% visible) ---- */
+  /* ---- View count + dwell time duration — meaningful impression (3s dwell, 50% visible) ---- */
   const viewedPostIds = {};
   const viewDwellTimers = {};
+  const dwellStartTimestamps = {};  /* Track when each post entered viewport */
   const VIEW_DWELL_TIME_MILLISECONDS = 3000;
+  const DWELL_MIN_SECONDS_TO_REPORT = 2;  /* Only report dwell > 2s */
 
   const postCardObserver = new IntersectionObserver(function (entries) {
     for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
@@ -951,6 +953,9 @@
       if (!postId || viewedPostIds[postId]) continue;
 
       if (entry.isIntersecting) {
+        /* Track dwell start timestamp */
+        dwellStartTimestamps[postId] = Date.now();
+
         /* Prefetch replies in background after 2s dwell */
         if (!replyPrefetchCache[postId] && !replyPrefetchTimers[postId]) {
           (function (prefetchPostId) {
@@ -979,6 +984,21 @@
           }, VIEW_DWELL_TIME_MILLISECONDS);
         })(postId, postCard);
       } else {
+        /* Post left viewport — calculate dwell duration and send to server */
+        if (dwellStartTimestamps[postId]) {
+          var dwellDurationSeconds = (Date.now() - dwellStartTimestamps[postId]) / 1000;
+          delete dwellStartTimestamps[postId];
+          if (dwellDurationSeconds >= DWELL_MIN_SECONDS_TO_REPORT) {
+            (function (dwellPostId, dwellSeconds) {
+              fetch('/post/api/' + dwellPostId + '/dwell/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+                body: JSON.stringify({ dwell_duration_seconds: dwellSeconds }),
+              }).catch(function (dwellError) { console.error('Dwell time report failed:', dwellError); });
+            })(postId, dwellDurationSeconds);
+          }
+        }
+
         if (replyPrefetchTimers[postId]) {
           clearTimeout(replyPrefetchTimers[postId]);
           delete replyPrefetchTimers[postId];

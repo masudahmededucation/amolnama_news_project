@@ -63,6 +63,17 @@ def api_follow_toggle(request, user_profile_id):
         is_active=True,
     ).count()
 
+    # Sync follow/unfollow to interest graph
+    try:
+        from amolnama_news.site_apps.newsengine.interest_graph import sync_follow_to_graph_background
+        sync_follow_to_graph_background(
+            current_profile.user_profile_id, user_profile_id, following,
+        )
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('Graph follow sync failed %s→%s',
+                                              current_profile.user_profile_id, user_profile_id)
+
     return JsonResponse({
         'success': True,
         'following': following,

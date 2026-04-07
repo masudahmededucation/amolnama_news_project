@@ -296,6 +296,22 @@ def api_post_create(request):
             except Exception:
                 logger.exception('Video transcode queue failed for %s', media_url)
 
+    # Extract topics + link to interest graph + fan out to interested users
+    try:
+        from amolnama_news.site_apps.newsengine.topic_extractor import extract_and_link_post_topics_background
+        extract_and_link_post_topics_background(
+            post.post_post_id, post_text, user_profile.user_profile_id,
+            created_at=post.created_at,
+        )
+    except Exception:
+        logger.exception('Topic extraction failed for post %s', post.post_post_id)
+
+    try:
+        from amolnama_news.site_apps.newsengine.feed_fanout import fanout_post_to_interested_users_background
+        fanout_post_to_interested_users_background(post.post_post_id, user_profile.user_profile_id)
+    except Exception:
+        logger.exception('Feed fanout failed for post %s', post.post_post_id)
+
     # Render the post card HTML server-side — single source of truth (post-card.html template)
     from django.template.loader import render_to_string
     from .views import _calculate_time_ago, _highlight_text_with_entities, _parse_keywords_json
@@ -608,8 +624,13 @@ def api_post_like_toggle(request, post_post_id):
         post_post_id=post_post_id
     ).values_list('like_count', flat=True).first() or 0
 
-    # Refresh cached feed score after engagement change
+    # Refresh cached feed score + update interest graph
     _refresh_post_feed_score_background(post_post_id)
+    try:
+        from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
+        record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'like')
+    except Exception:
+        logger.exception('Interest graph like update failed for post %s', post_post_id)
 
     return JsonResponse({'success': True, 'liked': liked, 'like_count': new_like_count})
 
@@ -663,6 +684,36 @@ def api_post_view_increment(request, post_post_id):
         post_post_id=post_post_id
     ).values_list('view_count', flat=True).first() or 0
     return JsonResponse({'success': True, 'view_count': new_view_count})
+
+
+@require_POST
+@login_required
+def api_post_dwell_time(request, post_post_id):
+    """Record dwell time duration (seconds user spent viewing this post).
+    Updates interest graph weights for the post's topics."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    try:
+        data = json.loads(request.body)
+        dwell_duration_seconds = float(data.get('dwell_duration_seconds', 0))
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid data'}, status=400)
+
+    if dwell_duration_seconds < 2:
+        return JsonResponse({'success': True})  # Ignore very short dwells
+
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': True})  # Silently skip — no profile
+
+    try:
+        from amolnama_news.site_apps.newsengine.interest_graph import record_dwell_time_background
+        record_dwell_time_background(user_profile.user_profile_id, post_post_id, dwell_duration_seconds)
+    except Exception:
+        logger.exception('Dwell time recording failed for post %s', post_post_id)
+
+    return JsonResponse({'success': True})
 
 
 @require_POST
@@ -738,6 +789,11 @@ def api_post_repost(request, post_post_id):
     new_repost_count = actual_repost_count
 
     _refresh_post_feed_score_background(post_post_id)
+    try:
+        from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
+        record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'repost')
+    except Exception:
+        logger.exception('Interest graph repost update failed for post %s', post_post_id)
 
     return JsonResponse({'success': True, 'reposted': reposted, 'repost_count': new_repost_count})
 
@@ -1011,6 +1067,11 @@ def api_post_vote_toggle(request, post_post_id):
     ).start()
 
     _refresh_post_feed_score_background(post_post_id)
+    try:
+        from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
+        record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'like')
+    except Exception:
+        logger.exception('Interest graph vote update failed for post %s', post_post_id)
 
     return JsonResponse({'success': True, 'voted': voted, 'vote_score_count': actual_vote_count})
 
