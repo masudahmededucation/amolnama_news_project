@@ -32,6 +32,8 @@ class Post(models.Model):
     is_auto_flagged = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
+    link_content_ref_content_subcategory_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
