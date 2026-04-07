@@ -307,7 +307,7 @@ def _build_art_promo_items():
         items.append({
             'item_type': 'content_promo',
             'created_at_raw': artwork.created_at,
-            'promo_id': artwork.art_coll_artwork_id,
+            'promo_id': artwork.blog_art_coll_artwork_id,
             'promo_badge': 'ART',
             'promo_color': 'blue',
             'promo_title': artwork.artwork_title_bn or '',

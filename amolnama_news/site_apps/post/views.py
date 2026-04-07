@@ -404,14 +404,14 @@ def bookmarks(request):
         from amolnama_news.site_apps.art.models import EngagementArtworkBookmark, CollArtwork
         art_bookmark_ids = list(EngagementArtworkBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_artwork_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_blog_art_coll_artwork_id', flat=True)[:20])
         if art_bookmark_ids:
-            artworks_map = {a.art_coll_artwork_id: a for a in CollArtwork.objects.filter(art_coll_artwork_id__in=art_bookmark_ids)}
+            artworks_map = {a.blog_art_coll_artwork_id: a for a in CollArtwork.objects.filter(blog_art_coll_artwork_id__in=art_bookmark_ids)}
             for art_id in art_bookmark_ids:
                 artwork = artworks_map.get(art_id)
                 if artwork:
                     universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': artwork.art_coll_artwork_id,
+                        'item_type': 'content_promo', 'promo_id': artwork.blog_art_coll_artwork_id,
                         'promo_badge': 'ART', 'promo_color': 'blue',
                         'promo_title': artwork.artwork_title_bn or '',
                         'promo_description': (artwork.artwork_description_bn or '')[:150],

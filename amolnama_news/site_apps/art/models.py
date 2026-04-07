@@ -4,7 +4,7 @@ from django.db import models
 
 
 class RefArtCategory(models.Model):
-    art_ref_art_category_id = models.AutoField(primary_key=True)
+    blog_art_ref_art_category_id = models.AutoField(primary_key=True)
     art_category_code = models.CharField(max_length=50)
     art_category_name_bn = models.CharField(max_length=200)
     art_category_name_en = models.CharField(max_length=200)
@@ -23,7 +23,7 @@ class RefArtCategory(models.Model):
 
 
 class RefArtMedium(models.Model):
-    art_ref_art_medium_id = models.AutoField(primary_key=True)
+    blog_art_ref_art_medium_id = models.AutoField(primary_key=True)
     art_medium_code = models.CharField(max_length=50)
     art_medium_name_bn = models.CharField(max_length=200)
     art_medium_name_en = models.CharField(max_length=200)
@@ -41,7 +41,7 @@ class RefArtMedium(models.Model):
 
 
 class RefArtDifficulty(models.Model):
-    art_ref_art_difficulty_id = models.AutoField(primary_key=True)
+    blog_art_ref_art_difficulty_id = models.AutoField(primary_key=True)
     art_difficulty_code = models.CharField(max_length=20)
     art_difficulty_name_bn = models.CharField(max_length=100)
     art_difficulty_name_en = models.CharField(max_length=100)
@@ -59,12 +59,12 @@ class RefArtDifficulty(models.Model):
 
 
 class CollArtwork(models.Model):
-    art_coll_artwork_id = models.BigAutoField(primary_key=True)
+    blog_art_coll_artwork_id = models.BigAutoField(primary_key=True)
     artwork_guid = models.UUIDField()
     link_user_profile_id = models.BigIntegerField()
-    link_art_category_id = models.IntegerField()
-    link_art_medium_id = models.IntegerField(blank=True, null=True)
-    link_art_difficulty_id = models.IntegerField(blank=True, null=True)
+    link_blog_art_ref_art_category_id = models.IntegerField()
+    link_blog_art_ref_art_medium_id = models.IntegerField(blank=True, null=True)
+    link_blog_art_ref_art_difficulty_id = models.IntegerField(blank=True, null=True)
     artwork_title_bn = models.CharField(max_length=300)
     artwork_title_en = models.CharField(max_length=300, blank=True, null=True)
     artwork_slug = models.CharField(max_length=400)
@@ -95,12 +95,12 @@ class CollArtwork(models.Model):
         db_table = '[blog_art].[coll_artwork]'
 
     def __str__(self):
-        return self.artwork_title_bn or self.artwork_title_en or str(self.art_coll_artwork_id)
+        return self.artwork_title_bn or self.artwork_title_en or str(self.blog_art_coll_artwork_id)
 
 
 class ArtworkAsset(models.Model):
-    art_artwork_asset_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_artwork_asset_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_asset_id = models.BigIntegerField()
     asset_group_code = models.CharField(max_length=30)
     is_cover = models.BooleanField()
@@ -116,8 +116,8 @@ class ArtworkAsset(models.Model):
 
 
 class ArtworkStep(models.Model):
-    art_artwork_step_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_artwork_step_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     step_number = models.IntegerField()
     step_instruction_bn = models.TextField()
     step_instruction_en = models.TextField(blank=True, null=True)
@@ -132,8 +132,8 @@ class ArtworkStep(models.Model):
 
 
 class ArtworkYoutubeLink(models.Model):
-    art_artwork_youtube_link_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_artwork_youtube_link_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     youtube_url = models.CharField(max_length=500)
     youtube_title_bn = models.CharField(max_length=300, blank=True, null=True)
@@ -147,8 +147,8 @@ class ArtworkYoutubeLink(models.Model):
 
 
 class EngagementArtworkLike(models.Model):
-    art_engagement_artwork_like_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_engagement_artwork_like_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
@@ -160,8 +160,8 @@ class EngagementArtworkLike(models.Model):
 
 
 class EngagementArtworkBookmark(models.Model):
-    art_engagement_artwork_bookmark_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_engagement_artwork_bookmark_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
@@ -173,8 +173,8 @@ class EngagementArtworkBookmark(models.Model):
 
 
 class EngagementArtworkComment(models.Model):
-    art_engagement_artwork_comment_id = models.BigAutoField(primary_key=True)
-    link_artwork_id = models.BigIntegerField()
+    blog_art_engagement_artwork_comment_id = models.BigAutoField(primary_key=True)
+    link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
     comment_text_bn = models.CharField(max_length=1000)

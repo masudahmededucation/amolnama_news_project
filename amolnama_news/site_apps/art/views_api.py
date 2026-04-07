@@ -35,15 +35,15 @@ def api_artwork_create(request):
     artwork_materials_bn = (request.POST.get('artwork_materials_bn') or '').strip() or None
     artwork_materials_en = (request.POST.get('artwork_materials_en') or '').strip() or None
     artwork_dimensions_en = (request.POST.get('artwork_dimensions_en') or '').strip() or None
-    link_art_category_id = request.POST.get('link_art_category_id')
-    link_art_medium_id = request.POST.get('link_art_medium_id') or None
-    link_art_difficulty_id = request.POST.get('link_art_difficulty_id') or None
+    link_blog_art_ref_art_category_id = request.POST.get('link_blog_art_ref_art_category_id')
+    link_blog_art_ref_art_medium_id = request.POST.get('link_blog_art_ref_art_medium_id') or None
+    link_blog_art_ref_art_difficulty_id = request.POST.get('link_blog_art_ref_art_difficulty_id') or None
     is_tutorial = request.POST.get('is_tutorial') == '1'
     estimated_time_minutes = request.POST.get('estimated_time_minutes') or None
 
     if not artwork_title_bn:
         return JsonResponse({'success': False, 'error': 'শিল্পকর্মের নাম দিন'}, status=400)
-    if not link_art_category_id:
+    if not link_blog_art_ref_art_category_id:
         return JsonResponse({'success': False, 'error': 'বিভাগ নির্বাচন করুন'}, status=400)
 
     uploaded_files = request.FILES.getlist('artwork_media_files')
@@ -62,16 +62,16 @@ def api_artwork_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [blog_art].[coll_artwork]
-                ([artwork_guid], [link_user_profile_id], [link_art_category_id], [link_art_medium_id],
-                 [link_art_difficulty_id], [artwork_title_bn], [artwork_title_en], [artwork_slug],
+                ([artwork_guid], [link_user_profile_id], [link_blog_art_ref_art_category_id], [link_blog_art_ref_art_medium_id],
+                 [link_blog_art_ref_art_difficulty_id], [artwork_title_bn], [artwork_title_en], [artwork_slug],
                  [artwork_description_bn], [artwork_backstory_bn], [artwork_materials_bn],
                  [artwork_materials_en], [artwork_dimensions_en], [artwork_type_code],
                  [is_tutorial], [estimated_time_minutes], [is_published], [is_active])
-            OUTPUT INSERTED.art_coll_artwork_id
+            OUTPUT INSERTED.blog_art_coll_artwork_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CAST(%s AS NVARCHAR(MAX)), CAST(%s AS NVARCHAR(MAX)), %s, %s, %s, %s, %s, %s, %s, %s)
         """, [
-            artwork_guid, user_profile.user_profile_id, link_art_category_id,
-            link_art_medium_id, link_art_difficulty_id, artwork_title_bn, artwork_title_en,
+            artwork_guid, user_profile.user_profile_id, link_blog_art_ref_art_category_id,
+            link_blog_art_ref_art_medium_id, link_blog_art_ref_art_difficulty_id, artwork_title_bn, artwork_title_en,
             artwork_slug, artwork_description_bn, artwork_backstory_bn,
             artwork_materials_bn, artwork_materials_en, artwork_dimensions_en,
             'artwork', 1 if is_tutorial else 0, estimated_time_minutes, 1, 1,
@@ -107,7 +107,7 @@ def api_artwork_create(request):
 
             cursor.execute("""
                 INSERT INTO [blog_art].[artwork_asset]
-                    ([link_artwork_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
+                    ([link_blog_art_coll_artwork_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [artwork_id, asset_id, 'main', 1 if file_index == 0 else 0, file_index, 1])
 
@@ -130,7 +130,7 @@ def api_artwork_like_toggle(request, artwork_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     existing_like = EngagementArtworkLike.objects.filter(
-        link_artwork_id=artwork_id,
+        link_blog_art_coll_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
 
@@ -144,14 +144,14 @@ def api_artwork_like_toggle(request, artwork_id):
         liked = True
     else:
         EngagementArtworkLike.objects.create(
-            link_artwork_id=artwork_id,
+            link_blog_art_coll_artwork_id=artwork_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         liked = True
 
-    actual_count = EngagementArtworkLike.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
-    CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(like_count=actual_count)
+    actual_count = EngagementArtworkLike.objects.filter(link_blog_art_coll_artwork_id=artwork_id, is_active=True).count()
+    CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(like_count=actual_count)
 
     return JsonResponse({'success': True, 'liked': liked, 'like_count': actual_count})
 
@@ -168,7 +168,7 @@ def api_artwork_bookmark_toggle(request, artwork_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     existing_bookmark = EngagementArtworkBookmark.objects.filter(
-        link_artwork_id=artwork_id,
+        link_blog_art_coll_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
 
@@ -182,14 +182,14 @@ def api_artwork_bookmark_toggle(request, artwork_id):
         bookmarked = True
     else:
         EngagementArtworkBookmark.objects.create(
-            link_artwork_id=artwork_id,
+            link_blog_art_coll_artwork_id=artwork_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         bookmarked = True
 
-    actual_count = EngagementArtworkBookmark.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
-    CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(bookmark_count=actual_count)
+    actual_count = EngagementArtworkBookmark.objects.filter(link_blog_art_coll_artwork_id=artwork_id, is_active=True).count()
+    CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(bookmark_count=actual_count)
 
     return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})
 
@@ -197,8 +197,8 @@ def api_artwork_bookmark_toggle(request, artwork_id):
 @require_POST
 def api_artwork_view_increment(request, artwork_id):
     """Increment view count."""
-    CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(view_count=F('view_count') + 1)
-    artwork = CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).values_list('view_count', flat=True).first()
+    CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(view_count=F('view_count') + 1)
+    artwork = CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).values_list('view_count', flat=True).first()
     return JsonResponse({'success': True, 'view_count': artwork or 0})
 
 
@@ -223,14 +223,14 @@ def api_artwork_comment_create(request, artwork_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     EngagementArtworkComment.objects.create(
-        link_artwork_id=artwork_id,
+        link_blog_art_coll_artwork_id=artwork_id,
         link_user_profile_id=user_profile.user_profile_id,
         comment_text_bn=comment_text_bn,
         is_active=True,
     )
 
-    actual_count = EngagementArtworkComment.objects.filter(link_artwork_id=artwork_id, is_active=True).count()
-    CollArtwork.objects.filter(art_coll_artwork_id=artwork_id).update(comment_count=actual_count)
+    actual_count = EngagementArtworkComment.objects.filter(link_blog_art_coll_artwork_id=artwork_id, is_active=True).count()
+    CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(comment_count=actual_count)
 
     return JsonResponse({
         'success': True,

@@ -221,7 +221,7 @@ _RELATED_CONTENT_ENRICHMENT_MAP = {
         'url_fallback': '/stories-for-kids/',
     },
     'art': {
-        'query': "SELECT artwork_title_bn, artwork_slug FROM [blog_art].[coll_artwork] WHERE art_coll_artwork_id = %s AND is_active = 1",
+        'query': "SELECT artwork_title_bn, artwork_slug FROM [blog_art].[coll_artwork] WHERE blog_art_coll_artwork_id = %s AND is_active = 1",
         'title_index': 0,
         'slug_index': 1,
         'url_template': '/art/{slug}/',

@@ -21,7 +21,7 @@ def _get_artwork_cover_url(artwork_id):
             SELECT a.[file_storage_path]
             FROM [blog_art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
-            WHERE aa.[link_artwork_id] = %s AND aa.[is_cover] = 1 AND aa.[is_active] = 1
+            WHERE aa.[link_blog_art_coll_artwork_id] = %s AND aa.[is_cover] = 1 AND aa.[is_active] = 1
         """, [artwork_id])
         row = cursor.fetchone()
     return row[0] if row else None
@@ -33,11 +33,11 @@ def _get_artwork_photos(artwork_id):
     photos = []
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT aa.[art_artwork_asset_id], a.[file_storage_path], aa.[caption_bn],
+            SELECT aa.[blog_art_artwork_asset_id], a.[file_storage_path], aa.[caption_bn],
                    aa.[asset_group_code], aa.[is_cover]
             FROM [blog_art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
-            WHERE aa.[link_artwork_id] = %s AND aa.[is_active] = 1
+            WHERE aa.[link_blog_art_coll_artwork_id] = %s AND aa.[is_active] = 1
             ORDER BY aa.[is_cover] DESC, aa.[sort_order] ASC
         """, [artwork_id])
         for row in cursor.fetchall():
@@ -62,30 +62,30 @@ def home(request):
         is_published=True, is_active=True,
     )
     if category_filter:
-        artworks_queryset = artworks_queryset.filter(link_art_category_id=category_filter)
+        artworks_queryset = artworks_queryset.filter(link_blog_art_ref_art_category_id=category_filter)
     if medium_filter:
-        artworks_queryset = artworks_queryset.filter(link_art_medium_id=medium_filter)
+        artworks_queryset = artworks_queryset.filter(link_blog_art_ref_art_medium_id=medium_filter)
     artworks = artworks_queryset.order_by('-is_featured', '-created_at')[:60]
 
     # Build artwork items with cover images
-    artwork_ids = [artwork.art_coll_artwork_id for artwork in artworks]
+    artwork_ids = [artwork.blog_art_coll_artwork_id for artwork in artworks]
     cover_map = {}
     if artwork_ids:
         from django.db import connection
         with connection.cursor() as cursor:
             placeholders = ','.join(['%s'] * len(artwork_ids))
             cursor.execute(f"""
-                SELECT aa.[link_artwork_id], a.[file_storage_path]
+                SELECT aa.[link_blog_art_coll_artwork_id], a.[file_storage_path]
                 FROM [blog_art].[artwork_asset] aa
                 JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
-                WHERE aa.[link_artwork_id] IN ({placeholders}) AND aa.[is_cover] = 1 AND aa.[is_active] = 1
+                WHERE aa.[link_blog_art_coll_artwork_id] IN ({placeholders}) AND aa.[is_cover] = 1 AND aa.[is_active] = 1
             """, artwork_ids)
             for row in cursor.fetchall():
                 cover_map[row[0]] = row[1]
 
     # Build category map
     category_map = {
-        category.art_ref_art_category_id: category
+        category.blog_art_ref_art_category_id: category
         for category in RefArtCategory.objects.filter(is_active=True).order_by('sort_order')
     }
 
@@ -99,13 +99,13 @@ def home(request):
 
     artwork_items = []
     for artwork in artworks:
-        category = category_map.get(artwork.link_art_category_id)
+        category = category_map.get(artwork.link_blog_art_ref_art_category_id)
         artwork_items.append({
-            'artwork_id': artwork.art_coll_artwork_id,
+            'artwork_id': artwork.blog_art_coll_artwork_id,
             'title_bn': artwork.artwork_title_bn,
             'title_en': artwork.artwork_title_en,
             'slug': artwork.artwork_slug,
-            'cover_url': cover_map.get(artwork.art_coll_artwork_id),
+            'cover_url': cover_map.get(artwork.blog_art_coll_artwork_id),
             'category_name_bn': category.art_category_name_bn if category else '',
             'category_icon': category.art_category_icon if category else '',
             'author_name': author_map.get(artwork.link_user_profile_id, 'শিল্পী'),
@@ -149,21 +149,21 @@ def detail(request, artwork_slug):
         pass
 
     # Category & medium & difficulty
-    category = RefArtCategory.objects.filter(art_ref_art_category_id=artwork.link_art_category_id).first()
-    medium = RefArtMedium.objects.filter(art_ref_art_medium_id=artwork.link_art_medium_id).first() if artwork.link_art_medium_id else None
-    difficulty = RefArtDifficulty.objects.filter(art_ref_art_difficulty_id=artwork.link_art_difficulty_id).first() if artwork.link_art_difficulty_id else None
+    category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=artwork.link_blog_art_ref_art_category_id).first()
+    medium = RefArtMedium.objects.filter(blog_art_ref_art_medium_id=artwork.link_blog_art_ref_art_medium_id).first() if artwork.link_blog_art_ref_art_medium_id else None
+    difficulty = RefArtDifficulty.objects.filter(blog_art_ref_art_difficulty_id=artwork.link_blog_art_ref_art_difficulty_id).first() if artwork.link_blog_art_ref_art_difficulty_id else None
 
     # Photos
-    photos = _get_artwork_photos(artwork.art_coll_artwork_id)
+    photos = _get_artwork_photos(artwork.blog_art_coll_artwork_id)
 
     # Tutorial steps
     steps = list(ArtworkStep.objects.filter(
-        link_artwork_id=artwork.art_coll_artwork_id, is_active=True,
+        link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id, is_active=True,
     ).order_by('step_number'))
 
     # YouTube links
     youtube_links = list(ArtworkYoutubeLink.objects.filter(
-        link_artwork_id=artwork.art_coll_artwork_id, is_active=True,
+        link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id, is_active=True,
     ))
 
     # User interaction state
@@ -175,11 +175,11 @@ def detail(request, artwork_slug):
             current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
             current_profile_id = current_profile.user_profile_id
             user_liked = EngagementArtworkLike.objects.filter(
-                link_artwork_id=artwork.art_coll_artwork_id,
+                link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
             user_bookmarked = EngagementArtworkBookmark.objects.filter(
-                link_artwork_id=artwork.art_coll_artwork_id,
+                link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
             can_edit = artwork.link_user_profile_id == current_profile_id or request.user.is_staff
@@ -187,7 +187,7 @@ def detail(request, artwork_slug):
             pass
 
     artwork_item = {
-        'artwork_id': artwork.art_coll_artwork_id,
+        'artwork_id': artwork.blog_art_coll_artwork_id,
         'title_bn': artwork.artwork_title_bn,
         'title_en': artwork.artwork_title_en,
         'slug': artwork.artwork_slug,
@@ -231,7 +231,7 @@ def detail(request, artwork_slug):
             viewer_user_profile_id = get_user_profile_id(request)
             if viewer_user_profile_id:
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
-                record_content_view(viewer_user_profile_id, 'art', artwork.art_coll_artwork_id)
+                record_content_view(viewer_user_profile_id, 'art', artwork.blog_art_coll_artwork_id)
         except Exception:
             pass
 
@@ -240,9 +240,9 @@ def detail(request, artwork_slug):
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(
             artwork.artwork_title_bn or artwork.artwork_description_bn or '',
-            'art', artwork.art_coll_artwork_id, limit=5,
+            'art', artwork.blog_art_coll_artwork_id, limit=5,
         ),
-        'related_content_api_url': f'/newsengine/api/related-content/?type=art&id={artwork.art_coll_artwork_id}',
+        'related_content_api_url': f'/newsengine/api/related-content/?type=art&id={artwork.blog_art_coll_artwork_id}',
         'seo': {
             'title': f'{artwork.artwork_title_bn} — শিল্পকলা | আমলনামা নিউজ',
             'description': (artwork.artwork_description_bn or artwork.artwork_title_bn)[:200],

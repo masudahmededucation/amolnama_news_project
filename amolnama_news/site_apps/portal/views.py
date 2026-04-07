@@ -447,7 +447,7 @@ def content_dashboard_view(request):
             'content_type': 'art',
             'content_type_label': 'ART',
             'content_type_color': 'blue',
-            'content_id': artwork.art_coll_artwork_id,
+            'content_id': artwork.blog_art_coll_artwork_id,
             'content_title': artwork.artwork_title_bn or '(no title)',
             'content_slug': artwork.artwork_slug or '',
             'content_url': f'/art-and-craft/{artwork.artwork_slug}/' if artwork.artwork_slug else '',

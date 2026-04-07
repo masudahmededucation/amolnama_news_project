@@ -126,7 +126,7 @@ def api_content_toggle_publish(request):
 
         elif content_type == 'art':
             from amolnama_news.site_apps.art.models import CollArtwork
-            item = CollArtwork.objects.get(art_coll_artwork_id=content_id)
+            item = CollArtwork.objects.get(blog_art_coll_artwork_id=content_id)
             item.is_published = publish
             item.save(update_fields=['is_published'])
 
