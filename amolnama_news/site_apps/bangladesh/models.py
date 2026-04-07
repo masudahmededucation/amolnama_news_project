@@ -21,7 +21,7 @@ class RefDestinationCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[ref_destination_category]"
+        db_table = "[blog_bangladesh].[ref_destination_category]"
 
     def __str__(self):
         return self.destination_category_name_en
@@ -40,7 +40,7 @@ class RefSeason(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[ref_season]"
+        db_table = "[blog_bangladesh].[ref_season]"
 
     def __str__(self):
         return self.season_name_en
@@ -59,7 +59,7 @@ class RefMediaCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[ref_media_category]"
+        db_table = "[blog_bangladesh].[ref_media_category]"
 
     def __str__(self):
         return self.media_category_name_en
@@ -111,7 +111,7 @@ class CollDestination(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_destination]"
+        db_table = "[blog_bangladesh].[coll_destination]"
 
     def __str__(self):
         return self.destination_name_en
@@ -134,7 +134,7 @@ class DestinationPhoto(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[destination_photo]"
+        db_table = "[blog_bangladesh].[destination_photo]"
 
 
 class Accommodation(models.Model):
@@ -163,7 +163,7 @@ class Accommodation(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[accommodation]"
+        db_table = "[blog_bangladesh].[accommodation]"
 
     def __str__(self):
         return self.accommodation_name_en
@@ -190,7 +190,7 @@ class TransportRoute(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[transport_route]"
+        db_table = "[blog_bangladesh].[transport_route]"
 
 
 class TravelTip(models.Model):
@@ -205,7 +205,7 @@ class TravelTip(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[travel_tip]"
+        db_table = "[blog_bangladesh].[travel_tip]"
 
 
 # ============================================================================
@@ -233,7 +233,7 @@ class EngagementDestinationReview(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_destination_review]"
+        db_table = "[blog_bangladesh].[engagement_destination_review]"
 
 
 class EngagementDestinationBookmark(models.Model):
@@ -245,7 +245,7 @@ class EngagementDestinationBookmark(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_destination_bookmark]"
+        db_table = "[blog_bangladesh].[engagement_destination_bookmark]"
 
 
 class EngagementDestinationPhotoLike(models.Model):
@@ -256,7 +256,7 @@ class EngagementDestinationPhotoLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_destination_photo_like]"
+        db_table = "[blog_bangladesh].[engagement_destination_photo_like]"
         unique_together = [["link_destination_photo_id", "link_user_profile_id"]]
 
 
@@ -268,7 +268,7 @@ class EngagementDestinationVideoLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_destination_video_like]"
+        db_table = "[blog_bangladesh].[engagement_destination_video_like]"
         unique_together = [["link_destination_youtube_link_id", "link_user_profile_id"]]
 
 
@@ -292,7 +292,7 @@ class DestinationYoutubeLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[destination_youtube_link]"
+        db_table = "[blog_bangladesh].[destination_youtube_link]"
 
 
 class DestinationReferenceLink(models.Model):
@@ -310,7 +310,7 @@ class DestinationReferenceLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[destination_reference_link]"
+        db_table = "[blog_bangladesh].[destination_reference_link]"
 
 
 # ============================================================================
@@ -374,7 +374,7 @@ class CollMediaEntry(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_media_entry]"
+        db_table = "[blog_bangladesh].[coll_media_entry]"
 
     def __str__(self):
         return self.media_title_bn or self.media_title_en or f"Media({self.bangladesh_coll_media_entry_id})"
@@ -395,7 +395,7 @@ class CollMediaAlbum(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[coll_media_album]"
+        db_table = "[blog_bangladesh].[coll_media_album]"
 
     def __str__(self):
         return self.album_title_bn or self.album_title_en or f"Album({self.bangladesh_coll_media_album_id})"
@@ -411,7 +411,7 @@ class MapMediaTag(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[map_media_tag]"
+        db_table = "[blog_bangladesh].[map_media_tag]"
 
     def __str__(self):
         return self.tag_name_en
@@ -429,7 +429,7 @@ class EngagementMediaLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_media_like]"
+        db_table = "[blog_bangladesh].[engagement_media_like]"
         unique_together = [["link_coll_media_entry_id", "link_user_profile_id"]]
 
 
@@ -446,4 +446,4 @@ class EngagementMediaComment(models.Model):
 
     class Meta:
         managed = False
-        db_table = "[bangladesh].[engagement_media_comment]"
+        db_table = "[blog_bangladesh].[engagement_media_comment]"

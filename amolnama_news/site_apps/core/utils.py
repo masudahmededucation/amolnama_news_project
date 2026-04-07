@@ -228,7 +228,7 @@ _RELATED_CONTENT_ENRICHMENT_MAP = {
         'url_fallback': '/art/',
     },
     'destination': {
-        'query': "SELECT destination_name_bn, destination_slug FROM [bangladesh].[coll_destination] WHERE bangladesh_coll_destination_id = %s AND is_active = 1",
+        'query': "SELECT destination_name_bn, destination_slug FROM [blog_bangladesh].[coll_destination] WHERE bangladesh_coll_destination_id = %s AND is_active = 1",
         'title_index': 0,
         'slug_index': 1,
         'url_template': '/bangladesh-tourist-destinations/travel/{slug}/',
