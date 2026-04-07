@@ -67,7 +67,7 @@
         {% if article.content_category_code %}<span class="user-profile-article-card-badge">{{ article.content_category_code }}</span>{% endif %}
       </div>
       <h3 class="user-profile-article-card-title">{{ article.content_title_bn }}</h3>
-      {% if article.content_summary_bn %}<p class="user-profile-article-card-summary">{{ article.content_summary_bn|truncatewords:25 }}</p>{% endif %}
+      {% if article.content_summary_bn %}<p class="user-profile-article-card-summary">{{ article.content_summary_bn|striptags|truncatewords:25 }}</p>{% endif %}
       {% if article.published_at %}<time class="user-profile-article-card-date">{{ article.published_at|date:"d M Y" }}</time>{% endif %}
     </a>
     {% empty %}
