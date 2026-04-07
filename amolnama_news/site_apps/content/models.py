@@ -6,7 +6,7 @@ from django.db import models
 
 class RefContentType(models.Model):
     """Content type reference — article, post, poem, story, art, destination, media, debate."""
-    ref_content_type_id = models.PositiveSmallIntegerField(primary_key=True)
+    ref_content_type_id = models.IntegerField(primary_key=True)
     content_type_code = models.CharField(max_length=30)
     content_type_name_bn = models.CharField(max_length=100)
     content_type_name_en = models.CharField(max_length=100)
@@ -26,7 +26,7 @@ class ContentRegistry(models.Model):
     """Master content registry — single source of truth for ALL content across all apps.
     Every content piece gets registered here first. content_registry_id is the universal ID."""
     content_registry_id = models.BigAutoField(primary_key=True)
-    link_content_type_id = models.SmallIntegerField()
+    link_content_type_id = models.IntegerField()
     link_user_profile_id = models.BigIntegerField()
     content_title_bn = models.CharField(max_length=1000, blank=True, null=True)
     content_title_en = models.CharField(max_length=1000, blank=True, null=True)
