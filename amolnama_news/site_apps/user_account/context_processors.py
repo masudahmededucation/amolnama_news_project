@@ -1,5 +1,9 @@
 """Template context processors for user_account."""
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def user_display_name(request):
     """Inject ``user_display_name`` into every template context.
@@ -40,8 +44,8 @@ def user_display_name(request):
         try:
             from amolnama_news.site_apps.core.utils import get_user_avatar_url
             avatar_url = get_user_avatar_url(profile)
-        except Exception:
-            pass
+        except Exception as avatar_error:
+            logger.error('Avatar URL fetch failed — %s', avatar_error)
 
         request._cached_display_name = name or request.user.email
         request._cached_form_lang_pref = lang
