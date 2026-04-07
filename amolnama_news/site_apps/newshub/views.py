@@ -295,7 +295,7 @@ def news_collection_multistep_extortion(request):
                 _edit_form_code = 'extortion'
                 if edit_entry.link_form_type_id:
                     _ft = RefNewsFormType.objects.filter(
-                        ref_news_form_type_id=edit_entry.link_form_type_id
+                        newshub_ref_news_form_type_id=edit_entry.link_form_type_id
                     ).values_list('group_code', flat=True).first()
                     if _ft:
                         _edit_form_code = _ft
@@ -1220,7 +1220,7 @@ def news_article_landing(request):
         form_type_obj = None
         if entry.link_form_type_id:
             try:
-                form_type_obj = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
+                form_type_obj = RefNewsFormType.objects.get(newshub_ref_news_form_type_id=entry.link_form_type_id)
             except RefNewsFormType.DoesNotExist:
                 pass
 
@@ -1291,7 +1291,7 @@ def article_detail(request, slug):
     form_type_obj = None
     if entry.link_form_type_id:
         try:
-            form_type_obj = RefNewsFormType.objects.get(ref_news_form_type_id=entry.link_form_type_id)
+            form_type_obj = RefNewsFormType.objects.get(newshub_ref_news_form_type_id=entry.link_form_type_id)
             form_type_code = form_type_obj.group_code
         except RefNewsFormType.DoesNotExist:
             pass
@@ -1938,7 +1938,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
     form_type_id = (
         RefNewsFormType.objects
         .filter(group_code=form_type_group_code)
-        .values_list('ref_news_form_type_id', flat=True)
+        .values_list('newshub_ref_news_form_type_id', flat=True)
         .first()
     ) if form_type_group_code else None
 

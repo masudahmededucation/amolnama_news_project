@@ -4,7 +4,7 @@ from django.db import models
 # ========== Reference Tables ==========
 
 class RefNewsFormType(models.Model):
-    ref_news_form_type_id = models.IntegerField(primary_key=True)
+    newshub_ref_news_form_type_id = models.IntegerField(primary_key=True)
     group_code            = models.CharField(max_length=100)
     form_name_en          = models.CharField(max_length=100)
     form_name_bn          = models.CharField(max_length=100)
