@@ -25,7 +25,7 @@ class RefContentCategory(models.Model):
 class RefContentSubcategory(models.Model):
     """Content subcategory — topics within each category (Crime, Love, Painting, Beach, etc.)."""
     content_ref_content_subcategory_id = models.IntegerField(primary_key=True)
-    link_content_category_id = models.IntegerField()
+    link_ref_content_category_id = models.IntegerField()
     # link_subcategory_id and link_subcategory_code are computed columns — not mapped in Django
     group_code = models.CharField(max_length=30)
     subcategory_code = models.CharField(max_length=50)
