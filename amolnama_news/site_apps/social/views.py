@@ -170,7 +170,7 @@ def public_profile_articles(request, username_handle):
     logger = logging.getLogger(__name__)
     articles = []
     try:
-        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentType
+        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentType, RefContentCategory
         post_type = RefContentType.objects.filter(content_type_code='post', is_active=True).first()
         post_type_id = post_type.ref_content_type_id if post_type else None
 
@@ -183,13 +183,20 @@ def public_profile_articles(request, username_handle):
             registry_query = registry_query.exclude(link_content_type_id=post_type_id)
         registry_items = registry_query.order_by('-published_at', '-created_at')
 
+        # Build category lookup for display names
+        category_ids = [item.link_content_category_id for item in registry_items if item.link_content_category_id]
+        category_map = {}
+        if category_ids:
+            for category in RefContentCategory.objects.filter(content_ref_content_category_id__in=category_ids):
+                category_map[category.content_ref_content_category_id] = category.category_name_bn
+
         for item in registry_items:
             articles.append({
                 'content_registry_id': item.content_registry_id,
                 'content_title_bn': item.content_title_bn or item.content_title_en or '',
                 'content_url': item.content_url,
                 'content_summary_bn': item.content_summary_bn or '',
-                'content_category_code': item.content_category_code,
+                'content_category_name': category_map.get(item.link_content_category_id, ''),
                 'published_at': item.published_at or item.created_at,
                 'link_content_type_id': item.link_content_type_id,
             })
