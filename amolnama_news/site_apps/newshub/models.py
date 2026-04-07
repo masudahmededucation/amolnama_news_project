@@ -270,6 +270,7 @@ class PubArticle(models.Model):
     is_premium = models.BooleanField()
     published_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField()
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

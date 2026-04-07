@@ -108,6 +108,7 @@ class CollDestination(models.Model):
 
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -371,6 +372,7 @@ class CollMediaEntry(models.Model):
 
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

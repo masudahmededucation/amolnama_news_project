@@ -155,6 +155,7 @@ class CollTopic(models.Model):
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
