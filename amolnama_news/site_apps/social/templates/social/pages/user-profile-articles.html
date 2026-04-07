@@ -5,14 +5,12 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'social/assets/css/pages/user-profile.css' %}">
-<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="user-profile-page">
 
-  {# ---- Profile Header ---- #}
+  {% comment %}Profile Header — same layout as posts profile{% endcomment %}
   <div class="user-profile-header">
     <div class="user-profile-avatar">
       {% if avatar_url %}
@@ -35,7 +33,7 @@
         {% if profile.profile_website_url %}<a href="{{ profile.profile_website_url }}" target="_blank" rel="noopener" class="user-profile-meta-item user-profile-website-link">🔗 {{ profile.profile_website_url|truncatechars:30 }}</a>{% endif %}
       </div>
       <div class="user-profile-stats">
-        <span class="user-profile-stat"><strong>{{ post_count }}</strong> পোস্ট</span>
+        <span class="user-profile-stat"><strong>{{ article_count }}</strong> নিবন্ধ</span>
         <a href="/social/@{{ profile.username_handle }}/followers/" class="user-profile-stat user-profile-stat-link" id="user-profile-stat-followers" name="user_profile_stat_followers"><strong>{{ follower_count }}</strong> অনুসরণকারী</a>
         <a href="/social/@{{ profile.username_handle }}/following/" class="user-profile-stat user-profile-stat-link" id="user-profile-stat-following" name="user_profile_stat_following"><strong>{{ following_count }}</strong> অনুসরণ করছেন</a>
       </div>
@@ -47,9 +45,6 @@
         <button type="button" class="user-profile-follow-button{% if user_following %} user-profile-follow-button-active{% endif %}" id="user-profile-follow-button" name="user_profile_follow_button" data-user-profile-id="{{ profile.user_profile_id }}">
           {% if user_following %}Following{% else %}Follow{% endif %}
         </button>
-        <button type="button" class="user-profile-block-button{% if user_blocked %} user-profile-block-button-active{% endif %}" id="user-profile-block-button" name="user_profile_block_button" data-user-profile-id="{{ profile.user_profile_id }}">
-          {% if user_blocked %}Unblock{% else %}Block{% endif %}
-        </button>
       </div>
       {% endif %}
       {% if is_own_profile %}
@@ -60,30 +55,30 @@
 
   {% comment %}Profile Tabs — Posts vs Articles{% endcomment %}
   <div class="user-profile-tabs" id="user-profile-tabs">
-    <a href="/social/@{{ profile.username_handle }}/" class="user-profile-tab user-profile-tab-active" id="user-profile-tab-posts" name="user_profile_tab_posts">পোস্ট</a>
-    <a href="/social/@{{ profile.username_handle }}/articles/" class="user-profile-tab" id="user-profile-tab-articles" name="user_profile_tab_articles">নিবন্ধ</a>
+    <a href="/social/@{{ profile.username_handle }}/" class="user-profile-tab" id="user-profile-tab-posts" name="user_profile_tab_posts">পোস্ট</a>
+    <a href="/social/@{{ profile.username_handle }}/articles/" class="user-profile-tab user-profile-tab-active" id="user-profile-tab-articles" name="user_profile_tab_articles">নিবন্ধ</a>
   </div>
 
-  {% comment %}Posts Feed{% endcomment %}
-  <div class="user-profile-posts-section">
-    <h2 class="user-profile-posts-title">পোস্ট</h2>
-    <div class="user-profile-posts-feed" id="user-profile-posts-feed">
-      {% for post_item in posts %}
-        {% include "post/components/post-card.html" with post_item=post_item %}
-      {% empty %}
-        <div class="user-profile-posts-empty">এখনো কোনো পোস্ট নেই</div>
-      {% endfor %}
-    </div>
+  {% comment %}Articles List{% endcomment %}
+  <div class="user-profile-articles-section" id="user-profile-articles-section">
+    {% for article in articles %}
+    <a href="/newshub/article/{{ article.pub_article_slug }}/" class="user-profile-article-card" id="user-profile-article-card-{{ article.pub_article_id }}" name="user_profile_article_card_{{ article.pub_article_id }}">
+      <div class="user-profile-article-card-meta">
+        {% if article.form_name_bn %}<span class="user-profile-article-card-badge">{{ article.form_name_bn }}</span>{% endif %}
+        {% if article.news_category_name_bn %}<span class="user-profile-article-card-category">{{ article.news_category_name_bn }}</span>{% endif %}
+      </div>
+      <h3 class="user-profile-article-card-title">{{ article.pub_article_headline_bn }}</h3>
+      {% if article.news_summary_bn %}<p class="user-profile-article-card-summary">{{ article.news_summary_bn|truncatewords:25 }}</p>{% endif %}
+      {% if article.published_at %}<time class="user-profile-article-card-date">{{ article.published_at|date:"d M Y" }}</time>{% endif %}
+    </a>
+    {% empty %}
+    <div class="user-profile-articles-empty" id="user-profile-articles-empty">এখনো কোনো নিবন্ধ প্রকাশিত হয়নি</div>
+    {% endfor %}
   </div>
 
 </div>
-
-{% include "core/components/photo-lightbox.html" %}
-
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
-<script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}" defer></script>
 <script src="{% static 'social/assets/js/pages/user-profile.js' %}" defer></script>
 {% endblock %}

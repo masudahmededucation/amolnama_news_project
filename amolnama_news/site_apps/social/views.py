@@ -117,6 +117,108 @@ def public_profile(request, username_handle):
     })
 
 
+def public_profile_articles(request, username_handle):
+    """View a user's published articles — articles-only profile page."""
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from .models import UserFollow, UserBlock
+
+    profile = UserProfile.objects.filter(username_handle=username_handle).first()
+    if not profile:
+        return render(request, 'social/pages/user-profile-not-found.html', {
+            'username_handle': username_handle,
+            'seo': {'title': 'প্রোফাইল পাওয়া যায়নি', 'noindex': True},
+        })
+
+    # Get avatar
+    from amolnama_news.site_apps.core.utils import get_user_avatar_url
+    avatar_url = get_user_avatar_url(profile)
+
+    # Follower/following counts
+    follower_count = UserFollow.objects.filter(
+        link_following_user_profile_id=profile.user_profile_id, is_active=True,
+    ).count()
+    following_count = UserFollow.objects.filter(
+        link_follower_user_profile_id=profile.user_profile_id, is_active=True,
+    ).count()
+
+    # Current user state
+    current_user_profile_id = None
+    is_own_profile = False
+    user_following = False
+    user_blocked = False
+    if request.user.is_authenticated:
+        try:
+            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            current_user_profile_id = current_profile.user_profile_id
+            is_own_profile = current_user_profile_id == profile.user_profile_id
+            if not is_own_profile:
+                user_following = UserFollow.objects.filter(
+                    link_follower_user_profile_id=current_user_profile_id,
+                    link_following_user_profile_id=profile.user_profile_id,
+                    is_active=True,
+                ).exists()
+                user_blocked = UserBlock.objects.filter(
+                    link_blocker_user_profile_id=current_user_profile_id,
+                    link_blocked_user_profile_id=profile.user_profile_id,
+                    is_active=True,
+                ).exists()
+        except UserProfile.DoesNotExist:
+            pass
+
+    # Fetch published articles by this user
+    import logging
+    logger = logging.getLogger(__name__)
+    articles = []
+    try:
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT pa.pub_article_id, pa.pub_article_headline_bn, pa.pub_article_slug,
+                       pa.published_at, ne.news_summary_bn,
+                       ft.form_name_bn, nc.news_category_name_bn
+                FROM [newshub].[pub_article] pa
+                JOIN [newshub].[coll_news_entry] ne ON pa.link_news_entry_id = ne.newshub_coll_news_entry_id
+                JOIN [newshub].[contributor] c ON ne.link_contributor_id = c.newshub_contributor_id
+                LEFT JOIN [newshub].[ref_form_type] ft ON ne.link_form_type_id = ft.ref_form_type_id
+                LEFT JOIN [newshub].[ref_news_category] nc ON ne.link_news_category_id = nc.ref_news_category_id
+                WHERE c.link_user_profile_id = %s
+                  AND pa.is_published = 1
+                  AND ne.is_active = 1
+                ORDER BY pa.published_at DESC
+            """, [profile.user_profile_id])
+            columns = [col[0] for col in cursor.description]
+            articles = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    except Exception as articles_query_error:
+        logger.error('Articles profile query failed for user %s — %s',
+                     profile.user_profile_id, articles_query_error)
+
+    # Article count
+    article_count = len(articles)
+
+    return render(request, 'social/pages/user-profile-articles.html', {
+        'profile': profile,
+        'avatar_url': avatar_url,
+        'follower_count': follower_count,
+        'following_count': following_count,
+        'article_count': article_count,
+        'is_own_profile': is_own_profile,
+        'user_following': user_following,
+        'user_blocked': user_blocked,
+        'articles': articles,
+        'active_profile_tab': 'articles',
+        'seo': {
+            'title': f'{profile.display_name or username_handle} — নিবন্ধ | আমলনামা নিউজ',
+            'description': f'{profile.display_name or username_handle} এর প্রকাশিত সংবাদ ও নিবন্ধ',
+            'noindex': False,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': profile.display_name or username_handle, 'url': f'/social/@{username_handle}/'},
+                {'name': 'নিবন্ধ'},
+            ],
+        },
+    })
+
+
 @login_required
 def lists_page(request):
     """User's lists — create, manage, view list members."""

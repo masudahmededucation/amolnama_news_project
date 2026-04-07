@@ -48,3 +48,108 @@
   .user-profile-message-button { min-height: 44px; }
   .user-profile-meta { justify-content: center; }
 }
+
+
+/* ---- Profile Tabs (Posts / Articles) ---- */
+
+.user-profile-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.user-profile-tab {
+  flex: 1;
+  padding: .75rem 1rem;
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+
+.user-profile-tab:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.user-profile-tab-active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+
+/* ---- Article Cards (articles profile tab) ---- */
+
+.user-profile-articles-section {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.user-profile-article-card {
+  display: block;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.user-profile-article-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  text-decoration: none;
+}
+
+.user-profile-article-card-meta {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  margin-bottom: .35rem;
+}
+
+.user-profile-article-card-badge {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.user-profile-article-card-category {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.user-profile-article-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 .25rem;
+}
+
+.user-profile-article-card-summary {
+  font-size: .85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 .35rem;
+}
+
+.user-profile-article-card-date {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.user-profile-articles-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
