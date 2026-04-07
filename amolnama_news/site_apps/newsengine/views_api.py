@@ -328,3 +328,40 @@ def api_link_preview(request):
         'image': og_data.get('image', ''),
         'url': target_url,
     })
+
+
+# =========================================================
+# RELATED CONTENT (cache-first + background compute on miss)
+# =========================================================
+
+def api_related_content(request):
+    """GET /newsengine/api/related-content/?type=post&id=123&text=...
+    Returns cached related content. If cache miss and text provided,
+    triggers background compute and returns [] immediately."""
+    content_type_code = request.GET.get('type', '')
+    content_id = request.GET.get('id', '')
+    text = request.GET.get('text', '')
+
+    if not content_type_code or not content_id:
+        return JsonResponse({'success': False, 'error': 'Missing type or id'}, status=400)
+
+    try:
+        content_id = int(content_id)
+    except (ValueError, TypeError):
+        return JsonResponse({'success': False, 'error': 'Invalid id'}, status=400)
+
+    from amolnama_news.site_apps.newsengine.related_content import (
+        get_cached_related_content,
+        compute_and_cache_related_content_background,
+    )
+
+    cached_items = get_cached_related_content(content_type_code, content_id)
+
+    if cached_items:
+        return JsonResponse({'success': True, 'items': cached_items})
+
+    # Cache miss — trigger background compute if text provided
+    if text and len(text) >= 10:
+        compute_and_cache_related_content_background(content_type_code, content_id, text)
+
+    return JsonResponse({'success': True, 'items': []})

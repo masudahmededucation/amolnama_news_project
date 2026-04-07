@@ -461,6 +461,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
             dest.destination_description_bn or dest.destination_name_bn or '',
             'destination', dest.bangladesh_coll_destination_id, limit=5,
         ),
+        "related_content_api_url": f'/newsengine/api/related-content/?type=destination&id={dest.bangladesh_coll_destination_id}',
         "seo": {
             "title": f"{title} — ভ্রমণ কেন্দ্র | Travel Hub",
             "description": seo_description_clean,

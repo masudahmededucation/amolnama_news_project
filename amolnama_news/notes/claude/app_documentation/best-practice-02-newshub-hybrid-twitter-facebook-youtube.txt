@@ -1,0 +1,109 @@
+================================================================================
+BEST PRACTICE 02: NEWSHUB — HYBRID OF TWITTER, FACEBOOK, YOUTUBE
+================================================================================
+
+Source: Gemini research (2026-04-07)
+Status: MANDATORY — the architecture blueprint for the platform.
+
+================================================================================
+1. THE ARCHITECTURE: "The Feed Engine"
+================================================================================
+
+A hybrid app lives or dies by its feed. Need FAN-OUT architecture.
+
+- Write-Path (Twitter Model): Power user (100k+ followers) posts — don't update
+  100k feeds instantly. Put post in Global Cache. When follower opens app, "pull"
+  that post into their view.
+
+- Hybrid Storage Strategy:
+  * Text/Metadata: NoSQL for sub-millisecond lookups (we use SQL Server)
+  * Social Graph: Graph Database for "Friends of Friends", "People you may know"
+    (we use MS SQL Graph tables in newsengine)
+  * Video: Object Store + Video Infrastructure for auto-transcoding
+    (we use local storage + FFmpeg HLS transcoder)
+
+Current status: Fan-out YES (feed_fanout.py). Graph YES (interest_graph.py).
+  Video transcoding YES (video_transcoder.py).
+
+================================================================================
+2. CSS & UI: "The 60FPS Rule"
+================================================================================
+
+Social apps are scroll-heavy. Any jank during scroll = users leave.
+
+- Virtual Lists: NEVER render 1,000 posts at once. Use "Windowing" to only
+  render the 5-10 posts currently on screen.
+- Container Queries: Components adapt to their sidebar/feed position using
+  @container queries, not viewport @media queries.
+- Skeleton Screens: No loading spinners. CSS-based skeleton pulses matching
+  post layout. Lowers Perceived Wait Time.
+
+Current status: Virtual scrolling YES (virtual-scroll.js). Skeleton YES (loading.css).
+  Container queries NEED TO CHECK.
+
+================================================================================
+3. JAVASCRIPT & AJAX: "The Real-Time Pulse"
+================================================================================
+
+- WebSockets (Twitter Secret): For "Breaking News" feel. Server pushes alerts.
+  Don't poll every 5 seconds.
+- Optimistic UI: When user Likes/Comments, update UI INSTANTLY before AJAX
+  finishes. If server fails, roll back. App feels "lightning fast."
+- Server-Side Rendering: Fetch initial feed data on server. User sees content
+  before a single byte of JS executes.
+
+Current status: WebSockets YES (consumers.py). Optimistic UI YES (post-feed-interactions.js).
+  SSR YES (Django templates).
+
+================================================================================
+4. VIDEO (The YouTube Element)
+================================================================================
+
+- HLS/DASH Streaming: NEVER serve raw .mp4. Adaptive bitrate — 3G user gets 360p,
+  5G user gets 4K seamlessly.
+- Intersection Observer: Auto-play when 50% visible. Immediately pause and
+  garbage collect video memory when scrolled away.
+
+Current status: HLS transcoding YES (video_transcoder.py). IntersectionObserver YES.
+
+================================================================================
+5. SEO & DISCOVERY (The Growth Engine)
+================================================================================
+
+- JSON-LD Structured Data: Every news post in NewsArticle schema.
+  Appear in Google News + AI Search Overviews.
+- Dynamic Metadata: Every post must have unique OpenGraph tags (og:image, og:title)
+  so shared links look beautiful on Twitter/Facebook.
+- "Grok-Style" Algorithm: Vector Embeddings. Instead of keyword "Apple",
+  understand concept "Tech Stocks" and show to interested users.
+
+Current status: JSON-LD YES (seo_tags.py). OpenGraph YES. Vector embeddings YES (embeddings.py).
+
+================================================================================
+COMPARISON: LEGACY vs 2026 GOLD STANDARD
+================================================================================
+
+| Feature Type    | Legacy Approach       | 2026 Gold Standard              |
+|-----------------|-----------------------|---------------------------------|
+| Feed Loading    | Client-side Fetch     | Server-Streaming (SSR)          |
+| Updates         | Refresh Page          | WebSocket Pushes                |
+| Styling         | Bulk CSS File         | Atomic CSS + Critical Inline    |
+| SEO             | Meta Keywords         | JSON-LD Schema + AI-Readability |
+| Video           | HTML5 <video>         | Adaptive Bitrate (HLS/DASH)     |
+
+================================================================================
+CRITICAL METRIC: INP (Interaction to Next Paint)
+================================================================================
+
+Google prioritizes INP for social apps. If user taps "Comment" and keyboard
+takes 300ms to pop up because JS is busy, SEO ranking drops.
+Keep main-thread work under 200ms at all costs.
+
+================================================================================
+CURRENT GAPS
+================================================================================
+
+- Related content CACHE — raw compute every page view, NO CACHE
+- Embedding matrix in-memory cache — reloads all vectors from DB every request
+- Redis cache backend — not configured
+- Container queries — need to verify

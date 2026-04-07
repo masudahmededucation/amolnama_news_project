@@ -569,6 +569,7 @@ def post_detail(request, post_post_id):
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,
         'related_content_items': related_content_items,
+        'related_content_api_url': f'/newsengine/api/related-content/?type=post&id={post_post_id}',
         'seo': {
             'title': og_title,
             'description': og_description,

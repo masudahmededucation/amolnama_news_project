@@ -1,0 +1,90 @@
+================================================================================
+BEST PRACTICE 04: DOUBLE FLASH / FOUC PREVENTION
+================================================================================
+
+Source: Gemini research (2026-04-07)
+Status: MANDATORY — applies to ALL SPA navigation transitions.
+
+================================================================================
+THE ROOT CAUSE: "The Baton Pass"
+================================================================================
+
+When loading a page, two engines try to draw UI and aren't synced:
+
+1. First Flash (Django): Django sends raw HTML. If CSS is external, browser
+   shows unstyled HTML for a split second before CSS arrives.
+2. Second Flash (SPA/JS): Once page is visible, JavaScript kicks in. It clears
+   what Django rendered and re-paints with SPA components.
+
+If Django HTML and SPA Component don't match 100% in structure, browser deletes
+the old one and snaps the new one in — visible "jump" or flicker.
+
+================================================================================
+SOLUTION A: "Hidden Attribute" Trick (Our approach)
+================================================================================
+
+Prevent browser from showing ANYTHING until SPA is ready to take over.
+
+Implementation in spa-navigation.js:
+
+Step 1: HIDE content INSTANTLY
+  - Disable CSS transition so opacity jumps to 0 (no animation delay)
+  - mainElement.style.transition = 'none';
+  - mainElement.style.opacity = '0';
+
+Step 2: FORCE REFLOW
+  - void mainElement.offsetHeight;
+  - Browser commits opacity:0 before we swap content
+
+Step 3: SWAP content (guaranteed hidden)
+  - mainElement.innerHTML = newMain.innerHTML;
+
+Step 4-8: Update title, URL, sidebar, load JS, scroll position
+
+Step 9: REVEAL only after CSS is ready
+  - Re-enable transition: mainElement.style.transition = 'opacity .15s ease';
+  - Set opacity to 1: mainElement.style.opacity = '1';
+  - Race: CSS load promise vs 500ms timeout (never leave page invisible)
+
+Current status: FULLY IMPLEMENTED in spa-navigation.js.
+
+================================================================================
+SOLUTION B: Match Initial State (Hydration Fix)
+================================================================================
+
+Don't make AJAX call for user's name/feed on page load.
+
+- Inject data into HTML:
+  <script id="initial-data" type="application/json">
+      {{ user_data_json|safe }}
+  </script>
+
+- SPA reads this <script> tag immediately upon boot.
+- If data is there instantly, SPA won't show a "loading" flash.
+
+Current status: IMPLEMENTED — Django views embed initial data in templates.
+
+================================================================================
+SOLUTION C: CSS Visibility Cloak
+================================================================================
+
+In base.html critical inline CSS:
+
+  [v-cloak], [data-loading] { display: none; }
+
+Hide body instantly, let SPA mount, then reveal finished product.
+
+Current status: Critical inline CSS in base.html (lines 39-46) includes
+  visibility cloak for first contentful paint.
+
+================================================================================
+RULES (NEVER BREAK)
+================================================================================
+
+1. NEVER set CSS transition BEFORE hiding — causes visible fade-out
+2. ALWAYS force reflow (void element.offsetHeight) between hide and swap
+3. ALWAYS use opacity (not display:none) — preserves layout dimensions
+4. ALWAYS race CSS load with timeout — never leave page invisible forever
+5. ALWAYS disable transition when hiding, enable only on reveal
+6. Content containers use HTML hidden attribute until ready
+7. Match Django HTML structure with JS-rendered structure exactly

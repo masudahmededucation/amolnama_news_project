@@ -195,6 +195,7 @@ def detail(request, story_slug):
             story.story_title_bn or story.story_summary_bn or '',
             'story', story.story_coll_story_id, limit=5,
         ),
+        'related_content_api_url': f'/newsengine/api/related-content/?type=story&id={story.story_coll_story_id}',
         'seo': {
             'title': f'{story.story_title_bn} — গল্পের ঝুলি | আমলনামা নিউজ',
             'description': (story.story_summary_bn or story.story_title_bn)[:200],

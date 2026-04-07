@@ -1545,6 +1545,7 @@ def article_detail(request, slug):
             published_article.pub_article_headline_bn or published_article.pub_article_body_bn or '',
             'article', published_article.pub_article_id, limit=5,
         ),
+        'related_content_api_url': f'/newsengine/api/related-content/?type=article&id={published_article.pub_article_id}',
         'seo': seo_context,
     }
     return render(request, 'newshub/pages/article-detail.html', context)

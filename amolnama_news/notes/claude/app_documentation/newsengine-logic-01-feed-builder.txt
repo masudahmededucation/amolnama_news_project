@@ -1,0 +1,46 @@
+================================================================================
+NEWSENGINE LOGIC 01: FEED BUILDER (feed_builder.py)
+================================================================================
+
+Role: Assembles the complete home feed — posts + promos + ranking + dedup + filtering.
+Type: Feed Assembly
+Independent: YES — calls ranking.py, promo_builders.py, personalization.py but does not modify them.
+
+================================================================================
+FUNCTIONS
+================================================================================
+
+build_home_feed(request, user_profile_id, tab)
+  - Routes to tab handlers: my_posts, following, for_you
+  - for_you tab calls _build_intelligent_feed()
+
+_build_intelligent_feed(user_profile_id, page, page_size)
+  - 7-step pipeline:
+    1. Inject promo cards (published items + random boost)
+    2. Apply content ranking (sort posts by score)
+    3. Apply personalization boost (user interest profile)
+    4. Apply user feed preferences (hide categories user turned off)
+    5. Remove viewed content (read history, last 200)
+    6. Exclude blocked users
+    7. Deduplicate (same content as published + boost)
+
+_inject_promo_cards(feed_items)
+  - Places 3 promos at random positions
+  - Rotates categories
+  - Respects user preferences
+
+_exclude_viewed_content(feed_items, user_profile_id)
+_deduplicate_feed(feed_items)
+_filter_by_category(feed_items, category)
+_exclude_blocked_users(feed_items, user_profile_id)
+_exclude_muted_words(feed_items, user_profile_id)
+_apply_user_feed_preferences(feed_items, user_profile_id)
+_auto_publish_scheduled_posts()
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+Calls: ranking.py, promo_builders.py, personalization.py
+Called by: core/views.py (home feed), newsengine/views_api.py (paginated feed API)
+DB: [newsengine].[fact_user_content_view], [account].[user_profile]

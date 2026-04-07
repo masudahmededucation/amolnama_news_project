@@ -171,50 +171,19 @@ def build_actions_bar_author_context(author_user_profile_id, request):
 
 
 def build_related_content_items(text, content_type_code, content_id, limit=5):
-    """Find semantically similar content using vector embeddings.
-    Returns list of dicts ready for the related-content.html template.
+    """Return related content from newsengine cache. Instant — single DB read.
 
-    Falls back to empty list if embeddings not available or no matches.
+    Cache miss returns [] so page renders immediately without blocking.
+    Background compute is triggered separately on content create/update.
 
     Usage in views:
         from core.utils import build_related_content_items
         related = build_related_content_items(post_text, 'post', post_id)
         context['related_content_items'] = related
     """
-
-    CONTENT_TYPE_LABELS = {
-        'post': 'পোস্ট',
-        'poem': 'কবিতা',
-        'story': 'গল্প',
-        'art': 'শিল্পকলা',
-        'article': 'নিবন্ধ',
-        'debate': 'বিতর্ক',
-        'destination': 'ভ্রমণ',
-    }
-
     try:
-        from amolnama_news.site_apps.newsengine.embeddings import find_similar_content_cross_type
-        similar_items = find_similar_content_cross_type(
-            text, limit=limit,
-            exclude_type=content_type_code, exclude_id=content_id,
-        )
-
-        if not similar_items:
-            return []
-
-        # Enrich with actual titles and URLs
-        results = []
-        for item in similar_items:
-            item_type = item['content_type_code']
-            item_id = item['content_id']
-            enriched = _enrich_related_content_item(item_type, item_id)
-            if enriched:
-                enriched['content_type_label'] = CONTENT_TYPE_LABELS.get(item_type, item_type)
-                enriched['similarity'] = item['similarity']
-                results.append(enriched)
-
-        return results
-
+        from amolnama_news.site_apps.newsengine.related_content import get_cached_related_content
+        return get_cached_related_content(content_type_code, content_id)
     except Exception as related_error:
         logger.error('build_related_content_items failed for %s:%s — %s',
                      content_type_code, content_id, related_error)

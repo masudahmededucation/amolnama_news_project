@@ -373,3 +373,22 @@ class FactUserDwellTimeLog(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[fact_user_dwell_time_log]'
+
+
+# =========================================================
+# GROUP: related_content_cache_
+# =========================================================
+
+class FactRelatedContentCache(models.Model):
+    """Pre-computed related content for each content item — avoids
+    expensive vector similarity compute on every page view."""
+    fact_related_content_cache_id = models.BigAutoField(primary_key=True)
+    content_type_code = models.CharField(max_length=50)
+    content_id = models.BigIntegerField()
+    related_items_json = models.TextField()
+    computed_at = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[fact_related_content_cache]'

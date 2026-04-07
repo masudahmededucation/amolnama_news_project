@@ -1,0 +1,103 @@
+================================================================================
+NEWSENGINE LOGIC 19: RELATED CONTENT CACHE (related_content.py)
+================================================================================
+
+Role: Pre-compute and cache semantically related content for every content item.
+      Pages read cached results instantly (single DB read) instead of running
+      expensive vector similarity on every page view.
+Type: Cache + Background Compute
+Independent: YES — reads from embeddings.py but does not modify it.
+
+================================================================================
+PROBLEM SOLVED
+================================================================================
+
+Before: build_related_content_items() ran on every page view:
+  1. Load sentence-transformer model (~3-5s first time)
+  2. Encode text to 384-dim vector
+  3. Fetch ALL embeddings from DB
+  4. JSON.parse every vector
+  5. Compute cosine similarity via numpy
+  6. 5 separate SQL queries to enrich results
+  Total: 2-5 seconds blocking page render
+
+After: Single DB read from fact_related_content_cache
+  Total: < 10ms
+
+================================================================================
+FUNCTIONS
+================================================================================
+
+get_cached_related_content(content_type_code, content_id)
+  - Reads from [newsengine].[fact_related_content_cache]
+  - If cache exists and < 24h old → return cached JSON instantly
+  - Cache miss → return [] (page renders immediately, no blocking)
+
+compute_and_cache_related_content(content_type_code, content_id, text, limit=5)
+  - Heavy operation — background thread ONLY
+  - Calls find_similar_content_cross_type() from embeddings.py
+  - Enriches with titles/URLs via _enrich_related_content_item()
+  - Writes result to cache table (MERGE upsert)
+
+compute_and_cache_related_content_background(content_type_code, content_id, text)
+  - Background thread wrapper — fire and forget
+
+invalidate_related_content_cache(content_type_code, content_id)
+  - Soft-delete cache row (is_active=0)
+  - Call when content is updated or deleted
+
+_write_cache(content_type_code, content_id, related_items)
+  - MERGE upsert — insert or update existing cache row
+
+_enrich_related_content_item(content_type_code, content_id)
+  - Fetches title, URL, author from source table
+  - Data-driven config via _ENRICHMENT_MAP
+
+================================================================================
+DATA FLOW
+================================================================================
+
+On post/article CREATE:
+  post/views_api.py → compute_and_cache_related_content_background()
+  → background thread computes similarity + writes cache
+
+On page VIEW:
+  view → build_related_content_items() → get_cached_related_content()
+  → single DB read → return cached items OR []
+
+On cache MISS (page view):
+  Template renders section with hidden attribute
+  → related-content-loader.js fetches /newsengine/api/related-content/
+  → API checks cache, triggers background compute if needed
+  → returns items or [] (page already rendered, no blocking)
+
+================================================================================
+FILES
+================================================================================
+
+Python:  newsengine/related_content.py (logic)
+Model:   newsengine/models.py → FactRelatedContentCache
+API:     newsengine/views_api.py → api_related_content()
+URL:     GET /newsengine/api/related-content/?type=post&id=123
+JS:      core/assets/js/components/related-content-loader.js
+HTML:    core/components/related-content.html (updated with hidden + data-api-url)
+DB:      [newsengine].[fact_related_content_cache]
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+Reads: newsengine/embeddings.py (find_similar_content_cross_type)
+Called by: core/utils.py (build_related_content_items), post/views_api.py (on create)
+Used on: 5 detail pages (post, article, story, art, destination)
+Does NOT touch: poem (uses own get_smart_related_poems)
+
+================================================================================
+CACHE STRATEGY
+================================================================================
+
+TTL: 24 hours (RELATED_CONTENT_CACHE_MAX_AGE_HOURS)
+Invalidation: explicit via invalidate_related_content_cache()
+Warm: background compute on content create
+Cold: JS lazy-loader fetches from API, triggers background compute
+Storage: NVARCHAR(MAX) JSON array of enriched items

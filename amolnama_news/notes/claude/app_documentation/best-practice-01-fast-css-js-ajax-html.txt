@@ -1,0 +1,89 @@
+================================================================================
+BEST PRACTICE 01: HOW TO MAKE CSS/JS/AJAX/HTML FASTER
+================================================================================
+
+Source: Gemini research (2026-04-07)
+Status: MANDATORY — apply to ALL new features and pages.
+
+================================================================================
+1. HTML: "The Shell" (Server-Side Magic)
+================================================================================
+
+- Streaming SSR: Stream HTML to user bit by bit. User sees header/layout
+  instantly while slower data is still being fetched.
+- Edge Rendering: Deploy code closer to user (CDN edge) to cut TTFB by 50%+.
+
+Current status: Django SSR renders full HTML. No streaming. No edge rendering.
+
+================================================================================
+2. CSS: "The Paint" (Zero Blocking)
+================================================================================
+
+CSS is render-blocking. Browser won't show a pixel until CSS is downloaded + parsed.
+
+- Critical CSS Pattern:
+  * INLINE: Put above-the-fold CSS (header, hero, first paragraph) in <style> in <head>
+  * EXTERNAL: Load rest with rel="preload" or media="print" onload="this.media='all'"
+- Purge and Minify: Delete every CSS line not actually used. Target < 20kb.
+
+Current status: Critical inline CSS in base.html (lines 39-46). YES.
+
+================================================================================
+3. JavaScript: "The Brain" (Lazy is Better)
+================================================================================
+
+Too much JS causes INP (Interaction to Next Paint) failures.
+
+- defer and async: NEVER use plain <script>. Use defer so script downloads
+  in background and runs after HTML is parsed.
+- Island Architecture: Only send JS for components that NEED it. Static text
+  and images should have ZERO JS attached.
+- Speculation Rules API: Prerender next page before user clicks.
+
+  <script type="speculationrules">
+  {
+    "prerender": [{
+      "where": { "href_matches": "/product/*" },
+      "eagerness": "moderate"
+    }]
+  }
+  </script>
+
+  When user hovers over link for 200ms, browser loads page in hidden tab.
+  Click = instant.
+
+Current status: defer on all scripts YES. Speculation rules YES. Code split by form type YES.
+
+================================================================================
+4. AJAX / Data: "The Content" (Smart Syncing)
+================================================================================
+
+- Fetch Priority: fetchpriority="high" on most important data calls / hero images.
+- HTTP/3 (QUIC): Server config — handles multiple AJAX requests faster.
+- Brotli Compression: Always Brotli instead of Gzip. Better at squashing text/JSON/HTML.
+
+Current status: fetchpriority YES (5 templates). Brotli PARTIAL. HTTP/3 NOT CONFIGURED.
+
+================================================================================
+PROFESSIONAL PERFORMANCE CHECKLIST
+================================================================================
+
+| Strategy       | Action                                              | Impact                        |
+|----------------|-----------------------------------------------------|-------------------------------|
+| Caching        | CDN (Cloudflare/Akamai) for all CSS/JS              | Latency < 50ms               |
+| Fonts          | font-display: swap + host fonts locally              | No invisible text while load  |
+| Images         | AVIF format + loading="lazy"                         | 50% smaller than JPEG         |
+| Minification   | Terser for JS, Lightning CSS for styles              | Remove all whitespace/comments|
+
+Current gaps:
+- font-display: swap — NOT IMPLEMENTED
+- Redis cache backend — NOT IMPLEMENTED
+- AVIF images — NOT IMPLEMENTED
+- Brotli explicit config — PARTIAL
+
+================================================================================
+THE GOLD STANDARD VERDICT
+================================================================================
+
+Fastest apps send a tiny, highly-optimized HTML shell with inlined critical CSS,
+then use Speculation Rules API to stay one step ahead of the user's next move.

@@ -1,0 +1,41 @@
+================================================================================
+NEWSENGINE LOGIC 02: PROMO BUILDERS (promo_builders.py)
+================================================================================
+
+Role: Collects published content from ALL 7 apps + tools catalog for feed injection.
+Type: Content Collection
+Independent: YES — pure data fetchers, no side effects.
+
+================================================================================
+FUNCTIONS
+================================================================================
+
+build_all_promo_items()
+  - Orchestrates 7 builders + tools catalog
+  - Returns unified list of promo dicts
+
+build_promotional_boost_items()
+  - Selects 2 per category for re-surfacing lower in feed
+
+_build_newshub_promo_items() — published articles with linked news entries
+_build_poem_promo_items() — published poems
+_build_stories_promo_items() — published stories with reading time
+_build_art_promo_items() — published artworks
+_build_travel_promo_items() — published destinations
+_build_tools_promo_items() — 2 random tools from static TOOLS_CATALOG (10 tools)
+
+================================================================================
+TOOLS CATALOG (static)
+================================================================================
+
+10 tools: spell checker, file converter, text extractor, image compressor,
+          PDF tools, QR generator, color picker, unit converter,
+          password generator, lorem ipsum
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+Calls: Django ORM on poem, story, art, bangladesh, debate, newshub models
+Called by: feed_builder.py (_inject_promo_cards)
+DB: Multiple app tables (read-only queries)

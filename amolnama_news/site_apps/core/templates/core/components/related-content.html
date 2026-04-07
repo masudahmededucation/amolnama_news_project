@@ -1,9 +1,9 @@
 {# Shared related content section — shows semantically similar content from any app.
-   Context: related_content_items (list of dicts with: title, url, content_type_label, similarity) #}
-{% if related_content_items %}
-<section class="related-content-section" id="related-content-section">
+   Context: related_content_items (list of dicts with: title, url, content_type_label, similarity)
+            related_content_api_url (optional — for JS lazy-load on cache miss) #}
+<section class="related-content-section" id="related-content-section"{% if not related_content_items %} hidden{% endif %}{% if related_content_api_url %} data-api-url="{{ related_content_api_url }}"{% endif %}>
   <h2 class="related-content-title">সম্পর্কিত বিষয়বস্তু (Related Content)</h2>
-  <div class="related-content-list">
+  <div class="related-content-list" id="related-content-list">
     {% for related_item in related_content_items %}
     <a href="{{ related_item.url }}" class="related-content-item" id="related-content-item-{{ forloop.counter }}" name="related_content_item_{{ forloop.counter }}">
       <span class="related-content-item-type">{{ related_item.content_type_label }}</span>
@@ -13,4 +13,3 @@
     {% endfor %}
   </div>
 </section>
-{% endif %}

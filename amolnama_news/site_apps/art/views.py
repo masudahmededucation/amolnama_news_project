@@ -231,6 +231,7 @@ def detail(request, artwork_slug):
             artwork.artwork_title_bn or artwork.artwork_description_bn or '',
             'art', artwork.art_coll_artwork_id, limit=5,
         ),
+        'related_content_api_url': f'/newsengine/api/related-content/?type=art&id={artwork.art_coll_artwork_id}',
         'seo': {
             'title': f'{artwork.artwork_title_bn} — শিল্পকলা | আমলনামা নিউজ',
             'description': (artwork.artwork_description_bn or artwork.artwork_title_bn)[:200],

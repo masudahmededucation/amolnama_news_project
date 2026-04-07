@@ -1,0 +1,83 @@
+================================================================================
+BEST PRACTICE 03: SPA APPROACH — 98% SPA + DJANGO ROUTING
+================================================================================
+
+Source: Gemini research (2026-04-07)
+Status: MANDATORY — the navigation architecture for the platform.
+
+Our stack: Django + vanilla JS + WhiteNoise + SQL Server (no React/Vue/Node.js)
+
+================================================================================
+1. THE "HYBRID DECOUPLED" PATTERN
+================================================================================
+
+98% SPA experience (no page reloads) with Django handling SEO + routing.
+Django stays in control of state. User gets SPA fluidity.
+
+- Django urls.py + views.py = controller
+- Django templates = initial HTML (SSR)
+- spa-navigation.js = SPA navigation (only <main> swaps)
+- Sidebar, header, footer NEVER re-render
+
+Current status: IMPLEMENTED via spa-navigation.js.
+
+================================================================================
+2. SEO STRATEGY: "The Ghost Shell"
+================================================================================
+
+Standard SPAs are bad for SEO — Google sees blank page before JS runs.
+
+- SSR: Django pre-renders full HTML. Bots see complete content.
+- Meta Tag Injection: Django injects <title>, og:image, JSON-LD into raw HTML
+  before SPA boots up.
+- Sitemap Generation: Django's built-in sitemaps for all dynamic content.
+
+Current status: SSR YES. Meta tags YES (seo_tags.py). Sitemaps YES.
+
+================================================================================
+3. FILE ROUTING & ASSET DELIVERY
+================================================================================
+
+- Code Splitting: Don't send "Video Player" code to text-only page.
+  Use dynamic imports so browser only downloads features when needed.
+- Hashed filenames: For cache busting in production.
+
+Current status: Code split by form type YES (helpers.py maps form_type -> script list).
+
+================================================================================
+4. PERFORMANCE: "The Big Three"
+================================================================================
+
+- Persistent Layouts: Sidebar and nav NEVER re-render. Scroll position preserved.
+  SPA uses layout that wraps dynamic content only.
+- Prefetching: rel="prefetch" for next page in feed. While user reads Post A,
+  already downloading data for Post B in background.
+- Brotli & CDN: Serve JS/CSS using Brotli compression. CDN caches static shell
+  at edge (closer to user).
+
+Current status: Persistent layout YES. Prefetching YES (spa-navigation.js prefetchCache).
+  Brotli PARTIAL. CDN for third-party YES.
+
+================================================================================
+5. DATA FLOW (AJAX/Fetch)
+================================================================================
+
+- CSRF Protection: Pass X-CSRFToken header with every fetch. Store in cookie,
+  read via JS.
+- Hydration / Initial Data: When page first loads, DON'T make extra AJAX call
+  for profile data. EMBED it as JSON in <script id="initial-data"> tag.
+  Saves one full network round-trip.
+
+Current status: CSRF YES (csrf-token.js). Initial data embed YES.
+
+================================================================================
+WHAT DOES NOT APPLY TO OUR STACK
+================================================================================
+
+- Inertia.js, Next.js, Remix — require React/Vue, we use vanilla JS
+- Vite / webpack / build tools — we serve JS directly, no bundling
+- SSR with Node.js — Django already does server-side rendering
+- Island Architecture — React concept
+- Tailwind / Lightning CSS — we have our own CSS architecture
+- HTTP/3 — server/hosting config, not application code
+- Edge rendering — requires Vercel/Cloudflare Workers
