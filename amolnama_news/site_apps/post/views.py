@@ -566,6 +566,17 @@ def post_detail(request, post_post_id):
         post_text_plain, 'post', post_post_id, limit=5,
     )
 
+    # Record content view for personalization (background, non-blocking)
+    if request.user.is_authenticated:
+        try:
+            from amolnama_news.site_apps.core.utils import get_user_profile_id
+            viewer_user_profile_id = get_user_profile_id(request)
+            if viewer_user_profile_id:
+                from amolnama_news.site_apps.newsengine.personalization import record_content_view
+                record_content_view(viewer_user_profile_id, 'post', post_post_id)
+        except Exception:
+            pass
+
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,
         'related_content_items': related_content_items,

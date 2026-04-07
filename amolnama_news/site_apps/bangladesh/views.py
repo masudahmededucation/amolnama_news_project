@@ -441,6 +441,17 @@ def travel_hub_detail_by_slug(request, destination_slug):
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(dest.link_user_profile_id, request)
 
+    # Record content view for personalization
+    if request.user.is_authenticated:
+        try:
+            from amolnama_news.site_apps.core.utils import get_user_profile_id
+            viewer_user_profile_id = get_user_profile_id(request)
+            if viewer_user_profile_id:
+                from amolnama_news.site_apps.newsengine.personalization import record_content_view
+                record_content_view(viewer_user_profile_id, 'destination', dest.bangladesh_coll_destination_id)
+        except Exception:
+            pass
+
     return render(request, "bangladesh/pages/travel-hub-detail.html", {
         "dest": dest,
         "description_paragraphs": description_paragraphs,

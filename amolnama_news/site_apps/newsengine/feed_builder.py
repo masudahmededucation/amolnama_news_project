@@ -63,6 +63,30 @@ def _build_intelligent_feed(request, feed_items, category_filter):
     # Step 2: Inject promo cards AFTER ranking (so ranking can't move them to top)
     feed_items = _inject_promo_cards(feed_items, request=request)
 
+    # Step 2a: Inject promotional boost items (popular content re-surfaced)
+    try:
+        from .promo_builders import build_promotional_boost_items
+        boost_items = build_promotional_boost_items()
+        if boost_items:
+            import random
+            for boost_item in boost_items[:3]:
+                position = random.randint(8, min(20, len(feed_items)))
+                feed_items.insert(position, boost_item)
+    except Exception:
+        logger.exception('Promotional boost injection failed')
+
+    # Step 2b: Inject trending content (fastest-growing in last 24h)
+    try:
+        from .trending import get_trending_promo_items
+        trending_promos = get_trending_promo_items()
+        if trending_promos:
+            import random
+            for trending_item in trending_promos[:2]:
+                position = random.randint(3, min(10, len(feed_items)))
+                feed_items.insert(position, trending_item)
+    except Exception:
+        logger.exception('Trending injection failed')
+
     # Steps 3-4: User-specific filters (only for authenticated users)
     user_profile_id = _get_user_profile_id(request)
     if user_profile_id:
@@ -78,6 +102,23 @@ def _build_intelligent_feed(request, feed_items, category_filter):
             feed_items = _exclude_muted_words(feed_items, user_profile_id)
         except Exception:
             logger.exception('User feed filter failed')
+
+    # Step 4b: Inject graph-ranked discovery posts (interest graph recommendations)
+    if user_profile_id:
+        try:
+            from .feed_fanout import get_graph_ranked_feed
+            graph_posts = get_graph_ranked_feed(user_profile_id, limit=3)
+            if graph_posts:
+                import random
+                existing_post_ids = {item.get('post_post_id') for item in feed_items if item.get('post_post_id')}
+                for graph_post in graph_posts:
+                    graph_post_id = graph_post.get('link_post_id') or graph_post.get('post_post_id')
+                    if graph_post_id and graph_post_id not in existing_post_ids:
+                        graph_post['item_type'] = 'graph_discovery'
+                        position = random.randint(4, min(12, len(feed_items)))
+                        feed_items.insert(position, graph_post)
+        except Exception:
+            logger.exception('Graph-ranked discovery injection failed')
 
     # Step 5: Exclude auto-flagged content (classified as harmful)
     feed_items = [item for item in feed_items if not item.get('is_auto_flagged')]

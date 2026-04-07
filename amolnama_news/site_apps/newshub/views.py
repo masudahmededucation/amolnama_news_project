@@ -1516,6 +1516,17 @@ def article_detail(request, slug):
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(contributor_user_profile_id, request)
 
+    # Record content view for personalization
+    if request.user.is_authenticated:
+        try:
+            from amolnama_news.site_apps.core.utils import get_user_profile_id
+            viewer_user_profile_id = get_user_profile_id(request)
+            if viewer_user_profile_id:
+                from amolnama_news.site_apps.newsengine.personalization import record_content_view
+                record_content_view(viewer_user_profile_id, 'article', published_article.pub_article_id)
+        except Exception:
+            pass
+
     context = {
         'published_article': published_article,
         'entry': entry,

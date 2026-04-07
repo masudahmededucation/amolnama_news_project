@@ -211,11 +211,17 @@ def api_post_create(request):
 
         run_background_task(_background_keyword_extraction, post.post_post_id, post_text)
 
-    # Extract and link hashtags in background
+    # Extract and link hashtags in background + sync to interest graph
     if post_text:
         def _background_hashtag_extraction(background_post_id, background_text):
             try:
                 _extract_and_link_hashtags(background_post_id, background_text)
+                # Sync extracted hashtags to graph for interest-based discovery
+                import re
+                hashtag_matches = re.findall(r'#([\w\u0980-\u09FF]+)', background_text)
+                if hashtag_matches:
+                    from amolnama_news.site_apps.newsengine.topic_extractor import sync_hashtags_to_graph
+                    sync_hashtags_to_graph(background_post_id, hashtag_matches)
             except Exception:
                 logger.exception('Hashtag extraction failed for post %s', background_post_id)
         run_background_task(_background_hashtag_extraction, post.post_post_id, post_text)
@@ -909,6 +915,13 @@ def api_post_edit(request, post_post_id):
                 logger.exception('Background keyword update failed for post %s', background_post_id)
         run_background_task(_background_keyword_update, post_post_id, new_text)
 
+    # Invalidate related content cache — text changed, cached results are stale
+    try:
+        from amolnama_news.site_apps.newsengine.related_content import invalidate_related_content_cache
+        invalidate_related_content_cache('post', post_post_id)
+    except Exception:
+        logger.exception('Related content cache invalidation failed for post %s', post_post_id)
+
     return JsonResponse({'success': True, 'post_text': new_text})
 
 
@@ -933,6 +946,13 @@ def api_post_delete(request, post_post_id):
 
     post.is_active = False
     post.save(update_fields=['is_active'])
+
+    # Invalidate related content cache for deleted post
+    try:
+        from amolnama_news.site_apps.newsengine.related_content import invalidate_related_content_cache
+        invalidate_related_content_cache('post', post_post_id)
+    except Exception:
+        logger.exception('Related content cache invalidation failed for post %s', post_post_id)
 
     # If this was a repost, recalculate the original post's repost count
     original_post_id = None

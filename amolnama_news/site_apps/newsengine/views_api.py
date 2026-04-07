@@ -157,7 +157,16 @@ def api_recommendations(request):
     from .recommendations import get_recommendations_for_user_enhanced
     items = get_recommendations_for_user_enhanced(user_profile_id, limit=5)
 
-    return JsonResponse({'success': True, 'recommendations': items})
+    # Include topic discovery from graph (topics friends like that user doesn't follow)
+    discovered_topics = []
+    if user_profile_id:
+        try:
+            from .feed_fanout import discover_topics_for_user
+            discovered_topics = discover_topics_for_user(user_profile_id, limit=5)
+        except Exception:
+            logger.exception('Topic discovery failed for user %s', user_profile_id)
+
+    return JsonResponse({'success': True, 'recommendations': items, 'discovered_topics': discovered_topics})
 
 
 # =========================================================

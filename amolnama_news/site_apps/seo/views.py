@@ -189,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v455';
+var CACHE_NAME = 'amolnama-v456';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install
