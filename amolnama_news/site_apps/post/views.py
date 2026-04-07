@@ -454,14 +454,14 @@ def bookmarks(request):
         from amolnama_news.site_apps.bangladesh.models import EngagementDestinationBookmark, CollDestination
         travel_bookmark_ids = list(EngagementDestinationBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_coll_destination_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_blog_bangladesh_coll_destination_id', flat=True)[:20])
         if travel_bookmark_ids:
-            destinations_map = {d.bangladesh_coll_destination_id: d for d in CollDestination.objects.filter(bangladesh_coll_destination_id__in=travel_bookmark_ids)}
+            destinations_map = {d.blog_bangladesh_coll_destination_id: d for d in CollDestination.objects.filter(blog_bangladesh_coll_destination_id__in=travel_bookmark_ids)}
             for dest_id in travel_bookmark_ids:
                 destination = destinations_map.get(dest_id)
                 if destination:
                     universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': destination.bangladesh_coll_destination_id,
+                        'item_type': 'content_promo', 'promo_id': destination.blog_bangladesh_coll_destination_id,
                         'promo_badge': 'TRAVEL', 'promo_color': 'green',
                         'promo_title': destination.destination_name_bn or destination.destination_name_en or '',
                         'promo_description': (destination.destination_description_bn or destination.destination_description_en or '')[:150],

@@ -9,7 +9,7 @@ from django.utils import timezone
 # ============================================================================
 
 class RefDestinationCategory(models.Model):
-    bangladesh_ref_destination_category_id = models.IntegerField(primary_key=True)
+    blog_bangladesh_ref_destination_category_id = models.IntegerField(primary_key=True)
     destination_category_code = models.CharField(max_length=50)
     destination_category_name_en = models.CharField(max_length=100)
     destination_category_name_bn = models.CharField(max_length=100)
@@ -28,7 +28,7 @@ class RefDestinationCategory(models.Model):
 
 
 class RefSeason(models.Model):
-    bangladesh_ref_season_id = models.IntegerField(primary_key=True)
+    blog_bangladesh_ref_season_id = models.IntegerField(primary_key=True)
     season_code = models.CharField(max_length=50)
     season_name_en = models.CharField(max_length=100)
     season_name_bn = models.CharField(max_length=100)
@@ -47,7 +47,7 @@ class RefSeason(models.Model):
 
 
 class RefMediaCategory(models.Model):
-    bangladesh_ref_media_category_id = models.IntegerField(primary_key=True)
+    blog_bangladesh_ref_media_category_id = models.IntegerField(primary_key=True)
     media_category_code = models.CharField(max_length=50)
     media_category_name_en = models.CharField(max_length=100)
     media_category_name_bn = models.CharField(max_length=100)
@@ -70,10 +70,10 @@ class RefMediaCategory(models.Model):
 # ============================================================================
 
 class CollDestination(models.Model):
-    bangladesh_coll_destination_id = models.BigAutoField(primary_key=True)
+    blog_bangladesh_coll_destination_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_destination_category_id = models.IntegerField()
-    link_best_season_id = models.IntegerField(blank=True, null=True)
+    link_blog_bangladesh_ref_destination_category_id = models.IntegerField()
+    link_blog_bangladesh_ref_season_id = models.IntegerField(blank=True, null=True)
     link_division_id = models.IntegerField(blank=True, null=True)
     link_district_id = models.IntegerField(blank=True, null=True)
     link_upazila_id = models.IntegerField(blank=True, null=True)
@@ -120,8 +120,8 @@ class CollDestination(models.Model):
 
 
 class DestinationPhoto(models.Model):
-    bangladesh_destination_photo_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_destination_photo_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     photo_url = models.CharField(max_length=1000)
     photo_thumbnail_url = models.CharField(max_length=1000, blank=True, null=True)
@@ -140,8 +140,8 @@ class DestinationPhoto(models.Model):
 
 
 class Accommodation(models.Model):
-    bangladesh_accommodation_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_accommodation_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     accommodation_name_en = models.CharField(max_length=300)
     accommodation_name_bn = models.CharField(max_length=300, blank=True, null=True)
@@ -172,8 +172,8 @@ class Accommodation(models.Model):
 
 
 class TransportRoute(models.Model):
-    bangladesh_transport_route_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_transport_route_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     transport_mode = models.CharField(max_length=30)
     departure_point_en = models.CharField(max_length=300, blank=True, null=True)
@@ -196,8 +196,8 @@ class TransportRoute(models.Model):
 
 
 class TravelTip(models.Model):
-    bangladesh_travel_tip_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_travel_tip_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     tip_text_en = models.TextField(blank=True, null=True)
     tip_text_bn = models.TextField(blank=True, null=True)
@@ -215,8 +215,8 @@ class TravelTip(models.Model):
 # ============================================================================
 
 class EngagementDestinationReview(models.Model):
-    bangladesh_engagement_destination_review_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_engagement_destination_review_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     rating_overall = models.IntegerField()
     rating_scenery = models.IntegerField(blank=True, null=True)
@@ -239,8 +239,8 @@ class EngagementDestinationReview(models.Model):
 
 
 class EngagementDestinationBookmark(models.Model):
-    bangladesh_engagement_destination_bookmark_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_engagement_destination_bookmark_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     bookmark_note = models.CharField(max_length=300, blank=True, null=True)
     created_at = models.DateTimeField()
@@ -251,32 +251,32 @@ class EngagementDestinationBookmark(models.Model):
 
 
 class EngagementDestinationPhotoLike(models.Model):
-    bangladesh_engagement_destination_photo_like_id = models.BigAutoField(primary_key=True)
-    link_destination_photo_id = models.BigIntegerField()
+    blog_bangladesh_engagement_destination_photo_like_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_destination_photo_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = "[blog_bangladesh].[engagement_destination_photo_like]"
-        unique_together = [["link_destination_photo_id", "link_user_profile_id"]]
+        unique_together = [["link_blog_bangladesh_destination_photo_id", "link_user_profile_id"]]
 
 
 class EngagementDestinationVideoLike(models.Model):
-    bangladesh_engagement_destination_video_like_id = models.BigAutoField(primary_key=True)
-    link_destination_youtube_link_id = models.BigIntegerField()
+    blog_bangladesh_engagement_destination_video_like_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_destination_youtube_link_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = "[blog_bangladesh].[engagement_destination_video_like]"
-        unique_together = [["link_destination_youtube_link_id", "link_user_profile_id"]]
+        unique_together = [["link_blog_bangladesh_destination_youtube_link_id", "link_user_profile_id"]]
 
 
 class DestinationYoutubeLink(models.Model):
-    bangladesh_destination_youtube_link_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_destination_youtube_link_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     youtube_url = models.CharField(max_length=1000)
     youtube_video_id = models.CharField(max_length=20, blank=True, null=True)
@@ -298,8 +298,8 @@ class DestinationYoutubeLink(models.Model):
 
 
 class DestinationReferenceLink(models.Model):
-    bangladesh_destination_reference_link_id = models.BigAutoField(primary_key=True)
-    link_coll_destination_id = models.BigIntegerField()
+    blog_bangladesh_destination_reference_link_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     reference_url = models.CharField(max_length=2000)
     reference_title_bn = models.CharField(max_length=300, blank=True, null=True)
@@ -320,10 +320,10 @@ class DestinationReferenceLink(models.Model):
 # ============================================================================
 
 class CollMediaEntry(models.Model):
-    bangladesh_coll_media_entry_id = models.BigAutoField(primary_key=True)
+    blog_bangladesh_coll_media_entry_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_media_category_id = models.IntegerField()
-    link_season_id = models.IntegerField(blank=True, null=True)
+    link_blog_bangladesh_ref_media_category_id = models.IntegerField()
+    link_blog_bangladesh_ref_season_id = models.IntegerField(blank=True, null=True)
     link_division_id = models.IntegerField(blank=True, null=True)
     link_district_id = models.IntegerField(blank=True, null=True)
 
@@ -381,11 +381,11 @@ class CollMediaEntry(models.Model):
         db_table = "[blog_bangladesh].[coll_media_entry]"
 
     def __str__(self):
-        return self.media_title_bn or self.media_title_en or f"Media({self.bangladesh_coll_media_entry_id})"
+        return self.media_title_bn or self.media_title_en or f"Media({self.blog_bangladesh_coll_media_entry_id})"
 
 
 class CollMediaAlbum(models.Model):
-    bangladesh_coll_media_album_id = models.BigAutoField(primary_key=True)
+    blog_bangladesh_coll_media_album_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
     album_title_en = models.CharField(max_length=300, blank=True, null=True)
     album_title_bn = models.CharField(max_length=300, blank=True, null=True)
@@ -402,11 +402,11 @@ class CollMediaAlbum(models.Model):
         db_table = "[blog_bangladesh].[coll_media_album]"
 
     def __str__(self):
-        return self.album_title_bn or self.album_title_en or f"Album({self.bangladesh_coll_media_album_id})"
+        return self.album_title_bn or self.album_title_en or f"Album({self.blog_bangladesh_coll_media_album_id})"
 
 
 class MapMediaTag(models.Model):
-    bangladesh_map_media_tag_id = models.IntegerField(primary_key=True)
+    blog_bangladesh_map_media_tag_id = models.IntegerField(primary_key=True)
     tag_name_en = models.CharField(max_length=100)
     tag_name_bn = models.CharField(max_length=100, blank=True, null=True)
     tag_slug = models.CharField(max_length=100)
@@ -426,20 +426,20 @@ class MapMediaTag(models.Model):
 # ============================================================================
 
 class EngagementMediaLike(models.Model):
-    bangladesh_engagement_media_like_id = models.BigAutoField(primary_key=True)
-    link_coll_media_entry_id = models.BigIntegerField()
+    blog_bangladesh_engagement_media_like_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_media_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = "[blog_bangladesh].[engagement_media_like]"
-        unique_together = [["link_coll_media_entry_id", "link_user_profile_id"]]
+        unique_together = [["link_blog_bangladesh_coll_media_entry_id", "link_user_profile_id"]]
 
 
 class EngagementMediaComment(models.Model):
-    bangladesh_engagement_media_comment_id = models.BigAutoField(primary_key=True)
-    link_coll_media_entry_id = models.BigIntegerField()
+    blog_bangladesh_engagement_media_comment_id = models.BigAutoField(primary_key=True)
+    link_blog_bangladesh_coll_media_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
     comment_text_bn = models.TextField(blank=True, null=True)

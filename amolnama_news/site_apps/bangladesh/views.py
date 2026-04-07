@@ -79,29 +79,29 @@ def travel_hub(request):
         d for d in destinations if not d.cover_image_url
     ]
     if destinations_without_cover:
-        destination_ids_without_cover = [d.bangladesh_coll_destination_id for d in destinations_without_cover]
+        destination_ids_without_cover = [d.blog_bangladesh_coll_destination_id for d in destinations_without_cover]
         # Get the first photo per destination (lowest sort_order)
         first_photos = (
             DestinationPhoto.objects
-            .filter(link_coll_destination_id__in=destination_ids_without_cover)
-            .order_by("link_coll_destination_id", "sort_order")
+            .filter(link_blog_bangladesh_coll_destination_id__in=destination_ids_without_cover)
+            .order_by("link_blog_bangladesh_coll_destination_id", "sort_order")
         )
         first_photo_map = {}
         for photo in first_photos:
-            if photo.link_coll_destination_id not in first_photo_map:
-                first_photo_map[photo.link_coll_destination_id] = photo.photo_url
+            if photo.link_blog_bangladesh_coll_destination_id not in first_photo_map:
+                first_photo_map[photo.link_blog_bangladesh_coll_destination_id] = photo.photo_url
         # Update in-memory objects + DB
         for destination in destinations_without_cover:
-            photo_url = first_photo_map.get(destination.bangladesh_coll_destination_id)
+            photo_url = first_photo_map.get(destination.blog_bangladesh_coll_destination_id)
             if photo_url:
                 destination.cover_image_url = photo_url
                 CollDestination.objects.filter(
-                    bangladesh_coll_destination_id=destination.bangladesh_coll_destination_id,
+                    blog_bangladesh_coll_destination_id=destination.blog_bangladesh_coll_destination_id,
                 ).update(cover_image_url=photo_url)
 
-    category_map = {c.bangladesh_ref_destination_category_id: c for c in categories}
+    category_map = {c.blog_bangladesh_ref_destination_category_id: c for c in categories}
     for destination in destinations:
-        category = category_map.get(destination.link_destination_category_id)
+        category = category_map.get(destination.link_blog_bangladesh_ref_destination_category_id)
         destination.category_name_bn = category.destination_category_name_bn if category else ""
         destination.category_name_en = category.destination_category_name_en if category else ""
         destination.category_icon = category.destination_category_icon if category else ""
@@ -155,15 +155,15 @@ def travel_hub_add(request):
     edit_id = request.GET.get("edit")
     if edit_id:
         try:
-            dest = CollDestination.objects.get(bangladesh_coll_destination_id=int(edit_id))
+            dest = CollDestination.objects.get(blog_bangladesh_coll_destination_id=int(edit_id))
             context["edit_entry_id"] = int(edit_id)
             context["edit_data_json"] = json.dumps({
-                "category_id": dest.link_destination_category_id,
+                "category_id": dest.link_blog_bangladesh_ref_destination_category_id,
                 "name_bn": dest.destination_name_bn or "",
                 "name_en": dest.destination_name_en or "",
                 "short_desc_bn": dest.destination_short_description_bn or "",
                 "desc_bn": dest.destination_description_bn or "",
-                "season_id": dest.link_best_season_id,
+                "season_id": dest.link_blog_bangladesh_ref_season_id,
                 "difficulty": dest.difficulty_level or "",
                 "entry_fee": float(dest.entry_fee_bdt) if dest.entry_fee_bdt else "",
                 "visiting_hours": dest.visiting_hours_bn or "",
@@ -182,12 +182,12 @@ def _ensure_destination_slug(dest):
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
     slug = bangla_slugify(base_name)
     if not slug:
-        slug = str(dest.bangladesh_coll_destination_id)
+        slug = str(dest.blog_bangladesh_coll_destination_id)
     # Ensure uniqueness
     candidate = slug
     counter = 1
     while CollDestination.objects.filter(destination_slug=candidate).exclude(
-        bangladesh_coll_destination_id=dest.bangladesh_coll_destination_id
+        blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id
     ).exists():
         candidate = f"{slug}-{counter}"
         counter += 1
@@ -199,7 +199,7 @@ def travel_hub_detail_by_id(request, destination_id):
     """Old ID-based URL → redirect to slug-based URL for SEO."""
     try:
         dest = CollDestination.objects.get(
-            bangladesh_coll_destination_id=destination_id,
+            blog_bangladesh_coll_destination_id=destination_id,
             destination_status="published",
         )
     except CollDestination.DoesNotExist:
@@ -215,7 +215,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
     if destination_slug.isdigit():
         try:
             dest = CollDestination.objects.get(
-                bangladesh_coll_destination_id=int(destination_slug),
+                blog_bangladesh_coll_destination_id=int(destination_slug),
                 destination_status="published",
             )
         except CollDestination.DoesNotExist:
@@ -232,14 +232,14 @@ def travel_hub_detail_by_slug(request, destination_slug):
         raise Http404
 
     # Increment view (atomic to avoid race conditions)
-    CollDestination.objects.filter(bangladesh_coll_destination_id=dest.bangladesh_coll_destination_id).update(
+    CollDestination.objects.filter(blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id).update(
         view_count=F('view_count') + 1
     )
 
     # Category
     try:
         cat = RefDestinationCategory.objects.get(
-            bangladesh_ref_destination_category_id=dest.link_destination_category_id
+            blog_bangladesh_ref_destination_category_id=dest.link_blog_bangladesh_ref_destination_category_id
         )
         dest.category_name_bn = cat.destination_category_name_bn
         dest.category_name_en = cat.destination_category_name_en
@@ -250,9 +250,9 @@ def travel_hub_detail_by_slug(request, destination_slug):
         dest.category_icon = ""
 
     # Season
-    if dest.link_best_season_id:
+    if dest.link_blog_bangladesh_ref_season_id:
         try:
-            season = RefSeason.objects.get(bangladesh_ref_season_id=dest.link_best_season_id)
+            season = RefSeason.objects.get(bangladesh_ref_season_id=dest.link_blog_bangladesh_ref_season_id)
             dest.best_season_bn = season.season_name_bn
             dest.best_season_en = season.season_name_en
         except RefSeason.DoesNotExist:
@@ -266,7 +266,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
 
     # Related data
     photos = list(
-        DestinationPhoto.objects.filter(link_coll_destination_id=dest.bangladesh_coll_destination_id)
+        DestinationPhoto.objects.filter(link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id)
         .order_by("sort_order")
     )
 
@@ -276,35 +276,35 @@ def travel_hub_detail_by_slug(request, destination_slug):
         if first_photo_url:
             dest.cover_image_url = first_photo_url
             CollDestination.objects.filter(
-                bangladesh_coll_destination_id=dest.bangladesh_coll_destination_id
+                blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id
             ).update(cover_image_url=first_photo_url)
 
     accommodations = list(
         Accommodation.objects.filter(
-            link_coll_destination_id=dest.bangladesh_coll_destination_id, is_active=True
+            link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id, is_active=True
         ).order_by("accommodation_name_en")
     )
     transport = list(
         TransportRoute.objects.filter(
-            link_coll_destination_id=dest.bangladesh_coll_destination_id, is_active=True
+            link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id, is_active=True
         ).order_by("sort_order")
     )
     tips = list(
-        TravelTip.objects.filter(link_coll_destination_id=dest.bangladesh_coll_destination_id)
+        TravelTip.objects.filter(link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id)
         .order_by("-created_at")[:20]
     )
     reviews = list(
-        EngagementDestinationReview.objects.filter(link_coll_destination_id=dest.bangladesh_coll_destination_id)
+        EngagementDestinationReview.objects.filter(link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id)
         .order_by("-created_at")[:20]
     )
     youtube_links = list(
         DestinationYoutubeLink.objects.filter(
-            link_coll_destination_id=dest.bangladesh_coll_destination_id, is_active=True
+            link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id, is_active=True
         ).order_by("-created_at")
     )
     reference_links = list(
         DestinationReferenceLink.objects.filter(
-            link_coll_destination_id=dest.bangladesh_coll_destination_id, is_active=True
+            link_blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id, is_active=True
         ).order_by("-created_at")
     )
 
@@ -349,14 +349,14 @@ def travel_hub_detail_by_slug(request, destination_slug):
         user_liked_photo_ids = set(
             EngagementDestinationPhotoLike.objects.filter(
                 link_user_profile_id=current_user_profile_id,
-                link_destination_photo_id__in=[p.bangladesh_destination_photo_id for p in photos],
-            ).values_list("link_destination_photo_id", flat=True)
+                link_blog_bangladesh_destination_photo_id__in=[p.blog_bangladesh_destination_photo_id for p in photos],
+            ).values_list("link_blog_bangladesh_destination_photo_id", flat=True)
         )
         user_liked_video_ids = set(
             EngagementDestinationVideoLike.objects.filter(
                 link_user_profile_id=current_user_profile_id,
-                link_destination_youtube_link_id__in=[v.bangladesh_destination_youtube_link_id for v in youtube_links],
-            ).values_list("link_destination_youtube_link_id", flat=True)
+                link_blog_bangladesh_destination_youtube_link_id__in=[v.blog_bangladesh_destination_youtube_link_id for v in youtube_links],
+            ).values_list("link_blog_bangladesh_destination_youtube_link_id", flat=True)
         )
 
     # Annotate contributions with uploader name, can_manage, time_ago, user_liked
@@ -364,12 +364,12 @@ def travel_hub_detail_by_slug(request, destination_slug):
         photo.uploader_name = profile_display_names.get(photo.link_user_profile_id, "ব্যবহারকারী")
         photo.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and photo.link_user_profile_id == current_user_profile_id)
         photo.time_ago = _time_ago(photo.created_at)
-        photo.user_liked = photo.bangladesh_destination_photo_id in user_liked_photo_ids
+        photo.user_liked = photo.blog_bangladesh_destination_photo_id in user_liked_photo_ids
     for youtube_link in youtube_links:
         youtube_link.uploader_name = profile_display_names.get(youtube_link.link_user_profile_id, "ব্যবহারকারী")
         youtube_link.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and youtube_link.link_user_profile_id == current_user_profile_id)
         youtube_link.time_ago = _time_ago(youtube_link.created_at)
-        youtube_link.user_liked = youtube_link.bangladesh_destination_youtube_link_id in user_liked_video_ids
+        youtube_link.user_liked = youtube_link.blog_bangladesh_destination_youtube_link_id in user_liked_video_ids
     for reference_link in reference_links:
         reference_link.uploader_name = profile_display_names.get(reference_link.link_user_profile_id, "ব্যবহারকারী")
         reference_link.can_manage = is_staff_or_admin or is_destination_owner or (current_user_profile_id and reference_link.link_user_profile_id == current_user_profile_id)
@@ -392,7 +392,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
         og_image_url = photos[0].photo_url or ""
 
     # Build canonical URL
-    canonical_path = f"/bangladesh-tourist-destinations/travel/{dest.destination_slug}/" if dest.destination_slug else f"/bangladesh-tourist-destinations/travel/id/{dest.bangladesh_coll_destination_id}/"
+    canonical_path = f"/bangladesh-tourist-destinations/travel/{dest.destination_slug}/" if dest.destination_slug else f"/bangladesh-tourist-destinations/travel/id/{dest.blog_bangladesh_coll_destination_id}/"
 
     # JSON-LD: TouristAttraction schema for Google rich results
     json_ld_attraction = {
@@ -429,13 +429,13 @@ def travel_hub_detail_by_slug(request, destination_slug):
     # Destination like/view counts for actions bar
     destination_like_count = dest.like_count or 0
     destination_view_count = dest.view_count or 0
-    destination_user_liked = str(dest.bangladesh_coll_destination_id) in request.session.get('destination_likes', [])
+    destination_user_liked = str(dest.blog_bangladesh_coll_destination_id) in request.session.get('destination_likes', [])
 
     # Edit URL for actions bar
     edit_url = ''
     if can_edit:
         from django.urls import reverse
-        edit_url = reverse('bangladesh:travel_hub_add') + '?edit=' + str(dest.bangladesh_coll_destination_id)
+        edit_url = reverse('bangladesh:travel_hub_add') + '?edit=' + str(dest.blog_bangladesh_coll_destination_id)
 
     # Writer info for actions bar
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
@@ -448,7 +448,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
             viewer_user_profile_id = get_user_profile_id(request)
             if viewer_user_profile_id:
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
-                record_content_view(viewer_user_profile_id, 'destination', dest.bangladesh_coll_destination_id)
+                record_content_view(viewer_user_profile_id, 'destination', dest.blog_bangladesh_coll_destination_id)
         except Exception:
             pass
 
@@ -470,9 +470,9 @@ def travel_hub_detail_by_slug(request, destination_slug):
         **actions_bar_author_context,
         "related_content_items": build_related_content_items(
             dest.destination_description_bn or dest.destination_name_bn or '',
-            'destination', dest.bangladesh_coll_destination_id, limit=5,
+            'destination', dest.blog_bangladesh_coll_destination_id, limit=5,
         ),
-        "related_content_api_url": f'/newsengine/api/related-content/?type=destination&id={dest.bangladesh_coll_destination_id}',
+        "related_content_api_url": f'/newsengine/api/related-content/?type=destination&id={dest.blog_bangladesh_coll_destination_id}',
         "seo": {
             "title": f"{title} — ভ্রমণ কেন্দ্র | Travel Hub",
             "description": seo_description_clean,

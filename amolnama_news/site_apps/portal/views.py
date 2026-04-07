@@ -464,7 +464,7 @@ def content_dashboard_view(request):
             'content_type': 'travel',
             'content_type_label': 'TRAVEL',
             'content_type_color': 'green',
-            'content_id': destination.bangladesh_coll_destination_id,
+            'content_id': destination.blog_bangladesh_coll_destination_id,
             'content_title': destination.destination_name_bn or destination.destination_name_en or '(no title)',
             'content_slug': destination.destination_slug or '',
             'content_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/' if destination.destination_slug else '',

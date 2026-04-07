@@ -336,7 +336,7 @@ def _build_travel_promo_items():
         items.append({
             'item_type': 'content_promo',
             'created_at_raw': destination.created_at,
-            'promo_id': destination.bangladesh_coll_destination_id,
+            'promo_id': destination.blog_bangladesh_coll_destination_id,
             'promo_badge': 'TRAVEL',
             'promo_color': 'green',
             'promo_title': destination.destination_name_bn or destination.destination_name_en or '',

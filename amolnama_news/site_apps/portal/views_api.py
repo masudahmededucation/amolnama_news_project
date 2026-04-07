@@ -132,7 +132,7 @@ def api_content_toggle_publish(request):
 
         elif content_type == 'travel':
             from amolnama_news.site_apps.bangladesh.models import CollDestination
-            item = CollDestination.objects.get(bangladesh_coll_destination_id=content_id)
+            item = CollDestination.objects.get(blog_bangladesh_coll_destination_id=content_id)
             item.destination_status = 'published' if publish else 'draft'
             item.save(update_fields=['destination_status'])
 

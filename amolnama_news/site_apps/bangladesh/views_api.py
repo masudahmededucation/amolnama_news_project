@@ -68,9 +68,9 @@ def api_destination_list(request):
     queryset = CollDestination.objects.filter(destination_status="published").order_by("-is_featured", "-created_at")
 
     if category:
-        queryset = queryset.filter(link_destination_category_id=int(category))
+        queryset = queryset.filter(link_blog_bangladesh_ref_destination_category_id=int(category))
     if season:
-        queryset = queryset.filter(link_best_season_id=int(season))
+        queryset = queryset.filter(link_blog_bangladesh_ref_season_id=int(season))
     if search_query:
         queryset = queryset.filter(
             Q(destination_name_bn__icontains=search_query)
@@ -84,12 +84,12 @@ def api_destination_list(request):
     has_next = len(items) > PAGE_SIZE
     items = items[:PAGE_SIZE]
 
-    category_map = {c.bangladesh_ref_destination_category_id: c for c in RefDestinationCategory.objects.filter(is_active=True)}
+    category_map = {c.blog_bangladesh_ref_destination_category_id: c for c in RefDestinationCategory.objects.filter(is_active=True)}
     result = []
     for destination in items:
-        destination_category = category_map.get(destination.link_destination_category_id)
+        destination_category = category_map.get(destination.link_blog_bangladesh_ref_destination_category_id)
         result.append({
-            "id": destination.bangladesh_coll_destination_id,
+            "id": destination.blog_bangladesh_coll_destination_id,
             "slug": destination.destination_slug or "",
             "name_bn": destination.destination_name_bn,
             "name_en": destination.destination_name_en,
@@ -128,19 +128,19 @@ def api_destination_create(request):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_destination_category_id")
+    category_id = data.get("link_blog_bangladesh_ref_destination_category_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
     if not RefDestinationCategory.objects.filter(
-        bangladesh_ref_destination_category_id=category_id, is_active=True
+        blog_bangladesh_ref_destination_category_id=category_id, is_active=True
     ).exists():
         return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
     dest = CollDestination.objects.create(
         link_user_profile_id=profile_id,
-        link_destination_category_id=category_id,
-        link_best_season_id=data.get("link_best_season_id") or None,
+        link_blog_bangladesh_ref_destination_category_id=category_id,
+        link_blog_bangladesh_ref_season_id=data.get("link_blog_bangladesh_ref_season_id") or None,
         link_division_id=data.get("link_division_id") or None,
         link_district_id=data.get("link_district_id") or None,
         link_upazila_id=data.get("link_upazila_id") or None,
@@ -170,7 +170,7 @@ def api_destination_create(request):
     # Generate SEO slug
     _generate_destination_slug(dest)
 
-    return JsonResponse({"success": True, "destination_id": dest.bangladesh_coll_destination_id, "destination_slug": dest.destination_slug or ""})
+    return JsonResponse({"success": True, "destination_id": dest.blog_bangladesh_coll_destination_id, "destination_slug": dest.destination_slug or ""})
 
 
 def _generate_destination_slug(dest):
@@ -178,11 +178,11 @@ def _generate_destination_slug(dest):
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
     slug = bangla_slugify(base_name)
     if not slug:
-        slug = str(dest.bangladesh_coll_destination_id)
+        slug = str(dest.blog_bangladesh_coll_destination_id)
     candidate = slug
     counter = 1
     while CollDestination.objects.filter(destination_slug=candidate).exclude(
-        bangladesh_coll_destination_id=dest.bangladesh_coll_destination_id
+        blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id
     ).exists():
         candidate = f"{slug}-{counter}"
         counter += 1
@@ -201,7 +201,7 @@ def api_destination_update(request, destination_id):
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
     try:
-        dest = CollDestination.objects.get(bangladesh_coll_destination_id=destination_id)
+        dest = CollDestination.objects.get(blog_bangladesh_coll_destination_id=destination_id)
     except CollDestination.DoesNotExist:
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
@@ -219,12 +219,12 @@ def api_destination_update(request, destination_id):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_destination_category_id")
+    category_id = data.get("link_blog_bangladesh_ref_destination_category_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
-    dest.link_destination_category_id = category_id
-    dest.link_best_season_id = data.get("link_best_season_id") or None
+    dest.link_blog_bangladesh_ref_destination_category_id = category_id
+    dest.link_blog_bangladesh_ref_season_id = data.get("link_blog_bangladesh_ref_season_id") or None
     dest.destination_name_bn = name_bn or name_en
     dest.destination_name_en = name_en or name_bn
     dest.destination_description_bn = _sanitize_html((data.get("destination_description_bn") or "").strip()) or None
@@ -238,7 +238,7 @@ def api_destination_update(request, destination_id):
     # Regenerate slug if name changed
     _generate_destination_slug(dest)
 
-    return JsonResponse({"success": True, "destination_id": dest.bangladesh_coll_destination_id})
+    return JsonResponse({"success": True, "destination_id": dest.blog_bangladesh_coll_destination_id})
 
 
 # ============================================================================
@@ -285,7 +285,7 @@ def api_media_list(request):
     for media_entry in items:
         media_category = category_map.get(media_entry.link_media_category_id)
         result.append({
-            "id": media_entry.bangladesh_coll_media_entry_id,
+            "id": media_entry.blog_bangladesh_coll_media_entry_id,
             "title_bn": media_entry.media_title_bn or "",
             "title_en": media_entry.media_title_en or "",
             "display_title": media_entry.media_title_bn or media_entry.media_title_en or "",
@@ -373,7 +373,7 @@ def api_media_upload(request):
         created_at=timezone.now(),
     )
 
-    return JsonResponse({"success": True, "media_id": entry.bangladesh_coll_media_entry_id})
+    return JsonResponse({"success": True, "media_id": entry.blog_bangladesh_coll_media_entry_id})
 
 
 # ============================================================================
@@ -391,7 +391,7 @@ def api_destination_photo_upload(request, destination_id):
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
     # Verify destination exists
-    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+    if not CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).exists():
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
     uploaded_file = request.FILES.get("file")
@@ -418,12 +418,12 @@ def api_destination_photo_upload(request, destination_id):
 
     # Get next sort_order
     last_order = DestinationPhoto.objects.filter(
-        link_coll_destination_id=destination_id
+        link_blog_bangladesh_coll_destination_id=destination_id
     ).order_by("-sort_order").values_list("sort_order", flat=True).first()
     next_order = (last_order or 0) + 1
 
     photo = DestinationPhoto.objects.create(
-        link_coll_destination_id=destination_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         photo_url=file_url,
         caption_bn=caption,
@@ -434,18 +434,18 @@ def api_destination_photo_upload(request, destination_id):
 
     # Auto-set as cover image if the destination doesn't have one yet
     CollDestination.objects.filter(
-        bangladesh_coll_destination_id=destination_id,
+        blog_bangladesh_coll_destination_id=destination_id,
         cover_image_url__isnull=True,
     ).update(cover_image_url=file_url)
     # Also cover empty string
     CollDestination.objects.filter(
-        bangladesh_coll_destination_id=destination_id,
+        blog_bangladesh_coll_destination_id=destination_id,
         cover_image_url="",
     ).update(cover_image_url=file_url)
 
     return JsonResponse({
         "success": True,
-        "photo_id": photo.bangladesh_destination_photo_id,
+        "photo_id": photo.blog_bangladesh_destination_photo_id,
         "photo_url": file_url,
         "caption_bn": caption or "",
     })
@@ -461,7 +461,7 @@ def api_destination_youtube_link_add(request, destination_id):
     if not profile_id:
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
-    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+    if not CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).exists():
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
     try:
@@ -490,7 +490,7 @@ def api_destination_youtube_link_add(request, destination_id):
     description = (data.get("description_bn") or "").strip() or None
 
     link = DestinationYoutubeLink.objects.create(
-        link_coll_destination_id=destination_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         youtube_url=video_url,
         youtube_video_id=video_id,
@@ -505,7 +505,7 @@ def api_destination_youtube_link_add(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "link_id": link.bangladesh_destination_youtube_link_id,
+        "link_id": link.blog_bangladesh_destination_youtube_link_id,
         "youtube_video_id": video_id or "",
         "video_title_bn": title or "",
         "platform": platform,
@@ -524,7 +524,7 @@ def api_destination_reference_link_add(request, destination_id):
     if not profile_id:
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
-    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+    if not CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).exists():
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
     try:
@@ -540,7 +540,7 @@ def api_destination_reference_link_add(request, destination_id):
     description = (data.get("description_bn") or "").strip() or None
 
     link = DestinationReferenceLink.objects.create(
-        link_coll_destination_id=destination_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         reference_url=ref_url,
         reference_title_bn=title,
@@ -552,7 +552,7 @@ def api_destination_reference_link_add(request, destination_id):
 
     return JsonResponse({
         "success": True,
-        "link_id": link.bangladesh_destination_reference_link_id,
+        "link_id": link.blog_bangladesh_destination_reference_link_id,
         "reference_title_bn": title or "",
         "reference_url": ref_url,
     })
@@ -607,8 +607,8 @@ def api_destination_photo_view(request, destination_id, photo_id):
     """POST — increment photo view count (called when lightbox opens)."""
     from django.db.models import F
     updated = DestinationPhoto.objects.filter(
-        bangladesh_destination_photo_id=photo_id,
-        link_coll_destination_id=destination_id,
+        blog_bangladesh_destination_photo_id=photo_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
     ).update(view_count=F('view_count') + 1)
     if not updated:
         return JsonResponse({"success": False}, status=404)
@@ -620,8 +620,8 @@ def api_destination_video_view(request, destination_id, youtube_link_id):
     """POST — increment video view count (called when video link is clicked)."""
     from django.db.models import F
     updated = DestinationYoutubeLink.objects.filter(
-        bangladesh_destination_youtube_link_id=youtube_link_id,
-        link_coll_destination_id=destination_id,
+        blog_bangladesh_destination_youtube_link_id=youtube_link_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
     ).update(view_count=F('view_count') + 1)
     if not updated:
         return JsonResponse({"success": False}, status=404)
@@ -638,7 +638,7 @@ def api_destination_review_add(request, destination_id):
     if not profile_id:
         return JsonResponse({"success": False, "error": "User profile not found"}, status=400)
 
-    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+    if not CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).exists():
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
     try:
@@ -652,7 +652,7 @@ def api_destination_review_add(request, destination_id):
 
     # Prevent duplicate reviews from same user
     if EngagementDestinationReview.objects.filter(
-        link_coll_destination_id=destination_id, link_user_profile_id=profile_id
+        link_blog_bangladesh_coll_destination_id=destination_id, link_user_profile_id=profile_id
     ).exists():
         return JsonResponse({"success": False, "error": "আপনি ইতিমধ্যে এই গন্তব্যের জন্য রিভিউ দিয়েছেন"}, status=400)
 
@@ -661,7 +661,7 @@ def api_destination_review_add(request, destination_id):
     visited_at = data.get("visited_at") or None
 
     review = EngagementDestinationReview.objects.create(
-        link_coll_destination_id=destination_id,
+        link_blog_bangladesh_coll_destination_id=destination_id,
         link_user_profile_id=profile_id,
         rating_overall=int(rating),
         review_title_bn=review_title,
@@ -674,9 +674,9 @@ def api_destination_review_add(request, destination_id):
     # Update destination avg_rating and review_count
     from django.db.models import Avg, Count
     stats = EngagementDestinationReview.objects.filter(
-        link_coll_destination_id=destination_id
+        link_blog_bangladesh_coll_destination_id=destination_id
     ).aggregate(avg=Avg("rating_overall"), count=Count("bangladesh_engagement_destination_review_id"))
-    CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).update(
+    CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).update(
         avg_rating=stats["avg"],
         review_count=stats["count"],
     )
@@ -702,23 +702,23 @@ def api_destination_photo_like_toggle(request, destination_id, photo_id):
 
     from django.db.models import F
     existing = EngagementDestinationPhotoLike.objects.filter(
-        link_destination_photo_id=photo_id,
+        link_blog_bangladesh_destination_photo_id=photo_id,
         link_user_profile_id=profile_id,
     )
     if existing.exists():
         existing.delete()
-        DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id, like_count__gt=0).update(like_count=F('like_count') - 1)
+        DestinationPhoto.objects.filter(blog_bangladesh_destination_photo_id=photo_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
         EngagementDestinationPhotoLike.objects.create(
-            link_destination_photo_id=photo_id,
+            link_blog_bangladesh_destination_photo_id=photo_id,
             link_user_profile_id=profile_id,
             created_at=timezone.now(),
         )
-        DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
+        DestinationPhoto.objects.filter(blog_bangladesh_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
         liked = True
 
-    new_count = DestinationPhoto.objects.filter(bangladesh_destination_photo_id=photo_id).values_list('like_count', flat=True).first() or 0
+    new_count = DestinationPhoto.objects.filter(blog_bangladesh_destination_photo_id=photo_id).values_list('like_count', flat=True).first() or 0
     return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
@@ -734,23 +734,23 @@ def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
 
     from django.db.models import F
     existing = EngagementDestinationVideoLike.objects.filter(
-        link_destination_youtube_link_id=youtube_link_id,
+        link_blog_bangladesh_destination_youtube_link_id=youtube_link_id,
         link_user_profile_id=profile_id,
     )
     if existing.exists():
         existing.delete()
-        DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id, like_count__gt=0).update(like_count=F('like_count') - 1)
+        DestinationYoutubeLink.objects.filter(blog_bangladesh_destination_youtube_link_id=youtube_link_id, like_count__gt=0).update(like_count=F('like_count') - 1)
         liked = False
     else:
         EngagementDestinationVideoLike.objects.create(
-            link_destination_youtube_link_id=youtube_link_id,
+            link_blog_bangladesh_destination_youtube_link_id=youtube_link_id,
             link_user_profile_id=profile_id,
             created_at=timezone.now(),
         )
-        DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
+        DestinationYoutubeLink.objects.filter(blog_bangladesh_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
         liked = True
 
-    new_count = DestinationYoutubeLink.objects.filter(bangladesh_destination_youtube_link_id=youtube_link_id).values_list('like_count', flat=True).first() or 0
+    new_count = DestinationYoutubeLink.objects.filter(blog_bangladesh_destination_youtube_link_id=youtube_link_id).values_list('like_count', flat=True).first() or 0
     return JsonResponse({"success": True, "liked": liked, "like_count": new_count})
 
 
@@ -759,7 +759,7 @@ def api_destination_like_toggle(request, destination_id):
     """POST — toggle like on a destination. Session-based tracking."""
     from django.db.models import F
 
-    if not CollDestination.objects.filter(bangladesh_coll_destination_id=destination_id).exists():
+    if not CollDestination.objects.filter(blog_bangladesh_coll_destination_id=destination_id).exists():
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
 
     session_like_key = 'destination_likes'
@@ -769,21 +769,21 @@ def api_destination_like_toggle(request, destination_id):
     if destination_key in liked_destinations:
         liked_destinations.remove(destination_key)
         CollDestination.objects.filter(
-            bangladesh_coll_destination_id=destination_id,
+            blog_bangladesh_coll_destination_id=destination_id,
             like_count__gt=0,
         ).update(like_count=F('like_count') - 1)
         liked = False
     else:
         liked_destinations.append(destination_key)
         CollDestination.objects.filter(
-            bangladesh_coll_destination_id=destination_id,
+            blog_bangladesh_coll_destination_id=destination_id,
         ).update(like_count=F('like_count') + 1)
         liked = True
 
     request.session[session_like_key] = liked_destinations
 
     new_like_count = CollDestination.objects.filter(
-        bangladesh_coll_destination_id=destination_id,
+        blog_bangladesh_coll_destination_id=destination_id,
     ).values_list('like_count', flat=True).first() or 0
 
     return JsonResponse({"success": True, "liked": liked, "like_count": new_like_count})
@@ -812,7 +812,7 @@ def _can_manage_contribution(request, contribution_profile_id, destination_id):
     # Destination owner
     try:
         dest = CollDestination.objects.only("link_user_profile_id").get(
-            bangladesh_coll_destination_id=destination_id
+            blog_bangladesh_coll_destination_id=destination_id
         )
         if dest.link_user_profile_id == profile_id:
             return True, profile_id
@@ -831,8 +831,8 @@ def api_destination_photo_update(request, destination_id, photo_id):
     """PATCH — edit a destination photo caption."""
     try:
         photo = DestinationPhoto.objects.get(
-            bangladesh_destination_photo_id=photo_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_photo_id=photo_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
@@ -858,8 +858,8 @@ def api_destination_photo_delete(request, destination_id, photo_id):
     """DELETE — remove a destination photo."""
     try:
         photo = DestinationPhoto.objects.get(
-            bangladesh_destination_photo_id=photo_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_photo_id=photo_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
@@ -883,7 +883,7 @@ def api_destination_cover_image_set(request, destination_id, photo_id):
 
     try:
         destination = CollDestination.objects.get(
-            bangladesh_coll_destination_id=destination_id
+            blog_bangladesh_coll_destination_id=destination_id
         )
     except CollDestination.DoesNotExist:
         return JsonResponse({"success": False, "error": "Destination not found"}, status=404)
@@ -900,8 +900,8 @@ def api_destination_cover_image_set(request, destination_id, photo_id):
 
     try:
         photo = DestinationPhoto.objects.get(
-            bangladesh_destination_photo_id=photo_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_photo_id=photo_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationPhoto.DoesNotExist:
         return JsonResponse({"success": False, "error": "Photo not found"}, status=404)
@@ -920,8 +920,8 @@ def api_destination_youtube_link_update(request, destination_id, youtube_link_id
     """PATCH — edit a destination YouTube link title/description."""
     try:
         link = DestinationYoutubeLink.objects.get(
-            bangladesh_destination_youtube_link_id=youtube_link_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_youtube_link_id=youtube_link_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationYoutubeLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "YouTube link not found"}, status=404)
@@ -952,8 +952,8 @@ def api_destination_youtube_link_delete(request, destination_id, youtube_link_id
     """DELETE — remove a destination YouTube link."""
     try:
         link = DestinationYoutubeLink.objects.get(
-            bangladesh_destination_youtube_link_id=youtube_link_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_youtube_link_id=youtube_link_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationYoutubeLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "YouTube link not found"}, status=404)
@@ -971,8 +971,8 @@ def api_destination_reference_link_update(request, destination_id, reference_lin
     """PATCH — edit a destination reference link title/description."""
     try:
         link = DestinationReferenceLink.objects.get(
-            bangladesh_destination_reference_link_id=reference_link_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_reference_link_id=reference_link_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationReferenceLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "Reference link not found"}, status=404)
@@ -1003,8 +1003,8 @@ def api_destination_reference_link_delete(request, destination_id, reference_lin
     """DELETE — remove a destination reference link."""
     try:
         link = DestinationReferenceLink.objects.get(
-            bangladesh_destination_reference_link_id=reference_link_id,
-            link_coll_destination_id=destination_id,
+            blog_bangladesh_destination_reference_link_id=reference_link_id,
+            link_blog_bangladesh_coll_destination_id=destination_id,
         )
     except DestinationReferenceLink.DoesNotExist:
         return JsonResponse({"success": False, "error": "Reference link not found"}, status=404)
