@@ -197,7 +197,7 @@ class CollNewsEntry(models.Model):
     occurrence_at = models.DateTimeField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
-    link_content_subcategory_id = models.IntegerField(blank=True, null=True)
+    link_content_ref_content_subcategory_id = models.IntegerField(blank=True, null=True)
     # hash_headline_check — excluded from Django model
     # so ORM never includes it in INSERT/UPDATE statements.
 

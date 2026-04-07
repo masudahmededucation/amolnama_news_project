@@ -48,7 +48,7 @@ class ContentRegistry(models.Model):
     """Master content registry — single source of truth for ALL blog content.
     Every content piece gets registered here. content_registry_id is the universal ID."""
     content_registry_id = models.BigAutoField(primary_key=True)
-    link_content_category_id = models.IntegerField()
+    link_content_ref_content_category_id = models.IntegerField()
     link_user_profile_id = models.BigIntegerField()
     content_title_bn = models.CharField(max_length=1000, blank=True, null=True)
     content_title_en = models.CharField(max_length=1000, blank=True, null=True)
@@ -56,7 +56,7 @@ class ContentRegistry(models.Model):
     content_summary_bn = models.CharField(max_length=500, blank=True, null=True)
     content_url = models.CharField(max_length=500)
     content_cover_image_url = models.CharField(max_length=500, blank=True, null=True)
-    link_content_subcategory_id = models.IntegerField(blank=True, null=True)
+    link_content_ref_content_subcategory_id = models.IntegerField(blank=True, null=True)
     link_newshub_ref_news_form_type_id = models.IntegerField(blank=True, null=True)
     is_published = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

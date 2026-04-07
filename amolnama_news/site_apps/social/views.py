@@ -181,7 +181,7 @@ def public_profile_articles(request, username_handle):
         ).order_by('-published_at', '-created_at')
 
         # Build subcategory lookup for display names
-        subcategory_ids = [item.link_content_subcategory_id for item in registry_items if item.link_content_subcategory_id]
+        subcategory_ids = [item.link_content_ref_content_subcategory_id for item in registry_items if item.link_content_ref_content_subcategory_id]
         subcategory_map = {}
         if subcategory_ids:
             for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
@@ -193,7 +193,7 @@ def public_profile_articles(request, username_handle):
                 'content_title_bn': item.content_title_bn or item.content_title_en or '',
                 'content_url': item.content_url,
                 'content_summary_bn': item.content_summary_bn or '',
-                'content_category_name': subcategory_map.get(item.link_content_subcategory_id, ''),
+                'content_category_name': subcategory_map.get(item.link_content_ref_content_subcategory_id, ''),
                 'published_at': item.published_at or item.created_at,
                 'link_content_category_id': item.link_content_category_id,
             })
