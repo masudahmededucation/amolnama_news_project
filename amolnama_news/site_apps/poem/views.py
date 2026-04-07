@@ -206,7 +206,7 @@ def _render_poem_detail(request, poem):
     # Writer info for actions bar
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(
-        getattr(poem, 'link_user_profile_id', None), request
+        getattr(poem, 'link_user_profile_id', None), request, profile_suffix='articles/'
     )
 
     return render(request, "poem/pages/poem-detail.html", {
