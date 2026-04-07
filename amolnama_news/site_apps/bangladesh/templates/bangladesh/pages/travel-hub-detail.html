@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/travel-hub.css' %}">
 <link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/travel-hub-detail.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -321,6 +322,7 @@
 
 </article>
 
+{% include "core/components/related-content.html" %}
 {% include "core/components/photo-lightbox.html" %}
 
 {% endblock %}

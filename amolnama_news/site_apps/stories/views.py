@@ -184,8 +184,17 @@ def detail(request, story_slug):
         'created_at_formatted': story.created_at.strftime('%d %b %Y') if story.created_at else '',
     }
 
+    # Writer info for actions bar
+    from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
+    actions_bar_author_context = build_actions_bar_author_context(story.link_user_profile_id, request)
+
     return render(request, 'stories/pages/stories-detail.html', {
         'story': story_item,
+        **actions_bar_author_context,
+        'related_content_items': build_related_content_items(
+            story.story_title_bn or story.story_summary_bn or '',
+            'story', story.story_coll_story_id, limit=5,
+        ),
         'seo': {
             'title': f'{story.story_title_bn} — গল্পের ঝুলি | আমলনামা নিউজ',
             'description': (story.story_summary_bn or story.story_title_bn)[:200],

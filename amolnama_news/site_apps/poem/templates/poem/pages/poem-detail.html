@@ -30,6 +30,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'poem/assets/css/components/poem-card.css' %}">
 <link rel="stylesheet" href="{% static 'poem/assets/css/pages/poem-detail.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -150,6 +152,18 @@
   </div>
   {% endif %}
 
+  {# ── Writer Follow ── #}
+  {% if actions_bar_author_display_name %}
+  <div class="actions-bar actions-bar-top">
+    <div class="actions-bar-writer-section">
+      <a href="/social/@{{ actions_bar_author_username_handle }}/" class="actions-bar-writer-name" id="actions-bar-writer-poem-top" name="actions_bar_writer_poem_top">✍️ {{ actions_bar_author_display_name }}</a>
+      {% if not actions_bar_author_is_own and request.user.is_authenticated %}
+      <button type="button" class="actions-bar-follow-button{% if actions_bar_author_is_following %} actions-bar-follow-button-active{% endif %}" id="actions-bar-follow-{{ actions_bar_author_user_profile_id }}-poem-top" name="actions_bar_follow_{{ actions_bar_author_user_profile_id }}_poem_top" data-user-profile-id="{{ actions_bar_author_user_profile_id }}">{% if actions_bar_author_is_following %}Unfollow{% else %}Follow{% endif %}</button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   {# ── Action Bar ── #}
   <div class="poem-detail-actions">
     <button type="button" class="poem-detail-action-btn{% if user_liked %} poem-detail-action-btn--liked{% endif %}" id="poemLikeBtn"
@@ -185,6 +199,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'poem/assets/js/pages/poem-detail.js' %}" defer></script>
 <script src="{% static 'poem/assets/js/components/poem-audio-player.js' %}" defer></script>
 {% endblock %}

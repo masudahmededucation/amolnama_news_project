@@ -9,7 +9,7 @@
   <a href="{% url 'tools:tools' %}" title="বিনামূল্যে সফটওয়্যার টুলস — Free Online Tools" {% if request.resolver_match.namespace == 'tools' %}class="active"{% endif %}>সফটওয়্যার</a>
   <a href="{% url 'marriage:marriage' %}" title="বিবাহ নিবন্ধন সেবা — Marriage Registration" {% if request.resolver_match.namespace == 'marriage' %}class="active"{% endif %}>বিবাহ</a>
   <a href="{% url 'poem:poem_landing' %}" title="বাংলা কবিতা ও গান — Bengali Poetry and Songs" {% if request.resolver_match.namespace == 'poem' %}class="active"{% endif %}>কবিতা ও গান</a>
-  <a href="{% url 'bangladesh:bangladesh_landing' %}" title="বাংলাদেশ ভ্রমণ ও সৌন্দর্য — Bangladesh Travel and Beauty" {% if request.resolver_match.namespace == 'bangladesh' %}class="active"{% endif %}>বাংলাদেশ</a>
+  <a href="{% url 'bangladesh:bangladesh_landing' %}" title="বাংলাদেশ ভ্রমণ ও সৌন্দর্য — Bangladesh Travel and Beauty" {% if request.resolver_match.namespace == 'bangladesh' %}class="active"{% endif %}>বাংলাদেশ প্রকৃতি</a>
 
   {% comment %} <a href="{% url 'core:category' 'world' %}" {% if slug == 'world' %}class="active"{% endif %}>World</a> {% endcomment %}
   {% comment %} <a href="{% url 'core:category' 'politics' %}" {% if slug == 'politics' %}class="active"{% endif %}>Politics</a>

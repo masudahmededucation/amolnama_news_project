@@ -220,8 +220,17 @@ def detail(request, artwork_slug):
 
     cover_url = photos[0]['file_url'] if photos else ''
 
+    # Writer info for actions bar
+    from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
+    actions_bar_author_context = build_actions_bar_author_context(artwork.link_user_profile_id, request)
+
     return render(request, 'art/pages/art-detail.html', {
         'artwork': artwork_item,
+        **actions_bar_author_context,
+        'related_content_items': build_related_content_items(
+            artwork.artwork_title_bn or artwork.artwork_description_bn or '',
+            'art', artwork.art_coll_artwork_id, limit=5,
+        ),
         'seo': {
             'title': f'{artwork.artwork_title_bn} — শিল্পকলা | আমলনামা নিউজ',
             'description': (artwork.artwork_description_bn or artwork.artwork_title_bn)[:200],

@@ -21,6 +21,61 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* ---- Writer section ---- */
+
+.actions-bar-writer-section {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.actions-bar-writer-name {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.actions-bar-writer-name:hover {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.actions-bar-follow-button {
+  padding: .25rem .7rem;
+  background: var(--primary);
+  color: #fff;
+  border: 1.5px solid var(--primary);
+  border-radius: 16px;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+
+.actions-bar-follow-button:hover {
+  opacity: .85;
+}
+
+.actions-bar-follow-button-active {
+  background: var(--card);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.actions-bar-follow-button-active:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.actions-bar-separator {
+  width: 1px;
+  height: 1.2rem;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
 /* ---- Like button ---- */
 
 .actions-bar-like-button {

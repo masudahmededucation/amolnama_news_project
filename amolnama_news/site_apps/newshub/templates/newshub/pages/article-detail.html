@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-card.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -276,6 +277,8 @@
 
   </main>
 </div>
+
+{% include "core/components/related-content.html" %}
 
 {% if all_photos %}
 {% include "core/components/photo-lightbox.html" %}

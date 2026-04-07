@@ -5,6 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-detail.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -63,6 +65,18 @@
   </div>
   {% endif %}
 
+  {# ── Writer Follow ── #}
+  {% if actions_bar_author_display_name %}
+  <div class="actions-bar actions-bar-top">
+    <div class="actions-bar-writer-section">
+      <a href="/social/@{{ actions_bar_author_username_handle }}/" class="actions-bar-writer-name" id="actions-bar-writer-stories-top" name="actions_bar_writer_stories_top">✍️ {{ actions_bar_author_display_name }}</a>
+      {% if not actions_bar_author_is_own and request.user.is_authenticated %}
+      <button type="button" class="actions-bar-follow-button{% if actions_bar_author_is_following %} actions-bar-follow-button-active{% endif %}" id="actions-bar-follow-{{ actions_bar_author_user_profile_id }}-stories-top" name="actions_bar_follow_{{ actions_bar_author_user_profile_id }}_stories_top" data-user-profile-id="{{ actions_bar_author_user_profile_id }}">{% if actions_bar_author_is_following %}Unfollow{% else %}Follow{% endif %}</button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   <div class="stories-detail-actions" id="stories-detail-actions">
     <button type="button" class="stories-detail-action-button stories-detail-like-button{% if story.user_liked %} stories-detail-like-button-active{% endif %}" id="stories-detail-like-{{ story.story_id }}" name="stories_detail_like_{{ story.story_id }}" data-story-id="{{ story.story_id }}">
       <span class="stories-detail-action-icon">{% if story.user_liked %}❤️{% else %}🤍{% endif %}</span>
@@ -82,8 +96,11 @@
   </div>
 
 </article>
+
+{% include "core/components/related-content.html" %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'stories/assets/js/pages/stories-detail.js' %}" defer></script>
 {% endblock %}

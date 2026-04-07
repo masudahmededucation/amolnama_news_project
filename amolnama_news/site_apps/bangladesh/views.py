@@ -437,6 +437,10 @@ def travel_hub_detail_by_slug(request, destination_slug):
         from django.urls import reverse
         edit_url = reverse('bangladesh:travel_hub_add') + '?edit=' + str(dest.bangladesh_coll_destination_id)
 
+    # Writer info for actions bar
+    from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
+    actions_bar_author_context = build_actions_bar_author_context(dest.link_user_profile_id, request)
+
     return render(request, "bangladesh/pages/travel-hub-detail.html", {
         "dest": dest,
         "description_paragraphs": description_paragraphs,
@@ -452,6 +456,11 @@ def travel_hub_detail_by_slug(request, destination_slug):
         "destination_like_count": destination_like_count,
         "destination_view_count": destination_view_count,
         "destination_user_liked": destination_user_liked,
+        **actions_bar_author_context,
+        "related_content_items": build_related_content_items(
+            dest.destination_description_bn or dest.destination_name_bn or '',
+            'destination', dest.bangladesh_coll_destination_id, limit=5,
+        ),
         "seo": {
             "title": f"{title} — ভ্রমণ কেন্দ্র | Travel Hub",
             "description": seo_description_clean,

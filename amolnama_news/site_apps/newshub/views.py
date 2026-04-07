@@ -1508,6 +1508,11 @@ def article_detail(request, slug):
     if cover_image_url:
         json_ld_article["image"] = request.build_absolute_uri(cover_image_url)
 
+    # Writer info for actions bar
+    contributor_user_profile_id = contributor.link_user_profile_id if contributor else None
+    from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
+    actions_bar_author_context = build_actions_bar_author_context(contributor_user_profile_id, request)
+
     context = {
         'published_article': published_article,
         'entry': entry,
@@ -1532,6 +1537,11 @@ def article_detail(request, slug):
         'article_like_count': article_like_count,
         'article_view_count': article_view_count,
         'article_user_liked': article_user_liked,
+        **actions_bar_author_context,
+        'related_content_items': build_related_content_items(
+            published_article.pub_article_headline_bn or published_article.pub_article_body_bn or '',
+            'article', published_article.pub_article_id, limit=5,
+        ),
         'seo': seo_context,
     }
     return render(request, 'newshub/pages/article-detail.html', context)

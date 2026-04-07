@@ -203,11 +203,18 @@ def _render_poem_detail(request, poem):
     if hasattr(poem, 'category_name_bn') and poem.category_name_bn:
         json_ld_poem["genre"] = poem.category_name_bn
 
+    # Writer info for actions bar
+    from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
+    actions_bar_author_context = build_actions_bar_author_context(
+        getattr(poem, 'link_user_profile_id', None), request
+    )
+
     return render(request, "poem/pages/poem-detail.html", {
         "poem": poem,
         "user_liked": user_liked,
         "can_edit": can_edit,
         "related_poems": related,
+        **actions_bar_author_context,
         "og": {
             "title": title + " — " + poem.poem_author_display_name,
             "description": body_preview,

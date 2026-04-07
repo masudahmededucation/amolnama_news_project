@@ -558,8 +558,14 @@ def post_detail(request, post_post_id):
     if post_item.get('author_username_handle'):
         json_ld['author']['url'] = request.build_absolute_uri(f'/social/@{post_item["author_username_handle"]}/')
 
+    from amolnama_news.site_apps.core.utils import build_related_content_items
+    related_content_items = build_related_content_items(
+        post_text_plain, 'post', post_post_id, limit=5,
+    )
+
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,
+        'related_content_items': related_content_items,
         'seo': {
             'title': og_title,
             'description': og_description,

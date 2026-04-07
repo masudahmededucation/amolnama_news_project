@@ -36,6 +36,7 @@ def fanout_post_to_interested_users(post_post_id, author_user_profile_id, is_bre
     """
     _fanout_to_followers(post_post_id, author_user_profile_id)
     _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id)
+    _notify_followers_of_new_content(post_post_id, author_user_profile_id)
 
     if is_breaking:
         _fanout_breaking_news(post_post_id)
@@ -74,6 +75,64 @@ def _fanout_to_followers(post_post_id, author_user_profile_id):
     except Exception as follower_error:
         logger.error('feed_fanout: follower fanout failed for post %s — %s',
                      post_post_id, follower_error)
+
+
+def _notify_followers_of_new_content(post_post_id, author_user_profile_id):
+    """Send in-app notification to all followers when author publishes new content.
+    Notification includes writer name and post title/text preview."""
+    try:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        from amolnama_news.site_apps.post.models import Post
+
+        author_profile = UserProfile.objects.filter(
+            user_profile_id=author_user_profile_id
+        ).first()
+        if not author_profile:
+            return
+
+        post = Post.objects.filter(post_post_id=post_post_id).first()
+        if not post:
+            return
+
+        author_display_name = author_profile.display_name or 'ব্যবহারকারী'
+        post_title = (post.post_text or '')[:80]
+        notification_message = f'{author_display_name} নতুন পোস্ট করেছেন: {post_title}'
+        notification_url = f'/post/{post_post_id}/'
+
+        # Bulk insert notifications for all followers
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO [newsengine].[notification_item]
+                    (link_recipient_user_profile_id, link_actor_user_profile_id,
+                     notification_event_code, notification_source_app,
+                     link_notification_content_id, notification_message,
+                     notification_url, is_read, is_active, created_at)
+                SELECT
+                    uf.link_follower_user_profile_id,
+                    %s,
+                    'new_post',
+                    'post',
+                    %s,
+                    %s,
+                    %s,
+                    0,
+                    1,
+                    GETDATE()
+                FROM [social].[user_follow] uf
+                WHERE uf.link_following_user_profile_id = %s
+                  AND uf.is_active = 1
+            """, [
+                author_user_profile_id, post_post_id,
+                notification_message, notification_url,
+                author_user_profile_id,
+            ])
+            notification_count = cursor.rowcount
+            if notification_count > 0:
+                logger.info('feed_fanout: sent %d notifications for post %s by %s',
+                             notification_count, post_post_id, author_display_name)
+    except Exception as notification_error:
+        logger.error('feed_fanout: notification failed for post %s — %s',
+                     post_post_id, notification_error)
 
 
 def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):

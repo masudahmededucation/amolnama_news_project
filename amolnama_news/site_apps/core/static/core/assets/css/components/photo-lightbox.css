@@ -1,7 +1,8 @@
 /* ========== Photo Lightbox — shared component ========== */
 /* Used by: travel hub detail, article detail, and any page with photo galleries */
 
-.photo-lightbox {
+.photo-lightbox:not([hidden]) {
+  display: flex;
   position: fixed;
   top: 0;
   left: 0;
@@ -10,10 +11,6 @@
   z-index: 9999;
   align-items: center;
   justify-content: center;
-}
-
-.photo-lightbox:not([hidden]) {
-  display: flex;
 }
 
 .photo-lightbox-overlay {

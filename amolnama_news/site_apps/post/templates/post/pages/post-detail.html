@@ -11,6 +11,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -25,6 +26,7 @@
   </div>
 </div>
 
+{% include "core/components/related-content.html" %}
 {% include "core/components/photo-lightbox.html" %}
 
 {% endblock %}

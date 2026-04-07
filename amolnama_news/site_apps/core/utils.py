@@ -116,3 +116,186 @@ def generate_username_handle(display_name):
         counter += 1
 
     return candidate
+
+
+def build_actions_bar_author_context(author_user_profile_id, request):
+    """Build template context for the writer section of actions-bar.
+    Returns dict with actions_bar_author_* keys. Shared across all content apps.
+
+    Usage in views:
+        from core.utils import build_actions_bar_author_context
+        context.update(build_actions_bar_author_context(author_profile_id, request))
+    """
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    if not author_user_profile_id:
+        return {}
+
+    try:
+        author_profile = UserProfile.objects.get(user_profile_id=author_user_profile_id)
+    except UserProfile.DoesNotExist:
+        return {}
+
+    # Check if current user is the author
+    current_user_profile_id = None
+    is_own = False
+    is_following = False
+    if request.user.is_authenticated:
+        try:
+            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+            current_user_profile_id = current_profile.user_profile_id
+            is_own = current_user_profile_id == author_user_profile_id
+            if not is_own:
+                from amolnama_news.site_apps.social.models import UserFollow
+                is_following = UserFollow.objects.filter(
+                    link_follower_user_profile_id=current_user_profile_id,
+                    link_following_user_profile_id=author_user_profile_id,
+                    is_active=True,
+                ).exists()
+        except UserProfile.DoesNotExist:
+            pass
+
+    return {
+        'actions_bar_author_display_name': author_profile.display_name or '',
+        'actions_bar_author_username_handle': author_profile.username_handle or '',
+        'actions_bar_author_user_profile_id': author_user_profile_id,
+        'actions_bar_author_is_own': is_own,
+        'actions_bar_author_is_following': is_following,
+    }
+
+
+def build_related_content_items(text, content_type_code, content_id, limit=5):
+    """Find semantically similar content using vector embeddings.
+    Returns list of dicts ready for the related-content.html template.
+
+    Falls back to empty list if embeddings not available or no matches.
+
+    Usage in views:
+        from core.utils import build_related_content_items
+        related = build_related_content_items(post_text, 'post', post_id)
+        context['related_content_items'] = related
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    CONTENT_TYPE_LABELS = {
+        'post': 'পোস্ট',
+        'poem': 'কবিতা',
+        'story': 'গল্প',
+        'art': 'শিল্পকলা',
+        'article': 'নিবন্ধ',
+        'debate': 'বিতর্ক',
+        'destination': 'ভ্রমণ',
+    }
+
+    try:
+        from amolnama_news.site_apps.newsengine.embeddings import find_similar_content_cross_type
+        similar_items = find_similar_content_cross_type(
+            text, limit=limit,
+            exclude_type=content_type_code, exclude_id=content_id,
+        )
+
+        if not similar_items:
+            return []
+
+        # Enrich with actual titles and URLs
+        results = []
+        for item in similar_items:
+            item_type = item['content_type_code']
+            item_id = item['content_id']
+            enriched = _enrich_related_content_item(item_type, item_id)
+            if enriched:
+                enriched['content_type_label'] = CONTENT_TYPE_LABELS.get(item_type, item_type)
+                enriched['similarity'] = item['similarity']
+                results.append(enriched)
+
+        return results
+
+    except Exception as related_error:
+        logger.error('build_related_content_items failed for %s:%s — %s',
+                     content_type_code, content_id, related_error)
+        return []
+
+
+def _enrich_related_content_item(content_type_code, content_id):
+    """Fetch title, URL, author name for a related content item."""
+    try:
+        if content_type_code == 'post':
+            from amolnama_news.site_apps.post.models import Post
+            post = Post.objects.filter(
+                post_post_id=content_id, is_published=True, is_active=True,
+            ).first()
+            if post:
+                return {
+                    'title': (post.post_text or '')[:80],
+                    'url': f'/post/{content_id}/',
+                    'author_name': None,
+                }
+
+        elif content_type_code == 'poem':
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT poem_title_bn, poem_slug, poem_author_display_name
+                    FROM [poem].[coll_poem_entry]
+                    WHERE poem_coll_poem_entry_id = %s AND is_active = 1
+                """, [content_id])
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'title': row[0] or '',
+                        'url': f'/bangla-kobita-gaan/{row[1]}/' if row[1] else f'/bangla-kobita-gaan/',
+                        'author_name': row[2] or None,
+                    }
+
+        elif content_type_code == 'story':
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT story_title_bn, story_slug
+                    FROM [stories].[coll_story]
+                    WHERE story_coll_story_id = %s AND is_active = 1
+                """, [content_id])
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'title': row[0] or '',
+                        'url': f'/stories-for-kids/{row[1]}/' if row[1] else '/stories-for-kids/',
+                        'author_name': None,
+                    }
+
+        elif content_type_code == 'art':
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT artwork_title_bn, artwork_slug
+                    FROM [art].[coll_artwork]
+                    WHERE art_coll_artwork_id = %s AND is_active = 1
+                """, [content_id])
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'title': row[0] or '',
+                        'url': f'/art/{row[1]}/' if row[1] else '/art/',
+                        'author_name': None,
+                    }
+
+        elif content_type_code == 'destination':
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT destination_name_bn, destination_slug
+                    FROM [bangladesh].[coll_destination]
+                    WHERE bangladesh_coll_destination_id = %s AND is_active = 1
+                """, [content_id])
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        'title': row[0] or '',
+                        'url': f'/bangladesh-tourist-destinations/travel/{row[1]}/' if row[1] else '/bangladesh-tourist-destinations/travel/',
+                        'author_name': None,
+                    }
+
+    except Exception:
+        pass
+    return None
