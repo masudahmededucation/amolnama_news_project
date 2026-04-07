@@ -188,7 +188,7 @@ def api_topic_create(request):
     now = timezone.now()
     topic_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
-        INSERT INTO [debate].[coll_topic]
+        INSERT INTO [blog_debate].[coll_topic]
             ([topic_guid], [topic_title], [topic_description],
              [blue_side_label], [red_side_label],
              [blue_side_video_url], [red_side_video_url],
@@ -243,7 +243,7 @@ def api_topic_edit(request, topic_id):
 
     now = timezone.now()
     _raw_execute("""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [topic_title] = ?, [topic_description] = ?,
             [blue_side_label] = ?, [red_side_label] = ?,
             [blue_side_video_url] = ?, [red_side_video_url] = ?,
@@ -292,14 +292,14 @@ def api_topic_join(request, topic_id):
         return JsonResponse({'success': False, 'error': 'Invalid team side'}, status=400)
 
     _raw_execute("""
-        INSERT INTO [debate].[coll_topic_participant]
+        INSERT INTO [blog_debate].[coll_topic_participant]
             ([link_topic_id], [link_user_profile_id], [link_team_side_id])
         VALUES (?, ?, ?)
     """, [topic_id, user_profile_id, team_side.debate_ref_team_side_id])
 
     count_column = 'blue_participant_count' if team_side_code == 'blue' else 'red_participant_count'
     _raw_execute(f"""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [{count_column}] = [{count_column}] + 1, [updated_at] = ?
         WHERE [debate_coll_topic_id] = ?
     """, [timezone.now(), topic_id])
@@ -327,7 +327,7 @@ def api_topic_go_live(request, topic_id):
     live_status = RefTopicStatus.objects.filter(topic_status_code='live').first()
     now = timezone.now()
     _raw_execute("""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [link_topic_status_id] = ?, [actual_started_at] = ?, [updated_at] = ?
         WHERE [debate_coll_topic_id] = ?
     """, [live_status.debate_ref_topic_status_id, now, now, topic_id])
@@ -360,7 +360,7 @@ def api_topic_close(request, topic_id):
     closed_status = RefTopicStatus.objects.filter(topic_status_code='closed').first()
     now = timezone.now()
     _raw_execute("""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [link_topic_status_id] = ?, [actual_closed_at] = ?, [winning_side_code] = ?, [updated_at] = ?
         WHERE [debate_coll_topic_id] = ?
     """, [closed_status.debate_ref_topic_status_id, now, winning_side_code, now, topic_id])
@@ -444,14 +444,14 @@ def api_post_argument(request, topic_id):
             ).first()
             if not existing_vote:
                 _raw_execute("""
-                    INSERT INTO [debate].[vote]
+                    INSERT INTO [blog_debate].[vote]
                         ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
                     VALUES (?, ?, ?, ?)
                 """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id,
                       existing_duplicate.debate_coll_post_id, 1])
                 # Update cached score
                 _raw_execute("""
-                    UPDATE [debate].[coll_post]
+                    UPDATE [blog_debate].[coll_post]
                     SET [upvote_count] = [upvote_count] + 1, [score] = [score] + 1, [updated_at] = ?
                     WHERE [debate_coll_post_id] = ?
                 """, [timezone.now(), existing_duplicate.debate_coll_post_id])
@@ -466,7 +466,7 @@ def api_post_argument(request, topic_id):
     # INSERT argument — board side = author's own side
     post_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
-        INSERT INTO [debate].[coll_post]
+        INSERT INTO [blog_debate].[coll_post]
             ([post_guid], [link_topic_id], [link_coll_topic_participant_id],
              [link_author_user_profile_id], [link_author_team_side_id],
              [link_post_kind_id], [link_thread_board_side_id],
@@ -490,14 +490,14 @@ def api_post_argument(request, topic_id):
 
     # Set root_post_id = self (self-reference after INSERT)
     _raw_execute("""
-        UPDATE [debate].[coll_post] SET [link_root_post_id] = ? WHERE [debate_coll_post_id] = ?
+        UPDATE [blog_debate].[coll_post] SET [link_root_post_id] = ? WHERE [debate_coll_post_id] = ?
     """, [post_id, post_id])
 
     # Update cached counts + passion board
     now = timezone.now()
     side_prefix = 'blue' if participant.link_team_side_id == 1 else 'red'
     _raw_execute(f"""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [total_post_count] = [total_post_count] + 1,
             [{side_prefix}_post_count] = [{side_prefix}_post_count] + 1,
             [{side_prefix}_sentence_count] = [{side_prefix}_sentence_count] + ?,
@@ -506,7 +506,7 @@ def api_post_argument(request, topic_id):
         WHERE [debate_coll_topic_id] = ?
     """, [metrics['post_sentence_count'], metrics['post_character_count'], now, topic_id])
     _raw_execute("""
-        UPDATE [debate].[coll_topic_participant]
+        UPDATE [blog_debate].[coll_topic_participant]
         SET [participant_argument_count] = [participant_argument_count] + 1, [updated_at] = ?
         WHERE [debate_coll_topic_participant_id] = ?
     """, [now, participant.debate_coll_topic_participant_id])
@@ -596,7 +596,7 @@ def api_post_reply(request, topic_id):
     # INSERT rebuttal — thread board stays on parent's board
     post_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
-        INSERT INTO [debate].[coll_post]
+        INSERT INTO [blog_debate].[coll_post]
             ([post_guid], [link_topic_id], [link_coll_topic_participant_id],
              [link_author_user_profile_id], [link_author_team_side_id],
              [link_post_kind_id], [link_thread_board_side_id],
@@ -626,12 +626,12 @@ def api_post_reply(request, topic_id):
     now = timezone.now()
     side_prefix = 'blue' if participant.link_team_side_id == 1 else 'red'
     _raw_execute("""
-        UPDATE [debate].[coll_post]
+        UPDATE [blog_debate].[coll_post]
         SET [reply_count] = [reply_count] + 1, [updated_at] = ?
         WHERE [debate_coll_post_id] = ?
     """, [now, parent_post_id])
     _raw_execute(f"""
-        UPDATE [debate].[coll_topic]
+        UPDATE [blog_debate].[coll_topic]
         SET [total_post_count] = [total_post_count] + 1,
             [{side_prefix}_post_count] = [{side_prefix}_post_count] + 1,
             [{side_prefix}_sentence_count] = [{side_prefix}_sentence_count] + ?,
@@ -640,7 +640,7 @@ def api_post_reply(request, topic_id):
         WHERE [debate_coll_topic_id] = ?
     """, [metrics['post_sentence_count'], metrics['post_character_count'], now, topic_id])
     _raw_execute("""
-        UPDATE [debate].[coll_topic_participant]
+        UPDATE [blog_debate].[coll_topic_participant]
         SET [participant_rebuttal_count] = [participant_rebuttal_count] + 1, [updated_at] = ?
         WHERE [debate_coll_topic_participant_id] = ?
     """, [now, participant.debate_coll_topic_participant_id])
@@ -693,14 +693,14 @@ def api_post_edit(request, post_id):
         return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
 
     _raw_execute("""
-        INSERT INTO [debate].[fact_post_edit_history]
+        INSERT INTO [blog_debate].[fact_post_edit_history]
             ([link_post_id], [previous_post_content], [link_edited_by_user_profile_id])
         VALUES (?, ?, ?)
     """, [post_id, post.post_content, user_profile_id])
 
     now = timezone.now()
     _raw_execute("""
-        UPDATE [debate].[coll_post]
+        UPDATE [blog_debate].[coll_post]
         SET [post_content] = ?, [post_content_hash] = ?, [is_edited] = 1, [edited_at] = ?, [updated_at] = ?
         WHERE [debate_coll_post_id] = ?
     """, [new_content, _content_hash(new_content), now, now, post_id])
@@ -724,7 +724,7 @@ def api_post_delete(request, post_id):
 
     now = timezone.now()
     _raw_execute("""
-        UPDATE [debate].[coll_post]
+        UPDATE [blog_debate].[coll_post]
         SET [is_deleted] = 1, [deleted_at] = ?, [updated_at] = ?
         WHERE [debate_coll_post_id] = ?
     """, [now, now, post_id])
@@ -782,14 +782,14 @@ def _handle_vote(request, target_type_code, target_row_id):
     if existing_vote:
         if existing_vote.vote_value == vote_value:
             # Same vote → remove (toggle off)
-            _raw_execute("DELETE FROM [debate].[vote] WHERE [debate_vote_id] = ?",
+            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [debate_vote_id] = ?",
                          [existing_vote.debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -vote_value, 0)
             return JsonResponse({'success': True, 'action': 'removed'})
         else:
             # Different vote → flip
             _raw_execute("""
-                UPDATE [debate].[vote] SET [vote_value] = ?, [voted_at] = ?, [updated_at] = ?
+                UPDATE [blog_debate].[vote] SET [vote_value] = ?, [voted_at] = ?, [updated_at] = ?
                 WHERE [debate_vote_id] = ?
             """, [vote_value, now, now, existing_vote.debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -existing_vote.vote_value, vote_value)
@@ -797,7 +797,7 @@ def _handle_vote(request, target_type_code, target_row_id):
     else:
         # New vote
         _raw_execute("""
-            INSERT INTO [debate].[vote]
+            INSERT INTO [blog_debate].[vote]
                 ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
         """, [user_profile_id, vote_target_type_id, target_row_id, vote_value])
@@ -808,13 +808,13 @@ def _handle_vote(request, target_type_code, target_row_id):
 def _update_vote_counts(target_type_code, target_row_id, remove_value, add_value):
     """Update cached vote counts on topic or post."""
     if target_type_code == 'topic':
-        table = '[debate].[coll_topic]'
+        table = '[blog_debate].[coll_topic]'
         pk_column = 'debate_coll_topic_id'
         upvote_column = 'topic_upvote_count'
         downvote_column = 'topic_downvote_count'
         score_column = 'topic_score'
     else:
-        table = '[debate].[coll_post]'
+        table = '[blog_debate].[coll_post]'
         pk_column = 'debate_coll_post_id'
         upvote_column = 'upvote_count'
         downvote_column = 'downvote_count'
@@ -877,7 +877,7 @@ def api_post_fact_check_flag(request, post_id):
     is_needed = 1 if new_count >= 3 else 0
 
     _raw_execute("""
-        UPDATE [debate].[coll_post]
+        UPDATE [blog_debate].[coll_post]
         SET [fact_check_flag_count] = ?, [is_fact_check_needed] = ?, [updated_at] = ?
         WHERE [debate_coll_post_id] = ?
     """, [new_count, is_needed, now, post_id])
@@ -1018,7 +1018,7 @@ def api_audience_vote(request, topic_id):
             if vote_target_type_check:
                 placeholders = ','.join('?' * len(same_ip_profile_ids))
                 duplicate_ip_vote = _raw_execute(f"""
-                    SELECT TOP 1 [debate_vote_id] FROM [debate].[vote]
+                    SELECT TOP 1 [debate_vote_id] FROM [blog_debate].[vote]
                     WHERE [link_voter_user_profile_id] IN ({placeholders})
                       AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
                 """, list(same_ip_profile_ids) + [vote_target_type_check.debate_ref_vote_target_type_id, topic_id])
@@ -1036,7 +1036,7 @@ def api_audience_vote(request, topic_id):
 
     # Check existing vote via raw SQL
     cursor = _raw_execute("""
-        SELECT [debate_vote_id], [vote_value] FROM [debate].[vote]
+        SELECT [debate_vote_id], [vote_value] FROM [blog_debate].[vote]
         WHERE [link_voter_user_profile_id] = ? AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
     """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id])
     existing_row = cursor.fetchone()
@@ -1047,22 +1047,22 @@ def api_audience_vote(request, topic_id):
 
         if existing_vote_value == vote_value:
             # Same vote — toggle off
-            _raw_execute("DELETE FROM [debate].[vote] WHERE [debate_vote_id] = ?", [existing_vote_id])
+            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [debate_vote_id] = ?", [existing_vote_id])
             column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
             _raw_execute(f"""
-                UPDATE [debate].[coll_topic]
+                UPDATE [blog_debate].[coll_topic]
                 SET [{column}] = CASE WHEN [{column}] > 0 THEN [{column}] - 1 ELSE 0 END, [updated_at] = ?
                 WHERE [debate_coll_topic_id] = ?
             """, [now, topic_id])
             action = 'removed'
         else:
             # Flip vote
-            _raw_execute("UPDATE [debate].[vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_vote_id] = ?",
+            _raw_execute("UPDATE [blog_debate].[vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_vote_id] = ?",
                          [vote_value, now, existing_vote_id])
             old_column = 'audience_blue_vote_count' if existing_vote_value == 1 else 'audience_red_vote_count'
             new_column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
             _raw_execute(f"""
-                UPDATE [debate].[coll_topic]
+                UPDATE [blog_debate].[coll_topic]
                 SET [{old_column}] = CASE WHEN [{old_column}] > 0 THEN [{old_column}] - 1 ELSE 0 END,
                     [{new_column}] = [{new_column}] + 1, [updated_at] = ?
                 WHERE [debate_coll_topic_id] = ?
@@ -1071,13 +1071,13 @@ def api_audience_vote(request, topic_id):
     else:
         # New vote
         _raw_execute("""
-            INSERT INTO [debate].[vote]
+            INSERT INTO [blog_debate].[vote]
                 ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
         """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id, vote_value])
         column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
         _raw_execute(f"""
-            UPDATE [debate].[coll_topic]
+            UPDATE [blog_debate].[coll_topic]
             SET [{column}] = [{column}] + 1, [updated_at] = ?
             WHERE [debate_coll_topic_id] = ?
         """, [now, topic_id])
@@ -1164,7 +1164,7 @@ def _create_notification(recipient_user_profile_id, actor_user_profile_id, event
         return  # Don't notify yourself
     try:
         _raw_execute("""
-            INSERT INTO [debate].[notification]
+            INSERT INTO [blog_debate].[notification]
                 ([link_recipient_user_profile_id], [link_actor_user_profile_id],
                  [notification_event_code], [link_topic_id], [link_post_id], [notification_message])
             VALUES (?, ?, ?, ?, ?, ?)

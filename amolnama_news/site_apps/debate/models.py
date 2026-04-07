@@ -1,4 +1,4 @@
-"""Debate app models — all managed=False, mapped to [debate].* SQL Server tables."""
+"""Debate app models — all managed=False, mapped to [blog_debate].* SQL Server tables."""
 
 from django.db import models
 
@@ -21,7 +21,7 @@ class RefTeamSide(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[ref_team_side]'
+        db_table = '[blog_debate].[ref_team_side]'
 
     def __str__(self):
         return self.team_side_name_en
@@ -40,7 +40,7 @@ class RefTopicStatus(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[ref_topic_status]'
+        db_table = '[blog_debate].[ref_topic_status]'
 
     def __str__(self):
         return self.topic_status_name_en
@@ -59,7 +59,7 @@ class RefPostKind(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[ref_post_kind]'
+        db_table = '[blog_debate].[ref_post_kind]'
 
     def __str__(self):
         return self.post_kind_name_en
@@ -78,7 +78,7 @@ class RefModerationStatus(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[ref_moderation_status]'
+        db_table = '[blog_debate].[ref_moderation_status]'
 
     def __str__(self):
         return self.moderation_status_name_en
@@ -97,7 +97,7 @@ class RefVoteTargetType(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[ref_vote_target_type]'
+        db_table = '[blog_debate].[ref_vote_target_type]'
 
     def __str__(self):
         return self.vote_target_type_name_en
@@ -158,7 +158,7 @@ class CollTopic(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_topic]'
+        db_table = '[blog_debate].[coll_topic]'
 
     def __str__(self):
         return self.topic_title
@@ -183,7 +183,7 @@ class CollTopicParticipant(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_topic_participant]'
+        db_table = '[blog_debate].[coll_topic_participant]'
 
 
 class CollPost(models.Model):
@@ -234,7 +234,7 @@ class CollPost(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[coll_post]'
+        db_table = '[blog_debate].[coll_post]'
 
 
 class FactPostModeration(models.Model):
@@ -257,7 +257,7 @@ class FactPostModeration(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[fact_debate_post_moderation]'
+        db_table = '[blog_debate].[fact_debate_post_moderation]'
 
 
 class Vote(models.Model):
@@ -274,7 +274,7 @@ class Vote(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[vote]'
+        db_table = '[blog_debate].[vote]'
 
 
 class FactPostEditHistory(models.Model):
@@ -289,7 +289,7 @@ class FactPostEditHistory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[fact_post_edit_history]'
+        db_table = '[blog_debate].[fact_post_edit_history]'
 
 
 class Notification(models.Model):
@@ -308,4 +308,4 @@ class Notification(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[debate].[notification]'
+        db_table = '[blog_debate].[notification]'
