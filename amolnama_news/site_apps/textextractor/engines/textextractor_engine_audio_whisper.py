@@ -42,10 +42,8 @@ def _extract_audio_from_video(video_path):
         logger.warning('ffmpeg not found — processing video directly (slower)')
         return None
     except subprocess.TimeoutExpired:
-        logger.warning('Audio extraction timed out for %s', video_path)
         return None
-    except Exception as audio_extract_error:
-        logger.warning('Audio extraction failed for %s — %s', video_path, audio_extract_error)
+    except Exception:
         return None
 
 

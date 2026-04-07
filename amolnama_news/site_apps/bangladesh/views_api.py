@@ -1,9 +1,6 @@
 """Bangladesh app — JSON API endpoints."""
 
 import json
-import logging
-
-logger = logging.getLogger(__name__)
 from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 import os
@@ -597,8 +594,7 @@ def _fetch_tiktok_thumbnail(url):
         with urllib.request.urlopen(request, timeout=5) as response:
             data = json.loads(response.read().decode("utf-8"))
             return data.get("thumbnail_url") or None
-    except Exception as tiktok_thumbnail_error:
-        logger.warning('TikTok thumbnail fetch failed for %s — %s', url, tiktok_thumbnail_error)
+    except Exception:
         return None
 
 

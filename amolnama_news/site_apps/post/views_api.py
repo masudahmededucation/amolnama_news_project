@@ -24,10 +24,17 @@ MEDIA_EXTENSION_MAP = {
 }
 
 
+def _run_background_task(target_function, *args):
+    """Run a function in a background daemon thread. Shared helper to avoid
+    repeating 'import threading; threading.Thread(target=..., daemon=True).start()' everywhere."""
+    import threading
+    threading.Thread(target=target_function, args=args, daemon=True).start()
+
+
 def _refresh_post_feed_score_background(post_post_id):
     """Refresh cached feed score for a post after engagement change (like/vote/repost/reply).
     Runs in background thread — does not block the API response."""
-    from amolnama_news.site_apps.newsengine.utils import run_background_task
+    import threading
 
     def _background_refresh(background_post_id):
         try:
@@ -49,7 +56,7 @@ def _refresh_post_feed_score_background(post_post_id):
         except Exception:
             logger.exception('Feed score refresh failed for post %s', background_post_id)
 
-    run_background_task(_background_refresh, post_post_id)
+    threading.Thread(target=_background_refresh, args=(post_post_id,), daemon=True).start()
 
 
 @require_POST
@@ -193,11 +200,11 @@ def api_post_create(request):
         media_urls.append('/media/' + file_storage_path)
 
     # Extract keywords in background thread — don't block the user
-    from amolnama_news.site_apps.newsengine.utils import run_background_task
-
     if post_text and len(post_text) >= 20:
+        import threading
         def _background_keyword_extraction(background_post_id, background_text):
             try:
+                import django
                 from django.db import connection as background_connection
                 keywords_json = _extract_keywords(background_text)
                 if keywords_json:
@@ -209,48 +216,58 @@ def api_post_create(request):
             except Exception:
                 logger.exception('Background keyword extraction failed for post %s', background_post_id)
 
-        run_background_task(_background_keyword_extraction, post.post_post_id, post_text)
+        keyword_thread = threading.Thread(
+            target=_background_keyword_extraction,
+            args=(post.post_post_id, post_text),
+            daemon=True,
+        )
+        keyword_thread.start()
 
     # Extract and link hashtags in background
     if post_text:
+        import threading
         def _background_hashtag_extraction(background_post_id, background_text):
             try:
                 _extract_and_link_hashtags(background_post_id, background_text)
             except Exception:
                 logger.exception('Hashtag extraction failed for post %s', background_post_id)
-        run_background_task(_background_hashtag_extraction, post.post_post_id, post_text)
+        threading.Thread(target=_background_hashtag_extraction, args=(post.post_post_id, post_text), daemon=True).start()
 
     # Extract and link @mentions in background + send notifications
     if post_text:
+        import threading
         def _background_mention_extraction(background_post_id, background_text, author_profile_id):
             try:
                 _extract_and_link_mentions(background_post_id, background_text, author_profile_id)
             except Exception:
                 logger.exception('Mention extraction failed for post %s', background_post_id)
-        run_background_task(_background_mention_extraction, post.post_post_id, post_text, user_profile.user_profile_id)
+        threading.Thread(target=_background_mention_extraction, args=(post.post_post_id, post_text, user_profile.user_profile_id), daemon=True).start()
 
     # Classify content in background — auto-flag harmful content
     if post_text:
+        import threading
         def _background_content_classification(background_post_id, background_text):
             try:
                 from amolnama_news.site_apps.newsengine.content_classifier import classify_and_store
                 classify_and_store('post', background_post_id, background_text)
             except Exception:
                 logger.exception('Content classification failed for post %s', background_post_id)
-        run_background_task(_background_content_classification, post.post_post_id, post_text)
+        threading.Thread(target=_background_content_classification, args=(post.post_post_id, post_text), daemon=True).start()
 
     # Fact-check in background — pattern detection, duplicate claims, domain blacklist, Google API
     if post_text and len(post_text) >= 20:
+        import threading
         def _background_fact_check(background_post_id, background_text):
             try:
                 from amolnama_news.site_apps.newsengine.fact_checker import fact_check_content
                 fact_check_content('post', background_post_id, background_text)
             except Exception:
                 logger.exception('Fact-check failed for post %s', background_post_id)
-        run_background_task(_background_fact_check, post.post_post_id, post_text)
+        threading.Thread(target=_background_fact_check, args=(post.post_post_id, post_text), daemon=True).start()
 
     # Cache content score — populate fact_feed_content_score for feed ranking cache
     try:
+        import threading
         def _background_cache_content_score(background_post_id, background_post_item):
             try:
                 from amolnama_news.site_apps.newsengine.feed_cache import cache_content_score
@@ -263,7 +280,7 @@ def api_post_create(request):
             'repost_count': 0, 'vote_score_count': 0,
             'post_text': post_text or '', 'author_contribution_score': 0,
         }
-        run_background_task(_background_cache_content_score, post.post_post_id, cache_item)
+        threading.Thread(target=_background_cache_content_score, args=(post.post_post_id, cache_item), daemon=True).start()
     except Exception:
         logger.exception('Feed cache thread failed for post %s', post.post_post_id)
 
@@ -886,8 +903,7 @@ def api_post_edit(request, post_post_id):
 
     # Re-extract keywords in background
     if len(new_text) >= 20:
-        from amolnama_news.site_apps.newsengine.utils import run_background_task
-
+        import threading
         def _background_keyword_update(background_post_id, background_text):
             try:
                 keywords_json = _extract_keywords(background_text)
@@ -899,7 +915,7 @@ def api_post_edit(request, post_post_id):
                         )
             except Exception:
                 logger.exception('Background keyword update failed for post %s', background_post_id)
-        run_background_task(_background_keyword_update, post_post_id, new_text)
+        threading.Thread(target=_background_keyword_update, args=(post_post_id, new_text), daemon=True).start()
 
     return JsonResponse({'success': True, 'post_text': new_text})
 
@@ -1050,8 +1066,12 @@ def api_post_vote_toggle(request, post_post_id):
     Post.objects.filter(post_post_id=post_post_id).update(vote_score_count=actual_vote_count)
 
     # Update post author's contribution score in background
-    from amolnama_news.site_apps.newsengine.utils import run_background_task
-    run_background_task(_update_contribution_score_background, post.link_user_profile_id)
+    import threading
+    threading.Thread(
+        target=_update_contribution_score_background,
+        args=(post.link_user_profile_id,),
+        daemon=True,
+    ).start()
 
     _refresh_post_feed_score_background(post_post_id)
     try:

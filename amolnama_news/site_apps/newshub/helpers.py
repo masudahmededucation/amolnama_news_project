@@ -5,10 +5,7 @@ build_sidenote_data(news_entry) — sidenote items for two-column article view.
 build_edit_data(entry_id, form_type_code) — reconstruct all form data from DB for edit mode.
 """
 
-import logging
 import re
-
-logger = logging.getLogger(__name__)
 
 from django.utils import timezone
 from amolnama_news.site_apps.investigation.models import (
@@ -886,8 +883,8 @@ def build_article_seo_slug(entry, form_type_code):
             )
             if district.district_name_en:
                 parts.append(district.district_name_en.lower())
-        except Exception as district_lookup_error:
-            logger.error('District lookup for slug failed — %s', district_lookup_error)
+        except Exception:
+            pass
 
     # 3. Headline keywords (first ~6 words from Bengali headline, transliterated)
     headline = entry.news_headline_bn or entry.news_headline_en or ""

@@ -80,8 +80,7 @@ def _deskew_image(image):
         rotated = cv2.warpAffine(image, matrix, (width, height),
                                   flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
         return rotated
-    except Exception as rotation_error:
-        logger.warning('Image deskew failed — returning original — %s', rotation_error)
+    except Exception:
         return image
 
 

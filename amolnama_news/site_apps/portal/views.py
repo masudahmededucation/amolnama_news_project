@@ -1,10 +1,6 @@
 """Portal views — user profile pages (personal, contact, address, settings)."""
 
-import logging
-
 from django.contrib import messages
-
-logger = logging.getLogger(__name__)
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -624,8 +620,8 @@ def moderation_queue_view(request):
                 'is_fact_check_needed': False,
                 'content_url': f'/post/{flag.link_post_id}/',
             })
-    except Exception as moderation_error:
-        logger.error('Moderation queue fetch failed — %s', moderation_error)
+    except Exception:
+        pass
 
     return render(request, 'portal/pages/moderation-queue.html', {
         'flagged_items': flagged_items,

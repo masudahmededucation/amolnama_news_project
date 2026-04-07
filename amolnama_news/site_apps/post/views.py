@@ -1,9 +1,6 @@
 """Post views — feed display, post detail, and post creation."""
 
-import logging
 import re
-
-logger = logging.getLogger(__name__)
 
 from amolnama_news.site_apps.core.utils import time_ago as _calculate_time_ago
 
@@ -252,8 +249,8 @@ def build_post_feed_items(request, posts=None):
         for item in post_items:
             if item['post_post_id'] in polls_map:
                 item['poll'] = polls_map[item['post_post_id']]
-    except Exception as poll_error:
-        logger.error('Poll enrichment failed — %s', poll_error)
+    except Exception:
+        pass
 
     return post_items, current_user_avatar_url
 
@@ -396,8 +393,8 @@ def bookmarks(request):
                         'promo_view_count': getattr(poem, 'view_count', None),
                         'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
                     })
-    except Exception as poem_bookmark_error:
-        logger.error('Poem bookmark fetch failed — %s', poem_bookmark_error)
+    except Exception:
+        pass
 
     # Art bookmarks
     try:
@@ -421,8 +418,8 @@ def bookmarks(request):
                         'promo_view_count': getattr(artwork, 'view_count', None),
                         'promo_extra_stat': None, 'promo_cta': 'দেখুন',
                     })
-    except Exception as art_bookmark_error:
-        logger.error('Art bookmark fetch failed — %s', art_bookmark_error)
+    except Exception:
+        pass
 
     # Story bookmarks
     try:
@@ -446,8 +443,8 @@ def bookmarks(request):
                         'promo_view_count': getattr(story, 'view_count', None),
                         'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
                     })
-    except Exception as story_bookmark_error:
-        logger.error('Story bookmark fetch failed — %s', story_bookmark_error)
+    except Exception:
+        pass
 
     # Travel destination bookmarks
     try:
@@ -471,8 +468,8 @@ def bookmarks(request):
                         'promo_view_count': getattr(destination, 'view_count', None),
                         'promo_extra_stat': None, 'promo_cta': 'ঘুরে আসুন',
                     })
-    except Exception as travel_bookmark_error:
-        logger.error('Travel bookmark fetch failed — %s', travel_bookmark_error)
+    except Exception:
+        pass
 
     # Newsengine universal bookmarks (future — manual bookmarks from promo cards)
     try:
@@ -488,8 +485,8 @@ def bookmarks(request):
                 'promo_like_count': None, 'promo_view_count': None,
                 'promo_extra_stat': None, 'promo_cta': 'দেখুন',
             })
-    except Exception as newsengine_bookmark_error:
-        logger.error('Newsengine bookmark fetch failed — %s', newsengine_bookmark_error)
+    except Exception:
+        pass
 
     return render(request, 'post/pages/post-bookmarks.html', {
         'posts': post_items,

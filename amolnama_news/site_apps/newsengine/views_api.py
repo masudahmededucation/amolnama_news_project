@@ -281,8 +281,7 @@ def api_link_preview(request):
         resolved_ip = socket.getaddrinfo(parsed_hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)[0][4][0]
         if ipaddress.ip_address(resolved_ip).is_private:
             return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
-    except Exception as url_validation_error:
-        logger.warning('Link preview URL validation failed for %s — %s', target_url, url_validation_error)
+    except Exception:
         return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
 
     try:
@@ -290,8 +289,7 @@ def api_link_preview(request):
         url_request = urllib.request.Request(target_url, headers=headers)
         response = urllib.request.urlopen(url_request, timeout=5)
         html_content = response.read(50000).decode('utf-8', errors='ignore')
-    except Exception as url_fetch_error:
-        logger.warning('Link preview fetch failed for %s — %s', target_url, url_fetch_error)
+    except Exception:
         return JsonResponse({'success': False, 'error': 'Could not fetch URL'}, status=400)
 
     og_data = {}
@@ -318,8 +316,8 @@ def api_link_preview(request):
 
     try:
         OgParser().feed(html_content)
-    except Exception as og_parser_error:
-        logger.warning('OG metadata parse failed for %s — %s', target_url, og_parser_error)
+    except Exception:
+        pass
 
     return JsonResponse({
         'success': True,

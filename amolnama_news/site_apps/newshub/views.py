@@ -1,12 +1,9 @@
 import hashlib
 import json
-import logging
 import os
 import re
 import unicodedata
 import uuid
-
-logger = logging.getLogger(__name__)
 from datetime import date as _date
 
 from django.conf import settings
@@ -1331,8 +1328,8 @@ def article_detail(request, slug):
                             real_name = f"{contributor_person.first_name_en or ''} {contributor_person.last_name_en or ''}".strip()
                         if real_name:
                             contributor_display_name = real_name
-                except Exception as person_lookup_error:
-                    logger.error('Contributor person lookup failed — %s', person_lookup_error)
+                except Exception:
+                    pass
         except Contributor.DoesNotExist:
             pass
 
