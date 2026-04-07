@@ -34,14 +34,36 @@ def build_home_feed(request):
 
     else:
         active_tab = 'for_you'
-        from amolnama_news.site_apps.post.views import build_post_feed_items
-        feed_items, current_user_avatar_url = build_post_feed_items(request)
+        # Cache-first: try pre-computed feed from fact_user_feed_cache
+        cache_used = False
+        user_profile_id = _get_user_profile_id(request)
+        if user_profile_id and not request.GET.get('fresh'):
+            try:
+                from .feed_fanout import get_cached_feed_for_user
+                cached_rows = get_cached_feed_for_user(user_profile_id, limit=20)
+                if cached_rows:
+                    cached_post_ids = [row[0] for row in cached_rows]
+                    from amolnama_news.site_apps.post.models import Post
+                    cached_posts = Post.objects.filter(
+                        post_post_id__in=cached_post_ids, is_active=True,
+                    )
+                    from amolnama_news.site_apps.post.views import build_post_feed_items
+                    feed_items, current_user_avatar_url = build_post_feed_items(request, posts=cached_posts)
+                    cache_used = True
+            except Exception:
+                logger.exception('Cache-first feed read failed — falling back to full pipeline')
+
+        if not cache_used:
+            from amolnama_news.site_apps.post.views import build_post_feed_items
+            feed_items, current_user_avatar_url = build_post_feed_items(request)
 
     # Apply newsengine intelligence to "For You" tab only
     if active_tab == 'for_you':
         feed_items = _build_intelligent_feed(request, feed_items, category_filter)
 
-    return feed_items, current_user_avatar_url, active_tab, following_count
+    # cache_used flag tells template to trigger background refresh via JS
+    feed_cache_used = active_tab == 'for_you' and locals().get('cache_used', False)
+    return feed_items, current_user_avatar_url, active_tab, following_count, feed_cache_used
 
 
 def _build_intelligent_feed(request, feed_items, category_filter):

@@ -19,7 +19,7 @@ def home(request):
         breadcrumbs.append({'name': 'সার্চ রেজাল্ট'})
 
     # Build the same feed as home page (without composer)
-    feed_items, current_user_avatar_url, _, _ = build_home_feed(request)
+    feed_items, current_user_avatar_url, _, _, _ = build_home_feed(request)
 
     return render(request, 'search/pages/search-home.html', {
         'query': query,

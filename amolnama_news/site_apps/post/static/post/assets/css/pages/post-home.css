@@ -1969,3 +1969,24 @@
   border-radius: 4px;
   background: var(--border);
 }
+
+
+/* ---- New posts pill (silent background refresh) ---- */
+
+.feed-new-posts-pill:not([hidden]) {
+  display: block;
+  position: sticky;
+  top: 3.5rem;
+  z-index: 10;
+  margin: 0 auto .5rem;
+  padding: .4rem 1rem;
+  width: fit-content;
+  background: var(--primary);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}

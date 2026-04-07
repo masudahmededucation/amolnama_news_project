@@ -64,7 +64,7 @@ main a {
 }
 
 main a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Promoted label — shared across all promo card types */

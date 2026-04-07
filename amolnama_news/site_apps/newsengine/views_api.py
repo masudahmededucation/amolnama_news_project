@@ -111,7 +111,7 @@ def api_feed_page(request):
     category_filter = request.GET.get('category', '')
 
     from .feed_builder import build_home_feed
-    feed_items, current_user_avatar_url, active_tab, following_count = build_home_feed(request)
+    feed_items, current_user_avatar_url, active_tab, following_count, _ = build_home_feed(request)
 
     # Paginate
     start_index = (page - 1) * page_size
@@ -122,8 +122,10 @@ def api_feed_page(request):
     # Render each item to HTML for infinite scroll
     from django.template.loader import render_to_string
     rendered_items = []
+    rendered_items_with_ids = []
     for item in page_items:
         item_type = item.get('item_type', '')
+        post_id = item.get('post_post_id')
         try:
             if item_type == 'debate_promo':
                 html = render_to_string('debate/components/debate-promo-card.html', {'promo': item, 'request': request})
@@ -134,12 +136,14 @@ def api_feed_page(request):
             else:
                 html = render_to_string('post/components/post-card.html', {'post_item': item, 'request': request})
             rendered_items.append(html)
+            rendered_items_with_ids.append({'post_id': post_id, 'html': html})
         except Exception:
             logger.exception('Failed to render feed item')
 
     return JsonResponse({
         'success': True,
         'items_html': rendered_items,
+        'items': rendered_items_with_ids,
         'has_more': has_more,
         'page': page,
     })

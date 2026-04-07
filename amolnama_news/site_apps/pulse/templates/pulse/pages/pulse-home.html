@@ -36,7 +36,8 @@
 </div>
 {% endif %}
 
-<div class="post-feed" id="pulse-feed">
+<div class="feed-new-posts-pill" id="feed-new-posts-pill" hidden>↑ নতুন পোস্ট</div>
+<div class="post-feed" id="pulse-feed"{% if feed_cache_used %} data-feed-cached="true"{% endif %}>
   {% for post_item in posts %}
   {% if post_item.item_type == 'debate_promo' %}
   {% include "debate/components/debate-promo-card.html" with promo=post_item %}
@@ -80,6 +81,7 @@
 <script src="{% static 'post/assets/js/components/post-feed-interactions.js' %}" defer></script>
 <script src="{% static 'post/assets/js/pages/post-home.js' %}" defer></script>
 <script src="{% static 'tools/assets/js/components/tools-promo-card-share.js' %}" defer></script>
+<script src="{% static 'core/assets/js/components/feed-background-refresh.js' %}" defer></script>
 <script>
 (function () {
   'use strict';

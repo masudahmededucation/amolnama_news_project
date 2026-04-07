@@ -7,13 +7,14 @@ def home(request):
     Feed assembly delegated to newsengine.feed_builder."""
     from amolnama_news.site_apps.newsengine.feed_builder import build_home_feed
 
-    feed_items, current_user_avatar_url, active_tab, following_count = build_home_feed(request)
+    feed_items, current_user_avatar_url, active_tab, following_count, feed_cache_used = build_home_feed(request)
 
     return render(request, 'pulse/pages/pulse-home.html', {
         'posts': feed_items,
         'current_user_avatar_url': current_user_avatar_url,
         'active_tab': active_tab,
         'following_count': following_count,
+        'feed_cache_used': feed_cache_used,
         'seo': {
             'title': 'আমলনামা নিউজ — সত্যই আমাদের শক্তি | Amolnama News',
             'description': 'আমলনামা নিউজ — বাংলাদেশের স্বাধীন সংবাদ মাধ্যম।',
