@@ -1514,7 +1514,7 @@ def article_detail(request, slug):
     # Writer info for actions bar
     contributor_user_profile_id = contributor.link_user_profile_id if contributor else None
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
-    actions_bar_author_context = build_actions_bar_author_context(contributor_user_profile_id, request)
+    actions_bar_author_context = build_actions_bar_author_context(contributor_user_profile_id, request, profile_suffix='articles/')
 
     # Record content view for personalization
     if request.user.is_authenticated:

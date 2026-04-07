@@ -124,13 +124,17 @@ def generate_username_handle(display_name):
     return candidate
 
 
-def build_actions_bar_author_context(author_user_profile_id, request):
+def build_actions_bar_author_context(author_user_profile_id, request, profile_suffix=''):
     """Build template context for the writer section of actions-bar.
     Returns dict with actions_bar_author_* keys. Shared across all content apps.
+
+    Args:
+        profile_suffix: URL suffix after /social/@handle/. Use 'articles/' for newshub.
 
     Usage in views:
         from core.utils import build_actions_bar_author_context
         context.update(build_actions_bar_author_context(author_profile_id, request))
+        context.update(build_actions_bar_author_context(author_profile_id, request, profile_suffix='articles/'))
     """
     from amolnama_news.site_apps.user_account.models import UserProfile
 
@@ -167,6 +171,7 @@ def build_actions_bar_author_context(author_user_profile_id, request):
         'actions_bar_author_user_profile_id': author_user_profile_id,
         'actions_bar_author_is_own': is_own,
         'actions_bar_author_is_following': is_following,
+        'actions_bar_author_profile_suffix': profile_suffix,
     }
 
 

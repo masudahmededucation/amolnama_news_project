@@ -3,7 +3,7 @@
 
   {% if actions_bar_author_display_name %}
   <div class="actions-bar-writer-section">
-    <a href="/social/@{{ actions_bar_author_username_handle }}/" class="actions-bar-writer-name" id="actions-bar-writer-{{ actions_bar_position }}" name="actions_bar_writer_{{ actions_bar_position }}">✍️ {{ actions_bar_author_display_name }}</a>
+    <a href="/social/@{{ actions_bar_author_username_handle }}/{{ actions_bar_author_profile_suffix }}" class="actions-bar-writer-name" id="actions-bar-writer-{{ actions_bar_position }}" name="actions_bar_writer_{{ actions_bar_position }}">✍️ {{ actions_bar_author_display_name }}</a>
     {% if not actions_bar_author_is_own and request.user.is_authenticated %}
     <button type="button" class="actions-bar-follow-button{% if actions_bar_author_is_following %} actions-bar-follow-button-active{% endif %}" id="actions-bar-follow-{{ actions_bar_author_user_profile_id }}-{{ actions_bar_position }}" name="actions_bar_follow_{{ actions_bar_author_user_profile_id }}_{{ actions_bar_position }}" data-user-profile-id="{{ actions_bar_author_user_profile_id }}">{% if actions_bar_author_is_following %}Unfollow{% else %}Follow{% endif %}</button>
     {% endif %}
