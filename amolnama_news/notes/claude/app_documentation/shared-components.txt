@@ -109,19 +109,29 @@ Form-Specific Legal Modules (each wraps shared GD/FIR + own fields):
     APIs:     PATCH .../set-cover/, PATCH .../caption/, DELETE .../delete/
     Used by:  article-detail.html ({% include %} per group: evidence, impact, accused, victim, witness, general)
 
-16. Actions Bar (Shared — like + view + share + edit)
+16. Actions Bar (Shared — like + writer follow + share + edit)
     Template: core/templates/core/components/actions-bar.html
     CSS:      core/static/core/assets/css/components/actions-bar.css
     JS:       core/static/core/assets/js/components/actions-bar.js
     API:      window.actionsBar.init({ buildLikeApiUrl: function(entityId) { return url; } })
     Context:  actions_bar_entity_id, actions_bar_like_count, actions_bar_view_count,
               actions_bar_user_liked, actions_bar_share_title, actions_bar_can_edit,
-              actions_bar_edit_url, actions_bar_position (top/bottom)
-    Used by:  newshub article-detail, bangladesh travel-hub-detail
-    Features: Session-based like toggle, view count display, Web Share API + clipboard fallback,
-              edit link (conditional). Dual bars (top + bottom) auto-synced.
+              actions_bar_edit_url, actions_bar_position (top/bottom),
+              actions_bar_author_display_name, actions_bar_author_username_handle,
+              actions_bar_author_user_profile_id, actions_bar_author_is_own,
+              actions_bar_author_is_following
+    Helper:   core/utils.py:build_actions_bar_author_context(author_profile_id, request)
+    Used by:  newshub article-detail, bangladesh travel-hub-detail, post detail, poem detail,
+              stories detail, art detail, debate detail
+    Features: Session-based like toggle, writer follow (optimistic UI with rollback),
+              Web Share API + clipboard fallback, edit link (conditional).
+              Dual bars (top + bottom) auto-synced. All follow buttons for same author synced.
+    Follow:   Button class .actions-bar-follow-button, data-user-profile-id attribute.
+              POST /social/api/follow/{id}/ — optimistic toggle, revert on failure.
+              setFollowButtonsState() helper — single source of truth for toggle logic.
     Rule:     NEVER toggle button.disabled during fast fetch — use JS flag variable instead.
               Always add pointer-events:none on child spans inside clickable buttons.
+              ALL fetch() calls MUST have .catch() with console.error.
 
 17. Like Button (Legacy — being replaced by Actions Bar)
     Template: core/templates/core/components/like-button.html

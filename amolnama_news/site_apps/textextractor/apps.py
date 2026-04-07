@@ -17,7 +17,8 @@ class TextextractorConfig(AppConfig):
             try:
                 from .processor import recover_stuck_jobs
                 recover_stuck_jobs()
-            except Exception:
-                pass
+            except Exception as recovery_error:
+                import logging
+                logging.getLogger(__name__).error('Textextractor startup recovery failed — %s', recovery_error)
 
         threading.Thread(target=_recover_on_startup, daemon=True).start()

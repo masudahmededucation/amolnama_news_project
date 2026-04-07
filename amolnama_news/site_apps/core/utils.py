@@ -1,7 +1,10 @@
 """Core utilities — shared across all apps."""
 
+import logging
 import re
 import unicodedata
+
+logger = logging.getLogger(__name__)
 
 
 def get_user_avatar_url(user_profile):
@@ -25,7 +28,10 @@ def get_user_profile_id(request):
     try:
         from amolnama_news.site_apps.user_account.models import UserProfile
         return UserProfile.objects.get(link_user_account_user_id=request.user.pk).user_profile_id
-    except Exception:
+    except UserProfile.DoesNotExist:
+        return None
+    except Exception as profile_lookup_error:
+        logger.error('get_user_profile_id failed for user %s — %s', request.user.pk, profile_lookup_error)
         return None
 
 
@@ -175,8 +181,6 @@ def build_related_content_items(text, content_type_code, content_id, limit=5):
         related = build_related_content_items(post_text, 'post', post_id)
         context['related_content_items'] = related
     """
-    import logging
-    logger = logging.getLogger(__name__)
 
     CONTENT_TYPE_LABELS = {
         'post': 'পোস্ট',
@@ -262,9 +266,6 @@ _RELATED_CONTENT_ENRICHMENT_MAP = {
 def _enrich_related_content_item(content_type_code, content_id):
     """Fetch title, URL, author name for a related content item.
     Uses data-driven config map — zero duplication."""
-    import logging
-    logger = logging.getLogger(__name__)
-
     config = _RELATED_CONTENT_ENRICHMENT_MAP.get(content_type_code)
     if not config:
         return None

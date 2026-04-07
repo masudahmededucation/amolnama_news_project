@@ -297,7 +297,8 @@ def _apply_user_feed_preferences(feed_items, user_profile_id):
     try:
         from amolnama_news.site_apps.user_account.models import UserProfile
         profile = UserProfile.objects.get(user_profile_id=user_profile_id)
-    except Exception:
+    except Exception as preference_error:
+        logger.error('Feed preference lookup failed for user %s — %s', user_profile_id, preference_error)
         return feed_items
 
     # Map preference fields to promo badge/type

@@ -1,5 +1,9 @@
+import logging
+
 from django.http import JsonResponse
 from django.shortcuts import render
+
+logger = logging.getLogger(__name__)
 
 from amolnama_news.site_apps.multimedia.models import RefFileConversionMap
 
@@ -255,8 +259,8 @@ def api_transliterate(request):
         data = json.loads(resp.read().decode())
         if data[0] == "SUCCESS" and len(data[1]) > 0:
             return JsonResponse({"suggestions": data[1][0][1]})
-    except Exception:
-        pass
+    except Exception as spell_check_error:
+        logger.warning('Spell check API failed for query — %s', spell_check_error)
     return JsonResponse({"suggestions": []})
 
 

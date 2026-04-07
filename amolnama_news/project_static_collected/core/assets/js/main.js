@@ -54,19 +54,6 @@
 })();
 
 
-// --- Active menu highlight script ---
-document.addEventListener("DOMContentLoaded", function(){
-  const navLinks = document.querySelectorAll(".nav a, .submenu.ribbon a");
-  navLinks.forEach(link => {
-    link.addEventListener("click", function(e){
-      // remove active from all
-      navLinks.forEach(l => l.classList.remove("active"));
-      // add to clicked
-      this.classList.add("active");
-    });
-  });
-});
-
 // --- Persistent active menu (supports duplicate hrefs via text key) ---
 document.addEventListener("DOMContentLoaded", function(){
   const links = Array.from(document.querySelectorAll(".nav a, .submenu.ribbon a"));

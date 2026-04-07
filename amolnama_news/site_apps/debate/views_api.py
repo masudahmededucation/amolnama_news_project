@@ -305,13 +305,14 @@ def api_topic_join(request, topic_id):
     """, [timezone.now(), topic_id])
 
     # Update user debate_count (background)
-    import threading
+    from amolnama_news.site_apps.newsengine.utils import run_background_task
+
     def _update_debate_join_count():
         from amolnama_news.site_apps.user_account.models import UserProfile
         UserProfile.objects.filter(user_profile_id=user_profile_id).update(
             debate_count=models.F('debate_count') + 1,
         )
-    threading.Thread(target=_update_debate_join_count, daemon=True).start()
+    run_background_task(_update_debate_join_count)
 
     return JsonResponse({'success': True, 'team_side_code': team_side_code})
 
@@ -365,7 +366,8 @@ def api_topic_close(request, topic_id):
     """, [closed_status.debate_ref_topic_status_id, now, winning_side_code, now, topic_id])
 
     # Update win/loss counts for participants — background thread
-    import threading
+    from amolnama_news.site_apps.newsengine.utils import run_background_task
+
     def _update_participant_win_loss():
         winning_side_id = 1 if winning_side_code == 'blue' else 2 if winning_side_code == 'red' else None
         if winning_side_id:
@@ -378,8 +380,7 @@ def api_topic_close(request, topic_id):
                     debate_win_count=models.F('debate_win_count') + 1,
                 )
 
-    thread = threading.Thread(target=_update_participant_win_loss, daemon=True)
-    thread.start()
+    run_background_task(_update_participant_win_loss)
 
     return JsonResponse({'success': True, 'winning_side_code': winning_side_code})
 
@@ -511,13 +512,14 @@ def api_post_argument(request, topic_id):
     """, [now, participant.debate_coll_topic_participant_id])
 
     # Update user debate reputation (background)
-    import threading
+    from amolnama_news.site_apps.newsengine.utils import run_background_task
+
     def _update_argument_reputation():
         from amolnama_news.site_apps.user_account.models import UserProfile
         UserProfile.objects.filter(user_profile_id=user_profile_id).update(
             debate_argument_count=models.F('debate_argument_count') + 1,
         )
-    threading.Thread(target=_update_argument_reputation, daemon=True).start()
+    run_background_task(_update_argument_reputation)
 
     # Classify content in background
     def _background_classify_debate_argument():
@@ -526,7 +528,7 @@ def api_post_argument(request, topic_id):
             classify_and_store('debate', post_id, post_content)
         except Exception:
             logger.exception('Content classification failed for debate argument %s', post_id)
-    threading.Thread(target=_background_classify_debate_argument, daemon=True).start()
+    run_background_task(_background_classify_debate_argument)
 
     return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
 
@@ -644,7 +646,8 @@ def api_post_reply(request, topic_id):
     """, [now, participant.debate_coll_topic_participant_id])
 
     # Notify parent post author about the reply (background)
-    import threading
+    from amolnama_news.site_apps.newsengine.utils import run_background_task
+
     def _notify_reply():
         from amolnama_news.site_apps.user_account.models import UserProfile
         author_name = ''
@@ -661,7 +664,7 @@ def api_post_reply(request, topic_id):
             post_id=post_id,
             message=f'{author_name} আপনার যুক্তির উত্তর দিয়েছেন',
         )
-    threading.Thread(target=_notify_reply, daemon=True).start()
+    run_background_task(_notify_reply)
 
     return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
 
@@ -911,7 +914,8 @@ def api_link_preview(request):
         resolved_ip = socket.getaddrinfo(parsed_hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)[0][4][0]
         if ipaddress.ip_address(resolved_ip).is_private:
             return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
-    except Exception:
+    except Exception as url_validation_error:
+        logger.warning('Link preview URL validation failed for %s — %s', target_url, url_validation_error)
         return JsonResponse({'success': False, 'error': 'Invalid URL'}, status=400)
 
     try:
@@ -919,7 +923,8 @@ def api_link_preview(request):
         url_request = urllib.request.Request(target_url, headers=headers)
         response = urllib.request.urlopen(url_request, timeout=5)
         html_content = response.read(50000).decode('utf-8', errors='ignore')
-    except Exception:
+    except Exception as url_fetch_error:
+        logger.warning('Link preview fetch failed for %s — %s', target_url, url_fetch_error)
         return JsonResponse({'success': False, 'error': 'Could not fetch URL'}, status=400)
 
     # Simple og:tag parser
@@ -948,8 +953,8 @@ def api_link_preview(request):
     try:
         parser = OgParser()
         parser.feed(html_content)
-    except Exception:
-        pass
+    except Exception as og_parser_error:
+        logger.warning('OG metadata parse failed for %s — %s', target_url, og_parser_error)
 
     return JsonResponse({
         'success': True,

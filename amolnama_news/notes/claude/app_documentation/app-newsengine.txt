@@ -338,3 +338,61 @@ Posts are auto-tagged with topics. Feed is personalized via graph MATCH traversa
 - WEIGHT_INCREMENT_REPOST = 0.5
 - WEIGHT_INCREMENT_REPLY = 0.2
 - WEIGHT_MAX = 10.0 (cap)
+
+## Background Task Helper (2026-04-07) — utils.py
+
+### newsengine/utils.py
+- run_background_task(target_function, *args) — shared helper for background daemon threads
+- Replaces repeated `import threading; threading.Thread(target=..., daemon=True).start()` pattern
+- Used by: post/views_api.py (10 calls), debate/views_api.py (5 calls)
+- RULE: ALL background tasks across the project MUST use this helper (not raw threading.Thread)
+- EXCEPTION: textextractor/apps.py startup recovery (runs once, different pattern)
+- Location: newsengine/utils.py (NOT core/utils.py — core is display only)
+
+### Fact-Checker (fact_checker.py)
+- 4-layer pipeline: misinformation patterns → duplicate claim detection → domain blacklist → Google Fact Check API
+- fact_check_content(source_app, content_id, text) — runs all 4 layers, stores verdict
+- Called from post/views_api.py on post create (background task, min 20 chars)
+
+### Full Module Map (19 files, all production-ready, zero skeletons)
+
+| File | Purpose | Key Functions |
+|------|---------|---------------|
+| utils.py | Background task helper | run_background_task() |
+| feed_builder.py | Feed assembly: posts + promos + ranking + dedup | build_home_feed(), _build_intelligent_feed() |
+| promo_builders.py | Collect published content from 7 apps + tools | build_all_promo_items() |
+| ranking.py | Content scoring formula | calculate_total_score(), rank_post_items() |
+| trending.py | Fastest-growing content detection | get_trending_posts() |
+| personalization.py | Interest profile + boost | build_user_interest_profile(), apply_personalization_boost() |
+| recommendations.py | Collaborative filtering + vector similarity | get_recommendations_for_user_enhanced() |
+| feed_cache.py | Pre-calculated ranking scores (MERGE upsert) | cache_content_score(), get_cached_scores() |
+| feed_fanout.py | Graph-based feed pre-computation | fanout_post_to_interested_users_background() |
+| interest_graph.py | Graph edge CRUD + weight updates | record_dwell_time(), record_engagement_interest() |
+| topic_extractor.py | Auto-tag posts with topics | extract_and_link_post_topics_background() |
+| content_classifier.py | Keyword-based harmful content detection | classify_and_store() |
+| fact_checker.py | 4-layer fact verification pipeline | fact_check_content() |
+| embeddings.py | Vector embeddings (sentence-transformers) | encode_and_store_embedding_background() |
+| notifications.py | Global notification system + WebSocket | create_notification() |
+| consumers.py | WebSocket consumer for real-time notifications | NotificationConsumer |
+| rate_limiter.py | Per-action rate limiting | check_rate_limit() |
+| views_api.py | 10 API endpoints | feed, notifications, bookmarks, recommendations, link preview |
+| models.py | All Django models (unmanaged) | mapped to [newsengine].* tables |
+
+## Code Quality Audit (2026-04-07)
+
+### Silent Error Elimination
+- ALL except blocks across the ENTIRE project now log errors (zero except:pass remaining)
+- Files fixed: newsengine/views_api.py, debate/views_api.py, post/views.py, newshub/views.py,
+  newshub/helpers.py, tools/views.py, user_account/context_processors.py, portal/views.py,
+  textextractor/apps.py, bangladesh/views_api.py, newsengine/feed_builder.py,
+  textextractor engines (easyocr, whisper), core/utils.py
+- RULE: Every except block MUST log via logger.error/warning/exception. No exceptions.
+
+### Duplicate Code Elimination
+- actions-bar.js follow toggle: 3 copy-pasted blocks → single setFollowButtonsState() helper
+- _enrich_related_content_item: 5 if/elif branches → data-driven _RELATED_CONTENT_ENRICHMENT_MAP
+- threading.Thread boilerplate: 15 raw calls → run_background_task() in newsengine/utils.py
+
+### Dead Code Removal
+- Duplicate DOMContentLoaded listener in core/main.js (first block was redundant with persistent menu block)
+- Dead _run_background_task() in post/views_api.py (created but never called)

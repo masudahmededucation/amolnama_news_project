@@ -23,7 +23,7 @@ home wall video posting not working.
 
 
 --newshub engine 
-we need a way to categorise all posts into
+we need a way to categories all posts into
 religion/general/education/politics/sex/spam/adult/business/advertisement
 / and many others.
 it could be 100s all together. 
@@ -75,3 +75,47 @@ is that intended?
 breadcrumb should be general in every nav menu. 
 create a rule. 
 everywhere we need a breadcrumb
+
+
+###
+--writes's follow
+news article/travel blog article/poem/stories/art 
+whatever will be posted,
+then the user name should be posted as writer's name.
+other should be able to follow the writer.
+as a result, whenever a new article is poste,
+then the user who is following will get notification.
+the notification details will include writer's name
+and the title of the article.
+
+the position of the writer's name should be 
+on the action bar we have - like edit.... - on the top and bottom
+for bangladesh travel hub. for others, you pick. 
+
+simple follow button?
+
+--related topics
+--for blog and news article at least
+if someone chose an article. 
+then show related articles list.
+at the moment, we only have it on the poem.
+but we need this on every blog post forms.
+
+--if someone click on the writer then,
+it should show all the posts of that writer.
+
+what do you think?
+
+think what else we can add?
+it needs to be automatic for all posts - current and future.
+
+
+############
+--newshub broadcast logic
+
+###########
+--how to load faster
+
+###############
+--how to post 1000s of messages 
+--not at a time

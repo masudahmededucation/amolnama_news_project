@@ -1,3 +1,6 @@
+--check all the memory rules
+then follow them if appropriate
+
 --deep research
 deep research, compare, create rule, documents, plan, then implement.
 make it professional.
@@ -20,10 +23,6 @@ no test and test, keep doing test.
 re-check everything now.
 yes, i want you to implement it.
 
---permission request
-ask for blanket permission once only.
-it is annoying to accept too many permission request.
-rather than individual file or small section.
 
 --create implementation plan
 can you create a robust plan.
@@ -123,7 +122,7 @@ load UI immediate, load data in the background.
 keep loading related data in the background.
 ready to show the data once user asks.
 proactive prefetch.
-bump cache + Collect-static + service worker cache.
+
 
 --check code for faster and efficiency
 Optimize code for speed and efficiency.
@@ -164,6 +163,10 @@ folders.
 \notes\claude\app_documentation
 \notes\claude\memory-training\
 
+--bump cache
+bump cache + Collect-static + service worker cache.
+
+
 --compare the plan
 at last check that you have completed the task properly.
 
@@ -173,3 +176,8 @@ so have you resolved the issue?
 what is the gold standard best practice for professional website? 
 are we following those practices to solve these issues? 
 or are we masking issues?
+
+--permission request
+ask for blanket permission once only.
+it is annoying to accept too many permission request.
+rather than individual file or small section.
