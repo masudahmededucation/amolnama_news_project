@@ -170,25 +170,22 @@ def public_profile_articles(request, username_handle):
     logger = logging.getLogger(__name__)
     articles = []
     try:
-        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentType, RefContentCategory
-        post_type = RefContentType.objects.filter(content_type_code='post', is_active=True).first()
-        post_type_id = post_type.ref_content_type_id if post_type else None
+        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentCategory, RefContentSubcategory
+        # Exclude posts — posts are not blog content (no 'post' in ref_content_category)
+        # All registry items are blog content by design
 
-        registry_query = ContentRegistry.objects.filter(
+        registry_items = ContentRegistry.objects.filter(
             link_user_profile_id=profile.user_profile_id,
             is_published=True,
             is_active=True,
-        )
-        if post_type_id:
-            registry_query = registry_query.exclude(link_content_type_id=post_type_id)
-        registry_items = registry_query.order_by('-published_at', '-created_at')
+        ).order_by('-published_at', '-created_at')
 
-        # Build category lookup for display names
-        category_ids = [item.link_content_category_id for item in registry_items if item.link_content_category_id]
-        category_map = {}
-        if category_ids:
-            for category in RefContentCategory.objects.filter(content_ref_content_category_id__in=category_ids):
-                category_map[category.content_ref_content_category_id] = category.category_name_bn
+        # Build subcategory lookup for display names
+        subcategory_ids = [item.link_content_subcategory_id for item in registry_items if item.link_content_subcategory_id]
+        subcategory_map = {}
+        if subcategory_ids:
+            for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
+                subcategory_map[subcategory.content_ref_content_subcategory_id] = subcategory.subcategory_name_bn
 
         for item in registry_items:
             articles.append({
@@ -196,9 +193,9 @@ def public_profile_articles(request, username_handle):
                 'content_title_bn': item.content_title_bn or item.content_title_en or '',
                 'content_url': item.content_url,
                 'content_summary_bn': item.content_summary_bn or '',
-                'content_category_name': category_map.get(item.link_content_category_id, ''),
+                'content_category_name': subcategory_map.get(item.link_content_subcategory_id, ''),
                 'published_at': item.published_at or item.created_at,
-                'link_content_type_id': item.link_content_type_id,
+                'link_content_category_id': item.link_content_category_id,
             })
     except Exception as articles_query_error:
         logger.error('Articles profile query failed for user %s — %s',
