@@ -165,29 +165,30 @@ def public_profile_articles(request, username_handle):
         except UserProfile.DoesNotExist:
             pass
 
-    # Fetch published articles by this user
+    # Fetch all published content by this user from content registry
     import logging
     logger = logging.getLogger(__name__)
     articles = []
     try:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT pa.pub_article_id, pa.pub_article_headline_bn, pa.pub_article_slug,
-                       pa.published_at, ne.news_summary_bn,
-                       ft.form_name_bn, nc.news_category_name_bn
-                FROM [newshub].[pub_article] pa
-                JOIN [newshub].[coll_news_entry] ne ON pa.link_news_entry_id = ne.newshub_coll_news_entry_id
-                JOIN [newshub].[contributor] c ON ne.link_contributor_id = c.newshub_contributor_id
-                LEFT JOIN [newshub].[ref_form_type] ft ON ne.link_form_type_id = ft.ref_form_type_id
-                LEFT JOIN [newshub].[ref_news_category] nc ON ne.link_news_category_id = nc.ref_news_category_id
-                WHERE c.link_user_profile_id = %s
-                  AND pa.is_published = 1
-                  AND ne.is_active = 1
-                ORDER BY pa.published_at DESC
-            """, [profile.user_profile_id])
-            columns = [col[0] for col in cursor.description]
-            articles = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        from amolnama_news.site_apps.content.models import ContentRegistry
+        registry_items = ContentRegistry.objects.filter(
+            link_user_profile_id=profile.user_profile_id,
+            is_published=True,
+            is_active=True,
+        ).exclude(
+            link_content_type_id=2,  # exclude posts (type_id 2) — posts are on the main profile
+        ).order_by('-published_at', '-created_at')
+
+        for item in registry_items:
+            articles.append({
+                'content_registry_id': item.content_registry_id,
+                'content_title_bn': item.content_title_bn or item.content_title_en or '',
+                'content_url': item.content_url,
+                'content_summary_bn': item.content_summary_bn or '',
+                'content_category_code': item.content_category_code,
+                'published_at': item.published_at or item.created_at,
+                'link_content_type_id': item.link_content_type_id,
+            })
     except Exception as articles_query_error:
         logger.error('Articles profile query failed for user %s — %s',
                      profile.user_profile_id, articles_query_error)

@@ -62,17 +62,16 @@
   {% comment %}Articles List{% endcomment %}
   <div class="user-profile-articles-section" id="user-profile-articles-section">
     {% for article in articles %}
-    <a href="/newshub/article/{{ article.pub_article_slug }}/" class="user-profile-article-card" id="user-profile-article-card-{{ article.pub_article_id }}" name="user_profile_article_card_{{ article.pub_article_id }}">
+    <a href="{{ article.content_url }}" class="user-profile-article-card" id="user-profile-article-card-{{ article.content_registry_id }}" name="user_profile_article_card_{{ article.content_registry_id }}">
       <div class="user-profile-article-card-meta">
-        {% if article.form_name_bn %}<span class="user-profile-article-card-badge">{{ article.form_name_bn }}</span>{% endif %}
-        {% if article.news_category_name_bn %}<span class="user-profile-article-card-category">{{ article.news_category_name_bn }}</span>{% endif %}
+        {% if article.content_category_code %}<span class="user-profile-article-card-badge">{{ article.content_category_code }}</span>{% endif %}
       </div>
-      <h3 class="user-profile-article-card-title">{{ article.pub_article_headline_bn }}</h3>
-      {% if article.news_summary_bn %}<p class="user-profile-article-card-summary">{{ article.news_summary_bn|truncatewords:25 }}</p>{% endif %}
+      <h3 class="user-profile-article-card-title">{{ article.content_title_bn }}</h3>
+      {% if article.content_summary_bn %}<p class="user-profile-article-card-summary">{{ article.content_summary_bn|truncatewords:25 }}</p>{% endif %}
       {% if article.published_at %}<time class="user-profile-article-card-date">{{ article.published_at|date:"d M Y" }}</time>{% endif %}
     </a>
     {% empty %}
-    <div class="user-profile-articles-empty" id="user-profile-articles-empty">এখনো কোনো নিবন্ধ প্রকাশিত হয়নি</div>
+    <div class="user-profile-articles-empty" id="user-profile-articles-empty">এখনো কোনো প্রকাশনা নেই</div>
     {% endfor %}
   </div>
 
