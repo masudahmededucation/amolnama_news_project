@@ -1357,9 +1357,11 @@ def article_detail(request, slug):
             pass
 
     # Split body into paragraphs — strip block <p> tags, keep inline formatting
+    # Prefer pub_article body (edited/published version), fall back to raw entry body
     body_paragraphs = []
-    if entry.news_content_body_bn:
-        body_cleaned = re.sub(r'</?p[^>]*>', '\n', entry.news_content_body_bn)
+    body_source = published_article.pub_article_content_bn or entry.news_content_body_bn
+    if body_source:
+        body_cleaned = re.sub(r'</?p[^>]*>', '\n', body_source)
         body_paragraphs = [p.strip() for p in body_cleaned.split('\n') if p.strip()]
 
     # Check edit permissions
