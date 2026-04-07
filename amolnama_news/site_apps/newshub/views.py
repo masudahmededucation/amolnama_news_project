@@ -1357,9 +1357,11 @@ def article_detail(request, slug):
             pass
 
     # Split body into paragraphs — strip block <p> tags, keep inline formatting
-    # Prefer pub_article body (edited/published version), fall back to raw entry body
+    # Use the longer body — pub_article may have stale/test data, entry has the real submission
     body_paragraphs = []
-    body_source = published_article.pub_article_content_bn or entry.news_content_body_bn
+    pub_body = published_article.pub_article_content_bn or ''
+    entry_body = entry.news_content_body_bn or ''
+    body_source = pub_body if len(pub_body) > len(entry_body) else entry_body
     if body_source:
         body_cleaned = re.sub(r'</?p[^>]*>', '\n', body_source)
         body_paragraphs = [p.strip() for p in body_cleaned.split('\n') if p.strip()]
