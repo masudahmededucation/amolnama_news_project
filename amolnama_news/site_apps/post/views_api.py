@@ -281,14 +281,6 @@ def api_post_create(request):
         except Exception:
             logger.exception('Embedding encoding failed for post %s', post.post_post_id)
 
-    # Pre-compute related content cache — so detail page loads instantly
-    if post_text and len(post_text) >= 10:
-        try:
-            from amolnama_news.site_apps.newsengine.related_content import compute_and_cache_related_content_background
-            compute_and_cache_related_content_background('post', post.post_post_id, post_text)
-        except Exception:
-            logger.exception('Related content cache failed for post %s', post.post_post_id)
-
     # Queue video transcoding — FFmpeg HLS conversion for uploaded videos
     for media_url in media_urls:
         if any(media_url.endswith(video_extension) for video_extension in ('.mp4', '.webm', '.mov')):
