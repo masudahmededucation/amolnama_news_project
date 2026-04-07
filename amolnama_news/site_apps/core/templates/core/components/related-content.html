@@ -1,6 +1,4 @@
-{# Shared related content section — shows semantically similar content from any app.
-   Context: related_content_items (list of dicts with: title, url, content_type_label, similarity)
-            related_content_api_url (optional — for JS lazy-load on cache miss) #}
+{% comment %}Shared related content section — shows semantically similar content from any app. Context: related_content_items (list of dicts with: title, url, content_type_label, similarity), related_content_api_url (optional — for JS lazy-load on cache miss).{% endcomment %}
 <section class="related-content-section" id="related-content-section"{% if not related_content_items %} hidden{% endif %}{% if related_content_api_url %} data-api-url="{{ related_content_api_url }}"{% endif %}>
   <h2 class="related-content-title">সম্পর্কিত বিষয়বস্তু (Related Content)</h2>
   <div class="related-content-list" id="related-content-list">

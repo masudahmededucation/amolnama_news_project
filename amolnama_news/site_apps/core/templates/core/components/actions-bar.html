@@ -1,9 +1,4 @@
-{# Shared actions bar — writer info + like, view, share, edit.
-   Context: actions_bar_entity_id (int), actions_bar_like_count (int), actions_bar_view_count (int),
-   actions_bar_user_liked (bool), actions_bar_share_title (str), actions_bar_edit_url (str|None),
-   actions_bar_can_edit (bool), actions_bar_position (top/bottom),
-   Optional writer: actions_bar_author_display_name (str), actions_bar_author_username_handle (str),
-   actions_bar_author_user_profile_id (int), actions_bar_author_is_own (bool), actions_bar_author_is_following (bool) #}
+{% comment %}Shared actions bar — writer info + like, view, share, edit. Context: actions_bar_entity_id (int), actions_bar_like_count (int), actions_bar_view_count (int), actions_bar_user_liked (bool), actions_bar_share_title (str), actions_bar_edit_url (str|None), actions_bar_can_edit (bool), actions_bar_position (top/bottom). Optional writer: actions_bar_author_display_name (str), actions_bar_author_username_handle (str), actions_bar_author_user_profile_id (int), actions_bar_author_is_own (bool), actions_bar_author_is_following (bool).{% endcomment %}
 <div class="actions-bar{% if actions_bar_position == 'top' %} actions-bar-top{% endif %}" id="actions-bar-{{ actions_bar_position }}" name="actions_bar_{{ actions_bar_position }}">
 
   {% if actions_bar_author_display_name %}
