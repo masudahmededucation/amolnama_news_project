@@ -1,4 +1,4 @@
-"""Stories for Kids models — mapped to [stories].* SQL Server tables."""
+"""Stories for Kids models — mapped to [blog_stories].* SQL Server tables."""
 
 from django.db import models
 
@@ -16,7 +16,7 @@ class RefStoryCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[ref_story_category]'
+        db_table = '[blog_stories].[ref_story_category]'
 
     def __str__(self):
         return self.story_category_name_en
@@ -36,7 +36,7 @@ class RefStoryAgeGroup(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[ref_story_age_group]'
+        db_table = '[blog_stories].[ref_story_age_group]'
 
     def __str__(self):
         return self.age_group_name_en
@@ -73,7 +73,7 @@ class CollStory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[coll_story]'
+        db_table = '[blog_stories].[coll_story]'
 
     def __str__(self):
         return self.story_title_bn or self.story_title_en or str(self.stories_coll_story_id)
@@ -93,7 +93,7 @@ class StoryAsset(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[story_asset]'
+        db_table = '[blog_stories].[story_asset]'
 
 
 class StoryPage(models.Model):
@@ -108,7 +108,7 @@ class StoryPage(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[story_page]'
+        db_table = '[blog_stories].[story_page]'
 
 
 class EngagementStoryLike(models.Model):
@@ -121,7 +121,7 @@ class EngagementStoryLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[engagement_story_like]'
+        db_table = '[blog_stories].[engagement_story_like]'
 
 
 class EngagementStoryBookmark(models.Model):
@@ -136,7 +136,7 @@ class EngagementStoryBookmark(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[engagement_story_bookmark]'
+        db_table = '[blog_stories].[engagement_story_bookmark]'
 
 
 class EngagementStoryComment(models.Model):
@@ -151,4 +151,4 @@ class EngagementStoryComment(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[stories].[engagement_story_comment]'
+        db_table = '[blog_stories].[engagement_story_comment]'

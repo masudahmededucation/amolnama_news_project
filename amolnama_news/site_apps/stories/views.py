@@ -19,7 +19,7 @@ def _get_story_cover_url(story_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT a.[file_storage_path]
-            FROM [stories].[story_asset] sa
+            FROM [blog_stories].[story_asset] sa
             JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
             WHERE sa.[link_story_id] = %s AND sa.[is_cover] = 1 AND sa.[is_active] = 1
         """, [story_id])
@@ -52,7 +52,7 @@ def home(request):
             placeholders = ','.join(['%s'] * len(story_ids))
             cursor.execute(f"""
                 SELECT sa.[link_story_id], a.[file_storage_path]
-                FROM [stories].[story_asset] sa
+                FROM [blog_stories].[story_asset] sa
                 JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
                 WHERE sa.[link_story_id] IN ({placeholders}) AND sa.[is_cover] = 1 AND sa.[is_active] = 1
             """, story_ids)

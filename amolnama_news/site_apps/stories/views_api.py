@@ -52,7 +52,7 @@ def api_story_create(request):
     story_guid = str(uuid.uuid4())
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [stories].[coll_story]
+            INSERT INTO [blog_stories].[coll_story]
                 ([story_guid], [link_user_profile_id], [link_story_category_id], [link_age_group_id],
                  [story_title_bn], [story_title_en], [story_slug], [story_summary_bn],
                  [story_content_html_bn], [story_source_attribution_bn],
@@ -91,7 +91,7 @@ def api_story_create(request):
             asset_id = cursor.fetchone()[0]
 
             cursor.execute("""
-                INSERT INTO [stories].[story_asset]
+                INSERT INTO [blog_stories].[story_asset]
                     ([link_story_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
