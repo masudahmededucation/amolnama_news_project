@@ -170,14 +170,18 @@ def public_profile_articles(request, username_handle):
     logger = logging.getLogger(__name__)
     articles = []
     try:
-        from amolnama_news.site_apps.content.models import ContentRegistry
-        registry_items = ContentRegistry.objects.filter(
+        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentType
+        post_type = RefContentType.objects.filter(content_type_code='post', is_active=True).first()
+        post_type_id = post_type.ref_content_type_id if post_type else None
+
+        registry_query = ContentRegistry.objects.filter(
             link_user_profile_id=profile.user_profile_id,
             is_published=True,
             is_active=True,
-        ).exclude(
-            link_content_type_id=2,  # exclude posts (type_id 2) — posts are on the main profile
-        ).order_by('-published_at', '-created_at')
+        )
+        if post_type_id:
+            registry_query = registry_query.exclude(link_content_type_id=post_type_id)
+        registry_items = registry_query.order_by('-published_at', '-created_at')
 
         for item in registry_items:
             articles.append({

@@ -6,7 +6,7 @@ from django.db import models
 
 class RefContentType(models.Model):
     """Content type reference — article, post, poem, story, art, destination, media, debate."""
-    ref_content_type_id = models.SmallAutoField(primary_key=True)
+    ref_content_type_id = models.PositiveSmallIntegerField(primary_key=True)
     content_type_code = models.CharField(max_length=30)
     content_type_name_bn = models.CharField(max_length=100)
     content_type_name_en = models.CharField(max_length=100)

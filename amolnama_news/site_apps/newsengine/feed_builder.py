@@ -14,6 +14,7 @@ def build_home_feed(request):
     active_tab = request.GET.get('tab', 'for_you')
     category_filter = request.GET.get('category', '')
     following_count = 0
+    cache_used = False
 
     if active_tab == 'my_posts' and request.user.is_authenticated:
         from amolnama_news.site_apps.post.views import _build_my_posts
@@ -62,7 +63,7 @@ def build_home_feed(request):
         feed_items = _build_intelligent_feed(request, feed_items, category_filter)
 
     # cache_used flag tells template to trigger background refresh via JS
-    feed_cache_used = active_tab == 'for_you' and locals().get('cache_used', False)
+    feed_cache_used = active_tab == 'for_you' and cache_used
     return feed_items, current_user_avatar_url, active_tab, following_count, feed_cache_used
 
 

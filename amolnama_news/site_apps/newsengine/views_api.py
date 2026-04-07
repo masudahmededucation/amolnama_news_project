@@ -373,8 +373,9 @@ def api_related_content(request):
     if cached_items:
         return JsonResponse({'success': True, 'items': cached_items})
 
-    # Cache miss — trigger background compute if text provided
-    if text and len(text) >= 10:
+    # Cache miss — trigger background compute only for authenticated users
+    # (prevents unauthenticated spam of expensive sentence-transformer compute)
+    if text and len(text) >= 10 and request.user.is_authenticated:
         compute_and_cache_related_content_background(content_type_code, content_id, text)
 
     return JsonResponse({'success': True, 'items': []})
