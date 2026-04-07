@@ -19,7 +19,7 @@ def _get_artwork_cover_url(artwork_id):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT a.[file_storage_path]
-            FROM [art].[artwork_asset] aa
+            FROM [blog_art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
             WHERE aa.[link_artwork_id] = %s AND aa.[is_cover] = 1 AND aa.[is_active] = 1
         """, [artwork_id])
@@ -35,7 +35,7 @@ def _get_artwork_photos(artwork_id):
         cursor.execute("""
             SELECT aa.[art_artwork_asset_id], a.[file_storage_path], aa.[caption_bn],
                    aa.[asset_group_code], aa.[is_cover]
-            FROM [art].[artwork_asset] aa
+            FROM [blog_art].[artwork_asset] aa
             JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
             WHERE aa.[link_artwork_id] = %s AND aa.[is_active] = 1
             ORDER BY aa.[is_cover] DESC, aa.[sort_order] ASC
@@ -76,7 +76,7 @@ def home(request):
             placeholders = ','.join(['%s'] * len(artwork_ids))
             cursor.execute(f"""
                 SELECT aa.[link_artwork_id], a.[file_storage_path]
-                FROM [art].[artwork_asset] aa
+                FROM [blog_art].[artwork_asset] aa
                 JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
                 WHERE aa.[link_artwork_id] IN ({placeholders}) AND aa.[is_cover] = 1 AND aa.[is_active] = 1
             """, artwork_ids)

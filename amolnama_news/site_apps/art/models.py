@@ -1,4 +1,4 @@
-"""Art & Craft models — mapped to [art].* SQL Server tables."""
+"""Art & Craft models — mapped to [blog_art].* SQL Server tables."""
 
 from django.db import models
 
@@ -16,7 +16,7 @@ class RefArtCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[ref_art_category]'
+        db_table = '[blog_art].[ref_art_category]'
 
     def __str__(self):
         return self.art_category_name_en
@@ -34,7 +34,7 @@ class RefArtMedium(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[ref_art_medium]'
+        db_table = '[blog_art].[ref_art_medium]'
 
     def __str__(self):
         return self.art_medium_name_en
@@ -52,7 +52,7 @@ class RefArtDifficulty(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[ref_art_difficulty]'
+        db_table = '[blog_art].[ref_art_difficulty]'
 
     def __str__(self):
         return self.art_difficulty_name_en
@@ -90,7 +90,7 @@ class CollArtwork(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[coll_artwork]'
+        db_table = '[blog_art].[coll_artwork]'
 
     def __str__(self):
         return self.artwork_title_bn or self.artwork_title_en or str(self.art_coll_artwork_id)
@@ -110,7 +110,7 @@ class ArtworkAsset(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[artwork_asset]'
+        db_table = '[blog_art].[artwork_asset]'
 
 
 class ArtworkStep(models.Model):
@@ -126,7 +126,7 @@ class ArtworkStep(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[artwork_step]'
+        db_table = '[blog_art].[artwork_step]'
 
 
 class ArtworkYoutubeLink(models.Model):
@@ -141,7 +141,7 @@ class ArtworkYoutubeLink(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[artwork_youtube_link]'
+        db_table = '[blog_art].[artwork_youtube_link]'
 
 
 class EngagementArtworkLike(models.Model):
@@ -154,7 +154,7 @@ class EngagementArtworkLike(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[engagement_artwork_like]'
+        db_table = '[blog_art].[engagement_artwork_like]'
 
 
 class EngagementArtworkBookmark(models.Model):
@@ -167,7 +167,7 @@ class EngagementArtworkBookmark(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[engagement_artwork_bookmark]'
+        db_table = '[blog_art].[engagement_artwork_bookmark]'
 
 
 class EngagementArtworkComment(models.Model):
@@ -182,4 +182,4 @@ class EngagementArtworkComment(models.Model):
 
     class Meta:
         managed = False
-        db_table = '[art].[engagement_artwork_comment]'
+        db_table = '[blog_art].[engagement_artwork_comment]'

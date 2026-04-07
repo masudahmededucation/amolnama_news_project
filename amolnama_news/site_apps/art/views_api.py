@@ -61,7 +61,7 @@ def api_artwork_create(request):
     artwork_guid = str(uuid.uuid4())
     with connection.cursor() as cursor:
         cursor.execute("""
-            INSERT INTO [art].[coll_artwork]
+            INSERT INTO [blog_art].[coll_artwork]
                 ([artwork_guid], [link_user_profile_id], [link_art_category_id], [link_art_medium_id],
                  [link_art_difficulty_id], [artwork_title_bn], [artwork_title_en], [artwork_slug],
                  [artwork_description_bn], [artwork_backstory_bn], [artwork_materials_bn],
@@ -106,7 +106,7 @@ def api_artwork_create(request):
             asset_id = row[0]
 
             cursor.execute("""
-                INSERT INTO [art].[artwork_asset]
+                INSERT INTO [blog_art].[artwork_asset]
                     ([link_artwork_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [artwork_id, asset_id, 'main', 1 if file_index == 0 else 0, file_index, 1])
