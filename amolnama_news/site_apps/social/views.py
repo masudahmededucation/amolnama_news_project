@@ -184,8 +184,8 @@ def public_profile_articles(request, username_handle):
         subcategory_ids = [item.link_content_subcategory_id for item in registry_items if item.link_content_subcategory_id]
         subcategory_map = {}
         if subcategory_ids:
-            for subcategory in RefContentSubcategory.objects.filter(ref_content_subcategory_id__in=subcategory_ids):
-                subcategory_map[subcategory.ref_content_subcategory_id] = subcategory.subcategory_name_bn
+            for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
+                subcategory_map[subcategory.content_ref_content_subcategory_id] = subcategory.subcategory_name_bn
 
         for item in registry_items:
             articles.append({

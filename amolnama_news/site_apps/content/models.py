@@ -6,7 +6,7 @@ from django.db import models
 
 class RefContentCategory(models.Model):
     """Content category — article, poem, story, art, destination, media, debate."""
-    ref_content_category_id = models.IntegerField(primary_key=True)
+    content_ref_content_category_id = models.IntegerField(primary_key=True)
     content_category_code = models.CharField(max_length=30)
     content_category_name_bn = models.CharField(max_length=100)
     content_category_name_en = models.CharField(max_length=100)
@@ -24,7 +24,7 @@ class RefContentCategory(models.Model):
 
 class RefContentSubcategory(models.Model):
     """Content subcategory — topics within each category (Crime, Love, Painting, Beach, etc.)."""
-    ref_content_subcategory_id = models.IntegerField(primary_key=True)
+    content_ref_content_subcategory_id = models.IntegerField(primary_key=True)
     link_ref_content_category_id = models.IntegerField()
     # link_subcategory_id and link_subcategory_code are computed columns — not mapped in Django
     group_code = models.CharField(max_length=30)
