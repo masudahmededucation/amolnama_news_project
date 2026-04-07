@@ -14,7 +14,7 @@ GO
 -- --------------------------------------------------------
 -- Reference: Art Category (নকশি কাঁথা, পটচিত্র, আলপনা, etc.)
 -- --------------------------------------------------------
-CREATE TABLE [art].[ref_art_category] (
+CREATE TABLE [blog_art].[ref_art_category] (
     [art_ref_art_category_id]   INT IDENTITY(1,1) NOT NULL,
     [art_category_code]         VARCHAR(50) NOT NULL,
     [art_category_name_bn]      NVARCHAR(200) NOT NULL,
@@ -31,7 +31,7 @@ GO
 -- --------------------------------------------------------
 -- Reference: Art Medium (acrylic, jute, clay, bamboo, etc.)
 -- --------------------------------------------------------
-CREATE TABLE [art].[ref_art_medium] (
+CREATE TABLE [blog_art].[ref_art_medium] (
     [art_ref_art_medium_id]     INT IDENTITY(1,1) NOT NULL,
     [art_medium_code]           VARCHAR(50) NOT NULL,
     [art_medium_name_bn]        NVARCHAR(200) NOT NULL,
@@ -47,7 +47,7 @@ GO
 -- --------------------------------------------------------
 -- Reference: Difficulty Level
 -- --------------------------------------------------------
-CREATE TABLE [art].[ref_art_difficulty] (
+CREATE TABLE [blog_art].[ref_art_difficulty] (
     [art_ref_art_difficulty_id] INT IDENTITY(1,1) NOT NULL,
     [art_difficulty_code]       VARCHAR(20) NOT NULL,
     [art_difficulty_name_bn]    NVARCHAR(100) NOT NULL,
@@ -63,7 +63,7 @@ GO
 -- --------------------------------------------------------
 -- Collection: Artwork Entry (main content)
 -- --------------------------------------------------------
-CREATE TABLE [art].[coll_artwork] (
+CREATE TABLE [blog_art].[coll_artwork] (
     [art_coll_artwork_id]       BIGINT IDENTITY(1,1) NOT NULL,
     [artwork_guid]              UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -96,16 +96,16 @@ CREATE TABLE [art].[coll_artwork] (
 );
 GO
 
-CREATE INDEX [IX_coll_artwork_user_profile] ON [art].[coll_artwork] ([link_user_profile_id]);
-CREATE INDEX [IX_coll_artwork_category] ON [art].[coll_artwork] ([link_art_category_id]);
-CREATE INDEX [IX_coll_artwork_slug] ON [art].[coll_artwork] ([artwork_slug]);
-CREATE INDEX [IX_coll_artwork_created] ON [art].[coll_artwork] ([created_at] DESC);
+CREATE INDEX [IX_coll_artwork_user_profile] ON [blog_art].[coll_artwork] ([link_user_profile_id]);
+CREATE INDEX [IX_coll_artwork_category] ON [blog_art].[coll_artwork] ([link_art_category_id]);
+CREATE INDEX [IX_coll_artwork_slug] ON [blog_art].[coll_artwork] ([artwork_slug]);
+CREATE INDEX [IX_coll_artwork_created] ON [blog_art].[coll_artwork] ([created_at] DESC);
 GO
 
 -- --------------------------------------------------------
 -- Collection: Artwork Asset (photos per artwork)
 -- --------------------------------------------------------
-CREATE TABLE [art].[coll_artwork_asset] (
+CREATE TABLE [blog_art].[coll_artwork_asset] (
     [art_coll_artwork_asset_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [link_asset_id]             BIGINT NOT NULL,
@@ -119,13 +119,13 @@ CREATE TABLE [art].[coll_artwork_asset] (
 );
 GO
 
-CREATE INDEX [IX_coll_artwork_asset_artwork] ON [art].[coll_artwork_asset] ([link_artwork_id]);
+CREATE INDEX [IX_coll_artwork_asset_artwork] ON [blog_art].[coll_artwork_asset] ([link_artwork_id]);
 GO
 
 -- --------------------------------------------------------
 -- Collection: Tutorial Step
 -- --------------------------------------------------------
-CREATE TABLE [art].[coll_artwork_step] (
+CREATE TABLE [blog_art].[coll_artwork_step] (
     [art_coll_artwork_step_id]  BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [step_number]               INT NOT NULL,
@@ -138,13 +138,13 @@ CREATE TABLE [art].[coll_artwork_step] (
 );
 GO
 
-CREATE INDEX [IX_coll_artwork_step_artwork] ON [art].[coll_artwork_step] ([link_artwork_id], [step_number]);
+CREATE INDEX [IX_coll_artwork_step_artwork] ON [blog_art].[coll_artwork_step] ([link_artwork_id], [step_number]);
 GO
 
 -- --------------------------------------------------------
 -- Collection: Artwork YouTube Link
 -- --------------------------------------------------------
-CREATE TABLE [art].[coll_artwork_youtube_link] (
+CREATE TABLE [blog_art].[coll_artwork_youtube_link] (
     [art_coll_artwork_youtube_link_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -159,7 +159,7 @@ GO
 -- --------------------------------------------------------
 -- Engagement: Artwork Like
 -- --------------------------------------------------------
-CREATE TABLE [art].[eng_artwork_like] (
+CREATE TABLE [blog_art].[eng_artwork_like] (
     [art_eng_artwork_like_id]   BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -169,13 +169,13 @@ CREATE TABLE [art].[eng_artwork_like] (
 );
 GO
 
-CREATE UNIQUE INDEX [UX_eng_artwork_like] ON [art].[eng_artwork_like] ([link_artwork_id], [link_user_profile_id]);
+CREATE UNIQUE INDEX [UX_eng_artwork_like] ON [blog_art].[eng_artwork_like] ([link_artwork_id], [link_user_profile_id]);
 GO
 
 -- --------------------------------------------------------
 -- Engagement: Artwork Bookmark
 -- --------------------------------------------------------
-CREATE TABLE [art].[eng_artwork_bookmark] (
+CREATE TABLE [blog_art].[eng_artwork_bookmark] (
     [art_eng_artwork_bookmark_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -185,13 +185,13 @@ CREATE TABLE [art].[eng_artwork_bookmark] (
 );
 GO
 
-CREATE UNIQUE INDEX [UX_eng_artwork_bookmark] ON [art].[eng_artwork_bookmark] ([link_artwork_id], [link_user_profile_id]);
+CREATE UNIQUE INDEX [UX_eng_artwork_bookmark] ON [blog_art].[eng_artwork_bookmark] ([link_artwork_id], [link_user_profile_id]);
 GO
 
 -- --------------------------------------------------------
 -- Engagement: Artwork Comment
 -- --------------------------------------------------------
-CREATE TABLE [art].[eng_artwork_comment] (
+CREATE TABLE [blog_art].[eng_artwork_comment] (
     [art_eng_artwork_comment_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]           BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -203,13 +203,13 @@ CREATE TABLE [art].[eng_artwork_comment] (
 );
 GO
 
-CREATE INDEX [IX_eng_artwork_comment_artwork] ON [art].[eng_artwork_comment] ([link_artwork_id]);
+CREATE INDEX [IX_eng_artwork_comment_artwork] ON [blog_art].[eng_artwork_comment] ([link_artwork_id]);
 GO
 
 -- --------------------------------------------------------
 -- Seed: Art Categories
 -- --------------------------------------------------------
-INSERT INTO [art].[ref_art_category] ([art_category_code], [art_category_name_bn], [art_category_name_en], [art_category_icon], [sort_order]) VALUES
+INSERT INTO [blog_art].[ref_art_category] ([art_category_code], [art_category_name_bn], [art_category_name_en], [art_category_icon], [sort_order]) VALUES
 ('nakshi_kantha',   N'নকশি কাঁথা',     'Nakshi Kantha',      N'🧵', 1),
 ('patachitra',      N'পটচিত্র',         'Patachitra',         N'🖼️', 2),
 ('alpona',          N'আলপনা',           'Alpona',             N'✨', 3),
@@ -236,7 +236,7 @@ GO
 -- --------------------------------------------------------
 -- Seed: Art Medium
 -- --------------------------------------------------------
-INSERT INTO [art].[ref_art_medium] ([art_medium_code], [art_medium_name_bn], [art_medium_name_en], [sort_order]) VALUES
+INSERT INTO [blog_art].[ref_art_medium] ([art_medium_code], [art_medium_name_bn], [art_medium_name_en], [sort_order]) VALUES
 ('acrylic',     N'অ্যাক্রিলিক',    'Acrylic',          1),
 ('watercolor',  N'জলরং',           'Watercolor',       2),
 ('oil_paint',   N'তৈলচিত্র',       'Oil Paint',        3),
@@ -257,7 +257,7 @@ GO
 -- --------------------------------------------------------
 -- Seed: Difficulty
 -- --------------------------------------------------------
-INSERT INTO [art].[ref_art_difficulty] ([art_difficulty_code], [art_difficulty_name_bn], [art_difficulty_name_en], [sort_order]) VALUES
+INSERT INTO [blog_art].[ref_art_difficulty] ([art_difficulty_code], [art_difficulty_name_bn], [art_difficulty_name_en], [sort_order]) VALUES
 ('easy',        N'সহজ',        'Easy',         1),
 ('medium',      N'মাঝারি',      'Medium',       2),
 ('hard',        N'কঠিন',       'Hard',         3);
@@ -275,7 +275,7 @@ GO
 -- --------------------------------------------------------
 -- Reference: Story Category
 -- --------------------------------------------------------
-CREATE TABLE [stories].[ref_story_category] (
+CREATE TABLE [blog_stories].[ref_story_category] (
     [stories_ref_story_category_id] INT IDENTITY(1,1) NOT NULL,
     [story_category_code]           VARCHAR(50) NOT NULL,
     [story_category_name_bn]        NVARCHAR(200) NOT NULL,
@@ -292,7 +292,7 @@ GO
 -- --------------------------------------------------------
 -- Reference: Age Group
 -- --------------------------------------------------------
-CREATE TABLE [stories].[ref_story_age_group] (
+CREATE TABLE [blog_stories].[ref_story_age_group] (
     [stories_ref_story_age_group_id] INT IDENTITY(1,1) NOT NULL,
     [age_group_code]                VARCHAR(10) NOT NULL,
     [age_group_name_bn]             NVARCHAR(100) NOT NULL,
@@ -309,7 +309,7 @@ GO
 -- --------------------------------------------------------
 -- Collection: Story Entry (main content)
 -- --------------------------------------------------------
-CREATE TABLE [stories].[coll_story] (
+CREATE TABLE [blog_stories].[coll_story] (
     [stories_coll_story_id]     BIGINT IDENTITY(1,1) NOT NULL,
     [story_guid]                UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -341,17 +341,17 @@ CREATE TABLE [stories].[coll_story] (
 );
 GO
 
-CREATE INDEX [IX_coll_story_user_profile] ON [stories].[coll_story] ([link_user_profile_id]);
-CREATE INDEX [IX_coll_story_category] ON [stories].[coll_story] ([link_story_category_id]);
-CREATE INDEX [IX_coll_story_age_group] ON [stories].[coll_story] ([link_age_group_id]);
-CREATE INDEX [IX_coll_story_slug] ON [stories].[coll_story] ([story_slug]);
-CREATE INDEX [IX_coll_story_created] ON [stories].[coll_story] ([created_at] DESC);
+CREATE INDEX [IX_coll_story_user_profile] ON [blog_stories].[coll_story] ([link_user_profile_id]);
+CREATE INDEX [IX_coll_story_category] ON [blog_stories].[coll_story] ([link_story_category_id]);
+CREATE INDEX [IX_coll_story_age_group] ON [blog_stories].[coll_story] ([link_age_group_id]);
+CREATE INDEX [IX_coll_story_slug] ON [blog_stories].[coll_story] ([story_slug]);
+CREATE INDEX [IX_coll_story_created] ON [blog_stories].[coll_story] ([created_at] DESC);
 GO
 
 -- --------------------------------------------------------
 -- Collection: Story Asset (cover image, illustrations, audio)
 -- --------------------------------------------------------
-CREATE TABLE [stories].[coll_story_asset] (
+CREATE TABLE [blog_stories].[coll_story_asset] (
     [stories_coll_story_asset_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]             BIGINT NOT NULL,
     [link_asset_id]             BIGINT NOT NULL,
@@ -365,13 +365,13 @@ CREATE TABLE [stories].[coll_story_asset] (
 );
 GO
 
-CREATE INDEX [IX_coll_story_asset_story] ON [stories].[coll_story_asset] ([link_story_id]);
+CREATE INDEX [IX_coll_story_asset_story] ON [blog_stories].[coll_story_asset] ([link_story_id]);
 GO
 
 -- --------------------------------------------------------
 -- Collection: Story Page (paginated reading)
 -- --------------------------------------------------------
-CREATE TABLE [stories].[coll_story_page] (
+CREATE TABLE [blog_stories].[coll_story_page] (
     [stories_coll_story_page_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]             BIGINT NOT NULL,
     [page_number]               INT NOT NULL,
@@ -383,13 +383,13 @@ CREATE TABLE [stories].[coll_story_page] (
 );
 GO
 
-CREATE INDEX [IX_coll_story_page_story] ON [stories].[coll_story_page] ([link_story_id], [page_number]);
+CREATE INDEX [IX_coll_story_page_story] ON [blog_stories].[coll_story_page] ([link_story_id], [page_number]);
 GO
 
 -- --------------------------------------------------------
 -- Engagement: Story Like
 -- --------------------------------------------------------
-CREATE TABLE [stories].[eng_story_like] (
+CREATE TABLE [blog_stories].[eng_story_like] (
     [stories_eng_story_like_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]             BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -399,13 +399,13 @@ CREATE TABLE [stories].[eng_story_like] (
 );
 GO
 
-CREATE UNIQUE INDEX [UX_eng_story_like] ON [stories].[eng_story_like] ([link_story_id], [link_user_profile_id]);
+CREATE UNIQUE INDEX [UX_eng_story_like] ON [blog_stories].[eng_story_like] ([link_story_id], [link_user_profile_id]);
 GO
 
 -- --------------------------------------------------------
 -- Engagement: Story Bookmark (with reading position)
 -- --------------------------------------------------------
-CREATE TABLE [stories].[eng_story_bookmark] (
+CREATE TABLE [blog_stories].[eng_story_bookmark] (
     [stories_eng_story_bookmark_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]             BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -418,13 +418,13 @@ CREATE TABLE [stories].[eng_story_bookmark] (
 );
 GO
 
-CREATE UNIQUE INDEX [UX_eng_story_bookmark] ON [stories].[eng_story_bookmark] ([link_story_id], [link_user_profile_id]);
+CREATE UNIQUE INDEX [UX_eng_story_bookmark] ON [blog_stories].[eng_story_bookmark] ([link_story_id], [link_user_profile_id]);
 GO
 
 -- --------------------------------------------------------
 -- Engagement: Story Comment
 -- --------------------------------------------------------
-CREATE TABLE [stories].[eng_story_comment] (
+CREATE TABLE [blog_stories].[eng_story_comment] (
     [stories_eng_story_comment_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]             BIGINT NOT NULL,
     [link_user_profile_id]      BIGINT NOT NULL,
@@ -436,13 +436,13 @@ CREATE TABLE [stories].[eng_story_comment] (
 );
 GO
 
-CREATE INDEX [IX_eng_story_comment_story] ON [stories].[eng_story_comment] ([link_story_id]);
+CREATE INDEX [IX_eng_story_comment_story] ON [blog_stories].[eng_story_comment] ([link_story_id]);
 GO
 
 -- --------------------------------------------------------
 -- Seed: Story Categories
 -- --------------------------------------------------------
-INSERT INTO [stories].[ref_story_category] ([story_category_code], [story_category_name_bn], [story_category_name_en], [story_category_icon], [sort_order]) VALUES
+INSERT INTO [blog_stories].[ref_story_category] ([story_category_code], [story_category_name_bn], [story_category_name_en], [story_category_icon], [sort_order]) VALUES
 ('thakurmar_jhuli',     N'ঠাকুরমার ঝুলি',       'Grandmother''s Bag',       N'👵', 1),
 ('rupkotha',            N'রূপকথা',               'Fairy Tales',              N'🧚', 2),
 ('panchatantra',        N'পঞ্চতন্ত্র',            'Panchatantra',             N'🦁', 3),
@@ -466,7 +466,7 @@ GO
 -- --------------------------------------------------------
 -- Seed: Age Groups
 -- --------------------------------------------------------
-INSERT INTO [stories].[ref_story_age_group] ([age_group_code], [age_group_name_bn], [age_group_name_en], [age_min], [age_max], [sort_order]) VALUES
+INSERT INTO [blog_stories].[ref_story_age_group] ([age_group_code], [age_group_name_bn], [age_group_name_en], [age_min], [age_max], [sort_order]) VALUES
 ('3_5',     N'ছোট্ট শিশু (৩-৫)',   'Toddlers (3-5)',       3,  5,  1),
 ('6_8',     N'প্রাথমিক (৬-৮)',      'Primary (6-8)',        6,  8,  2),
 ('9_12',    N'কিশোর (৯-১২)',        'Pre-teen (9-12)',      9,  12, 3);

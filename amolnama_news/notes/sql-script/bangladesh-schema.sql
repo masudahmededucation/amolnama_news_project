@@ -15,23 +15,23 @@ GO
 -- DROP IN DEPENDENCY ORDER
 -- ============================================================================
 
-IF OBJECT_ID(N'[bangladesh].[eng_media_comment]', N'U') IS NOT NULL DROP TABLE [bangladesh].[eng_media_comment];
-IF OBJECT_ID(N'[bangladesh].[eng_media_like]', N'U') IS NOT NULL DROP TABLE [bangladesh].[eng_media_like];
-IF OBJECT_ID(N'[bangladesh].[map_media_entry_tag]', N'U') IS NOT NULL DROP TABLE [bangladesh].[map_media_entry_tag];
-IF OBJECT_ID(N'[bangladesh].[map_media_album_entry]', N'U') IS NOT NULL DROP TABLE [bangladesh].[map_media_album_entry];
-IF OBJECT_ID(N'[bangladesh].[map_media_tag]', N'U') IS NOT NULL DROP TABLE [bangladesh].[map_media_tag];
-IF OBJECT_ID(N'[bangladesh].[coll_media_album]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_media_album];
-IF OBJECT_ID(N'[bangladesh].[coll_media_entry]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_media_entry];
-IF OBJECT_ID(N'[bangladesh].[ref_media_category]', N'U') IS NOT NULL DROP TABLE [bangladesh].[ref_media_category];
-IF OBJECT_ID(N'[bangladesh].[eng_destination_bookmark]', N'U') IS NOT NULL DROP TABLE [bangladesh].[eng_destination_bookmark];
-IF OBJECT_ID(N'[bangladesh].[eng_destination_review]', N'U') IS NOT NULL DROP TABLE [bangladesh].[eng_destination_review];
-IF OBJECT_ID(N'[bangladesh].[coll_travel_tip]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_travel_tip];
-IF OBJECT_ID(N'[bangladesh].[coll_transport_route]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_transport_route];
-IF OBJECT_ID(N'[bangladesh].[coll_accommodation]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_accommodation];
-IF OBJECT_ID(N'[bangladesh].[coll_destination_photo]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_destination_photo];
-IF OBJECT_ID(N'[bangladesh].[coll_destination]', N'U') IS NOT NULL DROP TABLE [bangladesh].[coll_destination];
-IF OBJECT_ID(N'[bangladesh].[ref_season]', N'U') IS NOT NULL DROP TABLE [bangladesh].[ref_season];
-IF OBJECT_ID(N'[bangladesh].[ref_destination_category]', N'U') IS NOT NULL DROP TABLE [bangladesh].[ref_destination_category];
+IF OBJECT_ID(N'[blog_bangladesh].[eng_media_comment]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[eng_media_comment];
+IF OBJECT_ID(N'[blog_bangladesh].[eng_media_like]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[eng_media_like];
+IF OBJECT_ID(N'[blog_bangladesh].[map_media_entry_tag]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[map_media_entry_tag];
+IF OBJECT_ID(N'[blog_bangladesh].[map_media_album_entry]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[map_media_album_entry];
+IF OBJECT_ID(N'[blog_bangladesh].[map_media_tag]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[map_media_tag];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_media_album]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_media_album];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_media_entry]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_media_entry];
+IF OBJECT_ID(N'[blog_bangladesh].[ref_media_category]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[ref_media_category];
+IF OBJECT_ID(N'[blog_bangladesh].[eng_destination_bookmark]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[eng_destination_bookmark];
+IF OBJECT_ID(N'[blog_bangladesh].[eng_destination_review]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[eng_destination_review];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_travel_tip]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_travel_tip];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_transport_route]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_transport_route];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_accommodation]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_accommodation];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_destination_photo]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_destination_photo];
+IF OBJECT_ID(N'[blog_bangladesh].[coll_destination]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[coll_destination];
+IF OBJECT_ID(N'[blog_bangladesh].[ref_season]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[ref_season];
+IF OBJECT_ID(N'[blog_bangladesh].[ref_destination_category]', N'U') IS NOT NULL DROP TABLE [blog_bangladesh].[ref_destination_category];
 GO
 
 
@@ -40,7 +40,7 @@ GO
 -- ============================================================================
 
 -- 1.1 ref_destination_category
-CREATE TABLE [bangladesh].[ref_destination_category] (
+CREATE TABLE [blog_bangladesh].[ref_destination_category] (
     bangladesh_ref_destination_category_id   INT           IDENTITY(1,1) NOT NULL,
     destination_category_code                VARCHAR(50)   COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
     destination_category_name_en             NVARCHAR(100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE [bangladesh].[ref_destination_category] (
 GO
 
 -- 1.2 ref_season
-CREATE TABLE [bangladesh].[ref_season] (
+CREATE TABLE [blog_bangladesh].[ref_season] (
     bangladesh_ref_season_id     INT           IDENTITY(1,1) NOT NULL,
     season_code                  VARCHAR(50)   COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
     season_name_en               NVARCHAR(100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE [bangladesh].[ref_season] (
 GO
 
 -- 1.3 coll_destination
-CREATE TABLE [bangladesh].[coll_destination] (
+CREATE TABLE [blog_bangladesh].[coll_destination] (
     bangladesh_coll_destination_id       BIGINT        IDENTITY(1,1) NOT NULL,
     link_user_profile_id                 BIGINT        NOT NULL,
     link_destination_category_id         INT           NOT NULL,
@@ -123,20 +123,20 @@ CREATE TABLE [bangladesh].[coll_destination] (
     CONSTRAINT FK_bangladesh_coll_destination_user_profile
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id),
     CONSTRAINT FK_bangladesh_coll_destination_category
-        FOREIGN KEY (link_destination_category_id) REFERENCES [bangladesh].[ref_destination_category](bangladesh_ref_destination_category_id),
+        FOREIGN KEY (link_destination_category_id) REFERENCES [blog_bangladesh].[ref_destination_category](bangladesh_ref_destination_category_id),
     CONSTRAINT FK_bangladesh_coll_destination_best_season
-        FOREIGN KEY (link_best_season_id) REFERENCES [bangladesh].[ref_season](bangladesh_ref_season_id)
+        FOREIGN KEY (link_best_season_id) REFERENCES [blog_bangladesh].[ref_season](bangladesh_ref_season_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_category ON [bangladesh].[coll_destination](link_destination_category_id);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_district ON [bangladesh].[coll_destination](link_district_id);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_status ON [bangladesh].[coll_destination](destination_status);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_user ON [bangladesh].[coll_destination](link_user_profile_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_category ON [blog_bangladesh].[coll_destination](link_destination_category_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_district ON [blog_bangladesh].[coll_destination](link_district_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_status ON [blog_bangladesh].[coll_destination](destination_status);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_user ON [blog_bangladesh].[coll_destination](link_user_profile_id);
 GO
 
 -- 1.4 coll_destination_photo
-CREATE TABLE [bangladesh].[coll_destination_photo] (
+CREATE TABLE [blog_bangladesh].[coll_destination_photo] (
     bangladesh_coll_destination_photo_id   BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id               BIGINT        NOT NULL,
     link_user_profile_id                   BIGINT        NOT NULL,
@@ -154,17 +154,17 @@ CREATE TABLE [bangladesh].[coll_destination_photo] (
     CONSTRAINT PK_bangladesh_coll_destination_photo
         PRIMARY KEY CLUSTERED (bangladesh_coll_destination_photo_id),
     CONSTRAINT FK_bangladesh_coll_destination_photo_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_coll_destination_photo_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_photo_destination ON [bangladesh].[coll_destination_photo](link_coll_destination_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_destination_photo_destination ON [blog_bangladesh].[coll_destination_photo](link_coll_destination_id);
 GO
 
 -- 1.5 coll_accommodation
-CREATE TABLE [bangladesh].[coll_accommodation] (
+CREATE TABLE [blog_bangladesh].[coll_accommodation] (
     bangladesh_coll_accommodation_id      BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id              BIGINT        NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
@@ -196,17 +196,17 @@ CREATE TABLE [bangladesh].[coll_accommodation] (
     CONSTRAINT PK_bangladesh_coll_accommodation
         PRIMARY KEY CLUSTERED (bangladesh_coll_accommodation_id),
     CONSTRAINT FK_bangladesh_coll_accommodation_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_coll_accommodation_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_accommodation_destination ON [bangladesh].[coll_accommodation](link_coll_destination_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_accommodation_destination ON [blog_bangladesh].[coll_accommodation](link_coll_destination_id);
 GO
 
 -- 1.6 coll_transport_route
-CREATE TABLE [bangladesh].[coll_transport_route] (
+CREATE TABLE [blog_bangladesh].[coll_transport_route] (
     bangladesh_coll_transport_route_id    BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id              BIGINT        NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
@@ -231,17 +231,17 @@ CREATE TABLE [bangladesh].[coll_transport_route] (
     CONSTRAINT PK_bangladesh_coll_transport_route
         PRIMARY KEY CLUSTERED (bangladesh_coll_transport_route_id),
     CONSTRAINT FK_bangladesh_coll_transport_route_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_coll_transport_route_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_transport_route_destination ON [bangladesh].[coll_transport_route](link_coll_destination_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_transport_route_destination ON [blog_bangladesh].[coll_transport_route](link_coll_destination_id);
 GO
 
 -- 1.7 coll_travel_tip
-CREATE TABLE [bangladesh].[coll_travel_tip] (
+CREATE TABLE [blog_bangladesh].[coll_travel_tip] (
     bangladesh_coll_travel_tip_id         BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id              BIGINT        NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
@@ -256,17 +256,17 @@ CREATE TABLE [bangladesh].[coll_travel_tip] (
     CONSTRAINT PK_bangladesh_coll_travel_tip
         PRIMARY KEY CLUSTERED (bangladesh_coll_travel_tip_id),
     CONSTRAINT FK_bangladesh_coll_travel_tip_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_coll_travel_tip_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_travel_tip_destination ON [bangladesh].[coll_travel_tip](link_coll_destination_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_travel_tip_destination ON [blog_bangladesh].[coll_travel_tip](link_coll_destination_id);
 GO
 
 -- 1.8 eng_destination_review
-CREATE TABLE [bangladesh].[eng_destination_review] (
+CREATE TABLE [blog_bangladesh].[eng_destination_review] (
     bangladesh_eng_destination_review_id   BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id               BIGINT        NOT NULL,
     link_user_profile_id                   BIGINT        NOT NULL,
@@ -292,7 +292,7 @@ CREATE TABLE [bangladesh].[eng_destination_review] (
     CONSTRAINT PK_bangladesh_eng_destination_review
         PRIMARY KEY CLUSTERED (bangladesh_eng_destination_review_id),
     CONSTRAINT FK_bangladesh_eng_destination_review_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_eng_destination_review_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id),
     CONSTRAINT CK_bangladesh_eng_destination_review_rating_overall CHECK (rating_overall BETWEEN 1 AND 5),
@@ -304,12 +304,12 @@ CREATE TABLE [bangladesh].[eng_destination_review] (
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_eng_destination_review_destination ON [bangladesh].[eng_destination_review](link_coll_destination_id);
-CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_destination_review_user_destination ON [bangladesh].[eng_destination_review](link_coll_destination_id, link_user_profile_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_eng_destination_review_destination ON [blog_bangladesh].[eng_destination_review](link_coll_destination_id);
+CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_destination_review_user_destination ON [blog_bangladesh].[eng_destination_review](link_coll_destination_id, link_user_profile_id);
 GO
 
 -- 1.9 eng_destination_bookmark
-CREATE TABLE [bangladesh].[eng_destination_bookmark] (
+CREATE TABLE [blog_bangladesh].[eng_destination_bookmark] (
     bangladesh_eng_destination_bookmark_id  BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_destination_id                BIGINT        NOT NULL,
     link_user_profile_id                    BIGINT        NOT NULL,
@@ -319,13 +319,13 @@ CREATE TABLE [bangladesh].[eng_destination_bookmark] (
     CONSTRAINT PK_bangladesh_eng_destination_bookmark
         PRIMARY KEY CLUSTERED (bangladesh_eng_destination_bookmark_id),
     CONSTRAINT FK_bangladesh_eng_destination_bookmark_destination
-        FOREIGN KEY (link_coll_destination_id) REFERENCES [bangladesh].[coll_destination](bangladesh_coll_destination_id),
+        FOREIGN KEY (link_coll_destination_id) REFERENCES [blog_bangladesh].[coll_destination](bangladesh_coll_destination_id),
     CONSTRAINT FK_bangladesh_eng_destination_bookmark_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_destination_bookmark_user_destination ON [bangladesh].[eng_destination_bookmark](link_coll_destination_id, link_user_profile_id);
+CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_destination_bookmark_user_destination ON [blog_bangladesh].[eng_destination_bookmark](link_coll_destination_id, link_user_profile_id);
 GO
 
 
@@ -334,7 +334,7 @@ GO
 -- ============================================================================
 
 -- 2.1 ref_media_category
-CREATE TABLE [bangladesh].[ref_media_category] (
+CREATE TABLE [blog_bangladesh].[ref_media_category] (
     bangladesh_ref_media_category_id      INT           IDENTITY(1,1) NOT NULL,
     media_category_code                   VARCHAR(50)   COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
     media_category_name_en                NVARCHAR(100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -353,7 +353,7 @@ CREATE TABLE [bangladesh].[ref_media_category] (
 GO
 
 -- 2.2 coll_media_entry
-CREATE TABLE [bangladesh].[coll_media_entry] (
+CREATE TABLE [blog_bangladesh].[coll_media_entry] (
     bangladesh_coll_media_entry_id        BIGINT        IDENTITY(1,1) NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
     link_media_category_id                INT           NOT NULL,
@@ -409,20 +409,20 @@ CREATE TABLE [bangladesh].[coll_media_entry] (
     CONSTRAINT FK_bangladesh_coll_media_entry_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id),
     CONSTRAINT FK_bangladesh_coll_media_entry_category
-        FOREIGN KEY (link_media_category_id) REFERENCES [bangladesh].[ref_media_category](bangladesh_ref_media_category_id),
+        FOREIGN KEY (link_media_category_id) REFERENCES [blog_bangladesh].[ref_media_category](bangladesh_ref_media_category_id),
     CONSTRAINT FK_bangladesh_coll_media_entry_season
-        FOREIGN KEY (link_season_id) REFERENCES [bangladesh].[ref_season](bangladesh_ref_season_id)
+        FOREIGN KEY (link_season_id) REFERENCES [blog_bangladesh].[ref_season](bangladesh_ref_season_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_user ON [bangladesh].[coll_media_entry](link_user_profile_id);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_category ON [bangladesh].[coll_media_entry](link_media_category_id);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_status ON [bangladesh].[coll_media_entry](media_status);
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_media_type ON [bangladesh].[coll_media_entry](media_type);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_user ON [blog_bangladesh].[coll_media_entry](link_user_profile_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_category ON [blog_bangladesh].[coll_media_entry](link_media_category_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_status ON [blog_bangladesh].[coll_media_entry](media_status);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_entry_media_type ON [blog_bangladesh].[coll_media_entry](media_type);
 GO
 
 -- 2.3 coll_media_album
-CREATE TABLE [bangladesh].[coll_media_album] (
+CREATE TABLE [blog_bangladesh].[coll_media_album] (
     bangladesh_coll_media_album_id        BIGINT        IDENTITY(1,1) NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
 
@@ -445,11 +445,11 @@ CREATE TABLE [bangladesh].[coll_media_album] (
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_album_user ON [bangladesh].[coll_media_album](link_user_profile_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_coll_media_album_user ON [blog_bangladesh].[coll_media_album](link_user_profile_id);
 GO
 
 -- 2.4 map_media_album_entry
-CREATE TABLE [bangladesh].[map_media_album_entry] (
+CREATE TABLE [blog_bangladesh].[map_media_album_entry] (
     link_coll_media_album_id              BIGINT        NOT NULL,
     link_coll_media_entry_id              BIGINT        NOT NULL,
     sort_order                            INT           NOT NULL DEFAULT(0),
@@ -458,14 +458,14 @@ CREATE TABLE [bangladesh].[map_media_album_entry] (
     CONSTRAINT PK_bangladesh_map_media_album_entry
         PRIMARY KEY CLUSTERED (link_coll_media_album_id, link_coll_media_entry_id),
     CONSTRAINT FK_bangladesh_map_media_album_entry_album
-        FOREIGN KEY (link_coll_media_album_id) REFERENCES [bangladesh].[coll_media_album](bangladesh_coll_media_album_id),
+        FOREIGN KEY (link_coll_media_album_id) REFERENCES [blog_bangladesh].[coll_media_album](bangladesh_coll_media_album_id),
     CONSTRAINT FK_bangladesh_map_media_album_entry_entry
-        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id)
+        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [blog_bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id)
 );
 GO
 
 -- 2.5 map_media_tag
-CREATE TABLE [bangladesh].[map_media_tag] (
+CREATE TABLE [blog_bangladesh].[map_media_tag] (
     bangladesh_map_media_tag_id           INT           IDENTITY(1,1) NOT NULL,
     tag_name_en                           NVARCHAR(100) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
     tag_name_bn                           NVARCHAR(100) COLLATE Bengali_100_CI_AS NULL,
@@ -480,7 +480,7 @@ CREATE TABLE [bangladesh].[map_media_tag] (
 GO
 
 -- 2.6 map_media_entry_tag
-CREATE TABLE [bangladesh].[map_media_entry_tag] (
+CREATE TABLE [blog_bangladesh].[map_media_entry_tag] (
     link_coll_media_entry_id              BIGINT        NOT NULL,
     link_map_media_tag_id                 INT           NOT NULL,
     created_at                            DATETIME2(0)  NOT NULL DEFAULT(SYSDATETIME()),
@@ -488,14 +488,14 @@ CREATE TABLE [bangladesh].[map_media_entry_tag] (
     CONSTRAINT PK_bangladesh_map_media_entry_tag
         PRIMARY KEY CLUSTERED (link_coll_media_entry_id, link_map_media_tag_id),
     CONSTRAINT FK_bangladesh_map_media_entry_tag_entry
-        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
+        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [blog_bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
     CONSTRAINT FK_bangladesh_map_media_entry_tag_tag
-        FOREIGN KEY (link_map_media_tag_id) REFERENCES [bangladesh].[map_media_tag](bangladesh_map_media_tag_id)
+        FOREIGN KEY (link_map_media_tag_id) REFERENCES [blog_bangladesh].[map_media_tag](bangladesh_map_media_tag_id)
 );
 GO
 
 -- 2.7 eng_media_like
-CREATE TABLE [bangladesh].[eng_media_like] (
+CREATE TABLE [blog_bangladesh].[eng_media_like] (
     bangladesh_eng_media_like_id          BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_media_entry_id              BIGINT        NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
@@ -504,17 +504,17 @@ CREATE TABLE [bangladesh].[eng_media_like] (
     CONSTRAINT PK_bangladesh_eng_media_like
         PRIMARY KEY CLUSTERED (bangladesh_eng_media_like_id),
     CONSTRAINT FK_bangladesh_eng_media_like_entry
-        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
+        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [blog_bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
     CONSTRAINT FK_bangladesh_eng_media_like_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id)
 );
 GO
 
-CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_media_like_entry_user ON [bangladesh].[eng_media_like](link_coll_media_entry_id, link_user_profile_id);
+CREATE UNIQUE NONCLUSTERED INDEX UQ_bangladesh_eng_media_like_entry_user ON [blog_bangladesh].[eng_media_like](link_coll_media_entry_id, link_user_profile_id);
 GO
 
 -- 2.8 eng_media_comment
-CREATE TABLE [bangladesh].[eng_media_comment] (
+CREATE TABLE [blog_bangladesh].[eng_media_comment] (
     bangladesh_eng_media_comment_id       BIGINT        IDENTITY(1,1) NOT NULL,
     link_coll_media_entry_id              BIGINT        NOT NULL,
     link_user_profile_id                  BIGINT        NOT NULL,
@@ -530,15 +530,15 @@ CREATE TABLE [bangladesh].[eng_media_comment] (
     CONSTRAINT PK_bangladesh_eng_media_comment
         PRIMARY KEY CLUSTERED (bangladesh_eng_media_comment_id),
     CONSTRAINT FK_bangladesh_eng_media_comment_entry
-        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
+        FOREIGN KEY (link_coll_media_entry_id) REFERENCES [blog_bangladesh].[coll_media_entry](bangladesh_coll_media_entry_id),
     CONSTRAINT FK_bangladesh_eng_media_comment_user
         FOREIGN KEY (link_user_profile_id) REFERENCES [account].[user_profile](user_profile_id),
     CONSTRAINT FK_bangladesh_eng_media_comment_parent
-        FOREIGN KEY (link_parent_comment_id) REFERENCES [bangladesh].[eng_media_comment](bangladesh_eng_media_comment_id)
+        FOREIGN KEY (link_parent_comment_id) REFERENCES [blog_bangladesh].[eng_media_comment](bangladesh_eng_media_comment_id)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_bangladesh_eng_media_comment_entry ON [bangladesh].[eng_media_comment](link_coll_media_entry_id);
+CREATE NONCLUSTERED INDEX IX_bangladesh_eng_media_comment_entry ON [blog_bangladesh].[eng_media_comment](link_coll_media_entry_id);
 GO
 
 
@@ -546,8 +546,8 @@ GO
 -- SEED DATA
 -- ============================================================================
 
-SET IDENTITY_INSERT [bangladesh].[ref_destination_category] ON;
-INSERT INTO [bangladesh].[ref_destination_category]
+SET IDENTITY_INSERT [blog_bangladesh].[ref_destination_category] ON;
+INSERT INTO [blog_bangladesh].[ref_destination_category]
     (bangladesh_ref_destination_category_id, destination_category_code, destination_category_name_en, destination_category_name_bn, destination_category_icon, sort_order)
 VALUES
     (1,  'beach',          'Beach',          N'সমুদ্র সৈকত',      N'🏖️',  1),
@@ -562,11 +562,11 @@ VALUES
     (10, 'waterfall',      'Waterfall',      N'ঝর্ণা',           N'💧',  10),
     (11, 'forest',         'Forest',         N'বন',              N'🌲',  11),
     (12, 'lake',           'Lake / Haor',    N'হাওর / বিল',       N'🏞️',  12);
-SET IDENTITY_INSERT [bangladesh].[ref_destination_category] OFF;
+SET IDENTITY_INSERT [blog_bangladesh].[ref_destination_category] OFF;
 GO
 
-SET IDENTITY_INSERT [bangladesh].[ref_season] ON;
-INSERT INTO [bangladesh].[ref_season]
+SET IDENTITY_INSERT [blog_bangladesh].[ref_season] ON;
+INSERT INTO [blog_bangladesh].[ref_season]
     (bangladesh_ref_season_id, season_code, season_name_en, season_name_bn, season_months, sort_order)
 VALUES
     (1, 'grishmo',   'Summer (গ্রীষ্ম)',       N'গ্রীষ্ম',   'April - May',         1),
@@ -575,11 +575,11 @@ VALUES
     (4, 'hemonto',   'Late Autumn (হেমন্ত)',  N'হেমন্ত',   'October - November',  4),
     (5, 'sheet',     'Winter (শীত)',         N'শীত',     'December - January',  5),
     (6, 'boshonto',  'Spring (বসন্ত)',        N'বসন্ত',    'February - March',    6);
-SET IDENTITY_INSERT [bangladesh].[ref_season] OFF;
+SET IDENTITY_INSERT [blog_bangladesh].[ref_season] OFF;
 GO
 
-SET IDENTITY_INSERT [bangladesh].[ref_media_category] ON;
-INSERT INTO [bangladesh].[ref_media_category]
+SET IDENTITY_INSERT [blog_bangladesh].[ref_media_category] ON;
+INSERT INTO [blog_bangladesh].[ref_media_category]
     (bangladesh_ref_media_category_id, media_category_code, media_category_name_en, media_category_name_bn, media_category_icon, sort_order)
 VALUES
     (1,  'landscape',  'Landscape',        N'প্রাকৃতিক দৃশ্য',     N'🏞️',  1),
@@ -594,5 +594,5 @@ VALUES
     (10, 'village',    'Village Life',     N'গ্রামীণ জীবন',        N'🏡',  10),
     (11, 'macro',      'Macro',            N'ম্যাক্রো',            N'🔍',  11),
     (12, 'festival',   'Festival',         N'উৎসব',               N'🎊',  12);
-SET IDENTITY_INSERT [bangladesh].[ref_media_category] OFF;
+SET IDENTITY_INSERT [blog_bangladesh].[ref_media_category] OFF;
 GO

@@ -24,32 +24,32 @@ GO
    DROP OBJECTS: [art]
    ================================================================ */
 
-DROP TABLE IF EXISTS [art].[eng_artwork_comment];
+DROP TABLE IF EXISTS [blog_art].[eng_artwork_comment];
 GO
-DROP TABLE IF EXISTS [art].[eng_artwork_bookmark];
+DROP TABLE IF EXISTS [blog_art].[eng_artwork_bookmark];
 GO
-DROP TABLE IF EXISTS [art].[eng_artwork_like];
+DROP TABLE IF EXISTS [blog_art].[eng_artwork_like];
 GO
-DROP TABLE IF EXISTS [art].[coll_artwork_youtube_link];
+DROP TABLE IF EXISTS [blog_art].[coll_artwork_youtube_link];
 GO
-DROP TABLE IF EXISTS [art].[coll_artwork_step];
+DROP TABLE IF EXISTS [blog_art].[coll_artwork_step];
 GO
-DROP TABLE IF EXISTS [art].[coll_artwork_asset];
+DROP TABLE IF EXISTS [blog_art].[coll_artwork_asset];
 GO
-DROP TABLE IF EXISTS [art].[coll_artwork];
+DROP TABLE IF EXISTS [blog_art].[coll_artwork];
 GO
-DROP TABLE IF EXISTS [art].[ref_art_difficulty];
+DROP TABLE IF EXISTS [blog_art].[ref_art_difficulty];
 GO
-DROP TABLE IF EXISTS [art].[ref_art_medium];
+DROP TABLE IF EXISTS [blog_art].[ref_art_medium];
 GO
-DROP TABLE IF EXISTS [art].[ref_art_category];
+DROP TABLE IF EXISTS [blog_art].[ref_art_category];
 GO
 
 /* ================================================================
-   TABLE: [art].[ref_art_category]
+   TABLE: [blog_art].[ref_art_category]
    ================================================================ */
 
-CREATE TABLE [art].[ref_art_category]
+CREATE TABLE [blog_art].[ref_art_category]
 (
     [art_ref_art_category_id]         INT IDENTITY(1,1) NOT NULL,
     [art_category_code]               NVARCHAR(50) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -66,35 +66,35 @@ CREATE TABLE [art].[ref_art_category]
 );
 GO
 
-ALTER TABLE [art].[ref_art_category]
+ALTER TABLE [blog_art].[ref_art_category]
     ADD CONSTRAINT [DF_art_ref_art_category_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[ref_art_category]
+ALTER TABLE [blog_art].[ref_art_category]
     ADD CONSTRAINT [DF_art_ref_art_category_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[ref_art_category]
+ALTER TABLE [blog_art].[ref_art_category]
     ADD CONSTRAINT [CK_art_ref_art_category_sort_order_non_negative]
     CHECK ([sort_order] IS NULL OR [sort_order] >= 0);
 GO
 
-ALTER TABLE [art].[ref_art_category]
+ALTER TABLE [blog_art].[ref_art_category]
     ADD CONSTRAINT [UX_art_ref_art_category_art_category_code]
     UNIQUE ([art_category_code]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_ref_art_category_sort_order]
-    ON [art].[ref_art_category] ([sort_order] ASC);
+    ON [blog_art].[ref_art_category] ([sort_order] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[ref_art_medium]
+   TABLE: [blog_art].[ref_art_medium]
    ================================================================ */
 
-CREATE TABLE [art].[ref_art_medium]
+CREATE TABLE [blog_art].[ref_art_medium]
 (
     [art_ref_art_medium_id]           INT IDENTITY(1,1) NOT NULL,
     [art_medium_code]                 NVARCHAR(50) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -110,35 +110,35 @@ CREATE TABLE [art].[ref_art_medium]
 );
 GO
 
-ALTER TABLE [art].[ref_art_medium]
+ALTER TABLE [blog_art].[ref_art_medium]
     ADD CONSTRAINT [DF_art_ref_art_medium_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[ref_art_medium]
+ALTER TABLE [blog_art].[ref_art_medium]
     ADD CONSTRAINT [DF_art_ref_art_medium_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[ref_art_medium]
+ALTER TABLE [blog_art].[ref_art_medium]
     ADD CONSTRAINT [CK_art_ref_art_medium_sort_order_non_negative]
     CHECK ([sort_order] IS NULL OR [sort_order] >= 0);
 GO
 
-ALTER TABLE [art].[ref_art_medium]
+ALTER TABLE [blog_art].[ref_art_medium]
     ADD CONSTRAINT [UX_art_ref_art_medium_art_medium_code]
     UNIQUE ([art_medium_code]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_ref_art_medium_sort_order]
-    ON [art].[ref_art_medium] ([sort_order] ASC);
+    ON [blog_art].[ref_art_medium] ([sort_order] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[ref_art_difficulty]
+   TABLE: [blog_art].[ref_art_difficulty]
    ================================================================ */
 
-CREATE TABLE [art].[ref_art_difficulty]
+CREATE TABLE [blog_art].[ref_art_difficulty]
 (
     [art_ref_art_difficulty_id]       INT IDENTITY(1,1) NOT NULL,
     [art_difficulty_code]             NVARCHAR(20) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -154,35 +154,35 @@ CREATE TABLE [art].[ref_art_difficulty]
 );
 GO
 
-ALTER TABLE [art].[ref_art_difficulty]
+ALTER TABLE [blog_art].[ref_art_difficulty]
     ADD CONSTRAINT [DF_art_ref_art_difficulty_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[ref_art_difficulty]
+ALTER TABLE [blog_art].[ref_art_difficulty]
     ADD CONSTRAINT [DF_art_ref_art_difficulty_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[ref_art_difficulty]
+ALTER TABLE [blog_art].[ref_art_difficulty]
     ADD CONSTRAINT [CK_art_ref_art_difficulty_sort_order_non_negative]
     CHECK ([sort_order] IS NULL OR [sort_order] >= 0);
 GO
 
-ALTER TABLE [art].[ref_art_difficulty]
+ALTER TABLE [blog_art].[ref_art_difficulty]
     ADD CONSTRAINT [UX_art_ref_art_difficulty_art_difficulty_code]
     UNIQUE ([art_difficulty_code]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_ref_art_difficulty_sort_order]
-    ON [art].[ref_art_difficulty] ([sort_order] ASC);
+    ON [blog_art].[ref_art_difficulty] ([sort_order] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[coll_artwork]
+   TABLE: [blog_art].[coll_artwork]
    ================================================================ */
 
-CREATE TABLE [art].[coll_artwork]
+CREATE TABLE [blog_art].[coll_artwork]
 (
     [art_coll_artwork_id]             BIGINT IDENTITY(1,1) NOT NULL,
     [artwork_guid]                    UNIQUEIDENTIFIER NOT NULL,
@@ -218,142 +218,142 @@ CREATE TABLE [art].[coll_artwork]
 );
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_artwork_guid]
     DEFAULT (NEWID()) FOR [artwork_guid];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_artwork_type_code]
     DEFAULT (N'artwork') FOR [artwork_type_code];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_is_tutorial]
     DEFAULT ((0)) FOR [is_tutorial];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_is_for_sale]
     DEFAULT ((0)) FOR [is_for_sale];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_like_count]
     DEFAULT ((0)) FOR [like_count];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_view_count]
     DEFAULT ((0)) FOR [view_count];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_bookmark_count]
     DEFAULT ((0)) FOR [bookmark_count];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_comment_count]
     DEFAULT ((0)) FOR [comment_count];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_is_featured]
     DEFAULT ((0)) FOR [is_featured];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_is_published]
     DEFAULT ((0)) FOR [is_published];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [DF_art_coll_artwork_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [CK_art_coll_artwork_estimated_time_minutes_non_negative]
     CHECK ([estimated_time_minutes] IS NULL OR [estimated_time_minutes] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [CK_art_coll_artwork_like_count_non_negative]
     CHECK ([like_count] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [CK_art_coll_artwork_view_count_non_negative]
     CHECK ([view_count] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [CK_art_coll_artwork_bookmark_count_non_negative]
     CHECK ([bookmark_count] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [CK_art_coll_artwork_comment_count_non_negative]
     CHECK ([comment_count] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [UX_art_coll_artwork_artwork_guid]
     UNIQUE ([artwork_guid]);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [UX_art_coll_artwork_artwork_slug]
     UNIQUE ([artwork_slug]);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [FK_art_coll_artwork_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [FK_art_coll_artwork_link_art_category_id]
     FOREIGN KEY ([link_art_category_id])
-    REFERENCES [art].[ref_art_category] ([art_ref_art_category_id]);
+    REFERENCES [blog_art].[ref_art_category] ([art_ref_art_category_id]);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [FK_art_coll_artwork_link_art_medium_id]
     FOREIGN KEY ([link_art_medium_id])
-    REFERENCES [art].[ref_art_medium] ([art_ref_art_medium_id]);
+    REFERENCES [blog_art].[ref_art_medium] ([art_ref_art_medium_id]);
 GO
 
-ALTER TABLE [art].[coll_artwork]
+ALTER TABLE [blog_art].[coll_artwork]
     ADD CONSTRAINT [FK_art_coll_artwork_link_art_difficulty_id]
     FOREIGN KEY ([link_art_difficulty_id])
-    REFERENCES [art].[ref_art_difficulty] ([art_ref_art_difficulty_id]);
+    REFERENCES [blog_art].[ref_art_difficulty] ([art_ref_art_difficulty_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_link_user_profile_id]
-    ON [art].[coll_artwork] ([link_user_profile_id] ASC);
+    ON [blog_art].[coll_artwork] ([link_user_profile_id] ASC);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_link_art_category_id]
-    ON [art].[coll_artwork] ([link_art_category_id] ASC);
+    ON [blog_art].[coll_artwork] ([link_art_category_id] ASC);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_created_at]
-    ON [art].[coll_artwork] ([created_at] DESC);
+    ON [blog_art].[coll_artwork] ([created_at] DESC);
 GO
 
 /* ================================================================
-   TABLE: [art].[coll_artwork_asset]
+   TABLE: [blog_art].[coll_artwork_asset]
    ================================================================ */
 
-CREATE TABLE [art].[coll_artwork_asset]
+CREATE TABLE [blog_art].[coll_artwork_asset]
 (
     [art_coll_artwork_asset_id]       BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                 BIGINT NOT NULL,
@@ -371,51 +371,51 @@ CREATE TABLE [art].[coll_artwork_asset]
 );
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [DF_art_coll_artwork_asset_asset_group_code]
     DEFAULT (N'main') FOR [asset_group_code];
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [DF_art_coll_artwork_asset_is_cover]
     DEFAULT ((0)) FOR [is_cover];
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [DF_art_coll_artwork_asset_sort_order]
     DEFAULT ((0)) FOR [sort_order];
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [DF_art_coll_artwork_asset_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [DF_art_coll_artwork_asset_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [CK_art_coll_artwork_asset_sort_order_non_negative]
     CHECK ([sort_order] >= 0);
 GO
 
-ALTER TABLE [art].[coll_artwork_asset]
+ALTER TABLE [blog_art].[coll_artwork_asset]
     ADD CONSTRAINT [FK_art_coll_artwork_asset_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_asset_link_artwork_id]
-    ON [art].[coll_artwork_asset] ([link_artwork_id] ASC);
+    ON [blog_art].[coll_artwork_asset] ([link_artwork_id] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[coll_artwork_step]
+   TABLE: [blog_art].[coll_artwork_step]
    ================================================================ */
 
-CREATE TABLE [art].[coll_artwork_step]
+CREATE TABLE [blog_art].[coll_artwork_step]
 (
     [art_coll_artwork_step_id]        BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                 BIGINT NOT NULL,
@@ -432,41 +432,41 @@ CREATE TABLE [art].[coll_artwork_step]
 );
 GO
 
-ALTER TABLE [art].[coll_artwork_step]
+ALTER TABLE [blog_art].[coll_artwork_step]
     ADD CONSTRAINT [DF_art_coll_artwork_step_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[coll_artwork_step]
+ALTER TABLE [blog_art].[coll_artwork_step]
     ADD CONSTRAINT [DF_art_coll_artwork_step_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[coll_artwork_step]
+ALTER TABLE [blog_art].[coll_artwork_step]
     ADD CONSTRAINT [CK_art_coll_artwork_step_step_number_positive]
     CHECK ([step_number] > 0);
 GO
 
-ALTER TABLE [art].[coll_artwork_step]
+ALTER TABLE [blog_art].[coll_artwork_step]
     ADD CONSTRAINT [FK_art_coll_artwork_step_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
-ALTER TABLE [art].[coll_artwork_step]
+ALTER TABLE [blog_art].[coll_artwork_step]
     ADD CONSTRAINT [UX_art_coll_artwork_step_link_artwork_id_step_number]
     UNIQUE ([link_artwork_id], [step_number]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_step_link_artwork_id_step_number]
-    ON [art].[coll_artwork_step] ([link_artwork_id] ASC, [step_number] ASC);
+    ON [blog_art].[coll_artwork_step] ([link_artwork_id] ASC, [step_number] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[coll_artwork_youtube_link]
+   TABLE: [blog_art].[coll_artwork_youtube_link]
    ================================================================ */
 
-CREATE TABLE [art].[coll_artwork_youtube_link]
+CREATE TABLE [blog_art].[coll_artwork_youtube_link]
 (
     [art_coll_artwork_youtube_link_id] BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                  BIGINT NOT NULL,
@@ -482,37 +482,37 @@ CREATE TABLE [art].[coll_artwork_youtube_link]
 );
 GO
 
-ALTER TABLE [art].[coll_artwork_youtube_link]
+ALTER TABLE [blog_art].[coll_artwork_youtube_link]
     ADD CONSTRAINT [DF_art_coll_artwork_youtube_link_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[coll_artwork_youtube_link]
+ALTER TABLE [blog_art].[coll_artwork_youtube_link]
     ADD CONSTRAINT [DF_art_coll_artwork_youtube_link_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[coll_artwork_youtube_link]
+ALTER TABLE [blog_art].[coll_artwork_youtube_link]
     ADD CONSTRAINT [FK_art_coll_artwork_youtube_link_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
-ALTER TABLE [art].[coll_artwork_youtube_link]
+ALTER TABLE [blog_art].[coll_artwork_youtube_link]
     ADD CONSTRAINT [FK_art_coll_artwork_youtube_link_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_coll_artwork_youtube_link_link_artwork_id]
-    ON [art].[coll_artwork_youtube_link] ([link_artwork_id] ASC);
+    ON [blog_art].[coll_artwork_youtube_link] ([link_artwork_id] ASC);
 GO
 
 /* ================================================================
-   TABLE: [art].[eng_artwork_like]
+   TABLE: [blog_art].[eng_artwork_like]
    ================================================================ */
 
-CREATE TABLE [art].[eng_artwork_like]
+CREATE TABLE [blog_art].[eng_artwork_like]
 (
     [art_eng_artwork_like_id]         BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                 BIGINT NOT NULL,
@@ -526,38 +526,38 @@ CREATE TABLE [art].[eng_artwork_like]
 );
 GO
 
-ALTER TABLE [art].[eng_artwork_like]
+ALTER TABLE [blog_art].[eng_artwork_like]
     ADD CONSTRAINT [DF_art_eng_artwork_like_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[eng_artwork_like]
+ALTER TABLE [blog_art].[eng_artwork_like]
     ADD CONSTRAINT [DF_art_eng_artwork_like_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[eng_artwork_like]
+ALTER TABLE [blog_art].[eng_artwork_like]
     ADD CONSTRAINT [FK_art_eng_artwork_like_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_like]
+ALTER TABLE [blog_art].[eng_artwork_like]
     ADD CONSTRAINT [FK_art_eng_artwork_like_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_like]
+ALTER TABLE [blog_art].[eng_artwork_like]
     ADD CONSTRAINT [UX_art_eng_artwork_like_link_artwork_id_link_user_profile_id]
     UNIQUE ([link_artwork_id], [link_user_profile_id]);
 GO
 
 /* ================================================================
-   TABLE: [art].[eng_artwork_bookmark]
+   TABLE: [blog_art].[eng_artwork_bookmark]
    ================================================================ */
 
-CREATE TABLE [art].[eng_artwork_bookmark]
+CREATE TABLE [blog_art].[eng_artwork_bookmark]
 (
     [art_eng_artwork_bookmark_id]     BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                 BIGINT NOT NULL,
@@ -571,38 +571,38 @@ CREATE TABLE [art].[eng_artwork_bookmark]
 );
 GO
 
-ALTER TABLE [art].[eng_artwork_bookmark]
+ALTER TABLE [blog_art].[eng_artwork_bookmark]
     ADD CONSTRAINT [DF_art_eng_artwork_bookmark_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[eng_artwork_bookmark]
+ALTER TABLE [blog_art].[eng_artwork_bookmark]
     ADD CONSTRAINT [DF_art_eng_artwork_bookmark_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[eng_artwork_bookmark]
+ALTER TABLE [blog_art].[eng_artwork_bookmark]
     ADD CONSTRAINT [FK_art_eng_artwork_bookmark_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_bookmark]
+ALTER TABLE [blog_art].[eng_artwork_bookmark]
     ADD CONSTRAINT [FK_art_eng_artwork_bookmark_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_bookmark]
+ALTER TABLE [blog_art].[eng_artwork_bookmark]
     ADD CONSTRAINT [UX_art_eng_artwork_bookmark_link_artwork_id_link_user_profile_id]
     UNIQUE ([link_artwork_id], [link_user_profile_id]);
 GO
 
 /* ================================================================
-   TABLE: [art].[eng_artwork_comment]
+   TABLE: [blog_art].[eng_artwork_comment]
    ================================================================ */
 
-CREATE TABLE [art].[eng_artwork_comment]
+CREATE TABLE [blog_art].[eng_artwork_comment]
 (
     [art_eng_artwork_comment_id]      BIGINT IDENTITY(1,1) NOT NULL,
     [link_artwork_id]                 BIGINT NOT NULL,
@@ -618,43 +618,43 @@ CREATE TABLE [art].[eng_artwork_comment]
 );
 GO
 
-ALTER TABLE [art].[eng_artwork_comment]
+ALTER TABLE [blog_art].[eng_artwork_comment]
     ADD CONSTRAINT [DF_art_eng_artwork_comment_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [art].[eng_artwork_comment]
+ALTER TABLE [blog_art].[eng_artwork_comment]
     ADD CONSTRAINT [DF_art_eng_artwork_comment_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [art].[eng_artwork_comment]
+ALTER TABLE [blog_art].[eng_artwork_comment]
     ADD CONSTRAINT [FK_art_eng_artwork_comment_link_artwork_id]
     FOREIGN KEY ([link_artwork_id])
-    REFERENCES [art].[coll_artwork] ([art_coll_artwork_id]);
+    REFERENCES [blog_art].[coll_artwork] ([art_coll_artwork_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_comment]
+ALTER TABLE [blog_art].[eng_artwork_comment]
     ADD CONSTRAINT [FK_art_eng_artwork_comment_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [art].[eng_artwork_comment]
+ALTER TABLE [blog_art].[eng_artwork_comment]
     ADD CONSTRAINT [FK_art_eng_artwork_comment_link_parent_comment_id]
     FOREIGN KEY ([link_parent_comment_id])
-    REFERENCES [art].[eng_artwork_comment] ([art_eng_artwork_comment_id]);
+    REFERENCES [blog_art].[eng_artwork_comment] ([art_eng_artwork_comment_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_art_eng_artwork_comment_link_artwork_id]
-    ON [art].[eng_artwork_comment] ([link_artwork_id] ASC);
+    ON [blog_art].[eng_artwork_comment] ([link_artwork_id] ASC);
 GO
 
 /* ================================================================
-   SEED: [art].[ref_art_category]
+   SEED: [blog_art].[ref_art_category]
    ================================================================ */
 
-INSERT INTO [art].[ref_art_category]
+INSERT INTO [blog_art].[ref_art_category]
 (
     [art_category_code],
     [art_category_name_bn],
@@ -688,10 +688,10 @@ VALUES
 GO
 
 /* ================================================================
-   SEED: [art].[ref_art_medium]
+   SEED: [blog_art].[ref_art_medium]
    ================================================================ */
 
-INSERT INTO [art].[ref_art_medium]
+INSERT INTO [blog_art].[ref_art_medium]
 (
     [art_medium_code],
     [art_medium_name_bn],
@@ -718,10 +718,10 @@ VALUES
 GO
 
 /* ================================================================
-   SEED: [art].[ref_art_difficulty]
+   SEED: [blog_art].[ref_art_difficulty]
    ================================================================ */
 
-INSERT INTO [art].[ref_art_difficulty]
+INSERT INTO [blog_art].[ref_art_difficulty]
 (
     [art_difficulty_code],
     [art_difficulty_name_bn],
@@ -754,28 +754,28 @@ GO
    DROP OBJECTS: [stories]
    ================================================================ */
 
-DROP TABLE IF EXISTS [stories].[eng_story_comment];
+DROP TABLE IF EXISTS [blog_stories].[eng_story_comment];
 GO
-DROP TABLE IF EXISTS [stories].[eng_story_bookmark];
+DROP TABLE IF EXISTS [blog_stories].[eng_story_bookmark];
 GO
-DROP TABLE IF EXISTS [stories].[eng_story_like];
+DROP TABLE IF EXISTS [blog_stories].[eng_story_like];
 GO
-DROP TABLE IF EXISTS [stories].[coll_story_page];
+DROP TABLE IF EXISTS [blog_stories].[coll_story_page];
 GO
-DROP TABLE IF EXISTS [stories].[coll_story_asset];
+DROP TABLE IF EXISTS [blog_stories].[coll_story_asset];
 GO
-DROP TABLE IF EXISTS [stories].[coll_story];
+DROP TABLE IF EXISTS [blog_stories].[coll_story];
 GO
-DROP TABLE IF EXISTS [stories].[ref_story_age_group];
+DROP TABLE IF EXISTS [blog_stories].[ref_story_age_group];
 GO
-DROP TABLE IF EXISTS [stories].[ref_story_category];
+DROP TABLE IF EXISTS [blog_stories].[ref_story_category];
 GO
 
 /* ================================================================
-   TABLE: [stories].[ref_story_category]
+   TABLE: [blog_stories].[ref_story_category]
    ================================================================ */
 
-CREATE TABLE [stories].[ref_story_category]
+CREATE TABLE [blog_stories].[ref_story_category]
 (
     [stories_ref_story_category_id]   INT IDENTITY(1,1) NOT NULL,
     [story_category_code]             NVARCHAR(50) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -792,31 +792,31 @@ CREATE TABLE [stories].[ref_story_category]
 );
 GO
 
-ALTER TABLE [stories].[ref_story_category]
+ALTER TABLE [blog_stories].[ref_story_category]
     ADD CONSTRAINT [DF_stories_ref_story_category_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[ref_story_category]
+ALTER TABLE [blog_stories].[ref_story_category]
     ADD CONSTRAINT [DF_stories_ref_story_category_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[ref_story_category]
+ALTER TABLE [blog_stories].[ref_story_category]
     ADD CONSTRAINT [CK_stories_ref_story_category_sort_order_non_negative]
     CHECK ([sort_order] IS NULL OR [sort_order] >= 0);
 GO
 
-ALTER TABLE [stories].[ref_story_category]
+ALTER TABLE [blog_stories].[ref_story_category]
     ADD CONSTRAINT [UX_stories_ref_story_category_story_category_code]
     UNIQUE ([story_category_code]);
 GO
 
 /* ================================================================
-   TABLE: [stories].[ref_story_age_group]
+   TABLE: [blog_stories].[ref_story_age_group]
    ================================================================ */
 
-CREATE TABLE [stories].[ref_story_age_group]
+CREATE TABLE [blog_stories].[ref_story_age_group]
 (
     [stories_ref_story_age_group_id]  INT IDENTITY(1,1) NOT NULL,
     [age_group_code]                  NVARCHAR(10) COLLATE Latin1_General_100_CI_AS_SC_UTF8 NOT NULL,
@@ -834,46 +834,46 @@ CREATE TABLE [stories].[ref_story_age_group]
 );
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [DF_stories_ref_story_age_group_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [DF_stories_ref_story_age_group_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [CK_stories_ref_story_age_group_age_min_non_negative]
     CHECK ([age_min] >= 0);
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [CK_stories_ref_story_age_group_age_max_non_negative]
     CHECK ([age_max] >= 0);
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [CK_stories_ref_story_age_group_age_max_not_less_than_age_min]
     CHECK ([age_max] >= [age_min]);
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [CK_stories_ref_story_age_group_sort_order_non_negative]
     CHECK ([sort_order] IS NULL OR [sort_order] >= 0);
 GO
 
-ALTER TABLE [stories].[ref_story_age_group]
+ALTER TABLE [blog_stories].[ref_story_age_group]
     ADD CONSTRAINT [UX_stories_ref_story_age_group_age_group_code]
     UNIQUE ([age_group_code]);
 GO
 
 /* ================================================================
-   TABLE: [stories].[coll_story]
+   TABLE: [blog_stories].[coll_story]
    ================================================================ */
 
-CREATE TABLE [stories].[coll_story]
+CREATE TABLE [blog_stories].[coll_story]
 (
     [stories_coll_story_id]           BIGINT IDENTITY(1,1) NOT NULL,
     [story_guid]                      UNIQUEIDENTIFIER NOT NULL,
@@ -908,166 +908,166 @@ CREATE TABLE [stories].[coll_story]
 );
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_story_guid]
     DEFAULT (NEWID()) FOR [story_guid];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_story_type_code]
     DEFAULT (N'text') FOR [story_type_code];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_reading_time_minutes]
     DEFAULT ((5)) FOR [reading_time_minutes];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_is_serial]
     DEFAULT ((0)) FOR [is_serial];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_like_count]
     DEFAULT ((0)) FOR [like_count];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_view_count]
     DEFAULT ((0)) FOR [view_count];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_bookmark_count]
     DEFAULT ((0)) FOR [bookmark_count];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_completion_count]
     DEFAULT ((0)) FOR [completion_count];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_comment_count]
     DEFAULT ((0)) FOR [comment_count];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_is_featured]
     DEFAULT ((0)) FOR [is_featured];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_is_daily_pick]
     DEFAULT ((0)) FOR [is_daily_pick];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_is_published]
     DEFAULT ((0)) FOR [is_published];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [DF_stories_coll_story_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_reading_time_minutes_non_negative]
     CHECK ([reading_time_minutes] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_serial_part_number_non_negative]
     CHECK ([serial_part_number] IS NULL OR [serial_part_number] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_like_count_non_negative]
     CHECK ([like_count] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_view_count_non_negative]
     CHECK ([view_count] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_bookmark_count_non_negative]
     CHECK ([bookmark_count] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_completion_count_non_negative]
     CHECK ([completion_count] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [CK_stories_coll_story_comment_count_non_negative]
     CHECK ([comment_count] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [UX_stories_coll_story_story_guid]
     UNIQUE ([story_guid]);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [UX_stories_coll_story_story_slug]
     UNIQUE ([story_slug]);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [FK_stories_coll_story_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [FK_stories_coll_story_link_story_category_id]
     FOREIGN KEY ([link_story_category_id])
-    REFERENCES [stories].[ref_story_category] ([stories_ref_story_category_id]);
+    REFERENCES [blog_stories].[ref_story_category] ([stories_ref_story_category_id]);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [FK_stories_coll_story_link_age_group_id]
     FOREIGN KEY ([link_age_group_id])
-    REFERENCES [stories].[ref_story_age_group] ([stories_ref_story_age_group_id]);
+    REFERENCES [blog_stories].[ref_story_age_group] ([stories_ref_story_age_group_id]);
 GO
 
-ALTER TABLE [stories].[coll_story]
+ALTER TABLE [blog_stories].[coll_story]
     ADD CONSTRAINT [FK_stories_coll_story_link_serial_parent_id]
     FOREIGN KEY ([link_serial_parent_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_link_user_profile_id]
-    ON [stories].[coll_story] ([link_user_profile_id] ASC);
+    ON [blog_stories].[coll_story] ([link_user_profile_id] ASC);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_link_story_category_id]
-    ON [stories].[coll_story] ([link_story_category_id] ASC);
+    ON [blog_stories].[coll_story] ([link_story_category_id] ASC);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_link_age_group_id]
-    ON [stories].[coll_story] ([link_age_group_id] ASC);
+    ON [blog_stories].[coll_story] ([link_age_group_id] ASC);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_created_at]
-    ON [stories].[coll_story] ([created_at] DESC);
+    ON [blog_stories].[coll_story] ([created_at] DESC);
 GO
 
 /* ================================================================
-   TABLE: [stories].[coll_story_asset]
+   TABLE: [blog_stories].[coll_story_asset]
    ================================================================ */
 
-CREATE TABLE [stories].[coll_story_asset]
+CREATE TABLE [blog_stories].[coll_story_asset]
 (
     [stories_coll_story_asset_id]     BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]                   BIGINT NOT NULL,
@@ -1085,51 +1085,51 @@ CREATE TABLE [stories].[coll_story_asset]
 );
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [DF_stories_coll_story_asset_asset_group_code]
     DEFAULT (N'illustration') FOR [asset_group_code];
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [DF_stories_coll_story_asset_is_cover]
     DEFAULT ((0)) FOR [is_cover];
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [DF_stories_coll_story_asset_sort_order]
     DEFAULT ((0)) FOR [sort_order];
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [DF_stories_coll_story_asset_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [DF_stories_coll_story_asset_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [CK_stories_coll_story_asset_sort_order_non_negative]
     CHECK ([sort_order] >= 0);
 GO
 
-ALTER TABLE [stories].[coll_story_asset]
+ALTER TABLE [blog_stories].[coll_story_asset]
     ADD CONSTRAINT [FK_stories_coll_story_asset_link_story_id]
     FOREIGN KEY ([link_story_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_asset_link_story_id]
-    ON [stories].[coll_story_asset] ([link_story_id] ASC);
+    ON [blog_stories].[coll_story_asset] ([link_story_id] ASC);
 GO
 
 /* ================================================================
-   TABLE: [stories].[coll_story_page]
+   TABLE: [blog_stories].[coll_story_page]
    ================================================================ */
 
-CREATE TABLE [stories].[coll_story_page]
+CREATE TABLE [blog_stories].[coll_story_page]
 (
     [stories_coll_story_page_id]      BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]                   BIGINT NOT NULL,
@@ -1145,41 +1145,41 @@ CREATE TABLE [stories].[coll_story_page]
 );
 GO
 
-ALTER TABLE [stories].[coll_story_page]
+ALTER TABLE [blog_stories].[coll_story_page]
     ADD CONSTRAINT [DF_stories_coll_story_page_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[coll_story_page]
+ALTER TABLE [blog_stories].[coll_story_page]
     ADD CONSTRAINT [DF_stories_coll_story_page_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[coll_story_page]
+ALTER TABLE [blog_stories].[coll_story_page]
     ADD CONSTRAINT [CK_stories_coll_story_page_page_number_positive]
     CHECK ([page_number] > 0);
 GO
 
-ALTER TABLE [stories].[coll_story_page]
+ALTER TABLE [blog_stories].[coll_story_page]
     ADD CONSTRAINT [FK_stories_coll_story_page_link_story_id]
     FOREIGN KEY ([link_story_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
-ALTER TABLE [stories].[coll_story_page]
+ALTER TABLE [blog_stories].[coll_story_page]
     ADD CONSTRAINT [UX_stories_coll_story_page_link_story_id_page_number]
     UNIQUE ([link_story_id], [page_number]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_coll_story_page_link_story_id_page_number]
-    ON [stories].[coll_story_page] ([link_story_id] ASC, [page_number] ASC);
+    ON [blog_stories].[coll_story_page] ([link_story_id] ASC, [page_number] ASC);
 GO
 
 /* ================================================================
-   TABLE: [stories].[eng_story_like]
+   TABLE: [blog_stories].[eng_story_like]
    ================================================================ */
 
-CREATE TABLE [stories].[eng_story_like]
+CREATE TABLE [blog_stories].[eng_story_like]
 (
     [stories_eng_story_like_id]       BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]                   BIGINT NOT NULL,
@@ -1193,38 +1193,38 @@ CREATE TABLE [stories].[eng_story_like]
 );
 GO
 
-ALTER TABLE [stories].[eng_story_like]
+ALTER TABLE [blog_stories].[eng_story_like]
     ADD CONSTRAINT [DF_stories_eng_story_like_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[eng_story_like]
+ALTER TABLE [blog_stories].[eng_story_like]
     ADD CONSTRAINT [DF_stories_eng_story_like_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[eng_story_like]
+ALTER TABLE [blog_stories].[eng_story_like]
     ADD CONSTRAINT [FK_stories_eng_story_like_link_story_id]
     FOREIGN KEY ([link_story_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_like]
+ALTER TABLE [blog_stories].[eng_story_like]
     ADD CONSTRAINT [FK_stories_eng_story_like_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_like]
+ALTER TABLE [blog_stories].[eng_story_like]
     ADD CONSTRAINT [UX_stories_eng_story_like_link_story_id_link_user_profile_id]
     UNIQUE ([link_story_id], [link_user_profile_id]);
 GO
 
 /* ================================================================
-   TABLE: [stories].[eng_story_bookmark]
+   TABLE: [blog_stories].[eng_story_bookmark]
    ================================================================ */
 
-CREATE TABLE [stories].[eng_story_bookmark]
+CREATE TABLE [blog_stories].[eng_story_bookmark]
 (
     [stories_eng_story_bookmark_id]   BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]                   BIGINT NOT NULL,
@@ -1240,48 +1240,48 @@ CREATE TABLE [stories].[eng_story_bookmark]
 );
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [DF_stories_eng_story_bookmark_is_completed]
     DEFAULT ((0)) FOR [is_completed];
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [DF_stories_eng_story_bookmark_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [DF_stories_eng_story_bookmark_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [CK_stories_eng_story_bookmark_last_page_number_non_negative]
     CHECK ([last_page_number] IS NULL OR [last_page_number] >= 0);
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [FK_stories_eng_story_bookmark_link_story_id]
     FOREIGN KEY ([link_story_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [FK_stories_eng_story_bookmark_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_bookmark]
+ALTER TABLE [blog_stories].[eng_story_bookmark]
     ADD CONSTRAINT [UX_stories_eng_story_bookmark_link_story_id_link_user_profile_id]
     UNIQUE ([link_story_id], [link_user_profile_id]);
 GO
 
 /* ================================================================
-   TABLE: [stories].[eng_story_comment]
+   TABLE: [blog_stories].[eng_story_comment]
    ================================================================ */
 
-CREATE TABLE [stories].[eng_story_comment]
+CREATE TABLE [blog_stories].[eng_story_comment]
 (
     [stories_eng_story_comment_id]    BIGINT IDENTITY(1,1) NOT NULL,
     [link_story_id]                   BIGINT NOT NULL,
@@ -1297,43 +1297,43 @@ CREATE TABLE [stories].[eng_story_comment]
 );
 GO
 
-ALTER TABLE [stories].[eng_story_comment]
+ALTER TABLE [blog_stories].[eng_story_comment]
     ADD CONSTRAINT [DF_stories_eng_story_comment_is_active]
     DEFAULT ((0)) FOR [is_active];
 GO
 
-ALTER TABLE [stories].[eng_story_comment]
+ALTER TABLE [blog_stories].[eng_story_comment]
     ADD CONSTRAINT [DF_stories_eng_story_comment_created_at]
     DEFAULT (SYSDATETIME()) FOR [created_at];
 GO
 
-ALTER TABLE [stories].[eng_story_comment]
+ALTER TABLE [blog_stories].[eng_story_comment]
     ADD CONSTRAINT [FK_stories_eng_story_comment_link_story_id]
     FOREIGN KEY ([link_story_id])
-    REFERENCES [stories].[coll_story] ([stories_coll_story_id]);
+    REFERENCES [blog_stories].[coll_story] ([stories_coll_story_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_comment]
+ALTER TABLE [blog_stories].[eng_story_comment]
     ADD CONSTRAINT [FK_stories_eng_story_comment_link_user_profile_id]
     FOREIGN KEY ([link_user_profile_id])
     REFERENCES [account].[user_profile] ([user_profile_id]);
 GO
 
-ALTER TABLE [stories].[eng_story_comment]
+ALTER TABLE [blog_stories].[eng_story_comment]
     ADD CONSTRAINT [FK_stories_eng_story_comment_link_parent_comment_id]
     FOREIGN KEY ([link_parent_comment_id])
-    REFERENCES [stories].[eng_story_comment] ([stories_eng_story_comment_id]);
+    REFERENCES [blog_stories].[eng_story_comment] ([stories_eng_story_comment_id]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_stories_eng_story_comment_link_story_id]
-    ON [stories].[eng_story_comment] ([link_story_id] ASC);
+    ON [blog_stories].[eng_story_comment] ([link_story_id] ASC);
 GO
 
 /* ================================================================
-   SEED: [stories].[ref_story_category]
+   SEED: [blog_stories].[ref_story_category]
    ================================================================ */
 
-INSERT INTO [stories].[ref_story_category]
+INSERT INTO [blog_stories].[ref_story_category]
 (
     [story_category_code],
     [story_category_name_bn],
@@ -1364,10 +1364,10 @@ VALUES
 GO
 
 /* ================================================================
-   SEED: [stories].[ref_story_age_group]
+   SEED: [blog_stories].[ref_story_age_group]
    ================================================================ */
 
-INSERT INTO [stories].[ref_story_age_group]
+INSERT INTO [blog_stories].[ref_story_age_group]
 (
     [age_group_code],
     [age_group_name_bn],

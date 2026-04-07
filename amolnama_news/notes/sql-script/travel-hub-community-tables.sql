@@ -5,7 +5,7 @@
 -- =============================================================================
 
 -- 1. YouTube video links per destination
-CREATE TABLE [bangladesh].[coll_destination_youtube_link] (
+CREATE TABLE [blog_bangladesh].[coll_destination_youtube_link] (
     bangladesh_coll_destination_youtube_link_id  BIGINT IDENTITY(1,1) PRIMARY KEY,
     link_coll_destination_id                     BIGINT       NOT NULL,
     link_user_profile_id                         BIGINT       NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE [bangladesh].[coll_destination_youtube_link] (
 );
 
 -- 2. Reference/source links per destination (blogs, wiki, official sites, news)
-CREATE TABLE [bangladesh].[coll_destination_reference_link] (
+CREATE TABLE [blog_bangladesh].[coll_destination_reference_link] (
     bangladesh_coll_destination_reference_link_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     link_coll_destination_id                      BIGINT       NOT NULL,
     link_user_profile_id                          BIGINT       NOT NULL,
