@@ -193,18 +193,18 @@ def api_topic_create(request):
              [blue_side_label], [red_side_label],
              [blue_side_video_url], [red_side_video_url],
              [blue_side_image_url], [red_side_image_url],
-             [link_topic_status_id],
+             [link_blog_debate_ref_topic_status_id],
              [scheduled_start_at], [actual_started_at], [link_created_by_user_profile_id])
-        OUTPUT INSERTED.debate_coll_topic_id
+        OUTPUT INSERTED.blog_debate_coll_topic_id
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [topic_guid, topic_title, topic_description,
           blue_side_label, red_side_label,
           blue_side_video_url, red_side_video_url,
           blue_side_image_url, red_side_image_url,
-          live_status.debate_ref_topic_status_id, scheduled_start_at, now, user_profile_id])
+          live_status.blog_debate_ref_topic_status_id, scheduled_start_at, now, user_profile_id])
     topic_id = cursor.fetchone()[0]
 
-    return JsonResponse({'success': True, 'debate_coll_topic_id': topic_id})
+    return JsonResponse({'success': True, 'blog_debate_coll_topic_id': topic_id})
 
 
 @login_required
@@ -216,7 +216,7 @@ def api_topic_edit(request, topic_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'বিষয় পাওয়া যায়নি'}, status=404)
 
@@ -249,7 +249,7 @@ def api_topic_edit(request, topic_id):
             [blue_side_video_url] = ?, [red_side_video_url] = ?,
             [blue_side_image_url] = ?, [red_side_image_url] = ?,
             [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
     """, [topic_title, topic_description,
           blue_side_label, red_side_label,
           blue_side_video_url, red_side_video_url,
@@ -277,12 +277,12 @@ def api_topic_join(request, topic_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'বিষয় পাওয়া যায়নি'}, status=404)
 
     existing = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_user_profile_id=user_profile_id, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_user_profile_id=user_profile_id, is_active=True,
     ).first()
     if existing:
         return JsonResponse({'success': False, 'error': 'আপনি ইতিমধ্যে যোগ দিয়েছেন'}, status=400)
@@ -293,15 +293,15 @@ def api_topic_join(request, topic_id):
 
     _raw_execute("""
         INSERT INTO [blog_debate].[coll_topic_participant]
-            ([link_topic_id], [link_user_profile_id], [link_team_side_id])
+            ([link_blog_debate_coll_topic_id], [link_user_profile_id], [link_blog_debate_ref_team_side_id])
         VALUES (?, ?, ?)
-    """, [topic_id, user_profile_id, team_side.debate_ref_team_side_id])
+    """, [topic_id, user_profile_id, team_side.blog_debate_ref_team_side_id])
 
     count_column = 'blue_participant_count' if team_side_code == 'blue' else 'red_participant_count'
     _raw_execute(f"""
         UPDATE [blog_debate].[coll_topic]
         SET [{count_column}] = [{count_column}] + 1, [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
     """, [timezone.now(), topic_id])
 
     # Update user debate_count (background)
@@ -328,9 +328,9 @@ def api_topic_go_live(request, topic_id):
     now = timezone.now()
     _raw_execute("""
         UPDATE [blog_debate].[coll_topic]
-        SET [link_topic_status_id] = ?, [actual_started_at] = ?, [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
-    """, [live_status.debate_ref_topic_status_id, now, now, topic_id])
+        SET [link_blog_debate_ref_topic_status_id] = ?, [actual_started_at] = ?, [updated_at] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
+    """, [live_status.blog_debate_ref_topic_status_id, now, now, topic_id])
 
     return JsonResponse({'success': True})
 
@@ -343,14 +343,14 @@ def api_topic_close(request, topic_id):
         return JsonResponse({'success': False, 'error': 'Staff only'}, status=403)
 
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Topic not found'}, status=404)
 
     # Calculate winner
     from amolnama_news.site_apps.debate.views import _calculate_winning_side
-    blue_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=1, is_active=True).count()
-    red_participants = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=2, is_active=True).count()
+    blue_participants = CollTopicParticipant.objects.filter(link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=1, is_active=True).count()
+    red_participants = CollTopicParticipant.objects.filter(link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=2, is_active=True).count()
     winning_side_code, _, _ = _calculate_winning_side(
         blue_participants, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
         red_participants, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
@@ -361,9 +361,9 @@ def api_topic_close(request, topic_id):
     now = timezone.now()
     _raw_execute("""
         UPDATE [blog_debate].[coll_topic]
-        SET [link_topic_status_id] = ?, [actual_closed_at] = ?, [winning_side_code] = ?, [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
-    """, [closed_status.debate_ref_topic_status_id, now, winning_side_code, now, topic_id])
+        SET [link_blog_debate_ref_topic_status_id] = ?, [actual_closed_at] = ?, [winning_side_code] = ?, [updated_at] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
+    """, [closed_status.blog_debate_ref_topic_status_id, now, winning_side_code, now, topic_id])
 
     # Update win/loss counts for participants — background thread
     from amolnama_news.site_apps.newsengine.utils import run_background_task
@@ -372,7 +372,7 @@ def api_topic_close(request, topic_id):
         winning_side_id = 1 if winning_side_code == 'blue' else 2 if winning_side_code == 'red' else None
         if winning_side_id:
             winning_participants = CollTopicParticipant.objects.filter(
-                link_topic_id=topic_id, link_team_side_id=winning_side_id, is_active=True,
+                link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=winning_side_id, is_active=True,
             ).values_list('link_user_profile_id', flat=True)
             if winning_participants:
                 from amolnama_news.site_apps.user_account.models import UserProfile
@@ -409,16 +409,16 @@ def api_post_argument(request, topic_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'বিষয় পাওয়া যায়নি'}, status=404)
 
     live_status = RefTopicStatus.objects.filter(topic_status_code='live').first()
-    if topic.link_topic_status_id != live_status.debate_ref_topic_status_id:
+    if topic.link_blog_debate_ref_topic_status_id != live_status.blog_debate_ref_topic_status_id:
         return JsonResponse({'success': False, 'error': 'বিতর্ক এখনও শুরু হয়নি'}, status=400)
 
     participant = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_user_profile_id=user_profile_id,
+        link_blog_debate_coll_topic_id=topic_id, link_user_profile_id=user_profile_id,
         is_active=True, is_banned=False, is_muted=False,
     ).first()
     if not participant:
@@ -430,7 +430,7 @@ def api_post_argument(request, topic_id):
 
     # Check duplicate — if exists, auto-upvote and redirect to it
     existing_duplicate = CollPost.objects.filter(
-        link_topic_id=topic_id, post_content_hash=metrics['post_content_hash'],
+        link_blog_debate_coll_topic_id=topic_id, post_content_hash=metrics['post_content_hash'],
         is_deleted=False, is_active=True,
     ).first()
     if existing_duplicate:
@@ -439,27 +439,27 @@ def api_post_argument(request, topic_id):
         if vote_target_type:
             existing_vote = Vote.objects.filter(
                 link_voter_user_profile_id=user_profile_id,
-                link_vote_target_type_id=vote_target_type.debate_ref_vote_target_type_id,
-                target_row_id=existing_duplicate.debate_coll_post_id,
+                link_blog_debate_ref_vote_target_type_id=vote_target_type.blog_debate_ref_vote_target_type_id,
+                target_row_id=existing_duplicate.blog_debate_coll_post_id,
             ).first()
             if not existing_vote:
                 _raw_execute("""
                     INSERT INTO [blog_debate].[vote]
-                        ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
+                        ([link_voter_user_profile_id], [link_blog_debate_ref_vote_target_type_id], [target_row_id], [vote_value])
                     VALUES (?, ?, ?, ?)
-                """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id,
-                      existing_duplicate.debate_coll_post_id, 1])
+                """, [user_profile_id, vote_target_type.blog_debate_ref_vote_target_type_id,
+                      existing_duplicate.blog_debate_coll_post_id, 1])
                 # Update cached score
                 _raw_execute("""
                     UPDATE [blog_debate].[coll_post]
                     SET [upvote_count] = [upvote_count] + 1, [score] = [score] + 1, [updated_at] = ?
-                    WHERE [debate_coll_post_id] = ?
-                """, [timezone.now(), existing_duplicate.debate_coll_post_id])
+                    WHERE [blog_debate_coll_post_id] = ?
+                """, [timezone.now(), existing_duplicate.blog_debate_coll_post_id])
 
         return JsonResponse({
             'success': False,
             'duplicate': True,
-            'duplicate_post_id': existing_duplicate.debate_coll_post_id,
+            'duplicate_post_id': existing_duplicate.blog_debate_coll_post_id,
             'error': 'আপনার মতামত ইতিমধ্যে আছে — আপনার সমর্থন রেকর্ড করা হয়েছে! 👇',
         }, status=200)
 
@@ -467,19 +467,19 @@ def api_post_argument(request, topic_id):
     post_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
         INSERT INTO [blog_debate].[coll_post]
-            ([post_guid], [link_topic_id], [link_coll_topic_participant_id],
-             [link_author_user_profile_id], [link_author_team_side_id],
-             [link_post_kind_id], [link_thread_board_side_id],
+            ([post_guid], [link_blog_debate_coll_topic_id], [link_blog_debate_coll_topic_participant_id],
+             [link_author_user_profile_id], [link_blog_debate_ref_team_side_id],
+             [link_blog_debate_ref_post_kind_id], [link_thread_board_blog_debate_ref_team_side_id],
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
              [is_emoji_only], [post_content_hash],
              [citation_source_url], [citation_source_text], [post_argument_strength])
-        OUTPUT INSERTED.debate_coll_post_id
+        OUTPUT INSERTED.blog_debate_coll_post_id
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
-        post_guid, topic_id, participant.debate_coll_topic_participant_id,
-        user_profile_id, participant.link_team_side_id,
-        1, participant.link_team_side_id,  # kind=argument, board=own side
+        post_guid, topic_id, participant.blog_debate_coll_topic_participant_id,
+        user_profile_id, participant.link_blog_debate_ref_team_side_id,
+        1, participant.link_blog_debate_ref_team_side_id,  # kind=argument, board=own side
         post_content, metrics['post_character_count'], metrics['post_sentence_count'],
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
         metrics['post_non_language_ratio'], 1 if metrics['is_emoji_only'] else 0,
@@ -490,12 +490,12 @@ def api_post_argument(request, topic_id):
 
     # Set root_post_id = self (self-reference after INSERT)
     _raw_execute("""
-        UPDATE [blog_debate].[coll_post] SET [link_root_post_id] = ? WHERE [debate_coll_post_id] = ?
+        UPDATE [blog_debate].[coll_post] SET [link_root_blog_debate_coll_post_id] = ? WHERE [blog_debate_coll_post_id] = ?
     """, [post_id, post_id])
 
     # Update cached counts + passion board
     now = timezone.now()
-    side_prefix = 'blue' if participant.link_team_side_id == 1 else 'red'
+    side_prefix = 'blue' if participant.link_blog_debate_ref_team_side_id == 1 else 'red'
     _raw_execute(f"""
         UPDATE [blog_debate].[coll_topic]
         SET [total_post_count] = [total_post_count] + 1,
@@ -503,13 +503,13 @@ def api_post_argument(request, topic_id):
             [{side_prefix}_sentence_count] = [{side_prefix}_sentence_count] + ?,
             [{side_prefix}_character_count] = [{side_prefix}_character_count] + ?,
             [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
     """, [metrics['post_sentence_count'], metrics['post_character_count'], now, topic_id])
     _raw_execute("""
         UPDATE [blog_debate].[coll_topic_participant]
         SET [participant_argument_count] = [participant_argument_count] + 1, [updated_at] = ?
-        WHERE [debate_coll_topic_participant_id] = ?
-    """, [now, participant.debate_coll_topic_participant_id])
+        WHERE [blog_debate_coll_topic_participant_id] = ?
+    """, [now, participant.blog_debate_coll_topic_participant_id])
 
     # Update user debate reputation (background)
     from amolnama_news.site_apps.newsengine.utils import run_background_task
@@ -530,7 +530,7 @@ def api_post_argument(request, topic_id):
             logger.exception('Content classification failed for debate argument %s', post_id)
     run_background_task(_background_classify_debate_argument)
 
-    return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
+    return JsonResponse({'success': True, 'blog_debate_coll_post_id': post_id})
 
 
 @login_required
@@ -557,24 +557,24 @@ def api_post_reply(request, topic_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'বিষয় পাওয়া যায়নি'}, status=404)
 
     live_status = RefTopicStatus.objects.filter(topic_status_code='live').first()
-    if topic.link_topic_status_id != live_status.debate_ref_topic_status_id:
+    if topic.link_blog_debate_ref_topic_status_id != live_status.blog_debate_ref_topic_status_id:
         return JsonResponse({'success': False, 'error': 'বিতর্ক এখনও শুরু হয়নি'}, status=400)
 
     try:
         parent_post = CollPost.objects.get(
-            debate_coll_post_id=parent_post_id, link_topic_id=topic_id,
+            blog_debate_coll_post_id=parent_post_id, link_blog_debate_coll_topic_id=topic_id,
             is_deleted=False, is_active=True,
         )
     except CollPost.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'মূল পোস্ট পাওয়া যায়নি'}, status=404)
 
     participant = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_user_profile_id=user_profile_id,
+        link_blog_debate_coll_topic_id=topic_id, link_user_profile_id=user_profile_id,
         is_active=True, is_banned=False, is_muted=False,
     ).first()
     if not participant:
@@ -582,7 +582,7 @@ def api_post_reply(request, topic_id):
 
     # CROSSING-OVER RULE: reply author MUST be opposite side of parent author
     # TODO: Remove admin bypass before production — only here for testing with single account
-    if participant.link_team_side_id == parent_post.link_author_team_side_id and not request.user.is_staff:
+    if participant.link_blog_debate_ref_team_side_id == parent_post.link_blog_debate_ref_team_side_id and not request.user.is_staff:
         return JsonResponse({'success': False, 'error': 'আপনি নিজের পক্ষের যুক্তির উত্তর দিতে পারবেন না'}, status=400)
 
     new_depth = parent_post.post_reply_depth + 1
@@ -597,22 +597,22 @@ def api_post_reply(request, topic_id):
     post_guid = str(uuid.uuid4())
     cursor = _raw_execute("""
         INSERT INTO [blog_debate].[coll_post]
-            ([post_guid], [link_topic_id], [link_coll_topic_participant_id],
-             [link_author_user_profile_id], [link_author_team_side_id],
-             [link_post_kind_id], [link_thread_board_side_id],
-             [link_parent_post_id], [link_root_post_id], [post_reply_depth],
+            ([post_guid], [link_blog_debate_coll_topic_id], [link_blog_debate_coll_topic_participant_id],
+             [link_author_user_profile_id], [link_blog_debate_ref_team_side_id],
+             [link_blog_debate_ref_post_kind_id], [link_thread_board_blog_debate_ref_team_side_id],
+             [link_parent_blog_debate_coll_post_id], [link_root_blog_debate_coll_post_id], [post_reply_depth],
              [post_content], [post_character_count], [post_sentence_count],
              [post_emoji_ratio], [post_repeated_character_ratio], [post_non_language_ratio],
              [is_emoji_only], [post_content_hash],
              [citation_source_url], [citation_source_text], [post_argument_strength])
-        OUTPUT INSERTED.debate_coll_post_id
+        OUTPUT INSERTED.blog_debate_coll_post_id
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [
-        post_guid, topic_id, participant.debate_coll_topic_participant_id,
-        user_profile_id, participant.link_team_side_id,
-        2, parent_post.link_thread_board_side_id,  # kind=rebuttal, board=parent's board
+        post_guid, topic_id, participant.blog_debate_coll_topic_participant_id,
+        user_profile_id, participant.link_blog_debate_ref_team_side_id,
+        2, parent_post.link_thread_board_blog_debate_ref_team_side_id,  # kind=rebuttal, board=parent's board
         parent_post_id,
-        parent_post.link_root_post_id or parent_post.debate_coll_post_id,
+        parent_post.link_root_blog_debate_coll_post_id or parent_post.blog_debate_coll_post_id,
         new_depth,
         post_content, metrics['post_character_count'], metrics['post_sentence_count'],
         metrics['post_emoji_ratio'], metrics['post_repeated_character_ratio'],
@@ -624,11 +624,11 @@ def api_post_reply(request, topic_id):
 
     # Update parent reply count + cached totals + passion board
     now = timezone.now()
-    side_prefix = 'blue' if participant.link_team_side_id == 1 else 'red'
+    side_prefix = 'blue' if participant.link_blog_debate_ref_team_side_id == 1 else 'red'
     _raw_execute("""
         UPDATE [blog_debate].[coll_post]
         SET [reply_count] = [reply_count] + 1, [updated_at] = ?
-        WHERE [debate_coll_post_id] = ?
+        WHERE [blog_debate_coll_post_id] = ?
     """, [now, parent_post_id])
     _raw_execute(f"""
         UPDATE [blog_debate].[coll_topic]
@@ -637,13 +637,13 @@ def api_post_reply(request, topic_id):
             [{side_prefix}_sentence_count] = [{side_prefix}_sentence_count] + ?,
             [{side_prefix}_character_count] = [{side_prefix}_character_count] + ?,
             [updated_at] = ?
-        WHERE [debate_coll_topic_id] = ?
+        WHERE [blog_debate_coll_topic_id] = ?
     """, [metrics['post_sentence_count'], metrics['post_character_count'], now, topic_id])
     _raw_execute("""
         UPDATE [blog_debate].[coll_topic_participant]
         SET [participant_rebuttal_count] = [participant_rebuttal_count] + 1, [updated_at] = ?
-        WHERE [debate_coll_topic_participant_id] = ?
-    """, [now, participant.debate_coll_topic_participant_id])
+        WHERE [blog_debate_coll_topic_participant_id] = ?
+    """, [now, participant.blog_debate_coll_topic_participant_id])
 
     # Notify parent post author about the reply (background)
     from amolnama_news.site_apps.newsengine.utils import run_background_task
@@ -666,7 +666,7 @@ def api_post_reply(request, topic_id):
         )
     run_background_task(_notify_reply)
 
-    return JsonResponse({'success': True, 'debate_coll_post_id': post_id})
+    return JsonResponse({'success': True, 'blog_debate_coll_post_id': post_id})
 
 
 @login_required
@@ -685,7 +685,7 @@ def api_post_edit(request, post_id):
     user_profile_id = _get_user_profile_id(request)
 
     try:
-        post = CollPost.objects.get(debate_coll_post_id=post_id, is_deleted=False, is_active=True)
+        post = CollPost.objects.get(blog_debate_coll_post_id=post_id, is_deleted=False, is_active=True)
     except CollPost.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
 
@@ -694,7 +694,7 @@ def api_post_edit(request, post_id):
 
     _raw_execute("""
         INSERT INTO [blog_debate].[fact_post_edit_history]
-            ([link_post_id], [previous_post_content], [link_edited_by_user_profile_id])
+            ([link_blog_debate_coll_post_id], [previous_post_content], [link_edited_by_user_profile_id])
         VALUES (?, ?, ?)
     """, [post_id, post.post_content, user_profile_id])
 
@@ -702,7 +702,7 @@ def api_post_edit(request, post_id):
     _raw_execute("""
         UPDATE [blog_debate].[coll_post]
         SET [post_content] = ?, [post_content_hash] = ?, [is_edited] = 1, [edited_at] = ?, [updated_at] = ?
-        WHERE [debate_coll_post_id] = ?
+        WHERE [blog_debate_coll_post_id] = ?
     """, [new_content, _content_hash(new_content), now, now, post_id])
 
     return JsonResponse({'success': True})
@@ -715,7 +715,7 @@ def api_post_delete(request, post_id):
     user_profile_id = _get_user_profile_id(request)
 
     try:
-        post = CollPost.objects.get(debate_coll_post_id=post_id, is_deleted=False, is_active=True)
+        post = CollPost.objects.get(blog_debate_coll_post_id=post_id, is_deleted=False, is_active=True)
     except CollPost.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
 
@@ -726,7 +726,7 @@ def api_post_delete(request, post_id):
     _raw_execute("""
         UPDATE [blog_debate].[coll_post]
         SET [is_deleted] = 1, [deleted_at] = ?, [updated_at] = ?
-        WHERE [debate_coll_post_id] = ?
+        WHERE [blog_debate_coll_post_id] = ?
     """, [now, now, post_id])
 
     return JsonResponse({'success': True})
@@ -769,11 +769,11 @@ def _handle_vote(request, target_type_code, target_row_id):
     if not vote_target_type:
         return JsonResponse({'success': False, 'error': 'Invalid target type'}, status=400)
 
-    vote_target_type_id = vote_target_type.debate_ref_vote_target_type_id
+    vote_target_type_id = vote_target_type.blog_debate_ref_vote_target_type_id
 
     existing_vote = Vote.objects.filter(
         link_voter_user_profile_id=user_profile_id,
-        link_vote_target_type_id=vote_target_type_id,
+        link_blog_debate_ref_vote_target_type_id=vote_target_type_id,
         target_row_id=target_row_id,
     ).first()
 
@@ -782,23 +782,23 @@ def _handle_vote(request, target_type_code, target_row_id):
     if existing_vote:
         if existing_vote.vote_value == vote_value:
             # Same vote → remove (toggle off)
-            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [debate_vote_id] = ?",
-                         [existing_vote.debate_vote_id])
+            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [blog_debate_vote_id] = ?",
+                         [existing_vote.blog_debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -vote_value, 0)
             return JsonResponse({'success': True, 'action': 'removed'})
         else:
             # Different vote → flip
             _raw_execute("""
                 UPDATE [blog_debate].[vote] SET [vote_value] = ?, [voted_at] = ?, [updated_at] = ?
-                WHERE [debate_vote_id] = ?
-            """, [vote_value, now, now, existing_vote.debate_vote_id])
+                WHERE [blog_debate_vote_id] = ?
+            """, [vote_value, now, now, existing_vote.blog_debate_vote_id])
             _update_vote_counts(target_type_code, target_row_id, -existing_vote.vote_value, vote_value)
             return JsonResponse({'success': True, 'action': 'flipped'})
     else:
         # New vote
         _raw_execute("""
             INSERT INTO [blog_debate].[vote]
-                ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
+                ([link_voter_user_profile_id], [link_blog_debate_ref_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
         """, [user_profile_id, vote_target_type_id, target_row_id, vote_value])
         _update_vote_counts(target_type_code, target_row_id, 0, vote_value)
@@ -809,13 +809,13 @@ def _update_vote_counts(target_type_code, target_row_id, remove_value, add_value
     """Update cached vote counts on topic or post."""
     if target_type_code == 'topic':
         table = '[blog_debate].[coll_topic]'
-        pk_column = 'debate_coll_topic_id'
+        pk_column = 'blog_debate_coll_topic_id'
         upvote_column = 'topic_upvote_count'
         downvote_column = 'topic_downvote_count'
         score_column = 'topic_score'
     else:
         table = '[blog_debate].[coll_post]'
-        pk_column = 'debate_coll_post_id'
+        pk_column = 'blog_debate_coll_post_id'
         upvote_column = 'upvote_count'
         downvote_column = 'downvote_count'
         score_column = 'score'
@@ -839,11 +839,11 @@ def _update_vote_counts(target_type_code, target_row_id, remove_value, add_value
 def api_topic_boards(request, topic_id):
     """GET — current board counts for live polling. Public access."""
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Topic not found'}, status=404)
 
-    status = RefTopicStatus.objects.filter(debate_ref_topic_status_id=topic.link_topic_status_id).first()
+    status = RefTopicStatus.objects.filter(blog_debate_ref_topic_status_id=topic.link_blog_debate_ref_topic_status_id).first()
 
     return JsonResponse({
         'success': True,
@@ -868,7 +868,7 @@ def api_post_fact_check_flag(request, post_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     try:
-        post = CollPost.objects.get(debate_coll_post_id=post_id, is_deleted=False, is_active=True)
+        post = CollPost.objects.get(blog_debate_coll_post_id=post_id, is_deleted=False, is_active=True)
     except CollPost.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'পোস্ট পাওয়া যায়নি'}, status=404)
 
@@ -879,7 +879,7 @@ def api_post_fact_check_flag(request, post_id):
     _raw_execute("""
         UPDATE [blog_debate].[coll_post]
         SET [fact_check_flag_count] = ?, [is_fact_check_needed] = ?, [updated_at] = ?
-        WHERE [debate_coll_post_id] = ?
+        WHERE [blog_debate_coll_post_id] = ?
     """, [new_count, is_needed, now, post_id])
 
     return JsonResponse({
@@ -1018,10 +1018,10 @@ def api_audience_vote(request, topic_id):
             if vote_target_type_check:
                 placeholders = ','.join('?' * len(same_ip_profile_ids))
                 duplicate_ip_vote = _raw_execute(f"""
-                    SELECT TOP 1 [debate_vote_id] FROM [blog_debate].[vote]
+                    SELECT TOP 1 [blog_debate_vote_id] FROM [blog_debate].[vote]
                     WHERE [link_voter_user_profile_id] IN ({placeholders})
-                      AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
-                """, list(same_ip_profile_ids) + [vote_target_type_check.debate_ref_vote_target_type_id, topic_id])
+                      AND [link_blog_debate_ref_vote_target_type_id] = ? AND [target_row_id] = ?
+                """, list(same_ip_profile_ids) + [vote_target_type_check.blog_debate_ref_vote_target_type_id, topic_id])
                 if duplicate_ip_vote.fetchone():
                     return JsonResponse({'success': False, 'error': 'এই নেটওয়ার্ক/ডিভাইস থেকে ইতিমধ্যে ভোট দেওয়া হয়েছে'}, status=400)
 
@@ -1036,9 +1036,9 @@ def api_audience_vote(request, topic_id):
 
     # Check existing vote via raw SQL
     cursor = _raw_execute("""
-        SELECT [debate_vote_id], [vote_value] FROM [blog_debate].[vote]
-        WHERE [link_voter_user_profile_id] = ? AND [link_vote_target_type_id] = ? AND [target_row_id] = ?
-    """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id])
+        SELECT [blog_debate_vote_id], [vote_value] FROM [blog_debate].[vote]
+        WHERE [link_voter_user_profile_id] = ? AND [link_blog_debate_ref_vote_target_type_id] = ? AND [target_row_id] = ?
+    """, [user_profile_id, vote_target_type.blog_debate_ref_vote_target_type_id, topic_id])
     existing_row = cursor.fetchone()
 
     if existing_row:
@@ -1047,17 +1047,17 @@ def api_audience_vote(request, topic_id):
 
         if existing_vote_value == vote_value:
             # Same vote — toggle off
-            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [debate_vote_id] = ?", [existing_vote_id])
+            _raw_execute("DELETE FROM [blog_debate].[vote] WHERE [blog_debate_vote_id] = ?", [existing_vote_id])
             column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
             _raw_execute(f"""
                 UPDATE [blog_debate].[coll_topic]
                 SET [{column}] = CASE WHEN [{column}] > 0 THEN [{column}] - 1 ELSE 0 END, [updated_at] = ?
-                WHERE [debate_coll_topic_id] = ?
+                WHERE [blog_debate_coll_topic_id] = ?
             """, [now, topic_id])
             action = 'removed'
         else:
             # Flip vote
-            _raw_execute("UPDATE [blog_debate].[vote] SET [vote_value] = ?, [voted_at] = ? WHERE [debate_vote_id] = ?",
+            _raw_execute("UPDATE [blog_debate].[vote] SET [vote_value] = ?, [voted_at] = ? WHERE [blog_debate_vote_id] = ?",
                          [vote_value, now, existing_vote_id])
             old_column = 'audience_blue_vote_count' if existing_vote_value == 1 else 'audience_red_vote_count'
             new_column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
@@ -1065,30 +1065,30 @@ def api_audience_vote(request, topic_id):
                 UPDATE [blog_debate].[coll_topic]
                 SET [{old_column}] = CASE WHEN [{old_column}] > 0 THEN [{old_column}] - 1 ELSE 0 END,
                     [{new_column}] = [{new_column}] + 1, [updated_at] = ?
-                WHERE [debate_coll_topic_id] = ?
+                WHERE [blog_debate_coll_topic_id] = ?
             """, [now, topic_id])
             action = 'flipped'
     else:
         # New vote
         _raw_execute("""
             INSERT INTO [blog_debate].[vote]
-                ([link_voter_user_profile_id], [link_vote_target_type_id], [target_row_id], [vote_value])
+                ([link_voter_user_profile_id], [link_blog_debate_ref_vote_target_type_id], [target_row_id], [vote_value])
             VALUES (?, ?, ?, ?)
-        """, [user_profile_id, vote_target_type.debate_ref_vote_target_type_id, topic_id, vote_value])
+        """, [user_profile_id, vote_target_type.blog_debate_ref_vote_target_type_id, topic_id, vote_value])
         column = 'audience_blue_vote_count' if vote_side == 'blue' else 'audience_red_vote_count'
         _raw_execute(f"""
             UPDATE [blog_debate].[coll_topic]
             SET [{column}] = [{column}] + 1, [updated_at] = ?
-            WHERE [debate_coll_topic_id] = ?
+            WHERE [blog_debate_coll_topic_id] = ?
         """, [now, topic_id])
         action = 'voted'
 
-    topic = CollTopic.objects.get(debate_coll_topic_id=topic_id)
+    topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id)
 
     # Recalculate total scores for live UI update
     from amolnama_news.site_apps.debate.views import _calculate_winning_side
-    blue_participants_count = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=1, is_active=True).count()
-    red_participants_count = CollTopicParticipant.objects.filter(link_topic_id=topic_id, link_team_side_id=2, is_active=True).count()
+    blue_participants_count = CollTopicParticipant.objects.filter(link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=1, is_active=True).count()
+    red_participants_count = CollTopicParticipant.objects.filter(link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=2, is_active=True).count()
     winning_side, blue_total_score, red_total_score = _calculate_winning_side(
         blue_participants_count, topic.blue_post_count, topic.blue_upvote_count, topic.blue_sentence_count,
         red_participants_count, topic.red_post_count, topic.red_upvote_count, topic.red_sentence_count,
@@ -1124,11 +1124,11 @@ def api_notifications_list(request):
     items = []
     for notification in notifications:
         items.append({
-            'notification_id': notification.debate_notification_id,
+            'notification_id': notification.blog_debate_notification_id,
             'event_code': notification.notification_event_code,
             'message': notification.notification_message,
-            'topic_id': notification.link_topic_id,
-            'post_id': notification.link_post_id,
+            'topic_id': notification.link_blog_debate_coll_topic_id,
+            'post_id': notification.link_blog_debate_coll_post_id,
             'is_read': notification.is_read,
             'created_at': notification.created_at.strftime('%d %b %Y, %I:%M %p') if notification.created_at else '',
         })
@@ -1166,7 +1166,7 @@ def _create_notification(recipient_user_profile_id, actor_user_profile_id, event
         _raw_execute("""
             INSERT INTO [blog_debate].[notification]
                 ([link_recipient_user_profile_id], [link_actor_user_profile_id],
-                 [notification_event_code], [link_topic_id], [link_post_id], [notification_message])
+                 [notification_event_code], [link_blog_debate_coll_topic_id], [link_blog_debate_coll_post_id], [notification_message])
             VALUES (?, ?, ?, ?, ?, ?)
         """, [recipient_user_profile_id, actor_user_profile_id, event_code, topic_id, post_id, message])
     except Exception:

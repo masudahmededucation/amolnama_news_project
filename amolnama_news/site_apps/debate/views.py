@@ -22,7 +22,7 @@ from .models import CollTopic, CollPost, CollTopicParticipant, RefTeamSide, RefT
 def _get_topic_status_map():
     """Build status_id → status_code lookup."""
     return {
-        status.debate_ref_topic_status_id: status
+        status.blog_debate_ref_topic_status_id: status
         for status in RefTopicStatus.objects.filter(is_active=True)
     }
 
@@ -30,7 +30,7 @@ def _get_topic_status_map():
 def _get_team_side_map():
     """Build side_id → side object lookup."""
     return {
-        side.debate_ref_team_side_id: side
+        side.blog_debate_ref_team_side_id: side
         for side in RefTeamSide.objects.filter(is_active=True)
     }
 
@@ -97,9 +97,9 @@ def home(request):
 
     topic_items = []
     for topic in topics:
-        status = status_map.get(topic.link_topic_status_id)
+        status = status_map.get(topic.link_blog_debate_ref_topic_status_id)
         topic_items.append({
-            'debate_coll_topic_id': topic.debate_coll_topic_id,
+            'blog_debate_coll_topic_id': topic.blog_debate_coll_topic_id,
             'topic_title': topic.topic_title,
             'topic_description': topic.topic_description,
             'topic_status_code': status.topic_status_code if status else '',
@@ -127,13 +127,13 @@ def home(request):
 def topic_detail(request, topic_id):
     """Debate arena — three-column layout: Blue board | Topic | Red board."""
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         raise Http404
 
     status_map = _get_topic_status_map()
     team_side_map = _get_team_side_map()
-    status = status_map.get(topic.link_topic_status_id)
+    status = status_map.get(topic.link_blog_debate_ref_topic_status_id)
 
     # Get current user's participation
     current_user_profile_id = _get_current_user_profile_id(request)
@@ -141,12 +141,12 @@ def topic_detail(request, topic_id):
     current_user_side = None
     if current_user_profile_id:
         current_participant = CollTopicParticipant.objects.filter(
-            link_topic_id=topic_id,
+            link_blog_debate_coll_topic_id=topic_id,
             link_user_profile_id=current_user_profile_id,
             is_active=True,
         ).first()
         if current_participant:
-            side = team_side_map.get(current_participant.link_team_side_id)
+            side = team_side_map.get(current_participant.link_blog_debate_ref_team_side_id)
             current_user_side = side.team_side_code if side else None
 
     # Get blue board root arguments (parent_post_id IS NULL, board_side = 1 = blue)
@@ -154,18 +154,18 @@ def topic_detail(request, topic_id):
     red_side_id = 2
 
     blue_root_arguments = list(CollPost.objects.filter(
-        link_topic_id=topic_id,
-        link_thread_board_side_id=blue_side_id,
-        link_parent_post_id__isnull=True,
+        link_blog_debate_coll_topic_id=topic_id,
+        link_thread_board_blog_debate_ref_team_side_id=blue_side_id,
+        link_parent_blog_debate_coll_post_id__isnull=True,
         is_deleted=False,
         is_auto_rejected=False,
         is_active=True,
     ).order_by('-score', 'posted_at'))
 
     red_root_arguments = list(CollPost.objects.filter(
-        link_topic_id=topic_id,
-        link_thread_board_side_id=red_side_id,
-        link_parent_post_id__isnull=True,
+        link_blog_debate_coll_topic_id=topic_id,
+        link_thread_board_blog_debate_ref_team_side_id=red_side_id,
+        link_parent_blog_debate_coll_post_id__isnull=True,
         is_deleted=False,
         is_auto_rejected=False,
         is_active=True,
@@ -173,8 +173,8 @@ def topic_detail(request, topic_id):
 
     # Get all replies for this topic (for nesting under root arguments)
     all_replies = list(CollPost.objects.filter(
-        link_topic_id=topic_id,
-        link_parent_post_id__isnull=False,
+        link_blog_debate_coll_topic_id=topic_id,
+        link_parent_blog_debate_coll_post_id__isnull=False,
         is_deleted=False,
         is_auto_rejected=False,
         is_active=True,
@@ -183,7 +183,7 @@ def topic_detail(request, topic_id):
     # Build reply map: root_post_id → [replies]
     reply_map = {}
     for reply in all_replies:
-        root_id = reply.link_root_post_id
+        root_id = reply.link_root_blog_debate_coll_post_id
         if root_id not in reply_map:
             reply_map[root_id] = []
         reply_map[root_id].append(reply)
@@ -212,16 +212,16 @@ def topic_detail(request, topic_id):
     if all_root_arguments:
         top_argument = max(all_root_arguments, key=lambda post: post.score)
         if top_argument.score > 0:
-            champion_post_id = top_argument.debate_coll_post_id
+            champion_post_id = top_argument.blog_debate_coll_post_id
 
     # Build post items with author info, reputation, citation, fact-check
     def _build_post_item(post):
-        side = team_side_map.get(post.link_author_team_side_id)
+        side = team_side_map.get(post.link_blog_debate_ref_team_side_id)
         reputation = author_reputation_map.get(post.link_author_user_profile_id, {})
         return {
-            'debate_coll_post_id': post.debate_coll_post_id,
+            'blog_debate_coll_post_id': post.blog_debate_coll_post_id,
             'post_content': post.post_content,
-            'link_author_team_side_id': post.link_author_team_side_id,
+            'link_blog_debate_ref_team_side_id': post.link_blog_debate_ref_team_side_id,
             'author_team_side_code': side.team_side_code if side else '',
             'author_team_side_color_hex': side.team_side_color_hex if side else '',
             'author_display_name': author_display_name_map.get(post.link_author_user_profile_id, 'ব্যবহারকারী'),
@@ -236,7 +236,7 @@ def topic_detail(request, topic_id):
             'post_impact_score': post.post_impact_score,
             'post_argument_strength': post.post_argument_strength,
             'post_argument_strength_pct': int(float(post.post_argument_strength or 0) * 100),
-            'is_champion': post.debate_coll_post_id == champion_post_id,
+            'is_champion': post.blog_debate_coll_post_id == champion_post_id,
             'is_suppressed': post.is_suppressed,
             'citation_source_url': post.citation_source_url or '',
             'citation_source_text': post.citation_source_text or '',
@@ -244,7 +244,7 @@ def topic_detail(request, topic_id):
             'is_fact_check_needed': post.is_fact_check_needed,
             'posted_at': post.posted_at,
             'posted_at_formatted': post.posted_at.strftime('%d %b %Y, %I:%M %p') if post.posted_at else '',
-            'replies': [_build_post_item(reply) for reply in reply_map.get(post.debate_coll_post_id, [])],
+            'replies': [_build_post_item(reply) for reply in reply_map.get(post.blog_debate_coll_post_id, [])],
         }
 
     blue_thread_items = [_build_post_item(post) for post in blue_root_arguments]
@@ -252,14 +252,14 @@ def topic_detail(request, topic_id):
 
     # Participant counts
     blue_participants = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_team_side_id=blue_side_id, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=blue_side_id, is_active=True,
     ).count()
     red_participants = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_team_side_id=red_side_id, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=red_side_id, is_active=True,
     ).count()
 
     topic_item = {
-        'debate_coll_topic_id': topic.debate_coll_topic_id,
+        'blog_debate_coll_topic_id': topic.blog_debate_coll_topic_id,
         'topic_title': topic.topic_title,
         'topic_description': topic.topic_description,
         'topic_status_code': status.topic_status_code if status else '',
@@ -323,7 +323,7 @@ def topic_detail(request, topic_id):
         from .models import Notification
         notification_unread_count = Notification.objects.filter(
             link_recipient_user_profile_id=current_user_profile_id,
-            link_topic_id=topic_id,
+            link_blog_debate_coll_topic_id=topic_id,
             is_read=False, is_active=True,
         ).count()
 
@@ -367,21 +367,21 @@ def build_debate_promo_items():
         return []
 
     # Bulk-fetch top arguments (highest score) for each topic, per side
-    topic_ids = [topic.debate_coll_topic_id for topic in topics]
+    topic_ids = [topic.blog_debate_coll_topic_id for topic in topics]
     blue_side_id = 1
     red_side_id = 2
 
     top_blue_posts = {}
     top_red_posts = {}
     for post in CollPost.objects.filter(
-        link_topic_id__in=topic_ids,
-        link_parent_post_id__isnull=True,
+        link_blog_debate_coll_topic_id__in=topic_ids,
+        link_parent_blog_debate_coll_post_id__isnull=True,
         is_deleted=False, is_auto_rejected=False, is_active=True,
     ).order_by('-score', '-posted_at'):
-        topic_id = post.link_topic_id
-        if post.link_thread_board_side_id == blue_side_id and topic_id not in top_blue_posts:
+        topic_id = post.link_blog_debate_coll_topic_id
+        if post.link_thread_board_blog_debate_ref_team_side_id == blue_side_id and topic_id not in top_blue_posts:
             top_blue_posts[topic_id] = post
-        elif post.link_thread_board_side_id == red_side_id and topic_id not in top_red_posts:
+        elif post.link_thread_board_blog_debate_ref_team_side_id == red_side_id and topic_id not in top_red_posts:
             top_red_posts[topic_id] = post
 
     # Bulk-fetch author names
@@ -399,14 +399,14 @@ def build_debate_promo_items():
     from django.db.models import Count
     participant_counts = {}
     for row in CollTopicParticipant.objects.filter(
-        link_topic_id__in=topic_ids, is_active=True,
-    ).values('link_topic_id').annotate(total=Count('debate_coll_topic_participant_id')):
-        participant_counts[row['link_topic_id']] = row['total']
+        link_blog_debate_coll_topic_id__in=topic_ids, is_active=True,
+    ).values('link_blog_debate_coll_topic_id').annotate(total=Count('blog_debate_coll_topic_participant_id')):
+        participant_counts[row['link_blog_debate_coll_topic_id']] = row['total']
 
     promo_items = []
     for topic in topics:
-        status = status_map.get(topic.link_topic_status_id)
-        topic_id = topic.debate_coll_topic_id
+        status = status_map.get(topic.link_blog_debate_ref_topic_status_id)
+        topic_id = topic.blog_debate_coll_topic_id
 
         blue_post = top_blue_posts.get(topic_id)
         red_post = top_red_posts.get(topic_id)
@@ -430,7 +430,7 @@ def build_debate_promo_items():
         promo_items.append({
             'item_type': 'debate_promo',
             'created_at_raw': topic.scheduled_start_at,
-            'debate_coll_topic_id': topic_id,
+            'blog_debate_coll_topic_id': topic_id,
             'topic_title': topic.topic_title,
             'topic_description': topic.topic_description,
             'topic_status_code': status.topic_status_code if status else '',
@@ -461,35 +461,35 @@ def _sanitize_pdf_filename(raw_title):
 def topic_download_pdf(request, topic_id):
     """Generate PDF of debate arena via Edge headless — direct download, perfect Bengali text."""
     try:
-        topic = CollTopic.objects.get(debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         raise Http404
 
     status_map = _get_topic_status_map()
     team_side_map = _get_team_side_map()
-    status = status_map.get(topic.link_topic_status_id)
+    status = status_map.get(topic.link_blog_debate_ref_topic_status_id)
 
     blue_side_id = 1
     red_side_id = 2
 
     blue_root_arguments = list(CollPost.objects.filter(
-        link_topic_id=topic_id, link_thread_board_side_id=blue_side_id,
-        link_parent_post_id__isnull=True, is_deleted=False, is_auto_rejected=False, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_thread_board_blog_debate_ref_team_side_id=blue_side_id,
+        link_parent_blog_debate_coll_post_id__isnull=True, is_deleted=False, is_auto_rejected=False, is_active=True,
     ).order_by('-score', 'posted_at'))
 
     red_root_arguments = list(CollPost.objects.filter(
-        link_topic_id=topic_id, link_thread_board_side_id=red_side_id,
-        link_parent_post_id__isnull=True, is_deleted=False, is_auto_rejected=False, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_thread_board_blog_debate_ref_team_side_id=red_side_id,
+        link_parent_blog_debate_coll_post_id__isnull=True, is_deleted=False, is_auto_rejected=False, is_active=True,
     ).order_by('-score', 'posted_at'))
 
     all_replies = list(CollPost.objects.filter(
-        link_topic_id=topic_id, link_parent_post_id__isnull=False,
+        link_blog_debate_coll_topic_id=topic_id, link_parent_blog_debate_coll_post_id__isnull=False,
         is_deleted=False, is_auto_rejected=False, is_active=True,
     ).order_by('post_reply_depth', 'posted_at'))
 
     reply_map = {}
     for reply in all_replies:
-        root_id = reply.link_root_post_id
+        root_id = reply.link_root_blog_debate_coll_post_id
         if root_id not in reply_map:
             reply_map[root_id] = []
         reply_map[root_id].append(reply)
@@ -505,26 +505,26 @@ def topic_download_pdf(request, topic_id):
             author_display_name_map[profile.user_profile_id] = profile.display_name or 'ব্যবহারকারী'
 
     def _build_post_item(post):
-        side = team_side_map.get(post.link_author_team_side_id)
+        side = team_side_map.get(post.link_blog_debate_ref_team_side_id)
         return {
-            'debate_coll_post_id': post.debate_coll_post_id,
+            'blog_debate_coll_post_id': post.blog_debate_coll_post_id,
             'post_content': post.post_content,
             'author_team_side_code': side.team_side_code if side else '',
             'author_display_name': author_display_name_map.get(post.link_author_user_profile_id, 'ব্যবহারকারী'),
             'score': post.score,
             'reply_count': post.reply_count,
             'posted_at_formatted': post.posted_at.strftime('%d %b %Y, %I:%M %p') if post.posted_at else '',
-            'replies': [_build_post_item(r) for r in reply_map.get(post.debate_coll_post_id, [])],
+            'replies': [_build_post_item(r) for r in reply_map.get(post.blog_debate_coll_post_id, [])],
         }
 
     blue_thread_items = [_build_post_item(post) for post in blue_root_arguments]
     red_thread_items = [_build_post_item(post) for post in red_root_arguments]
 
     blue_participants = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_team_side_id=blue_side_id, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=blue_side_id, is_active=True,
     ).count()
     red_participants = CollTopicParticipant.objects.filter(
-        link_topic_id=topic_id, link_team_side_id=red_side_id, is_active=True,
+        link_blog_debate_coll_topic_id=topic_id, link_blog_debate_ref_team_side_id=red_side_id, is_active=True,
     ).count()
 
     topic_item = {

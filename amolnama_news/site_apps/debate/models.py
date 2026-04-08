@@ -9,7 +9,7 @@ from django.db import models
 
 class RefTeamSide(models.Model):
     """Blue (Pro) vs Red (Against)."""
-    debate_ref_team_side_id = models.AutoField(primary_key=True)
+    blog_debate_ref_team_side_id = models.AutoField(primary_key=True)
     team_side_code = models.CharField(max_length=20)
     team_side_name_en = models.CharField(max_length=50)
     team_side_name_bn = models.CharField(max_length=50)
@@ -29,7 +29,7 @@ class RefTeamSide(models.Model):
 
 class RefTopicStatus(models.Model):
     """Debate lifecycle: draft → scheduled → live → paused → closed → archived."""
-    debate_ref_topic_status_id = models.AutoField(primary_key=True)
+    blog_debate_ref_topic_status_id = models.AutoField(primary_key=True)
     topic_status_code = models.CharField(max_length=30)
     topic_status_name_en = models.CharField(max_length=50)
     topic_status_name_bn = models.CharField(max_length=50)
@@ -48,7 +48,7 @@ class RefTopicStatus(models.Model):
 
 class RefPostKind(models.Model):
     """Argument (top-level) vs Rebuttal (reply = opposition)."""
-    debate_ref_post_kind_id = models.AutoField(primary_key=True)
+    blog_debate_ref_post_kind_id = models.AutoField(primary_key=True)
     post_kind_code = models.CharField(max_length=20)
     post_kind_name_en = models.CharField(max_length=50)
     post_kind_name_bn = models.CharField(max_length=50)
@@ -67,7 +67,7 @@ class RefPostKind(models.Model):
 
 class RefModerationStatus(models.Model):
     """Moderation pipeline: pending → approved → rejected → hidden → flagged."""
-    debate_ref_moderation_status_id = models.AutoField(primary_key=True)
+    blog_debate_ref_moderation_status_id = models.AutoField(primary_key=True)
     moderation_status_code = models.CharField(max_length=30)
     moderation_status_name_en = models.CharField(max_length=50)
     moderation_status_name_bn = models.CharField(max_length=50)
@@ -86,7 +86,7 @@ class RefModerationStatus(models.Model):
 
 class RefVoteTargetType(models.Model):
     """Vote target: topic or post."""
-    debate_ref_vote_target_type_id = models.AutoField(primary_key=True)
+    blog_debate_ref_vote_target_type_id = models.AutoField(primary_key=True)
     vote_target_type_code = models.CharField(max_length=20)
     vote_target_type_name_en = models.CharField(max_length=50)
     vote_target_type_name_bn = models.CharField(max_length=50)
@@ -109,13 +109,13 @@ class RefVoteTargetType(models.Model):
 
 class CollTopic(models.Model):
     """Scheduled debate event — topic, rules, lifecycle, vote counts."""
-    debate_coll_topic_id = models.BigAutoField(primary_key=True)
+    blog_debate_coll_topic_id = models.BigAutoField(primary_key=True)
     topic_guid = models.UUIDField()
     topic_title = models.CharField(max_length=300)
     topic_description = models.TextField(blank=True, null=True)
     blue_side_label = models.CharField(max_length=200, blank=True, null=True)
     red_side_label = models.CharField(max_length=200, blank=True, null=True)
-    link_topic_status_id = models.IntegerField()
+    link_blog_debate_ref_topic_status_id = models.IntegerField()
     scheduled_start_at = models.DateTimeField()
     scheduled_end_at = models.DateTimeField(blank=True, null=True)
     actual_started_at = models.DateTimeField(blank=True, null=True)
@@ -168,10 +168,10 @@ class CollTopic(models.Model):
 
 class CollTopicParticipant(models.Model):
     """One user joins one topic on exactly one side."""
-    debate_coll_topic_participant_id = models.BigAutoField(primary_key=True)
-    link_topic_id = models.BigIntegerField()
+    blog_debate_coll_topic_participant_id = models.BigAutoField(primary_key=True)
+    link_blog_debate_coll_topic_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
-    link_team_side_id = models.IntegerField()
+    link_blog_debate_ref_team_side_id = models.IntegerField()
     joined_at = models.DateTimeField()
     is_active = models.BooleanField()
     is_muted = models.BooleanField()
@@ -190,16 +190,16 @@ class CollTopicParticipant(models.Model):
 
 class CollPost(models.Model):
     """Argument or rebuttal — core content with routing columns."""
-    debate_coll_post_id = models.BigAutoField(primary_key=True)
+    blog_debate_coll_post_id = models.BigAutoField(primary_key=True)
     post_guid = models.UUIDField()
-    link_topic_id = models.BigIntegerField()
-    link_coll_topic_participant_id = models.BigIntegerField()
+    link_blog_debate_coll_topic_id = models.BigIntegerField()
+    link_blog_debate_coll_topic_participant_id = models.BigIntegerField()
     link_author_user_profile_id = models.BigIntegerField()
-    link_author_team_side_id = models.IntegerField()
-    link_post_kind_id = models.IntegerField()
-    link_thread_board_side_id = models.IntegerField()
-    link_parent_post_id = models.BigIntegerField(blank=True, null=True)
-    link_root_post_id = models.BigIntegerField(blank=True, null=True)
+    link_blog_debate_ref_team_side_id = models.IntegerField()
+    link_blog_debate_ref_post_kind_id = models.IntegerField()
+    link_thread_board_blog_debate_ref_team_side_id = models.IntegerField()
+    link_parent_blog_debate_coll_post_id = models.BigIntegerField(blank=True, null=True)
+    link_root_blog_debate_coll_post_id = models.BigIntegerField(blank=True, null=True)
     post_reply_depth = models.IntegerField()
     post_sibling_sort_order = models.IntegerField()
     post_content = models.TextField()
@@ -241,9 +241,9 @@ class CollPost(models.Model):
 
 class FactPostModeration(models.Model):
     """Separate moderation audit trail."""
-    debate_fact_debate_post_moderation_id = models.BigAutoField(primary_key=True)
-    link_post_id = models.BigIntegerField()
-    link_moderation_status_id = models.IntegerField()
+    blog_debate_fact_debate_post_moderation_id = models.BigAutoField(primary_key=True)
+    link_blog_debate_coll_post_id = models.BigIntegerField()
+    link_blog_debate_ref_moderation_status_id = models.IntegerField()
     moderation_reason = models.CharField(max_length=500, blank=True, null=True)
     moderation_notes = models.TextField(blank=True, null=True)
     is_length_valid = models.BooleanField()
@@ -264,9 +264,9 @@ class FactPostModeration(models.Model):
 
 class Vote(models.Model):
     """One vote per user per target — supports topics and posts."""
-    debate_vote_id = models.BigAutoField(primary_key=True)
+    blog_debate_vote_id = models.BigAutoField(primary_key=True)
     link_voter_user_profile_id = models.BigIntegerField()
-    link_vote_target_type_id = models.IntegerField()
+    link_blog_debate_ref_vote_target_type_id = models.IntegerField()
     target_row_id = models.BigIntegerField()
     vote_value = models.SmallIntegerField()
     voted_at = models.DateTimeField()
@@ -281,8 +281,8 @@ class Vote(models.Model):
 
 class FactPostEditHistory(models.Model):
     """Audit trail for post edits."""
-    debate_fact_debate_post_edit_history_id = models.BigAutoField(primary_key=True)
-    link_post_id = models.BigIntegerField()
+    blog_debate_fact_debate_post_edit_history_id = models.BigAutoField(primary_key=True)
+    link_blog_debate_coll_post_id = models.BigIntegerField()
     previous_post_content = models.TextField()
     link_edited_by_user_profile_id = models.BigIntegerField()
     edited_at = models.DateTimeField()
@@ -296,12 +296,12 @@ class FactPostEditHistory(models.Model):
 
 class Notification(models.Model):
     """In-app notification for debate events — reply, vote, champion, fact-check."""
-    debate_notification_id = models.BigAutoField(primary_key=True)
+    blog_debate_notification_id = models.BigAutoField(primary_key=True)
     link_recipient_user_profile_id = models.BigIntegerField()
     link_actor_user_profile_id = models.BigIntegerField()
     notification_event_code = models.CharField(max_length=30)
-    link_topic_id = models.BigIntegerField()
-    link_post_id = models.BigIntegerField(blank=True, null=True)
+    link_blog_debate_coll_topic_id = models.BigIntegerField()
+    link_blog_debate_coll_post_id = models.BigIntegerField(blank=True, null=True)
     notification_message = models.CharField(max_length=300)
     is_read = models.BooleanField(default=False)
     read_at = models.DateTimeField(blank=True, null=True)
