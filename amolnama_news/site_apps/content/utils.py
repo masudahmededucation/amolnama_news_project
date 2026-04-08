@@ -114,3 +114,23 @@ def update_content_registry(content_registry_id, **fields):
     except Exception as update_error:
         logger.error('update_content_registry failed for ID %s — %s',
                      content_registry_id, update_error)
+
+
+def get_unified_subcategory_id(group_code, category_code):
+    """Look up the unified subcategory ID from a per-app category code.
+    Returns content_ref_content_subcategory_id or None.
+
+    Usage:
+        subcategory_id = get_unified_subcategory_id('art', 'painting')
+        subcategory_id = get_unified_subcategory_id('poem', 'love')
+    """
+    try:
+        from amolnama_news.site_apps.content.models import RefContentSubcategory
+        sub = RefContentSubcategory.objects.filter(
+            group_code=group_code, subcategory_code=category_code,
+        ).first()
+        return sub.content_ref_content_subcategory_id if sub else None
+    except Exception as lookup_error:
+        logger.error('get_unified_subcategory_id failed for %s:%s — %s',
+                     group_code, category_code, lookup_error)
+        return None

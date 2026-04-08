@@ -96,9 +96,18 @@ def api_story_create(request):
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
 
+    # Look up unified subcategory
+    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
+    story_category = RefStoryCategory.objects.filter(blog_stories_ref_story_category_id=link_blog_stories_ref_story_category_id).first()
+    unified_subcategory_id = get_unified_subcategory_id('story', story_category.story_category_code) if story_category else None
+
+    if unified_subcategory_id:
+        CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(
+            link_content_ref_content_subcategory_id=unified_subcategory_id
+        )
+
     # Register in content registry
     try:
-        from amolnama_news.site_apps.content.utils import register_content
         content_registry_id = register_content(
             content_category_id=4,  # story
             user_profile_id=user_profile.user_profile_id,
@@ -107,6 +116,7 @@ def api_story_create(request):
             slug=story_slug,
             summary_bn=story_summary_bn,
             content_url=f'/stories-for-kids/{story_slug}/',
+            subcategory_id=unified_subcategory_id,
             is_published=True,
         )
         if content_registry_id:

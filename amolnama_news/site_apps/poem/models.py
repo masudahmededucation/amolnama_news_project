@@ -7,6 +7,7 @@ class RefPoemCategory(models.Model):
     """Reference table for poem categories. Maps to [blog_poem].[ref_poem_category]."""
 
     blog_poem_ref_poem_category_id = models.IntegerField(primary_key=True)
+    poem_category_code = models.CharField(max_length=50)
     poem_category_name_bn = models.CharField(max_length=100)
     poem_category_name_en = models.CharField(max_length=100)
     sort_order = models.IntegerField(blank=True, null=True)

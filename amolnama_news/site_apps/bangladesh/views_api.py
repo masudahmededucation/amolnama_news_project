@@ -170,9 +170,18 @@ def api_destination_create(request):
     # Generate SEO slug
     _generate_destination_slug(dest)
 
+    # Look up unified subcategory
+    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
+    dest_category = RefDestinationCategory.objects.filter(blog_bangladesh_ref_destination_category_id=dest.link_blog_bangladesh_ref_destination_category_id).first()
+    unified_subcategory_id = get_unified_subcategory_id('destination', dest_category.destination_category_code) if dest_category else None
+
+    if unified_subcategory_id:
+        CollDestination.objects.filter(blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id).update(
+            link_content_ref_content_subcategory_id=unified_subcategory_id
+        )
+
     # Register in content registry
     try:
-        from amolnama_news.site_apps.content.utils import register_content
         content_registry_id = register_content(
             content_category_id=6,  # destination
             user_profile_id=user_profile.user_profile_id,
@@ -181,6 +190,7 @@ def api_destination_create(request):
             slug=dest.destination_slug,
             summary_bn=(dest.destination_short_description_bn or dest.destination_description_bn or '')[:500] or None,
             content_url=f'/bangladesh-tourist-destinations/travel/{dest.destination_slug}/',
+            subcategory_id=unified_subcategory_id,
             is_published=True,
         )
         if content_registry_id:

@@ -182,9 +182,18 @@ def api_poem_entry_create(request):
 
         _ensure_poem_slug(poem)
 
+        # Look up unified subcategory from poem category
+        from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
+        poem_category = RefPoemCategory.objects.filter(blog_poem_ref_poem_category_id=category_id).first()
+        unified_subcategory_id = get_unified_subcategory_id('poem', poem_category.poem_category_code) if poem_category else None
+
+        if unified_subcategory_id:
+            CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id=poem.blog_poem_coll_poem_entry_id).update(
+                link_content_ref_content_subcategory_id=unified_subcategory_id
+            )
+
         # Register in content registry
         try:
-            from amolnama_news.site_apps.content.utils import register_content
             content_registry_id = register_content(
                 content_category_id=3,  # poem
                 user_profile_id=profile_id,
@@ -193,7 +202,7 @@ def api_poem_entry_create(request):
                 slug=poem.poem_slug,
                 summary_bn=(body_bn or '')[:500] if body_bn else None,
                 content_url=f'/bangla-kobita-gaan/{poem.poem_slug}/',
-                subcategory_id=None,
+                subcategory_id=unified_subcategory_id,
                 is_published=True,
             )
             if content_registry_id:

@@ -79,18 +79,11 @@ def api_artwork_create(request):
         artwork_id = cursor.fetchone()[0]
 
     # Look up unified subcategory from art category
+    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
     unified_subcategory_id = None
-    try:
-        art_category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=link_blog_art_ref_art_category_id).first()
-        if art_category:
-            from amolnama_news.site_apps.content.models import RefContentSubcategory
-            unified_sub = RefContentSubcategory.objects.filter(
-                group_code='art', subcategory_code=art_category.art_category_code,
-            ).first()
-            if unified_sub:
-                unified_subcategory_id = unified_sub.content_ref_content_subcategory_id
-    except Exception:
-        logger.exception('Subcategory lookup failed for artwork %s', artwork_id)
+    art_category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=link_blog_art_ref_art_category_id).first()
+    if art_category:
+        unified_subcategory_id = get_unified_subcategory_id('art', art_category.art_category_code)
 
     # Set unified subcategory on artwork
     if unified_subcategory_id:
@@ -100,7 +93,6 @@ def api_artwork_create(request):
 
     # Register in content registry
     try:
-        from amolnama_news.site_apps.content.utils import register_content
         content_registry_id = register_content(
             content_category_id=5,  # art
             user_profile_id=user_profile.user_profile_id,
