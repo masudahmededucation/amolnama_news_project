@@ -1,0 +1,127 @@
+================================================================================
+APP: CONTENT — Master Content Registry
+================================================================================
+
+Schema: [content]
+Django App: site_apps/content/
+Role: Universal content index for ALL content (posts + blog). Single source of truth
+      for content identity, categories, subcategories.
+
+================================================================================
+TABLES
+================================================================================
+
+[content].[ref_content_category]
+  - PK: content_ref_content_category_id (INT)
+  - What kind of content: article, post, poem, story, art, destination, media, debate, newshub
+  - 10 categories (IDs: 1=article, 3=poem, 4=story, 5=art, 6=destination, 7=media, 8=debate, 9=newshub, 10=post)
+
+[content].[ref_content_subcategory]
+  - PK: content_ref_content_subcategory_id (INT)
+  - FK: link_content_ref_content_category_id → ref_content_category
+  - Topic/subject within each category: Crime, Love, Painting, Beach, etc.
+  - 85+ subcategories across all apps
+  - Computed columns: link_subcategory_id, link_subcategory_code (self-documenting FK names)
+  - group_code: visual filter for SSMS (art, poem, story, destination, newshub, debate)
+
+[content].[content_registry]
+  - PK: content_registry_id (BIGINT IDENTITY)
+  - FK: link_content_ref_content_category_id → ref_content_category
+  - FK: link_content_ref_content_subcategory_id → ref_content_subcategory
+  - FK: link_newshub_ref_news_form_type_id → newshub.ref_news_form_type (newshub only)
+  - Universal content ID for ALL content (posts + blog)
+  - Denormalized display fields: title_bn/en, slug, summary_bn, content_url, cover_image_url
+  - Status: is_published, is_active, published_at
+  - Filtered indexes: blog-only (category != post), posts-only, blog-by-user
+
+================================================================================
+DJANGO MODELS
+================================================================================
+
+content/models.py:
+  - RefContentCategory — maps to ref_content_category
+  - RefContentSubcategory — maps to ref_content_subcategory
+  - ContentRegistry — maps to content_registry
+
+================================================================================
+SHARED UTILITIES (content/utils.py)
+================================================================================
+
+register_content(content_category_id, user_profile_id, ...)
+  - INSERT into content_registry, returns content_registry_id
+  - Called from all create flows (post, art, poem, story, destination, debate)
+
+update_content_registry(content_registry_id, **fields)
+  - UPDATE specific fields on existing registry entry
+
+get_unified_subcategory_id(group_code, category_code)
+  - Look up unified subcategory ID from per-app category code
+  - Used by art, poem, story, destination create flows
+
+================================================================================
+FK CONSTRAINTS (18 total)
+================================================================================
+
+content_registry → ref_content_category
+content_registry → ref_content_subcategory
+ref_content_subcategory → ref_content_category
+8 blog tables → content_registry (post, pub_article, artwork, poem, story, destination, media, debate)
+7 blog tables → ref_content_subcategory (artwork, poem, story, destination, media, debate, news_entry)
+
+================================================================================
+BLOG SCHEMA RENAMES
+================================================================================
+
+[art] → [blog_art] (10 tables)
+[bangladesh] → [blog_bangladesh] (21 tables)
+[debate] → [blog_debate] (12 tables)
+[poem] → [blog_poem] (3 tables)
+[stories] → [blog_stories] (8 tables)
+[newshub] — NOT renamed (news collection, not blog)
+
+All PK/FK columns renamed: art_ → blog_art_, bangladesh_ → blog_bangladesh_, etc.
+All code references updated. Zero old names remaining.
+
+================================================================================
+CONTENT CREATE FLOW
+================================================================================
+
+1. User creates content in app-specific form
+2. App INSERT into source table → gets source PK
+3. App calls get_unified_subcategory_id() → gets unified subcategory ID
+4. App sets link_content_ref_content_subcategory_id on source table
+5. App calls register_content() → gets content_registry_id
+6. App sets link_content_registry_id on source table
+7. Newsengine brain modules receive content_registry_id for classification/fact-check
+
+================================================================================
+ARTICLES PROFILE PAGE
+================================================================================
+
+URL: /social/@username/articles/
+View: social/views.py:public_profile_articles()
+Query: ContentRegistry WHERE link_user_profile_id = ? AND is_published = 1
+       (excludes posts — shows all blog content by this writer)
+Template: social/pages/user-profile-articles.html
+Category badge: subcategory_name_bn from RefContentSubcategory
+
+================================================================================
+CATEGORY NAMING CONVENTION
+================================================================================
+
+Every ref category table MUST have:
+  - {entity}_code — lowercase, no spaces, for code comparisons
+  - {entity}_name_en — Title Case, for English display
+  - {entity}_name_bn — Bengali, for Bengali display
+
+All comparisons use _code (lowercase). All display uses _name_en or _name_bn.
+Never compare against _name_en.
+
+================================================================================
+PK/FK NAMING CONVENTION
+================================================================================
+
+PK: {schema}_{table}_id (e.g., blog_art_coll_artwork_id)
+FK: link_{schema}_{table}_id (e.g., link_blog_art_coll_artwork_id)
+Content FK: link_content_ref_content_subcategory_id (self-documenting)
+Content FK: link_content_registry_id (universal content ID)
