@@ -71,7 +71,7 @@ def register_content(content_category_id, user_profile_id, title_bn=None, title_
 
 def update_content_registry(content_registry_id, **fields):
     """Update specific fields on an existing content registry entry.
-    Only updates fields that are explicitly passed.
+    Uses Django ORM — no raw SQL.
 
     Usage:
         update_content_registry(42, title_bn='New Title', is_published=True)
@@ -90,27 +90,20 @@ def update_content_registry(content_registry_id, **fields):
         'is_published': 'is_published',
     }
 
-    set_clauses = []
-    params = []
+    update_kwargs = {}
     for key, value in fields.items():
-        db_column = field_map.get(key)
-        if db_column:
-            set_clauses.append(f'[{db_column}] = %s')
-            params.append(value)
+        model_field = field_map.get(key)
+        if model_field:
+            update_kwargs[model_field] = value
 
-    if not set_clauses:
+    if not update_kwargs:
         return
 
-    set_clauses.append('[updated_at] = %s')
-    params.append(timezone.now())
-    params.append(content_registry_id)
+    update_kwargs['updated_at'] = timezone.now()
 
     try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                f"UPDATE [content].[content_registry] SET {', '.join(set_clauses)} WHERE [content_registry_id] = %s",
-                params,
-            )
+        from amolnama_news.site_apps.content.models import ContentRegistry
+        ContentRegistry.objects.filter(content_registry_id=content_registry_id).update(**update_kwargs)
     except Exception as update_error:
         logger.error('update_content_registry failed for ID %s — %s',
                      content_registry_id, update_error)
