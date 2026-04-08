@@ -110,7 +110,7 @@ def poem_og_image(request, poem_slug):
     """Generate a dynamic OG share image for a poem using Chrome headless."""
     if poem_slug.isdigit():
         try:
-            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+            poem = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=int(poem_slug))
         except CollPoemEntry.DoesNotExist:
             raise Http404
     else:
@@ -125,7 +125,7 @@ def poem_og_image(request, poem_slug):
 def poem_og_image_by_id(request, poem_id):
     """Legacy ID-based OG image endpoint."""
     try:
-        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
+        poem = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=poem_id)
     except CollPoemEntry.DoesNotExist:
         raise Http404
     return _render_og_image(poem)
@@ -137,7 +137,7 @@ def _render_og_image(poem):
     cat_name = ""
     try:
         cat = RefPoemCategory.objects.get(
-            poem_ref_poem_category_id=poem.link_poem_ref_poem_category_id
+            blog_poem_ref_poem_category_id=poem.link_blog_poem_ref_poem_category_id
         )
         cat_name = cat.poem_category_name_bn
     except RefPoemCategory.DoesNotExist:

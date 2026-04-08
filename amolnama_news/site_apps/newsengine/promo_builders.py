@@ -248,7 +248,7 @@ def _build_poem_promo_items():
         items.append({
             'item_type': 'content_promo',
             'created_at_raw': poem.created_at,
-            'promo_id': poem.poem_coll_poem_entry_id,
+            'promo_id': poem.blog_poem_coll_poem_entry_id,
             'promo_badge': 'POEM',
             'promo_color': 'purple',
             'promo_title': poem.poem_title_bn or '',

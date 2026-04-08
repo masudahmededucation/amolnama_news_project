@@ -114,7 +114,7 @@ def api_content_toggle_publish(request):
 
         elif content_type == 'poem':
             from amolnama_news.site_apps.poem.models import CollPoemEntry
-            item = CollPoemEntry.objects.get(poem_coll_poem_entry_id=content_id)
+            item = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=content_id)
             item.poem_status_code = 'published' if publish else 'draft'
             item.save(update_fields=['poem_status_code'])
 

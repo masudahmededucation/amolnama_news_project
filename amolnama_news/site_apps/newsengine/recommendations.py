@@ -80,7 +80,7 @@ def _get_popular_in_category(category, viewed_keys, limit=2):
             poem_status_code='published',
         ).order_by('-like_count', '-view_count')[:limit * 3]
         for poem in poems:
-            key = f'poem:{poem.poem_coll_poem_entry_id}'
+            key = f'poem:{poem.blog_poem_coll_poem_entry_id}'
             if key not in viewed_keys:
                 items.append({
                     'content_type': 'poem',

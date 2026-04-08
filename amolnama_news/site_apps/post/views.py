@@ -379,14 +379,14 @@ def bookmarks(request):
         from amolnama_news.site_apps.poem.models import EngagementPoemLike, CollPoemEntry
         poem_like_ids = list(EngagementPoemLike.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_poem_coll_poem_entry_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_blog_poem_coll_poem_entry_id', flat=True)[:20])
         if poem_like_ids:
-            poems_map = {p.poem_coll_poem_entry_id: p for p in CollPoemEntry.objects.filter(poem_coll_poem_entry_id__in=poem_like_ids)}
+            poems_map = {p.blog_poem_coll_poem_entry_id: p for p in CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id__in=poem_like_ids)}
             for poem_id in poem_like_ids:
                 poem = poems_map.get(poem_id)
                 if poem:
                     universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': poem.poem_coll_poem_entry_id,
+                        'item_type': 'content_promo', 'promo_id': poem.blog_poem_coll_poem_entry_id,
                         'promo_badge': 'POEM', 'promo_color': 'purple',
                         'promo_title': poem.poem_title_bn or '',
                         'promo_description': (poem.poem_body_bn or '')[:150],

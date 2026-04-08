@@ -28,14 +28,14 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
       6. Similar categories, any type
       7. Any remaining by popularity
     """
-    current_cat = poem.link_poem_ref_poem_category_id
+    current_cat = poem.link_blog_poem_ref_poem_category_id
     current_author = poem.poem_author_display_name
     current_type = poem.poem_type_code or "poem"
 
     exclude = set(exclude_ids or [])
-    exclude.add(poem.poem_coll_poem_entry_id)
+    exclude.add(poem.blog_poem_coll_poem_entry_id)
 
-    base_queryset = CollPoemEntry.objects.exclude(poem_coll_poem_entry_id__in=exclude)
+    base_queryset = CollPoemEntry.objects.exclude(blog_poem_coll_poem_entry_id__in=exclude)
     if require_audio:
         base_queryset = base_queryset.exclude(poem_audio_url__isnull=True).exclude(poem_audio_url="")
 
@@ -47,21 +47,21 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
         for poem_item in queryset:
             if len(result) >= limit:
                 return
-            if poem_item.poem_coll_poem_entry_id not in result_ids:
+            if poem_item.blog_poem_coll_poem_entry_id not in result_ids:
                 result.append(poem_item)
-                result_ids.add(poem_item.poem_coll_poem_entry_id)
+                result_ids.add(poem_item.blog_poem_coll_poem_entry_id)
 
     def _remaining():
         return limit - len(result)
 
     def _base():
-        return base_queryset.exclude(poem_coll_poem_entry_id__in=result_ids)
+        return base_queryset.exclude(blog_poem_coll_poem_entry_id__in=result_ids)
 
     # Priority 1: Same author + same category + same type
     if current_author and _remaining() > 0:
         _add(_base().filter(
             poem_author_display_name=current_author,
-            link_poem_ref_poem_category_id=current_cat,
+            link_blog_poem_ref_poem_category_id=current_cat,
             poem_type_code=current_type,
         ).order_by("-like_count")[:_remaining()])
 
@@ -75,14 +75,14 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
     # Priority 3: Same category + same type
     if _remaining() > 0:
         _add(_base().filter(
-            link_poem_ref_poem_category_id=current_cat,
+            link_blog_poem_ref_poem_category_id=current_cat,
             poem_type_code=current_type,
         ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 4: Same category, any type
     if _remaining() > 0:
         _add(_base().filter(
-            link_poem_ref_poem_category_id=current_cat,
+            link_blog_poem_ref_poem_category_id=current_cat,
         ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 5: Similar categories + same type
@@ -91,7 +91,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
             if _remaining() <= 0:
                 break
             _add(_base().filter(
-                link_poem_ref_poem_category_id=similar_cat,
+                link_blog_poem_ref_poem_category_id=similar_cat,
                 poem_type_code=current_type,
             ).order_by("-like_count", "-view_count")[:_remaining()])
 
@@ -101,7 +101,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
             if _remaining() <= 0:
                 break
             _add(_base().filter(
-                link_poem_ref_poem_category_id=similar_cat,
+                link_blog_poem_ref_poem_category_id=similar_cat,
             ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 7: Any remaining by popularity

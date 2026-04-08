@@ -30,17 +30,17 @@ def _ensure_poem_slug(poem):
     if title:
         parts.append(title)
     if not parts:
-        parts.append(str(poem.poem_coll_poem_entry_id))
+        parts.append(str(poem.blog_poem_coll_poem_entry_id))
 
     slug = bangla_slugify("-".join(parts))
     if not slug:
-        slug = str(poem.poem_coll_poem_entry_id)
+        slug = str(poem.blog_poem_coll_poem_entry_id)
 
     # Ensure uniqueness
     candidate = slug[:450]  # Leave room for counter suffix
     counter = 1
     while CollPoemEntry.objects.filter(poem_slug=candidate).exclude(
-        poem_coll_poem_entry_id=poem.poem_coll_poem_entry_id
+        blog_poem_coll_poem_entry_id=poem.blog_poem_coll_poem_entry_id
     ).exists():
         candidate = f"{slug[:445]}-{counter}"
         counter += 1
@@ -51,7 +51,7 @@ def _ensure_poem_slug(poem):
 def poem_detail_by_id(request, poem_id):
     """Old ID-based URL → redirect to Bengali slug URL."""
     try:
-        poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=poem_id)
+        poem = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=poem_id)
     except CollPoemEntry.DoesNotExist:
         raise Http404
     _ensure_poem_slug(poem)
@@ -63,7 +63,7 @@ def poem_detail_by_slug(request, poem_slug):
     # If slug is numeric (old ID-based URL), look up by ID and redirect to slug
     if poem_slug.isdigit():
         try:
-            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+            poem = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=int(poem_slug))
         except CollPoemEntry.DoesNotExist:
             raise Http404
         _ensure_poem_slug(poem)
@@ -82,7 +82,7 @@ def _annotate_poem(poem, categories_map):
     poem.display_title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"
     body = poem.poem_body_bn or poem.poem_body_en or ""
     poem.body_preview = body[:120].strip()
-    cat = categories_map.get(poem.link_poem_ref_poem_category_id)
+    cat = categories_map.get(poem.link_blog_poem_ref_poem_category_id)
     poem.category_name = cat.poem_category_name_bn if cat else ""
     poem.category_name_en = cat.poem_category_name_en if cat else ""
     poem.time_ago = _time_ago(poem.created_at)
@@ -94,7 +94,7 @@ def poem_landing(request):
     categories = list(
         RefPoemCategory.objects.filter(is_active=True).order_by("sort_order", "poem_category_name_en")
     )
-    categories_map = {c.poem_ref_poem_category_id: c for c in categories}
+    categories_map = {c.blog_poem_ref_poem_category_id: c for c in categories}
 
     poems_qs = CollPoemEntry.objects.order_by("-created_at")[:PAGE_SIZE + 1]
     poems_list = list(poems_qs)
@@ -121,15 +121,15 @@ def poem_landing(request):
 
 def _render_poem_detail(request, poem):
     """Render poem detail page — shared by slug and ID views."""
-    poem_id = poem.poem_coll_poem_entry_id
+    poem_id = poem.blog_poem_coll_poem_entry_id
 
     # Increment view count (atomic)
-    CollPoemEntry.objects.filter(poem_coll_poem_entry_id=poem_id).update(
+    CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id=poem_id).update(
         view_count=F('view_count') + 1
     )
 
     categories_map = {
-        c.poem_ref_poem_category_id: c
+        c.blog_poem_ref_poem_category_id: c
         for c in RefPoemCategory.objects.filter(is_active=True)
     }
     _annotate_poem(poem, categories_map)
@@ -144,7 +144,7 @@ def _render_poem_detail(request, poem):
                 link_user_account_user_id=request.user.pk
             )
             user_liked = EngagementPoemLike.objects.filter(
-                link_poem_coll_poem_entry_id=poem_id,
+                link_blog_poem_coll_poem_entry_id=poem_id,
                 link_user_profile_id=profile.user_profile_id,
             ).exists()
         except UserProfile.DoesNotExist:
@@ -245,7 +245,7 @@ def poem_edit(request, poem_slug):
     # Handle numeric slug (old ID-based URL)
     if poem_slug.isdigit():
         try:
-            poem = CollPoemEntry.objects.get(poem_coll_poem_entry_id=int(poem_slug))
+            poem = CollPoemEntry.objects.get(blog_poem_coll_poem_entry_id=int(poem_slug))
         except CollPoemEntry.DoesNotExist:
             raise Http404
         _ensure_poem_slug(poem)
@@ -255,7 +255,7 @@ def poem_edit(request, poem_slug):
         poem = CollPoemEntry.objects.get(poem_slug=poem_slug)
     except CollPoemEntry.DoesNotExist:
         raise Http404
-    poem_id = poem.poem_coll_poem_entry_id
+    poem_id = poem.blog_poem_coll_poem_entry_id
 
     # Permission check: admin or owner
     from amolnama_news.site_apps.user_account.models import UserProfile

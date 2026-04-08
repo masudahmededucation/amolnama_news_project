@@ -415,7 +415,7 @@ def content_dashboard_view(request):
             'content_type': 'poem',
             'content_type_label': 'POEM',
             'content_type_color': 'purple',
-            'content_id': poem.poem_coll_poem_entry_id,
+            'content_id': poem.blog_poem_coll_poem_entry_id,
             'content_title': poem.poem_title_bn or '(no title)',
             'content_slug': poem.poem_slug or '',
             'content_url': f'/bangla-kobita-gaan/{poem.poem_slug}/' if poem.poem_slug else '',

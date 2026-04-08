@@ -206,7 +206,7 @@ _RELATED_CONTENT_ENRICHMENT_MAP = {
         'title_max_length': 80,
     },
     'poem': {
-        'query': "SELECT poem_title_bn, poem_slug, poem_author_display_name FROM [blog_poem].[coll_poem_entry] WHERE poem_coll_poem_entry_id = %s AND is_active = 1",
+        'query': "SELECT poem_title_bn, poem_slug, poem_author_display_name FROM [blog_poem].[coll_poem_entry] WHERE blog_poem_coll_poem_entry_id = %s AND is_active = 1",
         'title_index': 0,
         'slug_index': 1,
         'url_template': '/bangla-kobita-gaan/{slug}/',

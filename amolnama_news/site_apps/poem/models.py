@@ -6,7 +6,7 @@ from django.db import models
 class RefPoemCategory(models.Model):
     """Reference table for poem categories. Maps to [blog_poem].[ref_poem_category]."""
 
-    poem_ref_poem_category_id = models.IntegerField(primary_key=True)
+    blog_poem_ref_poem_category_id = models.IntegerField(primary_key=True)
     poem_category_name_bn = models.CharField(max_length=100)
     poem_category_name_en = models.CharField(max_length=100)
     sort_order = models.IntegerField(blank=True, null=True)
@@ -25,9 +25,9 @@ class RefPoemCategory(models.Model):
 class CollPoemEntry(models.Model):
     """User-submitted poem/song lyrics. Maps to [blog_poem].[coll_poem_entry]."""
 
-    poem_coll_poem_entry_id = models.BigAutoField(primary_key=True)
+    blog_poem_coll_poem_entry_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_poem_ref_poem_category_id = models.IntegerField()
+    link_blog_poem_ref_poem_category_id = models.IntegerField()
     poem_slug = models.CharField(max_length=500, blank=True, null=True)
     poem_title_bn = models.CharField(max_length=200, blank=True, null=True)
     poem_title_en = models.CharField(max_length=200, blank=True, null=True)
@@ -56,21 +56,21 @@ class CollPoemEntry(models.Model):
         db_table = "[blog_poem].[coll_poem_entry]"
 
     def __str__(self):
-        return self.poem_title_bn or self.poem_title_en or f"Poem({self.poem_coll_poem_entry_id})"
+        return self.poem_title_bn or self.poem_title_en or f"Poem({self.blog_poem_coll_poem_entry_id})"
 
 
 class EngagementPoemLike(models.Model):
     """Like/heart on a poem. Maps to [blog_poem].[engagement_poem_like]."""
 
-    poem_engagement_poem_like_id = models.BigAutoField(primary_key=True)
-    link_poem_coll_poem_entry_id = models.BigIntegerField()
+    blog_poem_engagement_poem_like_id = models.BigAutoField(primary_key=True)
+    link_blog_poem_coll_poem_entry_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     created_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = "[blog_poem].[engagement_poem_like]"
-        unique_together = [["link_poem_coll_poem_entry_id", "link_user_profile_id"]]
+        unique_together = [["link_blog_poem_coll_poem_entry_id", "link_user_profile_id"]]
 
     def __str__(self):
-        return f"PoemLike({self.poem_engagement_poem_like_id})"
+        return f"PoemLike({self.blog_poem_engagement_poem_like_id})"
