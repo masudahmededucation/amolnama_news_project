@@ -206,14 +206,15 @@ def api_topic_create(request):
 
     # Register in content registry
     try:
-        from amolnama_news.site_apps.content.utils import register_content
+        from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
+        debate_subcategory_id = get_unified_subcategory_id('debate', 'debate')
         content_registry_id = register_content(
             content_category_id=8,  # debate
             user_profile_id=user_profile_id,
             title_bn=topic_title,
             summary_bn=(topic_description or '')[:500] if topic_description else None,
             content_url=f'/debate/topic/{topic_id}/',
-            subcategory_id=84,  # debate subcategory
+            subcategory_id=debate_subcategory_id,
             is_published=True,
         )
         if content_registry_id:
