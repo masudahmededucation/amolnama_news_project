@@ -96,6 +96,25 @@ def api_story_create(request):
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
 
+    # Register in content registry
+    try:
+        from amolnama_news.site_apps.content.utils import register_content
+        content_registry_id = register_content(
+            content_category_id=4,  # story
+            user_profile_id=user_profile.user_profile_id,
+            title_bn=story_title_bn,
+            title_en=story_title_en,
+            slug=story_slug,
+            summary_bn=story_summary_bn,
+            content_url=f'/stories-for-kids/{story_slug}/',
+            is_published=True,
+        )
+        if content_registry_id:
+            CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(link_content_registry_id=content_registry_id)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('Content registry failed for story %s', story_id)
+
     return JsonResponse({
         'success': True,
         'story_id': story_id,

@@ -181,6 +181,28 @@ def api_poem_entry_create(request):
         )
 
         _ensure_poem_slug(poem)
+
+        # Register in content registry
+        try:
+            from amolnama_news.site_apps.content.utils import register_content
+            content_registry_id = register_content(
+                content_category_id=3,  # poem
+                user_profile_id=profile_id,
+                title_bn=title_bn,
+                title_en=title_en,
+                slug=poem.poem_slug,
+                summary_bn=(body_bn or '')[:500] if body_bn else None,
+                content_url=f'/bangla-kobita-gaan/{poem.poem_slug}/',
+                subcategory_id=None,
+                is_published=True,
+            )
+            if content_registry_id:
+                CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id=poem.blog_poem_coll_poem_entry_id).update(
+                    link_content_registry_id=content_registry_id
+                )
+        except Exception:
+            logger.exception('Content registry failed for poem %s', poem.blog_poem_coll_poem_entry_id)
+
         return JsonResponse({"success": True, "poem_id": poem.blog_poem_coll_poem_entry_id, "poem_url": _poem_url(poem)})
     except Exception:
         logger.exception('Poem create failed')

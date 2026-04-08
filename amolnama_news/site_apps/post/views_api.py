@@ -123,6 +123,21 @@ def api_post_create(request):
 
     post = Post.objects.get(post_post_id=post_post_id)
 
+    # Register in content registry — universal content ID
+    try:
+        from amolnama_news.site_apps.content.utils import register_content
+        content_registry_id = register_content(
+            content_category_id=10,  # post
+            user_profile_id=user_profile.user_profile_id,
+            title_bn=post_text[:1000] if post_text else None,
+            content_url=f'/post/{post_post_id}/',
+            is_published=not bool(scheduled_publish_at),
+        )
+        if content_registry_id:
+            Post.objects.filter(post_post_id=post_post_id).update(link_content_registry_id=content_registry_id)
+    except Exception:
+        logger.exception('Content registry failed for post %s', post_post_id)
+
     # Save uploaded media files
     media_urls = []
     for file_index, uploaded_file in enumerate(uploaded_files):

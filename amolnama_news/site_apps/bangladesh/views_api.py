@@ -170,6 +170,26 @@ def api_destination_create(request):
     # Generate SEO slug
     _generate_destination_slug(dest)
 
+    # Register in content registry
+    try:
+        from amolnama_news.site_apps.content.utils import register_content
+        content_registry_id = register_content(
+            content_category_id=6,  # destination
+            user_profile_id=user_profile.user_profile_id,
+            title_bn=dest.destination_name_bn,
+            title_en=dest.destination_name_en,
+            slug=dest.destination_slug,
+            summary_bn=(dest.destination_short_description_bn or dest.destination_description_bn or '')[:500] or None,
+            content_url=f'/bangladesh-tourist-destinations/travel/{dest.destination_slug}/',
+            is_published=True,
+        )
+        if content_registry_id:
+            CollDestination.objects.filter(blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id).update(
+                link_content_registry_id=content_registry_id
+            )
+    except Exception:
+        logger.exception('Content registry failed for destination %s', dest.blog_bangladesh_coll_destination_id)
+
     return JsonResponse({"success": True, "destination_id": dest.blog_bangladesh_coll_destination_id, "destination_slug": dest.destination_slug or ""})
 
 

@@ -78,6 +78,25 @@ def api_artwork_create(request):
         ])
         artwork_id = cursor.fetchone()[0]
 
+    # Register in content registry
+    try:
+        from amolnama_news.site_apps.content.utils import register_content
+        content_registry_id = register_content(
+            content_category_id=5,  # art
+            user_profile_id=user_profile.user_profile_id,
+            title_bn=artwork_title_bn,
+            title_en=artwork_title_en,
+            slug=artwork_slug,
+            summary_bn=(artwork_description_bn or '')[:500] if artwork_description_bn else None,
+            content_url=f'/art-and-craft/{artwork_slug}/',
+            subcategory_id=None,
+            is_published=True,
+        )
+        if content_registry_id:
+            CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(link_content_registry_id=content_registry_id)
+    except Exception:
+        logger.exception('Content registry failed for artwork %s', artwork_id)
+
     # Upload photos
     media_root = os.path.join(settings.MEDIA_ROOT, 'art', str(artwork_id))
     os.makedirs(media_root, exist_ok=True)
