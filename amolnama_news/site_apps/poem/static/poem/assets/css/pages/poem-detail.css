@@ -293,8 +293,12 @@
   transform: scale(.93);
 }
 
-.poem-audio-play-btn svg[hidden] {
+.poem-audio-play-btn svg {
   display: none;
+}
+
+.poem-audio-play-btn svg:not([hidden]) {
+  display: block;
 }
 
 /* Info (title + description) */
