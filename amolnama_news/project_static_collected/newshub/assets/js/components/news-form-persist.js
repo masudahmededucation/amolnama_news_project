@@ -24,11 +24,18 @@
   const form = document.querySelector('.news-collection-form, .news-multistep-form');
   if (!form) return;
 
-  /* --- If submission succeeded, clear draft but keep save listeners active --- */
+  /* --- If submission succeeded, clear draft and block saves briefly.
+     Save listeners stay active for new form, but block saves for 2s
+     so Tom Select / cascade init events don't re-save stale defaults. --- */
   const isSuccessPage = !!document.querySelector('.form-message-success');
+  let isSuccessBlocked = false;
   if (isSuccessPage) {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(TAGS_STORAGE_KEY);
+    /* Clear all newshub draft keys — per-type + generic + tags */
+    Object.keys(localStorage).forEach(function (key) {
+      if (key.startsWith('newshub_draft')) localStorage.removeItem(key);
+    });
+    isSuccessBlocked = true;
+    setTimeout(function () { isSuccessBlocked = false; }, 2000);
   }
 
   /* ========== SAVE ========== */
@@ -37,7 +44,7 @@
   let isRestoring = false; // blocks saves during restore to prevent race conditions
 
   function saveDraft() {
-    if (isRestoring) return;
+    if (isRestoring || isSuccessBlocked) return;
 
     const data = {};
     const elements = form.querySelectorAll('input, select, textarea');
@@ -65,7 +72,7 @@
   }
 
   function debouncedSave() {
-    if (isRestoring) return;
+    if (isRestoring || isSuccessBlocked) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveDraft, 400);
   }
@@ -74,6 +81,9 @@
   form.addEventListener('change', debouncedSave);
 
   /* ========== RESTORE ========== */
+
+  /* Skip restore after successful submission — form is fresh */
+  if (isSuccessPage) return;
 
   /* Skip localStorage restore in edit mode — server data takes priority */
   if (window.__EDIT_MODE__) return;
@@ -244,6 +254,7 @@
   if (window.spaCleanupRegister) {
     window.spaCleanupRegister(function () {
       isRestoring = false;
+      clearTimeout(saveTimer);
     });
   }
 })();

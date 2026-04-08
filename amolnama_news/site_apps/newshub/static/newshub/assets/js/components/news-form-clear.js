@@ -349,13 +349,19 @@
     const julyHidden = document.getElementById('july-sub-type');
     if (julyHidden) julyHidden.value = '';
 
-    /* 12. Clear localStorage drafts (per-form-type) */
+    /* 12. Clear localStorage drafts (per-form-type).
+       Field resets above trigger change events → debouncedSave (400ms).
+       Clear now AND again after 500ms to kill any pending save. */
     const formTypeInput = document.getElementById('news-form-type');
     const formTypeCode = formTypeInput ? formTypeInput.value : '';
     const draftKey = formTypeCode ? ('newshub_draft_' + formTypeCode) : 'newshub_draft';
     const draftTagsKey = formTypeCode ? ('newshub_draft_tags_' + formTypeCode) : 'newshub_draft_tags';
     localStorage.removeItem(draftKey);
     localStorage.removeItem(draftTagsKey);
+    setTimeout(function () {
+      localStorage.removeItem(draftKey);
+      localStorage.removeItem(draftTagsKey);
+    }, 500);
 
     /* 13. Clear any validation warnings */
     const warnings = form.querySelectorAll('.field-warning');

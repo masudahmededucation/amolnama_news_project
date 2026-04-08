@@ -20,6 +20,7 @@
 
   const BENGALI_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 
+  function initStepper() {
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
   const btnPrev = document.getElementById('btn-step-prev');
   const btnNext = document.getElementById('btn-step-next');
@@ -167,34 +168,37 @@
   const pageFormType = (formTypeInput && formTypeInput.value) ? formTypeInput.value : '';
 
   if (formTypePicker) {
-    const cards = formTypePicker.querySelectorAll('.form-type-card');
-    cards.forEach(function (card) {
-      card.addEventListener('click', function () {
-        /* Deselect all */
-        cards.forEach(function (c) { c.classList.remove('selected'); });
-        /* Select this card */
-        card.classList.add('selected');
-        selectedFormType = card.getAttribute('data-type');
-        if (formTypeInput) formTypeInput.value = selectedFormType;
+    /* Delegated click — survives SPA DOM swaps and avoids race conditions */
+    formTypePicker.addEventListener('click', function (event) {
+      const card = event.target.closest('.form-type-card');
+      if (!card) return;
 
-        /* Preview the stepper for the selected form type.
-           Always show preview so the user sees the step layout instantly. */
-        const labelsJson = card.getAttribute('data-step-labels');
-        if (labelsJson) {
-          try {
-            const labels = JSON.parse(labelsJson);
-            buildStepperPreview(labels);
-          } catch (e) {
-            /* Invalid JSON — ignore */
-          }
-        }
+      /* Deselect all */
+      formTypePicker.querySelectorAll('.form-type-card').forEach(function (c) {
+        c.classList.remove('selected');
       });
+      /* Select this card */
+      card.classList.add('selected');
+      selectedFormType = card.getAttribute('data-type');
+      if (formTypeInput) formTypeInput.value = selectedFormType;
+
+      /* Preview the stepper for the selected form type.
+         Always show preview so the user sees the step layout instantly. */
+      const labelsJson = card.getAttribute('data-step-labels');
+      if (labelsJson) {
+        try {
+          const labels = JSON.parse(labelsJson);
+          buildStepperPreview(labels);
+        } catch (e) {
+          /* Invalid JSON — ignore */
+        }
+      }
     });
 
     /* Restore selection after POST re-render (hidden input keeps the value) */
     if (pageFormType) {
       selectedFormType = pageFormType;
-      cards.forEach(function (card) {
+      formTypePicker.querySelectorAll('.form-type-card').forEach(function (card) {
         if (card.getAttribute('data-type') === selectedFormType) {
           card.classList.add('selected');
         }
@@ -579,5 +583,13 @@
       isInitialLoad = true;
       window.newshubStepper = null;
     });
+  }
+  } /* end initStepper */
+
+  /* Try immediately, retry after 100ms if DOM not ready (SPA timing) */
+  if (document.querySelectorAll('.step-panel[data-step]').length && document.getElementById('btn-step-next')) {
+    initStepper();
+  } else {
+    setTimeout(initStepper, 100);
   }
 })();
