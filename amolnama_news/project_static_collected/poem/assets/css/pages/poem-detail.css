@@ -293,6 +293,10 @@
   transform: scale(.93);
 }
 
+.poem-audio-play-btn svg[hidden] {
+  display: none;
+}
+
 /* Info (title + description) */
 .poem-audio-info {
   flex: 0 0 auto;
