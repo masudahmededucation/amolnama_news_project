@@ -251,24 +251,25 @@ def api_post_create(request):
         run_background_task(_background_mention_extraction, post.post_post_id, post_text, user_profile.user_profile_id)
 
     # Classify content in background — auto-flag harmful content
+    post_content_registry_id = post.link_content_registry_id
     if post_text:
-        def _background_content_classification(background_post_id, background_text):
+        def _background_content_classification(background_post_id, background_text, background_registry_id):
             try:
                 from amolnama_news.site_apps.newsengine.content_classifier import classify_and_store
-                classify_and_store('post', background_post_id, background_text)
+                classify_and_store('post', background_post_id, background_text, content_registry_id=background_registry_id)
             except Exception:
                 logger.exception('Content classification failed for post %s', background_post_id)
-        run_background_task(_background_content_classification, post.post_post_id, post_text)
+        run_background_task(_background_content_classification, post.post_post_id, post_text, post_content_registry_id)
 
     # Fact-check in background — pattern detection, duplicate claims, domain blacklist, Google API
     if post_text and len(post_text) >= 20:
-        def _background_fact_check(background_post_id, background_text):
+        def _background_fact_check(background_post_id, background_text, background_registry_id):
             try:
                 from amolnama_news.site_apps.newsengine.fact_checker import fact_check_content
-                fact_check_content('post', background_post_id, background_text)
+                fact_check_content('post', background_post_id, background_text, content_registry_id=background_registry_id)
             except Exception:
                 logger.exception('Fact-check failed for post %s', background_post_id)
-        run_background_task(_background_fact_check, post.post_post_id, post_text)
+        run_background_task(_background_fact_check, post.post_post_id, post_text, post_content_registry_id)
 
     # Cache content score — populate fact_feed_content_score for feed ranking cache
     try:

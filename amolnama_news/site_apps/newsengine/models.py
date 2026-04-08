@@ -191,6 +191,7 @@ class FactContentClassificationResult(models.Model):
     newsengine_fact_content_classification_result_id = models.BigAutoField(primary_key=True)
     content_classification_source_app = models.CharField(max_length=30)
     link_content_id = models.BigIntegerField()
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
     link_content_classification_category_id = models.IntegerField()
     content_classification_score = models.DecimalField(max_digits=5, decimal_places=4, default=0)
     content_classification_method = models.CharField(max_length=20, default='keyword')
@@ -215,6 +216,7 @@ class FactCheckResult(models.Model):
     """Fact-check result — audit trail for every claim checked."""
     newsengine_fact_check_result_id = models.BigAutoField(primary_key=True)
     link_content_id = models.BigIntegerField()
+    link_content_registry_id = models.BigIntegerField(blank=True, null=True)
     fact_check_source_app = models.CharField(max_length=30)
     fact_check_claim_text = models.CharField(max_length=500)
     fact_check_claim_text_normalized = models.CharField(max_length=500)

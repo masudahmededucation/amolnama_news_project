@@ -128,9 +128,10 @@ def classify_text(text):
     return results
 
 
-def classify_and_store(content_source_app, content_id, text):
+def classify_and_store(content_source_app, content_id, text, content_registry_id=None):
     """Classify text and store the result in the audit table + update the content record.
-    Called from background thread after post/argument creation."""
+    Called from background thread after post/argument creation.
+    content_registry_id: universal content ID from content.content_registry (optional)."""
     try:
         classification_results = classify_text(text)
 
@@ -153,12 +154,14 @@ def classify_and_store(content_source_app, content_id, text):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_content_classification_result]
-                    ([content_classification_source_app], [link_content_id], [link_content_classification_category_id],
+                    ([content_classification_source_app], [link_content_id], [link_content_registry_id],
+                     [link_content_classification_category_id],
                      [content_classification_score], [content_classification_method],
                      [content_classification_action_taken], [is_auto_flagged])
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, [
-                content_source_app, content_id, category_id,
+                content_source_app, content_id, content_registry_id,
+                category_id,
                 top_score, 'keyword',
                 top_action if is_auto_flagged else None,
                 1 if is_auto_flagged else 0,

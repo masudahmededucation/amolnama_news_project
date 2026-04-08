@@ -161,9 +161,10 @@ def _check_google_fact_check_api(claim_text):
 # MAIN: Run all 4 layers
 # =========================================================
 
-def fact_check_content(source_app, content_id, text):
+def fact_check_content(source_app, content_id, text, content_registry_id=None):
     """Run all fact-check layers on content. Called from background thread.
-    Stores results in fact_check_result table. Updates post if flagged."""
+    Stores results in fact_check_result table. Updates post if flagged.
+    content_registry_id: universal content ID from content.content_registry (optional)."""
     if not text or len(text.strip()) < 20:
         return
 
@@ -226,13 +227,13 @@ def fact_check_content(source_app, content_id, text):
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_check_result]
-                    ([link_content_id], [fact_check_source_app],
+                    ([link_content_id], [link_content_registry_id], [fact_check_source_app],
                      [fact_check_claim_text], [fact_check_claim_text_normalized], [fact_check_claim_hash],
                      [fact_check_method], [fact_check_verdict], [fact_check_verdict_source], [fact_check_verdict_url],
                      [fact_check_confidence_score], [is_flagged])
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, [
-                content_id, source_app,
+                content_id, content_registry_id, source_app,
                 text[:500], normalized_text[:500], claim_hash,
                 method, verdict, verdict_source, verdict_url,
                 confidence_score, 1 if is_flagged else 0,
