@@ -127,3 +127,28 @@ Multi-step form templates, article templates, component partials.
 - eng_comment_text_bn → engagement_comment_text
 - coll_contributor_* → contributor_* (dropped coll_ prefix on contributor columns)
 - coll_news_asset_caption_bn → news_asset_caption_bn (dropped coll_ prefix)
+
+## Form Draft Persistence (news-form-persist.js)
+- Auto-saves all form fields to localStorage on every input/change (400ms debounce)
+- Storage key: `newshub_draft_{form_type_code}` (e.g. `newshub_draft_extortion`)
+- Tags stored separately: `newshub_draft_tags_{form_type_code}`
+- Restores on page load (cascade selects use waitForOptions polling)
+- Skip restore: edit mode (__EDIT_MODE__), success page (.form-message-success)
+- isRestoring flag blocks saves during restore to prevent cascade overwrites
+- isSuccessBlocked blocks saves for 2s after successful submit
+
+### Clear Flow
+- Clear button (news-form-clear.js): resets all fields + clears localStorage
+- Double-clear pattern: immediate + 500ms delayed (kills debounced saves)
+- Success page: clears ALL newshub_draft* keys, blocks saves for 2s, skips restore
+
+### Known Race Condition (Fixed 2026-04-08)
+- debouncedSave (400ms) fired AFTER clear, re-saving stale data to localStorage
+- Fix: double-clear + isSuccessBlocked flag
+
+## SPA Navigation
+- Stepper init wrapped in initStepper() with 100ms retry if DOM not ready
+- Form type cards use delegated click on #form-type-picker (not per-card listeners)
+- SPA cleanup registered: resets currentStep, selectedFormType, stepDots, errorSteps
+- Quill double-init guard: skips if container already has ql-container class
+- Quill orphan cleanup: .ql-toolbar and .ql-tooltip removed on SPA transition
