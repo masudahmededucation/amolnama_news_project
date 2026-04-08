@@ -78,6 +78,26 @@ def api_artwork_create(request):
         ])
         artwork_id = cursor.fetchone()[0]
 
+    # Look up unified subcategory from art category
+    unified_subcategory_id = None
+    try:
+        art_category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=link_blog_art_ref_art_category_id).first()
+        if art_category:
+            from amolnama_news.site_apps.content.models import RefContentSubcategory
+            unified_sub = RefContentSubcategory.objects.filter(
+                group_code='art', subcategory_code=art_category.art_category_code,
+            ).first()
+            if unified_sub:
+                unified_subcategory_id = unified_sub.content_ref_content_subcategory_id
+    except Exception:
+        logger.exception('Subcategory lookup failed for artwork %s', artwork_id)
+
+    # Set unified subcategory on artwork
+    if unified_subcategory_id:
+        CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(
+            link_content_ref_content_subcategory_id=unified_subcategory_id
+        )
+
     # Register in content registry
     try:
         from amolnama_news.site_apps.content.utils import register_content
@@ -89,7 +109,7 @@ def api_artwork_create(request):
             slug=artwork_slug,
             summary_bn=(artwork_description_bn or '')[:500] if artwork_description_bn else None,
             content_url=f'/art-and-craft/{artwork_slug}/',
-            subcategory_id=None,
+            subcategory_id=unified_subcategory_id,
             is_published=True,
         )
         if content_registry_id:
