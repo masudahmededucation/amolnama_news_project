@@ -195,7 +195,7 @@ def public_profile_articles(request, username_handle):
                 'content_summary_bn': item.content_summary_bn or '',
                 'content_category_name': subcategory_map.get(item.link_content_ref_content_subcategory_id, ''),
                 'published_at': item.published_at or item.created_at,
-                'link_content_category_id': item.link_content_category_id,
+                'link_content_ref_content_category_id': item.link_content_ref_content_category_id,
             })
     except Exception as articles_query_error:
         logger.error('Articles profile query failed for user %s — %s',
