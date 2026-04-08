@@ -29,17 +29,17 @@ def api_story_create(request):
     story_summary_bn = (request.POST.get('story_summary_bn') or '').strip() or None
     story_content_html_bn = (request.POST.get('story_content_html_bn') or '').strip()
     story_source_attribution_bn = (request.POST.get('story_source_attribution_bn') or '').strip() or None
-    link_story_category_id = request.POST.get('link_story_category_id')
-    link_age_group_id = request.POST.get('link_age_group_id')
+    link_blog_stories_ref_story_category_id = request.POST.get('link_blog_stories_ref_story_category_id')
+    link_blog_stories_ref_story_age_group_id = request.POST.get('link_blog_stories_ref_story_age_group_id')
     reading_time_minutes = request.POST.get('reading_time_minutes') or 5
 
     if not story_title_bn:
         return JsonResponse({'success': False, 'error': 'গল্পের নাম দিন'}, status=400)
     if not story_content_html_bn:
         return JsonResponse({'success': False, 'error': 'গল্প লিখুন'}, status=400)
-    if not link_story_category_id:
+    if not link_blog_stories_ref_story_category_id:
         return JsonResponse({'success': False, 'error': 'বিভাগ নির্বাচন করুন'}, status=400)
-    if not link_age_group_id:
+    if not link_blog_stories_ref_story_age_group_id:
         return JsonResponse({'success': False, 'error': 'বয়সভিত্তিক শ্রেণী নির্বাচন করুন'}, status=400)
 
     try:
@@ -53,15 +53,15 @@ def api_story_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [blog_stories].[coll_story]
-                ([story_guid], [link_user_profile_id], [link_story_category_id], [link_age_group_id],
+                ([story_guid], [link_user_profile_id], [link_blog_stories_ref_story_category_id], [link_blog_stories_ref_story_age_group_id],
                  [story_title_bn], [story_title_en], [story_slug], [story_summary_bn],
                  [story_content_html_bn], [story_source_attribution_bn],
                  [story_type_code], [reading_time_minutes], [is_published], [is_active])
-            OUTPUT INSERTED.stories_coll_story_id
+            OUTPUT INSERTED.blog_stories_coll_story_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, %s, %s, %s)
         """, [
-            story_guid, user_profile.user_profile_id, link_story_category_id,
-            link_age_group_id, story_title_bn, story_title_en, story_slug,
+            story_guid, user_profile.user_profile_id, link_blog_stories_ref_story_category_id,
+            link_blog_stories_ref_story_age_group_id, story_title_bn, story_title_en, story_slug,
             story_summary_bn, story_content_html_bn, story_source_attribution_bn,
             'text', reading_time_minutes, 1, 1,
         ])
@@ -92,7 +92,7 @@ def api_story_create(request):
 
             cursor.execute("""
                 INSERT INTO [blog_stories].[story_asset]
-                    ([link_story_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
+                    ([link_blog_stories_coll_story_id], [link_asset_id], [asset_group_code], [is_cover], [sort_order], [is_active])
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
 
@@ -115,7 +115,7 @@ def api_story_like_toggle(request, story_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     existing_like = EngagementStoryLike.objects.filter(
-        link_story_id=story_id,
+        link_blog_stories_coll_story_id=story_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
 
@@ -129,14 +129,14 @@ def api_story_like_toggle(request, story_id):
         liked = True
     else:
         EngagementStoryLike.objects.create(
-            link_story_id=story_id,
+            link_blog_stories_coll_story_id=story_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         liked = True
 
-    actual_count = EngagementStoryLike.objects.filter(link_story_id=story_id, is_active=True).count()
-    CollStory.objects.filter(stories_coll_story_id=story_id).update(like_count=actual_count)
+    actual_count = EngagementStoryLike.objects.filter(link_blog_stories_coll_story_id=story_id, is_active=True).count()
+    CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(like_count=actual_count)
 
     return JsonResponse({'success': True, 'liked': liked, 'like_count': actual_count})
 
@@ -153,7 +153,7 @@ def api_story_bookmark_toggle(request, story_id):
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
     existing_bookmark = EngagementStoryBookmark.objects.filter(
-        link_story_id=story_id,
+        link_blog_stories_coll_story_id=story_id,
         link_user_profile_id=user_profile.user_profile_id,
     ).first()
 
@@ -167,14 +167,14 @@ def api_story_bookmark_toggle(request, story_id):
         bookmarked = True
     else:
         EngagementStoryBookmark.objects.create(
-            link_story_id=story_id,
+            link_blog_stories_coll_story_id=story_id,
             link_user_profile_id=user_profile.user_profile_id,
             is_active=True,
         )
         bookmarked = True
 
-    actual_count = EngagementStoryBookmark.objects.filter(link_story_id=story_id, is_active=True).count()
-    CollStory.objects.filter(stories_coll_story_id=story_id).update(bookmark_count=actual_count)
+    actual_count = EngagementStoryBookmark.objects.filter(link_blog_stories_coll_story_id=story_id, is_active=True).count()
+    CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(bookmark_count=actual_count)
 
     return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})
 
@@ -182,6 +182,6 @@ def api_story_bookmark_toggle(request, story_id):
 @require_POST
 def api_story_view_increment(request, story_id):
     """Increment view count."""
-    CollStory.objects.filter(stories_coll_story_id=story_id).update(view_count=F('view_count') + 1)
-    story = CollStory.objects.filter(stories_coll_story_id=story_id).values_list('view_count', flat=True).first()
+    CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(view_count=F('view_count') + 1)
+    story = CollStory.objects.filter(blog_stories_coll_story_id=story_id).values_list('view_count', flat=True).first()
     return JsonResponse({'success': True, 'view_count': story or 0})

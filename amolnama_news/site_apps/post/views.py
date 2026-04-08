@@ -429,14 +429,14 @@ def bookmarks(request):
         from amolnama_news.site_apps.stories.models import EngagementStoryBookmark, CollStory
         story_bookmark_ids = list(EngagementStoryBookmark.objects.filter(
             link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_story_id', flat=True)[:20])
+        ).order_by('-created_at').values_list('link_blog_stories_coll_story_id', flat=True)[:20])
         if story_bookmark_ids:
-            stories_map = {s.stories_coll_story_id: s for s in CollStory.objects.filter(stories_coll_story_id__in=story_bookmark_ids)}
+            stories_map = {s.blog_stories_coll_story_id: s for s in CollStory.objects.filter(blog_stories_coll_story_id__in=story_bookmark_ids)}
             for story_id in story_bookmark_ids:
                 story = stories_map.get(story_id)
                 if story:
                     universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': story.stories_coll_story_id,
+                        'item_type': 'content_promo', 'promo_id': story.blog_stories_coll_story_id,
                         'promo_badge': 'STORY', 'promo_color': 'amber',
                         'promo_title': story.story_title_bn or '',
                         'promo_description': (getattr(story, 'story_summary_bn', '') or '')[:150],

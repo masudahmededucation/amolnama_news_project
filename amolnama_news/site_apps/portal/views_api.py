@@ -120,7 +120,7 @@ def api_content_toggle_publish(request):
 
         elif content_type == 'stories':
             from amolnama_news.site_apps.stories.models import CollStory
-            item = CollStory.objects.get(stories_coll_story_id=content_id)
+            item = CollStory.objects.get(blog_stories_coll_story_id=content_id)
             item.is_published = publish
             item.save(update_fields=['is_published'])
 

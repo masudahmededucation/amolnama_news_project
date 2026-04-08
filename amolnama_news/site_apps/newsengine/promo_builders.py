@@ -278,7 +278,7 @@ def _build_stories_promo_items():
         items.append({
             'item_type': 'content_promo',
             'created_at_raw': story.created_at,
-            'promo_id': story.stories_coll_story_id,
+            'promo_id': story.blog_stories_coll_story_id,
             'promo_badge': 'STORY',
             'promo_color': 'amber',
             'promo_title': story.story_title_bn or '',

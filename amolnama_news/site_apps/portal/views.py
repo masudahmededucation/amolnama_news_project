@@ -431,7 +431,7 @@ def content_dashboard_view(request):
             'content_type': 'stories',
             'content_type_label': 'STORY',
             'content_type_color': 'amber',
-            'content_id': story.stories_coll_story_id,
+            'content_id': story.blog_stories_coll_story_id,
             'content_title': story.story_title_bn or '(no title)',
             'content_slug': story.story_slug or '',
             'content_url': f'/stories-for-kids/{story.story_slug}/' if story.story_slug else '',

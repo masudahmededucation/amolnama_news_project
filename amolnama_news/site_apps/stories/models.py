@@ -4,7 +4,7 @@ from django.db import models
 
 
 class RefStoryCategory(models.Model):
-    stories_ref_story_category_id = models.AutoField(primary_key=True)
+    blog_stories_ref_story_category_id = models.AutoField(primary_key=True)
     story_category_code = models.CharField(max_length=50)
     story_category_name_bn = models.CharField(max_length=200)
     story_category_name_en = models.CharField(max_length=200)
@@ -23,7 +23,7 @@ class RefStoryCategory(models.Model):
 
 
 class RefStoryAgeGroup(models.Model):
-    stories_ref_story_age_group_id = models.AutoField(primary_key=True)
+    blog_stories_ref_story_age_group_id = models.AutoField(primary_key=True)
     age_group_code = models.CharField(max_length=10)
     age_group_name_bn = models.CharField(max_length=100)
     age_group_name_en = models.CharField(max_length=100)
@@ -43,11 +43,11 @@ class RefStoryAgeGroup(models.Model):
 
 
 class CollStory(models.Model):
-    stories_coll_story_id = models.BigAutoField(primary_key=True)
+    blog_stories_coll_story_id = models.BigAutoField(primary_key=True)
     story_guid = models.UUIDField()
     link_user_profile_id = models.BigIntegerField()
-    link_story_category_id = models.IntegerField()
-    link_age_group_id = models.IntegerField()
+    link_blog_stories_ref_story_category_id = models.IntegerField()
+    link_blog_stories_ref_story_age_group_id = models.IntegerField()
     story_title_bn = models.CharField(max_length=300)
     story_title_en = models.CharField(max_length=300, blank=True, null=True)
     story_slug = models.CharField(max_length=400)
@@ -58,7 +58,7 @@ class CollStory(models.Model):
     reading_time_minutes = models.IntegerField()
     is_serial = models.BooleanField()
     serial_part_number = models.IntegerField(blank=True, null=True)
-    link_serial_parent_id = models.BigIntegerField(blank=True, null=True)
+    link_serial_parent_blog_stories_coll_story_id = models.BigIntegerField(blank=True, null=True)
     like_count = models.IntegerField()
     view_count = models.IntegerField()
     bookmark_count = models.IntegerField()
@@ -78,12 +78,12 @@ class CollStory(models.Model):
         db_table = '[blog_stories].[coll_story]'
 
     def __str__(self):
-        return self.story_title_bn or self.story_title_en or str(self.stories_coll_story_id)
+        return self.story_title_bn or self.story_title_en or str(self.blog_stories_coll_story_id)
 
 
 class StoryAsset(models.Model):
-    stories_story_asset_id = models.BigAutoField(primary_key=True)
-    link_story_id = models.BigIntegerField()
+    blog_stories_story_asset_id = models.BigAutoField(primary_key=True)
+    link_blog_stories_coll_story_id = models.BigIntegerField()
     link_asset_id = models.BigIntegerField()
     asset_group_code = models.CharField(max_length=30)
     is_cover = models.BooleanField()
@@ -99,8 +99,8 @@ class StoryAsset(models.Model):
 
 
 class StoryPage(models.Model):
-    stories_story_page_id = models.BigAutoField(primary_key=True)
-    link_story_id = models.BigIntegerField()
+    blog_stories_story_page_id = models.BigAutoField(primary_key=True)
+    link_blog_stories_coll_story_id = models.BigIntegerField()
     page_number = models.IntegerField()
     page_content_html_bn = models.TextField()
     link_illustration_asset_id = models.BigIntegerField(blank=True, null=True)
@@ -114,8 +114,8 @@ class StoryPage(models.Model):
 
 
 class EngagementStoryLike(models.Model):
-    stories_engagement_story_like_id = models.BigAutoField(primary_key=True)
-    link_story_id = models.BigIntegerField()
+    blog_stories_engagement_story_like_id = models.BigAutoField(primary_key=True)
+    link_blog_stories_coll_story_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
@@ -127,8 +127,8 @@ class EngagementStoryLike(models.Model):
 
 
 class EngagementStoryBookmark(models.Model):
-    stories_engagement_story_bookmark_id = models.BigAutoField(primary_key=True)
-    link_story_id = models.BigIntegerField()
+    blog_stories_engagement_story_bookmark_id = models.BigAutoField(primary_key=True)
+    link_blog_stories_coll_story_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     last_page_number = models.IntegerField(blank=True, null=True)
     is_completed = models.BooleanField()
@@ -142,8 +142,8 @@ class EngagementStoryBookmark(models.Model):
 
 
 class EngagementStoryComment(models.Model):
-    stories_engagement_story_comment_id = models.BigAutoField(primary_key=True)
-    link_story_id = models.BigIntegerField()
+    blog_stories_engagement_story_comment_id = models.BigAutoField(primary_key=True)
+    link_blog_stories_coll_story_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
     comment_text_bn = models.CharField(max_length=1000)

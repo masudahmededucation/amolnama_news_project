@@ -21,7 +21,7 @@ def _get_story_cover_url(story_id):
             SELECT a.[file_storage_path]
             FROM [blog_stories].[story_asset] sa
             JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
-            WHERE sa.[link_story_id] = %s AND sa.[is_cover] = 1 AND sa.[is_active] = 1
+            WHERE sa.[link_blog_stories_coll_story_id] = %s AND sa.[is_cover] = 1 AND sa.[is_active] = 1
         """, [story_id])
         row = cursor.fetchone()
     return row[0] if row else None
@@ -38,34 +38,34 @@ def home(request):
         is_published=True, is_active=True,
     )
     if category_filter:
-        stories_queryset = stories_queryset.filter(link_story_category_id=category_filter)
+        stories_queryset = stories_queryset.filter(link_blog_stories_ref_story_category_id=category_filter)
     if age_filter:
-        stories_queryset = stories_queryset.filter(link_age_group_id=age_filter)
+        stories_queryset = stories_queryset.filter(link_blog_stories_ref_story_age_group_id=age_filter)
     stories = stories_queryset.order_by('-is_featured', '-is_daily_pick', '-created_at')[:60]
 
     # Bulk-fetch cover images
-    story_ids = [story.stories_coll_story_id for story in stories]
+    story_ids = [story.blog_stories_coll_story_id for story in stories]
     cover_map = {}
     if story_ids:
         from django.db import connection
         with connection.cursor() as cursor:
             placeholders = ','.join(['%s'] * len(story_ids))
             cursor.execute(f"""
-                SELECT sa.[link_story_id], a.[file_storage_path]
+                SELECT sa.[link_blog_stories_coll_story_id], a.[file_storage_path]
                 FROM [blog_stories].[story_asset] sa
                 JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
-                WHERE sa.[link_story_id] IN ({placeholders}) AND sa.[is_cover] = 1 AND sa.[is_active] = 1
+                WHERE sa.[link_blog_stories_coll_story_id] IN ({placeholders}) AND sa.[is_cover] = 1 AND sa.[is_active] = 1
             """, story_ids)
             for row in cursor.fetchall():
                 cover_map[row[0]] = row[1]
 
     # Build maps
     category_map = {
-        category.stories_ref_story_category_id: category
+        category.blog_stories_ref_story_category_id: category
         for category in RefStoryCategory.objects.filter(is_active=True).order_by('sort_order')
     }
     age_group_map = {
-        age_group.stories_ref_story_age_group_id: age_group
+        age_group.blog_stories_ref_story_age_group_id: age_group
         for age_group in RefStoryAgeGroup.objects.filter(is_active=True).order_by('sort_order')
     }
 
@@ -78,14 +78,14 @@ def home(request):
 
     story_items = []
     for story in stories:
-        category = category_map.get(story.link_story_category_id)
-        age_group = age_group_map.get(story.link_age_group_id)
+        category = category_map.get(story.link_blog_stories_ref_story_category_id)
+        age_group = age_group_map.get(story.link_blog_stories_ref_story_age_group_id)
         story_items.append({
-            'story_id': story.stories_coll_story_id,
+            'story_id': story.blog_stories_coll_story_id,
             'title_bn': story.story_title_bn,
             'slug': story.story_slug,
             'summary_bn': story.story_summary_bn,
-            'cover_url': cover_map.get(story.stories_coll_story_id),
+            'cover_url': cover_map.get(story.blog_stories_coll_story_id),
             'category_name_bn': category.story_category_name_bn if category else '',
             'category_icon': category.story_category_icon if category else '',
             'age_group_name_bn': age_group.age_group_name_bn if age_group else '',
@@ -130,16 +130,16 @@ def detail(request, story_slug):
     except UserProfile.DoesNotExist:
         pass
 
-    category = RefStoryCategory.objects.filter(stories_ref_story_category_id=story.link_story_category_id).first()
-    age_group = RefStoryAgeGroup.objects.filter(stories_ref_story_age_group_id=story.link_age_group_id).first()
+    category = RefStoryCategory.objects.filter(blog_stories_ref_story_category_id=story.link_blog_stories_ref_story_category_id).first()
+    age_group = RefStoryAgeGroup.objects.filter(blog_stories_ref_story_age_group_id=story.link_blog_stories_ref_story_age_group_id).first()
 
     # Story pages (for paginated reading)
     pages = list(StoryPage.objects.filter(
-        link_story_id=story.stories_coll_story_id, is_active=True,
+        link_blog_stories_coll_story_id=story.blog_stories_coll_story_id, is_active=True,
     ).order_by('page_number'))
 
     # Cover image
-    cover_url = _get_story_cover_url(story.stories_coll_story_id)
+    cover_url = _get_story_cover_url(story.blog_stories_coll_story_id)
 
     # User state
     user_liked = False
@@ -149,18 +149,18 @@ def detail(request, story_slug):
             current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
             current_profile_id = current_profile.user_profile_id
             user_liked = EngagementStoryLike.objects.filter(
-                link_story_id=story.stories_coll_story_id,
+                link_blog_stories_coll_story_id=story.blog_stories_coll_story_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
             user_bookmarked = EngagementStoryBookmark.objects.filter(
-                link_story_id=story.stories_coll_story_id,
+                link_blog_stories_coll_story_id=story.blog_stories_coll_story_id,
                 link_user_profile_id=current_profile_id, is_active=True,
             ).exists()
         except UserProfile.DoesNotExist:
             pass
 
     story_item = {
-        'story_id': story.stories_coll_story_id,
+        'story_id': story.blog_stories_coll_story_id,
         'title_bn': story.story_title_bn,
         'title_en': story.story_title_en,
         'slug': story.story_slug,
