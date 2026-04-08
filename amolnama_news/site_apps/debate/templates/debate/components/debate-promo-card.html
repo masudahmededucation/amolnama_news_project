@@ -1,48 +1,48 @@
 {# Debate promo card — shown in the home feed to promote active debates. Context: promo (dict) #}
-<a href="/debate/topic/{{ promo.debate_coll_topic_id }}/" class="debate-promo-card" id="debate-promo-card-{{ promo.debate_coll_topic_id }}">
-  <div class="debate-promo-card-header" id="debate-promo-card-header-{{ promo.debate_coll_topic_id }}">
-    <span class="debate-promo-card-badge" id="debate-promo-card-badge-{{ promo.debate_coll_topic_id }}">DEBATE</span>
-    <span class="debate-promo-card-status debate-promo-card-status-{{ promo.topic_status_code }}" id="debate-promo-card-status-{{ promo.debate_coll_topic_id }}">{{ promo.topic_status_name_bn }}</span>
+<a href="/debate/topic/{{ promo.blog_debate_coll_topic_id }}/" class="debate-promo-card" id="debate-promo-card-{{ promo.blog_debate_coll_topic_id }}">
+  <div class="debate-promo-card-header" id="debate-promo-card-header-{{ promo.blog_debate_coll_topic_id }}">
+    <span class="debate-promo-card-badge" id="debate-promo-card-badge-{{ promo.blog_debate_coll_topic_id }}">DEBATE</span>
+    <span class="debate-promo-card-status debate-promo-card-status-{{ promo.topic_status_code }}" id="debate-promo-card-status-{{ promo.blog_debate_coll_topic_id }}">{{ promo.topic_status_name_bn }}</span>
   </div>
 
-  <h3 class="debate-promo-card-title" id="debate-promo-card-title-{{ promo.debate_coll_topic_id }}">{{ promo.topic_title }}</h3>
+  <h3 class="debate-promo-card-title" id="debate-promo-card-title-{{ promo.blog_debate_coll_topic_id }}">{{ promo.topic_title }}</h3>
 
   {% if promo.topic_description %}
-  <p class="debate-promo-card-description" id="debate-promo-card-description-{{ promo.debate_coll_topic_id }}">{{ promo.topic_description|truncatewords:20 }}</p>
+  <p class="debate-promo-card-description" id="debate-promo-card-description-{{ promo.blog_debate_coll_topic_id }}">{{ promo.topic_description|truncatewords:20 }}</p>
   {% endif %}
 
   <!-- Side labels + mini passion bar -->
-  <div class="debate-promo-card-sides" id="debate-promo-card-sides-{{ promo.debate_coll_topic_id }}">
-    <span class="debate-promo-card-side-label debate-promo-card-side-label-blue" id="debate-promo-card-side-blue-{{ promo.debate_coll_topic_id }}">{{ promo.blue_side_label }}</span>
-    <div class="debate-promo-card-passion-bar" id="debate-promo-card-passion-bar-{{ promo.debate_coll_topic_id }}">
+  <div class="debate-promo-card-sides" id="debate-promo-card-sides-{{ promo.blog_debate_coll_topic_id }}">
+    <span class="debate-promo-card-side-label debate-promo-card-side-label-blue" id="debate-promo-card-side-blue-{{ promo.blog_debate_coll_topic_id }}">{{ promo.blue_side_label }}</span>
+    <div class="debate-promo-card-passion-bar" id="debate-promo-card-passion-bar-{{ promo.blog_debate_coll_topic_id }}">
       <div class="debate-promo-card-passion-bar-blue" style="width: {{ promo.passion_posts_blue_pct }}%;"></div>
       <div class="debate-promo-card-passion-bar-red" style="width: {{ promo.passion_posts_red_pct }}%;"></div>
     </div>
-    <span class="debate-promo-card-side-label debate-promo-card-side-label-red" id="debate-promo-card-side-red-{{ promo.debate_coll_topic_id }}">{{ promo.red_side_label }}</span>
+    <span class="debate-promo-card-side-label debate-promo-card-side-label-red" id="debate-promo-card-side-red-{{ promo.blog_debate_coll_topic_id }}">{{ promo.red_side_label }}</span>
   </div>
 
   <!-- Top argument snippets from each side -->
-  <div class="debate-promo-card-arguments" id="debate-promo-card-arguments-{{ promo.debate_coll_topic_id }}">
+  <div class="debate-promo-card-arguments" id="debate-promo-card-arguments-{{ promo.blog_debate_coll_topic_id }}">
     {% if promo.blue_top_argument %}
-    <div class="debate-promo-card-argument debate-promo-card-argument-blue" id="debate-promo-card-argument-blue-{{ promo.debate_coll_topic_id }}">
-      <span class="debate-promo-card-argument-author" id="debate-promo-card-argument-author-blue-{{ promo.debate_coll_topic_id }}">{{ promo.blue_top_argument.author_display_name }}</span>
-      <p class="debate-promo-card-argument-text" id="debate-promo-card-argument-text-blue-{{ promo.debate_coll_topic_id }}">{{ promo.blue_top_argument.post_content|truncatewords:25 }}</p>
+    <div class="debate-promo-card-argument debate-promo-card-argument-blue" id="debate-promo-card-argument-blue-{{ promo.blog_debate_coll_topic_id }}">
+      <span class="debate-promo-card-argument-author" id="debate-promo-card-argument-author-blue-{{ promo.blog_debate_coll_topic_id }}">{{ promo.blue_top_argument.author_display_name }}</span>
+      <p class="debate-promo-card-argument-text" id="debate-promo-card-argument-text-blue-{{ promo.blog_debate_coll_topic_id }}">{{ promo.blue_top_argument.post_content|truncatewords:25 }}</p>
     </div>
     {% endif %}
     {% if promo.red_top_argument %}
-    <div class="debate-promo-card-argument debate-promo-card-argument-red" id="debate-promo-card-argument-red-{{ promo.debate_coll_topic_id }}">
-      <span class="debate-promo-card-argument-author" id="debate-promo-card-argument-author-red-{{ promo.debate_coll_topic_id }}">{{ promo.red_top_argument.author_display_name }}</span>
-      <p class="debate-promo-card-argument-text" id="debate-promo-card-argument-text-red-{{ promo.debate_coll_topic_id }}">{{ promo.red_top_argument.post_content|truncatewords:25 }}</p>
+    <div class="debate-promo-card-argument debate-promo-card-argument-red" id="debate-promo-card-argument-red-{{ promo.blog_debate_coll_topic_id }}">
+      <span class="debate-promo-card-argument-author" id="debate-promo-card-argument-author-red-{{ promo.blog_debate_coll_topic_id }}">{{ promo.red_top_argument.author_display_name }}</span>
+      <p class="debate-promo-card-argument-text" id="debate-promo-card-argument-text-red-{{ promo.blog_debate_coll_topic_id }}">{{ promo.red_top_argument.post_content|truncatewords:25 }}</p>
     </div>
     {% endif %}
   </div>
 
   <!-- Stats + CTA -->
-  <div class="debate-promo-card-footer" id="debate-promo-card-footer-{{ promo.debate_coll_topic_id }}">
-    <div class="debate-promo-card-stats" id="debate-promo-card-stats-{{ promo.debate_coll_topic_id }}">
-      <span class="debate-promo-card-stat" id="debate-promo-card-stat-fighters-{{ promo.debate_coll_topic_id }}">👥 {{ promo.total_participants }} জন</span>
-      <span class="debate-promo-card-stat" id="debate-promo-card-stat-arguments-{{ promo.debate_coll_topic_id }}">💬 {{ promo.total_post_count }}টি যুক্তি</span>
+  <div class="debate-promo-card-footer" id="debate-promo-card-footer-{{ promo.blog_debate_coll_topic_id }}">
+    <div class="debate-promo-card-stats" id="debate-promo-card-stats-{{ promo.blog_debate_coll_topic_id }}">
+      <span class="debate-promo-card-stat" id="debate-promo-card-stat-fighters-{{ promo.blog_debate_coll_topic_id }}">👥 {{ promo.total_participants }} জন</span>
+      <span class="debate-promo-card-stat" id="debate-promo-card-stat-arguments-{{ promo.blog_debate_coll_topic_id }}">💬 {{ promo.total_post_count }}টি যুক্তি</span>
     </div>
-    <span class="debate-promo-card-cta" id="debate-promo-card-cta-{{ promo.debate_coll_topic_id }}">যোগ দিন →</span>
+    <span class="debate-promo-card-cta" id="debate-promo-card-cta-{{ promo.blog_debate_coll_topic_id }}">যোগ দিন →</span>
   </div>
 </a>

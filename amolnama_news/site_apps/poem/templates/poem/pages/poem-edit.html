@@ -19,7 +19,7 @@
 
     <div class="poem-create-error" id="poemCreateError"></div>
 
-    <form id="poemEditForm" data-poem-id="{{ poem.poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
+    <form id="poemEditForm" data-poem-id="{{ poem.blog_poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
       {% csrf_token %}
       {# Category #}
       <div class="poem-create-group">
@@ -27,7 +27,7 @@
         <select class="poem-create-select" id="poem-category" name="poem-category" required>
           <option value="" data-bn="-- বাছাই করুন --" data-en="-- Select --">-- বাছাই করুন (Select) --</option>
           {% for cat in categories %}
-            <option value="{{ cat.poem_ref_poem_category_id }}" data-bn="{{ cat.poem_category_name_bn }}" data-en="{{ cat.poem_category_name_en }}"{% if cat.poem_ref_poem_category_id == poem.link_poem_ref_poem_category_id %} selected{% endif %}>{{ cat.poem_category_name_bn }} ({{ cat.poem_category_name_en }})</option>
+            <option value="{{ cat.poem_ref_poem_category_id }}" data-bn="{{ cat.poem_category_name_bn }}" data-en="{{ cat.poem_category_name_en }}"{% if cat.poem_ref_poem_category_id == poem.link_blog_poem_ref_poem_category_id %} selected{% endif %}>{{ cat.poem_category_name_bn }} ({{ cat.poem_category_name_en }})</option>
           {% endfor %}
         </select>
       </div>

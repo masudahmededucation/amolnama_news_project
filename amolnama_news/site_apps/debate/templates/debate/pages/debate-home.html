@@ -25,7 +25,7 @@
   {% if topic_items %}
   <div class="debate-topic-list" id="debate-topic-list">
     {% for topic in topic_items %}
-    <a href="{% url 'debate:topic_detail' topic_id=topic.debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.debate_coll_topic_id }}">
+    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}">
       <div class="debate-topic-card-header">
         <h2 class="debate-topic-card-title">{{ topic.topic_title }}</h2>
         <span class="debate-topic-card-status debate-topic-card-status-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
