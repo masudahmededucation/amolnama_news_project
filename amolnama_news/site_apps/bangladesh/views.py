@@ -252,7 +252,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
     # Season
     if dest.link_blog_bangladesh_ref_season_id:
         try:
-            season = RefSeason.objects.get(bangladesh_ref_season_id=dest.link_blog_bangladesh_ref_season_id)
+            season = RefSeason.objects.get(blog_bangladesh_ref_season_id=dest.link_blog_bangladesh_ref_season_id)
             dest.best_season_bn = season.season_name_bn
             dest.best_season_en = season.season_name_en
         except RefSeason.DoesNotExist:
