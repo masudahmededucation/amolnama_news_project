@@ -216,8 +216,10 @@
 
 .page-wrapper {
   min-height: 100vh;
+  min-width: 0;
   border-right: 1px solid var(--border);
   padding: 1.25rem;
+  overflow-x: hidden;
 }
 
 .page-wrapper main {

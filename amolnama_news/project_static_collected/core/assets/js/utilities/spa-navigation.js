@@ -103,7 +103,7 @@
 
         // Step 0c: Fallback — remove any orphaned DOM that destroy() missed
         document.querySelectorAll(
-          '.flatpickr-calendar, .ts-dropdown, .pwa-tooltip, .quill-avro-suggestions'
+          '.flatpickr-calendar, .ts-dropdown, .pwa-tooltip, .quill-avro-suggestions, .ql-toolbar, .ql-tooltip'
         ).forEach(function (orphan) {
           orphan.remove();
         });

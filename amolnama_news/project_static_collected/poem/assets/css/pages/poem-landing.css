@@ -173,37 +173,6 @@
   border-color: var(--purple);
 }
 
-.poem-filter-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-}
-
-.poem-filter-pill {
-  padding: .3rem .7rem;
-  font-size: .75rem;
-  font-weight: 600;
-  color: var(--muted);
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.poem-filter-pill:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.poem-filter-pill--active {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
-  font-weight: 700;
-}
 
 /* Active filter breadcrumbs */
 .poem-filter-crumbs:not([hidden]) {

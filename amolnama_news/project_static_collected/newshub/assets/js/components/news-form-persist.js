@@ -240,4 +240,10 @@
     }, 100);
   }
 
+  /* SPA cleanup */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      isRestoring = false;
+    });
+  }
 })();

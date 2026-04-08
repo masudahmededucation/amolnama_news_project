@@ -43,39 +43,7 @@
   transform: scale(1.03);
 }
 
-/* Category Filter Pills */
-
-.art-category-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem;
-  padding: .5rem 0;
-  margin-bottom: 1rem;
-}
-
-.art-category-pill {
-  display: inline-block;
-  padding: .3rem .7rem;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  font-size: .78rem;
-  color: var(--text);
-  text-decoration: none;
-  transition: background .15s, border-color .15s, transform .15s;
-  white-space: nowrap;
-}
-
-.art-category-pill:hover {
-  background: var(--surface);
-  border-color: var(--primary);
-  transform: scale(1.02);
-}
-
-.art-category-pill-active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-}
+/* Category filter pills — uses shared filter-pills.css from core */
 
 /* Gallery Grid — Masonry-style */
 
@@ -198,11 +166,6 @@
     font-size: .8rem;
   }
 
-  .art-category-filter {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
 
   .art-landing-title {
     font-size: 1.2rem;

@@ -33,4 +33,12 @@
       if (window.__quillNewsBody) window.__quillNewsBody.syncToHidden();
     });
   }
+
+  /* SPA cleanup — destroy Quill instances to prevent duplicate IDs */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      window.__quillNewsSummary = null;
+      window.__quillNewsBody = null;
+    });
+  }
 })();

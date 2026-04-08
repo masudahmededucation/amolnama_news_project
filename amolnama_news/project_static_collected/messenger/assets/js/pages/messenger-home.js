@@ -32,6 +32,7 @@
   let typingTimer = null;
   let newMessageCount = 0;
   const messageTextMap = {};
+  const pendingSentIds = new Set(); /* real message_ids awaiting temp→real swap */
   let otherUserName = '';
   let otherUserAvatar = '';
 
@@ -574,10 +575,16 @@
     .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
     .then(function (data) {
       if (data.success) {
+        pendingSentIds.add(data.message_id);
         // Replace temp ID with real ID
         const tempBubble = messagesContainer.querySelector('[data-message-id="' + tempId + '"]');
         if (tempBubble) {
           tempBubble.setAttribute('data-message-id', data.message_id);
+          /* If WebSocket already rendered this message while we had temp ID, remove the duplicate */
+          const duplicates = messagesContainer.querySelectorAll('[data-message-id="' + data.message_id + '"]');
+          if (duplicates.length > 1) {
+            for (let d = 1; d < duplicates.length; d++) { duplicates[d].remove(); }
+          }
         }
         if (data.message_id > lastMessageId) lastMessageId = data.message_id;
       } else {
@@ -702,9 +709,19 @@
       .then(function (data) {
         if (!data.success || !data.messages.length) return;
 
-        // Filter out messages we already have (optimistic)
+        // Filter out messages we already have (optimistic or pending send)
         const newMessages = data.messages.filter(function (message) {
-          return !messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]');
+          if (messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]')) return false;
+          if (pendingSentIds.has(message.message_id)) {
+            pendingSentIds.delete(message.message_id);
+            /* Swap temp ID on the optimistic bubble */
+            const tempBubbles = messagesContainer.querySelectorAll('[data-message-id^="temp-"]');
+            if (tempBubbles.length) {
+              tempBubbles[tempBubbles.length - 1].setAttribute('data-message-id', message.message_id);
+            }
+            return false;
+          }
+          return true;
         });
 
         if (!newMessages.length) {
@@ -787,8 +804,19 @@
           const data = JSON.parse(event.data);
           if (data.type === 'new_message' && data.message) {
             const message = data.message;
-            /* Skip if already rendered (optimistic from sender) */
+            /* Skip if already rendered (optimistic from sender — may still have temp- ID) */
             if (messagesContainer.querySelector('[data-message-id="' + message.message_id + '"]')) return;
+            /* Skip if this is our own sent message still awaiting temp→real ID swap */
+            if (pendingSentIds.has(message.message_id)) {
+              pendingSentIds.delete(message.message_id);
+              /* Update the temp bubble with real data (quote preview, status) */
+              const tempBubbles = messagesContainer.querySelectorAll('[data-message-id^="temp-"]');
+              if (tempBubbles.length) {
+                const lastTemp = tempBubbles[tempBubbles.length - 1];
+                lastTemp.setAttribute('data-message-id', message.message_id);
+              }
+              return;
+            }
 
             const html = buildMessagesHtml([message]);
             const isAtBottom = isScrolledToBottom();

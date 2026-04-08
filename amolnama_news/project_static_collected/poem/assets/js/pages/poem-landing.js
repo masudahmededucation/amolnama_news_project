@@ -48,10 +48,10 @@
   /* ── Category pills ── */
   if (pillContainer) {
     pillContainer.addEventListener("click", function (e) {
-      let pill = e.target.closest(".poem-filter-pill");
+      let pill = e.target.closest(".filter-pills-pill");
       if (!pill) return;
 
-      pillContainer.querySelectorAll(".poem-filter-pill").forEach(function (p) {
+      pillContainer.querySelectorAll(".filter-pills-pill").forEach(function (p) {
         p.classList.remove("poem-filter-pill--active");
       });
       pill.classList.add("poem-filter-pill--active");
@@ -104,7 +104,7 @@
           currentCategory = "";
           currentCategoryName = "";
           if (pillContainer) {
-            pillContainer.querySelectorAll(".poem-filter-pill").forEach(function (p) { p.classList.remove("poem-filter-pill--active"); });
+            pillContainer.querySelectorAll(".filter-pills-pill").forEach(function (p) { p.classList.remove("poem-filter-pill--active"); });
             pillContainer.querySelector('[data-category=""]').classList.add("poem-filter-pill--active");
           }
         } else if (action === "clear-search") {
@@ -129,7 +129,7 @@
         typeTabs.querySelector('[data-type=""]').classList.add("poem-type-tab--active");
       }
       if (pillContainer) {
-        pillContainer.querySelectorAll(".poem-filter-pill").forEach(function (p) { p.classList.remove("poem-filter-pill--active"); });
+        pillContainer.querySelectorAll(".filter-pills-pill").forEach(function (p) { p.classList.remove("poem-filter-pill--active"); });
         pillContainer.querySelector('[data-category=""]').classList.add("poem-filter-pill--active");
       }
       currentPage = 1;

@@ -38,6 +38,9 @@
     const hidden = document.getElementById(hiddenId);
     if (!container || !hidden) return null;
 
+    /* Guard: skip if Quill already initialized on this container (SPA re-navigation) */
+    if (container.classList.contains('ql-container')) return null;
+
     const quill = new Quill('#' + containerId, {
       theme: 'snow',
       modules: { toolbar: TOOLBAR },
@@ -50,18 +53,34 @@
       editorEl.style.minHeight = opts.minHeight;
     }
 
-    /* Add id+name to Quill's internal elements (browser audit compliance) */
-    const toolbarSelects = container.parentNode.querySelectorAll('.ql-toolbar select');
-    for (let i = 0; i < toolbarSelects.length; i++) {
-      const cls = toolbarSelects[i].className.replace('ql-', '').trim();
-      toolbarSelects[i].id = containerId + '-toolbar-' + cls;
-      toolbarSelects[i].name = containerId + '_toolbar_' + cls;
+    /* Add id+name to Quill's internal elements (browser audit compliance).
+       Quill inserts .ql-toolbar as the previous sibling of the container.
+       After new Quill(), container becomes .ql-container.ql-snow */
+    const ownToolbar = container.previousElementSibling;
+    if (ownToolbar && ownToolbar.classList.contains('ql-toolbar')) {
+      const toolbarSelects = ownToolbar.querySelectorAll('select');
+      for (let i = 0; i < toolbarSelects.length; i++) {
+        /* Extract the first ql-* class as the semantic name (e.g. ql-background → background) */
+        let semanticName = 'select-' + i;
+        for (let c = 0; c < toolbarSelects[i].classList.length; c++) {
+          const cn = toolbarSelects[i].classList[c];
+          if (cn.startsWith('ql-')) {
+            semanticName = cn.substring(3);
+            break;
+          }
+        }
+        toolbarSelects[i].id = containerId + '-toolbar-' + semanticName;
+        toolbarSelects[i].name = containerId + '_toolbar_' + semanticName;
+      }
     }
     /* Quill tooltip input (link/formula/video) */
-    const tooltipInputs = container.parentNode.querySelectorAll('.ql-tooltip input[type="text"]');
-    for (let j = 0; j < tooltipInputs.length; j++) {
-      tooltipInputs[j].id = containerId + '-tooltip-input-' + j;
-      tooltipInputs[j].name = containerId + '_tooltip_input_' + j;
+    const ownTooltip = container.querySelector('.ql-tooltip');
+    if (ownTooltip) {
+      const tooltipInputs = ownTooltip.querySelectorAll('input[type="text"]');
+      for (let j = 0; j < tooltipInputs.length; j++) {
+        tooltipInputs[j].id = containerId + '-tooltip-input-' + j;
+        tooltipInputs[j].name = containerId + '_tooltip_input_' + j;
+      }
     }
 
     /* Load existing content from hidden textarea (for edit mode) */
