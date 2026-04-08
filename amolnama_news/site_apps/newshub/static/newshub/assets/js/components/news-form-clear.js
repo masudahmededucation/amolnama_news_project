@@ -372,4 +372,11 @@
       window.newshubSocialSource.reset();
     }
   });
+
+  /* SPA cleanup */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      awaitingConfirm = false;
+    });
+  }
 })();

@@ -1,0 +1,68 @@
+/* ========== Filter Pills — shared component ========== */
+/* Category/tag filter row with pill-shaped buttons or links.
+   Set --filter-pills-accent and --filter-pills-accent-light on
+   .filter-pills-group to theme per app/section.
+
+   Used by: poem-landing, art-landing, stories-landing
+   See shared-components.txt entry #18 for full API. */
+
+
+/* Row wrapper — stacks multiple groups vertically (optional) */
+.filter-pills-row {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+/* Group — horizontal pill strip */
+.filter-pills-group {
+  --filter-pills-accent: var(--primary);
+  --filter-pills-accent-light: var(--primary-light);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+
+/* Individual pill — works on <button> and <a> */
+.filter-pills-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .3rem .7rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.filter-pills-pill:hover {
+  background: var(--filter-pills-accent-light);
+  border-color: var(--filter-pills-accent);
+  color: var(--filter-pills-accent);
+}
+
+.filter-pills-pill-active {
+  background: var(--filter-pills-accent-light);
+  color: var(--filter-pills-accent);
+  border-color: var(--filter-pills-accent);
+  font-weight: 700;
+}
+
+/* Mobile: horizontal scroll instead of wrap */
+@media (max-width: 640px) {
+  .filter-pills-group {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}

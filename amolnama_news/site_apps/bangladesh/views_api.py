@@ -184,7 +184,7 @@ def api_destination_create(request):
     try:
         content_registry_id = register_content(
             content_category_id=6,  # destination
-            user_profile_id=user_profile.user_profile_id,
+            user_profile_id=profile_id,
             title_bn=dest.destination_name_bn,
             title_en=dest.destination_name_en,
             slug=dest.destination_slug,

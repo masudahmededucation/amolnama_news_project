@@ -1,0 +1,49 @@
+================================================================================
+SESSION: 2026-04-08 — Content Registry Bug Fixes + Poem Audio Player Fix
+================================================================================
+
+## Summary
+Code sanity audit across all blog app create flows and poem audio player.
+Found and fixed 3 bugs.
+
+## Bugs Fixed
+
+### 1. bangladesh/views_api.py — NameError on destination create
+File: site_apps/bangladesh/views_api.py, line 187
+Issue: `user_profile.user_profile_id` — variable `user_profile` never defined.
+       Function defines `profile_id` on line 117 via `_get_user_profile_id()`.
+Impact: api_destination_create() would crash with NameError on every call.
+Fix: Changed to `profile_id` (the correct variable).
+
+### 2. debate/views_api.py — Missing subcategory storage
+File: site_apps/debate/views_api.py, line 220
+Issue: `api_topic_create()` resolves `debate_subcategory_id` via
+       `get_unified_subcategory_id('debate', 'debate')` and passes it to
+       `register_content()`, but never stores it back to the debate topic's
+       `link_content_ref_content_subcategory_id` column.
+Impact: Debate topics lack unified subcategory linkage in source table.
+Fix: Added `.update(link_content_ref_content_subcategory_id=debate_subcategory_id)`
+     before content_registry_id storage.
+
+### 3. Poem audio player — play/pause icons both showing
+Files: poem/static/poem/assets/js/components/poem-audio-player.js
+       poem/templates/poem/pages/poem-detail.html
+Issue: Both play (triangle) and pause (bars) SVGs visible simultaneously.
+Root cause: Parent button has CSS `display: flex` which overrides the HTML
+            `hidden` attribute on child SVGs.
+Fix: Switched from `.hidden` attribute to `style.display` toggling.
+     - JS: Added showPlayIcon() / showPauseIcon() helper functions
+     - Template: Changed pause SVG from `hidden` to `style="display:none"`
+     - Same fix applied to volume mute/unmute icons
+
+## Audit Results (No Issues)
+- No duplicate register_content calls across any app
+- No duplicate event listeners in poem-audio-player.js
+- escapeHtml() in poem-audio-player.js correctly resolves to window.escapeHtml
+  from core/assets/js/utilities/escape-html.js (loaded in base.html before defer scripts)
+- content/utils.py — update_content_registry already uses Django ORM (clean)
+- actions-bar.js — 3 separate click handlers correctly differentiated by selector
+
+## Cache
+Service worker bumped: v463 → v464 → v465
+collectstatic run after all fixes.

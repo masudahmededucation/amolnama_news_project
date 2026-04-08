@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'art/assets/css/pages/art-landing.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -16,10 +17,10 @@
   {% endif %}
 </div>
 
-<div class="art-category-filter" id="art-category-filter">
-  <a href="{% url 'art:home' %}" class="art-category-pill{% if not active_category %} art-category-pill-active{% endif %}" id="art-category-pill-all" name="art_category_pill_all">সব</a>
+<div class="filter-pills-group" id="art-category-filter">
+  <a href="{% url 'art:home' %}" class="filter-pills-pill{% if not active_category %} filter-pills-pill-active{% endif %}" id="art-category-pill-all" name="art_category_pill_all">সব ধরন (All)</a>
   {% for category in categories %}
-  <a href="{% url 'art:home' %}?category={{ category.art_ref_art_category_id }}" class="art-category-pill{% if active_category == category.art_ref_art_category_id|stringformat:'d' %} art-category-pill-active{% endif %}" id="art-category-pill-{{ category.art_category_code }}" name="art_category_pill_{{ category.art_category_code }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }}</a>
+  <a href="{% url 'art:home' %}?category={{ category.blog_art_ref_art_category_id }}" class="filter-pills-pill{% if active_category == category.blog_art_ref_art_category_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="art-category-pill-{{ category.art_category_code }}" name="art_category_pill_{{ category.art_category_code }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }}</a>
   {% endfor %}
 </div>
 

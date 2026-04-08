@@ -536,17 +536,17 @@
     startStep = 3;
   }
 
-  showStep(startStep);
-
-  /* Auto-advance past step 1 after a form-type redirect */
+  /* Auto-advance past step 1 after a form-type redirect — check BEFORE first showStep */
   try {
     if (sessionStorage.getItem('newshub_advance')) {
       sessionStorage.removeItem('newshub_advance');
-      if (currentStep === 1 && selectedFormType) {
-        showStep(2);
+      if (startStep === 1 && pageFormType) {
+        startStep = 2;
       }
     }
   } catch (e) {}
+
+  showStep(startStep);
 
   isInitialLoad = false;
 
@@ -567,4 +567,17 @@
       showStep(totalSteps);
     }
   } catch (ex) {}
+
+  /* SPA cleanup — reset stepper state on page transition */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      currentStep = 1;
+      selectedFormType = '';
+      stepDots = [];
+      isPreviewMode = false;
+      errorSteps = {};
+      isInitialLoad = true;
+      window.newshubStepper = null;
+    });
+  }
 })();

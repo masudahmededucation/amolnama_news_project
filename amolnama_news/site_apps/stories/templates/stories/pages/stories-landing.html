@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-landing.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -16,18 +17,18 @@
   {% endif %}
 </div>
 
-<div class="stories-filter-row" id="stories-filter-row">
-  <div class="stories-age-filter" id="stories-age-filter">
-    <a href="{% url 'stories:home' %}{% if active_category %}?category={{ active_category }}{% endif %}" class="stories-age-pill{% if not active_age %} stories-age-pill-active{% endif %}" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স</a>
+<div class="filter-pills-row" id="stories-filter-row">
+  <div class="filter-pills-group" style="--filter-pills-accent: var(--purple); --filter-pills-accent-light: var(--purple-light);" id="stories-age-filter">
+    <a href="{% url 'stories:home' %}{% if active_category %}?category={{ active_category }}{% endif %}" class="filter-pills-pill{% if not active_age %} filter-pills-pill-active{% endif %}" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স (All)</a>
     {% for age_group in age_groups %}
-    <a href="{% url 'stories:home' %}?age={{ age_group.stories_ref_story_age_group_id }}{% if active_category %}&category={{ active_category }}{% endif %}" class="stories-age-pill{% if active_age == age_group.stories_ref_story_age_group_id|stringformat:'d' %} stories-age-pill-active{% endif %}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</a>
+    <a href="{% url 'stories:home' %}?age={{ age_group.blog_stories_ref_story_age_group_id }}{% if active_category %}&category={{ active_category }}{% endif %}" class="filter-pills-pill{% if active_age == age_group.blog_stories_ref_story_age_group_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</a>
     {% endfor %}
   </div>
 
-  <div class="stories-category-filter" id="stories-category-filter">
-    <a href="{% url 'stories:home' %}{% if active_age %}?age={{ active_age }}{% endif %}" class="stories-category-pill{% if not active_category %} stories-category-pill-active{% endif %}" id="stories-category-pill-all" name="stories_category_pill_all">সব বিভাগ</a>
+  <div class="filter-pills-group" style="--filter-pills-accent: var(--success); --filter-pills-accent-light: var(--success-light);" id="stories-category-filter">
+    <a href="{% url 'stories:home' %}{% if active_age %}?age={{ active_age }}{% endif %}" class="filter-pills-pill{% if not active_category %} filter-pills-pill-active{% endif %}" id="stories-category-pill-all" name="stories_category_pill_all">সব ধরন (All)</a>
     {% for category in categories %}
-    <a href="{% url 'stories:home' %}?category={{ category.stories_ref_story_category_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="stories-category-pill{% if active_category == category.stories_ref_story_category_id|stringformat:'d' %} stories-category-pill-active{% endif %}" id="stories-category-pill-{{ category.story_category_code }}" name="stories_category_pill_{{ category.story_category_code }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }}</a>
+    <a href="{% url 'stories:home' %}?category={{ category.blog_stories_ref_story_category_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="filter-pills-pill{% if active_category == category.blog_stories_ref_story_category_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-category-pill-{{ category.story_category_code }}" name="stories_category_pill_{{ category.story_category_code }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }}</a>
     {% endfor %}
   </div>
 </div>

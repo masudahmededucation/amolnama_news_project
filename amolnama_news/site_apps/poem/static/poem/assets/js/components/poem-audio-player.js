@@ -87,16 +87,27 @@
     playBtn.disabled = false;
   }
 
+  function showPlayIcon() {
+    iconPlay.style.display = '';
+    iconPause.style.display = 'none';
+  }
+
+  function showPauseIcon() {
+    iconPlay.style.display = 'none';
+    iconPause.style.display = '';
+  }
+
+  // Initial state — show play, hide pause
+  showPlayIcon();
+
   function onStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-      iconPlay.hidden = true;
-      iconPause.hidden = false;
+      showPauseIcon();
       isTransitioning = false;
       transitionRetryCount = 0;
       startProgressUpdate();
     } else if (event.data === YT.PlayerState.PAUSED) {
-      iconPlay.hidden = false;
-      iconPause.hidden = true;
+      showPlayIcon();
       stopProgressUpdate();
 
       /* If we just loaded a new video (transition) and it paused immediately,
@@ -111,8 +122,7 @@
         }, 800 * transitionRetryCount);
       }
     } else if (event.data === YT.PlayerState.ENDED) {
-      iconPlay.hidden = false;
-      iconPause.hidden = true;
+      showPlayIcon();
       stopProgressUpdate();
       progressFill.style.width = "100%";
       isTransitioning = false;
@@ -207,12 +217,12 @@
     if (!player) return;
     if (isMuted) {
       player.unMute();
-      iconVol.hidden = false;
-      iconMute.hidden = true;
+      iconVol.style.display = '';
+      iconMute.style.display = 'none';
     } else {
       player.mute();
-      iconVol.hidden = true;
-      iconMute.hidden = false;
+      iconVol.style.display = 'none';
+      iconMute.style.display = '';
     }
     isMuted = !isMuted;
   });

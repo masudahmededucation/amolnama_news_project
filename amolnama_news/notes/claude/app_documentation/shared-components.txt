@@ -139,6 +139,22 @@ Form-Specific Legal Modules (each wraps shared GD/FIR + own fields):
     JS:       core/static/core/assets/js/components/like-button.js
     Status:   DEPRECATED — use Actions Bar (#16) instead. Still referenced by old article-actions-bar.html.
 
+18. Filter Pills (Shared — category/tag filter pills)
+    CSS:      core/static/core/assets/css/components/filter-pills.css
+    JS:       None (each app manages its own filtering logic)
+    HTML:     No shared template — each app writes its own HTML using shared CSS classes
+    Classes:  .filter-pills-row (optional vertical stack wrapper)
+              .filter-pills-group (horizontal pill strip, sets --filter-pills-accent)
+              .filter-pills-pill (individual pill, works on <button> and <a>)
+              .filter-pills-pill-active (active/selected state)
+    Theming:  Set --filter-pills-accent and --filter-pills-accent-light on .filter-pills-group
+              Defaults: var(--primary) and var(--primary-light)
+              Example: style="--filter-pills-accent: var(--purple); --filter-pills-accent-light: var(--purple-light);"
+    Used by:  poem-landing, art-landing, stories-landing
+    Rule:     NEVER duplicate filter pill CSS in app-specific stylesheets.
+    Future:   To add filter pills to a new app, just include the CSS and use the class names.
+              See plan file or this entry for copy-paste HTML recipe.
+
 DELETED ORPHAN FILES (do not recreate):
   - legal-fir-section.html (replaced by law-gd-fir-section.html)
   - news-legal-fir.js (replaced by news-law-gd-fir.js)

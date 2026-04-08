@@ -83,6 +83,22 @@ All PK/FK columns renamed: art_ → blog_art_, bangladesh_ → blog_bangladesh_,
 All code references updated. Zero old names remaining.
 
 ================================================================================
+BUGS FIXED (2026-04-08)
+================================================================================
+
+1. bangladesh/views_api.py:187 — api_destination_create() used undefined
+   `user_profile.user_profile_id`. Fixed to `profile_id` (the actual variable).
+
+2. debate/views_api.py:220 — api_topic_create() resolved debate_subcategory_id
+   but never stored it back to CollTopic.link_content_ref_content_subcategory_id.
+   Fixed: added .update() call before content_registry_id storage.
+
+3. poem audio player — play/pause SVGs both showing simultaneously.
+   Root cause: CSS display:flex on parent button overrides HTML hidden attribute.
+   Fixed: switched to style.display toggling in JS + inline style="display:none"
+   in template. Same fix applied to volume mute/unmute icons.
+
+================================================================================
 CONTENT CREATE FLOW
 ================================================================================
 

@@ -77,7 +77,53 @@ browse, like, and share poems/songs with category tagging.
 - CSS: poem-create.css
 - JS: poem-create.js, poem-edit.js, poem-create-clear.js
 
+## Audio Player (YouTube IFrame as audio-only bar)
+
+File: poem/static/poem/assets/js/components/poem-audio-player.js
+Template: poem/templates/poem/pages/poem-detail.html (lines 72-131)
+
+### Architecture
+- Uses YouTube IFrame API as audio-only backend (player hidden, 0x0 size)
+- Audio bar shows: play/pause, progress bar (click+drag seek), time, volume, "Watch Video" expand
+- Autoplay: on poem audio end, fetches next poem via API and transitions without page reload
+
+### Play/Pause Icon Toggle
+- Two SVGs: #poemAudioIconPlay (triangle) and #poemAudioIconPause (two bars)
+- Pause icon starts hidden via inline style: style="display:none"
+- JS helper functions showPlayIcon() / showPauseIcon() swap via style.display
+- DO NOT use hidden attribute — CSS display:flex on parent button overrides it
+- Same approach for volume mute/unmute icons (#poemAudioIconVol, #poemAudioIconMute)
+
+### Radio Autoplay
+- On song end → fetchNextPoem() → API /bangla-kobita-gaan/api/poems/<id>/next/
+- Shows "Up Next" banner with 5-second countdown
+- transitionToPoem() updates page content (title, body, author, meta, URL) without reload
+- Loads new YouTube video via player.loadVideoById()
+- Tracks played IDs and exhausted categories to avoid repeats
+- Updates related poems section via /bangla-kobita-gaan/api/poems/<id>/related/
+
+### Key Elements
+| Element ID              | Purpose                    |
+|-------------------------|----------------------------|
+| poemAudioPlayer         | Container with data-url    |
+| poemAudioPlayBtn        | Play/pause button          |
+| poemAudioIconPlay       | Play triangle SVG          |
+| poemAudioIconPause      | Pause bars SVG             |
+| poemAudioProgressFill   | Progress bar fill          |
+| poemAudioTime           | Time display (current/total)|
+| poemAudioVolBtn         | Volume toggle button       |
+| poemAudioIconVol        | Volume on SVG              |
+| poemAudioIconMute       | Volume mute SVG            |
+| poemAudioVideoBtn       | Expand video button        |
+| poemAudioVideoWrap      | YouTube player container   |
+| poemRadioNext           | Up Next banner             |
+
+## Static Files
+- CSS: poem-create.css, poem-detail.css
+- JS: poem-create.js, poem-edit.js, poem-create-clear.js, poem-audio-player.js, poem-detail.js
+
 ## Troubleshooting
 - Bengali slugs: uses bangla_slugify() from core/utils.py (NFC normalization)
 - URL uses <str:slug> not <slug:slug> to support Bengali Unicode
 - SEO: JSON-LD schema, og meta tags, sitemap entry
+- Play/pause both showing: CSS display:flex on parent overrides hidden attribute. Use style.display instead.

@@ -29,7 +29,7 @@
       <select class="stories-submit-select" id="stories-submit-category" name="link_story_category_id" required>
         <option value="">বিভাগ নির্বাচন করুন</option>
         {% for category in categories %}
-        <option value="{{ category.stories_ref_story_category_id }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }} ({{ category.story_category_name_en }})</option>
+        <option value="{{ category.blog_stories_ref_story_category_id }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }} ({{ category.story_category_name_en }})</option>
         {% endfor %}
       </select>
     </div>
@@ -39,7 +39,7 @@
       <select class="stories-submit-select" id="stories-submit-age-group" name="link_age_group_id" required>
         <option value="">বয়স নির্বাচন করুন</option>
         {% for age_group in age_groups %}
-        <option value="{{ age_group.stories_ref_story_age_group_id }}">{{ age_group.age_group_name_bn }} ({{ age_group.age_group_name_en }})</option>
+        <option value="{{ age_group.blog_stories_ref_story_age_group_id }}">{{ age_group.age_group_name_bn }} ({{ age_group.age_group_name_en }})</option>
         {% endfor %}
       </select>
     </div>

@@ -413,4 +413,11 @@
   if (isMultistep) {
     setTimeout(function () { reevaluateStepErrors(); }, 500);
   }
+
+  /* SPA cleanup */
+  if (window.spaCleanupRegister) {
+    window.spaCleanupRegister(function () {
+      /* State is scoped to IIFE — no persistent globals to clear */
+    });
+  }
 })();

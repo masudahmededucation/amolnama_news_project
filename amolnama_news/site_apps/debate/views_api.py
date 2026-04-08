@@ -217,8 +217,12 @@ def api_topic_create(request):
             subcategory_id=debate_subcategory_id,
             is_published=True,
         )
-        if content_registry_id:
+        if debate_subcategory_id:
             from .models import CollTopic
+            CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(
+                link_content_ref_content_subcategory_id=debate_subcategory_id
+            )
+        if content_registry_id:
             CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(link_content_registry_id=content_registry_id)
     except Exception:
         logger.exception('Content registry failed for debate topic %s', topic_id)

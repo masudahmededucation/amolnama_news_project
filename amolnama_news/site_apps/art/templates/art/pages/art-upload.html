@@ -29,7 +29,7 @@
       <select class="art-upload-select" id="art-upload-category" name="link_art_category_id" required>
         <option value="">বিভাগ নির্বাচন করুন</option>
         {% for category in categories %}
-        <option value="{{ category.art_ref_art_category_id }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }} ({{ category.art_category_name_en }})</option>
+        <option value="{{ category.blog_art_ref_art_category_id }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }} ({{ category.art_category_name_en }})</option>
         {% endfor %}
       </select>
     </div>

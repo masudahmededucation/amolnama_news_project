@@ -4,21 +4,24 @@
 
 .stepper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0;
   margin: 1.5rem 0 2rem;
-  padding: 0 1rem;
-  overflow-x: auto;
+  padding: 0 .5rem;
+  flex-wrap: wrap;
+  row-gap: .5rem;
 }
 
 .step-dot {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .25rem;
+  gap: .15rem;
   cursor: default;
   flex-shrink: 0;
+  width: 36px;
+  position: relative;
 }
 
 .step-num {
@@ -41,6 +44,11 @@
   color: var(--muted);
   white-space: nowrap;
   transition: color .3s;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: .15rem;
 }
 
 /* Active dot */
@@ -95,13 +103,12 @@
 
 /* Connecting lines */
 .step-line {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 8px;
   height: 2px;
-  min-width: 20px;
-  max-width: 60px;
   background: var(--border);
-  margin: 0 .25rem;
-  margin-bottom: 1.1rem; /* align with dot center, above label */
+  margin: 0;
+  margin-top: 18px;
   transition: background .3s;
 }
 
@@ -113,9 +120,10 @@
 
 .form-type-picker {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: .75rem;
   margin-top: 1rem;
+  width: 100%;
 }
 
 .form-type-card {
@@ -475,9 +483,11 @@
 .news-multistep-form .form-section,
 .news-multistep-form .widget-location,
 .news-multistep-form .widget {
+  width: 100%;
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
 }
 
 /* Sidebar widgets need form-section styling when shown standalone in steps */
@@ -530,10 +540,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   max-width: 720px;
   margin: 1.5rem auto 0;
   padding: 1rem 0;
   gap: 1rem;
+  box-sizing: border-box;
 }
 
 .step-counter {
