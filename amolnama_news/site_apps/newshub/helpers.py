@@ -1,12 +1,16 @@
 """
-newshub/helpers.py — Article view helper functions + edit pre-population.
+newshub/helpers.py — Article view helper functions + edit pre-population + form access control.
 
+check_form_access(user, group_code) — check if user can access a restricted form type.
+form_access_required(group_code) — decorator for views that require form access permission.
+get_accessible_form_types(user) — return list of form types the user can access.
 build_sidenote_data(news_entry) — sidenote items for two-column article view.
 build_edit_data(entry_id, form_type_code) — reconstruct all form data from DB for edit mode.
 """
 
 import logging
 import re
+from functools import wraps
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +37,204 @@ from amolnama_news.site_apps.investigation.models import (
     IncidentInvolvedActorProfile,
 )
 # SportsFormFact and EntertainmentFormFact models not yet created — add when Phase 2 is implemented
+
+
+# ========== Form Access Control ==========
+
+
+def check_form_access(user, group_code):
+    """Check if user can access a form type by group_code.
+    Returns True if:
+      - Form type is not restricted (is_restricted=0)
+      - User is staff or superuser
+      - User has an active row in newshub_user_form_access
+    Returns False otherwise.
+    """
+    from .models import RefNewsFormType, NewshubUserFormAccess
+
+    form_type = RefNewsFormType.objects.filter(group_code=group_code, is_active=True).first()
+    if not form_type:
+        return False
+
+    if not form_type.is_restricted:
+        return True
+
+    if not user or not user.is_authenticated:
+        return False
+
+    if user.is_staff or user.is_superuser:
+        return True
+
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=user.pk)
+    except UserProfile.DoesNotExist:
+        return False
+
+    return NewshubUserFormAccess.objects.filter(
+        link_user_profile_id=user_profile.user_profile_id,
+        link_newshub_ref_news_form_type_id=form_type.newshub_ref_news_form_type_id,
+        is_active=True,
+    ).exists()
+
+
+def form_access_required(group_code):
+    """Decorator for views that require form access permission.
+    Redirects to form picker with error if access denied.
+    """
+    from django.shortcuts import render
+
+    def decorator(view_function):
+        @wraps(view_function)
+        def wrapper(request, *args, **kwargs):
+            if not check_form_access(request.user, group_code):
+                return render(request, 'newshub/pages/news-form-access-denied.html', {
+                    'form_group_code': group_code,
+                }, status=403)
+            return view_function(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def get_accessible_form_types(user):
+    """Return list of RefNewsFormType objects the user can access.
+    Used by form picker to show only accessible forms.
+    """
+    from .models import RefNewsFormType, NewshubUserFormAccess
+
+    all_form_types = list(RefNewsFormType.objects.filter(is_active=True).order_by('newshub_ref_news_form_type_id'))
+
+    if user and user.is_authenticated and (user.is_staff or user.is_superuser):
+        return all_form_types
+
+    if not user or not user.is_authenticated:
+        return [form_type for form_type in all_form_types if not form_type.is_restricted]
+
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=user.pk)
+    except UserProfile.DoesNotExist:
+        return [form_type for form_type in all_form_types if not form_type.is_restricted]
+
+    granted_form_type_ids = set(
+        NewshubUserFormAccess.objects.filter(
+            link_user_profile_id=user_profile.user_profile_id,
+            is_active=True,
+        ).values_list('link_newshub_ref_news_form_type_id', flat=True)
+    )
+
+    return [
+        form_type for form_type in all_form_types
+        if not form_type.is_restricted or form_type.newshub_ref_news_form_type_id in granted_form_type_ids
+    ]
+
+
+# ========== Form Type Metadata (icons, URLs, step labels) ==========
+
+FORM_TYPE_METADATA = {
+    'general_news': {
+        'icon': '📰',
+        'url_name': 'newshub:news_collection_multistep',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","স্থান","সংযুক্তি","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '৮ ধাপ',
+    },
+    'crime_violence': {
+        'icon': '🚨',
+        'url_name': 'newshub:news_collection_multistep_crime_violence',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","হতাহত","অস্ত্র","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১৩ ধাপ',
+    },
+    'extortion': {
+        'icon': '💸',
+        'url_name': 'newshub:news_collection_multistep_extortion',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","ক্ষয়ক্ষতি","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১২ ধাপ',
+    },
+    'land_grabbing': {
+        'icon': '🏚️',
+        'url_name': 'newshub:news_collection_multistep_land_grabbing',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","দখল","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১২ ধাপ',
+    },
+    'price_hike_syndicate': {
+        'icon': '📉',
+        'url_name': 'newshub:news_collection_multistep_price_hike',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","মূল্য","মজুদ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১২ ধাপ',
+    },
+    'watchdog_bangladesh': {
+        'icon': '⚖️',
+        'url_name': 'newshub:news_collection_multistep_watchdog_bangladesh',
+        'step_labels': '["ফর্ম","তথ্যদাতা","বক্তব্য","ব্যক্তি","নজরদারি","প্রেক্ষাপট","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১০ ধাপ',
+    },
+    'civic_community': {
+        'icon': '🏗️',
+        'url_name': 'newshub:news_collection_multistep_civic_community',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","প্রভাব","অবস্থা","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১২ ধাপ',
+    },
+    'global_news': {
+        'icon': '🌍',
+        'url_name': 'newshub:news_collection_multistep_global_news',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","দেশসমূহ","বাংলাদেশ","প্রতিক্রিয়া","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১০ ধাপ',
+    },
+    'war_conflict': {
+        'icon': '⚔️',
+        'url_name': 'newshub:news_collection_multistep_war_conflict',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","পক্ষসমূহ","রণক্ষেত্র","হতাহত","ভূ-রাজনীতি","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১১ ধাপ',
+    },
+    'women_child_violence': {
+        'icon': '🛡️',
+        'url_name': 'newshub:news_collection_multistep_women_child_violence',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","ভুক্তভোগী","অবস্থা ও আঘাত","অভিযুক্ত পক্ষ","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১১ ধাপ',
+    },
+    'july_uprising_2024': {
+        'icon': '🇧🇩',
+        'url_name': 'newshub:news_collection_multistep_july_uprising',
+        'step_labels': '["ফর্ম","তথ্যদাতা","ঘটনা","শহীদ","কাহিনী","আঘাত","দমনকারী","প্রমাণ","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১২ ধাপ',
+    },
+    'sports': {
+        'icon': '⚽',
+        'url_name': 'newshub:news_collection_multistep_sports',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","ম্যাচ","ফলাফল","পারফরম্যান্স","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১০ ধাপ',
+    },
+    'entertainment': {
+        'icon': '🎬',
+        'url_name': 'newshub:news_collection_multistep_entertainment',
+        'step_labels': '["ফর্ম","তথ্যদাতা","সংবাদ","প্রযোজনা","কাস্ট","পারফরম্যান্স","স্থান","সোশ্যাল","ট্যাগ","জমা"]',
+        'step_count_bn': '১০ ধাপ',
+    },
+}
+
+
+def build_form_type_picker_items(user):
+    """Build list of form type cards for the form picker, filtered by user access.
+    Returns list of dicts with all metadata needed for rendering."""
+    from django.urls import reverse
+
+    accessible_form_types = get_accessible_form_types(user)
+    items = []
+    for form_type in accessible_form_types:
+        metadata = FORM_TYPE_METADATA.get(form_type.group_code)
+        if not metadata:
+            continue
+        items.append({
+            'group_code': form_type.group_code,
+            'form_name_bn': form_type.form_name_bn,
+            'form_name_en': form_type.form_name_en,
+            'icon': metadata['icon'],
+            'url': reverse(metadata['url_name']),
+            'step_labels': metadata['step_labels'],
+            'step_count_bn': metadata['step_count_bn'],
+            'is_restricted': form_type.is_restricted,
+        })
+    return items
 
 
 # ========== BIT flag → status_id reverse maps (extortion) ==========

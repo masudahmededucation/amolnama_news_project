@@ -1,0 +1,59 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ seo.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'newshub/assets/css/pages/news-admin-form-access.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="news-admin-form-access-container" id="news-admin-form-access-container">
+  <h1 class="news-admin-form-access-title" id="news-admin-form-access-title">🔐 ফর্ম প্রবেশাধিকার ব্যবস্থাপনা</h1>
+  <p class="news-admin-form-access-subtitle">Form Access Management</p>
+
+  <div class="news-admin-form-access-tabs" id="news-admin-form-access-tabs">
+    <button type="button" class="news-admin-form-access-tab news-admin-form-access-tab-active" data-tab="user-access" id="news-admin-form-access-tab-user-access" name="news_admin_form_access_tab_user_access">👤 ব্যবহারকারী প্রবেশাধিকার</button>
+    <button type="button" class="news-admin-form-access-tab" data-tab="form-restrictions" id="news-admin-form-access-tab-form-restrictions" name="news_admin_form_access_tab_form_restrictions">📋 ফর্ম সীমাবদ্ধতা</button>
+  </div>
+
+  {# ── Tab 1: User Access ── #}
+  <div class="news-admin-form-access-panel" id="news-admin-form-access-panel-user-access">
+    <div class="news-admin-form-access-search-row">
+      <label for="news-admin-form-access-search-input" class="news-admin-form-access-search-label">ব্যবহারকারী খুঁজুন (Search User)</label>
+      <input type="text" class="news-admin-form-access-search-input" id="news-admin-form-access-search-input" name="news_admin_form_access_search_input" placeholder="ইমেইল বা ফোন নম্বর দিন..." autocomplete="off">
+    </div>
+
+    <div class="news-admin-form-access-search-results" id="news-admin-form-access-search-results" hidden></div>
+
+    <div class="news-admin-form-access-user-detail" id="news-admin-form-access-user-detail" hidden>
+      <div class="news-admin-form-access-user-header" id="news-admin-form-access-user-header"></div>
+      <div class="news-admin-form-access-form-grid" id="news-admin-form-access-form-grid"></div>
+    </div>
+  </div>
+
+  {# ── Tab 2: Form Restrictions ── #}
+  <div class="news-admin-form-access-panel" id="news-admin-form-access-panel-form-restrictions" hidden>
+    <p class="news-admin-form-access-restriction-info">সীমাবদ্ধ ফর্ম শুধুমাত্র অনুমোদিত ব্যবহারকারীরা দেখতে পাবেন। অসীমাবদ্ধ ফর্ম সবার জন্য উন্মুক্ত।</p>
+    <div class="news-admin-form-access-restriction-grid" id="news-admin-form-access-restriction-grid">
+      {% for form_type in form_types %}
+      <div class="news-admin-form-access-restriction-card" id="news-admin-form-access-restriction-card-{{ form_type.group_code }}" data-form-type-id="{{ form_type.newshub_ref_news_form_type_id }}">
+        <div class="news-admin-form-access-restriction-card-info">
+          <span class="news-admin-form-access-restriction-card-name">{{ form_type.form_name_bn }}</span>
+          <span class="news-admin-form-access-restriction-card-code">{{ form_type.group_code }}</span>
+        </div>
+        <label class="news-admin-form-access-toggle-label" for="news-admin-form-access-restriction-toggle-{{ form_type.newshub_ref_news_form_type_id }}">
+          <input type="checkbox" class="news-admin-form-access-restriction-toggle" id="news-admin-form-access-restriction-toggle-{{ form_type.newshub_ref_news_form_type_id }}" name="news_admin_form_access_restriction_toggle_{{ form_type.newshub_ref_news_form_type_id }}" {% if form_type.is_restricted %}checked{% endif %}>
+          <span class="news-admin-form-access-toggle-slider"></span>
+          <span class="news-admin-form-access-toggle-text">{% if form_type.is_restricted %}🔒 সীমাবদ্ধ{% else %}🔓 উন্মুক্ত{% endif %}</span>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'newshub/assets/js/pages/news-admin-form-access.js' %}" defer></script>
+{% endblock %}

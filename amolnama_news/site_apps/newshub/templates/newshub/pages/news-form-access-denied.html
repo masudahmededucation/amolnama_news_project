@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}অনুমতি নেই — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'newshub/assets/css/pages/news-form-access-denied.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="news-form-access-denied-container" id="news-form-access-denied-container">
+  <div class="news-form-access-denied-icon">🔒</div>
+  <h1 class="news-form-access-denied-title" id="news-form-access-denied-title">এই ফর্মে প্রবেশাধিকার নেই</h1>
+  <p class="news-form-access-denied-message" id="news-form-access-denied-message">
+    এই সংবাদ সংগ্রহ ফর্মটি সীমিত ব্যবহারকারীদের জন্য উন্মুক্ত।
+    প্রবেশাধিকার পেতে প্রশাসকের সাথে যোগাযোগ করুন।
+  </p>
+  <div class="news-form-access-denied-actions">
+    <a href="{% url 'newshub:news_collection_multistep' %}" class="news-form-access-denied-button" id="news-form-access-denied-back-button" name="news_form_access_denied_back_button">← ফর্ম নির্বাচনে ফিরুন</a>
+  </div>
+</div>
+{% endblock %}

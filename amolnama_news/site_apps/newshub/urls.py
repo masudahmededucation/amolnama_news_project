@@ -23,6 +23,9 @@ urlpatterns = [
     path('news-collection/multistep/july-uprising/', views.news_collection_multistep_july_uprising, name='news_collection_multistep_july_uprising'),
     path('news-collection/multistep/women-child-violence/', views.news_collection_multistep_women_child_violence, name='news_collection_multistep_women_child_violence'),
 
+    # Admin — form access management (staff only)
+    path('admin/form-access/', views.admin_form_access, name='admin_form_access'),
+
     # Article detail view (public, slug-based via pub_article)
     path('article/<str:slug>/', views.article_detail, name='article_detail'),
 
@@ -65,4 +68,10 @@ urlpatterns = [
     # API endpoints — organisations
     path('api/organisations/search/', views_api.api_organisation_search, name='api_organisation_search'),
     path('api/organisations/<int:type_id>/', views_api.api_organisations_by_type, name='api_organisations_by_type'),
+
+    # API endpoints — admin form access
+    path('api/admin/form-access/search-users/', views_api.api_admin_form_access_search_users, name='api_admin_form_access_search_users'),
+    path('api/admin/form-access/user/<int:user_profile_id>/', views_api.api_admin_form_access_user_detail, name='api_admin_form_access_user_detail'),
+    path('api/admin/form-access/toggle/', views_api.api_admin_form_access_toggle, name='api_admin_form_access_toggle'),
+    path('api/admin/form-access/toggle-restriction/', views_api.api_admin_form_access_toggle_restriction, name='api_admin_form_access_toggle_restriction'),
 ]

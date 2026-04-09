@@ -8,6 +8,7 @@ class RefNewsFormType(models.Model):
     group_code            = models.CharField(max_length=100)
     form_name_en          = models.CharField(max_length=100)
     form_name_bn          = models.CharField(max_length=100)
+    is_restricted         = models.BooleanField(default=False)
     is_active             = models.BooleanField()
     created_at            = models.DateTimeField()
 
@@ -17,6 +18,23 @@ class RefNewsFormType(models.Model):
 
     def __str__(self):
         return self.form_name_en
+
+
+class NewshubUserFormAccess(models.Model):
+    newshub_user_form_access_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField()
+    link_newshub_ref_news_form_type_id = models.IntegerField()
+    link_granted_by_user_profile_id = models.BigIntegerField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newshub].[newshub_user_form_access]'
+
+    def __str__(self):
+        return f'FormAccess(user={self.link_user_profile_id}, form={self.link_newshub_ref_news_form_type_id})'
 
 
 class RefAdPlacement(models.Model):

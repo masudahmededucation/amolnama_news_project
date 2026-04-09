@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from amolnama_news.site_apps.sports.models import SportsFormFact
 from amolnama_news.site_apps.entertainment.models import EntertainmentFormFact
+from .helpers import form_access_required as _form_access_required
 
 from amolnama_news.site_apps.investigation.models import (
     CivicFormImpact,
@@ -159,6 +160,25 @@ def _build_form_context(contributor_form, news_entry_form, attachment_form, soci
     }
     if extra:
         ctx.update(extra)
+    # DB-driven form picker — inject if not already provided
+    if 'form_type_items' not in ctx:
+        from .helpers import FORM_TYPE_METADATA
+        from django.urls import reverse
+        all_form_types = RefNewsFormType.objects.filter(is_active=True).order_by('newshub_ref_news_form_type_id')
+        ctx['form_type_items'] = [
+            {
+                'group_code': form_type.group_code,
+                'form_name_bn': form_type.form_name_bn,
+                'form_name_en': form_type.form_name_en,
+                'icon': (FORM_TYPE_METADATA.get(form_type.group_code) or {}).get('icon', '📰'),
+                'url': reverse((FORM_TYPE_METADATA.get(form_type.group_code) or {}).get('url_name', 'newshub:news_collection_multistep')),
+                'step_labels': (FORM_TYPE_METADATA.get(form_type.group_code) or {}).get('step_labels', '[]'),
+                'step_count_bn': (FORM_TYPE_METADATA.get(form_type.group_code) or {}).get('step_count_bn', ''),
+                'is_restricted': form_type.is_restricted,
+            }
+            for form_type in all_form_types
+            if form_type.group_code in FORM_TYPE_METADATA
+        ]
     # Code splitting: resolve JS scripts for this form type
     form_type = ctx.get('selected_form_type') or ctx.get('form_type_code') or 'generic'
     if 'form_scripts' not in ctx:
@@ -230,6 +250,10 @@ def news_collection_multistep(request):
     extra = {}
     if request.GET.get('submitted') == '1':
         extra['success_message'] = 'সংবাদ সফলভাবে জমা হয়েছে! (News submitted successfully)'
+
+    # DB-driven form picker — only show forms user can access
+    from .helpers import build_form_type_picker_items
+    extra['form_type_items'] = build_form_type_picker_items(request.user)
 
     extra['self_info'] = _get_user_contributor_info(request.user)
 
@@ -379,6 +403,7 @@ def news_collection_multistep_extortion(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('land_grabbing')
 def news_collection_multistep_land_grabbing(request):
     """Land Grabbing multi-step form — 12 steps (Steps 1-3, 7-12 DB-driven)."""
 
@@ -451,6 +476,7 @@ def news_collection_multistep_land_grabbing(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('crime_violence')
 def news_collection_multistep_crime_violence(request):
     """Crime & Violence multi-step form — 10 steps (7 shared + 3 type-specific)."""
 
@@ -534,6 +560,7 @@ def news_collection_multistep_crime_violence(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('price_hike_syndicate')
 def news_collection_multistep_price_hike(request):
     """Price Hike & Syndicate multi-step form — 10 steps (6 shared + 4 type-specific)."""
 
@@ -581,6 +608,7 @@ def news_collection_multistep_price_hike(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('watchdog_bangladesh')
 def news_collection_multistep_watchdog_bangladesh(request):
     """Watchdog Bangladesh (নজরদারি) multi-step form — 10 steps (6 shared + 4 type-specific)."""
 
@@ -628,6 +656,7 @@ def news_collection_multistep_watchdog_bangladesh(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('civic_community')
 def news_collection_multistep_civic_community(request):
     """Civic & Community multi-step form — 12 steps (6 shared + 6 type-specific)."""
 
@@ -730,6 +759,7 @@ def _finalize_form_context(request, template, extra):
     return render(request, template, ctx)
 
 
+@_form_access_required('global_news')
 def news_collection_multistep_global_news(request):
     """Global News (আন্তর্জাতিক সংবাদ) — 10 steps."""
 
@@ -778,6 +808,7 @@ def news_collection_multistep_global_news(request):
     return _finalize_form_context(request, template, extra)
 
 
+@_form_access_required('war_conflict')
 def news_collection_multistep_war_conflict(request):
     """War & Conflict (যুদ্ধ ও সংঘাত) — 11 steps."""
 
@@ -850,6 +881,7 @@ def news_collection_multistep_war_conflict(request):
     return _finalize_form_context(request, template, extra)
 
 
+@_form_access_required('sports')
 def news_collection_multistep_sports(request):
     """Sports multi-step form — 10 steps (6 shared + 4 type-specific)."""
 
@@ -882,6 +914,7 @@ def news_collection_multistep_sports(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('entertainment')
 def news_collection_multistep_entertainment(request):
     """Entertainment multi-step form — 10 steps (6 shared + 4 type-specific)."""
 
@@ -914,6 +947,7 @@ def news_collection_multistep_entertainment(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('july_uprising_2024')
 def news_collection_multistep_july_uprising(request):
     """July Uprising 2024 multi-step form — 12 steps (6 shared + 6 type-specific)."""
 
@@ -1025,6 +1059,7 @@ def news_collection_multistep_july_uprising(request):
     return render(request, template, ctx)
 
 
+@_form_access_required('women_child_violence')
 def news_collection_multistep_women_child_violence(request):
     """Women & Child Violence form — 12 steps (7 shared + 5 type-specific)."""
 
@@ -1266,6 +1301,22 @@ def news_article_landing(request):
         },
     }
     return render(request, 'newshub/pages/article-landing.html', context)
+
+
+def admin_form_access(request):
+    """Admin panel — manage form access permissions. Staff/superuser only."""
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        from django.http import Http404
+        raise Http404
+
+    form_types = RefNewsFormType.objects.filter(is_active=True).order_by('newshub_ref_news_form_type_id')
+
+    return render(request, 'newshub/pages/news-admin-form-access.html', {
+        'form_types': form_types,
+        'seo': {
+            'title': 'ফর্ম প্রবেশাধিকার — অ্যাডমিন | আমলনামা নিউজ',
+        },
+    })
 
 
 def article_detail(request, slug):

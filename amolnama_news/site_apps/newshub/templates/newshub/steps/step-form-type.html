@@ -6,101 +6,16 @@
     <h3 class="form-section-title"><span class="section-icon">📋</span>সংবাদের ধরন নির্বাচন করুন (Select News Type)</h3>
     <input type="hidden" id="news-form-type" name="news_form_type" value="{{ selected_form_type|default:'' }}">
     <div class="form-type-picker" id="form-type-picker">
-      <div class="form-type-card" data-type="general_news" data-url="{% url 'newshub:news_collection_multistep' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","স্থান","সংযুক্তি","সোশ্যাল","ট্যাগ","জমা"]'>
+      {% for item in form_type_items %}
+      <div class="form-type-card" data-type="{{ item.group_code }}" data-url="{{ item.url }}"
+           data-step-labels='{{ item.step_labels }}'>
         <span class="form-type-check">✓</span>
-        <span class="form-type-icon">📰</span>
-        <span class="form-type-name">সাধারণ সংবাদ (General News)</span>
-        <span class="form-type-steps">৮ ধাপ</span>
+        <span class="form-type-icon">{{ item.icon }}</span>
+        <span class="form-type-name">{{ item.form_name_bn }} ({{ item.form_name_en }})</span>
+        <span class="form-type-steps">{{ item.step_count_bn }}</span>
+        {% if item.is_restricted %}<span class="form-type-restricted-badge">🔒</span>{% endif %}
       </div>
-      <div class="form-type-card" data-type="crime_violence" data-url="{% url 'newshub:news_collection_multistep_crime_violence' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","হতাহত","অস্ত্র","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🚨</span>
-        <span class="form-type-name">অপরাধ ও সহিংসতা (Crime & Violence)</span>
-        <span class="form-type-steps">১৩ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="extortion" data-url="{% url 'newshub:news_collection_multistep_extortion' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","ক্ষয়ক্ষতি","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">💸</span>
-        <span class="form-type-name">চাঁদাবাজি (Extortion)</span>
-        <span class="form-type-steps">১২ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="land_grabbing" data-url="{% url 'newshub:news_collection_multistep_land_grabbing' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","দখল","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🏚️</span>
-        <span class="form-type-name">দখলবাজি (Land Grabbing)</span>
-        <span class="form-type-steps">১২ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="price_syndicate" data-url="{% url 'newshub:news_collection_multistep_price_hike' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","মূল্য","মজুদ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">📉</span>
-        <span class="form-type-name">দ্রব্যমূল্য ও সিন্ডিকেট (Price Hike & Syndicate)</span>
-        <span class="form-type-steps">১২ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="watchdog_bangladesh" data-url="{% url 'newshub:news_collection_multistep_watchdog_bangladesh' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","বক্তব্য","ব্যক্তি","নজরদারি","প্রেক্ষাপট","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">⚖️</span>
-        <span class="form-type-name">নজরদারি - রাজনীতি, সুশাসন, নীতি ও জবাবদিহিতা (Watchdog)</span>
-        <span class="form-type-steps">১০ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="civic_community" data-url="{% url 'newshub:news_collection_multistep_civic_community' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","অভিযুক্ত পক্ষ","ভুক্তভোগী","সাক্ষী","প্রভাব","অবস্থা","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🏗️</span>
-        <span class="form-type-name">জনদুর্ভোগ ও নাগরিক ইস্যু (Civic & Community)</span>
-        <span class="form-type-steps">১২ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="global_news" data-url="{% url 'newshub:news_collection_multistep_global_news' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","দেশসমূহ","বাংলাদেশ","প্রতিক্রিয়া","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🌍</span>
-        <span class="form-type-name">আন্তর্জাতিক সংবাদ (Global News)</span>
-        <span class="form-type-steps">১০ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="war_conflict" data-url="{% url 'newshub:news_collection_multistep_war_conflict' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","পক্ষসমূহ","রণক্ষেত্র","হতাহত","ভূ-রাজনীতি","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">⚔️</span>
-        <span class="form-type-name">যুদ্ধ ও সংঘাত (War & Conflict)</span>
-        <span class="form-type-steps">১১ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="women_child_violence"
-           data-url="{% url 'newshub:news_collection_multistep_women_child_violence' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","ভুক্তভোগী","অবস্থা ও আঘাত","অভিযুক্ত পক্ষ","আইনি পদক্ষেপ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🛡️</span>
-        <span class="form-type-name">নারী ও শিশু নির্যাতন (Women & Child Violence)</span>
-        <span class="form-type-steps">১১ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="july_uprising_2024"
-           data-url="{% url 'newshub:news_collection_multistep_july_uprising' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","ঘটনা","শহীদ","কাহিনী","আঘাত","দমনকারী","প্রমাণ","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🇧🇩</span>
-        <span class="form-type-name">জুলাই অভ্যুত্থান ২০২৪: রক্তস্নাত ইতিহাস ও ন্যায়বিচার</span>
-        <span class="form-type-steps">১২ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="sports"
-           data-url="{% url 'newshub:news_collection_multistep_sports' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","ম্যাচ","ফলাফল","পারফরম্যান্স","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">⚽</span>
-        <span class="form-type-name">খেলাধুলা (Sports)</span>
-        <span class="form-type-steps">১০ ধাপ</span>
-      </div>
-      <div class="form-type-card" data-type="entertainment"
-           data-url="{% url 'newshub:news_collection_multistep_entertainment' %}"
-           data-step-labels='["ফর্ম","তথ্যদাতা","সংবাদ","প্রযোজনা","কাস্ট","পারফরম্যান্স","স্থান","সোশ্যাল","ট্যাগ","জমা"]'>
-        <span class="form-type-check">✓</span>
-        <span class="form-type-icon">🎬</span>
-        <span class="form-type-name">বিনোদন ও বিনোদন জগত (Entertainment)</span>
-        <span class="form-type-steps">১০ ধাপ</span>
-      </div>
+      {% endfor %}
     </div>
   </div>
 </div>

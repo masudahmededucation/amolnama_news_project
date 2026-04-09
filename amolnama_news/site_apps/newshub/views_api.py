@@ -1062,3 +1062,158 @@ def api_article_like_toggle(request, pub_article_id):
     ).values_list('like_count', flat=True).first() or 0
 
     return JsonResponse({"success": True, "liked": liked, "like_count": new_like_count})
+
+
+# ========== Admin — Form Access Management ==========
+
+
+def api_admin_form_access_search_users(request):
+    """GET /newshub/api/admin/form-access/search-users/?q=...
+    Search users by name or email. Staff/superuser only."""
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    query = (request.GET.get('q') or '').strip()
+    if len(query) < 2:
+        return JsonResponse({"success": False, "error": "Minimum 2 characters"}, status=400)
+
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    user_matches = User.objects.filter(
+        Q(email__icontains=query) | Q(phone__icontains=query),
+        is_active=True,
+    )[:20]
+
+    results = []
+    for user_account in user_matches:
+        profile = UserProfile.objects.filter(link_user_account_user_id=user_account.pk).first()
+        if not profile:
+            continue
+        results.append({
+            "user_profile_id": profile.user_profile_id,
+            "display_name": profile.display_name or '',
+            "email": user_account.email or '',
+            "is_staff": user_account.is_staff,
+        })
+
+    return JsonResponse({"success": True, "users": results})
+
+
+def api_admin_form_access_user_detail(request, user_profile_id):
+    """GET /newshub/api/admin/form-access/user/<id>/
+    Return form types with access status for a specific user. Staff/superuser only."""
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    from .models import RefNewsFormType, NewshubUserFormAccess
+
+    all_form_types = RefNewsFormType.objects.filter(is_active=True).order_by('newshub_ref_news_form_type_id')
+
+    granted_ids = set(
+        NewshubUserFormAccess.objects.filter(
+            link_user_profile_id=user_profile_id, is_active=True,
+        ).values_list('link_newshub_ref_news_form_type_id', flat=True)
+    )
+
+    form_types = []
+    for form_type in all_form_types:
+        form_types.append({
+            "form_type_id": form_type.newshub_ref_news_form_type_id,
+            "group_code": form_type.group_code,
+            "form_name_en": form_type.form_name_en,
+            "form_name_bn": form_type.form_name_bn,
+            "is_restricted": form_type.is_restricted,
+            "has_access": not form_type.is_restricted or form_type.newshub_ref_news_form_type_id in granted_ids,
+        })
+
+    return JsonResponse({"success": True, "form_types": form_types})
+
+
+def api_admin_form_access_toggle(request):
+    """POST /newshub/api/admin/form-access/toggle/
+    Toggle form access for a user. Body: {user_profile_id, form_type_id, grant: true/false}.
+    Staff/superuser only."""
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "POST required"}, status=405)
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    import json as json_module
+    try:
+        data = json_module.loads(request.body)
+    except (json_module.JSONDecodeError, ValueError):
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    user_profile_id = data.get('user_profile_id')
+    form_type_id = data.get('form_type_id')
+    grant = data.get('grant', False)
+
+    if not user_profile_id or not form_type_id:
+        return JsonResponse({"success": False, "error": "Missing user_profile_id or form_type_id"}, status=400)
+
+    from .models import NewshubUserFormAccess
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from django.utils import timezone
+
+    admin_profile = UserProfile.objects.filter(link_user_account_user_id=request.user.pk).first()
+    if not admin_profile:
+        return JsonResponse({"success": False, "error": "Admin profile not found"}, status=400)
+
+    if grant:
+        existing = NewshubUserFormAccess.objects.filter(
+            link_user_profile_id=user_profile_id,
+            link_newshub_ref_news_form_type_id=form_type_id,
+        ).first()
+        if existing:
+            if not existing.is_active:
+                existing.is_active = True
+                existing.link_granted_by_user_profile_id = admin_profile.user_profile_id
+                existing.updated_at = timezone.now()
+                existing.save(update_fields=['is_active', 'link_granted_by_user_profile_id', 'updated_at'])
+        else:
+            NewshubUserFormAccess.objects.create(
+                link_user_profile_id=user_profile_id,
+                link_newshub_ref_news_form_type_id=form_type_id,
+                link_granted_by_user_profile_id=admin_profile.user_profile_id,
+            )
+    else:
+        NewshubUserFormAccess.objects.filter(
+            link_user_profile_id=user_profile_id,
+            link_newshub_ref_news_form_type_id=form_type_id,
+        ).update(is_active=False, updated_at=timezone.now())
+
+    return JsonResponse({"success": True, "granted": grant})
+
+
+def api_admin_form_access_toggle_restriction(request):
+    """POST /newshub/api/admin/form-access/toggle-restriction/
+    Toggle is_restricted on a form type (lift/apply restriction for ALL users).
+    Body: {form_type_id, is_restricted: true/false}. Staff/superuser only."""
+    if request.method != 'POST':
+        return JsonResponse({"success": False, "error": "POST required"}, status=405)
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    import json as json_module
+    try:
+        data = json_module.loads(request.body)
+    except (json_module.JSONDecodeError, ValueError):
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    form_type_id = data.get('form_type_id')
+    is_restricted = data.get('is_restricted', True)
+
+    if not form_type_id:
+        return JsonResponse({"success": False, "error": "Missing form_type_id"}, status=400)
+
+    from .models import RefNewsFormType
+    updated = RefNewsFormType.objects.filter(
+        newshub_ref_news_form_type_id=form_type_id,
+    ).update(is_restricted=is_restricted)
+
+    if not updated:
+        return JsonResponse({"success": False, "error": "Form type not found"}, status=404)
+
+    return JsonResponse({"success": True, "is_restricted": is_restricted})

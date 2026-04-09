@@ -1,0 +1,308 @@
+/* News Admin — Form Access Management */
+
+.news-admin-form-access-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.news-admin-form-access-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.news-admin-form-access-subtitle {
+  font-size: .82rem;
+  color: var(--muted);
+  margin: .2rem 0 1.2rem;
+}
+
+/* Tabs */
+.news-admin-form-access-tabs {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: .5rem;
+}
+
+.news-admin-form-access-tab {
+  padding: .5rem 1rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+}
+
+.news-admin-form-access-tab:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.news-admin-form-access-tab-active {
+  color: var(--primary);
+  background: var(--primary-light);
+  font-weight: 700;
+}
+
+/* Search */
+.news-admin-form-access-search-row {
+  margin-bottom: 1rem;
+}
+
+.news-admin-form-access-search-label {
+  display: block;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: .3rem;
+}
+
+.news-admin-form-access-search-input {
+  width: 100%;
+  padding: .6rem .8rem;
+  font-size: .88rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+
+.news-admin-form-access-search-input:focus {
+  border-color: var(--primary);
+}
+
+/* Search Results */
+.news-admin-form-access-search-results:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+
+.news-admin-form-access-search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+
+.news-admin-form-access-search-result-item:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.news-admin-form-access-search-result-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.news-admin-form-access-search-result-email {
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.news-admin-form-access-search-result-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: .15rem .4rem;
+  border-radius: 10px;
+  background: var(--info-light);
+  color: var(--info);
+}
+
+/* User Detail */
+.news-admin-form-access-user-detail:not([hidden]) {
+  display: block;
+}
+
+.news-admin-form-access-user-header {
+  padding: .75rem;
+  background: var(--surface);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Form Grid — checkboxes */
+.news-admin-form-access-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: .5rem;
+}
+
+.news-admin-form-access-form-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  transition: border-color .15s;
+}
+
+.news-admin-form-access-form-card-granted {
+  border-left: 3px solid var(--success);
+}
+
+.news-admin-form-access-form-card-public {
+  border-left: 3px solid var(--info);
+  opacity: .7;
+}
+
+.news-admin-form-access-form-card-name {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.news-admin-form-access-form-card-code {
+  font-size: .65rem;
+  color: var(--muted);
+  display: block;
+}
+
+.news-admin-form-access-form-card-status {
+  font-size: .68rem;
+  font-weight: 600;
+  color: var(--info);
+}
+
+/* Toggle Switch */
+.news-admin-form-access-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.news-admin-form-access-toggle-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.news-admin-form-access-toggle-slider {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 20px;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+
+.news-admin-form-access-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+}
+
+.news-admin-form-access-toggle-label input:checked + .news-admin-form-access-toggle-slider {
+  background: var(--danger);
+}
+
+.news-admin-form-access-toggle-label input:checked + .news-admin-form-access-toggle-slider::after {
+  transform: translateX(16px);
+}
+
+.news-admin-form-access-toggle-text {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 80px;
+}
+
+/* Restriction Grid */
+.news-admin-form-access-restriction-info {
+  font-size: .8rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.news-admin-form-access-restriction-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.news-admin-form-access-restriction-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.news-admin-form-access-restriction-card-name {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.news-admin-form-access-restriction-card-code {
+  font-size: .68rem;
+  color: var(--muted);
+  display: block;
+}
+
+/* Inline message */
+.news-admin-form-access-inline-message {
+  font-size: .75rem;
+  padding: .4rem .6rem;
+  border-radius: 6px;
+  margin-top: .5rem;
+}
+
+.news-admin-form-access-inline-message-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.news-admin-form-access-inline-message-error {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* Focus */
+.news-admin-form-access-tab:focus-visible,
+.news-admin-form-access-search-result-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .news-admin-form-access-container { padding: 1rem .75rem; }
+  .news-admin-form-access-title { font-size: 1.2rem; }
+  .news-admin-form-access-tabs { flex-direction: column; gap: .3rem; }
+  .news-admin-form-access-form-grid { grid-template-columns: 1fr; }
+}
