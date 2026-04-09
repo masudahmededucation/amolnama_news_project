@@ -3,23 +3,7 @@
 from django.db import models
 
 
-class RefArtCategory(models.Model):
-    blog_art_ref_art_category_id = models.AutoField(primary_key=True)
-    art_category_code = models.CharField(max_length=50)
-    art_category_name_bn = models.CharField(max_length=200)
-    art_category_name_en = models.CharField(max_length=200)
-    art_category_icon = models.CharField(max_length=10, blank=True, null=True)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[blog_art].[ref_art_category]'
-
-    def __str__(self):
-        return self.art_category_name_en
+# RefArtCategory removed — replaced by [content].[ref_content_subcategory] group_code='art'
 
 
 class RefArtMedium(models.Model):

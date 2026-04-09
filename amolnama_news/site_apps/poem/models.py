@@ -3,24 +3,7 @@
 from django.db import models
 
 
-class RefPoemCategory(models.Model):
-    """Reference table for poem categories. Maps to [blog_poem].[ref_poem_category]."""
-
-    blog_poem_ref_poem_category_id = models.IntegerField(primary_key=True)
-    poem_category_code = models.CharField(max_length=50)
-    poem_category_name_bn = models.CharField(max_length=100)
-    poem_category_name_en = models.CharField(max_length=100)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = "[blog_poem].[ref_poem_category]"
-
-    def __str__(self):
-        return self.poem_category_name_en
+# RefPoemCategory removed — replaced by [content].[ref_content_subcategory] group_code='poem'
 
 
 class CollPoemEntry(models.Model):

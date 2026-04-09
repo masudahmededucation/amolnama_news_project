@@ -3,23 +3,7 @@
 from django.db import models
 
 
-class RefStoryCategory(models.Model):
-    blog_stories_ref_story_category_id = models.AutoField(primary_key=True)
-    story_category_code = models.CharField(max_length=50)
-    story_category_name_bn = models.CharField(max_length=200)
-    story_category_name_en = models.CharField(max_length=200)
-    story_category_icon = models.CharField(max_length=10, blank=True, null=True)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[blog_stories].[ref_story_category]'
-
-    def __str__(self):
-        return self.story_category_name_en
+# RefStoryCategory removed — replaced by [content].[ref_content_subcategory] group_code='story'
 
 
 class RefStoryAgeGroup(models.Model):

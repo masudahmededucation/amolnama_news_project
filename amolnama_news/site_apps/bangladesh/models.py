@@ -8,23 +8,7 @@ from django.utils import timezone
 # REFERENCE TABLES
 # ============================================================================
 
-class RefDestinationCategory(models.Model):
-    blog_bangladesh_ref_destination_category_id = models.IntegerField(primary_key=True)
-    destination_category_code = models.CharField(max_length=50)
-    destination_category_name_en = models.CharField(max_length=100)
-    destination_category_name_bn = models.CharField(max_length=100)
-    destination_category_icon = models.CharField(max_length=100, blank=True, null=True)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = "[blog_bangladesh].[ref_destination_category]"
-
-    def __str__(self):
-        return self.destination_category_name_en
+# RefDestinationCategory removed — replaced by [content].[ref_content_subcategory] group_code='destination'
 
 
 class RefSeason(models.Model):
