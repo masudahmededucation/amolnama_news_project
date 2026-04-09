@@ -17,6 +17,7 @@
 /* Topic Cards */
 .debate-topic-list { display: flex; flex-direction: column; gap: .75rem; padding: 0 .5rem; }
 .debate-topic-card, .debate-topic-card:hover, .debate-topic-card:visited { display: block; padding: 1rem 1.2rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card, #fff); text-decoration: none; color: inherit; transition: box-shadow .15s, border-color .15s; }
+.debate-topic-card[hidden], .debate-topic-card[hidden]:visited, .debate-topic-card[hidden]:hover { display: none; }
 .debate-topic-card:hover { border-color: var(--primary); border-width: 2px; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 
 .debate-topic-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
@@ -59,6 +60,47 @@
 .debate-home-create-button-row { display: flex; gap: .5rem; justify-content: center; }
 .debate-home-create-submit-button { padding: .4rem 1rem; background: var(--primary); color: #fff; border: none; border-radius: 16px; font-size: .82rem; font-weight: 700; cursor: pointer; }
 .debate-home-create-cancel-button { padding: .4rem 1rem; background: var(--border); color: var(--text); border: none; border-radius: 16px; font-size: .82rem; font-weight: 700; cursor: pointer; }
+
+/* Parliament badge on topic cards */
+.debate-topic-card-category-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: .1rem .45rem;
+  border-radius: 8px;
+  background: var(--info-light, #dbeafe);
+  color: var(--info, #2563eb);
+  border: 1px solid var(--info, #2563eb);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Parliament card left border accent */
+.debate-topic-card[data-debate-type="parliament"] {
+  border-left: 3px solid var(--info, #2563eb);
+}
+
+/* Parliament toggle in create form */
+.debate-home-create-parliament-section {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .5rem;
+  padding: .4rem .5rem;
+  background: var(--surface, #f8fafc);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.debate-home-create-parliament-label {
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Filter pills spacing */
+#debate-home-filter-pills {
+  padding: 0 .5rem;
+  margin-bottom: .75rem;
+}
 
 /* Mobile */
 @media (max-width: 600px) {

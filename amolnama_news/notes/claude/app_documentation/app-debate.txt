@@ -231,3 +231,41 @@ POST /debate/api/notifications/mark-read/
 - CollVote → Vote
 - CollNotification → Notification
 - CollPostEditHistory → FactPostEditHistory
+
+## Parliament Debate Section (2026-04-09)
+
+### Architecture
+- Same debate engine — same rules, posting, rebuttals, moderation, passion board
+- Only labels differ: "সরকার পক্ষ (Government)" vs "বিরোধী দল (Opposition)"
+- No new tables, no new models — 2 columns added to coll_topic
+
+### DB Columns Added
+- `is_parliament_debate` BIT NOT NULL DEFAULT 0
+- `parliament_motion_text` NVARCHAR(MAX) NULL
+
+### Home Page
+- Filter pills: সব ধরন (All) | সাধারণ বিতর্ক (General) | 🏛️ সংসদ বিতর্ক (Parliament)
+- Uses shared `filter-pills` component from core
+- Client-side filtering via `data-debate-type` attribute on cards
+- Parliament cards show 🏛️ সংসদ badge + blue left border accent
+
+### Create Form
+- Parliament checkbox toggle in inline create form (staff only)
+- When checked: auto-fills side labels with Government/Opposition defaults
+- Motion text textarea appears (hidden when unchecked)
+- `is_parliament_debate` + `parliament_motion_text` sent to API
+
+### Arena
+- Motion text banner between header and passion board (only when motion text exists)
+- Dark gradient background, info-toned label, white text
+- Side labels show custom labels (Government/Opposition or user-defined)
+
+### Files Modified
+- models.py — added 2 fields to CollTopic
+- views.py — exposed fields in home(), topic_detail(), build_debate_promo_items(), topic_download_pdf()
+- views_api.py — updated api_topic_create() + api_topic_edit() INSERT/UPDATE SQL
+- debate-home.html — filter pills, data-debate-type, Parliament badge
+- debate-arena.html — motion banner, data-is-parliament attribute
+- debate-home.js — filter pills handler, Parliament checkbox + motion textarea in create form
+- debate-home.css — Parliament badge, card accent, form toggle styling
+- debate-arena.css — motion banner styling

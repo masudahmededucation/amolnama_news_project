@@ -25,6 +25,97 @@
     });
   }
 
+  /* ---- Filter pills — client-side debate type filter ---- */
+  /* Document delegation — guard against duplicate registration on SPA re-navigation */
+  if (!window.__debateFilterPillsRegistered) {
+  window.__debateFilterPillsRegistered = true;
+  document.addEventListener('click', function (event) {
+    const pill = event.target.closest('#debate-home-filter-pills .filter-pills-pill');
+    if (!pill) return;
+
+    const pillsGroup = document.getElementById('debate-home-filter-pills');
+    if (!pillsGroup) return;
+
+    pillsGroup.querySelectorAll('.filter-pills-pill').forEach(function (p) {
+      p.classList.remove('filter-pills-pill-active');
+    });
+    pill.classList.add('filter-pills-pill-active');
+
+    const filterType = pill.getAttribute('data-debate-type');
+    let visibleCount = 0;
+    document.querySelectorAll('.debate-topic-card').forEach(function (card) {
+      if (!filterType) {
+        card.hidden = false;
+        visibleCount++;
+      } else {
+        const match = card.getAttribute('data-debate-type') === filterType;
+        card.hidden = !match;
+        if (match) visibleCount++;
+      }
+    });
+
+    /* Show/hide empty state when filter returns no results */
+    let filterEmpty = document.getElementById('debate-filter-empty');
+    if (visibleCount === 0) {
+      if (!filterEmpty) {
+        filterEmpty = document.createElement('div');
+        filterEmpty.id = 'debate-filter-empty';
+        filterEmpty.className = 'debate-empty-state';
+        var topicList = document.getElementById('debate-topic-list');
+        if (topicList) topicList.appendChild(filterEmpty);
+      }
+      filterEmpty.innerHTML = '<p>এই ধরনের কোনো বিতর্ক নেই — শীঘ্রই আসছে</p>';
+      filterEmpty.hidden = false;
+    } else if (filterEmpty) {
+      filterEmpty.hidden = true;
+    }
+
+    /* Update filter crumbs */
+    var crumbsWrap = document.getElementById('debate-filter-crumbs');
+    var crumbsChips = document.getElementById('debate-filter-crumbs-chips');
+    var crumbsClear = document.getElementById('debate-filter-crumbs-clear');
+    if (crumbsWrap && crumbsChips) {
+      if (filterType) {
+        var pillText = pill.textContent.trim();
+        crumbsChips.innerHTML = '<span class="filter-crumbs-chip">' + escapeHtml(pillText) +
+          ' <button class="filter-crumbs-chip-remove" data-action="clear-debate-type">✕</button></span>';
+        crumbsWrap.hidden = false;
+      } else {
+        crumbsWrap.hidden = true;
+        crumbsChips.innerHTML = '';
+      }
+    }
+  });
+  document.addEventListener('click', function (event) {
+    var chipRemove = event.target.closest('#debate-filter-crumbs .filter-crumbs-chip-remove');
+    var clearAll = event.target.closest('#debate-filter-crumbs-clear');
+    if (!chipRemove && !clearAll) return;
+
+    /* Reset filter to "All" */
+    var pillsGroup = document.getElementById('debate-home-filter-pills');
+    if (pillsGroup) {
+      pillsGroup.querySelectorAll('.filter-pills-pill').forEach(function (p) {
+        p.classList.remove('filter-pills-pill-active');
+      });
+      var allPill = pillsGroup.querySelector('[data-debate-type=""]');
+      if (allPill) allPill.classList.add('filter-pills-pill-active');
+    }
+
+    /* Show all cards */
+    document.querySelectorAll('.debate-topic-card').forEach(function (card) {
+      card.hidden = false;
+    });
+
+    /* Hide crumbs */
+    var crumbsWrap = document.getElementById('debate-filter-crumbs');
+    if (crumbsWrap) crumbsWrap.hidden = true;
+
+    /* Hide empty state */
+    var filterEmpty = document.getElementById('debate-filter-empty');
+    if (filterEmpty) filterEmpty.hidden = true;
+  });
+  } /* end guard: __debateFilterPillsRegistered */
+
   const createButton = document.getElementById('debate-home-create-button');
   if (!createButton) return;
 
@@ -128,6 +219,55 @@
     formContainer.appendChild(blueSideLabelInput);
     formContainer.appendChild(redSideLabelLabel);
     formContainer.appendChild(redSideLabelInput);
+
+    /* Debate category dropdown */
+    const categoryLabel = document.createElement('label');
+    categoryLabel.setAttribute('for', 'debate-home-create-category-select');
+    categoryLabel.className = 'debate-home-create-label';
+    categoryLabel.textContent = 'বিতর্কের ধরন (Debate Category)';
+
+    const categorySelect = document.createElement('select');
+    categorySelect.className = 'debate-home-create-input';
+    categorySelect.id = 'debate-home-create-category-select';
+    categorySelect.name = 'debate_home_create_category_select';
+    categorySelect.innerHTML = '<option value="general">⚖️ সাধারণ বিতর্ক (General)</option>' +
+      '<option value="parliament">🏛️ সংসদ বিতর্ক (Parliament)</option>';
+
+    formContainer.appendChild(categoryLabel);
+    formContainer.appendChild(categorySelect);
+
+    const motionLabel = document.createElement('label');
+    motionLabel.setAttribute('for', 'debate-home-create-motion-textarea');
+    motionLabel.className = 'debate-home-create-label';
+    motionLabel.id = 'debate-home-create-motion-label';
+    motionLabel.textContent = 'প্রস্তাব / বিল (Motion Text)';
+    motionLabel.hidden = true;
+
+    const motionTextarea = document.createElement('textarea');
+    motionTextarea.className = 'debate-home-create-textarea';
+    motionTextarea.id = 'debate-home-create-motion-textarea';
+    motionTextarea.name = 'debate_home_create_motion_textarea';
+    motionTextarea.placeholder = 'এই সভায় আলোচনার জন্য প্রস্তাব লিখুন...';
+    motionTextarea.rows = 3;
+    motionTextarea.hidden = true;
+
+    categorySelect.addEventListener('change', function () {
+      const isParliament = categorySelect.value === 'parliament';
+      motionLabel.hidden = !isParliament;
+      motionTextarea.hidden = !isParliament;
+
+      if (isParliament) {
+        if (!blueSideLabelInput.value.trim()) {
+          blueSideLabelInput.value = 'সরকার পক্ষ (Government)';
+        }
+        if (!redSideLabelInput.value.trim()) {
+          redSideLabelInput.value = 'বিরোধী দল (Opposition)';
+        }
+      }
+    });
+
+    formContainer.appendChild(motionLabel);
+    formContainer.appendChild(motionTextarea);
 
     /* Media URL fields — video + image per side */
     const mediaSection = document.createElement('div');
@@ -250,6 +390,8 @@
           red_side_video_url: redVideoInput.value.trim() || null,
           blue_side_image_url: blueImageInput.value.trim() || null,
           red_side_image_url: redImageInput.value.trim() || null,
+          debate_category_code: categorySelect.value,
+          parliament_motion_text: motionTextarea.value.trim() || null,
           scheduled_start_at: scheduledTime,
         }),
       })

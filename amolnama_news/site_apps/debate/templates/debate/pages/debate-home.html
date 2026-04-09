@@ -5,6 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'debate/assets/css/pages/debate-home.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-crumbs.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -22,12 +24,26 @@
     <input type="text" class="debate-home-search-input" id="debate-home-search-input" name="debate_home_search_input" placeholder="বিষয় লিখে খুঁজুন...">
   </div>
 
+  <div class="filter-pills-group" id="debate-home-filter-pills">
+    <button type="button" class="filter-pills-pill filter-pills-pill-active" data-debate-type="">সব ধরন (All)</button>
+    {% for sub in debate_subcategories %}
+    <button type="button" class="filter-pills-pill" data-debate-type="{{ sub.subcategory_code }}">{{ sub.subcategory_icon }} {{ sub.subcategory_name_bn }} ({{ sub.subcategory_name_en }})</button>
+    {% endfor %}
+  </div>
+
+  <div class="filter-crumbs" hidden id="debate-filter-crumbs">
+    <span class="filter-crumbs-label">ফিল্টার:</span>
+    <div class="filter-crumbs-chips" id="debate-filter-crumbs-chips"></div>
+    <button type="button" class="filter-crumbs-clear" id="debate-filter-crumbs-clear">সব মুছুন ✕</button>
+  </div>
+
   {% if topic_items %}
   <div class="debate-topic-list" id="debate-topic-list">
     {% for topic in topic_items %}
-    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}">
+    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}" data-debate-type="{{ topic.debate_category_code }}">
       <div class="debate-topic-card-header">
         <h2 class="debate-topic-card-title">{{ topic.topic_title }}</h2>
+        {% if topic.debate_category_code != 'general' %}<span class="debate-topic-card-category-badge">{{ topic.debate_category_icon }} {{ topic.debate_category_name_bn }}</span>{% endif %}
         <span class="debate-topic-card-status debate-topic-card-status-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
       </div>
 

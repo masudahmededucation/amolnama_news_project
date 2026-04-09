@@ -163,6 +163,8 @@ def api_topic_create(request):
     red_side_video_url = (data.get('red_side_video_url') or '').strip() or None
     blue_side_image_url = (data.get('blue_side_image_url') or '').strip() or None
     red_side_image_url = (data.get('red_side_image_url') or '').strip() or None
+    debate_category_code = (data.get('debate_category_code') or 'general').strip()
+    parliament_motion_text = (data.get('parliament_motion_text') or '').strip() or None
     scheduled_start_at_raw = data.get('scheduled_start_at')
 
     if not topic_title or len(topic_title) < 10:
@@ -187,27 +189,32 @@ def api_topic_create(request):
 
     now = timezone.now()
     topic_guid = str(uuid.uuid4())
+    # Look up debate subcategory ID from code
+    from amolnama_news.site_apps.content.utils import get_unified_subcategory_id
+    debate_subcategory_id = get_unified_subcategory_id('debate', debate_category_code) or get_unified_subcategory_id('debate', 'general')
+
     cursor = _raw_execute("""
         INSERT INTO [blog_debate].[coll_topic]
             ([topic_guid], [topic_title], [topic_description],
              [blue_side_label], [red_side_label],
              [blue_side_video_url], [red_side_video_url],
              [blue_side_image_url], [red_side_image_url],
+             [parliament_motion_text], [link_content_ref_content_subcategory_id],
              [link_blog_debate_ref_topic_status_id],
              [scheduled_start_at], [actual_started_at], [link_created_by_user_profile_id])
         OUTPUT INSERTED.blog_debate_coll_topic_id
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, [topic_guid, topic_title, topic_description,
           blue_side_label, red_side_label,
           blue_side_video_url, red_side_video_url,
           blue_side_image_url, red_side_image_url,
+          parliament_motion_text, debate_subcategory_id,
           live_status.blog_debate_ref_topic_status_id, scheduled_start_at, now, user_profile_id])
     topic_id = cursor.fetchone()[0]
 
-    # Register in content registry
+    # Register in content registry (subcategory already set in INSERT above)
     try:
-        from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
-        debate_subcategory_id = get_unified_subcategory_id('debate', 'debate')
+        from amolnama_news.site_apps.content.utils import register_content
         content_registry_id = register_content(
             content_category_id=8,  # debate
             user_profile_id=user_profile_id,
@@ -217,12 +224,8 @@ def api_topic_create(request):
             subcategory_id=debate_subcategory_id,
             is_published=True,
         )
-        if debate_subcategory_id:
-            from .models import CollTopic
-            CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(
-                link_content_ref_content_subcategory_id=debate_subcategory_id
-            )
         if content_registry_id:
+            from .models import CollTopic
             CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(link_content_registry_id=content_registry_id)
     except Exception:
         logger.exception('Content registry failed for debate topic %s', topic_id)
@@ -260,9 +263,14 @@ def api_topic_edit(request, topic_id):
     red_side_video_url = (data.get('red_side_video_url') or '').strip() or None
     blue_side_image_url = (data.get('blue_side_image_url') or '').strip() or None
     red_side_image_url = (data.get('red_side_image_url') or '').strip() or None
+    debate_category_code = (data.get('debate_category_code') or 'general').strip()
+    parliament_motion_text = (data.get('parliament_motion_text') or '').strip() or None
 
     if not topic_title or len(topic_title) < 10:
         return JsonResponse({'success': False, 'error': 'বিষয় কমপক্ষে ১০ অক্ষর হতে হবে'}, status=400)
+
+    from amolnama_news.site_apps.content.utils import get_unified_subcategory_id
+    debate_subcategory_id = get_unified_subcategory_id('debate', debate_category_code) or get_unified_subcategory_id('debate', 'general')
 
     now = timezone.now()
     _raw_execute("""
@@ -271,12 +279,14 @@ def api_topic_edit(request, topic_id):
             [blue_side_label] = ?, [red_side_label] = ?,
             [blue_side_video_url] = ?, [red_side_video_url] = ?,
             [blue_side_image_url] = ?, [red_side_image_url] = ?,
+            [link_content_ref_content_subcategory_id] = ?, [parliament_motion_text] = ?,
             [updated_at] = ?
         WHERE [blog_debate_coll_topic_id] = ?
     """, [topic_title, topic_description,
           blue_side_label, red_side_label,
           blue_side_video_url, red_side_video_url,
           blue_side_image_url, red_side_image_url,
+          debate_subcategory_id, parliament_motion_text,
           now, topic_id])
 
     return JsonResponse({'success': True})

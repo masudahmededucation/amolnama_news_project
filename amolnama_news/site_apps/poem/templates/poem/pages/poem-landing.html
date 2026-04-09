@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{% static 'poem/assets/css/components/poem-card.css' %}">
 <link rel="stylesheet" href="{% static 'poem/assets/css/pages/poem-landing.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-crumbs.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -61,10 +62,10 @@
 </div>
 
 {# ── Active Filter Breadcrumbs ── #}
-<div class="poem-filter-crumbs" hidden id="poemFilterCrumbs">
-  <span class="poem-filter-crumbs-label">ফিল্টার:</span>
-  <div class="poem-filter-crumbs-chips" id="poemFilterChips"></div>
-  <button type="button" class="poem-filter-crumbs-clear" id="poemFilterClearAll">সব মুছুন ✕</button>
+<div class="filter-crumbs" hidden id="poemFilterCrumbs">
+  <span class="filter-crumbs-label">ফিল্টার:</span>
+  <div class="filter-crumbs-chips" id="poemFilterChips"></div>
+  <button type="button" class="filter-crumbs-clear" id="poemFilterClearAll">সব মুছুন ✕</button>
 </div>
 
 {# ── Card Grid (server-rendered first page) ── #}

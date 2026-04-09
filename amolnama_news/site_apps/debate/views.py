@@ -66,6 +66,18 @@ def _get_current_user_profile_id(request):
         return None
 
 
+def _get_debate_category_code(subcategory_id):
+    """Look up debate subcategory code from ID. Returns 'general' if not found."""
+    if not subcategory_id:
+        return 'general'
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    try:
+        sub = RefContentSubcategory.objects.get(content_ref_content_subcategory_id=subcategory_id)
+        return sub.subcategory_code or 'general'
+    except RefContentSubcategory.DoesNotExist:
+        return 'general'
+
+
 def _calculate_time_remaining(scheduled_start_at):
     """Calculate time remaining until debate starts. Returns human-readable string."""
     now = timezone.now()
@@ -91,6 +103,13 @@ def home(request):
     """Debate home — list of topics with status, participant counts, countdown."""
     status_map = _get_topic_status_map()
 
+    # Debate subcategories for filter pills (dynamic from DB)
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    debate_subcategories = list(RefContentSubcategory.objects.filter(
+        group_code='debate', is_active=True,
+    ).order_by('sort_order'))
+    subcategory_map = {s.content_ref_content_subcategory_id: s for s in debate_subcategories}
+
     topics = CollTopic.objects.filter(
         is_active=True,
     ).order_by('-scheduled_start_at')[:50]
@@ -98,6 +117,7 @@ def home(request):
     topic_items = []
     for topic in topics:
         status = status_map.get(topic.link_blog_debate_ref_topic_status_id)
+        subcategory = subcategory_map.get(topic.link_content_ref_content_subcategory_id)
         topic_items.append({
             'blog_debate_coll_topic_id': topic.blog_debate_coll_topic_id,
             'topic_title': topic.topic_title,
@@ -111,10 +131,14 @@ def home(request):
             'red_participant_count': topic.red_participant_count,
             'total_post_count': topic.total_post_count,
             'topic_score': topic.topic_score,
+            'debate_category_code': subcategory.subcategory_code if subcategory else 'general',
+            'debate_category_name_bn': subcategory.subcategory_name_bn if subcategory else 'সাধারণ বিতর্ক',
+            'debate_category_icon': subcategory.subcategory_icon if subcategory else '',
         })
 
     return render(request, 'debate/pages/debate-home.html', {
         'topic_items': topic_items,
+        'debate_subcategories': debate_subcategories,
         'seo': {
             'title': 'তর্ক-বিতর্ক — Debate Arena | আমলনামা নিউজ',
             'description': 'Structured debate platform — Blue vs Red. Schedule debates, argue with logic, vote on the strongest arguments.',
@@ -297,6 +321,8 @@ def topic_detail(request, topic_id):
         'passion_sentences_blue_pct': _safe_percent(topic.blue_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
         'passion_sentences_red_pct': _safe_percent(topic.red_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
         # Dynamic winner — calculated live with scores visible to users
+        'debate_category_code': _get_debate_category_code(topic.link_content_ref_content_subcategory_id),
+        'parliament_motion_text': topic.parliament_motion_text or '',
     }
 
     winning_side, blue_total_score, red_total_score = _calculate_winning_side(
@@ -443,6 +469,7 @@ def build_debate_promo_items():
             'passion_posts_red_pct': _safe_percent(topic.red_post_count, total_posts),
             'blue_top_argument': blue_top_argument,
             'red_top_argument': red_top_argument,
+            'debate_category_code': _get_debate_category_code(topic.link_content_ref_content_subcategory_id),
         })
 
     return promo_items
@@ -551,6 +578,8 @@ def topic_download_pdf(request, topic_id):
         'passion_upvotes_red_pct': _safe_percent(topic.red_upvote_count, topic.blue_upvote_count + topic.red_upvote_count),
         'passion_sentences_blue_pct': _safe_percent(topic.blue_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
         'passion_sentences_red_pct': _safe_percent(topic.red_sentence_count, topic.blue_sentence_count + topic.red_sentence_count),
+        'debate_category_code': _get_debate_category_code(topic.link_content_ref_content_subcategory_id),
+        'parliament_motion_text': topic.parliament_motion_text or '',
     }
 
     pdf_winning_side, pdf_blue_score, pdf_red_score = _calculate_winning_side(

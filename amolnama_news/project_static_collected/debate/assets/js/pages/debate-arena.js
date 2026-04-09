@@ -293,6 +293,8 @@
       const currentRedVideo = arenaElement.getAttribute('data-red-side-video-url') || '';
       const currentBlueImage = arenaElement.getAttribute('data-blue-side-image-url') || '';
       const currentRedImage = arenaElement.getAttribute('data-red-side-image-url') || '';
+      const currentCategoryCode = arenaElement.getAttribute('data-debate-category-code') || 'general';
+      const currentMotionText = arenaElement.getAttribute('data-parliament-motion-text') || '';
 
       form.innerHTML =
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-title">বিষয়</label>' +
@@ -324,6 +326,17 @@
         '</div>' +
         '</div>' +
 
+        /* Debate category section */
+        '<div class="debate-arena-edit-form-group" id="debate-arena-edit-form-group-category">' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-category">বিতর্কের ধরন (Debate Category)</label>' +
+        '<select class="debate-arena-edit-form-input" id="debate-arena-edit-category" name="debate_arena_edit_category">' +
+        '<option value="general"' + (currentCategoryCode === 'general' ? ' selected' : '') + '>⚖️ সাধারণ বিতর্ক (General)</option>' +
+        '<option value="parliament"' + (currentCategoryCode === 'parliament' ? ' selected' : '') + '>🏛️ সংসদ বিতর্ক (Parliament)</option>' +
+        '</select>' +
+        '<label class="debate-arena-edit-form-label" for="debate-arena-edit-motion-text"' + (currentCategoryCode === 'parliament' ? '' : ' hidden') + ' id="debate-arena-edit-motion-label">প্রস্তাব / বিল (Motion Text)</label>' +
+        '<textarea class="debate-arena-edit-form-textarea" id="debate-arena-edit-motion-text" name="debate_arena_edit_motion_text" rows="3"' + (currentCategoryCode === 'parliament' ? '' : ' hidden') + '>' + escapeHtml(currentMotionText) + '</textarea>' +
+        '</div>' +
+
         '<div class="debate-arena-edit-form-buttons">' +
         '<button type="button" class="debate-arena-edit-form-save" id="debate-arena-edit-save" name="debate_arena_edit_save">সংরক্ষণ করুন</button>' +
         '<button type="button" class="debate-arena-edit-form-cancel" id="debate-arena-edit-cancel" name="debate_arena_edit_cancel">বাতিল</button>' +
@@ -334,6 +347,13 @@
       /* Media group toggle */
       document.getElementById('debate-arena-edit-form-media-toggle').addEventListener('click', function () {
         document.getElementById('debate-arena-edit-form-media-content').classList.toggle('debate-arena-edit-form-group-content-hidden');
+      });
+
+      /* Category dropdown — show/hide motion text for parliament */
+      document.getElementById('debate-arena-edit-category').addEventListener('change', function () {
+        const isParliament = this.value === 'parliament';
+        document.getElementById('debate-arena-edit-motion-label').hidden = !isParliament;
+        document.getElementById('debate-arena-edit-motion-text').hidden = !isParliament;
       });
 
       document.getElementById('debate-arena-edit-cancel').addEventListener('click', function () { form.remove(); });
@@ -355,6 +375,8 @@
             red_side_video_url: document.getElementById('debate-arena-edit-red-video').value.trim(),
             blue_side_image_url: document.getElementById('debate-arena-edit-blue-image').value.trim(),
             red_side_image_url: document.getElementById('debate-arena-edit-red-image').value.trim(),
+            debate_category_code: document.getElementById('debate-arena-edit-category').value,
+            parliament_motion_text: document.getElementById('debate-arena-edit-motion-text').value.trim() || null,
           }),
         })
         .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })

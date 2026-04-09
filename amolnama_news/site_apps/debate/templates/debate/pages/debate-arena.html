@@ -22,7 +22,9 @@
      data-blue-side-video-url="{{ topic.blue_side_video_url }}"
      data-red-side-video-url="{{ topic.red_side_video_url }}"
      data-blue-side-image-url="{{ topic.blue_side_image_url }}"
-     data-red-side-image-url="{{ topic.red_side_image_url }}">
+     data-red-side-image-url="{{ topic.red_side_image_url }}"
+     data-debate-category-code="{{ topic.debate_category_code }}"
+     data-parliament-motion-text="{{ topic.parliament_motion_text }}"
 
   <!-- HEADER — Topic + Status + Timer -->
   <div class="debate-arena-header" id="debate-arena-header">
@@ -70,6 +72,13 @@
     </div>
     <div class="debate-arena-header-date">📅 {{ topic.scheduled_start_at_formatted }}</div>
   </div>
+
+  {% if topic.parliament_motion_text %}
+  <div class="debate-arena-motion-banner" id="debate-arena-motion-banner">
+    <span class="debate-arena-motion-banner-label">প্রস্তাব (Motion)</span>
+    <p class="debate-arena-motion-banner-text">{{ topic.parliament_motion_text }}</p>
+  </div>
+  {% endif %}
 
   <!-- PASSION BOARD — live tug-of-war stats -->
   <div class="debate-passion-board" id="debate-passion-board">

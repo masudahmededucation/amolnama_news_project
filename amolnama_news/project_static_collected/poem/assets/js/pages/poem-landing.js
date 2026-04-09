@@ -86,11 +86,11 @@
 
     crumbsWrap.hidden = false;
     crumbsChips.innerHTML = chips.map(function (c) {
-      return '<span class="poem-filter-chip">' + escapeHtml(c.label) +
-        ' <button class="poem-filter-chip-remove" data-action="' + escapeHtml(c.action) + '">✕</button></span>';
+      return '<span class="filter-crumbs-chip">' + escapeHtml(c.label) +
+        ' <button class="filter-crumbs-chip-remove" data-action="' + escapeHtml(c.action) + '">✕</button></span>';
     }).join("");
 
-    crumbsChips.querySelectorAll(".poem-filter-chip-remove").forEach(function (btn) {
+    crumbsChips.querySelectorAll(".filter-crumbs-chip-remove").forEach(function (btn) {
       btn.addEventListener("click", function () {
         const action = btn.getAttribute("data-action");
         if (action === "clear-type") {

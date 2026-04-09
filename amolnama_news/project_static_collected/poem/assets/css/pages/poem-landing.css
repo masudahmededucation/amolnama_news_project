@@ -175,68 +175,7 @@
 
 
 /* Active filter breadcrumbs */
-.poem-filter-crumbs:not([hidden]) {
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-  margin-bottom: .75rem;
-  flex-wrap: wrap;
-}
-
-.poem-filter-crumbs-label {
-  font-size: .75rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.poem-filter-crumbs-chips {
-  display: flex;
-  gap: .3rem;
-  flex-wrap: wrap;
-}
-
-.poem-filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: .25rem;
-  padding: .2rem .5rem;
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--info);
-  background: var(--info-light);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-.poem-filter-chip-remove {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: .75rem;
-  cursor: pointer;
-  padding: 0 .1rem;
-  line-height: 1;
-  transition: color .15s;
-}
-
-.poem-filter-chip-remove:hover {
-  color: #e74c3c;
-}
-
-.poem-filter-crumbs-clear {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: .7rem;
-  color: var(--danger);
-  cursor: pointer;
-  font-weight: 600;
-  transition: opacity .15s;
-}
-
-.poem-filter-crumbs-clear:hover {
-  opacity: .7;
-}
+/* Filter crumbs — uses shared filter-crumbs.css from core */
 
 /* Card Grid */
 .poem-card-grid {

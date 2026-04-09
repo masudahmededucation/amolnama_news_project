@@ -37,6 +37,32 @@
 
 @keyframes debate-live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
 
+/* Parliament Motion Banner */
+.debate-arena-motion-banner {
+  background: linear-gradient(135deg, #1e3a5f, #1e293b);
+  border: 1px solid var(--info, #2563eb);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  margin: .5rem 0;
+  text-align: center;
+}
+.debate-arena-motion-banner-label {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--info, #60a5fa);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  display: block;
+  margin-bottom: .3rem;
+}
+.debate-arena-motion-banner-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  line-height: 1.6;
+}
+
 /* Passion Board — tug-of-war stats */
 .debate-passion-board { position: sticky; top: auto; z-index: 49; background: linear-gradient(135deg, #0f172a, #1e293b); border-radius: 12px; padding: .75rem 1rem; margin: .5rem 0; color: #fff; }
 .debate-passion-board-title { text-align: center; font-size: .82rem; font-weight: 800; letter-spacing: .05em; margin-bottom: .3rem; text-transform: uppercase; color: var(--warning); }
