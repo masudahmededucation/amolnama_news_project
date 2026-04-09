@@ -4,26 +4,7 @@ from django.db import models
 
 
 # RefStoryCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_stories_category'
-
-
-class RefStoryAgeGroup(models.Model):
-    blog_stories_ref_story_age_group_id = models.AutoField(primary_key=True)
-    age_group_code = models.CharField(max_length=10)
-    age_group_name_bn = models.CharField(max_length=100)
-    age_group_name_en = models.CharField(max_length=100)
-    age_min = models.IntegerField()
-    age_max = models.IntegerField()
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[blog_stories].[ref_story_age_group]'
-
-    def __str__(self):
-        return self.age_group_name_en
+# RefStoryAgeGroup removed — replaced by [content].[ref_content_subcategory] group_code='blog_stories_age_group'
 
 
 class CollStory(models.Model):

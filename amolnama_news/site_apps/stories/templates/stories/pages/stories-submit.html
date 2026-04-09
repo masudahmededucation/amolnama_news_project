@@ -36,10 +36,10 @@
 
     <div class="stories-submit-field">
       <label for="stories-submit-age-group" class="stories-submit-label">বয়সভিত্তিক শ্রেণী <span class="field-mandatory-star">*</span></label>
-      <select class="stories-submit-select" id="stories-submit-age-group" name="link_age_group_id" required>
+      <select class="stories-submit-select" id="stories-submit-age-group" name="link_blog_stories_ref_story_age_group_id" required>
         <option value="">বয়স নির্বাচন করুন</option>
         {% for age_group in age_groups %}
-        <option value="{{ age_group.blog_stories_ref_story_age_group_id }}">{{ age_group.age_group_name_bn }} ({{ age_group.age_group_name_en }})</option>
+        <option value="{{ age_group.content_ref_content_subcategory_id }}">{{ age_group.subcategory_name_bn }} ({{ age_group.subcategory_name_en }})</option>
         {% endfor %}
       </select>
     </div>

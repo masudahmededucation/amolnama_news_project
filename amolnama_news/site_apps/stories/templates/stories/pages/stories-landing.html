@@ -22,7 +22,7 @@
   <div class="filter-pills-group filter-pills-group-purple" id="stories-age-filter">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-age="" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স (All)</button>
     {% for age_group in age_groups %}
-    <button type="button" class="filter-pills-pill" data-age="{{ age_group.blog_stories_ref_story_age_group_id }}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</button>
+    <button type="button" class="filter-pills-pill" data-age="{{ age_group.content_ref_content_subcategory_id }}" id="stories-age-pill-{{ age_group.subcategory_code }}" name="stories_age_pill_{{ age_group.subcategory_code }}">{{ age_group.subcategory_name_bn }}</button>
     {% endfor %}
   </div>
 
