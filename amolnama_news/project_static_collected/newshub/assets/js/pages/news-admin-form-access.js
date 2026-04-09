@@ -185,7 +185,7 @@
         .then(function (response) { return response.json(); })
         .then(function (data) {
           if (data.success) {
-            if (textElement) textElement.textContent = isRestricted ? '🔒 সীমাবদ্ধ' : '🔓 উন্মুক্ত';
+            if (textElement) textElement.textContent = isRestricted ? '🔒 Restricted' : '🔓 Open';
           } else {
             toggle.checked = !isRestricted;
           }

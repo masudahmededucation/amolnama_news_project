@@ -45,7 +45,7 @@
         <label class="news-admin-form-access-toggle-label" for="news-admin-form-access-restriction-toggle-{{ form_type.newshub_ref_news_form_type_id }}">
           <input type="checkbox" class="news-admin-form-access-restriction-toggle" id="news-admin-form-access-restriction-toggle-{{ form_type.newshub_ref_news_form_type_id }}" name="news_admin_form_access_restriction_toggle_{{ form_type.newshub_ref_news_form_type_id }}" {% if form_type.is_restricted %}checked{% endif %}>
           <span class="news-admin-form-access-toggle-slider"></span>
-          <span class="news-admin-form-access-toggle-text">{% if form_type.is_restricted %}🔒 সীমাবদ্ধ{% else %}🔓 উন্মুক্ত{% endif %}</span>
+          <span class="news-admin-form-access-toggle-text">{% if form_type.is_restricted %}🔒 Restricted{% else %}🔓 Open{% endif %}</span>
         </label>
       </div>
       {% endfor %}
