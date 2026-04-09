@@ -150,6 +150,15 @@
   box-shadow: 0 0 0 3px rgba(27, 107, 74, .12);
 }
 
+.form-type-restricted-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: .7rem;
+  opacity: .6;
+  line-height: 1;
+}
+
 .form-type-check {
   position: absolute;
   top: 8px;
