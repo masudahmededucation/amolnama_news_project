@@ -138,6 +138,10 @@
       <span class="sidebar-navigation-item-icon">🎯</span>
       <span class="sidebar-navigation-item-label">Placeholders</span>
     </a>
+    <a href="{% url 'newshub:admin_form_access' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/newshub/admin/form-access/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-form-access" name="sidebar_navigation_item_form_access" title="Form Access Control">
+      <span class="sidebar-navigation-item-icon">🔐</span>
+      <span class="sidebar-navigation-item-label">Form Access</span>
+    </a>
     {% endif %}
   </div>
 </nav>
