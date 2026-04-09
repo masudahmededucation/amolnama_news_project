@@ -12,7 +12,7 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import CollStory, RefStoryCategory, EngagementStoryLike, EngagementStoryBookmark, EngagementStoryComment
+from .models import CollStory, EngagementStoryLike, EngagementStoryBookmark, EngagementStoryComment
 
 logger = logging.getLogger(__name__)
 

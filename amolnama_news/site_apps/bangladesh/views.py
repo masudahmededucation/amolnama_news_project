@@ -18,9 +18,10 @@ from .models import (
     TransportRoute, TravelTip, EngagementDestinationReview,
     DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
-    RefDestinationCategory, RefSeason, RefMediaCategory,
+    RefSeason, RefMediaCategory,
     CollMediaEntry,
 )
+from amolnama_news.site_apps.content.models import RefContentSubcategory
 
 
 PAGE_SIZE = 12
@@ -59,7 +60,6 @@ def bangladesh_landing(request):
 @ensure_csrf_cookie
 def travel_hub(request):
     """Travel Hub — browse destinations."""
-    from amolnama_news.site_apps.content.models import RefContentSubcategory
     categories = list(
         RefContentSubcategory.objects.filter(group_code='destination', is_active=True)
         .order_by("sort_order")
@@ -130,8 +130,8 @@ def travel_hub(request):
 def travel_hub_add(request):
     """Add or edit a destination."""
     categories = list(
-        RefDestinationCategory.objects.filter(is_active=True)
-        .order_by("sort_order", "destination_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='destination', is_active=True)
+        .order_by("sort_order")
     )
     seasons = list(
         RefSeason.objects.filter(is_active=True).order_by("sort_order")
@@ -237,15 +237,15 @@ def travel_hub_detail_by_slug(request, destination_slug):
         view_count=F('view_count') + 1
     )
 
-    # Category
+    # Category from unified subcategory table
     try:
-        cat = RefDestinationCategory.objects.get(
-            blog_bangladesh_ref_destination_category_id=dest.link_blog_bangladesh_ref_destination_category_id
+        cat = RefContentSubcategory.objects.get(
+            content_ref_content_subcategory_id=dest.link_content_ref_content_subcategory_id
         )
-        dest.category_name_bn = cat.destination_category_name_bn
-        dest.category_name_en = cat.destination_category_name_en
-        dest.category_icon = cat.destination_category_icon
-    except RefDestinationCategory.DoesNotExist:
+        dest.category_name_bn = cat.subcategory_name_bn
+        dest.category_name_en = cat.subcategory_name_en
+        dest.category_icon = cat.subcategory_icon
+    except RefContentSubcategory.DoesNotExist:
         dest.category_name_bn = ""
         dest.category_name_en = ""
         dest.category_icon = ""

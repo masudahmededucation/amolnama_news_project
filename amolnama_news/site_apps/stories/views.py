@@ -6,8 +6,10 @@ from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from amolnama_news.site_apps.content.models import RefContentSubcategory
+
 from .models import (
-    RefStoryCategory, RefStoryAgeGroup,
+    RefStoryAgeGroup,
     CollStory, StoryAsset, StoryPage,
     EngagementStoryLike, EngagementStoryBookmark,
 )
@@ -131,7 +133,7 @@ def detail(request, story_slug):
     except UserProfile.DoesNotExist:
         pass
 
-    category = RefStoryCategory.objects.filter(blog_stories_ref_story_category_id=story.link_blog_stories_ref_story_category_id).first()
+    category = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=story.link_content_ref_content_subcategory_id).first()
     age_group = RefStoryAgeGroup.objects.filter(blog_stories_ref_story_age_group_id=story.link_blog_stories_ref_story_age_group_id).first()
 
     # Story pages (for paginated reading)
@@ -169,8 +171,8 @@ def detail(request, story_slug):
         'content_html_bn': story.story_content_html_bn,
         'source_attribution_bn': story.story_source_attribution_bn,
         'reading_time_minutes': story.reading_time_minutes,
-        'category_name_bn': category.story_category_name_bn if category else '',
-        'category_icon': category.story_category_icon if category else '',
+        'category_name_bn': category.subcategory_name_bn if category else '',
+        'category_icon': category.subcategory_icon if category else '',
         'age_group_name_bn': age_group.age_group_name_bn if age_group else '',
         'author_name': author_profile.display_name if author_profile and author_profile.display_name else 'লেখক',
         'cover_url': cover_url,
@@ -222,7 +224,7 @@ def detail(request, story_slug):
 @ensure_csrf_cookie
 def submit(request):
     """Story submission page."""
-    categories = RefStoryCategory.objects.filter(is_active=True).order_by('sort_order')
+    categories = list(RefContentSubcategory.objects.filter(group_code='story', is_active=True).order_by('sort_order'))
     age_groups = RefStoryAgeGroup.objects.filter(is_active=True).order_by('sort_order')
 
     return render(request, 'stories/pages/stories-submit.html', {

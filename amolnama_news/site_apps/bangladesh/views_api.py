@@ -18,7 +18,7 @@ from amolnama_news.site_apps.core.utils import bangla_slugify
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from .models import (
-    CollDestination, RefDestinationCategory, RefSeason,
+    CollDestination, RefSeason,
     CollMediaEntry, RefMediaCategory,
     DestinationPhoto, DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationReview, EngagementDestinationPhotoLike, EngagementDestinationVideoLike,

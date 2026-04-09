@@ -8,7 +8,8 @@ import tempfile
 from django.http import HttpResponse, Http404
 from django.views.decorators.cache import cache_control
 
-from .models import CollPoemEntry, RefPoemCategory
+from amolnama_news.site_apps.content.models import RefContentSubcategory
+from .models import CollPoemEntry
 
 # Chrome path
 CHROME_PATH = None
@@ -136,11 +137,11 @@ def _render_og_image(poem):
 
     cat_name = ""
     try:
-        cat = RefPoemCategory.objects.get(
-            blog_poem_ref_poem_category_id=poem.link_blog_poem_ref_poem_category_id
+        cat = RefContentSubcategory.objects.get(
+            content_ref_content_subcategory_id=poem.link_content_ref_content_subcategory_id
         )
-        cat_name = cat.poem_category_name_bn
-    except RefPoemCategory.DoesNotExist:
+        cat_name = cat.subcategory_name_bn
+    except RefContentSubcategory.DoesNotExist:
         pass
 
     title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"

@@ -6,8 +6,10 @@ from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from amolnama_news.site_apps.content.models import RefContentSubcategory
+
 from .models import (
-    RefArtCategory, RefArtMedium, RefArtDifficulty,
+    RefArtMedium, RefArtDifficulty,
     CollArtwork, ArtworkAsset, ArtworkStep,
     ArtworkYoutubeLink, EngagementArtworkLike, EngagementArtworkBookmark,
 )
@@ -84,7 +86,6 @@ def home(request):
                 cover_map[row[0]] = row[1]
 
     # Build category map from unified subcategory table
-    from amolnama_news.site_apps.content.models import RefContentSubcategory
     subcategory_map = {
         sub.content_ref_content_subcategory_id: sub
         for sub in RefContentSubcategory.objects.filter(group_code='art', is_active=True).order_by('sort_order')
@@ -150,7 +151,7 @@ def detail(request, artwork_slug):
         pass
 
     # Category & medium & difficulty
-    category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=artwork.link_blog_art_ref_art_category_id).first()
+    category = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=artwork.link_content_ref_content_subcategory_id).first()
     medium = RefArtMedium.objects.filter(blog_art_ref_art_medium_id=artwork.link_blog_art_ref_art_medium_id).first() if artwork.link_blog_art_ref_art_medium_id else None
     difficulty = RefArtDifficulty.objects.filter(blog_art_ref_art_difficulty_id=artwork.link_blog_art_ref_art_difficulty_id).first() if artwork.link_blog_art_ref_art_difficulty_id else None
 
@@ -210,8 +211,8 @@ def detail(request, artwork_slug):
         'time_ago': _calculate_time_ago(artwork.created_at),
         'created_at_formatted': artwork.created_at.strftime('%d %b %Y') if artwork.created_at else '',
         'author_name': author_profile.display_name if author_profile and author_profile.display_name else 'শিল্পী',
-        'category_name_bn': category.art_category_name_bn if category else '',
-        'category_icon': category.art_category_icon if category else '',
+        'category_name_bn': category.subcategory_name_bn if category else '',
+        'category_icon': category.subcategory_icon if category else '',
         'medium_name_bn': medium.art_medium_name_bn if medium else '',
         'difficulty_name_bn': difficulty.art_difficulty_name_bn if difficulty else '',
         'photos': photos,
@@ -258,7 +259,7 @@ def detail(request, artwork_slug):
 @ensure_csrf_cookie
 def upload(request):
     """Art upload page — create new artwork."""
-    categories = RefArtCategory.objects.filter(is_active=True).order_by('sort_order')
+    categories = RefContentSubcategory.objects.filter(group_code='art', is_active=True).order_by('sort_order')
     mediums = RefArtMedium.objects.filter(is_active=True).order_by('sort_order')
     difficulties = RefArtDifficulty.objects.filter(is_active=True).order_by('sort_order')
 

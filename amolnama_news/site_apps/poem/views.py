@@ -12,7 +12,8 @@ from amolnama_news.site_apps.core.utils import bangla_slugify
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .helpers import get_smart_related_poems
-from .models import CollPoemEntry, RefPoemCategory
+from amolnama_news.site_apps.content.models import RefContentSubcategory
+from .models import CollPoemEntry
 
 
 PAGE_SIZE = 12
@@ -130,8 +131,8 @@ def _render_poem_detail(request, poem):
     )
 
     categories_map = {
-        c.blog_poem_ref_poem_category_id: c
-        for c in RefPoemCategory.objects.filter(is_active=True)
+        c.content_ref_content_subcategory_id: c
+        for c in RefContentSubcategory.objects.filter(group_code='poem', is_active=True)
     }
     _annotate_poem(poem, categories_map)
 
@@ -271,7 +272,7 @@ def poem_edit(request, poem_slug):
             raise Http404
 
     categories = list(
-        RefPoemCategory.objects.filter(is_active=True).order_by("sort_order", "poem_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
     )
 
     title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"
@@ -296,7 +297,7 @@ def poem_edit(request, poem_slug):
 def poem_create(request):
     """Poem creation form."""
     categories = list(
-        RefPoemCategory.objects.filter(is_active=True).order_by("sort_order", "poem_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
     )
     return render(request, "poem/pages/poem-create.html", {
         "categories": categories,
