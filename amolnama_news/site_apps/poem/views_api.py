@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from .helpers import get_smart_related_poems
-from .models import CollPoemEntry, EngagementPoemLike, RefPoemCategory
+from .models import CollPoemEntry, EngagementPoemLike
 from .views import _ensure_poem_slug
 
 
@@ -32,10 +32,11 @@ def _poem_url(poem):
 
 
 def _categories_map():
-    """Return {id: category} dict for active categories."""
+    """Return {id: subcategory} dict for active poem categories from unified table."""
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
     return {
-        c.blog_poem_ref_poem_category_id: c
-        for c in RefPoemCategory.objects.filter(is_active=True)
+        c.content_ref_content_subcategory_id: c
+        for c in RefContentSubcategory.objects.filter(group_code='poem', is_active=True)
     }
 
 
@@ -58,7 +59,7 @@ def api_poem_entry_list(request):
         qs = qs.filter(poem_type_code=poem_type)
 
     if category:
-        qs = qs.filter(link_blog_poem_ref_poem_category_id=int(category))
+        qs = qs.filter(link_content_ref_content_subcategory_id=int(category))
 
     if exclude_id and exclude_id.isdigit():
         qs = qs.exclude(blog_poem_coll_poem_entry_id=int(exclude_id))
@@ -81,7 +82,7 @@ def api_poem_entry_list(request):
     cats = _categories_map()
     result = []
     for p in poems:
-        cat = cats.get(p.link_blog_poem_ref_poem_category_id)
+        cat = cats.get(p.link_content_ref_content_subcategory_id)
         body = p.poem_body_bn or p.poem_body_en or ""
         result.append({
             "id": p.blog_poem_coll_poem_entry_id,
@@ -90,8 +91,8 @@ def api_poem_entry_list(request):
             "title_en": p.poem_title_en or "",
             "display_title": p.poem_title_bn or p.poem_title_en or "শিরোনামহীন",
             "body_preview": body[:120].strip(),
-            "category_name": cat.poem_category_name_bn if cat else "",
-            "category_name_en": cat.poem_category_name_en if cat else "",
+            "category_name": cat.subcategory_name_bn if cat else "",
+            "category_name_en": cat.subcategory_name_en if cat else "",
             "author_display_name": p.poem_author_display_name,
             "like_count": p.like_count,
             "language": p.poem_language_code,
@@ -133,12 +134,13 @@ def api_poem_entry_create(request):
         if not body_bn and not body_en:
             return JsonResponse({"success": False, "error": "Poem body is required"}, status=400)
 
-        category_id = data.get("link_poem_category_id")
+        category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_poem_category_id")
         if not category_id:
             return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
-        # Validate category exists
-        if not RefPoemCategory.objects.filter(blog_poem_ref_poem_category_id=category_id, is_active=True).exists():
+        # Validate category exists in unified subcategory table
+        from amolnama_news.site_apps.content.models import RefContentSubcategory
+        if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='poem', is_active=True).exists():
             return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
         # Writer's name — user-provided, required
@@ -159,7 +161,7 @@ def api_poem_entry_create(request):
 
         poem = CollPoemEntry.objects.create(
             link_user_profile_id=profile_id,
-            link_blog_poem_ref_poem_category_id=category_id,
+            link_content_ref_content_subcategory_id=category_id,
             poem_type_code=poem_type,
             poem_title_bn=title_bn,
             poem_title_en=title_en,
@@ -182,17 +184,8 @@ def api_poem_entry_create(request):
 
         _ensure_poem_slug(poem)
 
-        # Look up unified subcategory from poem category
-        from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
-        poem_category = RefPoemCategory.objects.filter(blog_poem_ref_poem_category_id=category_id).first()
-        unified_subcategory_id = get_unified_subcategory_id('poem', poem_category.poem_category_code) if poem_category else None
-
-        if unified_subcategory_id:
-            CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id=poem.blog_poem_coll_poem_entry_id).update(
-                link_content_ref_content_subcategory_id=unified_subcategory_id
-            )
-
-        # Register in content registry
+        # Register in content registry (subcategory already set in create)
+        from amolnama_news.site_apps.content.utils import register_content
         try:
             content_registry_id = register_content(
                 content_category_id=3,  # poem
@@ -202,7 +195,7 @@ def api_poem_entry_create(request):
                 slug=poem.poem_slug,
                 summary_bn=(body_bn or '')[:500] if body_bn else None,
                 content_url=f'/bangla-kobita-gaan/{poem.poem_slug}/',
-                subcategory_id=unified_subcategory_id,
+                subcategory_id=category_id,
                 is_published=True,
             )
             if content_registry_id:
@@ -255,10 +248,11 @@ def api_poem_entry_update(request, poem_id):
     if not body_bn and not body_en:
         return JsonResponse({"success": False, "error": "Poem body is required"}, status=400)
 
-    category_id = data.get("link_poem_category_id")
+    category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_poem_category_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
-    if not RefPoemCategory.objects.filter(blog_poem_ref_poem_category_id=category_id, is_active=True).exists():
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='poem', is_active=True).exists():
         return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
     display_name = (data.get("poem_author_display_name") or "").strip()
@@ -279,7 +273,7 @@ def api_poem_entry_update(request, poem_id):
         poem_audio_url=(data.get("poem_audio_url") or "").strip() or None,
         poem_audio_reciter_name=(data.get("poem_audio_reciter_name") or "").strip() or None,
         poem_audio_description=(data.get("poem_audio_description") or "").strip() or None,
-        link_blog_poem_ref_poem_category_id=category_id,
+        link_content_ref_content_subcategory_id=category_id,
         updated_at=timezone.now(),
     )
 
@@ -363,7 +357,7 @@ def api_poem_next(request, poem_id):
         current, limit=1, exclude_ids=played_ids, require_audio=True,
     )
 
-    current_cat = current.link_blog_poem_ref_poem_category_id
+    current_cat = current.link_content_ref_content_subcategory_id
 
     # If smart list is empty, reset exhausted and try again with no exclusions
     if not smart_list:
@@ -377,7 +371,7 @@ def api_poem_next(request, poem_id):
 
     p = smart_list[0]
     cats = _categories_map()
-    cat = cats.get(p.link_blog_poem_ref_poem_category_id)
+    cat = cats.get(p.link_content_ref_content_subcategory_id)
 
     return JsonResponse({
         "success": True,
@@ -386,7 +380,7 @@ def api_poem_next(request, poem_id):
             "title": p.poem_title_bn or p.poem_title_en or "শিরোনামহীন",
             "author": p.poem_author_display_name,
             "body": p.poem_body_bn or p.poem_body_en or "",
-            "category": cat.poem_category_name_bn if cat else "",
+            "category": cat.subcategory_name_bn if cat else "",
             "language": p.poem_language_code,
             "type": p.poem_type_code,
             "audio_url": p.poem_audio_url,
@@ -396,24 +390,24 @@ def api_poem_next(request, poem_id):
             "interpretation": p.poem_interpretation_bn or p.poem_interpretation_en or "",
             "like_count": p.like_count,
             "view_count": p.view_count,
-            "category_id": p.link_blog_poem_ref_poem_category_id,
+            "category_id": p.link_content_ref_content_subcategory_id,
             "url": _poem_url(p),
         },
         "exhausted_categories": sorted(exhausted_cats),
-        "category_changed": p.link_blog_poem_ref_poem_category_id != current_cat,
+        "category_changed": p.link_content_ref_content_subcategory_id != current_cat,
     })
 
 
 @require_GET
 def api_poem_category_list(request):
     """GET /poem/api/categories/ — active categories for dropdowns."""
-    cats = RefPoemCategory.objects.filter(is_active=True).order_by("sort_order", "poem_category_name_en")
+    cats = _categories_map().values()
     return JsonResponse({
         "categories": [
             {
-                "id": c.blog_poem_ref_poem_category_id,
-                "name_bn": c.poem_category_name_bn,
-                "name_en": c.poem_category_name_en,
+                "id": c.content_ref_content_subcategory_id,
+                "name_bn": c.subcategory_name_bn,
+                "name_en": c.subcategory_name_en,
             }
             for c in cats
         ]
@@ -433,13 +427,13 @@ def api_poem_related(request, poem_id):
 
     result = []
     for p in related:
-        cat = cats.get(p.link_blog_poem_ref_poem_category_id)
+        cat = cats.get(p.link_content_ref_content_subcategory_id)
         body = p.poem_body_bn or p.poem_body_en or ""
         result.append({
             "id": p.blog_poem_coll_poem_entry_id,
             "display_title": p.poem_title_bn or p.poem_title_en or "শিরোনামহীন",
             "body_preview": body[:120].strip(),
-            "category_name": cat.poem_category_name_bn if cat else "",
+            "category_name": cat.subcategory_name_bn if cat else "",
             "author_display_name": p.poem_author_display_name,
             "like_count": p.like_count,
             "language": p.poem_language_code,

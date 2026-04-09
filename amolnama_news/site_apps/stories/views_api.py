@@ -29,7 +29,7 @@ def api_story_create(request):
     story_summary_bn = (request.POST.get('story_summary_bn') or '').strip() or None
     story_content_html_bn = (request.POST.get('story_content_html_bn') or '').strip()
     story_source_attribution_bn = (request.POST.get('story_source_attribution_bn') or '').strip() or None
-    link_blog_stories_ref_story_category_id = request.POST.get('link_blog_stories_ref_story_category_id')
+    link_content_ref_content_subcategory_id = request.POST.get('link_content_ref_content_subcategory_id')
     link_blog_stories_ref_story_age_group_id = request.POST.get('link_blog_stories_ref_story_age_group_id')
     reading_time_minutes = request.POST.get('reading_time_minutes') or 5
 
@@ -37,7 +37,7 @@ def api_story_create(request):
         return JsonResponse({'success': False, 'error': 'গল্পের নাম দিন'}, status=400)
     if not story_content_html_bn:
         return JsonResponse({'success': False, 'error': 'গল্প লিখুন'}, status=400)
-    if not link_blog_stories_ref_story_category_id:
+    if not link_content_ref_content_subcategory_id:
         return JsonResponse({'success': False, 'error': 'বিভাগ নির্বাচন করুন'}, status=400)
     if not link_blog_stories_ref_story_age_group_id:
         return JsonResponse({'success': False, 'error': 'বয়সভিত্তিক শ্রেণী নির্বাচন করুন'}, status=400)
@@ -53,14 +53,14 @@ def api_story_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [blog_stories].[coll_story]
-                ([story_guid], [link_user_profile_id], [link_blog_stories_ref_story_category_id], [link_blog_stories_ref_story_age_group_id],
+                ([story_guid], [link_user_profile_id], [link_content_ref_content_subcategory_id], [link_blog_stories_ref_story_age_group_id],
                  [story_title_bn], [story_title_en], [story_slug], [story_summary_bn],
                  [story_content_html_bn], [story_source_attribution_bn],
                  [story_type_code], [reading_time_minutes], [is_published], [is_active])
             OUTPUT INSERTED.blog_stories_coll_story_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, %s, %s, %s)
         """, [
-            story_guid, user_profile.user_profile_id, link_blog_stories_ref_story_category_id,
+            story_guid, user_profile.user_profile_id, link_content_ref_content_subcategory_id,
             link_blog_stories_ref_story_age_group_id, story_title_bn, story_title_en, story_slug,
             story_summary_bn, story_content_html_bn, story_source_attribution_bn,
             'text', reading_time_minutes, 1, 1,
@@ -96,17 +96,8 @@ def api_story_create(request):
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, [story_id, asset_id, 'cover', 1, 0, 1])
 
-    # Look up unified subcategory
-    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
-    story_category = RefStoryCategory.objects.filter(blog_stories_ref_story_category_id=link_blog_stories_ref_story_category_id).first()
-    unified_subcategory_id = get_unified_subcategory_id('story', story_category.story_category_code) if story_category else None
-
-    if unified_subcategory_id:
-        CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(
-            link_content_ref_content_subcategory_id=unified_subcategory_id
-        )
-
-    # Register in content registry
+    # Register in content registry (subcategory already set in INSERT)
+    from amolnama_news.site_apps.content.utils import register_content
     try:
         content_registry_id = register_content(
             content_category_id=4,  # story
@@ -116,7 +107,7 @@ def api_story_create(request):
             slug=story_slug,
             summary_bn=story_summary_bn,
             content_url=f'/stories-for-kids/{story_slug}/',
-            subcategory_id=unified_subcategory_id,
+            subcategory_id=link_content_ref_content_subcategory_id,
             is_published=True,
         )
         if content_registry_id:

@@ -35,7 +35,7 @@ def api_artwork_create(request):
     artwork_materials_bn = (request.POST.get('artwork_materials_bn') or '').strip() or None
     artwork_materials_en = (request.POST.get('artwork_materials_en') or '').strip() or None
     artwork_dimensions_en = (request.POST.get('artwork_dimensions_en') or '').strip() or None
-    link_blog_art_ref_art_category_id = request.POST.get('link_blog_art_ref_art_category_id')
+    link_content_ref_content_subcategory_id = request.POST.get('link_content_ref_content_subcategory_id')
     link_blog_art_ref_art_medium_id = request.POST.get('link_blog_art_ref_art_medium_id') or None
     link_blog_art_ref_art_difficulty_id = request.POST.get('link_blog_art_ref_art_difficulty_id') or None
     is_tutorial = request.POST.get('is_tutorial') == '1'
@@ -43,7 +43,7 @@ def api_artwork_create(request):
 
     if not artwork_title_bn:
         return JsonResponse({'success': False, 'error': 'শিল্পকর্মের নাম দিন'}, status=400)
-    if not link_blog_art_ref_art_category_id:
+    if not link_content_ref_content_subcategory_id:
         return JsonResponse({'success': False, 'error': 'বিভাগ নির্বাচন করুন'}, status=400)
 
     uploaded_files = request.FILES.getlist('artwork_media_files')
@@ -62,7 +62,7 @@ def api_artwork_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [blog_art].[coll_artwork]
-                ([artwork_guid], [link_user_profile_id], [link_blog_art_ref_art_category_id], [link_blog_art_ref_art_medium_id],
+                ([artwork_guid], [link_user_profile_id], [link_content_ref_content_subcategory_id], [link_blog_art_ref_art_medium_id],
                  [link_blog_art_ref_art_difficulty_id], [artwork_title_bn], [artwork_title_en], [artwork_slug],
                  [artwork_description_bn], [artwork_backstory_bn], [artwork_materials_bn],
                  [artwork_materials_en], [artwork_dimensions_en], [artwork_type_code],
@@ -70,7 +70,7 @@ def api_artwork_create(request):
             OUTPUT INSERTED.blog_art_coll_artwork_id
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CAST(%s AS NVARCHAR(MAX)), CAST(%s AS NVARCHAR(MAX)), %s, %s, %s, %s, %s, %s, %s, %s)
         """, [
-            artwork_guid, user_profile.user_profile_id, link_blog_art_ref_art_category_id,
+            artwork_guid, user_profile.user_profile_id, link_content_ref_content_subcategory_id,
             link_blog_art_ref_art_medium_id, link_blog_art_ref_art_difficulty_id, artwork_title_bn, artwork_title_en,
             artwork_slug, artwork_description_bn, artwork_backstory_bn,
             artwork_materials_bn, artwork_materials_en, artwork_dimensions_en,
@@ -78,20 +78,8 @@ def api_artwork_create(request):
         ])
         artwork_id = cursor.fetchone()[0]
 
-    # Look up unified subcategory from art category
-    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
-    unified_subcategory_id = None
-    art_category = RefArtCategory.objects.filter(blog_art_ref_art_category_id=link_blog_art_ref_art_category_id).first()
-    if art_category:
-        unified_subcategory_id = get_unified_subcategory_id('art', art_category.art_category_code)
-
-    # Set unified subcategory on artwork
-    if unified_subcategory_id:
-        CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(
-            link_content_ref_content_subcategory_id=unified_subcategory_id
-        )
-
-    # Register in content registry
+    # Register in content registry (subcategory already set in INSERT)
+    from amolnama_news.site_apps.content.utils import register_content
     try:
         content_registry_id = register_content(
             content_category_id=5,  # art
@@ -101,7 +89,7 @@ def api_artwork_create(request):
             slug=artwork_slug,
             summary_bn=(artwork_description_bn or '')[:500] if artwork_description_bn else None,
             content_url=f'/art-and-craft/{artwork_slug}/',
-            subcategory_id=unified_subcategory_id,
+            subcategory_id=link_content_ref_content_subcategory_id,
             is_published=True,
         )
         if content_registry_id:

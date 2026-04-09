@@ -68,7 +68,7 @@ def api_destination_list(request):
     queryset = CollDestination.objects.filter(destination_status="published").order_by("-is_featured", "-created_at")
 
     if category:
-        queryset = queryset.filter(link_blog_bangladesh_ref_destination_category_id=int(category))
+        queryset = queryset.filter(link_content_ref_content_subcategory_id=int(category))
     if season:
         queryset = queryset.filter(link_blog_bangladesh_ref_season_id=int(season))
     if search_query:
@@ -84,10 +84,11 @@ def api_destination_list(request):
     has_next = len(items) > PAGE_SIZE
     items = items[:PAGE_SIZE]
 
-    category_map = {c.blog_bangladesh_ref_destination_category_id: c for c in RefDestinationCategory.objects.filter(is_active=True)}
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    subcategory_map = {c.content_ref_content_subcategory_id: c for c in RefContentSubcategory.objects.filter(group_code='destination', is_active=True)}
     result = []
     for destination in items:
-        destination_category = category_map.get(destination.link_blog_bangladesh_ref_destination_category_id)
+        destination_category = subcategory_map.get(destination.link_content_ref_content_subcategory_id)
         result.append({
             "id": destination.blog_bangladesh_coll_destination_id,
             "slug": destination.destination_slug or "",
@@ -96,8 +97,8 @@ def api_destination_list(request):
             "short_desc_bn": destination.destination_short_description_bn or "",
             "short_desc_en": destination.destination_short_description_en or "",
             "cover_image": destination.cover_image_url or "",
-            "category_name_bn": destination_category.destination_category_name_bn if destination_category else "",
-            "category_icon": destination_category.destination_category_icon if destination_category else "",
+            "category_name_bn": destination_category.subcategory_name_bn if destination_category else "",
+            "category_icon": destination_category.subcategory_icon if destination_category else "",
             "avg_rating": float(destination.avg_rating) if destination.avg_rating else None,
             "review_count": destination.review_count,
             "view_count": destination.view_count,
@@ -128,18 +129,19 @@ def api_destination_create(request):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_blog_bangladesh_ref_destination_category_id")
+    category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_blog_bangladesh_ref_destination_category_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
-    if not RefDestinationCategory.objects.filter(
-        blog_bangladesh_ref_destination_category_id=category_id, is_active=True
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    if not RefContentSubcategory.objects.filter(
+        content_ref_content_subcategory_id=category_id, group_code='destination', is_active=True
     ).exists():
         return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
     dest = CollDestination.objects.create(
         link_user_profile_id=profile_id,
-        link_blog_bangladesh_ref_destination_category_id=category_id,
+        link_content_ref_content_subcategory_id=category_id,
         link_blog_bangladesh_ref_season_id=data.get("link_blog_bangladesh_ref_season_id") or None,
         link_division_id=data.get("link_division_id") or None,
         link_district_id=data.get("link_district_id") or None,
@@ -170,17 +172,8 @@ def api_destination_create(request):
     # Generate SEO slug
     _generate_destination_slug(dest)
 
-    # Look up unified subcategory
-    from amolnama_news.site_apps.content.utils import register_content, get_unified_subcategory_id
-    dest_category = RefDestinationCategory.objects.filter(blog_bangladesh_ref_destination_category_id=dest.link_blog_bangladesh_ref_destination_category_id).first()
-    unified_subcategory_id = get_unified_subcategory_id('destination', dest_category.destination_category_code) if dest_category else None
-
-    if unified_subcategory_id:
-        CollDestination.objects.filter(blog_bangladesh_coll_destination_id=dest.blog_bangladesh_coll_destination_id).update(
-            link_content_ref_content_subcategory_id=unified_subcategory_id
-        )
-
-    # Register in content registry
+    # Register in content registry (subcategory already set in create)
+    from amolnama_news.site_apps.content.utils import register_content
     try:
         content_registry_id = register_content(
             content_category_id=6,  # destination
@@ -190,7 +183,7 @@ def api_destination_create(request):
             slug=dest.destination_slug,
             summary_bn=(dest.destination_short_description_bn or dest.destination_description_bn or '')[:500] or None,
             content_url=f'/bangladesh-tourist-destinations/travel/{dest.destination_slug}/',
-            subcategory_id=unified_subcategory_id,
+            subcategory_id=category_id,
             is_published=True,
         )
         if content_registry_id:
@@ -249,11 +242,11 @@ def api_destination_update(request, destination_id):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_blog_bangladesh_ref_destination_category_id")
+    category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_blog_bangladesh_ref_destination_category_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
-    dest.link_blog_bangladesh_ref_destination_category_id = category_id
+    dest.link_content_ref_content_subcategory_id = category_id
     dest.link_blog_bangladesh_ref_season_id = data.get("link_blog_bangladesh_ref_season_id") or None
     dest.destination_name_bn = name_bn or name_en
     dest.destination_name_en = name_en or name_bn
