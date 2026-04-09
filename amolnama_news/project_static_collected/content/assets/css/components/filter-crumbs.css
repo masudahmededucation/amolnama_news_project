@@ -7,6 +7,9 @@
 
 
 /* Container — hidden by default, shown via JS */
+.filter-crumbs[hidden] {
+  display: none;
+}
 .filter-crumbs:not([hidden]) {
   display: flex;
   align-items: center;
