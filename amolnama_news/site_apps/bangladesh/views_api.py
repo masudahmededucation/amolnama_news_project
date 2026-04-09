@@ -19,7 +19,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 
 from .models import (
     CollDestination, RefSeason,
-    CollMediaEntry, RefMediaCategory,
+    CollMediaEntry,
     DestinationPhoto, DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationReview, EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
 )
@@ -285,7 +285,7 @@ def api_media_list(request):
     ).order_by("-created_at")
 
     if category:
-        queryset = queryset.filter(link_media_category_id=int(category))
+        queryset = queryset.filter(link_content_ref_content_subcategory_id=int(category))
     if media_type in ("photo", "video"):
         queryset = queryset.filter(media_type=media_type)
     if season:
@@ -303,10 +303,11 @@ def api_media_list(request):
     has_next = len(items) > PAGE_SIZE
     items = items[:PAGE_SIZE]
 
-    category_map = {c.bangladesh_ref_media_category_id: c for c in RefMediaCategory.objects.filter(is_active=True)}
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    category_map = {c.content_ref_content_subcategory_id: c for c in RefContentSubcategory.objects.filter(group_code='blog_bangladesh_media_category', is_active=True)}
     result = []
     for media_entry in items:
-        media_category = category_map.get(media_entry.link_media_category_id)
+        media_category = category_map.get(media_entry.link_content_ref_content_subcategory_id)
         result.append({
             "id": media_entry.blog_bangladesh_coll_media_entry_id,
             "title_bn": media_entry.media_title_bn or "",
@@ -314,8 +315,8 @@ def api_media_list(request):
             "display_title": media_entry.media_title_bn or media_entry.media_title_en or "",
             "media_type": media_entry.media_type,
             "thumbnail_url": media_entry.file_thumbnail_url or media_entry.file_display_url or media_entry.file_original_url,
-            "category_name_bn": media_category.media_category_name_bn if media_category else "",
-            "category_icon": media_category.media_category_icon if media_category else "",
+            "category_name_bn": media_category.subcategory_name_bn if media_category else "",
+            "category_icon": media_category.subcategory_icon if media_category else "",
             "location_bn": media_entry.location_name_bn or "",
             "like_count": media_entry.like_count,
             "view_count": media_entry.view_count,
@@ -350,7 +351,7 @@ def api_media_upload(request):
     else:
         return JsonResponse({"success": False, "error": "Unsupported file type. Use JPEG, PNG, WebP, MP4, MOV, or WebM."}, status=400)
 
-    category_id = request.POST.get("link_media_category_id")
+    category_id = request.POST.get("link_content_ref_content_subcategory_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
@@ -369,7 +370,7 @@ def api_media_upload(request):
 
     entry = CollMediaEntry.objects.create(
         link_user_profile_id=profile_id,
-        link_media_category_id=int(category_id),
+        link_content_ref_content_subcategory_id=int(category_id),
         link_season_id=int(request.POST.get("link_season_id")) if request.POST.get("link_season_id") else None,
         media_title_bn=(request.POST.get("media_title_bn") or "").strip() or None,
         media_title_en=(request.POST.get("media_title_en") or "").strip() or None,

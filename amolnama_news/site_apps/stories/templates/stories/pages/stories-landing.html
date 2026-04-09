@@ -5,7 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-landing.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/filter-pills.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/filter-crumbs.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -18,25 +19,31 @@
 </div>
 
 <div class="filter-pills-row" id="stories-filter-row">
-  <div class="filter-pills-group" style="--filter-pills-accent: var(--purple); --filter-pills-accent-light: var(--purple-light);" id="stories-age-filter">
-    <a href="{% url 'stories:home' %}{% if active_category %}?category={{ active_category }}{% endif %}" class="filter-pills-pill{% if not active_age %} filter-pills-pill-active{% endif %}" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স (All)</a>
+  <div class="filter-pills-group filter-pills-group-purple" id="stories-age-filter">
+    <button type="button" class="filter-pills-pill filter-pills-pill-active" data-age="" id="stories-age-pill-all" name="stories_age_pill_all">সব বয়স (All)</button>
     {% for age_group in age_groups %}
-    <a href="{% url 'stories:home' %}?age={{ age_group.blog_stories_ref_story_age_group_id }}{% if active_category %}&category={{ active_category }}{% endif %}" class="filter-pills-pill{% if active_age == age_group.blog_stories_ref_story_age_group_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</a>
+    <button type="button" class="filter-pills-pill" data-age="{{ age_group.blog_stories_ref_story_age_group_id }}" id="stories-age-pill-{{ age_group.age_group_code }}" name="stories_age_pill_{{ age_group.age_group_code }}">{{ age_group.age_group_name_bn }}</button>
     {% endfor %}
   </div>
 
-  <div class="filter-pills-group" style="--filter-pills-accent: var(--success); --filter-pills-accent-light: var(--success-light);" id="stories-category-filter">
-    <a href="{% url 'stories:home' %}{% if active_age %}?age={{ active_age }}{% endif %}" class="filter-pills-pill{% if not active_category %} filter-pills-pill-active{% endif %}" id="stories-category-pill-all" name="stories_category_pill_all">সব ধরন (All)</a>
+  <div class="filter-pills-group filter-pills-group-success" id="stories-category-filter">
+    <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="" id="stories-category-pill-all" name="stories_category_pill_all">সব ধরন (All)</button>
     {% for category in categories %}
-    <a href="{% url 'stories:home' %}?category={{ category.content_ref_content_subcategory_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="filter-pills-pill{% if active_category == category.content_ref_content_subcategory_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-category-pill-{{ category.subcategory_code }}" name="stories_category_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</a>
+    <button type="button" class="filter-pills-pill" data-category="{{ category.content_ref_content_subcategory_id }}" id="stories-category-pill-{{ category.subcategory_code }}" name="stories_category_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</button>
     {% endfor %}
   </div>
+</div>
+
+<div class="filter-crumbs" id="stories-filter-crumbs" hidden>
+  <span class="filter-crumbs-label">ফিল্টার:</span>
+  <span class="filter-crumbs-chips" id="stories-filter-crumbs-chips"></span>
+  <button type="button" class="filter-crumbs-clear" id="stories-filter-crumbs-clear">সব মুছুন</button>
 </div>
 
 {% if story_items %}
 <div class="stories-grid" id="stories-grid">
   {% for item in story_items %}
-  <a href="{% url 'stories:detail' story_slug=item.slug %}" class="stories-card" id="stories-card-{{ item.story_id }}" name="stories_card_{{ item.story_id }}">
+  <a href="{% url 'stories:detail' story_slug=item.slug %}" class="stories-card" id="stories-card-{{ item.story_id }}" name="stories_card_{{ item.story_id }}" data-category="{{ item.category_id }}" data-age="{{ item.age_id }}">
     <div class="stories-card-image-wrapper">
       {% if item.cover_url %}
       <img src="{{ item.cover_url }}" alt="{{ item.title_bn }}" class="stories-card-image" loading="lazy">
@@ -63,9 +70,15 @@
   </a>
   {% endfor %}
 </div>
+<div class="stories-empty-state" id="stories-filter-empty" hidden></div>
 {% else %}
 <div class="stories-empty-state">
   <p>এখনো কোনো গল্প নেই। প্রথম গল্প জমা দিন!</p>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'content/assets/js/components/filter-pills.js' %}" defer></script>
+<script src="{% static 'stories/assets/js/pages/stories-landing.js' %}" defer></script>
 {% endblock %}

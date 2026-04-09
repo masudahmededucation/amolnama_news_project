@@ -36,20 +36,20 @@
 
     <div class="art-upload-field">
       <label for="art-upload-medium" class="art-upload-label">মাধ্যম</label>
-      <select class="art-upload-select" id="art-upload-medium" name="link_art_medium_id">
+      <select class="art-upload-select" id="art-upload-medium" name="link_blog_art_ref_art_medium_id">
         <option value="">মাধ্যম নির্বাচন করুন</option>
         {% for medium in mediums %}
-        <option value="{{ medium.art_ref_art_medium_id }}">{{ medium.art_medium_name_bn }} ({{ medium.art_medium_name_en }})</option>
+        <option value="{{ medium.content_ref_content_subcategory_id }}">{{ medium.subcategory_name_bn }} ({{ medium.subcategory_name_en }})</option>
         {% endfor %}
       </select>
     </div>
 
     <div class="art-upload-field">
       <label for="art-upload-difficulty" class="art-upload-label">কঠিনতার মাত্রা</label>
-      <select class="art-upload-select" id="art-upload-difficulty" name="link_art_difficulty_id">
+      <select class="art-upload-select" id="art-upload-difficulty" name="link_blog_art_ref_art_difficulty_id">
         <option value="">কঠিনতার মাত্রা</option>
         {% for difficulty in difficulties %}
-        <option value="{{ difficulty.art_ref_art_difficulty_id }}">{{ difficulty.art_difficulty_name_bn }} ({{ difficulty.art_difficulty_name_en }})</option>
+        <option value="{{ difficulty.content_ref_content_subcategory_id }}">{{ difficulty.subcategory_name_bn }} ({{ difficulty.subcategory_name_en }})</option>
         {% endfor %}
       </select>
     </div>

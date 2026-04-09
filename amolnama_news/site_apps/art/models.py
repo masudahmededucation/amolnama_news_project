@@ -4,42 +4,8 @@ from django.db import models
 
 
 # RefArtCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_art_category'
-
-
-class RefArtMedium(models.Model):
-    blog_art_ref_art_medium_id = models.AutoField(primary_key=True)
-    art_medium_code = models.CharField(max_length=50)
-    art_medium_name_bn = models.CharField(max_length=200)
-    art_medium_name_en = models.CharField(max_length=200)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[blog_art].[ref_art_medium]'
-
-    def __str__(self):
-        return self.art_medium_name_en
-
-
-class RefArtDifficulty(models.Model):
-    blog_art_ref_art_difficulty_id = models.AutoField(primary_key=True)
-    art_difficulty_code = models.CharField(max_length=20)
-    art_difficulty_name_bn = models.CharField(max_length=100)
-    art_difficulty_name_en = models.CharField(max_length=100)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = '[blog_art].[ref_art_difficulty]'
-
-    def __str__(self):
-        return self.art_difficulty_name_en
+# RefArtMedium removed — replaced by [content].[ref_content_subcategory] group_code='blog_art_medium'
+# RefArtDifficulty removed — replaced by [content].[ref_content_subcategory] group_code='blog_art_difficulty'
 
 
 class CollArtwork(models.Model):

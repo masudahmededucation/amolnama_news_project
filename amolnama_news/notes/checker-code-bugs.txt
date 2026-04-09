@@ -85,7 +85,7 @@ split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
 don't touch other things.
 
---create styling rule
+--check styling
 make professional.
 do some research.
 minimal.
@@ -180,9 +180,10 @@ at last check that you have completed the task properly.
 
 --best practice 
 follow all the rules applicable 
-gold standard 
-best practice for professional website
-are we following those practices to solve these issues
+check gold standard practice is being followed
+use best practice for website
+use professional practices for apps
+use competitive websites practices
 no masking of real issues
 
 --permission request

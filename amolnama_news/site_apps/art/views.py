@@ -9,7 +9,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from amolnama_news.site_apps.content.models import RefContentSubcategory
 
 from .models import (
-    RefArtMedium, RefArtDifficulty,
     CollArtwork, ArtworkAsset, ArtworkStep,
     ArtworkYoutubeLink, EngagementArtworkLike, EngagementArtworkBookmark,
 )
@@ -56,18 +55,10 @@ def _get_artwork_photos(artwork_id):
 
 @ensure_csrf_cookie
 def home(request):
-    """Art & Craft landing page — gallery grid with category filters."""
-    category_filter = request.GET.get('category', '')
-    medium_filter = request.GET.get('medium', '')
-
-    artworks_queryset = CollArtwork.objects.filter(
+    """Art & Craft landing page — gallery grid with JS client-side filtering."""
+    artworks = CollArtwork.objects.filter(
         is_published=True, is_active=True,
-    )
-    if category_filter:
-        artworks_queryset = artworks_queryset.filter(link_content_ref_content_subcategory_id=category_filter)
-    if medium_filter:
-        artworks_queryset = artworks_queryset.filter(link_blog_art_ref_art_medium_id=medium_filter)
-    artworks = artworks_queryset.order_by('-is_featured', '-created_at')[:60]
+    ).order_by('-is_featured', '-created_at')[:60]
 
     # Build artwork items with cover images
     artwork_ids = [artwork.blog_art_coll_artwork_id for artwork in artworks]
@@ -99,17 +90,27 @@ def home(request):
         for profile in UserProfile.objects.filter(user_profile_id__in=author_ids):
             author_map[profile.user_profile_id] = profile.display_name or 'শিল্পী'
 
+    # Build medium map
+    medium_map = {
+        sub.content_ref_content_subcategory_id: sub
+        for sub in RefContentSubcategory.objects.filter(group_code='blog_art_medium', is_active=True).order_by('sort_order')
+    }
+
     artwork_items = []
     for artwork in artworks:
         subcategory = subcategory_map.get(artwork.link_content_ref_content_subcategory_id)
+        medium = medium_map.get(artwork.link_blog_art_ref_art_medium_id)
         artwork_items.append({
             'artwork_id': artwork.blog_art_coll_artwork_id,
             'title_bn': artwork.artwork_title_bn,
             'title_en': artwork.artwork_title_en,
             'slug': artwork.artwork_slug,
             'cover_url': cover_map.get(artwork.blog_art_coll_artwork_id),
+            'category_id': artwork.link_content_ref_content_subcategory_id or '',
             'category_name_bn': subcategory.subcategory_name_bn if subcategory else '',
             'category_icon': subcategory.subcategory_icon if subcategory else '',
+            'medium_id': artwork.link_blog_art_ref_art_medium_id or '',
+            'medium_name_bn': medium.subcategory_name_bn if medium else '',
             'author_name': author_map.get(artwork.link_user_profile_id, 'শিল্পী'),
             'like_count': artwork.like_count,
             'view_count': artwork.view_count,
@@ -118,14 +119,12 @@ def home(request):
         })
 
     categories = list(subcategory_map.values())
-    mediums = RefArtMedium.objects.filter(is_active=True).order_by('sort_order')
+    mediums = list(medium_map.values())
 
     return render(request, 'art/pages/art-landing.html', {
         'artwork_items': artwork_items,
         'categories': categories,
         'mediums': mediums,
-        'active_category': category_filter,
-        'active_medium': medium_filter,
         'seo': {
             'title': 'শিল্পকলা — বাংলার ঐতিহ্যবাহী ও আধুনিক শিল্প | আমলনামা নিউজ',
             'description': 'নকশি কাঁথা, পটচিত্র, আলপনা, মৃৎশিল্প — বাংলাদেশের শিল্পকলা সংগ্রহ।',
@@ -152,8 +151,8 @@ def detail(request, artwork_slug):
 
     # Category & medium & difficulty
     category = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=artwork.link_content_ref_content_subcategory_id).first()
-    medium = RefArtMedium.objects.filter(blog_art_ref_art_medium_id=artwork.link_blog_art_ref_art_medium_id).first() if artwork.link_blog_art_ref_art_medium_id else None
-    difficulty = RefArtDifficulty.objects.filter(blog_art_ref_art_difficulty_id=artwork.link_blog_art_ref_art_difficulty_id).first() if artwork.link_blog_art_ref_art_difficulty_id else None
+    medium = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=artwork.link_blog_art_ref_art_medium_id).first() if artwork.link_blog_art_ref_art_medium_id else None
+    difficulty = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=artwork.link_blog_art_ref_art_difficulty_id).first() if artwork.link_blog_art_ref_art_difficulty_id else None
 
     # Photos
     photos = _get_artwork_photos(artwork.blog_art_coll_artwork_id)
@@ -213,8 +212,8 @@ def detail(request, artwork_slug):
         'author_name': author_profile.display_name if author_profile and author_profile.display_name else 'শিল্পী',
         'category_name_bn': category.subcategory_name_bn if category else '',
         'category_icon': category.subcategory_icon if category else '',
-        'medium_name_bn': medium.art_medium_name_bn if medium else '',
-        'difficulty_name_bn': difficulty.art_difficulty_name_bn if difficulty else '',
+        'medium_name_bn': medium.subcategory_name_bn if medium else '',
+        'difficulty_name_bn': difficulty.subcategory_name_bn if difficulty else '',
         'photos': photos,
         'steps': steps,
         'youtube_links': youtube_links,
@@ -260,8 +259,8 @@ def detail(request, artwork_slug):
 def upload(request):
     """Art upload page — create new artwork."""
     categories = RefContentSubcategory.objects.filter(group_code='blog_art_category', is_active=True).order_by('sort_order')
-    mediums = RefArtMedium.objects.filter(is_active=True).order_by('sort_order')
-    difficulties = RefArtDifficulty.objects.filter(is_active=True).order_by('sort_order')
+    mediums = list(RefContentSubcategory.objects.filter(group_code='blog_art_medium', is_active=True).order_by('sort_order'))
+    difficulties = list(RefContentSubcategory.objects.filter(group_code='blog_art_difficulty', is_active=True).order_by('sort_order'))
 
     return render(request, 'art/pages/art-upload.html', {
         'categories': categories,

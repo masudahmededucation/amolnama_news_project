@@ -27,7 +27,7 @@
   categorySelect.addEventListener("change", function() {
     const selectedText = categorySelect.options[categorySelect.selectedIndex]?.text || "";
     const isFestival = selectedText.toLowerCase().includes("festival") || selectedText.includes("উৎসব");
-    festivalFields.hidden = !isFestival);
+    festivalFields.hidden = !isFestival;
   });
 
   // File preview
@@ -76,7 +76,7 @@
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("link_media_category_id", categorySelect.value);
+    formData.append("link_content_ref_content_subcategory_id", categorySelect.value);
     formData.append("media_title_bn", (document.getElementById("beauty-hub-title-bn").value || "").trim());
     formData.append("media_description_bn", (document.getElementById("beauty-hub-description-bn").value || "").trim());
     formData.append("location_name_bn", (document.getElementById("beauty-hub-location-bn").value || "").trim());

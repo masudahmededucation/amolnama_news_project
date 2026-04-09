@@ -32,18 +32,10 @@ def _get_story_cover_url(story_id):
 
 @ensure_csrf_cookie
 def home(request):
-    """Stories landing page — story cards with category and age filters."""
-    category_filter = request.GET.get('category', '')
-    age_filter = request.GET.get('age', '')
-
-    stories_queryset = CollStory.objects.filter(
+    """Stories landing page — story cards with JS client-side filtering."""
+    stories = CollStory.objects.filter(
         is_published=True, is_active=True,
-    )
-    if category_filter:
-        stories_queryset = stories_queryset.filter(link_content_ref_content_subcategory_id=category_filter)
-    if age_filter:
-        stories_queryset = stories_queryset.filter(link_blog_stories_ref_story_age_group_id=age_filter)
-    stories = stories_queryset.order_by('-is_featured', '-is_daily_pick', '-created_at')[:60]
+    ).order_by('-is_featured', '-is_daily_pick', '-created_at')[:60]
 
     # Bulk-fetch cover images
     story_ids = [story.blog_stories_coll_story_id for story in stories]
@@ -62,7 +54,6 @@ def home(request):
                 cover_map[row[0]] = row[1]
 
     # Build maps from unified subcategory table
-    from amolnama_news.site_apps.content.models import RefContentSubcategory
     subcategory_map = {
         sub.content_ref_content_subcategory_id: sub
         for sub in RefContentSubcategory.objects.filter(group_code='blog_stories_category', is_active=True).order_by('sort_order')
@@ -89,8 +80,10 @@ def home(request):
             'slug': story.story_slug,
             'summary_bn': story.story_summary_bn,
             'cover_url': cover_map.get(story.blog_stories_coll_story_id),
+            'category_id': story.link_content_ref_content_subcategory_id or '',
             'category_name_bn': subcategory.subcategory_name_bn if subcategory else '',
             'category_icon': subcategory.subcategory_icon if subcategory else '',
+            'age_id': story.link_blog_stories_ref_story_age_group_id or '',
             'age_group_name_bn': age_group.age_group_name_bn if age_group else '',
             'reading_time_minutes': story.reading_time_minutes,
             'author_name': author_map.get(story.link_user_profile_id, 'লেখক'),
@@ -108,8 +101,6 @@ def home(request):
         'story_items': story_items,
         'categories': categories,
         'age_groups': age_groups,
-        'active_category': category_filter,
-        'active_age': age_filter,
         'seo': {
             'title': 'গল্পের ঝুলি — ছোটদের গল্প, রূপকথা, ঠাকুরমার ঝুলি | আমলনামা নিউজ',
             'description': 'বাংলা ছোটদের গল্প — ঠাকুরমার ঝুলি, পঞ্চতন্ত্র, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প।',
@@ -198,7 +189,7 @@ def detail(request, story_slug):
             viewer_user_profile_id = get_user_profile_id(request)
             if viewer_user_profile_id:
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
-                record_content_view(viewer_user_profile_id, 'story', story.story_coll_story_id)
+                record_content_view(viewer_user_profile_id, 'story', story.blog_stories_coll_story_id)
         except Exception:
             pass
 
@@ -207,9 +198,9 @@ def detail(request, story_slug):
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(
             story.story_title_bn or story.story_summary_bn or '',
-            'story', story.story_coll_story_id, limit=5,
+            'story', story.blog_stories_coll_story_id, limit=5,
         ),
-        'related_content_api_url': f'/newsengine/api/related-content/?type=story&id={story.story_coll_story_id}',
+        'related_content_api_url': f'/newsengine/api/related-content/?type=story&id={story.blog_stories_coll_story_id}',
         'seo': {
             'title': f'{story.story_title_bn} — গল্পের ঝুলি | আমলনামা নিউজ',
             'description': (story.story_summary_bn or story.story_title_bn)[:200],

@@ -23,9 +23,38 @@ how other app can follow it if there is not anywhere any written rules?
 
 #####
 --display filters
-you should show the filtered list like poem. i don't see that yet, poem fileter - ফিল্টার:
+you should show the filtered list like poem. 
+i don't see that yet, poem fileter - ফিল্টার:
 ভালোবাসা.
 it also comes with cross sign to remove. 
 similar options need to be modularies and used everywhere. 
 not just debate. 
 it should appear all the blog posts page options if appropriate
+
+all options need to be standardise dynamic modularised 
+- all blog posts - db structure - dynamic pull - modularise
+
+--remove 
+you should be using this [content].[ref_content_subcategory]
+tables only to show categtories or subcategories.
+remove the other blog specific category or subcategory tables. 
+report me blog posts old tables needed 
+to be remove then give me script to remove them. 
+
+
+#################
+we can easily fit into 
+[content].[ref_content_subcategory]
+################
+
+##############
+--shared content for blog posts
+these are blog contents shared so we can easily put them inside content right.
+becasue content is shared for blog posts. 
+what the hell  is your thinking label. you keep going back to core for everything?
+
+we need to keep the core light for basic display and home page related. 
+then put the others in the related app. need to stop your stupid lazy thinking. 
+
+
+

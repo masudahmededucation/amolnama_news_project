@@ -101,8 +101,9 @@
       });
 
       const loadMoreWrapper = document.getElementById("beauty-hub-load-more");
-      if (loadMoreWrapper) loadMoreWrapper.hidden = !data.has_next);
+      if (loadMoreWrapper) loadMoreWrapper.hidden = !data.has_next;
     } catch (error) {
+      console.error('beauty-hub: failed to load media entries', error);
     } finally {
       isLoading = false;
     }

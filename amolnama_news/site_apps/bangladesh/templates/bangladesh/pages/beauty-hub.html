@@ -51,8 +51,8 @@
     <button type="button" class="beauty-hub-filter-pill" data-type="photo">📷 ছবি</button>
     <button type="button" class="beauty-hub-filter-pill" data-type="video">🎬 ভিডিও</button>
     {% for cat in categories %}
-      <button type="button" class="beauty-hub-filter-pill" data-category="{{ cat.bangladesh_ref_media_category_id }}">
-        {{ cat.media_category_name_bn }}
+      <button type="button" class="beauty-hub-filter-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
+        {{ cat.subcategory_name_bn }}
       </button>
     {% endfor %}
   </div>

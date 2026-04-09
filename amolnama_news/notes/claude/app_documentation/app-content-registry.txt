@@ -22,7 +22,14 @@ TABLES
   - Topic/subject within each category: Crime, Love, Painting, Beach, etc.
   - 85+ subcategories across all apps
   - Computed columns: link_subcategory_id, link_subcategory_code (self-documenting FK names)
-  - group_code: visual filter for SSMS (art, poem, story, destination, newshub, debate)
+  - group_code: identifies which app/filter group the subcategory belongs to
+    Current group_codes:
+      blog_art_category, blog_art_medium, blog_art_difficulty,
+      blog_poem_category,
+      blog_stories_category,
+      blog_bangladesh_destination_category, blog_bangladesh_media_category,
+      blog_debate_category,
+      newshub_topic
 
 [content].[content_registry]
   - PK: content_registry_id (BIGINT IDENTITY)
@@ -81,6 +88,28 @@ BLOG SCHEMA RENAMES
 
 All PK/FK columns renamed: art_ → blog_art_, bangladesh_ → blog_bangladesh_, etc.
 All code references updated. Zero old names remaining.
+
+================================================================================
+DROPPED TABLES (migrated to ref_content_subcategory)
+================================================================================
+
+7 per-app ref tables dropped — data lives in ref_content_subcategory:
+  1. [blog_art].[ref_art_category]     → group_code='blog_art_category'
+  2. [blog_art].[ref_art_medium]       → group_code='blog_art_medium'
+  3. [blog_art].[ref_art_difficulty]    → group_code='blog_art_difficulty'
+  4. [blog_poem].[ref_poem_category]    → group_code='blog_poem_category'
+  5. [blog_stories].[ref_story_category] → group_code='blog_stories_category'
+  6. [blog_bangladesh].[ref_destination_category] → group_code='blog_bangladesh_destination_category'
+  7. [blog_bangladesh].[ref_media_category] → group_code='blog_bangladesh_media_category'
+
+FK constraints dropped before table drops:
+  - FK_art_coll_artwork_link_art_medium_id
+  - FK_art_coll_artwork_link_art_difficulty_id
+  - FK_bangladesh_coll_media_entry_category
+
+Art medium/difficulty: existing FK columns on coll_artwork now store
+ref_content_subcategory IDs (values repointed via backfill UPDATE).
+Beauty hub: uses link_content_ref_content_subcategory_id on coll_media_entry.
 
 ================================================================================
 BUGS FIXED (2026-04-08)

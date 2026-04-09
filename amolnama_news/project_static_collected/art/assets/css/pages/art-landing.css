@@ -150,24 +150,34 @@
   font-size: .9rem;
 }
 
-/* Mobile */
+/* Tablet */
+@media (max-width: 768px) {
+  .art-gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: .75rem;
+  }
+  .art-landing-header { padding: 1.2rem .75rem; }
+}
 
+/* Mobile */
 @media (max-width: 600px) {
   .art-gallery-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: .5rem;
   }
+  .art-gallery-card-body { padding: .4rem .5rem; }
+  .art-gallery-card-title { font-size: .8rem; }
+  .art-gallery-card-meta { font-size: .65rem; }
+  .art-gallery-card-stats { font-size: .63rem; }
+  .art-landing-title { font-size: 1.2rem; }
+  .art-landing-subtitle { font-size: .78rem; }
+  .art-landing-upload-button { font-size: .8rem; padding: .45rem 1rem; }
+}
 
-  .art-gallery-card-body {
-    padding: .4rem .5rem;
-  }
-
-  .art-gallery-card-title {
-    font-size: .8rem;
-  }
-
-
-  .art-landing-title {
-    font-size: 1.2rem;
-  }
+/* Small mobile (320px) */
+@media (max-width: 380px) {
+  .art-gallery-grid { gap: .35rem; }
+  .art-gallery-card { border-radius: 8px; }
+  .art-gallery-card-body { padding: .35rem .4rem; }
+  .art-gallery-card-title { font-size: .75rem; }
 }

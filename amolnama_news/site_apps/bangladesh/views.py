@@ -18,7 +18,7 @@ from .models import (
     TransportRoute, TravelTip, EngagementDestinationReview,
     DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
-    RefSeason, RefMediaCategory,
+    RefSeason,
     CollMediaEntry,
 )
 from amolnama_news.site_apps.content.models import RefContentSubcategory
@@ -499,8 +499,8 @@ def travel_hub_detail_by_slug(request, destination_slug):
 def beauty_hub(request):
     """Beauty of Bangladesh — photo/video gallery."""
     categories = list(
-        RefMediaCategory.objects.filter(is_active=True)
-        .order_by("sort_order", "media_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_media_category', is_active=True)
+        .order_by("sort_order", "subcategory_name_en")
     )
     seasons = list(
         RefSeason.objects.filter(is_active=True).order_by("sort_order")
@@ -513,11 +513,11 @@ def beauty_hub(request):
     has_next = len(entries) > PAGE_SIZE
     entries = entries[:PAGE_SIZE]
 
-    category_map = {c.bangladesh_ref_media_category_id: c for c in categories}
+    category_map = {c.content_ref_content_subcategory_id: c for c in categories}
     for media_entry in entries:
-        category = category_map.get(media_entry.link_media_category_id)
-        media_entry.category_name_bn = category.media_category_name_bn if category else ""
-        media_entry.category_icon = category.media_category_icon if category else ""
+        category = category_map.get(media_entry.link_content_ref_content_subcategory_id)
+        media_entry.category_name_bn = category.subcategory_name_bn if category else ""
+        media_entry.category_icon = category.subcategory_icon if category else ""
         media_entry.time_ago = _time_ago(media_entry.created_at)
 
     return render(request, "bangladesh/pages/beauty-hub.html", {
@@ -542,8 +542,8 @@ def beauty_hub(request):
 def beauty_hub_upload(request):
     """Upload photo/video."""
     categories = list(
-        RefMediaCategory.objects.filter(is_active=True)
-        .order_by("sort_order", "media_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_media_category', is_active=True)
+        .order_by("sort_order", "subcategory_name_en")
     )
     seasons = list(
         RefSeason.objects.filter(is_active=True).order_by("sort_order")
