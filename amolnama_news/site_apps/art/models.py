@@ -3,7 +3,7 @@
 from django.db import models
 
 
-# RefArtCategory removed — replaced by [content].[ref_content_subcategory] group_code='art'
+# RefArtCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_art_category'
 
 
 class RefArtMedium(models.Model):

@@ -65,7 +65,7 @@ def home(request):
     from amolnama_news.site_apps.content.models import RefContentSubcategory
     subcategory_map = {
         sub.content_ref_content_subcategory_id: sub
-        for sub in RefContentSubcategory.objects.filter(group_code='story', is_active=True).order_by('sort_order')
+        for sub in RefContentSubcategory.objects.filter(group_code='blog_stories_category', is_active=True).order_by('sort_order')
     }
     age_group_map = {
         age_group.blog_stories_ref_story_age_group_id: age_group
@@ -224,7 +224,7 @@ def detail(request, story_slug):
 @ensure_csrf_cookie
 def submit(request):
     """Story submission page."""
-    categories = list(RefContentSubcategory.objects.filter(group_code='story', is_active=True).order_by('sort_order'))
+    categories = list(RefContentSubcategory.objects.filter(group_code='blog_stories_category', is_active=True).order_by('sort_order'))
     age_groups = RefStoryAgeGroup.objects.filter(is_active=True).order_by('sort_order')
 
     return render(request, 'stories/pages/stories-submit.html', {

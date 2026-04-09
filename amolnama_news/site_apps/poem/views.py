@@ -94,7 +94,7 @@ def poem_landing(request):
     """Poem landing page — card grid with server-rendered first page."""
     from amolnama_news.site_apps.content.models import RefContentSubcategory
     categories = list(
-        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True).order_by("sort_order")
     )
     categories_map = {c.content_ref_content_subcategory_id: c for c in categories}
 
@@ -132,7 +132,7 @@ def _render_poem_detail(request, poem):
 
     categories_map = {
         c.content_ref_content_subcategory_id: c
-        for c in RefContentSubcategory.objects.filter(group_code='poem', is_active=True)
+        for c in RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True)
     }
     _annotate_poem(poem, categories_map)
 
@@ -272,7 +272,7 @@ def poem_edit(request, poem_slug):
             raise Http404
 
     categories = list(
-        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True).order_by("sort_order")
     )
 
     title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"
@@ -297,7 +297,7 @@ def poem_edit(request, poem_slug):
 def poem_create(request):
     """Poem creation form."""
     categories = list(
-        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True).order_by("sort_order")
     )
     return render(request, "poem/pages/poem-create.html", {
         "categories": categories,

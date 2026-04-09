@@ -88,7 +88,7 @@ def home(request):
     # Build category map from unified subcategory table
     subcategory_map = {
         sub.content_ref_content_subcategory_id: sub
-        for sub in RefContentSubcategory.objects.filter(group_code='art', is_active=True).order_by('sort_order')
+        for sub in RefContentSubcategory.objects.filter(group_code='blog_art_category', is_active=True).order_by('sort_order')
     }
 
     # Build author display names
@@ -259,7 +259,7 @@ def detail(request, artwork_slug):
 @ensure_csrf_cookie
 def upload(request):
     """Art upload page — create new artwork."""
-    categories = RefContentSubcategory.objects.filter(group_code='art', is_active=True).order_by('sort_order')
+    categories = RefContentSubcategory.objects.filter(group_code='blog_art_category', is_active=True).order_by('sort_order')
     mediums = RefArtMedium.objects.filter(is_active=True).order_by('sort_order')
     difficulties = RefArtDifficulty.objects.filter(is_active=True).order_by('sort_order')
 

@@ -3,7 +3,7 @@
 from django.db import models
 
 
-# RefPoemCategory removed — replaced by [content].[ref_content_subcategory] group_code='poem'
+# RefPoemCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_poem_category'
 
 
 class CollPoemEntry(models.Model):

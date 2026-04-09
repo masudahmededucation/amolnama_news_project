@@ -85,7 +85,7 @@ def api_destination_list(request):
     items = items[:PAGE_SIZE]
 
     from amolnama_news.site_apps.content.models import RefContentSubcategory
-    subcategory_map = {c.content_ref_content_subcategory_id: c for c in RefContentSubcategory.objects.filter(group_code='destination', is_active=True)}
+    subcategory_map = {c.content_ref_content_subcategory_id: c for c in RefContentSubcategory.objects.filter(group_code='blog_bangladesh_destination_category', is_active=True)}
     result = []
     for destination in items:
         destination_category = subcategory_map.get(destination.link_content_ref_content_subcategory_id)
@@ -135,7 +135,7 @@ def api_destination_create(request):
 
     from amolnama_news.site_apps.content.models import RefContentSubcategory
     if not RefContentSubcategory.objects.filter(
-        content_ref_content_subcategory_id=category_id, group_code='destination', is_active=True
+        content_ref_content_subcategory_id=category_id, group_code='blog_bangladesh_destination_category', is_active=True
     ).exists():
         return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 

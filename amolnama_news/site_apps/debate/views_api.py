@@ -191,7 +191,7 @@ def api_topic_create(request):
     topic_guid = str(uuid.uuid4())
     # Look up debate subcategory ID from code
     from amolnama_news.site_apps.content.utils import get_unified_subcategory_id
-    debate_subcategory_id = get_unified_subcategory_id('debate', debate_category_code) or get_unified_subcategory_id('debate', 'general')
+    debate_subcategory_id = get_unified_subcategory_id('blog_debate_category', debate_category_code) or get_unified_subcategory_id('blog_debate_category', 'general')
 
     cursor = _raw_execute("""
         INSERT INTO [blog_debate].[coll_topic]
@@ -270,7 +270,7 @@ def api_topic_edit(request, topic_id):
         return JsonResponse({'success': False, 'error': 'বিষয় কমপক্ষে ১০ অক্ষর হতে হবে'}, status=400)
 
     from amolnama_news.site_apps.content.utils import get_unified_subcategory_id
-    debate_subcategory_id = get_unified_subcategory_id('debate', debate_category_code) or get_unified_subcategory_id('debate', 'general')
+    debate_subcategory_id = get_unified_subcategory_id('blog_debate_category', debate_category_code) or get_unified_subcategory_id('blog_debate_category', 'general')
 
     now = timezone.now()
     _raw_execute("""

@@ -3,7 +3,7 @@
 from django.db import models
 
 
-# RefStoryCategory removed — replaced by [content].[ref_content_subcategory] group_code='story'
+# RefStoryCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_stories_category'
 
 
 class RefStoryAgeGroup(models.Model):

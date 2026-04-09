@@ -36,7 +36,7 @@ def _categories_map():
     from amolnama_news.site_apps.content.models import RefContentSubcategory
     return {
         c.content_ref_content_subcategory_id: c
-        for c in RefContentSubcategory.objects.filter(group_code='poem', is_active=True)
+        for c in RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True)
     }
 
 
@@ -140,7 +140,7 @@ def api_poem_entry_create(request):
 
         # Validate category exists in unified subcategory table
         from amolnama_news.site_apps.content.models import RefContentSubcategory
-        if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='poem', is_active=True).exists():
+        if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='blog_poem_category', is_active=True).exists():
             return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
         # Writer's name — user-provided, required
@@ -252,7 +252,7 @@ def api_poem_entry_update(request, poem_id):
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
     from amolnama_news.site_apps.content.models import RefContentSubcategory
-    if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='poem', is_active=True).exists():
+    if not RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=category_id, group_code='blog_poem_category', is_active=True).exists():
         return JsonResponse({"success": False, "error": "Invalid category"}, status=400)
 
     display_name = (data.get("poem_author_display_name") or "").strip()

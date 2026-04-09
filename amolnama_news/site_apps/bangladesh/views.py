@@ -61,7 +61,7 @@ def bangladesh_landing(request):
 def travel_hub(request):
     """Travel Hub — browse destinations."""
     categories = list(
-        RefContentSubcategory.objects.filter(group_code='destination', is_active=True)
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_destination_category', is_active=True)
         .order_by("sort_order")
     )
     seasons = list(
@@ -130,7 +130,7 @@ def travel_hub(request):
 def travel_hub_add(request):
     """Add or edit a destination."""
     categories = list(
-        RefContentSubcategory.objects.filter(group_code='destination', is_active=True)
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_destination_category', is_active=True)
         .order_by("sort_order")
     )
     seasons = list(

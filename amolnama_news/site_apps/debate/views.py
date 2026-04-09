@@ -106,7 +106,7 @@ def home(request):
     # Debate subcategories for filter pills (dynamic from DB)
     from amolnama_news.site_apps.content.models import RefContentSubcategory
     debate_subcategories = list(RefContentSubcategory.objects.filter(
-        group_code='debate', is_active=True,
+        group_code='blog_debate_category', is_active=True,
     ).order_by('sort_order'))
     subcategory_map = {s.content_ref_content_subcategory_id: s for s in debate_subcategories}
 

@@ -114,8 +114,8 @@ def get_unified_subcategory_id(group_code, category_code):
     Returns content_ref_content_subcategory_id or None.
 
     Usage:
-        subcategory_id = get_unified_subcategory_id('art', 'painting')
-        subcategory_id = get_unified_subcategory_id('poem', 'love')
+        subcategory_id = get_unified_subcategory_id('blog_art_category', 'painting')
+        subcategory_id = get_unified_subcategory_id('blog_poem_category', 'love')
     """
     try:
         from amolnama_news.site_apps.content.models import RefContentSubcategory

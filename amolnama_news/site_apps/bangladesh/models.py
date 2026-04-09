@@ -8,7 +8,7 @@ from django.utils import timezone
 # REFERENCE TABLES
 # ============================================================================
 
-# RefDestinationCategory removed — replaced by [content].[ref_content_subcategory] group_code='destination'
+# RefDestinationCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_bangladesh_destination_category'
 
 
 class RefSeason(models.Model):
