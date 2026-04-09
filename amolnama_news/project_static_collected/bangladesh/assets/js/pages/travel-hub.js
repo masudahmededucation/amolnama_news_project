@@ -17,10 +17,10 @@
   // Filter pills
   if (filterPillsContainer) {
     filterPillsContainer.addEventListener("click", (e) => {
-      let pill = e.target.closest(".travel-hub-filter-pill");
+      let pill = e.target.closest(".filter-pills-pill");
       if (!pill) return;
-      filterPillsContainer.querySelectorAll(".travel-hub-filter-pill").forEach((p) => p.classList.remove("travel-hub-filter-pill--active"));
-      pill.classList.add("travel-hub-filter-pill--active");
+      filterPillsContainer.querySelectorAll(".filter-pills-pill").forEach((p) => p.classList.remove("filter-pills-pill-active"));
+      pill.classList.add("filter-pills-pill-active");
       currentCategory = pill.dataset.category || "";
       currentPage = 1;
       fetchDestinations(true);

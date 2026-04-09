@@ -48,6 +48,7 @@ for example: fact_check for fact check tables?
 for ref table ref_fact_check as part of the table name.
 as a result to identify group of table for fact check? for all other group of works.
 should we rename our table like that?
+don't touch other things.
 
 --naming conventions
 check name rules.
@@ -58,6 +59,7 @@ use large descriptive name always.
 do not use partial name or short name.
 update documents.
 update troubleshooting documents.
+don't touch other things.
 
 --attribute naming convention
 all attributes should have its id and name.
@@ -81,6 +83,7 @@ don't make file too large which would be harder to manage and modify.
 split larger files into smaller unit and files.
 split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
+don't touch other things.
 
 --create styling rule
 make professional.
@@ -102,6 +105,7 @@ otherwise too many jobs to do in future.
 fix all files.
 everything everywhere.
 make it 100% compliance.
+don't touch other things.
 
 --css/js/ajax/html/etc
 no internal css unless absolute necessary.
@@ -112,16 +116,19 @@ seo friendly practice.
 faster load practice.
 safe practice.
 no shortcut dangerous practice.
+don't touch other things.
 
 --immediate load
 Show UI immediately, load data in background.
 apply this to all interactions.
+don't touch other things.
 
 --faster load
 load UI immediate, load data in the background.
 keep loading related data in the background.
 ready to show the data once user asks.
 proactive prefetch.
+don't touch other things.
 
 
 --check code for faster and efficiency
@@ -135,6 +142,7 @@ Deliver the same results through cleaner paths.
 Eliminate waste without changing functionality or removing features.
 Handle edge cases without leaving technical landmines.
 Write simple code that is easy to read and maintain.
+don't touch other things.
 
 --check for bugs
 check for bugs, bad code, broken code, illegal code, dead code.
@@ -152,7 +160,7 @@ Debug console.*
 Missing .catch().
 XSS vulnerabilities.
 tech debt item.
-
+don't touch other things.
 
 --start implementing
 start implementing.
@@ -172,10 +180,10 @@ at last check that you have completed the task properly.
 
 --best practice 
 follow all the rules applicable 
-so have you resolved the issue? 
-what is the gold standard best practice for professional website? 
-are we following those practices to solve these issues? 
-or are we masking issues?
+gold standard 
+best practice for professional website
+are we following those practices to solve these issues
+no masking of real issues
 
 --permission request
 ask for blanket permission once only.

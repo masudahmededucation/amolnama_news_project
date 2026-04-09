@@ -18,7 +18,7 @@ no rush and check.
 check and check for unlimited time.
 no test and test, keep doing test.
 re-check everything now.
-yes, i want you to implement it.
+
 
 --create implementation plan
 can you create a robust plan.
@@ -37,27 +37,7 @@ start implementing.
 at last check that you have completed the task properly.
 
 --report 
-report what you have done --deep research
-deep research, compare, create rule, documents, plan, then implement.
-make it professional.
-gold standard business practice.
-competitive app design practice.
-safe practice.
-no shortcut dangerous practice.
-no layer on top of layer code.
-logic should be clean, clear, concise.
-no duplicate codes.
-no shitty code.
-no skipping.
-no lying.
-no cheating.
-no later later game.
-redesign, rewrite everything everywhere.
-no rush and check.
-check and check for unlimited time.
-no test and test, keep doing test.
-re-check everything now.
-yes, i want you to implement it.
+report what you have done 
 
 --create implementation plan
 can you create a robust plan.

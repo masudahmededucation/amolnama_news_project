@@ -43,6 +43,7 @@ also should get a professional message what happened and what can be done.
 does user have option to challenge?
 
 
+#############
 --fact check brain.
 we also need ai fact checker engine.
 which can go online and read other peoples posts or comment to make a decision
@@ -109,6 +110,13 @@ what do you think?
 think what else we can add?
 it needs to be automatic for all posts - current and future.
 
+--
+when i click on the users in the blog post, 
+it is only showing home wall posts by that user.
+basically, if the click comes from the blog post, 
+then just showing article to that user make sense right?
+
+
 
 ############
 --newshub broadcast logic
@@ -119,3 +127,19 @@ it needs to be automatic for all posts - current and future.
 ###############
 --how to post 1000s of messages 
 --not at a time
+
+
+####
+--master article table
+well - we need to somehow need a global article form. 
+at the moment we are giving 
+user different type of form to present 
+that type of article in the best format. 
+we are not using one general form. we are using specific form. 
+maybe some basic, article id, article type, 
+article title, writer profile id 
+- this kind of information we need to have one master table then 
+- for specific article type, categories, w
+e store information in different places. we need to come back with a plan. 
+we need revamp the entire article blog system. 
+this is a complex and big task. i have to come to you later. 

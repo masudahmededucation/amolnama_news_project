@@ -1,0 +1,31 @@
+LEFT
+#	Task	What's needed
+1	Wire content create flows	When each app creates new content, INSERT into content_registry and set link_content_registry_id. Affects: post/views_api.py, newshub/views.py, poem/views_api.py, art/views_api.py, stories/views_api.py, bangladesh/views_api.py, debate/views_api.py
+2	Replace old per-app category FKs with unified subcategory	Blog tables still have old category columns alongside new link_content_ref_content_subcategory_id. Old columns can be dropped once create flows use unified subcategory.
+3	Newsengine polymorphic cleanup	Replace link_content_id + source_app with link_content_registry_id in fact_check_result, fact_content_classification_result
+4	Add DB FK constraints	After everything verified end-to-end
+5	Documentation + memory	Document content schema, blog_* schema renames, content registry architecture
+6	Newshub PK/FK rename	[newshub] tables were NOT renamed (different system — news collection, not blog). But newshub PK columns like newshub_coll_news_entry_id are already correct (schema prefix matches).
+
+
+###########
+--security
+
+are you using security app 
+- to put all the security features in there? 
+are you using it at all? 
+all the gate-keeping security features for websites. 
+should be in the security app? 
+how does it work? 
+what is the gold standard best practice - where do you write the rules? 
+how other app can follow it if there is not anywhere any written rules?
+
+
+#####
+--display filters
+you should show the filtered list like poem. i don't see that yet, poem fileter - ফিল্টার:
+ভালোবাসা.
+it also comes with cross sign to remove. 
+similar options need to be modularies and used everywhere. 
+not just debate. 
+it should appear all the blog posts page options if appropriate
