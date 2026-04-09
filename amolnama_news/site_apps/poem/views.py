@@ -82,19 +82,20 @@ def _annotate_poem(poem, categories_map):
     poem.display_title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"
     body = poem.poem_body_bn or poem.poem_body_en or ""
     poem.body_preview = body[:120].strip()
-    cat = categories_map.get(poem.link_blog_poem_ref_poem_category_id)
-    poem.category_name = cat.poem_category_name_bn if cat else ""
-    poem.category_name_en = cat.poem_category_name_en if cat else ""
+    cat = categories_map.get(poem.link_content_ref_content_subcategory_id)
+    poem.category_name = cat.subcategory_name_bn if cat else ""
+    poem.category_name_en = cat.subcategory_name_en if cat else ""
     poem.time_ago = _time_ago(poem.created_at)
     return poem
 
 
 def poem_landing(request):
     """Poem landing page — card grid with server-rendered first page."""
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
     categories = list(
-        RefPoemCategory.objects.filter(is_active=True).order_by("sort_order", "poem_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='poem', is_active=True).order_by("sort_order")
     )
-    categories_map = {c.blog_poem_ref_poem_category_id: c for c in categories}
+    categories_map = {c.content_ref_content_subcategory_id: c for c in categories}
 
     poems_qs = CollPoemEntry.objects.order_by("-created_at")[:PAGE_SIZE + 1]
     poems_list = list(poems_qs)

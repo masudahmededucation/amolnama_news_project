@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/travel-hub.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/filter-pills.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -45,15 +46,13 @@
 </section>
 
 {# ── Category Filter ── #}
-<div class="travel-hub-filter-bar">
-  <div class="travel-hub-filter-pills" id="travel-hub-filter-pills">
-    <button type="button" class="travel-hub-filter-pill travel-hub-filter-pill--active" data-category="">সব (All)</button>
-    {% for cat in categories %}
-      <button type="button" class="travel-hub-filter-pill" data-category="{{ cat.bangladesh_ref_destination_category_id }}">
-        {{ cat.destination_category_name_bn }}
-      </button>
-    {% endfor %}
-  </div>
+<div class="filter-pills-group" id="travel-hub-filter-pills">
+  <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="">সব ধরন (All)</button>
+  {% for cat in categories %}
+    <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
+      {{ cat.subcategory_icon }} {{ cat.subcategory_name_bn }}
+    </button>
+  {% endfor %}
 </div>
 
 {# ── Destination Grid ── #}

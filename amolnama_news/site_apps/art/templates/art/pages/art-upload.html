@@ -26,10 +26,10 @@
 
     <div class="art-upload-field">
       <label for="art-upload-category" class="art-upload-label">বিভাগ <span class="field-mandatory-star">*</span></label>
-      <select class="art-upload-select" id="art-upload-category" name="link_art_category_id" required>
+      <select class="art-upload-select" id="art-upload-category" name="link_content_ref_content_subcategory_id" required>
         <option value="">বিভাগ নির্বাচন করুন</option>
         {% for category in categories %}
-        <option value="{{ category.blog_art_ref_art_category_id }}">{{ category.art_category_icon }} {{ category.art_category_name_bn }} ({{ category.art_category_name_en }})</option>
+        <option value="{{ category.content_ref_content_subcategory_id }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }} ({{ category.subcategory_name_en }})</option>
         {% endfor %}
       </select>
     </div>

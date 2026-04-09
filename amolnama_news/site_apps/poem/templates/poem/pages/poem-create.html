@@ -30,7 +30,7 @@
         <select class="poem-create-select" id="poem-category" name="poem-category" required>
           <option value="" data-bn="-- বাছাই করুন --" data-en="-- Select --">-- বাছাই করুন (Select) --</option>
           {% for cat in categories %}
-            <option value="{{ cat.blog_poem_ref_poem_category_id }}" data-bn="{{ cat.poem_category_name_bn }}" data-en="{{ cat.poem_category_name_en }}">{{ cat.poem_category_name_bn }} ({{ cat.poem_category_name_en }})</option>
+            <option value="{{ cat.content_ref_content_subcategory_id }}" data-bn="{{ cat.subcategory_name_bn }}" data-en="{{ cat.subcategory_name_en }}">{{ cat.subcategory_name_bn }} ({{ cat.subcategory_name_en }})</option>
           {% endfor %}
         </select>
       </div>

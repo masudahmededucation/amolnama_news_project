@@ -62,7 +62,7 @@ def home(request):
         is_published=True, is_active=True,
     )
     if category_filter:
-        artworks_queryset = artworks_queryset.filter(link_blog_art_ref_art_category_id=category_filter)
+        artworks_queryset = artworks_queryset.filter(link_content_ref_content_subcategory_id=category_filter)
     if medium_filter:
         artworks_queryset = artworks_queryset.filter(link_blog_art_ref_art_medium_id=medium_filter)
     artworks = artworks_queryset.order_by('-is_featured', '-created_at')[:60]
@@ -83,10 +83,11 @@ def home(request):
             for row in cursor.fetchall():
                 cover_map[row[0]] = row[1]
 
-    # Build category map
-    category_map = {
-        category.blog_art_ref_art_category_id: category
-        for category in RefArtCategory.objects.filter(is_active=True).order_by('sort_order')
+    # Build category map from unified subcategory table
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    subcategory_map = {
+        sub.content_ref_content_subcategory_id: sub
+        for sub in RefContentSubcategory.objects.filter(group_code='art', is_active=True).order_by('sort_order')
     }
 
     # Build author display names
@@ -99,15 +100,15 @@ def home(request):
 
     artwork_items = []
     for artwork in artworks:
-        category = category_map.get(artwork.link_blog_art_ref_art_category_id)
+        subcategory = subcategory_map.get(artwork.link_content_ref_content_subcategory_id)
         artwork_items.append({
             'artwork_id': artwork.blog_art_coll_artwork_id,
             'title_bn': artwork.artwork_title_bn,
             'title_en': artwork.artwork_title_en,
             'slug': artwork.artwork_slug,
             'cover_url': cover_map.get(artwork.blog_art_coll_artwork_id),
-            'category_name_bn': category.art_category_name_bn if category else '',
-            'category_icon': category.art_category_icon if category else '',
+            'category_name_bn': subcategory.subcategory_name_bn if subcategory else '',
+            'category_icon': subcategory.subcategory_icon if subcategory else '',
             'author_name': author_map.get(artwork.link_user_profile_id, 'শিল্পী'),
             'like_count': artwork.like_count,
             'view_count': artwork.view_count,
@@ -115,7 +116,7 @@ def home(request):
             'time_ago': _calculate_time_ago(artwork.created_at),
         })
 
-    categories = RefArtCategory.objects.filter(is_active=True).order_by('sort_order')
+    categories = list(subcategory_map.values())
     mediums = RefArtMedium.objects.filter(is_active=True).order_by('sort_order')
 
     return render(request, 'art/pages/art-landing.html', {

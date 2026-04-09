@@ -54,8 +54,8 @@
   <div class="filter-pills-group" id="poemFilterPills">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="">সব ধরন (All)</button>
     {% for cat in categories %}
-      <button type="button" class="filter-pills-pill" data-category="{{ cat.blog_poem_ref_poem_category_id }}">
-        {{ cat.poem_category_name_bn }}
+      <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
+        {{ cat.subcategory_icon }} {{ cat.subcategory_name_bn }}
       </button>
     {% endfor %}
   </div>

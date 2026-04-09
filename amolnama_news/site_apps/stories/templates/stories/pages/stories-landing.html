@@ -28,7 +28,7 @@
   <div class="filter-pills-group" style="--filter-pills-accent: var(--success); --filter-pills-accent-light: var(--success-light);" id="stories-category-filter">
     <a href="{% url 'stories:home' %}{% if active_age %}?age={{ active_age }}{% endif %}" class="filter-pills-pill{% if not active_category %} filter-pills-pill-active{% endif %}" id="stories-category-pill-all" name="stories_category_pill_all">সব ধরন (All)</a>
     {% for category in categories %}
-    <a href="{% url 'stories:home' %}?category={{ category.blog_stories_ref_story_category_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="filter-pills-pill{% if active_category == category.blog_stories_ref_story_category_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-category-pill-{{ category.story_category_code }}" name="stories_category_pill_{{ category.story_category_code }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }}</a>
+    <a href="{% url 'stories:home' %}?category={{ category.content_ref_content_subcategory_id }}{% if active_age %}&age={{ active_age }}{% endif %}" class="filter-pills-pill{% if active_category == category.content_ref_content_subcategory_id|stringformat:'d' %} filter-pills-pill-active{% endif %}" id="stories-category-pill-{{ category.subcategory_code }}" name="stories_category_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</a>
     {% endfor %}
   </div>
 </div>

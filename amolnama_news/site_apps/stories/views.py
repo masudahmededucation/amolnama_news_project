@@ -38,7 +38,7 @@ def home(request):
         is_published=True, is_active=True,
     )
     if category_filter:
-        stories_queryset = stories_queryset.filter(link_blog_stories_ref_story_category_id=category_filter)
+        stories_queryset = stories_queryset.filter(link_content_ref_content_subcategory_id=category_filter)
     if age_filter:
         stories_queryset = stories_queryset.filter(link_blog_stories_ref_story_age_group_id=age_filter)
     stories = stories_queryset.order_by('-is_featured', '-is_daily_pick', '-created_at')[:60]
@@ -59,10 +59,11 @@ def home(request):
             for row in cursor.fetchall():
                 cover_map[row[0]] = row[1]
 
-    # Build maps
-    category_map = {
-        category.blog_stories_ref_story_category_id: category
-        for category in RefStoryCategory.objects.filter(is_active=True).order_by('sort_order')
+    # Build maps from unified subcategory table
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    subcategory_map = {
+        sub.content_ref_content_subcategory_id: sub
+        for sub in RefContentSubcategory.objects.filter(group_code='story', is_active=True).order_by('sort_order')
     }
     age_group_map = {
         age_group.blog_stories_ref_story_age_group_id: age_group
@@ -78,7 +79,7 @@ def home(request):
 
     story_items = []
     for story in stories:
-        category = category_map.get(story.link_blog_stories_ref_story_category_id)
+        subcategory = subcategory_map.get(story.link_content_ref_content_subcategory_id)
         age_group = age_group_map.get(story.link_blog_stories_ref_story_age_group_id)
         story_items.append({
             'story_id': story.blog_stories_coll_story_id,
@@ -86,8 +87,8 @@ def home(request):
             'slug': story.story_slug,
             'summary_bn': story.story_summary_bn,
             'cover_url': cover_map.get(story.blog_stories_coll_story_id),
-            'category_name_bn': category.story_category_name_bn if category else '',
-            'category_icon': category.story_category_icon if category else '',
+            'category_name_bn': subcategory.subcategory_name_bn if subcategory else '',
+            'category_icon': subcategory.subcategory_icon if subcategory else '',
             'age_group_name_bn': age_group.age_group_name_bn if age_group else '',
             'reading_time_minutes': story.reading_time_minutes,
             'author_name': author_map.get(story.link_user_profile_id, 'লেখক'),
@@ -98,7 +99,7 @@ def home(request):
             'time_ago': _calculate_time_ago(story.created_at),
         })
 
-    categories = RefStoryCategory.objects.filter(is_active=True).order_by('sort_order')
+    categories = list(subcategory_map.values())
     age_groups = RefStoryAgeGroup.objects.filter(is_active=True).order_by('sort_order')
 
     return render(request, 'stories/pages/stories-landing.html', {

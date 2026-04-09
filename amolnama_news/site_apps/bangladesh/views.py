@@ -59,9 +59,10 @@ def bangladesh_landing(request):
 @ensure_csrf_cookie
 def travel_hub(request):
     """Travel Hub — browse destinations."""
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
     categories = list(
-        RefDestinationCategory.objects.filter(is_active=True)
-        .order_by("sort_order", "destination_category_name_en")
+        RefContentSubcategory.objects.filter(group_code='destination', is_active=True)
+        .order_by("sort_order")
     )
     seasons = list(
         RefSeason.objects.filter(is_active=True).order_by("sort_order")
@@ -99,12 +100,12 @@ def travel_hub(request):
                     blog_bangladesh_coll_destination_id=destination.blog_bangladesh_coll_destination_id,
                 ).update(cover_image_url=photo_url)
 
-    category_map = {c.blog_bangladesh_ref_destination_category_id: c for c in categories}
+    subcategory_map = {c.content_ref_content_subcategory_id: c for c in categories}
     for destination in destinations:
-        category = category_map.get(destination.link_blog_bangladesh_ref_destination_category_id)
-        destination.category_name_bn = category.destination_category_name_bn if category else ""
-        destination.category_name_en = category.destination_category_name_en if category else ""
-        destination.category_icon = category.destination_category_icon if category else ""
+        subcategory = subcategory_map.get(destination.link_content_ref_content_subcategory_id)
+        destination.category_name_bn = subcategory.subcategory_name_bn if subcategory else ""
+        destination.category_name_en = subcategory.subcategory_name_en if subcategory else ""
+        destination.category_icon = subcategory.subcategory_icon if subcategory else ""
         destination.time_ago = _time_ago(destination.created_at)
 
     return render(request, "bangladesh/pages/travel-hub.html", {

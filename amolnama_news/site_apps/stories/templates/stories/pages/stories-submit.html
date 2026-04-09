@@ -26,10 +26,10 @@
 
     <div class="stories-submit-field">
       <label for="stories-submit-category" class="stories-submit-label">বিভাগ <span class="field-mandatory-star">*</span></label>
-      <select class="stories-submit-select" id="stories-submit-category" name="link_story_category_id" required>
+      <select class="stories-submit-select" id="stories-submit-category" name="link_content_ref_content_subcategory_id" required>
         <option value="">বিভাগ নির্বাচন করুন</option>
         {% for category in categories %}
-        <option value="{{ category.blog_stories_ref_story_category_id }}">{{ category.story_category_icon }} {{ category.story_category_name_bn }} ({{ category.story_category_name_en }})</option>
+        <option value="{{ category.content_ref_content_subcategory_id }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }} ({{ category.subcategory_name_en }})</option>
         {% endfor %}
       </select>
     </div>
