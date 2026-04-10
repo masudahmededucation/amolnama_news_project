@@ -1,4 +1,10 @@
-{# X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile. #}
+{# X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile.
+
+   Active state is resolved by the active_sidebar_nav context processor — single source
+   of truth in core/context_processors.py:SIDEBAR_NAV_RULES. Adding a new nav item here
+   requires ONE matching entry in SIDEBAR_NAV_RULES; dual-active is structurally
+   impossible because the resolver returns exactly one nav_id per request.
+#}
 {% load static %}
 <nav class="sidebar-navigation" id="sidebar-navigation" name="sidebar_navigation" aria-label="প্রধান নেভিগেশন (Primary Navigation)">
 
@@ -12,100 +18,100 @@
   </div>
 
   <div class="sidebar-navigation-menu" id="sidebar-navigation-menu" name="sidebar_navigation_menu">
-    <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if request.path == '/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
+    <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'home' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
       <span class="sidebar-navigation-item-icon">🏠</span>
       <span class="sidebar-navigation-item-label">হোম</span>
     </a>
 
-    <a href="{% url 'debate:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'debate' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-debate" name="sidebar_navigation_item_debate" title="তর্ক-বিতর্ক (Debate)">
+    <a href="{% url 'debate:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'debate' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-debate" name="sidebar_navigation_item_debate" title="তর্ক-বিতর্ক (Debate)">
       <span class="sidebar-navigation-item-icon">⚖️</span>
       <span class="sidebar-navigation-item-label">তর্ক-বিতর্ক</span>
     </a>
 
-    <a href="{% url 'search:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'search' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-search" name="sidebar_navigation_item_search" title="অনুসন্ধান (Search)">
+    <a href="{% url 'search:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'search' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-search" name="sidebar_navigation_item_search" title="অনুসন্ধান (Search)">
       <span class="sidebar-navigation-item-icon">🔍</span>
       <span class="sidebar-navigation-item-label">অনুসন্ধান</span>
     </a>
 
-    <a href="{% url 'messenger:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'messenger' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-messenger" name="sidebar_navigation_item_messenger" title="মেসেঞ্জার (Messenger)">
+    <a href="{% url 'messenger:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'messenger' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-messenger" name="sidebar_navigation_item_messenger" title="মেসেঞ্জার (Messenger)">
       <span class="sidebar-navigation-item-icon">📩<span class="sidebar-navigation-unread-badge sidebar-navigation-unread-badge-hidden" id="sidebar-messenger-unread-badge" name="sidebar_messenger_unread_badge">0</span></span>
       <span class="sidebar-navigation-item-label">মেসেঞ্জার</span>
     </a>
 
-    <a href="{% url 'social:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'social' and request.path != '/social/bookmarks/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-social" name="sidebar_navigation_item_social" title="সামাজিক (Social)">
+    <a href="{% url 'social:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'social' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-social" name="sidebar_navigation_item_social" title="সামাজিক (Social)">
       <span class="sidebar-navigation-item-icon">👥</span>
       <span class="sidebar-navigation-item-label">সামাজিক</span>
     </a>
 
-    <a href="{% url 'live:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'live' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-live" name="sidebar_navigation_item_live" title="সরাসরি (Live)">
+    <a href="{% url 'live:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'live' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-live" name="sidebar_navigation_item_live" title="সরাসরি (Live)">
       <span class="sidebar-navigation-item-icon">🔴</span>
       <span class="sidebar-navigation-item-label">সরাসরি</span>
     </a>
 
-    <a href="{% url 'tools:tools' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'tools' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-tools" name="sidebar_navigation_item_tools" title="সফটওয়্যার (Tools)">
+    <a href="{% url 'tools:tools' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'tools' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-tools" name="sidebar_navigation_item_tools" title="সফটওয়্যার (Tools)">
       <span class="sidebar-navigation-item-icon">🔧</span>
       <span class="sidebar-navigation-item-label">সফটওয়্যার</span>
     </a>
 
     {% if user.is_authenticated %}
-    <a href="{% url 'social:bookmarks' %}" class="sidebar-navigation-item{% if request.path == '/social/bookmarks/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookmarks" name="sidebar_navigation_item_bookmarks" title="সংরক্ষিত (Bookmarks)">
+    <a href="{% url 'social:bookmarks' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'bookmarks' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookmarks" name="sidebar_navigation_item_bookmarks" title="সংরক্ষিত (Bookmarks)">
       <span class="sidebar-navigation-item-icon">💜</span>
       <span class="sidebar-navigation-item-label">সংরক্ষিত</span>
     </a>
     {% endif %}
 
-    <a href="{% url 'portal:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'portal' and '/portal/content/' not in request.path and '/portal/analytics/' not in request.path and '/portal/moderation/' not in request.path and '/portal/admin/' not in request.path %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-portal" name="sidebar_navigation_item_portal" title="পোর্টাল — প্রোফাইল (Portal)">
+    <a href="{% url 'portal:home' %}" class="sidebar-navigation-item{% if active_sidebar_nav_id == 'portal' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-portal" name="sidebar_navigation_item_portal" title="পোর্টাল — প্রোফাইল (Portal)">
       <span class="sidebar-navigation-item-icon">👤</span>
       <span class="sidebar-navigation-item-label">পোর্টাল</span>
     </a>
 
     <div class="sidebar-navigation-divider"></div>
 
-    <a href="{% url 'newshub:news_article_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'news_article_landing' or request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name == 'article_detail' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-news" name="sidebar_navigation_item_news" title="সংবাদ (News)">
+    <a href="{% url 'newshub:news_article_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'news' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-news" name="sidebar_navigation_item_news" title="সংবাদ (News)">
       <span class="sidebar-navigation-item-icon">📰</span>
       <span class="sidebar-navigation-item-label">নাগরিক সংবাদ</span>
     </a>
 
-    <a href="{% url 'newshub:news_collection_multistep' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'newshub' and request.resolver_match.url_name != 'news_article_landing' and request.resolver_match.url_name != 'article_detail' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-citizen-journalism" name="sidebar_navigation_item_citizen_journalism" title="নাগরিক সাংবাদিকতা (Citizen Journalism)">
+    <a href="{% url 'newshub:news_collection_multistep' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'citizen-journalism' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-citizen-journalism" name="sidebar_navigation_item_citizen_journalism" title="নাগরিক সাংবাদিকতা (Citizen Journalism)">
       <span class="sidebar-navigation-item-icon">🗞️</span>
       <span class="sidebar-navigation-item-label">নাগরিক সাংবাদিকতা</span>
     </a>
 
-    <a href="{% url 'election_vote:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'election_vote' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-election" name="sidebar_navigation_item_election" title="নির্বাচন (Election)">
+    <a href="{% url 'election_vote:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'election' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-election" name="sidebar_navigation_item_election" title="নির্বাচন (Election)">
       <span class="sidebar-navigation-item-icon">🗳️</span>
       <span class="sidebar-navigation-item-label">নির্বাচন</span>
     </a>
 
     <div class="sidebar-navigation-divider"></div>
 
-    <a href="{% url 'poem:poem_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'poem' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-poetry" name="sidebar_navigation_item_poetry" title="কবিতা ও গান (Poetry & Songs)">
+    <a href="{% url 'poem:poem_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'poetry' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-poetry" name="sidebar_navigation_item_poetry" title="কবিতা ও গান (Poetry & Songs)">
       <span class="sidebar-navigation-item-icon">📝</span>
       <span class="sidebar-navigation-item-label">কবিতা ও গান</span>
     </a>
 
-    <a href="{% url 'art:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'art' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-art" name="sidebar_navigation_item_art" title="শিল্পকলা (Art & Craft)">
+    <a href="{% url 'art:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'art' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-art" name="sidebar_navigation_item_art" title="শিল্পকলা (Art & Craft)">
       <span class="sidebar-navigation-item-icon">🎨</span>
       <span class="sidebar-navigation-item-label">শিল্পকলা</span>
     </a>
 
-    <a href="{% url 'stories:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'stories' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-stories" name="sidebar_navigation_item_stories" title="গল্পের ঝুলি (Stories for Kids)">
+    <a href="{% url 'stories:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'stories' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-stories" name="sidebar_navigation_item_stories" title="গল্পের ঝুলি (Stories for Kids)">
       <span class="sidebar-navigation-item-icon">📚</span>
       <span class="sidebar-navigation-item-label">গল্পের ঝুলি</span>
     </a>
 
-    <a href="{% url 'bangladesh:bangladesh_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'bangladesh' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bangladesh" name="sidebar_navigation_item_bangladesh" title="বাংলাদেশ (Bangladesh)">
+    <a href="{% url 'bangladesh:bangladesh_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'bangladesh' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bangladesh" name="sidebar_navigation_item_bangladesh" title="বাংলাদেশ (Bangladesh)">
       <span class="sidebar-navigation-item-icon">🇧🇩</span>
       <span class="sidebar-navigation-item-label">বাংলাদেশ প্রকৃতি</span>
     </a>
 
     <div class="sidebar-navigation-divider"></div>
 
-    <a href="{% url 'marriage:marriage' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'marriage' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-marriage" name="sidebar_navigation_item_marriage" title="বিবাহ (Marriage)">
+    <a href="{% url 'marriage:marriage' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'marriage' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-marriage" name="sidebar_navigation_item_marriage" title="বিবাহ (Marriage)">
       <span class="sidebar-navigation-item-icon">💍</span>
       <span class="sidebar-navigation-item-label">বিবাহ</span>
     </a>
 
-    <a href="{% url 'health:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'health' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-health" name="sidebar_navigation_item_health" title="স্বাস্থ্য (Health)">
+    <a href="{% url 'health:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'health' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-health" name="sidebar_navigation_item_health" title="স্বাস্থ্য (Health)">
       <span class="sidebar-navigation-item-icon">🏥</span>
       <span class="sidebar-navigation-item-label">স্বাস্থ্য</span>
     </a>
@@ -115,30 +121,30 @@
 
     <span class="sidebar-navigation-section-label">Admin Panel</span>
 
-    <a href="{% url 'textextractor:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.resolver_match.namespace == 'textextractor' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-textextractor" name="sidebar_navigation_item_textextractor" title="Text Extractor">
+    <a href="{% url 'textextractor:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'textextractor' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-textextractor" name="sidebar_navigation_item_textextractor" title="Text Extractor">
       <span class="sidebar-navigation-item-icon">📄</span>
       <span class="sidebar-navigation-item-label">Text Extractor</span>
     </a>
 
-    <a href="{% url 'portal:content_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/content/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-content-dashboard" name="sidebar_navigation_item_content_dashboard" title="Content Dashboard">
+    <a href="{% url 'portal:content_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'content-dashboard' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-content-dashboard" name="sidebar_navigation_item_content_dashboard" title="Content Dashboard">
       <span class="sidebar-navigation-item-icon">📋</span>
       <span class="sidebar-navigation-item-label">Content Dashboard</span>
     </a>
 
-    <a href="{% url 'portal:analytics_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/analytics/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-analytics-dashboard" name="sidebar_navigation_item_analytics_dashboard" title="Analytics Dashboard">
+    <a href="{% url 'portal:analytics_dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'analytics-dashboard' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-analytics-dashboard" name="sidebar_navigation_item_analytics_dashboard" title="Analytics Dashboard">
       <span class="sidebar-navigation-item-icon">📊</span>
       <span class="sidebar-navigation-item-label">Analytics</span>
     </a>
 
-    <a href="{% url 'portal:moderation_queue' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/moderation/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-moderation-queue" name="sidebar_navigation_item_moderation_queue" title="Moderation Queue">
+    <a href="{% url 'portal:moderation_queue' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'moderation-queue' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-moderation-queue" name="sidebar_navigation_item_moderation_queue" title="Moderation Queue">
       <span class="sidebar-navigation-item-icon">🛡️</span>
       <span class="sidebar-navigation-item-label">Moderation</span>
     </a>
-    <a href="{% url 'portal:composer_placeholders' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/portal/admin/placeholders/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-placeholders" name="sidebar_navigation_item_placeholders" title="Placeholder Admin">
+    <a href="{% url 'portal:composer_placeholders' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'placeholders' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-placeholders" name="sidebar_navigation_item_placeholders" title="Placeholder Admin">
       <span class="sidebar-navigation-item-icon">🎯</span>
       <span class="sidebar-navigation-item-label">Placeholders</span>
     </a>
-    <a href="{% url 'newshub:admin_form_access' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if request.path == '/newshub/admin/form-access/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-form-access" name="sidebar_navigation_item_form_access" title="Form Access Control">
+    <a href="{% url 'newshub:admin_form_access' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'form-access' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-form-access" name="sidebar_navigation_item_form_access" title="Form Access Control">
       <span class="sidebar-navigation-item-icon">🔐</span>
       <span class="sidebar-navigation-item-label">Form Access</span>
     </a>

@@ -111,6 +111,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "amolnama_news.site_apps.user_account.context_processors.user_display_name",
                 "amolnama_news.site_apps.seo.context_processors.seo_defaults",
+                "amolnama_news.site_apps.core.context_processors.active_sidebar_nav",
             ],
         },
     },
