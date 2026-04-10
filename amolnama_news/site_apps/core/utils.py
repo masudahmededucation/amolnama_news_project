@@ -35,8 +35,9 @@ def get_user_profile_id(request):
         return None
 
 
-# Bookmark functions live in their own atomic module — re-export here so legacy imports keep working.
-from amolnama_news.site_apps.core.bookmarks import (  # noqa: F401
+# Bookmark functions live in the content app (shared blog/content feature).
+# Re-exported here so legacy imports keep working.
+from amolnama_news.site_apps.content.bookmarks import (  # noqa: F401
     get_content_type_metadata,
     toggle_bookmark,
     is_bookmarked,

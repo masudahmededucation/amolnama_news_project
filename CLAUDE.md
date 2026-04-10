@@ -155,8 +155,8 @@ amolnama_news/site_apps/
 - **"Why N?"** = stop and rethink the design. The answer is probably 1.
 
 ### Stable patterns to copy from
-- **Universal bookmark**: `core/bookmarks.py` + `newsengine/views_api.py:api_bookmark_toggle`. ONE endpoint, 4 content types. Adding a 5th = one line in `CONTENT_TYPE_METADATA`.
-- **Shared actions bar**: `core/templates/core/components/actions-bar.html` + `core/templatetags/blog_tags.py:blog_actions_bar` + `core/static/core/assets/js/components/actions-bar.js`. Used by all blog detail pages.
+- **Universal bookmark**: `content/bookmarks.py` + `newsengine/views_api.py:api_bookmark_toggle`. ONE endpoint, all content types. Adding a new type = one line in `CONTENT_TYPE_METADATA`.
+- **Shared actions bar**: `content/templates/content/components/actions-bar.html` + `content/templatetags/content_tags.py:content_actions_bar` + `content/static/content/assets/{css,js}/components/actions-bar.{css,js}`. Used by all content detail pages (news/poem/art/story/destination).
 - **Background tasks**: `newsengine/utils.py:run_background_task()`.
 - **Bengali slug**: `core/utils.py:bangla_slugify()`. NEVER Django's `slugify(allow_unicode=True)`.
 - **User profile id**: `core/utils.py:get_user_profile_id(request)`.

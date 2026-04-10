@@ -1,17 +1,19 @@
-"""Blog template tags — shared inclusion tags for all blog detail pages."""
+"""Content template tags — shared inclusion tags for all content detail pages
+(news, poem, art, story, destination, debate, ...).
+"""
 
 from django import template
 
 register = template.Library()
 
 
-@register.inclusion_tag('core/components/actions-bar.html', takes_context=True)
-def blog_actions_bar(context, entity_id, share_title, content_type, position='top',
-                     show_bookmark=True, like_count=0, view_count=0):
-    """Render the shared actions bar for any blog detail page.
+@register.inclusion_tag('content/components/actions-bar.html', takes_context=True)
+def content_actions_bar(context, entity_id, share_title, content_type, position='top',
+                        show_bookmark=True, like_count=0, view_count=0):
+    """Render the shared actions bar for any content detail page.
 
     Usage:
-        {% blog_actions_bar poem.blog_poem_coll_poem_entry_id poem.poem_title_bn 'poem' position='top' like_count=poem.like_count view_count=poem.view_count %}
+        {% content_actions_bar poem.blog_poem_coll_poem_entry_id poem.poem_title_bn 'poem' position='top' like_count=poem.like_count view_count=poem.view_count %}
 
     Args:
         entity_id: int — primary key (used as DOM id + data-entity-id)

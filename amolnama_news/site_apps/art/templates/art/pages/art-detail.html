@@ -1,11 +1,11 @@
 {% extends "core/base.html" %}
-{% load static blog_tags %}
+{% load static content_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'art/assets/css/pages/art-detail.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 {% endblock %}
@@ -98,7 +98,7 @@
   {% endif %}
 
   {# ── Shared Actions Bar (writer follow + like + bookmark + view + share dropdown + edit) ── #}
-  {% blog_actions_bar artwork.artwork_id artwork.title_bn "art" position="bottom" like_count=artwork.like_count view_count=artwork.view_count %}
+  {% content_actions_bar artwork.artwork_id artwork.title_bn "art" position="bottom" like_count=artwork.like_count view_count=artwork.view_count %}
 
 </article>
 
@@ -108,7 +108,7 @@
 
 {% block extra_js %}
 <script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
-<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'art/assets/js/pages/art-detail.js' %}" defer></script>
 <script src="{% static 'core/assets/js/components/related-content-loader.js' %}" defer></script>
 {% endblock %}

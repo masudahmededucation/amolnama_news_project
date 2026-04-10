@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static blog_tags %}
+{% load static content_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 {% block meta_description %}{{ seo.description }}{% endblock %}
@@ -30,7 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'poem/assets/css/components/poem-card.css' %}">
 <link rel="stylesheet" href="{% static 'poem/assets/css/pages/poem-detail.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
@@ -153,7 +153,7 @@
   {% endif %}
 
   {# ── Shared Actions Bar (writer follow + like + view + share dropdown + edit) ── #}
-  {% blog_actions_bar poem.blog_poem_coll_poem_entry_id poem.poem_title_bn "poem" position="bottom" like_count=poem.like_count view_count=poem.view_count %}
+  {% content_actions_bar poem.blog_poem_coll_poem_entry_id poem.poem_title_bn "poem" position="bottom" like_count=poem.like_count view_count=poem.view_count %}
 
 </article>
 
@@ -170,7 +170,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'poem/assets/js/pages/poem-detail.js' %}" defer></script>
 <script src="{% static 'poem/assets/js/components/poem-audio-player.js' %}" defer></script>
 {% endblock %}

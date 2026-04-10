@@ -1,11 +1,11 @@
 {% extends "core/base.html" %}
-{% load static blog_tags %}
+{% load static content_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'stories/assets/css/pages/stories-detail.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
 {% endblock %}
 
@@ -66,7 +66,7 @@
   {% endif %}
 
   {# ── Shared Actions Bar (writer follow + like + bookmark + view + share dropdown + edit) ── #}
-  {% blog_actions_bar story.story_id story.title_bn "story" position="bottom" like_count=story.like_count view_count=story.view_count %}
+  {% content_actions_bar story.story_id story.title_bn "story" position="bottom" like_count=story.like_count view_count=story.view_count %}
 
 </article>
 
@@ -74,7 +74,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'stories/assets/js/pages/stories-detail.js' %}" defer></script>
 <script src="{% static 'core/assets/js/components/related-content-loader.js' %}" defer></script>
 {% endblock %}

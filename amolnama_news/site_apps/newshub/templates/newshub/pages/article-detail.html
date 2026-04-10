@@ -1,12 +1,12 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static content_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 {% block meta_description %}{{ seo.description }}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'newshub/assets/css/pages/article-detail.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/actions-bar.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-card.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
@@ -123,7 +123,7 @@
     </div>
 
     {# ---- Top Actions (like + share + edit) ---- #}
-    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_content_registry_id=actions_bar_content_registry_id actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="top" %}
+    {% content_actions_bar published_article.pub_article_id published_article.pub_article_headline_bn "news" position="top" like_count=article_like_count view_count=article_view_count %}
 
     {# ---- Summary ---- #}
     {% if entry.news_summary_bn %}
@@ -213,7 +213,7 @@
     {% endif %}
 
     {# ---- Bottom Actions (like + share + edit) ---- #}
-    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_content_registry_id=actions_bar_content_registry_id actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="bottom" %}
+    {% content_actions_bar published_article.pub_article_id published_article.pub_article_headline_bn "news" position="bottom" like_count=article_like_count view_count=article_view_count %}
 
     {# ======== COMMUNITY ADDITIONS ======== #}
     {% if additions %}
@@ -288,7 +288,7 @@
 {% block extra_js %}
 <script src="{% static 'core/assets/js/components/photo-lightbox.js' %}" defer></script>
 <script src="{% static 'core/assets/js/components/photo-card.js' %}" defer></script>
-<script src="{% static 'core/assets/js/components/actions-bar.js' %}" defer></script>
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'newshub/assets/js/pages/article-detail.js' %}" defer></script>
 <script src="{% static 'core/assets/js/components/related-content-loader.js' %}" defer></script>
 {% endblock %}

@@ -1498,6 +1498,12 @@ def article_detail(request, slug):
     article_view_count = stats.view_count if stats else 0
     article_user_liked = str(published_article.pub_article_id) in request.session.get('article_likes', [])
 
+    # ---- Bookmark state (universal — uses [newsengine].[bookmark_content]) ----
+    from amolnama_news.site_apps.core.utils import is_bookmarked, get_bookmark_count, get_user_profile_id
+    article_user_profile_id = get_user_profile_id(request)
+    article_user_bookmarked = is_bookmarked(article_user_profile_id, 'news', published_article.pub_article_id)
+    article_bookmark_count = get_bookmark_count('news', published_article.pub_article_id)
+
     # ---- Article photos (evidence, impact, accused, victim, witness, general) ----
     from .helpers import get_article_photos
     article_photos = get_article_photos(entry.newshub_coll_news_entry_id)
@@ -1606,6 +1612,10 @@ def article_detail(request, slug):
         'article_like_count': article_like_count,
         'article_view_count': article_view_count,
         'article_user_liked': article_user_liked,
+        # Names the shared content_actions_bar tag reads from context:
+        'user_liked': article_user_liked,
+        'user_bookmarked': article_user_bookmarked,
+        'bookmark_count': article_bookmark_count,
         'actions_bar_content_registry_id': getattr(published_article, 'link_content_registry_id', None),
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(

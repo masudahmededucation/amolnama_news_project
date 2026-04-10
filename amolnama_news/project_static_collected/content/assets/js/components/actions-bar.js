@@ -8,8 +8,8 @@
  *     },
  *   });
  *
- * HTML: use core/components/actions-bar.html include
- * CSS: core/assets/css/components/actions-bar.css
+ * HTML: use {% content_actions_bar %} template tag (renders content/components/actions-bar.html)
+ * CSS: content/assets/css/components/actions-bar.css
  *
  * Like button must have data-entity-id attribute and class .actions-bar-like-button.
  * Like API response must return: { success: true, liked: bool, like_count: int }
