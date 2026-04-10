@@ -468,12 +468,50 @@ def bookmarks(request):
 
     # 2. Universal content bookmarks — single query against [newsengine].[bookmark_content]
     from amolnama_news.site_apps.core.utils import get_content_type_metadata
+    from amolnama_news.site_apps.newsengine.promo_builders import _bulk_cover_urls
+
     universal_bookmarks = []
     try:
-        for bookmark in BookmarkContent.objects.filter(
+        bookmarks_qs = list(BookmarkContent.objects.filter(
             link_user_profile_id=user_profile_id, is_active=True,
-        ).order_by('-created_at')[:50]:
+        ).order_by('-created_at')[:50])
+
+        # Group IDs by content type so we can bulk-fetch cover images per source table
+        ids_by_type = {}
+        for bookmark in bookmarks_qs:
+            ids_by_type.setdefault(bookmark.bookmark_content_type_code, []).append(bookmark.bookmark_content_id)
+
+        # Bulk-fetch cover URLs per content type using the shared promo_builders helper
+        cover_maps = {}
+        if ids_by_type.get('art'):
+            cover_maps['art'] = _bulk_cover_urls('blog_art', 'artwork_asset', 'link_blog_art_coll_artwork_id', ids_by_type['art'])
+        if ids_by_type.get('story'):
+            cover_maps['story'] = _bulk_cover_urls('blog_stories', 'story_asset', 'link_blog_stories_coll_story_id', ids_by_type['story'])
+        # Newshub news_asset is keyed by coll_news_entry_id, but bookmarks store pub_article_id —
+        # need to join pub_article → coll_news_entry first
+        if ids_by_type.get('news'):
+            from amolnama_news.site_apps.newshub.models import PubArticle
+            article_entry_map = dict(PubArticle.objects.filter(
+                pub_article_id__in=ids_by_type['news'],
+            ).values_list('pub_article_id', 'link_news_entry_id'))
+            entry_ids = list(article_entry_map.values())
+            entry_covers = _bulk_cover_urls('newshub', 'news_asset', 'link_newshub_coll_news_entry_id', entry_ids)
+            cover_maps['news'] = {
+                pub_id: entry_covers.get(entry_id, '')
+                for pub_id, entry_id in article_entry_map.items()
+            }
+        # Destinations have cover_image_url directly on the coll row (not an asset table)
+        if ids_by_type.get('destination'):
+            from amolnama_news.site_apps.bangladesh.models import CollDestination
+            cover_maps['destination'] = dict(CollDestination.objects.filter(
+                blog_bangladesh_coll_destination_id__in=ids_by_type['destination'],
+            ).values_list('blog_bangladesh_coll_destination_id', 'cover_image_url'))
+        # Poems are text-only — no cover images
+
+        for bookmark in bookmarks_qs:
             meta = get_content_type_metadata(bookmark.bookmark_content_type_code)
+            type_code = bookmark.bookmark_content_type_code
+            cover_url = cover_maps.get(type_code, {}).get(bookmark.bookmark_content_id, '') or ''
             universal_bookmarks.append({
                 'item_type': 'content_promo',
                 'promo_id': bookmark.bookmark_content_id,
@@ -483,6 +521,7 @@ def bookmarks(request):
                 'promo_title': bookmark.bookmark_content_title or '',
                 'promo_description': '',
                 'promo_url': bookmark.bookmark_content_url or '#',
+                'promo_cover_image_url': cover_url,
                 'promo_author': None, 'promo_date_formatted': '',
                 'promo_like_count': None, 'promo_view_count': None, 'promo_extra_stat': None,
             })
