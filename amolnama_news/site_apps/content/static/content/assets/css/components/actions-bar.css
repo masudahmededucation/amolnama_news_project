@@ -1,11 +1,18 @@
-/* ========== Actions Bar — shared component ========== */
-/* Like + view + share + edit bar. Used at top and bottom of detail pages.
-   Each page includes this CSS. Like/share managed by actions-bar.js. */
+/* ========== Actions Bar — shared content component ==========
+ * Like + bookmark + view + share + edit bar.
+ * Used at top and bottom of every content detail page (poem, art, story, travel, news article).
+ * JS handlers in: content/static/content/assets/js/components/actions-bar.js
+ * Renders via: {% content_actions_bar %} template tag
+ *
+ * Compliance: external CSS only, all colors from colors.css tokens, mobile-first
+ * (44px touch targets), prefers-reduced-motion respected, focus-visible on every
+ * interactive element, no hardcoded colors.
+ */
 
 .actions-bar {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: .6rem;
   flex-wrap: wrap;
   margin-top: 1.5rem;
   padding-top: 1rem;
@@ -42,30 +49,29 @@
 }
 
 .actions-bar-follow-button {
-  padding: .25rem .7rem;
+  padding: .35rem .8rem;
   background: var(--primary);
-  color: #fff;
+  color: var(--card);
   border: 1.5px solid var(--primary);
-  border-radius: 16px;
+  border-radius: 999px;
   font-size: .72rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
   white-space: nowrap;
 }
 
-.actions-bar-follow-button:hover {
-  opacity: .85;
-}
+.actions-bar-follow-button:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.actions-bar-follow-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 .actions-bar-follow-button-active {
   background: var(--card);
   color: var(--text);
   border-color: var(--border);
 }
-
 .actions-bar-follow-button-active:hover {
   color: var(--danger);
+  background: var(--danger-light);
   border-color: var(--danger);
 }
 
@@ -76,114 +82,114 @@
   flex-shrink: 0;
 }
 
-/* ---- Like button ---- */
-
-.actions-bar-like-button {
+/* ---- Pill buttons (like + bookmark + share + edit) ----
+ * One shared base class via duplicated declarations (CSS doesn't have @extend).
+ * Variants only override color tokens, not layout.
+ */
+.actions-bar-like-button,
+.actions-bar-bookmark-button,
+.actions-bar-share-button,
+.actions-bar-edit-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: .35rem;
-  padding: .4rem .8rem;
+  padding: .55rem .85rem;
+  min-height: 40px;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--card, #fff);
+  border-radius: 999px;
+  background: var(--card);
   color: var(--muted);
   font-size: .8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: color .2s, background .2s, border-color .2s;
+  text-decoration: none;
   user-select: none;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .1s ease;
 }
 
-.actions-bar-like-button:hover {
-  color: #1877f2;
-  background: var(--info-light);
-  border-color: #1877f2;
+.actions-bar-like-button:focus-visible,
+.actions-bar-bookmark-button:focus-visible,
+.actions-bar-share-button:focus-visible,
+.actions-bar-edit-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-.actions-bar-like-button-active {
-  color: #1877f2;
-  background: var(--info-light);
-  border-color: #1877f2;
+.actions-bar-like-button:active,
+.actions-bar-bookmark-button:active,
+.actions-bar-share-button:active,
+.actions-bar-edit-button:active {
+  transform: scale(.96);
 }
 
-.actions-bar-like-button:disabled {
-  opacity: .7;
-  cursor: pointer;
-}
-
-.actions-bar-like-button > span {
+/* SVG icons inside buttons should never block clicks */
+.actions-bar-like-button > svg,
+.actions-bar-bookmark-button > svg,
+.actions-bar-share-button > svg,
+.actions-bar-like-button > span,
+.actions-bar-bookmark-button > span {
   pointer-events: none;
 }
 
-.actions-bar-like-icon {
+.actions-bar-like-icon,
+.actions-bar-bookmark-icon,
+.actions-bar-share-icon {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
 }
 
-.actions-bar-like-button-active .actions-bar-like-icon {
-  fill: #1877f2;
-}
-
-.actions-bar-like-label {
+.actions-bar-like-label,
+.actions-bar-bookmark-label,
+.actions-bar-like-count,
+.actions-bar-bookmark-count {
   font-size: .78rem;
+  font-weight: 700;
 }
 
-/* ---- Bookmark button ---- */
-.actions-bar-bookmark-button {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  padding: .4rem .8rem;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--card, #fff);
-  color: var(--muted);
-  font-size: .8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color .2s, background .2s, border-color .2s;
-  user-select: none;
+/* Like — info accent (blue, matches sentiment of "👍") */
+.actions-bar-like-button:hover,
+.actions-bar-like-button-active {
+  color: var(--info);
+  background: var(--info-light);
+  border-color: var(--info);
+}
+.actions-bar-like-button-active .actions-bar-like-icon {
+  fill: var(--info);
 }
 
-.actions-bar-bookmark-button:hover {
-  color: var(--warning);
-  background: var(--warning-light);
-  border-color: var(--warning);
-}
-
+/* Bookmark — warning accent (amber, matches sentiment of "save for later") */
+.actions-bar-bookmark-button:hover,
 .actions-bar-bookmark-button-active {
   color: var(--warning);
   background: var(--warning-light);
   border-color: var(--warning);
 }
-
 .actions-bar-bookmark-button-active .actions-bar-bookmark-icon {
   fill: var(--warning);
 }
 
-.actions-bar-bookmark-button > span,
-.actions-bar-bookmark-button > svg {
-  pointer-events: none;
+/* Share — neutral hover */
+.actions-bar-share-button:hover {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--text);
 }
 
-.actions-bar-bookmark-icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
+/* Edit — primary brand colour */
+.actions-bar-edit-button {
+  background: var(--primary);
+  color: var(--card);
+  border-color: var(--primary);
+}
+.actions-bar-edit-button:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--card);
 }
 
-.actions-bar-bookmark-label {
-  font-size: .78rem;
-}
-
-.actions-bar-like-count {
-  font-size: .78rem;
-  font-weight: 700;
-}
-
-/* ---- View count ---- */
-
+/* ---- View count (passive, no hover) ---- */
 .actions-bar-view-count {
   display: inline-flex;
   align-items: center;
@@ -191,46 +197,6 @@
   font-size: .8rem;
   color: var(--muted);
   padding: .4rem 0;
-}
-
-/* ---- Action buttons (share, edit) ---- */
-
-.actions-bar-button {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  font-size: .8rem;
-  padding: .4rem .8rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.actions-bar-button > * {
-  pointer-events: none;
-}
-
-.actions-bar-share-icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-}
-
-.actions-bar-button:hover {
-  background: var(--border);
-}
-
-.actions-bar-edit-button {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
-}
-
-.actions-bar-edit-button:hover {
-  opacity: .85;
 }
 
 /* ---- Share dropdown ---- */
@@ -242,21 +208,27 @@
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: calc(100% + .35rem);
+  top: calc(100% + .4rem);
   right: 0;
-  min-width: 220px;
+  min-width: 240px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
   z-index: 100;
   overflow: hidden;
+  animation: actions-bar-dropdown-in .15s ease-out;
+}
+
+@keyframes actions-bar-dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .actions-bar-share-group {
   display: flex;
   flex-direction: column;
-  padding: .3rem 0;
+  padding: .35rem 0;
 }
 
 .actions-bar-share-separator {
@@ -268,20 +240,27 @@
 .actions-bar-share-option {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  padding: .55rem .85rem;
-  font-size: .82rem;
+  gap: .65rem;
+  padding: .65rem .9rem;
+  min-height: 44px;
+  font-size: .85rem;
   font-weight: 600;
   color: var(--text);
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  transition: background .15s;
+  text-decoration: none;
+  transition: background-color .12s ease;
 }
 
 .actions-bar-share-option:hover {
   background: var(--surface);
+}
+
+.actions-bar-share-option:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
 }
 
 .actions-bar-share-option-icon {
@@ -294,26 +273,54 @@
   flex: 1;
 }
 
-.actions-bar-share-option:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: -2px;
-}
-
 .actions-bar-share-to-wall {
   color: var(--primary);
 }
 
-.actions-bar-share-to-wall .actions-bar-share-option-icon {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .1));
-}
-
+/* ---- Mobile (≤640px) ---- */
 @media (max-width: 640px) {
-  .actions-bar-button { min-height: 44px; padding: .4rem .6rem; }
+  .actions-bar { gap: .45rem; }
+  .actions-bar-like-button,
+  .actions-bar-bookmark-button,
+  .actions-bar-share-button,
+  .actions-bar-edit-button {
+    min-height: 44px;
+    padding: .6rem .85rem;
+  }
+  .actions-bar-like-label,
+  .actions-bar-bookmark-label {
+    /* Hide text labels on tiny screens; icons + counts remain */
+    display: none;
+  }
   .actions-bar-share-dropdown:not([hidden]) {
-    min-width: 200px;
+    min-width: 220px;
   }
   .actions-bar-share-option {
-    padding: .7rem .85rem;
-    font-size: .85rem;
+    padding: .8rem .9rem;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 380px) {
+  .actions-bar-view-count { display: none; }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .actions-bar-like-button,
+  .actions-bar-bookmark-button,
+  .actions-bar-share-button,
+  .actions-bar-edit-button,
+  .actions-bar-follow-button,
+  .actions-bar-share-option,
+  .actions-bar-share-dropdown:not([hidden]) {
+    transition: none;
+    animation: none;
+  }
+  .actions-bar-like-button:active,
+  .actions-bar-bookmark-button:active,
+  .actions-bar-share-button:active,
+  .actions-bar-edit-button:active {
+    transform: none;
   }
 }
