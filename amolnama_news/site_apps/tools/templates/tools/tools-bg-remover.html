@@ -15,51 +15,51 @@
   <p class="tool-subtitle" data-en="Remove image backgrounds with AI — hair and body edges are preserved beautifully. Everything is processed in your browser — nothing is uploaded to any server.">AI দিয়ে ছবির ব্যাকগ্রাউন্ড মুছুন — চুল ও শরীরের কিনারা সুন্দরভাবে রাখা হবে। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
 
   <!-- ===== Drop Zone ===== -->
-  <div class="bgr-dropzone" id="bgr-dropzone">
+  <div class="bgr-dropzone" id="bgr-dropzone" name="bgr_dropzone">
     <input type="file" id="bgr-file-input" name="bgr_file_input" accept="image/*" hidden>
     <div class="bgr-dropzone-icon">🖼️</div>
     <p class="bgr-dropzone-text" data-en="Drag &amp; drop image here">ছবি এখানে টেনে আনুন (Drag &amp; drop image here)</p>
     <p class="bgr-dropzone-or" data-en="or">অথবা (or)</p>
-    <button type="button" class="bgr-browse-btn" id="bgr-browse-btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
+    <button type="button" class="bgr-browse-btn" id="bgr-browse-btn" name="bgr_browse_btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
     <p class="bgr-dropzone-hint" data-en="JPG, PNG, WebP &middot; Max 10 MB &middot; You can also paste with Ctrl+V">JPG, PNG, WebP &middot; সর্বোচ্চ ১০ MB &middot; Ctrl+V দিয়ে পেস্টও করতে পারেন</p>
   </div>
 
   <!-- ===== Error Section ===== -->
-  <div class="bgr-error" hidden id="bgr-error">
-    <p id="bgr-error-text"></p>
-    <button type="button" class="bgr-try-again-btn" id="bgr-try-again-btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
+  <div class="bgr-error" hidden id="bgr-error" name="bgr_error">
+    <p id="bgr-error-text" name="bgr_error_text"></p>
+    <button type="button" class="bgr-try-again-btn" id="bgr-try-again-btn" name="bgr_try_again_btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
   </div>
 
   <!-- ===== Editor ===== -->
-  <div class="bgr-editor" hidden id="bgr-editor">
+  <div class="bgr-editor" hidden id="bgr-editor" name="bgr_editor">
 
     <!-- Side-by-side preview -->
     <div class="bgr-preview-grid">
       <div class="bgr-preview-col">
         <h3 data-en="Original">মূল ছবি (Original)</h3>
         <div class="bgr-preview-wrap">
-          <canvas id="bgr-original-canvas"></canvas>
+          <canvas id="bgr-original-canvas" name="bgr_original_canvas"></canvas>
         </div>
       </div>
       <div class="bgr-preview-col">
         <div class="bgr-result-header">
           <h3 data-en="Result">ব্যাকগ্রাউন্ড ছাড়া (Result)</h3>
-          <div class="bgr-result-tools" hidden id="bgr-result-tools">
-            <button type="button" class="bgr-zoom-btn bgr-compare-btn" id="bgr-compare-btn" title="চেপে ধরে তুলনা করুন (Hold to Compare)">👁</button>
+          <div class="bgr-result-tools" hidden id="bgr-result-tools" name="bgr_result_tools">
+            <button type="button" class="bgr-zoom-btn bgr-compare-btn" id="bgr-compare-btn" name="bgr_compare_btn" title="চেপে ধরে তুলনা করুন (Hold to Compare)">👁</button>
             <span class="bgr-result-tools-divider"></span>
-            <button type="button" class="bgr-zoom-btn" id="bgr-zoom-out" title="ছোট করুন (Zoom Out)">−</button>
-            <span class="bgr-zoom-level" id="bgr-zoom-level">1×</span>
-            <button type="button" class="bgr-zoom-btn" id="bgr-zoom-in" title="বড় করুন (Zoom In)">+</button>
+            <button type="button" class="bgr-zoom-btn" id="bgr-zoom-out" name="bgr_zoom_out" title="ছোট করুন (Zoom Out)">−</button>
+            <span class="bgr-zoom-level" id="bgr-zoom-level" name="bgr_zoom_level">1×</span>
+            <button type="button" class="bgr-zoom-btn" id="bgr-zoom-in" name="bgr_zoom_in" title="বড় করুন (Zoom In)">+</button>
           </div>
         </div>
-        <div class="bgr-preview-wrap bgr-checkerboard" id="bgr-result-wrap">
-          <canvas id="bgr-result-canvas"></canvas>
+        <div class="bgr-preview-wrap bgr-checkerboard" id="bgr-result-wrap" name="bgr_result_wrap">
+          <canvas id="bgr-result-canvas" name="bgr_result_canvas"></canvas>
           <!-- Brush cursor circle -->
-          <div class="bgr-brush-cursor" id="bgr-brush-cursor"></div>
+          <div class="bgr-brush-cursor" id="bgr-brush-cursor" name="bgr_brush_cursor"></div>
           <!-- Processing overlay — shown while AI is working -->
-          <div class="bgr-processing-overlay" hidden id="bgr-processing-overlay">
+          <div class="bgr-processing-overlay" hidden id="bgr-processing-overlay" name="bgr_processing_overlay">
             <div class="bgr-loading-spinner"></div>
-            <p class="bgr-processing-text" id="bgr-processing-text" data-en="Loading AI model…">AI মডেল লোড হচ্ছে… (Loading AI model…)</p>
+            <p class="bgr-processing-text" id="bgr-processing-text" name="bgr_processing_text" data-en="Loading AI model…">AI মডেল লোড হচ্ছে… (Loading AI model…)</p>
             <p class="bgr-processing-hint" data-en="May take a few seconds the first time">প্রথমবার কয়েক সেকেন্ড সময় লাগতে পারে</p>
           </div>
         </div>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Usage tips -->
-    <div class="bgr-tips" hidden id="bgr-tips">
+    <div class="bgr-tips" hidden id="bgr-tips" name="bgr_tips">
       <span class="bgr-tip" data-en="🔍 Ctrl + Mouse Wheel = Zoom">🔍 <strong>Ctrl + মাউস হুইল</strong> = জুম ইন/আউট (Zoom)</span>
       <span class="bgr-tip-divider">·</span>
       <span class="bgr-tip" data-en="🖱️ Click + Drag = Pan image">🖱️ <strong>ক্লিক + টানুন</strong> = ছবি সরান (Drag to pan)</span>
@@ -81,18 +81,18 @@
     <div class="bgr-settings-panel">
 
       <!-- Brush / refine toolbar (hidden until AI finishes) -->
-      <div class="bgr-brush-tools" hidden id="bgr-brush-tools">
+      <div class="bgr-brush-tools" hidden id="bgr-brush-tools" name="bgr_brush_tools">
         <div class="bgr-toolbar-row">
-          <button type="button" class="bgr-brush-btn bgr-brush-btn--move active" id="bgr-brush-move" data-mode="move" data-en="🤚 Hand">🤚 হ্যান্ড (Hand)</button>
-          <button type="button" class="bgr-brush-btn" id="bgr-brush-erase" data-mode="erase" data-en="🧹 Eraser">🧹 ইরেজার (Eraser)</button>
-          <button type="button" class="bgr-brush-btn" id="bgr-brush-restore" data-mode="restore" data-en="🔄 Restore">🔄 রিস্টোর (Restore)</button>
+          <button type="button" class="bgr-brush-btn bgr-brush-btn--move active" id="bgr-brush-move" name="bgr_brush_move" data-mode="move" data-en="🤚 Hand">🤚 হ্যান্ড (Hand)</button>
+          <button type="button" class="bgr-brush-btn" id="bgr-brush-erase" name="bgr_brush_erase" data-mode="erase" data-en="🧹 Eraser">🧹 ইরেজার (Eraser)</button>
+          <button type="button" class="bgr-brush-btn" id="bgr-brush-restore" name="bgr_brush_restore" data-mode="restore" data-en="🔄 Restore">🔄 রিস্টোর (Restore)</button>
           <span class="bgr-toolbar-sep"></span>
           <label class="bgr-brush-size-inline" for="bgr-brush-size" data-en="Size">সাইজ</label>
           <input type="range" id="bgr-brush-size" name="bgr_brush_size" min="3" max="80" step="1" value="20" class="bgr-brush-size-range">
-          <span id="bgr-brush-size-value" class="bgr-brush-size-val">20px</span>
+          <span id="bgr-brush-size-value" name="bgr_brush_size_value" class="bgr-brush-size-val">20px</span>
           <span class="bgr-toolbar-sep"></span>
-          <button type="button" class="bgr-brush-btn bgr-brush-btn--undo" id="bgr-brush-undo" disabled>↩️ Undo</button>
-          <button type="button" class="bgr-btn bgr-btn--refine" id="bgr-auto-refine" data-en="✨ Auto Refine">✨ অটো রিফাইন (Auto Refine)</button>
+          <button type="button" class="bgr-brush-btn bgr-brush-btn--undo" id="bgr-brush-undo" name="bgr_brush_undo" disabled>↩️ Undo</button>
+          <button type="button" class="bgr-btn bgr-btn--refine" id="bgr-auto-refine" name="bgr_auto_refine" data-en="✨ Auto Refine">✨ অটো রিফাইন (Auto Refine)</button>
         </div>
       </div>
 
@@ -117,15 +117,15 @@
       <!-- Three sliders in one row -->
       <div class="bgr-sliders-grid">
         <div class="bgr-slider-col">
-          <label for="bgr-edge-slider" data-en="Smooth">মসৃণ (Smooth) <span id="bgr-edge-value">3</span></label>
+          <label for="bgr-edge-slider" data-en="Smooth">মসৃণ (Smooth) <span id="bgr-edge-value" name="bgr_edge_value">3</span></label>
           <input type="range" id="bgr-edge-slider" name="bgr_edge_slider" min="0" max="10" step="1" value="3">
         </div>
         <div class="bgr-slider-col">
-          <label for="bgr-edge-shift" data-en="Shift">শিফট (Shift) <span id="bgr-edge-shift-value">0</span></label>
+          <label for="bgr-edge-shift" data-en="Shift">শিফট (Shift) <span id="bgr-edge-shift-value" name="bgr_edge_shift_value">0</span></label>
           <input type="range" id="bgr-edge-shift" name="bgr_edge_shift" min="-5" max="5" step="1" value="0">
         </div>
         <div class="bgr-slider-col">
-          <label for="bgr-shadow-blur" data-en="Shadow">ছায়া (Shadow) <span id="bgr-shadow-blur-value">0</span></label>
+          <label for="bgr-shadow-blur" data-en="Shadow">ছায়া (Shadow) <span id="bgr-shadow-blur-value" name="bgr_shadow_blur_value">0</span></label>
           <input type="range" id="bgr-shadow-blur" name="bgr_shadow_blur" min="0" max="40" step="1" value="0">
         </div>
       </div>
@@ -134,10 +134,10 @@
 
     <!-- Actions -->
     <div class="bgr-actions">
-      <button type="button" class="bgr-btn bgr-btn--download-png" id="bgr-download-png">⬇️ PNG</button>
-      <button type="button" class="bgr-btn bgr-btn--download-jpg" id="bgr-download-jpg">⬇️ JPG</button>
-      <button type="button" class="bgr-btn bgr-btn--copy" id="bgr-copy-btn" data-en="📋 Copy">📋 কপি (Copy)</button>
-      <button type="button" class="bgr-btn bgr-btn--reset" id="bgr-reset-btn" data-en="🔄 New">🔄 নতুন ছবি (New)</button>
+      <button type="button" class="bgr-btn bgr-btn--download-png" id="bgr-download-png" name="bgr_download_png">⬇️ PNG</button>
+      <button type="button" class="bgr-btn bgr-btn--download-jpg" id="bgr-download-jpg" name="bgr_download_jpg">⬇️ JPG</button>
+      <button type="button" class="bgr-btn bgr-btn--copy" id="bgr-copy-btn" name="bgr_copy_btn" data-en="📋 Copy">📋 কপি (Copy)</button>
+      <button type="button" class="bgr-btn bgr-btn--reset" id="bgr-reset-btn" name="bgr_reset_btn" data-en="🔄 New">🔄 নতুন ছবি (New)</button>
     </div>
   </div>
 

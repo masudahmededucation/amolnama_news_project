@@ -1,5 +1,5 @@
 <!-- Party Selection (Step 4) -->
-<div id="party-view" hidden>
+<div id="party-view" name="party_view" hidden>
   <button class="back-btn" onclick="navigateBackToConstituencies()">← Back / পিছনে</button>
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
@@ -7,7 +7,7 @@
     </div>
   {% endif %}
   <h3>দল নির্বাচন করুন (Select Party)</h3>
-  <ul class="selection-list party-list" id="party-list-selection">
+  <ul class="selection-list party-list" id="party-list-selection" name="party_list_selection">
     {% for party in parties %}
       <li onclick="handlePartySelectionAndCastVote({{ party.party_id }}, '{{ party.party_name_en }}', '{{ party.party_name_bn }}', event)">
         <div class="party-item">

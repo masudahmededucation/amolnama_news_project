@@ -5,7 +5,7 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-global-humanitarian">
+<div class="form-section" id="section-global-humanitarian" name="section_global_humanitarian">
   <h3 class="form-section-title"><span class="section-icon">🏥</span>হতাহত ও মানবিক সংকট (Casualties & Humanitarian Crisis)</h3>
 
   {# Hidden input — JS serializes humanitarian data here before submit #}
@@ -36,7 +36,7 @@
     </label>
   </div>
 
-  <div class="form-field" hidden id="global-war-crimes-details-row">
+  <div class="form-field" hidden id="global-war-crimes-details-row" name="global_war_crimes_details_row">
     <label for="global-war-crimes-description">যুদ্ধাপরাধের বিবরণ (War Crime Details)</label>
     <textarea id="global-war-crimes-description" name="global_war_crimes_description" rows="3"
               placeholder="যুদ্ধাপরাধের অভিযোগের বিস্তারিত... (Describe the war crime allegations...)"></textarea>

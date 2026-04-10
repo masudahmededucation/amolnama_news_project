@@ -15,14 +15,14 @@
   <p class="tool-subtitle" data-en="SSC/HSC GPA, University CGPA and Target Planner">এসএসসি/এইচএসসি জিপিএ, বিশ্ববিদ্যালয় সিজিপিএ এবং টার্গেট প্ল্যানার</p>
 
   {# ── Tab Switcher ── #}
-  <div class="gpa-tabs" id="gpaTabs">
+  <div class="gpa-tabs" id="gpaTabs" name="gpaTabs">
     <button type="button" class="gpa-tab gpa-tab--active" data-tab="ssc" data-en="SSC/HSC">এসএসসি/এইচএসসি (SSC/HSC)</button>
     <button type="button" class="gpa-tab" data-tab="uni" data-en="University">বিশ্ববিদ্যালয় (University)</button>
     <button type="button" class="gpa-tab" data-tab="target" data-en="Target Planner">টার্গেট প্ল্যানার (Target Planner)</button>
   </div>
 
   {# ═══════════════ TAB 1: SSC/HSC ═══════════════ #}
-  <div class="gpa-panel" id="panel-ssc">
+  <div class="gpa-panel" id="panel-ssc" name="panel_ssc">
 
     <div class="gpa-section">
       <div class="gpa-section-title" data-en="Subjects &amp; Grade Points">বিষয় ও গ্রেড পয়েন্ট (Subjects &amp; Grade Points)</div>
@@ -44,7 +44,7 @@
       </div>
 
       {# Subject rows #}
-      <div class="gpa-ssc-subjects" id="gpaSscSubjects">
+      <div class="gpa-ssc-subjects" id="gpaSscSubjects" name="gpaSscSubjects">
         <div class="gpa-ssc-row">
           <label class="gpa-ssc-label" for="ssc-gp-1" data-en="Subject 1">বিষয় ১ (Subject 1)</label>
           <select class="gpa-ssc-select" name="ssc-gp-1" id="ssc-gp-1" data-mandatory="true">
@@ -125,7 +125,7 @@
         </div>
       </div>
 
-      <button type="button" class="gpa-add-subject-btn" id="gpaSscAddSubject" data-en="+ Add Subject">+ আরও বিষয় যোগ করুন (Add Subject)</button>
+      <button type="button" class="gpa-add-subject-btn" id="gpaSscAddSubject" name="gpaSscAddSubject" data-en="+ Add Subject">+ আরও বিষয় যোগ করুন (Add Subject)</button>
 
       {# 4th Subject (Optional) #}
       <div class="gpa-section gpa-section--optional">
@@ -148,18 +148,18 @@
     </div>
 
     {# SSC Result #}
-    <div class="gpa-result-card" hidden id="gpaSscResult">
+    <div class="gpa-result-card" hidden id="gpaSscResult" name="gpaSscResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Your GPA">আপনার জিপিএ (Your GPA)</span>
-        <span class="gpa-result-badge" id="gpaSscBadge"></span>
+        <span class="gpa-result-badge" id="gpaSscBadge" name="gpaSscBadge"></span>
       </div>
-      <div class="gpa-result-value" id="gpaSscValue">0.00</div>
-      <div class="gpa-result-detail" id="gpaSscDetail"></div>
+      <div class="gpa-result-value" id="gpaSscValue" name="gpaSscValue">0.00</div>
+      <div class="gpa-result-detail" id="gpaSscDetail" name="gpaSscDetail"></div>
     </div>
   </div>
 
   {# ═══════════════ TAB 2: UNIVERSITY ═══════════════ #}
-  <div class="gpa-panel" hidden id="panel-uni">
+  <div class="gpa-panel" hidden id="panel-uni" name="panel_uni">
 
     <div class="gpa-section">
       <div class="gpa-section-title" data-en="Courses, Credits &amp; Grade Points">কোর্স, ক্রেডিট ও গ্রেড পয়েন্ট (Courses, Credits &amp; Grade Points)</div>
@@ -184,7 +184,7 @@
       </div>
 
       {# Course rows #}
-      <div class="gpa-uni-courses" id="gpaUniCourses">
+      <div class="gpa-uni-courses" id="gpaUniCourses" name="gpaUniCourses">
         <div class="gpa-uni-header-row">
           <span data-en="Course">কোর্স</span>
           <span data-en="Credit">ক্রেডিট</span>
@@ -193,22 +193,22 @@
         </div>
       </div>
 
-      <button type="button" class="gpa-add-subject-btn" id="gpaUniAddCourse" data-en="+ Add Course">+ কোর্স যোগ করুন (Add Course)</button>
+      <button type="button" class="gpa-add-subject-btn" id="gpaUniAddCourse" name="gpaUniAddCourse" data-en="+ Add Course">+ কোর্স যোগ করুন (Add Course)</button>
     </div>
 
     {# University Result #}
-    <div class="gpa-result-card" hidden id="gpaUniResult">
+    <div class="gpa-result-card" hidden id="gpaUniResult" name="gpaUniResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Your CGPA">আপনার সিজিপিএ (Your CGPA)</span>
-        <span class="gpa-result-badge" id="gpaUniBadge"></span>
+        <span class="gpa-result-badge" id="gpaUniBadge" name="gpaUniBadge"></span>
       </div>
-      <div class="gpa-result-value" id="gpaUniValue">0.00</div>
-      <div class="gpa-result-detail" id="gpaUniDetail"></div>
+      <div class="gpa-result-value" id="gpaUniValue" name="gpaUniValue">0.00</div>
+      <div class="gpa-result-detail" id="gpaUniDetail" name="gpaUniDetail"></div>
     </div>
   </div>
 
   {# ═══════════════ TAB 3: TARGET PLANNER ═══════════════ #}
-  <div class="gpa-panel" hidden id="panel-target">
+  <div class="gpa-panel" hidden id="panel-target" name="panel_target">
 
     <div class="gpa-section">
       <div class="gpa-section-title" data-en="Academic Path Planner">একাডেমিক পাথ প্ল্যানার (Academic Path Planner)</div>
@@ -235,13 +235,13 @@
     </div>
 
     {# Target Result #}
-    <div class="gpa-result-card" hidden id="gpaTargetResult">
+    <div class="gpa-result-card" hidden id="gpaTargetResult" name="gpaTargetResult">
       <div class="gpa-result-header">
         <span class="gpa-result-label" data-en="Required GPA">প্রয়োজনীয় জিপিএ (Required GPA)</span>
-        <span class="gpa-result-badge" id="gpaTargetBadge"></span>
+        <span class="gpa-result-badge" id="gpaTargetBadge" name="gpaTargetBadge"></span>
       </div>
-      <div class="gpa-result-value" id="gpaTargetValue">0.00</div>
-      <div class="gpa-result-message" id="gpaTargetMessage"></div>
+      <div class="gpa-result-value" id="gpaTargetValue" name="gpaTargetValue">0.00</div>
+      <div class="gpa-result-message" id="gpaTargetMessage" name="gpaTargetMessage"></div>
     </div>
   </div>
 

@@ -4,7 +4,7 @@
   JS: news-watchdog-bangladesh-issue.js
 {% endcomment %}
 
-<div class="form-section" hidden id="section-watchdog-issue">
+<div class="form-section" hidden id="section-watchdog-issue" name="section_watchdog_issue">
   <h3 class="form-section-title"><span class="section-icon">📍</span>ইস্যু নজরদারি (Issue Watchdog)</h3>
 
   {# Hidden input — JS serializes issue data here before submit #}
@@ -27,7 +27,7 @@
     </div>
 
     <div class="form-field">
-      <span class="form-field-label" id="issue-original-date-label">আগের অবস্থানের তারিখ (Previous Stance Date)</span>
+      <span class="form-field-label" id="issue-original-date-label" name="issue_original_date_label">আগের অবস্থানের তারিখ (Previous Stance Date)</span>
       <input type="date" id="issue-original-date" name="issue_original_date" aria-labelledby="issue-original-date-label">
     </div>
 
@@ -48,7 +48,7 @@
     </div>
 
     <div class="form-field">
-      <span class="form-field-label" id="issue-current-date-label">বর্তমান অবস্থানের তারিখ (Current Stance Date)</span>
+      <span class="form-field-label" id="issue-current-date-label" name="issue_current_date_label">বর্তমান অবস্থানের তারিখ (Current Stance Date)</span>
       <input type="date" id="issue-current-date" name="issue_current_date" aria-labelledby="issue-current-date-label">
     </div>
 

@@ -15,7 +15,7 @@
   <p class="tool-subtitle" data-en="Compress images &amp; PDFs right in your browser. Nothing is uploaded to any server.">ছবি ও PDF ব্রাউজারেই কম্প্রেস করুন — কোনো সার্ভারে আপলোড হয় না</p>
 
   <!-- ===== Drop Zone ===== -->
-  <div class="compress-dropzone" id="compress-dropzone">
+  <div class="compress-dropzone" id="compress-dropzone" name="compress_dropzone">
     <input type="file" id="compress-file-input" name="compress_file_input" multiple hidden>
     <div class="compress-dropzone-icon">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,25 +27,25 @@
     </div>
     <p class="compress-dropzone-text" data-en="Drag &amp; drop files here">ফাইল টেনে এখানে ছাড়ুন (Drag &amp; drop files here)</p>
     <p class="compress-dropzone-or" data-en="or">অথবা (or)</p>
-    <button type="button" class="compress-browse-btn" id="compress-browse-btn" data-en="Browse Files">ফাইল বাছাই করুন (Browse Files)</button>
+    <button type="button" class="compress-browse-btn" id="compress-browse-btn" name="compress_browse_btn" data-en="Browse Files">ফাইল বাছাই করুন (Browse Files)</button>
     <p class="compress-dropzone-hint" data-en="Any file type &middot; Max 50 MB per file">যেকোনো ফাইল &middot; সর্বোচ্চ ৫০ MB</p>
   </div>
 
   <!-- ===== File List ===== -->
-  <div class="compress-file-list" hidden id="compress-file-list">
+  <div class="compress-file-list" hidden id="compress-file-list" name="compress_file_list">
     <div class="compress-file-list-header">
       <h3 data-en="Selected Files">নির্বাচিত ফাইল (Selected Files)</h3>
-      <button type="button" class="compress-clear-btn" id="compress-clear-btn" data-en="Clear All">সব মুছুন (Clear All)</button>
+      <button type="button" class="compress-clear-btn" id="compress-clear-btn" name="compress_clear_btn" data-en="Clear All">সব মুছুন (Clear All)</button>
     </div>
-    <div class="compress-file-items" id="compress-file-items"></div>
+    <div class="compress-file-items" id="compress-file-items" name="compress_file_items"></div>
   </div>
 
   <!-- ===== Compression Settings ===== -->
-  <div class="compress-settings" hidden id="compress-settings">
+  <div class="compress-settings" hidden id="compress-settings" name="compress_settings">
     <h3 data-en="Compression Level">কম্প্রেশন মাত্রা (Compression Level)</h3>
 
     <div class="compress-slider-wrap">
-      <div class="compress-slider-value" id="compress-slider-value">Compression: 50%</div>
+      <div class="compress-slider-value" id="compress-slider-value" name="compress_slider_value">Compression: 50%</div>
       <input type="range" id="compress-slider" name="compress_slider" class="compress-slider" min="0" max="100" value="50" step="1">
       <div class="compress-slider-labels">
         <span class="compress-slider-label" data-pos="low">
@@ -68,9 +68,9 @@
     </div>
 
     <!-- Estimation tip -->
-    <div class="compress-estimate" id="compress-estimate">
+    <div class="compress-estimate" id="compress-estimate" name="compress_estimate">
       <div class="compress-estimate-icon">💡</div>
-      <div class="compress-estimate-text" id="compress-estimate-text" data-en="Select files and a compression level to see the estimated output size.">
+      <div class="compress-estimate-text" id="compress-estimate-text" name="compress_estimate_text" data-en="Select files and a compression level to see the estimated output size.">
         ফাইল ও কম্প্রেশন মাত্রা নির্বাচন করুন — আনুমানিক সাইজ দেখতে পাবেন
       </div>
     </div>
@@ -105,44 +105,44 @@
       </label>
     </div>
 
-    <button type="button" class="compress-action-btn" id="compress-action-btn" disabled>
+    <button type="button" class="compress-action-btn" id="compress-action-btn" name="compress_action_btn" disabled>
       <span class="compress-action-label" data-en="Compress Files">কম্প্রেস করুন (Compress Files)</span>
       <span class="compress-action-spinner" hidden></span>
     </button>
   </div>
 
   <!-- ===== Results ===== -->
-  <div class="compress-results" hidden id="compress-results">
+  <div class="compress-results" hidden id="compress-results" name="compress_results">
     <div class="compress-results-header">
       <h3 data-en="Results">ফলাফল (Results)</h3>
       <div class="compress-results-actions">
-        <button type="button" class="compress-download-all-btn" id="compress-download-all-btn" data-en="Download All (ZIP)">সব ডাউনলোড করুন (Download All ZIP)</button>
+        <button type="button" class="compress-download-all-btn" id="compress-download-all-btn" name="compress_download_all_btn" data-en="Download All (ZIP)">সব ডাউনলোড করুন (Download All ZIP)</button>
       </div>
     </div>
-    <div class="compress-results-summary" id="compress-results-summary"></div>
-    <div class="compress-results-items" id="compress-results-items"></div>
+    <div class="compress-results-summary" id="compress-results-summary" name="compress_results_summary"></div>
+    <div class="compress-results-items" id="compress-results-items" name="compress_results_items"></div>
   </div>
 
   <!-- ===== Before/After Comparison Modal ===== -->
-  <div class="compress-compare-overlay" hidden id="compress-compare-overlay">
+  <div class="compress-compare-overlay" hidden id="compress-compare-overlay" name="compress_compare_overlay">
     <div class="compress-compare-modal">
       <div class="compress-compare-header">
-        <h3 id="compress-compare-title" data-en="Before / After">আগে / পরে (Before / After)</h3>
-        <button type="button" class="compress-compare-close" id="compress-compare-close">&times;</button>
+        <h3 id="compress-compare-title" name="compress_compare_title" data-en="Before / After">আগে / পরে (Before / After)</h3>
+        <button type="button" class="compress-compare-close" id="compress-compare-close" name="compress_compare_close">&times;</button>
       </div>
-      <div class="compress-compare-container" id="compress-compare-container">
-        <div class="compress-compare-before" id="compress-compare-before">
-          <img id="compress-compare-before-img" alt="Original">
+      <div class="compress-compare-container" id="compress-compare-container" name="compress_compare_container">
+        <div class="compress-compare-before" id="compress-compare-before" name="compress_compare_before">
+          <img id="compress-compare-before-img" name="compress_compare_before_img" alt="Original">
           <span class="compress-compare-label compress-compare-label--before" data-en="Original">মূল (Original)</span>
         </div>
-        <div class="compress-compare-after" id="compress-compare-after">
-          <img id="compress-compare-after-img" alt="Compressed">
+        <div class="compress-compare-after" id="compress-compare-after" name="compress_compare_after">
+          <img id="compress-compare-after-img" name="compress_compare_after_img" alt="Compressed">
           <span class="compress-compare-label compress-compare-label--after" data-en="Compressed">কম্প্রেসড (Compressed)</span>
         </div>
         <input type="range" class="compress-compare-slider" id="compress-compare-slider" name="compress_compare_slider" min="0" max="100" value="50">
-        <div class="compress-compare-divider" id="compress-compare-divider"></div>
+        <div class="compress-compare-divider" id="compress-compare-divider" name="compress_compare_divider"></div>
       </div>
-      <div class="compress-compare-info" id="compress-compare-info"></div>
+      <div class="compress-compare-info" id="compress-compare-info" name="compress_compare_info"></div>
     </div>
   </div>
 

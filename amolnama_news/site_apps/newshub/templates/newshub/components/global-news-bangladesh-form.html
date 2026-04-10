@@ -5,7 +5,7 @@
   Serialized to global_news_bangladesh_json by news-global-news-bangladesh.js.
 {% endcomment %}
 
-<div class="form-section" id="section-global-news-bangladesh">
+<div class="form-section" id="section-global-news-bangladesh" name="section_global_news_bangladesh">
   <h3 class="form-section-title"><span class="section-icon">🇧🇩</span>বাংলাদেশের সংযোগ ও প্রভাব (Bangladesh Connection & Impact)</h3>
 
   {# Hidden JSON — serialized by news-global-news-bangladesh.js #}
@@ -14,14 +14,14 @@
   {# ---- Relevance to Bangladesh (DB-driven from ref_status) ---- #}
   <div class="form-field">
     <span class="form-label">বাংলাদেশের সাথে প্রাসঙ্গিকতা (Relevance to Bangladesh)</span>
-    <div class="radio-inline-group" id="global-news-bd-relevance-group">
+    <div class="radio-inline-group" id="global-news-bd-relevance-group" name="global_news_bd_relevance_group">
       {# Populated by JS from bd-relevance-data #}
     </div>
     <input type="hidden" id="global-news-bd-relevance" name="global_news_bd_relevance" value="">
   </div>
 
   {# JSON embed for BD relevance options #}
-  <script type="application/json" id="bd-relevance-data">{{ bd_relevance_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="bd-relevance-data" name="bd_relevance_data">{{ bd_relevance_json|default:"[]"|safe }}</script>
 
   {# ---- Bangladesh Stake / Interest ---- #}
   <div class="form-field">
@@ -37,7 +37,7 @@
       প্রবাসী বাংলাদেশি বা শ্রমিক ক্ষতিগ্রস্ত (Expatriate Bangladeshis or workers affected)
     </label>
   </div>
-  <div class="form-field" hidden id="global-news-bd-expat-row">
+  <div class="form-field" hidden id="global-news-bd-expat-row" name="global_news_bd_expat_row">
     <label for="global-news-bd-expat-count">ক্ষতিগ্রস্ত প্রবাসীর আনুমানিক সংখ্যা (Estimated number affected) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <input type="number" id="global-news-bd-expat-count" name="global_news_bd_expat_count" min="0"
            placeholder="আনুমানিক সংখ্যা (Approximate number)">

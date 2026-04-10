@@ -34,14 +34,14 @@
       <span>Extracted Text</span>
       <span class="textextractor-detail-text-count">{{ job.word_count }} words</span>
     </div>
-    <div class="textextractor-detail-text-content" id="textextractor-detail-text-content">{{ job.extracted_text_plain }}</div>
+    <div class="textextractor-detail-text-content" id="textextractor-detail-text-content" name="textextractor_detail_text_content">{{ job.extracted_text_plain }}</div>
   </div>
 
   {% if job.pages and job.pages|length > 1 %}
   <div class="textextractor-detail-pages-section">
     <h2 class="textextractor-detail-section-title">Pages</h2>
     {% for page in job.pages %}
-    <div class="textextractor-detail-page" id="textextractor-detail-page-{{ page.page_number }}">
+    <div class="textextractor-detail-page" id="textextractor-detail-page-{{ page.page_number }}" name="textextractor_detail_page_{{ page.page_number }}">
       <div class="textextractor-detail-page-header">
         <span class="textextractor-detail-page-number">Page {{ page.page_number }}</span>
         {% if page.word_count %}<span class="textextractor-detail-page-words">{{ page.word_count }} words</span>{% endif %}
@@ -59,7 +59,7 @@
   </div>
 
   {% elif job.status_code == 'processing' or job.status_code == 'queued' %}
-  <div class="textextractor-detail-processing" id="textextractor-detail-processing" data-job-id="{{ job.job_id }}">
+  <div class="textextractor-detail-processing" id="textextractor-detail-processing" name="textextractor_detail_processing" data-job-id="{{ job.job_id }}">
     <div class="textextractor-detail-processing-spinner"></div>
     <p>Processing... This page will update automatically.</p>
   </div>

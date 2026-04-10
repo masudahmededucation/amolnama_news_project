@@ -46,7 +46,7 @@
 </section>
 
 {# ── Category Filter ── #}
-<div class="filter-pills-group" id="travel-hub-filter-pills">
+<div class="filter-pills-group" id="travel-hub-filter-pills" name="travel_hub_filter_pills">
   <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="">সব ধরন (All)</button>
   {% for cat in categories %}
     <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
@@ -56,7 +56,7 @@
 </div>
 
 {# ── Destination Grid ── #}
-<div class="travel-hub-destination-grid" id="travel-hub-destination-grid">
+<div class="travel-hub-destination-grid" id="travel-hub-destination-grid" name="travel_hub_destination_grid">
   {% for d in destinations %}
     <a href="{% if d.destination_slug %}{% url 'bangladesh:travel_hub_detail' d.destination_slug %}{% else %}{% url 'bangladesh:travel_hub_detail_by_id' d.blog_bangladesh_coll_destination_id %}{% endif %}" class="travel-hub-destination-card">
       {% if d.cover_image_url %}
@@ -91,8 +91,8 @@
 </div>
 
 {% if has_next %}
-<div class="travel-hub-load-more" id="travel-hub-load-more">
-  <button type="button" class="travel-hub-load-more-btn" id="travel-hub-load-more-button">আরও দেখুন (Load More)</button>
+<div class="travel-hub-load-more" id="travel-hub-load-more" name="travel_hub_load_more">
+  <button type="button" class="travel-hub-load-more-btn" id="travel-hub-load-more-button" name="travel_hub_load_more_button">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

@@ -15,40 +15,40 @@
   <p class="tool-subtitle" data-en="Merge PDFs and images into a single PDF. Everything is processed in your browser — nothing is uploaded to any server.">PDF ও ছবি একত্র করে একটি PDF তৈরি করুন। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
 
   <!-- ===== Drop Zone ===== -->
-  <div class="mgr-dropzone" id="mgr-dropzone">
+  <div class="mgr-dropzone" id="mgr-dropzone" name="mgr_dropzone">
     <input type="file" id="mgr-file-input" name="mgr_file_input" accept=".pdf,image/*" multiple hidden>
     <div class="mgr-dropzone-icon">📑</div>
     <p class="mgr-dropzone-text" data-en="Drag &amp; drop files here">ফাইল এখানে টেনে আনুন (Drag &amp; drop files here)</p>
     <p class="mgr-dropzone-or" data-en="or">অথবা (or)</p>
-    <button type="button" class="mgr-browse-btn" id="mgr-browse-btn" data-en="Browse Files">ফাইল নির্বাচন করুন (Browse Files)</button>
+    <button type="button" class="mgr-browse-btn" id="mgr-browse-btn" name="mgr_browse_btn" data-en="Browse Files">ফাইল নির্বাচন করুন (Browse Files)</button>
     <p class="mgr-dropzone-hint" data-en="PDF, JPG, PNG, WebP &middot; Max 20 files &middot; 50 MB each">PDF, JPG, PNG, WebP &middot; সর্বোচ্চ ২০ ফাইল &middot; প্রতিটি সর্বোচ্চ ৫০ MB</p>
   </div>
 
   <!-- ===== Error Section ===== -->
-  <div class="mgr-error" hidden id="mgr-error">
-    <p id="mgr-error-text"></p>
-    <button type="button" class="mgr-try-again-btn" id="mgr-try-again-btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
+  <div class="mgr-error" hidden id="mgr-error" name="mgr_error">
+    <p id="mgr-error-text" name="mgr_error_text"></p>
+    <button type="button" class="mgr-try-again-btn" id="mgr-try-again-btn" name="mgr_try_again_btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
   </div>
 
   <!-- ===== File List ===== -->
-  <div class="mgr-workspace" hidden id="mgr-workspace">
+  <div class="mgr-workspace" hidden id="mgr-workspace" name="mgr_workspace">
 
     <!-- Toolbar -->
     <div class="mgr-toolbar">
       <div class="mgr-file-stats">
-        <span id="mgr-file-count">0 ফাইল</span>
+        <span id="mgr-file-count" name="mgr_file_count">0 ফাইল</span>
         <span class="mgr-stats-divider">&middot;</span>
-        <span id="mgr-total-size">0 KB</span>
+        <span id="mgr-total-size" name="mgr_total_size">0 KB</span>
       </div>
       <div class="mgr-toolbar-actions">
-        <button type="button" class="mgr-tool-btn" id="mgr-sort-az" title="A-Z ক্রম (Sort A-Z)" data-en="A-Z ↓">A-Z ↓</button>
-        <button type="button" class="mgr-tool-btn" id="mgr-sort-za" title="Z-A ক্রম (Sort Z-A)" data-en="Z-A ↓">Z-A ↓</button>
-        <button type="button" class="mgr-tool-btn mgr-tool-btn--add" id="mgr-add-more-btn" title="আরো ফাইল যোগ করুন (Add More Files)" data-en="+ Add More Files">+ আরো ফাইল যোগ করুন</button>
+        <button type="button" class="mgr-tool-btn" id="mgr-sort-az" name="mgr_sort_az" title="A-Z ক্রম (Sort A-Z)" data-en="A-Z ↓">A-Z ↓</button>
+        <button type="button" class="mgr-tool-btn" id="mgr-sort-za" name="mgr_sort_za" title="Z-A ক্রম (Sort Z-A)" data-en="Z-A ↓">Z-A ↓</button>
+        <button type="button" class="mgr-tool-btn mgr-tool-btn--add" id="mgr-add-more-btn" name="mgr_add_more_btn" title="আরো ফাইল যোগ করুন (Add More Files)" data-en="+ Add More Files">+ আরো ফাইল যোগ করুন</button>
       </div>
     </div>
 
     <!-- File grid (draggable) -->
-    <div class="mgr-file-grid" id="mgr-file-grid">
+    <div class="mgr-file-grid" id="mgr-file-grid" name="mgr_file_grid">
       <!-- File cards injected by JS -->
     </div>
 
@@ -66,29 +66,29 @@
 
     <!-- Merge action -->
     <div class="mgr-actions">
-      <button type="button" class="mgr-btn mgr-btn--merge" id="mgr-merge-btn">
+      <button type="button" class="mgr-btn mgr-btn--merge" id="mgr-merge-btn" name="mgr_merge_btn">
         <span class="mgr-btn-text" data-en="📑 Merge to PDF">📑 মার্জ করুন (Merge to PDF)</span>
       </button>
-      <button type="button" class="mgr-btn mgr-btn--reset" id="mgr-reset-btn" data-en="🔄 Start Over">🔄 নতুন করে শুরু (Start Over)</button>
+      <button type="button" class="mgr-btn mgr-btn--reset" id="mgr-reset-btn" name="mgr_reset_btn" data-en="🔄 Start Over">🔄 নতুন করে শুরু (Start Over)</button>
     </div>
 
     <!-- Progress -->
-    <div class="mgr-progress" hidden id="mgr-progress">
+    <div class="mgr-progress" hidden id="mgr-progress" name="mgr_progress">
       <div class="mgr-progress-bar">
-        <div class="mgr-progress-fill" id="mgr-progress-fill"></div>
+        <div class="mgr-progress-fill" id="mgr-progress-fill" name="mgr_progress_fill"></div>
       </div>
-      <p class="mgr-progress-text" id="mgr-progress-text" data-en="Merging…">মার্জ হচ্ছে… (Merging…)</p>
+      <p class="mgr-progress-text" id="mgr-progress-text" name="mgr_progress_text" data-en="Merging…">মার্জ হচ্ছে… (Merging…)</p>
     </div>
 
     <!-- Download result -->
-    <div class="mgr-result" hidden id="mgr-result">
+    <div class="mgr-result" hidden id="mgr-result" name="mgr_result">
       <p class="mgr-result-text" data-en="Merge Complete!">মার্জ সম্পন্ন! (Merge Complete!)</p>
       <div class="mgr-result-info">
-        <span id="mgr-result-pages">0 পৃষ্ঠা</span>
+        <span id="mgr-result-pages" name="mgr_result_pages">0 পৃষ্ঠা</span>
         <span class="mgr-stats-divider">&middot;</span>
-        <span id="mgr-result-size">0 KB</span>
+        <span id="mgr-result-size" name="mgr_result_size">0 KB</span>
       </div>
-      <button type="button" class="mgr-btn mgr-btn--download" id="mgr-download-btn" data-en="⬇️ Download PDF">⬇️ PDF ডাউনলোড (Download PDF)</button>
+      <button type="button" class="mgr-btn mgr-btn--download" id="mgr-download-btn" name="mgr_download_btn" data-en="⬇️ Download PDF">⬇️ PDF ডাউনলোড (Download PDF)</button>
     </div>
   </div>
 

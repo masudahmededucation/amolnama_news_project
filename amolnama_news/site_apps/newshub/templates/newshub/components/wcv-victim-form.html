@@ -9,7 +9,7 @@
   Data serialized to hidden JSON input by news-wcv-victim.js.
 {% endcomment %}
 
-<div class="form-section" id="section-wcv-victim">
+<div class="form-section" id="section-wcv-victim" name="section_wcv_victim">
   <h3 class="form-section-title">
     <span class="section-icon">👤</span><span
       data-bn="ভুক্তভোগী পরিচিতি" data-en="Victim Profile">ভুক্তভোগী পরিচিতি</span>
@@ -29,12 +29,12 @@
     {% include "newshub/components/person-personal-info-fields.html" with prefix="wcv-victim" genders=wcv_victim_genders religions=wcv_victim_religions districts=wcv_victim_districts %}
 
     {# Age validation messages (WCV-specific — attached to universal #wcv-victim-age) #}
-    <p class="form-field-error" hidden id="wcv-age-error"
+    <p class="form-field-error" hidden id="wcv-age-error" name="wcv_age_error"
        data-bn="⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে"
        data-en="⛔ Age cannot exceed 100 years — value clamped to 100">
       ⛔ বয়স ১০০ বছরের বেশি হতে পারে না — মান ১০০-এ সীমাবদ্ধ করা হয়েছে
     </p>
-    <p class="form-field-warning" hidden id="wcv-age-warning"
+    <p class="form-field-warning" hidden id="wcv-age-warning" name="wcv_age_warning"
        data-bn="⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন"
        data-en="⚠️ Age is over 50 — please verify">
       ⚠️ বয়স ৫০-এর বেশি — দয়া করে যাচাই করুন
@@ -56,7 +56,7 @@
     </div>
 
     {# ---- Husband's name + marriage date (conditional, shown when married) ---- #}
-    <div id="wcv-husband-row" hidden>
+    <div id="wcv-husband-row" name="wcv_husband_row" hidden>
       <div class="form-field">
         <span class="form-field-label" data-bn="স্বামীর নাম" data-en="Husband's Name">স্বামীর নাম (Husband's Name) <span class="field-required">*</span></span>
         <div class="form-name-split">
@@ -76,7 +76,7 @@
           </div>
         </div>
         <div class="form-margin-top-small">
-          <span class="form-name-sublabel form-field-label" id="wcv-victim-marriage-date-label"
+          <span class="form-name-sublabel form-field-label" id="wcv-victim-marriage-date-label" name="wcv_victim_marriage_date_label"
                  data-bn="বিয়ের তারিখ" data-en="Marriage Date">বিয়ের তারিখ (Marriage Date)</span>
           <input type="date" id="wcv-victim-marriage-date" name="wcv_victim_marriage_date" aria-labelledby="wcv-victim-marriage-date-label" class="form-input-max-200">
         </div>
@@ -107,5 +107,5 @@
 </div>
 
 {# Embed reference data as JSON for JS-populated fields (type=application/json bypasses CSP) #}
-<script type="application/json" id="wcv-marital-statuses-data">{{ wcv_marital_statuses|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-victim-occupations-data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-marital-statuses-data" name="wcv_marital_statuses_data">{{ wcv_marital_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-victim-occupations-data" name="wcv_victim_occupations_data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>

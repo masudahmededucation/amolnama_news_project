@@ -5,18 +5,18 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-civic-status">
+<div class="form-section" id="section-civic-status" name="section_civic_status">
   <h3 class="form-section-title"><span class="section-icon">📋</span>বর্তমান অবস্থা (Current Status)</h3>
 
   {# Hidden input — JS serializes status data here before submit #}
   <input type="hidden" id="civic-status-json" name="civic_status_json" value="">
 
   {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-  <script type="application/json" id="issue-statuses-data">{{ issue_statuses_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="issue-statuses-data" name="issue_statuses_data">{{ issue_statuses_json|default:"[]"|safe }}</script>
 
   <div class="form-field">
     <span class="form-label">সমস্যার বর্তমান অবস্থা (Current Status of the Issue)</span>
-    <div class="radio-list" id="civic-status-picker">
+    <div class="radio-list" id="civic-status-picker" name="civic_status_picker">
       {# Radio cards populated by JS from issue-statuses-data #}
     </div>
   </div>

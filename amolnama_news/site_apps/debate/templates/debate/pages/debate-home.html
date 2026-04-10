@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="debate-home" id="debate-home">
+<div class="debate-home" id="debate-home" name="debate_home">
   <div class="debate-home-header">
     <h1 class="debate-home-title">⚖️ তর্ক-বিতর্ক</h1>
     <p class="debate-home-subtitle">যুক্তি দিয়ে জিতুন — Blue vs Red</p>
@@ -19,28 +19,28 @@
     {% endif %}
   </div>
 
-  <div class="debate-home-search" id="debate-home-search">
+  <div class="debate-home-search" id="debate-home-search" name="debate_home_search">
     <label for="debate-home-search-input" class="debate-home-search-label">🔍 বিতর্ক খুঁজুন</label>
     <input type="text" class="debate-home-search-input" id="debate-home-search-input" name="debate_home_search_input" placeholder="বিষয় লিখে খুঁজুন...">
   </div>
 
-  <div class="filter-pills-group" id="debate-home-filter-pills">
+  <div class="filter-pills-group" id="debate-home-filter-pills" name="debate_home_filter_pills">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-debate-type="">সব ধরন (All)</button>
     {% for sub in debate_subcategories %}
     <button type="button" class="filter-pills-pill" data-debate-type="{{ sub.subcategory_code }}">{{ sub.subcategory_icon }} {{ sub.subcategory_name_bn }} ({{ sub.subcategory_name_en }})</button>
     {% endfor %}
   </div>
 
-  <div class="filter-crumbs" hidden id="debate-filter-crumbs">
+  <div class="filter-crumbs" hidden id="debate-filter-crumbs" name="debate_filter_crumbs">
     <span class="filter-crumbs-label">ফিল্টার:</span>
-    <div class="filter-crumbs-chips" id="debate-filter-crumbs-chips"></div>
-    <button type="button" class="filter-crumbs-clear" id="debate-filter-crumbs-clear">সব মুছুন ✕</button>
+    <div class="filter-crumbs-chips" id="debate-filter-crumbs-chips" name="debate_filter_crumbs_chips"></div>
+    <button type="button" class="filter-crumbs-clear" id="debate-filter-crumbs-clear" name="debate_filter_crumbs_clear">সব মুছুন ✕</button>
   </div>
 
   {% if topic_items %}
-  <div class="debate-topic-list" id="debate-topic-list">
+  <div class="debate-topic-list" id="debate-topic-list" name="debate_topic_list">
     {% for topic in topic_items %}
-    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}" data-debate-type="{{ topic.debate_category_code }}">
+    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}" name="debate_topic_card_{{ topic.blog_debate_coll_topic_id }}" data-debate-type="{{ topic.debate_category_code }}">
       <div class="debate-topic-card-header">
         <h2 class="debate-topic-card-title">{{ topic.topic_title }}</h2>
         {% if topic.debate_category_code != 'general' %}<span class="debate-topic-card-category-badge">{{ topic.debate_category_icon }} {{ topic.debate_category_name_bn }}</span>{% endif %}
@@ -65,7 +65,7 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="debate-empty-state" id="debate-empty-state">
+  <div class="debate-empty-state" id="debate-empty-state" name="debate_empty_state">
     <p>কোনো বিতর্ক নেই — শীঘ্রই আসছে</p>
   </div>
   {% endif %}

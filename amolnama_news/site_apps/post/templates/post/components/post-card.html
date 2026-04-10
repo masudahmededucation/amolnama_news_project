@@ -1,22 +1,22 @@
 {# Post feed card — X-style post display. Context: post_item (dict with post data + author info) #}
-<article class="post-card" id="post-card-{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">
-  <div class="post-card-avatar" id="post-card-avatar-{{ post_item.post_post_id }}">
+<article class="post-card" id="post-card-{{ post_item.post_post_id }}" name="post_card_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">
+  <div class="post-card-avatar" id="post-card-avatar-{{ post_item.post_post_id }}" name="post_card_avatar_{{ post_item.post_post_id }}">
     {% if post_item.author_avatar_url %}
-    <img src="{{ post_item.author_avatar_url }}" alt="{{ post_item.author_display_name }}" class="post-card-avatar-image" id="post-card-avatar-image-{{ post_item.post_post_id }}" loading="lazy">
+    <img src="{{ post_item.author_avatar_url }}" alt="{{ post_item.author_display_name }}" class="post-card-avatar-image" id="post-card-avatar-image-{{ post_item.post_post_id }}" name="post_card_avatar_image_{{ post_item.post_post_id }}" loading="lazy">
     {% elif post_item.author_display_name %}
     <span class="post-card-avatar-initials">{{ post_item.author_display_name|first }}</span>
     {% else %}
     <svg class="post-card-avatar-default" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
     {% endif %}
   </div>
-  <div class="post-card-content" id="post-card-content-{{ post_item.post_post_id }}">
+  <div class="post-card-content" id="post-card-content-{{ post_item.post_post_id }}" name="post_card_content_{{ post_item.post_post_id }}">
     {% if post_item.is_repost %}
-    <div class="post-card-repost-label" id="post-card-repost-label-{{ post_item.post_post_id }}">🔄 {{ post_item.author_display_name }} রিপোস্ট করেছেন</div>
-    <div class="post-card-header" id="post-card-header-{{ post_item.post_post_id }}">
+    <div class="post-card-repost-label" id="post-card-repost-label-{{ post_item.post_post_id }}" name="post_card_repost_label_{{ post_item.post_post_id }}">🔄 {{ post_item.author_display_name }} রিপোস্ট করেছেন</div>
+    <div class="post-card-header" id="post-card-header-{{ post_item.post_post_id }}" name="post_card_header_{{ post_item.post_post_id }}">
       <div class="post-card-header-left">
         <div class="post-card-author-hover-wrapper">
-          <span class="post-card-author-name" data-user-profile-id="{{ post_item.original_author_user_profile_id }}">{{ post_item.original_author_display_name }}</span>
-          <div class="post-card-profile-popup" id="post-card-profile-popup-repost-{{ post_item.post_post_id }}">
+          <span class="post-card-author-name" data-user-profile-id="{{ post_item.original_author_user_profile_id }}" name="{{ post_item.original_author_user_profile_id }}">{{ post_item.original_author_display_name }}</span>
+          <div class="post-card-profile-popup" id="post-card-profile-popup-repost-{{ post_item.post_post_id }}" name="post_card_profile_popup_repost_{{ post_item.post_post_id }}">
             <div class="post-card-profile-popup-header">
               {% if post_item.original_author_avatar_url %}
               <img src="{{ post_item.original_author_avatar_url }}" alt="" class="post-card-profile-popup-avatar" loading="lazy">
@@ -45,10 +45,10 @@
       </div>
       <div class="post-card-header-right">
         {% if post_item.original_author_is_verified %}<span class="post-card-verified-badge" title="Verified Account"><svg class="post-card-verified-icon" viewBox="0 0 24 24" fill="#1877F2"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg><span class="post-card-verified-text">Verified User</span></span>{% endif %}
-        <span class="post-card-header-view-count" id="post-card-header-views-{{ post_item.post_post_id }}" title="ভিউ (Views)">👁️ {{ post_item.view_count|default:0 }}</span>
+        <span class="post-card-header-view-count" id="post-card-header-views-{{ post_item.post_post_id }}" name="post_card_header_views_{{ post_item.post_post_id }}" title="ভিউ (Views)">👁️ {{ post_item.view_count|default:0 }}</span>
         <div class="post-card-more-menu-wrapper">
           <button type="button" class="post-card-more-menu-button" id="post-card-more-menu-{{ post_item.post_post_id }}" name="post_card_more_menu_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" title="More">⋯</button>
-          <div class="post-card-more-menu-dropdown" id="post-card-more-dropdown-{{ post_item.post_post_id }}">
+          <div class="post-card-more-menu-dropdown" id="post-card-more-dropdown-{{ post_item.post_post_id }}" name="post_card_more_dropdown_{{ post_item.post_post_id }}">
             {% if user.is_authenticated %}
             <button type="button" class="post-card-more-menu-item post-card-follow-post-button" id="post-card-follow-post-{{ post_item.post_post_id }}" name="post_card_follow_post_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">{% if post_item.user_followed_post %}🔔 Unfollow Post{% else %}🔔 Follow Post{% endif %}</button>
             {% endif %}
@@ -69,13 +69,13 @@
         </div>
       </div>
     </div>
-    <div class="post-card-text" id="post-card-text-{{ post_item.post_post_id }}">{{ post_item.original_post_text_highlighted|default:post_item.original_post_text|safe }}</div>
+    <div class="post-card-text" id="post-card-text-{{ post_item.post_post_id }}" name="post_card_text_{{ post_item.post_post_id }}">{{ post_item.original_post_text_highlighted|default:post_item.original_post_text|safe }}</div>
     {% else %}
-    <div class="post-card-header" id="post-card-header-{{ post_item.post_post_id }}">
+    <div class="post-card-header" id="post-card-header-{{ post_item.post_post_id }}" name="post_card_header_{{ post_item.post_post_id }}">
       <div class="post-card-header-left">
         <div class="post-card-author-hover-wrapper">
-          {% if post_item.author_username_handle %}<a href="/social/@{{ post_item.author_username_handle }}/" class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</a>{% else %}<span class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</span>{% endif %}
-          <div class="post-card-profile-popup" id="post-card-profile-popup-{{ post_item.post_post_id }}">
+          {% if post_item.author_username_handle %}<a href="/social/@{{ post_item.author_username_handle }}/" class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}" name="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</a>{% else %}<span class="post-card-author-name" data-user-profile-id="{{ post_item.author_user_profile_id }}">{{ post_item.author_display_name }}</span>{% endif %}
+          <div class="post-card-profile-popup" id="post-card-profile-popup-{{ post_item.post_post_id }}" name="post_card_profile_popup_{{ post_item.post_post_id }}">
             <div class="post-card-profile-popup-header">
               {% if post_item.author_avatar_url %}
               <img src="{{ post_item.author_avatar_url }}" alt="" class="post-card-profile-popup-avatar" loading="lazy">
@@ -103,13 +103,13 @@
         <span class="post-card-timestamp" title="{{ post_item.created_at_formatted }}">{{ post_item.time_ago }}<span class="post-card-timestamp-full"> · {{ post_item.created_at_formatted }}</span>{% if post_item.is_edited %} · <span class="post-card-edited-label">edited</span>{% endif %}</span>
       </div>
       <div class="post-card-header-right">
-        {% if post_item.is_pinned %}<span class="post-card-pinned-badge" id="post-card-pinned-badge-{{ post_item.post_post_id }}" title="পিন করা (Pinned)">📌</span>{% endif %}
+        {% if post_item.is_pinned %}<span class="post-card-pinned-badge" id="post-card-pinned-badge-{{ post_item.post_post_id }}" name="post_card_pinned_badge_{{ post_item.post_post_id }}" title="পিন করা (Pinned)">📌</span>{% endif %}
         {% if post_item.author_is_verified %}<span class="post-card-verified-badge" title="Verified Account"><svg class="post-card-verified-icon" viewBox="0 0 24 24" fill="#1877F2"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67.63 13.43-.25 12-.25S9.33.63 8.66 1.94c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 7.33 1.75 8.57 1.75 12c0 1.43.88 2.67 2.19 3.34-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg><span class="post-card-verified-text">Verified User</span></span>{% endif %}
         {% if post_item.can_edit %}<button type="button" class="post-card-quick-edit-button" id="post-card-quick-edit-{{ post_item.post_post_id }}" name="post_card_quick_edit_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" data-post-text="{{ post_item.post_text|default:'' }}" title="সম্পাদনা (Edit)">✏️</button>{% endif %}
-        <span class="post-card-header-view-count" id="post-card-header-views-{{ post_item.post_post_id }}" title="ভিউ (Views)">👁️ {{ post_item.view_count|default:0 }}</span>
+        <span class="post-card-header-view-count" id="post-card-header-views-{{ post_item.post_post_id }}" name="post_card_header_views_{{ post_item.post_post_id }}" title="ভিউ (Views)">👁️ {{ post_item.view_count|default:0 }}</span>
         <div class="post-card-more-menu-wrapper">
           <button type="button" class="post-card-more-menu-button" id="post-card-more-menu-{{ post_item.post_post_id }}" name="post_card_more_menu_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" title="More">⋯</button>
-          <div class="post-card-more-menu-dropdown" id="post-card-more-dropdown-{{ post_item.post_post_id }}">
+          <div class="post-card-more-menu-dropdown" id="post-card-more-dropdown-{{ post_item.post_post_id }}" name="post_card_more_dropdown_{{ post_item.post_post_id }}">
             {% if user.is_authenticated %}
             <button type="button" class="post-card-more-menu-item post-card-follow-post-button" id="post-card-follow-post-{{ post_item.post_post_id }}" name="post_card_follow_post_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}">{% if post_item.user_followed_post %}🔔 Unfollow Post{% else %}🔔 Follow Post{% endif %}</button>
             {% endif %}
@@ -131,18 +131,18 @@
       </div>
     </div>
     {% if post_item.content_category_code and post_item.content_category_code != 'safe' %}
-    <span class="post-card-category-label post-card-category-label-{{ post_item.content_category_code }}" id="post-card-category-label-{{ post_item.post_post_id }}">{{ post_item.content_category_code }}</span>
+    <span class="post-card-category-label post-card-category-label-{{ post_item.content_category_code }}" id="post-card-category-label-{{ post_item.post_post_id }}" name="post_card_category_label_{{ post_item.post_post_id }}">{{ post_item.content_category_code }}</span>
     {% endif %}
     {% if post_item.content_category_code == 'misinformation' %}
-    <div class="post-card-fact-check-banner" id="post-card-fact-check-banner-{{ post_item.post_post_id }}">⚠️ তথ্য যাচাই প্রয়োজন — এই পোস্টের তথ্য নিশ্চিত নয়</div>
+    <div class="post-card-fact-check-banner" id="post-card-fact-check-banner-{{ post_item.post_post_id }}" name="post_card_fact_check_banner_{{ post_item.post_post_id }}">⚠️ তথ্য যাচাই প্রয়োজন — এই পোস্টের তথ্য নিশ্চিত নয়</div>
     {% endif %}
-    {% if post_item.is_scheduled %}<div class="post-card-scheduled-badge" id="post-card-scheduled-badge-{{ post_item.post_post_id }}">🕐 নির্ধারিত সময়ে প্রকাশ হবে</div>{% endif %}
-    {% if post_item.quote_comment_text %}<div class="post-card-quote-comment" id="post-card-quote-comment-{{ post_item.post_post_id }}">{{ post_item.quote_comment_text }}</div>{% endif %}
-    {% if post_item.post_text %}<div class="post-card-text" id="post-card-text-{{ post_item.post_post_id }}">{{ post_item.post_text_highlighted|safe }}</div>{% endif %}
+    {% if post_item.is_scheduled %}<div class="post-card-scheduled-badge" id="post-card-scheduled-badge-{{ post_item.post_post_id }}" name="post_card_scheduled_badge_{{ post_item.post_post_id }}">🕐 নির্ধারিত সময়ে প্রকাশ হবে</div>{% endif %}
+    {% if post_item.quote_comment_text %}<div class="post-card-quote-comment" id="post-card-quote-comment-{{ post_item.post_post_id }}" name="post_card_quote_comment_{{ post_item.post_post_id }}">{{ post_item.quote_comment_text }}</div>{% endif %}
+    {% if post_item.post_text %}<div class="post-card-text" id="post-card-text-{{ post_item.post_post_id }}" name="post_card_text_{{ post_item.post_post_id }}">{{ post_item.post_text_highlighted|safe }}</div>{% endif %}
     {% endif %}
 
     {% if post_item.shared_content %}
-    <a href="{{ post_item.shared_content.url }}" class="post-card-shared-content" id="post-card-shared-content-{{ post_item.post_post_id }}">
+    <a href="{{ post_item.shared_content.url }}" class="post-card-shared-content" id="post-card-shared-content-{{ post_item.post_post_id }}" name="post_card_shared_content_{{ post_item.post_post_id }}">
       <div class="post-card-shared-content-body">
         {% if post_item.shared_content.category_name_bn %}
         <span class="post-card-shared-content-badge">{{ post_item.shared_content.category_name_bn }}</span>
@@ -162,10 +162,10 @@
     {% endif %}
 
     {% if post_item.media_urls %}
-    <div class="post-card-media-grid post-card-media-grid-{{ post_item.media_urls|length }}" id="post-card-media-{{ post_item.post_post_id }}">
+    <div class="post-card-media-grid post-card-media-grid-{{ post_item.media_urls|length }}" id="post-card-media-{{ post_item.post_post_id }}" name="post_card_media_{{ post_item.post_post_id }}">
       {% for media_url in post_item.media_urls %}
       {% if '.mp4' in media_url or '.webm' in media_url or '.mov' in media_url %}
-      <div class="post-card-media-item post-card-media-item-single post-card-media-item-video-wrapper" id="post-card-media-video-wrapper-{{ post_item.post_post_id }}-{{ forloop.counter }}">
+      <div class="post-card-media-item post-card-media-item-single post-card-media-item-video-wrapper" id="post-card-media-video-wrapper-{{ post_item.post_post_id }}-{{ forloop.counter }}" name="post_card_media_video_wrapper_{{ post_item.post_post_id }}_{{ forloop.counter }}">
         <video src="{{ media_url }}#t=1" class="post-card-media-video-full" controls muted playsinline preload="none"></video>
         <button type="button" class="post-card-media-video-unmute-button" aria-label="Unmute">🔇</button>
       </div>
@@ -181,16 +181,15 @@
     {% endif %}
 
     <!-- Link preview container (populated by JS) -->
-    <div class="post-card-link-previews" id="post-card-link-previews-{{ post_item.post_post_id }}"></div>
+    <div class="post-card-link-previews" id="post-card-link-previews-{{ post_item.post_post_id }}" name="post_card_link_previews_{{ post_item.post_post_id }}"></div>
 
     <!-- Poll display -->
     {% if post_item.poll %}
-    <div class="post-card-poll" id="post-card-poll-{{ post_item.post_post_id }}" data-poll-id="{{ post_item.poll.post_coll_poll_id }}" data-user-voted="{{ post_item.poll.user_voted_option|default:'' }}">
-      <div class="post-card-poll-question" id="post-card-poll-question-{{ post_item.post_post_id }}">{{ post_item.poll.poll_question }}</div>
+    <div class="post-card-poll" id="post-card-poll-{{ post_item.post_post_id }}" name="post_card_poll_{{ post_item.post_post_id }}" data-poll-id="{{ post_item.poll.post_coll_poll_id }}" data-user-voted="{{ post_item.poll.user_voted_option|default:'' }}">
+      <div class="post-card-poll-question" id="post-card-poll-question-{{ post_item.post_post_id }}" name="post_card_poll_question_{{ post_item.post_post_id }}">{{ post_item.poll.poll_question }}</div>
       {% for option in post_item.poll.options %}
       <button type="button" class="post-card-poll-option {% if post_item.poll.user_voted_option == option.option_number %}post-card-poll-option-voted{% endif %}"
-              id="post-card-poll-option-{{ post_item.post_post_id }}-{{ option.option_number }}"
-              name="post_card_poll_option_{{ post_item.post_post_id }}_{{ option.option_number }}"
+              id="post-card-poll-option-{{ post_item.post_post_id }}-{{ option.option_number }}" name="post_card_poll_option_{{ post_item.post_post_id }}_{{ option.option_number }}"
               data-post-id="{{ post_item.post_post_id }}"
               data-poll-id="{{ post_item.poll.post_coll_poll_id }}"
               data-option-number="{{ option.option_number }}"
@@ -202,11 +201,11 @@
         {% endif %}
       </button>
       {% endfor %}
-      <div class="post-card-poll-total" id="post-card-poll-total-{{ post_item.post_post_id }}">{{ post_item.poll.total_vote_count }} ভোট</div>
+      <div class="post-card-poll-total" id="post-card-poll-total-{{ post_item.post_post_id }}" name="post_card_poll_total_{{ post_item.post_post_id }}">{{ post_item.poll.total_vote_count }} ভোট</div>
     </div>
     {% endif %}
 
-    <div class="post-card-actions" id="post-card-actions-{{ post_item.post_post_id }}">
+    <div class="post-card-actions" id="post-card-actions-{{ post_item.post_post_id }}" name="post_card_actions_{{ post_item.post_post_id }}">
       <button type="button" class="post-card-action-button post-card-vote-button{% if post_item.user_voted %} post-card-vote-button-active{% endif %}" id="post-card-vote-{{ post_item.post_post_id }}" name="post_card_vote_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}" title="This is useful & shows research effort">
         <span class="post-card-action-icon post-card-vote-icon">{% if post_item.user_voted %}<svg viewBox="0 0 24 24" class="post-card-vote-svg post-card-vote-svg-filled"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>{% else %}<svg viewBox="0 0 24 24" class="post-card-vote-svg post-card-vote-svg-empty"><path d="M12 4l-8 8h5v8h6v-8h5z"/></svg>{% endif %}</span>
         <span class="post-card-action-count post-card-vote-count">{{ post_item.vote_score_count|default:0 }}</span>
@@ -235,7 +234,7 @@
           <span class="post-card-action-icon"><svg class="post-card-share-icon-inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
           <span class="post-card-action-label">শেয়ার</span>
         </button>
-        <div class="post-card-share-menu-dropdown" id="post-card-share-dropdown-{{ post_item.post_post_id }}">
+        <div class="post-card-share-menu-dropdown" id="post-card-share-dropdown-{{ post_item.post_post_id }}" name="post_card_share_dropdown_{{ post_item.post_post_id }}">
           {% if request.user.is_authenticated %}
           <button type="button" class="post-card-share-menu-item post-card-share-menu-repost-button{% if post_item.user_reposted %} post-card-share-menu-repost-button-active{% endif %}" id="post-card-share-menu-repost-{{ post_item.post_post_id }}" name="post_card_share_menu_repost_{{ post_item.post_post_id }}" data-post-id="{{ post_item.post_post_id }}"><svg class="post-card-share-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> {% if post_item.user_reposted %}রিপোস্ট বাতিল{% else %}আমার ওয়ালে রিপোস্ট{% endif %}</button>
           <div class="post-card-share-menu-separator"></div>

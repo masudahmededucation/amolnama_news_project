@@ -6,36 +6,36 @@
   Data is serialized to #victim-json hidden input by news-victim-repeater.js.
 {% endcomment %}
 
-<div class="form-section" id="section-victim">
+<div class="form-section" id="section-victim" name="section_victim">
   <h3 class="form-section-title"><span class="section-icon">🟠</span>ভুক্তভোগী / আহত (Victims / Injured Persons)</h3>
 
   {# Hidden input — JS serializes the victim array here before submit #}
   <input type="hidden" id="victim-json" name="victim_json" value="">
 
   {# Add button #}
-  <div class="actor-add-buttons" id="victim-add-btn-wrap">
-    <button type="button" class="actor-add-btn actor-add-victim" id="victim-add-btn">
+  <div class="actor-add-buttons" id="victim-add-btn-wrap" name="victim_add_btn_wrap">
+    <button type="button" class="actor-add-btn actor-add-victim" id="victim-add-btn" name="victim_add_btn">
       + ভুক্তভোগী যোগ করুন (Add Victim)
     </button>
   </div>
 
   {# Dynamic cards rendered here by news-victim-repeater.js #}
-  <div id="victim-list"></div>
+  <div id="victim-list" name="victim_list"></div>
 
   {# Empty state #}
-  <div class="actor-empty-state" id="victim-empty-state">
+  <div class="actor-empty-state" id="victim-empty-state" name="victim_empty_state">
     এখনো কোনো ভুক্তভোগী যোগ করা হয়নি।
     <br><small>(No victims added yet. Click the button above to add one.)</small>
   </div>
 </div>
 
-<div class="form-section" id="section-victim-photos">
+<div class="form-section" id="section-victim-photos" name="section_victim_photos">
   <h3 class="form-section-title"><span class="section-icon">🩹</span>ভুক্তভোগীর ছবি ও আঘাতের প্রমাণ (Victim — Injury Evidence)</h3>
   {% include "newshub/components/file-upload-section.html" with upload_prefix="victim-photos" upload_name="victim_photos" upload_accept="image/*" upload_label="ভুক্তভোগীর ছবি বা চিকিৎসা প্রমাণ আপলোড করুন — সর্বোচ্চ ৩টি (Upload victim's photo or medical evidence, max 3)" upload_btn_label="+ ভুক্তভোগীর ছবি যোগ করুন (Add photo)" upload_desc_name="victim_photos_descriptions_json" upload_hint="আঘাতের চিহ্ন বা চিকিৎসা সংক্রান্ত প্রমাণ দিন — যেমন শরীরে আঘাতের ছবি, হাসপাতাল ভর্তির কাগজ, মেডিকেল রিপোর্ট বা ভুক্তভোগীর পরিচিতিমূলক ছবি (Injury photo, hospital admission slip or medical report)" %}
 </div>
 
 {# Crime-specific config: enable victim condition & medical location fields #}
-<script type="application/json" id="crime-actor-config">{"showVictimCondition": true, "showMedicalLocation": true}</script>
+<script type="application/json" id="crime-actor-config" name="crime_actor_config">{"showVictimCondition": true, "showMedicalLocation": true}</script>
 
 {# Victim health status reference data for condition dropdown #}
-<script type="application/json" id="victim-health-statuses-data">{{ victim_health_statuses_json|default:"[]"|safe }}</script>
+<script type="application/json" id="victim-health-statuses-data" name="victim_health_statuses_data">{{ victim_health_statuses_json|default:"[]"|safe }}</script>

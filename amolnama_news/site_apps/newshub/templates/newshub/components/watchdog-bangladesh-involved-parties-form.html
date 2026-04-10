@@ -6,30 +6,30 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-involved-parties">
+<div class="form-section" id="section-involved-parties" name="section_involved_parties">
   <h3 class="form-section-title"><span class="section-icon">👤</span>রাজনৈতিক ব্যক্তি (The Politician)</h3>
 
   {# Hidden input — JS serializes the actors array here before submit #}
   <input type="hidden" id="involved-actors-json" name="involved_actors_json" value="">
 
   {# Quick-add button — single role for watchdog_bangladesh #}
-  <div class="actor-add-buttons" id="actor-add-buttons">
+  <div class="actor-add-buttons" id="actor-add-buttons" name="actor_add_buttons">
     <button type="button" class="actor-add-btn actor-add-politician" data-role="politician">+ রাজনৈতিক বা আমলা যোগ করুন (Add Politician / Bureaucrat)</button>
   </div>
 
   {# Dynamic cards rendered here by JS #}
-  <div id="involved-actors-list"></div>
+  <div id="involved-actors-list" name="involved_actors_list"></div>
 
   {# Empty state #}
-  <div class="actor-empty-state" id="actor-empty-state">
+  <div class="actor-empty-state" id="actor-empty-state" name="actor_empty_state">
     এখনো কোনো ব্যক্তি যোগ করা হয়নি। উপরের বোতাম ব্যবহার করে রাজনৈতিক বা আমলা যোগ করুন।
     <br><small>(No persons added yet. Use the button above to add a politician or bureaucrat.)</small>
   </div>
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-involvement-types-data" name="actor_involvement_types_data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-types-data" name="actor_types_data">{{ actor_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-genders-data" name="actor_genders_data">{{ actor_genders_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-religions-data" name="actor_religions_data">{{ actor_religions_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-districts-data" name="actor_districts_data">{{ actor_districts_json|default:"[]"|safe }}</script>

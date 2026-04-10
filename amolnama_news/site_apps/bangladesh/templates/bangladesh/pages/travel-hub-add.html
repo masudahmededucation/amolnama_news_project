@@ -34,7 +34,7 @@
   </div>
 </section>
 
-<form id="travel-hub-add-form" class="travel-hub-add-form" novalidate>
+<form id="travel-hub-add-form" name="travel_hub_add_form" class="travel-hub-add-form" novalidate>
   {% csrf_token %}
   {% if edit_entry_id %}
     <input type="hidden" id="travel-hub-edit-entry-id" name="travel_hub_edit_entry_id" value="{{ edit_entry_id }}">
@@ -62,14 +62,14 @@
   {# Short Description — Quill editor #}
   <div class="form-group">
     <span class="form-label" data-en="Short Description">সংক্ষিপ্ত বিবরণ (Short Description)</span>
-    <div id="quill-short-desc"></div>
+    <div id="quill-short-desc" name="quill_short_desc"></div>
     <textarea id="travel-hub-short-desc-bn" name="travel_hub_short_desc_bn" hidden></textarea>
   </div>
 
   {# Detailed Description — Quill editor #}
   <div class="form-group">
     <span class="form-label" data-en="Detailed Description">বিস্তারিত বিবরণ (Detailed Description)</span>
-    <div id="quill-desc"></div>
+    <div id="quill-desc" name="quill_desc"></div>
     <textarea id="travel-hub-desc-bn" name="travel_hub_desc_bn" hidden></textarea>
   </div>
 
@@ -105,14 +105,14 @@
     </div>
   </div>
 
-  <div id="travel-hub-add-error" class="form-error-message"></div>
+  <div id="travel-hub-add-error" name="travel_hub_add_error" class="form-error-message"></div>
 
   <div class="form-actions">
     <button type="submit" id="travel-hub-add-submit-button" name="travel_hub_add_submit" class="form-button-primary" data-en="{% if edit_entry_id %}Update{% else %}Publish{% endif %}">
       {% if edit_entry_id %}পরিবর্তন করুন (Update){% else %}প্রকাশ করুন (Publish){% endif %}
     </button>
     {% if edit_entry_id %}
-    <a href="{% url 'bangladesh:travel_hub_detail_by_id' edit_entry_id %}" id="travel-hub-add-cancel-link" class="form-button-secondary">
+    <a href="{% url 'bangladesh:travel_hub_detail_by_id' edit_entry_id %}" id="travel-hub-add-cancel-link" name="travel_hub_add_cancel_link" class="form-button-secondary">
       বাতিল (Cancel)
     </a>
     {% else %}
@@ -127,7 +127,7 @@
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js" defer></script>
 <script src="{% static 'bangladesh/assets/js/components/quill-editor.js' %}" defer></script>
 {% if edit_data_json %}
-  <script type="application/json" id="travel-hub-edit-data">{{ edit_data_json|safe }}</script>
+  <script type="application/json" id="travel-hub-edit-data" name="travel_hub_edit_data">{{ edit_data_json|safe }}</script>
 {% endif %}
 <script src="{% static 'bangladesh/assets/js/pages/travel-hub-add.js' %}" defer></script>
 <script src="{% static 'bangladesh/assets/js/pages/travel-hub-add-clear.js' %}" defer></script>

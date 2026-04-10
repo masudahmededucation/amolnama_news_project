@@ -11,7 +11,7 @@
 <div class="placeholder-admin">
   <h1 class="placeholder-admin-title">🎯 প্লেসহোল্ডার ব্যবস্থাপনা</h1>
 
-  <div id="placeholder-admin-message"></div>
+  <div id="placeholder-admin-message" name="placeholder_admin_message"></div>
 
   <div class="placeholder-add-form">
     <input type="text" class="placeholder-add-input" id="placeholder-add-input" name="placeholder_add_input" placeholder="নতুন প্লেসহোল্ডার লিখুন...">
@@ -21,10 +21,10 @@
       <option value="encouragement">উৎসাহ</option>
       <option value="local">স্থানীয়</option>
     </select>
-    <button type="button" class="placeholder-add-button" id="placeholder-add-button">+ যোগ করুন</button>
+    <button type="button" class="placeholder-add-button" id="placeholder-add-button" name="placeholder_add_button">+ যোগ করুন</button>
   </div>
 
-  <div class="placeholder-header-row" id="placeholder-header-row">
+  <div class="placeholder-header-row" id="placeholder-header-row" name="placeholder_header_row">
     <span class="placeholder-header-text">প্লেসহোল্ডার টেক্সট</span>
     <span class="placeholder-header-category">ক্যাটাগরি</span>
     <span class="placeholder-header-feature">ফিচার ৩০মি</span>
@@ -32,9 +32,9 @@
     <span class="placeholder-header-delete">মুছুন</span>
   </div>
 
-  <div id="placeholder-list">
+  <div id="placeholder-list" name="placeholder_list">
     {% for placeholder in placeholders %}
-    <div class="placeholder-item{% if placeholder.is_featured %} placeholder-item-featured{% endif %}{% if not placeholder.is_active %} placeholder-item-inactive{% endif %}" id="placeholder-item-{{ placeholder.post_ref_composer_placeholder_id }}" data-id="{{ placeholder.post_ref_composer_placeholder_id }}">
+    <div class="placeholder-item{% if placeholder.is_featured %} placeholder-item-featured{% endif %}{% if not placeholder.is_active %} placeholder-item-inactive{% endif %}" id="placeholder-item-{{ placeholder.post_ref_composer_placeholder_id }}" name="placeholder_item_{{ placeholder.post_ref_composer_placeholder_id }}" data-id="{{ placeholder.post_ref_composer_placeholder_id }}">
       <span class="placeholder-item-text">{{ placeholder.placeholder_text }}</span>
       <span class="placeholder-item-category">{{ placeholder.placeholder_category_code }}</span>
       <div class="placeholder-item-actions">

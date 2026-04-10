@@ -36,7 +36,7 @@
 
 {% block content %}
 
-<article class="poem-detail" data-poem-id="{{ poem.blog_poem_coll_poem_entry_id }}" data-category-id="{{ poem.link_blog_poem_ref_poem_category_id }}" data-poem-type="{{ poem.poem_type_code }}">
+<article class="poem-detail" data-poem-id="{{ poem.blog_poem_coll_poem_entry_id }}" name="{{ poem.blog_poem_coll_poem_entry_id }}" data-category-id="{{ poem.link_blog_poem_ref_poem_category_id }}" data-poem-type="{{ poem.poem_type_code }}">
 
   {# ── Meta bar (category, language, time, edit) ── #}
   <header class="poem-detail-header">
@@ -70,11 +70,11 @@
 
   {# ── Audio Player (optional) ── #}
   {% if poem.poem_audio_url %}
-  <div class="poem-audio-player" id="poemAudioPlayer" data-url="{{ poem.poem_audio_url }}">
+  <div class="poem-audio-player" id="poemAudioPlayer" name="poemAudioPlayer" data-url="{{ poem.poem_audio_url }}">
 
     {# Audio bar — always visible #}
     <div class="poem-audio-bar">
-      <button type="button" class="poem-audio-play-btn" id="poemAudioPlayBtn" title="Play / Pause">
+      <button type="button" class="poem-audio-play-btn" id="poemAudioPlayBtn" name="poemAudioPlayBtn" title="Play / Pause">
         <svg id="poemAudioIconPlay" viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><polygon points="6 3 20 12 6 21"/></svg>
         <svg id="poemAudioIconPause" style="display:none" viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
       </button>
@@ -90,40 +90,40 @@
         {% endif %}
       </div>
 
-      <div class="poem-audio-progress-wrap" id="poemAudioProgressWrap">
+      <div class="poem-audio-progress-wrap" id="poemAudioProgressWrap" name="poemAudioProgressWrap">
         <div class="poem-audio-progress-bar">
-          <div class="poem-audio-progress-fill" id="poemAudioProgressFill"></div>
+          <div class="poem-audio-progress-fill" id="poemAudioProgressFill" name="poemAudioProgressFill"></div>
         </div>
-        <span class="poem-audio-time" id="poemAudioTime">0:00 / 0:00</span>
+        <span class="poem-audio-time" id="poemAudioTime" name="poemAudioTime">0:00 / 0:00</span>
       </div>
 
-      <button type="button" class="poem-audio-vol-btn" id="poemAudioVolBtn" title="Mute / Unmute">
+      <button type="button" class="poem-audio-vol-btn" id="poemAudioVolBtn" name="poemAudioVolBtn" title="Mute / Unmute">
         <svg id="poemAudioIconVol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
         <svg id="poemAudioIconMute" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
       </button>
 
-      <button type="button" class="poem-audio-video-btn" id="poemAudioVideoBtn" title="ভিডিও দেখুন (Watch Video)">
+      <button type="button" class="poem-audio-video-btn" id="poemAudioVideoBtn" name="poemAudioVideoBtn" title="ভিডিও দেখুন (Watch Video)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 8 16 12 10 16"/></svg>
       </button>
     </div>
 
     {# Hidden YouTube player — expands when "Watch Video" clicked #}
-    <div class="poem-audio-video-wrap" hidden id="poemAudioVideoWrap">
-      <div id="poemYTPlayer"></div>
-      <button type="button" class="poem-audio-collapse-btn" id="poemAudioCollapseBtn">ভিডিও বন্ধ করুন (Hide Video)</button>
+    <div class="poem-audio-video-wrap" hidden id="poemAudioVideoWrap" name="poemAudioVideoWrap">
+      <div id="poemYTPlayer" name="poemYTPlayer"></div>
+      <button type="button" class="poem-audio-collapse-btn" id="poemAudioCollapseBtn" name="poemAudioCollapseBtn">ভিডিও বন্ধ করুন (Hide Video)</button>
     </div>
 
     {# Up Next banner — radio autoplay #}
-    <div class="poem-radio-next" hidden id="poemRadioNext">
+    <div class="poem-radio-next" hidden id="poemRadioNext" name="poemRadioNext">
       <div class="poem-radio-next-header">
         <span class="poem-radio-next-label">পরবর্তী (Up Next)</span>
-        <span class="poem-radio-next-countdown" id="poemRadioCountdown">5</span>
-        <button type="button" class="poem-radio-next-cancel" id="poemRadioCancelBtn">বাতিল (Cancel)</button>
+        <span class="poem-radio-next-countdown" id="poemRadioCountdown" name="poemRadioCountdown">5</span>
+        <button type="button" class="poem-radio-next-cancel" id="poemRadioCancelBtn" name="poemRadioCancelBtn">বাতিল (Cancel)</button>
       </div>
       <div class="poem-radio-next-preview">
-        <h4 id="poemRadioNextTitle"></h4>
-        <span id="poemRadioNextAuthor"></span>
-        <p id="poemRadioNextPreview"></p>
+        <h4 id="poemRadioNextTitle" name="poemRadioNextTitle"></h4>
+        <span id="poemRadioNextAuthor" name="poemRadioNextAuthor"></span>
+        <p id="poemRadioNextPreview" name="poemRadioNextPreview"></p>
       </div>
     </div>
 
@@ -137,7 +137,7 @@
       রচনার গল্প (Story Behind the Writing)
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div class="poem-detail-section-content" id="backstory">{{ poem.poem_backstory_bn|default:poem.poem_backstory_en }}</div>
+    <div class="poem-detail-section-content" id="backstory" name="backstory">{{ poem.poem_backstory_bn|default:poem.poem_backstory_en }}</div>
   </div>
   {% endif %}
 
@@ -148,7 +148,7 @@
       কবির ভাবনা (Poet's Interpretation)
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div class="poem-detail-section-content" id="interpretation">{{ poem.poem_interpretation_bn|default:poem.poem_interpretation_en }}</div>
+    <div class="poem-detail-section-content" id="interpretation" name="interpretation">{{ poem.poem_interpretation_bn|default:poem.poem_interpretation_en }}</div>
   </div>
   {% endif %}
 

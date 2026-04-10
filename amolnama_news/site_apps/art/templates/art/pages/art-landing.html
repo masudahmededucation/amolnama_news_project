@@ -18,8 +18,8 @@
   {% endif %}
 </div>
 
-<div class="filter-pills-row" id="art-filter-row">
-  <div class="filter-pills-group" id="art-category-filter">
+<div class="filter-pills-row" id="art-filter-row" name="art_filter_row">
+  <div class="filter-pills-group" id="art-category-filter" name="art_category_filter">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="" id="art-category-pill-all" name="art_category_pill_all">সব ধরন (All)</button>
     {% for category in categories %}
     <button type="button" class="filter-pills-pill" data-category="{{ category.content_ref_content_subcategory_id }}" id="art-category-pill-{{ category.subcategory_code }}" name="art_category_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</button>
@@ -27,7 +27,7 @@
   </div>
 
   {% if mediums %}
-  <div class="filter-pills-group filter-pills-group-info" id="art-medium-filter">
+  <div class="filter-pills-group filter-pills-group-info" id="art-medium-filter" name="art_medium_filter">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-medium="" id="art-medium-pill-all" name="art_medium_pill_all">সব মাধ্যম (All)</button>
     {% for medium in mediums %}
     <button type="button" class="filter-pills-pill" data-medium="{{ medium.content_ref_content_subcategory_id }}" id="art-medium-pill-{{ medium.subcategory_code }}" name="art_medium_pill_{{ medium.subcategory_code }}">{{ medium.subcategory_name_bn }}</button>
@@ -36,14 +36,14 @@
   {% endif %}
 </div>
 
-<div class="filter-crumbs" id="art-filter-crumbs" hidden>
+<div class="filter-crumbs" id="art-filter-crumbs" name="art_filter_crumbs" hidden>
   <span class="filter-crumbs-label">ফিল্টার:</span>
-  <span class="filter-crumbs-chips" id="art-filter-crumbs-chips"></span>
+  <span class="filter-crumbs-chips" id="art-filter-crumbs-chips" name="art_filter_crumbs_chips"></span>
   <button type="button" class="filter-crumbs-clear" id="art-filter-crumbs-clear" name="art_filter_crumbs_clear">সব মুছুন</button>
 </div>
 
 {% if artwork_items %}
-<div class="art-gallery-grid" id="art-gallery-grid">
+<div class="art-gallery-grid" id="art-gallery-grid" name="art_gallery_grid">
   {% for item in artwork_items %}
   <a href="{% url 'art:detail' artwork_slug=item.slug %}" class="art-gallery-card" id="art-gallery-card-{{ item.artwork_id }}" name="art_gallery_card_{{ item.artwork_id }}" data-category="{{ item.category_id }}" data-medium="{{ item.medium_id }}">
     <div class="art-gallery-card-image-wrapper">
@@ -71,7 +71,7 @@
   </a>
   {% endfor %}
 </div>
-<div class="art-empty-state" id="art-filter-empty" hidden></div>
+<div class="art-empty-state" id="art-filter-empty" name="art_filter_empty" hidden></div>
 {% else %}
 <div class="art-empty-state">
   <p>এখনো কোনো শিল্পকর্ম নেই। প্রথম শিল্পকর্ম আপলোড করুন!</p>

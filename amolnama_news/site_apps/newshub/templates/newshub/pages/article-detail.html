@@ -15,7 +15,7 @@
 {% block content %}
 
 {# ======== Hero Cover Image ======== #}
-<div class="article-detail-hero" {% if not cover_image_url %}hidden{% endif %} id="article-detail-hero" {% if cover_image_url %}style="background-image:url('{{ cover_image_url }}');"{% endif %}></div>
+<div class="article-detail-hero" {% if not cover_image_url %}hidden{% endif %} id="article-detail-hero" name="article_detail_hero" {% if cover_image_url %}style="background-image:url('{{ cover_image_url }}');"{% endif %}></div>
 
 <div class="article-detail-container">
 
@@ -57,14 +57,13 @@
 
       {# Publication status — single element: badge with optional edit toggle #}
       {% if publication_status %}
-      <div class="article-status-widget" id="article-status-widget">
-        <span class="article-status-badge {{ publication_status.status_code }}" id="article-status-badge">
+      <div class="article-status-widget" id="article-status-widget" name="article_status_widget">
+        <span class="article-status-badge {{ publication_status.status_code }}" id="article-status-badge" name="article_status_badge">
           {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
         </span>
         {% if can_edit %}
         <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" name="article_status_edit" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
-        <select class="article-status-select" hidden id="article-publication-status-select"
-                name="article_publication_status"
+        <select class="article-status-select" hidden id="article-publication-status-select" name="article_publication_status_select"
                 data-entry-id="{{ entry.newshub_coll_news_entry_id }}"
                 data-current="{{ entry.link_ref_status_article_publication_status_id }}"
                 aria-label="Change publication status">
@@ -243,7 +242,7 @@
 
     {# ======== COMMENTS ======== #}
     <section class="article-comments">
-      <h2 class="article-section-title" id="article-comments-title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
+      <h2 class="article-section-title" id="article-comments-title" name="article_comments_title" data-en="Comments">মন্তব্য ({{ comments|length }})</h2>
 
       {# Comment form — any logged-in user can comment, no points required #}
       {% if user.is_authenticated %}

@@ -8,12 +8,12 @@
 {% endblock %}
 
 {% block content %}
-<div class="textextractor-upload-container" id="textextractor-upload-container">
+<div class="textextractor-upload-container" id="textextractor-upload-container" name="textextractor_upload_container">
   <h1 class="textextractor-upload-title">📄 Upload File for Extraction</h1>
   <p class="textextractor-upload-subtitle">Supported: Images (JPG, PNG), PDF, Audio (MP3, WAV), Video (MP4), Text files</p>
 
-  <div class="textextractor-upload-dropzone" id="textextractor-upload-dropzone">
-    <div class="textextractor-upload-dropzone-content" id="textextractor-upload-dropzone-content">
+  <div class="textextractor-upload-dropzone" id="textextractor-upload-dropzone" name="textextractor_upload_dropzone">
+    <div class="textextractor-upload-dropzone-content" id="textextractor-upload-dropzone-content" name="textextractor_upload_dropzone_content">
       <span class="textextractor-upload-dropzone-icon">📂</span>
       <p class="textextractor-upload-dropzone-text">Drag & drop file here or click to browse</p>
       <p class="textextractor-upload-dropzone-hint">Max 50MB • Bengali + English OCR</p>
@@ -21,24 +21,24 @@
     <input type="file" class="textextractor-upload-file-input" id="textextractor-upload-file-input" name="extraction_file" accept="image/*,.pdf,.mp3,.mp4,.wav,.mkv,.txt,.csv,.md,.html">
   </div>
 
-  <div class="textextractor-upload-progress" hidden id="textextractor-upload-progress">
-    <div class="textextractor-upload-progress-filename" id="textextractor-upload-progress-filename"></div>
+  <div class="textextractor-upload-progress" hidden id="textextractor-upload-progress" name="textextractor_upload_progress">
+    <div class="textextractor-upload-progress-filename" id="textextractor-upload-progress-filename" name="textextractor_upload_progress_filename"></div>
     <div class="textextractor-upload-progress-bar-wrapper">
-      <div class="textextractor-upload-progress-bar" id="textextractor-upload-progress-bar"></div>
-      <div class="textextractor-upload-progress-status" id="textextractor-upload-progress-status">Uploading...</div>
+      <div class="textextractor-upload-progress-bar" id="textextractor-upload-progress-bar" name="textextractor_upload_progress_bar"></div>
+      <div class="textextractor-upload-progress-status" id="textextractor-upload-progress-status" name="textextractor_upload_progress_status">Uploading...</div>
     </div>
   </div>
 
-  <div class="textextractor-upload-result" hidden id="textextractor-upload-result">
+  <div class="textextractor-upload-result" hidden id="textextractor-upload-result" name="textextractor_upload_result">
     <div class="textextractor-upload-result-header">
       <span class="textextractor-upload-result-icon">✅</span>
       <span class="textextractor-upload-result-text">Extraction complete!</span>
     </div>
-    <div class="textextractor-upload-result-preview" id="textextractor-upload-result-preview"></div>
-    <a href="" class="textextractor-upload-result-view-button" id="textextractor-upload-result-view-button">View Full Result</a>
+    <div class="textextractor-upload-result-preview" id="textextractor-upload-result-preview" name="textextractor_upload_result_preview"></div>
+    <a href="" class="textextractor-upload-result-view-button" id="textextractor-upload-result-view-button" name="textextractor_upload_result_view_button">View Full Result</a>
   </div>
 
-  <div class="textextractor-upload-error" hidden id="textextractor-upload-error"></div>
+  <div class="textextractor-upload-error" hidden id="textextractor-upload-error" name="textextractor_upload_error"></div>
 </div>
 {% endblock %}
 

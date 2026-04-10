@@ -5,14 +5,14 @@
   Saved to [investigation].[incident_evidence_weapon] + [incident_evidence_impact_weapon].
 {% endcomment %}
 
-<div class="form-section" id="section-weapons-evidence">
+<div class="form-section" id="section-weapons-evidence" name="section_weapons_evidence">
   <h3 class="form-section-title"><span class="section-icon">🔍</span>অস্ত্র ও আলামত (Weapons & Evidence)</h3>
 
   {# ---- Weapons Used ---- #}
   <h4 class="form-subsection-title">ব্যবহৃত অস্ত্র (Weapons Used)</h4>
   <div class="form-field">
     <span class="field-label">যে অস্ত্র ব্যবহার করা হয়েছে তা নির্বাচন করুন (Select weapons used)</span>
-    <div class="weapon-type-checkboxes" id="weapon-type-checkboxes">
+    <div class="weapon-type-checkboxes" id="weapon-type-checkboxes" name="weapon_type_checkboxes">
       {% for wt in weapon_types %}
       <label class="checkbox-label">
         <input type="checkbox" id="crime-weapon-type-{{ wt.status_id }}" class="weapon-type-cb" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">

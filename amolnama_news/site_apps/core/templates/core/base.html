@@ -87,7 +87,7 @@
   {% seo_json_ld %}
 </head>
 <body>
-  <div class="app-layout" id="app-layout">
+  <div class="app-layout" id="app-layout" name="app_layout">
     {% include "core/partials/sidebar-navigation.html" %}
 
     <div class="page-wrapper">
@@ -95,11 +95,11 @@
         <div class="header-grid">
           {% include "core/partials/header_auth_controls.html" %}
           {% if user.is_authenticated %}
-          <div class="global-notification-wrapper" id="global-notification-wrapper">
+          <div class="global-notification-wrapper" id="global-notification-wrapper" name="global_notification_wrapper">
             <button type="button" class="global-notification-bell" id="global-notification-bell" name="global_notification_bell" title="বিজ্ঞপ্তি (Notifications)">
-              🔔 <span class="global-notification-count global-notification-count-hidden" id="global-notification-count">0</span>
+              🔔 <span class="global-notification-count global-notification-count-hidden" id="global-notification-count" name="global_notification_count">0</span>
             </button>
-            <div class="global-notification-dropdown global-notification-dropdown-hidden" id="global-notification-dropdown"></div>
+            <div class="global-notification-dropdown global-notification-dropdown-hidden" id="global-notification-dropdown" name="global_notification_dropdown"></div>
           </div>
           {% endif %}
         </div>

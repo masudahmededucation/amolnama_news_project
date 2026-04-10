@@ -22,7 +22,7 @@
     #land-retaliation-data            — JSON [{status_id, status_code, status_name_bn, status_name_en}]
 {% endcomment %}
 
-<div class="form-section" id="section-land-legal">
+<div class="form-section" id="section-land-legal" name="section_land_legal">
   <h3 class="form-section-title"><span class="section-icon">⚖️</span>আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)</h3>
 
   <input type="hidden" id="land-legal" name="land_legal" value="">
@@ -31,7 +31,7 @@
 
   <div class="form-field">
     <span class="form-label">প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)</span>
-    <div class="checkbox-group" id="land-applicable-law-checkboxes">
+    <div class="checkbox-group" id="land-applicable-law-checkboxes" name="land_applicable_law_checkboxes">
       {# Populated by news-land-grab-legal.js from #land-applicable-law-data #}
     </div>
   </div>
@@ -46,14 +46,14 @@
 
   <div class="form-field">
     <span class="form-label">সহায়তা সেবা — একাধিক নির্বাচন করা যাবে (Support Services — multiple selections allowed)</span>
-    <div class="checkbox-group" id="land-support-service-checkboxes">
+    <div class="checkbox-group" id="land-support-service-checkboxes" name="land_support_service_checkboxes">
       {# Populated by news-land-grab-legal.js from #land-support-service-data #}
     </div>
   </div>
 
   <div class="form-field">
     <span class="form-label">সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে (Social Pressure & Retaliation — multiple selections allowed)</span>
-    <div class="checkbox-group" id="land-retaliation-checkboxes">
+    <div class="checkbox-group" id="land-retaliation-checkboxes" name="land_retaliation_checkboxes">
       {# Populated by news-land-grab-legal.js from #land-retaliation-data #}
     </div>
   </div>
@@ -66,13 +66,13 @@
 </div>
 
 {# GD/FIR status data — shared module reads #{prefix}-fir-status-data #}
-<script type="application/json" id="legal-fir-status-data">{{ fir_statuses_json|safe }}</script>
+<script type="application/json" id="legal-fir-status-data" name="legal_fir_status_data">{{ fir_statuses_json|safe }}</script>
 
 {# DB-driven reference data — populated from views context (land_grabbing view) #}
-<script type="application/json" id="land-applicable-law-data">{{ land_applicable_law_json|safe }}</script>
+<script type="application/json" id="land-applicable-law-data" name="land_applicable_law_data">{{ land_applicable_law_json|safe }}</script>
 
-<script type="application/json" id="land-case-status-data">{{ land_case_status_json|safe }}</script>
+<script type="application/json" id="land-case-status-data" name="land_case_status_data">{{ land_case_status_json|safe }}</script>
 
-<script type="application/json" id="land-support-service-data">{{ land_support_service_json|safe }}</script>
+<script type="application/json" id="land-support-service-data" name="land_support_service_data">{{ land_support_service_json|safe }}</script>
 
-<script type="application/json" id="land-retaliation-data">{{ land_retaliation_json|safe }}</script>
+<script type="application/json" id="land-retaliation-data" name="land_retaliation_data">{{ land_retaliation_json|safe }}</script>

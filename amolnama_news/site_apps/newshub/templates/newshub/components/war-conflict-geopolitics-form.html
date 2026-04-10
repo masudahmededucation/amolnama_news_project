@@ -5,7 +5,7 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-global-geopolitics">
+<div class="form-section" id="section-global-geopolitics" name="section_global_geopolitics">
   <h3 class="form-section-title"><span class="section-icon">🌍</span>ভূ-রাজনীতি ও বৈশ্বিক প্রতিক্রিয়া (Geopolitics & Global Reaction)</h3>
 
   {# Hidden input — JS serializes geopolitics data here before submit #}
@@ -54,7 +54,7 @@
     </label>
   </div>
 
-  <div class="form-field" hidden id="global-local-impact-row">
+  <div class="form-field" hidden id="global-local-impact-row" name="global_local_impact_row">
     <label for="global-local-impact-description">দেশীয় প্রভাবের বিবরণ (Local Impact Description)</label>
     <textarea id="global-local-impact-description" name="global_local_impact_description" rows="3"
               placeholder="বাংলাদেশে কীভাবে প্রভাব পড়ছে... (How does this impact Bangladesh...)"></textarea>
@@ -62,4 +62,4 @@
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="global-reactions-data">{{ global_reactions_json|default:"[]"|safe }}</script>
+<script type="application/json" id="global-reactions-data" name="global_reactions_data">{{ global_reactions_json|default:"[]"|safe }}</script>

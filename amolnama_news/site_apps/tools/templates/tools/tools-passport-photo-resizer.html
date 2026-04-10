@@ -15,14 +15,14 @@
   <p class="tool-subtitle" data-en="Resize, crop and change background of photos and signatures. Everything is processed in your browser — nothing is uploaded to any server.">ছবি ও স্বাক্ষর রিসাইজ, ক্রপ এবং ব্যাকগ্রাউন্ড পরিবর্তন করুন। সবকিছু আপনার ব্রাউজারেই হবে — কোনো সার্ভারে আপলোড হবে না।</p>
 
   <!-- ===== Mode Selector ===== -->
-  <div class="photo-resizer-modes" id="photo-resizer-modes">
+  <div class="photo-resizer-modes" id="photo-resizer-modes" name="photo_resizer_modes">
     <button type="button" class="photo-resizer-mode-btn active" data-mode="photo" data-en="📸 Photo Resize">📸 ছবি রিসাইজ (Photo Resize)</button>
     <button type="button" class="photo-resizer-mode-btn" data-mode="signature" data-en="✍️ Signature Resize">✍️ স্বাক্ষর রিসাইজ (Signature Resize)</button>
     <button type="button" class="photo-resizer-mode-btn" data-mode="background" data-en="🎨 Background Change">🎨 ব্যাকগ্রাউন্ড পরিবর্তন (Background Change)</button>
   </div>
 
   <!-- ===== Preset Selector ===== -->
-  <div class="photo-resizer-presets" id="photo-resizer-presets">
+  <div class="photo-resizer-presets" id="photo-resizer-presets" name="photo_resizer_presets">
     <label class="photo-resizer-label" for="photo-resizer-preset-select" data-en="Select Preset">প্রিসেট নির্বাচন করুন (Select Preset)</label>
     <select id="photo-resizer-preset-select" name="photo_resizer_preset_select" class="photo-resizer-select">
       <option value="" data-en="— Custom Size —">— কাস্টম সাইজ (Custom Size) —</option>
@@ -50,7 +50,7 @@
   </div>
 
   <!-- ===== Custom Size Inputs ===== -->
-  <div class="photo-resizer-custom" id="photo-resizer-custom">
+  <div class="photo-resizer-custom" id="photo-resizer-custom" name="photo_resizer_custom">
     <div class="photo-resizer-custom-row">
       <div class="photo-resizer-field">
         <label for="photo-resizer-width" data-en="Width (px)">প্রস্থ (Width px)</label>
@@ -76,7 +76,7 @@
   </div>
 
   <!-- ===== Background Color (for background mode) ===== -->
-  <div class="photo-resizer-bg-options" hidden id="photo-resizer-bg-options">
+  <div class="photo-resizer-bg-options" hidden id="photo-resizer-bg-options" name="photo_resizer_bg_options">
     <label class="photo-resizer-label" for="photo-resizer-bg-color" data-en="Background Color">ব্যাকগ্রাউন্ড রঙ (Background Color)</label>
     <div class="photo-resizer-bg-swatches">
       <button type="button" class="photo-resizer-swatch photo-resizer-swatch--white active" data-color="#FFFFFF" title="সাদা (White)"></button>
@@ -88,32 +88,32 @@
   </div>
 
   <!-- ===== Drop Zone ===== -->
-  <div class="photo-resizer-dropzone" id="photo-resizer-dropzone">
+  <div class="photo-resizer-dropzone" id="photo-resizer-dropzone" name="photo_resizer_dropzone">
     <input type="file" id="photo-resizer-file-input" name="photo_resizer_file_input" accept="image/*" hidden>
     <div class="photo-resizer-dropzone-icon">📷</div>
     <p class="photo-resizer-dropzone-text" data-en="Drag &amp; drop image here">ছবি এখানে টেনে আনুন (Drag &amp; drop image here)</p>
     <p class="photo-resizer-dropzone-or" data-en="or">অথবা (or)</p>
-    <button type="button" class="photo-resizer-browse-btn" id="photo-resizer-browse-btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
+    <button type="button" class="photo-resizer-browse-btn" id="photo-resizer-browse-btn" name="photo_resizer_browse_btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
     <p class="photo-resizer-dropzone-hint" data-en="JPG, PNG, WebP &middot; Max 10 MB">JPG, PNG, WebP &middot; সর্বোচ্চ ১০ MB</p>
   </div>
 
   <!-- ===== Editor (interactive crop + preview) ===== -->
-  <div class="photo-resizer-editor" hidden id="photo-resizer-editor">
+  <div class="photo-resizer-editor" hidden id="photo-resizer-editor" name="photo_resizer_editor">
     <p class="photo-resizer-drag-hint" data-en="Drag the image to position it inside the crop frame">ছবি টেনে সরান — ক্রপ ফ্রেমের ভেতরে যা আছে তা-ই রাখা হবে (Drag the image to position it inside the crop frame)</p>
 
     <div class="photo-resizer-editor-layout">
       <!-- Crop viewport: image moves behind a fixed dotted frame -->
       <div class="photo-resizer-source">
         <h3 data-en="Position &amp; Crop">ক্রপ করুন (Position &amp; Crop)</h3>
-        <div class="photo-resizer-viewport" id="photo-resizer-viewport">
-          <img id="photo-resizer-source-img" draggable="false" alt="">
-          <div class="photo-resizer-crop-frame" id="photo-resizer-crop-frame"></div>
-          <div class="photo-resizer-dim-overlay" id="photo-resizer-dim-overlay"></div>
+        <div class="photo-resizer-viewport" id="photo-resizer-viewport" name="photo_resizer_viewport">
+          <img id="photo-resizer-source-img" name="photo_resizer_source_img" draggable="false" alt="">
+          <div class="photo-resizer-crop-frame" id="photo-resizer-crop-frame" name="photo_resizer_crop_frame"></div>
+          <div class="photo-resizer-dim-overlay" id="photo-resizer-dim-overlay" name="photo_resizer_dim_overlay"></div>
         </div>
         <div class="photo-resizer-zoom">
           <label for="photo-resizer-zoom-range" data-en="Zoom">জুম (Zoom)</label>
           <input type="range" id="photo-resizer-zoom-range" name="photo_resizer_zoom_range" min="0.2" max="3" step="0.05" value="1">
-          <span id="photo-resizer-zoom-value">100%</span>
+          <span id="photo-resizer-zoom-value" name="photo_resizer_zoom_value">100%</span>
         </div>
       </div>
 
@@ -121,16 +121,16 @@
       <div class="photo-resizer-preview">
         <h3 data-en="Preview">প্রিভিউ (Preview)</h3>
         <div class="photo-resizer-preview-wrap">
-          <canvas id="photo-resizer-preview-canvas"></canvas>
+          <canvas id="photo-resizer-preview-canvas" name="photo_resizer_preview_canvas"></canvas>
         </div>
-        <div class="photo-resizer-info" id="photo-resizer-info"></div>
+        <div class="photo-resizer-info" id="photo-resizer-info" name="photo_resizer_info"></div>
       </div>
     </div>
 
     <div class="photo-resizer-actions">
-      <button type="button" class="photo-resizer-btn photo-resizer-btn--crop" id="photo-resizer-crop-btn" data-en="✂️ Crop &amp; Resize">✂️ ক্রপ ও রিসাইজ (Crop &amp; Resize)</button>
-      <button type="button" class="photo-resizer-btn photo-resizer-btn--download" hidden id="photo-resizer-download-btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
-      <button type="button" class="photo-resizer-btn photo-resizer-btn--reset" id="photo-resizer-reset-btn" data-en="🔄 New Image">🔄 নতুন ছবি (New Image)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--crop" id="photo-resizer-crop-btn" name="photo_resizer_crop_btn" data-en="✂️ Crop &amp; Resize">✂️ ক্রপ ও রিসাইজ (Crop &amp; Resize)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--download" hidden id="photo-resizer-download-btn" name="photo_resizer_download_btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
+      <button type="button" class="photo-resizer-btn photo-resizer-btn--reset" id="photo-resizer-reset-btn" name="photo_resizer_reset_btn" data-en="🔄 New Image">🔄 নতুন ছবি (New Image)</button>
     </div>
   </div>
 

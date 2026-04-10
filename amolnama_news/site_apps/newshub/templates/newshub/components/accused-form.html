@@ -6,37 +6,37 @@
   Data is serialized to #accused-json hidden input by news-accused-repeater.js.
 {% endcomment %}
 
-<div class="form-section" id="section-accused">
+<div class="form-section" id="section-accused" name="section_accused">
   <h3 class="form-section-title"><span class="section-icon">🔴</span>অভিযুক্ত পক্ষ / সন্দেহভাজন (Accused Party / Suspects)</h3>
 
   {# Hidden input — JS serializes the accused array here before submit #}
   <input type="hidden" id="accused-json" name="accused_json" value="">
 
   {# Add button #}
-  <div class="actor-add-buttons" id="accused-add-btn-wrap">
-    <button type="button" class="actor-add-btn actor-add-accused" id="accused-add-btn">
+  <div class="actor-add-buttons" id="accused-add-btn-wrap" name="accused_add_btn_wrap">
+    <button type="button" class="actor-add-btn actor-add-accused" id="accused-add-btn" name="accused_add_btn">
       + অভিযুক্ত পক্ষ যোগ করুন (Add Accused Party)
     </button>
   </div>
 
   {# Dynamic cards rendered here by news-accused-repeater.js #}
-  <div id="accused-list"></div>
+  <div id="accused-list" name="accused_list"></div>
 
   {# Empty state #}
-  <div class="actor-empty-state" id="accused-empty-state">
+  <div class="actor-empty-state" id="accused-empty-state" name="accused_empty_state">
     এখনো কোনো অভিযুক্ত পক্ষ যোগ করা হয়নি।
     <br><small>(No accused party added yet. Click the button above to add one.)</small>
   </div>
 </div>
 
-<div class="form-section" id="section-accused-photos">
+<div class="form-section" id="section-accused-photos" name="section_accused_photos">
   <h3 class="form-section-title"><span class="section-icon">🕵️</span>অভিযুক্ত পক্ষের ছবি ও পরিচিতিমূলক নথি (Accused Party — Identification Evidence)</h3>
   {% include "newshub/components/file-upload-section.html" with upload_prefix="accused-photos" upload_name="accused_photos" upload_accept="image/*" upload_label="অভিযুক্ত পক্ষের ছবি আপলোড করুন — সর্বোচ্চ ৩টি (Upload accused party's photo, max 3)" upload_btn_label="+ অভিযুক্ত পক্ষের ছবি যোগ করুন (Add photo)" upload_desc_name="accused_photos_descriptions_json" upload_hint="পরিচয় শনাক্তকরণে সহায়ক ছবি দিন — যেমন CCTV বা ক্যামেরার ফুটেজ স্ক্রিনশট, সোশ্যাল মিডিয়া প্রোফাইল ছবি, জাতীয় পরিচয়পত্রের কপি বা ঘটনাস্থলে ধারণকৃত ছবি (CCTV screenshot, social media profile, NID copy or scene photo)" %}
 </div>
 
 {# Reference data — shared by victim & witness JS files (must be in accused step) #}
-<script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
-<script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-involvement-types-data" name="actor_involvement_types_data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-types-data" name="actor_types_data">{{ actor_types_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-genders-data" name="actor_genders_data">{{ actor_genders_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-religions-data" name="actor_religions_data">{{ actor_religions_json|default:"[]"|safe }}</script>
+<script type="application/json" id="actor-districts-data" name="actor_districts_data">{{ actor_districts_json|default:"[]"|safe }}</script>

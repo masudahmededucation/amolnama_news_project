@@ -4,7 +4,7 @@
   Expects: attachment_form (NewsAttachmentForm instance)
 {% endcomment %}
 
-<div class="form-section" id="section-news-attachment">
+<div class="form-section" id="section-news-attachment" name="section_news_attachment">
   <h3 class="form-section-title"><span class="section-icon">📎</span>সংযুক্তি (Attachment)</h3>
 
   {% include "newshub/components/file-upload-section.html" with upload_prefix="attachment" upload_name="attachment_file" upload_accept="image/*,video/*,audio/*,.pdf,.doc,.docx" upload_label="ফাইল আপলোড করুন (সর্বোচ্চ ৪টি) — Upload files (Max 4 files)" upload_btn_label="+ ফাইল আপলোড করুন (Upload files)" upload_desc_name="attachment_descriptions_json" upload_show_featured="1" %}

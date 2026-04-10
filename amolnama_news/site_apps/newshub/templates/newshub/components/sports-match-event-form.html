@@ -5,7 +5,7 @@
   DB table: [investigation].[sports_form_fact]
 {% endcomment %}
 
-<div class="form-section" id="section-sports-match-event">
+<div class="form-section" id="section-sports-match-event" name="section_sports_match_event">
   <h3 class="form-section-title"><span class="section-icon">🏟️</span>ম্যাচ ও ইভেন্ট তথ্য (Match &amp; Event Details)</h3>
 
   {# Hidden input — JS serializes match/event data here before submit #}
@@ -40,7 +40,7 @@
   </div>
 
   <div class="form-field">
-    <span class="form-field-label" id="sports-match-date-label">ম্যাচের তারিখ (Match Date)</span>
+    <span class="form-field-label" id="sports-match-date-label" name="sports_match_date_label">ম্যাচের তারিখ (Match Date)</span>
     <input type="date" id="sports-match-date" name="sports_match_date" aria-labelledby="sports-match-date-label">
   </div>
 

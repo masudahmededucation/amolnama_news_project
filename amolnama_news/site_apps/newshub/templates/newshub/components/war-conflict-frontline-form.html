@@ -5,7 +5,7 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-global-frontline">
+<div class="form-section" id="section-global-frontline" name="section_global_frontline">
   <h3 class="form-section-title"><span class="section-icon">🗺️</span>রণক্ষেত্র ও পরিস্থিতি (Frontline & Situation)</h3>
 
   {# Hidden input — JS serializes frontline data here before submit #}
@@ -51,7 +51,7 @@
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="territory-statuses-data">{{ territory_statuses_json|default:"[]"|safe }}</script>
-<script type="application/json" id="conflict-intensity-data">{{ conflict_intensity_json|default:"[]"|safe }}</script>
-<script type="application/json" id="weapon-classes-data">{{ weapon_classes_json|default:"[]"|safe }}</script>
-<script type="application/json" id="involvement-levels-data">{{ involvement_levels_json|default:"[]"|safe }}</script>
+<script type="application/json" id="territory-statuses-data" name="territory_statuses_data">{{ territory_statuses_json|default:"[]"|safe }}</script>
+<script type="application/json" id="conflict-intensity-data" name="conflict_intensity_data">{{ conflict_intensity_json|default:"[]"|safe }}</script>
+<script type="application/json" id="weapon-classes-data" name="weapon_classes_data">{{ weapon_classes_json|default:"[]"|safe }}</script>
+<script type="application/json" id="involvement-levels-data" name="involvement_levels_data">{{ involvement_levels_json|default:"[]"|safe }}</script>

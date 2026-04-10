@@ -6,7 +6,7 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-entertainment-buzz">
+<div class="form-section" id="section-entertainment-buzz" name="section_entertainment_buzz">
   <h3 class="form-section-title"><span class="section-icon">🔥</span>প্রতিক্রিয়া ও বিতর্ক (Buzz & Controversy)</h3>
 
   {# Hidden input — JS serializes buzz data here before submit #}
@@ -55,7 +55,7 @@
     </label>
   </div>
 
-  <div class="form-field" hidden id="entertainment-plagiarism-row">
+  <div class="form-field" hidden id="entertainment-plagiarism-row" name="entertainment_plagiarism_row">
     <label for="entertainment-plagiarism-source">মূল উৎস (Original Source)</label>
     <input type="text" id="entertainment-plagiarism-source" name="entertainment_plagiarism_source"
            placeholder="যেমন: মূল গানটি ছিল XYZ-এর, মূল চলচ্চিত্রটি ছিল কোরিয়ান...">

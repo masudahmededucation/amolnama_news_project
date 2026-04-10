@@ -16,7 +16,7 @@
   Transport location sub-options and garment sub-types remain hardcoded (no DB data yet).
 {% endcomment %}
 
-<div class="form-section" id="section-incident-details">
+<div class="form-section" id="section-incident-details" name="section_incident_details">
   <h3 class="form-section-title"><span class="section-icon">💸</span>চাঁদাবাজির বিবরণ (Extortion Details)</h3>
 
   {# Hidden JSON — serialized by news-extortion-incident.js #}
@@ -25,7 +25,7 @@
   {# ======== 1. EXTORTION SECTOR ======== #}
   <h4 class="form-subsection-title">চাঁদাবাজির ক্ষেত্র (Extortion Sector)</h4>
   <div class="form-field">
-    <div class="radio-card-grid" id="extortion-category-grid">
+    <div class="radio-card-grid" id="extortion-category-grid" name="extortion_category_grid">
       {% for sector in extortion_sectors %}
       <label class="radio-card">
         <input type="radio" id="extortion-category-radio-{{ sector.status_id }}" name="extortion_category_radio"
@@ -39,16 +39,16 @@
   </div>
 
   {# Other sector detail (shown when sector = OTHER) #}
-  <div class="form-field" hidden id="extortion-other-sector-row">
+  <div class="form-field" hidden id="extortion-other-sector-row" name="extortion_other_sector_row">
     <label for="extortion-other-sector-detail">অন্যান্য ক্ষেত্রের বিবরণ দিন (Please describe the sector)</label>
     <input type="text" id="extortion-other-sector-detail" name="extortion_other_sector_detail" maxlength="300"
            placeholder="চাঁদাবাজির ক্ষেত্র উল্লেখ করুন (Specify the extortion sector)">
   </div>
 
   {# Transport sub-type (shown when sector = TRANSPORT_VEHICLE) #}
-  <div class="form-field" hidden id="extortion-transport-location-row">
+  <div class="form-field" hidden id="extortion-transport-location-row" name="extortion_transport_location_row">
     <span class="form-label">পরিবহনে চাঁদা কোথায় নেওয়া হয়? (Where is transport toll collected?)</span>
-    <div class="radio-inline-group" id="extortion-transport-location-group">
+    <div class="radio-inline-group" id="extortion-transport-location-group" name="extortion_transport_location_group">
       <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-terminal" name="extortion_transport_location_radio" value="terminal"> টার্মিনালে (Bus terminal)</label>
       <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-road-checkpoint" name="extortion_transport_location_radio" value="road_checkpoint"> রাস্তায়/চেকপয়েন্টে (Roadside checkpoint)</label>
       <label class="radio-inline"><input type="radio" id="extortion-transport-location-radio-depot-garage" name="extortion_transport_location_radio" value="depot_garage"> গ্যারেজ/ডিপোতে (Garage / depot)</label>
@@ -58,9 +58,9 @@
   </div>
 
   {# Garment sub-detail (shown when sector = GARMENT_FACTORY) #}
-  <div class="form-field" hidden id="extortion-garment-type-row">
+  <div class="form-field" hidden id="extortion-garment-type-row" name="extortion_garment_type_row">
     <span class="form-label">কারখানায় চাঁদাবাজির ধরন (Garment Extortion Type)</span>
-    <div class="radio-inline-group" id="extortion-garment-type-group">
+    <div class="radio-inline-group" id="extortion-garment-type-group" name="extortion_garment_type_group">
       <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-cash-demand" name="extortion_garment_type_radio" value="cash_demand"> নগদ অর্থ দাবি (Cash demand)</label>
       <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-jhut-forced" name="extortion_garment_type_radio" value="jhut_forced"> ঝুট জোর করে কম দামে কেনা (Jhut — forced below-market purchase)</label>
       <label class="radio-inline"><input type="radio" id="extortion-garment-type-radio-abduction-ransom" name="extortion_garment_type_radio" value="abduction_ransom"> অপহরণ করে মুক্তিপণ (Abduction for ransom)</label>
@@ -88,7 +88,7 @@
   </div>
   <div class="form-field">
     <span class="form-label">দাবির ঘনত্ব (Demand Frequency)</span>
-    <div class="radio-inline-group" id="extortion-frequency-group">
+    <div class="radio-inline-group" id="extortion-frequency-group" name="extortion_frequency_group">
       {% for freq in extortion_demand_frequencies %}
       <label class="radio-inline">
         <input type="radio" id="extortion-frequency-radio-{{ freq.status_id }}" name="extortion_frequency_radio"
@@ -105,7 +105,7 @@
   <div class="form-field">
     <span class="form-label">অভিযুক্তের সম্পৃক্ততা (Affiliation / Background)</span>
     <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
-    <div class="checkbox-group" id="extortion-affiliation-checkboxes">
+    <div class="checkbox-group" id="extortion-affiliation-checkboxes" name="extortion_affiliation_checkboxes">
       {% for affil in extortion_accused_affiliations %}
       <label class="checkbox-label">
         <input type="checkbox" id="extortion-affil-{{ affil.status_id }}" name="extortion_affiliation"
@@ -117,7 +117,7 @@
   </div>
 
   {# Party name field (shown when POLITICAL_PARTY_STUDENT_YOUTH_WING affiliation checked) #}
-  <div class="form-field" hidden id="extortion-party-name-row">
+  <div class="form-field" hidden id="extortion-party-name-row" name="extortion_party_name_row">
     <label for="extortion-party-name">রাজনৈতিক দল বা সংগঠনের নাম (Party / Organization Name) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <input type="text" id="extortion-party-name" name="extortion_party_name" maxlength="300"
            placeholder="দলের নাম বা সংগঠনের নাম লিখুন (Enter party or organization name)">
@@ -128,7 +128,7 @@
   <h4 class="form-subsection-title">হুমকির পদ্ধতি (Threat / Pressure Method)</h4>
   <div class="form-field">
     <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
-    <div class="checkbox-group" id="extortion-threat-checkboxes">
+    <div class="checkbox-group" id="extortion-threat-checkboxes" name="extortion_threat_checkboxes">
       {% for threat in extortion_threat_methods %}
       <label class="checkbox-label">
         <input type="checkbox" id="extortion-threat-{{ threat.status_id }}" name="extortion_threat"
@@ -143,7 +143,7 @@
   <h4 class="form-subsection-title">ভুক্তভোগীর উপর পরিণাম (Consequences on Victim)</h4>
   <div class="form-field">
     <small class="field-hint">চাঁদা দেওয়া বা না দেওয়ার ফলে কী হয়েছে (What happened as a result — select all that apply)</small>
-    <div class="checkbox-group" id="extortion-consequence-checkboxes">
+    <div class="checkbox-group" id="extortion-consequence-checkboxes" name="extortion_consequence_checkboxes">
       {% for cons in extortion_victim_consequences %}
       <label class="checkbox-label">
         <input type="checkbox" id="extortion-cons-{{ cons.status_id }}" name="extortion_consequence"
@@ -155,7 +155,7 @@
   </div>
 
   {# Property damage detail (shown when PROPERTY_VANDALIZED_ARSON consequence checked) #}
-  <div class="form-field" hidden id="extortion-damage-rows">
+  <div class="form-field" hidden id="extortion-damage-rows" name="extortion_damage_rows">
     <label for="extortion-damage-amount">ক্ষয়ক্ষতির আনুমানিক মূল্য (Estimated Damage Value) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <div class="input-suffix-group">
       <input type="number" id="extortion-damage-amount" name="extortion_damage_amount" min="0" step="0.01"
@@ -170,7 +170,7 @@
   {# ======== 6. BANGLADESH-SPECIFIC CONTEXT ======== #}
   <h4 class="form-subsection-title">বাংলাদেশের বর্তমান প্রেক্ষাপট (Bangladesh Context)</h4>
   <div class="form-field">
-    <div class="checkbox-group" id="extortion-context-checkboxes">
+    <div class="checkbox-group" id="extortion-context-checkboxes" name="extortion_context_checkboxes">
       {% for ctx in extortion_bangladesh_contexts %}
       <label class="checkbox-label">
         <input type="checkbox" id="extortion-ctx-{{ ctx.status_id }}" name="extortion_context"

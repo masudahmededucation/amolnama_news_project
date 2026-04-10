@@ -5,7 +5,7 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-political-context">
+<div class="form-section" id="section-political-context" name="section_political_context">
   <h3 class="form-section-title"><span class="section-icon">🔍</span>প্রেক্ষাপট ও চাপ (Context & Pressure)</h3>
 
   {# Hidden input — JS serializes context data here before submit #}
@@ -13,7 +13,7 @@
 
   <div class="form-field">
     <span class="form-field-label">কারণ/চাপ (Motive/Pressure)</span>
-    <div class="checkbox-group" id="political-motive-checkboxes">
+    <div class="checkbox-group" id="political-motive-checkboxes" name="political_motive_checkboxes">
       <label class="checkbox-card">
         <input type="checkbox" id="political-motive-fear" name="political_motive" value="fear">
         <span class="checkbox-card-label">গ্রেপ্তার/মামলার ভয় (Fear of Arrest/Case)</span>

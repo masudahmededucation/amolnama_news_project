@@ -1,18 +1,18 @@
 {# Post composer — compact by default, expands on focus. Context: user (from request) #}
 {% load static %}
-<div class="post-composer post-composer-collapsed" id="post-composer">
-  <div class="post-composer-avatar" id="post-composer-avatar">
+<div class="post-composer post-composer-collapsed" id="post-composer" name="post_composer">
+  <div class="post-composer-avatar" id="post-composer-avatar" name="post_composer_avatar">
     {% if user_avatar_url %}
-    <img src="{{ user_avatar_url }}" alt="প্রোফাইল" class="post-composer-avatar-image" id="post-composer-avatar-image" loading="lazy">
+    <img src="{{ user_avatar_url }}" alt="প্রোফাইল" class="post-composer-avatar-image" id="post-composer-avatar-image" name="post_composer_avatar_image" loading="lazy">
     {% elif user_display_name %}
     <span class="post-composer-avatar-initials">{{ user_display_name|first }}</span>
     {% else %}
     <svg class="post-composer-avatar-default" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
     {% endif %}
   </div>
-  <div class="post-composer-body" id="post-composer-body">
+  <div class="post-composer-body" id="post-composer-body" name="post_composer_body">
     <textarea class="post-composer-textarea" id="post-composer-textarea" name="post_composer_textarea" placeholder="কী ঘটছে?" maxlength="1000" rows="1" data-bangla-input="true"></textarea>
-    <div class="post-composer-media-bar" id="post-composer-media-bar">
+    <div class="post-composer-media-bar" id="post-composer-media-bar" name="post_composer_media_bar">
       <label class="post-composer-media-option post-composer-media-option-photo-video" id="post-composer-photo-video-option" name="post_composer_photo_video_option" title="ছবি/ভিডিও যোগ করুন (Add photo/video)">
         <span class="post-composer-media-option-icon">🖼️ 🎥</span>
         <span class="post-composer-media-option-label">ছবি/ভিডিও</span>
@@ -23,8 +23,8 @@
         <span class="post-composer-media-option-label">ইমোজি</span>
       </button>
     </div>
-    <div class="post-composer-emoji-picker" hidden id="post-composer-emoji-picker">
-      <div class="post-composer-emoji-tabs" id="post-composer-emoji-tabs">
+    <div class="post-composer-emoji-picker" hidden id="post-composer-emoji-picker" name="post_composer_emoji_picker">
+      <div class="post-composer-emoji-tabs" id="post-composer-emoji-tabs" name="post_composer_emoji_tabs">
         <button type="button" class="post-composer-emoji-tab post-composer-emoji-tab-active" data-category="smileys" id="post-composer-emoji-tab-smileys" name="post_composer_emoji_tab_smileys">😊</button>
         <button type="button" class="post-composer-emoji-tab" data-category="gestures" id="post-composer-emoji-tab-gestures" name="post_composer_emoji_tab_gestures">👍</button>
         <button type="button" class="post-composer-emoji-tab" data-category="hearts" id="post-composer-emoji-tab-hearts" name="post_composer_emoji_tab_hearts">❤️</button>
@@ -32,26 +32,26 @@
         <button type="button" class="post-composer-emoji-tab" data-category="nature" id="post-composer-emoji-tab-nature" name="post_composer_emoji_tab_nature">🌿</button>
         <button type="button" class="post-composer-emoji-tab" data-category="flags" id="post-composer-emoji-tab-flags" name="post_composer_emoji_tab_flags">🇧🇩</button>
       </div>
-      <div class="post-composer-emoji-grid" id="post-composer-emoji-grid"></div>
+      <div class="post-composer-emoji-grid" id="post-composer-emoji-grid" name="post_composer_emoji_grid"></div>
     </div>
-    <div class="post-composer-footer" id="post-composer-footer">
-      <div class="post-composer-visibility" id="post-composer-visibility">
+    <div class="post-composer-footer" id="post-composer-footer" name="post_composer_footer">
+      <div class="post-composer-visibility" id="post-composer-visibility" name="post_composer_visibility">
         <select class="post-composer-visibility-select" id="post-composer-visibility-select" name="post_composer_visibility_select" title="কে দেখতে পারবে (Who can see)">
           <option value="public">🌐 সবাই (Public)</option>
           <option value="followers">👥 অনুসরণকারী (Followers)</option>
           <option value="private">🔒 শুধু আমি (Only me)</option>
         </select>
       </div>
-      <div class="post-composer-actions" id="post-composer-actions">
-        <span class="post-composer-character-count" id="post-composer-character-count">0/1000</span>
-        <div class="post-composer-schedule-wrapper" id="post-composer-schedule-wrapper">
+      <div class="post-composer-actions" id="post-composer-actions" name="post_composer_actions">
+        <span class="post-composer-character-count" id="post-composer-character-count" name="post_composer_character_count">0/1000</span>
+        <div class="post-composer-schedule-wrapper" id="post-composer-schedule-wrapper" name="post_composer_schedule_wrapper">
           <button type="button" class="post-composer-schedule-button" id="post-composer-schedule-button" name="post_composer_schedule_button" title="পোস্ট নির্ধারিত সময়ে প্রকাশ (Schedule)">🕐</button>
           <input type="datetime-local" class="post-composer-schedule-input post-composer-schedule-input-hidden" id="post-composer-schedule-input" name="post_composer_schedule_input">
         </div>
         <button type="button" class="post-composer-submit-button" id="post-composer-submit-button" name="post_composer_submit_button" disabled>পোস্ট</button>
       </div>
     </div>
-    <div class="post-composer-media-preview" id="post-composer-media-preview"></div>
-    <div class="post-composer-link-preview" hidden id="post-composer-link-preview"></div>
+    <div class="post-composer-media-preview" id="post-composer-media-preview" name="post_composer_media_preview"></div>
+    <div class="post-composer-link-preview" hidden id="post-composer-link-preview" name="post_composer_link_preview"></div>
   </div>
 </div>

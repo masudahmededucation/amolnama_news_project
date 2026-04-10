@@ -1,5 +1,5 @@
 <!-- District Selection (Step 2) -->
-<div id="district-view" hidden>
+<div id="district-view" name="district_view" hidden>
   <button class="back-btn" onclick="navigateBackToDivisions()">← Back / পিছনে</button>
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
@@ -7,5 +7,5 @@
     </div>
   {% endif %}
   <h3>আপনার জেলা নির্বাচন করুন (Select Your District)</h3>
-  <ul class="selection-list" id="district-list"></ul>
+  <ul class="selection-list" id="district-list" name="district_list"></ul>
 </div>

@@ -55,17 +55,17 @@
   </div>
 
   {% comment %}Profile Tabs — Posts vs Articles{% endcomment %}
-  <div class="user-profile-tabs" id="user-profile-tabs">
+  <div class="user-profile-tabs" id="user-profile-tabs" name="user_profile_tabs">
     <a href="/social/@{{ profile.username_handle }}/" class="user-profile-tab" id="user-profile-tab-posts" name="user_profile_tab_posts">পোস্ট</a>
     <a href="/social/@{{ profile.username_handle }}/articles/" class="user-profile-tab user-profile-tab-active" id="user-profile-tab-articles" name="user_profile_tab_articles">নিবন্ধ</a>
   </div>
 
   {% comment %}Articles List — uses shared content-promo-card{% endcomment %}
-  <div class="user-profile-articles-section" id="user-profile-articles-section">
+  <div class="user-profile-articles-section" id="user-profile-articles-section" name="user_profile_articles_section">
     {% for promo in articles %}
     {% include "core/components/content-promo-card.html" with promo=promo %}
     {% empty %}
-    <div class="user-profile-articles-empty" id="user-profile-articles-empty">এখনো কোনো প্রকাশনা নেই</div>
+    <div class="user-profile-articles-empty" id="user-profile-articles-empty" name="user_profile_articles_empty">এখনো কোনো প্রকাশনা নেই</div>
     {% endfor %}
   </div>
 

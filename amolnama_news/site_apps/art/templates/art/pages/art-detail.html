@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-<article class="art-detail" id="art-detail-{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
+<article class="art-detail" id="art-detail-{{ artwork.artwork_id }}" name="art_detail_{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
 
   <div class="art-detail-header">
     <h1 class="art-detail-title">{{ artwork.title_bn }}</h1>
@@ -30,7 +30,7 @@
   </div>
 
   {% if artwork.photos %}
-  <div class="art-detail-gallery" id="art-detail-gallery">
+  <div class="art-detail-gallery" id="art-detail-gallery" name="art_detail_gallery">
     {% for photo in artwork.photos %}
     <div class="art-detail-gallery-item{% if photo.is_cover %} art-detail-gallery-item-cover{% endif %}" data-photo-url="{{ photo.file_url }}">
       <img src="{{ photo.file_url }}" alt="{{ photo.caption_bn|default:artwork.title_bn }}" class="art-detail-gallery-image" loading="lazy">
@@ -74,7 +74,7 @@
     <h2 class="art-detail-section-title">📖 ধাপে ধাপে নির্দেশনা</h2>
     <div class="art-detail-steps">
       {% for step in artwork.steps %}
-      <div class="art-detail-step" id="art-detail-step-{{ step.step_number }}">
+      <div class="art-detail-step" id="art-detail-step-{{ step.step_number }}" name="art_detail_step_{{ step.step_number }}">
         <span class="art-detail-step-number">{{ step.step_number }}</span>
         <div class="art-detail-step-content">{{ step.step_instruction_bn|safe }}</div>
       </div>
@@ -88,7 +88,7 @@
     <h2 class="art-detail-section-title">🎬 ভিডিও</h2>
     <div class="art-detail-youtube-list">
       {% for youtube_link in artwork.youtube_links %}
-      <a href="{{ youtube_link.youtube_url }}" target="_blank" rel="noopener" class="art-detail-youtube-item" id="art-detail-youtube-{{ youtube_link.art_coll_artwork_youtube_link_id }}">
+      <a href="{{ youtube_link.youtube_url }}" target="_blank" rel="noopener" class="art-detail-youtube-item" id="art-detail-youtube-{{ youtube_link.art_coll_artwork_youtube_link_id }}" name="art_detail_youtube_{{ youtube_link.art_coll_artwork_youtube_link_id }}">
         <span class="art-detail-youtube-play">▶</span>
         <span class="art-detail-youtube-title">{{ youtube_link.youtube_title_bn|default:"ভিডিও দেখুন" }}</span>
       </a>

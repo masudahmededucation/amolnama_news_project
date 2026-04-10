@@ -6,7 +6,7 @@
   Serialized to global_news_reaction_json by news-global-news-reaction.js.
 {% endcomment %}
 
-<div class="form-section" id="section-global-news-reaction">
+<div class="form-section" id="section-global-news-reaction" name="section_global_news_reaction">
   <h3 class="form-section-title"><span class="section-icon">🌍</span>বৈশ্বিক প্রতিক্রিয়া (International Reaction)</h3>
 
   {# Hidden JSON — serialized by news-global-news-reaction.js #}
@@ -15,14 +15,14 @@
   {# ---- World Community Reaction (DB-driven from ref_status) ---- #}
   <div class="form-field">
     <span class="form-label">বিশ্ব সম্প্রদায়ের প্রতিক্রিয়া (World Community Reaction)</span>
-    <div class="radio-inline-group" id="global-news-world-reaction-group">
+    <div class="radio-inline-group" id="global-news-world-reaction-group" name="global_news_world_reaction_group">
       {# Populated by JS from global-reactions-data #}
     </div>
     <input type="hidden" id="global-news-world-reaction" name="global_news_world_reaction" value="">
   </div>
 
   {# JSON embed for world reaction options #}
-  <script type="application/json" id="global-reactions-data">{{ global_reactions_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="global-reactions-data" name="global_reactions_data">{{ global_reactions_json|default:"[]"|safe }}</script>
 
   {# ---- UN / International Body Statement ---- #}
   <div class="form-field">
@@ -38,7 +38,7 @@
       নিষেধাজ্ঞা বা বিশেষ ব্যবস্থা নেওয়া হয়েছে (Sanctions or special measures imposed)
     </label>
   </div>
-  <div class="form-field" hidden id="global-news-sanctions-row">
+  <div class="form-field" hidden id="global-news-sanctions-row" name="global_news_sanctions_row">
     <label for="global-news-sanctions-desc">নিষেধাজ্ঞার বিবরণ (Sanctions / Measures Description)</label>
     <textarea id="global-news-sanctions-desc" name="global_news_sanctions_desc" rows="2" maxlength="1000"
               placeholder="কোন দেশের বিরুদ্ধে, কোন ধরনের নিষেধাজ্ঞা বা ব্যবস্থা... (Describe the sanctions or measures...)"></textarea>
@@ -51,7 +51,7 @@
       কোনো আন্তর্জাতিক চুক্তি বা প্রস্তাব গৃহীত হয়েছে (International agreement or resolution adopted)
     </label>
   </div>
-  <div class="form-field" hidden id="global-news-agreement-row">
+  <div class="form-field" hidden id="global-news-agreement-row" name="global_news_agreement_row">
     <label for="global-news-agreement-desc">চুক্তি/প্রস্তাবের বিবরণ (Agreement / Resolution Details)</label>
     <textarea id="global-news-agreement-desc" name="global_news_agreement_desc" rows="2" maxlength="1000"
               placeholder="চুক্তি বা প্রস্তাবের বিষয়বস্তু সংক্ষেপে লিখুন (Briefly describe the agreement or resolution)"></textarea>
@@ -60,12 +60,12 @@
   {# ---- Global Media Coverage (DB-driven from ref_status) ---- #}
   <div class="form-field">
     <span class="form-label">বৈশ্বিক গণমাধ্যমে কভারেজ (Global Media Coverage Level)</span>
-    <div class="radio-inline-group" id="global-news-media-coverage-group">
+    <div class="radio-inline-group" id="global-news-media-coverage-group" name="global_news_media_coverage_group">
       {# Populated by JS from media-coverage-data #}
     </div>
     <input type="hidden" id="global-news-media-coverage" name="global_news_media_coverage" value="">
   </div>
 
   {# JSON embed for media coverage options #}
-  <script type="application/json" id="media-coverage-data">{{ media_coverage_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="media-coverage-data" name="media_coverage_data">{{ media_coverage_json|default:"[]"|safe }}</script>
 </div>

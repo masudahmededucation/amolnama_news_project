@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="follow-list-page" id="follow-list-page" data-user-profile-id="{{ profile.user_profile_id }}" data-list-type="{{ list_type }}">
+<div class="follow-list-page" id="follow-list-page" name="follow_list_page" data-user-profile-id="{{ profile.user_profile_id }}" data-list-type="{{ list_type }}">
 
   {# ---- Profile Mini Header ---- #}
   <div class="follow-list-profile-header">
@@ -23,7 +23,7 @@
   </div>
 
   {# ---- Tabs ---- #}
-  <div class="follow-list-tabs" id="follow-list-tabs">
+  <div class="follow-list-tabs" id="follow-list-tabs" name="follow_list_tabs">
     <a href="/social/@{{ profile.username_handle }}/followers/"
        class="follow-list-tab{% if list_type == 'followers' %} follow-list-tab-active{% endif %}"
        id="follow-list-tab-followers" name="follow_list_tab_followers">
@@ -38,14 +38,13 @@
 
   {# ---- Search Filter ---- #}
   <div class="follow-list-search-wrapper">
-    <input type="text" class="follow-list-search-input" id="follow-list-search-input"
-           name="follow_list_search_input" placeholder="খুঁজুন... (Search)">
+    <input type="text" class="follow-list-search-input" id="follow-list-search-input" name="follow_list_search_input" placeholder="খুঁজুন... (Search)">
   </div>
 
   {# ---- User Cards (SSR first 50) ---- #}
-  <div class="follow-list-users" id="follow-list-users">
+  <div class="follow-list-users" id="follow-list-users" name="follow_list_users">
     {% for user in users %}
-    <div class="follow-list-user-card" id="follow-list-user-card-{{ user.user_profile_id }}" data-user-profile-id="{{ user.user_profile_id }}" data-display-name="{{ user.display_name }}" data-username-handle="{{ user.username_handle }}">
+    <div class="follow-list-user-card" id="follow-list-user-card-{{ user.user_profile_id }}" name="follow_list_user_card_{{ user.user_profile_id }}" data-user-profile-id="{{ user.user_profile_id }}" data-display-name="{{ user.display_name }}" data-username-handle="{{ user.username_handle }}">
       <a href="/social/@{{ user.username_handle }}/" class="follow-list-user-link" id="follow-list-user-link-{{ user.user_profile_id }}" name="follow_list_user_link_{{ user.user_profile_id }}">
         {% if user.avatar_url %}
         <img src="{{ user.avatar_url }}" alt="{{ user.display_name }}" class="follow-list-user-avatar" loading="lazy">
@@ -65,15 +64,14 @@
       {% if not user.is_own_profile and request.user.is_authenticated %}
       <button type="button"
               class="follow-list-follow-button{% if user.is_following %} follow-list-follow-button-active{% endif %}"
-              id="follow-list-follow-button-{{ user.user_profile_id }}"
-              name="follow_list_follow_button_{{ user.user_profile_id }}"
+              id="follow-list-follow-button-{{ user.user_profile_id }}" name="follow_list_follow_button_{{ user.user_profile_id }}"
               data-user-profile-id="{{ user.user_profile_id }}">
         {% if user.is_following %}Unfollow{% else %}Follow{% endif %}
       </button>
       {% endif %}
     </div>
     {% empty %}
-    <div class="follow-list-empty" id="follow-list-empty">
+    <div class="follow-list-empty" id="follow-list-empty" name="follow_list_empty">
       {% if list_type == 'followers' %}এখনো কেউ অনুসরণ করেনি{% else %}এখনো কাউকে অনুসরণ করেননি{% endif %}
     </div>
     {% endfor %}
@@ -81,7 +79,7 @@
 
   {# ---- Load More ---- #}
   {% if has_more %}
-  <div class="follow-list-load-more-wrapper" id="follow-list-load-more-wrapper">
+  <div class="follow-list-load-more-wrapper" id="follow-list-load-more-wrapper" name="follow_list_load_more_wrapper">
     <button type="button" class="follow-list-load-more-button" id="follow-list-load-more-button" name="follow_list_load_more_button">আরও দেখুন (Load more)</button>
   </div>
   {% endif %}

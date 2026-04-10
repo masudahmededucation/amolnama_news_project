@@ -4,8 +4,8 @@
            contributor_types (queryset of RefContributorType)
 {% endcomment %}
 
-<div class="form-section" id="section-contributor-info"
-  {% if user.is_authenticated %}data-is-self="1" data-self-name="{{ self_info.name }}" data-self-email="{{ self_info.email }}" data-self-phone="{{ self_info.phone }}"{% endif %}>
+<div class="form-section" id="section-contributor-info" name="section_contributor_info"
+  {% if user.is_authenticated %}data-is-self="1" data-self- data-self-email="{{ self_info.email }}" data-self-phone="{{ self_info.phone }}"{% endif %}>
   <div class="contributor-title-row">
     <h3 class="form-section-title"><span class="section-icon">👤</span>তথ্যদাতার বিবরণ (Contributor's Details)</h3>
     <label for="contributor-type" class="contributor-type-label">ধরন (Type)<span class="required-mark">*</span></label>
@@ -29,7 +29,7 @@
   {% endif %}
 
   {# All contributor fields — hidden when "Self" is selected for logged-in user #}
-  <div id="contributor-details">
+  <div id="contributor-details" name="contributor_details">
     {# Full name #}
     <div class="form-field">
       <label for="contributor-full-name">

@@ -7,7 +7,7 @@
   so downstream steps can conditionally show cricket-specific fields.
 {% endcomment %}
 
-<div class="form-section" id="section-sports-sub-type">
+<div class="form-section" id="section-sports-sub-type" name="section_sports_sub_type">
   <h3 class="form-section-title"><span class="section-icon">🏷️</span>সংবাদের ধরন (News Sub-Type)</h3>
 
   {# Hidden inputs — JS syncs values before submit #}
@@ -38,7 +38,7 @@
   </div>
 
   {# ---- News Sub-Type (radio cards) ---- #}
-  <div class="radio-card-grid" id="sports-sub-type-grid">
+  <div class="radio-card-grid" id="sports-sub-type-grid" name="sports_sub_type_grid">
     <label class="radio-card">
       <input type="radio" id="sports-sub-type-radio-match-report" name="sports_sub_type_radio" value="match_report">
       <span class="radio-card-icon">⚽</span>

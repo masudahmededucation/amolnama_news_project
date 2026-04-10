@@ -7,13 +7,13 @@
   No inline <script> — handled by news-july-uprising-sub-type.js (CSP-safe).
 {% endcomment %}
 
-<div class="form-section" id="section-july-sub-type">
+<div class="form-section" id="section-july-sub-type" name="section_july_sub_type">
   <h3 class="form-section-title"><span class="section-icon">🏷️</span>ঘটনার ধরন (Incident Type)</h3>
 
   {# Hidden input — stores selected status_id for form submission #}
   <input type="hidden" id="july-sub-type" name="july_sub_type" value="">
 
-  <div class="radio-card-grid" id="july-sub-type-grid">
+  <div class="radio-card-grid" id="july-sub-type-grid" name="july_sub_type_grid">
     {% for itype in july_incident_types %}
     <label class="radio-card">
       <input type="radio" id="july-sub-type-radio-{{ itype.status_id }}" name="july_sub_type_radio" value="{{ itype.status_id }}">
@@ -26,7 +26,7 @@
 
 {# No inline <script> — handled by news-july-uprising-sub-type.js (CSP-safe) #}
 
-<div class="form-section" id="section-july-context">
+<div class="form-section" id="section-july-context" name="section_july_context">
   <h3 class="form-section-title"><span class="section-icon">📋</span>প্রেক্ষাপট (Context)</h3>
 
   {# Hidden input — JS serializes context data here before submit #}

@@ -18,7 +18,7 @@
   <h2 class="ev-section-title">Cast Your Vote</h2>
 
   <!-- Inline message area (replaces popup alerts) -->
-  <div id="page-message" class="page-message" hidden></div>
+  <div id="page-message" name="page_message" class="page-message" hidden></div>
 
   {% include "election_vote/components/election-selection.html" %}
   {% include "election_vote/components/breadcrumb-navigation.html" %}
@@ -30,9 +30,9 @@
 
   {# ---- Past elections ---- #}
   {% if past_elections %}
-  <div class="election-vote-past-elections-section" id="election-vote-past-elections-section">
+  <div class="election-vote-past-elections-section" id="election-vote-past-elections-section" name="election_vote_past_elections_section">
     <h3 class="ev-section-title">বিগত নির্বাচন (Past Elections)</h3>
-    <ul class="election-vote-past-elections-list" id="election-vote-past-elections-list">
+    <ul class="election-vote-past-elections-list" id="election-vote-past-elections-list" name="election_vote_past_elections_list">
       {% for election in past_elections %}
       <li>
         <a href="{% url 'election_vote:past_results' election.election_evaluation_id %}" id="election-vote-past-election-{{ election.election_evaluation_id }}" name="election_vote_past_election_{{ election.election_evaluation_id }}">

@@ -5,67 +5,63 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
 {% endcomment %}
 
 <div class="debate-argument-card debate-argument-card-{{ post.author_team_side_code }}"
-     id="debate-argument-card-{{ post.blog_debate_coll_post_id }}"
+     id="debate-argument-card-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_{{ post.blog_debate_coll_post_id }}"
      data-post-id="{{ post.blog_debate_coll_post_id }}"
      data-author-side="{{ post.author_team_side_code }}">
 
   {% if post.is_champion %}
-  <div class="debate-argument-champion-badge" id="debate-argument-champion-badge-{{ post.blog_debate_coll_post_id }}">🏆 Champion</div>
+  <div class="debate-argument-champion-badge" id="debate-argument-champion-badge-{{ post.blog_debate_coll_post_id }}" name="debate_argument_champion_badge_{{ post.blog_debate_coll_post_id }}">🏆 Champion</div>
   {% endif %}
 
   {% if post.is_fact_check_needed %}
-  <div class="debate-argument-fact-check-badge" id="debate-argument-fact-check-badge-{{ post.blog_debate_coll_post_id }}">⚠️ তথ্য যাচাই প্রয়োজন</div>
+  <div class="debate-argument-fact-check-badge" id="debate-argument-fact-check-badge-{{ post.blog_debate_coll_post_id }}" name="debate_argument_fact_check_badge_{{ post.blog_debate_coll_post_id }}">⚠️ তথ্য যাচাই প্রয়োজন</div>
   {% endif %}
 
-  <div class="debate-argument-card-header" id="debate-argument-card-header-{{ post.blog_debate_coll_post_id }}">
-    <div class="debate-argument-card-author-info" id="debate-argument-card-author-info-{{ post.blog_debate_coll_post_id }}">
-      <span class="debate-argument-card-author" id="debate-argument-card-author-{{ post.blog_debate_coll_post_id }}">{{ post.author_display_name }}</span>
+  <div class="debate-argument-card-header" id="debate-argument-card-header-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_header_{{ post.blog_debate_coll_post_id }}">
+    <div class="debate-argument-card-author-info" id="debate-argument-card-author-info-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_author_info_{{ post.blog_debate_coll_post_id }}">
+      <span class="debate-argument-card-author" id="debate-argument-card-author-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_author_{{ post.blog_debate_coll_post_id }}">{{ post.author_display_name }}</span>
       {% if post.author_debate_count > 0 %}
-      <span class="debate-argument-card-reputation" id="debate-argument-card-reputation-{{ post.blog_debate_coll_post_id }}">🏅 {{ post.author_debate_count }} debates{% if post.author_debate_win_count > 0 %} · {{ post.author_debate_win_count }} wins{% endif %}</span>
+      <span class="debate-argument-card-reputation" id="debate-argument-card-reputation-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_reputation_{{ post.blog_debate_coll_post_id }}">🏅 {{ post.author_debate_count }} debates{% if post.author_debate_win_count > 0 %} · {{ post.author_debate_win_count }} wins{% endif %}</span>
       {% endif %}
     </div>
-    <span class="debate-argument-card-time" id="debate-argument-card-time-{{ post.blog_debate_coll_post_id }}">{{ post.posted_at_formatted }}</span>
+    <span class="debate-argument-card-time" id="debate-argument-card-time-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_time_{{ post.blog_debate_coll_post_id }}">{{ post.posted_at_formatted }}</span>
   </div>
 
-  <div class="debate-argument-card-content {% if post.is_suppressed %}debate-argument-card-suppressed{% endif %}" id="debate-argument-card-content-{{ post.blog_debate_coll_post_id }}">
+  <div class="debate-argument-card-content {% if post.is_suppressed %}debate-argument-card-suppressed{% endif %}" id="debate-argument-card-content-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_content_{{ post.blog_debate_coll_post_id }}">
     {{ post.post_content }}
   </div>
 
   {% if post.citation_source_url %}
-  <div class="debate-argument-citation" id="debate-argument-citation-{{ post.blog_debate_coll_post_id }}">
+  <div class="debate-argument-citation" id="debate-argument-citation-{{ post.blog_debate_coll_post_id }}" name="debate_argument_citation_{{ post.blog_debate_coll_post_id }}">
     <span class="debate-argument-citation-label">📎 সূত্র:</span>
-    <a href="{{ post.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-argument-citation-link-{{ post.blog_debate_coll_post_id }}">{{ post.citation_source_text|default:post.citation_source_url }}</a>
+    <a href="{{ post.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-argument-citation-link-{{ post.blog_debate_coll_post_id }}" name="debate_argument_citation_link_{{ post.blog_debate_coll_post_id }}">{{ post.citation_source_text|default:post.citation_source_url }}</a>
   </div>
   {% endif %}
 
   {% if post.is_suppressed %}
-  <div class="debate-argument-suppressed-badge" id="debate-argument-suppressed-badge-{{ post.blog_debate_coll_post_id }}">⚠️ Challenged</div>
+  <div class="debate-argument-suppressed-badge" id="debate-argument-suppressed-badge-{{ post.blog_debate_coll_post_id }}" name="debate_argument_suppressed_badge_{{ post.blog_debate_coll_post_id }}">⚠️ Challenged</div>
   {% endif %}
 
-  <div class="debate-argument-card-actions" id="debate-argument-card-actions-{{ post.blog_debate_coll_post_id }}">
+  <div class="debate-argument-card-actions" id="debate-argument-card-actions-{{ post.blog_debate_coll_post_id }}" name="debate_argument_card_actions_{{ post.blog_debate_coll_post_id }}">
     <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
-            id="debate-argument-upvote-{{ post.blog_debate_coll_post_id }}"
-            name="debate_argument_upvote_{{ post.blog_debate_coll_post_id }}"
+            id="debate-argument-upvote-{{ post.blog_debate_coll_post_id }}" name="debate_argument_upvote_{{ post.blog_debate_coll_post_id }}"
             data-post-id="{{ post.blog_debate_coll_post_id }}" data-vote-value="1">
       ▲ <span class="debate-argument-vote-count">{{ post.score }}</span>
     </button>
     <button type="button" class="debate-argument-vote-button debate-argument-downvote-button"
-            id="debate-argument-downvote-{{ post.blog_debate_coll_post_id }}"
-            name="debate_argument_downvote_{{ post.blog_debate_coll_post_id }}"
+            id="debate-argument-downvote-{{ post.blog_debate_coll_post_id }}" name="debate_argument_downvote_{{ post.blog_debate_coll_post_id }}"
             data-post-id="{{ post.blog_debate_coll_post_id }}" data-vote-value="-1">
       ▼
     </button>
-    <span class="debate-argument-reply-count" id="debate-argument-reply-count-{{ post.blog_debate_coll_post_id }}">💬 {{ post.reply_count }}</span>
+    <span class="debate-argument-reply-count" id="debate-argument-reply-count-{{ post.blog_debate_coll_post_id }}" name="debate_argument_reply_count_{{ post.blog_debate_coll_post_id }}">💬 {{ post.reply_count }}</span>
     <button type="button" class="debate-argument-reply-button"
-            id="debate-argument-reply-{{ post.blog_debate_coll_post_id }}"
-            name="debate_argument_reply_{{ post.blog_debate_coll_post_id }}"
+            id="debate-argument-reply-{{ post.blog_debate_coll_post_id }}" name="debate_argument_reply_{{ post.blog_debate_coll_post_id }}"
             data-post-id="{{ post.blog_debate_coll_post_id }}"
             data-author-side="{{ post.author_team_side_code }}">
       উত্তর দিন
     </button>
     <button type="button" class="debate-argument-fact-check-button"
-            id="debate-argument-fact-check-{{ post.blog_debate_coll_post_id }}"
-            name="debate_argument_fact_check_{{ post.blog_debate_coll_post_id }}"
+            id="debate-argument-fact-check-{{ post.blog_debate_coll_post_id }}" name="debate_argument_fact_check_{{ post.blog_debate_coll_post_id }}"
             data-post-id="{{ post.blog_debate_coll_post_id }}"
             title="তথ্য যাচাই করুন (Fact-check)">
       ⚠️ <span class="debate-argument-fact-check-count">{{ post.fact_check_flag_count }}</span>
@@ -74,7 +70,7 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
 
   <!-- Argument strength indicator -->
   {% if post.post_argument_strength %}
-  <div class="debate-argument-strength" id="debate-argument-strength-{{ post.blog_debate_coll_post_id }}" title="যুক্তির শক্তি: {{ post.post_argument_strength }}">
+  <div class="debate-argument-strength" id="debate-argument-strength-{{ post.blog_debate_coll_post_id }}" name="debate_argument_strength_{{ post.blog_debate_coll_post_id }}" title="যুক্তির শক্তি: {{ post.post_argument_strength }}">
     {% with strength_pct=post.post_argument_strength|floatformat:0 %}
     <span class="debate-argument-strength-label">যুক্তির শক্তি</span>
     <div class="debate-argument-strength-bar"><div class="debate-argument-strength-fill" style="width: {{ post.post_argument_strength_pct }}%;"></div></div>
@@ -83,56 +79,52 @@ Variables: post (dict with post data + replies list), board_side ('blue'/'red')
   {% endif %}
 
   <!-- Link embed preview container (populated by JS) -->
-  <div class="debate-argument-link-embeds" id="debate-argument-link-embeds-{{ post.blog_debate_coll_post_id }}"></div>
+  <div class="debate-argument-link-embeds" id="debate-argument-link-embeds-{{ post.blog_debate_coll_post_id }}" name="debate_argument_link_embeds_{{ post.blog_debate_coll_post_id }}"></div>
 
   <!-- Nested rebuttals -->
   {% if post.replies %}
-  <div class="debate-rebuttal-list" id="debate-rebuttal-list-{{ post.blog_debate_coll_post_id }}">
+  <div class="debate-rebuttal-list" id="debate-rebuttal-list-{{ post.blog_debate_coll_post_id }}" name="debate_rebuttal_list_{{ post.blog_debate_coll_post_id }}">
     {% for reply in post.replies %}
     <div class="debate-rebuttal-card debate-rebuttal-card-{{ reply.author_team_side_code }}"
-         id="debate-rebuttal-card-{{ reply.blog_debate_coll_post_id }}"
+         id="debate-rebuttal-card-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_{{ reply.blog_debate_coll_post_id }}"
          data-post-id="{{ reply.blog_debate_coll_post_id }}"
          data-author-side="{{ reply.author_team_side_code }}"
          style="margin-left: {{ reply.post_reply_depth|add:0 }}rem;">
 
-      <div class="debate-rebuttal-card-header" id="debate-rebuttal-card-header-{{ reply.blog_debate_coll_post_id }}">
-        <span class="debate-rebuttal-card-side-indicator debate-rebuttal-card-side-indicator-{{ reply.author_team_side_code }}" id="debate-rebuttal-card-side-indicator-{{ reply.blog_debate_coll_post_id }}"></span>
-        <span class="debate-rebuttal-card-author" id="debate-rebuttal-card-author-{{ reply.blog_debate_coll_post_id }}">{{ reply.author_display_name }}</span>
-        <span class="debate-rebuttal-card-time" id="debate-rebuttal-card-time-{{ reply.blog_debate_coll_post_id }}">{{ reply.posted_at_formatted }}</span>
+      <div class="debate-rebuttal-card-header" id="debate-rebuttal-card-header-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_header_{{ reply.blog_debate_coll_post_id }}">
+        <span class="debate-rebuttal-card-side-indicator debate-rebuttal-card-side-indicator-{{ reply.author_team_side_code }}" id="debate-rebuttal-card-side-indicator-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_side_indicator_{{ reply.blog_debate_coll_post_id }}"></span>
+        <span class="debate-rebuttal-card-author" id="debate-rebuttal-card-author-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_author_{{ reply.blog_debate_coll_post_id }}">{{ reply.author_display_name }}</span>
+        <span class="debate-rebuttal-card-time" id="debate-rebuttal-card-time-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_time_{{ reply.blog_debate_coll_post_id }}">{{ reply.posted_at_formatted }}</span>
       </div>
 
-      <div class="debate-rebuttal-card-content" id="debate-rebuttal-card-content-{{ reply.blog_debate_coll_post_id }}">{{ reply.post_content }}</div>
+      <div class="debate-rebuttal-card-content" id="debate-rebuttal-card-content-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_content_{{ reply.blog_debate_coll_post_id }}">{{ reply.post_content }}</div>
 
       {% if reply.citation_source_url %}
-      <div class="debate-argument-citation" id="debate-rebuttal-citation-{{ reply.blog_debate_coll_post_id }}">
+      <div class="debate-argument-citation" id="debate-rebuttal-citation-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_citation_{{ reply.blog_debate_coll_post_id }}">
         <span class="debate-argument-citation-label">📎 সূত্র:</span>
-        <a href="{{ reply.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-rebuttal-citation-link-{{ reply.blog_debate_coll_post_id }}">{{ reply.citation_source_text|default:reply.citation_source_url }}</a>
+        <a href="{{ reply.citation_source_url }}" target="_blank" rel="noopener" class="debate-argument-citation-link" id="debate-rebuttal-citation-link-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_citation_link_{{ reply.blog_debate_coll_post_id }}">{{ reply.citation_source_text|default:reply.citation_source_url }}</a>
       </div>
       {% endif %}
 
-      <div class="debate-rebuttal-card-actions" id="debate-rebuttal-card-actions-{{ reply.blog_debate_coll_post_id }}">
+      <div class="debate-rebuttal-card-actions" id="debate-rebuttal-card-actions-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_card_actions_{{ reply.blog_debate_coll_post_id }}">
         <button type="button" class="debate-argument-vote-button debate-argument-upvote-button"
-                id="debate-rebuttal-upvote-{{ reply.blog_debate_coll_post_id }}"
-                name="debate_rebuttal_upvote_{{ reply.blog_debate_coll_post_id }}"
+                id="debate-rebuttal-upvote-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_upvote_{{ reply.blog_debate_coll_post_id }}"
                 data-post-id="{{ reply.blog_debate_coll_post_id }}" data-vote-value="1">
           ▲ <span class="debate-argument-vote-count">{{ reply.score }}</span>
         </button>
         <button type="button" class="debate-argument-vote-button debate-argument-downvote-button"
-                id="debate-rebuttal-downvote-{{ reply.blog_debate_coll_post_id }}"
-                name="debate_rebuttal_downvote_{{ reply.blog_debate_coll_post_id }}"
+                id="debate-rebuttal-downvote-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_downvote_{{ reply.blog_debate_coll_post_id }}"
                 data-post-id="{{ reply.blog_debate_coll_post_id }}" data-vote-value="-1">
           ▼
         </button>
         <button type="button" class="debate-argument-reply-button"
-                id="debate-rebuttal-reply-{{ reply.blog_debate_coll_post_id }}"
-                name="debate_rebuttal_reply_{{ reply.blog_debate_coll_post_id }}"
+                id="debate-rebuttal-reply-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_reply_{{ reply.blog_debate_coll_post_id }}"
                 data-post-id="{{ reply.blog_debate_coll_post_id }}"
                 data-author-side="{{ reply.author_team_side_code }}">
           উত্তর দিন
         </button>
         <button type="button" class="debate-argument-fact-check-button"
-                id="debate-rebuttal-fact-check-{{ reply.blog_debate_coll_post_id }}"
-                name="debate_rebuttal_fact_check_{{ reply.blog_debate_coll_post_id }}"
+                id="debate-rebuttal-fact-check-{{ reply.blog_debate_coll_post_id }}" name="debate_rebuttal_fact_check_{{ reply.blog_debate_coll_post_id }}"
                 data-post-id="{{ reply.blog_debate_coll_post_id }}"
                 title="তথ্য যাচাই করুন">
           ⚠️ <span class="debate-argument-fact-check-count">{{ reply.fact_check_flag_count }}</span>

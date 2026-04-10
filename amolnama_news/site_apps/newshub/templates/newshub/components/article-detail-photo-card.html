@@ -1,5 +1,5 @@
 {# Article photo card — included by article-detail.html for each photo. Context variables: photo (dict with user_liked), entry, cover_image_url, can_edit #}
-<div class="article-detail-photo-card" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">
+<div class="article-detail-photo-card" data-asset-id="{{ photo.link_asset_id }}" name="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}">
   <div class="article-detail-photo-card-image" data-photo-url="{{ photo.file_url }}" data-photo-caption="{{ photo.news_asset_caption_bn|default:'' }}" style="background-image:url('{{ photo.file_url }}');"></div>
 
   {% if can_edit %}
@@ -8,15 +8,15 @@
   </button>
   {% endif %}
 
-  <div class="article-detail-photo-card-caption" id="article-detail-photo-caption-{{ photo.link_asset_id }}">{{ photo.news_asset_caption_bn|default:'' }}</div>
+  <div class="article-detail-photo-card-caption" id="article-detail-photo-caption-{{ photo.link_asset_id }}" name="article_detail_photo_caption_{{ photo.link_asset_id }}">{{ photo.news_asset_caption_bn|default:'' }}</div>
 
   <div class="article-detail-photo-card-footer">
     <div class="article-detail-photo-card-stats">
       <button type="button" class="article-detail-photo-like-button{% if photo.user_liked %} article-detail-photo-like-button-active{% endif %}" id="article-detail-photo-like-{{ photo.link_asset_id }}" name="article_photo_like_{{ photo.link_asset_id }}" data-asset-id="{{ photo.link_asset_id }}" data-entry-id="{{ entry.newshub_coll_news_entry_id }}" title="পছন্দ (Like)">
         <span class="article-detail-photo-like-icon">{% if photo.user_liked %}❤️{% else %}🤍{% endif %}</span>
-        <span class="article-detail-photo-like-count" id="article-detail-photo-like-count-{{ photo.link_asset_id }}">{{ photo.like_count|default:0 }}</span>
+        <span class="article-detail-photo-like-count" id="article-detail-photo-like-count-{{ photo.link_asset_id }}" name="article_detail_photo_like_count_{{ photo.link_asset_id }}">{{ photo.like_count|default:0 }}</span>
       </button>
-      <span class="article-detail-photo-view-count" id="article-detail-photo-view-count-{{ photo.link_asset_id }}">👁️ {{ photo.view_count|default:0 }}</span>
+      <span class="article-detail-photo-view-count" id="article-detail-photo-view-count-{{ photo.link_asset_id }}" name="article_detail_photo_view_count_{{ photo.link_asset_id }}">👁️ {{ photo.view_count|default:0 }}</span>
     </div>
     {% if can_edit %}
     <div class="article-detail-photo-card-actions">

@@ -8,18 +8,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="social-lists-page" id="social-lists-page">
+<div class="social-lists-page" id="social-lists-page" name="social_lists_page">
   <h1 class="social-lists-page-title">📋 আমার তালিকা (My Lists)</h1>
   <p class="social-lists-page-description">তালিকা তৈরি করুন এবং ব্যবহারকারীদের যোগ করুন — তালিকা অনুযায়ী ফিড ফিল্টার করুন।</p>
 
-  <div class="social-lists-create-row" id="social-lists-create-row">
+  <div class="social-lists-create-row" id="social-lists-create-row" name="social_lists_create_row">
     <input type="text" class="social-lists-create-input" id="social-lists-create-input" name="social_lists_create_input" placeholder="নতুন তালিকার নাম...">
     <button type="button" class="social-lists-create-button" id="social-lists-create-button" name="social_lists_create_button">তৈরি করুন</button>
   </div>
 
-  <div class="social-lists-container" id="social-lists-container">
+  <div class="social-lists-container" id="social-lists-container" name="social_lists_container">
     {% for list_item in lists %}
-    <div class="social-lists-item" id="social-lists-item-{{ list_item.list_id }}">
+    <div class="social-lists-item" id="social-lists-item-{{ list_item.list_id }}" name="social_lists_item_{{ list_item.list_id }}">
       <div>
         <span class="social-lists-item-name">{{ list_item.list_name }}</span>
         <span class="social-lists-item-member-count">{{ list_item.member_count }} সদস্য</span>

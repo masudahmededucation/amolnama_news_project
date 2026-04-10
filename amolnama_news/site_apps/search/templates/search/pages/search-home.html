@@ -13,24 +13,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="search-page" id="search-page">
+<div class="search-page" id="search-page" name="search_page">
 
   <!-- Search input with embedded button -->
-  <div class="search-page-input-wrapper" id="search-page-input-wrapper">
+  <div class="search-page-input-wrapper" id="search-page-input-wrapper" name="search_page_input_wrapper">
     <input type="text" class="search-page-input" id="search-page-input" name="search_page_input" placeholder="পোস্ট, কবিতা, সংবাদ, বিতর্ক, ভ্রমণ — সব খুঁজুন..." value="{{ query }}{{ hashtag }}" autocomplete="off">
-    <button type="button" class="search-page-button" id="search-page-button" aria-label="Search">
+    <button type="button" class="search-page-button" id="search-page-button" name="search_page_button" aria-label="Search">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <span class="search-page-button-label">সার্চ</span>
     </button>
   </div>
 
   <!-- Search results (hidden by default, shown when user types) -->
-  <div class="search-page-results" hidden id="search-page-results"
-    <div class="search-page-results-count" id="search-page-results-count"></div>
+  <div class="search-page-results" hidden id="search-page-results" name="search_page_results">
+    <div class="search-page-results-count" id="search-page-results-count" name="search_page_results_count"></div>
   </div>
 
   <!-- Post feed (shown by default, hidden when user types) -->
-  <div class="post-feed" id="search-feed-container">
+  <div class="post-feed" id="search-feed-container" name="search_feed_container">
     {% for post_item in posts %}
     {% if post_item.item_type == 'debate_promo' %}
     {% include "debate/components/debate-promo-card.html" with promo=post_item %}
@@ -42,7 +42,7 @@
     {% include "post/components/post-card.html" %}
     {% endif %}
     {% empty %}
-    <div class="post-feed-empty" id="search-feed-empty">
+    <div class="post-feed-empty" id="search-feed-empty" name="search_feed_empty">
       <p>এখনো কোনো পোস্ট নেই</p>
     </div>
     {% endfor %}

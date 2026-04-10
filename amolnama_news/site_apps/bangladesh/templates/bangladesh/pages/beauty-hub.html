@@ -46,7 +46,7 @@
 
 {# ── Filter Bar ── #}
 <div class="beauty-hub-filter-bar">
-  <div class="beauty-hub-filter-pills" id="beauty-hub-filter-pills">
+  <div class="beauty-hub-filter-pills" id="beauty-hub-filter-pills" name="beauty_hub_filter_pills">
     <button type="button" class="beauty-hub-filter-pill bh-filter-pill--active" data-category="">সব</button>
     <button type="button" class="beauty-hub-filter-pill" data-type="photo">📷 ছবি</button>
     <button type="button" class="beauty-hub-filter-pill" data-type="video">🎬 ভিডিও</button>
@@ -59,9 +59,9 @@
 </div>
 
 {# ── Gallery Grid ── #}
-<div class="beauty-hub-gallery" id="beauty-hub-gallery">
+<div class="beauty-hub-gallery" id="beauty-hub-gallery" name="beauty_hub_gallery">
   {% for e in entries %}
-    <div class="beauty-hub-card" data-id="{{ e.bangladesh_coll_media_entry_id }}">
+    <div class="beauty-hub-card" data-id="{{ e.bangladesh_coll_media_entry_id }}" name="{{ e.bangladesh_coll_media_entry_id }}">
       {% if e.media_type == "video" %}
         <div class="beauty-hub-card-img" style="background-image:url('{{ e.file_thumbnail_url|default:e.file_display_url }}');">
           <span class="beauty-hub-card-video-badge">▶ ভিডিও</span>
@@ -91,8 +91,8 @@
 </div>
 
 {% if has_next %}
-<div class="beauty-hub-load-more" id="beauty-hub-load-more">
-  <button type="button" class="beauty-hub-load-more-btn" id="beauty-hub-load-more-button">আরও দেখুন (Load More)</button>
+<div class="beauty-hub-load-more" id="beauty-hub-load-more" name="beauty_hub_load_more">
+  <button type="button" class="beauty-hub-load-more-btn" id="beauty-hub-load-more-button" name="beauty_hub_load_more_button">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

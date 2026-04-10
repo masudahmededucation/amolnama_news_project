@@ -18,31 +18,31 @@
   </button>
 
   {% if actions_bar_show_bookmark %}
-  <button type="button" class="actions-bar-bookmark-button{% if actions_bar_user_bookmarked %} actions-bar-bookmark-button-active{% endif %}" id="actions-bar-bookmark-{{ actions_bar_entity_id }}-{{ actions_bar_position }}" name="actions_bar_bookmark_{{ actions_bar_entity_id }}_{{ actions_bar_position }}" data-entity-id="{{ actions_bar_entity_id }}" data-content-type="{{ actions_bar_content_type|default:'' }}" data-content-id="{{ actions_bar_entity_id }}" data-content-title="{{ actions_bar_share_title|default:'' }}" data-content-url="{{ request.path }}" data-no-bangla title="সংরক্ষণ (Bookmark)">
+  <button type="button" class="actions-bar-bookmark-button{% if actions_bar_user_bookmarked %} actions-bar-bookmark-button-active{% endif %}" id="actions-bar-bookmark-{{ actions_bar_entity_id }}-{{ actions_bar_position }}" name="actions_bar_bookmark_{{ actions_bar_entity_id }}_{{ actions_bar_position }}" data-content-type="{{ actions_bar_content_type|default:'' }}" data-content-id="{{ actions_bar_entity_id }}" data-content-title="{{ actions_bar_share_title|default:'' }}" data-content-url="{{ request.path }}" data-no-bangla title="সংরক্ষণ (Bookmark)">
     <svg class="actions-bar-bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
     <span class="actions-bar-bookmark-label">সংরক্ষণ</span>
     <span class="actions-bar-bookmark-count">{{ actions_bar_bookmark_count|default:0 }}</span>
   </button>
   {% endif %}
 
-  <span class="actions-bar-view-count" id="actions-bar-view-count-{{ actions_bar_position }}" title="ভিউ (View)">👁️ ভিউ {{ actions_bar_view_count|default:0 }}</span>
+  <span class="actions-bar-view-count" id="actions-bar-view-count-{{ actions_bar_position }}" name="actions_bar_view_count_{{ actions_bar_position }}" title="ভিউ (View)">👁️ ভিউ {{ actions_bar_view_count|default:0 }}</span>
 
-  <div class="actions-bar-share-wrapper" id="actions-bar-share-wrapper-{{ actions_bar_position }}">
-    <button type="button" class="actions-bar-button actions-bar-share-button" id="actions-bar-share-{{ actions_bar_position }}" name="actions_bar_share_{{ actions_bar_position }}" data-no-bangla data-title="{{ actions_bar_share_title|escapejs }}" data-content-registry-id="{{ actions_bar_content_registry_id|default:'' }}" aria-haspopup="true" aria-expanded="false">
+  <div class="actions-bar-share-wrapper" id="actions-bar-share-wrapper-{{ actions_bar_position }}" name="actions_bar_share_wrapper_{{ actions_bar_position }}">
+    <button type="button" class="actions-bar-share-button" id="actions-bar-share-{{ actions_bar_position }}" name="actions_bar_share_{{ actions_bar_position }}" data-no-bangla data-title="{{ actions_bar_share_title|escapejs }}" data-content-registry-id="{{ actions_bar_content_registry_id|default:'' }}" aria-haspopup="true" aria-expanded="false">
       <svg class="actions-bar-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
       শেয়ার
     </button>
-    <div class="actions-bar-share-dropdown" id="actions-bar-share-dropdown-{{ actions_bar_position }}" hidden role="menu">
+    <div class="actions-bar-share-dropdown" id="actions-bar-share-dropdown-{{ actions_bar_position }}" name="actions_bar_share_dropdown_{{ actions_bar_position }}" hidden role="menu">
       {% if actions_bar_content_registry_id and request.user.is_authenticated %}
-      <div class="actions-bar-share-group" id="actions-bar-share-group-internal-{{ actions_bar_position }}">
+      <div class="actions-bar-share-group" id="actions-bar-share-group-internal-{{ actions_bar_position }}" name="actions_bar_share_group_internal_{{ actions_bar_position }}">
         <button type="button" class="actions-bar-share-option actions-bar-share-to-wall" id="actions-bar-share-to-wall-{{ actions_bar_position }}" name="actions_bar_share_to_wall_{{ actions_bar_position }}" data-no-bangla role="menuitem">
           <svg class="actions-bar-share-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           <span class="actions-bar-share-option-label">আমার ওয়ালে শেয়ার করুন</span>
         </button>
       </div>
-      <div class="actions-bar-share-separator"></div>
+      <div class="actions-bar-share-separator" id="actions-bar-share-separator-{{ actions_bar_position }}" name="actions_bar_share_separator_{{ actions_bar_position }}"></div>
       {% endif %}
-      <div class="actions-bar-share-group" id="actions-bar-share-group-external-{{ actions_bar_position }}">
+      <div class="actions-bar-share-group" id="actions-bar-share-group-external-{{ actions_bar_position }}" name="actions_bar_share_group_external_{{ actions_bar_position }}">
         <button type="button" class="actions-bar-share-option actions-bar-share-copy-link" id="actions-bar-share-copy-link-{{ actions_bar_position }}" name="actions_bar_share_copy_link_{{ actions_bar_position }}" data-no-bangla role="menuitem">
           <svg class="actions-bar-share-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           <span class="actions-bar-share-option-label">লিংক কপি করুন</span>
@@ -68,7 +68,7 @@
   </div>
 
   {% if actions_bar_can_edit and actions_bar_edit_url %}
-  <a href="{{ actions_bar_edit_url }}" class="actions-bar-button actions-bar-edit-button" id="actions-bar-edit-{{ actions_bar_position }}" name="actions_bar_edit_{{ actions_bar_position }}">
+  <a href="{{ actions_bar_edit_url }}" class="actions-bar-edit-button" id="actions-bar-edit-{{ actions_bar_position }}" name="actions_bar_edit_{{ actions_bar_position }}">
     ✏️ সম্পাদনা
   </a>
   {% endif %}

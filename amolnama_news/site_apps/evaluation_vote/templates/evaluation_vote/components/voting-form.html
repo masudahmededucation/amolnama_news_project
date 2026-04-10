@@ -4,12 +4,12 @@ Displays the multi-step voting flow: Division → District → Constituency → 
 {% endcomment %}
 
 <!-- Breadcrumb Navigation -->
-<div class="breadcrumb" id="breadcrumb">
+<div class="breadcrumb" id="breadcrumb" name="breadcrumb">
   <span class="current">Division / বিভাগ</span>
 </div>
 
 <!-- Division Selection View -->
-<div id="division-view">
+<div id="division-view" name="division_view">
   <h3>Select Your Division (আপনার বিভাগ নির্বাচন করুন)</h3>
   <ul class="selection-list">
     {% for division in divisions %}
@@ -24,24 +24,24 @@ Displays the multi-step voting flow: Division → District → Constituency → 
 </div>
 
 <!-- District Selection View (hidden initially) -->
-<div id="district-view" hidden>
+<div id="district-view" name="district_view" hidden>
   <button class="back-btn" onclick="goBackToDivisions()">← Back / পিছনে</button>
   <h3>Select Your District (আপনার জেলা নির্বাচন করুন)</h3>
-  <ul class="selection-list" id="district-list"></ul>
+  <ul class="selection-list" id="district-list" name="district_list"></ul>
 </div>
 
 <!-- Constituency Selection View (hidden initially) -->
-<div id="constituency-view" hidden>
+<div id="constituency-view" name="constituency_view" hidden>
   <button class="back-btn" onclick="goBackToDistricts()">← Back / পিছনে</button>
   <h3>Select Your Constituency (আপনার নির্বাচনী এলাকা নির্বাচন করুন)</h3>
-  <ul class="selection-list" id="constituency-list"></ul>
+  <ul class="selection-list" id="constituency-list" name="constituency_list"></ul>
 </div>
 
 <!-- Party Selection View (hidden initially) -->
-<div id="party-view" hidden>
+<div id="party-view" name="party_view" hidden>
   <button class="back-btn" onclick="goBackToConstituencies()">← Back / পিছনে</button>
   <h3>Select Party (দল নির্বাচন করুন)</h3>
-  <ul class="selection-list party-list" id="party-list-selection">
+  <ul class="selection-list party-list" id="party-list-selection" name="party_list_selection">
     {% for party in parties %}
       <li onclick="selectParty({{ party.party_id }}, '{{ party.party_name_en }}', '{{ party.party_name_bn }}', event)">
         <div class="party-item">

@@ -17,9 +17,9 @@
 
     {# Language toggle removed — use header toggle (বাংলা | English) #}
 
-    <div class="poem-create-error" id="poemCreateError"></div>
+    <div class="poem-create-error" id="poemCreateError" name="poemCreateError"></div>
 
-    <form id="poemEditForm" data-poem-id="{{ poem.blog_poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
+    <form id="poemEditForm" name="poemEditForm" data-poem-id="{{ poem.blog_poem_coll_poem_entry_id }}" data-poem-type="{{ poem.poem_type_code }}" novalidate>
       {% csrf_token %}
       {# Category #}
       <div class="poem-create-group">
@@ -54,14 +54,14 @@
       <div class="poem-create-group lang-field-bn">
         <label class="poem-create-label" for="poem-body-bn" data-bn="কবিতা *" data-en="Poem *">কবিতা *</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-bn" name="poem-body-bn">{{ poem.poem_body_bn|default_if_none:'' }}</textarea>
-        <span class="poem-create-counter" id="poemBodyBnCounter">০ লাইন | ০ অক্ষর</span>
+        <span class="poem-create-counter" id="poemBodyBnCounter" name="poemBodyBnCounter">০ লাইন | ০ অক্ষর</span>
       </div>
 
       {# Body — English #}
       <div class="poem-create-group lang-field-en lang-hidden">
         <label class="poem-create-label" for="poem-body-en">Poem (English)</label>
         <textarea class="poem-create-textarea poem-create-textarea--body" id="poem-body-en" name="poem-body-en">{{ poem.poem_body_en|default_if_none:'' }}</textarea>
-        <span class="poem-create-counter" id="poemBodyEnCounter">0 lines | 0 chars</span>
+        <span class="poem-create-counter" id="poemBodyEnCounter" name="poemBodyEnCounter">0 lines | 0 chars</span>
       </div>
 
       {# Backstory — Bengali #}

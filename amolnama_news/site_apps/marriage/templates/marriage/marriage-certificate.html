@@ -18,7 +18,7 @@
   {# Language toggle removed — use header toggle (বাংলা | English) #}
 
   {# Stepper #}
-  <div class="stepper" id="stepper"></div>
+  <div class="stepper" id="stepper" name="stepper"></div>
 
   <div class="cert-form">
 
@@ -33,15 +33,15 @@
         </div>
 
         {% if user.is_authenticated %}
-        <div class="saved-office-bar" id="saved-office-bar">
+        <div class="saved-office-bar" id="saved-office-bar" name="saved_office_bar">
           <div class="saved-office-select-row">
             <select id="saved-office-select" name="saved_office_select">
               <option value="">-- সংরক্ষিত অফিস নির্বাচন করুন (Select Saved Office) --</option>
             </select>
-            <button type="button" class="btn-saved-office btn-saved-office--load" id="btn-load-office" disabled>
+            <button type="button" class="btn-saved-office btn-saved-office--load" id="btn-load-office" name="btn_load_office" disabled>
               <span class="lbl-bn">লোড</span><span class="lbl-en" hidden>Load</span>
             </button>
-            <button type="button" class="btn-saved-office btn-saved-office--delete" id="btn-delete-office" disabled>
+            <button type="button" class="btn-saved-office btn-saved-office--delete" id="btn-delete-office" name="btn_delete_office" disabled>
               <span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Delete</span>
             </button>
           </div>
@@ -50,7 +50,7 @@
             <label class="saved-office-default-label">
               <input type="checkbox" id="save-office-default" name="save_office_default"> <span class="lbl-bn">ডিফল্ট</span><span class="lbl-en" hidden>Default</span>
             </label>
-            <button type="button" class="btn-saved-office btn-saved-office--save" id="btn-save-office">
+            <button type="button" class="btn-saved-office btn-saved-office--save" id="btn-save-office" name="btn_save_office">
               <span class="lbl-bn">সংরক্ষণ করুন</span><span class="lbl-en" hidden>Save Office</span>
             </button>
           </div>
@@ -91,7 +91,7 @@
             <input type="text" id="cert-reg-no" name="cert_reg_no" placeholder="নিবন্ধন নম্বর" data-placeholder-bn="নিবন্ধন নম্বর" data-placeholder-en="Registration number">
           </div>
           <div>
-            <span class="form-field-label" id="cert-date-label">
+            <span class="form-field-label" id="cert-date-label" name="cert_date_label">
               <span class="lbl-bn">তারিখ</span>
               <span class="lbl-en" hidden>Date</span>
               <span class="required-mark">*</span>
@@ -124,7 +124,7 @@
 
         <div class="form-row-half">
           <div>
-            <span class="form-field-label" id="cert-groom-dob-label">
+            <span class="form-field-label" id="cert-groom-dob-label" name="cert_groom_dob_label">
               <span class="lbl-bn">জন্ম তারিখ</span>
               <span class="lbl-en" hidden>Date of Birth</span>
             </span>
@@ -196,7 +196,7 @@
 
         <div class="form-row-half">
           <div>
-            <span class="form-field-label" id="cert-bride-dob-label">
+            <span class="form-field-label" id="cert-bride-dob-label" name="cert_bride_dob_label">
               <span class="lbl-bn">জন্ম তারিখ</span>
               <span class="lbl-en" hidden>Date of Birth</span>
             </span>
@@ -258,7 +258,7 @@
         </div>
 
         <div class="form-row">
-          <span class="form-field-label" id="cert-marriage-date-label">
+          <span class="form-field-label" id="cert-marriage-date-label" name="cert_marriage_date_label">
             <span class="lbl-bn">বিবাহের তারিখ</span>
             <span class="lbl-en" hidden>Marriage Date</span>
             <span class="required-mark">*</span>
@@ -323,7 +323,7 @@
 
         {# Issue date #}
         <div class="form-row">
-          <span class="form-field-label" id="cert-issue-date-label">
+          <span class="form-field-label" id="cert-issue-date-label" name="cert_issue_date_label">
             <span class="lbl-bn">ইস্যু তারিখ</span>
             <span class="lbl-en" hidden>Issue Date</span>
           </span>
@@ -370,7 +370,7 @@
         </div>
 
         <div class="form-row">
-          <span class="form-field-label" id="cert-attested-date-label">
+          <span class="form-field-label" id="cert-attested-date-label" name="cert_attested_date_label">
             <span class="lbl-bn">সত্যায়নের তারিখ</span>
             <span class="lbl-en" hidden>Attestation Date</span>
           </span>
@@ -391,7 +391,7 @@
               <canvas class="sig-canvas" width="400" height="120"></canvas>
               <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
             </div>
-            <div class="cert-sig-upload" id="sig-attested-drop" hidden>
+            <div class="cert-sig-upload" id="sig-attested-drop" name="sig_attested_drop" hidden>
               <span class="sig-icon">✍️</span>
               <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
               <span class="sig-text lbl-en" hidden>Upload signature image</span>
@@ -431,7 +431,7 @@
             <input type="text" id="cert-registrar-office" name="cert_registrar_office" placeholder="অফিসের নাম" data-placeholder-bn="অফিসের নাম" data-placeholder-en="Office name">
           </div>
           <div>
-            <span class="form-field-label" id="cert-registrar-date-label">
+            <span class="form-field-label" id="cert-registrar-date-label" name="cert_registrar_date_label">
               <span class="lbl-bn">স্বাক্ষরের তারিখ</span>
               <span class="lbl-en" hidden>Signature Date</span>
             </span>
@@ -453,7 +453,7 @@
               <canvas class="sig-canvas" width="400" height="120"></canvas>
               <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
             </div>
-            <div class="cert-sig-upload" id="sig-registrar-drop" hidden>
+            <div class="cert-sig-upload" id="sig-registrar-drop" name="sig_registrar_drop" hidden>
               <span class="sig-icon">✍️</span>
               <span class="sig-text lbl-bn">স্বাক্ষরের ছবি আপলোড করুন</span>
               <span class="sig-text lbl-en" hidden>Upload signature image</span>
@@ -468,14 +468,14 @@
     {# ===== Step 6: Certificate Preview ===== #}
     <div class="step-panel" data-step="6" data-step-label-bn="সনদপত্র">
 
-      <div class="cert-preview" id="cert-preview">
+      <div class="cert-preview" id="cert-preview" name="cert_preview">
         {# Filled by JS #}
       </div>
 
       <div class="cert-preview-actions">
-        <button type="button" class="btn-cert-print" id="btn-cert-print">🖨️ প্রিন্ট করুন (Print)</button>
-        <button type="button" class="btn-cert-print" id="btn-cert-pdf">📄 PDF ডাউনলোড (Download PDF)</button>
-        <button type="button" class="btn-cert-edit" id="btn-cert-edit">✏️ সম্পাদনা করুন (Edit)</button>
+        <button type="button" class="btn-cert-print" id="btn-cert-print" name="btn_cert_print">🖨️ প্রিন্ট করুন (Print)</button>
+        <button type="button" class="btn-cert-print" id="btn-cert-pdf" name="btn_cert_pdf">📄 PDF ডাউনলোড (Download PDF)</button>
+        <button type="button" class="btn-cert-edit" id="btn-cert-edit" name="btn_cert_edit">✏️ সম্পাদনা করুন (Edit)</button>
       </div>
 
     </div>
@@ -483,10 +483,10 @@
   </div>
 
   {# Navigation buttons #}
-  <div class="step-nav" id="step-nav">
-    <button type="button" class="btn-step-prev" id="btn-step-prev">&larr; পূর্ববর্তী (Previous)</button>
-    <span class="step-counter" id="step-counter"></span>
-    <button type="button" class="btn-step-next" id="btn-step-next">পরবর্তী (Next) &rarr;</button>
+  <div class="step-nav" id="step-nav" name="step_nav">
+    <button type="button" class="btn-step-prev" id="btn-step-prev" name="btn_step_prev">&larr; পূর্ববর্তী (Previous)</button>
+    <span class="step-counter" id="step-counter" name="step_counter"></span>
+    <button type="button" class="btn-step-next" id="btn-step-next" name="btn_step_next">পরবর্তী (Next) &rarr;</button>
   </div>
 
 </section>

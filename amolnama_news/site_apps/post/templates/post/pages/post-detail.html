@@ -16,12 +16,12 @@
 
 {% block content %}
 
-<div class="post-detail-wrapper" id="post-detail-wrapper">
+<div class="post-detail-wrapper" id="post-detail-wrapper" name="post_detail_wrapper">
   <div class="post-feed">
     {% include "post/components/post-card.html" with post_item=post_item %}
   </div>
 
-  <div class="post-detail-back" id="post-detail-back">
+  <div class="post-detail-back" id="post-detail-back" name="post_detail_back">
     <a href="{% url 'post:home' %}" class="post-detail-back-link" id="post-detail-back-link" name="post_detail_back_link">← সব পোস্ট দেখুন (All Posts)</a>
   </div>
 </div>

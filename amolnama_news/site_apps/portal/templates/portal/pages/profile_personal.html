@@ -18,15 +18,15 @@
 {% block profile_content %}
 
 {# ---- Avatar Upload Section ---- #}
-<div class="avatar-upload-section" id="avatar-upload-section">
-  <div class="avatar-upload-preview" id="avatar-upload-preview">
+<div class="avatar-upload-section" id="avatar-upload-section" name="avatar_upload_section">
+  <div class="avatar-upload-preview" id="avatar-upload-preview" name="avatar_upload_preview">
     {% if avatar_url %}
-    <img src="{{ avatar_url }}" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image">
+    <img src="{{ avatar_url }}" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image" name="avatar_upload_current_image">
     {% else %}
     <svg class="avatar-upload-default-icon" id="avatar-upload-default-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
     {% endif %}
   </div>
-  <div class="avatar-upload-controls" id="avatar-upload-controls">
+  <div class="avatar-upload-controls" id="avatar-upload-controls" name="avatar_upload_controls">
     <label class="avatar-upload-button" id="avatar-upload-button" name="avatar_upload_button">
       📷 ছবি আপলোড করুন
       <input type="file" id="avatar-upload-file-input" name="avatar_upload_file_input" accept="image/jpeg,image/png,image/webp" hidden>
@@ -36,17 +36,17 @@
 </div>
 
 {# ---- Cropper Modal ---- #}
-<div class="avatar-cropper-modal" hidden id="avatar-cropper-modal">
-  <div class="avatar-cropper-modal-content" id="avatar-cropper-modal-content">
+<div class="avatar-cropper-modal" hidden id="avatar-cropper-modal" name="avatar_cropper_modal">
+  <div class="avatar-cropper-modal-content" id="avatar-cropper-modal-content" name="avatar_cropper_modal_content">
     <h3 class="avatar-cropper-modal-title">ছবি ক্রপ করুন (Crop your photo)</h3>
-    <div class="avatar-cropper-container" id="avatar-cropper-container">
-      <img id="avatar-cropper-image" alt="Crop preview">
+    <div class="avatar-cropper-container" id="avatar-cropper-container" name="avatar_cropper_container">
+      <img id="avatar-cropper-image" name="avatar_cropper_image" alt="Crop preview">
     </div>
-    <div class="avatar-cropper-actions" id="avatar-cropper-actions">
+    <div class="avatar-cropper-actions" id="avatar-cropper-actions" name="avatar_cropper_actions">
       <button type="button" class="avatar-cropper-save-button" id="avatar-cropper-save-button" name="avatar_cropper_save_button">সংরক্ষণ করুন (Save)</button>
       <button type="button" class="avatar-cropper-cancel-button" id="avatar-cropper-cancel-button" name="avatar_cropper_cancel_button">বাতিল (Cancel)</button>
     </div>
-    <div class="avatar-cropper-message" id="avatar-cropper-message"></div>
+    <div class="avatar-cropper-message" id="avatar-cropper-message" name="avatar_cropper_message"></div>
   </div>
 </div>
 

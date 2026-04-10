@@ -1,17 +1,17 @@
 {# X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile. #}
 {% load static %}
-<nav class="sidebar-navigation" id="sidebar-navigation" aria-label="প্রধান নেভিগেশন (Primary Navigation)">
+<nav class="sidebar-navigation" id="sidebar-navigation" name="sidebar_navigation" aria-label="প্রধান নেভিগেশন (Primary Navigation)">
 
-  <div class="sidebar-navigation-header" id="sidebar-navigation-header">
-    <a href="{% url 'core:home' %}" title="আমলনামা নিউজ — হোম" class="sidebar-navigation-logo" id="sidebar-navigation-logo">
-      <img src="{% static 'core/assets/img/logo.png' %}" alt="আমলনামা নিউজ" class="sidebar-navigation-logo-image" id="sidebar-navigation-logo-image" fetchpriority="high">
+  <div class="sidebar-navigation-header" id="sidebar-navigation-header" name="sidebar_navigation_header">
+    <a href="{% url 'core:home' %}" title="আমলনামা নিউজ — হোম" class="sidebar-navigation-logo" id="sidebar-navigation-logo" name="sidebar_navigation_logo">
+      <img src="{% static 'core/assets/img/logo.png' %}" alt="আমলনামা নিউজ" class="sidebar-navigation-logo-image" id="sidebar-navigation-logo-image" name="sidebar_navigation_logo_image" fetchpriority="high">
     </a>
     <button type="button" class="sidebar-navigation-toggle" id="sidebar-navigation-toggle" name="sidebar_navigation_toggle" title="মেনু বড়/ছোট করুন (Toggle menu)" aria-label="Toggle sidebar">
-      <span class="sidebar-navigation-toggle-icon" id="sidebar-navigation-toggle-icon">«</span>
+      <span class="sidebar-navigation-toggle-icon" id="sidebar-navigation-toggle-icon" name="sidebar_navigation_toggle_icon">«</span>
     </button>
   </div>
 
-  <div class="sidebar-navigation-menu" id="sidebar-navigation-menu">
+  <div class="sidebar-navigation-menu" id="sidebar-navigation-menu" name="sidebar_navigation_menu">
     <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if request.path == '/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
       <span class="sidebar-navigation-item-icon">🏠</span>
       <span class="sidebar-navigation-item-label">হোম</span>
@@ -28,7 +28,7 @@
     </a>
 
     <a href="{% url 'messenger:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'messenger' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-messenger" name="sidebar_navigation_item_messenger" title="মেসেঞ্জার (Messenger)">
-      <span class="sidebar-navigation-item-icon">📩<span class="sidebar-navigation-unread-badge sidebar-navigation-unread-badge-hidden" id="sidebar-messenger-unread-badge">0</span></span>
+      <span class="sidebar-navigation-item-icon">📩<span class="sidebar-navigation-unread-badge sidebar-navigation-unread-badge-hidden" id="sidebar-messenger-unread-badge" name="sidebar_messenger_unread_badge">0</span></span>
       <span class="sidebar-navigation-item-label">মেসেঞ্জার</span>
     </a>
 

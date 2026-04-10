@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="art-upload-container" id="art-upload-container">
+<div class="art-upload-container" id="art-upload-container" name="art_upload_container">
   <h1 class="art-upload-title">🎨 শিল্পকর্ম আপলোড</h1>
 
   <form class="art-upload-form" id="art-upload-form" name="art_upload_form" enctype="multipart/form-data">
@@ -73,14 +73,14 @@
       <label for="art-upload-photos" class="art-upload-label">ছবি আপলোড <span class="field-mandatory-star">*</span></label>
       <input type="file" class="art-upload-file-input" id="art-upload-photos" name="artwork_media_files" accept="image/*" multiple required>
       <p class="art-upload-hint">প্রথম ছবিটি কভার হিসেবে ব্যবহৃত হবে। সর্বোচ্চ ১০টি ছবি।</p>
-      <div class="art-upload-preview" id="art-upload-preview"></div>
+      <div class="art-upload-preview" id="art-upload-preview" name="art_upload_preview"></div>
     </div>
 
     <div class="art-upload-actions">
       <button type="submit" class="art-upload-submit-button" id="art-upload-submit-button" name="art_upload_submit_button">আপলোড করুন</button>
     </div>
 
-    <div class="art-upload-error-message" hidden id="art-upload-error-message"></div>
+    <div class="art-upload-error-message" hidden id="art-upload-error-message" name="art_upload_error_message"></div>
   </form>
 </div>
 {% endblock %}

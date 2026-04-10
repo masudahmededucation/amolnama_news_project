@@ -9,7 +9,7 @@ Displays after a vote is cast, including:
 {% endcomment %}
 
 <!-- Success View (shown after vote) -->
-<div id="success-view" hidden>
+<div id="success-view" name="success_view" hidden>
   <div class="success-card">
     <!-- Success message with tick icon -->
     <p class="success-message">
@@ -26,7 +26,7 @@ Displays after a vote is cast, including:
     {% include "evaluation_vote/components/youtube-style-total-vote-info.html" %}
 
     <!-- Party results list with progress bars and vote counts -->
-    <ul class="selection-list party-list" id="party-list-success">
+    <ul class="selection-list party-list" id="party-list-success" name="party_list_success">
       <!-- Filled dynamically by JavaScript after voting -->
     </ul>
 
@@ -36,16 +36,15 @@ Displays after a vote is cast, including:
 
       <!-- Voting reason textarea -->
       <div class="form-group">
-        <label for="vote-reason" id="reason-label">এই দলটিকে বেছে নেওয়ার মূল কারণ কী?</label>
+        <label for="vote-reason" id="reason-label" name="reason_label">এই দলটিকে বেছে নেওয়ার মূল কারণ কী?</label>
         <textarea
-          id="vote-reason"
-          name="vote-reason"
+          id="vote-reason" name="vote_reason"
           class="form-textarea"
           maxlength="500"
           rows="3"
           placeholder="আপনার মতামত লিখুন..."
         ></textarea>
-        <div class="char-count"><span id="char-count">0</span>/500</div>
+        <div class="char-count"><span id="char-count" name="char_count">0</span>/500</div>
       </div>
 
       <!-- Location selection note -->
@@ -71,7 +70,7 @@ Displays after a vote is cast, including:
       <button class="update-btn" onclick="updateVote()">তথ্য আপডেট করুন / Update Info</button>
 
       <!-- Success message for info update -->
-      <div class="update-success" id="update-success">
+      <div class="update-success" id="update-success" name="update_success">
         <span class="tick-icon">✓</span>
         <span>তথ্য আপডেট হয়েছে! / Info Updated!</span>
       </div>

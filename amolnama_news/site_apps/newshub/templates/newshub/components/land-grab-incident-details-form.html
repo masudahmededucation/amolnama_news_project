@@ -7,28 +7,28 @@
   Serialized to land_grab_incident_json by news-land-grab-incident.js.
 {% endcomment %}
 
-<div class="form-section" id="section-land-grab-incident-details">
+<div class="form-section" id="section-land-grab-incident-details" name="section_land_grab_incident_details">
   <h3 class="form-section-title"><span class="section-icon">🏚️</span>দখলবাজির বিবরণ (Land Grabbing Details)</h3>
 
   {# Hidden JSON — serialized by news-land-grab-incident.js #}
   <input type="hidden" id="land-grab-incident-json" name="land_grab_incident_json" value="">
 
   {# ---- Reference data (DB-driven, read by JS) ---- #}
-  <script type="application/json" id="land-property-type-data">{{ land_property_type_json|safe }}</script>
-  <script type="application/json" id="land-grabbing-method-data">{{ land_grabbing_method_json|safe }}</script>
-  <script type="application/json" id="land-current-status-data">{{ land_current_status_json|safe }}</script>
-  <script type="application/json" id="land-document-title-status-data">{{ land_document_title_status_json|safe }}</script>
-  <script type="application/json" id="land-area-unit-data">{{ land_area_unit_json|safe }}</script>
+  <script type="application/json" id="land-property-type-data" name="land_property_type_data">{{ land_property_type_json|safe }}</script>
+  <script type="application/json" id="land-grabbing-method-data" name="land_grabbing_method_data">{{ land_grabbing_method_json|safe }}</script>
+  <script type="application/json" id="land-current-status-data" name="land_current_status_data">{{ land_current_status_json|safe }}</script>
+  <script type="application/json" id="land-document-title-status-data" name="land_document_title_status_data">{{ land_document_title_status_json|safe }}</script>
+  <script type="application/json" id="land-area-unit-data" name="land_area_unit_data">{{ land_area_unit_json|safe }}</script>
 
   {# ---- Property Type ---- #}
   <h4 class="form-subsection-title">সম্পত্তির ধরন (Property Type)</h4>
   <div class="form-field">
-    <div class="radio-card-grid" id="land-grab-property-type-grid">
+    <div class="radio-card-grid" id="land-grab-property-type-grid" name="land_grab_property_type_grid">
       {# Populated by news-land-grab-incident.js from #land-property-type-data #}
     </div>
     <input type="hidden" id="land-grab-property-type" name="land_grab_property_type" value="">
   </div>
-  <div class="form-field" hidden id="land-grab-property-type-other-row">
+  <div class="form-field" hidden id="land-grab-property-type-other-row" name="land_grab_property_type_other_row">
     <label for="land-grab-property-type-other">অন্যান্য সম্পত্তির বিবরণ (Other Property Type) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <input type="text" id="land-grab-property-type-other" name="land_grab_property_type_other" maxlength="255"
            placeholder="সম্পত্তির ধরন লিখুন (Describe the property type)">
@@ -68,7 +68,7 @@
   <h4 class="form-subsection-title">দলিল ও মালিকানার অবস্থা (Document & Title Status)</h4>
   <div class="form-field">
     <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
-    <div class="checkbox-group" id="land-doc-title-status-checkboxes">
+    <div class="checkbox-group" id="land-doc-title-status-checkboxes" name="land_doc_title_status_checkboxes">
       {# Populated by news-land-grab-incident.js from #land-document-title-status-data #}
     </div>
   </div>
@@ -77,11 +77,11 @@
   <h4 class="form-subsection-title">দখলের পদ্ধতি (Method of Grabbing)</h4>
   <div class="form-field">
     <small class="field-hint">প্রযোজ্য সবগুলো নির্বাচন করুন (Select all that apply)</small>
-    <div class="checkbox-group" id="land-grabbing-method-checkboxes">
+    <div class="checkbox-group" id="land-grabbing-method-checkboxes" name="land_grabbing_method_checkboxes">
       {# Populated by news-land-grab-incident.js from #land-grabbing-method-data #}
     </div>
   </div>
-  <div class="form-field" hidden id="land-grab-method-other-row">
+  <div class="form-field" hidden id="land-grab-method-other-row" name="land_grab_method_other_row">
     <label for="land-grab-method-other-detail">অন্যান্য পদ্ধতির বিবরণ (Other Method Detail) <em class="field-optional">(ঐচ্ছিক)</em></label>
     <input type="text" id="land-grab-method-other-detail" name="land_grab_method_other_detail" maxlength="255"
            placeholder="দখলের পদ্ধতি লিখুন (Describe the grabbing method)">
@@ -90,7 +90,7 @@
   {# ---- Current Situation ---- #}
   <h4 class="form-subsection-title">বর্তমান অবস্থা (Current Situation)</h4>
   <div class="form-field">
-    <div class="radio-inline-group" id="land-grab-status-group">
+    <div class="radio-inline-group" id="land-grab-status-group" name="land_grab_status_group">
       {# Populated by news-land-grab-incident.js from #land-current-status-data #}
     </div>
     <input type="hidden" id="land-grab-current-status" name="land_grab_current_status" value="">
@@ -109,7 +109,7 @@
       দখলের সময় সহিংসতা হয়েছে (Violence occurred during the grabbing)
     </label>
   </div>
-  <div class="form-field" hidden id="land-grab-violence-desc-row">
+  <div class="form-field" hidden id="land-grab-violence-desc-row" name="land_grab_violence_desc_row">
     <label for="land-grab-violence-desc">সহিংসতার বিবরণ (Violence Description)</label>
     <textarea id="land-grab-violence-desc" name="land_grab_violence_desc" rows="3" maxlength="2000"
               placeholder="হামলা, আহত বা নিহতের বিবরণ দিন (Describe assault, injuries or deaths during grabbing)"></textarea>

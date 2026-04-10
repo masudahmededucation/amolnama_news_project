@@ -21,7 +21,7 @@
     #ext-retaliation-data            — JSON [{status_id, status_code, status_name_bn, status_name_en}]
 {% endcomment %}
 
-<div class="form-section" id="section-ext-legal">
+<div class="form-section" id="section-ext-legal" name="section_ext_legal">
   <h3 class="form-section-title"><span class="section-icon">⚖️</span>আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)</h3>
 
   <input type="hidden" id="ext-legal" name="ext_legal" value="">
@@ -30,7 +30,7 @@
 
   <div class="form-field">
     <span class="form-label">প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)</span>
-    <div class="checkbox-group" id="ext-applicable-law-checkboxes">
+    <div class="checkbox-group" id="ext-applicable-law-checkboxes" name="ext_applicable_law_checkboxes">
       {# Populated by news-extortion-legal.js from #ext-applicable-law-data #}
     </div>
   </div>
@@ -45,14 +45,14 @@
 
   <div class="form-field">
     <span class="form-label">সহায়তা সেবা — একাধিক নির্বাচন করা যাবে (Support Services — multiple selections allowed)</span>
-    <div class="checkbox-group" id="ext-support-service-checkboxes">
+    <div class="checkbox-group" id="ext-support-service-checkboxes" name="ext_support_service_checkboxes">
       {# Populated by news-extortion-legal.js from #ext-support-service-data #}
     </div>
   </div>
 
   <div class="form-field">
     <span class="form-label">সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে (Social Pressure & Retaliation — multiple selections allowed)</span>
-    <div class="checkbox-group" id="ext-retaliation-checkboxes">
+    <div class="checkbox-group" id="ext-retaliation-checkboxes" name="ext_retaliation_checkboxes">
       {# Populated by news-extortion-legal.js from #ext-retaliation-data #}
     </div>
   </div>
@@ -65,12 +65,12 @@
 </div>
 
 {# GD/FIR status data — shared module reads #{prefix}-fir-status-data #}
-<script type="application/json" id="legal-fir-status-data">{{ fir_statuses_json|safe }}</script>
+<script type="application/json" id="legal-fir-status-data" name="legal_fir_status_data">{{ fir_statuses_json|safe }}</script>
 
-<script type="application/json" id="ext-applicable-law-data">{{ ext_applicable_laws_json|safe }}</script>
+<script type="application/json" id="ext-applicable-law-data" name="ext_applicable_law_data">{{ ext_applicable_laws_json|safe }}</script>
 
-<script type="application/json" id="ext-case-status-data">{{ ext_case_status_json|safe }}</script>
+<script type="application/json" id="ext-case-status-data" name="ext_case_status_data">{{ ext_case_status_json|safe }}</script>
 
-<script type="application/json" id="ext-support-service-data">{{ ext_support_services_json|safe }}</script>
+<script type="application/json" id="ext-support-service-data" name="ext_support_service_data">{{ ext_support_services_json|safe }}</script>
 
-<script type="application/json" id="ext-retaliation-data">{{ ext_retaliation_json|safe }}</script>
+<script type="application/json" id="ext-retaliation-data" name="ext_retaliation_data">{{ ext_retaliation_json|safe }}</script>

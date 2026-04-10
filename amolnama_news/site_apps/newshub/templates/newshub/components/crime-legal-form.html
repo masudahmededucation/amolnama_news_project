@@ -20,7 +20,7 @@
     #crime-retaliation-data           — JSON [{status_id, status_code, status_name_bn, status_name_en}]
 {% endcomment %}
 
-<div class="form-section" id="section-crime-legal">
+<div class="form-section" id="section-crime-legal" name="section_crime_legal">
   <h3 class="form-section-title"><span class="section-icon">⚖️</span>আইনি পদক্ষেপ ও সহায়তা (Legal Action & Support)</h3>
 
   <input type="hidden" id="crime-legal" name="crime_legal" value="">
@@ -29,7 +29,7 @@
 
   <div class="form-field">
     <span class="form-label">প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে (Applicable Law — multiple selections allowed)</span>
-    <div class="checkbox-group" id="crime-applicable-law-checkboxes">
+    <div class="checkbox-group" id="crime-applicable-law-checkboxes" name="crime_applicable_law_checkboxes">
       {# Populated by news-crime-legal.js from #crime-applicable-law-data #}
     </div>
   </div>
@@ -44,14 +44,14 @@
 
   <div class="form-field">
     <span class="form-label">ভিকটিম সহায়তা সেবা — একাধিক নির্বাচন করা যাবে (Victim Support Services — multiple selections allowed)</span>
-    <div class="checkbox-group" id="crime-support-service-checkboxes">
+    <div class="checkbox-group" id="crime-support-service-checkboxes" name="crime_support_service_checkboxes">
       {# Populated by news-crime-legal.js from #crime-support-service-data #}
     </div>
   </div>
 
   <div class="form-field">
     <span class="form-label">ভুক্তভোগীর ঝুঁকি ও হুমকির বিবরণ (Victim Risks and Threats)</span>
-    <div class="checkbox-group" id="crime-retaliation-checkboxes">
+    <div class="checkbox-group" id="crime-retaliation-checkboxes" name="crime_retaliation_checkboxes">
       {# Populated by news-crime-legal.js from #crime-retaliation-data #}
     </div>
   </div>
@@ -64,13 +64,13 @@
 </div>
 
 {# GD/FIR status data — shared module reads #{prefix}-fir-status-data #}
-<script type="application/json" id="legal-fir-status-data">{{ fir_statuses_json|safe }}</script>
+<script type="application/json" id="legal-fir-status-data" name="legal_fir_status_data">{{ fir_statuses_json|safe }}</script>
 
 {# DB-driven reference data — populated from views context (crime_violence view) #}
-<script type="application/json" id="crime-applicable-law-data">{{ applicable_laws_json|safe }}</script>
+<script type="application/json" id="crime-applicable-law-data" name="crime_applicable_law_data">{{ applicable_laws_json|safe }}</script>
 
-<script type="application/json" id="crime-case-status-data">{{ crime_case_status_json|safe }}</script>
+<script type="application/json" id="crime-case-status-data" name="crime_case_status_data">{{ crime_case_status_json|safe }}</script>
 
-<script type="application/json" id="crime-support-service-data">{{ victim_support_services_json|safe }}</script>
+<script type="application/json" id="crime-support-service-data" name="crime_support_service_data">{{ victim_support_services_json|safe }}</script>
 
-<script type="application/json" id="crime-retaliation-data">{{ victim_risks_threats_json|safe }}</script>
+<script type="application/json" id="crime-retaliation-data" name="crime_retaliation_data">{{ victim_risks_threats_json|safe }}</script>

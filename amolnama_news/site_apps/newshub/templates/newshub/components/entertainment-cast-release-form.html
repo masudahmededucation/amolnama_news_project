@@ -7,7 +7,7 @@
   DB table: [investigation].[entertainment_form_fact]
 {% endcomment %}
 
-<div class="form-section" id="section-entertainment-cast-release">
+<div class="form-section" id="section-entertainment-cast-release" name="section_entertainment_cast_release">
   <h3 class="form-section-title"><span class="section-icon">🎭</span>কাস্ট ও মুক্তি (Cast &amp; Release)</h3>
 
   {# Hidden input — JS serializes cast & release data here before submit #}
@@ -27,7 +27,7 @@
 
   <div class="form-grid-2col">
     <div class="form-field">
-      <span class="form-field-label" id="entertainment-release-date-label">মুক্তির তারিখ (Release Date)</span>
+      <span class="form-field-label" id="entertainment-release-date-label" name="entertainment_release_date_label">মুক্তির তারিখ (Release Date)</span>
       <input type="date" id="entertainment-release-date" name="entertainment_release_date" aria-labelledby="entertainment-release-date-label">
     </div>
 

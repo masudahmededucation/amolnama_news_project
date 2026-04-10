@@ -7,7 +7,7 @@
   Note: checkbox-inline labels use inner span to preserve input child node position.
 {% endcomment %}
 
-<div class="form-section" id="section-wcv-type">
+<div class="form-section" id="section-wcv-type" name="section_wcv_type">
   <h3 class="form-section-title"><span class="section-icon">⚠️</span><span
       data-bn="ঘটনার ধরন ও প্রেক্ষাপট" data-en="Violence Type & Context">ঘটনার ধরন ও প্রেক্ষাপট</span></h3>
 
@@ -18,12 +18,12 @@
   <div class="form-field">
     <span class="form-field-label" data-bn="সহিংসতার ধরন — একাধিক নির্বাচন করা যাবে"
            data-en="Type of Violence — multiple selections allowed">সহিংসতার ধরন — একাধিক নির্বাচন করা যাবে<span class="field-mandatory-star"> *</span></span>
-    <div class="checkbox-group" id="wcv-violence-types-checkboxes">
+    <div class="checkbox-group" id="wcv-violence-types-checkboxes" name="wcv_violence_types_checkboxes">
       {# Populated by JS from wcv-violence-types-data #}
     </div>
   </div>
 
-  <div class="form-field" hidden id="wcv-other-type-row">
+  <div class="form-field" hidden id="wcv-other-type-row" name="wcv_other_type_row">
     <label for="wcv-other-type"
            data-bn="সহিংসতার ধরন লিখুন" data-en="Describe Type of Violence">সহিংসতার ধরন লিখুন</label>
     <input type="text" id="wcv-other-type" name="wcv_other_type"
@@ -50,7 +50,7 @@
     </label>
   </div>
 
-  <div class="form-field" hidden id="wcv-duration-row">
+  <div class="form-field" hidden id="wcv-duration-row" name="wcv_duration_row">
     <label for="wcv-duration"
            data-bn="নির্যাতনের সময়কাল" data-en="Duration of Abuse">নির্যাতনের সময়কাল</label>
     <input type="text" id="wcv-duration" name="wcv_duration"
@@ -61,5 +61,5 @@
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="wcv-violence-types-data">{{ wcv_violence_types|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-location-types-data">{{ wcv_incident_location_types|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-violence-types-data" name="wcv_violence_types_data">{{ wcv_violence_types|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-location-types-data" name="wcv_location_types_data">{{ wcv_incident_location_types|default:"[]"|safe }}</script>

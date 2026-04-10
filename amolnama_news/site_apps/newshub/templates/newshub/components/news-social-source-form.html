@@ -5,14 +5,14 @@
   Expects: platform_types (queryset of RefPlatformType)
 {% endcomment %}
 
-<div class="form-section" id="section-news-social-source">
+<div class="form-section" id="section-news-social-source" name="section_news_social_source">
   <h3 class="form-section-title"><span class="section-icon">🔗</span>সোশ্যাল মিডিয়া সূত্র (Social Media Source)</h3>
 
   {# Hidden input — JS serializes all social sources here #}
   <input type="hidden" id="social-source-json" name="social_source_json" value="">
 
   {# Repeater row template — cloned by JS for each source #}
-  <template id="social-source-row-template">
+  <template id="social-source-row-template" name="social_source_row_template">
     <div class="social-source-row" data-row-index="">
       <div class="social-source-row-header">
         <span class="social-source-row-number"></span>
@@ -49,11 +49,11 @@
   </template>
 
   {# Container for repeater rows #}
-  <div id="social-source-rows-container"></div>
+  <div id="social-source-rows-container" name="social_source_rows_container"></div>
 
   {# Add button — after all rows #}
   <div class="form-field text-center">
-    <button type="button" class="btn-add-social-source" id="btn-add-social-source">
+    <button type="button" class="btn-add-social-source" id="btn-add-social-source" name="btn_add_social_source">
       ➕ সূত্র যোগ করুন (Add Source)
     </button>
   </div>

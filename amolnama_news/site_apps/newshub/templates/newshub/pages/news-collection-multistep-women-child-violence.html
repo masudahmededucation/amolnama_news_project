@@ -18,9 +18,9 @@
   {% include "newshub/steps/step-submit.html" with step=12 %}
 
   {# Reference data for standard witness repeater (Step 7) — CSP-safe JSON #}
-  <script type="application/json" id="actor-involvement-types-data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
-  <script type="application/json" id="actor-types-data">{{ actor_types_json|default:"[]"|safe }}</script>
-  <script type="application/json" id="actor-genders-data">{{ actor_genders_json|default:"[]"|safe }}</script>
-  <script type="application/json" id="actor-religions-data">{{ actor_religions_json|default:"[]"|safe }}</script>
-  <script type="application/json" id="actor-districts-data">{{ actor_districts_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-involvement-types-data" name="actor_involvement_types_data">{{ actor_involvement_types_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-types-data" name="actor_types_data">{{ actor_types_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-genders-data" name="actor_genders_data">{{ actor_genders_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-religions-data" name="actor_religions_data">{{ actor_religions_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="actor-districts-data" name="actor_districts_data">{{ actor_districts_json|default:"[]"|safe }}</script>
 {% endblock %}

@@ -6,17 +6,17 @@
   Data serialized to hidden JSON input by JS.
 {% endcomment %}
 
-<div class="form-section" id="section-price-gap">
+<div class="form-section" id="section-price-gap" name="section_price_gap">
   <h3 class="form-section-title"><span class="section-icon">📊</span>পণ্য মূল্য পার্থক্য (Commodity Price Gap)</h3>
 
   {# Hidden input — JS serializes all commodity prices here #}
   <input type="hidden" id="price-gap-json" name="price_gap_json" value="">
 
   {# Embed commodity API URL as CSP-safe JSON #}
-  <script type="application/json" id="commodity-search-url-data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
+  <script type="application/json" id="commodity-search-url-data" name="commodity_search_url_data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
 
   {# Repeater row template — cloned by JS for each commodity #}
-  <template id="commodity-row-template">
+  <template id="commodity-row-template" name="commodity_row_template">
     <div class="commodity-price-row" data-row-index="">
       <div class="commodity-row-header">
         <span class="commodity-row-number"></span>
@@ -71,11 +71,11 @@
   </template>
 
   {# Container for repeater rows #}
-  <div id="commodity-rows-container"></div>
+  <div id="commodity-rows-container" name="commodity_rows_container"></div>
 
   {# Add button — after all rows #}
   <div class="form-field text-center">
-    <button type="button" class="btn-add-commodity" id="btn-add-commodity">
+    <button type="button" class="btn-add-commodity" id="btn-add-commodity" name="btn_add_commodity">
       ➕ পণ্য যোগ করুন (Add Commodity)
     </button>
   </div>

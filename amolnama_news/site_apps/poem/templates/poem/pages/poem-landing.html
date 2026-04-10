@@ -46,12 +46,12 @@
 
 {# ── Type Tabs + Category Filter ── #}
 <div class="poem-filter-bar">
-  <div class="poem-type-tabs" id="poemTypeTabs">
+  <div class="poem-type-tabs" id="poemTypeTabs" name="poemTypeTabs">
     <button type="button" class="poem-type-tab poem-type-tab--active" data-type="">সব (All)</button>
     <button type="button" class="poem-type-tab" data-type="poem">কবিতা (Poems)</button>
     <button type="button" class="poem-type-tab" data-type="song">গানের কথা (Songs)</button>
   </div>
-  <div class="filter-pills-group" id="poemFilterPills">
+  <div class="filter-pills-group" id="poemFilterPills" name="poemFilterPills">
     <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="">সব ধরন (All)</button>
     {% for cat in categories %}
       <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
@@ -62,14 +62,14 @@
 </div>
 
 {# ── Active Filter Breadcrumbs ── #}
-<div class="filter-crumbs" hidden id="poemFilterCrumbs">
+<div class="filter-crumbs" hidden id="poemFilterCrumbs" name="poemFilterCrumbs">
   <span class="filter-crumbs-label">ফিল্টার:</span>
-  <div class="filter-crumbs-chips" id="poemFilterChips"></div>
-  <button type="button" class="filter-crumbs-clear" id="poemFilterClearAll">সব মুছুন ✕</button>
+  <div class="filter-crumbs-chips" id="poemFilterChips" name="poemFilterChips"></div>
+  <button type="button" class="filter-crumbs-clear" id="poemFilterClearAll" name="poemFilterClearAll">সব মুছুন ✕</button>
 </div>
 
 {# ── Card Grid (server-rendered first page) ── #}
-<div class="poem-card-grid" id="poemCardGrid">
+<div class="poem-card-grid" id="poemCardGrid" name="poemCardGrid">
   {% for poem in poems %}
     {% include "poem/components/poem-card.html" %}
   {% empty %}
@@ -82,8 +82,8 @@
 
 {# ── Load More ── #}
 {% if has_next %}
-<div class="poem-load-more" id="poemLoadMore">
-  <button type="button" class="poem-load-more-button" id="poemLoadMoreBtn">আরও দেখুন (Load More)</button>
+<div class="poem-load-more" id="poemLoadMore" name="poemLoadMore">
+  <button type="button" class="poem-load-more-button" id="poemLoadMoreBtn" name="poemLoadMoreBtn">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

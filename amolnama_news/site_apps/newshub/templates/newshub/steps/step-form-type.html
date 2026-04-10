@@ -5,7 +5,7 @@
   <div class="form-section">
     <h3 class="form-section-title"><span class="section-icon">📋</span>সংবাদের ধরন নির্বাচন করুন (Select News Type)</h3>
     <input type="hidden" id="news-form-type" name="news_form_type" value="{{ selected_form_type|default:'' }}">
-    <div class="form-type-picker" id="form-type-picker">
+    <div class="form-type-picker" id="form-type-picker" name="form_type_picker">
       {% for item in form_type_items %}
       <div class="form-type-card" data-type="{{ item.group_code }}" data-url="{{ item.url }}"
            data-step-labels='{{ item.step_labels }}'>

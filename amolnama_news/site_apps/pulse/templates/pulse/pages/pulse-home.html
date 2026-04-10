@@ -13,7 +13,7 @@
 
 {% block content %}
 
-<div class="post-feed-tabs" id="post-feed-tabs">
+<div class="post-feed-tabs" id="post-feed-tabs" name="post_feed_tabs">
   <a href="/" class="post-feed-tab{% if active_tab == 'for_you' or not active_tab %} post-feed-tab-active{% endif %}" id="post-feed-tab-for-you" name="post_feed_tab_for_you">আপনার জন্য</a>
   <a href="/?tab=following" class="post-feed-tab{% if active_tab == 'following' %} post-feed-tab-active{% endif %}" id="post-feed-tab-following" name="post_feed_tab_following">অনুসরণ</a>
   <a href="/?tab=my_posts" class="post-feed-tab{% if active_tab == 'my_posts' %} post-feed-tab-active{% endif %}" id="post-feed-tab-my-posts" name="post_feed_tab_my_posts">আমার পোস্ট</a>
@@ -24,7 +24,7 @@
 {% endif %}
 
 {% if active_tab == 'for_you' or not active_tab %}
-<div class="post-feed-category-filters" id="post-feed-category-filters">
+<div class="post-feed-category-filters" id="post-feed-category-filters" name="post_feed_category_filters">
   <a href="/" class="post-feed-category-filter{% if not request.GET.category %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-all" name="post_feed_category_filter_all">All</a>
   <a href="/?category=news" class="post-feed-category-filter{% if request.GET.category == 'news' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-news" name="post_feed_category_filter_news">News</a>
   <a href="/?category=poem" class="post-feed-category-filter{% if request.GET.category == 'poem' %} post-feed-category-filter-active{% endif %}" id="post-feed-category-filter-poem" name="post_feed_category_filter_poem">Poem</a>
@@ -36,8 +36,8 @@
 </div>
 {% endif %}
 
-<div class="feed-new-posts-pill" id="feed-new-posts-pill" hidden>↑ নতুন পোস্ট</div>
-<div class="post-feed" id="pulse-feed"{% if feed_cache_used %} data-feed-cached="true"{% endif %}>
+<div class="feed-new-posts-pill" id="feed-new-posts-pill" name="feed_new_posts_pill" hidden>↑ নতুন পোস্ট</div>
+<div class="post-feed" id="pulse-feed" name="pulse_feed"{% if feed_cache_used %} data-feed-cached="true"{% endif %}>
   {% for post_item in posts %}
   {% if post_item.item_type == 'debate_promo' %}
   {% include "debate/components/debate-promo-card.html" with promo=post_item %}
@@ -49,7 +49,7 @@
   {% include "post/components/post-card.html" %}
   {% endif %}
   {% empty %}
-  <div class="post-feed-empty" id="pulse-feed-empty">
+  <div class="post-feed-empty" id="pulse-feed-empty" name="pulse_feed_empty">
     {% if active_tab == 'following' %}
     {% if following_count == 0 %}
     <p>আপনি কাউকে ফলো করছেন না।</p>
@@ -67,8 +67,8 @@
 </div>
 
 <!-- Infinite scroll sentinel -->
-<div class="pulse-feed-load-more" id="pulse-feed-load-more" data-page="2" data-has-more="true">
-  <div class="pulse-feed-loading-spinner pulse-feed-loading-spinner-hidden" id="pulse-feed-loading-spinner">লোড হচ্ছে...</div>
+<div class="pulse-feed-load-more" id="pulse-feed-load-more" name="pulse_feed_load_more" data-page="2" data-has-more="true">
+  <div class="pulse-feed-loading-spinner pulse-feed-loading-spinner-hidden" id="pulse-feed-loading-spinner" name="pulse_feed_loading_spinner">লোড হচ্ছে...</div>
 </div>
 
 {% include "core/components/photo-lightbox.html" %}

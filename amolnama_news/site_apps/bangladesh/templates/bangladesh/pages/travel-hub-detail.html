@@ -29,7 +29,7 @@
 <article class="travel-hub-detail-article">
 
   {# ── Hero Image ── #}
-  <div class="travel-hub-detail-hero" id="travel-hub-detail-hero" {% if not dest.cover_image_url %}hidden{% endif %} {% if dest.cover_image_url %}style="background-image:url('{{ dest.cover_image_url }}');"{% endif %}></div>
+  <div class="travel-hub-detail-hero" id="travel-hub-detail-hero" name="travel_hub_detail_hero" {% if not dest.cover_image_url %}hidden{% endif %} {% if dest.cover_image_url %}style="background-image:url('{{ dest.cover_image_url }}');"{% endif %}></div>
 
   {# ── Header ── #}
   <div class="travel-hub-detail-header">
@@ -75,12 +75,12 @@
   {% endif %}
 
   {# ── Photos ── #}
-  <div class="travel-hub-detail-section" id="travel-hub-detail-photos-section">
+  <div class="travel-hub-detail-section" id="travel-hub-detail-photos-section" name="travel_hub_detail_photos_section">
     <h3>📷 স্মৃতি ধরে রাখুন — ছবি আপলোড করুন {% if photos %}({{ photos|length }}টি ছবি){% endif %}</h3>
     {% if photos %}
-    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-photo-grid">
+    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-photo-grid" name="travel_hub_detail_photo_grid">
       {% for p in photos %}
-      <div class="travel-hub-detail-media-card" data-photo-id="{{ p.blog_bangladesh_destination_photo_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}" data-photo-url="{{ p.photo_url }}" data-photo-thumbnail-url="{{ p.photo_thumbnail_url|default:p.photo_url }}">
+      <div class="travel-hub-detail-media-card" data-photo-id="{{ p.blog_bangladesh_destination_photo_id }}" name="{{ p.blog_bangladesh_destination_photo_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}" data-photo-url="{{ p.photo_url }}" data-photo-thumbnail-url="{{ p.photo_thumbnail_url|default:p.photo_url }}">
         <div class="travel-hub-detail-media-card-image travel-hub-detail-photo-thumb" data-photo-index="{{ forloop.counter0 }}" data-photo-url="{{ p.photo_url }}" data-photo-caption="{{ p.caption_bn|default:'' }}" style="background-image:url('{{ p.photo_url }}');"></div>
         {% if can_edit %}
         {% with is_cover=dest.cover_image_url %}
@@ -99,7 +99,7 @@
           </div>
           {% if p.can_manage %}
           <div class="travel-hub-detail-media-card-actions">
-            <span class="travel-hub-detail-contribution-actions" data-type="photo" data-id="{{ p.blog_bangladesh_destination_photo_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
+            <span class="travel-hub-detail-contribution-actions" data-type="photo" data-id="{{ p.blog_bangladesh_destination_photo_id }}" name="{{ p.blog_bangladesh_destination_photo_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-photo-edit-{{ p.blog_bangladesh_destination_photo_id }}" name="travel_hub_photo_edit_{{ p.blog_bangladesh_destination_photo_id }}" title="ক্যাপশন সম্পাদনা">✎</button>
               <button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-photo-delete-{{ p.blog_bangladesh_destination_photo_id }}" name="travel_hub_photo_delete_{{ p.blog_bangladesh_destination_photo_id }}" title="মুছুন">✕</button>
             </span>
@@ -115,7 +115,7 @@
 
     {# Upload form — logged in users #}
     {% if user.is_authenticated %}
-    <div class="travel-hub-detail-add-form" id="travel-hub-detail-photo-form">
+    <div class="travel-hub-detail-add-form" id="travel-hub-detail-photo-form" name="travel_hub_detail_photo_form">
       <div class="travel-hub-detail-add-form-row">
         <input type="file" id="travel-hub-detail-photo-file" name="travel-hub-detail-photo-file" accept="image/jpeg,image/png,image/webp" class="travel-hub-detail-file-input">
         <input type="text" id="travel-hub-detail-photo-caption" name="travel-hub-detail-photo-caption" placeholder="ছবির ক্যাপশন (Caption)" class="travel-hub-detail-text-input" maxlength="500">
@@ -126,11 +126,11 @@
   </div>
 
   {# ── YouTube Videos ── #}
-  <div class="travel-hub-detail-section" id="travel-hub-detail-youtube-section">
+  <div class="travel-hub-detail-section" id="travel-hub-detail-youtube-section" name="travel_hub_detail_youtube_section">
     <h3>🎬 ভিডিও শেয়ার করুন {% if youtube_links %}({{ youtube_links|length }}টি ভিডিও){% endif %}</h3>
-    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-youtube-list">
+    <div class="travel-hub-detail-media-grid" id="travel-hub-detail-youtube-list" name="travel_hub_detail_youtube_list">
       {% for yt in youtube_links %}
-      <div class="travel-hub-detail-media-card travel-hub-detail-youtube-card" data-youtube-link-id="{{ yt.blog_bangladesh_destination_youtube_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
+      <div class="travel-hub-detail-media-card travel-hub-detail-youtube-card" data-youtube-link-id="{{ yt.blog_bangladesh_destination_youtube_link_id }}" name="{{ yt.blog_bangladesh_destination_youtube_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
         {% if yt.video_thumbnail_url %}
         <a href="{{ yt.youtube_url }}" target="_blank" rel="noopener" class="travel-hub-detail-media-card-image travel-hub-detail-youtube-thumb" style="background-image:url('{{ yt.video_thumbnail_url }}');">
           <span class="travel-hub-detail-youtube-play">▶</span>
@@ -157,7 +157,7 @@
           </div>
           {% if yt.can_manage %}
           <div class="travel-hub-detail-media-card-actions">
-            <span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="{{ yt.blog_bangladesh_destination_youtube_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
+            <span class="travel-hub-detail-contribution-actions" data-type="youtube" data-id="{{ yt.blog_bangladesh_destination_youtube_link_id }}" name="{{ yt.blog_bangladesh_destination_youtube_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
               <button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-video-edit-{{ yt.blog_bangladesh_destination_youtube_link_id }}" name="travel_hub_video_edit_{{ yt.blog_bangladesh_destination_youtube_link_id }}" title="সম্পাদনা">✎</button>
               <button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-video-delete-{{ yt.blog_bangladesh_destination_youtube_link_id }}" name="travel_hub_video_delete_{{ yt.blog_bangladesh_destination_youtube_link_id }}" title="মুছুন">✕</button>
             </span>
@@ -171,7 +171,7 @@
     </div>
 
     {% if user.is_authenticated %}
-    <div class="travel-hub-detail-add-form" id="travel-hub-detail-youtube-form">
+    <div class="travel-hub-detail-add-form" id="travel-hub-detail-youtube-form" name="travel_hub_detail_youtube_form">
       <div class="travel-hub-detail-add-form-row">
         <input type="url" id="travel-hub-detail-youtube-url" name="travel-hub-detail-youtube-url" placeholder="ভিডিও লিংক — YouTube, TikTok, Instagram, Facebook" class="travel-hub-detail-text-input travel-hub-detail-text-input-wide">
       </div>
@@ -188,17 +188,17 @@
   </div>
 
   {# ── Reference Links ── #}
-  <div class="travel-hub-detail-section" id="travel-hub-detail-links-section">
+  <div class="travel-hub-detail-section" id="travel-hub-detail-links-section" name="travel_hub_detail_links_section">
     <h3>🔗 তথ্যসূত্র যোগ করুন {% if reference_links %}({{ reference_links|length }}টি লিংক){% endif %}</h3>
-    <div id="travel-hub-detail-links-list">
+    <div id="travel-hub-detail-links-list" name="travel_hub_detail_links_list">
       {% for ref in reference_links %}
-      <div class="travel-hub-detail-link-card" data-reference-link-id="{{ ref.blog_bangladesh_destination_reference_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
+      <div class="travel-hub-detail-link-card" data-reference-link-id="{{ ref.blog_bangladesh_destination_reference_link_id }}" name="{{ ref.blog_bangladesh_destination_reference_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
         <a href="{{ ref.reference_url }}" target="_blank" rel="noopener" class="travel-hub-detail-link-url">{{ ref.reference_title_bn|default:ref.reference_url }}</a>
         {% if ref.description_bn %}<span class="travel-hub-detail-link-desc">{{ ref.description_bn }}</span>{% endif %}
         <div class="travel-hub-detail-contribution-meta">
           <span class="travel-hub-detail-contribution-uploader">{{ ref.uploader_name }}</span>
           {% if ref.can_manage %}
-          <span class="travel-hub-detail-contribution-actions" data-type="link" data-id="{{ ref.blog_bangladesh_destination_reference_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
+          <span class="travel-hub-detail-contribution-actions" data-type="link" data-id="{{ ref.blog_bangladesh_destination_reference_link_id }}" name="{{ ref.blog_bangladesh_destination_reference_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
             <button type="button" class="travel-hub-detail-contribution-edit-button" id="travel-hub-detail-link-edit-{{ ref.blog_bangladesh_destination_reference_link_id }}" name="travel_hub_link_edit_{{ ref.blog_bangladesh_destination_reference_link_id }}" title="সম্পাদনা">✎</button>
             <button type="button" class="travel-hub-detail-contribution-delete-button" id="travel-hub-detail-link-delete-{{ ref.blog_bangladesh_destination_reference_link_id }}" name="travel_hub_link_delete_{{ ref.blog_bangladesh_destination_reference_link_id }}" title="মুছুন">✕</button>
           </span>
@@ -211,7 +211,7 @@
     </div>
 
     {% if user.is_authenticated %}
-    <div class="travel-hub-detail-add-form" id="travel-hub-detail-link-form">
+    <div class="travel-hub-detail-add-form" id="travel-hub-detail-link-form" name="travel_hub_detail_link_form">
       <div class="travel-hub-detail-add-form-row">
         <input type="url" id="travel-hub-detail-link-url" name="travel-hub-detail-link-url" placeholder="লিংক (https://...)" class="travel-hub-detail-text-input travel-hub-detail-text-input-wide">
       </div>
@@ -290,7 +290,7 @@
     {% endfor %}
 
     {% if user.is_authenticated %}
-    <div class="travel-hub-detail-add-form" id="travel-hub-detail-review-form">
+    <div class="travel-hub-detail-add-form" id="travel-hub-detail-review-form" name="travel_hub_detail_review_form">
       <div class="travel-hub-detail-add-form-row">
         <span class="travel-hub-detail-review-rating-label">আপনার রেটিং দিন ★</span>
         <select id="travel-hub-detail-review-rating" name="travel-hub-detail-review-rating" class="travel-hub-detail-text-input travel-hub-detail-input-narrow">

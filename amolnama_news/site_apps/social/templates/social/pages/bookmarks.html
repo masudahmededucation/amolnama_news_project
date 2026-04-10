@@ -12,20 +12,20 @@
 
 {% block content %}
 
-<div class="bookmarks-page" id="bookmarks-page">
-  <h1 class="bookmarks-page-title" id="bookmarks-page-title">💜 সংরক্ষিত (Bookmarks)</h1>
-  <p class="bookmarks-page-subtitle" id="bookmarks-page-subtitle">আপনার পছন্দের সব কন্টেন্ট এখানে সংরক্ষিত আছে</p>
+<div class="bookmarks-page" id="bookmarks-page" name="bookmarks_page">
+  <h1 class="bookmarks-page-title" id="bookmarks-page-title" name="bookmarks_page_title">💜 সংরক্ষিত (Bookmarks)</h1>
+  <p class="bookmarks-page-subtitle" id="bookmarks-page-subtitle" name="bookmarks_page_subtitle">আপনার পছন্দের সব কন্টেন্ট এখানে সংরক্ষিত আছে</p>
 
   {% if universal_bookmarks %}
-  <h2 class="bookmarks-section-title" id="bookmarks-section-universal">📌 কন্টেন্ট বুকমার্ক</h2>
+  <h2 class="bookmarks-section-title" id="bookmarks-section-universal-title" name="bookmarks_section_universal_title">📌 কন্টেন্ট বুকমার্ক</h2>
   {% for promo in universal_bookmarks %}
   {% include "core/components/content-promo-card.html" with promo=promo %}
   {% endfor %}
   {% endif %}
 
   {% if posts %}
-  <h2 class="bookmarks-section-title" id="bookmarks-section-posts">📝 পোস্ট বুকমার্ক</h2>
-  <div class="post-feed" id="bookmarks-post-feed">
+  <h2 class="bookmarks-section-title" id="bookmarks-section-posts-title" name="bookmarks_section_posts_title">📝 পোস্ট বুকমার্ক</h2>
+  <div class="post-feed" id="bookmarks-post-feed" name="bookmarks_post_feed">
     {% for post_item in posts %}
     {% include "post/components/post-card.html" %}
     {% endfor %}
@@ -33,9 +33,9 @@
   {% endif %}
 
   {% if not posts and not universal_bookmarks %}
-  <div class="bookmarks-empty" id="bookmarks-empty">
+  <div class="bookmarks-empty" id="bookmarks-empty" name="bookmarks_empty">
     <p>এখনো কিছু সংরক্ষণ করা হয়নি</p>
-    <p><a href="/">হোম ফিডে যান →</a></p>
+    <p><a href="/" id="bookmarks-empty-home-link" name="bookmarks_empty_home_link">হোম ফিডে যান →</a></p>
   </div>
   {% endif %}
 </div>

@@ -8,49 +8,49 @@
 {% endblock %}
 
 {% block content %}
-<div class="messenger" id="messenger" data-initial-conversation="{{ initial_conversation_id }}" data-current-user-profile-id="{{ current_user_profile_id }}" data-start-with-user="{{ start_with_user_profile_id }}">
+<div class="messenger" id="messenger" name="messenger" data-initial-conversation="{{ initial_conversation_id }}" data-current-user-profile-id="{{ current_user_profile_id }}" data-start-with-user="{{ start_with_user_profile_id }}">
 
   <!-- Left panel: conversation list -->
-  <div class="messenger-sidebar" id="messenger-sidebar">
-    <div class="messenger-sidebar-header" id="messenger-sidebar-header">
+  <div class="messenger-sidebar" id="messenger-sidebar" name="messenger_sidebar">
+    <div class="messenger-sidebar-header" id="messenger-sidebar-header" name="messenger_sidebar_header">
       <h1 class="messenger-sidebar-title">মেসেঞ্জার</h1>
-      <button type="button" class="messenger-sidebar-collapse-button" id="messenger-sidebar-collapse-button" title="সংকুচিত করুন">◀</button>
+      <button type="button" class="messenger-sidebar-collapse-button" id="messenger-sidebar-collapse-button" name="messenger_sidebar_collapse_button" title="সংকুচিত করুন">◀</button>
     </div>
-    <div class="messenger-sidebar-search" id="messenger-sidebar-search">
+    <div class="messenger-sidebar-search" id="messenger-sidebar-search" name="messenger_sidebar_search">
       <input type="text" class="messenger-sidebar-search-input" id="messenger-sidebar-search-input" name="messenger_sidebar_search_input" placeholder="কথোপকথন খুঁজুন..." autocomplete="off">
     </div>
-    <div class="messenger-conversation-list" id="messenger-conversation-list">
-      <div class="messenger-conversation-list-loading" id="messenger-conversation-list-loading">লোড হচ্ছে...</div>
+    <div class="messenger-conversation-list" id="messenger-conversation-list" name="messenger_conversation_list">
+      <div class="messenger-conversation-list-loading" id="messenger-conversation-list-loading" name="messenger_conversation_list_loading">লোড হচ্ছে...</div>
     </div>
   </div>
 
   <!-- Right panel: chat view -->
-  <div class="messenger-chat" id="messenger-chat">
+  <div class="messenger-chat" id="messenger-chat" name="messenger_chat">
 
     <!-- Empty state (no conversation selected) -->
-    <div class="messenger-chat-empty" id="messenger-chat-empty">
+    <div class="messenger-chat-empty" id="messenger-chat-empty" name="messenger_chat_empty">
       <div class="messenger-chat-empty-icon">💬</div>
       <p class="messenger-chat-empty-title">একটি কথোপকথন নির্বাচন করুন</p>
       <p class="messenger-chat-empty-subtitle">বাম পাশ থেকে কথোপকথন বেছে নিন অথবা নতুন শুরু করুন</p>
     </div>
 
     <!-- Chat header (hidden until conversation opened) -->
-    <div class="messenger-chat-header messenger-hidden" id="messenger-chat-header">
-      <button type="button" class="messenger-chat-back-button" id="messenger-chat-back-button" aria-label="Back">
+    <div class="messenger-chat-header messenger-hidden" id="messenger-chat-header" name="messenger_chat_header">
+      <button type="button" class="messenger-chat-back-button" id="messenger-chat-back-button" name="messenger_chat_back_button" aria-label="Back">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </button>
-      <div class="messenger-chat-header-avatar" id="messenger-chat-header-avatar"></div>
-      <div class="messenger-chat-header-info" id="messenger-chat-header-info">
-        <span class="messenger-chat-header-name" id="messenger-chat-header-name"></span>
-        <span class="messenger-chat-header-status" id="messenger-chat-header-status"></span>
+      <div class="messenger-chat-header-avatar" id="messenger-chat-header-avatar" name="messenger_chat_header_avatar"></div>
+      <div class="messenger-chat-header-info" id="messenger-chat-header-info" name="messenger_chat_header_info">
+        <span class="messenger-chat-header-name" id="messenger-chat-header-name" name="messenger_chat_header_name"></span>
+        <span class="messenger-chat-header-status" id="messenger-chat-header-status" name="messenger_chat_header_status"></span>
       </div>
       <div class="messenger-chat-settings-wrapper">
-        <button type="button" class="messenger-chat-settings-button" id="messenger-chat-settings-button" title="সেটিংস">
+        <button type="button" class="messenger-chat-settings-button" id="messenger-chat-settings-button" name="messenger_chat_settings_button" title="সেটিংস">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
-        <div class="messenger-chat-settings-dropdown messenger-hidden" id="messenger-chat-settings-dropdown">
-          <button type="button" class="messenger-chat-settings-item messenger-chat-settings-submenu-toggle" id="messenger-auto-delete-toggle">⏱ অটো-ডিলিট <span class="messenger-chat-settings-arrow">▸</span></button>
-          <div class="messenger-chat-settings-submenu messenger-hidden" id="messenger-auto-delete-submenu">
+        <div class="messenger-chat-settings-dropdown messenger-hidden" id="messenger-chat-settings-dropdown" name="messenger_chat_settings_dropdown">
+          <button type="button" class="messenger-chat-settings-item messenger-chat-settings-submenu-toggle" id="messenger-auto-delete-toggle" name="messenger_auto_delete_toggle">⏱ অটো-ডিলিট <span class="messenger-chat-settings-arrow">▸</span></button>
+          <div class="messenger-chat-settings-submenu messenger-hidden" id="messenger-auto-delete-submenu" name="messenger_auto_delete_submenu">
             <button type="button" class="messenger-chat-settings-subitem" data-auto-delete="86400">⏱ ১ দিন</button>
             <button type="button" class="messenger-chat-settings-subitem" data-auto-delete="604800">⏱ ৭ দিন</button>
             <button type="button" class="messenger-chat-settings-subitem" data-auto-delete="2592000">⏱ ৩০ দিন</button>
@@ -59,51 +59,51 @@
             <button type="button" class="messenger-chat-settings-subitem messenger-chat-settings-subitem-off" data-auto-delete="0">✕ অটো-ডিলিট বন্ধ</button>
           </div>
           <div class="messenger-chat-settings-divider"></div>
-          <button type="button" class="messenger-chat-settings-item messenger-chat-settings-item-danger" id="messenger-chat-clear-all-button">🗑 সব মেসেজ মুছুন</button>
+          <button type="button" class="messenger-chat-settings-item messenger-chat-settings-item-danger" id="messenger-chat-clear-all-button" name="messenger_chat_clear_all_button">🗑 সব মেসেজ মুছুন</button>
         </div>
       </div>
     </div>
 
     <!-- Messages area (hidden until conversation opened) -->
-    <div class="messenger-messages messenger-hidden" id="messenger-messages">
-      <div class="messenger-messages-loading" id="messenger-messages-loading">লোড হচ্ছে...</div>
+    <div class="messenger-messages messenger-hidden" id="messenger-messages" name="messenger_messages">
+      <div class="messenger-messages-loading" id="messenger-messages-loading" name="messenger_messages_loading">লোড হচ্ছে...</div>
     </div>
 
     <!-- Scroll to bottom button -->
-    <button type="button" class="messenger-scroll-bottom-button messenger-hidden" id="messenger-scroll-bottom-button" aria-label="Scroll to bottom">
+    <button type="button" class="messenger-scroll-bottom-button messenger-hidden" id="messenger-scroll-bottom-button" name="messenger_scroll_bottom_button" aria-label="Scroll to bottom">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-      <span class="messenger-scroll-bottom-badge messenger-hidden" id="messenger-scroll-bottom-badge">0</span>
+      <span class="messenger-scroll-bottom-badge messenger-hidden" id="messenger-scroll-bottom-badge" name="messenger_scroll_bottom_badge">0</span>
     </button>
 
     <!-- Context menu (positioned on right-click / long-press) -->
-    <div class="messenger-context-menu messenger-hidden" id="messenger-context-menu">
-      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-reply" data-action="reply">↩ রিপ্লাই</button>
-      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-copy" data-action="copy">📋 কপি</button>
-      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-own" id="messenger-context-menu-edit" data-action="edit">✏️ সম্পাদনা</button>
-      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-delete-for-me" data-action="delete_for_me">🗑 আমার জন্য মুছুন</button>
-      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-danger" id="messenger-context-menu-delete-for-everyone" data-action="delete_for_everyone">🗑 সবার জন্য মুছুন</button>
+    <div class="messenger-context-menu messenger-hidden" id="messenger-context-menu" name="messenger_context_menu">
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-reply" name="messenger_context_menu_reply" data-action="reply">↩ রিপ্লাই</button>
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-copy" name="messenger_context_menu_copy" data-action="copy">📋 কপি</button>
+      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-own" id="messenger-context-menu-edit" name="messenger_context_menu_edit" data-action="edit">✏️ সম্পাদনা</button>
+      <button type="button" class="messenger-context-menu-item" id="messenger-context-menu-delete-for-me" name="messenger_context_menu_delete_for_me" data-action="delete_for_me">🗑 আমার জন্য মুছুন</button>
+      <button type="button" class="messenger-context-menu-item messenger-context-menu-item-danger" id="messenger-context-menu-delete-for-everyone" name="messenger_context_menu_delete_for_everyone" data-action="delete_for_everyone">🗑 সবার জন্য মুছুন</button>
     </div>
 
     <!-- Message input (hidden until conversation opened) -->
-    <div class="messenger-input-area messenger-hidden" id="messenger-input-area">
+    <div class="messenger-input-area messenger-hidden" id="messenger-input-area" name="messenger_input_area">
       <!-- Reply preview bar (hidden until user clicks reply) -->
-      <div class="messenger-reply-preview messenger-hidden" id="messenger-reply-preview">
-        <div class="messenger-reply-preview-content" id="messenger-reply-preview-content"></div>
-        <button type="button" class="messenger-reply-preview-close" id="messenger-reply-preview-close" aria-label="Cancel reply">✕</button>
+      <div class="messenger-reply-preview messenger-hidden" id="messenger-reply-preview" name="messenger_reply_preview">
+        <div class="messenger-reply-preview-content" id="messenger-reply-preview-content" name="messenger_reply_preview_content"></div>
+        <button type="button" class="messenger-reply-preview-close" id="messenger-reply-preview-close" name="messenger_reply_preview_close" aria-label="Cancel reply">✕</button>
       </div>
-      <div class="messenger-input-wrapper" id="messenger-input-wrapper">
+      <div class="messenger-input-wrapper" id="messenger-input-wrapper" name="messenger_input_wrapper">
         <div class="messenger-input-textarea-wrapper">
           <textarea class="messenger-input-textarea" id="messenger-input-textarea" name="messenger_input_textarea" placeholder="মেসেজ লিখুন..." rows="3"></textarea>
-          <button type="button" class="messenger-emoji-toggle" id="messenger-emoji-toggle" title="ইমোজি">😊</button>
+          <button type="button" class="messenger-emoji-toggle" id="messenger-emoji-toggle" name="messenger_emoji_toggle" title="ইমোজি">😊</button>
         </div>
-        <button type="button" class="messenger-send-button messenger-hidden" id="messenger-send-button" aria-label="Send">
+        <button type="button" class="messenger-send-button messenger-hidden" id="messenger-send-button" name="messenger_send_button" aria-label="Send">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
     </div>
 
     <!-- Emoji picker -->
-    <div class="messenger-emoji-picker messenger-hidden" id="messenger-emoji-picker"></div>
+    <div class="messenger-emoji-picker messenger-hidden" id="messenger-emoji-picker" name="messenger_emoji_picker"></div>
 
   </div>
 

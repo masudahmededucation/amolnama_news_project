@@ -10,7 +10,7 @@
   <div class="signup-form-group">
     <label class="signup-form-label" for="{{ form.mobile_number.id_for_label }}">Mobile</label>
     <div class="phone-input-row">
-      <span class="phone-code-prefix" id="phone-code-prefix">{{ form.country.value|default:"+880" }}</span>
+      <span class="phone-code-prefix" id="phone-code-prefix" name="phone_code_prefix">{{ form.country.value|default:"+880" }}</span>
       {{ form.mobile_number }}
     </div>
     {% if form.mobile_number.errors %}

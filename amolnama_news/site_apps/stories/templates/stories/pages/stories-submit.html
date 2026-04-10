@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="stories-submit-container" id="stories-submit-container">
+<div class="stories-submit-container" id="stories-submit-container" name="stories_submit_container">
   <h1 class="stories-submit-title">📚 গল্প জমা দিন</h1>
 
   <form class="stories-submit-form" id="stories-submit-form" name="stories_submit_form" enctype="multipart/form-data">
@@ -74,7 +74,7 @@
       <button type="submit" class="stories-submit-button" id="stories-submit-button" name="stories_submit_button">জমা দিন</button>
     </div>
 
-    <div class="stories-submit-error-message" hidden id="stories-submit-error-message"></div>
+    <div class="stories-submit-error-message" hidden id="stories-submit-error-message" name="stories_submit_error_message"></div>
   </form>
 </div>
 {% endblock %}

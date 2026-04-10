@@ -29,14 +29,14 @@
   </div>
 </section>
 
-<form id="beauty-hub-upload-form" class="beauty-hub-upload-form" enctype="multipart/form-data" novalidate>
+<form id="beauty-hub-upload-form" name="beauty_hub_upload_form" class="beauty-hub-upload-form" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
   <div class="form-group">
     <label for="beauty-hub-file" class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
     <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input">
-    <div id="beauty-hub-file-preview" class="beauty-hub-file-preview" hidden>
-      <img id="beauty-hub-image-preview" class="beauty-hub-media-preview" hidden>
-      <video id="beauty-hub-video-preview" class="beauty-hub-media-preview" hidden controls></video>
+    <div id="beauty-hub-file-preview" name="beauty_hub_file_preview" class="beauty-hub-file-preview" hidden>
+      <img id="beauty-hub-image-preview" name="beauty_hub_image_preview" class="beauty-hub-media-preview" hidden>
+      <video id="beauty-hub-video-preview" name="beauty_hub_video_preview" class="beauty-hub-media-preview" hidden controls></video>
     </div>
   </div>
 
@@ -51,7 +51,7 @@
   </div>
 
   {# Festival date fields — shown only when Festival category selected #}
-  <div id="beauty-hub-festival-fields" class="beauty-hub-festival-panel" hidden>
+  <div id="beauty-hub-festival-fields" name="beauty_hub_festival_fields" class="beauty-hub-festival-panel" hidden>
     <div class="beauty-hub-festival-heading" data-en="Festival Details">উৎসবের তথ্য (Festival Details)</div>
     <div class="beauty-hub-festival-date-row">
       <div class="form-row-item">
@@ -76,7 +76,7 @@
 
   <div class="form-group">
     <span class="form-label" data-en="Description">বিবরণ (Description)</span>
-    <div id="quill-beauty-hub-description"></div>
+    <div id="quill-beauty-hub-description" name="quill_beauty_hub_description"></div>
     <textarea id="beauty-hub-desc-bn" name="beauty_hub_desc_bn" hidden></textarea>
   </div>
 
@@ -117,17 +117,17 @@
     </div>
   </div>
 
-  <div id="beauty-hub-upload-progress" class="form-group" hidden>
+  <div id="beauty-hub-upload-progress" name="beauty_hub_upload_progress" class="form-group" hidden>
     <div class="beauty-hub-progress-track">
-      <div id="beauty-hub-progress-bar" class="beauty-hub-progress-bar" style="width:0%"></div>
+      <div id="beauty-hub-progress-bar" name="beauty_hub_progress_bar" class="beauty-hub-progress-bar" style="width:0%"></div>
     </div>
-    <span id="beauty-hub-progress-text" class="form-hint" data-en="Uploading...">আপলোড হচ্ছে...</span>
+    <span id="beauty-hub-progress-text" name="beauty_hub_progress_text" class="form-hint" data-en="Uploading...">আপলোড হচ্ছে...</span>
   </div>
 
-  <div id="beauty-hub-upload-error" class="form-error-message"></div>
+  <div id="beauty-hub-upload-error" name="beauty_hub_upload_error" class="form-error-message"></div>
 
   <div class="form-actions">
-    <button type="submit" id="beauty-hub-upload-submit-button" class="form-button-primary" data-en="Upload">
+    <button type="submit" id="beauty-hub-upload-submit-button" name="beauty_hub_upload_submit_button" class="form-button-primary" data-en="Upload">
       আপলোড করুন (Upload)
     </button>
     <button type="button" id="beauty-hub-clear-form-button" name="beauty_hub_clear_form" class="beauty-hub-clear-form-button" data-en="Clear Form">তথ্য মুছুন (Clear Form)</button>

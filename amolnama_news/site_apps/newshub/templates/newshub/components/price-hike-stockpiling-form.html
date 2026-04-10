@@ -5,17 +5,17 @@
   Data is serialized to a hidden JSON input for form submission.
 {% endcomment %}
 
-<div class="form-section" id="section-stockpiling">
+<div class="form-section" id="section-stockpiling" name="section_stockpiling">
   <h3 class="form-section-title"><span class="section-icon">📦</span>মজুদ ও সরবরাহ (Stockpiling & Supply)</h3>
 
   {# Hidden input — JS serializes stockpiling data here before submit #}
   <input type="hidden" id="stockpiling-json" name="stockpiling_json" value="">
 
   {# Embed commodity API URL as CSP-safe JSON (same as price-gap) #}
-  <script type="application/json" id="stockpile-commodity-search-url-data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
+  <script type="application/json" id="stockpile-commodity-search-url-data" name="stockpile_commodity_search_url_data">{"url": "{% url 'market:api_commodity_search' %}"}</script>
 
   {# Repeater row template — cloned by JS for each commodity #}
-  <template id="stockpile-row-template">
+  <template id="stockpile-row-template" name="stockpile_row_template">
     <div class="stockpile-row" data-row-index="">
       <div class="commodity-row-header">
         <span class="stockpile-row-number"></span>
@@ -54,11 +54,11 @@
   </template>
 
   {# Container for repeater rows #}
-  <div id="stockpile-rows-container"></div>
+  <div id="stockpile-rows-container" name="stockpile_rows_container"></div>
 
   {# Add button — after all rows #}
   <div class="form-field text-center">
-    <button type="button" class="btn-add-commodity" id="btn-add-stockpile">
+    <button type="button" class="btn-add-commodity" id="btn-add-stockpile" name="btn_add_stockpile">
       ➕ পণ্য যোগ করুন (Add Commodity)
     </button>
   </div>

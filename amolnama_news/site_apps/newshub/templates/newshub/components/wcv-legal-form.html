@@ -7,7 +7,7 @@
   Language toggle: labels use data-bn/data-en, inputs use data-ph-bn/data-ph-en.
 {% endcomment %}
 
-<div class="form-section" id="section-wcv-legal">
+<div class="form-section" id="section-wcv-legal" name="section_wcv_legal">
   <h3 class="form-section-title"><span class="section-icon">⚖️</span><span
       data-bn="আইনি পদক্ষেপ ও সহায়তা" data-en="Legal Action & Support">আইনি পদক্ষেপ ও সহায়তা</span></h3>
 
@@ -18,7 +18,7 @@
   <div class="form-field">
     <span class="form-field-label" data-bn="প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে"
            data-en="Applicable Law — multiple selections allowed">প্রযোজ্য আইন — একাধিক নির্বাচন করা যাবে</span>
-    <div class="checkbox-group" id="wcv-applicable-law-checkboxes">
+    <div class="checkbox-group" id="wcv-applicable-law-checkboxes" name="wcv_applicable_law_checkboxes">
       {# Populated by JS from wcv-applicable-law-data #}
     </div>
   </div>
@@ -36,7 +36,7 @@
   <div class="form-field">
     <span class="form-field-label" data-bn="সহায়তা সেবা — একাধিক নির্বাচন করা যাবে"
            data-en="Support Services — multiple selections allowed">সহায়তা সেবা — একাধিক নির্বাচন করা যাবে</span>
-    <div class="checkbox-group" id="wcv-support-service-checkboxes">
+    <div class="checkbox-group" id="wcv-support-service-checkboxes" name="wcv_support_service_checkboxes">
       {# Populated by JS from wcv-support-service-data #}
     </div>
   </div>
@@ -44,7 +44,7 @@
   <div class="form-field">
     <span class="form-field-label" data-bn="সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে"
            data-en="Social Pressure & Retaliation — multiple selections allowed">সামাজিক চাপ ও প্রতিশোধ — একাধিক নির্বাচন করা যাবে</span>
-    <div class="checkbox-group" id="wcv-retaliation-checkboxes">
+    <div class="checkbox-group" id="wcv-retaliation-checkboxes" name="wcv_retaliation_checkboxes">
       {# Populated by JS from wcv-retaliation-data #}
     </div>
   </div>
@@ -60,8 +60,8 @@
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="wcv-fir-status-data">{{ wcv_fir_statuses|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-applicable-law-data">{{ wcv_applicable_laws|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-case-status-data">{{ wcv_case_statuses|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-support-service-data">{{ wcv_support_services|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-retaliation-data">{{ wcv_retaliation_types|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-fir-status-data" name="wcv_fir_status_data">{{ wcv_fir_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-applicable-law-data" name="wcv_applicable_law_data">{{ wcv_applicable_laws|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-case-status-data" name="wcv_case_status_data">{{ wcv_case_statuses|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-support-service-data" name="wcv_support_service_data">{{ wcv_support_services|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-retaliation-data" name="wcv_retaliation_data">{{ wcv_retaliation_types|default:"[]"|safe }}</script>

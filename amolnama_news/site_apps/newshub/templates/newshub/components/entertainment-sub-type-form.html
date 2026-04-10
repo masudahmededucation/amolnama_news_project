@@ -7,7 +7,7 @@
   can conditionally show award-specific fields.
 {% endcomment %}
 
-<div class="form-section" id="section-entertainment-sub-type">
+<div class="form-section" id="section-entertainment-sub-type" name="section_entertainment_sub_type">
   <h3 class="form-section-title"><span class="section-icon">🏷️</span>কন্টেন্টের ধরন (Content Type)</h3>
 
   {# Hidden inputs — JS syncs values before submit #}
@@ -30,7 +30,7 @@
   </div>
 
   {# ---- News Sub-Type (radio cards) ---- #}
-  <div class="radio-card-grid" id="entertainment-sub-type-grid">
+  <div class="radio-card-grid" id="entertainment-sub-type-grid" name="entertainment_sub_type_grid">
     <label class="radio-card">
       <input type="radio" id="entertainment-sub-type-radio-release-premiere" name="entertainment_sub_type_radio" value="release_premiere">
       <span class="radio-card-icon">🎬</span>

@@ -21,7 +21,7 @@
         <div class="age-date-wrap">
           <input type="text" id="age-dob" name="age_dob" class="age-date-input" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required data-no-bangla>
           <button type="button" class="age-date-toggle" data-target="age-dob">📅</button>
-          <div class="age-calendar" id="age-dob-calendar"></div>
+          <div class="age-calendar" id="age-dob-calendar" name="age_dob_calendar"></div>
         </div>
       </div>
       <div class="age-form-field">
@@ -29,26 +29,26 @@
         <div class="age-date-wrap">
           <input type="text" id="age-target" name="age_target" class="age-date-input" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" data-no-bangla>
           <button type="button" class="age-date-toggle" data-target="age-target">📅</button>
-          <div class="age-calendar" id="age-target-calendar"></div>
+          <div class="age-calendar" id="age-target-calendar" name="age_target_calendar"></div>
         </div>
         <span class="hint" data-en="Defaults to today if left empty">খালি রাখলে আজকের তারিখ ধরা হবে</span>
       </div>
     </div>
-    <button type="button" id="age-calc-btn" class="btn-submit" data-en="Calculate">
+    <button type="button" id="age-calc-btn" name="age_calc_btn" class="btn-submit" data-en="Calculate">
       হিসাব করুন (Calculate)
     </button>
   </div>
 
   {# ── Results — hidden until calculated ── #}
-  <div id="ageResults" class="age-results" hidden>
+  <div id="ageResults" name="ageResults" class="age-results" hidden>
 
     {# Primary age display #}
     <div class="age-primary-card">
       <div class="age-primary-label" data-en="Your Age">আপনার বয়স (Your Age)</div>
       <div class="age-primary-value">
-        <span id="ageYears" class="age-big">0</span><span class="age-unit" data-en="years">বছর</span>
-        <span id="ageMonths" class="age-big">0</span><span class="age-unit" data-en="months">মাস</span>
-        <span id="ageDays" class="age-big">0</span><span class="age-unit" data-en="days">দিন</span>
+        <span id="ageYears" name="ageYears" class="age-big">0</span><span class="age-unit" data-en="years">বছর</span>
+        <span id="ageMonths" name="ageMonths" class="age-big">0</span><span class="age-unit" data-en="months">মাস</span>
+        <span id="ageDays" name="ageDays" class="age-big">0</span><span class="age-unit" data-en="days">দিন</span>
       </div>
     </div>
 
@@ -57,36 +57,36 @@
       <div class="age-birthday-icon">🎂</div>
       <div class="age-birthday-info">
         <div class="age-birthday-label" data-en="Next Birthday">পরবর্তী জন্মদিন</div>
-        <div id="ageBirthdayCountdown" class="age-birthday-countdown"></div>
-        <div id="ageBirthdayDate" class="age-birthday-date"></div>
-        <div id="ageBirthdayDay" class="age-birthday-day"></div>
+        <div id="ageBirthdayCountdown" name="ageBirthdayCountdown" class="age-birthday-countdown"></div>
+        <div id="ageBirthdayDate" name="ageBirthdayDate" class="age-birthday-date"></div>
+        <div id="ageBirthdayDay" name="ageBirthdayDay" class="age-birthday-day"></div>
       </div>
     </div>
 
     {# Detailed breakdown grid #}
     <div class="age-detail-grid">
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalMonths">0</span>
+        <span class="age-detail-value" id="ageTotalMonths" name="ageTotalMonths">0</span>
         <span class="age-detail-label" data-en="Total Months">মোট মাস (Total Months)</span>
       </div>
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalWeeks">0</span>
+        <span class="age-detail-value" id="ageTotalWeeks" name="ageTotalWeeks">0</span>
         <span class="age-detail-label" data-en="Total Weeks">মোট সপ্তাহ (Total Weeks)</span>
       </div>
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalDays">0</span>
+        <span class="age-detail-value" id="ageTotalDays" name="ageTotalDays">0</span>
         <span class="age-detail-label" data-en="Total Days">মোট দিন (Total Days)</span>
       </div>
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalHours">0</span>
+        <span class="age-detail-value" id="ageTotalHours" name="ageTotalHours">0</span>
         <span class="age-detail-label" data-en="Total Hours">মোট ঘণ্টা (Total Hours)</span>
       </div>
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalMinutes">0</span>
+        <span class="age-detail-value" id="ageTotalMinutes" name="ageTotalMinutes">0</span>
         <span class="age-detail-label" data-en="Total Minutes">মোট মিনিট (Total Minutes)</span>
       </div>
       <div class="age-detail-item">
-        <span class="age-detail-value" id="ageTotalSeconds">0</span>
+        <span class="age-detail-value" id="ageTotalSeconds" name="ageTotalSeconds">0</span>
         <span class="age-detail-label" data-en="Total Seconds">মোট সেকেন্ড (Total Seconds)</span>
       </div>
     </div>
@@ -94,13 +94,13 @@
     {# Fun facts #}
     <div class="age-fun-facts">
       <h3 data-en="Fun Facts">মজার তথ্য (Fun Facts)</h3>
-      <ul id="ageFunFacts"></ul>
+      <ul id="ageFunFacts" name="ageFunFacts"></ul>
     </div>
 
     {# Life milestones #}
     <div class="age-milestones">
       <h3 data-en="Life Milestones">জীবনের মাইলফলক (Life Milestones)</h3>
-      <div id="ageMilestones" class="age-milestone-list"></div>
+      <div id="ageMilestones" name="ageMilestones" class="age-milestone-list"></div>
     </div>
 
   </div>

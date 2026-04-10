@@ -5,7 +5,7 @@
   Serialized to global_news_classification_json by news-global-news-classification.js.
 {% endcomment %}
 
-<div class="form-section" id="section-global-news-classification">
+<div class="form-section" id="section-global-news-classification" name="section_global_news_classification">
   <h3 class="form-section-title"><span class="section-icon">📋</span>সংবাদের গুরুত্ব ও অবস্থা (Significance & Story Status)</h3>
 
   {# Hidden JSON — serialized by news-global-news-classification.js #}
@@ -14,14 +14,14 @@
   {# ---- Significance Level (DB-driven from ref_status) ---- #}
   <h4 class="form-subsection-title">সংবাদের গুরুত্ব (News Significance)</h4>
   <div class="form-field">
-    <div class="radio-inline-group" id="global-news-significance-group">
+    <div class="radio-inline-group" id="global-news-significance-group" name="global_news_significance_group">
       {# Populated by JS from news-significance-data #}
     </div>
     <input type="hidden" id="global-news-significance" name="global_news_significance" value="">
   </div>
 
   {# JSON embed for significance options #}
-  <script type="application/json" id="news-significance-data">{{ news_significance_json|default:"[]"|safe }}</script>
+  <script type="application/json" id="news-significance-data" name="news_significance_data">{{ news_significance_json|default:"[]"|safe }}</script>
 
   {# ---- Story Status ---- #}
   <h4 class="form-subsection-title">সংবাদের অবস্থা (Story Status)</h4>

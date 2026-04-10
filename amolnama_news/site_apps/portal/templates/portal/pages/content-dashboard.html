@@ -8,14 +8,14 @@
 {% endblock %}
 
 {% block content %}
-<div class="content-dashboard" id="content-dashboard">
-  <div class="content-dashboard-header" id="content-dashboard-header">
-    <h1 class="content-dashboard-title" id="content-dashboard-title">Content Dashboard</h1>
-    <p class="content-dashboard-subtitle" id="content-dashboard-subtitle">সকল কন্টেন্টের স্ট্যাটাস পরিবর্তন করুন — Published হলে হোম ফিডে দেখাবে</p>
+<div class="content-dashboard" id="content-dashboard" name="content_dashboard">
+  <div class="content-dashboard-header" id="content-dashboard-header" name="content_dashboard_header">
+    <h1 class="content-dashboard-title" id="content-dashboard-title" name="content_dashboard_title">Content Dashboard</h1>
+    <p class="content-dashboard-subtitle" id="content-dashboard-subtitle" name="content_dashboard_subtitle">সকল কন্টেন্টের স্ট্যাটাস পরিবর্তন করুন — Published হলে হোম ফিডে দেখাবে</p>
   </div>
 
   <!-- Filter tabs -->
-  <div class="content-dashboard-filters" id="content-dashboard-filters">
+  <div class="content-dashboard-filters" id="content-dashboard-filters" name="content_dashboard_filters">
     <button type="button" class="content-dashboard-filter content-dashboard-filter-active" id="content-dashboard-filter-all" name="content_dashboard_filter_all" data-filter="all">All</button>
     <button type="button" class="content-dashboard-filter" id="content-dashboard-filter-newshub" name="content_dashboard_filter_newshub" data-filter="newshub">NEWS</button>
     <button type="button" class="content-dashboard-filter" id="content-dashboard-filter-poem" name="content_dashboard_filter_poem" data-filter="poem">POEM</button>
@@ -25,33 +25,32 @@
   </div>
 
   <!-- Content list -->
-  <div class="content-dashboard-list" id="content-dashboard-list">
+  <div class="content-dashboard-list" id="content-dashboard-list" name="content_dashboard_list">
     {% for item in content_items %}
-    <div class="content-dashboard-item" id="content-dashboard-item-{{ item.content_type }}-{{ item.content_id }}" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">
+    <div class="content-dashboard-item" id="content-dashboard-item-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_item_{{ item.content_type }}_{{ item.content_id }}" data-content-type="{{ item.content_type }}" data-content-id="{{ item.content_id }}">
       <div class="content-dashboard-item-left">
         <span class="content-dashboard-item-badge content-dashboard-item-badge-{{ item.content_type_color }}">{{ item.content_type_label }}</span>
         <div class="content-dashboard-item-info">
-          <a href="{{ item.content_url }}" class="content-dashboard-item-title" id="content-dashboard-item-title-{{ item.content_type }}-{{ item.content_id }}" target="_blank" rel="noopener noreferrer">{{ item.content_title }}</a>
-          <span class="content-dashboard-item-date" id="content-dashboard-item-date-{{ item.content_type }}-{{ item.content_id }}">{{ item.created_at_formatted }}</span>
+          <a href="{{ item.content_url }}" class="content-dashboard-item-title" id="content-dashboard-item-title-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_item_title_{{ item.content_type }}_{{ item.content_id }}" target="_blank" rel="noopener noreferrer">{{ item.content_title }}</a>
+          <span class="content-dashboard-item-date" id="content-dashboard-item-date-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_item_date_{{ item.content_type }}_{{ item.content_id }}">{{ item.created_at_formatted }}</span>
         </div>
       </div>
       <div class="content-dashboard-item-right">
-        <span class="content-dashboard-item-status {% if item.is_published %}content-dashboard-item-status-published{% else %}content-dashboard-item-status-draft{% endif %}" id="content-dashboard-item-status-{{ item.content_type }}-{{ item.content_id }}">
+        <span class="content-dashboard-item-status {% if item.is_published %}content-dashboard-item-status-published{% else %}content-dashboard-item-status-draft{% endif %}" id="content-dashboard-item-status-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_item_status_{{ item.content_type }}_{{ item.content_id }}">
           {% if item.is_published %}Published{% else %}Draft{% endif %}
         </span>
-        <label class="content-dashboard-toggle-switch" id="content-dashboard-toggle-switch-{{ item.content_type }}-{{ item.content_id }}">
+        <label class="content-dashboard-toggle-switch" id="content-dashboard-toggle-switch-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_toggle_switch_{{ item.content_type }}_{{ item.content_id }}">
           <input type="checkbox" class="content-dashboard-toggle-input"
-                 id="content-dashboard-toggle-input-{{ item.content_type }}-{{ item.content_id }}"
-                 name="content_dashboard_toggle_input_{{ item.content_type }}_{{ item.content_id }}"
+                 id="content-dashboard-toggle-input-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_toggle_input_{{ item.content_type }}_{{ item.content_id }}"
                  data-content-type="{{ item.content_type }}"
                  data-content-id="{{ item.content_id }}"
                  {% if item.is_published %}checked{% endif %}>
-          <span class="content-dashboard-toggle-slider" id="content-dashboard-toggle-slider-{{ item.content_type }}-{{ item.content_id }}"></span>
+          <span class="content-dashboard-toggle-slider" id="content-dashboard-toggle-slider-{{ item.content_type }}-{{ item.content_id }}" name="content_dashboard_toggle_slider_{{ item.content_type }}_{{ item.content_id }}"></span>
         </label>
       </div>
     </div>
     {% empty %}
-    <div class="content-dashboard-empty" id="content-dashboard-empty">
+    <div class="content-dashboard-empty" id="content-dashboard-empty" name="content_dashboard_empty">
       <p>কোনো কন্টেন্ট পাওয়া যায়নি</p>
     </div>
     {% endfor %}

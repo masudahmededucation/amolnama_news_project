@@ -14,8 +14,8 @@
     <p class="textextractor-dashboard-subtitle">Extract text from images, PDFs, audio, and video — Bengali + English</p>
   </div>
 
-  <div class="textextractor-dashboard-dropzone" id="textextractor-dashboard-dropzone">
-    <div class="textextractor-dashboard-dropzone-content" id="textextractor-dashboard-dropzone-content">
+  <div class="textextractor-dashboard-dropzone" id="textextractor-dashboard-dropzone" name="textextractor_dashboard_dropzone">
+    <div class="textextractor-dashboard-dropzone-content" id="textextractor-dashboard-dropzone-content" name="textextractor_dashboard_dropzone_content">
       <span class="textextractor-dashboard-dropzone-icon">📂</span>
       <p class="textextractor-dashboard-dropzone-text">Drag & drop files here or <label for="textextractor-dashboard-file-input" class="textextractor-dashboard-dropzone-browse">browse</label></p>
       <p class="textextractor-dashboard-dropzone-hint">Multiple files supported — Images, PDF, Audio, Video, Text — Max 50MB each</p>
@@ -25,9 +25,9 @@
 
 
   {% if job_items %}
-  <div class="textextractor-job-list" id="textextractor-job-list">
+  <div class="textextractor-job-list" id="textextractor-job-list" name="textextractor_job_list">
     {% for job in job_items %}
-    <a href="{% url 'textextractor:job_detail' job_id=job.job_id %}" class="textextractor-job-card" id="textextractor-job-card-{{ job.job_id }}">
+    <a href="{% url 'textextractor:job_detail' job_id=job.job_id %}" class="textextractor-job-card" id="textextractor-job-card-{{ job.job_id }}" name="textextractor_job_card_{{ job.job_id }}">
       <div class="textextractor-job-icon">
         {% if '.jpg' in job.file_extension or '.png' in job.file_extension or '.jpeg' in job.file_extension %}🖼️
         {% elif '.pdf' in job.file_extension %}📄
@@ -56,12 +56,12 @@
         </div>
 
         {% if job.status_code == 'processing' %}
-        <div class="textextractor-job-progress-row" id="textextractor-job-progress-row-{{ job.job_id }}" data-job-id="{{ job.job_id }}">
+        <div class="textextractor-job-progress-row" id="textextractor-job-progress-row-{{ job.job_id }}" name="textextractor_job_progress_row_{{ job.job_id }}" data-job-id="{{ job.job_id }}">
           <div class="textextractor-job-progress-bar-wrapper">
-            <div class="textextractor-job-progress-bar" id="textextractor-job-progress-bar-{{ job.job_id }}"></div>
-            <span class="textextractor-job-progress-text" id="textextractor-job-progress-text-{{ job.job_id }}">Processing...</span>
+            <div class="textextractor-job-progress-bar" id="textextractor-job-progress-bar-{{ job.job_id }}" name="textextractor_job_progress_bar_{{ job.job_id }}"></div>
+            <span class="textextractor-job-progress-text" id="textextractor-job-progress-text-{{ job.job_id }}" name="textextractor_job_progress_text_{{ job.job_id }}">Processing...</span>
           </div>
-          <pre class="textextractor-job-progress-log" id="textextractor-job-progress-log-{{ job.job_id }}">{{ job.error_message|default:"Starting extraction..." }}</pre>
+          <pre class="textextractor-job-progress-log" id="textextractor-job-progress-log-{{ job.job_id }}" name="textextractor_job_progress_log_{{ job.job_id }}">{{ job.error_message|default:"Starting extraction..." }}</pre>
         </div>
         {% endif %}
 
@@ -102,7 +102,7 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="textextractor-empty-state" id="textextractor-empty-state">
+  <div class="textextractor-empty-state" id="textextractor-empty-state" name="textextractor_empty_state">
     <p>Drag & drop a file above or click to browse</p>
   </div>
   {% endif %}

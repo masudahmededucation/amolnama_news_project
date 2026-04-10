@@ -2,7 +2,7 @@
 <!-- CSRF token for API calls -->
 <form hidden>{% csrf_token %}</form>
 
-<div id="election-view">
+<div id="election-view" name="election_view">
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
       ভোট দিতে অনুগ্রহ করে <a href="/account/login/">লগইন</a> করুন। (Please <a href="/account/login/">log in</a> to cast your vote.)
@@ -11,7 +11,7 @@
 
   {% if current_elections %}
     <h3>নির্বাচন বাছাই করুন (Select Election)</h3>
-    <ul class="selection-list" id="election-selection-list">
+    <ul class="selection-list" id="election-selection-list" name="election_selection_list">
       {% for election in current_elections %}
         <li class="election-selection-option" data-election-evaluation-id="{{ election.election_evaluation_id }}" data-election-id="{{ election.link_election_id }}" data-name-en="{{ election.evaluation_name_en }}" data-name-bn="{{ election.evaluation_name_bn }}">
           <span class="name-bn">{{ election.evaluation_name_bn }}</span>

@@ -39,24 +39,21 @@
         <label for="id_title">Title</label>
         <input
           type="text"
-          id="id_title"
-          name="title"
+          id="id_title" name="id_title"
           required
           placeholder="Your article title">
 
         {# SHORT DESCRIPTION / SUMMARY #}
         <label for="id_summary">Short description</label>
         <textarea
-          id="id_summary"
-          name="summary"
+          id="id_summary" name="id_summary"
           rows="3"
           placeholder="One–two sentences summarising your story."></textarea>
 
         {# MAIN CONTENT #}
         <label for="id_content">Full story</label>
         <textarea
-          id="id_content"
-          name="content"
+          id="id_content" name="id_content"
           rows="6"
           required
           placeholder="Write your story here..."></textarea>
@@ -65,24 +62,22 @@
         <label for="id_image">Upload an image (optional)</label>
         <input
           type="file"
-          id="id_image"
-          name="image"
+          id="id_image" name="id_image"
           accept="image/*">
 
         {# YOUTUBE LINK #}
         <label for="id_youtube_url">YouTube link (optional)</label>
         <input
           type="url"
-          id="id_youtube_url"
-          name="youtube_url"
+          id="id_youtube_url" name="id_youtube_url"
           placeholder="https://www.youtube.com/watch?v=...">
 
         {# LINK PREVIEW AREA (NOW DIRECTLY UNDER YOUTUBE LINK) #}
-        <div id="youtubePreview" class="link-preview-block communityvoice-preview-block" hidden>
+        <div id="youtubePreview" name="youtubePreview" class="link-preview-block communityvoice-preview-block" hidden>
           <h4>YouTube preview</h4>
           <div class="link-preview-embed">
             <iframe
-              id="youtubeFrame"
+              id="youtubeFrame" name="youtubeFrame"
               width="100%"
               height="315"
               frameborder="0"
@@ -95,26 +90,24 @@
         <label for="id_facebook_url" class="communityvoice-label-spaced">Facebook link (optional)</label>
         <input
           type="url"
-          id="id_facebook_url"
-          name="facebook_url"
+          id="id_facebook_url" name="id_facebook_url"
           placeholder="https://www.facebook.com/...">
 
-        <div id="facebookPreview" class="link-preview-block communityvoice-preview-block-small" hidden>
+        <div id="facebookPreview" name="facebookPreview" class="link-preview-block communityvoice-preview-block-small" hidden>
           <h4>Facebook link</h4>
-          <p id="facebookPreviewText" class="muted"></p>
+          <p id="facebookPreviewText" name="facebookPreviewText" class="muted"></p>
         </div>
 
         {# OTHER LINK #}
         <label for="id_external_url" class="communityvoice-label-spaced">Any other relevant link (optional)</label>
         <input
           type="url"
-          id="id_external_url"
-          name="external_url"
+          id="id_external_url" name="id_external_url"
           placeholder="https://example.com/related-article">
 
-        <div id="externalPreview" class="link-preview-block communityvoice-preview-block-small" hidden>
+        <div id="externalPreview" name="externalPreview" class="link-preview-block communityvoice-preview-block-small" hidden>
           <h4>External link</h4>
-          <p id="externalPreviewText" class="muted"></p>
+          <p id="externalPreviewText" name="externalPreviewText" class="muted"></p>
         </div>
 
         <div class="communityvoice-form-actions">

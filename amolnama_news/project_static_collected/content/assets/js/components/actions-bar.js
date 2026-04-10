@@ -184,8 +184,8 @@
   /* ---- Share dropdown ---- */
 
   function getCsrfTokenValue() {
-    const cookie = document.cookie.split(';').find(function (c) { return c.trim().startsWith('csrftoken='); });
-    return cookie ? cookie.split('=')[1] : '';
+    const csrfCookie = document.cookie.split(';').find(function (cookieEntry) { return cookieEntry.trim().startsWith('csrftoken='); });
+    return csrfCookie ? csrfCookie.split('=')[1] : '';
   }
 
   function closeAllShareDropdowns(except) {

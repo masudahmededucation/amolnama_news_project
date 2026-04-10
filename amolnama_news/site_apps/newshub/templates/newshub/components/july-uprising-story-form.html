@@ -5,7 +5,7 @@
   Data serialized to hidden JSON input by JS.
 {% endcomment %}
 
-<div class="form-section" id="section-july-status">
+<div class="form-section" id="section-july-status" name="section_july_status">
   <h3 class="form-section-title"><span class="section-icon">🏷️</span>অবস্থা (Status)</h3>
   <div class="radio-inline-group">
     {% for status in july_victim_statuses %}
@@ -17,7 +17,7 @@
   </div>
 </div>
 
-<div class="form-section" id="section-july-story">
+<div class="form-section" id="section-july-story" name="section_july_story">
   <h3 class="form-section-title"><span class="section-icon">📖</span>ব্যক্তিগত গল্প ও স্মৃতি (Personal Story & Memory)</h3>
 
   {# Hidden input — JS serializes story data here before submit #}
@@ -48,7 +48,7 @@
     </label>
   </div>
 
-  <div class="form-field" hidden id="july-dependents-row">
+  <div class="form-field" hidden id="july-dependents-row" name="july_dependents_row">
     <label for="july-dependents">নির্ভরশীল সদস্য সংখ্যা (Number of Dependents)</label>
     <input type="number" id="july-dependents" name="july_dependents" min="0" max="50"
            placeholder="যেমন: 5" class="form-input-max-200">

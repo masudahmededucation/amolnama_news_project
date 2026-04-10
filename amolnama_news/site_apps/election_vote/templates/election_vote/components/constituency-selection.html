@@ -1,5 +1,5 @@
 <!-- Constituency Selection (Step 3) -->
-<div id="constituency-view" hidden>
+<div id="constituency-view" name="constituency_view" hidden>
   <button class="back-btn" onclick="navigateBackToDistricts()">← Back / পিছনে</button>
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
@@ -7,5 +7,5 @@
     </div>
   {% endif %}
   <h3>আপনার নির্বাচনী এলাকা নির্বাচন করুন (Select Your Constituency)</h3>
-  <ul class="selection-list" id="constituency-list"></ul>
+  <ul class="selection-list" id="constituency-list" name="constituency_list"></ul>
 </div>

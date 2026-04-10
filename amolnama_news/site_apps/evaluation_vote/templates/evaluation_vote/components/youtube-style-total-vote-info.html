@@ -5,7 +5,7 @@ Can be populated dynamically via JavaScript or Django template
 {% endcomment %}
 
 <!-- Total vote count display -->
-<p class="total-vote-info" id="total-vote-info">
+<p class="total-vote-info" id="total-vote-info" name="total_vote_info">
   {% if total_votes %}
     <span class="highlight-vote">মোট ভোট: {{ total_votes|floatformat:0 }}</span>
   {% else %}

@@ -11,17 +11,17 @@
       FUTURE: pass current lang into createCard() to render bilingual card labels.
 {% endcomment %}
 
-<div class="form-section" id="section-wcv-accused">
+<div class="form-section" id="section-wcv-accused" name="section_wcv_accused">
   <h3 class="form-section-title"><span class="section-icon">🔍</span><span
       data-bn="অভিযুক্ত পক্ষের তথ্য" data-en="Accused Party/Perpetrator Info">অভিযুক্ত পক্ষের তথ্য</span></h3>
 
   <input type="hidden" id="wcv-accused" name="wcv_accused" value="">
 
   {# Repeater container — cards rendered by JS #}
-  <div id="wcv-accused-list"></div>
+  <div id="wcv-accused-list" name="wcv_accused_list"></div>
 
   <div class="form-field text-center">
-    <button type="button" id="wcv-accused-add-btn" class="btn-add-social-source">
+    <button type="button" id="wcv-accused-add-btn" name="wcv_accused_add_btn" class="btn-add-social-source">
       ➕ <span data-bn="আরেকজন অভিযুক্ত পক্ষ যোগ করুন"
                data-en="Add Another Accused Party">আরেকজন অভিযুক্ত পক্ষ যোগ করুন</span>
     </button>
@@ -29,10 +29,10 @@
 </div>
 
 {# Embed reference data as JSON (type=application/json bypasses CSP) #}
-<script type="application/json" id="wcv-attacker-relationships-data">{{ wcv_attacker_relationships|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-attacker-positions-data">{{ wcv_attacker_positions|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-attacker-attributes-data">{{ wcv_attacker_attributes|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-accused-genders-data">{{ wcv_genders|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-accused-religions-data">{{ wcv_religions|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-accused-districts-data">{{ wcv_districts|default:"[]"|safe }}</script>
-<script type="application/json" id="wcv-accused-occupations-data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-attacker-relationships-data" name="wcv_attacker_relationships_data">{{ wcv_attacker_relationships|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-attacker-positions-data" name="wcv_attacker_positions_data">{{ wcv_attacker_positions|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-attacker-attributes-data" name="wcv_attacker_attributes_data">{{ wcv_attacker_attributes|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-genders-data" name="wcv_accused_genders_data">{{ wcv_genders|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-religions-data" name="wcv_accused_religions_data">{{ wcv_religions|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-districts-data" name="wcv_accused_districts_data">{{ wcv_districts|default:"[]"|safe }}</script>
+<script type="application/json" id="wcv-accused-occupations-data" name="wcv_accused_occupations_data">{{ wcv_victim_occupations|default:"[]"|safe }}</script>

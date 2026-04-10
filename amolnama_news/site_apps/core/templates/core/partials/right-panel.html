@@ -1,15 +1,15 @@
 {# Right panel — clock, breaking ticker, trending. Included in base.html. Hidden on mobile. #}
-<aside class="right-panel" id="right-panel" aria-label="পাশের প্যানেল (Side Panel)">
+<aside class="right-panel" id="right-panel" name="right_panel" aria-label="পাশের প্যানেল (Side Panel)">
 
   {# ---- Clock ---- #}
-  <div class="right-panel-section" id="right-panel-clock-section">
-    <div class="right-panel-clock" id="right-panel-live-date-time"></div>
+  <div class="right-panel-section" id="right-panel-clock-section" name="right_panel_clock_section">
+    <div class="right-panel-clock" id="right-panel-live-date-time" name="right_panel_live_date_time"></div>
   </div>
 
   {# ---- Breaking News Ticker ---- #}
-  <div class="right-panel-section" id="right-panel-ticker-section">
+  <div class="right-panel-section" id="right-panel-ticker-section" name="right_panel_ticker_section">
     <span class="right-panel-ticker-label">ব্রেকিং</span>
-    <div class="right-panel-ticker" aria-live="polite" id="right-panel-ticker">
+    <div class="right-panel-ticker" aria-live="polite" id="right-panel-ticker" name="right_panel_ticker">
       <div class="right-panel-ticker-marquee">
         <span>The website is under construction. The website is under construction. The website is under construction.</span>
       </div>
@@ -17,9 +17,9 @@
   </div>
 
   {# ---- Trending ---- #}
-  <div class="right-panel-section" id="right-panel-trending-section">
-    <h3 class="right-panel-section-title" id="right-panel-trending-title">ট্রেন্ডিং</h3>
-    <div class="right-panel-trending-list" id="right-panel-trending-list">
+  <div class="right-panel-section" id="right-panel-trending-section" name="right_panel_trending_section">
+    <h3 class="right-panel-section-title" id="right-panel-trending-title" name="right_panel_trending_title">ট্রেন্ডিং</h3>
+    <div class="right-panel-trending-list" id="right-panel-trending-list" name="right_panel_trending_list">
       <span class="right-panel-trending-empty">শীঘ্রই আসছে</span>
     </div>
   </div>

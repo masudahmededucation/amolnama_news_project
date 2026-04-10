@@ -5,7 +5,7 @@
   JS: news-category-tag-cascade.js handles all interaction.
 {% endcomment %}
 
-<div class="widget" id="widget-tags">
+<div class="widget" id="widget-tags" name="widget_tags">
   <h4><span class="section-icon">🏷️</span>ট্যাগ (Tags)<span class="required-mark">*</span></h4>
   <p class="tag-hint">আপনি বিভিন্ন ক্যাটাগরি (যেমন- খেলাধুলা, বিনোদন) থেকে একাধিক ট্যাগ যুক্ত করতে পারেন।</p>
 
@@ -14,25 +14,25 @@
     <span class="search-icon">🔍</span>
     <input type="text" id="tag-search-input" name="tag_search_input" class="tag-search-input"
       placeholder="ট্যাগ খুঁজুন (Search tags)" autocomplete="off">
-    <ul class="tag-search-results" id="tag-search-results"></ul>
+    <ul class="tag-search-results" id="tag-search-results" name="tag_search_results"></ul>
   </div>
 
   {# Selected tags — chips with hidden inputs for form submission #}
-  <div id="selected-tags-area" class="selected-tags-area"></div>
+  <div id="selected-tags-area" name="selected_tags_area" class="selected-tags-area"></div>
 
   {# Available tags — populated by JS on category change #}
-  <ul class="tag-available-list" id="tag-available-list">
+  <ul class="tag-available-list" id="tag-available-list" name="tag_available_list">
     <li class="tag-hint">ট্যাগ লোড হচ্ছে...</li>
   </ul>
 </div>
 
 {# All tags (unique) — embedded JSON for auto-tag matching from content body #}
-<script type="application/json" id="all-tags-data">
+<script type="application/json" id="all-tags-data" name="all_tags_data">
 [{% for tag in unique_news_category_tags %}{"id":{{ tag.news_category_tag_id }},"cat_id":{{ tag.link_news_category_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}","aliases":"{{ tag.news_tag_search_aliases|default:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
 </script>
 
 {% if selected_tag_ids %}
-<script type="application/json" id="initial-selected-tags">
+<script type="application/json" id="initial-selected-tags" name="initial_selected_tags">
 [{% for tag in tags %}{% if tag.news_category_tag_id in selected_tag_ids %}{"id":{{ tag.news_category_tag_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}"},{% endif %}{% endfor %}]
 </script>
 {% endif %}

@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="debate-arena" id="debate-arena"
+<div class="debate-arena" id="debate-arena" name="debate_arena"
      data-topic-id="{{ topic.blog_debate_coll_topic_id }}"
      data-topic-status="{{ topic.topic_status_code }}"
      data-user-side="{{ current_user_side|default:'' }}"
@@ -27,14 +27,14 @@
      data-parliament-motion-text="{{ topic.parliament_motion_text }}"
 
   <!-- HEADER — Topic + Status + Timer -->
-  <div class="debate-arena-header" id="debate-arena-header">
+  <div class="debate-arena-header" id="debate-arena-header" name="debate_arena_header">
     <div class="debate-arena-header-status">
       <span class="debate-arena-status-badge debate-arena-status-badge-{{ topic.topic_status_code }}">{{ topic.topic_status_name_bn }}</span>
       {% if topic.time_remaining %}
-      <span class="debate-arena-countdown" id="debate-arena-countdown">⏰ {{ topic.time_remaining }}</span>
+      <span class="debate-arena-countdown" id="debate-arena-countdown" name="debate_arena_countdown">⏰ {{ topic.time_remaining }}</span>
       {% endif %}
     </div>
-    <h1 class="debate-arena-topic-title" id="debate-arena-topic-title">{{ topic.topic_title }}</h1>
+    <h1 class="debate-arena-topic-title" id="debate-arena-topic-title" name="debate_arena_topic_title">{{ topic.topic_title }}</h1>
     {% if request.user.is_staff %}
     <button type="button" class="debate-arena-edit-button" id="debate-arena-edit-button" name="debate_arena_edit_button">✏️ সম্পাদনা করুন</button>
     {% endif %}
@@ -44,24 +44,24 @@
     <div class="debate-arena-header-stats">
       <span class="debate-arena-stat">🔥 {{ topic.blue_participant_count|add:topic.red_participant_count }} জন যুদ্ধে নেমেছেন · {{ topic.total_post_count }}টি যুক্তি চলছে — আপনিও যোগ দিন!</span>
       {% if request.user.is_authenticated and notification_unread_count > 0 %}
-      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper">
+      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper" name="debate_arena_notification_wrapper">
         <button type="button" class="debate-arena-notification-bell" id="debate-arena-notification-bell" name="debate_arena_notification_bell" title="বিজ্ঞপ্তি (Notifications)">
-          🔔 <span class="debate-arena-notification-count" id="debate-arena-notification-count">{{ notification_unread_count }}</span>
+          🔔 <span class="debate-arena-notification-count" id="debate-arena-notification-count" name="debate_arena_notification_count">{{ notification_unread_count }}</span>
         </button>
-        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown"></div>
+        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown" name="debate_arena_notification_dropdown"></div>
       </div>
       {% elif request.user.is_authenticated %}
-      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper">
+      <div class="debate-arena-notification-wrapper" id="debate-arena-notification-wrapper" name="debate_arena_notification_wrapper">
         <button type="button" class="debate-arena-notification-bell debate-arena-notification-bell-empty" id="debate-arena-notification-bell" name="debate_arena_notification_bell" title="বিজ্ঞপ্তি (Notifications)">🔔</button>
-        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown"></div>
+        <div class="debate-arena-notification-dropdown debate-arena-notification-dropdown-hidden" id="debate-arena-notification-dropdown" name="debate_arena_notification_dropdown"></div>
       </div>
       {% endif %}
       <button type="button" class="debate-arena-download-button" id="debate-arena-download-button" name="debate_arena_download_button" data-filename="{{ topic.topic_title }}">📥 PDF ডাউনলোড</button>
-      <div class="debate-arena-share-wrapper" id="debate-arena-share-wrapper">
+      <div class="debate-arena-share-wrapper" id="debate-arena-share-wrapper" name="debate_arena_share_wrapper">
         <button type="button" class="debate-arena-share-toggle" id="debate-arena-share-toggle" name="debate_arena_share_toggle" title="শেয়ার করুন (Share)">
           <svg class="debate-arena-share-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> শেয়ার
         </button>
-        <div class="debate-arena-share-dropdown" id="debate-arena-share-dropdown">
+        <div class="debate-arena-share-dropdown" id="debate-arena-share-dropdown" name="debate_arena_share_dropdown">
           <button type="button" class="debate-arena-share-item debate-arena-share-copy-link" id="debate-arena-share-copy-link" name="debate_arena_share_copy_link"><svg class="debate-arena-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Copy Link</button>
           <a href="https://wa.me/?text={{ topic.topic_title|urlencode }}%0A%0A{{ request.scheme }}://{{ request.get_host }}/debate/topic/{{ topic.blog_debate_coll_topic_id }}/" target="_blank" rel="noopener" class="debate-arena-share-item" id="debate-arena-share-whatsapp" name="debate_arena_share_whatsapp"><svg class="debate-arena-share-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> WhatsApp</a>
           <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.scheme }}://{{ request.get_host }}/debate/topic/{{ topic.blog_debate_coll_topic_id }}/" target="_blank" rel="noopener" class="debate-arena-share-item" id="debate-arena-share-facebook" name="debate_arena_share_facebook"><svg class="debate-arena-share-icon" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Facebook</a>
@@ -74,14 +74,14 @@
   </div>
 
   {% if topic.parliament_motion_text %}
-  <div class="debate-arena-motion-banner" id="debate-arena-motion-banner">
+  <div class="debate-arena-motion-banner" id="debate-arena-motion-banner" name="debate_arena_motion_banner">
     <span class="debate-arena-motion-banner-label">প্রস্তাব (Motion)</span>
     <p class="debate-arena-motion-banner-text">{{ topic.parliament_motion_text }}</p>
   </div>
   {% endif %}
 
   <!-- PASSION BOARD — live tug-of-war stats -->
-  <div class="debate-passion-board" id="debate-passion-board">
+  <div class="debate-passion-board" id="debate-passion-board" name="debate_passion_board">
     <div class="debate-passion-board-title">🔥 Passion Board</div>
     {% if topic.winning_side == 'blue' %}
     <div class="debate-passion-winner debate-passion-winner-blue">🏆 {{ topic.blue_side_label }} — এগিয়ে আছেন!</div>
@@ -90,7 +90,7 @@
     {% else %}
     <div class="debate-passion-winner debate-passion-winner-tie">⚔️ টাই! সমান সমান — আপনার ভোট দিয়ে টাই ভাঙুন!</div>
     {% endif %}
-    <div class="debate-passion-score-display" id="debate-passion-score-display">
+    <div class="debate-passion-score-display" id="debate-passion-score-display" name="debate_passion_score_display">
       <span class="debate-passion-score-blue">🔵 {{ topic.blue_total_score }} পয়েন্ট</span>
       <span class="debate-passion-score-vs">vs</span>
       <span class="debate-passion-score-red">🔴 {{ topic.red_total_score }} পয়েন্ট</span>
@@ -162,34 +162,34 @@
 
     <!-- Audience Voting — spectators vote on who's winning -->
     {% if request.user.is_authenticated %}
-    <div class="debate-audience-vote" id="debate-audience-vote">
-      <div class="debate-audience-vote-title" id="debate-audience-vote-title">🗳️ দর্শক ভোট — কে জিতছে?</div>
-      <div class="debate-audience-vote-buttons" id="debate-audience-vote-buttons">
+    <div class="debate-audience-vote" id="debate-audience-vote" name="debate_audience_vote">
+      <div class="debate-audience-vote-title" id="debate-audience-vote-title" name="debate_audience_vote_title">🗳️ দর্শক ভোট — কে জিতছে?</div>
+      <div class="debate-audience-vote-buttons" id="debate-audience-vote-buttons" name="debate_audience_vote_buttons">
         <button type="button" class="debate-audience-vote-button debate-audience-vote-button-blue" id="debate-audience-vote-blue" name="debate_audience_vote_blue" data-vote-side="blue">
           <span class="debate-audience-vote-arrow"><svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66a4.8 4.8 0 0 0-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84A2.33 2.33 0 0 0 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg></span>
-          <span class="debate-audience-vote-count" id="debate-audience-vote-blue-count">{{ topic.audience_blue_vote_count }}</span>
+          <span class="debate-audience-vote-count" id="debate-audience-vote-blue-count" name="debate_audience_vote_blue_count">{{ topic.audience_blue_vote_count }}</span>
           <span class="debate-audience-vote-side-label">{{ topic.blue_side_label }}</span>
           <span class="debate-audience-vote-action-label">পক্ষে ভোট দিন</span>
         </button>
-        <div class="debate-audience-vote-bar" id="debate-audience-vote-bar">
-          <div class="debate-audience-vote-bar-blue" id="debate-audience-vote-bar-blue" style="width: {{ topic.audience_blue_pct }}%;"></div>
-          <div class="debate-audience-vote-bar-red" id="debate-audience-vote-bar-red" style="width: {{ topic.audience_red_pct }}%;"></div>
+        <div class="debate-audience-vote-bar" id="debate-audience-vote-bar" name="debate_audience_vote_bar">
+          <div class="debate-audience-vote-bar-blue" id="debate-audience-vote-bar-blue" name="debate_audience_vote_bar_blue" style="width: {{ topic.audience_blue_pct }}%;"></div>
+          <div class="debate-audience-vote-bar-red" id="debate-audience-vote-bar-red" name="debate_audience_vote_bar_red" style="width: {{ topic.audience_red_pct }}%;"></div>
         </div>
         <button type="button" class="debate-audience-vote-button debate-audience-vote-button-red" id="debate-audience-vote-red" name="debate_audience_vote_red" data-vote-side="red">
           <span class="debate-audience-vote-arrow"><svg viewBox="0 0 24 24" fill="currentColor" width="1em" height="1em"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66a4.8 4.8 0 0 0-.88-1.22L14 2 7.59 8.41C7.21 8.79 7 9.3 7 9.83v7.84A2.33 2.33 0 0 0 9.34 20h8.11c.7 0 1.36-.37 1.72-.97l2.66-6.15z"/></svg></span>
-          <span class="debate-audience-vote-count" id="debate-audience-vote-red-count">{{ topic.audience_red_vote_count }}</span>
+          <span class="debate-audience-vote-count" id="debate-audience-vote-red-count" name="debate_audience_vote_red_count">{{ topic.audience_red_vote_count }}</span>
           <span class="debate-audience-vote-side-label">{{ topic.red_side_label }}</span>
           <span class="debate-audience-vote-action-label">বিপক্ষে ভোট দিন</span>
         </button>
       </div>
-      <div class="debate-audience-vote-total" id="debate-audience-vote-total">{{ topic.audience_total_votes }} জন ভোট দিয়েছেন</div>
+      <div class="debate-audience-vote-total" id="debate-audience-vote-total" name="debate_audience_vote_total">{{ topic.audience_total_votes }} জন ভোট দিয়েছেন</div>
     </div>
     {% endif %}
   </div>
 
   <!-- JOIN PANEL — shown if user hasn't joined yet -->
   {% if not current_user_side and request.user.is_authenticated %}
-  <div class="debate-arena-join-panel" id="debate-arena-join-panel">
+  <div class="debate-arena-join-panel" id="debate-arena-join-panel" name="debate_arena_join_panel">
     <p class="debate-arena-join-prompt">আপনি কোন পক্ষে?</p>
     <div class="debate-arena-join-buttons">
       <button type="button" class="debate-arena-join-button debate-arena-join-button-blue" id="debate-arena-join-blue" name="debate_arena_join_blue" data-side="blue">
@@ -203,25 +203,25 @@
   {% endif %}
 
   <!-- THREE-COLUMN ARENA — Blue | Center | Red -->
-  <div class="debate-arena-boards" id="debate-arena-boards">
+  <div class="debate-arena-boards" id="debate-arena-boards" name="debate_arena_boards">
 
     <!-- BLUE BOARD (Pro / In Favor) -->
-    <div class="debate-arena-board debate-arena-board-blue" id="debate-arena-board-blue">
+    <div class="debate-arena-board debate-arena-board-blue" id="debate-arena-board-blue" name="debate_arena_board_blue">
       <div class="debate-arena-board-header debate-arena-board-header-blue">
         <span class="debate-arena-board-label">
           🔵 {{ topic.blue_side_label }}
         </span>
-        <span class="debate-arena-board-count" id="debate-arena-blue-count">{{ blue_threads|length }}</span>
+        <span class="debate-arena-board-count" id="debate-arena-blue-count" name="debate_arena_blue_count">{{ blue_threads|length }}</span>
       </div>
 
       {% if topic.blue_side_video_url or topic.blue_side_image_url %}
-      <div class="debate-arena-board-media" id="debate-arena-board-media-blue">
-        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-blue">📎 মিডিয়া</span>
+      <div class="debate-arena-board-media" id="debate-arena-board-media-blue" name="debate_arena_board_media_blue">
+        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-blue" name="debate_arena_board_media_title_blue">📎 মিডিয়া</span>
         {% if topic.blue_side_image_url %}
-        <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-blue">
+        <img src="{{ topic.blue_side_image_url }}" alt="{{ topic.blue_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-blue" name="debate_arena_board_media_image_blue">
         {% endif %}
         {% if topic.blue_side_video_url %}
-        <a href="{{ topic.blue_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-blue">
+        <a href="{{ topic.blue_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-blue" name="debate_arena_board_media_video_blue">
           <span class="debate-arena-board-media-video-play">▶</span> ভিডিও দেখুন
         </a>
         {% endif %}
@@ -229,24 +229,24 @@
       {% endif %}
 
       {% if current_user_side == 'blue' and topic.is_live %}
-      <div class="debate-arena-composer debate-arena-composer-blue" id="debate-arena-composer-blue">
+      <div class="debate-arena-composer debate-arena-composer-blue" id="debate-arena-composer-blue" name="debate_arena_composer_blue">
         <label for="debate-arena-composer-blue-textarea" class="debate-arena-composer-label">🔵 আপনার যুক্তি লিখুন (New Argument)</label>
         <textarea class="debate-arena-composer-textarea" id="debate-arena-composer-blue-textarea" name="debate_arena_composer_blue_textarea" placeholder="" data-rotating-placeholder="true" rows="4"></textarea>
-        <div class="debate-arena-composer-citation" id="debate-arena-composer-blue-citation">
+        <div class="debate-arena-composer-citation" id="debate-arena-composer-blue-citation" name="debate_arena_composer_blue_citation">
           <button type="button" class="debate-arena-composer-citation-toggle" id="debate-arena-composer-blue-citation-toggle" name="debate_arena_composer_blue_citation_toggle">📎 সূত্র যোগ করুন (Add Source)</button>
-          <div class="debate-arena-composer-citation-fields debate-arena-composer-citation-fields-hidden" id="debate-arena-composer-blue-citation-fields">
+          <div class="debate-arena-composer-citation-fields debate-arena-composer-citation-fields-hidden" id="debate-arena-composer-blue-citation-fields" name="debate_arena_composer_blue_citation_fields">
             <input type="url" class="debate-arena-composer-citation-url" id="debate-arena-composer-blue-citation-url" name="debate_arena_composer_blue_citation_url" placeholder="https://example.com/source">
             <input type="text" class="debate-arena-composer-citation-text" id="debate-arena-composer-blue-citation-text" name="debate_arena_composer_blue_citation_text" placeholder="সূত্রের নাম (optional)">
           </div>
         </div>
         <div class="debate-arena-composer-footer">
-          <span class="debate-arena-composer-char-count" id="debate-arena-composer-blue-char-count">0</span>
+          <span class="debate-arena-composer-char-count" id="debate-arena-composer-blue-char-count" name="debate_arena_composer_blue_char_count">0</span>
           <button type="button" class="debate-arena-composer-submit debate-arena-composer-submit-blue" id="debate-arena-composer-blue-submit" name="debate_arena_composer_blue_submit">যুক্তি দিন</button>
         </div>
       </div>
       {% endif %}
 
-      <div class="debate-arena-thread-list" id="debate-arena-blue-threads">
+      <div class="debate-arena-thread-list" id="debate-arena-blue-threads" name="debate_arena_blue_threads">
         {% for thread in blue_threads %}
         {% include "debate/components/debate-argument-card.html" with post=thread board_side="blue" %}
         {% endfor %}
@@ -254,29 +254,29 @@
     </div>
 
     <!-- CENTER RAIL (mobile: hidden, shown as header instead) -->
-    <div class="debate-arena-center-rail" id="debate-arena-center-rail">
+    <div class="debate-arena-center-rail" id="debate-arena-center-rail" name="debate_arena_center_rail">
       <div class="debate-arena-center-topic-sticky">
         <span class="debate-arena-center-vs">VS</span>
       </div>
     </div>
 
     <!-- RED BOARD (Against) -->
-    <div class="debate-arena-board debate-arena-board-red" id="debate-arena-board-red">
+    <div class="debate-arena-board debate-arena-board-red" id="debate-arena-board-red" name="debate_arena_board_red">
       <div class="debate-arena-board-header debate-arena-board-header-red">
         <span class="debate-arena-board-label">
           🔴 {{ topic.red_side_label }}
         </span>
-        <span class="debate-arena-board-count" id="debate-arena-red-count">{{ red_threads|length }}</span>
+        <span class="debate-arena-board-count" id="debate-arena-red-count" name="debate_arena_red_count">{{ red_threads|length }}</span>
       </div>
 
       {% if topic.red_side_video_url or topic.red_side_image_url %}
-      <div class="debate-arena-board-media" id="debate-arena-board-media-red">
-        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-red">📎 মিডিয়া</span>
+      <div class="debate-arena-board-media" id="debate-arena-board-media-red" name="debate_arena_board_media_red">
+        <span class="debate-arena-board-media-title" id="debate-arena-board-media-title-red" name="debate_arena_board_media_title_red">📎 মিডিয়া</span>
         {% if topic.red_side_image_url %}
-        <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-red">
+        <img src="{{ topic.red_side_image_url }}" alt="{{ topic.red_side_label }}" class="debate-arena-board-media-image" loading="lazy" id="debate-arena-board-media-image-red" name="debate_arena_board_media_image_red">
         {% endif %}
         {% if topic.red_side_video_url %}
-        <a href="{{ topic.red_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-red">
+        <a href="{{ topic.red_side_video_url }}" target="_blank" rel="noopener" class="debate-arena-board-media-video" id="debate-arena-board-media-video-red" name="debate_arena_board_media_video_red">
           <span class="debate-arena-board-media-video-play">▶</span> ভিডিও দেখুন
         </a>
         {% endif %}
@@ -284,24 +284,24 @@
       {% endif %}
 
       {% if current_user_side == 'red' and topic.is_live %}
-      <div class="debate-arena-composer debate-arena-composer-red" id="debate-arena-composer-red">
+      <div class="debate-arena-composer debate-arena-composer-red" id="debate-arena-composer-red" name="debate_arena_composer_red">
         <label for="debate-arena-composer-red-textarea" class="debate-arena-composer-label">🔴 আপনার যুক্তি লিখুন (New Argument)</label>
         <textarea class="debate-arena-composer-textarea" id="debate-arena-composer-red-textarea" name="debate_arena_composer_red_textarea" placeholder="" data-rotating-placeholder="true" rows="4"></textarea>
-        <div class="debate-arena-composer-citation" id="debate-arena-composer-red-citation">
+        <div class="debate-arena-composer-citation" id="debate-arena-composer-red-citation" name="debate_arena_composer_red_citation">
           <button type="button" class="debate-arena-composer-citation-toggle" id="debate-arena-composer-red-citation-toggle" name="debate_arena_composer_red_citation_toggle">📎 সূত্র যোগ করুন (Add Source)</button>
-          <div class="debate-arena-composer-citation-fields debate-arena-composer-citation-fields-hidden" id="debate-arena-composer-red-citation-fields">
+          <div class="debate-arena-composer-citation-fields debate-arena-composer-citation-fields-hidden" id="debate-arena-composer-red-citation-fields" name="debate_arena_composer_red_citation_fields">
             <input type="url" class="debate-arena-composer-citation-url" id="debate-arena-composer-red-citation-url" name="debate_arena_composer_red_citation_url" placeholder="https://example.com/source">
             <input type="text" class="debate-arena-composer-citation-text" id="debate-arena-composer-red-citation-text" name="debate_arena_composer_red_citation_text" placeholder="সূত্রের নাম (optional)">
           </div>
         </div>
         <div class="debate-arena-composer-footer">
-          <span class="debate-arena-composer-char-count" id="debate-arena-composer-red-char-count">0</span>
+          <span class="debate-arena-composer-char-count" id="debate-arena-composer-red-char-count" name="debate_arena_composer_red_char_count">0</span>
           <button type="button" class="debate-arena-composer-submit debate-arena-composer-submit-red" id="debate-arena-composer-red-submit" name="debate_arena_composer_red_submit">যুক্তি দিন</button>
         </div>
       </div>
       {% endif %}
 
-      <div class="debate-arena-thread-list" id="debate-arena-red-threads">
+      <div class="debate-arena-thread-list" id="debate-arena-red-threads" name="debate_arena_red_threads">
         {% for thread in red_threads %}
         {% include "debate/components/debate-argument-card.html" with post=thread board_side="red" %}
         {% endfor %}
@@ -310,16 +310,16 @@
   </div>
 
   <!-- REPLY COMPOSER DRAWER (bottom of page, opens when Reply clicked) -->
-  <div class="debate-arena-reply-drawer debate-arena-reply-drawer-hidden" id="debate-arena-reply-drawer">
+  <div class="debate-arena-reply-drawer debate-arena-reply-drawer-hidden" id="debate-arena-reply-drawer" name="debate_arena_reply_drawer">
     <div class="debate-arena-reply-drawer-header">
-      <span class="debate-arena-reply-drawer-label" id="debate-arena-reply-drawer-label">উত্তর লিখুন</span>
+      <span class="debate-arena-reply-drawer-label" id="debate-arena-reply-drawer-label" name="debate_arena_reply_drawer_label">উত্তর লিখুন</span>
       <button type="button" class="debate-arena-reply-drawer-close" id="debate-arena-reply-drawer-close" name="debate_arena_reply_drawer_close">✕</button>
     </div>
-    <div class="debate-arena-reply-drawer-parent" id="debate-arena-reply-drawer-parent"></div>
-    <label for="debate-arena-reply-drawer-textarea" class="debate-arena-reply-drawer-textarea-label" id="debate-arena-reply-drawer-textarea-label">উত্তর (Reply)</label>
+    <div class="debate-arena-reply-drawer-parent" id="debate-arena-reply-drawer-parent" name="debate_arena_reply_drawer_parent"></div>
+    <label for="debate-arena-reply-drawer-textarea" class="debate-arena-reply-drawer-textarea-label" id="debate-arena-reply-drawer-textarea-label" name="debate_arena_reply_drawer_textarea_label">উত্তর (Reply)</label>
     <textarea class="debate-arena-reply-drawer-textarea" id="debate-arena-reply-drawer-textarea" name="debate_arena_reply_drawer_textarea" placeholder="" data-rotating-placeholder="true" rows="5"></textarea>
     <div class="debate-arena-reply-drawer-footer">
-      <span class="debate-arena-reply-drawer-char-count" id="debate-arena-reply-drawer-char-count">0</span>
+      <span class="debate-arena-reply-drawer-char-count" id="debate-arena-reply-drawer-char-count" name="debate_arena_reply_drawer_char_count">0</span>
       <button type="button" class="debate-arena-reply-drawer-submit" id="debate-arena-reply-drawer-submit" name="debate_arena_reply_drawer_submit" data-parent-post-id="">উত্তর দিন</button>
     </div>
   </div>

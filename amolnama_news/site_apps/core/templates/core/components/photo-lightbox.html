@@ -1,12 +1,12 @@
 {# Shared photo lightbox. CSS: photo-lightbox.css, JS: photo-lightbox.js. Include on any page with photo galleries. #}
-<div class="photo-lightbox" id="photo-lightbox" hidden>
-  <div class="photo-lightbox-overlay" id="photo-lightbox-overlay"></div>
+<div class="photo-lightbox" id="photo-lightbox" name="photo_lightbox" hidden>
+  <div class="photo-lightbox-overlay" id="photo-lightbox-overlay" name="photo_lightbox_overlay"></div>
   <button type="button" class="photo-lightbox-close-button" id="photo-lightbox-close-button" name="photo_lightbox_close" aria-label="Close">✕</button>
   <button type="button" class="photo-lightbox-previous-button" id="photo-lightbox-previous-button" name="photo_lightbox_previous" aria-label="Previous">‹</button>
   <button type="button" class="photo-lightbox-next-button" id="photo-lightbox-next-button" name="photo_lightbox_next" aria-label="Next">›</button>
   <div class="photo-lightbox-content">
-    <img id="photo-lightbox-image" class="photo-lightbox-image" alt="">
-    <div class="photo-lightbox-caption" id="photo-lightbox-caption"></div>
-    <div class="photo-lightbox-counter" id="photo-lightbox-counter"></div>
+    <img id="photo-lightbox-image" name="photo_lightbox_image" class="photo-lightbox-image" alt="">
+    <div class="photo-lightbox-caption" id="photo-lightbox-caption" name="photo_lightbox_caption"></div>
+    <div class="photo-lightbox-counter" id="photo-lightbox-counter" name="photo_lightbox_counter"></div>
   </div>
 </div>
