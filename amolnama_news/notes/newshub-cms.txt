@@ -2,4 +2,35 @@
 ability to move around article, 
 
 
-How it looks in your Layout:If you go with newsdesk, your project structure becomes very intuitive:App FolderPurposeKey Models/LogicsecurityThe LockCustom User, MS SQL Auth, Permissions.newsdeskThe CMSArticles, Categories, Drafts, Media Library.broadcasterThe EngineSocial APIs, RSS Feeds, Push Notifications.
+How it looks in your Layout:If you go with newsdesk, your project structure becomes very intuitive:App FolderPurposeKey Models/LogicsecurityThe LockCustom User, MS SQL Auth, Permissions.newsdeskThe CMSArticles, Categories, Drafts, 
+Media Library.broadcasterThe EngineSocial APIs, RSS Feeds, Push Notifications.
+
+
+###############
+--newshub admin panel
+for newshub - i want to have an admin panel
+at the moment any users can use any form, right?
+i want to restrict users who can use which forms
+every one not restricted - general and extortion
+other forms i want to restrict.
+the reason is - anyone sees this.
+other competitive newspaper or website sees these forms
+will try to copy cat.
+that is why i want to restrict them.
+
+for one user i may give them access to extortion, women abuse form
+
+--we need db structure
+we need to admin panel so that i can search and add user 
+and choose the forms they will have access
+
+we need to protect this idea. 
+
+what do you think?
+
+i also need options in the admin panel 
+- if i want to lift the restricts of any form for all users.
+so maybe another tab 
+- for restricting and unrestricting forms
+
+slide toogle like you have on the placeholders for example.
