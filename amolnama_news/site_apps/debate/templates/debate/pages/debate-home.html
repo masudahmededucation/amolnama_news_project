@@ -73,5 +73,8 @@
 {% endblock %}
 
 {% block extra_js %}
+{# DB-driven per-category metadata (debate parliament side labels, etc) — read by debate-category-side-labels.js #}
+<script type="application/json" id="debate-category-metadata-json" name="debate_category_metadata_json">{{ debate_category_metadata_json|safe }}</script>
+<script src="{% static 'debate/assets/js/components/debate-category-side-labels.js' %}" defer></script>
 <script src="{% static 'debate/assets/js/pages/debate-home.js' %}" defer></script>
 {% endblock %}

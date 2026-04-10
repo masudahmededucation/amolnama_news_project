@@ -127,3 +127,35 @@ def get_unified_subcategory_id(group_code, category_code):
         logger.error('get_unified_subcategory_id failed for %s:%s — %s',
                      group_code, category_code, lookup_error)
         return None
+
+
+def get_subcategory_metadata_map(group_code):
+    """Return {subcategory_code: parsed_json_dict} for every active subcategory in a group
+    that has a non-empty subcategory_metadata_json column. Used by any feature that needs
+    to drive UI defaults from per-subcategory config — e.g. debate parliament side labels,
+    art medium colors, story age-group recommended length, etc.
+
+    Usage:
+        metadata = get_subcategory_metadata_map('blog_debate_category')
+        # {'parliament': {'blue_side_label_bn': 'সরকার পক্ষ (Government)',
+        #                 'red_side_label_bn': 'বিরোধী দল (Opposition)'}}
+    """
+    import json
+    try:
+        from amolnama_news.site_apps.content.models import RefContentSubcategory
+        metadata_by_code = {}
+        rows = RefContentSubcategory.objects.filter(
+            group_code=group_code, is_active=True,
+        ).only('subcategory_code', 'subcategory_metadata_json')
+        for row in rows:
+            if not row.subcategory_metadata_json:
+                continue
+            try:
+                metadata_by_code[row.subcategory_code] = json.loads(row.subcategory_metadata_json)
+            except (ValueError, TypeError) as parse_error:
+                logger.error('subcategory_metadata_json parse failed for %s/%s — %s',
+                             group_code, row.subcategory_code, parse_error)
+        return metadata_by_code
+    except Exception as fetch_error:
+        logger.error('get_subcategory_metadata_map failed for %s — %s', group_code, fetch_error)
+        return {}

@@ -306,9 +306,9 @@
         '<div class="debate-arena-edit-form-group" id="debate-arena-edit-form-group-teams">' +
         '<span class="debate-arena-edit-form-group-title" id="debate-arena-edit-form-group-title-teams">⚔️ টিম</span>' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-blue-label">🔵 Blue Team যুক্তি খন্ডন করবেন</label>' +
-        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + escapeHtml(currentBlueLabel) + '">' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-blue-label" name="debate_arena_edit_blue_label" value="' + escapeHtml(currentBlueLabel) + '" placeholder="যেমন: পার্থ সাহেবের পক্ষে, সংবিধান রক্ষার পক্ষে">' +
         '<label class="debate-arena-edit-form-label" for="debate-arena-edit-red-label">🔴 Red Team যুক্তি খন্ডন করবেন</label>' +
-        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + escapeHtml(currentRedLabel) + '">' +
+        '<input type="text" class="debate-arena-edit-form-input" id="debate-arena-edit-red-label" name="debate_arena_edit_red_label" value="' + escapeHtml(currentRedLabel) + '" placeholder="যেমন: পার্থ সাহেবের বিপক্ষে, সংবিধান পরিবর্তনের পক্ষে">' +
         '</div>' +
 
         /* Media section — collapsible */
@@ -349,12 +349,17 @@
         document.getElementById('debate-arena-edit-form-media-content').classList.toggle('debate-arena-edit-form-group-content-hidden');
       });
 
-      /* Category dropdown — show/hide motion text for parliament */
-      document.getElementById('debate-arena-edit-category').addEventListener('change', function () {
-        const isParliament = this.value === 'parliament';
-        document.getElementById('debate-arena-edit-motion-label').hidden = !isParliament;
-        document.getElementById('debate-arena-edit-motion-text').hidden = !isParliament;
-      });
+      /* Wire shared category → side-label auto-fill behaviour
+         (single source of truth: debate/components/debate-category-side-labels.js) */
+      if (window.debateCategorySideLabels) {
+        window.debateCategorySideLabels.attach({
+          categorySelect: document.getElementById('debate-arena-edit-category'),
+          blueSideLabelInput: document.getElementById('debate-arena-edit-blue-label'),
+          redSideLabelInput: document.getElementById('debate-arena-edit-red-label'),
+          motionLabel: document.getElementById('debate-arena-edit-motion-label'),
+          motionTextarea: document.getElementById('debate-arena-edit-motion-text'),
+        });
+      }
 
       document.getElementById('debate-arena-edit-cancel').addEventListener('click', function () { form.remove(); });
 

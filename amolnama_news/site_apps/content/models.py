@@ -35,6 +35,9 @@ class RefContentSubcategory(models.Model):
     sort_order = models.IntegerField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField()
+    # Generic per-subcategory config blob — used for feature-specific defaults
+    # (e.g. debate parliament side labels). Any feature can store its own keys here.
+    subcategory_metadata_json = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False

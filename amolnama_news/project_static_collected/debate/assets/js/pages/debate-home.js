@@ -251,20 +251,17 @@
     motionTextarea.rows = 3;
     motionTextarea.hidden = true;
 
-    categorySelect.addEventListener('change', function () {
-      const isParliament = categorySelect.value === 'parliament';
-      motionLabel.hidden = !isParliament;
-      motionTextarea.hidden = !isParliament;
-
-      if (isParliament) {
-        if (!blueSideLabelInput.value.trim()) {
-          blueSideLabelInput.value = 'সরকার পক্ষ (Government)';
-        }
-        if (!redSideLabelInput.value.trim()) {
-          redSideLabelInput.value = 'বিরোধী দল (Opposition)';
-        }
-      }
-    });
+    /* Wire shared category → side-label auto-fill behaviour
+       (single source of truth: debate/components/debate-category-side-labels.js) */
+    if (window.debateCategorySideLabels) {
+      window.debateCategorySideLabels.attach({
+        categorySelect: categorySelect,
+        blueSideLabelInput: blueSideLabelInput,
+        redSideLabelInput: redSideLabelInput,
+        motionLabel: motionLabel,
+        motionTextarea: motionTextarea,
+      });
+    }
 
     formContainer.appendChild(motionLabel);
     formContainer.appendChild(motionTextarea);

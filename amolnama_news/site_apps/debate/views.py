@@ -105,10 +105,13 @@ def home(request):
 
     # Debate subcategories for filter pills (dynamic from DB)
     from amolnama_news.site_apps.content.models import RefContentSubcategory
+    from amolnama_news.site_apps.content.utils import get_subcategory_metadata_map
     debate_subcategories = list(RefContentSubcategory.objects.filter(
         group_code='blog_debate_category', is_active=True,
     ).order_by('sort_order'))
     subcategory_map = {s.content_ref_content_subcategory_id: s for s in debate_subcategories}
+    # Per-category metadata blob (e.g. parliament default side labels) — shared helper
+    debate_category_metadata = get_subcategory_metadata_map('blog_debate_category')
 
     topics = CollTopic.objects.filter(
         is_active=True,
@@ -136,9 +139,11 @@ def home(request):
             'debate_category_icon': subcategory.subcategory_icon if subcategory else '',
         })
 
+    import json
     return render(request, 'debate/pages/debate-home.html', {
         'topic_items': topic_items,
         'debate_subcategories': debate_subcategories,
+        'debate_category_metadata_json': json.dumps(debate_category_metadata),
         'seo': {
             'title': 'তর্ক-বিতর্ক — Debate Arena | আমলনামা নিউজ',
             'description': 'Structured debate platform — Blue vs Red. Schedule debates, argue with logic, vote on the strongest arguments.',
@@ -353,6 +358,11 @@ def topic_detail(request, topic_id):
             is_read=False, is_active=True,
         ).count()
 
+    # Per-category metadata blob for the edit form (DB-driven side label defaults)
+    import json
+    from amolnama_news.site_apps.content.utils import get_subcategory_metadata_map
+    debate_category_metadata_json = json.dumps(get_subcategory_metadata_map('blog_debate_category'))
+
     context = {
         'topic': topic_item,
         'blue_threads': blue_thread_items,
@@ -362,6 +372,7 @@ def topic_detail(request, topic_id):
         'current_participant': current_participant,
         'notification_unread_count': notification_unread_count,
         'team_sides': list(team_side_map.values()),
+        'debate_category_metadata_json': debate_category_metadata_json,
         'seo': {
             'title': f'{topic.topic_title} — তর্ক-বিতর্ক | আমলনামা নিউজ',
             'description': topic.topic_description[:160] if topic.topic_description else 'Structured debate arena.',

@@ -32,7 +32,7 @@
       <span class="sidebar-navigation-item-label">মেসেঞ্জার</span>
     </a>
 
-    <a href="{% url 'social:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'social' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-social" name="sidebar_navigation_item_social" title="সামাজিক (Social)">
+    <a href="{% url 'social:home' %}" class="sidebar-navigation-item{% if request.resolver_match.namespace == 'social' and request.path != '/social/bookmarks/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-social" name="sidebar_navigation_item_social" title="সামাজিক (Social)">
       <span class="sidebar-navigation-item-icon">👥</span>
       <span class="sidebar-navigation-item-label">সামাজিক</span>
     </a>
