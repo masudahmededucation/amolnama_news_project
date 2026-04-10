@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static blog_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 
@@ -65,35 +65,8 @@
   </div>
   {% endif %}
 
-  {# ── Writer Follow ── #}
-  {% if actions_bar_author_display_name %}
-  <div class="actions-bar actions-bar-top">
-    <div class="actions-bar-writer-section">
-      <a href="/social/@{{ actions_bar_author_username_handle }}/" class="actions-bar-writer-name" id="actions-bar-writer-stories-top" name="actions_bar_writer_stories_top">✍️ {{ actions_bar_author_display_name }}</a>
-      {% if not actions_bar_author_is_own and request.user.is_authenticated %}
-      <button type="button" class="actions-bar-follow-button{% if actions_bar_author_is_following %} actions-bar-follow-button-active{% endif %}" id="actions-bar-follow-{{ actions_bar_author_user_profile_id }}-stories-top" name="actions_bar_follow_{{ actions_bar_author_user_profile_id }}_stories_top" data-user-profile-id="{{ actions_bar_author_user_profile_id }}">{% if actions_bar_author_is_following %}Unfollow{% else %}Follow{% endif %}</button>
-      {% endif %}
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="stories-detail-actions" id="stories-detail-actions">
-    <button type="button" class="stories-detail-action-button stories-detail-like-button{% if story.user_liked %} stories-detail-like-button-active{% endif %}" id="stories-detail-like-{{ story.story_id }}" name="stories_detail_like_{{ story.story_id }}" data-story-id="{{ story.story_id }}">
-      <span class="stories-detail-action-icon">{% if story.user_liked %}❤️{% else %}🤍{% endif %}</span>
-      <span class="stories-detail-action-count stories-detail-like-count">{{ story.like_count }}</span>
-      <span class="stories-detail-action-label">পছন্দ</span>
-    </button>
-    <button type="button" class="stories-detail-action-button stories-detail-bookmark-button{% if story.user_bookmarked %} stories-detail-bookmark-button-active{% endif %}" id="stories-detail-bookmark-{{ story.story_id }}" name="stories_detail_bookmark_{{ story.story_id }}" data-story-id="{{ story.story_id }}">
-      <span class="stories-detail-action-icon">{% if story.user_bookmarked %}🔖{% else %}📑{% endif %}</span>
-      <span class="stories-detail-action-count stories-detail-bookmark-count">{{ story.bookmark_count }}</span>
-      <span class="stories-detail-action-label">আমার তাকে রাখুন</span>
-    </button>
-    <span class="stories-detail-action-button stories-detail-view-count-display">
-      <span class="stories-detail-action-icon">👁️</span>
-      <span class="stories-detail-action-count">{{ story.view_count }}</span>
-      <span class="stories-detail-action-label">পড়েছে</span>
-    </span>
-  </div>
+  {# ── Shared Actions Bar (writer follow + like + bookmark + view + share dropdown + edit) ── #}
+  {% blog_actions_bar story.story_id story.title_bn "story" position="bottom" like_count=story.like_count view_count=story.view_count %}
 
 </article>
 

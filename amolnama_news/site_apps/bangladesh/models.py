@@ -72,6 +72,7 @@ class CollDestination(models.Model):
     like_count = models.IntegerField()
     view_count = models.IntegerField()
     review_count = models.IntegerField()
+    bookmark_count = models.IntegerField(default=0)
     avg_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     created_at = models.DateTimeField()
@@ -211,8 +212,9 @@ class EngagementDestinationBookmark(models.Model):
     blog_bangladesh_engagement_destination_bookmark_id = models.BigAutoField(primary_key=True)
     link_blog_bangladesh_coll_destination_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
-    bookmark_note = models.CharField(max_length=300, blank=True, null=True)
-    created_at = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -223,7 +225,7 @@ class EngagementDestinationPhotoLike(models.Model):
     blog_bangladesh_engagement_destination_photo_like_id = models.BigAutoField(primary_key=True)
     link_blog_bangladesh_destination_photo_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = False
@@ -235,7 +237,7 @@ class EngagementDestinationVideoLike(models.Model):
     blog_bangladesh_engagement_destination_video_like_id = models.BigAutoField(primary_key=True)
     link_blog_bangladesh_destination_youtube_link_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         managed = False

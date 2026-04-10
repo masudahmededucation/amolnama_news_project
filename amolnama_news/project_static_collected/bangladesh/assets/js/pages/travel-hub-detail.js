@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  /* ========== Shared Actions Bar (like + share) ========== */
+  /* ========== Shared Actions Bar (like + share; bookmark uses universal endpoint) ========== */
   if (typeof window.actionsBar !== 'undefined') {
     window.actionsBar.init({
       buildLikeApiUrl: function (entityId) {

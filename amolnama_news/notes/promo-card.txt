@@ -112,3 +112,26 @@ lets modularise the promo cards and use them here later filtered by name.
 lets add photo on the right side of the card.
 the preview cacrd and promo card they should be same.
 same style - just filtered by writers
+
+still some topic is getting more favour
+ on the home wall promo 
+ - you need fix it forever. 
+ it is not random - 
+ i have not seen and arts or stories on the promo card yet. 
+are you automatically creating promo card for them. if not then you should.
+
+
+
+##
+--blog posts wall share options
+for all type of blog posts
+should have option to share on the home wall
+
+--
+another thing i am thinking
+all share should be public
+
+
+--editors
+--should be able to edit anyone's posts
+

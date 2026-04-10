@@ -1,6 +1,7 @@
 """Art & Craft models — mapped to [blog_art].* SQL Server tables."""
 
 from django.db import models
+from django.utils import timezone
 
 
 # RefArtCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_art_category'
@@ -101,7 +102,7 @@ class EngagementArtworkLike(models.Model):
     link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -114,7 +115,7 @@ class EngagementArtworkBookmark(models.Model):
     link_blog_art_coll_artwork_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -129,7 +130,7 @@ class EngagementArtworkComment(models.Model):
     link_parent_comment_id = models.BigIntegerField(blank=True, null=True)
     comment_text_bn = models.CharField(max_length=1000)
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

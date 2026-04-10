@@ -1,7 +1,12 @@
-"""Social views — home, user lists, public profiles, followers/following."""
+"""Social views — home, user lists, public profiles, followers/following, bookmarks."""
+
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -419,4 +424,73 @@ def _follow_list_page(request, username_handle, list_type):
                 {'name': tab_label},
             ],
         },
+    })
+
+
+@login_required
+@ensure_csrf_cookie
+def bookmarks(request):
+    """User's saved content — posts + universal bookmarks (poems, art, stories, travel, news, debates).
+
+    Reads from:
+        - [post].[post_bookmark] — post bookmarks (legacy, kept for posts on the wall)
+        - [newsengine].[bookmark_content] — unified content bookmarks for all blog types
+    """
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from amolnama_news.site_apps.post.models import PostBookmark, Post
+    from amolnama_news.site_apps.post.views import build_post_feed_items
+    from amolnama_news.site_apps.newsengine.models import BookmarkContent
+
+    SEO = {'title': 'সংরক্ষিত — আমলনামা নিউজ', 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সংরক্ষিত'}]}
+
+    try:
+        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return render(request, 'social/pages/bookmarks.html', {
+            'posts': [], 'universal_bookmarks': [], 'seo': SEO,
+        })
+
+    user_profile_id = current_profile.user_profile_id
+
+    # 1. Post bookmarks (wall posts)
+    post_items = []
+    try:
+        bookmarked_post_ids = list(
+            PostBookmark.objects.filter(link_user_profile_id=user_profile_id)
+            .order_by('-created_at').values_list('link_post_id', flat=True)[:50]
+        )
+        if bookmarked_post_ids:
+            posts_map = {p.post_post_id: p for p in Post.objects.filter(post_post_id__in=bookmarked_post_ids, is_active=True)}
+            posts = [posts_map[pid] for pid in bookmarked_post_ids if pid in posts_map]
+            post_items, _ = build_post_feed_items(request, posts=posts)
+    except Exception as post_bookmark_fetch_error:
+        logger.error('Post bookmark fetch failed — %s', post_bookmark_fetch_error)
+
+    # 2. Universal content bookmarks — single query against [newsengine].[bookmark_content]
+    from amolnama_news.site_apps.core.utils import get_content_type_metadata
+    universal_bookmarks = []
+    try:
+        for bookmark in BookmarkContent.objects.filter(
+            link_user_profile_id=user_profile_id, is_active=True,
+        ).order_by('-created_at')[:50]:
+            meta = get_content_type_metadata(bookmark.bookmark_content_type_code)
+            universal_bookmarks.append({
+                'item_type': 'content_promo',
+                'promo_id': bookmark.bookmark_content_id,
+                'promo_badge': meta['badge'],
+                'promo_color': meta['color'],
+                'promo_cta': meta['cta'],
+                'promo_title': bookmark.bookmark_content_title or '',
+                'promo_description': '',
+                'promo_url': bookmark.bookmark_content_url or '#',
+                'promo_author': None, 'promo_date_formatted': '',
+                'promo_like_count': None, 'promo_view_count': None, 'promo_extra_stat': None,
+            })
+    except Exception as bookmark_fetch_error:
+        logger.error('Bookmark fetch failed — %s', bookmark_fetch_error)
+
+    return render(request, 'social/pages/bookmarks.html', {
+        'posts': post_items,
+        'universal_bookmarks': universal_bookmarks,
+        'seo': SEO,
     })

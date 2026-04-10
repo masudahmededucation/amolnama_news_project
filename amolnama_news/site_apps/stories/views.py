@@ -135,22 +135,16 @@ def detail(request, story_slug):
     cover_url = _get_story_cover_url(story.blog_stories_coll_story_id)
 
     # User state
+    from amolnama_news.site_apps.core.utils import is_bookmarked, get_bookmark_count, get_user_profile_id
+    current_profile_id = get_user_profile_id(request)
     user_liked = False
-    user_bookmarked = False
-    if request.user.is_authenticated:
-        try:
-            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-            current_profile_id = current_profile.user_profile_id
-            user_liked = EngagementStoryLike.objects.filter(
-                link_blog_stories_coll_story_id=story.blog_stories_coll_story_id,
-                link_user_profile_id=current_profile_id, is_active=True,
-            ).exists()
-            user_bookmarked = EngagementStoryBookmark.objects.filter(
-                link_blog_stories_coll_story_id=story.blog_stories_coll_story_id,
-                link_user_profile_id=current_profile_id, is_active=True,
-            ).exists()
-        except UserProfile.DoesNotExist:
-            pass
+    if current_profile_id:
+        user_liked = EngagementStoryLike.objects.filter(
+            link_blog_stories_coll_story_id=story.blog_stories_coll_story_id,
+            link_user_profile_id=current_profile_id, is_active=True,
+        ).exists()
+    user_bookmarked = is_bookmarked(current_profile_id, 'story', story.blog_stories_coll_story_id)
+    bookmark_count = get_bookmark_count('story', story.blog_stories_coll_story_id)
 
     story_item = {
         'story_id': story.blog_stories_coll_story_id,
@@ -194,6 +188,12 @@ def detail(request, story_slug):
 
     return render(request, 'stories/pages/stories-detail.html', {
         'story': story_item,
+        'user_liked': user_liked,
+        'user_bookmarked': user_bookmarked,
+        'bookmark_count': bookmark_count,
+        'can_edit': False,
+        'edit_url': '',
+        'actions_bar_content_registry_id': getattr(story, 'link_content_registry_id', None),
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(
             story.story_title_bn or story.story_summary_bn or '',

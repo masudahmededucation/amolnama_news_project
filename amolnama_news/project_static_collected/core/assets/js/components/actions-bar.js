@@ -118,14 +118,141 @@
     });
   });
 
-  /* ---- Share ---- */
+  /* ---- Bookmark toggle (universal — POSTs to /newsengine/api/bookmark/toggle/) ---- */
 
+  const bookmarkRequestInProgress = {};
+  const BOOKMARK_API_URL = '/newsengine/api/bookmark/toggle/';
+
+  document.addEventListener('click', function (event) {
+    const bookmarkButton = event.target.closest('.actions-bar-bookmark-button');
+    if (!bookmarkButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const contentType = bookmarkButton.getAttribute('data-content-type');
+    const contentId = bookmarkButton.getAttribute('data-content-id');
+    const contentTitle = bookmarkButton.getAttribute('data-content-title') || '';
+    const contentUrl = bookmarkButton.getAttribute('data-content-url') || '';
+    if (!contentType || !contentId) return;
+
+    const requestKey = contentType + ':' + contentId;
+    if (bookmarkRequestInProgress[requestKey]) return;
+    bookmarkRequestInProgress[requestKey] = true;
+
+    fetch(BOOKMARK_API_URL, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCsrfTokenValue(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content_type_code: contentType,
+        content_id: contentId,
+        content_title: contentTitle,
+        content_url: contentUrl,
+      }),
+    })
+    .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+    .then(function (data) {
+      bookmarkRequestInProgress[requestKey] = false;
+      if (!data.success) return;
+
+      /* Update ALL bookmark buttons for this content (top + bottom bars on the page) */
+      const allButtons = document.querySelectorAll(
+        '.actions-bar-bookmark-button[data-content-type="' + contentType + '"][data-content-id="' + contentId + '"]'
+      );
+      for (let buttonIndex = 0; buttonIndex < allButtons.length; buttonIndex++) {
+        const matchingButton = allButtons[buttonIndex];
+        const countElement = matchingButton.querySelector('.actions-bar-bookmark-count');
+        if (data.bookmarked) {
+          matchingButton.classList.add('actions-bar-bookmark-button-active');
+        } else {
+          matchingButton.classList.remove('actions-bar-bookmark-button-active');
+        }
+        if (countElement && typeof data.bookmark_count !== 'undefined') {
+          countElement.textContent = data.bookmark_count;
+        }
+      }
+    })
+    .catch(function (bookmarkError) {
+      console.error('Actions bar bookmark failed:', bookmarkError);
+      bookmarkRequestInProgress[requestKey] = false;
+    });
+  });
+
+  /* ---- Share dropdown ---- */
+
+  function getCsrfTokenValue() {
+    const cookie = document.cookie.split(';').find(function (c) { return c.trim().startsWith('csrftoken='); });
+    return cookie ? cookie.split('=')[1] : '';
+  }
+
+  function closeAllShareDropdowns(except) {
+    document.querySelectorAll('.actions-bar-share-dropdown').forEach(function (dropdown) {
+      if (dropdown !== except) {
+        dropdown.hidden = true;
+        const wrapper = dropdown.closest('.actions-bar-share-wrapper');
+        if (wrapper) {
+          const button = wrapper.querySelector('.actions-bar-share-button');
+          if (button) button.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+  }
+
+  /* Toggle dropdown on share button click */
   document.addEventListener('click', function (event) {
     const shareButton = event.target.closest('.actions-bar-share-button');
     if (!shareButton) return;
 
     event.preventDefault();
-    const shareTitle = shareButton.getAttribute('data-title') || '';
+    event.stopPropagation();
+
+    const wrapper = shareButton.closest('.actions-bar-share-wrapper');
+    if (!wrapper) return;
+    const dropdown = wrapper.querySelector('.actions-bar-share-dropdown');
+    if (!dropdown) return;
+
+    const isOpen = !dropdown.hidden;
+    closeAllShareDropdowns(isOpen ? null : dropdown);
+    dropdown.hidden = isOpen;
+    shareButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+  });
+
+  /* Close dropdown on outside click */
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.actions-bar-share-wrapper')) {
+      closeAllShareDropdowns(null);
+    }
+  });
+
+  /* Copy link option */
+  document.addEventListener('click', function (event) {
+    const copyLinkButton = event.target.closest('.actions-bar-share-copy-link');
+    if (!copyLinkButton) return;
+
+    const shareUrl = window.location.href;
+    navigator.clipboard.writeText(shareUrl).then(function () {
+      const label = copyLinkButton.querySelector('.actions-bar-share-option-label');
+      if (label) {
+        const originalText = label.textContent;
+        label.textContent = '✓ কপি হয়েছে';
+        setTimeout(function () { label.textContent = originalText; }, 1500);
+      }
+    }).catch(function (clipboardError) {
+      console.error('Clipboard write failed:', clipboardError);
+    });
+  });
+
+  /* External share option (Web Share API) */
+  document.addEventListener('click', function (event) {
+    const externalShareButton = event.target.closest('.actions-bar-share-external');
+    if (!externalShareButton) return;
+
+    const wrapper = externalShareButton.closest('.actions-bar-share-wrapper');
+    const shareButton = wrapper ? wrapper.querySelector('.actions-bar-share-button') : null;
+    const shareTitle = shareButton ? (shareButton.getAttribute('data-title') || '') : '';
     const shareUrl = window.location.href;
 
     if (navigator.share) {
@@ -134,18 +261,75 @@
       });
     } else {
       navigator.clipboard.writeText(shareUrl).then(function () {
-        var originalHtml = shareButton.innerHTML;
-        shareButton.innerHTML = '✓ লিংক কপি হয়েছে';
-        setTimeout(function () { shareButton.innerHTML = originalHtml; }, 2000);
+        const label = externalShareButton.querySelector('.actions-bar-share-option-label');
+        if (label) {
+          const originalText = label.textContent;
+          label.textContent = '✓ লিংক কপি হয়েছে';
+          setTimeout(function () { label.textContent = originalText; }, 1500);
+        }
       }).catch(function (clipboardError) {
         console.error('Clipboard write failed:', clipboardError);
       });
     }
+    closeAllShareDropdowns(null);
+  });
+
+  /* Share to my wall option */
+  document.addEventListener('click', function (event) {
+    const shareToWallButton = event.target.closest('.actions-bar-share-to-wall');
+    if (!shareToWallButton) return;
+
+    const wrapper = shareToWallButton.closest('.actions-bar-share-wrapper');
+    const shareButton = wrapper ? wrapper.querySelector('.actions-bar-share-button') : null;
+    const contentRegistryId = shareButton ? shareButton.getAttribute('data-content-registry-id') : '';
+
+    if (!contentRegistryId) {
+      console.error('Share to wall: missing content_registry_id');
+      return;
+    }
+
+    shareToWallButton.disabled = true;
+    const label = shareToWallButton.querySelector('.actions-bar-share-option-label');
+    const originalText = label ? label.textContent : '';
+    if (label) label.textContent = 'শেয়ার হচ্ছে...';
+
+    fetch('/post/api/share-to-wall/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+      body: JSON.stringify({ content_registry_id: parseInt(contentRegistryId, 10) }),
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          if (label) label.textContent = '✓ ' + data.message;
+          setTimeout(function () {
+            if (label) label.textContent = originalText;
+            shareToWallButton.disabled = false;
+            closeAllShareDropdowns(null);
+          }, 1800);
+        } else {
+          if (label) label.textContent = data.error || 'ব্যর্থ হয়েছে';
+          setTimeout(function () {
+            if (label) label.textContent = originalText;
+            shareToWallButton.disabled = false;
+          }, 2000);
+        }
+      })
+      .catch(function (shareError) {
+        console.error('Share to wall failed:', shareError);
+        if (label) label.textContent = 'নেটওয়ার্ক ত্রুটি';
+        setTimeout(function () {
+          if (label) label.textContent = originalText;
+          shareToWallButton.disabled = false;
+        }, 2000);
+      });
   });
 
   /* ---- Init ---- */
 
   function initActionsBar(userConfig) {
+    /* Bookmark API is universal — no per-app config needed.
+       Like API is per-app (poems vs likes vs comments differ), so still uses buildLikeApiUrl. */
     config = {
       buildLikeApiUrl: userConfig.buildLikeApiUrl,
     };

@@ -1606,6 +1606,7 @@ def article_detail(request, slug):
         'article_like_count': article_like_count,
         'article_view_count': article_view_count,
         'article_user_liked': article_user_liked,
+        'actions_bar_content_registry_id': getattr(published_article, 'link_content_registry_id', None),
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(
             published_article.pub_article_headline_bn or published_article.pub_article_body_bn or '',

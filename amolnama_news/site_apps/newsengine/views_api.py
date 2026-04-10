@@ -52,8 +52,15 @@ def api_notifications_mark_read(request):
 @login_required
 @require_POST
 def api_bookmark_toggle(request):
-    """Toggle bookmark for any content type. POST {content_type_code, content_id, content_title, content_url}."""
-    user_profile_id = _get_user_profile_id(request)
+    """Toggle bookmark for any content type. POST {content_type_code, content_id, content_title, content_url}.
+
+    This is the universal bookmark endpoint. Per-app endpoints (art/story/poem/destination)
+    are thin wrappers around the same shared toggle_bookmark() helper, so this and they all
+    write to the same [newsengine].[bookmark_content] table — one source of truth.
+    """
+    from amolnama_news.site_apps.core.utils import toggle_bookmark, get_user_profile_id
+
+    user_profile_id = get_user_profile_id(request)
     if not user_profile_id:
         return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
 
@@ -64,33 +71,20 @@ def api_bookmark_toggle(request):
 
     content_type_code = data.get('content_type_code', '')
     content_id = data.get('content_id')
-    content_title = data.get('content_title', '') or None
-    content_url = data.get('content_url', '') or None
+    content_title = data.get('content_title', '') or ''
+    content_url = data.get('content_url', '') or ''
 
     if not content_type_code or not content_id:
         return JsonResponse({'success': False, 'error': 'Missing content_type_code or content_id'}, status=400)
 
-    from .models import BookmarkContent
-
-    existing = BookmarkContent.objects.filter(
-        link_user_profile_id=user_profile_id,
+    bookmarked, count = toggle_bookmark(
+        user_profile_id=user_profile_id,
         content_type_code=content_type_code,
         content_id=content_id,
-        is_active=True,
-    ).first()
-
-    if existing:
-        existing.delete()
-        return JsonResponse({'success': True, 'action': 'removed'})
-    else:
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO [newsengine].[bookmark_content]
-                    ([link_user_profile_id], [content_type_code], [content_id], [content_title], [content_url])
-                VALUES (%s, %s, %s, %s, %s)
-            """, [user_profile_id, content_type_code, content_id, content_title, content_url])
-        return JsonResponse({'success': True, 'action': 'bookmarked'})
+        content_title=content_title,
+        content_url=content_url,
+    )
+    return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': count})
 
 
 # =========================================================

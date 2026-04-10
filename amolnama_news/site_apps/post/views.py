@@ -93,6 +93,116 @@ def build_post_feed_items(request, posts=None):
     # Bulk-fetch media URLs for all posts
     post_media_map = _get_post_media_urls_bulk([post.post_post_id for post in posts])
 
+    # Bulk-fetch shared content registry items (for share-to-wall posts)
+    shared_registry_ids = set(
+        post.link_shared_content_registry_id for post in posts
+        if getattr(post, 'link_shared_content_registry_id', None)
+    )
+    shared_content_map = {}
+    shared_subcategory_map = {}
+    shared_cover_map = {}  # registry_id → cover image URL (from source asset tables)
+    if shared_registry_ids:
+        from amolnama_news.site_apps.content.models import ContentRegistry, RefContentSubcategory
+        for content_item in ContentRegistry.objects.filter(content_registry_id__in=shared_registry_ids):
+            shared_content_map[content_item.content_registry_id] = content_item
+        # Bulk-fetch subcategory names for badge
+        subcategory_ids = set(
+            item.link_content_ref_content_subcategory_id for item in shared_content_map.values()
+            if item.link_content_ref_content_subcategory_id
+        )
+        if subcategory_ids:
+            for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
+                shared_subcategory_map[subcategory.content_ref_content_subcategory_id] = subcategory
+
+        # Bulk-fetch cover images from source asset tables
+        # Group registry IDs by content category to query each source table once
+        registry_by_category = {}
+        for item in shared_content_map.values():
+            cat_id = item.link_content_ref_content_category_id
+            registry_by_category.setdefault(cat_id, []).append(item)
+
+        from django.db import connection
+        # Category 5 = art, 4 = story, 1 = article (newshub), 6 = destination
+        for cat_id, items in registry_by_category.items():
+            if cat_id == 5:  # Art — artwork_asset
+                for item in items:
+                    if item.content_cover_image_url:
+                        shared_cover_map[item.content_registry_id] = item.content_cover_image_url
+                        continue
+                    # Lookup via slug → coll_artwork → artwork_asset
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute("""
+                                SELECT TOP 1 '/media/' + a.[file_storage_path]
+                                FROM [blog_art].[coll_artwork] art
+                                JOIN [blog_art].[artwork_asset] aa ON aa.[link_blog_art_coll_artwork_id] = art.[blog_art_coll_artwork_id]
+                                JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
+                                WHERE art.[link_content_registry_id] = %s AND aa.[is_active] = 1
+                                ORDER BY aa.[is_cover] DESC, aa.[sort_order]
+                            """, [item.content_registry_id])
+                            row = cursor.fetchone()
+                            if row:
+                                shared_cover_map[item.content_registry_id] = row[0]
+                    except Exception:
+                        pass
+            elif cat_id == 4:  # Story — story_asset
+                for item in items:
+                    if item.content_cover_image_url:
+                        shared_cover_map[item.content_registry_id] = item.content_cover_image_url
+                        continue
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute("""
+                                SELECT TOP 1 '/media/' + a.[file_storage_path]
+                                FROM [blog_stories].[coll_story] story
+                                JOIN [blog_stories].[story_asset] sa ON sa.[link_blog_stories_coll_story_id] = story.[blog_stories_coll_story_id]
+                                JOIN [media].[asset] a ON a.[asset_id] = sa.[link_asset_id]
+                                WHERE story.[link_content_registry_id] = %s AND sa.[is_active] = 1
+                                ORDER BY sa.[is_cover] DESC, sa.[sort_order]
+                            """, [item.content_registry_id])
+                            row = cursor.fetchone()
+                            if row:
+                                shared_cover_map[item.content_registry_id] = row[0]
+                    except Exception:
+                        pass
+            elif cat_id == 1:  # Newshub article — news_asset
+                for item in items:
+                    if item.content_cover_image_url:
+                        shared_cover_map[item.content_registry_id] = item.content_cover_image_url
+                        continue
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute("""
+                                SELECT TOP 1 '/media/' + a.[file_storage_path]
+                                FROM [newshub].[pub_article] pa
+                                JOIN [newshub].[news_asset] na ON na.[link_newshub_coll_news_entry_id] = pa.[link_news_entry_id]
+                                JOIN [media].[asset] a ON a.[asset_id] = na.[link_asset_id]
+                                WHERE pa.[link_content_registry_id] = %s AND na.[is_active] = 1
+                                ORDER BY na.[is_cover] DESC, na.[sort_order]
+                            """, [item.content_registry_id])
+                            row = cursor.fetchone()
+                            if row:
+                                shared_cover_map[item.content_registry_id] = row[0]
+                    except Exception:
+                        pass
+            elif cat_id == 6:  # Destination — cover_image_url on coll_destination
+                for item in items:
+                    if item.content_cover_image_url:
+                        shared_cover_map[item.content_registry_id] = item.content_cover_image_url
+                        continue
+                    try:
+                        with connection.cursor() as cursor:
+                            cursor.execute("""
+                                SELECT TOP 1 [cover_image_url]
+                                FROM [blog_bangladesh].[coll_destination]
+                                WHERE [link_content_registry_id] = %s
+                            """, [item.content_registry_id])
+                            row = cursor.fetchone()
+                            if row and row[0]:
+                                shared_cover_map[item.content_registry_id] = row[0]
+                    except Exception:
+                        pass
+
     # Bulk-fetch original posts for reposts
     repost_original_ids = set(
         post.link_repost_of_post_id for post in posts
@@ -190,7 +300,23 @@ def build_post_feed_items(request, posts=None):
             'is_scheduled': post.scheduled_publish_at and not post.is_published,
             'quote_comment_text': post.quote_comment_text or '',
             'poll': None,
+            'shared_content': None,
         }
+
+        # Attach shared blog content card if this is a share-to-wall post
+        shared_content_registry_id = getattr(post, 'link_shared_content_registry_id', None)
+        if shared_content_registry_id:
+            shared_item = shared_content_map.get(shared_content_registry_id)
+            if shared_item:
+                shared_subcategory = shared_subcategory_map.get(shared_item.link_content_ref_content_subcategory_id)
+                post_item['shared_content'] = {
+                    'content_registry_id': shared_item.content_registry_id,
+                    'title': shared_item.content_title_bn or shared_item.content_title_en or '',
+                    'summary': shared_item.content_summary_bn or '',
+                    'url': shared_item.content_url or '#',
+                    'cover_image_url': shared_cover_map.get(shared_item.content_registry_id, ''),
+                    'category_name_bn': shared_subcategory.subcategory_name_bn if shared_subcategory else '',
+                }
 
         # If this is a repost, include original post data
         if post.link_repost_of_post_id:
@@ -336,166 +462,6 @@ def _build_my_posts(request):
     ).order_by('-created_at')[:50]
 
     return build_post_feed_items(request, posts=posts)
-
-
-@login_required
-@ensure_csrf_cookie
-def bookmarks(request):
-    """Show ALL bookmarked content — posts + universal bookmarks (poems, news, debates, etc.)."""
-    from amolnama_news.site_apps.user_account.models import UserProfile
-
-    try:
-        current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-    except UserProfile.DoesNotExist:
-        return render(request, 'post/pages/post-bookmarks.html', {
-            'posts': [],
-            'universal_bookmarks': [],
-            'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ', 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সংরক্ষিত'}]},
-        })
-
-    user_profile_id = current_profile.user_profile_id
-
-    # 1. Post bookmarks (existing system)
-    bookmarked_post_ids = list(
-        PostBookmark.objects.filter(
-            link_user_profile_id=user_profile_id
-        ).order_by('-created_at').values_list('link_post_id', flat=True)[:50]
-    )
-
-    post_items = []
-    if bookmarked_post_ids:
-        posts_map = {
-            post.post_post_id: post
-            for post in Post.objects.filter(post_post_id__in=bookmarked_post_ids, is_active=True)
-        }
-        posts = [posts_map[post_id] for post_id in bookmarked_post_ids if post_id in posts_map]
-        post_items, _ = build_post_feed_items(request, posts=posts)
-
-    # 2. Collect bookmarks/likes from ALL apps into one unified list
-    universal_bookmarks = []
-
-    # Poem likes
-    try:
-        from amolnama_news.site_apps.poem.models import EngagementPoemLike, CollPoemEntry
-        poem_like_ids = list(EngagementPoemLike.objects.filter(
-            link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_blog_poem_coll_poem_entry_id', flat=True)[:20])
-        if poem_like_ids:
-            poems_map = {p.blog_poem_coll_poem_entry_id: p for p in CollPoemEntry.objects.filter(blog_poem_coll_poem_entry_id__in=poem_like_ids)}
-            for poem_id in poem_like_ids:
-                poem = poems_map.get(poem_id)
-                if poem:
-                    universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': poem.blog_poem_coll_poem_entry_id,
-                        'promo_badge': 'POEM', 'promo_color': 'purple',
-                        'promo_title': poem.poem_title_bn or '',
-                        'promo_description': (poem.poem_body_bn or '')[:150],
-                        'promo_url': f'/bangla-kobita-gaan/{poem.poem_slug}/',
-                        'promo_author': None, 'promo_date_formatted': '',
-                        'promo_like_count': getattr(poem, 'like_count', None),
-                        'promo_view_count': getattr(poem, 'view_count', None),
-                        'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
-                    })
-    except Exception as poem_bookmark_error:
-        logger.error('Poem bookmark fetch failed — %s', poem_bookmark_error)
-
-    # Art bookmarks
-    try:
-        from amolnama_news.site_apps.art.models import EngagementArtworkBookmark, CollArtwork
-        art_bookmark_ids = list(EngagementArtworkBookmark.objects.filter(
-            link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_blog_art_coll_artwork_id', flat=True)[:20])
-        if art_bookmark_ids:
-            artworks_map = {a.blog_art_coll_artwork_id: a for a in CollArtwork.objects.filter(blog_art_coll_artwork_id__in=art_bookmark_ids)}
-            for art_id in art_bookmark_ids:
-                artwork = artworks_map.get(art_id)
-                if artwork:
-                    universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': artwork.blog_art_coll_artwork_id,
-                        'promo_badge': 'ART', 'promo_color': 'blue',
-                        'promo_title': artwork.artwork_title_bn or '',
-                        'promo_description': (artwork.artwork_description_bn or '')[:150],
-                        'promo_url': f'/art-and-craft/{artwork.artwork_slug}/',
-                        'promo_author': None, 'promo_date_formatted': '',
-                        'promo_like_count': getattr(artwork, 'like_count', None),
-                        'promo_view_count': getattr(artwork, 'view_count', None),
-                        'promo_extra_stat': None, 'promo_cta': 'দেখুন',
-                    })
-    except Exception as art_bookmark_error:
-        logger.error('Art bookmark fetch failed — %s', art_bookmark_error)
-
-    # Story bookmarks
-    try:
-        from amolnama_news.site_apps.stories.models import EngagementStoryBookmark, CollStory
-        story_bookmark_ids = list(EngagementStoryBookmark.objects.filter(
-            link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_blog_stories_coll_story_id', flat=True)[:20])
-        if story_bookmark_ids:
-            stories_map = {s.blog_stories_coll_story_id: s for s in CollStory.objects.filter(blog_stories_coll_story_id__in=story_bookmark_ids)}
-            for story_id in story_bookmark_ids:
-                story = stories_map.get(story_id)
-                if story:
-                    universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': story.blog_stories_coll_story_id,
-                        'promo_badge': 'STORY', 'promo_color': 'amber',
-                        'promo_title': story.story_title_bn or '',
-                        'promo_description': (getattr(story, 'story_summary_bn', '') or '')[:150],
-                        'promo_url': f'/stories-for-kids/{story.story_slug}/',
-                        'promo_author': None, 'promo_date_formatted': '',
-                        'promo_like_count': getattr(story, 'like_count', None),
-                        'promo_view_count': getattr(story, 'view_count', None),
-                        'promo_extra_stat': None, 'promo_cta': 'পড়ুন',
-                    })
-    except Exception as story_bookmark_error:
-        logger.error('Story bookmark fetch failed — %s', story_bookmark_error)
-
-    # Travel destination bookmarks
-    try:
-        from amolnama_news.site_apps.bangladesh.models import EngagementDestinationBookmark, CollDestination
-        travel_bookmark_ids = list(EngagementDestinationBookmark.objects.filter(
-            link_user_profile_id=user_profile_id,
-        ).order_by('-created_at').values_list('link_blog_bangladesh_coll_destination_id', flat=True)[:20])
-        if travel_bookmark_ids:
-            destinations_map = {d.blog_bangladesh_coll_destination_id: d for d in CollDestination.objects.filter(blog_bangladesh_coll_destination_id__in=travel_bookmark_ids)}
-            for dest_id in travel_bookmark_ids:
-                destination = destinations_map.get(dest_id)
-                if destination:
-                    universal_bookmarks.append({
-                        'item_type': 'content_promo', 'promo_id': destination.blog_bangladesh_coll_destination_id,
-                        'promo_badge': 'TRAVEL', 'promo_color': 'green',
-                        'promo_title': destination.destination_name_bn or destination.destination_name_en or '',
-                        'promo_description': (destination.destination_description_bn or destination.destination_description_en or '')[:150],
-                        'promo_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',
-                        'promo_author': None, 'promo_date_formatted': '',
-                        'promo_like_count': getattr(destination, 'like_count', None),
-                        'promo_view_count': getattr(destination, 'view_count', None),
-                        'promo_extra_stat': None, 'promo_cta': 'ঘুরে আসুন',
-                    })
-    except Exception as travel_bookmark_error:
-        logger.error('Travel bookmark fetch failed — %s', travel_bookmark_error)
-
-    # Newsengine universal bookmarks (future — manual bookmarks from promo cards)
-    try:
-        from amolnama_news.site_apps.newsengine.models import BookmarkContent
-        for bookmark in BookmarkContent.objects.filter(link_user_profile_id=user_profile_id, is_active=True).order_by('-created_at')[:20]:
-            color_map = {'news': 'rose', 'poem': 'purple', 'story': 'amber', 'art': 'blue', 'travel': 'green', 'debate': 'amber'}
-            universal_bookmarks.append({
-                'item_type': 'content_promo', 'promo_id': bookmark.newsengine_bookmark_content_id,
-                'promo_badge': bookmark.content_type_code, 'promo_color': color_map.get(bookmark.content_type_code, 'blue'),
-                'promo_title': bookmark.content_title or '',
-                'promo_description': '', 'promo_url': bookmark.content_url or '',
-                'promo_author': None, 'promo_date_formatted': '',
-                'promo_like_count': None, 'promo_view_count': None,
-                'promo_extra_stat': None, 'promo_cta': 'দেখুন',
-            })
-    except Exception as newsengine_bookmark_error:
-        logger.error('Newsengine bookmark fetch failed — %s', newsengine_bookmark_error)
-
-    return render(request, 'post/pages/post-bookmarks.html', {
-        'posts': post_items,
-        'universal_bookmarks': universal_bookmarks,
-        'seo': {'title': 'সংরক্ষিত — আমলনামা নিউজ', 'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'সংরক্ষিত'}]},
-    })
 
 
 @ensure_csrf_cookie

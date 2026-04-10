@@ -7,6 +7,7 @@ app_name = 'social'
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('@<str:username_handle>/', views.public_profile, name='public_profile'),
     path('@<str:username_handle>/articles/', views.public_profile_articles, name='public_profile_articles'),
     path('@<str:username_handle>/followers/', views.followers_page, name='followers_page'),

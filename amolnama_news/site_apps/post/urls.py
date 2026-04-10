@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views
 from . import views_api
@@ -7,11 +8,13 @@ app_name = 'post'
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('bookmarks/', views.bookmarks, name='bookmarks'),
+    # Bookmarks moved to social app — permanent redirect for old links/PWA cache
+    path('bookmarks/', RedirectView.as_view(url='/social/bookmarks/', permanent=True)),
     path('<int:post_post_id>/', views.post_detail, name='post_detail'),
     path('<int:post_post_id>/embed/', views.post_embed, name='post_embed'),
     path('api/oembed/', views.api_post_oembed, name='api_post_oembed'),
     path('api/create/', views_api.api_post_create, name='api_post_create'),
+    path('api/share-to-wall/', views_api.api_share_to_wall, name='api_share_to_wall'),
     path('api/<int:post_post_id>/like/', views_api.api_post_like_toggle, name='api_post_like_toggle'),
     path('api/<int:post_post_id>/vote/', views_api.api_post_vote_toggle, name='api_post_vote_toggle'),
     path('api/<int:post_post_id>/follow-post/', views_api.api_post_follow_toggle, name='api_post_follow_toggle'),

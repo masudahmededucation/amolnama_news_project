@@ -176,44 +176,6 @@ def api_artwork_like_toggle(request, artwork_id):
 
 
 @require_POST
-@login_required
-def api_artwork_bookmark_toggle(request, artwork_id):
-    """Toggle bookmark on an artwork."""
-    from amolnama_news.site_apps.user_account.models import UserProfile
-
-    try:
-        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-    except UserProfile.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
-
-    existing_bookmark = EngagementArtworkBookmark.objects.filter(
-        link_blog_art_coll_artwork_id=artwork_id,
-        link_user_profile_id=user_profile.user_profile_id,
-    ).first()
-
-    if existing_bookmark and existing_bookmark.is_active:
-        existing_bookmark.is_active = False
-        existing_bookmark.save(update_fields=['is_active'])
-        bookmarked = False
-    elif existing_bookmark and not existing_bookmark.is_active:
-        existing_bookmark.is_active = True
-        existing_bookmark.save(update_fields=['is_active'])
-        bookmarked = True
-    else:
-        EngagementArtworkBookmark.objects.create(
-            link_blog_art_coll_artwork_id=artwork_id,
-            link_user_profile_id=user_profile.user_profile_id,
-            is_active=True,
-        )
-        bookmarked = True
-
-    actual_count = EngagementArtworkBookmark.objects.filter(link_blog_art_coll_artwork_id=artwork_id, is_active=True).count()
-    CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(bookmark_count=actual_count)
-
-    return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})
-
-
-@require_POST
 def api_artwork_view_increment(request, artwork_id):
     """Increment view count."""
     CollArtwork.objects.filter(blog_art_coll_artwork_id=artwork_id).update(view_count=F('view_count') + 1)

@@ -123,7 +123,7 @@
     </div>
 
     {# ---- Top Actions (like + share + edit) ---- #}
-    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="top" %}
+    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_content_registry_id=actions_bar_content_registry_id actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="top" %}
 
     {# ---- Summary ---- #}
     {% if entry.news_summary_bn %}
@@ -213,7 +213,7 @@
     {% endif %}
 
     {# ---- Bottom Actions (like + share + edit) ---- #}
-    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="bottom" %}
+    {% include "core/components/actions-bar.html" with actions_bar_entity_id=published_article.pub_article_id actions_bar_like_count=article_like_count actions_bar_view_count=article_view_count actions_bar_user_liked=article_user_liked actions_bar_share_title=published_article.pub_article_headline_bn actions_bar_content_registry_id=actions_bar_content_registry_id actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="bottom" %}
 
     {# ======== COMMUNITY ADDITIONS ======== #}
     {% if additions %}

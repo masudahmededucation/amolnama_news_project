@@ -408,6 +408,16 @@
       if (shareDropdown) {
         closeAllDropdowns(shareDropdown);
         shareDropdown.classList.toggle('post-card-share-menu-dropdown-open');
+        /* Flip dropdown side if it overflows the viewport */
+        if (shareDropdown.classList.contains('post-card-share-menu-dropdown-open')) {
+          shareDropdown.style.right = '0';
+          shareDropdown.style.left = 'auto';
+          const dropdownRect = shareDropdown.getBoundingClientRect();
+          if (dropdownRect.left < 8) {
+            shareDropdown.style.right = 'auto';
+            shareDropdown.style.left = '0';
+          }
+        }
       }
       return;
     }
@@ -592,6 +602,23 @@
           if (bookmarkIconElement) bookmarkIconElement.innerHTML = HEART_SVG_PATH.replace('HEARTCLASS', 'post-card-heart-svg-empty');
         }
       });
+      return;
+    }
+
+    /* ---- Share menu: Repost to my wall (delegates to dedicated repost button) ---- */
+    const shareMenuRepostButton = target.closest('.post-card-share-menu-repost-button');
+    if (shareMenuRepostButton) {
+      event.preventDefault();
+      const sharedRepostPostId = shareMenuRepostButton.getAttribute('data-post-id');
+      const dedicatedRepostButton = document.querySelector(
+        '.post-card-repost-button[data-post-id="' + sharedRepostPostId + '"]'
+      );
+      if (dedicatedRepostButton) {
+        dedicatedRepostButton.click();
+      }
+      /* Close the share dropdown */
+      const dropdown = shareMenuRepostButton.closest('.post-card-share-menu-dropdown');
+      if (dropdown) dropdown.classList.remove('post-card-share-menu-dropdown-open');
       return;
     }
 

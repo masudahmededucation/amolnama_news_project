@@ -35,6 +35,15 @@ def get_user_profile_id(request):
         return None
 
 
+# Bookmark functions live in their own atomic module — re-export here so legacy imports keep working.
+from amolnama_news.site_apps.core.bookmarks import (  # noqa: F401
+    get_content_type_metadata,
+    toggle_bookmark,
+    is_bookmarked,
+    get_bookmark_count,
+)
+
+
 def time_ago(dt):
     """Bengali time-ago string. Shared across all apps."""
     if not dt:

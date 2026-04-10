@@ -161,44 +161,6 @@ def api_story_like_toggle(request, story_id):
 
 
 @require_POST
-@login_required
-def api_story_bookmark_toggle(request, story_id):
-    """Toggle bookmark on a story."""
-    from amolnama_news.site_apps.user_account.models import UserProfile
-
-    try:
-        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-    except UserProfile.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
-
-    existing_bookmark = EngagementStoryBookmark.objects.filter(
-        link_blog_stories_coll_story_id=story_id,
-        link_user_profile_id=user_profile.user_profile_id,
-    ).first()
-
-    if existing_bookmark and existing_bookmark.is_active:
-        existing_bookmark.is_active = False
-        existing_bookmark.save(update_fields=['is_active'])
-        bookmarked = False
-    elif existing_bookmark and not existing_bookmark.is_active:
-        existing_bookmark.is_active = True
-        existing_bookmark.save(update_fields=['is_active'])
-        bookmarked = True
-    else:
-        EngagementStoryBookmark.objects.create(
-            link_blog_stories_coll_story_id=story_id,
-            link_user_profile_id=user_profile.user_profile_id,
-            is_active=True,
-        )
-        bookmarked = True
-
-    actual_count = EngagementStoryBookmark.objects.filter(link_blog_stories_coll_story_id=story_id, is_active=True).count()
-    CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(bookmark_count=actual_count)
-
-    return JsonResponse({'success': True, 'bookmarked': bookmarked, 'bookmark_count': actual_count})
-
-
-@require_POST
 def api_story_view_increment(request, story_id):
     """Increment view count."""
     CollStory.objects.filter(blog_stories_coll_story_id=story_id).update(view_count=F('view_count') + 1)

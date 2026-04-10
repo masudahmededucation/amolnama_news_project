@@ -1411,3 +1411,67 @@ def api_composer_placeholder(request):
         return JsonResponse({'success': True, 'placeholder': random.choice(active_placeholders), 'is_featured': False})
 
     return JsonResponse({'success': True, 'placeholder': 'কী ঘটছে?', 'is_featured': False})
+
+
+# ========== Share-to-Wall ==========
+
+
+@require_POST
+@login_required
+def api_share_to_wall(request):
+    """Share a blog content item to the user's home wall as a public post.
+    Body: {content_registry_id: int, custom_text: str|None}
+    Creates a new post with link_shared_content_registry_id set, visibility=public.
+    """
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    from amolnama_news.site_apps.content.models import ContentRegistry
+
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    content_registry_id = data.get('content_registry_id')
+    custom_text = (data.get('custom_text') or '').strip() or None
+
+    if not content_registry_id:
+        return JsonResponse({'success': False, 'error': 'কন্টেন্ট নির্বাচন করুন'}, status=400)
+
+    # Verify the content exists and is published
+    try:
+        content_item = ContentRegistry.objects.get(
+            content_registry_id=content_registry_id,
+            is_published=True,
+            is_active=True,
+        )
+    except ContentRegistry.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'কন্টেন্ট পাওয়া যায়নি'}, status=404)
+
+    if custom_text and len(custom_text) > 1000:
+        return JsonResponse({'success': False, 'error': 'মন্তব্য ১০০০ অক্ষরের বেশি হতে পারবে না'}, status=400)
+
+    try:
+        user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    # Create the share post — always public, type=share
+    post_guid = str(uuid.uuid4())
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [post].[coll_post]
+                ([post_guid], [link_user_profile_id], [post_text], [post_type_code],
+                 [visibility_code], [link_shared_content_registry_id], [is_published], [is_active])
+            OUTPUT INSERTED.post_post_id
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, [
+            post_guid, user_profile.user_profile_id, custom_text, 'share',
+            'public', content_registry_id, 1, 1,
+        ])
+        post_post_id = cursor.fetchone()[0]
+
+    return JsonResponse({
+        'success': True,
+        'post_post_id': post_post_id,
+        'message': 'আপনার ওয়ালে শেয়ার করা হয়েছে',
+    })

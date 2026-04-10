@@ -136,21 +136,18 @@ def _render_poem_detail(request, poem):
     }
     _annotate_poem(poem, categories_map)
 
-    # Check if current user liked this poem
+    # Check if current user liked / bookmarked this poem
+    from amolnama_news.site_apps.core.utils import is_bookmarked, get_bookmark_count, get_user_profile_id
+    current_profile_id = get_user_profile_id(request)
     user_liked = False
-    if request.user.is_authenticated:
+    if current_profile_id:
         from .models import EngagementPoemLike
-        from amolnama_news.site_apps.user_account.models import UserProfile
-        try:
-            profile = UserProfile.objects.only("user_profile_id").get(
-                link_user_account_user_id=request.user.pk
-            )
-            user_liked = EngagementPoemLike.objects.filter(
-                link_blog_poem_coll_poem_entry_id=poem_id,
-                link_user_profile_id=profile.user_profile_id,
-            ).exists()
-        except UserProfile.DoesNotExist:
-            pass
+        user_liked = EngagementPoemLike.objects.filter(
+            link_blog_poem_coll_poem_entry_id=poem_id,
+            link_user_profile_id=current_profile_id,
+        ).exists()
+    user_bookmarked = is_bookmarked(current_profile_id, 'poem', poem_id)
+    bookmark_count = get_bookmark_count('poem', poem_id)
 
     # Related poems — shared smart logic (same function used by autoplay API)
     related = get_smart_related_poems(poem, limit=4)
@@ -214,8 +211,12 @@ def _render_poem_detail(request, poem):
     return render(request, "poem/pages/poem-detail.html", {
         "poem": poem,
         "user_liked": user_liked,
+        "user_bookmarked": user_bookmarked,
+        "bookmark_count": bookmark_count,
         "can_edit": can_edit,
+        "edit_url": reverse('poem:poem_edit', args=[poem.poem_slug]) if can_edit else None,
         "related_poems": related,
+        "actions_bar_content_registry_id": getattr(poem, 'link_content_registry_id', None),
         **actions_bar_author_context,
         "og": {
             "title": title + " — " + poem.poem_author_display_name,

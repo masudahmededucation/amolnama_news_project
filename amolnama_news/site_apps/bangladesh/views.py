@@ -427,10 +427,16 @@ def travel_hub_detail_by_slug(request, destination_slug):
             "bestRating": 5,
         }
 
-    # Destination like/view counts for actions bar
+    # Destination like/view/bookmark counts for actions bar
+    from amolnama_news.site_apps.core.utils import get_bookmark_count
     destination_like_count = dest.like_count or 0
     destination_view_count = dest.view_count or 0
+    destination_bookmark_count = get_bookmark_count('destination', dest.blog_bangladesh_coll_destination_id)
     destination_user_liked = str(dest.blog_bangladesh_coll_destination_id) in request.session.get('destination_likes', [])
+    from amolnama_news.site_apps.core.utils import is_bookmarked, get_user_profile_id
+    destination_user_bookmarked = is_bookmarked(
+        get_user_profile_id(request), 'destination', dest.blog_bangladesh_coll_destination_id,
+    )
 
     # Edit URL for actions bar
     edit_url = ''
@@ -467,7 +473,11 @@ def travel_hub_detail_by_slug(request, destination_slug):
         "edit_url": edit_url,
         "destination_like_count": destination_like_count,
         "destination_view_count": destination_view_count,
+        "bookmark_count": destination_bookmark_count,
         "destination_user_liked": destination_user_liked,
+        "user_liked": destination_user_liked,
+        "user_bookmarked": destination_user_bookmarked,
+        "actions_bar_content_registry_id": getattr(dest, 'link_content_registry_id', None),
         **actions_bar_author_context,
         "related_content_items": build_related_content_items(
             dest.destination_description_bn or dest.destination_name_bn or '',

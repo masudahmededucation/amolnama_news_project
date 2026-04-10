@@ -418,23 +418,6 @@
   margin: 0 auto;
 }
 
-/* ---- Bookmarks Page ---- */
-.post-bookmarks-header {
-  padding: 1rem 1.25rem .5rem;
-}
-
-.post-bookmarks-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 0 0 .2rem;
-}
-
-.post-bookmarks-subtitle {
-  font-size: .82rem;
-  color: var(--muted);
-  margin: 0;
-}
-
 .post-detail-back {
   padding: 1rem 1.25rem;
 }
@@ -817,6 +800,95 @@
   margin-bottom: .5rem;
   transition: background .15s;
   cursor: pointer;
+}
+
+/* ---- Shared blog content card (inside a post) ---- */
+.post-card-shared-content {
+  display: flex;
+  align-items: stretch;
+  gap: .75rem;
+  margin-top: .6rem;
+  padding: .75rem .85rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: 12px;
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.post-card-shared-content:hover {
+  text-decoration: none;
+  border-color: var(--info);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .06);
+}
+
+.post-card-shared-content-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-card-shared-content-badge {
+  display: inline-block;
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--info);
+  padding: .15rem .5rem;
+  border-radius: 8px;
+  margin-bottom: .35rem;
+}
+
+.post-card-shared-content-title {
+  font-size: .92rem;
+  font-weight: 700;
+  margin: 0 0 .25rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.post-card-shared-content-summary {
+  font-size: .76rem;
+  color: var(--muted);
+  margin: 0 0 .35rem;
+  line-height: 1.5;
+}
+
+.post-card-shared-content-cta {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--info);
+}
+
+.post-card-shared-content-image-wrapper {
+  flex-shrink: 0;
+  width: 110px;
+  border-radius: 12px;
+  overflow: hidden;
+  align-self: center;
+}
+
+.post-card-shared-content-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  transition: transform .3s;
+}
+
+.post-card-shared-content:hover .post-card-shared-content-image {
+  transform: scale(1.05);
+}
+
+@media (max-width: 640px) {
+  .post-card-shared-content { padding: .6rem .75rem; gap: .55rem; }
+  .post-card-shared-content-title { font-size: .85rem; }
+  .post-card-shared-content-summary { font-size: .72rem; }
+  .post-card-shared-content-image-wrapper { width: 80px; }
 }
 
 /* ---- Verified badge — top right of post card ---- */
@@ -1372,8 +1444,10 @@
   display: none;
   position: absolute;
   bottom: 100%;
-  left: 0;
-  min-width: 180px;
+  right: 0;
+  left: auto;
+  min-width: 200px;
+  max-width: calc(100vw - 1rem);
   background: var(--card, #fff);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -1385,6 +1459,21 @@
 
 .post-card-share-menu-dropdown-open {
   display: block;
+}
+
+.post-card-share-menu-separator {
+  height: 1px;
+  background: var(--border);
+  margin: .25rem 0;
+}
+
+.post-card-share-menu-repost-button {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.post-card-share-menu-repost-button-active {
+  color: var(--muted);
 }
 
 .post-card-share-menu-item {
@@ -1992,3 +2081,4 @@
   text-align: center;
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
+

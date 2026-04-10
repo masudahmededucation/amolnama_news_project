@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static blog_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 
@@ -97,35 +97,8 @@
   </div>
   {% endif %}
 
-  {# ── Writer Follow ── #}
-  {% if actions_bar_author_display_name %}
-  <div class="actions-bar actions-bar-top">
-    <div class="actions-bar-writer-section">
-      <a href="/social/@{{ actions_bar_author_username_handle }}/" class="actions-bar-writer-name" id="actions-bar-writer-art-top" name="actions_bar_writer_art_top">✍️ {{ actions_bar_author_display_name }}</a>
-      {% if not actions_bar_author_is_own and request.user.is_authenticated %}
-      <button type="button" class="actions-bar-follow-button{% if actions_bar_author_is_following %} actions-bar-follow-button-active{% endif %}" id="actions-bar-follow-{{ actions_bar_author_user_profile_id }}-art-top" name="actions_bar_follow_{{ actions_bar_author_user_profile_id }}_art_top" data-user-profile-id="{{ actions_bar_author_user_profile_id }}">{% if actions_bar_author_is_following %}Unfollow{% else %}Follow{% endif %}</button>
-      {% endif %}
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="art-detail-actions" id="art-detail-actions">
-    <button type="button" class="art-detail-action-button art-detail-like-button{% if artwork.user_liked %} art-detail-like-button-active{% endif %}" id="art-detail-like-{{ artwork.artwork_id }}" name="art_detail_like_{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
-      <span class="art-detail-action-icon">{% if artwork.user_liked %}❤️{% else %}🤍{% endif %}</span>
-      <span class="art-detail-action-count art-detail-like-count">{{ artwork.like_count }}</span>
-      <span class="art-detail-action-label">পছন্দ</span>
-    </button>
-    <button type="button" class="art-detail-action-button art-detail-bookmark-button{% if artwork.user_bookmarked %} art-detail-bookmark-button-active{% endif %}" id="art-detail-bookmark-{{ artwork.artwork_id }}" name="art_detail_bookmark_{{ artwork.artwork_id }}" data-artwork-id="{{ artwork.artwork_id }}">
-      <span class="art-detail-action-icon">{% if artwork.user_bookmarked %}🔖{% else %}📑{% endif %}</span>
-      <span class="art-detail-action-count art-detail-bookmark-count">{{ artwork.bookmark_count }}</span>
-      <span class="art-detail-action-label">সংরক্ষণ</span>
-    </button>
-    <span class="art-detail-action-button art-detail-view-count">
-      <span class="art-detail-action-icon">👁️</span>
-      <span class="art-detail-action-count">{{ artwork.view_count }}</span>
-      <span class="art-detail-action-label">দেখা হয়েছে</span>
-    </span>
-  </div>
+  {# ── Shared Actions Bar (writer follow + like + bookmark + view + share dropdown + edit) ── #}
+  {% blog_actions_bar artwork.artwork_id artwork.title_bn "art" position="bottom" like_count=artwork.like_count view_count=artwork.view_count %}
 
 </article>
 

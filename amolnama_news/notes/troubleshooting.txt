@@ -57,4 +57,31 @@ we need to keep the core light for basic display and home page related.
 then put the others in the related app. need to stop your stupid lazy thinking. 
 
 
+####
+share options 
+- for travel hub worked 
+- for news article 
+- it is not there. 
+i told you to modularise it. 
+so update in one place should work everywhere.
+you have lied that you have modularise the shared option and using everywhere.
+
+so add bookmark on the action bar 
+and also share option if not already exists. 
+also modularise share and reuse it. 
+for all blog posts.
+we need to standardise the db column name for book mark too.
+
+not appearing the recent bookmarked 
+in http://127.0.0.1:8001/post/bookmarks/
+
+it is showing only poems category
+
+
+--wall posts
+writer's url posts http://127.0.0.1:8001/social/@joes/articles/
+all bold and weired
+you are suppossed it make it filtered promo card
+definitely you forgot about it
+
 

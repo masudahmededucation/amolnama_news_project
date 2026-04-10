@@ -1,6 +1,7 @@
 """Stories for Kids models — mapped to [blog_stories].* SQL Server tables."""
 
 from django.db import models
+from django.utils import timezone
 
 
 # RefStoryCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_stories_category'
@@ -83,7 +84,7 @@ class EngagementStoryLike(models.Model):
     link_blog_stories_coll_story_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -95,10 +96,8 @@ class EngagementStoryBookmark(models.Model):
     blog_stories_engagement_story_bookmark_id = models.BigAutoField(primary_key=True)
     link_blog_stories_coll_story_id = models.BigIntegerField()
     link_user_profile_id = models.BigIntegerField()
-    last_page_number = models.IntegerField(blank=True, null=True)
-    is_completed = models.BooleanField()
     is_active = models.BooleanField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:

@@ -168,24 +168,18 @@ def detail(request, artwork_slug):
     ))
 
     # User interaction state
+    from amolnama_news.site_apps.core.utils import is_bookmarked, get_bookmark_count, get_user_profile_id
+    current_profile_id = get_user_profile_id(request)
     user_liked = False
-    user_bookmarked = False
     can_edit = False
-    if request.user.is_authenticated:
-        try:
-            current_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)
-            current_profile_id = current_profile.user_profile_id
-            user_liked = EngagementArtworkLike.objects.filter(
-                link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id,
-                link_user_profile_id=current_profile_id, is_active=True,
-            ).exists()
-            user_bookmarked = EngagementArtworkBookmark.objects.filter(
-                link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id,
-                link_user_profile_id=current_profile_id, is_active=True,
-            ).exists()
-            can_edit = artwork.link_user_profile_id == current_profile_id or request.user.is_staff
-        except UserProfile.DoesNotExist:
-            pass
+    if current_profile_id:
+        user_liked = EngagementArtworkLike.objects.filter(
+            link_blog_art_coll_artwork_id=artwork.blog_art_coll_artwork_id,
+            link_user_profile_id=current_profile_id, is_active=True,
+        ).exists()
+        can_edit = artwork.link_user_profile_id == current_profile_id or request.user.is_staff
+    user_bookmarked = is_bookmarked(current_profile_id, 'art', artwork.blog_art_coll_artwork_id)
+    bookmark_count = get_bookmark_count('art', artwork.blog_art_coll_artwork_id)
 
     artwork_item = {
         'artwork_id': artwork.blog_art_coll_artwork_id,
@@ -236,8 +230,22 @@ def detail(request, artwork_slug):
         except Exception:
             pass
 
+    edit_url = ''
+    if can_edit:
+        from django.urls import reverse
+        try:
+            edit_url = reverse('art:edit', args=[artwork.artwork_slug])
+        except Exception:
+            edit_url = ''
+
     return render(request, 'art/pages/art-detail.html', {
         'artwork': artwork_item,
+        'user_liked': user_liked,
+        'user_bookmarked': user_bookmarked,
+        'bookmark_count': bookmark_count,
+        'can_edit': can_edit,
+        'edit_url': edit_url,
+        'actions_bar_content_registry_id': getattr(artwork, 'link_content_registry_id', None),
         **actions_bar_author_context,
         'related_content_items': build_related_content_items(
             artwork.artwork_title_bn or artwork.artwork_description_bn or '',

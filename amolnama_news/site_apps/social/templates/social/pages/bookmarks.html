@@ -4,16 +4,17 @@
 {% block title %}{{ seo.title }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
-<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
+<link rel="stylesheet" href="{% static 'post/assets/css/pages/post-home.css' %}">
+<link rel="stylesheet" href="{% static 'social/assets/css/pages/bookmarks.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="bookmarks-page" id="bookmarks-page">
-  <h1 class="post-bookmarks-title" id="post-bookmarks-title">💜 সংরক্ষিত (Bookmarks)</h1>
-  <p class="post-bookmarks-subtitle" id="post-bookmarks-subtitle">আপনার পছন্দের সব কন্টেন্ট এখানে সংরক্ষিত আছে</p>
+  <h1 class="bookmarks-page-title" id="bookmarks-page-title">💜 সংরক্ষিত (Bookmarks)</h1>
+  <p class="bookmarks-page-subtitle" id="bookmarks-page-subtitle">আপনার পছন্দের সব কন্টেন্ট এখানে সংরক্ষিত আছে</p>
 
   {% if universal_bookmarks %}
   <h2 class="bookmarks-section-title" id="bookmarks-section-universal">📌 কন্টেন্ট বুকমার্ক</h2>
@@ -24,20 +25,19 @@
 
   {% if posts %}
   <h2 class="bookmarks-section-title" id="bookmarks-section-posts">📝 পোস্ট বুকমার্ক</h2>
-  {% endif %}
-
-  <div class="post-feed" id="post-bookmarks-feed">
+  <div class="post-feed" id="bookmarks-post-feed">
     {% for post_item in posts %}
     {% include "post/components/post-card.html" %}
-    {% empty %}
-    {% if not universal_bookmarks %}
-    <div class="bookmarks-empty" id="post-bookmarks-empty">
-      <p>এখনো কিছু সংরক্ষণ করা হয়নি</p>
-      <p><a href="/">হোম ফিডে যান →</a></p>
-    </div>
-    {% endif %}
     {% endfor %}
   </div>
+  {% endif %}
+
+  {% if not posts and not universal_bookmarks %}
+  <div class="bookmarks-empty" id="bookmarks-empty">
+    <p>এখনো কিছু সংরক্ষণ করা হয়নি</p>
+    <p><a href="/">হোম ফিডে যান →</a></p>
+  </div>
+  {% endif %}
 </div>
 
 {% include "core/components/photo-lightbox.html" %}

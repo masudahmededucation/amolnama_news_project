@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load static %}
+{% load static blog_tags %}
 
 {% block title %}{{ seo.title }}{% endblock %}
 {% block meta_description %}{{ seo.description }}{% endblock %}
@@ -50,7 +50,7 @@
   </div>
 
   {# ── Top Actions (like + view + share + edit) ── #}
-  {% include "core/components/actions-bar.html" with actions_bar_entity_id=dest.blog_bangladesh_coll_destination_id actions_bar_like_count=destination_like_count actions_bar_view_count=destination_view_count actions_bar_user_liked=destination_user_liked actions_bar_share_title=dest.destination_name_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="top" %}
+  {% blog_actions_bar dest.blog_bangladesh_coll_destination_id dest.destination_name_bn "destination" position="top" like_count=destination_like_count view_count=destination_view_count %}
 
   {# ── Description ── #}
   {% if description_paragraphs %}
@@ -318,7 +318,7 @@
   </div>
 
   {# ── Bottom Actions (like + view + share + edit) ── #}
-  {% include "core/components/actions-bar.html" with actions_bar_entity_id=dest.blog_bangladesh_coll_destination_id actions_bar_like_count=destination_like_count actions_bar_view_count=destination_view_count actions_bar_user_liked=destination_user_liked actions_bar_share_title=dest.destination_name_bn actions_bar_can_edit=can_edit actions_bar_edit_url=edit_url actions_bar_position="bottom" %}
+  {% blog_actions_bar dest.blog_bangladesh_coll_destination_id dest.destination_name_bn "destination" position="bottom" like_count=destination_like_count view_count=destination_view_count %}
 
 </article>
 

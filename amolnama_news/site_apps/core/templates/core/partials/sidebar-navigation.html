@@ -12,7 +12,7 @@
   </div>
 
   <div class="sidebar-navigation-menu" id="sidebar-navigation-menu">
-    <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if request.path == '/' or request.resolver_match.namespace == 'post' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
+    <a href="{% url 'core:home' %}" class="sidebar-navigation-item{% if request.path == '/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-home" name="sidebar_navigation_item_home" title="হোম (Home)">
       <span class="sidebar-navigation-item-icon">🏠</span>
       <span class="sidebar-navigation-item-label">হোম</span>
     </a>
@@ -48,7 +48,7 @@
     </a>
 
     {% if user.is_authenticated %}
-    <a href="{% url 'post:bookmarks' %}" class="sidebar-navigation-item{% if request.resolver_match.url_name == 'bookmarks' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookmarks" name="sidebar_navigation_item_bookmarks" title="সংরক্ষিত (Bookmarks)">
+    <a href="{% url 'social:bookmarks' %}" class="sidebar-navigation-item{% if request.path == '/social/bookmarks/' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookmarks" name="sidebar_navigation_item_bookmarks" title="সংরক্ষিত (Bookmarks)">
       <span class="sidebar-navigation-item-icon">💜</span>
       <span class="sidebar-navigation-item-label">সংরক্ষিত</span>
     </a>

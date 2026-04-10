@@ -25,7 +25,7 @@ urlpatterns = [
     path("api/media/", views_api.api_media_list, name="api_media_list"),
     path("api/media/upload/", views_api.api_media_upload, name="api_media_upload"),
 
-    # Destination — like
+    # Destination — like (bookmark uses universal /newsengine/api/bookmark/toggle/)
     path("api/destination/<int:destination_id>/like/", views_api.api_destination_like_toggle, name="api_destination_like_toggle"),
 
     # Destination — view tracking + likes

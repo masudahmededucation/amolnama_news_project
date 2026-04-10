@@ -22,6 +22,7 @@ from .models import (
     CollMediaEntry,
     DestinationPhoto, DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationReview, EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
+    EngagementDestinationBookmark,
 )
 
 
@@ -737,7 +738,6 @@ def api_destination_photo_like_toggle(request, destination_id, photo_id):
         EngagementDestinationPhotoLike.objects.create(
             link_blog_bangladesh_destination_photo_id=photo_id,
             link_user_profile_id=profile_id,
-            created_at=timezone.now(),
         )
         DestinationPhoto.objects.filter(blog_bangladesh_destination_photo_id=photo_id).update(like_count=F('like_count') + 1)
         liked = True
@@ -769,7 +769,6 @@ def api_destination_video_like_toggle(request, destination_id, youtube_link_id):
         EngagementDestinationVideoLike.objects.create(
             link_blog_bangladesh_destination_youtube_link_id=youtube_link_id,
             link_user_profile_id=profile_id,
-            created_at=timezone.now(),
         )
         DestinationYoutubeLink.objects.filter(blog_bangladesh_destination_youtube_link_id=youtube_link_id).update(like_count=F('like_count') + 1)
         liked = True

@@ -66,6 +66,7 @@ all attributes should have its id and name.
 
 --modularise everything
 make a rule - any new features - should be modularised.
+make the code scalable
 even used in one place.
 then first thing before implementing a new feature is to check, is this feature already exists?
 if the feature not exists then create a new modularised feature.
@@ -185,6 +186,8 @@ use best practice for website
 use professional practices for apps
 use competitive websites practices
 no masking of real issues
+make the app scalable
+
 
 --permission request
 ask for blanket permission once only.
