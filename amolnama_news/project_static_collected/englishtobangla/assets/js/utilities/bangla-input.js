@@ -164,7 +164,7 @@ const BanglaInput = (function() {
   }
 
   // Map English input to the dictionary key (phonetic consonant cluster)
-  let DICT_KEYS_SORTED = []; // sorted by length description for greedy match
+  let DICT_KEYS_SORTED = []; // sorted by length descending for greedy match
   function findDictKey(engWord) {
     if (DICT_KEYS_SORTED.length === 0 && dictionary) {
       DICT_KEYS_SORTED = Object.keys(dictionary).sort(function(a, b) { return b.length - a.length; });
