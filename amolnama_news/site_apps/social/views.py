@@ -187,15 +187,38 @@ def public_profile_articles(request, username_handle):
             for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
                 subcategory_map[subcategory.content_ref_content_subcategory_id] = subcategory.subcategory_name_bn
 
+        # Category name lookup
+        category_map = {}
+        cat_ids = set(item.link_content_ref_content_category_id for item in registry_items)
+        if cat_ids:
+            for cat in RefContentCategory.objects.filter(content_ref_content_category_id__in=cat_ids):
+                category_map[cat.content_ref_content_category_id] = cat
+
         for item in registry_items:
+            title_text = item.content_title_bn or item.content_title_en or ''
+            summary_text = item.content_summary_bn or ''
+            # Only show summary if different from title
+            description = ''
+            if summary_text and summary_text.strip() != title_text.strip():
+                description = summary_text
+
+            category = category_map.get(item.link_content_ref_content_category_id)
+            published_at = item.published_at or item.created_at
+
             articles.append({
-                'content_registry_id': item.content_registry_id,
-                'content_title_bn': item.content_title_bn or item.content_title_en or '',
-                'content_url': item.content_url,
-                'content_summary_bn': item.content_summary_bn or '',
-                'content_category_name': subcategory_map.get(item.link_content_ref_content_subcategory_id, ''),
-                'published_at': item.published_at or item.created_at,
-                'link_content_ref_content_category_id': item.link_content_ref_content_category_id,
+                'promo_id': item.content_registry_id,
+                'item_type': category.content_category_code if category else 'content',
+                'promo_url': item.content_url or '#',
+                'promo_badge': subcategory_map.get(item.link_content_ref_content_subcategory_id) or (category.content_category_name_bn if category else ''),
+                'promo_color': 'blue',
+                'promo_title': title_text,
+                'promo_description': description,
+                'promo_author': '',
+                'promo_date_formatted': published_at.strftime('%d %b %Y') if published_at else '',
+                'promo_like_count': None,
+                'promo_view_count': None,
+                'promo_extra_stat': None,
+                'promo_cta': 'পড়ুন',
             })
     except Exception as articles_query_error:
         logger.error('Articles profile query failed for user %s — %s',

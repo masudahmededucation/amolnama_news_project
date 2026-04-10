@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'social/assets/css/pages/user-profile.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/content-promo-card.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -59,17 +60,10 @@
     <a href="/social/@{{ profile.username_handle }}/articles/" class="user-profile-tab user-profile-tab-active" id="user-profile-tab-articles" name="user_profile_tab_articles">নিবন্ধ</a>
   </div>
 
-  {% comment %}Articles List{% endcomment %}
+  {% comment %}Articles List — uses shared content-promo-card{% endcomment %}
   <div class="user-profile-articles-section" id="user-profile-articles-section">
-    {% for article in articles %}
-    <a href="{{ article.content_url }}" class="user-profile-article-card" id="user-profile-article-card-{{ article.content_registry_id }}" name="user_profile_article_card_{{ article.content_registry_id }}">
-      <div class="user-profile-article-card-meta">
-        {% if article.content_category_name %}<span class="user-profile-article-card-badge">{{ article.content_category_name }}</span>{% endif %}
-      </div>
-      <h3 class="user-profile-article-card-title">{{ article.content_title_bn }}</h3>
-      {% if article.content_summary_bn %}<p class="user-profile-article-card-summary">{{ article.content_summary_bn|striptags|truncatewords:25 }}</p>{% endif %}
-      {% if article.published_at %}<time class="user-profile-article-card-date">{{ article.published_at|date:"d M Y" }}</time>{% endif %}
-    </a>
+    {% for promo in articles %}
+    {% include "core/components/content-promo-card.html" with promo=promo %}
     {% empty %}
     <div class="user-profile-articles-empty" id="user-profile-articles-empty">এখনো কোনো প্রকাশনা নেই</div>
     {% endfor %}
