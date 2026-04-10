@@ -146,6 +146,19 @@ amolnama_news/site_apps/
 2. **Write once, reuse everywhere.** Zero copy-paste.
 3. **Split files when feature is atomic and independent.** Don't split inter-related/co-related logic.
 4. **N parallel implementations dressed up as a config dict is NOT modularisation.** True modular = 1 source of truth.
+5. **Make the code scalable.** Adding a new content type / category / form / role should require ONE entry, not N file edits.
+
+### Dynamic, DB-driven > hardcoded
+1. **If a list/option/category can live in a ref table, it MUST live in a ref table.** No hardcoded lists in Python/JS/HTML.
+2. **Categories, subcategories, statuses, roles, badges, content types, form types, regions, seasons** → all DB-driven via `[content].[ref_*]` or app-specific ref tables.
+3. **Filter pills, dropdowns, tab lists, sidebar items** → render from DB, not hardcoded HTML.
+4. **Adding a new category = INSERT one row.** Not "edit Python list + edit template + edit JS array + redeploy".
+5. **Hardcoded mapping dicts in Python** (e.g. `BADGE_MAP = {'art': 'ART', ...}`) are acceptable ONLY when:
+   - The keys are intrinsic to the codebase (content_type discriminator codes that match Python module names), AND
+   - The metadata is presentation-only (badge label, color hint, CTA text), AND
+   - There is exactly ONE such mapping in the project (single source of truth like `CONTENT_TYPE_METADATA` in `content/bookmarks.py`).
+6. **Anything user-editable, multi-language, or growth-prone → DB.**
+7. **Don't pre-compute static lists** that the DB can return live. Cache the query if needed, never the list.
 5. **Never claim "shared/modular/used everywhere"** without grep-verifying it's actually used in every place.
 
 ### When user says
