@@ -97,6 +97,7 @@ class DestinationPhoto(models.Model):
     caption_bn = models.CharField(max_length=500, blank=True, null=True)
     sort_order = models.IntegerField()
     is_cover = models.BooleanField()
+    is_active = models.BooleanField(default=True)
     view_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
     created_at = models.DateTimeField()

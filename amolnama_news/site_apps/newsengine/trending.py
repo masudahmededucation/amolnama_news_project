@@ -45,24 +45,5 @@ def get_trending_posts(limit=5):
     return items[:limit]
 
 
-def get_trending_promo_items(limit=5):
-    """Find trending content across all apps for the feed. Returns promo-formatted dicts."""
-    from amolnama_news.site_apps.newsengine.promo_builders import build_all_promo_items
-
-    all_promos = build_all_promo_items()
-
-    # Score each promo by engagement
-    for promo in all_promos:
-        like_count = promo.get('promo_like_count') or 0
-        view_count = promo.get('promo_view_count') or 0
-        promo['_trending_score'] = like_count * 3 + view_count * 0.1
-
-    all_promos.sort(key=lambda item: item.get('_trending_score', 0), reverse=True)
-
-    trending_items = []
-    for promo in all_promos[:limit]:
-        if promo.get('_trending_score', 0) > 0:
-            promo['is_trending'] = True
-            trending_items.append(promo)
-
-    return trending_items
+# get_trending_promo_items removed — replaced by unified _inject_promo_cards in feed_builder.py
+# (popularity-based sorting was causing the same content to repeat repeatedly)

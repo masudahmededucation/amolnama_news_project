@@ -1147,7 +1147,7 @@ def get_article_photos(newshub_coll_news_entry_id):
     sql = """
         SELECT [newshub].[news_asset].link_asset_id,
                [newshub].[news_asset].news_asset_caption_bn,
-               [newshub].[news_asset].is_featured,
+               [newshub].[news_asset].is_cover,
                [newshub].[news_asset].asset_group_code,
                [newshub].[news_asset].view_count,
                [newshub].[news_asset].like_count,
@@ -1226,7 +1226,7 @@ def get_article_cover_urls_bulk(newshub_coll_news_entry_ids):
     sql = f"""
         SELECT [newshub].[news_asset].link_newshub_coll_news_entry_id,
                '/media/' + [media].[asset].file_storage_path AS file_url,
-               [newshub].[news_asset].is_featured,
+               [newshub].[news_asset].is_cover,
                [newshub].[news_asset].sort_order
         FROM [newshub].[news_asset]
         JOIN [media].[asset] ON [media].[asset].asset_id = [newshub].[news_asset].link_asset_id
@@ -1234,7 +1234,7 @@ def get_article_cover_urls_bulk(newshub_coll_news_entry_ids):
           AND [media].[asset].is_active = 1
           AND [media].[asset].file_mime_type LIKE 'image/%%'
         ORDER BY [newshub].[news_asset].link_newshub_coll_news_entry_id,
-                 [newshub].[news_asset].is_featured DESC,
+                 [newshub].[news_asset].is_cover DESC,
                  [newshub].[news_asset].sort_order
     """
 

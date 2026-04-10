@@ -105,3 +105,10 @@ this is not for individual article admin panel.
 this is for type of promo allowed in the promo.
 for example, in a busy day, i want to stop promo for poems.
 i should have slider toggle button options like content dashboard.
+
+
+--
+lets modularise the promo cards and use them here later filtered by name. 
+lets add photo on the right side of the card.
+the preview cacrd and promo card they should be same.
+same style - just filtered by writers

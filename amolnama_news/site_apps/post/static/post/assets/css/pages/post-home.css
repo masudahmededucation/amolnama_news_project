@@ -812,7 +812,9 @@
   display: flex;
   gap: .75rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: .5rem;
   transition: background .15s;
   cursor: pointer;
 }

@@ -215,6 +215,7 @@ def public_profile_articles(request, username_handle):
                 'promo_description': description,
                 'promo_author': '',
                 'promo_date_formatted': published_at.strftime('%d %b %Y') if published_at else '',
+                'promo_cover_image_url': item.content_cover_image_url or '',
                 'promo_like_count': None,
                 'promo_view_count': None,
                 'promo_extra_stat': None,

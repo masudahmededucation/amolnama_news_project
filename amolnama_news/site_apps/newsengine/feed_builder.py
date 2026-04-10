@@ -3,6 +3,7 @@ Collects user posts, promo cards, promotional boosts, applies ranking, dedup, pe
 This is the single source of truth for what appears on the home page."""
 
 import logging
+import random
 from amolnama_news.site_apps.core.utils import get_user_profile_id as _get_user_profile_id
 
 logger = logging.getLogger(__name__)
@@ -83,32 +84,8 @@ def _build_intelligent_feed(request, feed_items, category_filter):
     except Exception:
         logger.exception('Content ranking failed — falling back to default order')
 
-    # Step 2: Inject promo cards AFTER ranking (so ranking can't move them to top)
+    # Step 2: Inject unified promo cards (single source — no boost, no trending overlap)
     feed_items = _inject_promo_cards(feed_items, request=request)
-
-    # Step 2a: Inject promotional boost items (popular content re-surfaced)
-    try:
-        from .promo_builders import build_promotional_boost_items
-        boost_items = build_promotional_boost_items()
-        if boost_items:
-            import random
-            for boost_item in boost_items[:3]:
-                position = random.randint(8, min(20, len(feed_items)))
-                feed_items.insert(position, boost_item)
-    except Exception:
-        logger.exception('Promotional boost injection failed')
-
-    # Step 2b: Inject trending content (fastest-growing in last 24h)
-    try:
-        from .trending import get_trending_promo_items
-        trending_promos = get_trending_promo_items()
-        if trending_promos:
-            import random
-            for trending_item in trending_promos[:2]:
-                position = random.randint(3, min(10, len(feed_items)))
-                feed_items.insert(position, trending_item)
-    except Exception:
-        logger.exception('Trending injection failed')
 
     # Steps 3-4: User-specific filters (only for authenticated users)
     user_profile_id = _get_user_profile_id(request)
@@ -157,10 +134,19 @@ def _build_intelligent_feed(request, feed_items, category_filter):
 
 
 def _inject_promo_cards(feed_items, request=None):
-    """Insert up to 3 promos at random positions (5-8, 13-16, 21-24).
-    Rotates categories per session. Respects user feed preferences."""
+    """Single unified promo injection system.
+
+    Algorithm:
+      1. Pull ALL promo items from all category builders ONCE
+      2. Apply user feed preferences (if logged in)
+      3. Group by category, shuffle each group
+      4. Round-robin pick to guarantee category diversity
+      5. Inject at random positions spread across the feed
+
+    No popularity bias. No session memory. Fresh on every page load.
+    Replaces the old triple-system (promo + boost + trending) that caused
+    the same popular content to repeat repeatedly."""
     from .promo_builders import build_all_promo_items
-    import random
 
     if len(feed_items) < 6:
         return feed_items
@@ -169,77 +155,69 @@ def _inject_promo_cards(feed_items, request=None):
     if not all_promos:
         return feed_items
 
-    # Filter by user preferences
+    # Filter by user preferences (if logged in)
     user_profile_id = _get_user_profile_id(request) if request else None
     if user_profile_id:
         all_promos = _apply_user_feed_preferences(all_promos, user_profile_id)
         if not all_promos:
             return feed_items
 
-    # Skip promos already shown this session
-    session = getattr(request, 'session', {})
-    shown_ids = set(session.get('shown_promo_ids', []))
-    available = [p for p in all_promos if _get_promo_key(p) not in shown_ids]
-    if not available:
-        available = all_promos
-        shown_ids = set()
+    # Group promos by category for balanced selection
+    category_buckets = {}
+    for promo in all_promos:
+        category_key = promo.get('promo_badge') or promo.get('item_type') or 'other'
+        category_buckets.setdefault(category_key, []).append(promo)
 
-    # Pick up to 3 from different categories (rotate from last session index)
-    categories = ['debate_promo', 'NEWS', 'POEM', 'STORY', 'ART', 'TRAVEL', 'tools_promo']
-    category_index = session.get('last_promo_category_index', 0)
+    # Shuffle bucket order + shuffle within each bucket
+    bucket_keys = list(category_buckets.keys())
+    random.shuffle(bucket_keys)
+    for key in bucket_keys:
+        random.shuffle(category_buckets[key])
+
+    # How many promos to inject — cap at 5 for variety, scale by feed length
+    feed_length = len(feed_items)
+    promo_slot_count = min(5, max(3, feed_length // 8))
+
+    # Round-robin pick from buckets until we have enough or run out
     selected = []
-    for _ in range(len(categories)):
-        if len(selected) >= 3:
-            break
-        category = categories[category_index % len(categories)]
-        category_index += 1
-        matches = [p for p in available if (p.get('promo_badge') or p.get('item_type')) == category]
-        if matches:
-            picked = random.choice(matches)
-            selected.append(picked)
-            available.remove(picked)
+    bucket_index = 0
+    while len(selected) < promo_slot_count and bucket_keys:
+        key = bucket_keys[bucket_index % len(bucket_keys)]
+        bucket = category_buckets[key]
+        if bucket:
+            selected.append(bucket.pop(0))
+            bucket_index += 1
+        else:
+            bucket_keys.remove(key)
+            if not bucket_keys:
+                break
 
     if not selected:
         return feed_items
 
-    # Track in session
-    if hasattr(request, 'session'):
-        request.session['shown_promo_ids'] = (list(shown_ids) + [_get_promo_key(p) for p in selected])[-50:]
-        request.session['last_promo_category_index'] = category_index % len(categories)
+    # Shuffle selected order — no predictable rhythm
+    random.shuffle(selected)
 
-    # Place promos at random positions in feed.
-    # New content (< 1 hour) → top (position 1-3). Older → deeper (5-8, 13-16, 21-24).
-    from django.utils import timezone
-    now = timezone.now()
-    feed_length = len(feed_items)
-
+    # Spread promos across the feed at random positions within evenly-spaced slots
+    slot_count = len(selected)
+    slot_size = max(4, feed_length // (slot_count + 1))
     for slot_index, promo in enumerate(selected):
-        created_at = promo.get('created_at_raw')
-        is_new = bool(created_at and (now - created_at).total_seconds() < 3600)
-
-        if is_new and slot_index == 0:
-            position_start, position_end = 1, 3
-        else:
-            position_start = 5 + (slot_index * 8)
-            position_end = position_start + 3
-
-        if position_start >= feed_length:
+        slot_start = (slot_index + 1) * slot_size - 2
+        slot_end = (slot_index + 1) * slot_size + 2
+        slot_start = max(2, slot_start)
+        slot_end = min(feed_length, slot_end)
+        if slot_start >= feed_length:
             break
-        feed_items.insert(random.randint(position_start, min(position_end, feed_length)), promo)
+        position = random.randint(slot_start, max(slot_start, slot_end))
+        feed_items.insert(position, promo)
 
     return feed_items
 
 
-def _get_promo_key(promo):
-    """Unique key for a promo item — used for dedup and session tracking."""
-    item_type = promo.get('item_type', '')
-    promo_id = promo.get('promo_id') or promo.get('debate_coll_topic_id') or promo.get('tool_name_en') or ''
-    return f'{item_type}:{promo_id}'
-
-
-
 def _exclude_viewed_content(feed_items, user_profile_id):
-    """Remove content the user has already viewed (last 200 views)."""
+    """Remove POSTS the user has already viewed (last 200 views).
+    Does NOT exclude promo cards — promos are meant to re-surface content
+    regardless of view history."""
     from .models import FactFeedUserContentView
 
     recent_views = FactFeedUserContentView.objects.filter(
@@ -251,7 +229,11 @@ def _exclude_viewed_content(feed_items, user_profile_id):
     if not viewed_keys:
         return feed_items
 
-    return [item for item in feed_items if _get_content_key(item) not in viewed_keys]
+    promo_types = ('debate_promo', 'content_promo', 'tools_promo')
+    return [
+        item for item in feed_items
+        if item.get('item_type') in promo_types or _get_content_key(item) not in viewed_keys
+    ]
 
 
 def _deduplicate_feed(feed_items):

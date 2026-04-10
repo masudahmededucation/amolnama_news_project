@@ -50,54 +50,22 @@ def build_all_promo_items():
     except Exception:
         logger.exception('Failed to build travel promo items')
 
-    # Sort all by date — latest first
-    all_promos.sort(key=lambda item: item.get('created_at_raw') or '', reverse=True)
+    # Tools — static utility pages, included in unified pool
+    try:
+        all_promos.extend(_build_tools_promo_items())
+    except Exception:
+        logger.exception('Failed to build tools promo items')
+
+    # Sort all by date — latest first. Items without a date (e.g. tools) sort to the end.
+    from datetime import datetime
+    epoch_min = datetime.min
+    def _sort_key(item):
+        created_at = item.get('created_at_raw')
+        if created_at and hasattr(created_at, 'year'):
+            return created_at.replace(tzinfo=None) if created_at.tzinfo else created_at
+        return epoch_min
+    all_promos.sort(key=_sort_key, reverse=True)
     return all_promos
-
-
-def build_promotional_boost_items():
-    """Promotional boost — picks 2 best items per category for periodic re-surfacing.
-    Uses engagement (likes, views) to pick the most popular content.
-    These appear lower in the feed, separate from the chronological published items."""
-    boost_items = []
-
-    builders = [
-        _build_newshub_promo_items,
-        _build_poem_promo_items,
-        _build_stories_promo_items,
-        _build_art_promo_items,
-        _build_travel_promo_items,
-    ]
-
-    for builder in builders:
-        try:
-            items = builder()
-            if items:
-                # Randomly pick 2 from all published items — exposes all content over time
-                selected = random.sample(items, min(2, len(items)))
-                for promo in selected:
-                    promo['is_promotional_boost'] = True
-                    boost_items.append(promo)
-        except Exception:
-            logger.exception('Failed to build promotional boost')
-
-    # Also boost top debate
-    try:
-        from amolnama_news.site_apps.debate.views import build_debate_promo_items
-        debate_items = build_debate_promo_items()
-        for promo in debate_items[:2]:
-            promo['is_promotional_boost'] = True
-            boost_items.append(promo)
-    except Exception:
-        logger.exception('Failed to build debate promotional boost')
-
-    # Tools — randomly pick 2 tools to promote
-    try:
-        boost_items.extend(_build_tools_promo_items())
-    except Exception:
-        logger.exception('Failed to build tools promotional boost')
-
-    return boost_items
 
 
 # =========================================================
@@ -194,6 +162,28 @@ def _build_tools_promo_items():
     return items
 
 
+def _bulk_cover_urls(schema, asset_table, fk_column, collection_ids):
+    """Bulk-fetch cover image URLs from asset tables via raw SQL.
+    Picks is_cover=1 first, falls back to first asset by sort_order.
+    Returns {collection_id: full_media_url} map."""
+    if not collection_ids:
+        return {}
+    from django.db import connection
+    placeholders = ','.join(['%s'] * len(collection_ids))
+    with connection.cursor() as cursor:
+        cursor.execute(f"""
+            SELECT [{fk_column}], '/media/' + [file_storage_path] AS file_url FROM (
+                SELECT aa.[{fk_column}], a.[file_storage_path],
+                       ROW_NUMBER() OVER (PARTITION BY aa.[{fk_column}]
+                                          ORDER BY aa.[is_cover] DESC, aa.[sort_order]) AS row_number
+                FROM [{schema}].[{asset_table}] aa
+                JOIN [media].[asset] a ON a.[asset_id] = aa.[link_asset_id]
+                WHERE aa.[{fk_column}] IN ({placeholders}) AND aa.[is_active] = 1
+            ) ranked WHERE row_number = 1
+        """, list(collection_ids))
+        return {row[0]: row[1] for row in cursor.fetchall()}
+
+
 def _build_newshub_promo_items():
     """Latest published news articles — pulls summary from linked CollNewsEntry."""
     from amolnama_news.site_apps.newshub.models import PubArticle, CollNewsEntry
@@ -208,6 +198,9 @@ def _build_newshub_promo_items():
     if entry_ids:
         for entry in CollNewsEntry.objects.filter(newshub_coll_news_entry_id__in=entry_ids):
             entry_map[entry.newshub_coll_news_entry_id] = entry
+
+    # Bulk-fetch cover images using shared helper (newshub now uses is_cover/is_active)
+    cover_map = _bulk_cover_urls('newshub', 'news_asset', 'link_newshub_coll_news_entry_id', entry_ids)
 
     items = []
     for article in articles:
@@ -227,6 +220,7 @@ def _build_newshub_promo_items():
             'promo_url': f'/newshub/article/{article.pub_article_slug}/',
             'promo_author': None,
             'promo_date_formatted': article.created_at.strftime('%d %b %Y') if article.created_at else '',
+            'promo_cover_image_url': cover_map.get(article.link_news_entry_id, ''),
             'promo_like_count': None,
             'promo_view_count': None,
             'promo_extra_stat': None,
@@ -272,6 +266,9 @@ def _build_stories_promo_items():
         is_published=True, is_active=True,
     ).order_by('-created_at')
 
+    story_ids = [story.blog_stories_coll_story_id for story in stories]
+    cover_map = _bulk_cover_urls('blog_stories', 'story_asset', 'link_blog_stories_coll_story_id', story_ids)
+
     items = []
     for story in stories:
         reading_time = getattr(story, 'reading_time_minutes', None)
@@ -286,6 +283,7 @@ def _build_stories_promo_items():
             'promo_url': f'/stories-for-kids/{story.story_slug}/',
             'promo_author': None,
             'promo_date_formatted': story.created_at.strftime('%d %b %Y') if story.created_at else '',
+            'promo_cover_image_url': cover_map.get(story.blog_stories_coll_story_id, ''),
             'promo_like_count': getattr(story, 'like_count', None),
             'promo_view_count': getattr(story, 'view_count', None),
             'promo_extra_stat': f'📖 {reading_time} মিনিট' if reading_time else None,
@@ -302,6 +300,9 @@ def _build_art_promo_items():
         is_published=True, is_active=True,
     ).order_by('-created_at')
 
+    artwork_ids = [artwork.blog_art_coll_artwork_id for artwork in artworks]
+    cover_map = _bulk_cover_urls('blog_art', 'artwork_asset', 'link_blog_art_coll_artwork_id', artwork_ids)
+
     items = []
     for artwork in artworks:
         items.append({
@@ -315,6 +316,7 @@ def _build_art_promo_items():
             'promo_url': f'/art-and-craft/{artwork.artwork_slug}/',
             'promo_author': None,
             'promo_date_formatted': artwork.created_at.strftime('%d %b %Y') if artwork.created_at else '',
+            'promo_cover_image_url': cover_map.get(artwork.blog_art_coll_artwork_id, ''),
             'promo_like_count': getattr(artwork, 'like_count', None),
             'promo_view_count': getattr(artwork, 'view_count', None),
             'promo_extra_stat': None,
@@ -344,6 +346,7 @@ def _build_travel_promo_items():
             'promo_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',
             'promo_author': None,
             'promo_date_formatted': destination.created_at.strftime('%d %b %Y') if destination.created_at else '',
+            'promo_cover_image_url': destination.cover_image_url or '',
             'promo_like_count': getattr(destination, 'like_count', None),
             'promo_view_count': getattr(destination, 'view_count', None),
             'promo_extra_stat': None,

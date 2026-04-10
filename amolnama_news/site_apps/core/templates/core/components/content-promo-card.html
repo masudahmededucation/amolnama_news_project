@@ -1,24 +1,31 @@
 <a href="{{ promo.promo_url }}" class="content-promo-card content-promo-card-{{ promo.promo_color }}" id="content-promo-card-{{ promo.item_type }}-{{ promo.promo_id }}">
-  <div class="content-promo-card-header" id="content-promo-card-header-{{ promo.item_type }}-{{ promo.promo_id }}">
-    <span class="content-promo-card-badge content-promo-card-badge-{{ promo.promo_color }}" id="content-promo-card-badge-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_badge }}</span>
-    {% if promo.promo_author %}
-    <span class="content-promo-card-author" id="content-promo-card-author-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_author }}</span>
-    {% endif %}
-    <span class="content-promo-card-date" id="content-promo-card-date-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_date_formatted }}</span>
-  </div>
-
-  <h3 class="content-promo-card-title" id="content-promo-card-title-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_title }}</h3>
-
-  {% if promo.promo_description %}
-  <p class="content-promo-card-description" id="content-promo-card-description-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_description|striptags|truncatewords:30 }}</p>
-  {% endif %}
-
-  <div class="content-promo-card-footer" id="content-promo-card-footer-{{ promo.item_type }}-{{ promo.promo_id }}">
-    <div class="content-promo-card-stats" id="content-promo-card-stats-{{ promo.item_type }}-{{ promo.promo_id }}">
-      {% if promo.promo_like_count %}<span class="content-promo-card-stat">❤️ {{ promo.promo_like_count }}</span>{% endif %}
-      {% if promo.promo_view_count %}<span class="content-promo-card-stat">👁 {{ promo.promo_view_count }}</span>{% endif %}
-      {% if promo.promo_extra_stat %}<span class="content-promo-card-stat">{{ promo.promo_extra_stat }}</span>{% endif %}
+  <div class="content-promo-card-body">
+    <div class="content-promo-card-header" id="content-promo-card-header-{{ promo.item_type }}-{{ promo.promo_id }}">
+      <span class="content-promo-card-badge content-promo-card-badge-{{ promo.promo_color }}" id="content-promo-card-badge-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_badge }}</span>
+      {% if promo.promo_author %}
+      <span class="content-promo-card-author" id="content-promo-card-author-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_author }}</span>
+      {% endif %}
+      <span class="content-promo-card-date" id="content-promo-card-date-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_date_formatted }}</span>
     </div>
-    <span class="content-promo-card-cta content-promo-card-cta-{{ promo.promo_color }}" id="content-promo-card-cta-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_cta }} →</span>
+
+    <h3 class="content-promo-card-title" id="content-promo-card-title-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_title|striptags|truncatewords:20 }}</h3>
+
+    {% if promo.promo_description %}
+    <p class="content-promo-card-description" id="content-promo-card-description-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_description|striptags|truncatewords:30 }}</p>
+    {% endif %}
+
+    <div class="content-promo-card-footer" id="content-promo-card-footer-{{ promo.item_type }}-{{ promo.promo_id }}">
+      <div class="content-promo-card-stats" id="content-promo-card-stats-{{ promo.item_type }}-{{ promo.promo_id }}">
+        {% if promo.promo_like_count %}<span class="content-promo-card-stat">❤️ {{ promo.promo_like_count }}</span>{% endif %}
+        {% if promo.promo_view_count %}<span class="content-promo-card-stat">👁 {{ promo.promo_view_count }}</span>{% endif %}
+        {% if promo.promo_extra_stat %}<span class="content-promo-card-stat">{{ promo.promo_extra_stat }}</span>{% endif %}
+      </div>
+      <span class="content-promo-card-cta content-promo-card-cta-{{ promo.promo_color }}" id="content-promo-card-cta-{{ promo.item_type }}-{{ promo.promo_id }}">{{ promo.promo_cta }} →</span>
+    </div>
   </div>
+  {% if promo.promo_cover_image_url %}
+  <div class="content-promo-card-image-wrapper">
+    <img src="{{ promo.promo_cover_image_url }}" alt="" class="content-promo-card-image" loading="lazy">
+  </div>
+  {% endif %}
 </a>
