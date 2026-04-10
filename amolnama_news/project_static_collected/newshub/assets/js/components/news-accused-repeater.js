@@ -7,7 +7,7 @@
  * DOM dependencies:
  *   #accused-json                  — hidden input (JSON payload, name="accused_json")
  *   #accused-list                  — container where cards are rendered
- *   #accused-add-btn               — single add button
+ *   #accused-add-button               — single add button
  *   #accused-empty-state           — "no persons" message
  *   #actor-involvement-types-data  — CSP-safe JSON (shared; in accused-form.html)
  *   #actor-types-data              — CSP-safe JSON (shared; in accused-form.html)
@@ -25,7 +25,7 @@
 
   const hiddenInput = document.getElementById('accused-json');
   const listContainer = document.getElementById('accused-list');
-  const addBtn = document.getElementById('accused-add-btn');
+  const addBtn = document.getElementById('accused-add-button');
   const emptyState = document.getElementById('accused-empty-state');
 
   if (!hiddenInput || !listContainer || !addBtn) return;
@@ -160,9 +160,9 @@
     html += '<div class="actor-card-header">';
     html += '<span class="actor-role-badge role-accused">'
       + '\u0985\u09AD\u09BF\u09AF\u09C1\u0995\u09CD\u09A4 (Accused/Suspect)</span>';
-    html += '<button type="button" class="btn-repeater-delete accused-remove-btn" data-index="' + index
+    html += '<button type="button" class="button-repeater-delete accused-remove-button" data-index="' + index
       + '" title="\u09A1\u09BF\u09B2\u09BF\u099F \u0995\u09B0\u09C1\u09A8 (Delete)">'
-      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="btn-delete-x">&times;</span></button>';
+      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="button-delete-x">&times;</span></button>';
     html += '</div>';
 
     /* Type — own row */
@@ -218,9 +218,9 @@
     /* Initialize Flatpickr on date inputs and Tom Select on district selects */
     if (window.newshubDatePicker) window.newshubDatePicker.init();
     window.newshubPersonIdentity.initDistrictTomSelects(listContainer, function(selectEl, value) {
-      let idx = parseInt(selectEl.getAttribute('data-index'), 10);
-      if (!isNaN(idx) && actors[idx]) {
-        actors[idx].districtId = parseInt(value, 10) || 0;
+      let index = parseInt(selectEl.getAttribute('data-index'), 10);
+      if (!isNaN(index) && actors[index]) {
+        actors[index].districtId = parseInt(value, 10) || 0;
         syncToHiddenInput();
       }
     });
@@ -229,11 +229,11 @@
   /* ========== Event Delegation ========== */
 
   listContainer.addEventListener('click', function (e) {
-    const btn = e.target.closest('.accused-remove-btn');
-    if (!btn) return;
-    let idx = parseInt(btn.getAttribute('data-index'), 10);
-    if (isNaN(idx)) return;
-    actors.splice(idx, 1);
+    const button = e.target.closest('.accused-remove-button');
+    if (!button) return;
+    let index = parseInt(button.getAttribute('data-index'), 10);
+    if (isNaN(index)) return;
+    actors.splice(index, 1);
     render();
   });
 
@@ -241,10 +241,10 @@
   listContainer.addEventListener('input', function (e) {
     let field = e.target.closest('.accused-field');
     if (!field || field.tagName === 'SELECT') return;
-    let idx = parseInt(field.getAttribute('data-index'), 10);
+    let index = parseInt(field.getAttribute('data-index'), 10);
     let key = field.getAttribute('data-field');
-    if (isNaN(idx) || !key || !actors[idx]) return;
-    actors[idx][key] = field.value;
+    if (isNaN(index) || !key || !actors[index]) return;
+    actors[index][key] = field.value;
     syncToHiddenInput();
   });
 
@@ -252,13 +252,13 @@
   listContainer.addEventListener('change', function (e) {
     let field = e.target.closest('.accused-field');
     if (!field) return;
-    const idx = parseInt(field.getAttribute('data-index'), 10);
+    const index = parseInt(field.getAttribute('data-index'), 10);
     const key = field.getAttribute('data-field');
-    if (isNaN(idx) || !key || !actors[idx]) return;
+    if (isNaN(index) || !key || !actors[index]) return;
     if (field.tagName === 'SELECT') {
       /* All selects now store numeric IDs (actorTypeId, genderId, religionId) */
       let parsed = parseInt(field.value, 10);
-      actors[idx][key] = isNaN(parsed) ? 0 : parsed;
+      actors[index][key] = isNaN(parsed) ? 0 : parsed;
 
       /* Update actorTypeDetail placeholder based on selected type */
       if (key === 'actorTypeId') {
@@ -271,7 +271,7 @@
         }
       }
     } else {
-      actors[idx][key] = field.value;
+      actors[index][key] = field.value;
     }
     syncToHiddenInput();
   });

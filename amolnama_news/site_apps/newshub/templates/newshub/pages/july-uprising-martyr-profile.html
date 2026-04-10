@@ -317,15 +317,15 @@
   <div class="share-section">
     <h2>শেয়ার করুন (Share This Profile)</h2>
     <div class="share-buttons">
-      <button class="share-btn share-btn-copy" onclick="var self=this;navigator.clipboard.writeText(window.location.href).then(function(){self.textContent='✅ কপি হয়েছে!';setTimeout(function(){self.textContent='📋 লিংক কপি';},2000)})">
+      <button class="share-button share-button-copy" onclick="var self=this;navigator.clipboard.writeText(window.location.href).then(function(){self.textContent='✅ কপি হয়েছে!';setTimeout(function(){self.textContent='📋 লিংক কপি';},2000)})">
         📋 লিংক কপি
       </button>
-      <a class="share-btn share-btn-whatsapp"
+      <a class="share-button share-button-whatsapp"
          href="https://wa.me/?text={{ profile.nameBn|default:'' }}%20—%20জুলাই%20অভ্যুত্থান%20২০২৪%20{{ request.build_absolute_uri }}"
          target="_blank" rel="noopener">
         💬 WhatsApp
       </a>
-      <a class="share-btn share-btn-facebook"
+      <a class="share-button share-button-facebook"
          href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
          target="_blank" rel="noopener">
         📘 Facebook

@@ -109,9 +109,9 @@
     html += '<div class="actor-card-header">';
     html += '<span class="actor-role-badge ' + config.cssClass + '">'
       + config.labelBn + ' (' + config.labelEn + ')</span>';
-    html += '<button type="button" class="btn-repeater-delete actor-remove-btn" data-index="' + index
+    html += '<button type="button" class="button-repeater-delete actor-remove-button" data-index="' + index
       + '" title="\u09A1\u09BF\u09B2\u09BF\u099F \u0995\u09B0\u09C1\u09A8 (Delete)">'
-      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="btn-delete-x">&times;</span></button>';
+      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="button-delete-x">&times;</span></button>';
     html += '</div>';
 
     /* Country select */
@@ -207,7 +207,7 @@
     }
 
     /* Remove buttons */
-    const removeBtns = listContainer.querySelectorAll('.actor-remove-btn');
+    const removeBtns = listContainer.querySelectorAll('.actor-remove-button');
     for (let r = 0; r < removeBtns.length; r++) {
       removeBtns[r].addEventListener('click', onRemove);
     }
@@ -215,22 +215,22 @@
 
   function onFieldChange(e) {
     const el = e.target;
-    let idx = parseInt(el.getAttribute('data-index'), 10);
+    let index = parseInt(el.getAttribute('data-index'), 10);
     const field = el.getAttribute('data-field');
-    if (isNaN(idx) || !field || !parties[idx]) return;
+    if (isNaN(index) || !field || !parties[index]) return;
 
     if (field === 'countryId') {
-      parties[idx][field] = parseInt(el.value, 10) || 0;
+      parties[index][field] = parseInt(el.value, 10) || 0;
     } else {
-      parties[idx][field] = el.value;
+      parties[index][field] = el.value;
     }
     syncToHiddenInput();
   }
 
   function onRemove(e) {
-    const idx = parseInt(e.currentTarget.getAttribute('data-index'), 10);
-    if (isNaN(idx)) return;
-    parties.splice(idx, 1);
+    const index = parseInt(e.currentTarget.getAttribute('data-index'), 10);
+    if (isNaN(index)) return;
+    parties.splice(index, 1);
     render();
   }
 
@@ -251,7 +251,7 @@
 
   /* ========== Button Wiring ========== */
 
-  const addButtons = addButtonsContainer.querySelectorAll('.actor-add-btn');
+  const addButtons = addButtonsContainer.querySelectorAll('.actor-add-button');
   for (let b = 0; b < addButtons.length; b++) {
     addButtons[b].addEventListener('click', function () {
       const role = this.getAttribute('data-role') || 'accused';

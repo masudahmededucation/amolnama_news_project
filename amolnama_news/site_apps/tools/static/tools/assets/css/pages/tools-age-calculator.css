@@ -273,7 +273,7 @@
 
 /* ---- Calculate Button ---- */
 
-.age-form .btn-submit {
+.age-form .button-submit {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -289,12 +289,12 @@
   box-shadow: 0 2px 8px rgba(91,106,191,.2);
 }
 
-.age-form .btn-submit:hover {
+.age-form .button-submit:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(91,106,191,.28);
 }
 
-.age-form .btn-submit:active {
+.age-form .button-submit:active {
   transform: translateY(0) scale(.98);
 }
 
@@ -546,7 +546,7 @@
     text-align: center;
   }
 
-  .age-form .btn-submit {
+  .age-form .button-submit {
     width: 100%;
     justify-content: center;
   }

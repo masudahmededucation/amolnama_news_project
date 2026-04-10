@@ -9,7 +9,7 @@
  *
  * DOM dependencies:
  *   #weapons-evidence-json        — hidden input (JSON payload)
- *   .weapon-type-cb               — weapon type checkboxes (value=status_id, data-code=STATUS_CODE)
+ *   .weapon-type-callback               — weapon type checkboxes (value=status_id, data-code=STATUS_CODE)
  *   #weapon-other-text            — text input shown when the OTHER checkbox is checked
  *   #evidence-recovered           — textarea for recovered evidence description
  *                                   (name="evidence_recovered_bn")
@@ -29,7 +29,7 @@
 
   /* Find the DB-driven "Other" checkbox by data-code="OTHER" */
   function getOtherCb() {
-    return document.querySelector('.weapon-type-cb[data-code="OTHER"]');
+    return document.querySelector('.weapon-type-callback[data-code="OTHER"]');
   }
 
   /* Show/hide the "other" text input based on whether the OTHER checkbox is checked */
@@ -43,7 +43,7 @@
 
   function collectWeaponTypeIds() {
     const ids = [];
-    let checkboxes = document.querySelectorAll('.weapon-type-cb:checked');
+    let checkboxes = document.querySelectorAll('.weapon-type-callback:checked');
     for (let i = 0; i < checkboxes.length; i++) {
       const id = parseInt(checkboxes[i].value, 10);
       if (id > 0) ids.push(id);
@@ -73,7 +73,7 @@
   /* Sync on any input/change within the section */
   if (section) {
     section.addEventListener('change', function (e) {
-      if (e.target && e.target.classList.contains('weapon-type-cb')) {
+      if (e.target && e.target.classList.contains('weapon-type-callback')) {
         updateOtherTextVisibility();
       }
       syncToHiddenInput();
@@ -110,7 +110,7 @@
 
     /* Re-check weapon type checkboxes */
     if (data.weaponTypeIds && data.weaponTypeIds.length) {
-      const allCbs = document.querySelectorAll('.weapon-type-cb');
+      const allCbs = document.querySelectorAll('.weapon-type-callback');
       for (let i = 0; i < allCbs.length; i++) {
         const cbId = parseInt(allCbs[i].value, 10);
         if (data.weaponTypeIds.indexOf(cbId) !== -1) {
@@ -135,7 +135,7 @@
   /* Public API for form-clear.js */
   window.newshubCrimeWeapons = {
     reset: function () {
-      const checkboxes = document.querySelectorAll('.weapon-type-cb');
+      const checkboxes = document.querySelectorAll('.weapon-type-callback');
       for (let i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = false;
       }

@@ -66,13 +66,13 @@
   let currentLang = "bn";
 
   /* ── Language toggle — uses universal body[data-lang] system ── */
-  document.querySelectorAll(".poem-create-lang-btn").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
-        b.classList.remove("poem-create-lang-btn--active");
+  document.querySelectorAll(".poem-create-lang-button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      document.querySelectorAll(".poem-create-lang-button").forEach(function (b) {
+        b.classList.remove("poem-create-lang-button--active");
       });
-      btn.classList.add("poem-create-lang-btn--active");
-      currentLang = btn.dataset.lang;
+      button.classList.add("poem-create-lang-button--active");
+      currentLang = button.dataset.lang;
       // Set body data-lang — CSS handles visibility of .lang-field-bn / .lang-field-en
       document.body.setAttribute("data-lang", currentLang);
       // Sync header toggle
@@ -85,8 +85,8 @@
   document.querySelectorAll('input[name="form_lang"]').forEach(function (radio) {
     radio.addEventListener("change", function () {
       currentLang = this.value;
-      document.querySelectorAll(".poem-create-lang-btn").forEach(function (b) {
-        b.classList.toggle("poem-create-lang-btn--active", b.dataset.lang === currentLang);
+      document.querySelectorAll(".poem-create-lang-button").forEach(function (b) {
+        b.classList.toggle("poem-create-lang-button--active", b.dataset.lang === currentLang);
       });
     });
   });

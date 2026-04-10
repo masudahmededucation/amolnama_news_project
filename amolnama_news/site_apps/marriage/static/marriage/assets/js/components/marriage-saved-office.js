@@ -11,9 +11,9 @@
   if (!bar) return;
 
   const select    = document.getElementById('saved-office-select');
-  const btnLoad   = document.getElementById('btn-load-office');
-  const btnDelete = document.getElementById('btn-delete-office');
-  const btnSave   = document.getElementById('btn-save-office');
+  const btnLoad   = document.getElementById('button-load-office');
+  const btnDelete = document.getElementById('button-delete-office');
+  const btnSave   = document.getElementById('button-save-office');
   const labelInput = document.getElementById('save-office-label');
   const defaultChk = document.getElementById('save-office-default');
 

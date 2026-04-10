@@ -12,7 +12,7 @@
  *   #global-news-bd-expat-affected    — checkbox
  *   #global-news-bd-expat-row         — wrapper div (toggled by checkbox)
  *   #global-news-bd-expat-count       — number input
- *   #global-news-bd-expat-desc        — textarea
+ *   #global-news-bd-expat-description        — textarea
  *   #global-news-bd-economic-impact   — textarea
  *   #global-news-bd-govt-position     — textarea
  */
@@ -27,7 +27,7 @@
   const expatCbEl         = document.getElementById('global-news-bd-expat-affected');
   const expatRow          = document.getElementById('global-news-bd-expat-row');
   const expatCountEl      = document.getElementById('global-news-bd-expat-count');
-  const expatDescEl       = document.getElementById('global-news-bd-expat-desc');
+  const expatDescEl       = document.getElementById('global-news-bd-expat-description');
   const economicImpactEl  = document.getElementById('global-news-bd-economic-impact');
   const govtPositionEl    = document.getElementById('global-news-bd-govt-position');
 

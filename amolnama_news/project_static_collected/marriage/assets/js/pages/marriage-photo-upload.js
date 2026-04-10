@@ -79,9 +79,9 @@
       removeBtn.setAttribute("data-index", i);
       removeBtn.addEventListener("click", function() {
         const s = this.getAttribute("data-section");
-        const idx = parseInt(this.getAttribute("data-index"));
-        URL.revokeObjectURL(photoStore[s][idx].url);
-        photoStore[s].splice(idx, 1);
+        const index = parseInt(this.getAttribute("data-index"));
+        URL.revokeObjectURL(photoStore[s][index].url);
+        photoStore[s].splice(index, 1);
         renderSection(s);
       });
       thumb.appendChild(removeBtn);

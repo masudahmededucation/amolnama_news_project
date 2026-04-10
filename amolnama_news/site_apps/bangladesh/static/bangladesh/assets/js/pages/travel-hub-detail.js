@@ -419,7 +419,7 @@
 
             if (descriptionInput.value.trim()) {
               let descriptionElement = document.createElement('span');
-              descriptionElement.className = 'travel-hub-detail-link-desc';
+              descriptionElement.className = 'travel-hub-detail-link-description';
               descriptionElement.textContent = descriptionInput.value.trim();
               card.appendChild(descriptionElement);
             }
@@ -572,7 +572,7 @@
       let currentTitle = '';
       let currentDescription = '';
       const titleElement = parentCard.querySelector('.travel-hub-detail-youtube-title');
-      const descriptionElement = parentCard.querySelector('.travel-hub-detail-youtube-desc');
+      const descriptionElement = parentCard.querySelector('.travel-hub-detail-youtube-description');
       if (titleElement) currentTitle = titleElement.textContent;
       if (descriptionElement) currentDescription = descriptionElement.textContent;
       editForm.innerHTML = '<input type="text" class="travel-hub-detail-text-input" id="travel-hub-detail-edit-youtube-title-' + contributionId + '" name="travel-hub-detail-edit-youtube-title-' + contributionId + '" value="' + escapeAttribute(currentTitle) + '" placeholder="শিরোনাম" maxlength="300">'
@@ -583,7 +583,7 @@
       let currentLinkTitle = '';
       let currentLinkDescription = '';
       const linkTitleElement = parentCard.querySelector('.travel-hub-detail-link-url');
-      const linkDescriptionElement = parentCard.querySelector('.travel-hub-detail-link-desc');
+      const linkDescriptionElement = parentCard.querySelector('.travel-hub-detail-link-description');
       if (linkTitleElement) currentLinkTitle = linkTitleElement.textContent;
       if (linkDescriptionElement) currentLinkDescription = linkDescriptionElement.textContent;
       editForm.innerHTML = '<input type="text" class="travel-hub-detail-text-input" id="travel-hub-detail-edit-link-title-' + contributionId + '" name="travel-hub-detail-edit-link-title-' + contributionId + '" value="' + escapeAttribute(currentLinkTitle) + '" placeholder="শিরোনাম" maxlength="300">'
@@ -740,12 +740,12 @@
             }
           } else if (contributionType === 'link') {
             const linkUrl = parentCard.querySelector('.travel-hub-detail-link-url');
-            let linkDescription = parentCard.querySelector('.travel-hub-detail-link-desc');
+            let linkDescription = parentCard.querySelector('.travel-hub-detail-link-description');
             if (linkUrl && data.reference_title_bn) linkUrl.textContent = data.reference_title_bn;
             if (data.description_bn) {
               if (!linkDescription) {
                 linkDescription = document.createElement('span');
-                linkDescription.className = 'travel-hub-detail-link-desc';
+                linkDescription.className = 'travel-hub-detail-link-description';
                 const linkMeta = parentCard.querySelector('.travel-hub-detail-contribution-meta');
                 if (linkMeta) {
                   parentCard.insertBefore(linkDescription, linkMeta);

@@ -18,7 +18,7 @@
   margin-bottom: 1.25rem;
 }
 
-.photo-resizer-mode-btn {
+.photo-resizer-mode-button {
   padding: .5rem 1rem;
   font-size: .85rem;
   font-weight: 600;
@@ -30,16 +30,16 @@
   transition: border-color .2s, background .2s, transform .1s;
 }
 
-.photo-resizer-mode-btn:hover,
-.photo-resizer-mode-btn:active {
+.photo-resizer-mode-button:hover,
+.photo-resizer-mode-button:active {
   border-color: #7c6bc4;
 }
 
-.photo-resizer-mode-btn:active {
+.photo-resizer-mode-button:active {
   transform: scale(0.96);
 }
 
-.photo-resizer-mode-btn.active {
+.photo-resizer-mode-button.active {
   border-color: #7c6bc4;
   background: #f0ecff;
   color: #5a4a9e;
@@ -231,7 +231,7 @@
   color: var(--muted);
 }
 
-.photo-resizer-browse-btn {
+.photo-resizer-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
   font-size: .9rem;
@@ -244,11 +244,11 @@
   transition: background .2s, transform .1s;
 }
 
-.photo-resizer-browse-btn:hover {
+.photo-resizer-browse-button:hover {
   background: #5a4a9e;
 }
 
-.photo-resizer-browse-btn:active {
+.photo-resizer-browse-button:active {
   background: #5a4a9e;
   transform: scale(0.96);
 }
@@ -384,7 +384,7 @@
   flex-wrap: wrap;
 }
 
-.photo-resizer-btn {
+.photo-resizer-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -394,38 +394,38 @@
   transition: background .2s, transform .1s;
 }
 
-.photo-resizer-btn:active {
+.photo-resizer-button:active {
   transform: scale(0.96);
 }
 
-.photo-resizer-btn--crop {
+.photo-resizer-button--crop {
   color: #fff;
   background: #7c6bc4;
 }
 
-.photo-resizer-btn--crop:hover,
-.photo-resizer-btn--crop:active {
+.photo-resizer-button--crop:hover,
+.photo-resizer-button--crop:active {
   background: #5a4a9e;
 }
 
-.photo-resizer-btn--download {
+.photo-resizer-button--download {
   color: #fff;
   background: #27ae60;
 }
 
-.photo-resizer-btn--download:hover,
-.photo-resizer-btn--download:active {
+.photo-resizer-button--download:hover,
+.photo-resizer-button--download:active {
   background: #1e8449;
 }
 
-.photo-resizer-btn--reset {
+.photo-resizer-button--reset {
   color: var(--text);
   background: var(--card);
   border: 1px solid var(--border);
 }
 
-.photo-resizer-btn--reset:hover,
-.photo-resizer-btn--reset:active {
+.photo-resizer-button--reset:hover,
+.photo-resizer-button--reset:active {
   border-color: #7c6bc4;
 }
 
@@ -446,7 +446,7 @@
     flex-direction: column;
   }
 
-  .photo-resizer-mode-btn {
+  .photo-resizer-mode-button {
     text-align: center;
   }
 
@@ -478,13 +478,13 @@
     flex-direction: column;
   }
 
-  .photo-resizer-btn {
+  .photo-resizer-button {
     width: 100%;
     text-align: center;
     padding: .7rem 1rem;
   }
 
-  .photo-resizer-browse-btn {
+  .photo-resizer-browse-button {
     padding: .65rem 1.5rem;
     font-size: .95rem;
   }

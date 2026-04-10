@@ -189,7 +189,7 @@ def service_worker_js(request):
     Must be at root URL for maximum scope (/).
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v534';
+var CACHE_NAME = 'amolnama-v535';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install
@@ -257,7 +257,7 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(
       fetch(request).catch(function () {
         return caches.match(OFFLINE_URL).then(function (cached) {
-          return cached || new Response('<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অফলাইন — আমলনামা নিউজ</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f5;color:#333;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}.offline-box{background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:400px}.offline-icon{font-size:3.5rem;margin-bottom:1rem}.offline-title{font-size:1.3rem;font-weight:800;margin-bottom:.5rem}.offline-text{font-size:.9rem;color:#666;margin-bottom:1.5rem;line-height:1.5}.offline-btn{display:inline-block;padding:.6rem 1.5rem;background:#1B6B4A;color:#fff;border:none;border-radius:20px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none}</style></head><body><div class="offline-box"><div class="offline-icon">📡</div><h1 class="offline-title">ইন্টারনেট সংযোগ নেই</h1><p class="offline-text">আপনি এই মুহূর্তে অফলাইন আছেন।<br>ইন্টারনেট সংযোগ পুনরুদ্ধার হলে আবার চেষ্টা করুন।</p><a href="javascript:location.reload()" class="offline-btn">আবার চেষ্টা করুন</a></div></body></html>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+          return cached || new Response('<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>অফলাইন — আমলনামা নিউজ</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f5;color:#333;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}.offline-box{background:#fff;padding:2.5rem;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:400px}.offline-icon{font-size:3.5rem;margin-bottom:1rem}.offline-title{font-size:1.3rem;font-weight:800;margin-bottom:.5rem}.offline-text{font-size:.9rem;color:#666;margin-bottom:1.5rem;line-height:1.5}.offline-button{display:inline-block;padding:.6rem 1.5rem;background:#1B6B4A;color:#fff;border:none;border-radius:20px;font-size:.9rem;font-weight:700;cursor:pointer;text-decoration:none}</style></head><body><div class="offline-box"><div class="offline-icon">📡</div><h1 class="offline-title">ইন্টারনেট সংযোগ নেই</h1><p class="offline-text">আপনি এই মুহূর্তে অফলাইন আছেন।<br>ইন্টারনেট সংযোগ পুনরুদ্ধার হলে আবার চেষ্টা করুন।</p><a href="javascript:location.reload()" class="offline-button">আবার চেষ্টা করুন</a></div></body></html>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
         });
       })
     );

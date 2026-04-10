@@ -52,7 +52,7 @@
   margin-top: .35rem;
 }
 
-.album-layout-btn {
+.album-layout-button {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,16 +68,16 @@
   gap: 2px;
 }
 
-.album-layout-btn:hover,
-.album-layout-btn:active {
+.album-layout-button:hover,
+.album-layout-button:active {
   border-color: #d4845a;
 }
 
-.album-layout-btn:active {
+.album-layout-button:active {
   transform: scale(0.96);
 }
 
-.album-layout-btn.active {
+.album-layout-button.active {
   border-color: #d4845a;
   background: #fdf5f0;
 }
@@ -96,7 +96,7 @@
   border-radius: 1px;
 }
 
-.album-layout-btn.active .album-layout-thumb > span {
+.album-layout-button.active .album-layout-thumb > span {
   background: #d4845a;
 }
 
@@ -109,12 +109,12 @@
   flex-shrink: 0;
 }
 
-.album-layout-btn.active .album-layout-label {
+.album-layout-button.active .album-layout-label {
   color: #d4845a;
 }
 
 /* Tall layout buttons */
-.album-layout-btn--tall {
+.album-layout-button--tall {
   height: 80px;
 }
 
@@ -323,7 +323,7 @@
   opacity: 1;
 }
 
-.album-frame-tool-btn {
+.album-frame-tool-button {
   width: 26px;
   height: 26px;
   border: none;
@@ -339,7 +339,7 @@
   pointer-events: auto;
 }
 
-.album-frame-tool-btn:hover {
+.album-frame-tool-button:hover {
   background: rgba(0, 0, 0, .8);
 }
 
@@ -428,7 +428,7 @@
   margin-bottom: 1rem;
 }
 
-.album-btn {
+.album-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -438,52 +438,52 @@
   transition: background .2s, transform .1s;
 }
 
-.album-btn:active {
+.album-button:active {
   transform: scale(0.96);
 }
 
-.album-btn--create {
+.album-button--create {
   color: #fff;
   background: #d4845a;
 }
 
-.album-btn--create:hover,
-.album-btn--create:active {
+.album-button--create:hover,
+.album-button--create:active {
   background: #b86e44;
 }
 
-.album-btn--download {
+.album-button--download {
   color: #fff;
   background: #27ae60;
 }
 
-.album-btn--download:hover,
-.album-btn--download:active {
+.album-button--download:hover,
+.album-button--download:active {
   background: #1e8449;
 }
 
-.album-btn--download-pdf {
+.album-button--download-pdf {
   color: #fff;
   background: #e74c3c;
 }
 
-.album-btn--download-pdf:hover,
-.album-btn--download-pdf:active {
+.album-button--download-pdf:hover,
+.album-button--download-pdf:active {
   background: #c0392b;
 }
 
-.album-btn--reset {
+.album-button--reset {
   color: var(--text);
   background: var(--card);
   border: 1px solid var(--border);
 }
 
-.album-btn--reset:hover,
-.album-btn--reset:active {
+.album-button--reset:hover,
+.album-button--reset:active {
   border-color: #d4845a;
 }
 
-.album-btn:disabled {
+.album-button:disabled {
   opacity: .45;
   cursor: not-allowed;
   transform: none;
@@ -546,7 +546,7 @@
     gap: .4rem;
   }
 
-  .album-layout-btn {
+  .album-layout-button {
     width: 60px;
     height: 54px;
   }
@@ -559,7 +559,7 @@
     flex-direction: column;
   }
 
-  .album-btn {
+  .album-button {
     width: 100%;
     text-align: center;
   }
@@ -568,7 +568,7 @@
     flex-direction: column;
   }
 
-  .album-download-row .album-btn {
+  .album-download-row .album-button {
     width: 100%;
     text-align: center;
   }

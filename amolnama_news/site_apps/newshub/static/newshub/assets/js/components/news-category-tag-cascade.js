@@ -193,9 +193,9 @@
     }
 
     /* Single tag remove button */
-    const btn = e.target.closest('.selected-tag-remove');
-    if (!btn) return;
-    let id = btn.getAttribute('data-tag-id');
+    const button = e.target.closest('.selected-tag-remove');
+    if (!button) return;
+    let id = button.getAttribute('data-tag-id');
     delete selectedTags[id];
     removedByUser[id] = true;
     saveTags();

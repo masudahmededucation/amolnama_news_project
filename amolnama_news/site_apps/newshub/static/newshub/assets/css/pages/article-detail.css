@@ -113,7 +113,7 @@
 .article-status-badge.approved { background: var(--success-light); color: var(--primary); }
 .article-status-badge.rejected { background: var(--danger-light); color: var(--danger-text); }
 
-.article-status-edit-btn {
+.article-status-edit-button {
   display: inline-flex;
   align-items: center;
   gap: .2rem;
@@ -128,7 +128,7 @@
   transition: all .2s;
 }
 
-.article-status-edit-btn:hover {
+.article-status-edit-button:hover {
   opacity: .85;
 }
 

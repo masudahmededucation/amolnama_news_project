@@ -70,9 +70,9 @@
   }
 
   function extractNameBefore(text, keyword) {
-    const idx = text.indexOf(keyword);
-    if (idx === -1) return text.trim();
-    return text.substring(0, idx).trim();
+    const index = text.indexOf(keyword);
+    if (index === -1) return text.trim();
+    return text.substring(0, index).trim();
   }
 
   /* ========== Dropdown Matching (Text) ========== */

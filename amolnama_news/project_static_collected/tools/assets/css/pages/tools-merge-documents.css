@@ -47,7 +47,7 @@
   color: var(--muted);
 }
 
-.mgr-browse-btn {
+.mgr-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
   font-size: .9rem;
@@ -60,13 +60,13 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.mgr-browse-btn:hover,
-.mgr-browse-btn:active {
+.mgr-browse-button:hover,
+.mgr-browse-button:active {
   background: #e17055;
   color: #fff;
 }
 
-.mgr-browse-btn:active {
+.mgr-browse-button:active {
   transform: scale(0.96);
 }
 
@@ -93,7 +93,7 @@
   margin: 0 0 1rem;
 }
 
-.mgr-try-again-btn {
+.mgr-try-again-button {
   padding: .5rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -105,7 +105,7 @@
   transition: background .2s, color .2s;
 }
 
-.mgr-try-again-btn:hover {
+.mgr-try-again-button:hover {
   background: var(--danger);
   color: #fff;
 }
@@ -144,7 +144,7 @@
   align-items: center;
 }
 
-.mgr-tool-btn {
+.mgr-tool-button {
   padding: .35rem .75rem;
   font-size: .78rem;
   font-weight: 600;
@@ -156,17 +156,17 @@
   transition: border-color .2s, color .2s;
 }
 
-.mgr-tool-btn:hover {
+.mgr-tool-button:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.mgr-tool-btn--add {
+.mgr-tool-button--add {
   color: #e17055;
   border-color: #e17055;
 }
 
-.mgr-tool-btn--add:hover {
+.mgr-tool-button--add:hover {
   background: #e17055;
   color: #fff;
 }
@@ -378,7 +378,7 @@
   flex-wrap: wrap;
 }
 
-.mgr-btn {
+.mgr-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -388,40 +388,40 @@
   transition: background .2s, transform .1s, opacity .2s;
 }
 
-.mgr-btn:active {
+.mgr-button:active {
   transform: scale(0.96);
 }
 
-.mgr-btn--merge {
+.mgr-button--merge {
   color: #fff;
   background: #e17055;
 }
 
-.mgr-btn--merge:hover {
+.mgr-button--merge:hover {
   background: #d35400;
 }
 
-.mgr-btn--merge:disabled {
+.mgr-button--merge:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
 
-.mgr-btn--download {
+.mgr-button--download {
   color: #fff;
   background: var(--primary);
 }
 
-.mgr-btn--download:hover {
+.mgr-button--download:hover {
   background: var(--primary-hover);
 }
 
-.mgr-btn--reset {
+.mgr-button--reset {
   color: var(--text);
   background: transparent;
   border: 1.5px solid var(--border);
 }
 
-.mgr-btn--reset:hover {
+.mgr-button--reset:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -524,7 +524,7 @@
     flex-direction: column;
   }
 
-  .mgr-btn {
+  .mgr-button {
     width: 100%;
     text-align: center;
     min-height: 44px;

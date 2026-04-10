@@ -64,12 +64,12 @@
     }
 
     /* 2. Clear Quill editors — use Quill.find() if available, else clear ql-editor */
-    clearQuillContainer('quill-short-desc');
-    clearQuillContainer('quill-desc');
+    clearQuillContainer('quill-short-description');
+    clearQuillContainer('quill-description');
 
     /* 3. Clear hidden textareas that sync with Quill */
-    const shortDescTextarea = document.getElementById('travel-hub-short-desc-bn');
-    const descTextarea = document.getElementById('travel-hub-desc-bn');
+    const shortDescTextarea = document.getElementById('travel-hub-short-description-bn');
+    const descTextarea = document.getElementById('travel-hub-description-bn');
     if (shortDescTextarea) shortDescTextarea.value = '';
     if (descTextarea) descTextarea.value = '';
 

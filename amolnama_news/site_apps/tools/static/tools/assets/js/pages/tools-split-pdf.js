@@ -22,15 +22,15 @@ if (typeof pdfjsLib !== 'undefined') {
 
   const dropzone      = document.getElementById('spl-dropzone');
   const fileInput     = document.getElementById('spl-file-input');
-  const browseBtn     = document.getElementById('spl-browse-btn');
+  const browseBtn     = document.getElementById('spl-browse-button');
   const errorSection  = document.getElementById('spl-error');
   const errorText     = document.getElementById('spl-error-text');
-  const tryAgainBtn   = document.getElementById('spl-try-again-btn');
+  const tryAgainBtn   = document.getElementById('spl-try-again-button');
   const workspace     = document.getElementById('spl-workspace');
   const fileNameEl    = document.getElementById('spl-file-name');
   const filePagesEl   = document.getElementById('spl-file-pages');
   const fileSizeEl    = document.getElementById('spl-file-size');
-  const changeBtn     = document.getElementById('spl-change-btn');
+  const changeBtn     = document.getElementById('spl-change-button');
   const pageGrid      = document.getElementById('spl-page-grid');
   const tabAll        = document.getElementById('spl-tab-all');     // Split All = Select All
   const tabRange      = document.getElementById('spl-tab-range');
@@ -42,15 +42,15 @@ if (typeof pdfjsLib !== 'undefined') {
   const rangeInput    = document.getElementById('spl-range-input');
   const rangeHint     = document.getElementById('spl-range-hint');
   const outputName    = document.getElementById('spl-output-name');
-  const splitBtn      = document.getElementById('spl-split-btn');
-  const resetBtn      = document.getElementById('spl-reset-btn');
+  const splitBtn      = document.getElementById('spl-split-button');
+  const resetBtn      = document.getElementById('spl-reset-button');
   const progressEl    = document.getElementById('spl-progress');
   const progressFill  = document.getElementById('spl-progress-fill');
   const progressText  = document.getElementById('spl-progress-text');
   const resultEl      = document.getElementById('spl-result');
   const resultPages   = document.getElementById('spl-result-pages');
   const resultSize    = document.getElementById('spl-result-size');
-  const downloadBtn   = document.getElementById('spl-download-btn');
+  const downloadBtn   = document.getElementById('spl-download-button');
 
   /* ================================================================
      CONSTANTS
@@ -134,9 +134,9 @@ if (typeof pdfjsLib !== 'undefined') {
 
   const allToolbarBtns = [tabAll, pickOddBtn, pickEvenBtn, pickNoneBtn, tabRange];
 
-  function setActiveToolbarBtn(btn) {
+  function setActiveToolbarBtn(button) {
     for (let i = 0; i < allToolbarBtns.length; i++) {
-      allToolbarBtns[i].classList.toggle('active', allToolbarBtns[i] === btn);
+      allToolbarBtns[i].classList.toggle('active', allToolbarBtns[i] === button);
     }
   }
 
@@ -282,7 +282,7 @@ if (typeof pdfjsLib !== 'undefined') {
         let end = parseInt(rangeParts[1], 10);
         if (isNaN(start) || isNaN(end)) return null;
         if (start < 1 || end < 1 || start > totalPages || end > totalPages) return null;
-        if (start > end) { const tmp = start; start = end; end = tmp; }
+        if (start > end) { const temp = start; start = end; end = temp; }
         for (let j = start; j <= end; j++) {
           group.push(j - 1);
         }
@@ -316,7 +316,7 @@ if (typeof pdfjsLib !== 'undefined') {
     let totalPagesInRanges = 0;
     for (let i = 0; i < groups.length; i++) totalPagesInRanges += groups[i].length;
 
-    const desc = groups.length + 'টি PDF তৈরি হবে: ';
+    const description = groups.length + 'টি PDF তৈরি হবে: ';
     const rangeParts = [];
     for (let i = 0; i < groups.length; i++) {
       const g = groups[i];
@@ -327,7 +327,7 @@ if (typeof pdfjsLib !== 'undefined') {
       }
     }
 
-    let hint = desc + rangeParts.join(', ');
+    let hint = description + rangeParts.join(', ');
     if (groups.length === 1 && totalPagesInRanges === 1) {
       hint += ' — সরাসরি PDF ডাউনলোড হবে';
     } else {
@@ -487,7 +487,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
     splitting = true;
     splitBtn.disabled = true;
-    splitBtn.querySelector('.spl-btn-text').textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
+    splitBtn.querySelector('.spl-button-text').textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
     resultEl.hidden = true;
     setProgress(0, 'স্প্লিট হচ্ছে… (Splitting…)');
 
@@ -502,10 +502,10 @@ if (typeof pdfjsLib !== 'undefined') {
         const zip = isSinglePdf ? null : new JSZip();
         let singlePdfBytes = null;
         let singleFileName = '';
-        let idx = 0;
+        let index = 0;
 
         function splitNext() {
-          if (idx >= groups.length) {
+          if (index >= groups.length) {
             if (isSinglePdf) {
               const blob = new Blob([singlePdfBytes], { type: 'application/pdf' });
               splitResult = { type: 'pdf', blob: blob, fileName: singleFileName };
@@ -518,7 +518,7 @@ if (typeof pdfjsLib !== 'undefined') {
 
               splitting = false;
               splitBtn.disabled = false;
-              splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
+              splitBtn.querySelector('.spl-button-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
               return;
             }
 
@@ -535,12 +535,12 @@ if (typeof pdfjsLib !== 'undefined') {
 
               splitting = false;
               splitBtn.disabled = false;
-              splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
+              splitBtn.querySelector('.spl-button-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
             });
           }
 
-          const group = groups[idx];
-          const pct = Math.round((idx / groups.length) * (isSinglePdf ? 95 : 85));
+          const group = groups[index];
+          const pct = Math.round((index / groups.length) * (isSinglePdf ? 95 : 85));
           let label;
 
           if (group.length === 1) {
@@ -548,7 +548,7 @@ if (typeof pdfjsLib !== 'undefined') {
           } else {
             label = 'পৃষ্ঠা ' + (group[0] + 1) + '-' + (group[group.length - 1] + 1);
           }
-          setProgress(pct, label + ' আলাদা হচ্ছে… (' + (idx + 1) + '/' + groups.length + ')');
+          setProgress(pct, label + ' আলাদা হচ্ছে… (' + (index + 1) + '/' + groups.length + ')');
 
           return PDFLib.PDFDocument.create().then(function (newDoc) {
             return newDoc.copyPages(srcDoc, group).then(function (copiedPages) {
@@ -571,7 +571,7 @@ if (typeof pdfjsLib !== 'undefined') {
                 zip.file(fileName, pdfBytesOut);
               }
 
-              idx++;
+              index++;
               return splitNext();
             });
           });
@@ -582,7 +582,7 @@ if (typeof pdfjsLib !== 'undefined') {
         showError('স্প্লিট ব্যর্থ — ' + (err.message || err));
         splitting = false;
         splitBtn.disabled = false;
-        splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
+        splitBtn.querySelector('.spl-button-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
         progressEl.hidden = true;
       });
     }, 50);
@@ -626,7 +626,7 @@ if (typeof pdfjsLib !== 'undefined') {
     clearError();
     dropzone.hidden = false;
     splitBtn.disabled = false;
-    splitBtn.querySelector('.spl-btn-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
+    splitBtn.querySelector('.spl-button-text').textContent = '✂️ স্প্লিট করুন (Split PDF)';
     fileInput.value = '';
     switchMode(MODE_ALL);
   }

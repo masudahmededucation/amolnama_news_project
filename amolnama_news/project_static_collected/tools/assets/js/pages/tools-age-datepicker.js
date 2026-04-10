@@ -10,15 +10,15 @@
   const WEEKDAYS = ["রবি","সোম","মঙ্গল","বুধ","বৃহঃ","শুক্র","শনি"];
   const today = new Date();
 
-  document.querySelectorAll(".age-date-toggle").forEach(function(btn) {
-    const targetId = btn.getAttribute("data-target");
+  document.querySelectorAll(".age-date-toggle").forEach(function(button) {
+    const targetId = button.getAttribute("data-target");
     const input = document.getElementById(targetId);
     const calEl = document.getElementById(targetId + "-calendar");
     if (!input || !calEl) return;
 
     const state = { year: today.getFullYear(), month: today.getMonth(), view: "days", selected: null };
 
-    btn.addEventListener("click", function(e) {
+    button.addEventListener("click", function(e) {
       e.stopPropagation();
       // Close other calendars
       document.querySelectorAll(".age-calendar.is-open").forEach(function(c) {
@@ -52,7 +52,7 @@
 
     // Close calendar on outside click
     document.addEventListener("click", function(e) {
-      if (!calEl.contains(e.target) && e.target !== btn && e.target !== input) {
+      if (!calEl.contains(e.target) && e.target !== button && e.target !== input) {
         calEl.classList.remove("is-open");
       }
     });

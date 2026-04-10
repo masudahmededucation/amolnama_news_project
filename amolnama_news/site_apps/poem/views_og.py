@@ -16,8 +16,8 @@ CHROME_PATH = None
 for p in [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium-browser",
+    "/user/bin/google-chrome",
+    "/user/bin/chromium-browser",
 ]:
     if os.path.exists(p):
         CHROME_PATH = p

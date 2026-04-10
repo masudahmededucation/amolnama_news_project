@@ -38,21 +38,21 @@
   // ---- DOM refs ----
   const dropzone     = document.getElementById('zip-dropzone');
   const fileInput    = document.getElementById('zip-file-input');
-  const browseBtn    = document.getElementById('zip-browse-btn');
+  const browseBtn    = document.getElementById('zip-browse-button');
   const panel        = document.getElementById('zip-panel');
-  const addBtn       = document.getElementById('zip-add-btn');
-  const clearBtn     = document.getElementById('zip-clear-btn');
+  const addBtn       = document.getElementById('zip-add-button');
+  const clearBtn     = document.getElementById('zip-clear-button');
   const fileList     = document.getElementById('zip-file-list');
   const fileCountEl  = document.getElementById('zip-file-count');
   const totalSizeEl  = document.getElementById('zip-total-size');
   const nameInput    = document.getElementById('zip-name-input');
-  const actionBtn    = document.getElementById('zip-action-btn');
+  const actionBtn    = document.getElementById('zip-action-button');
   const actionLabel  = actionBtn.querySelector('.zip-action-label');
   const actionSpinner = actionBtn.querySelector('.zip-action-spinner');
   const resultSection = document.getElementById('zip-result');
   const resultDetails = document.getElementById('zip-result-details');
-  const downloadBtn  = document.getElementById('zip-download-btn');
-  const anotherBtn   = document.getElementById('zip-another-btn');
+  const downloadBtn  = document.getElementById('zip-download-button');
+  const anotherBtn   = document.getElementById('zip-another-button');
 
   let files = [];        // Array of File objects
   let resultBlob = null;
@@ -152,7 +152,7 @@
     fileList.innerHTML = '';
     let totalSize = 0;
 
-    files.forEach(function (file, idx) {
+    files.forEach(function (file, index) {
       totalSize += file.size;
       let ext = getExt(file.name);
       let extLabel = ext;
@@ -187,9 +187,9 @@
       removeBtn.className = 'zip-file-item-remove';
       removeBtn.innerHTML = '&times;';
       removeBtn.title = 'Remove file';
-      removeBtn.dataset.idx = idx;
+      removeBtn.dataset.index = index;
       removeBtn.addEventListener('click', function () {
-        files.splice(parseInt(this.dataset.idx, 10), 1);
+        files.splice(parseInt(this.dataset.index, 10), 1);
         if (files.length === 0) {
           resetAll();
         } else {

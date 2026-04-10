@@ -15,7 +15,7 @@
     <div class="weapon-type-checkboxes" id="weapon-type-checkboxes" name="weapon_type_checkboxes">
       {% for wt in weapon_types %}
       <label class="checkbox-label">
-        <input type="checkbox" id="crime-weapon-type-{{ wt.status_id }}" class="weapon-type-cb" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">
+        <input type="checkbox" id="crime-weapon-type-{{ wt.status_id }}" class="weapon-type-callback" name="crime-weapon-type" value="{{ wt.status_id }}" data-code="{{ wt.status_code }}">
         {{ wt.status_name_bn }} ({{ wt.status_name_en }})
       </label>
       {% endfor %}

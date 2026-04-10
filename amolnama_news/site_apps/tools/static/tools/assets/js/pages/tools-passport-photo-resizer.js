@@ -19,7 +19,7 @@
   'use strict';
 
   /* ===== DOM refs ===== */
-  const modeButtons     = document.querySelectorAll('.photo-resizer-mode-btn');
+  const modeButtons     = document.querySelectorAll('.photo-resizer-mode-button');
   const presetSelect    = document.getElementById('photo-resizer-preset-select');
   const widthInput      = document.getElementById('photo-resizer-width');
   const heightInput     = document.getElementById('photo-resizer-height');
@@ -29,7 +29,7 @@
   const bgSwatches      = document.querySelectorAll('.photo-resizer-swatch');
   const dropzone        = document.getElementById('photo-resizer-dropzone');
   const fileInput       = document.getElementById('photo-resizer-file-input');
-  const browseBtn       = document.getElementById('photo-resizer-browse-btn');
+  const browseBtn       = document.getElementById('photo-resizer-browse-button');
   const editor          = document.getElementById('photo-resizer-editor');
   const viewport        = document.getElementById('photo-resizer-viewport');
   const sourceImg       = document.getElementById('photo-resizer-source-img');
@@ -39,9 +39,9 @@
   const previewCanvas   = document.getElementById('photo-resizer-preview-canvas');
   const previewCtx      = previewCanvas.getContext('2d');
   const infoEl          = document.getElementById('photo-resizer-info');
-  const cropBtn         = document.getElementById('photo-resizer-crop-btn');
-  const downloadBtn     = document.getElementById('photo-resizer-download-btn');
-  const resetBtn        = document.getElementById('photo-resizer-reset-btn');
+  const cropBtn         = document.getElementById('photo-resizer-crop-button');
+  const downloadBtn     = document.getElementById('photo-resizer-download-button');
+  const resetBtn        = document.getElementById('photo-resizer-reset-button');
 
   /* ===== State ===== */
   let currentMode     = 'photo';
@@ -275,11 +275,11 @@
   }
 
   /* ===== Mode switching ===== */
-  modeButtons.forEach(function (btn) {
-    btn.addEventListener('click', function () {
+  modeButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
       modeButtons.forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      currentMode = btn.getAttribute('data-mode');
+      button.classList.add('active');
+      currentMode = button.getAttribute('data-mode');
       if (currentMode === 'background') { showSection(bgOptions); } else { hideSection(bgOptions); }
 
       if (currentMode === 'signature') {

@@ -31,7 +31,7 @@
   width: fit-content;
 }
 
-.poem-create-lang-btn {
+.poem-create-lang-button {
   padding: .35rem .85rem;
   font-size: .8rem;
   font-weight: 600;
@@ -43,7 +43,7 @@
   transition: background .15s, color .15s;
 }
 
-.poem-create-lang-btn--active {
+.poem-create-lang-button--active {
   background: var(--primary);
   color: #fff;
 }

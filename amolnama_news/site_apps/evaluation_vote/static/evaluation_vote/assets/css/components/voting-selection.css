@@ -80,7 +80,7 @@
 }
 
 /* Back button */
-.back-btn {
+.back-button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -95,7 +95,7 @@
   transition: all .2s;
 }
 
-.back-btn:hover {
+.back-button:hover {
   background: var(--card);
   border-color: #B0ADA6;
   box-shadow: var(--shadow-md);
@@ -155,7 +155,7 @@
     line-height: 1.4;
   }
 
-  .back-btn {
+  .back-button {
     width: 100%;
     justify-content: center;
     padding: 0.75rem 1rem;
@@ -200,13 +200,13 @@
     color: rgba(255, 255, 255, 0.8);
   }
 
-  .back-btn:hover {
+  .back-button:hover {
     background: var(--surface);
     color: inherit;
     border-color: var(--border);
   }
 
-  .back-btn:active {
+  .back-button:active {
     background: var(--card);
     border-color: #B0ADA6;
     box-shadow: var(--shadow-md);

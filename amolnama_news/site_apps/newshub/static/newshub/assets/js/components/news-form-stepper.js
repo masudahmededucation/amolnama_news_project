@@ -9,8 +9,8 @@
  *   .step-panel[data-step]         — content panels (one per step)
  *     data-step-label-bn           — Bengali label shown under the dot
  *   #stepper                       — empty container; dots built by JS
- *   #btn-step-prev                 — previous button
- *   #btn-step-next                 — next button
+ *   #button-step-prev                 — previous button
+ *   #button-step-next                 — next button
  *   #step-counter                  — "ধাপ X / Y" label
  *   #form-type-picker (optional)   — card picker container
  *   #news-form-type   (optional)   — hidden input storing selected form type
@@ -22,8 +22,8 @@
 
   function initStepper() {
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  const btnPrev = document.getElementById('btn-step-prev');
-  const btnNext = document.getElementById('btn-step-next');
+  const btnPrev = document.getElementById('button-step-prev');
+  const btnNext = document.getElementById('button-step-next');
   const stepCounter = document.getElementById('step-counter');
   const stepperContainer = document.getElementById('stepper');
   const formTypeInput = document.getElementById('news-form-type');
@@ -460,7 +460,7 @@
     mainForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const submitBtn = document.getElementById('news-submit-btn');
+      const submitBtn = document.getElementById('news-submit-button');
       let errorBanner = document.getElementById('ajax-submit-error');
 
       /* Create error banner if it doesn't exist */
@@ -587,7 +587,7 @@
   } /* end initStepper */
 
   /* Try immediately, retry after 100ms if DOM not ready (SPA timing) */
-  if (document.querySelectorAll('.step-panel[data-step]').length && document.getElementById('btn-step-next')) {
+  if (document.querySelectorAll('.step-panel[data-step]').length && document.getElementById('button-step-next')) {
     initStepper();
   } else {
     setTimeout(initStepper, 100);

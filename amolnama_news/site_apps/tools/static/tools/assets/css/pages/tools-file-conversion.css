@@ -43,7 +43,7 @@
   color: var(--muted);
 }
 
-.convert-browse-btn {
+.convert-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
   font-size: .9rem;
@@ -56,13 +56,13 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.convert-browse-btn:hover,
-.convert-browse-btn:active {
+.convert-browse-button:hover,
+.convert-browse-button:active {
   background: var(--primary);
   color: #fff;
 }
 
-.convert-browse-btn:active {
+.convert-browse-button:active {
   transform: scale(0.96);
 }
 
@@ -123,7 +123,7 @@
   margin-top: .1rem;
 }
 
-.convert-change-btn {
+.convert-change-button {
   padding: .35rem .85rem;
   font-size: .8rem;
   font-weight: 600;
@@ -136,17 +136,17 @@
   white-space: nowrap;
 }
 
-.convert-change-btn:hover,
-.convert-change-btn:active {
+.convert-change-button:hover,
+.convert-change-button:active {
   background: var(--primary);
   color: #fff;
 }
 
-.convert-change-btn:active {
+.convert-change-button:active {
   transform: scale(0.96);
 }
 
-.convert-remove-btn {
+.convert-remove-button {
   background: none;
   border: none;
   font-size: 1.4rem;
@@ -162,8 +162,8 @@
   transition: color .15s;
 }
 
-.convert-remove-btn:hover,
-.convert-remove-btn:active {
+.convert-remove-button:hover,
+.convert-remove-button:active {
   color: var(--danger);
 }
 
@@ -186,7 +186,7 @@
   gap: .5rem;
 }
 
-.convert-format-btn {
+.convert-format-button {
   padding: .5rem 1rem;
   font-size: .85rem;
   font-weight: 600;
@@ -199,17 +199,17 @@
   transition: border-color .2s, background .2s, color .2s, transform .1s;
 }
 
-.convert-format-btn:hover,
-.convert-format-btn:active {
+.convert-format-button:hover,
+.convert-format-button:active {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.convert-format-btn:active {
+.convert-format-button:active {
   transform: scale(0.95);
 }
 
-.convert-format-btn.active {
+.convert-format-button.active {
   border-color: var(--primary);
   background: var(--primary);
   color: #fff;
@@ -217,7 +217,7 @@
 
 /* ---- Action button ---- */
 
-.convert-action-btn {
+.convert-action-button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -233,16 +233,16 @@
   transition: background .2s, opacity .2s, transform .1s;
 }
 
-.convert-action-btn:hover:not(:disabled),
-.convert-action-btn:active:not(:disabled) {
+.convert-action-button:hover:not(:disabled),
+.convert-action-button:active:not(:disabled) {
   background: var(--primary-hover);
 }
 
-.convert-action-btn:active:not(:disabled) {
+.convert-action-button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.convert-action-btn:disabled {
+.convert-action-button:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
@@ -294,7 +294,7 @@
   flex-wrap: wrap;
 }
 
-.convert-download-btn {
+.convert-download-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -306,16 +306,16 @@
   transition: background .2s, transform .1s;
 }
 
-.convert-download-btn:hover,
-.convert-download-btn:active {
+.convert-download-button:hover,
+.convert-download-button:active {
   background: var(--primary-hover);
 }
 
-.convert-download-btn:active {
+.convert-download-button:active {
   transform: scale(0.96);
 }
 
-.convert-another-btn {
+.convert-another-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -327,13 +327,13 @@
   transition: border-color .2s, color .2s, transform .1s;
 }
 
-.convert-another-btn:hover,
-.convert-another-btn:active {
+.convert-another-button:hover,
+.convert-another-button:active {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.convert-another-btn:active {
+.convert-another-button:active {
   transform: scale(0.96);
 }
 
@@ -353,7 +353,7 @@
     gap: .4rem;
   }
 
-  .convert-format-btn {
+  .convert-format-button {
     padding: .5rem .85rem;
     font-size: .82rem;
   }
@@ -362,14 +362,14 @@
     flex-direction: column;
   }
 
-  .convert-download-btn,
-  .convert-another-btn {
+  .convert-download-button,
+  .convert-another-button {
     width: 100%;
     text-align: center;
     justify-content: center;
   }
 
-  .convert-action-btn {
+  .convert-action-button {
     width: 100%;
     justify-content: center;
   }

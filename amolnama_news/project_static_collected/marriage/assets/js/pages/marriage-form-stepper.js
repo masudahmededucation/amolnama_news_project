@@ -10,8 +10,8 @@
   const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  const btnPrev = document.getElementById('btn-step-prev');
-  const btnNext = document.getElementById('btn-step-next');
+  const btnPrev = document.getElementById('button-step-prev');
+  const btnNext = document.getElementById('button-step-next');
   const stepCounter = document.getElementById('step-counter');
   const stepperContainer = document.getElementById('stepper');
 

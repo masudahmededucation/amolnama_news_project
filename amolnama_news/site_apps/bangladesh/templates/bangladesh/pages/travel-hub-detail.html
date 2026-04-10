@@ -119,7 +119,7 @@
       <div class="travel-hub-detail-add-form-row">
         <input type="file" id="travel-hub-detail-photo-file" name="travel-hub-detail-photo-file" accept="image/jpeg,image/png,image/webp" class="travel-hub-detail-file-input">
         <input type="text" id="travel-hub-detail-photo-caption" name="travel-hub-detail-photo-caption" placeholder="ছবির ক্যাপশন (Caption)" class="travel-hub-detail-text-input" maxlength="500">
-        <button type="button" id="travel-hub-detail-photo-upload-button" name="travel_hub_detail_photo_upload" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ আপলোড 📷</button>
+        <button type="button" id="travel-hub-detail-photo-upload-button" name="travel_hub_detail_photo_upload" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ আপলোড 📷</button>
       </div>
     </div>
     {% endif %}
@@ -181,7 +181,7 @@
       <div class="travel-hub-detail-add-form-row">
         <input type="text" id="travel-hub-detail-youtube-title" name="travel-hub-detail-youtube-title" placeholder="ভিডিওর শিরোনাম (Video Title)" class="travel-hub-detail-text-input" maxlength="300">
         <input type="text" id="travel-hub-detail-youtube-description" name="travel-hub-detail-youtube-description" placeholder="বর্ণনা (Description)" class="travel-hub-detail-text-input" maxlength="1000">
-        <button type="button" id="travel-hub-detail-youtube-add-button" name="travel_hub_detail_youtube_add" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ যোগ করুন 🎬</button>
+        <button type="button" id="travel-hub-detail-youtube-add-button" name="travel_hub_detail_youtube_add" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ যোগ করুন 🎬</button>
       </div>
     </div>
     {% endif %}
@@ -194,7 +194,7 @@
       {% for ref in reference_links %}
       <div class="travel-hub-detail-link-card" data-reference-link-id="{{ ref.blog_bangladesh_destination_reference_link_id }}" name="{{ ref.blog_bangladesh_destination_reference_link_id }}" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">
         <a href="{{ ref.reference_url }}" target="_blank" rel="noopener" class="travel-hub-detail-link-url">{{ ref.reference_title_bn|default:ref.reference_url }}</a>
-        {% if ref.description_bn %}<span class="travel-hub-detail-link-desc">{{ ref.description_bn }}</span>{% endif %}
+        {% if ref.description_bn %}<span class="travel-hub-detail-link-description">{{ ref.description_bn }}</span>{% endif %}
         <div class="travel-hub-detail-contribution-meta">
           <span class="travel-hub-detail-contribution-uploader">{{ ref.uploader_name }}</span>
           {% if ref.can_manage %}
@@ -218,7 +218,7 @@
       <div class="travel-hub-detail-add-form-row">
         <input type="text" id="travel-hub-detail-link-title" name="travel-hub-detail-link-title" placeholder="শিরোনাম (Title)" class="travel-hub-detail-text-input" maxlength="300">
         <input type="text" id="travel-hub-detail-link-description-input" name="travel-hub-detail-link-description" placeholder="বর্ণনা (Description)" class="travel-hub-detail-text-input" maxlength="1000">
-        <button type="button" id="travel-hub-detail-link-add-button" name="travel_hub_detail_link_add" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ যোগ করুন 🔗</button>
+        <button type="button" id="travel-hub-detail-link-add-button" name="travel_hub_detail_link_add" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ যোগ করুন 🔗</button>
       </div>
     </div>
     {% endif %}
@@ -311,7 +311,7 @@
       <div class="travel-hub-detail-add-form-row">
         <input type="date" id="travel-hub-detail-review-visited-at" name="travel-hub-detail-review-visited-at" class="travel-hub-detail-text-input travel-hub-detail-input-date">
         <span class="travel-hub-detail-review-date-label">ভ্রমণের তারিখ (Date visited)</span>
-        <button type="button" id="travel-hub-detail-review-submit-button" name="travel_hub_detail_review_submit" class="travel-hub-detail-add-btn" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ রিভিউ দিন ⭐</button>
+        <button type="button" id="travel-hub-detail-review-submit-button" name="travel_hub_detail_review_submit" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ রিভিউ দিন ⭐</button>
       </div>
     </div>
     {% endif %}

@@ -69,8 +69,8 @@
   const borderValue       = document.getElementById('album-border-value');
   const roundSlider       = document.getElementById('album-round-slider');
   const roundValue        = document.getElementById('album-round-value');
-  const createBtn         = document.getElementById('album-create-btn');
-  const resetBtn          = document.getElementById('album-reset-btn');
+  const createBtn         = document.getElementById('album-create-button');
+  const resetBtn          = document.getElementById('album-reset-button');
   const swapHint          = document.getElementById('album-swap-hint');
   const infoEl            = document.getElementById('album-info');
   const customColorPicker = document.getElementById('album-custom-color');
@@ -133,17 +133,17 @@
      ================================================================ */
 
   function buildLayoutButtons() {
-    const btns = document.querySelectorAll('.album-layout-btn');
+    const btns = document.querySelectorAll('.album-layout-button');
     for (let i = 0; i < btns.length; i++) {
-      (function (btn) {
-        btn.addEventListener('click', function () {
-          const id = btn.getAttribute('data-layout');
+      (function (button) {
+        button.addEventListener('click', function () {
+          const id = button.getAttribute('data-layout');
           for (let j = 0; j < LAYOUTS.length; j++) {
             if (LAYOUTS[j].id === id) { currentLayout = LAYOUTS[j]; break; }
           }
-          let all = document.querySelectorAll('.album-layout-btn');
+          let all = document.querySelectorAll('.album-layout-button');
           for (let k = 0; k < all.length; k++) all[k].classList.remove('active');
-          btn.classList.add('active');
+          button.classList.add('active');
           hideResult();
           applyLayout();
         });
@@ -282,8 +282,8 @@
      CREATE FRAME ELEMENT
      ================================================================ */
 
-  function createFrameElement(idx, displayW, displayH) {
-    let fd = currentLayout.frames[idx];
+  function createFrameElement(index, displayW, displayH) {
+    let fd = currentLayout.frames[index];
     let padScale = borderPx * displayScale;
 
     const fx = (fd.x / 100) * displayW + padScale;
@@ -295,7 +295,7 @@
 
     let frame = document.createElement('div');
     frame.className = 'album-frame';
-    frame.setAttribute('data-idx', idx);
+    frame.setAttribute('data-index', index);
     frame.style.left = fx + 'px';
     frame.style.top = fy + 'px';
     frame.style.width = fw + 'px';
@@ -304,22 +304,22 @@
 
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.id = 'album-frame-file-' + idx;
-    fileInput.name = 'album_frame_file_' + idx;
+    fileInput.id = 'album-frame-file-' + index;
+    fileInput.name = 'album_frame_file_' + index;
     fileInput.accept = 'image/*';
     frame.appendChild(fileInput);
 
-    if (frameImages[idx]) {
-      let zoom = frameZooms[idx] || 1;
+    if (frameImages[index]) {
+      let zoom = frameZooms[index] || 1;
 
       // Positioned image — manual absolute position for pan + zoom
       let img = document.createElement('img');
-      img.src = frameImages[idx].src;
+      img.src = frameImages[index].src;
       img.draggable = false;
       img.style.borderRadius = Math.max(0, roundPx - 2) + 'px';
 
       // Calculate cover dimensions × zoom
-      let con = getContainDimensions(frameImages[idx], fw, fh);
+      let con = getContainDimensions(frameImages[index], fw, fh);
       let zoomedW = con.w * zoom;
       let zoomedH = con.h * zoom;
       img.style.width = zoomedW + 'px';
@@ -327,7 +327,7 @@
       img.style.position = 'absolute';
 
       // Apply pan with clamping
-      let pan = framePans[idx];
+      let pan = framePans[index];
       const clampedX = clampPan(pan.x, zoomedW, fw);
       const clampedY = clampPan(pan.y, zoomedH, fh);
       img.style.left = clampedX + 'px';
@@ -341,14 +341,14 @@
       actionBar.className = 'album-frame-toolbar';
 
       const swapBtn = document.createElement('button');
-      swapBtn.className = 'album-frame-tool-btn';
+      swapBtn.className = 'album-frame-tool-button';
       swapBtn.type = 'button';
       swapBtn.title = 'Swap';
       swapBtn.textContent = '↔';
       actionBar.appendChild(swapBtn);
 
       const removeBtn = document.createElement('button');
-      removeBtn.className = 'album-frame-tool-btn';
+      removeBtn.className = 'album-frame-tool-button';
       removeBtn.type = 'button';
       removeBtn.title = 'Remove';
       removeBtn.textContent = '✕';
@@ -361,14 +361,14 @@
       zoomBar.className = 'album-frame-zoom-bar';
 
       const zoomOutBtn = document.createElement('button');
-      zoomOutBtn.className = 'album-frame-tool-btn';
+      zoomOutBtn.className = 'album-frame-tool-button';
       zoomOutBtn.type = 'button';
       zoomOutBtn.title = 'Zoom out';
       zoomOutBtn.textContent = '−';
       zoomBar.appendChild(zoomOutBtn);
 
       const zoomInBtn = document.createElement('button');
-      zoomInBtn.className = 'album-frame-tool-btn';
+      zoomInBtn.className = 'album-frame-tool-button';
       zoomInBtn.type = 'button';
       zoomInBtn.title = 'Zoom in';
       zoomInBtn.textContent = '+';
@@ -386,36 +386,36 @@
 
       zoomInBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        applyFrameZoom(idx, 0.1);
+        applyFrameZoom(index, 0.1);
       });
       zoomOutBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        applyFrameZoom(idx, -0.1);
+        applyFrameZoom(index, -0.1);
       });
       swapBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        startSwap(idx);
+        startSwap(index);
       });
       removeBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        removeImage(idx);
+        removeImage(index);
       });
 
       // Mouse wheel zoom on frame (also handles Ctrl+wheel)
       frame.addEventListener('wheel', function (e) {
         e.preventDefault();
         const delta = e.deltaY < 0 ? 0.05 : -0.05;
-        applyFrameZoom(idx, delta);
+        applyFrameZoom(index, delta);
       }, { passive: false });
 
       // Track active frame for Ctrl+/- keyboard zoom
-      frame.addEventListener('mouseenter', function () { activeFrameIdx = idx; });
+      frame.addEventListener('mouseenter', function () { activeFrameIdx = index; });
       frame.addEventListener('mouseleave', function () {
-        if (activeFrameIdx === idx) activeFrameIdx = -1;
+        if (activeFrameIdx === index) activeFrameIdx = -1;
       });
 
       // Drag to reposition + pinch-to-zoom
-      bindFramePan(frame, idx);
+      bindFramePan(frame, index);
     } else {
       const ph = document.createElement('div');
       ph.className = 'album-frame-placeholder';
@@ -427,17 +427,17 @@
     // Click to browse (empty frame or swap mode)
     frame.addEventListener('click', function (e) {
       if (swapSourceIdx >= 0) {
-        completeSwap(idx);
+        completeSwap(index);
         e.stopPropagation();
         return;
       }
-      if (!frameImages[idx]) {
+      if (!frameImages[index]) {
         fileInput.click();
       }
     });
 
     fileInput.addEventListener('change', function () {
-      if (this.files && this.files[0]) loadImageToFrame(idx, this.files[0]);
+      if (this.files && this.files[0]) loadImageToFrame(index, this.files[0]);
     });
 
     // Drag & drop files
@@ -452,10 +452,10 @@
     frame.addEventListener('drop', function (e) {
       e.preventDefault();
       frame.classList.remove('dragover');
-      if (swapSourceIdx >= 0) { completeSwap(idx); return; }
+      if (swapSourceIdx >= 0) { completeSwap(index); return; }
       const files = e.dataTransfer.files;
       if (files && files[0] && files[0].type.indexOf('image') === 0) {
-        loadImageToFrame(idx, files[0]);
+        loadImageToFrame(index, files[0]);
       }
     });
 
@@ -518,32 +518,32 @@
      FRAME ZOOM — per-frame zoom in/out
      ================================================================ */
 
-  function applyFrameZoom(idx, delta) {
-    let newZoom = (frameZooms[idx] || 1) + delta;
+  function applyFrameZoom(index, delta) {
+    let newZoom = (frameZooms[index] || 1) + delta;
     newZoom = Math.max(1, Math.min(5, Math.round(newZoom * 100) / 100));
-    frameZooms[idx] = newZoom;
+    frameZooms[index] = newZoom;
     hideResult();
-    updateFrameZoomVisual(idx);
+    updateFrameZoomVisual(index);
   }
 
   // In-place zoom update — no DOM removal, just update img size/position + badge
-  function updateFrameZoomVisual(idx) {
-    const zoom = frameZooms[idx] || 1;
-    let frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
-    if (!frame || !frameImages[idx]) return;
+  function updateFrameZoomVisual(index) {
+    const zoom = frameZooms[index] || 1;
+    let frame = canvasInner.querySelector('[data-index="' + index + '"]');
+    if (!frame || !frameImages[index]) return;
     let img = frame.querySelector('img');
     if (!img) return;
 
     let fw = frame.offsetWidth;
     let fh = frame.offsetHeight;
     // Base = contain-fit (whole image visible), zoom multiplies from there
-    const con = getContainDimensions(frameImages[idx], fw, fh);
+    const con = getContainDimensions(frameImages[index], fw, fh);
     const zoomedW = con.w * zoom;
     const zoomedH = con.h * zoom;
     img.style.width = zoomedW + 'px';
     img.style.height = zoomedH + 'px';
 
-    const pan = framePans[idx];
+    const pan = framePans[index];
     img.style.left = clampPan(pan.x, zoomedW, fw) + 'px';
     img.style.top = clampPan(pan.y, zoomedH, fh) + 'px';
 
@@ -565,7 +565,7 @@
      FRAME PAN — drag to reposition image inside frame
      ================================================================ */
 
-  function bindFramePan(frame, idx) {
+  function bindFramePan(frame, index) {
     function isToolBtn(e) {
       return e.target.closest('.album-frame-toolbar') || e.target.closest('.album-frame-zoom-bar');
     }
@@ -575,7 +575,7 @@
       if (swapSourceIdx >= 0) return;
       if (isToolBtn(e)) return;
       e.preventDefault();
-      startPanDrag(idx, e.clientX, e.clientY);
+      startPanDrag(index, e.clientX, e.clientY);
     });
 
     // Touch — single finger = pan, two fingers = pinch zoom
@@ -583,21 +583,21 @@
       if (swapSourceIdx >= 0) return;
       if (isToolBtn(e)) return;
 
-      if (e.touches.length === 2 && frameImages[idx]) {
+      if (e.touches.length === 2 && frameImages[index]) {
         // Start pinch-to-zoom
         e.preventDefault();
         endPanDrag(); // cancel any active pan
-        pinchFrameIdx = idx;
+        pinchFrameIdx = index;
         pinchStartDist = getTouchDistance(e.touches);
-        pinchStartZoom = frameZooms[idx] || 1;
-        activeFrameIdx = idx;
+        pinchStartZoom = frameZooms[index] || 1;
+        activeFrameIdx = index;
         return;
       }
 
       if (e.touches.length !== 1) return;
       e.preventDefault();
-      activeFrameIdx = idx;
-      startPanDrag(idx, e.touches[0].clientX, e.touches[0].clientY);
+      activeFrameIdx = index;
+      startPanDrag(index, e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: false });
   }
 
@@ -607,14 +607,14 @@
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  function startPanDrag(idx, clientX, clientY) {
-    panDragIdx = idx;
+  function startPanDrag(index, clientX, clientY) {
+    panDragIdx = index;
     panDragStartX = clientX;
     panDragStartY = clientY;
-    panDragOrigX = framePans[idx].x;
-    panDragOrigY = framePans[idx].y;
+    panDragOrigX = framePans[index].x;
+    panDragOrigY = framePans[index].y;
 
-    let frame = canvasInner.querySelector('[data-idx="' + idx + '"]');
+    let frame = canvasInner.querySelector('[data-index="' + index + '"]');
     if (frame) frame.classList.add('panning');
   }
 
@@ -629,7 +629,7 @@
       requestAnimationFrame(function () {
         panRafPending = false;
         if (panDragIdx < 0) return;
-        let frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
+        let frame = canvasInner.querySelector('[data-index="' + panDragIdx + '"]');
         if (!frame) return;
         let img = frame.querySelector('img');
         if (!img) return;
@@ -645,7 +645,7 @@
 
   function endPanDrag() {
     if (panDragIdx >= 0) {
-      const frame = canvasInner.querySelector('[data-idx="' + panDragIdx + '"]');
+      const frame = canvasInner.querySelector('[data-index="' + panDragIdx + '"]');
       if (frame) frame.classList.remove('panning');
       hideResult();
     }
@@ -725,14 +725,14 @@
      LOAD IMAGE INTO FRAME
      ================================================================ */
 
-  function loadImageToFrame(idx, file) {
-    if (frameObjectUrls[idx]) {
-      URL.revokeObjectURL(frameObjectUrls[idx]);
-      frameObjectUrls[idx] = null;
+  function loadImageToFrame(index, file) {
+    if (frameObjectUrls[index]) {
+      URL.revokeObjectURL(frameObjectUrls[index]);
+      frameObjectUrls[index] = null;
     }
 
     let url = URL.createObjectURL(file);
-    frameObjectUrls[idx] = url;
+    frameObjectUrls[index] = url;
 
     // Use createImageBitmap for non-blocking decode when available
     const img = new Image();
@@ -741,38 +741,38 @@
         // Decode off main thread, then close bitmap to free GPU memory
         createImageBitmap(img).then(function (bmp) {
           bmp.close();
-          frameImages[idx] = img;
-          framePans[idx] = { x: 0, y: 0 };
-          frameZooms[idx] = 1;
+          frameImages[index] = img;
+          framePans[index] = { x: 0, y: 0 };
+          frameZooms[index] = 1;
           hideResult();
-          rebuildFrame(idx);
+          rebuildFrame(index);
           updateCreateState();
         }).catch(function (error) {
-          console.error('createImageBitmap failed for frame ' + idx + ':', error);
-          frameImages[idx] = img;
-          framePans[idx] = { x: 0, y: 0 };
-          frameZooms[idx] = 1;
+          console.error('createImageBitmap failed for frame ' + index + ':', error);
+          frameImages[index] = img;
+          framePans[index] = { x: 0, y: 0 };
+          frameZooms[index] = 1;
           hideResult();
-          rebuildFrame(idx);
+          rebuildFrame(index);
           updateCreateState();
         });
       } else {
-        frameImages[idx] = img;
-        framePans[idx] = { x: 0, y: 0 };
-        frameZooms[idx] = 1;
+        frameImages[index] = img;
+        framePans[index] = { x: 0, y: 0 };
+        frameZooms[index] = 1;
         hideResult();
-        rebuildFrame(idx);
+        rebuildFrame(index);
         updateCreateState();
       }
     };
     img.onerror = function () {
       URL.revokeObjectURL(url);
-      frameObjectUrls[idx] = null;
+      frameObjectUrls[index] = null;
     };
     img.src = url;
   }
 
-  function rebuildFrame(idx) {
+  function rebuildFrame(index) {
     let pp = getPagePixels();
     const containerW = canvasWrap.parentElement.offsetWidth;
     const maxDisplayW = Math.min(containerW, 800);
@@ -780,16 +780,16 @@
     const displayW = Math.round(pp.w * displayScale);
     const displayH = Math.round(pp.h * displayScale);
 
-    const oldFrame = canvasInner.querySelector('[data-idx="' + idx + '"]');
+    const oldFrame = canvasInner.querySelector('[data-index="' + index + '"]');
     if (oldFrame) oldFrame.remove();
 
-    createFrameElement(idx, displayW, displayH);
+    createFrameElement(index, displayW, displayH);
 
-    // Re-sort by data-idx
+    // Re-sort by data-index
     const allFrames = canvasInner.querySelectorAll('.album-frame');
     const sorted = Array.prototype.slice.call(allFrames);
     sorted.sort(function (a, b) {
-      return parseInt(a.getAttribute('data-idx'), 10) - parseInt(b.getAttribute('data-idx'), 10);
+      return parseInt(a.getAttribute('data-index'), 10) - parseInt(b.getAttribute('data-index'), 10);
     });
     for (let i = 0; i < sorted.length; i++) canvasInner.appendChild(sorted[i]);
   }
@@ -798,16 +798,16 @@
      REMOVE IMAGE
      ================================================================ */
 
-  function removeImage(idx) {
-    if (frameObjectUrls[idx]) {
-      URL.revokeObjectURL(frameObjectUrls[idx]);
-      frameObjectUrls[idx] = null;
+  function removeImage(index) {
+    if (frameObjectUrls[index]) {
+      URL.revokeObjectURL(frameObjectUrls[index]);
+      frameObjectUrls[index] = null;
     }
-    frameImages[idx] = null;
-    framePans[idx] = { x: 0, y: 0 };
-    frameZooms[idx] = 1;
+    frameImages[index] = null;
+    framePans[index] = { x: 0, y: 0 };
+    frameZooms[index] = 1;
     hideResult();
-    rebuildFrame(idx);
+    rebuildFrame(index);
     updateCreateState();
   }
 
@@ -815,13 +815,13 @@
      SWAP
      ================================================================ */
 
-  function startSwap(idx) {
-    swapSourceIdx = idx;
+  function startSwap(index) {
+    swapSourceIdx = index;
     let frames = canvasInner.querySelectorAll('.album-frame');
     for (let i = 0; i < frames.length; i++) {
       frames[i].classList.remove('swap-source', 'swap-target');
-      let fi = parseInt(frames[i].getAttribute('data-idx'), 10);
-      if (fi === idx) frames[i].classList.add('swap-source');
+      let fi = parseInt(frames[i].getAttribute('data-index'), 10);
+      if (fi === index) frames[i].classList.add('swap-source');
       else frames[i].classList.add('swap-target');
     }
     updateSwapHint('Click another frame to swap — অন্য ফ্রেমে ক্লিক করুন');

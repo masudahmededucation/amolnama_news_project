@@ -6,7 +6,7 @@
 
   const dobInput   = document.getElementById("age-dob");
   const targetInput = document.getElementById("age-target");
-  const calcBtn    = document.getElementById("age-calc-btn");
+  const calcBtn    = document.getElementById("age-calc-button");
   const resultsDiv = document.getElementById("ageResults");
 
   if (!calcBtn) return;

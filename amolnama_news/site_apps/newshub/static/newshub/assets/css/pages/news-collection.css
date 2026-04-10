@@ -355,7 +355,7 @@
   padding: .45rem .85rem;
 }
 
-.file-desc-row {
+.file-description-row {
   padding: 0 .85rem .45rem;
 }
 
@@ -377,7 +377,7 @@
 
 /* ---- Shared repeater delete button ---- */
 
-.btn-repeater-delete {
+.button-repeater-delete {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -395,14 +395,14 @@
   line-height: 1;
 }
 
-.btn-repeater-delete:hover {
+.button-repeater-delete:hover {
   background: var(--danger);
   color: #fff;
   border-color: var(--danger);
   box-shadow: 0 2px 6px rgba(220, 38, 38, .25);
 }
 
-.btn-delete-x {
+.button-delete-x {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -416,7 +416,7 @@
   transition: background .2s, color .2s;
 }
 
-.btn-repeater-delete:hover .btn-delete-x {
+.button-repeater-delete:hover .button-delete-x {
   background: rgba(255, 255, 255, .3);
   color: #fff;
 }
@@ -464,7 +464,7 @@
 
 /* ---- Add file button ---- */
 
-.btn-add-file {
+.button-add-file {
   display: inline-block;
   padding: .5rem 1.25rem;
   font-size: .85rem;
@@ -477,12 +477,12 @@
   transition: all .2s;
 }
 
-.btn-add-file:hover {
+.button-add-file:hover {
   background: var(--card);
   box-shadow: var(--shadow);
 }
 
-.btn-add-file:disabled {
+.button-add-file:disabled {
   color: var(--muted);
   border-color: var(--border);
   cursor: default;
@@ -1442,7 +1442,7 @@
   margin: 1.25rem auto 0;
 }
 
-.submit-widget .btn {
+.submit-widget .button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -1452,7 +1452,7 @@
   transition: all .2s;
 }
 
-.submit-widget .btn:hover {
+.submit-widget .button:hover {
   background: var(--primary-hover);
   box-shadow: var(--shadow-md);
 }
@@ -1608,7 +1608,7 @@
 .social-source-row:nth-child(5n+5) .social-source-row-number { color: #00695c; }
 
 /* Add source button */
-.btn-add-social-source {
+.button-add-social-source {
   background: none;
   border: 2px dashed var(--border);
   border-radius: .5rem;
@@ -1620,7 +1620,7 @@
   transition: border-color .2s, color .2s, background .2s;
 }
 
-.btn-add-social-source:hover {
+.button-add-social-source:hover {
   border-color: var(--primary);
   color: var(--primary);
   background: rgba(25, 118, 210, .04);
@@ -1925,7 +1925,7 @@
 }
 
 /* ---- Add commodity button ---- */
-.btn-add-commodity {
+.button-add-commodity {
   display: inline-block;
   padding: .5rem 1.25rem;
   font-size: .85rem;
@@ -1938,7 +1938,7 @@
   transition: all .2s;
 }
 
-.btn-add-commodity:hover {
+.button-add-commodity:hover {
   background: var(--card);
   box-shadow: var(--shadow);
 }
@@ -1953,7 +1953,7 @@
   margin-bottom: 1rem;
 }
 
-.actor-add-btn {
+.actor-add-button {
   padding: .45rem .9rem;
   border: 2px dashed var(--border);
   border-radius: var(--radius-sm);
@@ -1965,7 +1965,7 @@
   transition: border-color .2s, background .2s;
 }
 
-.actor-add-btn:hover {
+.actor-add-button:hover {
   border-color: var(--primary);
   background: var(--primary-light);
 }
@@ -2049,7 +2049,7 @@
 .role-victim  { color: var(--primary); }
 .role-witness { color: #1565c0; }
 
-/* .actor-remove-btn — now styled by shared .btn-repeater-delete */
+/* .actor-remove-button — now styled by shared .button-repeater-delete */
 
 /* Primary row: type + name */
 .actor-primary-row {

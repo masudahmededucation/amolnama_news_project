@@ -359,7 +359,7 @@
     }
 
     // Update edit button link
-    const editBtn = document.querySelector(".poem-detail-edit-btn");
+    const editBtn = document.querySelector(".poem-detail-edit-button");
     if (editBtn) editBtn.href = (next.url || "/bangla-kobita-gaan/id/" + next.id + "/").replace(/\/$/, "/edit/");
 
     // Update like button
@@ -367,7 +367,7 @@
     if (likeBtn) {
       likeBtn.setAttribute("data-poem-id", next.id);
       likeBtn.setAttribute("data-liked", "false");
-      likeBtn.classList.remove("poem-detail-action-btn--liked");
+      likeBtn.classList.remove("poem-detail-action-button--liked");
     }
     const likeCount = document.getElementById("poemLikeCount");
     if (likeCount) likeCount.textContent = next.like_count || 0;
@@ -389,7 +389,7 @@
     // Update audio info
     const audioTitle = container.querySelector(".poem-audio-title");
     if (audioTitle) audioTitle.textContent = next.audio_reciter ? "আবৃত্তি: " + next.audio_reciter : "অডিও শুনুন";
-    const audioDesc = container.querySelector(".poem-audio-desc");
+    const audioDesc = container.querySelector(".poem-audio-description");
     if (audioDesc) audioDesc.textContent = next.audio_description || "";
 
     // Update browser URL without reload

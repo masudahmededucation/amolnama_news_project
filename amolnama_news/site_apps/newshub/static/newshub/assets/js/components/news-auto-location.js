@@ -250,10 +250,10 @@
     if (!name || name.length < MIN_WORD_LEN) return false;
     let pos = 0;
     while (true) {
-      let idx = rawText.indexOf(name, pos);
-      if (idx === -1) return false;
-      if (isWordBoundary(rawText, idx)) return true;
-      pos = idx + 1;
+      let index = rawText.indexOf(name, pos);
+      if (index === -1) return false;
+      if (isWordBoundary(rawText, index)) return true;
+      pos = index + 1;
     }
   }
 
@@ -262,10 +262,10 @@
     const nameLower = name.toLowerCase();
     let pos = 0;
     while (true) {
-      const idx = rawTextLower.indexOf(nameLower, pos);
-      if (idx === -1) return false;
-      if (isWordBoundary(rawTextLower, idx)) return true;
-      pos = idx + 1;
+      const index = rawTextLower.indexOf(nameLower, pos);
+      if (index === -1) return false;
+      if (isWordBoundary(rawTextLower, index)) return true;
+      pos = index + 1;
     }
   }
 

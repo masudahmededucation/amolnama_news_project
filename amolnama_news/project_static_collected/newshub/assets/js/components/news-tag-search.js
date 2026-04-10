@@ -67,7 +67,7 @@
       let tag = results[i];
       let label = escapeHtml(tag.name_bn);
       if (tag.name_en) label += ' (' + escapeHtml(tag.name_en) + ')';
-      html += '<li class="tag-search-item" data-tag-idx="' + i + '">' + label + '</li>';
+      html += '<li class="tag-search-item" data-tag-index="' + i + '">' + label + '</li>';
     }
     resultsList.innerHTML = html;
     resultsList.style.display = 'block';
@@ -107,17 +107,17 @@
     const item = e.target.closest('.tag-search-item');
     if (!item) return;
 
-    const idx = parseInt(item.getAttribute('data-tag-idx'), 10);
+    const index = parseInt(item.getAttribute('data-tag-index'), 10);
     let results = resultsList._results;
-    if (!results || !results[idx]) return;
+    if (!results || !results[index]) return;
 
-    const tag = results[idx];
+    const tag = results[index];
     api.add(tag);
     api.save();
     api.render();
 
     /* Auto-select the tag's category if none is chosen */
-    autoSelectCategory(tag.cat_id);
+    autoSelectCategory(tag.category_id);
 
     /* Clear search and hide results */
     input.value = '';

@@ -207,7 +207,7 @@
 }
 
 /* Add button */
-.gpa-add-subject-btn {
+.gpa-add-subject-button {
   padding: .4rem .75rem;
   font-size: .78rem;
   font-weight: 600;
@@ -220,7 +220,7 @@
   margin-top: .5rem;
 }
 
-.gpa-add-subject-btn:hover {
+.gpa-add-subject-button:hover {
   background: rgba(99, 102, 241, .06);
 }
 

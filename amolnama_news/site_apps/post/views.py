@@ -118,13 +118,13 @@ def build_post_feed_items(request, posts=None):
         # Group registry IDs by content category to query each source table once
         registry_by_category = {}
         for item in shared_content_map.values():
-            cat_id = item.link_content_ref_content_category_id
-            registry_by_category.setdefault(cat_id, []).append(item)
+            category_id = item.link_content_ref_content_category_id
+            registry_by_category.setdefault(category_id, []).append(item)
 
         from django.db import connection
         # Category 5 = art, 4 = story, 1 = article (newshub), 6 = destination
-        for cat_id, items in registry_by_category.items():
-            if cat_id == 5:  # Art — artwork_asset
+        for category_id, items in registry_by_category.items():
+            if category_id == 5:  # Art — artwork_asset
                 for item in items:
                     if item.content_cover_image_url:
                         shared_cover_map[item.content_registry_id] = item.content_cover_image_url
@@ -145,7 +145,7 @@ def build_post_feed_items(request, posts=None):
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
                         pass
-            elif cat_id == 4:  # Story — story_asset
+            elif category_id == 4:  # Story — story_asset
                 for item in items:
                     if item.content_cover_image_url:
                         shared_cover_map[item.content_registry_id] = item.content_cover_image_url
@@ -165,7 +165,7 @@ def build_post_feed_items(request, posts=None):
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
                         pass
-            elif cat_id == 1:  # Newshub article — news_asset
+            elif category_id == 1:  # Newshub article — news_asset
                 for item in items:
                     if item.content_cover_image_url:
                         shared_cover_map[item.content_registry_id] = item.content_cover_image_url
@@ -185,7 +185,7 @@ def build_post_feed_items(request, posts=None):
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
                         pass
-            elif cat_id == 6:  # Destination — cover_image_url on coll_destination
+            elif category_id == 6:  # Destination — cover_image_url on coll_destination
                 for item in items:
                     if item.content_cover_image_url:
                         shared_cover_map[item.content_registry_id] = item.content_cover_image_url

@@ -15,7 +15,7 @@
   ID convention (all auto-generated from upload_prefix):
     {prefix}-picker            — hidden file picker input
     {prefix}-real              — hidden real file input (synced before submit)
-    {prefix}-add-btn           — "add files" button
+    {prefix}-add-button           — "add files" button
     {prefix}-file-list         — file list container
     {prefix}-descriptions-json — per-file descriptions hidden input
 
@@ -29,7 +29,7 @@
   {# Picker trigger — hidden, opened by JS #}
   <input type="file" id="{{ upload_prefix }}-picker" name="{{ upload_prefix }}_picker"
          accept="{{ upload_accept }}" hidden multiple>
-  <button type="button" id="{{ upload_prefix }}-add-btn" name="{{ upload_prefix }}_add_btn" class="btn-add-file">{{ upload_btn_label }}</button>
+  <button type="button" id="{{ upload_prefix }}-add-button" name="{{ upload_prefix }}_add_btn" class="button-add-file">{{ upload_btn_label }}</button>
   <div id="{{ upload_prefix }}-file-list" name="{{ upload_prefix }}_file_list" class="file-info" hidden></div>
 
   {% if upload_show_featured %}

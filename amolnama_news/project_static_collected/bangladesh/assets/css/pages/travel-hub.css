@@ -51,7 +51,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-destination-card-featured { font-size:.62rem; font-weight:700; color:#e89a1e; background:rgba(234,160,28,.1); padding:.1rem .4rem; border-radius:3px; }
 
 .travel-hub-destination-card-title { margin:0; font-size:.95rem; font-weight:700; line-height:1.3; color:var(--text); }
-.travel-hub-destination-card-desc { margin:0; font-size:.78rem; color:var(--muted); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.travel-hub-destination-card-description { margin:0; font-size:.78rem; color:var(--muted); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
 .travel-hub-destination-card-footer { display:flex; align-items:center; gap:.6rem; margin-top:auto; padding-top:.4rem; font-size:.7rem; color:var(--muted); }
 .travel-hub-destination-card-rating { font-weight:700; color:#e89a1e; }
@@ -60,8 +60,8 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 .travel-hub-empty-state { grid-column:1/-1; text-align:center; padding:3rem 1rem; color:var(--muted); }
 .travel-hub-empty-state p { margin:.3rem 0; font-size:.9rem; }
 .travel-hub-load-more { text-align:center; padding:1rem 0 2rem; }
-.travel-hub-load-more-btn { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
-.travel-hub-load-more-btn:hover { background:var(--primary); color:#fff; }
+.travel-hub-load-more-button { padding:.5rem 1.5rem; font-size:.85rem; font-weight:600; border:1.5px solid var(--primary); border-radius:var(--radius); background:transparent; color:var(--primary); cursor:pointer; transition:all .15s; }
+.travel-hub-load-more-button:hover { background:var(--primary); color:#fff; }
 
 /* ---- Add/Edit form ---- */
 .travel-hub-add-form { max-width: 700px; }

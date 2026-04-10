@@ -38,10 +38,10 @@
             <select id="saved-office-select" name="saved_office_select">
               <option value="">-- সংরক্ষিত অফিস নির্বাচন করুন (Select Saved Office) --</option>
             </select>
-            <button type="button" class="btn-saved-office btn-saved-office--load" id="btn-load-office" name="btn_load_office" disabled>
+            <button type="button" class="button-saved-office button-saved-office--load" id="button-load-office" name="btn_load_office" disabled>
               <span class="lbl-bn">লোড</span><span class="lbl-en" hidden>Load</span>
             </button>
-            <button type="button" class="btn-saved-office btn-saved-office--delete" id="btn-delete-office" name="btn_delete_office" disabled>
+            <button type="button" class="button-saved-office button-saved-office--delete" id="button-delete-office" name="btn_delete_office" disabled>
               <span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Delete</span>
             </button>
           </div>
@@ -50,7 +50,7 @@
             <label class="saved-office-default-label">
               <input type="checkbox" id="save-office-default" name="save_office_default"> <span class="lbl-bn">ডিফল্ট</span><span class="lbl-en" hidden>Default</span>
             </label>
-            <button type="button" class="btn-saved-office btn-saved-office--save" id="btn-save-office" name="btn_save_office">
+            <button type="button" class="button-saved-office button-saved-office--save" id="button-save-office" name="btn_save_office">
               <span class="lbl-bn">সংরক্ষণ করুন</span><span class="lbl-en" hidden>Save Office</span>
             </button>
           </div>
@@ -389,7 +389,7 @@
             </div>
             <div class="sig-draw-area">
               <canvas class="sig-canvas" width="400" height="120"></canvas>
-              <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
+              <button type="button" class="sig-clear-button"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
             </div>
             <div class="cert-sig-upload" id="sig-attested-drop" name="sig_attested_drop" hidden>
               <span class="sig-icon">✍️</span>
@@ -451,7 +451,7 @@
             </div>
             <div class="sig-draw-area">
               <canvas class="sig-canvas" width="400" height="120"></canvas>
-              <button type="button" class="sig-clear-btn"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
+              <button type="button" class="sig-clear-button"><span class="lbl-bn">মুছুন</span><span class="lbl-en" hidden>Clear</span></button>
             </div>
             <div class="cert-sig-upload" id="sig-registrar-drop" name="sig_registrar_drop" hidden>
               <span class="sig-icon">✍️</span>
@@ -473,9 +473,9 @@
       </div>
 
       <div class="cert-preview-actions">
-        <button type="button" class="btn-cert-print" id="btn-cert-print" name="btn_cert_print">🖨️ প্রিন্ট করুন (Print)</button>
-        <button type="button" class="btn-cert-print" id="btn-cert-pdf" name="btn_cert_pdf">📄 PDF ডাউনলোড (Download PDF)</button>
-        <button type="button" class="btn-cert-edit" id="btn-cert-edit" name="btn_cert_edit">✏️ সম্পাদনা করুন (Edit)</button>
+        <button type="button" class="button-cert-print" id="button-cert-print" name="btn_cert_print">🖨️ প্রিন্ট করুন (Print)</button>
+        <button type="button" class="button-cert-print" id="button-cert-pdf" name="btn_cert_pdf">📄 PDF ডাউনলোড (Download PDF)</button>
+        <button type="button" class="button-cert-edit" id="button-cert-edit" name="btn_cert_edit">✏️ সম্পাদনা করুন (Edit)</button>
       </div>
 
     </div>
@@ -484,9 +484,9 @@
 
   {# Navigation buttons #}
   <div class="step-nav" id="step-nav" name="step_nav">
-    <button type="button" class="btn-step-prev" id="btn-step-prev" name="btn_step_prev">&larr; পূর্ববর্তী (Previous)</button>
+    <button type="button" class="button-step-prev" id="button-step-prev" name="btn_step_prev">&larr; পূর্ববর্তী (Previous)</button>
     <span class="step-counter" id="step-counter" name="step_counter"></span>
-    <button type="button" class="btn-step-next" id="btn-step-next" name="btn_step_next">পরবর্তী (Next) &rarr;</button>
+    <button type="button" class="button-step-next" id="button-step-next" name="btn_step_next">পরবর্তী (Next) &rarr;</button>
   </div>
 
 </section>

@@ -42,7 +42,7 @@
   color: var(--muted);
 }
 
-.poem-detail-edit-btn {
+.poem-detail-edit-button {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -57,12 +57,12 @@
   transition: color .15s, border-color .15s;
 }
 
-.poem-detail-edit-btn:hover {
+.poem-detail-edit-button:hover {
   color: var(--primary);
   border-color: var(--primary);
 }
 
-.poem-detail-edit-btn svg {
+.poem-detail-edit-button svg {
   width: 13px;
   height: 13px;
 }
@@ -270,7 +270,7 @@
 }
 
 /* Play button */
-.poem-audio-play-btn {
+.poem-audio-play-button {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
@@ -285,11 +285,11 @@
   transition: background .15s, transform .1s;
 }
 
-.poem-audio-play-btn:hover {
+.poem-audio-play-button:hover {
   background: var(--primary-hover, #388e3c);
 }
 
-.poem-audio-play-btn:active {
+.poem-audio-play-button:active {
   transform: scale(.93);
 }
 
@@ -311,7 +311,7 @@
   text-overflow: ellipsis;
 }
 
-.poem-audio-desc {
+.poem-audio-description {
   display: block;
   font-size: .68rem;
   color: var(--muted);
@@ -364,7 +364,7 @@
 }
 
 /* Volume button */
-.poem-audio-vol-btn {
+.poem-audio-vol-button {
   flex-shrink: 0;
   background: none;
   border: none;
@@ -377,12 +377,12 @@
   align-items: center;
 }
 
-.poem-audio-vol-btn:hover {
+.poem-audio-vol-button:hover {
   color: #fff;
 }
 
 /* Watch Video button */
-.poem-audio-video-btn {
+.poem-audio-video-button {
   flex-shrink: 0;
   background: none;
   border: 1px solid #444;
@@ -397,7 +397,7 @@
   font-size: .7rem;
 }
 
-.poem-audio-video-btn:hover {
+.poem-audio-video-button:hover {
   color: #fff;
   border-color: var(--muted);
 }
@@ -416,7 +416,7 @@
   border: none;
 }
 
-.poem-audio-collapse-btn {
+.poem-audio-collapse-button {
   display: block;
   width: 100%;
   padding: .4rem;
@@ -428,7 +428,7 @@
   transition: color .15s;
 }
 
-.poem-audio-collapse-btn:hover {
+.poem-audio-collapse-button:hover {
   color: #fff;
 }
 
@@ -593,7 +593,7 @@
   margin-bottom: 1.5rem;
 }
 
-.poem-detail-action-btn {
+.poem-detail-action-button {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -608,21 +608,21 @@
   transition: background .15s, color .15s, border-color .15s;
 }
 
-.poem-detail-action-btn:hover {
+.poem-detail-action-button:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.poem-detail-action-btn--liked {
+.poem-detail-action-button--liked {
   color: #e74c3c;
   border-color: #e74c3c;
 }
 
-.poem-detail-action-btn--liked svg {
+.poem-detail-action-button--liked svg {
   fill: #e74c3c;
 }
 
-.poem-detail-action-btn svg {
+.poem-detail-action-button svg {
   width: 16px;
   height: 16px;
 }

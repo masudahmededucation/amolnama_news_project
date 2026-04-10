@@ -10,7 +10,7 @@
  *   #price-gap-json              — hidden JSON input
  *   #commodity-row-template      — <template> for cloning rows
  *   #commodity-rows-container    — container div
- *   #btn-add-commodity           — add button
+ *   #button-add-commodity           — add button
  *   #commodity-search-url-data   — CSP-safe JSON with API URL
  *
  * Exposes: window.newshubPriceGap = { reset: fn }
@@ -21,7 +21,7 @@
   const hiddenJson = document.getElementById('price-gap-json');
   const template = document.getElementById('commodity-row-template');
   const container = document.getElementById('commodity-rows-container');
-  const addBtn = document.getElementById('btn-add-commodity');
+  const addBtn = document.getElementById('button-add-commodity');
 
   if (!hiddenJson || !template || !container) return;
 
@@ -150,7 +150,7 @@
     if (numberLabel) numberLabel.textContent = 'পণ্য #' + (container.children.length + 1);
 
     /* Remove button */
-    let removeBtn = rowEl.querySelector('.btn-remove-commodity');
+    let removeBtn = rowEl.querySelector('.button-remove-commodity');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl, index);
@@ -280,10 +280,10 @@
       const numberLabel = rowEl.querySelector('.commodity-row-number');
       if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
 
-      const removeBtn = rowEl.querySelector('.btn-remove-commodity');
+      const removeBtn = rowEl.querySelector('.button-remove-commodity');
       if (removeBtn) {
-        (function (el, idx) {
-          removeBtn.addEventListener('click', function () { removeRow(el, idx); });
+        (function (el, index) {
+          removeBtn.addEventListener('click', function () { removeRow(el, index); });
         })(rowEl, index);
       }
 

@@ -331,8 +331,8 @@
   window.newshubWcvConditionInjury = {
     reset: function () {
       /* Section A */
-      [pregnantCb, childrenCb, dependentCb, disabilityCb].forEach(function (cb) {
-        if (cb) cb.checked = false;
+      [pregnantCb, childrenCb, dependentCb, disabilityCb].forEach(function (callback) {
+        if (callback) callback.checked = false;
       });
       [pregnantMonths, childrenCount, disabilityType].forEach(function (el) {
         if (el) el.value = '';

@@ -23,9 +23,9 @@ const BanglaInput = (function() {
   let globalBengaliKeyboardEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
 
   // ---- Load dictionary ----
-  function loadDictionary(cb) {
-    if (dictionary) { cb(); return; }
-    dictCallbacks.push(cb);
+  function loadDictionary(callback) {
+    if (dictionary) { callback(); return; }
+    dictCallbacks.push(callback);
     if (dictLoading) return;
     dictLoading = true;
 
@@ -139,9 +139,9 @@ const BanglaInput = (function() {
     if (allWords && candidates.length < 4) {
       for (let pl = Math.min(avroResult.length, 3); pl >= 1 && candidates.length < 6; pl--) {
         const bp = avroResult.substring(0, pl);
-        let idx = binarySearchPrefix(bp);
-        if (idx === -1) continue;
-        for (let j = idx; j < allWords.length && j < idx + 100 && candidates.length < 6; j++) {
+        let index = binarySearchPrefix(bp);
+        if (index === -1) continue;
+        for (let j = index; j < allWords.length && j < index + 100 && candidates.length < 6; j++) {
           if (!allWords[j].startsWith(bp)) break;
           if (allWords[j].length < 2 || found[allWords[j]]) continue;
           if (Math.abs(allWords[j].length - avroResult.length) <= 2) {
@@ -164,7 +164,7 @@ const BanglaInput = (function() {
   }
 
   // Map English input to the dictionary key (phonetic consonant cluster)
-  let DICT_KEYS_SORTED = []; // sorted by length desc for greedy match
+  let DICT_KEYS_SORTED = []; // sorted by length description for greedy match
   function findDictKey(engWord) {
     if (DICT_KEYS_SORTED.length === 0 && dictionary) {
       DICT_KEYS_SORTED = Object.keys(dictionary).sort(function(a, b) { return b.length - a.length; });
@@ -213,7 +213,7 @@ const BanglaInput = (function() {
         const sel = i === 0
           ? ' data-active="1" style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;background:#4a6fa5;color:#fff;font-weight:600;"'
           : ' style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;"';
-        return '<div class="bangla-input-item" data-idx="' + i + '"' + sel + '>' + s + '</div>';
+        return '<div class="bangla-input-item" data-index="' + i + '"' + sel + '>' + s + '</div>';
       }).join("");
       suggestBox.innerHTML = html;
       suggestBox.style.display = "block";
@@ -382,7 +382,7 @@ const BanglaInput = (function() {
 
       const items = suggestBox.querySelectorAll(".bangla-input-item");
       const active = suggestBox.querySelector(".bangla-input-item[data-active]");
-      const activeIdx = active ? parseInt(active.getAttribute("data-idx")) : -1;
+      const activeIdx = active ? parseInt(active.getAttribute("data-index")) : -1;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();

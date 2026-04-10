@@ -139,7 +139,7 @@
 
   /* ---- Publication status — toggle between badge and dropdown ---- */
   const statusBadge = document.getElementById("article-status-badge");
-  const statusEditBtn = document.getElementById("article-status-edit-btn");
+  const statusEditBtn = document.getElementById("article-status-edit-button");
   const statusSelect = document.getElementById("article-publication-status-select");
 
   if (statusEditBtn && statusSelect && statusBadge) {

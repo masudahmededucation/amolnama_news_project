@@ -81,7 +81,7 @@
 #searchInput::placeholder { color: var(--muted); opacity: .7; }
 #searchInput:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
-.icon-btn[aria-expanded="true"] + #searchInput {
+.icon-button[aria-expanded="true"] + #searchInput {
   width: min(50vw, 320px);
   opacity: 1;
   transform: none;

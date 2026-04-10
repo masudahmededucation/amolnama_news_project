@@ -135,8 +135,8 @@
   font-weight: 500;
 }
 
-.btn-step-prev,
-.btn-step-next {
+.button-step-prev,
+.button-step-next {
   padding: .6rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
@@ -146,21 +146,21 @@
   transition: background .2s, color .2s;
 }
 
-.btn-step-prev {
+.button-step-prev {
   background: var(--surface);
   color: var(--text);
 }
 
-.btn-step-prev:hover {
+.button-step-prev:hover {
   background: var(--border);
 }
 
-.btn-step-next {
+.button-step-next {
   background: #c8960c;
   color: #fff;
 }
 
-.btn-step-next:hover {
+.button-step-next:hover {
   background: #a67a0a;
 }
 
@@ -802,7 +802,7 @@
   padding: 1rem 1.5rem 1.5rem;
 }
 
-.btn-marriage-print {
+.button-marriage-print {
   padding: .6rem 1.5rem;
   font-size: .9rem;
   font-weight: 600;
@@ -814,11 +814,11 @@
   transition: background .2s;
 }
 
-.btn-marriage-print:hover {
+.button-marriage-print:hover {
   background: #a67a0a;
 }
 
-.btn-marriage-edit {
+.button-marriage-edit {
   padding: .6rem 1.5rem;
   font-size: .9rem;
   font-weight: 600;
@@ -830,7 +830,7 @@
   transition: border-color .2s, color .2s;
 }
 
-.btn-marriage-edit:hover {
+.button-marriage-edit:hover {
   border-color: #c8960c;
   color: #c8960c;
 }
@@ -1220,8 +1220,8 @@ span.flatpickr-weekday {
     padding: .75rem 0;
   }
 
-  .btn-step-prev,
-  .btn-step-next {
+  .button-step-prev,
+  .button-step-next {
     padding: .5rem 1rem;
     font-size: .8rem;
   }
@@ -1314,7 +1314,7 @@ span.flatpickr-weekday {
   opacity: 1;
 }
 
-.marriage-photo-upload-btn {
+.marriage-photo-upload-button {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -1329,7 +1329,7 @@ span.flatpickr-weekday {
   transition: background .15s;
 }
 
-.marriage-photo-upload-btn:hover {
+.marriage-photo-upload-button:hover {
   background: #faf0dc;
 }
 

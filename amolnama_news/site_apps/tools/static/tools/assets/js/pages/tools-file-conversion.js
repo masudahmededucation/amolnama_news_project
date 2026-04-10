@@ -90,21 +90,21 @@
   // ---- DOM refs ----
   const dropzone      = document.getElementById('convert-dropzone');
   const fileInput      = document.getElementById('convert-file-input');
-  const browseBtn      = document.getElementById('convert-browse-btn');
+  const browseBtn      = document.getElementById('convert-browse-button');
   const panel          = document.getElementById('convert-panel');
   const fileIcon       = document.getElementById('convert-file-icon');
   const fileName       = document.getElementById('convert-file-name');
   const fileMeta       = document.getElementById('convert-file-meta');
-  const changeBtn      = document.getElementById('convert-change-btn');
-  const removeBtn      = document.getElementById('convert-remove-btn');
+  const changeBtn      = document.getElementById('convert-change-button');
+  const removeBtn      = document.getElementById('convert-remove-button');
   const formatGrid     = document.getElementById('convert-format-grid');
-  const actionBtn      = document.getElementById('convert-action-btn');
+  const actionBtn      = document.getElementById('convert-action-button');
   const actionLabel    = actionBtn.querySelector('.convert-action-label');
   const actionSpinner  = actionBtn.querySelector('.convert-action-spinner');
   const resultSection  = document.getElementById('convert-result');
   const resultInfo     = document.getElementById('convert-result-info');
-  const downloadBtn    = document.getElementById('convert-download-btn');
-  const anotherBtn     = document.getElementById('convert-another-btn');
+  const downloadBtn    = document.getElementById('convert-download-button');
+  const anotherBtn     = document.getElementById('convert-another-button');
 
   let currentFile     = null;
   let currentExt      = '';
@@ -204,20 +204,20 @@
     }
 
     targets.forEach(function (ext) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'convert-format-btn';
-      btn.textContent = ext;
-      btn.dataset.ext = ext;
-      btn.addEventListener('click', function () {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'convert-format-button';
+      button.textContent = ext;
+      button.dataset.ext = ext;
+      button.addEventListener('click', function () {
         // Toggle selection
-        formatGrid.querySelectorAll('.convert-format-btn').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
+        formatGrid.querySelectorAll('.convert-format-button').forEach(function (b) { b.classList.remove('active'); });
+        button.classList.add('active');
         selectedTarget = ext;
         actionBtn.disabled = false;
         actionLabel.textContent = 'Convert to ' + ext;
       });
-      formatGrid.appendChild(btn);
+      formatGrid.appendChild(button);
     });
 
     actionBtn.disabled = true;
@@ -622,8 +622,8 @@
           for (let i = 1; i < lines.length; i++) {
             const values = parseCsvLine(lines[i]);
             let obj = {};
-            headers.forEach(function (h, idx) {
-              obj[h.trim()] = (values[idx] || '').trim();
+            headers.forEach(function (h, index) {
+              obj[h.trim()] = (values[index] || '').trim();
             });
             data.push(obj);
           }
@@ -823,14 +823,14 @@
     // For simplicity, use the docx library if available, otherwise build manually
 
     let paragraphs = '';
-    pageTexts.forEach(function (text, idx) {
+    pageTexts.forEach(function (text, index) {
       let lines = text.split('\n');
       lines.forEach(function (line) {
         const escaped = xmlEscape(line);
         paragraphs += '<w:p><w:r><w:t xml:space="preserve">' + escaped + '</w:t></w:r></w:p>';
       });
       // Page break between pages (except last)
-      if (idx < pageTexts.length - 1) {
+      if (index < pageTexts.length - 1) {
         paragraphs += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
       }
     });
@@ -1143,9 +1143,9 @@
             '<style>table{border-collapse:collapse;width:100%;font-family:sans-serif}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5;font-weight:600}tr:nth-child(even){background:#fafafa}</style>\n' +
             '</head>\n<body>\n<table>\n';
 
-          lines.forEach(function (line, idx) {
+          lines.forEach(function (line, index) {
             const fields = currentExt === 'tsv' ? line.split('\t') : parseCsvLine(line);
-            let tag = idx === 0 ? 'th' : 'td';
+            let tag = index === 0 ? 'th' : 'td';
             html += '<tr>' + fields.map(function (f) {
               return '<' + tag + '>' + xmlEscape(f.trim()) + '</' + tag + '>';
             }).join('') + '</tr>\n';
@@ -1651,7 +1651,7 @@
           return Promise.all(pagePromises);
         }).then(function (pageTexts) {
           let bodyHtml = '';
-          pageTexts.forEach(function (text, idx) {
+          pageTexts.forEach(function (text, index) {
             const paras = text.split(/\n\n+/);
             paras.forEach(function (para) {
               const trimmed = para.trim();
@@ -1659,7 +1659,7 @@
                 bodyHtml += '<p>' + xmlEscape(trimmed).replace(/\n/g, '<br>') + '</p>\n';
               }
             });
-            if (idx < pageTexts.length - 1) {
+            if (index < pageTexts.length - 1) {
               bodyHtml += '<hr>\n';
             }
           });

@@ -11,10 +11,10 @@
  *   #global-news-intl-statement          — textarea
  *   #global-news-sanctions-imposed       — checkbox
  *   #global-news-sanctions-row           — wrapper div (toggled by checkbox)
- *   #global-news-sanctions-desc          — textarea
+ *   #global-news-sanctions-description          — textarea
  *   #global-news-agreement-reached       — checkbox
  *   #global-news-agreement-row           — wrapper div (toggled by checkbox)
- *   #global-news-agreement-desc          — textarea
+ *   #global-news-agreement-description          — textarea
  *   #global-news-media-coverage-group    — container (DB-driven radios from media-coverage-data)
  *   #global-news-media-coverage          — hidden input (coverage status_id)
  *   #media-coverage-data                 — JSON embed (ref_status data)
@@ -29,10 +29,10 @@
   const intlStatementEl      = document.getElementById('global-news-intl-statement');
   const sanctionsCbEl        = document.getElementById('global-news-sanctions-imposed');
   const sanctionsRow         = document.getElementById('global-news-sanctions-row');
-  const sanctionsDescEl      = document.getElementById('global-news-sanctions-desc');
+  const sanctionsDescEl      = document.getElementById('global-news-sanctions-description');
   const agreementCbEl        = document.getElementById('global-news-agreement-reached');
   const agreementRow         = document.getElementById('global-news-agreement-row');
-  const agreementDescEl      = document.getElementById('global-news-agreement-desc');
+  const agreementDescEl      = document.getElementById('global-news-agreement-description');
   const mediaCoverageHidden  = document.getElementById('global-news-media-coverage');
 
   /* ---- Build world reaction radios from JSON embed ---- */

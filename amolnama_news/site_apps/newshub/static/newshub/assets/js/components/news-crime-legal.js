@@ -178,8 +178,8 @@
     /* Applicable law checkboxes */
     if (saved.applicableLawIds && saved.applicableLawIds.length) {
       saved.applicableLawIds.forEach(function (id) {
-        let cb = lawContainer && lawContainer.querySelector('input[value="' + id + '"]');
-        if (cb) cb.checked = true;
+        let callback = lawContainer && lawContainer.querySelector('input[value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
     }
 
@@ -189,16 +189,16 @@
     /* Support service checkboxes */
     if (saved.supportServiceIds && saved.supportServiceIds.length) {
       saved.supportServiceIds.forEach(function (id) {
-        let cb = supportContainer && supportContainer.querySelector('input[value="' + id + '"]');
-        if (cb) cb.checked = true;
+        let callback = supportContainer && supportContainer.querySelector('input[value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
     }
 
     /* Retaliation checkboxes */
     if (saved.retaliationIds && saved.retaliationIds.length) {
       saved.retaliationIds.forEach(function (id) {
-        const cb = retaliationContainer && retaliationContainer.querySelector('input[value="' + id + '"]');
-        if (cb) cb.checked = true;
+        const callback = retaliationContainer && retaliationContainer.querySelector('input[value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
     }
 

@@ -90,9 +90,9 @@
         ' <button class="filter-crumbs-chip-remove" data-action="' + escapeHtml(c.action) + '">✕</button></span>';
     }).join("");
 
-    crumbsChips.querySelectorAll(".filter-crumbs-chip-remove").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const action = btn.getAttribute("data-action");
+    crumbsChips.querySelectorAll(".filter-crumbs-chip-remove").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const action = button.getAttribute("data-action");
         if (action === "clear-type") {
           currentType = "";
           currentTypeName = "";

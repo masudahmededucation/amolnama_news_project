@@ -8,7 +8,7 @@
  * DOM dependencies:
  *   #wcv-accused                     — hidden input for form submission
  *   #wcv-accused-list                — card container
- *   #wcv-accused-add-btn             — add card button
+ *   #wcv-accused-add-button             — add card button
  *   wcv-attacker-relationships-data  — JSON data script
  *   wcv-attacker-positions-data      — JSON data script
  *   wcv-attacker-attributes-data     — JSON data script
@@ -20,7 +20,7 @@
 
   const hiddenJson = document.getElementById('wcv-accused');
   const container = document.getElementById('wcv-accused-list');
-  const addBtn = document.getElementById('wcv-accused-add-btn');
+  const addBtn = document.getElementById('wcv-accused-add-button');
 
   if (!hiddenJson || !container) return;
 
@@ -86,7 +86,7 @@
       input.type = 'checkbox';
       input.id = 'wcv_accused_attr-' + cardIndex + '-' + s.status_id;
       input.name = 'wcv_accused_attr_' + cardIndex;
-      input.className = 'wcv-attr-cb';
+      input.className = 'wcv-attr-callback';
       input.value = s.status_id;
       input.dataset.code = s.status_code || '';
       label.appendChild(input);
@@ -142,8 +142,8 @@
 
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
-    removeBtn.className = 'btn-repeater-delete btn-wcv-remove';
-    removeBtn.innerHTML = 'ডিলিট <span class="btn-delete-x">&times;</span>';
+    removeBtn.className = 'button-repeater-delete button-wcv-remove';
+    removeBtn.innerHTML = 'ডিলিট <span class="button-delete-x">&times;</span>';
     removeBtn.style.display = 'none';
     header.appendChild(removeBtn);
 
@@ -391,8 +391,8 @@
     let cards = container.querySelectorAll('.wcv-accused-card');
     const showRemove = cards.length > 1;
     for (let i = 0; i < cards.length; i++) {
-      const btn = cards[i].querySelector('.btn-wcv-remove');
-      if (btn) btn.style.display = showRemove ? '' : 'none';
+      const button = cards[i].querySelector('.button-wcv-remove');
+      if (button) button.style.display = showRemove ? '' : 'none';
     }
   }
 
@@ -434,7 +434,7 @@
       const posEl = card.querySelector('.wcv-pos-select');
       const posRemarksEl = card.querySelector('.wcv-pos-remarks');
       const remarksEl = card.querySelector('.wcv-remarks');
-      const attrCbs = card.querySelectorAll('.wcv-attr-cb');
+      const attrCbs = card.querySelectorAll('.wcv-attr-callback');
       const histCb = card.querySelector('input[data-code="HAS_PREVIOUS_HISTORY_OF_VIOLENCE"]');
       const histDetailsEl = card.querySelector('.wcv-prev-history-details');
 

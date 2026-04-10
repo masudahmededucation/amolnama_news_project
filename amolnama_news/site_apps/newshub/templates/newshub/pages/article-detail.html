@@ -62,7 +62,7 @@
           {{ publication_status.status_icon }} {{ publication_status.status_name_bn }}
         </span>
         {% if can_edit %}
-        <button type="button" class="article-status-edit-btn" id="article-status-edit-btn" name="article_status_edit" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
+        <button type="button" class="article-status-edit-button" id="article-status-edit-button" name="article_status_edit" aria-label="Change status" title="স্থিতি পরিবর্তন">✎ Edit</button>
         <select class="article-status-select" hidden id="article-publication-status-select" name="article_publication_status_select"
                 data-entry-id="{{ entry.newshub_coll_news_entry_id }}"
                 data-current="{{ entry.link_ref_status_article_publication_status_id }}"
@@ -251,7 +251,7 @@
                   class="article-comment-textarea"
                   placeholder="আপনার মন্তব্য লিখুন... (Write your comment...)"
                   aria-labelledby="article-comments-title"></textarea>
-        <button type="button" id="article-comment-submit" name="article_comment_submit" class="article-action-btn article-comment-submit-wrapper"
+        <button type="button" id="article-comment-submit" name="article_comment_submit" class="article-action-button article-comment-submit-wrapper"
                 data-article-id="{{ published_article.pub_article_id }}">
           💬 মন্তব্য করুন
         </button>

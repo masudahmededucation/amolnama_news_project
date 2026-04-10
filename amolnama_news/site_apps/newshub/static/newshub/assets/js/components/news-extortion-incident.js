@@ -35,7 +35,7 @@
   const partyNameEl        = document.getElementById('extortion-party-name');
   const damageRows         = document.getElementById('extortion-damage-rows');
   const damageAmount       = document.getElementById('extortion-damage-amount');
-  const damageDesc         = document.getElementById('extortion-prop-damage-desc');
+  const damageDesc         = document.getElementById('extortion-prop-damage-description');
   const incidentRemarks    = document.getElementById('extortion-incident-remarks');
 
   /* ---- Checkbox container references ---- */
@@ -86,7 +86,7 @@
     if (!container) return [];
     return Array.prototype.slice.call(
       container.querySelectorAll('input[type="checkbox"]:checked')
-    ).map(function (cb) { return parseInt(cb.value, 10); });
+    ).map(function (callback) { return parseInt(callback.value, 10); });
   }
 
   /* ---- Check if any checked checkbox in container has given data-code ---- */
@@ -202,8 +202,8 @@
     /* 3. Affiliation checkboxes */
     if (saved.affiliationIds && saved.affiliationIds.length && affiliationContainer) {
       saved.affiliationIds.forEach(function (id) {
-        let cb = affiliationContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
-        if (cb) cb.checked = true;
+        let callback = affiliationContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
       /* Show party name row if political affiliation checked */
       const hasPolitic = containerHasCode(affiliationContainer, 'POLITICAL_PARTY_STUDENT_YOUTH_WING');
@@ -214,16 +214,16 @@
     /* 4. Threat method checkboxes */
     if (saved.threatMethodIds && saved.threatMethodIds.length && threatContainer) {
       saved.threatMethodIds.forEach(function (id) {
-        let cb = threatContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
-        if (cb) cb.checked = true;
+        let callback = threatContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
     }
 
     /* 5. Consequence checkboxes */
     if (saved.consequenceIds && saved.consequenceIds.length && consequenceContainer) {
       saved.consequenceIds.forEach(function (id) {
-        let cb = consequenceContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
-        if (cb) cb.checked = true;
+        let callback = consequenceContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
       const hasDamage = containerHasCode(consequenceContainer, 'PROPERTY_VANDALIZED_ARSON');
       if (damageRows) damageRows.hidden = !hasDamage;
@@ -234,8 +234,8 @@
     /* 6. Bangladesh context checkboxes */
     if (saved.bangladeshContextIds && saved.bangladeshContextIds.length && contextContainer) {
       saved.bangladeshContextIds.forEach(function (id) {
-        const cb = contextContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
-        if (cb) cb.checked = true;
+        const callback = contextContainer.querySelector('input[type="checkbox"][value="' + id + '"]');
+        if (callback) callback.checked = true;
       });
     }
 
@@ -274,7 +274,7 @@
       /* 3. Affiliation */
       if (affiliationContainer) {
         affiliationContainer.querySelectorAll('input[type="checkbox"]')
-          .forEach(function (cb) { cb.checked = false; });
+          .forEach(function (callback) { callback.checked = false; });
       }
       if (partyNameRow) partyNameRow.hidden = true;
       if (partyNameEl)  partyNameEl.value = '';
@@ -282,13 +282,13 @@
       /* 4. Threat methods */
       if (threatContainer) {
         threatContainer.querySelectorAll('input[type="checkbox"]')
-          .forEach(function (cb) { cb.checked = false; });
+          .forEach(function (callback) { callback.checked = false; });
       }
 
       /* 5. Consequences */
       if (consequenceContainer) {
         consequenceContainer.querySelectorAll('input[type="checkbox"]')
-          .forEach(function (cb) { cb.checked = false; });
+          .forEach(function (callback) { callback.checked = false; });
       }
       if (damageRows)   damageRows.hidden = true;
       if (damageAmount) damageAmount.value = '';
@@ -297,7 +297,7 @@
       /* 6. Bangladesh context */
       if (contextContainer) {
         contextContainer.querySelectorAll('input[type="checkbox"]')
-          .forEach(function (cb) { cb.checked = false; });
+          .forEach(function (callback) { callback.checked = false; });
       }
 
       /* 7. General remarks */

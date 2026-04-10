@@ -7,8 +7,8 @@
   'use strict';
 
   const previewEl = document.getElementById('cert-preview');
-  const printBtn = document.getElementById('btn-cert-print');
-  const editBtn = document.getElementById('btn-cert-edit');
+  const printBtn = document.getElementById('button-cert-print');
+  const editBtn = document.getElementById('button-cert-edit');
 
   if (!previewEl) return;
 
@@ -205,7 +205,7 @@
 
   /* ---- Download as PDF ---- */
 
-  const pdfBtn = document.getElementById('btn-cert-pdf');
+  const pdfBtn = document.getElementById('button-cert-pdf');
   if (pdfBtn) {
     pdfBtn.addEventListener('click', function () {
       if (!previewEl) return;

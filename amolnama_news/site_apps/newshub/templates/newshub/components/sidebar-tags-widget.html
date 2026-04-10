@@ -28,7 +28,7 @@
 
 {# All tags (unique) — embedded JSON for auto-tag matching from content body #}
 <script type="application/json" id="all-tags-data" name="all_tags_data">
-[{% for tag in unique_news_category_tags %}{"id":{{ tag.news_category_tag_id }},"cat_id":{{ tag.link_news_category_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}","aliases":"{{ tag.news_tag_search_aliases|default:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+[{% for tag in unique_news_category_tags %}{"id":{{ tag.news_category_tag_id }},"category_id":{{ tag.link_news_category_id }},"name_bn":"{{ tag.news_tag_name_bn|escapejs }}","name_en":"{{ tag.news_tag_name_en|escapejs }}","aliases":"{{ tag.news_tag_search_aliases|default:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
 </script>
 
 {% if selected_tag_ids %}

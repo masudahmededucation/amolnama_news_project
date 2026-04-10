@@ -33,7 +33,7 @@
   touch-action: none;
 }
 
-.sig-clear-btn {
+.sig-clear-button {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -46,7 +46,7 @@
   color: var(--muted);
 }
 
-.sig-clear-btn:hover {
+.sig-clear-button:hover {
   background: #efe8d4;
   color: var(--text);
 }
@@ -62,7 +62,7 @@
     height: 100px;
   }
 
-  .sig-clear-btn {
+  .sig-clear-button {
     min-height: 44px;
     min-width: 44px;
     display: flex;

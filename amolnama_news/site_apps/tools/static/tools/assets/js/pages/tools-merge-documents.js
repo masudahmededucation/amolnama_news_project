@@ -20,27 +20,27 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- DOM refs ---- */
   const dropzone      = document.getElementById('mgr-dropzone');
   const fileInput      = document.getElementById('mgr-file-input');
-  const browseBtn      = document.getElementById('mgr-browse-btn');
+  const browseBtn      = document.getElementById('mgr-browse-button');
   const errorSection   = document.getElementById('mgr-error');
   const errorText      = document.getElementById('mgr-error-text');
-  const tryAgainBtn    = document.getElementById('mgr-try-again-btn');
+  const tryAgainBtn    = document.getElementById('mgr-try-again-button');
   const workspace      = document.getElementById('mgr-workspace');
   const fileGrid       = document.getElementById('mgr-file-grid');
   const fileCountSpan  = document.getElementById('mgr-file-count');
   const totalSizeSpan  = document.getElementById('mgr-total-size');
   const sortAzBtn      = document.getElementById('mgr-sort-az');
   const sortZaBtn      = document.getElementById('mgr-sort-za');
-  const addMoreBtn     = document.getElementById('mgr-add-more-btn');
+  const addMoreBtn     = document.getElementById('mgr-add-more-button');
   const outputNameInput = document.getElementById('mgr-output-name');
-  const mergeBtn       = document.getElementById('mgr-merge-btn');
-  const resetBtn       = document.getElementById('mgr-reset-btn');
+  const mergeBtn       = document.getElementById('mgr-merge-button');
+  const resetBtn       = document.getElementById('mgr-reset-button');
   const progressSection = document.getElementById('mgr-progress');
   const progressFill   = document.getElementById('mgr-progress-fill');
   const progressText   = document.getElementById('mgr-progress-text');
   const resultSection  = document.getElementById('mgr-result');
   const resultPages    = document.getElementById('mgr-result-pages');
   const resultSize     = document.getElementById('mgr-result-size');
-  const downloadBtn    = document.getElementById('mgr-download-btn');
+  const downloadBtn    = document.getElementById('mgr-download-button');
 
   /* ---- Constants ---- */
   const MAX_FILES = 20;
@@ -90,9 +90,9 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ---- Update order badges ---- */
   function updateOrderBadges() {
     let cards = fileGrid.querySelectorAll('.mgr-file-card');
-    cards.forEach(function (card, idx) {
+    cards.forEach(function (card, index) {
       let badge = card.querySelector('.mgr-file-order');
-      if (badge) badge.textContent = idx + 1;
+      if (badge) badge.textContent = index + 1;
     });
   }
 
@@ -547,11 +547,11 @@ if (typeof pdfjsLib !== 'undefined') {
     PDFDocument.create().then(function (mergedPdf) {
       let chain = Promise.resolve();
 
-      fileEntries.forEach(function (entry, idx) {
+      fileEntries.forEach(function (entry, index) {
         chain = chain.then(function () {
-          const pct = Math.round(((idx + 1) / total) * 90);
+          const pct = Math.round(((index + 1) / total) * 90);
           progressFill.style.width = pct + '%';
-          progressText.textContent = (idx + 1) + '/' + total + ' প্রসেস হচ্ছে… (Processing ' + (idx + 1) + '/' + total + '…)';
+          progressText.textContent = (index + 1) + '/' + total + ' প্রসেস হচ্ছে… (Processing ' + (index + 1) + '/' + total + '…)';
 
           return readFileAsArrayBuffer(entry.file).then(function (arrayBuf) {
             if (isPdf(entry.file)) {

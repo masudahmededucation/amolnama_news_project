@@ -30,8 +30,8 @@
  *   #land-grab-current-status           — hidden input (selected current status status_id)
  *   #land-grab-families-evicted         — number input
  *   #land-grab-violence-occurred        — checkbox
- *   #land-grab-violence-desc-row        — wrapper div
- *   #land-grab-violence-desc            — textarea
+ *   #land-grab-violence-description-row        — wrapper div
+ *   #land-grab-violence-description            — textarea
  * Note: Legal action fields handled by news-land-grab-legal.js (Step 8).
  */
 (function () {
@@ -66,8 +66,8 @@
   const methodOtherDetailEl   = document.getElementById('land-grab-method-other-detail');
   const familiesEl            = document.getElementById('land-grab-families-evicted');
   const violenceEl            = document.getElementById('land-grab-violence-occurred');
-  const violenceDescRow       = document.getElementById('land-grab-violence-desc-row');
-  const violenceDescEl        = document.getElementById('land-grab-violence-desc');
+  const violenceDescRow       = document.getElementById('land-grab-violence-description-row');
+  const violenceDescEl        = document.getElementById('land-grab-violence-description');
   const currentStatusHidden   = document.getElementById('land-grab-current-status');
 
   /* ---- Status IDs for "Other" detection ---- */

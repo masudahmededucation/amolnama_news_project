@@ -19,7 +19,7 @@
     const canvas = zone.querySelector('.sig-canvas');
     const drawArea = zone.querySelector('.sig-draw-area');
     const uploadArea = zone.querySelector('.marriage-sig-upload') || zone.querySelector('.cert-sig-upload');
-    const clearBtn = zone.querySelector('.sig-clear-btn');
+    const clearBtn = zone.querySelector('.sig-clear-button');
     const radios = zone.querySelectorAll('input[name="sig-mode-' + key + '"]');
     const dropEl = document.getElementById('sig-' + key + '-drop');
 

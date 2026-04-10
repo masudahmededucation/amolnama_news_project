@@ -53,7 +53,7 @@
   margin: .25rem 0;
 }
 
-.compress-browse-btn {
+.compress-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
   font-size: .9rem;
@@ -66,13 +66,13 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.compress-browse-btn:hover,
-.compress-browse-btn:active {
+.compress-browse-button:hover,
+.compress-browse-button:active {
   background: var(--primary);
   color: #fff;
 }
 
-.compress-browse-btn:active {
+.compress-browse-button:active {
   transform: scale(0.96);
 }
 
@@ -102,7 +102,7 @@
   margin: 0;
 }
 
-.compress-clear-btn {
+.compress-clear-button {
   font-size: .78rem;
   color: var(--danger, #e53935);
   background: none;
@@ -114,12 +114,12 @@
   transition: background .15s, transform .1s;
 }
 
-.compress-clear-btn:hover,
-.compress-clear-btn:active {
+.compress-clear-button:hover,
+.compress-clear-button:active {
   background: rgba(229,57,53,0.08);
 }
 
-.compress-clear-btn:active {
+.compress-clear-button:active {
   transform: scale(0.96);
 }
 
@@ -435,7 +435,7 @@
 }
 
 /* Action button */
-.compress-action-btn {
+.compress-action-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -453,21 +453,21 @@
   transition: background .2s, opacity .2s, transform .1s;
 }
 
-.compress-action-btn:hover:not(:disabled),
-.compress-action-btn:active:not(:disabled) {
+.compress-action-button:hover:not(:disabled),
+.compress-action-button:active:not(:disabled) {
   background: var(--primary-hover);
 }
 
-.compress-action-btn:active:not(:disabled) {
+.compress-action-button:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-.compress-action-btn:disabled {
+.compress-action-button:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
 
-.compress-action-btn .compress-action-spinner {
+.compress-action-button .compress-action-spinner {
   width: 18px;
   height: 18px;
   border: 2.5px solid rgba(255,255,255,0.3);
@@ -500,7 +500,7 @@
   margin: 0;
 }
 
-.compress-download-all-btn {
+.compress-download-all-button {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -515,12 +515,12 @@
   transition: background .2s, transform .1s;
 }
 
-.compress-download-all-btn:hover,
-.compress-download-all-btn:active {
+.compress-download-all-button:hover,
+.compress-download-all-button:active {
   background: var(--primary-hover);
 }
 
-.compress-download-all-btn:active {
+.compress-download-all-button:active {
   transform: scale(0.96);
 }
 

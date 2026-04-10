@@ -18,11 +18,11 @@
       setTimeout(initEditors, 200);
       return;
     }
-    shortDescEditor = window.initQuillEditor('quill-short-desc', 'travel-hub-short-desc-bn', {
+    shortDescEditor = window.initQuillEditor('quill-short-description', 'travel-hub-short-description-bn', {
       placeholder: 'সংক্ষেপে বর্ণনা করুন... (Brief description...)',
       minHeight: '100px',
     });
-    descEditor = window.initQuillEditor('quill-desc', 'travel-hub-desc-bn', {
+    descEditor = window.initQuillEditor('quill-description', 'travel-hub-description-bn', {
       placeholder: 'দর্শনীয় স্থানের বিস্তারিত বর্ণনা... (Detailed description...)',
       minHeight: '250px',
     });
@@ -73,8 +73,8 @@
       link_destination_category_id: parseInt(document.getElementById("travel-hub-category").value) || null,
       destination_name_bn: document.getElementById("travel-hub-name-bn").value.trim(),
       destination_name_en: document.getElementById("travel-hub-name-en").value.trim(),
-      destination_short_description_bn: document.getElementById("travel-hub-short-desc-bn").value.trim(),
-      destination_description_bn: document.getElementById("travel-hub-desc-bn").value.trim(),
+      destination_short_description_bn: document.getElementById("travel-hub-short-description-bn").value.trim(),
+      destination_description_bn: document.getElementById("travel-hub-description-bn").value.trim(),
       link_best_season_id: parseInt(document.getElementById("travel-hub-season").value) || null,
       difficulty_level: document.getElementById("travel-hub-difficulty").value || null,
       entry_fee_bdt: parseFloat(document.getElementById("travel-hub-entry-fee").value) || null,

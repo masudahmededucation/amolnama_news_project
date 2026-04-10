@@ -17,12 +17,12 @@
   /* ---- DOM refs ---- */
   const dropzone        = document.getElementById('bgr-dropzone');
   const fileInput       = document.getElementById('bgr-file-input');
-  const browseBtn       = document.getElementById('bgr-browse-btn');
+  const browseBtn       = document.getElementById('bgr-browse-button');
   const processingOverlay = document.getElementById('bgr-processing-overlay');
   const processingText  = document.getElementById('bgr-processing-text');
   const errorSection    = document.getElementById('bgr-error');
   const errorText       = document.getElementById('bgr-error-text');
-  const tryAgainBtn     = document.getElementById('bgr-try-again-btn');
+  const tryAgainBtn     = document.getElementById('bgr-try-again-button');
   const editor          = document.getElementById('bgr-editor');
   const originalCanvas  = document.getElementById('bgr-original-canvas');
   const resultCanvas    = document.getElementById('bgr-result-canvas');
@@ -33,7 +33,7 @@
   const edgeValue       = document.getElementById('bgr-edge-value');
   const downloadPng     = document.getElementById('bgr-download-png');
   const downloadJpg     = document.getElementById('bgr-download-jpg');
-  const resetBtn        = document.getElementById('bgr-reset-btn');
+  const resetBtn        = document.getElementById('bgr-reset-button');
 
   /* Brush DOM refs */
   const brushTools      = document.getElementById('bgr-brush-tools');
@@ -51,7 +51,7 @@
   /* Zoom & compare DOM refs */
   const resultTools     = document.getElementById('bgr-result-tools');
   const tipsBar         = document.getElementById('bgr-tips');
-  const compareBtn      = document.getElementById('bgr-compare-btn');
+  const compareBtn      = document.getElementById('bgr-compare-button');
   const zoomInBtn       = document.getElementById('bgr-zoom-in');
   const zoomOutBtn      = document.getElementById('bgr-zoom-out');
   const zoomLevelSpan   = document.getElementById('bgr-zoom-level');
@@ -65,7 +65,7 @@
   const shadowBlurValue = document.getElementById('bgr-shadow-blur-value');
 
   /* Copy & clipboard */
-  const copyBtn         = document.getElementById('bgr-copy-btn');
+  const copyBtn         = document.getElementById('bgr-copy-button');
 
   /* ---- State ---- */
   let segmenter     = null;
@@ -332,8 +332,8 @@
 
       for (; y < yEnd; y++) {
         for (let x = 0; x < w; x++) {
-          let idx = y * w + x;
-          let alpha = workingMask[idx];
+          let index = y * w + x;
+          let alpha = workingMask[index];
           if (alpha <= EDGE_LOW || alpha >= EDGE_HIGH) continue;
 
           let sumR = 0, sumG = 0, sumB = 0, totalW = 0;
@@ -359,7 +359,7 @@
           }
 
           if (totalW > 0) {
-            const pIdx2 = idx * 4;
+            const pIdx2 = index * 4;
             let t = (alpha - EDGE_LOW) / (EDGE_HIGH - EDGE_LOW);
             const fgR = sumR / totalW, fgG = sumG / totalW, fgB = sumB / totalW;
             refined[pIdx2]     = Math.round(src[pIdx2] * t + fgR * (1 - t));
@@ -465,18 +465,18 @@
 
     for (let i = 0; i < workingMask.length; i++) {
       const alpha = workingMask[i];
-      const idx = i * 4;
+      const index = i * 4;
 
       if (isTransp) {
-        dst[idx]     = src[idx];
-        dst[idx + 1] = src[idx + 1];
-        dst[idx + 2] = src[idx + 2];
-        dst[idx + 3] = (alpha * 255 + 0.5) | 0;
+        dst[index]     = src[index];
+        dst[index + 1] = src[index + 1];
+        dst[index + 2] = src[index + 2];
+        dst[index + 3] = (alpha * 255 + 0.5) | 0;
       } else {
-        dst[idx]     = (src[idx] * alpha + bgR * (1 - alpha) + 0.5) | 0;
-        dst[idx + 1] = (src[idx + 1] * alpha + bgG * (1 - alpha) + 0.5) | 0;
-        dst[idx + 2] = (src[idx + 2] * alpha + bgB * (1 - alpha) + 0.5) | 0;
-        dst[idx + 3] = 255;
+        dst[index]     = (src[index] * alpha + bgR * (1 - alpha) + 0.5) | 0;
+        dst[index + 1] = (src[index + 1] * alpha + bgG * (1 - alpha) + 0.5) | 0;
+        dst[index + 2] = (src[index + 2] * alpha + bgB * (1 - alpha) + 0.5) | 0;
+        dst[index + 3] = 255;
       }
     }
 

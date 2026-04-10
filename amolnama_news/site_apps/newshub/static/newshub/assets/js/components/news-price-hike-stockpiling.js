@@ -10,7 +10,7 @@
  *   #stockpiling-json                    — hidden JSON input
  *   #stockpile-row-template              — <template> for cloning rows
  *   #stockpile-rows-container            — container div
- *   #btn-add-stockpile                   — add button
+ *   #button-add-stockpile                   — add button
  *   #stockpile-commodity-search-url-data — CSP-safe JSON with API URL
  *
  * Exposes: window.newshubStockpiling = { reset: fn }
@@ -21,7 +21,7 @@
   const hiddenJson = document.getElementById('stockpiling-json');
   const template = document.getElementById('stockpile-row-template');
   const container = document.getElementById('stockpile-rows-container');
-  const addBtn = document.getElementById('btn-add-stockpile');
+  const addBtn = document.getElementById('button-add-stockpile');
 
   if (!hiddenJson || !template || !container) return;
 
@@ -111,7 +111,7 @@
     if (numberLabel) numberLabel.textContent = 'পণ্য #' + (container.children.length + 1);
 
     /* Remove button */
-    let removeBtn = rowEl.querySelector('.btn-remove-stockpile');
+    let removeBtn = rowEl.querySelector('.button-remove-stockpile');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl, index);
@@ -226,10 +226,10 @@
       const numberLabel = rowEl.querySelector('.stockpile-row-number');
       if (numberLabel) numberLabel.textContent = 'পণ্য #' + (i + 1);
 
-      const removeBtn = rowEl.querySelector('.btn-remove-stockpile');
+      const removeBtn = rowEl.querySelector('.button-remove-stockpile');
       if (removeBtn) {
-        (function (el, idx) {
-          removeBtn.addEventListener('click', function () { removeRow(el, idx); });
+        (function (el, index) {
+          removeBtn.addEventListener('click', function () { removeRow(el, index); });
         })(rowEl, index);
       }
 

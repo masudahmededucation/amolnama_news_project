@@ -20,14 +20,14 @@
     <div class="spl-dropzone-icon">✂️</div>
     <p class="spl-dropzone-text" data-en="Drag &amp; drop a PDF here">PDF ফাইল এখানে টেনে আনুন (Drag &amp; drop a PDF here)</p>
     <p class="spl-dropzone-or" data-en="or">অথবা (or)</p>
-    <button type="button" class="spl-browse-btn" id="spl-browse-btn" name="spl_browse_btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
+    <button type="button" class="spl-browse-button" id="spl-browse-button" name="spl_browse_btn" data-en="Browse File">ফাইল নির্বাচন করুন (Browse File)</button>
     <p class="spl-dropzone-hint" data-en="PDF only &middot; Max 200 MB">শুধুমাত্র PDF &middot; সর্বোচ্চ ২০০ MB</p>
   </div>
 
   <!-- ===== Error Section ===== -->
   <div class="spl-error" hidden id="spl-error" name="spl_error">
     <p id="spl-error-text" name="spl_error_text"></p>
-    <button type="button" class="spl-try-again-btn" id="spl-try-again-btn" name="spl_try_again_btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
+    <button type="button" class="spl-try-again-button" id="spl-try-again-button" name="spl_try_again_btn" data-en="Try Again">আবার চেষ্টা করুন (Try Again)</button>
   </div>
 
   <!-- ===== Workspace ===== -->
@@ -40,17 +40,17 @@
       <span id="spl-file-pages" name="spl_file_pages">0 পৃষ্ঠা</span>
       <span class="spl-stats-divider">&middot;</span>
       <span id="spl-file-size" name="spl_file_size">0 KB</span>
-      <button type="button" class="spl-change-btn" id="spl-change-btn" name="spl_change_btn" title="অন্য ফাইল নির্বাচন করুন" data-en="🔄 Change">🔄 পরিবর্তন</button>
+      <button type="button" class="spl-change-button" id="spl-change-button" name="spl_change_btn" title="অন্য ফাইল নির্বাচন করুন" data-en="🔄 Change">🔄 পরিবর্তন</button>
     </div>
 
     <!-- Toolbar: all actions in one place -->
     <div class="spl-toolbar">
       <div class="spl-toolbar-btns">
-        <button type="button" class="spl-toolbar-btn active" id="spl-tab-all" name="spl_tab_all" data-en="✂️ Split All">✂️ সব পৃষ্ঠা আলাদা (Split All)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-odd" name="spl_pick_odd" data-en="Odd Pages">বিজোড় পৃষ্ঠা (Odd Pages)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-even" name="spl_pick_even" data-en="Even Pages">জোড় পৃষ্ঠা (Even Pages)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-pick-none" name="spl_pick_none" data-en="Deselect All">সব বাতিল (Deselect All)</button>
-        <button type="button" class="spl-toolbar-btn" id="spl-tab-range" name="spl_tab_range" data-en="📐 Page Ranges">📐 পৃষ্ঠা পরিসীমা (Page Ranges)</button>
+        <button type="button" class="spl-toolbar-button active" id="spl-tab-all" name="spl_tab_all" data-en="✂️ Split All">✂️ সব পৃষ্ঠা আলাদা (Split All)</button>
+        <button type="button" class="spl-toolbar-button" id="spl-pick-odd" name="spl_pick_odd" data-en="Odd Pages">বিজোড় পৃষ্ঠা (Odd Pages)</button>
+        <button type="button" class="spl-toolbar-button" id="spl-pick-even" name="spl_pick_even" data-en="Even Pages">জোড় পৃষ্ঠা (Even Pages)</button>
+        <button type="button" class="spl-toolbar-button" id="spl-pick-none" name="spl_pick_none" data-en="Deselect All">সব বাতিল (Deselect All)</button>
+        <button type="button" class="spl-toolbar-button" id="spl-tab-range" name="spl_tab_range" data-en="📐 Page Ranges">📐 পৃষ্ঠা পরিসীমা (Page Ranges)</button>
       </div>
       <p class="spl-pick-counter" id="spl-pick-counter" name="spl_pick_counter"></p>
     </div>
@@ -85,10 +85,10 @@
 
     <!-- Split action -->
     <div class="spl-actions">
-      <button type="button" class="spl-btn spl-btn--split" id="spl-split-btn" name="spl_split_btn">
-        <span class="spl-btn-text" data-en="✂️ Split PDF">✂️ স্প্লিট করুন (Split PDF)</span>
+      <button type="button" class="spl-button spl-button--split" id="spl-split-button" name="spl_split_btn">
+        <span class="spl-button-text" data-en="✂️ Split PDF">✂️ স্প্লিট করুন (Split PDF)</span>
       </button>
-      <button type="button" class="spl-btn spl-btn--reset" id="spl-reset-btn" name="spl_reset_btn" data-en="🔄 Start Over">🔄 নতুন করে শুরু (Start Over)</button>
+      <button type="button" class="spl-button spl-button--reset" id="spl-reset-button" name="spl_reset_btn" data-en="🔄 Start Over">🔄 নতুন করে শুরু (Start Over)</button>
     </div>
 
     <!-- Progress -->
@@ -107,7 +107,7 @@
         <span class="spl-stats-divider">&middot;</span>
         <span id="spl-result-size" name="spl_result_size">0 KB</span>
       </div>
-      <button type="button" class="spl-btn spl-btn--download" id="spl-download-btn" name="spl_download_btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
+      <button type="button" class="spl-button spl-button--download" id="spl-download-button" name="spl_download_btn" data-en="⬇️ Download">⬇️ ডাউনলোড (Download)</button>
     </div>
   </div>
 

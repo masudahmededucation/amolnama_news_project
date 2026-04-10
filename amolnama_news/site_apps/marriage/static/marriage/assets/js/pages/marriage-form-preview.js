@@ -9,8 +9,8 @@
   const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
   const previewBody = document.getElementById('marriage-preview-body');
-  const printBtn = document.getElementById('btn-marriage-print');
-  const editBtn = document.getElementById('btn-marriage-edit');
+  const printBtn = document.getElementById('button-marriage-print');
+  const editBtn = document.getElementById('button-marriage-edit');
 
   if (!previewBody) return;
 
@@ -550,7 +550,7 @@
 
   /* ---- Download as PDF ---- */
 
-  const pdfBtn = document.getElementById('btn-marriage-pdf');
+  const pdfBtn = document.getElementById('button-marriage-pdf');
   if (pdfBtn) {
     pdfBtn.addEventListener('click', function () {
       const pageEls = document.querySelectorAll('.preview-a4-page');
@@ -564,15 +564,15 @@
       const margin = 8;
       const imgWidth = pageWidth - margin * 2;
 
-      const captureNext = function (idx) {
-        if (idx >= pageEls.length) {
+      const captureNext = function (index) {
+        if (index >= pageEls.length) {
           pdf.save('nikah-nama.pdf');
           pdfBtn.disabled = false;
           pdfBtn.textContent = '\uD83D\uDCC4 PDF \u09A1\u09BE\u0989\u09A8\u09B2\u09CB\u09A1 (Download PDF)';
           return;
         }
-        if (idx > 0) pdf.addPage();
-        html2canvas(pageEls[idx], { scale: 2, useCORS: true }).then(function (canvas) {
+        if (index > 0) pdf.addPage();
+        html2canvas(pageEls[index], { scale: 2, useCORS: true }).then(function (canvas) {
           const imgData = canvas.toDataURL('image/jpeg', 0.95);
           const maxW = pageWidth - margin * 2;
           const maxH = pageHeight - margin * 2;
@@ -588,9 +588,9 @@
           const offsetX = margin + (maxW - fitW) / 2;
           const offsetY = margin + (maxH - fitH) / 2;
           pdf.addImage(imgData, 'JPEG', offsetX, offsetY, fitW, fitH);
-          captureNext(idx + 1);
+          captureNext(index + 1);
         }).catch(function (error) {
-          console.error('Nikah nama PDF page ' + idx + ' capture failed:', error);
+          console.error('Nikah nama PDF page ' + index + ' capture failed:', error);
           pdfBtn.disabled = false;
           pdfBtn.textContent = '\uD83D\uDCC4 PDF \u09A1\u09BE\u0989\u09A8\u09B2\u09CB\u09A1 (Download PDF)';
         });

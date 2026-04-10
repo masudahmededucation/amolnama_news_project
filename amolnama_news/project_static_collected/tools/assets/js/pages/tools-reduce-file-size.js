@@ -84,10 +84,10 @@ if (typeof pdfjsLib !== 'undefined') {
   /* ====== DOM refs ====== */
   const dropzone        = document.getElementById('compress-dropzone');
   const fileInput       = document.getElementById('compress-file-input');
-  const browseBtn       = document.getElementById('compress-browse-btn');
+  const browseBtn       = document.getElementById('compress-browse-button');
   const fileListSection = document.getElementById('compress-file-list');
   const fileItemsEl     = document.getElementById('compress-file-items');
-  const clearBtn        = document.getElementById('compress-clear-btn');
+  const clearBtn        = document.getElementById('compress-clear-button');
   const settingsSection = document.getElementById('compress-settings');
   const slider          = document.getElementById('compress-slider');
   const sliderLabels    = document.querySelectorAll('.compress-slider-label');
@@ -96,11 +96,11 @@ if (typeof pdfjsLib !== 'undefined') {
   const resizeCheck     = document.getElementById('compress-resize-check');
   const resizeWidth     = document.getElementById('compress-resize-width');
   const stripMetaCheck  = document.getElementById('compress-strip-meta');
-  const actionBtn       = document.getElementById('compress-action-btn');
+  const actionBtn       = document.getElementById('compress-action-button');
   const resultsSection  = document.getElementById('compress-results');
   const resultsSummary  = document.getElementById('compress-results-summary');
   const resultsItems    = document.getElementById('compress-results-items');
-  const downloadAllBtn  = document.getElementById('compress-download-all-btn');
+  const downloadAllBtn  = document.getElementById('compress-download-all-button');
 
   // Comparison modal
   const compareOverlay   = document.getElementById('compress-compare-overlay');
@@ -623,10 +623,10 @@ if (typeof pdfjsLib !== 'undefined') {
 
     // Process files sequentially to show per-file progress
     const queue = selectedFiles.slice();
-    let idx = 0;
+    let index = 0;
 
     function processNext() {
-      if (idx >= queue.length) {
+      if (index >= queue.length) {
         labelEl.textContent = 'Compress Files';
         spinnerEl.hidden = true;
         actionBtn.disabled = false;
@@ -634,7 +634,7 @@ if (typeof pdfjsLib !== 'undefined') {
         return;
       }
 
-      const sf = queue[idx];
+      const sf = queue[index];
       const cat = getFileCategory(sf.file);
 
       updateFileStatus(sf.id, 'processing');
@@ -682,7 +682,7 @@ if (typeof pdfjsLib !== 'undefined') {
         completed++;
         labelEl.textContent = 'Compressing... (' + completed + '/' + total + ')';
 
-        idx++;
+        index++;
         processNext();
       }).catch(function (err) {
         // Keep original file on error
@@ -698,7 +698,7 @@ if (typeof pdfjsLib !== 'undefined') {
         updateFileStatus(sf.id, 'skip');
         completed++;
         labelEl.textContent = 'Compressing... (' + completed + '/' + total + ')';
-        idx++;
+        index++;
         processNext();
       });
     }
@@ -759,7 +759,7 @@ if (typeof pdfjsLib !== 'undefined') {
       // Compare button for images
       let compareBtn = '';
       if (r.category === 'image' && r.originalThumbUrl && r.thumbUrl && r.blob.size < r.originalSize) {
-        compareBtn = '<button type="button" class="compress-result-compare" data-idx="' + i + '" title="Compare before/after">👁</button>';
+        compareBtn = '<button type="button" class="compress-result-compare" data-index="' + i + '" title="Compare before/after">👁</button>';
       }
 
       html += '<div class="compress-result-item">'
@@ -774,7 +774,7 @@ if (typeof pdfjsLib !== 'undefined') {
             + '</div>'
             + '</div>'
             + compareBtn
-            + '<button type="button" class="compress-result-download" data-idx="' + i + '" title="Download">&#8595;</button>'
+            + '<button type="button" class="compress-result-download" data-index="' + i + '" title="Download">&#8595;</button>'
             + '</div>';
     }
 
@@ -793,7 +793,7 @@ if (typeof pdfjsLib !== 'undefined') {
     const dlBtns = resultsItems.querySelectorAll('.compress-result-download');
     for (let d = 0; d < dlBtns.length; d++) {
       dlBtns[d].addEventListener('click', function () {
-        downloadFile(compressedResults[parseInt(this.getAttribute('data-idx'), 10)]);
+        downloadFile(compressedResults[parseInt(this.getAttribute('data-index'), 10)]);
       });
     }
 
@@ -801,15 +801,15 @@ if (typeof pdfjsLib !== 'undefined') {
     const cmpBtns = resultsItems.querySelectorAll('.compress-result-compare');
     for (let c = 0; c < cmpBtns.length; c++) {
       cmpBtns[c].addEventListener('click', function () {
-        openCompare(parseInt(this.getAttribute('data-idx'), 10));
+        openCompare(parseInt(this.getAttribute('data-index'), 10));
       });
     }
   }
 
   /* ====== Before/After Comparison ====== */
 
-  function openCompare(idx) {
-    let r = compressedResults[idx];
+  function openCompare(index) {
+    let r = compressedResults[index];
     if (!r || !r.originalThumbUrl || !r.thumbUrl) return;
 
     compareBeforeImg.src = r.originalThumbUrl;
@@ -914,8 +914,8 @@ if (typeof pdfjsLib !== 'undefined') {
     } else {
       // Fallback: sequential individual downloads
       for (let j = 0; j < compressedResults.length; j++) {
-        (function (idx) {
-          setTimeout(function () { downloadFile(compressedResults[idx]); }, idx * 300);
+        (function (index) {
+          setTimeout(function () { downloadFile(compressedResults[index]); }, index * 300);
         })(j);
       }
     }

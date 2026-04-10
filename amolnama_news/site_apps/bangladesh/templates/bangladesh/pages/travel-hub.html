@@ -72,7 +72,7 @@
           {% if d.is_featured %}<span class="travel-hub-destination-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>{% endif %}
         </div>
         <h3 class="travel-hub-destination-card-title">{{ d.destination_name_bn }}</h3>
-        <p class="travel-hub-destination-card-desc">{{ d.destination_short_description_bn|default:d.destination_short_description_en|default:""|striptags|truncatewords:25 }}</p>
+        <p class="travel-hub-destination-card-description">{{ d.destination_short_description_bn|default:d.destination_short_description_en|default:""|striptags|truncatewords:25 }}</p>
         <div class="travel-hub-destination-card-footer">
           {% if d.avg_rating %}
             <span class="travel-hub-destination-card-rating">★ {{ d.avg_rating }}</span>
@@ -92,7 +92,7 @@
 
 {% if has_next %}
 <div class="travel-hub-load-more" id="travel-hub-load-more" name="travel_hub_load_more">
-  <button type="button" class="travel-hub-load-more-btn" id="travel-hub-load-more-button" name="travel_hub_load_more_button">আরও দেখুন (Load More)</button>
+  <button type="button" class="travel-hub-load-more-button" id="travel-hub-load-more-button" name="travel_hub_load_more_button">আরও দেখুন (Load More)</button>
 </div>
 {% endif %}
 

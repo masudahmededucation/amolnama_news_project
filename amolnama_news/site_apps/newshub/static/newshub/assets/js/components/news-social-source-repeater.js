@@ -9,7 +9,7 @@
  *   #social-source-json              — hidden JSON input
  *   #social-source-row-template      — <template> for cloning rows
  *   #social-source-rows-container    — container div
- *   #btn-add-social-source           — add button
+ *   #button-add-social-source           — add button
  *
  * Exposes: window.newshubSocialSource = { serialize: fn, reset: fn }
  */
@@ -19,7 +19,7 @@
   const hiddenJson = document.getElementById('social-source-json');
   const template = document.getElementById('social-source-row-template');
   const container = document.getElementById('social-source-rows-container');
-  const addBtn = document.getElementById('btn-add-social-source');
+  const addBtn = document.getElementById('button-add-social-source');
 
   if (!hiddenJson || !template || !container) return;
 
@@ -106,7 +106,7 @@
     if (numEl) numEl.textContent = '\u09B8\u09C2\u09A4\u09CD\u09B0 #' + (index + 1);
 
     /* Wire remove button */
-    const removeBtn = rowEl.querySelector('.btn-remove-social-source');
+    const removeBtn = rowEl.querySelector('.button-remove-social-source');
     if (removeBtn) {
       removeBtn.addEventListener('click', function () {
         removeRow(rowEl);

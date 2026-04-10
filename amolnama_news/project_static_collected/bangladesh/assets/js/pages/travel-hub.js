@@ -82,7 +82,7 @@
               ${destination.is_featured ? '<span class="travel-hub-destination-card-featured">⭐ বৈশিষ্ট্যযুক্ত</span>' : ""}
             </div>
             <h3 class="travel-hub-destination-card-title">${escapeHtml(destination.name_bn)}</h3>
-            <p class="travel-hub-destination-card-desc">${escapeHtml(destination.short_desc_bn || destination.short_desc_en || "")}</p>
+            <p class="travel-hub-destination-card-description">${escapeHtml(destination.short_desc_bn || destination.short_desc_en || "")}</p>
             <div class="travel-hub-destination-card-footer">
               ${destination.avg_rating ? `<span class="travel-hub-destination-card-rating">★ ${escapeHtml(String(destination.avg_rating))}</span>` : ""}
               <span class="travel-hub-destination-card-views">👁 ${escapeHtml(String(destination.view_count))}</span>

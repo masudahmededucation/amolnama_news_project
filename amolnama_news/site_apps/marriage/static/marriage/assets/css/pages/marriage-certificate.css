@@ -51,7 +51,7 @@
   cursor: pointer;
 }
 
-.btn-saved-office {
+.button-saved-office {
   padding: .35rem .75rem;
   font-size: .8rem;
   border: 1px solid var(--border);
@@ -60,35 +60,35 @@
   white-space: nowrap;
 }
 
-.btn-saved-office:disabled {
+.button-saved-office:disabled {
   opacity: .4;
   cursor: not-allowed;
 }
 
-.btn-saved-office--load {
+.button-saved-office--load {
   background: #e8f0fe;
   color: #1a56db;
 }
 
-.btn-saved-office--load:hover:not(:disabled) {
+.button-saved-office--load:hover:not(:disabled) {
   background: #d4e4fc;
 }
 
-.btn-saved-office--save {
+.button-saved-office--save {
   background: #e6f4ea;
   color: #1a7f37;
 }
 
-.btn-saved-office--save:hover {
+.button-saved-office--save:hover {
   background: #d3ecd9;
 }
 
-.btn-saved-office--delete {
+.button-saved-office--delete {
   background: #fde8e8;
   color: var(--danger);
 }
 
-.btn-saved-office--delete:hover:not(:disabled) {
+.button-saved-office--delete:hover:not(:disabled) {
   background: #fbd5d5;
 }
 
@@ -203,8 +203,8 @@
   font-weight: 500;
 }
 
-.btn-step-prev,
-.btn-step-next {
+.button-step-prev,
+.button-step-next {
   padding: .6rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
@@ -214,21 +214,21 @@
   transition: background .2s, color .2s;
 }
 
-.btn-step-prev {
+.button-step-prev {
   background: var(--surface);
   color: var(--text);
 }
 
-.btn-step-prev:hover {
+.button-step-prev:hover {
   background: var(--border);
 }
 
-.btn-step-next {
+.button-step-next {
   background: #8b6914;
   color: #fff;
 }
 
-.btn-step-next:hover {
+.button-step-next:hover {
   background: #6d5210;
 }
 
@@ -751,7 +751,7 @@ span.flatpickr-weekday {
   flex-wrap: wrap;
 }
 
-.btn-cert-print {
+.button-cert-print {
   padding: .6rem 1.5rem;
   font-size: .9rem;
   font-weight: 600;
@@ -763,11 +763,11 @@ span.flatpickr-weekday {
   transition: background .2s;
 }
 
-.btn-cert-print:hover {
+.button-cert-print:hover {
   background: #6d5210;
 }
 
-.btn-cert-edit {
+.button-cert-edit {
   padding: .6rem 1.5rem;
   font-size: .9rem;
   font-weight: 600;
@@ -779,7 +779,7 @@ span.flatpickr-weekday {
   transition: border-color .2s, color .2s;
 }
 
-.btn-cert-edit:hover {
+.button-cert-edit:hover {
   border-color: #8b6914;
   color: #8b6914;
 }
@@ -862,8 +862,8 @@ span.flatpickr-weekday {
     padding: .75rem 0;
   }
 
-  .btn-step-prev,
-  .btn-step-next {
+  .button-step-prev,
+  .button-step-next {
     padding: .5rem 1rem;
     font-size: .8rem;
   }

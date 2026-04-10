@@ -6,14 +6,14 @@
   "use strict";
 
   /* ── Collapsible sections ── */
-  document.querySelectorAll(".poem-detail-section-toggle").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      const targetId = btn.getAttribute("data-toggle");
+  document.querySelectorAll(".poem-detail-section-toggle").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const targetId = button.getAttribute("data-toggle");
       let content = document.getElementById(targetId);
       if (!content) return;
 
-      let open = btn.getAttribute("aria-expanded") === "true";
-      btn.setAttribute("aria-expanded", !open);
+      let open = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", !open);
       content.classList.toggle("poem-detail-section-content--open", !open);
     });
   });

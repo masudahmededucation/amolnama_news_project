@@ -43,7 +43,7 @@
   color: var(--muted);
 }
 
-.zip-browse-btn {
+.zip-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
   font-size: .9rem;
@@ -56,13 +56,13 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.zip-browse-btn:hover,
-.zip-browse-btn:active {
+.zip-browse-button:hover,
+.zip-browse-button:active {
   background: var(--primary);
   color: #fff;
 }
 
-.zip-browse-btn:active {
+.zip-browse-button:active {
   transform: scale(0.96);
 }
 
@@ -86,7 +86,7 @@
   margin-bottom: 1rem;
 }
 
-.zip-add-btn {
+.zip-add-button {
   padding: .45rem 1rem;
   font-size: .85rem;
   font-weight: 600;
@@ -98,17 +98,17 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.zip-add-btn:hover,
-.zip-add-btn:active {
+.zip-add-button:hover,
+.zip-add-button:active {
   background: var(--primary);
   color: #fff;
 }
 
-.zip-add-btn:active {
+.zip-add-button:active {
   transform: scale(0.96);
 }
 
-.zip-clear-btn {
+.zip-clear-button {
   padding: .45rem 1rem;
   font-size: .85rem;
   font-weight: 600;
@@ -120,13 +120,13 @@
   transition: background .2s, color .2s, transform .1s;
 }
 
-.zip-clear-btn:hover,
-.zip-clear-btn:active {
+.zip-clear-button:hover,
+.zip-clear-button:active {
   background: var(--danger);
   color: #fff;
 }
 
-.zip-clear-btn:active {
+.zip-clear-button:active {
   transform: scale(0.96);
 }
 
@@ -292,7 +292,7 @@
 
 /* ---- Action button ---- */
 
-.zip-action-btn {
+.zip-action-button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -308,16 +308,16 @@
   transition: background .2s, opacity .2s, transform .1s;
 }
 
-.zip-action-btn:hover:not(:disabled),
-.zip-action-btn:active:not(:disabled) {
+.zip-action-button:hover:not(:disabled),
+.zip-action-button:active:not(:disabled) {
   background: var(--primary-hover);
 }
 
-.zip-action-btn:active:not(:disabled) {
+.zip-action-button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.zip-action-btn:disabled {
+.zip-action-button:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
@@ -402,7 +402,7 @@
   flex-wrap: wrap;
 }
 
-.zip-download-btn {
+.zip-download-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -414,16 +414,16 @@
   transition: background .2s, transform .1s;
 }
 
-.zip-download-btn:hover,
-.zip-download-btn:active {
+.zip-download-button:hover,
+.zip-download-button:active {
   background: var(--primary-hover);
 }
 
-.zip-download-btn:active {
+.zip-download-button:active {
   transform: scale(0.96);
 }
 
-.zip-another-btn {
+.zip-another-button {
   padding: .6rem 1.25rem;
   font-size: .9rem;
   font-weight: 600;
@@ -435,13 +435,13 @@
   transition: border-color .2s, color .2s, transform .1s;
 }
 
-.zip-another-btn:hover,
-.zip-another-btn:active {
+.zip-another-button:hover,
+.zip-another-button:active {
   border-color: var(--primary);
   color: var(--primary);
 }
 
-.zip-another-btn:active {
+.zip-another-button:active {
   transform: scale(0.96);
 }
 
@@ -511,8 +511,8 @@
     flex-wrap: wrap;
   }
 
-  .zip-add-btn,
-  .zip-clear-btn {
+  .zip-add-button,
+  .zip-clear-button {
     flex: 1;
     text-align: center;
     min-height: 44px;
@@ -535,14 +535,14 @@
     flex-direction: column;
   }
 
-  .zip-download-btn,
-  .zip-another-btn {
+  .zip-download-button,
+  .zip-another-button {
     width: 100%;
     text-align: center;
     justify-content: center;
   }
 
-  .zip-action-btn {
+  .zip-action-button {
     width: 100%;
     justify-content: center;
   }

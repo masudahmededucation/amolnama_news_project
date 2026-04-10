@@ -374,7 +374,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: var(--primary);
 }
 
-.travel-hub-detail-youtube-desc {
+.travel-hub-detail-youtube-description {
   display: block;
   font-size: .75rem;
   color: var(--muted);
@@ -400,7 +400,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 
 .travel-hub-detail-link-url:hover { color: var(--text); }
 
-.travel-hub-detail-link-desc {
+.travel-hub-detail-link-description {
   display: block;
   font-size: .75rem;
   color: var(--muted);
@@ -476,7 +476,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   border-bottom: 1px solid var(--border);
 }
 
-.travel-hub-detail-action-btn {
+.travel-hub-detail-action-button {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -490,7 +490,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   text-decoration: none;
 }
 
-.travel-hub-detail-action-btn:hover { background: var(--border); }
+.travel-hub-detail-action-button:hover { background: var(--border); }
 
 .travel-hub-detail-view-count {
   display: inline-flex;
@@ -501,13 +501,13 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   padding: .4rem 0;
 }
 
-.travel-hub-detail-edit-btn {
+.travel-hub-detail-edit-button {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
 }
 
-.travel-hub-detail-edit-btn:hover { opacity: .85; }
+.travel-hub-detail-edit-button:hover { opacity: .85; }
 
 /* Empty state */
 .travel-hub-detail-empty {
@@ -569,7 +569,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   min-width: 120px;
 }
 
-.travel-hub-detail-add-btn {
+.travel-hub-detail-add-button {
   font-size: .75rem;
   font-weight: 600;
   padding: .35rem .7rem;
@@ -582,9 +582,9 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   transition: opacity .2s;
 }
 
-.travel-hub-detail-add-btn:hover { opacity: .85; }
+.travel-hub-detail-add-button:hover { opacity: .85; }
 
-.travel-hub-detail-add-btn:disabled {
+.travel-hub-detail-add-button:disabled {
   opacity: .5;
   cursor: not-allowed;
 }

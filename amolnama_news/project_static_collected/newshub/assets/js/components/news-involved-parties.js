@@ -183,9 +183,9 @@
     html += '<div class="actor-card-header">';
     html += '<span class="actor-role-badge ' + config.cssClass + '">'
       + config.labelBn + ' (' + config.labelEn + ')</span>';
-    html += '<button type="button" class="btn-repeater-delete actor-remove-btn" data-index="' + index
+    html += '<button type="button" class="button-repeater-delete actor-remove-button" data-index="' + index
       + '" title="\u09A1\u09BF\u09B2\u09BF\u099F \u0995\u09B0\u09C1\u09A8 (Delete)">'
-      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="btn-delete-x">&times;</span></button>';
+      + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="button-delete-x">&times;</span></button>';
     html += '</div>';
 
     /* Primary row: type only */
@@ -344,7 +344,7 @@
       const r = actors[i].role || getRoleFromInvolvementId(actors[i].involvementTypeId);
       if (counts.hasOwnProperty(r)) counts[r]++;
     }
-    const btns = addButtonsContainer.querySelectorAll('.actor-add-btn');
+    const btns = addButtonsContainer.querySelectorAll('.actor-add-button');
     for (let j = 0; j < btns.length; j++) {
       let role = btns[j].getAttribute('data-role');
       let badge = btns[j].querySelector('.actor-count-badge');
@@ -399,18 +399,18 @@
 
   /* Quick-add buttons */
   addButtonsContainer.addEventListener('click', function (e) {
-    const btn = e.target.closest('.actor-add-btn');
-    if (!btn) return;
-    const role = btn.getAttribute('data-role');
+    const button = e.target.closest('.actor-add-button');
+    if (!button) return;
+    const role = button.getAttribute('data-role');
     if (role) addActor(role);
   });
 
   /* Card interactions: remove */
   listContainer.addEventListener('click', function (e) {
-    const removeBtn = e.target.closest('.actor-remove-btn');
+    const removeBtn = e.target.closest('.actor-remove-button');
     if (removeBtn) {
-      let idx = parseInt(removeBtn.getAttribute('data-index'), 10);
-      removeActor(idx);
+      let index = parseInt(removeBtn.getAttribute('data-index'), 10);
+      removeActor(index);
     }
   });
 
@@ -418,14 +418,14 @@
   listContainer.addEventListener('input', function (e) {
     let field = e.target.closest('.actor-field');
     if (!field) return;
-    let idx = parseInt(field.getAttribute('data-index'), 10);
+    let index = parseInt(field.getAttribute('data-index'), 10);
     let key = field.getAttribute('data-field');
-    if (isNaN(idx) || !key || !actors[idx]) return;
+    if (isNaN(index) || !key || !actors[index]) return;
 
     if (field.tagName === 'SELECT') {
-      actors[idx][key] = parseInt(field.value, 10) || 0;
+      actors[index][key] = parseInt(field.value, 10) || 0;
     } else {
-      actors[idx][key] = field.value;
+      actors[index][key] = field.value;
     }
     syncToHiddenInput();
   });
@@ -435,10 +435,10 @@
   listContainer.addEventListener('change', function (e) {
     const field = e.target.closest('.actor-field');
     if (!field || field.tagName !== 'select') return;
-    const idx = parseInt(field.getAttribute('data-index'), 10);
+    const index = parseInt(field.getAttribute('data-index'), 10);
     const key = field.getAttribute('data-field');
-    if (isNaN(idx) || !key || !actors[idx]) return;
-    actors[idx][key] = integerSelectFields[key] ? (parseInt(field.value, 10) || 0) : field.value;
+    if (isNaN(index) || !key || !actors[index]) return;
+    actors[index][key] = integerSelectFields[key] ? (parseInt(field.value, 10) || 0) : field.value;
     syncToHiddenInput();
   });
 

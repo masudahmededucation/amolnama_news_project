@@ -1,6 +1,6 @@
 /* Button styles for primary actions and icon buttons */
 
-.btn {
+.button {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -14,23 +14,23 @@
   transition: all .2s;
 }
 
-.btn:hover {
+.button:hover {
   box-shadow: var(--shadow-md);
 }
 
-.btn.primary {
+.button.primary {
   background: var(--primary);
   color: #fff;
   border-color: transparent;
 }
 
-.btn.primary:hover {
+.button.primary:hover {
   background: var(--primary-hover);
   box-shadow: var(--shadow-md);
 }
 
 /* Icon button (header controls) */
-.icon-btn {
+.icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -44,10 +44,10 @@
   transition: all .2s;
 }
 
-.icon-btn:hover {
+.icon-button:hover {
   box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 640px) {
-  .btn-icon { width: 44px; height: 44px; }
+  .button-icon { width: 44px; height: 44px; }
 }

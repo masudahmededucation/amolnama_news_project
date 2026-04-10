@@ -64,7 +64,7 @@
     clearQuillContainer('quill-beauty-hub-description');
 
     /* 3. Clear hidden textarea that syncs with Quill */
-    const descTextarea = document.getElementById('beauty-hub-desc-bn');
+    const descTextarea = document.getElementById('beauty-hub-description-bn');
     if (descTextarea) descTextarea.value = '';
 
     /* 4. Hide file preview */

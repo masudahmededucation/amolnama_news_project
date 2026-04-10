@@ -132,7 +132,7 @@
 }
 
 /* Submit button */
-.submit-btn {
+.submit-button {
   width: 100%;
   padding: 1rem;
   background: var(--primary);
@@ -145,17 +145,17 @@
   transition: all 0.2s ease;
 }
 
-.submit-btn:hover {
+.submit-button:hover {
   background: var(--primary-hover);
   transform: translateY(-2px);
 }
 
-.submit-btn:active {
+.submit-button:active {
   transform: translateY(0);
 }
 
 /* Update button */
-.update-btn {
+.update-button {
   width: 100%;
   padding: 0.875rem;
   background: var(--primary);
@@ -168,12 +168,12 @@
   transition: all 0.2s ease;
 }
 
-.update-btn:hover {
+.update-button:hover {
   opacity: 0.9;
 }
 
 /* New vote button */
-.new-vote-btn {
+.new-vote-button {
   padding: 0.75rem 1.5rem;
   background: transparent;
   color: var(--primary);
@@ -184,7 +184,7 @@
   transition: all 0.2s ease;
 }
 
-.new-vote-btn:hover {
+.new-vote-button:hover {
   background: var(--primary);
   color: #fff;
 }
@@ -292,7 +292,7 @@
     gap: 0.25rem;
   }
 
-  .submit-btn {
+  .submit-button {
     padding: 0.875rem;
     font-size: 1rem;
   }
