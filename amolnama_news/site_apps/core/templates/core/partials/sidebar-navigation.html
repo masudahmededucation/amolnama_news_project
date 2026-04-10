@@ -1,10 +1,11 @@
-{# X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile.
+{% comment %}
+X-style left sidebar navigation. Included in base.html. Collapses to bottom tab bar on mobile.
 
-   Active state is resolved by the active_sidebar_nav context processor — single source
-   of truth in core/context_processors.py:SIDEBAR_NAV_RULES. Adding a new nav item here
-   requires ONE matching entry in SIDEBAR_NAV_RULES; dual-active is structurally
-   impossible because the resolver returns exactly one nav_id per request.
-#}
+Active state is resolved by the active_sidebar_nav context processor — single source
+of truth in core/context_processors.py:SIDEBAR_NAV_RULES. Adding a new nav item here
+requires ONE matching entry in SIDEBAR_NAV_RULES; dual-active is structurally
+impossible because the resolver returns exactly one nav_id per request.
+{% endcomment %}
 {% load static %}
 <nav class="sidebar-navigation" id="sidebar-navigation" name="sidebar_navigation" aria-label="প্রধান নেভিগেশন (Primary Navigation)">
 
