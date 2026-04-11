@@ -14,9 +14,10 @@ def api_commodity_search(request):
         qs = qs.filter(
             Q(commodity_name_bn__icontains=q)
             | Q(commodity_name_en__icontains=q)
-            | Q(commodity_group_name_bn__icontains=q),
+            | Q(commodity_group_name_bn__icontains=q)
+            | Q(commodity_group_name_en__icontains=q),
         )
-    qs = qs.order_by('commodity_group_code', 'sort_order', 'commodity_name_bn')[:20]
+    qs = qs.order_by('commodity_group_code', 'sort_order', 'commodity_name_en')[:20]
 
     data = []
     for c in qs:

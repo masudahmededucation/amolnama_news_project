@@ -92,6 +92,10 @@
   background: #fbd5d5;
 }
 
+.button-saved-office--delete.is-confirming-delete {
+  color: var(--danger);
+}
+
 /* ---- Reuse stepper from marriage form ---- */
 
 .stepper {

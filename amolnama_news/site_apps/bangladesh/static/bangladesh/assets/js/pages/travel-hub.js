@@ -93,8 +93,9 @@
       });
 
       const loadMoreWrapper = document.getElementById("travel-hub-load-more");
-      if (loadMoreWrapper) loadMoreWrapper.hidden = !data.has_next);
+      if (loadMoreWrapper) loadMoreWrapper.hidden = !data.has_next;
     } catch (error) {
+      console.error("travel-hub: failed to load destinations", error);
     } finally {
       isLoading = false;
     }

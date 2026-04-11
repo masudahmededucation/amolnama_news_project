@@ -106,6 +106,7 @@ def poem_landing(request):
     for p in poems_list:
         _annotate_poem(p, categories_map)
 
+    canonical_url = request.build_absolute_uri(reverse("poem:poem_landing"))
     return render(request, "poem/pages/poem-landing.html", {
         "categories": categories,
         "poems": poems_list,
@@ -113,6 +114,16 @@ def poem_landing(request):
         "seo": {
             "title": "কবিতা — আমলনামা নিউজ | Poems",
             "description": "কবিতা ও গানের কথা পড়ুন, লিখুন ও শেয়ার করুন। Read, write and share poems & song lyrics.",
+            "canonical": canonical_url,
+            "og_type": "website",
+            "json_ld": {
+                "@context": "https://schema.org",
+                "@type": "CollectionPage",
+                "name": "কবিতা ও গান",
+                "description": "কবিতা ও গানের কথা পড়ুন, লিখুন ও শেয়ার করুন।",
+                "url": canonical_url,
+                "inLanguage": "bn",
+            },
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
                 {"name": "কবিতা", "url": None},
@@ -199,8 +210,8 @@ def _render_poem_detail(request, poem):
         json_ld_poem["datePublished"] = poem.created_at.isoformat()
     if poem.updated_at:
         json_ld_poem["dateModified"] = poem.updated_at.isoformat()
-    if hasattr(poem, 'category_name_bn') and poem.category_name_bn:
-        json_ld_poem["genre"] = poem.category_name_bn
+    if getattr(poem, 'category_name', ''):
+        json_ld_poem["genre"] = poem.category_name
 
     # Writer info for actions bar
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
@@ -277,12 +288,15 @@ def poem_edit(request, poem_slug):
     )
 
     title = poem.poem_title_bn or poem.poem_title_en or "শিরোনামহীন"
+    canonical_url = request.build_absolute_uri(reverse("poem:poem_edit", kwargs={"poem_slug": poem.poem_slug}))
     return render(request, "poem/pages/poem-edit.html", {
         "poem": poem,
         "categories": categories,
         "seo": {
             "title": f"সম্পাদনা — {title} | Edit Poem",
             "description": "কবিতা সম্পাদনা করুন। Edit your poem.",
+            "canonical": canonical_url,
+            "og_type": "website",
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
                 {"name": "কবিতা ও গান", "url": reverse("poem:poem_landing")},
@@ -300,11 +314,14 @@ def poem_create(request):
     categories = list(
         RefContentSubcategory.objects.filter(group_code='blog_poem_category', is_active=True).order_by("sort_order")
     )
+    canonical_url = request.build_absolute_uri(reverse("poem:poem_create"))
     return render(request, "poem/pages/poem-create.html", {
         "categories": categories,
         "seo": {
             "title": "কবিতা লিখুন — আমলনামা নিউজ | Write a Poem",
             "description": "আপনার কবিতা বা গানের কথা শেয়ার করুন। Share your poem or song lyrics.",
+            "canonical": canonical_url,
+            "og_type": "website",
             "breadcrumbs": [
                 {"name": "হোম", "url": "/"},
                 {"name": "কবিতা ও গান", "url": reverse("poem:poem_landing")},

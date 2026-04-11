@@ -23,7 +23,10 @@
           followButton.classList.remove('user-profile-follow-button-active');
         }
       })
-      .catch(function () { followButton.textContent = 'Follow'; });
+      .catch(function (followToggleError) {
+        console.error('User profile follow toggle failed:', followToggleError);
+        followButton.textContent = 'Follow';
+      });
     });
   }
 
@@ -47,7 +50,9 @@
           blockButton.classList.remove('user-profile-block-button-active');
         }
       })
-      .catch(function () {});
+      .catch(function (blockToggleError) {
+        console.error('User profile block toggle failed:', blockToggleError);
+      });
     });
   }
 })();

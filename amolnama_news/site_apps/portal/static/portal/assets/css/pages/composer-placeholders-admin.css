@@ -7,7 +7,7 @@
 .placeholder-add-input { flex: 1; padding: .5rem .75rem; border: 2px solid var(--border); border-radius: 10px; font-size: .88rem; font-family: inherit; outline: none; background: var(--card); color: var(--text); }
 .placeholder-add-input:focus { border-color: var(--primary); }
 .placeholder-add-select { padding: .5rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: .82rem; background: var(--card); color: var(--text); }
-.placeholder-add-button { padding: .5rem 1rem; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: .85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.placeholder-add-button { padding: .5rem 1rem; min-height: 44px; background: var(--primary); color: var(--card); border: none; border-radius: 10px; font-size: .85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .placeholder-add-button:hover { background: var(--primary-hover); }
 
 .placeholder-item { display: flex; align-items: center; gap: .5rem; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: .4rem; background: var(--card); }
@@ -36,12 +36,13 @@
 /* Delete button */
 .placeholder-delete-button {
   display: inline-flex; align-items: center; gap: .3rem;
-  padding: .35rem .7rem; border: 1px solid var(--danger); border-radius: 8px;
+  padding: .35rem .7rem; min-height: 44px;
+  border: 1px solid var(--danger); border-radius: 8px;
   font-size: .78rem; font-weight: 700; font-family: inherit;
   cursor: pointer; background: var(--card); color: var(--danger);
   transition: background .15s, color .15s;
 }
-.placeholder-delete-button:hover { background: var(--danger); color: #fff; }
+.placeholder-delete-button:hover { background: var(--danger); color: var(--card); }
 
 /* Header row — column labels */
 .placeholder-header-row {

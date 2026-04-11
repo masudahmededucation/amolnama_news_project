@@ -2,6 +2,7 @@
 
 import json
 from django import template
+from django.utils.html import escape as html_escape
 from django.utils.safestring import mark_safe
 
 register = template.Library()
@@ -18,11 +19,11 @@ def seo_meta_tags(context):
     seo = context.get("seo", {})
 
     # Merge: view-level seo overrides defaults
-    title = seo.get("title") or context.get("page_title", defaults.get("site_name", "Amolnama News"))
-    description = seo.get("description", defaults.get("description", ""))
-    og_image = seo.get("og_image", defaults.get("og_image", ""))
-    og_type = seo.get("og_type", defaults.get("og_type", "website"))
-    canonical = seo.get("canonical", defaults.get("canonical", ""))
+    title = seo.get("title") or context.get("page_title") or defaults.get("site_name", "Amolnama News")
+    description = seo.get("description") or defaults.get("description", "")
+    og_image = seo.get("og_image") or defaults.get("og_image", "")
+    og_type = seo.get("og_type") or defaults.get("og_type", "website")
+    canonical = seo.get("canonical") or defaults.get("canonical", "")
     noindex = seo.get("noindex", defaults.get("noindex", False))
     site_name = defaults.get("site_name", "Amolnama News")
     locale = defaults.get("locale", "bn_BD")
@@ -144,13 +145,7 @@ def seo_json_ld(context):
 
 
 def _esc(text):
-    """Escape HTML attribute value."""
+    """Escape HTML attribute value using Django's built-in escape."""
     if not text:
         return ""
-    return (
-        str(text)
-        .replace("&", "&amp;")
-        .replace('"', "&quot;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
+    return html_escape(str(text))

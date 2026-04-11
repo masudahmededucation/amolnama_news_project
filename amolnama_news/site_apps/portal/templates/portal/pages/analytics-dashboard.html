@@ -7,6 +7,10 @@
 <link rel="stylesheet" href="{% static 'portal/assets/css/pages/analytics-dashboard.css' %}">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'portal/assets/js/pages/analytics-dashboard.js' %}" defer></script>
+{% endblock %}
+
 {% block content %}
 <div class="analytics-dashboard" id="analytics-dashboard" name="analytics_dashboard">
   <h1 class="analytics-dashboard-title" id="analytics-dashboard-title" name="analytics_dashboard_title">Analytics Dashboard</h1>
@@ -32,10 +36,10 @@
 
   <h2 class="analytics-section-title" id="analytics-section-content" name="analytics_section_content">Published Content by Type</h2>
   {% for item in content_counts %}
-  <div class="analytics-content-bar" id="analytics-content-bar-{{ forloop.counter }}" name="analytics_content_bar_{{ forloop.counter }}">
+  <div class="analytics-content-bar" id="analytics-content-bar-{{ forloop.counter }}" name="analytics_content_bar_{{ forloop.counter }}" data-fill-percent="{% widthratio item.count 50 100 %}">
     <span class="analytics-content-bar-label">{{ item.label }}</span>
     <div class="analytics-content-bar-track">
-      <div class="analytics-content-bar-fill analytics-content-bar-fill-{{ item.color }}" style="width: {% widthratio item.count 50 100 %}%;"></div>
+      <div class="analytics-content-bar-fill analytics-content-bar-fill-{{ item.color }}"></div>
     </div>
     <span class="analytics-content-bar-count">{{ item.count }}</span>
   </div>
@@ -61,7 +65,7 @@
       </div>
     </div>
     {% empty %}
-    <p class="analytics-top-posts-empty">��োনো পোস্ট নেই</p>
+    <p class="analytics-top-posts-empty">কোনো পোস্ট নেই</p>
     {% endfor %}
   </div>
 </div>

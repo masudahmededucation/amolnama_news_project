@@ -10,12 +10,12 @@
   const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  const btnPrev = document.getElementById('button-step-prev');
-  const btnNext = document.getElementById('button-step-next');
+  const buttonPrev = document.getElementById('button-step-prev');
+  const buttonNext = document.getElementById('button-step-next');
   const stepCounter = document.getElementById('step-counter');
   const stepperContainer = document.getElementById('stepper');
 
-  if (!stepPanels.length || !btnNext) return;
+  if (!stepPanels.length || !buttonNext) return;
 
   const totalSteps = stepPanels.length;
   let currentStep = 1;
@@ -161,13 +161,13 @@
     });
 
     /* Prev button */
-    if (btnPrev) {
-      btnPrev.hidden = (currentStep === 1);
+    if (buttonPrev) {
+      buttonPrev.hidden = (currentStep === 1);
     }
 
     /* Next button — hide on last step */
-    if (btnNext) {
-      btnNext.hidden = (currentStep === totalSteps);
+    if (buttonNext) {
+      buttonNext.hidden = (currentStep === totalSteps);
     }
 
     /* Counter */
@@ -253,16 +253,16 @@
 
   /* ========== Event Listeners ========== */
 
-  btnNext.addEventListener('click', function () {
-    if (btnNext) btnNext.blur();
+  buttonNext.addEventListener('click', function () {
+    if (buttonNext) buttonNext.blur();
     if (currentStep < totalSteps) {
       showStep(currentStep + 1);
     }
   });
 
-  if (btnPrev) {
-    btnPrev.addEventListener('click', function () {
-      if (btnPrev) btnPrev.blur();
+  if (buttonPrev) {
+    buttonPrev.addEventListener('click', function () {
+      if (buttonPrev) buttonPrev.blur();
       if (currentStep > 1) {
         showStep(currentStep - 1);
       }

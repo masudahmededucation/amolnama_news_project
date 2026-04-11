@@ -84,9 +84,9 @@ function fetchNationalResults(electionEvaluationId, attempt) {
         html += '<span class="party-name">' + party.party_name + '</span>';
         html += '</div>';
 
-        // Progress bar
+        // Progress bar (width applied after innerHTML via data-percentage)
         html += '<div class="bar-container">';
-        html += '<div class="bar-fill" style="width: ' + party.percentage.toFixed(1) + '%;"></div>';
+        html += '<div class="bar-fill" data-percentage="' + party.percentage.toFixed(1) + '"></div>';
         html += '<span class="pct-text">' + party.percentage.toFixed(1) + '%';
         html += ' <span class="vote-count">(' + Number(party.votes).toLocaleString() + ' \u09AD\u09CB\u099F)</span>';
         html += '</span></div>';
@@ -95,8 +95,17 @@ function fetchNationalResults(electionEvaluationId, attempt) {
       });
 
       listEl.innerHTML = html;
+      listEl.querySelectorAll('.bar-fill[data-percentage]').forEach(function (bar) {
+        const percentage = parseFloat(bar.getAttribute('data-percentage')) || 0;
+        bar.style.width = percentage + '%';
+      });
       container.hidden = false;
     })
     .catch(function (error) {
+      console.error('election_vote fetchNationalResults failed:', error);
+      showPageMessage(
+        '\u099C\u09BE\u09A4\u09C0\u09AF\u09BC \u09AB\u09B2\u09BE\u09AB\u09B2 \u09B2\u09CB\u09A1 \u09AC\u09CD\u09AF\u09B0\u09CD\u09A5 \u09B9\u09AF\u09BC\u09C7\u099B\u09C7\u0964 (Failed to load national results.)',
+        'warning'
+      );
     });
 }

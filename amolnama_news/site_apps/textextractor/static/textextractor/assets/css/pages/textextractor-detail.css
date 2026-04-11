@@ -1,6 +1,14 @@
 /* Text Extractor Detail */
 
-.textextractor-detail { max-width: 850px; margin: 0 auto; }
+.textextractor-detail {
+  max-width: 850px;
+  margin: 0 auto;
+  --textextractor-success-text: var(--primary-hover);
+  --textextractor-success-border: var(--success-light);
+  --textextractor-info-text: var(--info);
+  --textextractor-info-border: var(--info-light);
+  --textextractor-warning-border: var(--warning-light);
+}
 
 .textextractor-detail-back { font-size: .82rem; color: var(--muted); text-decoration: none; transition: color .15s; }
 .textextractor-detail-back:hover { color: var(--primary); }
@@ -11,14 +19,14 @@
 .textextractor-detail-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
 .textextractor-detail-meta > span { display: inline-block; padding: .2rem .5rem; border-radius: 12px; font-size: .72rem; font-weight: 600; background: var(--surface); border: 1px solid var(--border); }
 
-.textextractor-detail-status-completed { background: var(--success-light); border-color: #a7f3d0; color: #065f46; }
-.textextractor-detail-status-processing { background: var(--info-light); border-color: #bfdbfe; color: #1e40af; }
-.textextractor-detail-status-queued { background: var(--warning-light); border-color: #fde68a; color: var(--warning-text); }
+.textextractor-detail-status-completed { background: var(--success-light); border-color: var(--textextractor-success-border); color: var(--textextractor-success-text); }
+.textextractor-detail-status-processing { background: var(--info-light); border-color: var(--textextractor-info-border); color: var(--textextractor-info-text); }
+.textextractor-detail-status-queued { background: var(--warning-light); border-color: var(--textextractor-warning-border); color: var(--warning-text); }
 .textextractor-detail-status-failed { background: var(--danger-light); border-color: var(--danger-border); color: var(--danger-text); }
 
 /* Actions */
 .textextractor-detail-actions { display: flex; gap: .5rem; margin-bottom: 1rem; }
-.textextractor-detail-copy-button, .textextractor-detail-download-button { padding: .4rem .8rem; border: 1px solid var(--border); border-radius: 20px; background: var(--card, #fff); font-size: .82rem; font-weight: 600; cursor: pointer; transition: background .15s, transform .15s; }
+.textextractor-detail-copy-button, .textextractor-detail-download-button { padding: .4rem .8rem; border: 1px solid var(--border); border-radius: 20px; background: var(--card); font-size: .82rem; font-weight: 600; cursor: pointer; transition: background .15s, transform .15s; }
 .textextractor-detail-copy-button:hover, .textextractor-detail-download-button:hover { background: var(--surface); transform: scale(1.02); }
 
 /* Text Content */

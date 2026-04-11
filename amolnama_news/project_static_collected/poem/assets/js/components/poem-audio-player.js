@@ -88,13 +88,13 @@
   }
 
   function showPlayIcon() {
-    iconPlay.style.display = '';
-    iconPause.style.display = 'none';
+    iconPlay.hidden = false;
+    iconPause.hidden = true;
   }
 
   function showPauseIcon() {
-    iconPlay.style.display = 'none';
-    iconPause.style.display = '';
+    iconPlay.hidden = true;
+    iconPause.hidden = false;
   }
 
   // Initial state — show play, hide pause
@@ -217,12 +217,12 @@
     if (!player) return;
     if (isMuted) {
       player.unMute();
-      iconVol.style.display = '';
-      iconMute.style.display = 'none';
+      iconVol.hidden = false;
+      iconMute.hidden = true;
     } else {
       player.mute();
-      iconVol.style.display = 'none';
-      iconMute.style.display = '';
+      iconVol.hidden = true;
+      iconMute.hidden = false;
     }
     isMuted = !isMuted;
   });

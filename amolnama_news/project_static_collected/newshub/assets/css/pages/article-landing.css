@@ -88,8 +88,8 @@
 .article-landing-card-form-type {
   font-size: .68rem;
   font-weight: 600;
-  background: #6d5e9b;
-  color: #fff;
+  background: var(--purple);
+  color: var(--bg);
   padding: .15rem .5rem;
   border-radius: 12px;
 }
@@ -98,7 +98,7 @@
   font-size: .68rem;
   font-weight: 600;
   background: var(--primary);
-  color: #fff;
+  color: var(--bg);
   padding: .15rem .5rem;
   border-radius: 12px;
 }

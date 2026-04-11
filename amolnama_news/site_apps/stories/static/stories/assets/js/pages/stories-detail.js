@@ -10,7 +10,7 @@
   if (storyId) {
     fetch('/stories-for-kids/api/' + storyId + '/view/', {
       method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
-    }).catch(function () { /* non-critical */ });
+    }).catch(function (viewIncrementError) { console.error('story view increment failed', viewIncrementError); });
   }
 
   /* ---- Init shared actions bar (like + bookmark + share) ---- */
@@ -30,7 +30,7 @@
 
   function showPage(pageNumber) {
     for (let pageIndex = 0; pageIndex < allPages.length; pageIndex++) {
-      allPages[pageIndex].style.display = (pageIndex + 1 === pageNumber) ? 'block' : 'none';
+      allPages[pageIndex].hidden = (pageIndex + 1 !== pageNumber);
     }
     currentPage = pageNumber;
     if (pageCounter) pageCounter.textContent = 'পাতা ' + currentPage + ' / ' + totalPages;

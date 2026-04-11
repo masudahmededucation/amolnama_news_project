@@ -31,8 +31,17 @@
 
 .profile-sidebar-item.active {
   background: var(--accent);
-  color: #fff;
+  color: var(--card);
   font-weight: 600;
+}
+
+/* Mobile: 44px touch target on sidebar items */
+@media (max-width: 700px) {
+  .profile-sidebar-item {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /* Responsive: stack on mobile */
@@ -166,10 +175,11 @@
 .profile-form .signup-submit-button,
 .profile-form button[type="submit"] {
   padding: .7rem 2rem;
+  min-height: 44px;
   border: none;
   border-radius: 25px;
   background: var(--primary, #1877f2);
-  color: #fff;
+  color: var(--card, #fff);
   font-size: .92rem;
   font-weight: 700;
   cursor: pointer;
@@ -179,7 +189,7 @@
 
 .profile-form .signup-submit-button:hover,
 .profile-form button[type="submit"]:hover {
-  background: #1565c0;
+  background: var(--primary-dark, var(--primary));
   transform: translateY(-1px);
 }
 
@@ -281,18 +291,19 @@
 
 .profile-save-button {
   padding: .5rem 1.5rem;
+  min-height: 44px;
   font-size: .88rem;
   font-weight: 700;
   border: none;
   border-radius: 25px;
   background: var(--primary, #1877f2);
-  color: #fff;
+  color: var(--card, #fff);
   cursor: pointer;
   transition: background .15s;
 }
 
 .profile-save-button:hover {
-  background: #1565c0;
+  background: var(--primary-dark, var(--primary));
 }
 
 .profile-messages {
@@ -332,7 +343,7 @@
 .muted-words-description { font-size: .78rem; color: var(--muted); margin-bottom: .5rem; }
 .muted-words-input-row { display: flex; gap: .4rem; margin-bottom: .5rem; }
 .muted-words-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; }
-.muted-words-add-button { padding: .4rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: .75rem; font-weight: 700; cursor: pointer; }
+.muted-words-add-button { padding: .4rem .8rem; min-height: 44px; background: var(--primary); color: var(--card); border: none; border-radius: 8px; font-size: .75rem; font-weight: 700; cursor: pointer; }
 .muted-words-list { display: flex; flex-wrap: wrap; gap: .3rem; }
 .muted-words-tag { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .5rem; background: var(--surface); border-radius: 14px; font-size: .75rem; }
 .muted-words-tag-remove-button { background: none; border: none; font-size: .8rem; cursor: pointer; color: var(--danger); padding: 0; }

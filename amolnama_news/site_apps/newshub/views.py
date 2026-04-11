@@ -1585,8 +1585,9 @@ def article_detail(request, slug):
             if viewer_user_profile_id:
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
                 record_content_view(viewer_user_profile_id, 'article', published_article.pub_article_id)
-        except Exception:
-            pass
+        except Exception as record_view_error:
+            logger.error('record_content_view failed for article %s — %s',
+                         published_article.pub_article_id, record_view_error)
 
     context = {
         'published_article': published_article,

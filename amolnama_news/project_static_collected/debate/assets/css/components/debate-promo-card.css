@@ -1,12 +1,22 @@
 /* Debate Promo Card — shown in home feed to promote active debates */
 
+/* Local component tokens — scoped, not :root */
+.debate-promo-card {
+  --debate-promo-on-color: #ffffff;
+  --debate-promo-gradient-start: #fefce8;
+  --debate-promo-badge-gradient-start: #f59e0b;
+  --debate-promo-glow: rgba(251, 191, 36, .15);
+  --debate-promo-argument-text-ink: #374151;
+  --debate-promo-passion-bar-blue-end: #3b82f6;
+}
+
 .debate-promo-card {
   display: block;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: .85rem 1rem;
   margin-bottom: .5rem;
-  background: linear-gradient(135deg, #fefce8 0%, var(--card) 40%, var(--info-light) 100%);
+  background: linear-gradient(135deg, var(--debate-promo-gradient-start) 0%, var(--card) 40%, var(--info-light) 100%);
   transition: border-color .15s, box-shadow .15s;
   cursor: pointer;
   text-decoration: none;
@@ -14,7 +24,7 @@
 }
 .debate-promo-card:hover {
   border-color: var(--warning);
-  box-shadow: 0 2px 12px rgba(251,191,36,.15);
+  box-shadow: 0 2px 12px var(--debate-promo-glow);
   text-decoration: none;
 }
 
@@ -22,13 +32,13 @@
 .debate-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
 .debate-promo-card-badge {
   font-size: .6rem; font-weight: 800; letter-spacing: .08em;
-  background: linear-gradient(135deg, #f59e0b, var(--danger));
-  color: #fff; padding: .1rem .5rem; border-radius: 10px;
+  background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
+  color: var(--debate-promo-on-color); padding: .1rem .5rem; border-radius: 10px;
 }
 .debate-promo-card-status { font-size: .6rem; font-weight: 700; padding: .1rem .4rem; border-radius: 8px; }
 .debate-promo-card-status-live { background: var(--success-light); color: var(--primary); }
 .debate-promo-card-status-scheduled { background: var(--warning-light); color: var(--warning-text); }
-.debate-promo-card-status-closed { background: var(--surface); color: #374151; }
+.debate-promo-card-status-closed { background: var(--surface); color: var(--debate-promo-argument-text-ink); }
 .debate-promo-card-status-paused { background: var(--warning-light); color: var(--warning-text); }
 
 /* Title */
@@ -41,7 +51,9 @@
 .debate-promo-card-side-label-blue { color: var(--info); }
 .debate-promo-card-side-label-red { color: var(--danger); }
 .debate-promo-card-passion-bar { flex: 1; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--border); }
-.debate-promo-card-passion-bar-blue { background: linear-gradient(90deg, var(--info), #3b82f6); height: 100%; min-width: 2px; border-radius: 4px 0 0 4px; }
+.debate-promo-card-passion-bar-blue { background: linear-gradient(90deg, var(--info), var(--debate-promo-passion-bar-blue-end)); height: 100%; min-width: 2px; border-radius: 4px 0 0 4px; }
+.debate-promo-card-passion-bar-blue-dynamic { width: var(--debate-promo-passion-blue-pct, 0%); }
+.debate-promo-card-passion-bar-red-dynamic { width: var(--debate-promo-passion-red-pct, 0%); }
 .debate-promo-card-passion-bar-red { background: linear-gradient(90deg, var(--danger), var(--danger)); height: 100%; min-width: 2px; border-radius: 0 4px 4px 0; }
 
 /* Argument snippets */
@@ -50,15 +62,15 @@
 .debate-promo-card-argument-blue { background: var(--info-light); border-left: 2px solid var(--info); }
 .debate-promo-card-argument-red { background: var(--danger-light); border-left: 2px solid var(--danger); }
 .debate-promo-card-argument-author { font-size: .65rem; font-weight: 700; display: block; margin-bottom: .15rem; }
-.debate-promo-card-argument-text { margin: 0; color: #374151; }
+.debate-promo-card-argument-text { margin: 0; color: var(--debate-promo-argument-text-ink); }
 
 /* Footer — stats + CTA */
 .debate-promo-card-footer { display: flex; justify-content: space-between; align-items: center; }
 .debate-promo-card-stats { display: flex; gap: .75rem; font-size: .72rem; color: var(--muted); }
 .debate-promo-card-stat { white-space: nowrap; }
 .debate-promo-card-cta {
-  font-size: .75rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, #f59e0b, var(--danger));
+  font-size: .75rem; font-weight: 700; color: var(--debate-promo-on-color);
+  background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
   padding: .25rem .75rem; border-radius: 14px;
   transition: opacity .15s;
 }

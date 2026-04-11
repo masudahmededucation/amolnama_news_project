@@ -52,7 +52,7 @@
   function sigImg(dropId) {
     const url = getSigUrl(dropId);
     if (url) {
-      return '<img src="' + url + '" style="max-height:50px;max-width:180px;object-fit:contain">';
+      return '<img src="' + url + '" class="preview-signature-thumbnail" alt="signature">';
     }
     return '<span class="preview-empty">\u2014</span>';
   }
@@ -491,19 +491,19 @@
       html += '<div class="preview-page-gap"></div>';
       html += '<div class="preview-a4-page">';
       html += '<div class="preview-page-top-space"></div>';
-      html += '<div class="preview-a4-page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">';
+      html += '<div class="preview-a4-page-content preview-photo-page-content">';
 
       // Title only on first photo page
       if (isFirst) {
-        html += '<h3 style="text-align:center;font-size:1.1rem;margin:0 0 .75rem;color:#8a6d3b;">বিবাহের কিছু স্মৃতি</h3>';
+        html += '<h3 class="preview-photo-page-title">বিবাহের কিছু স্মৃতি</h3>';
       }
 
       // Section label
-      html += '<p style="font-size:.85rem;font-weight:600;color:#5a4a2a;margin:0 0 .5rem;">' + photo.label + '</p>';
+      html += '<p class="preview-photo-page-label">' + photo.label + '</p>';
 
       // Photo frame 5"x7" (480x672px) — image fits inside without stretching
-      html += '<div style="width:480px;height:672px;border:2px solid #d4c9a8;border-radius:4px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.15);background:#f8f6f0;display:flex;align-items:center;justify-content:center;">'
-        + '<img src="' + photo.url + '" style="max-width:100%;max-height:100%;object-fit:contain;" alt="' + photo.label + ' ' + photo.num + '">'
+      html += '<div class="preview-photo-frame">'
+        + '<img src="' + photo.url + '" class="preview-photo-frame-image" alt="' + photo.label + ' ' + photo.num + '">'
         + '</div>';
 
       html += '</div>';

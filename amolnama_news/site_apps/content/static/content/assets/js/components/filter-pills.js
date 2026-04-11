@@ -99,10 +99,12 @@
 
         var pillText = activePillLabels[group.dataAttribute] || filterValue;
 
+        var chipRemoveId = 'filter-crumbs-chip-remove-' + group.dataAttribute;
         chipsHtml += '<span class="filter-crumbs-chip">' +
           (group.crumbLabel ? '<span class="filter-crumbs-chip-label">' + escapeHtml(group.crumbLabel) + ':</span> ' : '') +
           escapeHtml(pillText) +
-          ' <button class="filter-crumbs-chip-remove" data-clear-group="' + group.dataAttribute + '">✕</button>' +
+          ' <button type="button" class="filter-crumbs-chip-remove" id="' + chipRemoveId +
+          '" name="' + chipRemoveId + '" data-clear-group="' + group.dataAttribute + '">✕</button>' +
           '</span>';
       });
 

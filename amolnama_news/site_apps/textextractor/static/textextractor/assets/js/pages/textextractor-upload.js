@@ -17,20 +17,20 @@
 
 
   function showError(text) {
-    if (errorSection) { errorSection.textContent = text; errorSection.style.display = 'block'; }
-    if (progressSection) progressSection.style.display = 'none';
-    if (dropzoneElement) dropzoneElement.style.display = '';
+    if (errorSection) { errorSection.textContent = text; errorSection.hidden = false; }
+    if (progressSection) progressSection.hidden = true;
+    if (dropzoneElement) dropzoneElement.hidden = false;
   }
 
   function uploadFile(file) {
     /* Show progress immediately */
-    if (errorSection) errorSection.style.display = 'none';
-    if (resultSection) resultSection.style.display = 'none';
-    if (progressSection) progressSection.style.display = 'block';
+    if (errorSection) errorSection.hidden = true;
+    if (resultSection) resultSection.hidden = true;
+    if (progressSection) progressSection.hidden = false;
     if (progressFilename) progressFilename.textContent = file.name;
     if (progressBar) progressBar.style.width = '30%';
     if (progressStatus) progressStatus.textContent = 'Uploading...';
-    if (dropzoneElement) dropzoneElement.style.display = 'none';
+    if (dropzoneElement) dropzoneElement.hidden = true;
 
     const formData = new FormData();
     formData.append('extraction_file', file);
@@ -51,6 +51,7 @@
       pollJobStatus(data.job_id);
     })
     .catch(function (networkError) {
+      console.error('textextractor upload network error', networkError);
       showError('Network error');
     });
   }
@@ -68,8 +69,8 @@
           if (progressBar) { progressBar.style.width = '100%'; progressBar.style.animation = 'none'; }
           if (progressStatus) progressStatus.textContent = 'Completed — ' + (data.word_count || 0) + ' words extracted';
           setTimeout(function () {
-            if (progressSection) progressSection.style.display = 'none';
-            if (resultSection) resultSection.style.display = 'block';
+            if (progressSection) progressSection.hidden = true;
+            if (resultSection) resultSection.hidden = false;
             if (resultPreview) resultPreview.textContent = data.extracted_text_preview || 'No text extracted';
             if (resultViewButton) resultViewButton.href = '/text-extractor/job/' + jobId + '/';
           }, 500);
@@ -87,7 +88,7 @@
           }
         }
       })
-      .catch(function () { /* keep polling */ });
+      .catch(function (statusPollError) { console.error('textextractor status poll failed', statusPollError); });
     }, 1500);
   }
 

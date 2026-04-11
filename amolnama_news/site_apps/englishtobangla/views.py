@@ -1,18 +1,9 @@
-from django.shortcuts import render
+"""
+englishtobangla has no page views.
 
-
-def englishtobangla(request):
-    context = {
-        "seo": {
-            "title": "ইংরেজি থেকে বাংলা — আমলনামা নিউজ | English to Bangla",
-            "description": (
-                "ইংরেজিতে টাইপ করুন, বাংলায় রূপান্তর হবে — অভ্র ফোনেটিক। "
-                "Type in English, get Bengali — Avro Phonetic transliteration."
-            ),
-            "breadcrumbs": [
-                {"name": "হোম", "url": "/"},
-                {"name": "ইংরেজি থেকে বাংলা", "url": "/englishtobangla/"},
-            ],
-        },
-    }
-    return render(request, "englishtobangla/pages/englishtobangla.html", context)
+This app only ships the Avro phonetic + bangla-input JS utilities
+under static/. They are loaded globally by core/base.html and attach
+to Bengali inputs across every page in the project. There is no
+landing page for this app and no view should be added here without
+explicit product requirements.
+"""

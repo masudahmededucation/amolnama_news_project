@@ -13,6 +13,6 @@ if ('serviceWorker' in navigator) {
           });
         }
       });
-    }).catch(function () {});
+    }).catch(function (serviceWorkerRegisterError) { console.error('Service worker register failed:', serviceWorkerRegisterError); });
   });
 }

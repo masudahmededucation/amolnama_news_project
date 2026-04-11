@@ -6,6 +6,7 @@ import logging
 import os
 import uuid
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
@@ -14,6 +15,14 @@ from django.views.decorators.http import require_POST
 from amolnama_news.site_apps.user_account.models import UserProfile
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_json_body(request):
+    """Parse JSON request body → (data_dict, error_response_or_none)."""
+    try:
+        return json.loads(request.body), None
+    except (json.JSONDecodeError, ValueError):
+        return None, JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
 @require_POST
@@ -87,16 +96,12 @@ def api_avatar_upload(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_content_toggle_publish(request):
     """Toggle publish status of any content item. Staff only."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     content_type = data.get('content_type', '')
     content_id = data.get('content_id')
@@ -148,16 +153,12 @@ def api_content_toggle_publish(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_moderation_approve(request):
     """Approve flagged content — clear flag counts. Staff only."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     content_type = data.get('content_type', '')
     content_id = data.get('content_id')
@@ -188,16 +189,12 @@ def api_moderation_approve(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_moderation_reject(request):
     """Reject flagged content — soft delete. Staff only."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     content_type = data.get('content_type', '')
     content_id = data.get('content_id')
@@ -229,16 +226,12 @@ def api_moderation_reject(request):
 # =========================================================
 
 @require_POST
-@login_required
+@staff_member_required
 def api_placeholder_add(request):
     """Add a new composer placeholder."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     text = (data.get('placeholder_text') or '').strip()
     category = (data.get('placeholder_category_code') or 'general').strip()
@@ -262,16 +255,12 @@ def api_placeholder_add(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_placeholder_toggle(request):
     """Toggle active/inactive on a placeholder."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     try:
         placeholder_id = int(data.get('placeholder_id', 0))
@@ -292,16 +281,12 @@ def api_placeholder_toggle(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_placeholder_feature(request):
     """Set a placeholder as featured for X minutes."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     try:
         placeholder_id = int(data.get('placeholder_id', 0))
@@ -330,16 +315,12 @@ def api_placeholder_feature(request):
 
 
 @require_POST
-@login_required
+@staff_member_required
 def api_placeholder_delete(request):
     """Hard delete a placeholder."""
-    if not request.user.is_staff:
-        return JsonResponse({'success': False, 'error': 'অনুমতি নেই'}, status=403)
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, ValueError):
-        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+    data, error_response = _parse_json_body(request)
+    if error_response:
+        return error_response
 
     try:
         placeholder_id = int(data.get('placeholder_id', 0))

@@ -2082,3 +2082,10 @@
   box-shadow: 0 2px 8px rgba(0,0,0,.15);
 }
 
+/* ---- Quote repost inline success ---- */
+.post-card-quote-repost-success {
+  padding: .4rem;
+  font-size: .75rem;
+  color: var(--success, #059669);
+}
+

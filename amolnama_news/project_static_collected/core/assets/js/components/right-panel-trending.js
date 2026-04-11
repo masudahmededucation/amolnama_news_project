@@ -24,5 +24,5 @@
 
       trendingListElement.innerHTML = hashtagHtml;
     })
-    .catch(function () { /* trending fetch failed — keep placeholder */ });
+    .catch(function (trendingFetchError) { console.error('Trending hashtags fetch failed:', trendingFetchError); });
 })();

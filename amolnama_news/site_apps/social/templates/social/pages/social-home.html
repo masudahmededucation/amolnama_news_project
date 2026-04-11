@@ -1,11 +1,16 @@
 {% extends "core/base.html" %}
+{% load static %}
 
 {% block title %}সামাজিক — আমলনামা নিউজ{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'social/assets/css/pages/social-home.css' %}">
+{% endblock %}
+
 {% block content %}
-<div style="max-width:680px;margin:2rem auto;text-align:center;padding:2rem;">
-  <h1 style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem;">সামাজিক (Social)</h1>
-  <p style="color:var(--muted);margin-bottom:1rem;">অনুসরণকারী ও অনুসরণ তালিকা দেখতে লগইন করুন</p>
-  <a href="/account/login/" style="display:inline-block;padding:.5rem 1.5rem;background:var(--primary);color:#fff;border-radius:20px;font-weight:700;text-decoration:none;">লগইন করুন (Login)</a>
+<div class="social-home-guest">
+  <h1 class="social-home-guest-title">সামাজিক (Social)</h1>
+  <p class="social-home-guest-message">অনুসরণকারী ও অনুসরণ তালিকা দেখতে লগইন করুন</p>
+  <a href="/account/login/" class="social-home-guest-login-link">লগইন করুন (Login)</a>
 </div>
 {% endblock %}

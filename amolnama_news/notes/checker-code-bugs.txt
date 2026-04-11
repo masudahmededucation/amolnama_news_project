@@ -80,6 +80,7 @@ no lazy tries.
 Write once, reuse everywhere.
 no copy cat, duplicate code.
 it stops bugs and reduces effort.
+dynamic, db based, no static code if appropriate
 don't make file too large which would be harder to manage and modify.
 split larger files into smaller unit and files.
 split files when the feature is atomic and independent.
@@ -148,7 +149,7 @@ don't touch other things.
 --check for bugs
 check for bugs, bad code, broken code, illegal code, dead code.
 sql injection risk.
-duplicates.
+remove duplicates.
 remove debug code?
 clear clean code of error handing.
 CSS bugs.
@@ -193,3 +194,8 @@ make the app scalable
 ask for blanket permission once only.
 it is annoying to accept too many permission request.
 rather than individual file or small section.
+
+
+--pre-flight and claude.md
+This rule is now part of the auto-loaded preflight. 
+Want me to commit just this CLAUDE.md update, or hold for more rule edits?

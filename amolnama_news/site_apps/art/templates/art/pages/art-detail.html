@@ -33,7 +33,7 @@
   <div class="art-detail-gallery" id="art-detail-gallery" name="art_detail_gallery">
     {% for photo in artwork.photos %}
     <div class="art-detail-gallery-item{% if photo.is_cover %} art-detail-gallery-item-cover{% endif %}" data-photo-url="{{ photo.file_url }}">
-      <img src="{{ photo.file_url }}" alt="{{ photo.caption_bn|default:artwork.title_bn }}" class="art-detail-gallery-image" loading="lazy">
+      <img src="{{ photo.file_url }}" alt="{{ photo.caption_bn|default:artwork.title_bn }}" class="art-detail-gallery-image" {% if forloop.first %}fetchpriority="high" decoding="async"{% else %}loading="lazy" decoding="async"{% endif %}>
       {% if photo.caption_bn %}<p class="art-detail-gallery-caption">{{ photo.caption_bn }}</p>{% endif %}
     </div>
     {% endfor %}
@@ -88,7 +88,7 @@
     <h2 class="art-detail-section-title">🎬 ভিডিও</h2>
     <div class="art-detail-youtube-list">
       {% for youtube_link in artwork.youtube_links %}
-      <a href="{{ youtube_link.youtube_url }}" target="_blank" rel="noopener" class="art-detail-youtube-item" id="art-detail-youtube-{{ youtube_link.art_coll_artwork_youtube_link_id }}" name="art_detail_youtube_{{ youtube_link.art_coll_artwork_youtube_link_id }}">
+      <a href="{{ youtube_link.youtube_url }}" target="_blank" rel="noopener" class="art-detail-youtube-item" id="art-detail-youtube-{{ youtube_link.blog_art_artwork_youtube_link_id }}" name="art_detail_youtube_{{ youtube_link.blog_art_artwork_youtube_link_id }}">
         <span class="art-detail-youtube-play">▶</span>
         <span class="art-detail-youtube-title">{{ youtube_link.youtube_title_bn|default:"ভিডিও দেখুন" }}</span>
       </a>

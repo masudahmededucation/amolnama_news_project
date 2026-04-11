@@ -8,6 +8,9 @@ Displays the multi-step voting flow: Division → District → Constituency → 
   <span class="current">Division / বিভাগ</span>
 </div>
 
+<!-- Inline error message container (hidden by default) -->
+<div class="vote-error-message" id="vote-error-message" role="alert" hidden></div>
+
 <!-- Division Selection View -->
 <div id="division-view" name="division_view">
   <h3>Select Your Division (আপনার বিভাগ নির্বাচন করুন)</h3>
@@ -63,7 +66,7 @@ Displays the multi-step voting flow: Division → District → Constituency → 
             </div>
             {% if party.vote_percentage %}
               <div class="bar-container">
-                <div class="bar-fill" style="width: {{ party.vote_percentage }}%;"></div>
+                <div class="bar-fill" style="--evaluation-vote-bar-fill-width: {{ party.vote_percentage|floatformat:1 }}%;"></div>
                 <span class="pct-text">{{ party.vote_percentage|floatformat:1 }}%</span>
               </div>
             {% endif %}

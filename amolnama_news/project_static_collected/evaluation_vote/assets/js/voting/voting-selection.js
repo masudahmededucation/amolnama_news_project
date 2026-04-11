@@ -31,7 +31,7 @@ function selectDivision(id, nameEn, nameBn) {
       }
       
       data.districts.forEach(district => {
-        let li = document.createElement('li');
+        const li = document.createElement('li');
         li.onclick = () => selectDistrict(district.id, district.name_en, district.name_bn);
         li.innerHTML = `
           <span class="name-en">${escapeHtml(district.name_en)}</span>
@@ -41,6 +41,9 @@ function selectDivision(id, nameEn, nameBn) {
       });
     })
     .catch(error => {
+      console.error('selectDivision → districts fetch failed:', error);
+      const list = document.getElementById('district-list');
+      if (list) list.innerHTML = '<li>Error loading districts / জেলা লোড করতে ব্যর্থ</li>';
     });
 }
 
@@ -91,6 +94,9 @@ function selectDistrict(id, nameEn, nameBn) {
       });
     })
     .catch(error => {
+      console.error('selectDistrict → constituencies fetch failed:', error);
+      const list = document.getElementById('constituency-list');
+      if (list) list.innerHTML = '<li>Error loading constituencies / নির্বাচনী এলাকা লোড করতে ব্যর্থ</li>';
     });
 }
 
@@ -137,13 +143,14 @@ function loadUpazilas() {
     })
     .then(data => {
       data.upazilas.forEach(upazila => {
-        let option = document.createElement('option');
+        const option = document.createElement('option');
         option.value = upazila.id;
         option.textContent = `${upazila.name_en} (${upazila.name_bn})`;
         upazilaSelect.appendChild(option);
       });
     })
     .catch(error => {
+      console.error('loadUpazilas fetch failed:', error);
     });
 }
 
@@ -177,6 +184,7 @@ function loadUnions() {
       unionSelect.disabled = false;
     })
     .catch(error => {
+      console.error('loadUnions fetch failed:', error);
     });
 }
 
@@ -205,34 +213,41 @@ function updatePartyListWithPercentages() {
       partyList.innerHTML = '';
 
       data.results.forEach(party => {
-        const logoUrl = `/media/${party.file_path}${party.file_name}`;
+        const logoUrl = `/media/${encodeURI(party.file_path || '')}${encodeURI(party.file_name || '')}`;
+        const percentage = parseFloat(party.vote_percentage || 0).toFixed(1);
+        const shortNameBn = escapeHtml(party.party_short_name_bn);
+        const nameBn = escapeHtml(party.party_name_bn);
+        const voteCount = escapeHtml(String(party.party_vote_count || 0));
 
-        partyList.innerHTML += `
+        partyList.insertAdjacentHTML('beforeend', `
           <li>
             <div class="party-item">
               <img
-                src="${logoUrl}"
-                alt="${party.party_short_name_bn}"
+                src="${escapeHtml(logoUrl)}"
+                alt="${shortNameBn}"
                 class="party-logo"
+                loading="lazy"
               >
               <div class="party-text">
                 <div class="party-info">
-                  <span class="party-short">${party.party_short_name_bn}</span>
+                  <span class="party-short">${shortNameBn}</span>
                   <span class="party-separator">-</span>
-                  <span class="party-name">${party.party_name_bn}</span>
+                  <span class="party-name">${nameBn}</span>
                 </div>
                 <div class="bar-container">
-                  <div class="bar-fill" style="width: ${party.vote_percentage}%;"></div>
+                  <div class="bar-fill" style="--evaluation-vote-bar-fill-width: ${percentage}%;"></div>
                   <span class="pct-text">
-                    ${parseFloat(party.vote_percentage).toFixed(1)}%
-                    <span class="vote-count">(${party.party_vote_count} ভোট)</span>
+                    ${percentage}%
+                    <span class="vote-count">(${voteCount} ভোট)</span>
                   </span>
                 </div>
               </div>
             </div>
           </li>
-        `;
+        `);
       });
     })
-    .catch(function () {});
+    .catch(function (error) {
+      console.error('updatePartyListWithPercentages fetch failed:', error);
+    });
 }

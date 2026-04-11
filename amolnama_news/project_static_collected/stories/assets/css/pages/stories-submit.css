@@ -42,7 +42,7 @@
   border-radius: 8px;
   font-size: .88rem;
   color: var(--text);
-  background: var(--card, #fff);
+  background: var(--card);
   transition: border-color .15s;
 }
 
@@ -51,7 +51,7 @@
 .stories-submit-select:focus {
   outline: none;
   border-color: var(--purple);
-  box-shadow: 0 0 0 2px rgba(124, 58, 237, .1);
+  box-shadow: 0 0 0 2px var(--purple-light);
 }
 
 .stories-submit-textarea {
@@ -84,19 +84,20 @@
 }
 
 .stories-submit-button {
+  min-height: 44px;
   padding: .6rem 1.5rem;
   border: none;
   border-radius: 25px;
   background: var(--purple);
-  color: #fff;
+  color: var(--card);
   font-size: .9rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s, transform .15s;
+  transition: opacity .15s, transform .15s;
 }
 
 .stories-submit-button:hover {
-  background: #6d28d9;
+  opacity: .9;
   transform: scale(1.02);
 }
 

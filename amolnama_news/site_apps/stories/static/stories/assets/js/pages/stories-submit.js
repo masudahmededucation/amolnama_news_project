@@ -12,8 +12,8 @@
   function showError(text) {
     if (errorMessage) {
       errorMessage.textContent = text;
-      errorMessage.style.display = 'block';
-      setTimeout(function () { errorMessage.style.display = 'none'; }, 5000);
+      errorMessage.hidden = false;
+      setTimeout(function () { errorMessage.hidden = true; }, 5000);
     }
   }
 
@@ -39,7 +39,8 @@
         submitButton.textContent = 'জমা দিন';
       }
     })
-    .catch(function (networkError) {
+    .catch(function (storySubmitNetworkError) {
+      console.error('story submit failed', storySubmitNetworkError);
       showError('নেটওয়ার্ক ত্রুটি (Network error)');
       submitButton.disabled = false;
       submitButton.textContent = 'জমা দিন';

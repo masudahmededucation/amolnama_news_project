@@ -518,7 +518,6 @@ def get_or_create_geo_source(
     latitude=None,
     longitude=None
 ):
-    print("Geo proc params:", country_name_en, region_name_en, city_name_en, network_isp_name, network_type, latitude, longitude)
     with connection.cursor() as cursor:
         cursor.execute("""
             DECLARE @geo_source_id INT;

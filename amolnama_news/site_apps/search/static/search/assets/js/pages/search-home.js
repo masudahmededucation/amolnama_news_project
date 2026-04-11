@@ -68,7 +68,8 @@
 
         resultsContainer.innerHTML = html;
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('search-home performSearch:', err);
         resultsContainer.innerHTML = '<div class="search-page-no-results">অনুসন্ধান ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</div>';
       });
   }

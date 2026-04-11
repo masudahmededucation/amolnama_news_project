@@ -37,6 +37,7 @@ function fetchAndDisplayTotalVotes(apiUrl, elementId = 'total-vote-info') {
       }
     })
     .catch(error => {
+      console.error('fetchAndDisplayTotalVotes fetch failed:', error);
     });
 }
 

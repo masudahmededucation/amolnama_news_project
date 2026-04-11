@@ -1,5 +1,17 @@
 /* Messenger — WhatsApp-style two-panel chat layout */
 
+/* Messenger-scoped local tokens (NOT :root — colors.css is the only :root). */
+.messenger {
+  --messenger-bubble-sent-bg: #c8f0b0;
+  --messenger-bubble-received-bg: #cce5ff;
+  --messenger-on-primary: #ffffff;
+  --messenger-check-read: #53bdeb;
+}
+[data-theme="dark"] .messenger {
+  --messenger-bubble-sent-bg: #1a3a2a;
+  --messenger-bubble-received-bg: #1a2a3a;
+}
+
 /* Messenger page — reduce outer spacing, prevent page scroll */
 body:has(.messenger) { overflow: hidden; }
 main:has(.messenger) { padding-top: .25rem; }
@@ -14,6 +26,14 @@ main:has(.messenger) { padding-top: .25rem; }
   overflow: hidden;
   background: var(--bg);
   box-shadow: var(--shadow-md);
+}
+
+/* Respect user's reduced-motion preference — disable transitions/animations. */
+@media (prefers-reduced-motion: reduce) {
+  .messenger, .messenger *, .messenger *::before, .messenger *::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 .messenger-hidden { display: none !important; }
@@ -170,7 +190,7 @@ main:has(.messenger) { padding-top: .25rem; }
 
 .messenger-conversation-item-unread-badge {
   background: var(--primary);
-  color: #fff;
+  color: var(--messenger-on-primary);
   font-size: .6rem;
   font-weight: 800;
   min-width: 20px;
@@ -377,7 +397,7 @@ main:has(.messenger) { padding-top: .25rem; }
 
 .messenger-bubble-sent {
   align-self: flex-end;
-  background: #c8f0b0;
+  background: var(--messenger-bubble-sent-bg);
   border-top-right-radius: 2px;
   margin-right: 8px;
 }
@@ -388,14 +408,14 @@ main:has(.messenger) { padding-top: .25rem; }
   right: -8px;
   width: 0;
   height: 0;
-  border-left: 8px solid #c8f0b0;
+  border-left: 8px solid var(--messenger-bubble-sent-bg);
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
 }
 
 .messenger-bubble-received {
   align-self: flex-start;
-  background: #cce5ff;
+  background: var(--messenger-bubble-received-bg);
   border-top-left-radius: 2px;
   margin-left: 8px;
 }
@@ -406,15 +426,10 @@ main:has(.messenger) { padding-top: .25rem; }
   left: -8px;
   width: 0;
   height: 0;
-  border-right: 8px solid #cce5ff;
+  border-right: 8px solid var(--messenger-bubble-received-bg);
   border-top: 6px solid transparent;
   border-bottom: 6px solid transparent;
 }
-
-[data-theme="dark"] .messenger-bubble-sent { background: #1a3a2a; }
-[data-theme="dark"] .messenger-bubble-sent::after { border-left-color: #1a3a2a; }
-[data-theme="dark"] .messenger-bubble-received { background: #1a2a3a; }
-[data-theme="dark"] .messenger-bubble-received::after { border-right-color: #1a2a3a; }
 
 .messenger-bubble-text {
   white-space: pre-wrap;
@@ -439,7 +454,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-bubble-check svg { width: 14px; height: 14px; }
 .messenger-bubble-check-sent { color: var(--muted); }
 .messenger-bubble-check-delivered { color: var(--muted); }
-.messenger-bubble-check-read { color: #53bdeb; }
+.messenger-bubble-check-read { color: var(--messenger-check-read); }
 
 /* Failed message */
 .messenger-bubble-failed { opacity: .7; border: 1px dashed var(--danger); }
@@ -493,7 +508,7 @@ main:has(.messenger) { padding-top: .25rem; }
   top: -6px;
   right: -2px;
   background: var(--primary);
-  color: #fff;
+  color: var(--messenger-on-primary);
   font-size: .55rem;
   font-weight: 800;
   min-width: 16px;
@@ -697,7 +712,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border-radius: 50%;
   border: none;
   background: var(--primary);
-  color: #fff;
+  color: var(--messenger-on-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -749,4 +764,11 @@ main:has(.messenger) { padding-top: .25rem; }
   .messenger-conversation-item-avatar-default { width: 40px; height: 40px; }
 
   .messenger-send-button { min-width: 44px; min-height: 44px; }
+}
+
+/* Inline input error message — used by messenger-home.js showInputError() */
+.messenger-input-error {
+  color: var(--danger);
+  font-size: .72rem;
+  padding: .2rem .75rem;
 }

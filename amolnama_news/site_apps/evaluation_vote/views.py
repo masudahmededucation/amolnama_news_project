@@ -322,44 +322,6 @@ def update_vote(request):
 
 
 
-def vote_results(request):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT [party_id], [party_name_bn], [party_short_name_bn], [party_symbol_name_bn],
-                [party_vote_count], [total_vote_count], [vote_percentage]
-            FROM [news_magazine].[evaluation].[app_vw_vote_cast_current_results]
-            ORDER BY [party_id]
-        """)
-        rows = cursor.fetchall()
-        results = [
-            {
-                "party_id": row[0],
-                "party_name_bn": row[1],
-                "party_short_name_bn": row[2],
-                "party_symbol_name_bn": row[3],
-                "party_vote_count": row[4],
-                "total_vote_count": row[5],
-                "vote_percentage": row[6],
-            }
-            for row in rows
-        ]
-    total_votes = results[0]["total_vote_count"] if results else 0
-    return render(request, "evaluation_vote/vote_results.html", {
-        "results": results,
-        "total": total_votes,
-        "seo": {
-            "title": "ভোটের ফলাফল — আমলনামা নিউজ | Vote Results",
-            "description": "বর্তমান মূল্যায়ন ভোটের সরাসরি ফলাফল দেখুন। View live results of the current evaluation vote.",
-            "breadcrumbs": [
-                {"name": "হোম", "url": "/"},
-                {"name": "মূল্যায়ন ভোট", "url": "/evaluation-vote/"},
-                {"name": "ফলাফল", "url": None},
-            ],
-        },
-    })
-
-
-# In your get_party_results view
 def vote_cast_current_results(request):
     """API endpoint for current vote casting results - real-time party vote counts"""
     with connection.cursor() as cursor:
@@ -494,7 +456,7 @@ def _build_constituency_results(queryset, evaluation_name, request_path, divisio
 
     results = group_results_by_location(
         queryset_filtered,
-        group_id_field='constituency_name_bn',
+        group_id_field='constituency_id',
         group_name_field='constituency_name_bn',
         party_fields=PARTY_FIELDS,
         extra_fields=['constituency_area_list_bn'],

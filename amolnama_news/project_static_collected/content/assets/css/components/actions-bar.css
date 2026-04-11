@@ -95,7 +95,7 @@
   justify-content: center;
   gap: .35rem;
   padding: .55rem .85rem;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--card);

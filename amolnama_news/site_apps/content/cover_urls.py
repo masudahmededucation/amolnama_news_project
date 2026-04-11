@@ -17,6 +17,10 @@ Usage:
     # → {('art', 1): '/media/...', ('destination', 1): '/media/...', ...}
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def _resolve_art_covers(content_ids):
     """Cover URLs for art entries — pulled from blog_art.artwork_asset."""
@@ -96,8 +100,13 @@ def get_cover_urls_for_content_refs(content_refs):
             continue  # content type without registered cover resolver — skip
         try:
             type_covers = resolver(content_ids) or {}
-        except Exception:
-            continue  # one type failing must not break the others
+        except Exception as cover_resolver_error:
+            # One type failing must not break the others — log and skip
+            logger.error(
+                'get_cover_urls_for_content_refs resolver failed for type %s — %s',
+                type_code, cover_resolver_error,
+            )
+            continue
         for content_id, url in type_covers.items():
             if url:
                 result[(type_code, content_id)] = url

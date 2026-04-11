@@ -48,7 +48,7 @@
   <a href="{% url 'art:detail' artwork_slug=item.slug %}" class="art-gallery-card" id="art-gallery-card-{{ item.artwork_id }}" name="art_gallery_card_{{ item.artwork_id }}" data-category="{{ item.category_id }}" data-medium="{{ item.medium_id }}">
     <div class="art-gallery-card-image-wrapper">
       {% if item.cover_url %}
-      <img src="{{ item.cover_url }}" alt="{{ item.title_bn }}" class="art-gallery-card-image" loading="lazy">
+      <img src="{{ item.cover_url }}" alt="{{ item.title_bn }}" class="art-gallery-card-image" loading="lazy" decoding="async">
       {% else %}
       <div class="art-gallery-card-image-placeholder">🎨</div>
       {% endif %}

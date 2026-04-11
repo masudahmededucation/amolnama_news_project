@@ -135,8 +135,8 @@
 }
 
 .header-lang-option:has(input:checked) span {
-  background: #c8960c;
-  color: #fff;
+  background: var(--warning);
+  color: var(--card);
 }
 
 .header-lang-option:not(:has(input:checked)):hover span {

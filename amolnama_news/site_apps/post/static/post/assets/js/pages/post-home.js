@@ -149,7 +149,7 @@
           composerTextareaElement.placeholder = data.placeholder;
         }
       })
-      .catch(function () {});
+      .catch(function (composerPlaceholderError) { console.error('Composer placeholder fetch failed:', composerPlaceholderError); });
   }
 
   /* ---- Character counter ---- */

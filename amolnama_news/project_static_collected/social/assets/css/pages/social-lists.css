@@ -12,3 +12,25 @@
 .social-lists-item-name { font-size: .88rem; font-weight: 700; }
 .social-lists-item-member-count { font-size: .65rem; color: var(--muted); margin-left: .3rem; }
 .social-lists-empty-message { color: var(--muted); font-size: .82rem; }
+
+.social-lists-create-error {
+  margin: .4rem 0 .8rem;
+  padding: .4rem .6rem;
+  background: var(--danger-light);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+  border-radius: 6px;
+  font-size: .78rem;
+}
+
+@media (max-width: 640px) {
+  .social-lists-create-input { font-size: .85rem; min-height: 44px; }
+  .social-lists-create-button { min-height: 44px; padding: .5rem 1rem; }
+  .social-lists-item { padding: .7rem .8rem; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-lists-create-button,
+  .social-lists-item { transition: none; }
+}
+

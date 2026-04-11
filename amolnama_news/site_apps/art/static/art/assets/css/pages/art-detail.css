@@ -48,8 +48,8 @@
 
 .art-detail-meta-tutorial {
   background: var(--warning-light);
-  border-color: #ffe0b2;
-  color: #e65100;
+  border-color: var(--warning-light);
+  color: var(--warning-text);
 }
 
 .art-detail-author-row {
@@ -86,7 +86,7 @@
 }
 
 .art-detail-gallery-item:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+  box-shadow: var(--shadow-md);
 }
 
 .art-detail-gallery-image {
@@ -159,7 +159,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--primary);
-  color: #fff;
+  color: var(--card);
   font-size: .78rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -193,7 +193,7 @@
 
 .art-detail-youtube-item:hover {
   background: var(--danger-light);
-  border-color: #ef9a9a;
+  border-color: var(--danger-border);
 }
 
 .art-detail-youtube-play {
@@ -243,7 +243,7 @@
 
 .art-detail-bookmark-button-active {
   background: var(--warning-light);
-  border-color: #fcd34d;
+  border-color: var(--warning);
   color: var(--warning);
 }
 
@@ -275,6 +275,7 @@
   .art-detail-action-button {
     padding: .3rem .5rem;
     font-size: .75rem;
+    min-height: 44px;
   }
 
   .art-detail-action-label {

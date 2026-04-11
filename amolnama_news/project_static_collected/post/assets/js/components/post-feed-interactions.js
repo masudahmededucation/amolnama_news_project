@@ -156,8 +156,7 @@
           insertRepliesIntoSection(data.replies);
         }
       })
-      .catch(function (networkError) {
-      });
+      .catch(function (networkError) { console.error('Replies fetch failed:', networkError); });
     }
   }
 
@@ -1260,7 +1259,7 @@
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success) {
-          quoteForm.innerHTML = '<div style="padding:.4rem;font-size:.75rem;color:#059669;">✓ Quote repost হয়েছে</div>';
+          quoteForm.innerHTML = '<div class="post-card-quote-repost-success">✓ Quote repost হয়েছে</div>';
           setTimeout(function () { quoteForm.remove(); }, 2000);
         }
       })
@@ -1294,9 +1293,14 @@
           const optNum = parseInt(option.getAttribute('data-option-number'), 10);
           const matchingOption = data.options.find(function (optionData) { return optionData.option_number === optNum; });
           if (matchingOption) {
-            const barHtml = '<span class="post-card-poll-option-bar" style="width: ' + matchingOption.percentage + '%;"></span>';
-            const pctHtml = '<span class="post-card-poll-option-percentage">' + matchingOption.percentage + '%</span>';
-            option.insertAdjacentHTML('beforeend', barHtml + pctHtml);
+            const barElement = document.createElement('span');
+            barElement.className = 'post-card-poll-option-bar';
+            barElement.style.width = matchingOption.percentage + '%';
+            const pctElement = document.createElement('span');
+            pctElement.className = 'post-card-poll-option-percentage';
+            pctElement.textContent = matchingOption.percentage + '%';
+            option.appendChild(barElement);
+            option.appendChild(pctElement);
           }
           if (optNum === data.selected_option_number) {
             option.classList.add('post-card-poll-option-voted');

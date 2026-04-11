@@ -60,12 +60,17 @@
 
 /* Drillthrough primary action button */
 .drillthrough-action-button {
+  min-height: 44px;
   padding: 0.75rem 2rem;
   background: var(--primary);
-  color: white;
+  color: var(--evaluation-vote-on-primary);
   text-decoration: none;
   border-radius: var(--radius);
   display: inline-block;
+}
+
+.back-button-link {
+  min-height: 44px;
 }
 
 /* Party list top margin for national level */
@@ -97,7 +102,7 @@
 
 /* Success tick icon in voting feedback */
 .success-tick-icon {
-  color: #0a0;
+  color: var(--success);
   font-size: 2em;
   font-weight: bold;
   vertical-align: middle;

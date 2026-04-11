@@ -1,5 +1,10 @@
 /* ========== VOTING PROGRESS - Progress Bars & Party Results ========== */
 /* Uses global variables from colors.css — do NOT redefine :root here */
+/* Component-scoped tokens (not :root) for text-on-primary and highlight chip */
+body {
+  --evaluation-vote-on-primary: #fff;
+  --evaluation-vote-highlight-bg: #ffe066;
+}
 
 /* Progress bar styles */
 .bar-container {
@@ -12,10 +17,15 @@
 }
 
 .bar-fill {
-  background: #4caf50;
+  background: var(--success);
   height: 100%;
   border-radius: 4px;
   transition: width 0.5s;
+  width: var(--evaluation-vote-bar-fill-width, 0%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill { transition: none; }
 }
 
 .pct-text {
@@ -45,9 +55,14 @@
 
 .party-list li:hover {
   background: var(--primary);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   border-color: var(--primary);
   transform: translateX(5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .party-list li { transition: none; }
+  .party-list li:hover { transform: none; }
 }
 
 .party-item {
@@ -103,7 +118,7 @@
 
 /* Vote highlight */
 .highlight-vote {
-  background-color: #ffe066;
+  background-color: var(--evaluation-vote-highlight-bg);
   padding: 4px 10px;
   border-radius: 6px;
   font-weight: bold;
@@ -176,7 +191,7 @@
 
   .party-list li:active {
     background: var(--primary);
-    color: #fff;
+    color: var(--evaluation-vote-on-primary);
     border-color: var(--primary);
   }
 

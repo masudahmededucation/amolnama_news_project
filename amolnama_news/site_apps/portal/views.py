@@ -1,10 +1,10 @@
-"""Portal views — user profile pages (personal, contact, address, settings)."""
+"""Portal views — user profile pages (personal, contact, address, settings) + staff dashboards."""
 
 import logging
+import re
 
 from django.contrib import messages
-
-logger = logging.getLogger(__name__)
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
@@ -20,6 +20,8 @@ from amolnama_news.site_apps.user_account.views import (
 from amolnama_news.site_apps.user_account.forms import (
     PersonalDetailsForm, ContactInfoForm, HomeAddressForm, ChangePasswordForm,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def home(request):
@@ -51,7 +53,6 @@ def profile_public_view(request):
 
         # Validate username handle uniqueness
         if username_handle:
-            import re
             username_handle = re.sub(r'[^a-z0-9]', '', username_handle.lower())[:30]
             existing = UserProfile.objects.filter(username_handle=username_handle).exclude(user_profile_id=profile.user_profile_id).exists()
             if existing:
@@ -76,7 +77,15 @@ def profile_public_view(request):
     return render(request, 'portal/pages/profile_public.html', {
         'profile': profile,
         'active_tab': 'public',
-        'seo': {'title': 'পাবলিক প্রোফাইল — পোর্টাল'},
+        'seo': {
+            'title': 'পাবলিক প্রোফাইল — পোর্টাল',
+            'noindex': True,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'পোর্টাল', 'url': '/portal/'},
+                {'name': 'প্রোফাইল'},
+            ],
+        },
     })
 
 
@@ -383,101 +392,116 @@ def profile_settings_view(request):
     })
 
 
-@login_required
-def content_dashboard_view(request):
-    """Content dashboard — list all content from all apps with publish status toggle."""
-    if not request.user.is_staff:
-        return redirect('portal:home')
+def _format_created_at(created_at_value):
+    """Format created_at timestamp for display — returns empty string if none."""
+    if not created_at_value:
+        return ''
+    return created_at_value.strftime('%d %b %Y, %I:%M %p')
 
-    content_items = []
 
-    # Newshub articles
+def _collect_content_dashboard_items():
+    """Collect content items from all content apps — single source of truth."""
     from amolnama_news.site_apps.newshub.models import PubArticle
-    for article in PubArticle.objects.all().order_by('-created_at')[:50]:
-        content_items.append({
+    from amolnama_news.site_apps.poem.models import CollPoemEntry
+    from amolnama_news.site_apps.stories.models import CollStory
+    from amolnama_news.site_apps.art.models import CollArtwork
+    from amolnama_news.site_apps.bangladesh.models import CollDestination
+
+    content_sources = [
+        {
             'content_type': 'newshub',
             'content_type_label': 'NEWS',
             'content_type_color': 'rose',
-            'content_id': article.pub_article_id,
-            'content_title': article.pub_article_headline_bn or '(no title)',
-            'content_slug': article.pub_article_slug or '',
-            'content_url': f'/newshub/article/{article.pub_article_slug}/' if article.pub_article_slug else '',
-            'is_published': article.is_published,
-            'created_at': article.created_at,
-            'created_at_formatted': article.created_at.strftime('%d %b %Y, %I:%M %p') if article.created_at else '',
-        })
-
-    # Poems
-    from amolnama_news.site_apps.poem.models import CollPoemEntry
-    for poem in CollPoemEntry.objects.all().order_by('-created_at')[:50]:
-        is_published = getattr(poem, 'poem_status_code', '') == 'published'
-        content_items.append({
+            'queryset': PubArticle.objects.all().order_by('-created_at')[:50],
+            'id_attribute': 'pub_article_id',
+            'title_attribute': 'pub_article_headline_bn',
+            'slug_attribute': 'pub_article_slug',
+            'url_prefix': '/newshub/article/',
+            'published_attribute': 'is_published',
+        },
+        {
             'content_type': 'poem',
             'content_type_label': 'POEM',
             'content_type_color': 'purple',
-            'content_id': poem.blog_poem_coll_poem_entry_id,
-            'content_title': poem.poem_title_bn or '(no title)',
-            'content_slug': poem.poem_slug or '',
-            'content_url': f'/bangla-kobita-gaan/{poem.poem_slug}/' if poem.poem_slug else '',
-            'is_published': is_published,
-            'created_at': poem.created_at,
-            'created_at_formatted': poem.created_at.strftime('%d %b %Y, %I:%M %p') if poem.created_at else '',
-        })
-
-    # Stories
-    from amolnama_news.site_apps.stories.models import CollStory
-    for story in CollStory.objects.all().order_by('-created_at')[:50]:
-        content_items.append({
+            'queryset': CollPoemEntry.objects.all().order_by('-created_at')[:50],
+            'id_attribute': 'blog_poem_coll_poem_entry_id',
+            'title_attribute': 'poem_title_bn',
+            'slug_attribute': 'poem_slug',
+            'url_prefix': '/bangla-kobita-gaan/',
+            'status_code_attribute': 'poem_status_code',
+        },
+        {
             'content_type': 'stories',
             'content_type_label': 'STORY',
             'content_type_color': 'amber',
-            'content_id': story.blog_stories_coll_story_id,
-            'content_title': story.story_title_bn or '(no title)',
-            'content_slug': story.story_slug or '',
-            'content_url': f'/stories-for-kids/{story.story_slug}/' if story.story_slug else '',
-            'is_published': story.is_published,
-            'created_at': story.created_at,
-            'created_at_formatted': story.created_at.strftime('%d %b %Y, %I:%M %p') if story.created_at else '',
-        })
-
-    # Art
-    from amolnama_news.site_apps.art.models import CollArtwork
-    for artwork in CollArtwork.objects.all().order_by('-created_at')[:50]:
-        content_items.append({
+            'queryset': CollStory.objects.all().order_by('-created_at')[:50],
+            'id_attribute': 'blog_stories_coll_story_id',
+            'title_attribute': 'story_title_bn',
+            'slug_attribute': 'story_slug',
+            'url_prefix': '/stories-for-kids/',
+            'published_attribute': 'is_published',
+        },
+        {
             'content_type': 'art',
             'content_type_label': 'ART',
             'content_type_color': 'blue',
-            'content_id': artwork.blog_art_coll_artwork_id,
-            'content_title': artwork.artwork_title_bn or '(no title)',
-            'content_slug': artwork.artwork_slug or '',
-            'content_url': f'/art-and-craft/{artwork.artwork_slug}/' if artwork.artwork_slug else '',
-            'is_published': artwork.is_published,
-            'created_at': artwork.created_at,
-            'created_at_formatted': artwork.created_at.strftime('%d %b %Y, %I:%M %p') if artwork.created_at else '',
-        })
-
-    # Travel destinations
-    from amolnama_news.site_apps.bangladesh.models import CollDestination
-    for destination in CollDestination.objects.all().order_by('-created_at')[:50]:
-        is_published = getattr(destination, 'destination_status', '') == 'published'
-        content_items.append({
+            'queryset': CollArtwork.objects.all().order_by('-created_at')[:50],
+            'id_attribute': 'blog_art_coll_artwork_id',
+            'title_attribute': 'artwork_title_bn',
+            'slug_attribute': 'artwork_slug',
+            'url_prefix': '/art-and-craft/',
+            'published_attribute': 'is_published',
+        },
+        {
             'content_type': 'travel',
             'content_type_label': 'TRAVEL',
             'content_type_color': 'green',
-            'content_id': destination.blog_bangladesh_coll_destination_id,
-            'content_title': destination.destination_name_bn or destination.destination_name_en or '(no title)',
-            'content_slug': destination.destination_slug or '',
-            'content_url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/' if destination.destination_slug else '',
-            'is_published': is_published,
-            'created_at': destination.created_at,
-            'created_at_formatted': destination.created_at.strftime('%d %b %Y, %I:%M %p') if destination.created_at else '',
-        })
+            'queryset': CollDestination.objects.all().order_by('-created_at')[:50],
+            'id_attribute': 'blog_bangladesh_coll_destination_id',
+            'title_attribute': 'destination_name_bn',
+            'title_fallback_attribute': 'destination_name_en',
+            'slug_attribute': 'destination_slug',
+            'url_prefix': '/bangladesh-tourist-destinations/travel/',
+            'status_code_attribute': 'destination_status',
+        },
+    ]
 
-    # Sort all by date — latest first
-    content_items.sort(key=lambda item: item.get('created_at') or timezone.now(), reverse=True)
+    content_items = []
+    for source in content_sources:
+        for instance in source['queryset']:
+            slug_value = getattr(instance, source['slug_attribute'], '') or ''
+            title_value = getattr(instance, source['title_attribute'], '') or ''
+            if not title_value and source.get('title_fallback_attribute'):
+                title_value = getattr(instance, source['title_fallback_attribute'], '') or ''
 
+            if 'published_attribute' in source:
+                is_published_flag = bool(getattr(instance, source['published_attribute'], False))
+            else:
+                is_published_flag = getattr(instance, source['status_code_attribute'], '') == 'published'
+
+            created_at_value = getattr(instance, 'created_at', None)
+            content_items.append({
+                'content_type': source['content_type'],
+                'content_type_label': source['content_type_label'],
+                'content_type_color': source['content_type_color'],
+                'content_id': getattr(instance, source['id_attribute']),
+                'content_title': title_value or '(no title)',
+                'content_slug': slug_value,
+                'content_url': f"{source['url_prefix']}{slug_value}/" if slug_value else '',
+                'is_published': is_published_flag,
+                'created_at': created_at_value,
+                'created_at_formatted': _format_created_at(created_at_value),
+            })
+
+    content_items.sort(key=lambda entry: entry.get('created_at') or timezone.now(), reverse=True)
+    return content_items
+
+
+@staff_member_required
+def content_dashboard_view(request):
+    """Content dashboard — list all content from all apps with publish status toggle."""
     return render(request, 'portal/pages/content-dashboard.html', {
-        'content_items': content_items,
+        'content_items': _collect_content_dashboard_items(),
         'seo': {
             'noindex': True,
             'breadcrumbs': [
@@ -489,18 +513,15 @@ def content_dashboard_view(request):
     })
 
 
-@login_required
+@staff_member_required
 def analytics_dashboard_view(request):
     """Analytics dashboard — engagement stats across all content. Staff only."""
-    if not request.user.is_staff:
-        return redirect('portal:home')
-
-    from django.db.models import Sum
+    from django.db.models import Count, Sum
     from amolnama_news.site_apps.post.models import Post
 
-    # Post engagement totals
+    # Post engagement totals — Count for row tally, Sum for counters.
     post_stats = Post.objects.filter(is_published=True, is_active=True).aggregate(
-        total_posts=Sum('post_post_id'),
+        total_posts=Count('post_post_id'),
         total_likes=Sum('like_count'),
         total_views=Sum('view_count'),
         total_replies=Sum('reply_count'),
@@ -561,12 +582,9 @@ def analytics_dashboard_view(request):
     })
 
 
-@login_required
+@staff_member_required
 def moderation_queue_view(request):
     """Moderation queue — flagged content for staff review. Staff only."""
-    if not request.user.is_staff:
-        return redirect('portal:home')
-
     flagged_items = []
 
     # Debate posts with fact-check flags
@@ -640,12 +658,9 @@ def moderation_queue_view(request):
     })
 
 
-@login_required
+@staff_member_required
 def composer_placeholders_view(request):
     """Staff only — manage post composer placeholders."""
-    if not request.user.is_staff:
-        return redirect('portal:home')
-
     from amolnama_news.site_apps.post.models import RefComposerPlaceholder
     placeholders = RefComposerPlaceholder.objects.all().order_by('-is_featured', '-created_at')
 
@@ -653,6 +668,7 @@ def composer_placeholders_view(request):
         'placeholders': placeholders,
         'seo': {
             'title': 'প্লেসহোল্ডার ব্যবস্থাপনা — আমলনামা নিউজ',
+            'noindex': True,
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
                 {'name': 'পোর্টাল', 'url': '/portal/'},

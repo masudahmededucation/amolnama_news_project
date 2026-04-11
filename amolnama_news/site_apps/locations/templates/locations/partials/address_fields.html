@@ -4,7 +4,7 @@
 
 <h2 class="profile-section-title">Address</h2>
 
-<div id="address-module" name="address_module"
+<div id="address-module"
      data-api-upazilas="{{ api_upazilas_url }}"
      data-api-unions="{{ api_unions_url }}"
      data-saved-upazila="{{ form.link_upazila_id.value|default:'' }}"
@@ -17,7 +17,7 @@
   </div>
 
   <!-- Bangladesh-only: cascading location dropdowns -->
-  <div id="bd-address-fields" name="bd_address_fields">
+  <div id="bd-address-fields">
     <div class="profile-form-row profile-form-row--three">
       <div class="signup-form-group">
         <label class="signup-form-label" for="{{ form.link_district_id.id_for_label }}">District</label>
@@ -53,7 +53,7 @@
   </div>
 
   <!-- International only: Region / Province / State / Division -->
-  <div id="intl-address-fields" name="intl_address_fields">
+  <div id="intl-address-fields">
     <div class="signup-form-group">
       <label class="signup-form-label" for="{{ form.region_province_state_division.id_for_label }}">Region / Province / State / Division</label>
       {{ form.region_province_state_division }}

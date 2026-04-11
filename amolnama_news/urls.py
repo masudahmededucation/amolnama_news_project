@@ -25,7 +25,7 @@ urlpatterns = [
     path("live/", include("amolnama_news.site_apps.live.urls")),  # Live — real-time updates & live coverage
     path("post/", include("amolnama_news.site_apps.post.urls")),  # Post — user posts (Twitter-style short content)
     path("market/", include("amolnama_news.site_apps.market.urls")),  # Market app
-    path("investigation/", include("amolnama_news.site_apps.investigation.urls")),  # Investigation app
+    # investigation app URL include removed — urls.py is empty (dead route). Models retained for data import scripts.
     path("tools/", include("amolnama_news.site_apps.tools.urls")),  # Tools app
 
     # SEO-friendly URL prefixes
@@ -37,7 +37,7 @@ urlpatterns = [
     path("debate/", include("amolnama_news.site_apps.debate.urls")),  # Debate — discussion & argumentation platform
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
-    path("englishtobangla/", include("amolnama_news.site_apps.englishtobangla.urls")),  # English to Bangla transliteration
+    # englishtobangla: no URL routes — app ships JS utilities only (static/englishtobangla/...)
 
     # 301 redirects from old URLs (preserve bookmarks + Google index)
     path("poem/", RedirectView.as_view(url="/bangla-kobita-gaan/", permanent=True)),

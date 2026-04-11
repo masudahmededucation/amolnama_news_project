@@ -28,9 +28,10 @@
 
 .art-landing-upload-button {
   display: inline-block;
-  padding: .5rem 1.2rem;
+  min-height: 44px;
+  padding: .65rem 1.2rem;
   background: var(--primary);
-  color: #fff;
+  color: var(--card);
   border-radius: 25px;
   font-size: .85rem;
   font-weight: 700;
@@ -39,7 +40,7 @@
 }
 
 .art-landing-upload-button:hover {
-  background: #1565c0;
+  background: var(--primary-hover);
   transform: scale(1.03);
 }
 
@@ -58,14 +59,14 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  background: var(--card, #fff);
+  background: var(--card);
   text-decoration: none;
   color: var(--text);
   transition: box-shadow .2s, transform .2s;
 }
 
 .art-gallery-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
@@ -94,7 +95,7 @@
   width: 100%;
   height: 100%;
   font-size: 3rem;
-  background: linear-gradient(135deg, var(--info-light), #f3e5f5);
+  background: linear-gradient(135deg, var(--info-light), var(--purple-light));
 }
 
 .art-gallery-card-tutorial-badge {
@@ -103,7 +104,7 @@
   left: .5rem;
   padding: .2rem .5rem;
   background: rgba(0, 0, 0, .7);
-  color: #fff;
+  color: var(--card);
   font-size: .68rem;
   font-weight: 600;
   border-radius: 12px;

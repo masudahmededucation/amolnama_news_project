@@ -60,8 +60,18 @@
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .follow-list-page { padding: .5rem; }
-  .follow-list-user-card { padding: .5rem .6rem; }
+  .follow-list-user-card { padding: .6rem; min-height: 44px; }
   .follow-list-user-avatar, .follow-list-user-avatar-initials { width: 40px; height: 40px; font-size: 1rem; }
-  .follow-list-follow-button { padding: .3rem .8rem; font-size: .72rem; min-height: 36px; }
-  .follow-list-search-input { font-size: .82rem; }
+  .follow-list-follow-button { padding: .4rem 1rem; font-size: .78rem; min-height: 44px; }
+  .follow-list-search-input { font-size: .82rem; min-height: 44px; }
+  .follow-list-load-more-button { min-height: 44px; }
+  .follow-list-tab { min-height: 44px; display: flex; flex-direction: column; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .follow-list-tab,
+  .follow-list-search-input,
+  .follow-list-user-card,
+  .follow-list-follow-button,
+  .follow-list-load-more-button { transition: none; }
 }

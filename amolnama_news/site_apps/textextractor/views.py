@@ -51,7 +51,7 @@ def home(request):
     job_items = []
     for job in jobs:
         engine = engine_map.get(job.link_extraction_engine_id)
-        file_size_display = ''
+        file_size_display = None
         if job.original_file_size_bytes:
             if job.original_file_size_bytes > 1024 * 1024:
                 file_size_display = f'{job.original_file_size_bytes / (1024 * 1024):.1f} MB'
@@ -70,7 +70,7 @@ def home(request):
             'input_file_path': job.input_file_path,
             'output_file_path': job.output_file_path,
             'status_code': job.status_code,
-            'engine_name': engine.engine_name_en if engine else '',
+            'engine_name': engine.engine_name_en if engine else None,
             'detected_language_code': job.detected_language_code,
             'word_count': job.word_count,
             'page_count': job.page_count,
@@ -80,10 +80,10 @@ def home(request):
             'processing_time_seconds': round(job.processing_time_milliseconds / 1000, 1) if job.processing_time_milliseconds else None,
             'processing_time_display': _format_duration_display(job.processing_time_milliseconds),
             'created_at': job.created_at,
-            'created_at_formatted': job.created_at.strftime('%d %b %Y, %I:%M:%S %p') if job.created_at else '',
-            'updated_at_formatted': job.updated_at.strftime('%d %b %Y, %I:%M:%S %p') if job.updated_at else '',
+            'created_at_formatted': job.created_at.strftime('%d %b %Y, %I:%M:%S %p') if job.created_at else None,
+            'updated_at_formatted': job.updated_at.strftime('%d %b %Y, %I:%M:%S %p') if job.updated_at else None,
             'completed_at': job.completed_at,
-            'completed_at_formatted': job.completed_at.strftime('%d %b %Y, %I:%M:%S %p') if job.completed_at else '',
+            'completed_at_formatted': job.completed_at.strftime('%d %b %Y, %I:%M:%S %p') if job.completed_at else None,
             'error_message': job.error_message,
         })
 
@@ -92,6 +92,7 @@ def home(request):
         'seo': {
             'title': 'Text Extractor — OCR, Audio Transcription | আমলনামা নিউজ',
             'description': 'Extract text from images, PDFs, audio, and video. Bengali + English OCR.',
+            'noindex': True,
         },
     })
 
@@ -103,6 +104,7 @@ def upload(request):
     return render(request, 'textextractor/pages/textextractor-upload.html', {
         'seo': {
             'title': 'Upload — Text Extractor | আমলনামা নিউজ',
+            'noindex': True,
         },
     })
 
@@ -131,7 +133,7 @@ def job_detail(request, job_id):
         'file_extension': job.original_file_extension_code,
         'file_size_bytes': job.original_file_size_bytes,
         'status_code': job.status_code,
-        'engine_name': engine.engine_name_en if engine else '',
+        'engine_name': engine.engine_name_en if engine else None,
         'extracted_text_plain': _read_output_file(job.output_file_path),
         'word_count': job.word_count,
         'page_count': job.page_count,
@@ -150,5 +152,6 @@ def job_detail(request, job_id):
         'job': job_item,
         'seo': {
             'title': f'{job.original_file_name} — Text Extractor | আমলনামা নিউজ',
+            'noindex': True,
         },
     })

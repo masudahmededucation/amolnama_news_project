@@ -14,7 +14,7 @@
 
   {% if story.cover_url %}
   <div class="stories-detail-cover">
-    <img src="{{ story.cover_url }}" alt="{{ story.title_bn }}" class="stories-detail-cover-image" loading="lazy">
+    <img src="{{ story.cover_url }}" alt="{{ story.title_bn }}" class="stories-detail-cover-image" fetchpriority="high" decoding="async">
   </div>
   {% endif %}
 

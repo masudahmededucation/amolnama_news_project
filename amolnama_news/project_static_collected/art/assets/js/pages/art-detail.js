@@ -10,7 +10,9 @@
   if (artworkId) {
     fetch('/art-and-craft/api/' + artworkId + '/view/', {
       method: 'POST', headers: { 'X-CSRFToken': getCsrfTokenValue() },
-    }).catch(function () { /* non-critical */ });
+    }).catch(function (viewIncrementError) {
+      console.error('art view increment failed', viewIncrementError);
+    });
   }
 
   /* ---- Init shared actions bar (like + bookmark + share) ---- */

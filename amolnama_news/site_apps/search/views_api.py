@@ -41,7 +41,7 @@ def api_search(request):
         for post in posts:
             results.append({
                 'content_type': 'post',
-                'content_type_label': 'POST',
+                'content_type_label': 'post',
                 'content_type_color': 'blue',
                 'title': (post.post_text or '')[:100],
                 'url': f'/post/{post.post_post_id}/',
@@ -61,7 +61,7 @@ def api_search(request):
         for poem in poems:
             results.append({
                 'content_type': 'poem',
-                'content_type_label': 'POEM',
+                'content_type_label': 'poem',
                 'content_type_color': 'purple',
                 'title': poem.poem_title_bn or '',
                 'url': f'/bangla-kobita-gaan/{poem.poem_slug}/',
@@ -79,7 +79,7 @@ def api_search(request):
         for article in articles:
             results.append({
                 'content_type': 'news',
-                'content_type_label': 'NEWS',
+                'content_type_label': 'news',
                 'content_type_color': 'rose',
                 'title': article.pub_article_headline_bn or '',
                 'url': f'/newshub/article/{article.pub_article_slug}/',
@@ -97,7 +97,7 @@ def api_search(request):
         for topic in topics:
             results.append({
                 'content_type': 'debate',
-                'content_type_label': 'DEBATE',
+                'content_type_label': 'debate',
                 'content_type_color': 'amber',
                 'title': topic.topic_title or '',
                 'url': f'/debate/topic/{topic.debate_coll_topic_id}/',
@@ -117,7 +117,7 @@ def api_search(request):
         for destination in destinations:
             results.append({
                 'content_type': 'travel',
-                'content_type_label': 'TRAVEL',
+                'content_type_label': 'travel',
                 'content_type_color': 'green',
                 'title': destination.destination_name_bn or destination.destination_name_en or '',
                 'url': f'/bangladesh-tourist-destinations/travel/{destination.destination_slug}/',

@@ -32,8 +32,8 @@
 
   function toggleAddressFields() {
     const bd = isBangladesh();
-    bdFields.style.display   = bd ? "" : "none";
-    intlFields.style.display = bd ? "none" : "";
+    if (bdFields)   bdFields.hidden   = !bd;
+    if (intlFields) intlFields.hidden = bd;
   }
 
   if (countrySelect) {
@@ -93,16 +93,20 @@
       });
   }
 
-  districtSelect.addEventListener("change", function () {
-    loadUpazilas(this.value, null);
-  });
+  if (districtSelect) {
+    districtSelect.addEventListener("change", function () {
+      loadUpazilas(this.value, null);
+    });
+  }
 
-  upazilaSelect.addEventListener("change", function () {
-    loadUnions(this.value, null);
-  });
+  if (upazilaSelect) {
+    upazilaSelect.addEventListener("change", function () {
+      loadUnions(this.value, null);
+    });
+  }
 
   // On page load: if district is pre-selected, cascade down
-  if (districtSelect.value) {
+  if (districtSelect && districtSelect.value) {
     loadUpazilas(districtSelect.value, savedUpazila);
   }
 })();

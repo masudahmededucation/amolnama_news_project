@@ -646,21 +646,6 @@ def api_post_oembed(request):
     })
 
 
-    if seconds < 60:
-        return 'এইমাত্র'
-    elif seconds < 3600:
-        minutes = seconds // 60
-        return f'{minutes} মিনিট আগে'
-    elif seconds < 86400:
-        hours = seconds // 3600
-        return f'{hours} ঘণ্টা আগে'
-    elif seconds < 604800:
-        days = seconds // 86400
-        return f'{days} দিন আগে'
-    else:
-        return created_at.strftime('%d %b %Y')
-
-
 def _parse_keywords_json(keywords_json):
     """Parse JSON string of keywords into a list."""
     if not keywords_json:

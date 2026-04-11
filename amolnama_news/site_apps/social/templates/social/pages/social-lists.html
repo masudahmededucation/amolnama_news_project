@@ -31,34 +31,8 @@
   </div>
 </div>
 
-<script>
-(function () {
-  'use strict';
-  var createInput = document.getElementById('social-lists-create-input');
-  var createButton = document.getElementById('social-lists-create-button');
-  if (!createInput || !createButton) return;
+{% endblock %}
 
-  function getListCsrfToken() {
-    var match = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return match ? match.pop() : '';
-  }
-
-  createButton.addEventListener('click', function () {
-    var listName = createInput.value.trim();
-    if (!listName) return;
-    createButton.disabled = true;
-    fetch('/social/api/list/create/', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getListCsrfToken() },
-      body: JSON.stringify({ list_name: listName }),
-    }).then(function (response) { return response.json(); }).then(function (data) {
-      if (data.success) { window.location.reload(); }
-      createButton.disabled = false;
-    }).catch(function () { createButton.disabled = false; });
-  });
-
-  createInput.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') { event.preventDefault(); createButton.click(); }
-  });
-})();
-</script>
+{% block extra_js %}
+<script src="{% static 'social/assets/js/pages/social-lists.js' %}" defer></script>
 {% endblock %}

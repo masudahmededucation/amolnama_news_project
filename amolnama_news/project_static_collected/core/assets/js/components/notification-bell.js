@@ -64,11 +64,12 @@
               updateCountBadge(0);
               dropdown.classList.add('global-notification-dropdown-hidden');
             })
-            .catch(function () {});
+            .catch(function (markReadError) { console.error('Notification mark-read failed:', markReadError); });
           });
         }
       })
-      .catch(function () {
+      .catch(function (notificationFetchError) {
+        console.error('Notification fetch failed:', notificationFetchError);
         dropdown.innerHTML = '<div class="global-notification-empty">লোড ব্যর্থ</div>';
       });
   }
@@ -97,7 +98,7 @@
       .then(function (data) {
         if (data.success) updateCountBadge(data.unread_count);
       })
-      .catch(function () {});
+      .catch(function (notificationPollError) { console.error('Notification poll failed:', notificationPollError); });
   }
 
   /* WebSocket for real-time notifications (falls back to polling) */

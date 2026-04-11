@@ -134,9 +134,10 @@
 /* Submit button */
 .submit-button {
   width: 100%;
+  min-height: 44px;
   padding: 1rem;
   background: var(--primary);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   border: none;
   border-radius: 0.5rem;
   font-size: 1.1rem;
@@ -157,9 +158,10 @@
 /* Update button */
 .update-button {
   width: 100%;
+  min-height: 44px;
   padding: 0.875rem;
   background: var(--primary);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   border: none;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -174,6 +176,7 @@
 
 /* New vote button */
 .new-vote-button {
+  min-height: 44px;
   padding: 0.75rem 1.5rem;
   background: transparent;
   color: var(--primary);
@@ -186,7 +189,7 @@
 
 .new-vote-button:hover {
   background: var(--primary);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
 }
 
 /* Success card */
@@ -202,7 +205,7 @@
   width: 80px;
   height: 80px;
   background: var(--success);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   font-size: 3rem;
   font-weight: bold;
   border-radius: 50%;
@@ -241,9 +244,21 @@
   line-height: 1.2;
 }
 
-/* Update success message */
-.update-success {
-  display: none;
+/* Inline error message for vote submission failures */
+.vote-error-message:not([hidden]) {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
+  border-radius: 0.5rem;
+  color: var(--danger-text);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* Update success message — uses [hidden] attr for visibility control */
+.update-success:not([hidden]) {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -256,15 +271,11 @@
   font-weight: 600;
 }
 
-.update-success.show {
-  display: flex;
-}
-
 .update-success .tick-icon {
   width: 24px;
   height: 24px;
   background: var(--success);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -320,4 +331,15 @@
 /* Small phones (360px) */
 @media (max-width: 360px) {
   /* Additional small phone optimizations */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit-button,
+  .update-button,
+  .new-vote-button {
+    transition: none;
+  }
+  .submit-button:hover {
+    transform: none;
+  }
 }

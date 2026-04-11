@@ -46,7 +46,7 @@
 
 #election-view .selection-list li:hover {
   background: var(--danger);
-  color: #fff;
+  color: white;
   border-color: var(--danger);
   border-left-color: var(--card);
   transform: translateX(4px);
@@ -54,7 +54,7 @@
 }
 
 #election-view .selection-list li:hover::before {
-  color: #fff;
+  color: white;
 }
 
 #election-view .selection-list li:hover .name-en {
@@ -76,7 +76,7 @@
 /* --- Inline Page Messages --- */
 .page-message {
   padding: 0.85rem 1.25rem;
-  border-radius: var(--radius, 4px);
+  border-radius: var(--radius);
   margin-bottom: 1rem;
   font-size: 0.95rem;
   line-height: 1.5;
@@ -88,20 +88,20 @@
 }
 
 .page-message--error {
-  background: #f8d7da;
-  border: 1px solid #f5c2c7;
-  color: #842029;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
 }
 
-.page-message--error a { color: #842029; }
+.page-message--error a { color: var(--danger-text); }
 
 .page-message--warning {
   background: var(--warning-light);
-  border: 1px solid #ffecb5;
-  color: #664d03;
+  border: 1px solid var(--warning-light);
+  color: var(--warning-text);
 }
 
-.page-message--warning a { color: #664d03; }
+.page-message--warning a { color: var(--warning-text); }
 
 /* --- Interaction Disabled State --- */
 .pointer-events-disabled {

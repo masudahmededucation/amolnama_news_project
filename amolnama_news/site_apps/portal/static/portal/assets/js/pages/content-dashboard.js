@@ -18,14 +18,11 @@
       });
       filterButton.classList.add('content-dashboard-filter-active');
 
-      /* Show/hide items */
+      /* Show/hide items via hidden attribute (no inline style) */
       const allItems = document.querySelectorAll('.content-dashboard-item');
       allItems.forEach(function (item) {
-        if (filterValue === 'all' || item.getAttribute('data-content-type') === filterValue) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
+        const matchesFilter = filterValue === 'all' || item.getAttribute('data-content-type') === filterValue;
+        item.hidden = !matchesFilter;
       });
     });
   });

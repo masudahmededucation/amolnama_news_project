@@ -105,7 +105,17 @@
   max-height: 400px;
   overflow: hidden;
   border-radius: 8px;
-  background: #000;
+  background: var(--text);
+}
+
+/* Circular crop mask — applied to Cropper.js internal DOM nodes */
+.avatar-cropper-container .cropper-crop-box,
+.avatar-cropper-container .cropper-view-box,
+.avatar-cropper-container .cropper-face {
+  border-radius: 50%;
+}
+.avatar-cropper-container .cropper-view-box {
+  outline: 0;
 }
 
 .avatar-cropper-container img {
@@ -122,10 +132,11 @@
 .avatar-cropper-save-button {
   flex: 1;
   padding: .6rem 1rem;
+  min-height: 44px;
   border: none;
   border-radius: 25px;
-  background: var(--primary, #1877f2);
-  color: #fff;
+  background: var(--primary);
+  color: var(--card);
   font-size: .88rem;
   font-weight: 700;
   cursor: pointer;
@@ -133,7 +144,7 @@
 }
 
 .avatar-cropper-save-button:hover {
-  background: #1565c0;
+  background: var(--primary-dark, var(--primary));
 }
 
 .avatar-cropper-save-button:disabled {
@@ -161,6 +172,10 @@
   margin-top: .5rem;
   font-size: .78rem;
   text-align: center;
+}
+
+.avatar-cropper-message-error {
+  color: var(--danger);
 }
 
 /* ---- Mobile ---- */

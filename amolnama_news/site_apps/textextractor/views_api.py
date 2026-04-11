@@ -2,13 +2,14 @@
 
 import logging
 import os
-import threading
 import uuid
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+
+from amolnama_news.site_apps.newsengine.utils import run_background_task
 
 from .models import CollExtractionJob
 from .processor import create_job_from_file, process_extraction_job
@@ -56,11 +57,7 @@ def api_extraction_upload(request):
     job_id = create_job_from_file(file_path, user_profile_id=user_profile_id)
 
     # Process in background thread (immediate UI response)
-    threading.Thread(
-        target=process_extraction_job,
-        args=(job_id,),
-        daemon=True,
-    ).start()
+    run_background_task(process_extraction_job, job_id)
 
     return JsonResponse({
         'success': True,

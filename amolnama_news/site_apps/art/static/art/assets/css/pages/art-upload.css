@@ -42,8 +42,9 @@
   border-radius: 8px;
   font-size: .88rem;
   color: var(--text);
-  background: var(--card, #fff);
+  background: var(--card);
   transition: border-color .15s;
+  min-height: 44px;
 }
 
 .art-upload-input:focus,
@@ -51,7 +52,7 @@
 .art-upload-select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(24, 119, 242, .1);
+  box-shadow: var(--shadow);
 }
 
 .art-upload-textarea {
@@ -89,11 +90,12 @@
 }
 
 .art-upload-submit-button {
+  min-height: 44px;
   padding: .6rem 1.5rem;
   border: none;
   border-radius: 25px;
   background: var(--primary);
-  color: #fff;
+  color: var(--card);
   font-size: .9rem;
   font-weight: 700;
   cursor: pointer;
@@ -101,7 +103,7 @@
 }
 
 .art-upload-submit-button:hover {
-  background: #1565c0;
+  background: var(--primary-hover);
   transform: scale(1.02);
 }
 

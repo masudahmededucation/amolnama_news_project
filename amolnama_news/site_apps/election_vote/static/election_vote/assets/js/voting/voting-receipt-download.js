@@ -1,4 +1,8 @@
-/* ========== Election Vote – Receipt Download as JPG ========== */
+/* ========== Election Vote – Receipt Download as JPG ==========
+   NOTE: Canvas2D fillStyle/strokeStyle require literal color strings
+   (CSS custom properties are not supported by the Canvas API). The
+   hex colors below are an intentional exception to the project's
+   "no hardcoded hex colors" rule, limited to canvas rendering. */
 
 /**
  * Download the vote receipt as a JPG image.

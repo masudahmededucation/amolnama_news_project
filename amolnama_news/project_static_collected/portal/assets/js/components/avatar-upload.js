@@ -32,7 +32,7 @@
     const reader = new FileReader();
     reader.onload = function (event) {
       cropperImage.src = event.target.result;
-      cropperModal.style.display = 'flex';
+      cropperModal.hidden = false;
 
       /* Destroy previous cropper instance */
       if (cropperInstance) {
@@ -52,16 +52,7 @@
         center: true,
         highlight: false,
         ready: function () {
-          /* Add circular mask overlay via CSS */
-          const cropBox = document.querySelector('.cropper-crop-box');
-          if (cropBox) cropBox.style.borderRadius = '50%';
-          const viewBox = document.querySelector('.cropper-view-box');
-          if (viewBox) {
-            viewBox.style.borderRadius = '50%';
-            viewBox.style.outline = '0';
-          }
-          const cropFace = document.querySelector('.cropper-face');
-          if (cropFace) cropFace.style.borderRadius = '50%';
+          /* Circular mask is applied via CSS rules on .avatar-cropper-container .cropper-* */
 
           /* Auto-detect face and center crop on it (Chrome/Edge only) */
           if (typeof FaceDetector !== 'undefined') {
@@ -109,12 +100,13 @@
   /* ---- Cancel → close modal ---- */
 
   cancelButton.addEventListener('click', function () {
-    cropperModal.style.display = 'none';
+    cropperModal.hidden = true;
     if (cropperInstance) {
       cropperInstance.destroy();
       cropperInstance = null;
     }
     messageElement.textContent = '';
+    messageElement.classList.remove('avatar-cropper-message-error');
   });
 
   /* ---- Save → crop + upload ---- */
@@ -160,23 +152,24 @@
           previewElement.innerHTML = '<img src="' + escapeHtml(data.avatar_url) + '" alt="প্রোফাইল ছবি" class="avatar-upload-current-image" id="avatar-upload-current-image">';
 
           /* Close modal */
-          cropperModal.style.display = 'none';
+          cropperModal.hidden = true;
           if (cropperInstance) {
             cropperInstance.destroy();
             cropperInstance = null;
           }
 
           messageElement.textContent = '';
+          messageElement.classList.remove('avatar-cropper-message-error');
         } else {
           messageElement.textContent = data.error || 'আপলোড করা যায়নি';
-          messageElement.style.color = '#dc2626';
+          messageElement.classList.add('avatar-cropper-message-error');
         }
       })
-      .catch(function (networkError) {
+      .catch(function () {
         saveButton.disabled = false;
         saveButton.textContent = 'সংরক্ষণ করুন (Save)';
         messageElement.textContent = 'নেটওয়ার্ক ত্রুটি (Network error)';
-        messageElement.style.color = '#dc2626';
+        messageElement.classList.add('avatar-cropper-message-error');
       });
     }, 'image/jpeg', 0.9);
   });

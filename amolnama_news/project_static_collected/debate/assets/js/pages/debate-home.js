@@ -365,13 +365,15 @@
       const redSideLabel = redSideLabelInput.value.trim() || null;
 
       if (!topicTitle || topicTitle.length < 10) {
-        titleInput.style.borderColor = '#dc2626';
+        titleInput.classList.add('debate-home-create-input-invalid');
         return;
       }
+      titleInput.classList.remove('debate-home-create-input-invalid');
       if (!scheduledTime) {
-        timeInput.style.borderColor = '#dc2626';
+        timeInput.classList.add('debate-home-create-input-invalid');
         return;
       }
+      timeInput.classList.remove('debate-home-create-input-invalid');
 
       submitButton.disabled = true;
 
@@ -408,7 +410,7 @@
       })
       .catch(function () {
         const errorMessage = document.createElement('div');
-        errorMessage.style.cssText = 'color:var(--danger);font-size:.78rem;margin-top:.4rem;';
+        errorMessage.className = 'debate-arena-inline-message debate-arena-inline-message-error';
         errorMessage.textContent = 'নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।';
         formContainer.appendChild(errorMessage);
         submitButton.disabled = false;

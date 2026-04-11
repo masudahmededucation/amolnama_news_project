@@ -40,7 +40,7 @@ Parameters:
         {% endif %}
         {% if vote_percentage %}
           <div class="bar-container">
-            <div class="bar-fill" style="width: {{ vote_percentage }}%;"></div>
+            <div class="bar-fill" style="--evaluation-vote-bar-fill-width: {{ vote_percentage|floatformat:1 }}%;"></div>
             <span class="pct-text">{{ vote_percentage|floatformat:1 }}%</span>
           </div>
         {% endif %}

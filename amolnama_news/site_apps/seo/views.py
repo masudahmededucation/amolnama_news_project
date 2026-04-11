@@ -187,9 +187,17 @@ def service_worker_js(request):
     """Serve /sw.js — PWA service worker for offline caching.
 
     Must be at root URL for maximum scope (/).
+
+    NOTE: The offline fallback HTML inside this script contains an inline
+    <style> block and hardcoded hex colors. This is INTENTIONAL — the offline
+    page must be fully self-contained because no external requests can be
+    made when the user is offline. Do NOT extract these styles to an external
+    CSS file. The hex colors in manifest_json (theme_color / background_color)
+    are also intentional because the W3C Web App Manifest spec requires
+    concrete color values and cannot reference CSS variables.
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v541';
+var CACHE_NAME = 'amolnama-v544';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

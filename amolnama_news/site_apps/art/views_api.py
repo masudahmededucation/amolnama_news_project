@@ -12,13 +12,15 @@ from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import CollArtwork, EngagementArtworkLike, EngagementArtworkBookmark, EngagementArtworkComment
+from .models import CollArtwork, EngagementArtworkLike, EngagementArtworkComment
 
 logger = logging.getLogger(__name__)
 
 IMAGE_EXTENSION_MAP = {
     'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif',
 }
+MAX_UPLOAD_FILE_COUNT = 10
+MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB per image
 
 
 @require_POST
@@ -49,6 +51,13 @@ def api_artwork_create(request):
     uploaded_files = request.FILES.getlist('artwork_media_files')
     if not uploaded_files:
         return JsonResponse({'success': False, 'error': 'অন্তত একটি ছবি আপলোড করুন'}, status=400)
+    if len(uploaded_files) > MAX_UPLOAD_FILE_COUNT:
+        return JsonResponse({'success': False, 'error': f'সর্বোচ্চ {MAX_UPLOAD_FILE_COUNT}টি ছবি আপলোড করা যায়'}, status=400)
+    for uploaded_file in uploaded_files:
+        if (uploaded_file.content_type or '') not in IMAGE_EXTENSION_MAP:
+            return JsonResponse({'success': False, 'error': 'শুধু JPG/PNG/WEBP/GIF ছবি আপলোড করুন'}, status=400)
+        if uploaded_file.size > MAX_UPLOAD_FILE_SIZE_BYTES:
+            return JsonResponse({'success': False, 'error': 'প্রতিটি ছবি সর্বোচ্চ ১০ মেগাবাইট হতে পারে'}, status=400)
 
     try:
         user_profile = UserProfile.objects.get(link_user_account_user_id=request.user.pk)

@@ -10,12 +10,12 @@
   const bar = document.getElementById('saved-office-bar');
   if (!bar) return;
 
-  const select    = document.getElementById('saved-office-select');
-  const btnLoad   = document.getElementById('button-load-office');
-  const btnDelete = document.getElementById('button-delete-office');
-  const btnSave   = document.getElementById('button-save-office');
-  const labelInput = document.getElementById('save-office-label');
-  const defaultChk = document.getElementById('save-office-default');
+  const select         = document.getElementById('saved-office-select');
+  const buttonLoad     = document.getElementById('button-load-office');
+  const buttonDelete   = document.getElementById('button-delete-office');
+  const buttonSave     = document.getElementById('button-save-office');
+  const labelInput     = document.getElementById('save-office-label');
+  const defaultCheckbox = document.getElementById('save-office-default');
 
   /* Field IDs that map to the saved office columns */
   const FIELD_MAP = {
@@ -85,24 +85,24 @@
   /* ── Enable/disable load & delete buttons ── */
   function updateButtons() {
     const hasSelection = select.value !== '';
-    btnLoad.disabled = !hasSelection;
-    btnDelete.disabled = !hasSelection;
+    buttonLoad.disabled = !hasSelection;
+    buttonDelete.disabled = !hasSelection;
   }
 
   /* ── Events ── */
   select.addEventListener('change', updateButtons);
 
-  btnLoad.addEventListener('click', function () {
-    const opt = select.options[select.selectedIndex];
-    if (!opt || !opt.dataset.office) return;
-    const office = JSON.parse(opt.dataset.office);
+  buttonLoad.addEventListener('click', function () {
+    const selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption || !selectedOption.dataset.office) return;
+    const office = JSON.parse(selectedOption.dataset.office);
     fillForm(office);
   });
 
-  btnSave.addEventListener('click', function () {
+  buttonSave.addEventListener('click', function () {
     const data = readForm();
     data.office_label = (labelInput.value || '').trim();
-    data.is_default = defaultChk.checked;
+    data.is_default = defaultCheckbox.checked;
 
     /* If an office is selected, update it; otherwise create new */
     if (select.value) {
@@ -126,25 +126,29 @@
       if (result.ok) {
         loadList();
         labelInput.value = '';
-        defaultChk.checked = false;
+        defaultCheckbox.checked = false;
       }
     })
-    .catch(function () {});
+    .catch(function (error) { console.error('saved-office save failed', error); });
   });
 
   let deleteConfirmPending = false;
-  btnDelete.addEventListener('click', function () {
+  buttonDelete.addEventListener('click', function () {
     if (!select.value) return;
     if (!deleteConfirmPending) {
       deleteConfirmPending = true;
-      btnDelete.textContent = 'নিশ্চিত? আবার ক্লিক করুন';
-      btnDelete.style.color = 'var(--danger)';
-      setTimeout(function () { deleteConfirmPending = false; btnDelete.textContent = 'Delete'; btnDelete.style.color = ''; }, 3000);
+      buttonDelete.textContent = 'নিশ্চিত? আবার ক্লিক করুন';
+      buttonDelete.classList.add('is-confirming-delete');
+      setTimeout(function () {
+        deleteConfirmPending = false;
+        buttonDelete.textContent = 'Delete';
+        buttonDelete.classList.remove('is-confirming-delete');
+      }, 3000);
       return;
     }
     deleteConfirmPending = false;
-    btnDelete.textContent = 'Delete';
-    btnDelete.style.color = '';
+    buttonDelete.textContent = 'Delete';
+    buttonDelete.classList.remove('is-confirming-delete');
 
     fetch(API_DELETE, {
       method: 'POST',
@@ -162,7 +166,7 @@
     .then(function (result) {
       if (result.ok) loadList();
     })
-    .catch(function () {});
+    .catch(function (error) { console.error('saved-office delete failed', error); });
   });
 
   /* ── Init: load saved offices on page load ── */

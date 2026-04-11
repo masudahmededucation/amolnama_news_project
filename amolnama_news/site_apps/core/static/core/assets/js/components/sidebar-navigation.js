@@ -54,7 +54,7 @@
             messengerBadge.classList.add('sidebar-navigation-unread-badge-hidden');
           }
         })
-        .catch(function () {});
+        .catch(function (messengerUnreadPollError) { console.error('Messenger unread poll failed:', messengerUnreadPollError); });
     }
     pollMessengerUnreadCount();
     setInterval(pollMessengerUnreadCount, 30000);

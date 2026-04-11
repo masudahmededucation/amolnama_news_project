@@ -49,6 +49,7 @@
 .login-form-group input,
 .signup-form-group input {
   padding: .6rem .75rem;
+  min-height: 44px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
@@ -71,6 +72,7 @@
   width: 100%;
   justify-content: center;
   padding: .7rem;
+  min-height: 44px;
   font-size: 1rem;
   margin-top: .5rem;
   cursor: pointer;
@@ -100,27 +102,27 @@
 }
 
 .auth-alert--success {
-  background: #e6f9ee;
-  color: #0a7c3e;
-  border: 1px solid #b7e8cc;
+  background: var(--success-light);
+  color: var(--success);
+  border: 1px solid var(--success);
 }
 
 .auth-alert--error {
-  background: #fde8e8;
-  color: #c41e1e;
-  border: 1px solid #f5b8b8;
+  background: var(--danger-light);
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
 }
 
 .auth-alert--info {
-  background: #e8f0fd;
-  color: #1a5cb0;
-  border: 1px solid #b8d4f5;
+  background: var(--info-light);
+  color: var(--info);
+  border: 1px solid var(--info);
 }
 
 .auth-alert--warning {
   background: var(--warning-light);
-  color: #8a6d00;
-  border: 1px solid #ffe082;
+  color: var(--warning-text);
+  border: 1px solid var(--warning);
 }
 
 /* ── Switch link ("Already have an account?") ── */
@@ -151,6 +153,7 @@
   align-items: center;
   gap: .75rem;
   width: 100%;
+  min-height: 44px;
   padding: .7rem 1rem;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -176,16 +179,10 @@
   flex-shrink: 0;
 }
 
-.signup-social-button--google:hover {
-  border-color: #4285f4;
-}
-
-.signup-social-button--facebook:hover {
-  border-color: #1877f2;
-}
-
+.signup-social-button--google:hover,
+.signup-social-button--facebook:hover,
 .signup-social-button--mobile:hover {
-  border-color: var(--primary, #1B6B4A);
+  border-color: var(--primary);
 }
 
 /* ── OR divider ── */
@@ -298,7 +295,7 @@
 
 .profile-sidebar-item.active {
   background: var(--accent);
-  color: #fff;
+  color: var(--card);
   font-weight: 600;
 }
 

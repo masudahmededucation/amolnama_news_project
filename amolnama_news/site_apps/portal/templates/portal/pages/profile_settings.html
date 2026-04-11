@@ -1,6 +1,11 @@
 {% extends "portal/pages/profile_base.html" %}
+{% load static %}
 
 {% block profile_title %}Account Settings{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'portal/assets/js/pages/profile-settings.js' %}" defer></script>
+{% endblock %}
 
 {% block profile_content %}
 <h2 class="profile-section-title">Change Password</h2>
@@ -53,64 +58,5 @@
   </div>
   <div class="muted-words-list" id="muted-words-list" name="muted_words_list"></div>
 </div>
-
-<script>
-(function () {
-  'use strict';
-  var mutedWordInput = document.getElementById('muted-words-input');
-  var mutedWordAddButton = document.getElementById('muted-words-add-button');
-  var mutedWordListContainer = document.getElementById('muted-words-list');
-  if (!mutedWordInput || !mutedWordAddButton || !mutedWordListContainer) return;
-
-  function getMutedWordCsrfToken() {
-    var match = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return match ? match.pop() : '';
-  }
-
-  function renderMutedWords(words) {
-    mutedWordListContainer.innerHTML = '';
-    words.forEach(function (word) {
-      var tag = document.createElement('span');
-      tag.className = 'muted-words-tag';
-      tag.innerHTML = word + ' <button type="button" class="muted-words-tag-remove-button" data-muted-word="' + word + '">✕</button>';
-      mutedWordListContainer.appendChild(tag);
-    });
-  }
-
-  function loadMutedWords() {
-    fetch('/newsengine/api/muted-words/')
-      .then(function (response) { return response.json(); })
-      .then(function (data) { if (data.success) renderMutedWords(data.muted_words); });
-  }
-
-  mutedWordAddButton.addEventListener('click', function () {
-    var word = mutedWordInput.value.trim();
-    if (!word) return;
-    fetch('/newsengine/api/muted-words/add/', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getMutedWordCsrfToken() },
-      body: JSON.stringify({ muted_word: word }),
-    }).then(function (response) { return response.json(); }).then(function (data) {
-      if (data.success) { mutedWordInput.value = ''; loadMutedWords(); }
-    });
-  });
-
-  mutedWordListContainer.addEventListener('click', function (event) {
-    var removeButton = event.target.closest('[data-muted-word]');
-    if (!removeButton) return;
-    fetch('/newsengine/api/muted-words/remove/', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getMutedWordCsrfToken() },
-      body: JSON.stringify({ muted_word: removeButton.getAttribute('data-muted-word') }),
-    }).then(function (response) { return response.json(); }).then(function (data) {
-      if (data.success) loadMutedWords();
-    });
-  });
-
-  mutedWordInput.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') { event.preventDefault(); mutedWordAddButton.click(); }
-  });
-
-  loadMutedWords();
-})();
-</script>
 
 {% endblock %}

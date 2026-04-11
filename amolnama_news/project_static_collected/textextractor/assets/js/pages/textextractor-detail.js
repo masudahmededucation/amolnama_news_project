@@ -10,6 +10,10 @@
       navigator.clipboard.writeText(textContent.textContent).then(function () {
         copyButton.textContent = '✅ Copied!';
         setTimeout(function () { copyButton.textContent = '📋 Copy Text'; }, 2000);
+      }).catch(function (clipboardError) {
+        console.error('textextractor clipboard copy failed', clipboardError);
+        copyButton.textContent = '❌ Copy failed';
+        setTimeout(function () { copyButton.textContent = '📋 Copy Text'; }, 2000);
       });
     });
   }
@@ -46,7 +50,7 @@
             window.location.reload();
           }
         })
-        .catch(function () { /* keep polling */ });
+        .catch(function (detailPollError) { console.error('textextractor detail poll failed', detailPollError); });
       }, 2000);
     }
   }

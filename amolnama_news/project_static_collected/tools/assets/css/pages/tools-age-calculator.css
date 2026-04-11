@@ -265,6 +265,11 @@
   background: rgba(124,124,186,.12);
 }
 
+.age-cal-grid button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .age-cal-grid button.is-selected {
   background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
   color: #fff;

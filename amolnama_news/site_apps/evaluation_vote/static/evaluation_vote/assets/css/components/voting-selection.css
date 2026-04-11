@@ -39,6 +39,7 @@
 .selection-list li {
   padding: 0.75rem 1rem;
   margin: 0.5rem 0;
+  min-height: 44px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -49,7 +50,7 @@
 
 .selection-list li:hover {
   background: var(--danger);
-  color: #fff;
+  color: var(--evaluation-vote-on-primary);
   border-color: var(--danger);
   transform: translateX(5px);
   box-shadow: var(--shadow-md);
@@ -84,6 +85,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
   background: var(--surface);
@@ -97,7 +99,7 @@
 
 .back-button:hover {
   background: var(--card);
-  border-color: #B0ADA6;
+  border-color: var(--border);
   box-shadow: var(--shadow-md);
 }
 
@@ -181,6 +183,17 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .selection-list li,
+  .back-button {
+    transition: none;
+  }
+  .selection-list li:hover,
+  .selection-list li:active {
+    transform: none;
+  }
+}
+
 /* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
   .selection-list li:hover {
@@ -192,7 +205,7 @@
 
   .selection-list li:active {
     background: var(--danger);
-    color: #fff;
+    color: var(--evaluation-vote-on-primary);
     border-color: var(--danger);
   }
 
@@ -208,7 +221,7 @@
 
   .back-button:active {
     background: var(--card);
-    border-color: #B0ADA6;
+    border-color: var(--border);
     box-shadow: var(--shadow-md);
   }
 }

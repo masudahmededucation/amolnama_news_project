@@ -149,7 +149,7 @@
         const yr = startYear + i;
         const cls = yr === state.year ? ' class="is-selected"' : '';
         if (yr > today.getFullYear()) {
-          html += '<button type="button" disabled style="color:#ccc;">' + yr + '</button>';
+          html += '<button type="button" disabled>' + yr + '</button>';
         } else {
           html += '<button type="button"' + cls + ' data-action="pick-year" data-year="' + yr + '">' + yr + '</button>';
         }

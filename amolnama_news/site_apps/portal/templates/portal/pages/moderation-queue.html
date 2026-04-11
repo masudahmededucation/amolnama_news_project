@@ -38,41 +38,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-(function () {
-  'use strict';
-  function getCsrfTokenValue() {
-    var cookieMatch = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)');
-    return cookieMatch ? cookieMatch.pop() : '';
-  }
-  document.addEventListener('click', function (event) {
-    var actionButton = event.target.closest('.moderation-action-button');
-    if (!actionButton) return;
-    var action = actionButton.getAttribute('data-action');
-    var contentType = actionButton.getAttribute('data-content-type');
-    var contentId = parseInt(actionButton.getAttribute('data-content-id'), 10);
-    actionButton.disabled = true;
-    actionButton.textContent = '...';
-    fetch('/portal/api/moderation/' + action + '/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
-      body: JSON.stringify({ content_type: contentType, content_id: contentId }),
-    })
-    .then(function (response) { return response.json(); })
-    .then(function (data) {
-      if (data.success) {
-        var itemRow = actionButton.closest('.moderation-item');
-        if (itemRow) itemRow.style.display = 'none';
-      } else {
-        actionButton.textContent = action === 'approve' ? 'Approve' : 'Reject';
-        actionButton.disabled = false;
-      }
-    })
-    .catch(function () {
-      actionButton.textContent = action === 'approve' ? 'Approve' : 'Reject';
-      actionButton.disabled = false;
-    });
-  });
-})();
-</script>
+<script src="{% static 'portal/assets/js/pages/moderation-queue.js' %}" defer></script>
 {% endblock %}

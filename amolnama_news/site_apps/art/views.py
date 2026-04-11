@@ -9,8 +9,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from amolnama_news.site_apps.content.models import RefContentSubcategory
 
 from .models import (
-    CollArtwork, ArtworkAsset, ArtworkStep,
-    ArtworkYoutubeLink, EngagementArtworkLike, EngagementArtworkBookmark,
+    CollArtwork, ArtworkStep,
+    ArtworkYoutubeLink, EngagementArtworkLike,
 )
 
 
@@ -128,6 +128,8 @@ def home(request):
         'seo': {
             'title': 'শিল্পকলা — বাংলার ঐতিহ্যবাহী ও আধুনিক শিল্প | আমলনামা নিউজ',
             'description': 'নকশি কাঁথা, পটচিত্র, আলপনা, মৃৎশিল্প — বাংলাদেশের শিল্পকলা সংগ্রহ।',
+            'canonical': request.build_absolute_uri('/art-and-craft/'),
+            'og_type': 'website',
             'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা'}],
         },
     })
@@ -219,24 +221,19 @@ def detail(request, artwork_slug):
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(artwork.link_user_profile_id, request, profile_suffix='articles/')
 
-    # Record content view for personalization
+    # Record content view for personalization (non-critical — log but never block)
     if request.user.is_authenticated:
         try:
-            from amolnama_news.site_apps.core.utils import get_user_profile_id
             viewer_user_profile_id = get_user_profile_id(request)
             if viewer_user_profile_id:
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
                 record_content_view(viewer_user_profile_id, 'art', artwork.blog_art_coll_artwork_id)
         except Exception:
-            pass
+            import logging
+            logging.getLogger(__name__).exception('record_content_view failed for artwork %s', artwork.blog_art_coll_artwork_id)
 
+    # Edit URL: art:edit route not yet defined — leave empty until edit page is built.
     edit_url = ''
-    if can_edit:
-        from django.urls import reverse
-        try:
-            edit_url = reverse('art:edit', args=[artwork.artwork_slug])
-        except Exception:
-            edit_url = ''
 
     return render(request, 'art/pages/art-detail.html', {
         'artwork': artwork_item,
@@ -257,6 +254,7 @@ def detail(request, artwork_slug):
             'description': (artwork.artwork_description_bn or artwork.artwork_title_bn)[:200],
             'og_image': request.build_absolute_uri(cover_url) if cover_url else '',
             'og_type': 'article',
+            'canonical': request.build_absolute_uri(f'/art-and-craft/{artwork.artwork_slug}/'),
             'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা', 'url': '/art-and-craft/'}, {'name': (artwork.artwork_title_bn or '')[:40]}],
         },
     })
@@ -276,6 +274,8 @@ def upload(request):
         'difficulties': difficulties,
         'seo': {
             'title': 'শিল্পকর্ম আপলোড — শিল্পকলা | আমলনামা নিউজ',
+            'description': 'আপনার শিল্পকর্ম আপলোড করুন।',
+            'canonical': request.build_absolute_uri('/art-and-craft/upload/'),
             'breadcrumbs': [{'name': 'হোম', 'url': '/'}, {'name': 'শিল্পকলা', 'url': '/art-and-craft/'}, {'name': 'আপলোড'}],
         },
     })

@@ -2,8 +2,11 @@
 
 /**
  * Get CSRF token from cookies for secure API requests
- * @returns {string} CSRF token value or null
+ * @returns {string|null} CSRF token value or null
  */
+function getCsrfTokenValue() {
+  const name = 'csrftoken';
+  let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
@@ -15,6 +18,29 @@
     }
   }
   return cookieValue;
+}
+
+/**
+ * Show an inline error message to the user.
+ * @param {string} message - Bengali error text
+ */
+function showVoteErrorMessage(message) {
+  const errorContainer = document.getElementById('vote-error-message');
+  if (errorContainer) {
+    errorContainer.textContent = message;
+    errorContainer.hidden = false;
+  }
+}
+
+/**
+ * Hide the inline error message.
+ */
+function hideVoteErrorMessage() {
+  const errorContainer = document.getElementById('vote-error-message');
+  if (errorContainer) {
+    errorContainer.hidden = true;
+    errorContainer.textContent = '';
+  }
 }
 
 /**
@@ -36,6 +62,8 @@ function selectParty(id, nameEn, nameBn, event) {
  * Sends vote data to backend API
  */
 function submitVote() {
+  hideVoteErrorMessage();
+
   getGeoInfo(function(geo) {
     const voteData = {
       division_id: selectedDivision?.id,
@@ -49,7 +77,6 @@ function submitVote() {
       constituency_name_bn: selectedConstituency?.nameBn,
       party_name_bn: selectedParty?.nameBn
     };
-
 
     fetch('/evaluation_vote/api/submit-vote/', {
       method: 'POST',
@@ -75,13 +102,12 @@ function submitVote() {
           showSuccessView();
           updatePartyListWithPercentages();
         } else {
-          let errorContainer = document.getElementById('vote-error-message');
-          if (errorContainer) { errorContainer.textContent = data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.hidden = false; }
+          showVoteErrorMessage(data.error || 'ভোট জমা দিতে ব্যর্থ হয়েছে।');
         }
       })
-      .catch(function () {
-        const errorContainer = document.getElementById('vote-error-message');
-        if (errorContainer) { errorContainer.textContent = 'ভোট জমা দিতে ব্যর্থ হয়েছে।'; errorContainer.hidden = false; }
+      .catch(function (error) {
+        console.error('submitVote failed:', error);
+        showVoteErrorMessage('ভোট জমা দিতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
       });
   });
 }
@@ -109,8 +135,8 @@ function showSuccessView() {
 
   showView('success-view');
 
-  const bc = document.getElementById('breadcrumb');
-  if (bc) bc.hidden = true;
+  const breadcrumbEl = document.getElementById('breadcrumb');
+  if (breadcrumbEl) breadcrumbEl.hidden = true;
 
   const reasonLabel = document.getElementById('reason-label');
   if (reasonLabel) {
@@ -131,8 +157,10 @@ function showSuccessView() {
  * Called when user submits the optional info form
  */
 function updateVote() {
-  const reason = document.getElementById('vote-reason').value.trim();
-  const unionId = document.getElementById('union').value;
+  const reasonEl = document.getElementById('vote-reason');
+  const unionEl = document.getElementById('union');
+  const reason = reasonEl ? reasonEl.value.trim() : '';
+  const unionId = unionEl ? unionEl.value : '';
 
   if (!reason && !unionId) {
     return;
@@ -143,7 +171,8 @@ function updateVote() {
   };
 
   if (reason) {
-    updateData.remarks_bn = reason;
+    // Backend view field is `remarks` (see views.update_vote)
+    updateData.remarks = reason;
   }
 
   if (unionId) {
@@ -166,13 +195,15 @@ function updateVote() {
       if (data.success) {
         const successMsg = document.getElementById('update-success');
         if (successMsg) {
-          successMsg.classList.add('show');
+          successMsg.hidden = false;
           setTimeout(() => {
-            successMsg.classList.remove('show');
+            successMsg.hidden = true;
           }, 3000);
         }
       }
     })
-    .catch(error => {
+    .catch(function (error) {
+      console.error('updateVote failed:', error);
+      showVoteErrorMessage('তথ্য আপডেট করা যায়নি। আবার চেষ্টা করুন।');
     });
 }

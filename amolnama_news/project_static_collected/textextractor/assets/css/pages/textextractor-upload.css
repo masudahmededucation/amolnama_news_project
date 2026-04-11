@@ -1,6 +1,16 @@
 /* Text Extractor Upload */
 
-.textextractor-upload-container { max-width: 600px; margin: 0 auto; padding: 1.5rem 0; }
+.textextractor-upload-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.5rem 0;
+  --textextractor-success-deep: var(--primary-hover);
+  --textextractor-success-gradient-start: var(--success-light);
+  --textextractor-success-text: var(--primary-hover);
+  --textextractor-success-border: var(--success-light);
+  --textextractor-progress-label: var(--text);
+  --textextractor-view-button-text: var(--card);
+}
 .textextractor-upload-title { font-size: 1.3rem; font-weight: 800; margin: 0 0 .3rem; }
 .textextractor-upload-subtitle { font-size: .82rem; color: var(--muted); margin: 0 0 1.5rem; }
 
@@ -14,18 +24,18 @@
 .textextractor-upload-file-input { display: none; }
 
 /* Progress */
-.textextractor-upload-progress { margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card, #fff); }
+.textextractor-upload-progress { margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
 .textextractor-upload-progress-filename { font-weight: 700; font-size: .88rem; margin-bottom: .5rem; }
 .textextractor-upload-progress-bar-wrapper { position: relative; height: 24px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-.textextractor-upload-progress-bar { height: 100%; background: linear-gradient(180deg, #6ee7b7, var(--success), #047857); border-radius: 3px; width: 0%; transition: width .5s ease-out; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
-.textextractor-upload-progress-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: #1f2937; pointer-events: none; }
+.textextractor-upload-progress-bar { height: 100%; background: linear-gradient(180deg, var(--textextractor-success-gradient-start), var(--success), var(--textextractor-success-deep)); border-radius: 3px; width: 0%; transition: width .5s ease-out; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+.textextractor-upload-progress-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: var(--textextractor-progress-label); pointer-events: none; }
 
 /* Result */
-.textextractor-upload-result { margin-top: 1.5rem; padding: 1rem; border: 1px solid #a7f3d0; border-radius: 12px; background: var(--success-light); }
-.textextractor-upload-result-header { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: .95rem; color: #065f46; margin-bottom: .5rem; }
+.textextractor-upload-result { margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--textextractor-success-border); border-radius: 12px; background: var(--success-light); }
+.textextractor-upload-result-header { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: .95rem; color: var(--textextractor-success-text); margin-bottom: .5rem; }
 .textextractor-upload-result-preview { font-size: .85rem; line-height: 1.6; color: var(--text); max-height: 200px; overflow-y: auto; padding: .5rem; background: var(--card); border-radius: 8px; border: 1px solid var(--border); margin-bottom: .5rem; white-space: pre-wrap; }
-.textextractor-upload-result-view-button { display: inline-block; padding: .4rem 1rem; background: var(--success); color: #fff; border-radius: 20px; font-size: .82rem; font-weight: 700; text-decoration: none; transition: background .15s; }
-.textextractor-upload-result-view-button:hover { background: #047857; }
+.textextractor-upload-result-view-button { display: inline-block; padding: .4rem 1rem; background: var(--success); color: var(--textextractor-view-button-text); border-radius: 20px; font-size: .82rem; font-weight: 700; text-decoration: none; transition: background .15s; }
+.textextractor-upload-result-view-button:hover { background: var(--textextractor-success-deep); }
 
 /* Error */
 .textextractor-upload-error { margin-top: 1.5rem; padding: .75rem 1rem; background: var(--danger-light); border: 1px solid var(--danger-border); border-radius: 10px; color: var(--danger-text); font-size: .85rem; }

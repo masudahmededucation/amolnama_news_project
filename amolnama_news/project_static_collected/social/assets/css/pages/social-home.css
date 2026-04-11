@@ -1,0 +1,40 @@
+/* Social home — guest landing (login prompt) */
+
+.social-home-guest {
+  max-width: 680px;
+  margin: 2rem auto;
+  text-align: center;
+  padding: 2rem;
+}
+
+.social-home-guest-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: .5rem;
+}
+
+.social-home-guest-message {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.social-home-guest-login-link {
+  display: inline-block;
+  padding: .5rem 1.5rem;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 20px;
+  font-weight: 700;
+  text-decoration: none;
+  min-height: 44px;
+  line-height: 1.6;
+}
+
+.social-home-guest-login-link:hover {
+  background: var(--primary-hover);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-home-guest-login-link { transition: none; }
+}

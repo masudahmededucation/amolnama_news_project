@@ -45,8 +45,19 @@
   .user-profile-header { flex-direction: column; align-items: center; text-align: center; padding: 1rem; }
   .user-profile-stats { justify-content: center; }
   .user-profile-actions { justify-content: center; }
-  .user-profile-message-button { min-height: 44px; }
+  .user-profile-message-button,
+  .user-profile-follow-button,
+  .user-profile-block-button { min-height: 44px; }
   .user-profile-meta { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-profile-follow-button,
+  .user-profile-block-button,
+  .user-profile-message-button,
+  .user-profile-stat-link,
+  .user-profile-tab,
+  .user-profile-article-card { transition: none; }
 }
 
 
@@ -65,7 +76,7 @@
   text-align: center;
   font-size: .9rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--muted);
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition: color .15s, border-color .15s;
@@ -125,7 +136,7 @@
 
 .user-profile-article-card-category {
   font-size: .75rem;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .user-profile-article-card-title {
@@ -137,19 +148,19 @@
 
 .user-profile-article-card-summary {
   font-size: .85rem;
-  color: var(--text-muted);
+  color: var(--muted);
   line-height: 1.5;
   margin: 0 0 .35rem;
 }
 
 .user-profile-article-card-date {
   font-size: .75rem;
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .user-profile-articles-empty {
   padding: 2rem 1rem;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: .9rem;
 }

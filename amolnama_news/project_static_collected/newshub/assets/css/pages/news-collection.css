@@ -84,13 +84,13 @@
   padding: .55rem .75rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   transition: all .2s;
   outline: none;
 }
 
 .contributor-type-inline:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -149,7 +149,7 @@
   font-size: .9rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   color: var(--text);
   transition: all .2s;
   box-sizing: border-box;
@@ -159,7 +159,7 @@
 .form-field input:hover,
 .form-field select:hover,
 .form-field textarea:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -202,7 +202,7 @@
 }
 
 .char-count-over {
-  color: #d32f2f;
+  color: var(--danger);
 }
 
 /* ---- Occurrence time custom picker ---- */
@@ -237,7 +237,7 @@
   font-size: .9rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   color: var(--text);
   box-sizing: border-box;
   outline: none;
@@ -246,7 +246,7 @@
 
 .occurrence-part input[type="date"]:hover,
 .occurrence-part select:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -397,7 +397,7 @@
 
 .button-repeater-delete:hover {
   background: var(--danger);
-  color: #fff;
+  color: var(--bg);
   border-color: var(--danger);
   box-shadow: 0 2px 6px rgba(220, 38, 38, .25);
 }
@@ -418,7 +418,7 @@
 
 .button-repeater-delete:hover .button-delete-x {
   background: rgba(255, 255, 255, .3);
-  color: #fff;
+  color: var(--bg);
 }
 
 /* ---- Featured image radio per file ---- */
@@ -437,7 +437,7 @@
 .file-featured-radio input[type="radio"] {
   width: 14px;
   height: 14px;
-  accent-color: #f5a623;
+  accent-color: var(--amber);
   margin: 0;
   cursor: pointer;
 }
@@ -469,9 +469,9 @@
   padding: .5rem 1.25rem;
   font-size: .85rem;
   font-weight: 600;
-  color: #D4622B;
-  background: #FFF3EC;
-  border: 1.5px dashed #D4622B;
+  color: var(--warning);
+  background: var(--warning-light);
+  border: 1.5px dashed var(--warning);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all .2s;
@@ -508,8 +508,8 @@
   margin-top: .4rem;
   margin-bottom: .5rem;
   border-radius: var(--radius-sm);
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
+  background: var(--warning-light);
+  border: 1px solid var(--amber);
   color: var(--warning-text);
   font-size: .8rem;
   line-height: 1.5;
@@ -538,21 +538,21 @@
 }
 
 .news-clear-form-button:hover {
-  color: #fff;
+  color: var(--bg);
   background: var(--danger);
   border-color: var(--danger);
 }
 
 .news-clear-form-button-confirm {
-  color: #fff;
+  color: var(--bg);
   background: var(--danger);
   border-color: var(--danger);
 }
 
 .news-clear-form-button-confirm:hover {
-  background: #8b1a1a;
-  border-color: #8b1a1a;
-  color: #fff;
+  background: var(--danger-text);
+  border-color: var(--danger-text);
+  color: var(--bg);
 }
 
 .news-clear-form-message {
@@ -666,7 +666,7 @@
   padding: .4rem .6rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   color: var(--text);
   box-sizing: border-box;
   outline: none;
@@ -674,7 +674,7 @@
 }
 
 .widget-location select:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -727,7 +727,7 @@
 }
 
 .map-search-input:hover {
-  border-color: #7C8A97;
+  border-color: var(--muted);
   background: var(--surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
 }
@@ -770,7 +770,7 @@
 
 .map-search-item:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--bg);
 }
 
 .map-pinpoint-container {
@@ -810,7 +810,7 @@
   min-height: 2rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background-color: #FAFAF8;
+  background-color: var(--surface);
   color: var(--text);
   cursor: text;
   display: flex;
@@ -877,7 +877,7 @@
 
 .widget-location .ts-control:hover,
 .widget-category .ts-control:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background-color: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -927,7 +927,7 @@
   font-size: .9rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   color: var(--text);
   box-sizing: border-box;
   outline: none;
@@ -936,7 +936,7 @@
 
 .sidebar .widget select:hover,
 .sidebar .widget input:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -978,7 +978,7 @@
   margin-left: .5rem;
   font-size: .75rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--bg);
   background: var(--danger);
   padding: .15rem .5rem;
   border-radius: 3px;
@@ -1103,7 +1103,7 @@
   min-height: 2.8rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background-color: #FAFAF8;
+  background-color: var(--surface);
   color: var(--text);
   cursor: text;
   display: flex;
@@ -1151,7 +1151,7 @@
 }
 
 .form-field-thana-search .ts-control:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
   box-shadow: 0 2px 8px rgba(10, 102, 194, .08);
 }
@@ -1239,7 +1239,7 @@
   font-size: .85rem;
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #FAFAF8;
+  background: var(--surface);
   color: var(--text);
   box-sizing: border-box;
   outline: none;
@@ -1247,7 +1247,7 @@
 }
 
 .village-other-input:hover {
-  border-color: #90CAF9;
+  border-color: var(--info-light);
   background: var(--info-light);
 }
 
@@ -1277,7 +1277,7 @@
 }
 
 .tag-search-input:hover {
-  border-color: #7C8A97;
+  border-color: var(--muted);
   background: var(--surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
 }
@@ -1320,7 +1320,7 @@
 
 .tag-search-item:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--bg);
 }
 
 /* ---- Selected tag chips (sidebar) ---- */
@@ -1339,14 +1339,14 @@
   font-size: .75rem;
   padding: .2rem .5rem;
   border-radius: 20px;
-  background: #0891B2;
-  color: #fff;
+  background: var(--teal);
+  color: var(--bg);
 }
 
 .selected-tag-remove {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--bg);
   font-size: .9rem;
   line-height: 1;
   cursor: pointer;
@@ -1367,13 +1367,13 @@
   border-radius: 20px;
   border: none;
   background: var(--danger);
-  color: #fff;
+  color: var(--bg);
   cursor: pointer;
   font-weight: 600;
 }
 
 .selected-tag-clear-all:hover {
-  background: #8b1a1a;
+  background: var(--danger-text);
 }
 
 /* ---- Available tag list (sidebar) ---- */
@@ -1420,7 +1420,7 @@
 }
 
 .tag-available-item:hover {
-  color: #fff;
+  color: var(--bg);
   background: var(--danger);
   border-radius: 3px;
 }
@@ -1496,11 +1496,11 @@
 
 .auth-warning {
   background: var(--warning-light);
-  border: 1px solid #F9A825;
+  border: 1px solid var(--amber);
   border-radius: var(--radius-sm);
   padding: .85rem 1.25rem;
   margin-bottom: 1rem;
-  color: #6D4C00;
+  color: var(--warning-text);
   font-size: .85rem;
   line-height: 1.5;
 }
@@ -1512,7 +1512,7 @@
 }
 
 .auth-warning small {
-  color: #8D6E00;
+  color: var(--warning-text);
 }
 
 /* ---- Form messages ---- */
@@ -1534,7 +1534,7 @@
 .form-message-error {
   background: var(--danger-light);
   border: 1px solid rgba(197, 48, 48, .25);
-  color: #922;
+  color: var(--danger);
 }
 
 /* ========== Social Source Repeater — Row Cards ========== */
@@ -1560,7 +1560,7 @@
   justify-content: space-between;
   padding: .5rem .85rem;
   margin: 0 -.85rem .75rem;
-  background: linear-gradient(135deg, var(--info-light) 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--info-light) 0%, var(--info-light) 100%);
 }
 
 /* Row number pill badge */
@@ -1579,33 +1579,33 @@
 
 /* 1 — Blue (default) */
 .social-source-row:nth-child(5n+1) .social-source-row-header {
-  background: linear-gradient(135deg, var(--info-light), #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
 }
-.social-source-row:nth-child(5n+1) .social-source-row-number { color: #1565c0; }
+.social-source-row:nth-child(5n+1) .social-source-row-number { color: var(--info); }
 
 /* 2 — Green */
 .social-source-row:nth-child(5n+2) .social-source-row-header {
-  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), var(--success-light));
 }
 .social-source-row:nth-child(5n+2) .social-source-row-number { color: var(--primary); }
 
 /* 3 — Purple */
 .social-source-row:nth-child(5n+3) .social-source-row-header {
-  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+  background: linear-gradient(135deg, var(--purple-light), var(--purple-light));
 }
-.social-source-row:nth-child(5n+3) .social-source-row-number { color: #6a1b9a; }
+.social-source-row:nth-child(5n+3) .social-source-row-number { color: var(--purple); }
 
 /* 4 — Amber */
 .social-source-row:nth-child(5n+4) .social-source-row-header {
-  background: linear-gradient(135deg, var(--warning-light), #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), var(--warning-light));
 }
-.social-source-row:nth-child(5n+4) .social-source-row-number { color: #e65100; }
+.social-source-row:nth-child(5n+4) .social-source-row-number { color: var(--warning-text); }
 
 /* 5 — Teal */
 .social-source-row:nth-child(5n+5) .social-source-row-header {
-  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+  background: linear-gradient(135deg, var(--teal-light), var(--teal-light));
 }
-.social-source-row:nth-child(5n+5) .social-source-row-number { color: #00695c; }
+.social-source-row:nth-child(5n+5) .social-source-row-number { color: var(--teal); }
 
 /* Add source button */
 .button-add-social-source {
@@ -1631,7 +1631,7 @@
 .social-url-mismatch {
   margin-top: .35rem;
   font-size: .8rem;
-  color: #b8860b;
+  color: var(--warning-text);
   font-weight: 500;
 }
 
@@ -1669,7 +1669,7 @@
 
 .org-autocomplete-item:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--bg);
 }
 
 /* ---- Error list per field ---- */
@@ -1740,7 +1740,7 @@
   padding: .55rem 1.5rem;
   border: none;
   border-radius: 0;
-  background: linear-gradient(135deg, var(--info-light), #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
 }
 
 .form-subsection-title:first-of-type {
@@ -1749,33 +1749,33 @@
 
 /* Color variants for different question sets within one step */
 .form-subsection-title.subsection-blue {
-  background: linear-gradient(135deg, var(--info-light), #bbdefb);
-  color: #1565c0;
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
+  color: var(--info);
 }
 
 .form-subsection-title.subsection-green {
-  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), var(--success-light));
   color: var(--primary);
 }
 
 .form-subsection-title.subsection-purple {
-  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
-  color: #6a1b9a;
+  background: linear-gradient(135deg, var(--purple-light), var(--purple-light));
+  color: var(--purple);
 }
 
 .form-subsection-title.subsection-amber {
-  background: linear-gradient(135deg, var(--warning-light), #ffe082);
-  color: #e65100;
+  background: linear-gradient(135deg, var(--warning-light), var(--warning-light));
+  color: var(--warning-text);
 }
 
 .form-subsection-title.subsection-teal {
-  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
-  color: #00695c;
+  background: linear-gradient(135deg, var(--teal-light), var(--teal-light));
+  color: var(--teal);
 }
 
 .form-subsection-title.subsection-red {
-  background: linear-gradient(135deg, var(--danger-light), #ef9a9a);
-  color: #c62828;
+  background: linear-gradient(135deg, var(--danger-light), var(--danger-light));
+  color: var(--danger-text);
 }
 
 /* ---- Input with suffix (e.g. currency unit) ---- */
@@ -1820,7 +1820,7 @@
   justify-content: space-between;
   padding: .5rem .85rem;
   margin: 0 -.85rem .75rem;
-  background: linear-gradient(135deg, var(--info-light) 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, var(--info-light) 0%, var(--info-light) 100%);
 }
 
 /* Row number pill badge */
@@ -1839,33 +1839,33 @@
 
 /* 1 — Blue (default) */
 .commodity-price-row:nth-child(5n+1) .commodity-row-header {
-  background: linear-gradient(135deg, var(--info-light), #bbdefb);
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
 }
-.commodity-price-row:nth-child(5n+1) .commodity-row-number { color: #1565c0; }
+.commodity-price-row:nth-child(5n+1) .commodity-row-number { color: var(--info); }
 
 /* 2 — Green */
 .commodity-price-row:nth-child(5n+2) .commodity-row-header {
-  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), var(--success-light));
 }
 .commodity-price-row:nth-child(5n+2) .commodity-row-number { color: var(--primary); }
 
 /* 3 — Purple */
 .commodity-price-row:nth-child(5n+3) .commodity-row-header {
-  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+  background: linear-gradient(135deg, var(--purple-light), var(--purple-light));
 }
-.commodity-price-row:nth-child(5n+3) .commodity-row-number { color: #6a1b9a; }
+.commodity-price-row:nth-child(5n+3) .commodity-row-number { color: var(--purple); }
 
 /* 4 — Amber */
 .commodity-price-row:nth-child(5n+4) .commodity-row-header {
-  background: linear-gradient(135deg, var(--warning-light), #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), var(--warning-light));
 }
-.commodity-price-row:nth-child(5n+4) .commodity-row-number { color: #e65100; }
+.commodity-price-row:nth-child(5n+4) .commodity-row-number { color: var(--warning-text); }
 
 /* 5 — Teal */
 .commodity-price-row:nth-child(5n+5) .commodity-row-header {
-  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+  background: linear-gradient(135deg, var(--teal-light), var(--teal-light));
 }
-.commodity-price-row:nth-child(5n+5) .commodity-row-number { color: #00695c; }
+.commodity-price-row:nth-child(5n+5) .commodity-row-number { color: var(--teal); }
 
 /* ---- Commodity detail tags ---- */
 .commodity-detail-display:not([hidden]) {
@@ -1970,12 +1970,12 @@
   background: var(--primary-light);
 }
 
-.actor-add-accused { border-color: #ef9a9a; }
+.actor-add-accused { border-color: var(--danger-light); }
 .actor-add-accused:hover { border-color: var(--danger); background: var(--danger-light); }
-.actor-add-victim { border-color: #a5d6a7; }
-.actor-add-victim:hover { border-color: #388e3c; background: #f1f8e9; }
-.actor-add-witness { border-color: #90caf9; }
-.actor-add-witness:hover { border-color: #1976d2; background: var(--info-light); }
+.actor-add-victim { border-color: var(--success-light); }
+.actor-add-victim:hover { border-color: var(--success); background: var(--success-light); }
+.actor-add-witness { border-color: var(--info-light); }
+.actor-add-witness:hover { border-color: var(--info); background: var(--info-light); }
 
 .actor-count-badge {
   display: inline-flex;
@@ -1989,12 +1989,12 @@
   font-size: .75rem;
   font-weight: 700;
   line-height: 1;
-  color: #fff;
+  color: var(--bg);
   background: var(--primary);
 }
 .actor-add-accused .actor-count-badge { background: var(--danger); }
-.actor-add-victim .actor-count-badge { background: #388e3c; }
-.actor-add-witness .actor-count-badge { background: #1976d2; }
+.actor-add-victim .actor-count-badge { background: var(--success); }
+.actor-add-witness .actor-count-badge { background: var(--info); }
 
 /* Actor card */
 .actor-card {
@@ -2023,13 +2023,13 @@
 
 /* Role-specific header gradients */
 .actor-card-accused .actor-card-header {
-  background: linear-gradient(135deg, var(--danger-light), #ef9a9a);
+  background: linear-gradient(135deg, var(--danger-light), var(--danger-light));
 }
 .actor-card-victim .actor-card-header {
-  background: linear-gradient(135deg, var(--success-light), #a5d6a7);
+  background: linear-gradient(135deg, var(--success-light), var(--success-light));
 }
 .actor-card-witness .actor-card-header {
-  background: linear-gradient(135deg, var(--info-light), #90caf9);
+  background: linear-gradient(135deg, var(--info-light), var(--info-light));
 }
 
 /* Role badge — frosted pill on colored header */
@@ -2045,9 +2045,9 @@
   letter-spacing: .3px;
 }
 
-.role-accused { color: #c62828; }
+.role-accused { color: var(--danger-text); }
 .role-victim  { color: var(--primary); }
-.role-witness { color: #1565c0; }
+.role-witness { color: var(--info); }
 
 /* .actor-remove-button — now styled by shared .button-repeater-delete */
 
@@ -2085,7 +2085,7 @@
 
 /* Actor card — two-group sections */
 .actor-group {
-  background: var(--bg-alt, #f8fafc);
+  background: var(--bg-alt, var(--surface));
   border: 1px solid var(--border);
   border-left: 3px solid var(--primary);
   border-radius: var(--radius-sm, 4px);
@@ -2102,16 +2102,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: var(--text-muted, #6b7280);
+  color: var(--text-muted, var(--muted));
   margin: 0 0 .85rem 0;
   padding-bottom: .45rem;
   border-bottom: 1px dashed var(--border);
 }
 
 /* Role-specific left border accent on groups */
-.actor-card-accused .actor-group  { border-left-color: #e57373; }
-.actor-card-victim  .actor-group  { border-left-color: #66bb6a; }
-.actor-card-witness .actor-group  { border-left-color: #42a5f5; }
+.actor-card-accused .actor-group  { border-left-color: var(--danger); }
+.actor-card-victim  .actor-group  { border-left-color: var(--success); }
+.actor-card-witness .actor-group  { border-left-color: var(--info); }
 
 /* Required field indicator */
 .field-required {
@@ -2163,7 +2163,7 @@
   justify-content: space-between;
   padding: .5rem .85rem;
   margin: 0 -.85rem .85rem;
-  background: linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%);
+  background: linear-gradient(135deg, var(--danger-light) 0%, var(--rose) 100%);
 }
 
 /* Card number pill badge */
@@ -2172,40 +2172,40 @@
   align-items: center;
   font-weight: 700;
   font-size: .85rem;
-  color: #880e4f;
+  color: var(--rose);
 }
 
 /* ---- Color cycling (5 colours) ---- */
 
 /* 1 — Rose/Pink (default — fitting for WCV context) */
 .wcv-accused-card:nth-child(5n+1) .wcv-accused-card-header {
-  background: linear-gradient(135deg, #fce4ec, #f48fb1);
+  background: linear-gradient(135deg, var(--danger-light), var(--rose));
 }
-.wcv-accused-card:nth-child(5n+1) .wcv-card-number { color: #880e4f; }
+.wcv-accused-card:nth-child(5n+1) .wcv-card-number { color: var(--rose); }
 
 /* 2 — Deep Orange */
 .wcv-accused-card:nth-child(5n+2) .wcv-accused-card-header {
-  background: linear-gradient(135deg, #fbe9e7, #ffab91);
+  background: linear-gradient(135deg, var(--warning-light), var(--warning-light));
 }
-.wcv-accused-card:nth-child(5n+2) .wcv-card-number { color: #bf360c; }
+.wcv-accused-card:nth-child(5n+2) .wcv-card-number { color: var(--warning-text); }
 
 /* 3 — Purple */
 .wcv-accused-card:nth-child(5n+3) .wcv-accused-card-header {
-  background: linear-gradient(135deg, #f3e5f5, #ce93d8);
+  background: linear-gradient(135deg, var(--purple-light), var(--purple-light));
 }
-.wcv-accused-card:nth-child(5n+3) .wcv-card-number { color: #6a1b9a; }
+.wcv-accused-card:nth-child(5n+3) .wcv-card-number { color: var(--purple); }
 
 /* 4 — Amber */
 .wcv-accused-card:nth-child(5n+4) .wcv-accused-card-header {
-  background: linear-gradient(135deg, var(--warning-light), #ffe082);
+  background: linear-gradient(135deg, var(--warning-light), var(--warning-light));
 }
-.wcv-accused-card:nth-child(5n+4) .wcv-card-number { color: #e65100; }
+.wcv-accused-card:nth-child(5n+4) .wcv-card-number { color: var(--warning-text); }
 
 /* 5 — Teal */
 .wcv-accused-card:nth-child(5n+5) .wcv-accused-card-header {
-  background: linear-gradient(135deg, #e0f2f1, #80cbc4);
+  background: linear-gradient(135deg, var(--teal-light), var(--teal-light));
 }
-.wcv-accused-card:nth-child(5n+5) .wcv-card-number { color: #00695c; }
+.wcv-accused-card:nth-child(5n+5) .wcv-card-number { color: var(--teal); }
 
 /* ---- Split first/last name layout ---- */
 
@@ -2222,7 +2222,7 @@
 .form-name-sublabel {
   display: block;
   font-size: .8rem;
-  color: var(--text-muted, #666);
+  color: var(--text-muted, var(--muted));
   margin-bottom: .25rem;
 }
 

@@ -52,12 +52,9 @@
                       document.getElementById('debate-rebuttal-card-' + postId);
     if (postElement) {
       postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      postElement.style.transition = 'box-shadow .3s, outline .3s';
-      postElement.style.outline = '3px solid #fbbf24';
-      postElement.style.boxShadow = '0 0 20px rgba(251,191,36,.4)';
+      postElement.classList.add('debate-argument-card-highlight');
       setTimeout(function () {
-        postElement.style.outline = '';
-        postElement.style.boxShadow = '';
+        postElement.classList.remove('debate-argument-card-highlight');
       }, 3000);
     }
   }
@@ -151,15 +148,16 @@
       const drawerTextarea = document.getElementById('debate-arena-reply-drawer-textarea');
       const drawerSubmit = document.getElementById('debate-arena-reply-drawer-submit');
 
-      /* Set crossing-over visual */
+      /* Set crossing-over visual via CSS class — no inline style */
       const replySide = parentAuthorSide === 'blue' ? 'red' : 'blue';
+      const drawerElement = document.getElementById('debate-arena-reply-drawer');
+      if (drawerElement) {
+        drawerElement.classList.remove('debate-arena-reply-drawer-blue', 'debate-arena-reply-drawer-red');
+        drawerElement.classList.add('debate-arena-reply-drawer-' + replySide);
+      }
       if (replySide === 'blue') {
-        drawerTextarea.style.borderColor = '#93c5fd';
-        drawerSubmit.style.background = '#2563eb';
         drawerLabel.textContent = '🔵 পক্ষে উত্তর দিন (Reply to Against)';
       } else {
-        drawerTextarea.style.borderColor = '#fca5a5';
-        drawerSubmit.style.background = '#dc2626';
         drawerLabel.textContent = '🔴 বিপক্ষে উত্তর দিন (Reply to Pro)';
       }
 
@@ -480,9 +478,13 @@
       if (previewWindow) {
         previewWindow.document.open();
         previewWindow.document.close();
+        /* Cross-window popup has no stylesheet — inject a minimal style element */
+        const loadingStyle = previewWindow.document.createElement('style');
+        loadingStyle.textContent = 'body{margin:0;font-family:sans-serif}.debate-pdf-loading{display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:gray}';
+        previewWindow.document.head.appendChild(loadingStyle);
         const loadingMessage = previewWindow.document.createElement('p');
         loadingMessage.textContent = '\u23F3 PDF \u09A4\u09C8\u09B0\u09BF \u09B9\u099A\u09CD\u099B\u09C7...';
-        loadingMessage.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#666;';
+        loadingMessage.className = 'debate-pdf-loading';
         previewWindow.document.body.appendChild(loadingMessage);
         previewWindow.document.title = escapeHtml(pdfFilename);
       }

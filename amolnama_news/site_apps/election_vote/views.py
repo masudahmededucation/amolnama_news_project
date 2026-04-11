@@ -50,6 +50,10 @@ def home(request):
         'seo': {
             'title': 'নির্বাচন ভোট — আমলনামা নিউজ | Election Vote',
             'description': 'ডিজিটাল নির্বাচনে আপনার ভোট দিন। Cast your vote in the digital election.',
+            'og_type': 'website',
+            'og_image': '',
+            'canonical': request.build_absolute_uri('/election_vote/'),
+            'json_ld': None,
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
                 {'name': 'নির্বাচন ভোট', 'url': None},
@@ -387,10 +391,14 @@ def past_results_drillthrough(request, election_evaluation_id):
     division_id = request.GET.get('division_id')
     district_id = request.GET.get('district_id')
 
-    if division_id:
-        division_id = int(division_id)
-    if district_id:
-        district_id = int(district_id)
+    try:
+        if division_id:
+            division_id = int(division_id)
+        if district_id:
+            district_id = int(district_id)
+    except (TypeError, ValueError):
+        division_id = None
+        district_id = None
 
     queryset = AppGetPastResults.objects.filter(
         election_evaluation_id=election_evaluation_id
@@ -430,9 +438,13 @@ def past_results_drillthrough(request, election_evaluation_id):
         'seo': {
             'title': f'{evaluation_name} — বিস্তারিত ফলাফল — আমলনামা নিউজ | Past Election Results',
             'description': f'{evaluation_name} নির্বাচনের অবস্থানভিত্তিক বিস্তারিত ফলাফল দেখুন। View detailed location-based results for past elections.',
+            'og_type': 'article',
+            'og_image': '',
+            'canonical': request.build_absolute_uri(request.path),
+            'json_ld': None,
             'breadcrumbs': [
                 {'name': 'হোম', 'url': '/'},
-                {'name': 'নির্বাচন ভোট', 'url': '/election-vote/'},
+                {'name': 'নির্বাচন ভোট', 'url': '/election_vote/'},
                 {'name': evaluation_name, 'url': None},
             ],
         },

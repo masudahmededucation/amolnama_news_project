@@ -63,7 +63,8 @@
         if (matchingCountElement) matchingCountElement.textContent = data.like_count;
       }
     })
-    .catch(function (networkError) {
+    .catch(function (likeButtonNetworkError) {
+      console.error('Like button request failed:', likeButtonNetworkError);
       likeButton.disabled = false;
     });
   }

@@ -11,19 +11,19 @@
 .martyr-header {
   text-align: center;
   padding: 2rem 1.5rem;
-  border-bottom: 3px solid #1a6b3a;
+  border-bottom: 3px solid var(--primary);
   margin-bottom: 1.5rem;
 }
 .martyr-name-bn {
   font-size: 2rem;
   font-weight: 700;
-  color: #111;
+  color: var(--text);
   margin: 0;
   line-height: 1.3;
 }
 .martyr-name-en {
   font-size: 1.1rem;
-  color: #555;
+  color: var(--muted);
   margin-top: .3rem;
 }
 .martyr-status-badge {
@@ -33,29 +33,29 @@
   font-size: .9rem;
   font-weight: 600;
   margin-top: .75rem;
-  color: #fff;
+  color: var(--bg);
 }
 .status-martyred { background: var(--danger-text); }
 .status-critically_injured { background: var(--danger); }
-.status-injured { background: #ea580c; }
-.status-eye_injured { background: #9333ea; }
+.status-injured { background: var(--warning); }
+.status-eye_injured { background: var(--purple); }
 .status-missing { background: var(--muted); }
-.status-arrested { background: #4b5563; }
+.status-arrested { background: var(--muted); }
 
 /* Sections */
 .martyr-section {
   margin-bottom: 1.5rem;
   padding: 1.25rem;
-  background: #fafafa;
-  border: 1px solid #e5e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
 }
 .martyr-section h2 {
   font-size: 1.1rem;
-  color: #1a6b3a;
+  color: var(--primary);
   margin: 0 0 .75rem 0;
   padding-bottom: .5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border);
 }
 
 .info-grid {
@@ -73,7 +73,7 @@
 }
 .info-item span {
   font-size: .95rem;
-  color: #111;
+  color: var(--text);
 }
 
 .story-block {
@@ -81,12 +81,12 @@
 }
 .story-block h3 {
   font-size: .85rem;
-  color: #374151;
+  color: var(--muted);
   margin: 0 0 .25rem 0;
 }
 .story-block p {
   margin: 0;
-  color: #111;
+  color: var(--text);
   line-height: 1.6;
   white-space: pre-line;
 }
@@ -108,9 +108,9 @@
   font-size: .85rem;
   margin: .15rem .2rem;
 }
-.evidence-verified { background: var(--success-light); color: var(--primary); border: 1px solid #bbf7d0; }
-.evidence-under_review { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
-.evidence-pending { background: var(--surface); color: #374151; border: 1px solid #d1d5db; }
+.evidence-verified { background: var(--success-light); color: var(--primary); border: 1px solid var(--success-light); }
+.evidence-under_review { background: var(--warning-light); color: var(--warning-text); border: 1px solid var(--warning-light); }
+.evidence-pending { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
 .evidence-unverified { background: var(--danger-light); color: var(--danger-text); border: 1px solid var(--danger-border); }
 
 /* Share */
@@ -118,13 +118,13 @@
   text-align: center;
   padding: 1.5rem;
   background: var(--success-light);
-  border: 1px solid #bbf7d0;
+  border: 1px solid var(--success-light);
   border-radius: 8px;
   margin-bottom: 1.5rem;
 }
 .share-section h2 {
   font-size: 1rem;
-  color: #1a6b3a;
+  color: var(--primary);
   margin: 0 0 .75rem 0;
 }
 .share-buttons {
@@ -145,16 +145,16 @@
   cursor: pointer;
   border: none;
 }
-.share-button-copy { background: #1a6b3a; color: #fff; }
-.share-button-whatsapp { background: #25d366; color: #fff; }
-.share-button-facebook { background: #1877f2; color: #fff; }
+.share-button-copy { background: var(--primary); color: var(--bg); }
+.share-button-whatsapp { background: var(--success); color: var(--bg); }
+.share-button-facebook { background: var(--info); color: var(--bg); }
 
 .martyr-footer {
   text-align: center;
   padding: 1rem;
   color: var(--muted);
   font-size: .8rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--border);
   margin-top: 1rem;
 }
 

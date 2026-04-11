@@ -84,4 +84,74 @@ all bold and weired
 you are suppossed it make it filtered promo card
 definitely you forgot about it
 
+##################
+even poem is working, 
+you can't just fucking check how it is working 
+and why not others? 
+you need to also check everything need to save into db. 
+need to check all the data entry path model step should work.
 
+also even it can restore the bookmark on it's own page,
+it is just not appearing on the nav menu bookmark.
+it is tiny simple work.
+
+check for duplicate code.
+when i refresh nav menu bookmark page 
+- two active button home and bookmark why?
+
+how many items can you see on my bookmark on db for my profile?
+
+you simply can't check poem's bookmarks. 
+how it is saving and it is not saving. 
+how travel is saving, where? so many fucking times, 
+i told you to report me to check it
+
+
+####
+can you check the action for blogs posts 
+- where is it sitting now? which app? 
+can you modularise it?
+
+
+####
+-debate
+after changing to parliament category
+the name for the favour and against is keeping it,
+government and opposition.
+for general it is normally blank with placeholder suggestions
+
+
+###
+--double nav menu active
+when bookmark is selected/social is selected too
+we are supposed to have two different url right?
+
+
+####
+losing bookmarks?
+test - stories added - one only
+
+
+###
+social preview should be like
+home wall post.
+like real home wall post preview.
+blog posts like promo cards.
+http://127.0.0.1:8001/social/@joes/articles/
+this should promo card style preview of everything
+written by the writer.
+
+
+###
+art and stories - share button show different is different options.
+why?
+it is supposed to be a modular reused share options.
+only poem/travel hub have proper share button option including share on my wall
+you keep doing this over and over.
+
+###########
+--tools promo card
+this is first time 
+- i have seen tools promo cards
+we haven't pay any attention to the tools promo card.
+make sure, it is working, and promoting naturally

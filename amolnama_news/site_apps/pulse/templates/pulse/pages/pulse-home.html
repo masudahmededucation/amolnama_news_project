@@ -120,7 +120,8 @@
         spinner.classList.add('pulse-feed-loading-spinner-hidden');
         isLoading = false;
       })
-      .catch(function () {
+      .catch(function (error) {
+        console.error('pulse feed load-more failed', error);
         spinner.classList.add('pulse-feed-loading-spinner-hidden');
         isLoading = false;
       });

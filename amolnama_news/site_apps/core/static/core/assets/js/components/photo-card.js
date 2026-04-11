@@ -125,7 +125,8 @@
 
       showInlineMessage(cardElement, 'কভার ছবি সেট হয়েছে (Cover set)', false);
     })
-    .catch(function (networkError) {
+    .catch(function (setCoverNetworkError) {
+      console.error('Photo set-cover failed:', setCoverNetworkError);
       setCoverButton.disabled = false;
       showInlineMessage(cardElement, 'নেটওয়ার্ক ত্রুটি (Network error)', true);
     });
@@ -174,7 +175,8 @@
       }
       if (likeCountElement) likeCountElement.textContent = data.like_count;
     })
-    .catch(function (networkError) {
+    .catch(function (likeToggleNetworkError) {
+      console.error('Photo like toggle failed:', likeToggleNetworkError);
       likeButton.disabled = false;
     });
   }
@@ -211,7 +213,8 @@
         }
       }
     })
-    .catch(function (networkError) {
+    .catch(function (viewCountNetworkError) {
+      console.error('Photo view count failed:', viewCountNetworkError);
     });
   }
 
@@ -303,7 +306,8 @@
         showInlineMessage(cardElement, data.error || 'ক্যাপশন পরিবর্তন করা যায়নি', true);
       }
     })
-    .catch(function (networkError) {
+    .catch(function (editSaveNetworkError) {
+      console.error('Photo caption save failed:', editSaveNetworkError);
       let cardElement = editFormElement.closest(config.cardSelector);
       editFormElement.remove();
       if (cardElement) {
@@ -385,7 +389,8 @@
         confirmDeleteButton.textContent = 'হ্যাঁ (Yes)';
       }
     })
-    .catch(function (networkError) {
+    .catch(function (deletePhotoNetworkError) {
+      console.error('Photo delete failed:', deletePhotoNetworkError);
       showInlineMessage(cardElement, 'নেটওয়ার্ক ত্রুটি (Network error)', true);
       confirmDeleteButton.disabled = false;
       confirmDeleteButton.textContent = 'হ্যাঁ (Yes)';

@@ -51,7 +51,7 @@
   font-weight: 700;
   text-decoration: none;
 }
-.bookmarks-empty a:hover { text-decoration: underline; }
+.bookmarks-empty a:hover { text-decoration: none; }
 
 /* ---- Single-line list cards ----
  * Override the shared content-promo-card so it renders as a tight list row.

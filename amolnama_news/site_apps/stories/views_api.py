@@ -16,6 +16,11 @@ from .models import CollStory, EngagementStoryLike, EngagementStoryBookmark, Eng
 
 logger = logging.getLogger(__name__)
 
+IMAGE_EXTENSION_MAP = {
+    'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif',
+}
+MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+
 
 @require_POST
 @login_required
@@ -67,13 +72,17 @@ def api_story_create(request):
         ])
         story_id = cursor.fetchone()[0]
 
-    # Handle cover image if uploaded
+    # Handle cover image if uploaded — validate MIME type + size against whitelist
     uploaded_file = request.FILES.get('story_cover_image')
     if uploaded_file:
+        if uploaded_file.content_type not in IMAGE_EXTENSION_MAP:
+            return JsonResponse({'success': False, 'error': 'শুধু JPG, PNG, WebP বা GIF ছবি আপলোড করুন'}, status=400)
+        if uploaded_file.size > MAX_UPLOAD_FILE_SIZE_BYTES:
+            return JsonResponse({'success': False, 'error': 'ছবির আকার ১০ MB এর কম হতে হবে'}, status=400)
         media_root = os.path.join(settings.MEDIA_ROOT, 'stories', str(story_id))
         os.makedirs(media_root, exist_ok=True)
         asset_guid = str(uuid.uuid4())
-        extension = os.path.splitext(uploaded_file.name)[1] or '.jpg'
+        extension = IMAGE_EXTENSION_MAP[uploaded_file.content_type]
         file_name = f'{asset_guid}{extension}'
         file_path = os.path.join(media_root, file_name)
 

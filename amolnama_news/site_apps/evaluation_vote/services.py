@@ -51,9 +51,12 @@ def group_results_by_location(queryset, group_id_field, group_name_field,
     if extra_fields:
         values_fields += extra_fields
 
+    # Per project rule: never use `_bn` columns in `order_by()`.
+    # Order by the numeric location id (stable, no collation issues),
+    # then by votes desc within each location group.
     annotated = queryset.values(*values_fields).annotate(
         votes=Sum('party_seat_vote')
-    ).order_by(group_name_field, '-votes')
+    ).order_by(group_id_field, '-votes')
 
     location_data = defaultdict(lambda: {'parties': []})
 

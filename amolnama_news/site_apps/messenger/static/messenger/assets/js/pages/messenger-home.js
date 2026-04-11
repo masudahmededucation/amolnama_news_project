@@ -691,7 +691,8 @@
     if (existing) existing.remove();
     const errorElement = document.createElement('div');
     errorElement.id = 'messenger-input-error';
-    errorElement.style.cssText = 'color:var(--danger);font-size:.72rem;padding:.2rem .75rem;';
+    errorElement.setAttribute('name', 'messenger_input_error');
+    errorElement.className = 'messenger-input-error';
     errorElement.textContent = message;
     inputArea.insertBefore(errorElement, inputArea.firstChild);
     setTimeout(function () { errorElement.remove(); }, 4000);

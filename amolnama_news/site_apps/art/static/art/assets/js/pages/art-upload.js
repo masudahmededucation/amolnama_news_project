@@ -66,6 +66,7 @@
       }
     })
     .catch(function (networkError) {
+      console.error('art upload failed', networkError);
       showError('নেটওয়ার্ক ত্রুটি (Network error)');
       submitButton.disabled = false;
       submitButton.textContent = 'আপলোড করুন';

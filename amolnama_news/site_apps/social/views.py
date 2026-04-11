@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 def home(request):
     """Social home — shows current user's followers/following, or login prompt."""
     from amolnama_news.site_apps.user_account.models import UserProfile
-    from .models import UserFollow
 
     if not request.user.is_authenticated:
         return render(request, 'social/pages/social-home.html', {
@@ -170,34 +169,71 @@ def public_profile_articles(request, username_handle):
         except UserProfile.DoesNotExist:
             pass
 
-    # Fetch all published content by this user from content registry
+    # Fetch all published content by this user from content registry — render as
+    # promo cards using the SAME shared content-promo-card component used by the
+    # home wall, with per-content-type metadata (badge/color/cta) from the single
+    # source of truth in content/bookmarks.py and live cover URLs from
+    # content/cover_urls.py registry.
     import logging
     logger = logging.getLogger(__name__)
     articles = []
     try:
         from amolnama_news.site_apps.content.models import ContentRegistry, RefContentCategory, RefContentSubcategory
-        # Exclude posts — posts are not blog content (no 'post' in ref_content_category)
-        # All registry items are blog content by design
+        from amolnama_news.site_apps.content.bookmarks import get_content_type_metadata
+        from amolnama_news.site_apps.content.cover_urls import get_cover_urls_for_content_refs
 
-        registry_items = ContentRegistry.objects.filter(
+        registry_items = list(ContentRegistry.objects.filter(
             link_user_profile_id=profile.user_profile_id,
             is_published=True,
             is_active=True,
-        ).order_by('-published_at', '-created_at')
+        ).order_by('-published_at', '-created_at'))
 
-        # Build subcategory lookup for display names
+        # Build subcategory lookup for display badges (Bengali names)
         subcategory_ids = [item.link_content_ref_content_subcategory_id for item in registry_items if item.link_content_ref_content_subcategory_id]
-        subcategory_map = {}
+        subcategory_name_by_id = {}
         if subcategory_ids:
             for subcategory in RefContentSubcategory.objects.filter(content_ref_content_subcategory_id__in=subcategory_ids):
-                subcategory_map[subcategory.content_ref_content_subcategory_id] = subcategory.subcategory_name_bn
+                subcategory_name_by_id[subcategory.content_ref_content_subcategory_id] = subcategory.subcategory_name_bn
 
-        # Category name lookup
-        category_map = {}
-        cat_ids = set(item.link_content_ref_content_category_id for item in registry_items)
-        if cat_ids:
-            for cat in RefContentCategory.objects.filter(content_ref_content_category_id__in=cat_ids):
-                category_map[cat.content_ref_content_category_id] = cat
+        # Category code lookup for content_type discriminator
+        category_code_by_id = {}
+        category_ids = set(item.link_content_ref_content_category_id for item in registry_items)
+        if category_ids:
+            for category in RefContentCategory.objects.filter(content_ref_content_category_id__in=category_ids):
+                category_code_by_id[category.content_ref_content_category_id] = category.content_category_code
+
+        # Map ContentRegistry to per-app source rows for cover-URL resolution.
+        # The cover_urls helper takes (content_type_code, source_table_id) tuples,
+        # but ContentRegistry stores its own ID — we need to fetch the per-app
+        # source table primary key by URL slug.
+        from amolnama_news.site_apps.poem.models import CollPoemEntry
+        from amolnama_news.site_apps.art.models import CollArtwork
+        from amolnama_news.site_apps.stories.models import CollStory
+        from amolnama_news.site_apps.bangladesh.models import CollDestination
+
+        # Group source PKs by content_type for bulk cover lookup
+        registry_to_source_id = {}
+        for item in registry_items:
+            type_code = category_code_by_id.get(item.link_content_ref_content_category_id, '')
+            slug = item.content_slug or ''
+            source_id = None
+            if type_code == 'art' and slug:
+                row = CollArtwork.objects.filter(artwork_slug=slug).only('blog_art_coll_artwork_id').first()
+                source_id = row.blog_art_coll_artwork_id if row else None
+            elif type_code == 'story' and slug:
+                row = CollStory.objects.filter(story_slug=slug).only('blog_stories_coll_story_id').first()
+                source_id = row.blog_stories_coll_story_id if row else None
+            elif type_code == 'destination' and slug:
+                row = CollDestination.objects.filter(destination_slug=slug).only('blog_bangladesh_coll_destination_id').first()
+                source_id = row.blog_bangladesh_coll_destination_id if row else None
+            elif type_code == 'poem' and slug:
+                row = CollPoemEntry.objects.filter(poem_slug=slug).only('blog_poem_coll_poem_entry_id').first()
+                source_id = row.blog_poem_coll_poem_entry_id if row else None
+            if source_id:
+                registry_to_source_id[item.content_registry_id] = (type_code, source_id)
+
+        # Bulk-fetch covers for all source rows in one call per content type
+        cover_url_lookup = get_cover_urls_for_content_refs(list(registry_to_source_id.values()))
 
         for item in registry_items:
             title_text = item.content_title_bn or item.content_title_en or ''
@@ -207,24 +243,34 @@ def public_profile_articles(request, username_handle):
             if summary_text and summary_text.strip() != title_text.strip():
                 description = summary_text
 
-            category = category_map.get(item.link_content_ref_content_category_id)
+            type_code = category_code_by_id.get(item.link_content_ref_content_category_id, '')
+            metadata = get_content_type_metadata(type_code) if type_code else {'badge': '', 'color': 'blue', 'cta': 'পড়ুন'}
             published_at = item.published_at or item.created_at
+
+            # Cover URL — first try the cached column on ContentRegistry, then fall back
+            # to a live lookup against the source app's asset table
+            cover_url = item.content_cover_image_url or ''
+            if not cover_url and item.content_registry_id in registry_to_source_id:
+                cover_url = cover_url_lookup.get(registry_to_source_id[item.content_registry_id], '')
+
+            # Badge: prefer the subcategory name (more specific), fall back to type metadata
+            badge = subcategory_name_by_id.get(item.link_content_ref_content_subcategory_id) or metadata['badge']
 
             articles.append({
                 'promo_id': item.content_registry_id,
-                'item_type': category.content_category_code if category else 'content',
+                'item_type': type_code or 'content',
                 'promo_url': item.content_url or '#',
-                'promo_badge': subcategory_map.get(item.link_content_ref_content_subcategory_id) or (category.content_category_name_bn if category else ''),
-                'promo_color': 'blue',
+                'promo_badge': badge,
+                'promo_color': metadata['color'],
                 'promo_title': title_text,
                 'promo_description': description,
                 'promo_author': '',
                 'promo_date_formatted': published_at.strftime('%d %b %Y') if published_at else '',
-                'promo_cover_image_url': item.content_cover_image_url or '',
+                'promo_cover_image_url': cover_url,
                 'promo_like_count': None,
                 'promo_view_count': None,
                 'promo_extra_stat': None,
-                'promo_cta': 'পড়ুন',
+                'promo_cta': metadata['cta'],
             })
     except Exception as articles_query_error:
         logger.error('Articles profile query failed for user %s — %s',

@@ -28,7 +28,7 @@ Expected party dict keys:
         <span class="party-name">{{ party.party_name }}</span>
       </div>
       <div class="bar-container">
-        <div class="bar-fill" style="width: {{ party.percentage }}%;"></div>
+        <div class="bar-fill" data-percentage="{{ party.percentage|floatformat:2 }}"></div>
         <span class="pct-text">
           {{ party.percentage|floatformat:1 }}%
           <span class="vote-count">({{ party.votes|floatformat:0 }} ভোট)</span>
