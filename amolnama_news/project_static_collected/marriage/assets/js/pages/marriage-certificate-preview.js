@@ -15,8 +15,8 @@
   /* ---- Helpers ---- */
 
   function val(id) {
-    const el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
+    const element = document.getElementById(id);
+    return element ? (element.value || '').trim() : '';
   }
 
   function field(value, fallback) {
@@ -238,8 +238,8 @@
             const sliceCanvas = document.createElement('canvas');
             sliceCanvas.width = canvas.width;
             sliceCanvas.height = Math.min(srcPageHeight, canvas.height - i * srcPageHeight);
-            const ctx = sliceCanvas.getContext('2d');
-            ctx.drawImage(canvas, 0, -i * srcPageHeight);
+            const canvasContext = sliceCanvas.getContext('2d');
+            canvasContext.drawImage(canvas, 0, -i * srcPageHeight);
             const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
             const sliceImgH = (sliceCanvas.height * imgWidth) / sliceCanvas.width;
             pdf.addImage(sliceData, 'JPEG', margin, margin, imgWidth, sliceImgH);

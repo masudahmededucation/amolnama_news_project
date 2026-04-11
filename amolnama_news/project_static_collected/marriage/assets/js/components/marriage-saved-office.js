@@ -61,14 +61,14 @@
           updateButtons();
         }
       })
-      .catch(function () {});
+      .catch(function (error) { console.error('saved-office list failed', error); });
   }
 
   /* ── Fill form fields from office data ── */
   function fillForm(office) {
     Object.keys(FIELD_MAP).forEach(function (key) {
-      let el = document.getElementById(FIELD_MAP[key]);
-      if (el) el.value = office[key] || '';
+      let element = document.getElementById(FIELD_MAP[key]);
+      if (element) element.value = office[key] || '';
     });
   }
 
@@ -76,8 +76,8 @@
   function readForm() {
     let data = {};
     Object.keys(FIELD_MAP).forEach(function (key) {
-      const el = document.getElementById(FIELD_MAP[key]);
-      data[key] = el ? el.value : '';
+      const element = document.getElementById(FIELD_MAP[key]);
+      data[key] = element ? element.value : '';
     });
     return data;
   }

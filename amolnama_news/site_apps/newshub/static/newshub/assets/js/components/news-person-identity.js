@@ -229,16 +229,16 @@
       const data = {};
       for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
         let f = TEMPLATE_FIELDS[i];
-        let el = tGetEl(prefix, f.suffix);
-        if (!el) { data[f.key] = f.type === 'text' || f.type === 'date' ? '' : 0; continue; }
+        let element = tGetEl(prefix, f.suffix);
+        if (!element) { data[f.key] = f.type === 'text' || f.type === 'date' ? '' : 0; continue; }
         if (f.type === 'select') {
-          data[f.key] = parseInt(el.value, 10) || 0;
+          data[f.key] = parseInt(element.value, 10) || 0;
         } else if (f.type === 'number') {
-          data[f.key] = parseInt(el.value, 10) || 0;
+          data[f.key] = parseInt(element.value, 10) || 0;
         } else if (f.type === 'date') {
-          data[f.key] = el.value || '';
+          data[f.key] = element.value || '';
         } else {
-          data[f.key] = el.value.trim();
+          data[f.key] = element.value.trim();
         }
       }
       return data;
@@ -247,12 +247,12 @@
     bind: function (prefix, callback) {
       for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
         let f = TEMPLATE_FIELDS[i];
-        let el = tGetEl(prefix, f.suffix);
-        if (!el) continue;
+        let element = tGetEl(prefix, f.suffix);
+        if (!element) continue;
         if (f.type === 'select' || f.type === 'date') {
-          el.addEventListener('change', callback);
+          element.addEventListener('change', callback);
         } else {
-          el.addEventListener('input', callback);
+          element.addEventListener('input', callback);
         }
       }
     },
@@ -260,13 +260,13 @@
     reset: function (prefix) {
       for (let i = 0; i < TEMPLATE_FIELDS.length; i++) {
         let f = TEMPLATE_FIELDS[i];
-        let el = tGetEl(prefix, f.suffix);
-        if (!el) continue;
+        let element = tGetEl(prefix, f.suffix);
+        if (!element) continue;
         if (f.type === 'select') {
-          el.selectedIndex = 0;
-          if (el.tomselect) el.tomselect.clear(true);
+          element.selectedIndex = 0;
+          if (element.tomselect) element.tomselect.clear(true);
         } else {
-          el.value = '';
+          element.value = '';
         }
       }
     },
@@ -359,15 +359,15 @@
 
         for (let c = 0; c < row.length; c++) {
           const f = row[c];
-          let el;
+          let element;
           if (f.type === 'select' || f.type === 'district') {
-            el = makeDomSelect(classPrefix, f, refData[f.ref] || [], f.type === 'district');
-            rowDiv.appendChild(makeDomFormField(f.labelBn, f.labelEn, el));
-            allInputs[f.key] = el;
+            element = makeDomSelect(classPrefix, f, refData[f.ref] || [], f.type === 'district');
+            rowDiv.appendChild(makeDomFormField(f.labelBn, f.labelEn, element));
+            allInputs[f.key] = element;
           } else {
-            el = makeDomInput(classPrefix, f);
-            rowDiv.appendChild(makeDomFormField(f.labelBn, f.labelEn, el));
-            allInputs[f.key] = el;
+            element = makeDomInput(classPrefix, f);
+            rowDiv.appendChild(makeDomFormField(f.labelBn, f.labelEn, element));
+            allInputs[f.key] = element;
           }
         }
 
@@ -387,8 +387,8 @@
       if (typeof TomSelect === 'undefined') return;
       const selects = container.querySelectorAll('.actor-district-select');
       for (let i = 0; i < selects.length; i++) {
-        const el = selects[i];
-        if (el.tomselect) continue;
+        const element = selects[i];
+        if (element.tomselect) continue;
         (function (selectEl) {
           new TomSelect(selectEl, {
             create: false,
@@ -396,7 +396,7 @@
               if (onChange) onChange(selectEl, value);
             }
           });
-        })(el);
+        })(element);
       }
     }
   };

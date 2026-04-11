@@ -16,7 +16,7 @@
  *   #july-family-impact    — textarea
  *   #july-story-json       — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyStory = { reset: fn }
+ * Exposes: window.newshubJulyStory = { reset: callback }
  */
 (function () {
   'use strict';
@@ -51,8 +51,8 @@
   }
 
   const textFields = [lastWords, lifeStory, howJoined, familyImpact];
-  textFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  textFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   if (dependents) dependents.addEventListener('input', serialize);

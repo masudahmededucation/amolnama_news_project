@@ -123,9 +123,9 @@
     document.removeEventListener('click', onOutsideClick, true);
     if (tooltipEl) {
       tooltipEl.classList.remove('pwa-tooltip--visible');
-      const el = tooltipEl;
+      const element = tooltipEl;
       tooltipEl = null;
-      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+      setTimeout(function () { if (element.parentNode) element.parentNode.removeChild(element); }, 300);
     }
   }
 

@@ -12,7 +12,7 @@
  *     (CSRF read from cookie — works on all pages without a form).
  *   - Also sets data-lang on form.news-multistep-form if present on page.
  *
- * Exposes: window.newshubFormLang = { apply: fn, current: fn }
+ * Exposes: window.newshubFormLang = { apply: callback, current: callback }
  *
  * DOM dependencies:
  *   input[name="form_lang"]           — toggle radio buttons (in header)
@@ -44,15 +44,15 @@
     if (defaultsSaved) return;
     defaultsSaved = true;
     try {
-      document.querySelectorAll('[data-en]:not([data-bn])').forEach(function (el) {
+      document.querySelectorAll('[data-en]:not([data-bn])').forEach(function (element) {
         let textOnly = '';
-        for (let c = 0; c < el.childNodes.length; c++) {
-          if (el.childNodes[c].nodeType === Node.TEXT_NODE) textOnly += el.childNodes[c].textContent;
+        for (let c = 0; c < element.childNodes.length; c++) {
+          if (element.childNodes[c].nodeType === Node.TEXT_NODE) textOnly += element.childNodes[c].textContent;
         }
-        el.setAttribute('data-bn', textOnly.trim());
+        element.setAttribute('data-bn', textOnly.trim());
       });
-      document.querySelectorAll('[data-ph-en]:not([data-ph-bn])').forEach(function (el) {
-        el.setAttribute('data-ph-bn', el.placeholder || '');
+      document.querySelectorAll('[data-ph-en]:not([data-ph-bn])').forEach(function (element) {
+        element.setAttribute('data-ph-bn', element.placeholder || '');
       });
     } catch (e) { /* prevent breaking other scripts */ }
   }
@@ -64,15 +64,15 @@
     /* Static labels, headings, option text — only elements with BOTH data-bn AND data-en */
     const labelled = document.querySelectorAll('[data-bn][data-en]');
     for (let i = 0; i < labelled.length; i++) {
-      const el = labelled[i];
-      const text = el.getAttribute('data-' + lang);
+      const element = labelled[i];
+      const text = element.getAttribute('data-' + lang);
       if (text !== null) {
         /* Preserve non-text child nodes (e.g. .field-mandatory-star spans, checkboxes) */
-        const kids = Array.prototype.slice.call(el.childNodes).filter(function (n) {
+        const kids = Array.prototype.slice.call(element.childNodes).filter(function (n) {
           return n.nodeType !== Node.TEXT_NODE;
         });
-        el.textContent = text;
-        kids.forEach(function (k) { el.appendChild(k); });
+        element.textContent = text;
+        kids.forEach(function (k) { element.appendChild(k); });
       }
     }
 

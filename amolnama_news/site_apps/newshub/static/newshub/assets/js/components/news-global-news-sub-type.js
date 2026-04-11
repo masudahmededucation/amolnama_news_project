@@ -11,7 +11,7 @@
  *   #global-news-sub-type-other-row     — wrapper div (toggled when "Other" selected)
  *   #global-news-sub-type-other-detail  — text input for "Other" details
  *
- * Exposes: window.newshubGlobalNewsSubType = { reset: fn }
+ * Exposes: window.newshubGlobalNewsSubType = { reset: callback }
  */
 (function () {
   'use strict';

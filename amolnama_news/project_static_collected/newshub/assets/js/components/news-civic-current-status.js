@@ -10,7 +10,7 @@
  *   #civic-status-json             — hidden JSON input for form submission
  *   #issue-statuses-data           — CSP-safe JSON with issue statuses
  *
- * Exposes: window.newshubCivicStatus = { reset: fn }
+ * Exposes: window.newshubCivicStatus = { reset: callback }
  */
 (function () {
   'use strict';
@@ -23,9 +23,9 @@
 
   /* ---- Parse JSON helper ---- */
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; }
     catch (e) { return []; }
   }
 

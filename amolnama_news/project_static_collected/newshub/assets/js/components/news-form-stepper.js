@@ -9,7 +9,7 @@
  *   .step-panel[data-step]         — content panels (one per step)
  *     data-step-label-bn           — Bengali label shown under the dot
  *   #stepper                       — empty container; dots built by JS
- *   #button-step-prev                 — previous button
+ *   #button-step-previous                 — previous button
  *   #button-step-next                 — next button
  *   #step-counter                  — "ধাপ X / Y" label
  *   #form-type-picker (optional)   — card picker container
@@ -22,7 +22,7 @@
 
   function initStepper() {
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  const btnPrev = document.getElementById('button-step-prev');
+  const btnPrev = document.getElementById('button-step-previous');
   const btnNext = document.getElementById('button-step-next');
   const stepCounter = document.getElementById('step-counter');
   const stepperContainer = document.getElementById('stepper');
@@ -356,9 +356,9 @@
     return allWarnings;
   }
 
-  function registerStepValidator(step, fn) {
+  function registerStepValidator(step, callback) {
     if (!stepValidators[step]) stepValidators[step] = [];
-    stepValidators[step].push(fn);
+    stepValidators[step].push(callback);
   }
 
   function goNext() {
@@ -424,7 +424,7 @@
   /* Drain deferred validators queued by component scripts that loaded before us */
   const deferredQueue = window.__newshubStepValidators || [];
   for (let q = 0; q < deferredQueue.length; q++) {
-    registerStepValidator(deferredQueue[q].step, deferredQueue[q].fn);
+    registerStepValidator(deferredQueue[q].step, deferredQueue[q].callback);
   }
 
   window.newshubStepper = {

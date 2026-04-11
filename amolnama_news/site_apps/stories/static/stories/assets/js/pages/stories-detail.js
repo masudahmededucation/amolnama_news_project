@@ -24,7 +24,7 @@
   let currentPage = 1;
   const allPages = document.querySelectorAll('.stories-detail-page');
   const totalPages = allPages.length;
-  const prevButton = document.getElementById('stories-detail-page-prev-button');
+  const prevButton = document.getElementById('stories-detail-page-previous-button');
   const nextButton = document.getElementById('stories-detail-page-next-button');
   const pageCounter = document.getElementById('stories-detail-page-counter');
 

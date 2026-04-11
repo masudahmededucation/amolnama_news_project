@@ -16,7 +16,7 @@
  *   #july-medical-docs       — checkbox
  *   #july-cause-json         — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyCause = { reset: fn }
+ * Exposes: window.newshubJulyCause = { reset: callback }
  */
 (function () {
   'use strict';
@@ -48,18 +48,18 @@
   }
 
   const changeFields = [weaponType, injurySite];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   const inputFields = [timeOfInjury, hospital, timeOfDeath];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   const checkboxes = [autopsyDone, deathCertificate, medicalDocs];
-  checkboxes.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  checkboxes.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   const form = hiddenJson.closest('form');

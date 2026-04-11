@@ -17,18 +17,18 @@
   /* ---- Helpers ---- */
 
   function val(id) {
-    let el = document.getElementById(id);
-    if (!el) return '';
-    if (el.tagName === 'SELECT') {
-      const opt = el.options[el.selectedIndex];
+    let element = document.getElementById(id);
+    if (!element) return '';
+    if (element.tagName === 'SELECT') {
+      const opt = element.options[element.selectedIndex];
       return opt && opt.value ? opt.textContent : '';
     }
-    return (el.value || '').trim();
+    return (element.value || '').trim();
   }
 
   function rawVal(id) {
-    const el = document.getElementById(id);
-    return el ? (el.value || '').trim() : '';
+    const element = document.getElementById(id);
+    return element ? (element.value || '').trim() : '';
   }
 
   function escHtml(str) {
@@ -161,8 +161,8 @@
 
     /* Q6 */
     let q6 = qRow('\u09EC\u0964', '\u0995\u09A8\u09C7\u09B0 \u09AC\u09C8\u09AC\u09BE\u09B9\u09BF\u0995 \u0985\u09AC\u09B8\u09CD\u09A5\u09BE (Marital Status)', field(val('bride-marital-status')));
-    if (rawVal('bride-prev-husband')) {
-      q6 += subRow('\u09AA\u09C2\u09B0\u09CD\u09AC\u09AC\u09B0\u09CD\u09A4\u09C0 \u09B8\u09CD\u09AC\u09BE\u09AE\u09C0 (Previous Husband)', field(val('bride-prev-husband')));
+    if (rawVal('bride-previous-husband')) {
+      q6 += subRow('\u09AA\u09C2\u09B0\u09CD\u09AC\u09AC\u09B0\u09CD\u09A4\u09C0 \u09B8\u09CD\u09AC\u09BE\u09AE\u09C0 (Previous Husband)', field(val('bride-previous-husband')));
     }
     blocks.push(tableWrap(q6));
 

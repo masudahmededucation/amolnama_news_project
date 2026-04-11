@@ -26,7 +26,7 @@
  *   window.julyMartyrHomeLocation              — home location cascade module
  *   #july-martyr-json                          — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyMartyr = { reset: fn }
+ * Exposes: window.newshubJulyMartyr = { reset: callback }
  */
 (function () {
   'use strict';
@@ -106,8 +106,8 @@
   /* Listen for input on text/number fields */
   /* Father name listeners handled by newshubPersonName.bind() above */
   const inputFields = [alias, age, institution, contact, motherFirst, motherLast];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Listen for changes on selects */
@@ -233,7 +233,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       const firstEn = document.getElementById('july-martyr-first-name-en');
       const firstBn = document.getElementById('july-martyr-first-name-bn');

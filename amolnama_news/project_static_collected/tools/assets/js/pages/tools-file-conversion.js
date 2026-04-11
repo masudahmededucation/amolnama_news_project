@@ -114,16 +114,16 @@
 
   // ---- Smooth show/hide helpers ----
 
-  function showSection(el) {
-    el.hidden = false;
-    el.classList.remove('tool-section-reveal');
-    void el.offsetWidth;
-    el.classList.add('tool-section-reveal');
+  function showSection(element) {
+    element.hidden = false;
+    element.classList.remove('tool-section-reveal');
+    void element.offsetWidth;
+    element.classList.add('tool-section-reveal');
   }
 
-  function hideSection(el) {
-    el.hidden = true;
-    el.classList.remove('tool-section-reveal');
+  function hideSection(element) {
+    element.hidden = true;
+    element.classList.remove('tool-section-reveal');
   }
 
   // ---- Helpers ----
@@ -430,14 +430,14 @@
           let canvas = document.createElement('canvas');
           canvas.width = img.naturalWidth;
           canvas.height = img.naturalHeight;
-          let ctx = canvas.getContext('2d');
+          let canvasContext = canvas.getContext('2d');
 
           // For JPG/BMP: fill white background (no transparency)
           if (selectedTarget === 'jpg' || selectedTarget === 'jpeg' || selectedTarget === 'bmp') {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            canvasContext.fillStyle = '#ffffff';
+            canvasContext.fillRect(0, 0, canvas.width, canvas.height);
           }
-          ctx.drawImage(img, 0, 0);
+          canvasContext.drawImage(img, 0, 0);
 
           let mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', bmp: 'image/bmp' };
           let mime = mimeMap[selectedTarget] || 'image/png';
@@ -488,10 +488,10 @@
             let canvas = document.createElement('canvas');
             canvas.width = w;
             canvas.height = h;
-            let ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, w, h);
-            ctx.drawImage(img, 0, 0);
+            let canvasContext = canvas.getContext('2d');
+            canvasContext.fillStyle = '#ffffff';
+            canvasContext.fillRect(0, 0, w, h);
+            canvasContext.drawImage(img, 0, 0);
             const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
             doc.addImage(dataUrl, 'JPEG', 0, 0, pdfW, pdfH);
@@ -575,14 +575,14 @@
             const canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
+            const canvasContext = canvas.getContext('2d');
 
             if (selectedTarget === 'jpg' || selectedTarget === 'jpeg') {
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              canvasContext.fillStyle = '#ffffff';
+              canvasContext.fillRect(0, 0, canvas.width, canvas.height);
             }
 
-            page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+            page.render({ canvasContext: canvasContext, viewport: viewport }).promise.then(function () {
               const mimeMap = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
               let mime = mimeMap[selectedTarget] || 'image/png';
               const quality = (selectedTarget === 'jpg' || selectedTarget === 'jpeg') ? 0.92 : undefined;
@@ -1759,10 +1759,10 @@
           children.forEach(function (child) {
             const row = {};
             for (let j = 0; j < child.children.length; j++) {
-              const el = child.children[j];
-              const key = el.tagName;
+              const element = child.children[j];
+              const key = element.tagName;
               if (keys.indexOf(key) === -1) keys.push(key);
-              row[key] = el.textContent.trim();
+              row[key] = element.textContent.trim();
             }
             // Also handle text-only children (attributes as columns)
             if (child.children.length === 0 && child.textContent.trim()) {

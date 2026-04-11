@@ -12,7 +12,7 @@
  *   #bootlicker-source         — source URL
  *   #bootlicker-json           — hidden JSON input
  *
- * Exposes: window.newshubWatchdogBootlicker = { reset: fn }
+ * Exposes: window.newshubWatchdogBootlicker = { reset: callback }
  */
 (function () {
   'use strict';
@@ -40,9 +40,9 @@
   }
 
   const fields = [targetPerson, statement, stmtDate, context, benefit, source];
-  fields.forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('input', serialize);
+  fields.forEach(function (element) {
+    if (!element) return;
+    element.addEventListener('input', serialize);
   });
 
   const form = hiddenJson.closest('form');
@@ -66,7 +66,7 @@
 
   window.newshubWatchdogBootlicker = {
     reset: function () {
-      fields.forEach(function (el) { if (el) el.value = ''; });
+      fields.forEach(function (element) { if (element) element.value = ''; });
       hiddenJson.value = '';
     }
   };
@@ -77,7 +77,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!targetPerson || !targetPerson.value.trim()) {

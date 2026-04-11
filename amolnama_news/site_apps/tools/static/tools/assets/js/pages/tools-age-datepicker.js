@@ -80,7 +80,7 @@
       const daysInPrev = new Date(y, m, 0).getDate();
 
       let html = '<div class="age-cal-header">';
-      html += '<button type="button" data-action="prev-month">◂</button>';
+      html += '<button type="button" data-action="previous-month">◂</button>';
       html += '<span class="age-cal-title" data-action="show-months">' + MONTHS_BN[m] + ' ' + y + '</span>';
       html += '<button type="button" data-action="next-month">▸</button>';
       html += '</div>';
@@ -121,7 +121,7 @@
 
     function renderMonths() {
       let html = '<div class="age-cal-header">';
-      html += '<button type="button" data-action="prev-year">◂</button>';
+      html += '<button type="button" data-action="previous-year">◂</button>';
       html += '<span class="age-cal-title" data-action="show-years">' + state.year + '</span>';
       html += '<button type="button" data-action="next-year">▸</button>';
       html += '</div>';
@@ -139,7 +139,7 @@
     function renderYears() {
       const startYear = Math.floor(state.year / 20) * 20;
       let html = '<div class="age-cal-header">';
-      html += '<button type="button" data-action="prev-decade">◂</button>';
+      html += '<button type="button" data-action="previous-decade">◂</button>';
       html += '<span class="age-cal-title">' + startYear + ' – ' + (startYear + 19) + '</span>';
       html += '<button type="button" data-action="next-decade">▸</button>';
       html += '</div>';
@@ -160,27 +160,27 @@
     }
 
     function bindActions() {
-      calEl.querySelectorAll("[data-action]").forEach(function(el) {
-        el.addEventListener("click", function(e) {
+      calEl.querySelectorAll("[data-action]").forEach(function(element) {
+        element.addEventListener("click", function(e) {
           e.stopPropagation();
-          const action = el.getAttribute("data-action");
-          if (action === "prev-month") { state.month--; if (state.month < 0) { state.month = 11; state.year--; } render(); }
+          const action = element.getAttribute("data-action");
+          if (action === "previous-month") { state.month--; if (state.month < 0) { state.month = 11; state.year--; } render(); }
           else if (action === "next-month") { state.month++; if (state.month > 11) { state.month = 0; state.year++; } render(); }
-          else if (action === "prev-year") { state.year--; render(); }
+          else if (action === "previous-year") { state.year--; render(); }
           else if (action === "next-year") { state.year++; render(); }
-          else if (action === "prev-decade") { state.year -= 20; render(); }
+          else if (action === "previous-decade") { state.year -= 20; render(); }
           else if (action === "next-decade") { state.year += 20; render(); }
           else if (action === "show-months") { state.view = "months"; render(); }
           else if (action === "show-years") { state.view = "years"; render(); }
-          else if (action === "pick-month") { state.month = parseInt(el.getAttribute("data-month")); state.view = "days"; render(); }
-          else if (action === "pick-year") { state.year = parseInt(el.getAttribute("data-year")); state.view = "months"; render(); }
+          else if (action === "pick-month") { state.month = parseInt(element.getAttribute("data-month")); state.view = "days"; render(); }
+          else if (action === "pick-year") { state.year = parseInt(element.getAttribute("data-year")); state.view = "months"; render(); }
         });
       });
 
-      calEl.querySelectorAll(".age-cal-day:not(.is-future):not(.is-other-month)").forEach(function(el) {
-        el.addEventListener("click", function(e) {
+      calEl.querySelectorAll(".age-cal-day:not(.is-future):not(.is-other-month)").forEach(function(element) {
+        element.addEventListener("click", function(e) {
           e.stopPropagation();
-          const parts = el.getAttribute("data-date").split("-");
+          const parts = element.getAttribute("data-date").split("-");
           selectDate(new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
         });
       });

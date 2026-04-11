@@ -13,7 +13,7 @@
  *   - Safe to call init() multiple times — already-initialized inputs are skipped.
  *   - On mobile: native date picker is used (disableMobile: false) for better UX.
  *
- * Exposes: window.newshubDatePicker = { init: fn }
+ * Exposes: window.newshubDatePicker = { init: callback }
  */
 (function () {
   'use strict';

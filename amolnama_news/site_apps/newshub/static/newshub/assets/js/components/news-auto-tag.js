@@ -59,10 +59,10 @@
       })
       .catch(function () {
         /* Fallback: try embedded JSON if API fails */
-        const el = document.getElementById('all-tags-data');
-        if (el) {
+        const element = document.getElementById('all-tags-data');
+        if (element) {
           try {
-            allTags = JSON.parse(el.textContent);
+            allTags = JSON.parse(element.textContent);
             tagsFetched = true;
           } catch (e) { /* ignore */ }
         }

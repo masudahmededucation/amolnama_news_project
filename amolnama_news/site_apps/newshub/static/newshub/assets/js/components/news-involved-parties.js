@@ -25,9 +25,9 @@
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    let el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent); } catch (e) { return []; }
+    let element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent); } catch (e) { return []; }
   }
   const involvementTypes = parseJsonData('actor-involvement-types-data');
   const actorTypes = parseJsonData('actor-types-data');
@@ -36,9 +36,9 @@
   /* Crime-specific config: victim condition & medical location fields.
      Only present on the crime/violence form (via crime-actor-config JSON element). */
   const crimeActorConfig = (function () {
-    const el = document.getElementById('crime-actor-config');
-    if (!el) return null;
-    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+    const element = document.getElementById('crime-actor-config');
+    if (!element) return null;
+    try { return JSON.parse(element.textContent); } catch (e) { return null; }
   })();
   const showVictimCondition = crimeActorConfig && crimeActorConfig.showVictimCondition;
   const showMedicalLocation = crimeActorConfig && crimeActorConfig.showMedicalLocation;
@@ -494,7 +494,7 @@
 
     /* Deferred queue — stepper loads after us */
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: partiesStep, fn: validator });
+    window.__newshubStepValidators.push({ step: partiesStep, callback: validator });
   }
 
   /* ========== Init ========== */

@@ -42,9 +42,9 @@
 
   /* ---- Parse embedded JSON reference data ---- */
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const propertyTypeData       = parseJsonData('land-property-type-data');

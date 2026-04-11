@@ -42,8 +42,8 @@ function updateBreadcrumb(division, divisionBn, district, districtBn, constituen
 function showView(viewId) {
   const views = ['division-view', 'district-view', 'constituency-view', 'party-view', 'success-view'];
   views.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.hidden = true;
+    const element = document.getElementById(id);
+    if (element) element.hidden = true;
   });
 
   const showEl = document.getElementById(viewId);

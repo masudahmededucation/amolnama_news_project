@@ -10,7 +10,7 @@
  *   #july-curfew-status    — select
  *   #july-context-json     — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyContext = { reset: fn }
+ * Exposes: window.newshubJulyContext = { reset: callback }
  */
 (function () {
   'use strict';
@@ -32,8 +32,8 @@
   }
 
   const fields = [scale, internetStatus, curfewStatus];
-  fields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  fields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   const form = hiddenJson.closest('form');

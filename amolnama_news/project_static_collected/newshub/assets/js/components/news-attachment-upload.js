@@ -15,9 +15,9 @@
   /* ===== Load file validation rules from ref_asset_type (CSP-safe JSON) ===== */
 
   const assetTypeRules = (function () {
-    const el = document.getElementById('asset-type-rules-data');
-    if (!el) return [];
-    try { return JSON.parse(el.textContent); } catch (e) { return []; }
+    const element = document.getElementById('asset-type-rules-data');
+    if (!element) return [];
+    try { return JSON.parse(element.textContent); } catch (e) { return []; }
   })();
 
   /**

@@ -16,7 +16,7 @@
  *   #july-memorial-ref                      — text input
  *   #july-evidence-json                     — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyEvidence = { reset: fn }
+ * Exposes: window.newshubJulyEvidence = { reset: callback }
  */
 (function () {
   'use strict';

@@ -14,7 +14,7 @@
  *   #wcv-duration                  — text input
  *   #wcv-violence-context          — hidden input for form submission
  *
- * Exposes: window.newshubWcvType = { reset: fn }
+ * Exposes: window.newshubWcvType = { reset: callback }
  */
 (function () {
   'use strict';
@@ -34,9 +34,9 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const violenceTypesData = parseJsonData('wcv-violence-types-data');
@@ -214,7 +214,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       if (!getCheckedIds(violenceTypeCheckboxes).length) {
         warnings.push('সহিংসতার ধরন নির্বাচন করুন (Please select at least one violence type)');

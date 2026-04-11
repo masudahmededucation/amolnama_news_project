@@ -12,7 +12,7 @@
  *   #entertainment-opening-weekend    — text input
  *   #entertainment-metrics-json       — hidden JSON input for form submission
  *
- * Exposes: window.newshubEntertainmentMetrics = { reset: fn }
+ * Exposes: window.newshubEntertainmentMetrics = { reset: callback }
  */
 (function () {
   'use strict';
@@ -43,8 +43,8 @@
 
   /* Listen for input on text fields */
   const inputFields = [views, ratingScore, revenue, openingWeekend];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Serialize before form submit */

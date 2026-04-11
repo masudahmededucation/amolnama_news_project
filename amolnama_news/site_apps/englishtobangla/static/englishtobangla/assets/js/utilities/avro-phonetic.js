@@ -33,14 +33,14 @@ OmicronLab.Avro.Phonetic = {
         let fixed = this.fixString(input);
         let output = "";
         for(let cur = 0; cur < fixed.length; ++cur) {
-            let start = cur, end = cur + 1, prev = start - 1;
+            let start = cur, end = cur + 1, previous = start - 1;
             let matched = false;
 
             for(let i = 0; i < this.data.patterns.length; ++i) {
                 const pattern = this.data.patterns[i];
                 end = cur + pattern.find.length;
                 if(end <= fixed.length && fixed.substring(start, end) == pattern.find) {
-                    prev = start - 1;
+                    previous = start - 1;
                     if(typeof pattern.rules !== 'undefined') {
                         for(let j = 0; j < pattern.rules.length; ++j) {
                             const rule = pattern.rules[j];
@@ -55,7 +55,7 @@ OmicronLab.Avro.Phonetic = {
                                 } 
                                 // Prefix
                                 else {
-                                    chk = prev;
+                                    chk = previous;
                                 }
 
                                 // Handle Negative

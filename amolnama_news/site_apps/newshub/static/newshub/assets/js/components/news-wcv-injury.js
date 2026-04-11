@@ -3,7 +3,7 @@
  * Reads injury types, severity, and psychological symptoms;
  * serializes to #wcv-injury.
  *
- * Exposes: window.newshubWcvInjury = { reset: fn }
+ * Exposes: window.newshubWcvInjury = { reset: callback }
  */
 (function () {
   'use strict';
@@ -94,7 +94,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       const hasInjuryType = getCheckedValues(injuryTypes).length > 0;
       if (hasInjuryType && !getRadio(severityRadios)) {

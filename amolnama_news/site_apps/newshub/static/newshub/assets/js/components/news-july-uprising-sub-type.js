@@ -7,7 +7,7 @@
  *   input[name="july_sub_type_radio"]  — radio buttons (value = status_id)
  *   #july-sub-type                     — hidden input for form submission
  *
- * Exposes: window.newshubJulySubType = { reset: fn }
+ * Exposes: window.newshubJulySubType = { reset: callback }
  */
 (function () {
   'use strict';

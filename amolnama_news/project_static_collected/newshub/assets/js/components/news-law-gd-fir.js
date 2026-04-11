@@ -29,15 +29,15 @@
  *   resetFir
  * }
  *
- * Exposes: window.newshubLawGdFir = { initLawGdFirSection: fn }
+ * Exposes: window.newshubLawGdFir = { initLawGdFirSection: callback }
  */
 (function () {
   'use strict';
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   /**

@@ -183,14 +183,14 @@
 
       for (let i = 0; i < PARTY_FIELDS.length; i++) {
         const f = PARTY_FIELDS[i];
-        let el;
+        let element;
         if (f.type === 'textarea') {
-          el = makeDomTextarea(classPrefix, f);
+          element = makeDomTextarea(classPrefix, f);
         } else {
-          el = makeDomInput(classPrefix, f);
+          element = makeDomInput(classPrefix, f);
         }
-        group.appendChild(makeDomFormField(f.labelBn, f.labelEn, el));
-        allInputs[f.key] = el;
+        group.appendChild(makeDomFormField(f.labelBn, f.labelEn, element));
+        allInputs[f.key] = element;
       }
 
       return { element: group, inputs: allInputs };

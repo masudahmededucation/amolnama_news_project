@@ -4,8 +4,8 @@ function toBanglaNumber(num) {
 }
 
 function updateLiveClock() {
-    const el = document.getElementById("right-panel-live-date-time") || document.getElementById("liveDateTime");
-    if (!el) return;
+    const element = document.getElementById("right-panel-live-date-time") || document.getElementById("liveDateTime");
+    if (!element) return;
 
     const now = new Date();
 
@@ -48,7 +48,7 @@ function updateLiveClock() {
     // Format: মঙ্গলবার, ০২ ডিসেম্বর ২০২৫, রাত: ১০:০৭:৪১
     const formatted = `${dayName}, ${dd} ${mm} ${yyyy}, ${period}: ${hhBangla}:${minBangla}:${ssBangla}`;
 
-    el.textContent = formatted;
+    element.textContent = formatted;
 }
 
 document.addEventListener("DOMContentLoaded", function () {

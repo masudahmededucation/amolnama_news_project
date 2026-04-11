@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function(){
   };
 
   // Key builder includes normalized href + visible text to distinguish same-page items
-  const keyFor = (el) => (norm(el.getAttribute("href")||"") + "|" + (el.textContent||"").trim().toLowerCase());
+  const keyFor = (element) => (norm(element.getAttribute("href")||"") + "|" + (element.textContent||"").trim().toLowerCase());
 
   // Restore last active from localStorage if present
   const saved = localStorage.getItem("activeNavKey");

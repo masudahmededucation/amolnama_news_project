@@ -8,7 +8,7 @@
  *   #political-context-description     — context description textarea
  *   #political-context-json            — hidden JSON input for form submission
  *
- * Exposes: window.newshubPoliticalContext = { reset: fn }
+ * Exposes: window.newshubPoliticalContext = { reset: callback }
  */
 (function () {
   'use strict';

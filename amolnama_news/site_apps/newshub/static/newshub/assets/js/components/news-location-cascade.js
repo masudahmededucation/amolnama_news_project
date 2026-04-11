@@ -8,9 +8,9 @@
  *   Ward → Village (rural path only, via union parishad ID)  [optional]
  *
  * Usage:
- *   window.newshubCreateLocationCascade(cfg) → creates instance, returns API object
+ *   window.newshubCreateLocationCascade(config) → creates instance, returns API object
  *
- * cfg properties (all optional except districtId):
+ * config properties (all optional except districtId):
  *   districtId        {string}  — ID of district select (required)
  *   upazilaId         {string}  — ID of upazila/subdistrict select
  *   localBodyId       {string}  — ID of union parishad / local body select
@@ -36,23 +36,23 @@
 (function () {
   'use strict';
 
-  function createCascade(cfg) {
-    const districtSelect    = document.getElementById(cfg.districtId);
-    const subDistrictSelect = cfg.upazilaId        ? document.getElementById(cfg.upazilaId)        : null;
-    const localBodySelect   = cfg.localBodyId      ? document.getElementById(cfg.localBodyId)      : null;
-    const wardSelect        = cfg.wardId           ? document.getElementById(cfg.wardId)           : null;
-    const villageSelect     = cfg.villageId        ? document.getElementById(cfg.villageId)        : null;
-    const villageOtherInput = cfg.villageOtherId   ? document.getElementById(cfg.villageOtherId)   : null;
-    const villageRow        = cfg.villageRowId     ? document.getElementById(cfg.villageRowId)     : null;
-    const constituencyInput = cfg.constituencyId   ? document.getElementById(cfg.constituencyId)   : null;
-    const subDistrictTypeInput = cfg.subdistrictTypeId ? document.getElementById(cfg.subdistrictTypeId) : null;
-    const localBodyTypeInput   = cfg.localBodyTypeId   ? document.getElementById(cfg.localBodyTypeId)   : null;
-    const wardTypeInput        = cfg.wardTypeId        ? document.getElementById(cfg.wardTypeId)        : null;
-    const upazilaNameInput  = cfg.upazilaNameId    ? document.getElementById(cfg.upazilaNameId)    : null;
-    const wardNameInput     = cfg.wardNameId       ? document.getElementById(cfg.wardNameId)       : null;
-    const villageNameInput  = cfg.villageNameId    ? document.getElementById(cfg.villageNameId)    : null;
-    const fullAddressInput  = cfg.fullAddressId    ? document.getElementById(cfg.fullAddressId)    : null;
-    const hasMap            = cfg.hasMap           !== false;
+  function createCascade(config) {
+    const districtSelect    = document.getElementById(config.districtId);
+    const subDistrictSelect = config.upazilaId        ? document.getElementById(config.upazilaId)        : null;
+    const localBodySelect   = config.localBodyId      ? document.getElementById(config.localBodyId)      : null;
+    const wardSelect        = config.wardId           ? document.getElementById(config.wardId)           : null;
+    const villageSelect     = config.villageId        ? document.getElementById(config.villageId)        : null;
+    const villageOtherInput = config.villageOtherId   ? document.getElementById(config.villageOtherId)   : null;
+    const villageRow        = config.villageRowId     ? document.getElementById(config.villageRowId)     : null;
+    const constituencyInput = config.constituencyId   ? document.getElementById(config.constituencyId)   : null;
+    const subDistrictTypeInput = config.subdistrictTypeId ? document.getElementById(config.subdistrictTypeId) : null;
+    const localBodyTypeInput   = config.localBodyTypeId   ? document.getElementById(config.localBodyTypeId)   : null;
+    const wardTypeInput        = config.wardTypeId        ? document.getElementById(config.wardTypeId)        : null;
+    const upazilaNameInput  = config.upazilaNameId    ? document.getElementById(config.upazilaNameId)    : null;
+    const wardNameInput     = config.wardNameId       ? document.getElementById(config.wardNameId)       : null;
+    const villageNameInput  = config.villageNameId    ? document.getElementById(config.villageNameId)    : null;
+    const fullAddressInput  = config.fullAddressId    ? document.getElementById(config.fullAddressId)    : null;
+    const hasMap            = config.hasMap           !== false;
 
     if (!districtSelect) return null;
 
@@ -548,7 +548,7 @@
       },
     };
 
-    if (cfg.publicApi) window[cfg.publicApi] = api;
+    if (config.publicApi) window[config.publicApi] = api;
     return api;
   }
 

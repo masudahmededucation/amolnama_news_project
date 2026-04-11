@@ -92,7 +92,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       const otherCb = getOtherCb();
       if (otherCb && otherCb.checked && otherText && !otherText.value.trim()) {

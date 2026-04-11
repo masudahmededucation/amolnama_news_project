@@ -13,7 +13,7 @@
  *   #global-war-crimes-details-row   — row container (toggled)
  *   #global-humanitarian-json        — hidden JSON input for form submission
  *
- * Exposes: window.newshubGlobalHumanitarian = { reset: fn }
+ * Exposes: window.newshubGlobalHumanitarian = { reset: callback }
  */
 (function () {
   'use strict';
@@ -51,8 +51,8 @@
 
   /* Listen for input changes on number fields */
   const inputFields = [militaryCasualties, civilianCasualties, refugees, warCrimesDesc];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Checkbox: toggle + serialize */

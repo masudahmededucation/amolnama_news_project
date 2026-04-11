@@ -16,7 +16,7 @@
  *   #impact-categories-data       — CSP-safe JSON with impact categories
  *   #duration-units-data          — CSP-safe JSON with duration units
  *
- * Exposes: window.newshubCivicImpact = { reset: fn }
+ * Exposes: window.newshubCivicImpact = { reset: callback }
  */
 (function () {
   'use strict';
@@ -35,9 +35,9 @@
 
   /* ---- Parse JSON helper ---- */
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; }
     catch (e) { return []; }
   }
 
@@ -88,13 +88,13 @@
 
   /* Listen for input changes on all fields */
   const inputFields = [peopleAffected, durationValue, complaintDetails, budgetInfo];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   const changeFields = [impactType, durationUnit];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   /* Checkbox: toggle + serialize */

@@ -9,7 +9,7 @@
  * WCV-specific fields (Group 3): Marital Status, Husband, Occupation, Institution
  * These are JS-populated from JSON and handled directly here.
  *
- * Exposes: window.newshubWcvVictim = { reset: fn }
+ * Exposes: window.newshubWcvVictim = { reset: callback }
  */
 (function () {
   'use strict';
@@ -29,9 +29,9 @@
   /* ========== Parse reference data (for JS-populated fields only) ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const maritalStatuses   = parseJsonData('wcv-marital-statuses-data');
@@ -131,7 +131,7 @@
 
   /* WCV-specific fields */
   [husbandFirstName, husbandLastName, institution]
-    .forEach(function (el) { if (el) el.addEventListener('input', serialize); });
+    .forEach(function (element) { if (element) element.addEventListener('input', serialize); });
   if (marriageDate) marriageDate.addEventListener('change', serialize);
   if (marital)    marital.addEventListener('change', function () { toggleHusband(); serialize(); });
   if (occupation) occupation.addEventListener('change', serialize);
@@ -152,7 +152,7 @@
       window.newshubPersonIdentity.reset(PREFIX);
       /* WCV-specific fields */
       [husbandFirstName, husbandLastName, marriageDate, institution]
-        .forEach(function (el) { if (el) el.value = ''; });
+        .forEach(function (element) { if (element) element.value = ''; });
       if (marital) marital.selectedIndex = 0;
       if (occupation) occupation.selectedIndex = 0;
       toggleHusband();
@@ -165,7 +165,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       const nameData = window.newshubPersonName.read(PREFIX);
       if (!nameData.firstNameEn) {

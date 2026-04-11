@@ -20,7 +20,7 @@
  *     age, dob, districtId, alias, designation, organization, patron,
  *     contact, statement [, conditionId, medicalLocation] }
  *
- * Exposes: window.newshubVictim = { reset: fn }
+ * Exposes: window.newshubVictim = { reset: callback }
  */
 (function () {
   'use strict';
@@ -35,9 +35,9 @@
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    let el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent); } catch (e) { return []; }
+    let element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent); } catch (e) { return []; }
   }
 
   const involvementTypes = parseJsonData('actor-involvement-types-data');
@@ -51,9 +51,9 @@
 
   /* Crime-specific: show victim condition & medical location fields */
   const crimeActorConfig = (function () {
-    const el = document.getElementById('crime-actor-config');
-    if (!el) return null;
-    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+    const element = document.getElementById('crime-actor-config');
+    if (!element) return null;
+    try { return JSON.parse(element.textContent); } catch (e) { return null; }
   })();
   const showVictimCondition = crimeActorConfig && crimeActorConfig.showVictimCondition;
   const showMedicalLocation = crimeActorConfig && crimeActorConfig.showMedicalLocation;
@@ -307,7 +307,7 @@
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({
       step: step,
-      fn: function () {
+      callback: function () {
         const warnings = [];
         for (let i = 0; i < actors.length; i++) {
           if (!actors[i].firstNameEn || !actors[i].firstNameEn.trim()) {

@@ -16,7 +16,7 @@
  * All sections start hidden (style="display:none" in HTML).
  * On init, checks if a value is already set (form-persist restore).
  *
- * Exposes: window.newshubWatchdogSectionSwitcher = { reset: fn }
+ * Exposes: window.newshubWatchdogSectionSwitcher = { reset: callback }
  */
 (function () {
   'use strict';
@@ -36,8 +36,8 @@
 
   function hideAll() {
     ALL_SECTION_IDS.forEach(function (id) {
-      let el = document.getElementById(id);
-      if (el) el.hidden = true;
+      let element = document.getElementById(id);
+      if (element) element.hidden = true;
     });
   }
 
@@ -46,8 +46,8 @@
     if (!groupCode) return;
     const sectionId = GROUP_TO_SECTION[groupCode];
     if (!sectionId) return;
-    const el = document.getElementById(sectionId);
-    if (el) el.hidden = false;
+    const element = document.getElementById(sectionId);
+    if (element) element.hidden = false;
   }
 
   /* Listen for sub-type changes */

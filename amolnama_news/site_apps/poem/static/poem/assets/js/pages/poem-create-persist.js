@@ -29,11 +29,11 @@
     if (saved) {
       let data = JSON.parse(saved);
       fieldIds.forEach(function (id) {
-        let el = document.getElementById(id);
-        if (el && data[id] !== undefined && data[id] !== null) {
-          el.value = data[id];
+        let element = document.getElementById(id);
+        if (element && data[id] !== undefined && data[id] !== null) {
+          element.value = data[id];
           // Trigger input event for preview + counters
-          el.dispatchEvent(new Event("input", { bubbles: true }));
+          element.dispatchEvent(new Event("input", { bubbles: true }));
         }
       });
       showBadge();
@@ -42,10 +42,10 @@
 
   /* ── Auto-save on input ── */
   fieldIds.forEach(function (id) {
-    let el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("input", scheduleSave);
-    el.addEventListener("change", scheduleSave);
+    let element = document.getElementById(id);
+    if (!element) return;
+    element.addEventListener("input", scheduleSave);
+    element.addEventListener("change", scheduleSave);
   });
 
   function scheduleSave() {
@@ -56,8 +56,8 @@
   function saveDraft() {
     const data = {};
     fieldIds.forEach(function (id) {
-      const el = document.getElementById(id);
-      if (el) data[id] = el.value;
+      const element = document.getElementById(id);
+      if (element) data[id] = element.value;
     });
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

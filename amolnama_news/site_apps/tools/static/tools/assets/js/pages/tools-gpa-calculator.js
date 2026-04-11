@@ -303,8 +303,8 @@
   const targetMessage = document.getElementById("gpaTargetMessage");
 
   targetFields.forEach(function (id) {
-    let el = document.getElementById(id);
-    if (el) el.addEventListener("input", debounceTargetCalc);
+    let element = document.getElementById(id);
+    if (element) element.addEventListener("input", debounceTargetCalc);
   });
 
   function debounceTargetCalc() {
@@ -412,8 +412,8 @@
 
       /* Target */
       targetFields.forEach(function (id) {
-        let el = document.getElementById(id);
-        if (el) state.target[id] = el.value;
+        let element = document.getElementById(id);
+        if (element) state.target[id] = element.value;
       });
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -450,8 +450,8 @@
       /* Target */
       if (state.target) {
         targetFields.forEach(function (id) {
-          const el = document.getElementById(id);
-          if (el && state.target[id]) el.value = state.target[id];
+          const element = document.getElementById(id);
+          if (element && state.target[id]) element.value = state.target[id];
         });
       }
 

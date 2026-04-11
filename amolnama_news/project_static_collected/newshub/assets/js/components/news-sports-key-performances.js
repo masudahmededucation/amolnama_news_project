@@ -36,7 +36,7 @@
   const recordsEl   = document.getElementById('sports-records-milestones');
   const standingEl  = document.getElementById('sports-tournament-standing');
 
-  function v(el) { return el && el.value.trim() || ''; }
+  function v(element) { return element && element.value.trim() || ''; }
 
   function collectData() {
     return {
@@ -92,7 +92,7 @@
     reset: function () {
       [p1NameEl, p1DetEl, p2NameEl, p2DetEl, p3NameEl, p3DetEl,
        recordsEl, standingEl
-      ].forEach(function (el) { if (el) el.value = ''; });
+      ].forEach(function (element) { if (element) element.value = ''; });
       hiddenInput.value = '';
     }
   };

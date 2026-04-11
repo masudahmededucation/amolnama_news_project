@@ -11,7 +11,7 @@
  *   #entertainment-rumor               — checkbox
  *   #entertainment-project-json        — hidden JSON input for form submission
  *
- * Exposes: window.newshubEntertainmentProject = { reset: fn }
+ * Exposes: window.newshubEntertainmentProject = { reset: callback }
  */
 (function () {
   'use strict';
@@ -44,8 +44,8 @@
 
   /* Listen for changes on selects */
   const changeFields = [platform, projectStage];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   /* Listen for changes on IP type radios */
@@ -100,7 +100,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       if (!platform || !platform.value) {
         warnings.push('প্ল্যাটফর্ম নির্বাচন করুন (Please select a platform)');

@@ -12,7 +12,7 @@
  *   #contradiction-proof-url           — proof URL input
  *   #contradiction-json                — hidden JSON input for form submission
  *
- * Exposes: window.newshubPoliticalContradiction = { reset: fn }
+ * Exposes: window.newshubPoliticalContradiction = { reset: callback }
  */
 (function () {
   'use strict';
@@ -43,9 +43,9 @@
   /* Listen for input changes on all fields */
   const fields = [originalStatement, originalDate, originalSource,
                 currentStatement, currentDate, proofUrl];
-  fields.forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('input', serialize);
+  fields.forEach(function (element) {
+    if (!element) return;
+    element.addEventListener('input', serialize);
   });
 
   /* Serialize before form submit */
@@ -89,7 +89,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       /* Only validate when this section is the active one */
       if (section && section.hidden) return { warnings: [] };
       const warnings = [];

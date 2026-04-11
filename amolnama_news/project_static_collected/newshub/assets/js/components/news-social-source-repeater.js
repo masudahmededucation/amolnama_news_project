@@ -11,7 +11,7 @@
  *   #social-source-rows-container    — container div
  *   #button-add-social-source           — add button
  *
- * Exposes: window.newshubSocialSource = { serialize: fn, reset: fn }
+ * Exposes: window.newshubSocialSource = { serialize: callback, reset: callback }
  */
 (function () {
   'use strict';

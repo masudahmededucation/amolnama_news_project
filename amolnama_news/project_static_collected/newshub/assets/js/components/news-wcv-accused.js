@@ -13,7 +13,7 @@
  *   wcv-attacker-positions-data      — JSON data script
  *   wcv-attacker-attributes-data     — JSON data script
  *
- * Exposes: window.newshubWcvAccused = { reset: fn }
+ * Exposes: window.newshubWcvAccused = { reset: callback }
  */
 (function () {
   'use strict';
@@ -27,9 +27,9 @@
   /* ========== Parse reference data (once) ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const relationships = parseJsonData('wcv-attacker-relationships-data');
@@ -287,15 +287,15 @@
 
     /* --- Previous history row (conditional) --- */
     const histRow = document.createElement('div');
-    histRow.className = 'form-field wcv-prev-history-row';
+    histRow.className = 'form-field wcv-previous-history-row';
     histRow.style.display = 'none';
     const histLabel = document.createElement('label');
-    histLabel.setAttribute('for', 'wcv-prev-history-details-' + n);
+    histLabel.setAttribute('for', 'wcv-previous-history-details-' + n);
     histLabel.textContent = 'পূর্ববর্তী নির্যাতনের বিবরণ (Previous Violence Details)';
     const histDetails = document.createElement('textarea');
-    histDetails.id = 'wcv-prev-history-details-' + n;
+    histDetails.id = 'wcv-previous-history-details-' + n;
     histDetails.name = 'wcv_accused_prev_history';
-    histDetails.className = 'wcv-prev-history-details';
+    histDetails.className = 'wcv-previous-history-details';
     histDetails.rows = 3;
     histDetails.setAttribute('data-ph-bn', 'আগের ঘটনার তারিখ, ধরন ও বিস্তারিত লিখুন...');
     histDetails.setAttribute('data-ph-en', 'Date, type and details of previous incident...');
@@ -436,7 +436,7 @@
       const remarksEl = card.querySelector('.wcv-remarks');
       const attrCbs = card.querySelectorAll('.wcv-attr-callback');
       const histCb = card.querySelector('input[data-code="HAS_PREVIOUS_HISTORY_OF_VIOLENCE"]');
-      const histDetailsEl = card.querySelector('.wcv-prev-history-details');
+      const histDetailsEl = card.querySelector('.wcv-previous-history-details');
 
       const attrIds = [];
       for (let j = 0; j < attrCbs.length; j++) {
@@ -502,7 +502,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       const cards = container.querySelectorAll('.wcv-accused-card');
       let hasName = false;

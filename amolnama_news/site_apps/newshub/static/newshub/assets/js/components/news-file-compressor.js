@@ -44,8 +44,8 @@
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+      const canvasContext = canvas.getContext('2d');
+      canvasContext.drawImage(img, 0, 0, width, height);
       canvas.toBlob(function (blob) {
         if (blob) { resolve(blob); }
         else { reject(new Error('Canvas toBlob failed')); }

@@ -115,16 +115,16 @@ if (typeof pdfjsLib !== 'undefined') {
 
   /* ====== Smooth show/hide ====== */
 
-  function showSection(el) {
-    el.hidden = false;
-    el.classList.remove('tool-section-reveal');
-    void el.offsetWidth;
-    el.classList.add('tool-section-reveal');
+  function showSection(element) {
+    element.hidden = false;
+    element.classList.remove('tool-section-reveal');
+    void element.offsetWidth;
+    element.classList.add('tool-section-reveal');
   }
 
-  function hideSection(el) {
-    el.hidden = true;
-    el.classList.remove('tool-section-reveal');
+  function hideSection(element) {
+    element.hidden = true;
+    element.classList.remove('tool-section-reveal');
   }
 
   /* ====== Utilities ====== */
@@ -406,14 +406,14 @@ if (typeof pdfjsLib !== 'undefined') {
     let canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
-    let ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    let canvasContext = canvas.getContext('2d');
+    canvasContext.imageSmoothingEnabled = true;
+    canvasContext.imageSmoothingQuality = 'high';
     if (fillWhiteBg) {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, w, h);
+      canvasContext.fillStyle = '#ffffff';
+      canvasContext.fillRect(0, 0, w, h);
     }
-    ctx.drawImage(img, 0, 0, w, h);
+    canvasContext.drawImage(img, 0, 0, w, h);
     return canvas;
   }
 
@@ -551,11 +551,11 @@ if (typeof pdfjsLib !== 'undefined') {
               const canvas = document.createElement('canvas');
               canvas.width = viewport.width;
               canvas.height = viewport.height;
-              const ctx = canvas.getContext('2d');
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              const canvasContext = canvas.getContext('2d');
+              canvasContext.fillStyle = '#ffffff';
+              canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
-              return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+              return page.render({ canvasContext: canvasContext, viewport: viewport }).promise.then(function () {
                 return canvasToBlob(canvas, 'image/jpeg', quality);
               }).then(function (blob) {
                 return blob.arrayBuffer();

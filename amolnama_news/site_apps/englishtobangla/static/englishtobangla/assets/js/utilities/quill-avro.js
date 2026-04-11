@@ -49,7 +49,7 @@ const QuillAvro = (function () {
       .then(function (data) {
         dictionary = data;
         buildWordIndex();
-        dictCallbacks.forEach(function (fn) { fn(); });
+        dictCallbacks.forEach(function (callback) { callback(); });
         dictCallbacks = [];
       })
       .catch(function () {

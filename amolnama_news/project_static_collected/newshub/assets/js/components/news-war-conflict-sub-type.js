@@ -8,7 +8,7 @@
  *   #global-sub-type             — hidden input for form submission
  *   #conflict-sub-types-data     — CSP-safe JSON with conflict sub-types
  *
- * Exposes: window.newshubGlobalSubType = { reset: fn }
+ * Exposes: window.newshubGlobalSubType = { reset: callback }
  */
 (function () {
   'use strict';

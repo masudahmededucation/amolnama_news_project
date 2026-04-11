@@ -61,16 +61,16 @@
 
   // ---- Smooth show/hide helpers ----
 
-  function showSection(el) {
-    el.hidden = false;
-    el.classList.remove('tool-section-reveal');
-    void el.offsetWidth;
-    el.classList.add('tool-section-reveal');
+  function showSection(element) {
+    element.hidden = false;
+    element.classList.remove('tool-section-reveal');
+    void element.offsetWidth;
+    element.classList.add('tool-section-reveal');
   }
 
-  function hideSection(el) {
-    el.hidden = true;
-    el.classList.remove('tool-section-reveal');
+  function hideSection(element) {
+    element.hidden = true;
+    element.classList.remove('tool-section-reveal');
   }
 
   // ---- Helpers ----

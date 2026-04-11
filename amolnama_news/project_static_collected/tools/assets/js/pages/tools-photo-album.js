@@ -891,10 +891,10 @@
       const canvas = document.createElement('canvas');
       canvas.width = pp.w;
       canvas.height = pp.h;
-      const ctx = canvas.getContext('2d');
+      const canvasContext = canvas.getContext('2d');
 
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, pp.w, pp.h);
+      canvasContext.fillStyle = bgColor;
+      canvasContext.fillRect(0, 0, pp.w, pp.h);
 
       const wrapW = canvasWrap.offsetWidth || 1;
       const wrapH = canvasWrap.offsetHeight || 1;
@@ -930,15 +930,15 @@
           if (pfw < 1) pfw = 1;
           if (pfh < 1) pfh = 1;
 
-          ctx.save();
+          canvasContext.save();
           if (roundPrint > 0) {
-            roundedRect(ctx, pfx, pfy, pfw, pfh, roundPrint);
+            roundedRect(canvasContext, pfx, pfy, pfw, pfh, roundPrint);
           } else {
-            ctx.rect(pfx, pfy, pfw, pfh);
+            canvasContext.rect(pfx, pfy, pfw, pfh);
           }
-          ctx.clip();
-          drawCoverWithPan(ctx, frameImages[fi], pfx, pfy, pfw, pfh, framePans[fi], frameZooms[fi] || 1, dfw, dfh);
-          ctx.restore();
+          canvasContext.clip();
+          drawCoverWithPan(canvasContext, frameImages[fi], pfx, pfy, pfw, pfh, framePans[fi], frameZooms[fi] || 1, dfw, dfh);
+          canvasContext.restore();
         }
 
         fi++;
@@ -949,7 +949,7 @@
     }, 30);
   }
 
-  function drawCoverWithPan(ctx, img, dx, dy, dw, dh, pan, zoom, displayFrameW, displayFrameH) {
+  function drawCoverWithPan(canvasContext, img, dx, dy, dw, dh, pan, zoom, displayFrameW, displayFrameH) {
     const iw = img.naturalWidth;
     const ih = img.naturalHeight;
 
@@ -972,21 +972,21 @@
 
     // Draw the entire source image into the calculated print rectangle
     // Source: full image. Dest: positioned within the frame.
-    ctx.drawImage(img, 0, 0, iw, ih, dx + printLeft, dy + printTop, printImgW, printImgH);
+    canvasContext.drawImage(img, 0, 0, iw, ih, dx + printLeft, dy + printTop, printImgW, printImgH);
   }
 
-  function roundedRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+  function roundedRect(canvasContext, x, y, w, h, r) {
+    canvasContext.beginPath();
+    canvasContext.moveTo(x + r, y);
+    canvasContext.lineTo(x + w - r, y);
+    canvasContext.quadraticCurveTo(x + w, y, x + w, y + r);
+    canvasContext.lineTo(x + w, y + h - r);
+    canvasContext.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    canvasContext.lineTo(x + r, y + h);
+    canvasContext.quadraticCurveTo(x, y + h, x, y + h - r);
+    canvasContext.lineTo(x, y + r);
+    canvasContext.quadraticCurveTo(x, y, x + r, y);
+    canvasContext.closePath();
   }
 
   /* ================================================================

@@ -14,7 +14,7 @@
  *   #wcv-safety-radios             — container (populated from wcv-safety-statuses-data)
  *   #wcv-consent-radios            — container (populated from wcv-consent-statuses-data)
  *
- * Exposes: window.newshubWcvConditionInjury = { reset: fn }
+ * Exposes: window.newshubWcvConditionInjury = { reset: callback }
  */
 (function () {
   'use strict';
@@ -50,9 +50,9 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const injuryTypesData = parseJsonData('wcv-injury-types-data');
@@ -334,8 +334,8 @@
       [pregnantCb, childrenCb, dependentCb, disabilityCb].forEach(function (callback) {
         if (callback) callback.checked = false;
       });
-      [pregnantMonths, childrenCount, disabilityType].forEach(function (el) {
-        if (el) el.value = '';
+      [pregnantMonths, childrenCount, disabilityType].forEach(function (element) {
+        if (element) element.value = '';
       });
       togglePregnancy();
       toggleChildren();
@@ -360,7 +360,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       if (!getCheckedIds(injuryTypeCheckboxes).length) {
         warnings.push('আঘাতের ধরন নির্বাচন করুন (Please select at least one injury type)');

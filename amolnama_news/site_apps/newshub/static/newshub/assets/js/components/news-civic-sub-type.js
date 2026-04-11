@@ -8,7 +8,7 @@
  *   #civic-sub-type             — hidden input for form submission
  *   #issue-sub-types-data       — CSP-safe JSON with issue sub-types
  *
- * Exposes: window.newshubCivicSubType = { reset: fn }
+ * Exposes: window.newshubCivicSubType = { reset: callback }
  */
 (function () {
   'use strict';

@@ -27,8 +27,8 @@
   const writerEl        = document.getElementById('entertainment-writer');
   const musicEl         = document.getElementById('entertainment-music-director');
 
-  function v(el) { return el && el.value.trim() || ''; }
-  function sel(el) { return el && el.value || ''; }
+  function v(element) { return element && element.value.trim() || ''; }
+  function sel(element) { return element && element.value || ''; }
 
   function collectData() {
     return {

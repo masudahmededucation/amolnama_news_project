@@ -44,13 +44,13 @@ const BanglaInput = (function() {
       .then(function(data) {
         dictionary = data;
         buildWordIndex();
-        dictCallbacks.forEach(function(fn) { fn(); });
+        dictCallbacks.forEach(function(callback) { callback(); });
         dictCallbacks = [];
       })
       .catch(function() {
         // Dictionary failed — Avro phonetic still works as fallback
         dictionary = {};
-        dictCallbacks.forEach(function(fn) { fn(); });
+        dictCallbacks.forEach(function(callback) { callback(); });
         dictCallbacks = [];
       });
   }
@@ -218,29 +218,29 @@ const BanglaInput = (function() {
       suggestBox.innerHTML = html;
       suggestBox.style.display = "block";
 
-      suggestBox.querySelectorAll(".bangla-input-item").forEach(function(el) {
-        el.addEventListener("mousedown", function(e) {
+      suggestBox.querySelectorAll(".bangla-input-item").forEach(function(element) {
+        element.addEventListener("mousedown", function(e) {
           e.preventDefault();
-          pickSuggestion(el.textContent);
+          pickSuggestion(element.textContent);
         });
-        el.addEventListener("mouseenter", function() {
+        element.addEventListener("mouseenter", function() {
           clearActive();
-          el.setAttribute("data-active", "1");
-          el.style.background = "#4a6fa5";
-          el.style.color = "#fff";
-          el.style.fontWeight = "600";
-          bestSuggestion = el.textContent;
+          element.setAttribute("data-active", "1");
+          element.style.background = "#4a6fa5";
+          element.style.color = "#fff";
+          element.style.fontWeight = "600";
+          bestSuggestion = element.textContent;
         });
       });
     }
 
     function clearActive() {
       if (!suggestBox) return;
-      suggestBox.querySelectorAll(".bangla-input-item").forEach(function(el) {
-        el.removeAttribute("data-active");
-        el.style.background = "";
-        el.style.color = "";
-        el.style.fontWeight = "";
+      suggestBox.querySelectorAll(".bangla-input-item").forEach(function(element) {
+        element.removeAttribute("data-active");
+        element.style.background = "";
+        element.style.color = "";
+        element.style.fontWeight = "";
       });
     }
 
@@ -395,13 +395,13 @@ const BanglaInput = (function() {
         bestSuggestion = items[next].textContent;
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        const prev = Math.max(activeIdx - 1, 0);
+        const previous = Math.max(activeIdx - 1, 0);
         clearActive();
-        items[prev].setAttribute("data-active", "1");
-        items[prev].style.background = "#4a6fa5";
-        items[prev].style.color = "#fff";
-        items[prev].style.fontWeight = "600";
-        bestSuggestion = items[prev].textContent;
+        items[previous].setAttribute("data-active", "1");
+        items[previous].style.background = "#4a6fa5";
+        items[previous].style.color = "#fff";
+        items[previous].style.fontWeight = "600";
+        bestSuggestion = items[previous].textContent;
       } else if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
         pickSuggestion(active ? active.textContent : (items.length > 0 ? items[0].textContent : bestSuggestion));

@@ -29,27 +29,27 @@
     {
       id: 'contributor-full-name',
       msg: 'নাম লিখুন (Please enter your name)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     {
       id: 'contributor-type',
       msg: 'ধরন নির্বাচন করুন (Please select contributor type)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     {
       id: 'news-headline-bn',
       msg: 'শিরোনাম লিখুন (Please enter a headline)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     {
       id: 'news-content-body-bn',
       msg: 'বিস্তারিত লিখুন (Please enter content)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     {
       id: 'news-occurrence-at',
       msg: 'ঘটনার সময় দিন (Please enter occurrence time)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     {
       id: 'news-district-id',
@@ -69,22 +69,22 @@
     {
       id: 'wcv-victim-first-name-en',
       msg: 'ভুক্তভোগীর প্রথম নাম (ইংরেজি) দিন (Please enter victim first name in English)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     /* WCV step 4 — victim last name in English (mandatory) */
     {
       id: 'wcv-victim-last-name-en',
       msg: 'ভুক্তভোগীর শেষ নাম (ইংরেজি) দিন (Please enter victim last name in English)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     /* WCV step 4 — age (mandatory, must be > 0) */
     {
       id: 'wcv-victim-age',
       msg: 'ভুক্তভোগীর বয়স দিন (Please enter victim age)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () {
-        let el = document.getElementById('wcv-victim-age');
-        return el && el.value && parseInt(el.value, 10) > 0;
+        let element = document.getElementById('wcv-victim-age');
+        return element && element.value && parseInt(element.value, 10) > 0;
       }
     },
     /* WCV step 4 — gender radio (mandatory) */
@@ -92,27 +92,27 @@
       id: 'wcv-gender-radios',
       checkName: 'wcv_victim_gender',
       msg: 'লিঙ্গ নির্বাচন করুন (Please select gender)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_victim_gender"]:checked'); }
     },
     /* WCV step 4 — marital status (mandatory select) */
     {
       id: 'wcv-victim-marital',
       msg: 'বৈবাহিক অবস্থা নির্বাচন করুন (Please select marital status)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     /* WCV step 4 — occupation (mandatory select) */
     {
       id: 'wcv-victim-occupation',
       msg: 'পেশা নির্বাচন করুন (Please select occupation)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     /* WCV form — violence type checkboxes (at least one required) */
     {
       id: 'wcv-violence-types-checkboxes',
       checkName: 'wcv_violence_type',
       msg: 'সহিংসতার ধরন নির্বাচন করুন (Please select at least one violence type)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () {
         return document.querySelector('input[name="wcv_violence_type"]:checked');
       }
@@ -121,14 +121,14 @@
     {
       id: 'wcv-location-type',
       msg: 'ঘটনাস্থলের ধরন নির্বাচন করুন (Please select incident location type)',
-      getContainer: function (el) { return el.closest('.form-field'); }
+      getContainer: function (element) { return element.closest('.form-field'); }
     },
     /* WCV step 5 — injury types (at least one required) */
     {
       id: 'wcv-injury-types-checkboxes',
       checkName: 'wcv_injury_type',
       msg: 'আঘাতের ধরন নির্বাচন করুন (Please select at least one injury type)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_injury_type"]:checked'); }
     },
     /* WCV step 5 — injury severity (mandatory radio) */
@@ -136,7 +136,7 @@
       id: 'wcv-injury-severity-radios',
       checkName: 'wcv_injury_severity',
       msg: 'আঘাতের তীব্রতা নির্বাচন করুন (Please select injury severity)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_injury_severity"]:checked'); }
     },
     /* WCV step 5 — current condition (mandatory radio) */
@@ -144,7 +144,7 @@
       id: 'wcv-condition-radios',
       checkName: 'wcv_victim_condition',
       msg: 'ভুক্তভোগীর বর্তমান অবস্থা নির্বাচন করুন (Please select victim condition)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_victim_condition"]:checked'); }
     },
     /* WCV step 5 — safety status (mandatory radio) */
@@ -152,7 +152,7 @@
       id: 'wcv-safety-radios',
       checkName: 'wcv_victim_safety',
       msg: 'নিরাপত্তা অবস্থা নির্বাচন করুন (Please select safety status)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_victim_safety"]:checked'); }
     },
     /* WCV step 5 — consent (mandatory radio) */
@@ -160,7 +160,7 @@
       id: 'wcv-consent-radios',
       checkName: 'wcv_victim_consent',
       msg: 'তথ্য প্রকাশে সম্মতি নির্বাচন করুন (Please select consent status)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_victim_consent"]:checked'); }
     },
     /* WCV step 7 — FIR/GD status (mandatory radio) */
@@ -168,7 +168,7 @@
       id: 'wcv-fir-status-radios',
       checkName: 'wcv_fir_status',
       msg: 'এফআইআর/জিডি অবস্থা নির্বাচন করুন (Please select FIR/GD status)',
-      getContainer: function (el) { return el.closest('.form-field'); },
+      getContainer: function (element) { return element.closest('.form-field'); },
       customCheck: function () { return document.querySelector('input[name="wcv_fir_status"]:checked'); }
     }
   ];
@@ -182,9 +182,9 @@
 
   /* Mandatory field warnings + stars (hidden until triggered) */
   MANDATORY.forEach(function (field) {
-    let el = document.getElementById(field.id);
-    if (!el) return;
-    let container = field.getContainer(el);
+    let element = document.getElementById(field.id);
+    if (!element) return;
+    let container = field.getContainer(element);
     if (!container) return;
 
     const label = container.querySelector('label[for="' + field.id + '"]')
@@ -217,9 +217,9 @@
 
   /* Length limit warnings (hidden until triggered) */
   LENGTH_LIMITS.forEach(function (rule) {
-    let el = document.getElementById(rule.id);
-    if (!el) return;
-    let container = el.closest('.form-field');
+    let element = document.getElementById(rule.id);
+    if (!element) return;
+    let container = element.closest('.form-field');
     if (!container) return;
 
     let warning = document.createElement('span');
@@ -260,15 +260,15 @@
   }
 
   function clearMandatoryWarning(field) {
-    let el = document.getElementById(field.id);
-    if (!el) return;
+    let element = document.getElementById(field.id);
+    if (!element) return;
 
     const isFilled = field.customCheck
       ? field.customCheck()
-      : (el.value && el.value.trim());
+      : (element.value && element.value.trim());
     if (!isFilled) return;
 
-    let container = field.getContainer(el);
+    let container = field.getContainer(element);
     if (!container) return;
     let warning = container.querySelector('.field-warning:not(.field-warning-length)');
     if (warning) warning.style.display = '';
@@ -278,12 +278,12 @@
   /** Show/hide inline length warnings as the user types. */
   function checkLengthLimits() {
     LENGTH_LIMITS.forEach(function (rule) {
-      let el = document.getElementById(rule.id);
-      if (!el) return;
+      let element = document.getElementById(rule.id);
+      if (!element) return;
       let warning = form.querySelector('.field-warning-length[data-limit-for="' + rule.id + '"]');
       if (!warning) return;
 
-      const len = (el.value || '').trim().length;
+      const len = (element.value || '').trim().length;
       if (len > rule.max) {
         warning.textContent = rule.label + ' সর্বোচ্চ ' + rule.max + ' অক্ষর, বর্তমানে ' + len + ' অক্ষর। (Max ' + rule.max + ' chars, currently ' + len + ')';
         warning.style.display = 'inline';
@@ -349,15 +349,15 @@
     const errorStepNumbers = {};
 
     MANDATORY.forEach(function (field) {
-      let el = document.getElementById(field.id);
-      if (!el) return;
-      const container = field.getContainer(el);
+      let element = document.getElementById(field.id);
+      if (!element) return;
+      const container = field.getContainer(element);
       if (!container) return;
       const warning = container.querySelector('.field-warning:not(.field-warning-length)');
 
       const isEmpty = field.customCheck
         ? !field.customCheck()
-        : (!el.value || !el.value.trim());
+        : (!element.value || !element.value.trim());
 
       if (isEmpty) {
         e.preventDefault();
@@ -365,7 +365,7 @@
         if (!firstEmptyContainer) firstEmptyContainer = container;
 
         if (isMultistep) {
-          let panel = el.closest('.step-panel[data-step]');
+          let panel = element.closest('.step-panel[data-step]');
           if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
         }
       } else {
@@ -376,15 +376,15 @@
 
     /* Also block submit if length limits exceeded */
     LENGTH_LIMITS.forEach(function (rule) {
-      const el = document.getElementById(rule.id);
-      if (!el || !el.value) return;
-      if (el.value.trim().length > rule.max) {
+      const element = document.getElementById(rule.id);
+      if (!element || !element.value) return;
+      if (element.value.trim().length > rule.max) {
         e.preventDefault();
         if (!firstEmptyContainer) {
-          firstEmptyContainer = el.closest('.form-field');
+          firstEmptyContainer = element.closest('.form-field');
         }
         if (isMultistep) {
-          const panel = el.closest('.step-panel[data-step]');
+          const panel = element.closest('.step-panel[data-step]');
           if (panel) errorStepNumbers[panel.getAttribute('data-step')] = true;
         }
       }

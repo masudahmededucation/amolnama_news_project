@@ -6,7 +6,7 @@
  *
  * A) Template-rendered forms (person-name-fields.html):
  *    Field IDs: {prefix}-first-name-en, {prefix}-last-name-bn, etc.
- *    Use: read(prefix), bind(prefix, fn), reset(prefix)
+ *    Use: read(prefix), bind(prefix, callback), reset(prefix)
  *
  * B) JS-built repeater cards using HTML strings (crime accused/victim/witness):
  *    Use: buildNameGroupHtml(index, actor, fieldClass)
@@ -38,8 +38,8 @@
   }
 
   function val(prefix, suffix) {
-    let el = getEl(prefix, suffix);
-    return el ? el.value.trim() : '';
+    let element = getEl(prefix, suffix);
+    return element ? element.value.trim() : '';
   }
 
   function generateSlug(firstEn, lastEn) {
@@ -188,15 +188,15 @@
 
     bind: function (prefix, callback) {
       SUFFIXES.forEach(function (suffix) {
-        let el = getEl(prefix, suffix);
-        if (el) el.addEventListener('input', callback);
+        let element = getEl(prefix, suffix);
+        if (element) element.addEventListener('input', callback);
       });
     },
 
     reset: function (prefix) {
       SUFFIXES.forEach(function (suffix) {
-        const el = getEl(prefix, suffix);
-        if (el) el.value = '';
+        const element = getEl(prefix, suffix);
+        if (element) element.value = '';
       });
     },
 

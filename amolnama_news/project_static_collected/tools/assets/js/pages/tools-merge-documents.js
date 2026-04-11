@@ -6,15 +6,15 @@ if (typeof pdfjsLib !== 'undefined') {
   'use strict';
 
   /* ---- Smooth show / hide helpers ---- */
-  function showSection(el) {
-    el.hidden = false;
-    el.classList.remove('tool-section-reveal');
-    void el.offsetWidth;
-    el.classList.add('tool-section-reveal');
+  function showSection(element) {
+    element.hidden = false;
+    element.classList.remove('tool-section-reveal');
+    void element.offsetWidth;
+    element.classList.add('tool-section-reveal');
   }
-  function hideSection(el) {
-    el.hidden = true;
-    el.classList.remove('tool-section-reveal');
+  function hideSection(element) {
+    element.hidden = true;
+    element.classList.remove('tool-section-reveal');
   }
 
   /* ---- DOM refs ---- */
@@ -116,8 +116,8 @@ if (typeof pdfjsLib !== 'undefined') {
             let canvas = document.createElement('canvas');
             canvas.width = viewport.width;
             canvas.height = viewport.height;
-            let ctx = canvas.getContext('2d');
-            return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+            let canvasContext = canvas.getContext('2d');
+            return page.render({ canvasContext: canvasContext, viewport: viewport }).promise.then(function () {
               entry.thumbUrl = canvas.toDataURL('image/jpeg', 0.6);
               resolve();
             });
@@ -314,13 +314,13 @@ if (typeof pdfjsLib !== 'undefined') {
   let dropInsertIdx = -1; /* The index in fileEntries where the item will be inserted */
 
   function createPlaceholder() {
-    const el = document.createElement('div');
-    el.className = 'mgr-drop-placeholder';
+    const element = document.createElement('div');
+    element.className = 'mgr-drop-placeholder';
     const txt = document.createElement('span');
     txt.className = 'mgr-drop-placeholder-text';
     txt.textContent = 'এখানে ছাড়ুন (Drop here)';
-    el.appendChild(txt);
-    return el;
+    element.appendChild(txt);
+    return element;
   }
 
   function removePlaceholder() {
@@ -646,8 +646,8 @@ if (typeof pdfjsLib !== 'undefined') {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        const canvasContext = canvas.getContext('2d');
+        canvasContext.drawImage(img, 0, 0);
         canvas.toBlob(function (blob) {
           if (!blob) { reject(new Error('Canvas conversion failed')); return; }
           const reader = new FileReader();

@@ -131,7 +131,7 @@ def _get_user_contributor_info(user):
 
 def _build_form_context(contributor_form, news_entry_form, attachment_form, social_source_form, extra=None):
     """Assemble the template context with forms + reference data."""
-    ctx = {
+    form_context = {
         'seo': {'noindex': True},
         'contributor_form': contributor_form,
         'news_entry_form': news_entry_form,
@@ -159,13 +159,13 @@ def _build_form_context(contributor_form, news_entry_form, attachment_form, soci
         )),
     }
     if extra:
-        ctx.update(extra)
+        form_context.update(extra)
     # DB-driven form picker — inject if not already provided
-    if 'form_type_items' not in ctx:
+    if 'form_type_items' not in form_context:
         from .helpers import FORM_TYPE_METADATA
         from django.urls import reverse
         all_form_types = RefNewsFormType.objects.filter(is_active=True).order_by('newshub_ref_news_form_type_id')
-        ctx['form_type_items'] = [
+        form_context['form_type_items'] = [
             {
                 'group_code': form_type.group_code,
                 'form_name_bn': form_type.form_name_bn,
@@ -180,11 +180,11 @@ def _build_form_context(contributor_form, news_entry_form, attachment_form, soci
             if form_type.group_code in FORM_TYPE_METADATA
         ]
     # Code splitting: resolve JS scripts for this form type
-    form_type = ctx.get('selected_form_type') or ctx.get('form_type_code') or 'generic'
-    if 'form_scripts' not in ctx:
+    form_type = form_context.get('selected_form_type') or form_context.get('form_type_code') or 'generic'
+    if 'form_scripts' not in form_context:
         from .helpers import get_form_scripts
-        ctx['form_scripts'] = get_form_scripts(form_type)
-    return ctx
+        form_context['form_scripts'] = get_form_scripts(form_type)
+    return form_context
 
 
 def _add_actor_person_refs(extra):
@@ -229,14 +229,14 @@ def news_collection(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2   # Citizen
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 def news_collection_multistep(request):
@@ -265,14 +265,14 @@ def news_collection_multistep(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 def news_collection_multistep_extortion(request):
@@ -393,14 +393,14 @@ def news_collection_multistep_extortion(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('land_grabbing')
@@ -466,14 +466,14 @@ def news_collection_multistep_land_grabbing(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('crime_violence')
@@ -550,14 +550,14 @@ def news_collection_multistep_crime_violence(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('price_hike_syndicate')
@@ -598,14 +598,14 @@ def news_collection_multistep_price_hike(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('watchdog_bangladesh')
@@ -646,14 +646,14 @@ def news_collection_multistep_watchdog_bangladesh(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('civic_community')
@@ -720,14 +720,14 @@ def news_collection_multistep_civic_community(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 def _build_common_extra(request, selected_form_type):
@@ -749,14 +749,14 @@ def _finalize_form_context(request, template, extra):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('global_news')
@@ -904,14 +904,14 @@ def news_collection_multistep_sports(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('entertainment')
@@ -937,14 +937,14 @@ def news_collection_multistep_entertainment(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('july_uprising_2024')
@@ -1049,14 +1049,14 @@ def news_collection_multistep_july_uprising(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 @_form_access_required('women_child_violence')
@@ -1187,14 +1187,14 @@ def news_collection_multistep_women_child_violence(request):
         extra['contributor_types'] = all_types.exclude(contributor_type_id=1)
         extra['default_contributor_type_id'] = 2
 
-    ctx = _build_form_context(
+    form_context = _build_form_context(
         ContributorInfoForm(),
         NewsEntryForm(),
         NewsAttachmentForm(),
         NewsSocialSourceForm(),
         extra=extra,
     )
-    return render(request, template, ctx)
+    return render(request, template, form_context)
 
 
 def news_article_landing(request):
@@ -2056,7 +2056,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
 
     if not all_valid:
         error_msg = ' | '.join(sidebar_errors) if sidebar_errors else 'ফর্মে ত্রুটি আছে, অনুগ্রহ করে পরীক্ষা করুন।'
-        ctx = _build_form_context(
+        form_context = _build_form_context(
             contributor_form, news_entry_form, attachment_form, social_source_form,
             extra={
                 'error_message': error_msg,
@@ -2071,7 +2071,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 'is_breaking_checked': is_breaking,
             },
         )
-        return render(request, template_name, ctx)
+        return render(request, template_name, form_context)
 
     # ---- Normalize Bengali text (NFKC) and check for duplicate headline ----
     now = timezone.now()
@@ -2118,7 +2118,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         has_length_errors = True
 
     if has_length_errors:
-        ctx = _build_form_context(
+        form_context = _build_form_context(
             contributor_form, news_entry_form, attachment_form, social_source_form,
             extra={
                 'selected_category_id': category_id,
@@ -2132,7 +2132,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 'is_breaking_checked': is_breaking,
             },
         )
-        return render(request, template_name, ctx)
+        return render(request, template_name, form_context)
 
     # ---- Save all records atomically ----
 
@@ -2334,16 +2334,16 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             if social_json_raw:
                 try:
                     social_data = json.loads(social_json_raw)
-                    for src in social_data.get('sources', []):
-                        src_url = (src.get('url') or '').strip()
-                        if not src_url:
+                    for social_source in social_data.get('sources', []):
+                        social_source_url = (social_source.get('url') or '').strip()
+                        if not social_source_url:
                             continue
-                        url_record = SocialUrlLibrary.objects.filter(social_url=src_url).first()
+                        url_record = SocialUrlLibrary.objects.filter(social_url=social_source_url).first()
                         if not url_record:
                             url_record = SocialUrlLibrary.objects.create(
-                                link_social_media_platform_type_id=int(src.get('platformId') or 0),
-                                social_url=src_url,
-                                social_embed_code=src.get('embedCode') or None,
+                                link_social_media_platform_type_id=int(social_source.get('platformId') or 0),
+                                social_url=social_source_url,
+                                social_embed_code=social_source.get('embedCode') or None,
                                 created_at=now,
                             )
                         NewsSocialMediaSource.objects.create(
@@ -3568,7 +3568,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'error': error_msg}, status=400)
 
-        ctx = _build_form_context(
+        form_context = _build_form_context(
             contributor_form, news_entry_form, attachment_form, social_source_form,
             extra={
                 'error_message': error_msg,
@@ -3583,7 +3583,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                 'is_breaking_checked': is_breaking,
             },
         )
-        return render(request, template_name, ctx)
+        return render(request, template_name, form_context)
 
     # ---- Success redirect ----
     # In edit mode, redirect back to the article view page if pub_article exists

@@ -10,7 +10,7 @@
   const BENGALI_DIGITS = ['\u09E6', '\u09E7', '\u09E8', '\u09E9', '\u09EA', '\u09EB', '\u09EC', '\u09ED', '\u09EE', '\u09EF'];
 
   const stepPanels = document.querySelectorAll('.step-panel[data-step]');
-  const buttonPrev = document.getElementById('button-step-prev');
+  const buttonPrev = document.getElementById('button-step-previous');
   const buttonNext = document.getElementById('button-step-next');
   const stepCounter = document.getElementById('step-counter');
   const stepperContainer = document.getElementById('stepper');
@@ -36,18 +36,18 @@
     const bnEls = document.querySelectorAll('.lbl-bn');
     const enEls = document.querySelectorAll('.lbl-en');
     if (lang === 'en') {
-      bnEls.forEach(function (el) { el.hidden = true; });
-      enEls.forEach(function (el) { el.hidden = false; });
+      bnEls.forEach(function (element) { element.hidden = true; });
+      enEls.forEach(function (element) { element.hidden = false; });
     } else {
-      bnEls.forEach(function (el) { el.hidden = false; });
-      enEls.forEach(function (el) { el.hidden = true; });
+      bnEls.forEach(function (element) { element.hidden = false; });
+      enEls.forEach(function (element) { element.hidden = true; });
     }
 
     /* Swap placeholders */
     const key = 'placeholder' + (lang === 'en' ? 'En' : 'Bn');
-    document.querySelectorAll('[data-placeholder-bn]').forEach(function (el) {
-      const newPh = el.dataset[key];
-      if (newPh) el.placeholder = newPh;
+    document.querySelectorAll('[data-placeholder-bn]').forEach(function (element) {
+      const newPh = element.dataset[key];
+      if (newPh) element.placeholder = newPh;
     });
 
     /* Swap select default option text */
@@ -241,7 +241,7 @@
 
   /* Q6 → show previous husband if bride is widow/divorced */
   const brideMaritalStatus = document.getElementById('bride-marital-status');
-  const bridePrevHusbandWrap = document.getElementById('bride-prev-husband-wrap');
+  const bridePrevHusbandWrap = document.getElementById('bride-previous-husband-wrap');
 
   if (brideMaritalStatus) {
     brideMaritalStatus.addEventListener('change', function () {

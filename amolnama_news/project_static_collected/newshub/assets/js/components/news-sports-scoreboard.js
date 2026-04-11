@@ -14,7 +14,7 @@
  *   #sports-key-performance               — textarea
  *   #sports-scoreboard-json               — hidden JSON input for form submission
  *
- * Exposes: window.newshubSportsScoreboard = { reset: fn }
+ * Exposes: window.newshubSportsScoreboard = { reset: callback }
  */
 (function () {
   'use strict';
@@ -53,8 +53,8 @@
 
   /* Listen for changes on selects */
   const changeFields = [sportType, matchStatus, tournamentLevel];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   /* Listen for changes on competition type radios */
@@ -64,8 +64,8 @@
 
   /* Listen for input on text fields */
   const inputFields = [scoreA, scoreB, keyPerformance];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Serialize before form submit */
@@ -116,7 +116,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       if (!sportType || !sportType.value) {
         warnings.push('খেলার ধরন নির্বাচন করুন (Please select a sport type)');

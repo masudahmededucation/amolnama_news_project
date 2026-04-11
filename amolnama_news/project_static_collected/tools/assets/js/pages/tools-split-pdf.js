@@ -414,9 +414,9 @@ if (typeof pdfjsLib !== 'undefined') {
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
+        const canvasContext = canvas.getContext('2d');
 
-        page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+        page.render({ canvasContext: canvasContext, viewport: viewport }).promise.then(function () {
           const thumbContainer = card.querySelector('.spl-page-thumb');
           thumbContainer.innerHTML = '';
           thumbContainer.appendChild(canvas);

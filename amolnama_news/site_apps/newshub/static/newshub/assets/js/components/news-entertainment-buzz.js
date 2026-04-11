@@ -16,7 +16,7 @@
  *   #entertainment-boycott-level           — select
  *   #entertainment-buzz-json               — hidden JSON input for form submission
  *
- * Exposes: window.newshubEntertainmentBuzz = { reset: fn }
+ * Exposes: window.newshubEntertainmentBuzz = { reset: callback }
  */
 (function () {
   'use strict';
@@ -67,14 +67,14 @@
 
   /* Listen for input on text fields */
   const inputFields = [trendingHashtag, plagiarismSource];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Listen for changes on selects */
   const changeFields = [memeFactor, boycottLevel];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   /* Listen for plagiarism checkbox */

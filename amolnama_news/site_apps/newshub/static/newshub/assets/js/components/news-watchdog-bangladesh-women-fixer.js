@@ -13,7 +13,7 @@
  *   #women-fixer-source               — source URL
  *   #women-fixer-json                 — hidden JSON input
  *
- * Exposes: window.newshubWatchdogWomenFixer = { reset: fn }
+ * Exposes: window.newshubWatchdogWomenFixer = { reset: callback }
  */
 (function () {
   'use strict';
@@ -43,10 +43,10 @@
   }
 
   const fields = [incidentType, description, incidentDate, victimCount, network, legalAction, source];
-  fields.forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('input', serialize);
-    el.addEventListener('change', serialize);
+  fields.forEach(function (element) {
+    if (!element) return;
+    element.addEventListener('input', serialize);
+    element.addEventListener('change', serialize);
   });
 
   const form = hiddenJson.closest('form');
@@ -71,12 +71,12 @@
 
   window.newshubWatchdogWomenFixer = {
     reset: function () {
-      fields.forEach(function (el) {
-        if (!el) return;
-        if (el.tagName === 'SELECT') {
-          el.selectedIndex = 0;
+      fields.forEach(function (element) {
+        if (!element) return;
+        if (element.tagName === 'SELECT') {
+          element.selectedIndex = 0;
         } else {
-          el.value = '';
+          element.value = '';
         }
       });
       hiddenJson.value = '';
@@ -89,7 +89,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!incidentType || !incidentType.value) {

@@ -24,8 +24,8 @@
   const ratingEl            = document.getElementById('entertainment-rating');
   const audienceSelect      = document.getElementById('entertainment-audience-response-select');
 
-  function v(el) { return el && el.value.trim() || ''; }
-  function sel(el) { return el && el.value || ''; }
+  function v(element) { return element && element.value.trim() || ''; }
+  function sel(element) { return element && element.value || ''; }
 
   function collectData() {
     return {

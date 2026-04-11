@@ -10,8 +10,8 @@ function showVotingStep(stepId) {
     'constituency-view', 'party-view', 'receipt-view',
   ];
   allSteps.forEach(function (id) {
-    const el = document.getElementById(id);
-    if (el) el.hidden = true;
+    const element = document.getElementById(id);
+    if (element) element.hidden = true;
   });
   const target = document.getElementById(stepId);
   if (target) target.hidden = false;

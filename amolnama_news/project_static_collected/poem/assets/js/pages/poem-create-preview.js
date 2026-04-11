@@ -23,13 +23,13 @@
   ];
 
   fields.forEach(function (id) {
-    let el = document.getElementById(id);
-    if (el) el.addEventListener("input", updatePreview);
+    let element = document.getElementById(id);
+    if (element) element.addEventListener("input", updatePreview);
   });
 
   function val(id) {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : "";
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : "";
   }
 
   function updatePreview() {

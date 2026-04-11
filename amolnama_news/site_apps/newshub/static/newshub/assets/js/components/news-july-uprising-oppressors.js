@@ -12,7 +12,7 @@
  *   #july-directives              — textarea
  *   #july-oppressors-json         — hidden JSON input for form submission
  *
- * Exposes: window.newshubJulyOppressors = { reset: fn }
+ * Exposes: window.newshubJulyOppressors = { reset: callback }
  */
 (function () {
   'use strict';
@@ -50,8 +50,8 @@
   }
 
   const inputFields = [unitBadge, commandingOfficer, ocDc];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   if (directives) directives.addEventListener('input', serialize);

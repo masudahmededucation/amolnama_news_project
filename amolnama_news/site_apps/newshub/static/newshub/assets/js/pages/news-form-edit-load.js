@@ -180,13 +180,13 @@
 
   function setFieldValue(id, value) {
     if (!value && value !== 0) return;
-    let el = document.getElementById(id);
-    if (el) el.value = String(value);
+    let element = document.getElementById(id);
+    if (element) element.value = String(value);
   }
 
   function setHiddenJson(id, data) {
-    const el = document.getElementById(id);
-    if (el) el.value = JSON.stringify(data);
+    const element = document.getElementById(id);
+    if (element) element.value = JSON.stringify(data);
   }
 
   function waitForOptions(selectEl, callback) {

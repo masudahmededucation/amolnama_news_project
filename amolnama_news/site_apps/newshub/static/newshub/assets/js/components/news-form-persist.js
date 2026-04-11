@@ -50,21 +50,21 @@
     const elements = form.querySelectorAll('input, select, textarea');
 
     for (let i = 0; i < elements.length; i++) {
-      let el = elements[i];
-      let name = el.name;
+      let element = elements[i];
+      let name = element.name;
       if (!name || SKIP_NAMES.indexOf(name) !== -1) continue;
-      if (el.type === 'file') continue;
+      if (element.type === 'file') continue;
 
-      if (el.type === 'radio') {
+      if (element.type === 'radio') {
         /* Save only the checked radio's value (skip unchecked ones) */
-        if (el.checked) data[name] = el.value;
-      } else if (el.type === 'checkbox') {
+        if (element.checked) data[name] = element.value;
+      } else if (element.type === 'checkbox') {
         /* For checkboxes with same name, store comma-separated checked values */
-        if (el.checked) {
-          data[name] = data[name] ? (data[name] + ',' + el.value) : el.value;
+        if (element.checked) {
+          data[name] = data[name] ? (data[name] + ',' + element.value) : element.value;
         }
       } else {
-        data[name] = el.value;
+        data[name] = element.value;
       }
     }
 
@@ -123,8 +123,8 @@
     const els = form.querySelectorAll('[name="' + name + '"]');
     if (!els.length) return;
 
-    const el = els[0];
-    if (el.type === 'radio') {
+    const element = els[0];
+    if (element.type === 'radio') {
       /* Find and check the radio with the saved value, dispatch change for conditional rows */
       for (let r = 0; r < els.length; r++) {
         if (els[r].value === saved[name]) {
@@ -133,14 +133,14 @@
           break;
         }
       }
-    } else if (el.type === 'checkbox') {
+    } else if (element.type === 'checkbox') {
       /* Restore checkboxes — saved as comma-separated values */
       const savedValues = (saved[name] || '').split(',');
       for (let c = 0; c < els.length; c++) {
         els[c].checked = savedValues.indexOf(els[c].value) !== -1;
       }
     } else {
-      el.value = saved[name];
+      element.value = saved[name];
     }
   });
 

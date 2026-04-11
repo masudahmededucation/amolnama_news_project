@@ -13,7 +13,7 @@
  *   #button-add-commodity           — add button
  *   #commodity-search-url-data   — CSP-safe JSON with API URL
  *
- * Exposes: window.newshubPriceGap = { reset: fn }
+ * Exposes: window.newshubPriceGap = { reset: callback }
  */
 (function () {
   'use strict';
@@ -282,8 +282,8 @@
 
       const removeBtn = rowEl.querySelector('.button-remove-commodity');
       if (removeBtn) {
-        (function (el, index) {
-          removeBtn.addEventListener('click', function () { removeRow(el, index); });
+        (function (element, index) {
+          removeBtn.addEventListener('click', function () { removeRow(element, index); });
         })(rowEl, index);
       }
 
@@ -383,7 +383,7 @@
 
     /* Deferred queue — stepper loads after us */
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: priceGapStep, fn: validator });
+    window.__newshubStepValidators.push({ step: priceGapStep, callback: validator });
   }
 
   /* SPA cleanup — destroy Tom Select instances on page transition */

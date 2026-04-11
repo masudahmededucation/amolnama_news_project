@@ -13,7 +13,7 @@
  *   #button-add-stockpile                   — add button
  *   #stockpile-commodity-search-url-data — CSP-safe JSON with API URL
  *
- * Exposes: window.newshubStockpiling = { reset: fn }
+ * Exposes: window.newshubStockpiling = { reset: callback }
  */
 (function () {
   'use strict';
@@ -228,8 +228,8 @@
 
       const removeBtn = rowEl.querySelector('.button-remove-stockpile');
       if (removeBtn) {
-        (function (el, index) {
-          removeBtn.addEventListener('click', function () { removeRow(el, index); });
+        (function (element, index) {
+          removeBtn.addEventListener('click', function () { removeRow(element, index); });
         })(rowEl, index);
       }
 

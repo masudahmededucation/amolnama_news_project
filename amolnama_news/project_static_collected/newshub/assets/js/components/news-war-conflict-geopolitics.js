@@ -28,7 +28,7 @@
  *   global_is_impact_oil_energy, global_is_impact_shipping_lanes,
  *   local_has_bangladesh_impact, local_impact_description_bn
  *
- * Exposes: window.newshubGlobalGeopolitics = { reset: fn }
+ * Exposes: window.newshubGlobalGeopolitics = { reset: callback }
  */
 (function () {
   'use strict';
@@ -49,9 +49,9 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const globalReactions = parseJsonData('global-reactions-data');

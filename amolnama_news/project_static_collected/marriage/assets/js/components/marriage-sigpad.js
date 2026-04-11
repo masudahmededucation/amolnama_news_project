@@ -25,7 +25,7 @@
 
     if (!canvas || !drawArea) return;
 
-    const ctx = canvas.getContext('2d');
+    const canvasContext = canvas.getContext('2d');
     let drawing = false;
     let hasStrokes = false;
     let lastX = 0;
@@ -36,9 +36,9 @@
 
     /* --- Base style --- */
     function styleCtx() {
-      ctx.strokeStyle = '#1a1a1a';
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      canvasContext.strokeStyle = '#1a1a1a';
+      canvasContext.lineCap = 'round';
+      canvasContext.lineJoin = 'round';
     }
 
     /* --- Canvas sizing --- */
@@ -75,11 +75,11 @@
 
     /* --- Draw a line segment with variable width --- */
     function drawSegment(fromX, fromY, toX, toY, width) {
-      ctx.beginPath();
-      ctx.lineWidth = width;
-      ctx.moveTo(fromX, fromY);
-      ctx.lineTo(toX, toY);
-      ctx.stroke();
+      canvasContext.beginPath();
+      canvasContext.lineWidth = width;
+      canvasContext.moveTo(fromX, fromY);
+      canvasContext.lineTo(toX, toY);
+      canvasContext.stroke();
     }
 
     function startDraw(e) {
@@ -93,10 +93,10 @@
       lastWidth = (MIN_WIDTH + MAX_WIDTH) / 2;
 
       /* Draw a dot for taps / starting point */
-      ctx.beginPath();
-      ctx.fillStyle = '#1a1a1a';
-      ctx.arc(pos.x, pos.y, lastWidth / 2, 0, Math.PI * 2);
-      ctx.fill();
+      canvasContext.beginPath();
+      canvasContext.fillStyle = '#1a1a1a';
+      canvasContext.arc(pos.x, pos.y, lastWidth / 2, 0, Math.PI * 2);
+      canvasContext.fill();
     }
 
     function moveDraw(e) {
@@ -152,7 +152,7 @@
     /* Clear button */
     if (clearBtn) {
       clearBtn.addEventListener('click', function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvasContext.clearRect(0, 0, canvas.width, canvas.height);
         hasStrokes = false;
         if (dropEl) dropEl.dataset.sigUrl = '';
       });

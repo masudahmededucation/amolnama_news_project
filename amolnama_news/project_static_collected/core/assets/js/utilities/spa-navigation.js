@@ -7,12 +7,12 @@
    SPA navigation calls all registered cleanups before swapping content. */
 (function () {
   var cleanupFunctions = [];
-  window.spaCleanupRegister = function (fn) {
-    if (typeof fn === 'function') cleanupFunctions.push(fn);
+  window.spaCleanupRegister = function (callback) {
+    if (typeof callback === 'function') cleanupFunctions.push(callback);
   };
   window.spaCleanupRun = function () {
-    cleanupFunctions.forEach(function (fn) {
-      try { fn(); } catch (error) { console.error('SPA cleanup error:', error); }
+    cleanupFunctions.forEach(function (callback) {
+      try { callback(); } catch (error) { console.error('SPA cleanup error:', error); }
     });
     cleanupFunctions = [];
   };

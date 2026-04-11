@@ -14,7 +14,7 @@
  *   #issue-impact            — impact textarea
  *   #issue-watchdog-json     — hidden JSON input
  *
- * Exposes: window.newshubWatchdogIssue = { reset: fn }
+ * Exposes: window.newshubWatchdogIssue = { reset: callback }
  */
 (function () {
   'use strict';
@@ -46,9 +46,9 @@
   }
 
   const fields = [topic, origStance, origDate, origSource, curStance, curDate, curSource, impact];
-  fields.forEach(function (el) {
-    if (!el) return;
-    el.addEventListener('input', serialize);
+  fields.forEach(function (element) {
+    if (!element) return;
+    element.addEventListener('input', serialize);
   });
 
   const form = hiddenJson.closest('form');
@@ -74,7 +74,7 @@
 
   window.newshubWatchdogIssue = {
     reset: function () {
-      fields.forEach(function (el) { if (el) el.value = ''; });
+      fields.forEach(function (element) { if (element) element.value = ''; });
       hiddenJson.value = '';
     }
   };
@@ -85,7 +85,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       if (section && section.hidden) return { warnings: [] };
       const warnings = [];
       if (!topic || !topic.value.trim()) {

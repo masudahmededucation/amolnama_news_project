@@ -20,7 +20,7 @@
  *   #sports-sub-type              — hidden input (set by sub-type picker)
  *   #sports-records-json          — hidden JSON input for form submission
  *
- * Exposes: window.newshubSportsRecords = { reset: fn }
+ * Exposes: window.newshubSportsRecords = { reset: callback }
  */
 (function () {
   'use strict';
@@ -79,8 +79,8 @@
   const inputFields = [tournamentName, milestones,
                      transferFrom, transferTo, transferFee, transferDuration,
                      injuryType, injuryRecovery];
-  inputFields.forEach(function (el) {
-    if (el) el.addEventListener('input', serialize);
+  inputFields.forEach(function (element) {
+    if (element) element.addEventListener('input', serialize);
   });
 
   /* Watch sub-type hidden input for value changes (set by radio picker in step 3) */

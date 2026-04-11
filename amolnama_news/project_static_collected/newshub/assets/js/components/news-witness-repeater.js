@@ -16,7 +16,7 @@
  *     age, dob, districtId, alias, designation, organization, patron,
  *     contact, statement }
  *
- * Exposes: window.newshubWitness = { reset: fn }
+ * Exposes: window.newshubWitness = { reset: callback }
  */
 (function () {
   'use strict';
@@ -31,9 +31,9 @@
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent); } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent); } catch (e) { return []; }
   }
 
   const involvementTypes = parseJsonData('actor-involvement-types-data');
@@ -259,7 +259,7 @@
     window.__newshubStepValidators = window.__newshubStepValidators || [];
     window.__newshubStepValidators.push({
       step: step,
-      fn: function () {
+      callback: function () {
         const warnings = [];
         for (let i = 0; i < actors.length; i++) {
           if (!actors[i].firstNameEn || !actors[i].firstNameEn.trim()) {

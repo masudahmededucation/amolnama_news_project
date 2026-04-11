@@ -13,7 +13,7 @@
  *   #actor-involvement-types-data   — CSP-safe JSON with involvement types
  *   #countries-data                 — CSP-safe JSON with country list
  *
- * Exposes: window.newshubGlobalConflictParties = { reset: fn }
+ * Exposes: window.newshubGlobalConflictParties = { reset: callback }
  */
 (function () {
   'use strict';
@@ -28,9 +28,9 @@
   /* ========== Reference Data ========== */
 
   function parseJsonData(id) {
-    let el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    let element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const involvementTypes = parseJsonData('actor-involvement-types-data');
@@ -214,15 +214,15 @@
   }
 
   function onFieldChange(e) {
-    const el = e.target;
-    let index = parseInt(el.getAttribute('data-index'), 10);
-    const field = el.getAttribute('data-field');
+    const element = e.target;
+    let index = parseInt(element.getAttribute('data-index'), 10);
+    const field = element.getAttribute('data-field');
     if (isNaN(index) || !field || !parties[index]) return;
 
     if (field === 'countryId') {
-      parties[index][field] = parseInt(el.value, 10) || 0;
+      parties[index][field] = parseInt(element.value, 10) || 0;
     } else {
-      parties[index][field] = el.value;
+      parties[index][field] = element.value;
     }
     syncToHiddenInput();
   }

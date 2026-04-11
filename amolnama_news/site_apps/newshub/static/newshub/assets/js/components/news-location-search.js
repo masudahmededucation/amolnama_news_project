@@ -6,9 +6,9 @@
  * and auto-fills the target cascade dropdowns.
  *
  * Usage:
- *   window.newshubCreateLocationSearch(cfg) → creates instance, returns API
+ *   window.newshubCreateLocationSearch(config) → creates instance, returns API
  *
- * cfg properties (all optional except searchInputId):
+ * config properties (all optional except searchInputId):
  *   searchInputId {string}  — ID of the Tom Select <select> element (required)
  *   districtId    {string}  — ID of district select
  *   upazilaId     {string}  — ID of upazila/subdistrict select
@@ -32,17 +32,17 @@
 
   if (typeof TomSelect === 'undefined') return;
 
-  function createLocationSearch(cfg) {
-    const searchSelect    = document.getElementById(cfg.searchInputId);
+  function createLocationSearch(config) {
+    const searchSelect    = document.getElementById(config.searchInputId);
     if (!searchSelect) return null;
 
-    const districtSelect    = cfg.districtId  ? document.getElementById(cfg.districtId)  : null;
-    const subDistrictSelect = cfg.upazilaId   ? document.getElementById(cfg.upazilaId)   : null;
-    const localBodySelect   = cfg.localBodyId ? document.getElementById(cfg.localBodyId) : null;
-    const wardSelect        = cfg.wardId      ? document.getElementById(cfg.wardId)       : null;
-    const villageSelect     = cfg.villageId   ? document.getElementById(cfg.villageId)    : null;
-    const hasMap            = cfg.hasMap === true;
-    const placeholder       = cfg.placeholder || 'এলাকার নাম লিখে খুজুন';
+    const districtSelect    = config.districtId  ? document.getElementById(config.districtId)  : null;
+    const subDistrictSelect = config.upazilaId   ? document.getElementById(config.upazilaId)   : null;
+    const localBodySelect   = config.localBodyId ? document.getElementById(config.localBodyId) : null;
+    const wardSelect        = config.wardId      ? document.getElementById(config.wardId)       : null;
+    const villageSelect     = config.villageId   ? document.getElementById(config.villageId)    : null;
+    const hasMap            = config.hasMap === true;
+    const placeholder       = config.placeholder || 'এলাকার নাম লিখে খুজুন';
 
     const ts = new TomSelect(searchSelect, {
       valueField:  'id',
@@ -113,7 +113,7 @@
         if (window.newshubMapPinpoint && window.newshubMapPinpoint.suppressNextDistrictCenter) {
           window.newshubMapPinpoint.suppressNextDistrictCenter();
         }
-        let cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
+        let cascadeApiObj = config.cascadeApi ? window[config.cascadeApi] : null;
         if (cascadeApiObj && cascadeApiObj.suppressMapCenter) {
           cascadeApiObj.suppressMapCenter(true);
         }
@@ -188,26 +188,26 @@
     function endFillAndCenterMap() {
       if (!hasMap) return;
 
-      const cascadeApiObj = cfg.cascadeApi ? window[cfg.cascadeApi] : null;
+      const cascadeApiObj = config.cascadeApi ? window[config.cascadeApi] : null;
       if (cascadeApiObj && cascadeApiObj.suppressMapCenter) {
         cascadeApiObj.suppressMapCenter(false);
       }
       if (!window.newshubMapPinpoint) return;
 
       const levels = [
-        { el: villageSelect,     zoom: window.newshubMapPinpoint.VILLAGE_CENTER_ZOOM },
-        { el: wardSelect,        zoom: window.newshubMapPinpoint.WARD_CENTER_ZOOM },
-        { el: localBodySelect,   zoom: window.newshubMapPinpoint.LOCAL_BODY_CENTER_ZOOM },
-        { el: subDistrictSelect, zoom: window.newshubMapPinpoint.SUBDISTRICT_CENTER_ZOOM },
-        { el: districtSelect,    zoom: window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM },
+        { element: villageSelect,     zoom: window.newshubMapPinpoint.VILLAGE_CENTER_ZOOM },
+        { element: wardSelect,        zoom: window.newshubMapPinpoint.WARD_CENTER_ZOOM },
+        { element: localBodySelect,   zoom: window.newshubMapPinpoint.LOCAL_BODY_CENTER_ZOOM },
+        { element: subDistrictSelect, zoom: window.newshubMapPinpoint.SUBDISTRICT_CENTER_ZOOM },
+        { element: districtSelect,    zoom: window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM },
       ];
 
       let deepestZoom = window.newshubMapPinpoint.DISTRICT_CENTER_ZOOM;
       let deepestEl   = null;
       for (let j = 0; j < levels.length; j++) {
-        if (levels[j].el && levels[j].el.value) {
+        if (levels[j].element && levels[j].element.value) {
           deepestZoom = levels[j].zoom;
-          deepestEl   = levels[j].el;
+          deepestEl   = levels[j].element;
           break;
         }
       }
@@ -275,7 +275,7 @@
       clear: function () { ts.clear(true); ts.clearOptions(); }
     };
 
-    if (cfg.publicApi) window[cfg.publicApi] = api;
+    if (config.publicApi) window[config.publicApi] = api;
     return api;
   }
 

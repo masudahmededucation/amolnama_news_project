@@ -20,7 +20,7 @@
  *   { firStatusId, policeStation, caseNumber, policeRefusalStatement, noFirReason,
  *     applicableLawIds, caseStatusId, supportServiceIds, retaliationIds, remarks }
  *
- * Exposes: window.newshubLandGrabLegal = { reset: fn }
+ * Exposes: window.newshubLandGrabLegal = { reset: callback }
  */
 (function () {
   'use strict';
@@ -49,9 +49,9 @@
   /* ========== Parse reference data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const lawData         = parseJsonData('land-applicable-law-data');
@@ -147,7 +147,7 @@
   if (panel) {
     const step = parseInt(panel.getAttribute('data-step'), 10);
     window.__newshubStepValidators = window.__newshubStepValidators || [];
-    window.__newshubStepValidators.push({ step: step, fn: function () {
+    window.__newshubStepValidators.push({ step: step, callback: function () {
       const warnings = [];
       if (!firApi || !firApi.getFirStatusId()) {
         warnings.push('এফআইআর/জিডি অবস্থা নির্বাচন করুন (Please select FIR/GD status)');

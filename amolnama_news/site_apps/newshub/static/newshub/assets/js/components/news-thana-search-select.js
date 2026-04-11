@@ -16,7 +16,7 @@
  *
  * Returns the TomSelect instance, or null if Tom Select is unavailable.
  *
- * Exposes: window.newshubThanaSearchSelect = { initThanaSearchSelect: fn }
+ * Exposes: window.newshubThanaSearchSelect = { initThanaSearchSelect: callback }
  *
  * CSS dependencies:
  *   .thana-search-option, .thana-search-header, .thana-search-name,
@@ -28,7 +28,7 @@
   /**
    * Render a thana search result option row.
    * @param {object} item   — API result: { name_bn, name_en, type, title_bn }
-   * @param {fn}     escape — Tom Select HTML-escape helper
+   * @param {callback}     escape — Tom Select HTML-escape helper
    */
   function renderThanaDropdownOption(item, escape) {
     let displayName = item.name_bn || '';
@@ -47,7 +47,7 @@
   /**
    * Render the selected-item chip (compact, no badge/path needed).
    * @param {object} item   — selected item
-   * @param {fn}     escape — Tom Select HTML-escape helper
+   * @param {callback}     escape — Tom Select HTML-escape helper
    */
   function renderThanaSelectedItem(item, escape) {
     return '<div>' + escape(item.title_bn || item.name_bn || '') + '</div>';
@@ -124,8 +124,8 @@
   /* SPA cleanup — destroy Tom Select instances on page transition */
   if (window.spaCleanupRegister) {
     window.spaCleanupRegister(function () {
-      document.querySelectorAll('select, input').forEach(function (el) {
-        if (el.tomselect) el.tomselect.destroy();
+      document.querySelectorAll('select, input').forEach(function (element) {
+        if (element.tomselect) element.tomselect.destroy();
       });
     });
   }

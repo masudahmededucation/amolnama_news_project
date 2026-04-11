@@ -3,15 +3,15 @@
   'use strict';
 
   /* ---- Smooth show / hide helpers ---- */
-  function showSection(el) {
-    el.hidden = false;
-    el.classList.remove('tool-section-reveal');
-    void el.offsetWidth;
-    el.classList.add('tool-section-reveal');
+  function showSection(element) {
+    element.hidden = false;
+    element.classList.remove('tool-section-reveal');
+    void element.offsetWidth;
+    element.classList.add('tool-section-reveal');
   }
-  function hideSection(el) {
-    el.hidden = true;
-    el.classList.remove('tool-section-reveal');
+  function hideSection(element) {
+    element.hidden = true;
+    element.classList.remove('tool-section-reveal');
   }
 
   /* ---- DOM refs ---- */
@@ -164,9 +164,9 @@
           const tempCanvas = document.createElement('canvas');
           tempCanvas.width = mask.width;
           tempCanvas.height = mask.height;
-          let ctx = tempCanvas.getContext('2d');
-          ctx.drawImage(mask, 0, 0);
-          const imgData = ctx.getImageData(0, 0, mask.width, mask.height);
+          let canvasContext = tempCanvas.getContext('2d');
+          canvasContext.drawImage(mask, 0, 0);
+          const imgData = canvasContext.getImageData(0, 0, mask.width, mask.height);
 
           maskWidth = mask.width;
           maskHeight = mask.height;
@@ -882,10 +882,10 @@
       canvas = document.createElement('canvas');
       canvas.width = resultCanvas.width;
       canvas.height = resultCanvas.height;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(resultCanvas, 0, 0);
+      const canvasContext = canvas.getContext('2d');
+      canvasContext.fillStyle = '#FFFFFF';
+      canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+      canvasContext.drawImage(resultCanvas, 0, 0);
     }
 
     canvas.toBlob(function (blob) {

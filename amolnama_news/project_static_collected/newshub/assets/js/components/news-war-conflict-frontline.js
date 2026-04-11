@@ -14,7 +14,7 @@
  *   #territory-statuses-data       — CSP-safe JSON with territory status list
  *   #involvement-levels-data       — CSP-safe JSON with involvement level list
  *
- * Exposes: window.newshubGlobalFrontline = { reset: fn }
+ * Exposes: window.newshubGlobalFrontline = { reset: callback }
  */
 (function () {
   'use strict';
@@ -31,9 +31,9 @@
   /* ========== Populate territory status dropdown from DB data ========== */
 
   function parseJsonData(id) {
-    const el = document.getElementById(id);
-    if (!el) return [];
-    try { return JSON.parse(el.textContent) || []; } catch (e) { return []; }
+    const element = document.getElementById(id);
+    if (!element) return [];
+    try { return JSON.parse(element.textContent) || []; } catch (e) { return []; }
   }
 
   const territoryStatuses = parseJsonData('territory-statuses-data');
@@ -85,8 +85,8 @@
   if (territoryDesc) territoryDesc.addEventListener('input', serialize);
 
   const changeFields = [territoryStatus, intensity, weaponClass, involvement];
-  changeFields.forEach(function (el) {
-    if (el) el.addEventListener('change', serialize);
+  changeFields.forEach(function (element) {
+    if (element) element.addEventListener('change', serialize);
   });
 
   /* Serialize before form submit */

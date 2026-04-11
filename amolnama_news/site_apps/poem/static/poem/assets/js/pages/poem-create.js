@@ -30,11 +30,11 @@
     };
 
     for (const id in swaps) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.setAttribute("data-bn", swaps[id].bn);
-        el.setAttribute("data-en", swaps[id].en);
-        el.textContent = swaps[id].bn; // default to BN
+      const element = document.getElementById(id);
+      if (element) {
+        element.setAttribute("data-bn", swaps[id].bn);
+        element.setAttribute("data-en", swaps[id].en);
+        element.textContent = swaps[id].bn; // default to BN
       }
     }
 

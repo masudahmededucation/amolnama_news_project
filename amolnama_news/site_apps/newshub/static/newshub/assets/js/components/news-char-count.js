@@ -16,23 +16,23 @@
     { id: 'news-content-body-bn', max: 0 }    /* 0 = no limit, count only */
   ];
 
-  fields.forEach(function (cfg) {
-    const el = document.getElementById(cfg.id);
-    if (!el) return;
+  fields.forEach(function (config) {
+    const element = document.getElementById(config.id);
+    if (!element) return;
 
     /* Create counter element */
     const counter = document.createElement('div');
     counter.className = 'char-count';
-    el.parentNode.appendChild(counter);
+    element.parentNode.appendChild(counter);
 
     function update() {
-      const len = el.value.normalize('NFKC').length;
-      if (cfg.max > 0) {
-        counter.textContent = len + '/' + cfg.max;
-        if (len > cfg.max) {
+      const len = element.value.normalize('NFKC').length;
+      if (config.max > 0) {
+        counter.textContent = len + '/' + config.max;
+        if (len > config.max) {
           counter.classList.add('char-count-over');
           counter.classList.add('char-count-warn');
-        } else if (len > cfg.max * 0.9) {
+        } else if (len > config.max * 0.9) {
           counter.classList.remove('char-count-over');
           counter.classList.add('char-count-warn');
         } else {
@@ -45,15 +45,15 @@
     }
 
     /* Trim leading/trailing spaces when user leaves the field */
-    el.addEventListener('blur', function () {
-      const trimmed = el.value.replace(/^\s+|\s+$/g, '');
-      if (trimmed !== el.value) {
-        el.value = trimmed;
+    element.addEventListener('blur', function () {
+      const trimmed = element.value.replace(/^\s+|\s+$/g, '');
+      if (trimmed !== element.value) {
+        element.value = trimmed;
         update();
       }
     });
 
-    el.addEventListener('input', update);
+    element.addEventListener('input', update);
     update(); /* initial count (handles form-persist restore) */
   });
 })();

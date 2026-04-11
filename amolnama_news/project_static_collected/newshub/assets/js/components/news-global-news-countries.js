@@ -60,8 +60,8 @@
     /* Add each org as a boolean flag */
     let keys = Object.keys(orgMap);
     for (let i = 0; i < keys.length; i++) {
-      let el = document.getElementById(keys[i]);
-      data[orgMap[keys[i]]] = !!(el && el.checked);
+      let element = document.getElementById(keys[i]);
+      data[orgMap[keys[i]]] = !!(element && element.checked);
     }
     return data;
   }
@@ -99,8 +99,8 @@
       if (orgOtherNameEl && data.otherOrgName)            orgOtherNameEl.value      = data.otherOrgName;
       let keys = Object.keys(orgMap);
       for (let i = 0; i < keys.length; i++) {
-        let el = document.getElementById(keys[i]);
-        if (el) el.checked = !!data[orgMap[keys[i]]];
+        let element = document.getElementById(keys[i]);
+        if (element) element.checked = !!data[orgMap[keys[i]]];
       }
       if (orgOtherCb && orgOtherRow) orgOtherRow.hidden = !orgOtherCb.checked;
     } catch (e) { /* ignore parse errors */ }
@@ -114,8 +114,8 @@
       if (countriesInvolvedEl) countriesInvolvedEl.value = '';
       const keys = Object.keys(orgMap);
       for (let i = 0; i < keys.length; i++) {
-        const el = document.getElementById(keys[i]);
-        if (el) el.checked = false;
+        const element = document.getElementById(keys[i]);
+        if (element) element.checked = false;
       }
       if (orgOtherRow)    orgOtherRow.hidden = true;
       if (orgOtherNameEl) orgOtherNameEl.value = '';
