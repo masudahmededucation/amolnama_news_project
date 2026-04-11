@@ -1,0 +1,284 @@
+================================================================================
+ART APP — Architecture & Features
+App: site_apps/art/
+URL prefix: /art-and-craft/
+================================================================================
+
+## Introduction
+Bengali art & craft blog — traditional (Nakshi Kantha, Patachitra, Alpona,
+terracotta) and contemporary art. Users can upload artworks with multi-photo
+galleries, tutorial steps, YouTube links, and category/medium/difficulty
+tagging. Detail pages use the shared actions-bar (like + bookmark + share +
+follow author) and photo-lightbox components.
+
+All tables under [blog_art] schema. Registered in the universal
+content_type_registry with code='art'.
+
+## Models (7 models, all managed=False)
+
+| Model                     | DB Table                                 | Purpose                       |
+|---------------------------|------------------------------------------|-------------------------------|
+| CollArtwork               | [blog_art].[coll_artwork]                | Main artwork row              |
+| ArtworkAsset              | [blog_art].[artwork_asset]               | Photo attachments (is_cover)  |
+| ArtworkStep               | [blog_art].[artwork_step]                | Tutorial step instructions    |
+| ArtworkYoutubeLink        | [blog_art].[artwork_youtube_link]        | External video references    |
+| EngagementArtworkLike     | [blog_art].[engagement_artwork_like]     | Per-user likes (soft delete)  |
+| EngagementArtworkBookmark | [blog_art].[engagement_artwork_bookmark] | Legacy, unused (universal path) |
+| EngagementArtworkComment  | [blog_art].[engagement_artwork_comment]  | Comments (supports nesting FK) |
+
+### Key fields on CollArtwork
+- blog_art_coll_artwork_id (PK, BIGINT IDENTITY)
+- artwork_guid (UUID)
+- link_user_profile_id (author)
+- link_blog_art_ref_art_medium_id   → RefContentSubcategory group_code='blog_art_medium'
+- link_blog_art_ref_art_difficulty_id → RefContentSubcategory group_code='blog_art_difficulty'
+- link_content_ref_content_subcategory_id → group_code='blog_art_category' (Phase 2)
+- link_content_registry_id (Phase 1 content registry)
+- artwork_title_bn (required), artwork_title_en
+- artwork_slug (Bengali-safe via bangla_slugify)
+- artwork_description_bn / _en, artwork_backstory_bn
+- artwork_materials_bn / _en, artwork_dimensions_en
+- artwork_summary_bn / _en              (added 2026-04-11 Phase 3)
+- artwork_type_code
+- is_tutorial, is_for_sale, is_featured, is_published, is_active
+- like_count, view_count, bookmark_count, comment_count
+- estimated_time_minutes
+
+Note: medium + difficulty FK column names still use the old per-app prefix
+(link_blog_art_ref_art_medium_id etc.) but the values are unified
+ref_content_subcategory IDs. Rename deferred to a dedicated session.
+
+is_published is a REAL boolean column (not @property), unlike poem/destination/media.
+
+## URL Patterns
+
+### Pages
+| URL                               | View                 | Notes                |
+|-----------------------------------|----------------------|----------------------|
+| /art-and-craft/                   | views.home           | Landing gallery grid |
+| /art-and-craft/upload/            | views.upload         | Upload form (login_required) |
+| /art-and-craft/<artwork_slug>/    | views.detail         | Detail page (slug)   |
+
+### APIs
+| URL                                          | View                                  | Method |
+|----------------------------------------------|---------------------------------------|--------|
+| /art-and-craft/api/create/                    | views_api.api_artwork_create          | POST   |
+| /art-and-craft/api/<int:artwork_id>/like/     | views_api.api_artwork_like_toggle     | POST   |
+| /art-and-craft/api/<int:artwork_id>/view/     | views_api.api_artwork_view_increment  | POST   |
+| /art-and-craft/api/<int:artwork_id>/comment/  | views_api.api_artwork_comment_create  | POST   |
+
+No edit, no delete API yet — edit_url='' is hardcoded in detail view.
+No YouTube link CRUD, no tutorial step CRUD. Create-only.
+
+## Views (views.py)
+
+- `_get_artwork_cover_url(artwork_id)` — raw SQL JOIN [blog_art].[artwork_asset] →
+  [media].[asset] where is_cover=1. Uses raw SQL because file_storage_path
+  is a SQL Server computed column (not ORM-mappable).
+- `_get_artwork_photos(artwork_id)` — raw SQL returning list of dicts
+  (asset_id, file_url, caption_bn, asset_group_code, is_cover), ordered by
+  is_cover DESC then sort_order ASC.
+- `home(request)` — landing page. Fetches 60 published artworks, builds
+  cover_map + subcategory_map (blog_art_category) + author_map +
+  medium_map (blog_art_medium) in one view. Passes categories + mediums
+  to template for client-side filter pills.
+- `detail(request, artwork_slug)` — detail page. Loads artwork by slug,
+  category/medium/difficulty from RefContentSubcategory, photos/steps/
+  youtube_links, user's like state from EngagementArtworkLike, bookmark
+  state via core.utils.is_bookmarked('art', ...). Records view via
+  newsengine.personalization.record_content_view (non-critical).
+- `upload(request)` [@login_required, @ensure_csrf_cookie] — upload form
+  with category/medium/difficulty dropdowns.
+
+## APIs (views_api.py)
+
+- `api_artwork_create(request)` [@require_POST, @login_required]
+  - Validates: artwork_title_bn required, category required, 1-10 images
+    (JPG/PNG/WebP/GIF, max 10MB each) via IMAGE_EXTENSION_MAP +
+    MAX_UPLOAD_FILE_SIZE_BYTES.
+  - Auto-generates slug via bangla_slugify(artwork_title_bn).
+  - RAW SQL INSERT into [blog_art].[coll_artwork] — artwork_guid set to
+    str(uuid.uuid4()), is_published=1, is_active=1.
+  - Calls register_content(content_category_id=5, subcategory_id=...) from
+    content.utils to get content_registry_id, then updates
+    CollArtwork.link_content_registry_id. Failure is logged, not fatal.
+  - Uploads photos to MEDIA_ROOT/art/{artwork_id}/{uuid}.{ext}. Inserts
+    [media].[asset] row per photo, then [blog_art].[artwork_asset] row
+    with asset_group_code='main'; first image has is_cover=1.
+
+- `api_artwork_like_toggle(request, artwork_id)` [@require_POST, @login_required]
+  - Toggles EngagementArtworkLike.is_active. Recomputes like_count from
+    live count (not increment/decrement — resync for correctness).
+  - Updates CollArtwork.like_count.
+
+- `api_artwork_view_increment(request, artwork_id)` — F('view_count') + 1.
+  No auth required. Intended for the view-on-load POST from detail page JS.
+
+- `api_artwork_comment_create(request, artwork_id)` [@require_POST, @login_required]
+  - Creates EngagementArtworkComment (is_active=True). Supports
+    link_parent_comment_id for nested replies (column exists, no nested
+    rendering in template yet). Recomputes comment_count on CollArtwork.
+
+## Templates
+
+Under `site_apps/art/templates/art/pages/`:
+
+- **art-landing.html** — Gallery grid with filter-pills (category + medium).
+  Uses shared filter-pills component (content/components/). Upload button
+  gated on auth. Lazy-loaded cover images.
+- **art-detail.html** — Article layout. Header (title + category/medium/
+  difficulty/tutorial badges), photo gallery with shared photo-lightbox,
+  sections for description/backstory/materials/dimensions/tutorial-steps/
+  youtube-links. Uses `{% content_actions_bar %}` template tag (from
+  content app) — single line, no per-app custom bar.
+- **art-upload.html** — Multi-field form with Bengali input on title/
+  description/etc., file upload with preview, category/medium/difficulty
+  dropdowns. POSTs to /art-and-craft/api/create/ via art-upload.js.
+
+## Static Assets
+
+Under `site_apps/art/static/art/assets/`:
+
+### CSS (3 page files)
+- css/pages/art-landing.css
+- css/pages/art-detail.css
+- css/pages/art-upload.css
+
+### JS (3 page files, no utilities in this app)
+- js/pages/art-landing.js — window.filterPillsInit() for category/medium filters
+- js/pages/art-detail.js — view-increment fetch on load, initializes
+  window.actionsBar + photo lightbox click handler
+- js/pages/art-upload.js — image preview, form submit to create API
+
+## Features
+
+### Read-side
+- Gallery with client-side category + medium filter pills
+- Detail page with bilingual title, description, backstory, materials,
+  dimensions, tutorial metadata (is_tutorial flag + estimated_time_minutes)
+- Photo gallery with captions, opens shared photo-lightbox on click
+- Tutorial steps (numbered, bilingual instructions; step asset FK exists
+  but not rendered yet)
+- YouTube video links (external <a target=_blank>, no iframe embed)
+- Engagement counts (like, view, bookmark, comment)
+- Related content suggestions via `build_related_content_items` from
+  core.utils (backed by newsengine related_content cache)
+
+### Create-side
+- Upload form with bilingual fields, Bengali input for Bengali fields,
+  file upload validation (MIME + size), multi-image gallery (1-10, first
+  = cover, 10MB max per file)
+- Auto-slug via bangla_slugify
+- Auto-registration in content_registry
+
+### Engagement
+- **Like** — `/api/<id>/like/` writes EngagementArtworkLike; detail page
+  reads user's state
+- **View count** — `/api/<id>/view/` fires on page load (non-auth)
+- **Comment** — `/api/<id>/comment/` creates EngagementArtworkComment;
+  column supports nested replies but template doesn't render them yet
+- **Bookmark** — handled by the **universal** endpoint
+  `/newsengine/api/bookmark/toggle/` via the shared actions-bar.
+  EngagementArtworkBookmark table exists but is unused — do not query it
+  directly. Use `is_bookmarked('art', artwork_id)` from core.utils.
+- **Share** — share dropdown in shared actions-bar (copy link / WhatsApp /
+  Facebook / X / Web Share API / share-to-wall when authenticated +
+  link_content_registry_id is set)
+- **Follow author** — via shared actions-bar writer section
+
+### NOT implemented yet
+- Edit artwork (no view, no API)
+- Delete artwork
+- Draft state toggle (is_published fixed to 1 on create)
+- YouTube link or tutorial step CRUD after creation
+
+## Content Type Registry Integration
+
+Spec in content/content_type_registry.py:
+
+```python
+'art': {
+    'code': 'art',
+    'label_bn': 'শিল্পকলা',
+    'badge': 'ART',
+    'color': 'blue',
+    'cta': 'দেখুন',
+    'model_module': 'amolnama_news.site_apps.art.models',
+    'model_name': 'CollArtwork',
+    'table_schema': 'blog_art',
+    'table_name': 'coll_artwork',
+    'pk_field': 'blog_art_coll_artwork_id',
+    'title_bn_field': 'artwork_title_bn',
+    'title_en_field': 'artwork_title_en',
+    'slug_field': 'artwork_slug',
+    'summary_bn_field': 'artwork_summary_bn',
+    'summary_en_field': 'artwork_summary_en',
+    'is_published_field': 'is_published',   # real BIT column, NOT @property
+    'is_active_field': 'is_active',
+    'is_featured_field': 'is_featured',
+    'status_code_field': None,
+    'bookmark_count_field': 'bookmark_count',
+    'like_count_field': 'like_count',
+    'view_count_field': 'view_count',
+    'comment_count_field': 'comment_count',
+    'detail_url_prefix': '/art-and-craft/',
+    'category_group_code': 'blog_art_category',
+    'secondary_group_code': None,
+}
+```
+
+Medium and difficulty are NOT in the registry — they're art-specific
+dimensions, handled by the view directly. Only the main category group
+participates in the shared registry helpers.
+
+Shared code (portal dashboard, social profile feed, bookmark rows) reads
+art titles/slugs/URLs via `get_title(row)`, `get_slug(row)`,
+`get_detail_url(row)`, `get_is_published(row)`, `get_counts(row)` — no
+`if content_type == 'art'` branches.
+
+## Troubleshooting / Gotchas
+
+- **Raw SQL for computed columns** — file_storage_path on [media].[asset]
+  is a SQL Server computed column. Use the helpers _get_artwork_cover_url
+  / _get_artwork_photos, never try to read it via ORM.
+- **UUID stringification** — the custom db_backend has had issues with
+  UUID fields on raw SQL. api_artwork_create passes str(uuid.uuid4())
+  explicitly to avoid driver binding bugs.
+- **File upload validation** — IMAGE_EXTENSION_MAP whitelists content_type
+  (MIME), MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024. Check both.
+- **Bookmarks table is dead** — EngagementArtworkBookmark exists but is
+  unused. All bookmark logic goes through the universal
+  [newsengine].[bookmark_content] via core.utils helpers. Never INSERT
+  into the art-specific bookmark table.
+- **Actions-bar integration** — detail view MUST pass
+  `actions_bar_content_registry_id = artwork.link_content_registry_id`
+  and the author context dict from `build_actions_bar_author_context()`.
+  Without link_content_registry_id, share-to-wall is hidden.
+- **record_content_view is non-critical** — wrapped in try/except, logged
+  but never raised. A personalization service failure must not break the
+  detail page render.
+- **Edit flow missing** — `edit_url = ''` in detail view. art:edit route
+  does not exist yet. When added, update the view + actions-bar context.
+
+## File Paths
+
+### Python
+- amolnama_news/site_apps/art/models.py
+- amolnama_news/site_apps/art/urls.py
+- amolnama_news/site_apps/art/views.py
+- amolnama_news/site_apps/art/views_api.py
+
+### Templates
+- amolnama_news/site_apps/art/templates/art/pages/art-landing.html
+- amolnama_news/site_apps/art/templates/art/pages/art-detail.html
+- amolnama_news/site_apps/art/templates/art/pages/art-upload.html
+
+### CSS
+- amolnama_news/site_apps/art/static/art/assets/css/pages/art-landing.css
+- amolnama_news/site_apps/art/static/art/assets/css/pages/art-detail.css
+- amolnama_news/site_apps/art/static/art/assets/css/pages/art-upload.css
+
+### JS
+- amolnama_news/site_apps/art/static/art/assets/js/pages/art-landing.js
+- amolnama_news/site_apps/art/static/art/assets/js/pages/art-detail.js
+- amolnama_news/site_apps/art/static/art/assets/js/pages/art-upload.js

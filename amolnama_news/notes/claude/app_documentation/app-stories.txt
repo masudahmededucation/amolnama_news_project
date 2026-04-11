@@ -1,0 +1,265 @@
+================================================================================
+STORIES APP — Architecture & Features
+App: site_apps/stories/
+URL prefix: /stories-for-kids/
+================================================================================
+
+## Introduction
+Bengali children's story platform — রূপকথা (fairytale), ঠাকুরমার ঝুলি,
+পঞ্চতন্ত্র, moral tales, bedtime stories. Filtered by category AND age
+group (both are unified subcategories under different group_codes).
+Paginated reader renders one page at a time for long stories.
+
+All tables under [blog_stories] schema. Registered in the universal
+content_type_registry with code='story'. Stories is the GOLD STANDARD
+for blog table structure — every other blog table was aligned to match.
+
+## Models (6 models, all managed=False)
+
+| Model                  | DB Table                                   | Purpose                       |
+|------------------------|--------------------------------------------|-------------------------------|
+| CollStory              | [blog_stories].[coll_story]                | Main story row                |
+| StoryAsset             | [blog_stories].[story_asset]               | Cover image + illustrations   |
+| StoryPage              | [blog_stories].[story_page]                | One row per reader page       |
+| EngagementStoryLike    | [blog_stories].[engagement_story_like]     | Per-user likes                |
+| EngagementStoryBookmark| [blog_stories].[engagement_story_bookmark] | Legacy, unused (universal path) |
+| EngagementStoryComment | [blog_stories].[engagement_story_comment]  | Comments                      |
+
+### Key fields on CollStory
+- blog_stories_coll_story_id (PK, BIGINT IDENTITY)
+- story_guid (UUID)
+- link_user_profile_id (author)
+- link_content_ref_content_subcategory_id          → blog_stories_category
+- link_content_ref_content_subcategory_age_group_id → blog_stories_age_group
+  (renamed from link_blog_stories_ref_story_age_group_id in Phase 2 on 2026-04-11)
+- link_content_registry_id
+- story_title_bn (required), story_title_en
+- story_slug (Bengali-safe)
+- story_summary_bn, story_source_attribution_bn
+- story_content_html_bn (long HTML — used when there are NO StoryPage rows;
+  if there are pages, they take precedence for the reader)
+- story_type_code
+- reading_time_minutes
+- is_serial, serial_part_number, link_serial_parent_blog_stories_coll_story_id
+  (serialized stories — book part 1, part 2, etc.)
+- like_count, view_count, bookmark_count, completion_count, comment_count
+- is_featured, is_daily_pick, is_published, is_active
+
+is_published is a REAL boolean column (not @property). Same as art.
+
+## URL Patterns
+
+### Pages
+| URL                                | View             | Notes                  |
+|------------------------------------|------------------|------------------------|
+| /stories-for-kids/                 | views.home       | Landing grid           |
+| /stories-for-kids/submit/          | views.submit     | Submission form (login) |
+| /stories-for-kids/<story_slug>/    | views.detail     | Paginated reader       |
+
+### APIs
+| URL                                              | View                                 | Method |
+|--------------------------------------------------|--------------------------------------|--------|
+| /stories-for-kids/api/create/                     | views_api.api_story_create            | POST   |
+| /stories-for-kids/api/<int:story_id>/like/        | views_api.api_story_like_toggle       | POST   |
+| /stories-for-kids/api/<int:story_id>/view/        | views_api.api_story_view_increment    | POST   |
+
+No edit, no delete, no comment API yet. Create-only flow.
+
+## Views (views.py)
+
+- `_get_story_cover_url(story_id)` — raw SQL JOIN story_asset + [media].[asset]
+  for computed file_storage_path.
+- `home(request)` — landing page. Queries published stories (max 60),
+  ordered by is_featured/is_daily_pick/created_at. Builds cover_map,
+  subcategory_map (blog_stories_category), age_group_map
+  (blog_stories_age_group), author_map. Passes categories + age_groups to
+  template for client-side filter pills.
+- `detail(request, story_slug)` — detail page. Loads story + pages
+  (StoryPage ordered by page_number) + cover image. Loads category +
+  age_group from RefContentSubcategory. Reads user's like/bookmark state.
+  Calls record_content_view for personalization.
+- `submit(request)` [@login_required, @ensure_csrf_cookie] — submission
+  form with category + age_group dropdowns.
+
+## APIs (views_api.py)
+
+- `api_story_create(request)` [@require_POST, @login_required]
+  - Validates: story_title_bn, story_content_html_bn, category, age_group
+    all required. Uses bangla_slugify(story_title_bn) for slug.
+  - **Raw SQL INSERT** into [blog_stories].[coll_story] with explicit
+    `CAST(%s AS NVARCHAR(MAX))` on the content_html field. This is
+    necessary because the ODBC Driver 17 sends long Python strings as
+    SQL_WLONGVARCHAR (→ ntext), which breaks UTF-8/`_SC` collations.
+    The CAST forces NVARCHAR(MAX) type on the wire. See troubleshooting
+    §5 in memory-training-troubleshooting.md.
+  - Handles optional cover image upload: validates MIME (IMAGE_EXTENSION_MAP)
+    + size (MAX_UPLOAD_FILE_SIZE_BYTES = 10 MB), writes to
+    MEDIA_ROOT/stories/<story_id>/, inserts [media].[asset] row, inserts
+    [blog_stories].[story_asset] row with asset_group_code='cover',
+    is_cover=1.
+  - Calls register_content(content_category_id=4) to get content_registry_id,
+    updates CollStory.link_content_registry_id. Non-fatal on failure.
+
+- `api_story_like_toggle(request, story_id)` [@require_POST, @login_required]
+  - Toggles EngagementStoryLike.is_active. Recomputes like_count.
+
+- `api_story_view_increment(request, story_id)` — F('view_count') + 1.
+  No auth.
+
+## Templates
+
+Under `site_apps/stories/templates/stories/pages/`:
+
+- **stories-landing.html** — Grid of story cards. Filter pills for BOTH
+  age group AND category (two groups, AND logic via shared filter-pills
+  JS). Cards show cover image (lazy), category icon, title, summary
+  (truncated), reading time, author/source, like/view counts. Daily pick
+  badge. Empty state when filtered to zero results.
+- **stories-detail.html** — Paginated reader. Displays cover, title,
+  meta pills (category, age group, reading time), author + timestamp,
+  summary, then either story_content_html_bn OR one StoryPage at a time
+  (hidden unless current). Page nav buttons (prev/next, disabled at
+  limits), page counter "পাতা X / Y". Shared actions-bar. Related
+  content loader.
+- **stories-submit.html** — Form with title_bn (required), title_en,
+  category + age_group dropdowns (required), summary (max 500),
+  story_content_html_bn textarea (required, Bengali input, 15 rows),
+  source_attribution, reading_time_minutes, cover image upload.
+
+## Static Assets
+
+Under `site_apps/stories/static/stories/assets/`:
+
+### CSS
+- css/pages/stories-landing.css
+- css/pages/stories-detail.css
+- css/pages/stories-submit.css
+
+### JS
+- js/pages/stories-landing.js — window.filterPillsInit() for age + category
+- js/pages/stories-detail.js — view increment on load, actionsBar init,
+  **page navigation logic** (tracks currentPage, shows/hides
+  .stories-detail-page divs, updates counter, disables prev/next at
+  limits, smooth scrolls to top on page change)
+- js/pages/stories-submit.js — form submit to create API
+
+## Features
+
+### Read-side
+- Filter by category AND age group on landing page (AND logic via
+  shared filter-pills component)
+- Paginated reader for long stories (one page at a time, prev/next nav,
+  page counter)
+- Single-page rendering if story has no StoryPage rows (uses
+  story_content_html_bn directly)
+- Daily pick badge (is_daily_pick flag)
+- Serial chapters (is_serial + serial_part_number FK to parent story)
+- Share + follow author via shared actions-bar
+- Related content suggestions
+
+### Create-side
+- Submission form with bilingual title, required category + age group,
+  Bengali input on content, optional cover image upload
+- Raw SQL INSERT with explicit NVARCHAR(MAX) cast to handle long Bengali
+  content safely
+
+### Engagement
+- **Like** — soft delete via is_active flag on EngagementStoryLike
+- **View count** — increments on detail page load via POST
+- **Bookmark** — universal endpoint
+  (/newsengine/api/bookmark/toggle/) with content_type='story'.
+  EngagementStoryBookmark table is unused.
+- **Comment table exists** but no API or template yet
+
+### NOT implemented yet
+- Edit story
+- Delete story
+- Comment API
+- Drafting / unpublished state toggle
+
+## Content Type Registry Integration
+
+Spec in content/content_type_registry.py:
+
+```python
+'story': {
+    'code': 'story',
+    'label_bn': 'গল্প',
+    'badge': 'STORY',
+    'color': 'amber',
+    'cta': 'পড়ুন',
+    'model_module': 'amolnama_news.site_apps.stories.models',
+    'model_name': 'CollStory',
+    'table_schema': 'blog_stories',
+    'table_name': 'coll_story',
+    'pk_field': 'blog_stories_coll_story_id',
+    'title_bn_field': 'story_title_bn',
+    'title_en_field': 'story_title_en',
+    'slug_field': 'story_slug',
+    'summary_bn_field': 'story_summary_bn',
+    'summary_en_field': None,   # stories are Bengali-only
+    'is_published_field': 'is_published',   # real BIT column
+    'is_active_field': 'is_active',
+    'is_featured_field': 'is_featured',
+    'status_code_field': None,
+    'bookmark_count_field': 'bookmark_count',
+    'like_count_field': 'like_count',
+    'view_count_field': 'view_count',
+    'comment_count_field': 'comment_count',
+    'detail_url_prefix': '/stories-for-kids/',
+    'category_group_code': 'blog_stories_category',
+    'secondary_group_code': 'blog_stories_age_group',
+}
+```
+
+Stories is one of only two types with a `secondary_group_code` (the other
+is destination with 'blog_bangladesh_season'). Shared code can query
+secondary subcategories for stories via the spec entry if it needs to.
+
+## Troubleshooting / Gotchas
+
+- **NVARCHAR(MAX) CAST is mandatory** — api_story_create uses raw SQL
+  INSERT with `CAST(%s AS NVARCHAR(MAX))` on story_content_html_bn.
+  Without it, long Bengali HTML breaks because ODBC Driver 17 sends
+  strings > 4000 chars as SQL_WLONGVARCHAR (ntext type) which is
+  incompatible with UTF-8 `_SC` collations. Do NOT "simplify" this back
+  to a regular parameter bind.
+- **Age group FK column was renamed** — 2026-04-11 Phase 2 renamed
+  link_blog_stories_ref_story_age_group_id →
+  link_content_ref_content_subcategory_age_group_id. Any old code still
+  referencing the old name will fail. Grep before touching.
+- **Two subcategory FKs, same table** — stories has both category and
+  age_group FKs pointing at ref_content_subcategory but with different
+  group_codes. When filtering, join with a WHERE clause on group_code
+  to disambiguate.
+- **Reader fallback** — if a story has NO StoryPage rows, the reader
+  displays story_content_html_bn instead. Both paths must be handled
+  in the template (check `if pages` vs. no-pages branch).
+- **Bookmarks table is unused** — EngagementStoryBookmark exists but is
+  dead. Use the universal content/bookmarks.py helpers with
+  content_type='story'.
+- **Slug is Bengali** — detail URLs look like /stories-for-kids/রূপকথার-রাজকন্যা/.
+  Make sure any URL building code respects Unicode.
+
+## File Paths
+
+### Python
+- amolnama_news/site_apps/stories/models.py
+- amolnama_news/site_apps/stories/urls.py
+- amolnama_news/site_apps/stories/views.py
+- amolnama_news/site_apps/stories/views_api.py
+
+### Templates
+- amolnama_news/site_apps/stories/templates/stories/pages/stories-landing.html
+- amolnama_news/site_apps/stories/templates/stories/pages/stories-detail.html
+- amolnama_news/site_apps/stories/templates/stories/pages/stories-submit.html
+
+### CSS
+- amolnama_news/site_apps/stories/static/stories/assets/css/pages/stories-landing.css
+- amolnama_news/site_apps/stories/static/stories/assets/css/pages/stories-detail.css
+- amolnama_news/site_apps/stories/static/stories/assets/css/pages/stories-submit.css
+
+### JS
+- amolnama_news/site_apps/stories/static/stories/assets/js/pages/stories-landing.js
+- amolnama_news/site_apps/stories/static/stories/assets/js/pages/stories-detail.js
+- amolnama_news/site_apps/stories/static/stories/assets/js/pages/stories-submit.js

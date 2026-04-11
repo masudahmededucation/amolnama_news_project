@@ -1,0 +1,367 @@
+================================================================================
+CONTENT APP — Runtime Python Modules
+App: site_apps/content/
+================================================================================
+
+## Purpose
+This doc covers the Python runtime modules of the content app — the code
+that ties every blog content type together. The DB schema (schemas
+[content].[content_registry], [content].[ref_content_category],
+[content].[ref_content_subcategory]) is documented separately in
+app-content-registry.txt. Do not duplicate that content here.
+
+Short version: the content app provides the **universal registry, helpers,
+and shared UI components** used by every other blog app (art, stories,
+poem, bangladesh, debate). It's the glue.
+
+## Python Modules
+
+Under `site_apps/content/`:
+
+| File                          | Purpose                                                 |
+|-------------------------------|---------------------------------------------------------|
+| content_type_registry.py      | Single source of truth for every blog content type     |
+| bookmarks.py                  | Universal bookmark API (adapter over the registry)     |
+| cover_urls.py                 | Bulk cover URL resolver (per-type resolver functions)   |
+| utils.py                      | register_content, update_content_registry, subcategory helpers |
+| models.py                     | ORM for RefContentCategory, RefContentSubcategory, ContentRegistry |
+| templatetags/content_tags.py  | {% content_actions_bar %} inclusion tag                 |
+
+## 1. content_type_registry.py (created Phase 3b, 2026-04-11)
+
+Single Python dict `CONTENT_TYPE_REGISTRY` holds everything shared code
+needs to know about each content type. Adding a new blog content type =
+ONE entry. Shared consumers auto-pick it up.
+
+### Registered types (6)
+```
+'art'         → CollArtwork       (blog_art.coll_artwork)
+'story'       → CollStory         (blog_stories.coll_story)
+'poem'        → CollPoemEntry     (blog_poem.coll_poem_entry)
+'destination' → CollDestination   (blog_bangladesh.coll_destination)
+'media'       → CollMediaEntry    (blog_bangladesh.coll_media_entry)
+'debate'      → CollTopic         (blog_debate.coll_topic)
+```
+
+Not registered (intentional): 'news' (PubArticle has a split schema that
+doesn't fit the shared shape), 'post' (different app, not a blog type).
+
+### Per-type spec fields (~25 keys)
+- **Identity:** code, label_bn, badge, color, cta
+- **Model:** model_module, model_name, table_schema, table_name, pk_field
+- **Text fields:** title_bn_field, title_en_field, slug_field,
+  summary_bn_field, summary_en_field
+- **Status:** is_published_field, is_active_field, is_featured_field,
+  status_code_field
+- **Counters:** bookmark_count_field, like_count_field, view_count_field,
+  comment_count_field
+- **URL:** detail_url_prefix
+- **Subcategory groups:** category_group_code, secondary_group_code
+
+### Helper API
+```
+get_spec(code) → dict | None
+iter_all_specs() → iterator over (code, spec) pairs
+get_model_class(code) → Django model class (lazy-imported)
+get_code_for_instance(row) → code | None (reverse lookup by type(row).__name__)
+
+get_title(row, lang='bn') → str          (bn→en fallback, empty string if both missing)
+get_summary(row, lang='bn') → str
+get_slug(row) → str                      (empty string if spec['slug_field'] is None)
+get_pk(row) → int | None
+get_detail_url(row) → str                (/<prefix>/<slug>/ or /<prefix>/<pk>/ fallback)
+get_is_published(row) → bool
+get_counts(row) → dict                   ({'bookmark': N, 'like': N, 'view': N, 'comment': N})
+get_presentation(code) → dict            ({'badge', 'color', 'cta', 'label_bn'})
+```
+
+### is_published — three mechanisms, one helper
+
+`get_is_published(row)` works uniformly across all 6 types even though
+they store is_published differently:
+
+1. **Real boolean column** (art, story): `is_published_field='is_published'`
+   points at a real BIT column. Helper reads it directly.
+2. **Python @property** (poem, destination, media): The Django model
+   exposes `is_published` as a @property that reads `*_status_code`
+   (poem_status_code / destination_status / media_status). The DB has
+   a PERSISTED computed column with the same logic — so both sides
+   always agree. The spec's `is_published_field='is_published'` points
+   at the @property, not a column. Django ORM cannot SELECT the
+   computed column as a field (it would try to write it — SQL Server
+   rejects). See troubleshooting §20 for the full story.
+3. **None** (debate): `is_published_field=None`. Debate has a richer
+   lifecycle (scheduled/live/closed/archived) that doesn't map to a
+   boolean. Helper returns False for these.
+
+### Not migrated yet (deferred per newsengine rule)
+- newsengine/related_content.py:_ENRICHMENT_MAP — similar shape to the
+  registry but predates it; will fold in during a newsengine session
+- newsengine/recommendations.py
+- search/views_api.py — has legitimately different per-type Q() assembly
+
+## 2. bookmarks.py
+
+Universal bookmark API. Thin adapter over the registry.
+
+### Storage
+Writes to `[newsengine].[bookmark_content]` (BookmarkContent model).
+Per-app `engagement_*_bookmark` tables are dead — never touch them.
+
+### Functions
+```python
+toggle_bookmark(user_profile_id, content_type_code, content_id,
+                content_title, content_url) → (bookmarked: bool, count: int)
+```
+Insert if new / toggle is_active if existing. Returns updated state +
+live count.
+
+```python
+is_bookmarked(user_profile_id, content_type_code, content_id) → bool
+get_bookmark_count(content_type_code, content_id) → int
+```
+Read-only helpers used by detail views to render the current state.
+
+```python
+get_content_type_metadata(content_type_code) → dict
+```
+Backwards-compatible wrapper. For registered types, delegates to
+`content_type_registry.get_presentation()`. For 'news' (not in registry),
+returns a hardcoded entry. Returns a generic default for unknowns.
+
+### CONTENT_TYPE_METADATA dict
+Built lazily from the registry at import time + hardcoded 'news' entry.
+Backwards-compat for code that imports the dict directly and iterates it.
+New code should use `get_content_type_metadata()` instead.
+
+## 3. cover_urls.py
+
+Bulk cover URL resolver. Used by mixed-content lists (bookmarks page,
+feed cards, profile articles, search results) that need to fetch cover
+images for rows of many different content types without N query branches.
+
+### Why this is separate from content_type_registry
+Each type stores covers in a different place:
+- **art, story** → asset table JOIN [media].[asset] (computed file_storage_path)
+- **destination** → direct column cover_image_url on coll_destination
+- **news** → go through PubArticle → CollNewsEntry → news_asset table
+
+The registry would have to hold resolver functions or backend types to
+handle all this. Keeping it in its own module with a separate registry
+is cleaner.
+
+### COVER_URL_RESOLVERS
+```python
+COVER_URL_RESOLVERS = {
+    'art':         _resolve_art_covers,
+    'story':       _resolve_story_covers,
+    'news':        _resolve_news_covers,
+    'destination': _resolve_destination_covers,
+}
+```
+Per-type functions. Each takes a list of source PKs and returns a
+`{pk: cover_url}` dict.
+
+Content types without a resolver (poem, debate, media) don't have
+covers — the helper just returns nothing for them.
+
+### Main API
+```python
+get_cover_urls_for_content_refs(content_refs) → dict
+```
+**Args:** iterable of `(content_type_code, content_id)` tuples.
+**Returns:** `{(type_code, content_id): cover_url}` dict containing only
+the entries that actually have a cover. Skips content types without a
+registered resolver.
+
+**Logic:**
+1. Group IDs by type (one resolver call per type, not per row)
+2. Call resolver; catch per-resolver exceptions (one type failing
+   must not break the others)
+3. Merge results
+
+### Used by
+- social/views.py:public_profile_articles — articles profile page
+- social/views_bookmarks.py — bookmarks page mixed list
+- content/bookmarks.py (indirectly, via consumers)
+- Shared promo card builders
+
+## 4. utils.py
+
+Content registry CRUD + subcategory lookups.
+
+```python
+register_content(content_category_id, user_profile_id,
+                 title_bn=None, title_en=None, slug=None, summary_bn=None,
+                 content_url='', cover_image_url=None,
+                 subcategory_id=None, form_type_id=None,
+                 is_published=False) → content_registry_id | None
+```
+Raw SQL INSERT into [content].[content_registry]. Returns the new
+registry ID or None on failure. Called from every blog create flow after
+the source-table INSERT.
+
+**Convention**: store the returned ID back into the source row's
+`link_content_registry_id` column. If register_content fails, the source
+row still exists but is not in the universal registry — OK for a later
+backfill.
+
+```python
+update_content_registry(content_registry_id, **fields) → None
+```
+ORM UPDATE on specific fields. Supported: title_bn, title_en, slug,
+summary_bn, content_url, cover_image_url, subcategory_id, is_published.
+Sets updated_at automatically. Logs errors, never raises.
+
+```python
+get_unified_subcategory_id(group_code, category_code) → int | None
+```
+Look up a unified subcategory ID from its per-app category code. Used
+in create flows to translate user form input (category_code like 'love')
+into the unified ref_content_subcategory ID.
+
+```python
+get_subcategory_metadata_map(group_code) → dict
+```
+Return `{subcategory_code: parsed_json_dict}` for every active
+subcategory in a group with non-empty subcategory_metadata_json. Used to
+drive UI defaults from per-subcategory config. Example: debate's
+'parliament' subcategory has
+`{"blue_side_label_bn": "সরকার পক্ষ", "red_side_label_bn": "বিরোধী দল"}`
+in its metadata — the debate form reads this to auto-fill side labels.
+
+## 5. models.py (brief)
+
+All managed=False. Full field listings are in app-content-registry.txt.
+
+- **RefContentCategory** → [content].[ref_content_category] (10 types)
+- **RefContentSubcategory** → [content].[ref_content_subcategory]
+  (100+ subcategories across all apps; includes the computed columns
+  link_subcategory_id and link_subcategory_code that INSERT statements
+  must NOT name — see Gate 7 rule 18 in CLAUDE.md)
+- **ContentRegistry** → [content].[content_registry] (universal content ID)
+
+## 6. templatetags/content_tags.py
+
+Single shared inclusion tag used on every content detail page:
+
+```django
+{% content_actions_bar entity_id share_title content_type [position='top']
+                       [show_bookmark=True] [like_count=0] [view_count=0] %}
+```
+
+Rendered template: `content/templates/content/components/actions-bar.html`.
+
+Required context dict (set by the detail view):
+- user_liked, user_bookmarked, can_edit
+- bookmark_count
+- edit_url (or empty string)
+- actions_bar_content_registry_id (for share-to-wall)
+- actions_bar_author_* dict from build_actions_bar_author_context()
+
+## 7. Shared Components
+
+### actions-bar (used by all 6 blog detail pages)
+- **HTML:** templates/content/components/actions-bar.html
+- **JS:**  static/content/assets/js/components/actions-bar.js
+- **CSS:** static/content/assets/css/components/actions-bar.css
+
+Renders a sticky bar with writer section, like button, bookmark button,
+view count, share dropdown (copy link / WhatsApp / Facebook / X /
+share-to-wall / Web Share API fallback), edit button.
+
+Init:
+```javascript
+window.actionsBar.init({
+  buildLikeApiUrl: function (entityId) {
+    return '/art-and-craft/api/' + entityId + '/like/';
+  },
+});
+```
+
+Each app provides its own like API URL. The bookmark endpoint is the
+universal `/newsengine/api/bookmark/toggle/` regardless of type.
+
+### filter-pills (used by every blog landing page)
+- **JS:** static/content/assets/js/components/filter-pills.js
+- **CSS:** static/content/assets/css/components/filter-pills.css
+
+Client-side filter pills with optional filter-crumbs (removable chips).
+Used by art (category+medium), stories (category+age_group), bangladesh
+(category), poem (category), debate (category), bangladesh beauty
+(media category).
+
+Init:
+```javascript
+window.filterPillsInit({
+  groups: [
+    { pillsId: 'art-category-filter', dataAttribute: 'category', crumbLabel: 'বিভাগ' },
+    { pillsId: 'art-medium-filter',   dataAttribute: 'medium',   crumbLabel: 'মাধ্যম' },
+  ],
+  cardSelector: '.art-gallery-card',
+  crumbsContainerId: 'filter-crumbs-container',
+  emptyContainerId:  'filter-empty-state',
+  emptyMessage: 'কোনো ফলাফল পাওয়া যায়নি',
+});
+```
+
+Multiple groups = AND logic. Empty string = "all" (no filter).
+
+## Adding a New Blog Content Type
+
+1. Create the Django model (e.g. site_apps/newtype/models.py → CollNewType)
+2. Create tables in a new [blog_newtype] schema with the standard columns
+   (is_active, is_published, is_featured, bookmark/like/view/comment
+   counts, link_content_registry_id, link_content_ref_content_subcategory_id,
+   slug, title_bn/en, summary_bn/en)
+3. Add a spec entry to content_type_registry.py:CONTENT_TYPE_REGISTRY
+4. If the type has covers, add a resolver to
+   content/cover_urls.py:COVER_URL_RESOLVERS
+5. Use `{% content_actions_bar %}` on the detail template
+6. Use window.filterPillsInit on the landing page
+7. Regenerate notes/sql-script/phase3b-content-type-extended-properties.sql
+   and run it to stamp SQL Server extended properties
+
+Adding is literally ONE registry entry. Portal dashboard, social profile
+feed, bookmarks, and search-by-type all light up automatically.
+
+## Inspecting the Registry from the DB
+
+Run the extended-properties SQL script. Every registered column gets a
+`registry_role` extended property. SSMS shows it on hover. Query:
+
+```sql
+SELECT OBJECT_SCHEMA_NAME(ep.major_id) AS schema_name,
+       OBJECT_NAME(ep.major_id)        AS table_name,
+       c.name                           AS column_name,
+       CAST(ep.value AS NVARCHAR(500)) AS registry_role
+FROM sys.extended_properties ep
+JOIN sys.columns c
+     ON c.object_id = ep.major_id AND c.column_id = ep.minor_id
+WHERE ep.name = N'registry_role'
+ORDER BY schema_name, table_name, column_name;
+```
+
+Script is auto-generated from content_type_registry.py — re-run it after
+any registry edit so the DB cross-reference stays current.
+
+## File Paths
+
+### Python
+- amolnama_news/site_apps/content/content_type_registry.py
+- amolnama_news/site_apps/content/bookmarks.py
+- amolnama_news/site_apps/content/cover_urls.py
+- amolnama_news/site_apps/content/utils.py
+- amolnama_news/site_apps/content/models.py
+- amolnama_news/site_apps/content/templatetags/content_tags.py
+
+### Shared components
+- amolnama_news/site_apps/content/templates/content/components/actions-bar.html
+- amolnama_news/site_apps/content/static/content/assets/js/components/actions-bar.js
+- amolnama_news/site_apps/content/static/content/assets/js/components/filter-pills.js
+- amolnama_news/site_apps/content/static/content/assets/css/components/actions-bar.css
+- amolnama_news/site_apps/content/static/content/assets/css/components/filter-pills.css
+
+### SQL
+- amolnama_news/notes/sql-script/phase3b-content-type-extended-properties.sql
+  (auto-generated from content_type_registry.py; idempotent re-runnable)

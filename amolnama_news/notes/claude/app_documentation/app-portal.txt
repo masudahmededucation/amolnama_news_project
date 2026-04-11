@@ -88,3 +88,157 @@ POST with multipart file. Validates image type/size. Stores in media/avatars/. U
 - Profile sidebar highlights current section via URL matching
 - display_name updates propagate everywhere via user_display_name context processor
 - Person model: import as `from user_account.models import Person` (not person.models)
+
+
+================================================================================
+UPDATE 2026-04-11 — ADMIN DASHBOARDS + PHASE 3B REGISTRY REFACTOR
+================================================================================
+
+Portal now also hosts the staff-only admin dashboards. Earlier versions
+of this doc only covered the per-user profile pages.
+
+## Additional URL Patterns (staff-only)
+
+| URL                              | View                          | Access             |
+|----------------------------------|-------------------------------|--------------------|
+| /portal/content/                  | content_dashboard_view        | @staff_member_required |
+| /portal/analytics/                | analytics_dashboard_view      | @staff_member_required |
+| /portal/moderation/               | moderation_queue_view         | @staff_member_required |
+| /portal/admin/placeholders/       | composer_placeholders_view    | @staff_member_required |
+| /portal/api/content/toggle-publish/   | api_content_toggle_publish    | POST staff-only |
+| /portal/api/moderation/approve/       | api_moderation_approve        | POST staff-only |
+| /portal/api/moderation/reject/        | api_moderation_reject         | POST staff-only |
+| /portal/api/placeholders/add/         | api_placeholder_add           | POST staff-only |
+| /portal/api/placeholders/toggle/      | api_placeholder_toggle        | POST staff-only |
+| /portal/api/placeholders/feature/     | api_placeholder_feature       | POST staff-only |
+| /portal/api/placeholders/delete/      | api_placeholder_delete        | POST staff-only |
+
+All admin views gated by `@staff_member_required`. Non-staff users get
+a 302 redirect to the admin login page. Gate verified end-to-end via
+authenticated test client in Phase 3 audit.
+
+Sidebar nav items for these URLs are also hidden by
+`{% if user.is_staff or user.is_superuser %}` in
+core/templates/core/partials/sidebar-navigation.html.
+
+## Admin Dashboard Views
+
+### content_dashboard_view
+Shows a unified list of all content (blog + newshub) ordered by newest
+first. Each row has: content type badge, title, slug, detail URL link,
+publish status, created_at. Staff can toggle publish via
+api_content_toggle_publish.
+
+Data assembled by `_collect_content_dashboard_items()` — see Phase 3b
+refactor below.
+
+### analytics_dashboard_view
+Shows aggregated platform metrics: total posts, total engagements,
+active users in last 30 days, content type breakdowns.
+
+### moderation_queue_view
+Shows flagged content across all types. Staff can Approve (clear flags)
+or Reject (soft-delete) via api_moderation_approve /
+api_moderation_reject.
+
+### composer_placeholders_view
+Admin panel for the composer placeholder system (used by the post wall
+"What's on your mind?" prompts). Staff can Add, Toggle active, Feature
+(for N minutes), Delete placeholders.
+
+## Phase 3b Refactor: _collect_content_dashboard_items
+
+Commit 569110d (2026-04-11) replaced an 80-line hand-maintained
+`content_sources` list with a 15-line loop over the unified content
+type registry.
+
+### Old shape (pre-2026-04-11)
+```python
+content_sources = [
+    {'content_type': 'poem', 'id_attribute': '...', 'title_attribute': 'poem_title_bn',
+     'slug_attribute': 'poem_slug', 'url_prefix': '/bangla-kobita-gaan/',
+     'status_code_attribute': 'poem_status_code', ...},
+    {'content_type': 'stories', 'id_attribute': '...', 'title_attribute': 'story_title_bn', ...},
+    # 5 more entries with the same manual per-type knowledge
+]
+```
+Each entry duplicated per-type field names that were already known to
+content_type_registry.
+
+### New shape (post-Phase 3b)
+```python
+from amolnama_news.site_apps.content.content_type_registry import (
+    iter_all_specs, get_model_class,
+    get_title, get_slug, get_detail_url, get_is_published, get_pk,
+)
+
+for code, spec in iter_all_specs():
+    model_class = get_model_class(code)
+    if model_class is None:
+        continue
+    for instance in model_class.objects.all().order_by('-created_at')[:50]:
+        content_items.append({
+            'content_type':         code,
+            'content_type_label':   spec['badge'],
+            'content_type_color':   spec['color'],
+            'content_id':           get_pk(instance),
+            'content_title':        get_title(instance) or '(no title)',
+            'content_slug':         get_slug(instance),
+            'content_url':          get_detail_url(instance),
+            'is_published':         get_is_published(instance),
+            'created_at':           instance.created_at,
+            'created_at_formatted': _format_created_at(instance.created_at),
+        })
+```
+
+**Newshub handled separately** in a second loop because PubArticle has a
+split schema (pub_article_headline_bn, pub_article_slug,
+pub_article_id) that doesn't fit the registry. Until PubArticle is
+unified, the special case stays.
+
+**Output shape unchanged** — the template still receives the same dict
+keys, so content-dashboard.html was untouched. Adding a new blog
+content type to the dashboard now requires ZERO changes here — just
+add a registry entry in content/content_type_registry.py.
+
+## Helper Functions (views.py / views_api.py)
+
+- `_format_created_at(created_at_value)` — format timestamp for display,
+  returns empty string if None
+- `_collect_content_dashboard_items()` — main collector described above
+- `_parse_json_body(request)` (views_api.py) — parses JSON POST body,
+  returns (data, error_response_or_None). Used by all admin POST APIs.
+
+## Additional Static JS (extracted from inline scripts in Phase 3 audit)
+
+| File                                                | Page                            |
+|-----------------------------------------------------|---------------------------------|
+| static/portal/assets/js/pages/content-dashboard.js   | content-dashboard.html          |
+| static/portal/assets/js/pages/analytics-dashboard.js | analytics-dashboard.html        |
+| static/portal/assets/js/pages/moderation-queue.js    | moderation-queue.html           |
+| static/portal/assets/js/pages/composer-placeholders-admin.js | composer-placeholders-admin.html |
+| static/portal/assets/js/pages/profile-settings.js    | profile-settings.html           |
+
+All five were inline <script> blocks in templates before Phase 3 audit
+(commit 9947e3b). Extracted per CLAUDE.md Gate 4 (no internal style
+blocks, no inline scripts).
+
+## Admin Access Control Verification
+
+Verified end-to-end via authenticated test client with a non-staff user
+(commit 9947e3b):
+
+| URL                         | Guard                    | Result  |
+|-----------------------------|--------------------------|---------|
+| /portal/content/            | @staff_member_required    | 302 to admin login |
+| /portal/analytics/          | @staff_member_required    | 302 |
+| /portal/moderation/         | @staff_member_required    | 302 |
+| /portal/admin/placeholders/ | @staff_member_required    | 302 |
+
+Both layers (template `{% if %}` + server decorator) are enforced.
+Non-staff users cannot see the nav items AND cannot reach the URLs
+directly.
+
+## Related Session Docs
+- notes/claude/app_documentation/session-2026-04-11-unified-blog-migration.txt
+  — full Phase 2/3/3b walkthrough including portal refactor

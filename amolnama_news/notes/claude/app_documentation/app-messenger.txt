@@ -1,0 +1,335 @@
+================================================================================
+MESSENGER APP — Architecture & Features
+App: site_apps/messenger/
+URL prefix: /messenger/
+================================================================================
+
+## Introduction
+Real-time direct messaging app with WhatsApp-style two-panel layout.
+WebSocket-based for live delivery with polling fallback when the socket
+is unavailable. Features: read receipts, typing indicators, reply quotes,
+edit/delete, auto-delete, pin/mute, emoji picker, message recovery from
+localStorage on page reload.
+
+All tables under [messenger] schema (unmanaged Django models).
+
+## Models (5 models, all managed=False)
+
+| Model                   | DB Table                            | Purpose                       |
+|-------------------------|-------------------------------------|-------------------------------|
+| Conversation            | [messenger].[conversation]          | Direct or group conversation  |
+| ConversationParticipant | [messenger].[conversation_participant] | User membership + unread count |
+| Message                 | [messenger].[message]               | Text message with reply FK    |
+| MessageDeletion         | [messenger].[message_deletion]      | Per-user "delete for me"      |
+| TypingIndicator         | [messenger].[typing_indicator]      | Live typing status            |
+
+### Key fields
+- **Conversation**: conversation_type_code ('direct' or 'group'),
+  last_message_text (denormalized), last_message_at,
+  auto_delete_after_seconds, auto_delete_set_at
+- **ConversationParticipant**: link_conversation_id, link_user_profile_id,
+  unread_count, is_pinned, is_muted, joined_at, last_read_at
+- **Message**: link_conversation_id, link_author_user_profile_id,
+  message_text, link_reply_to_message_id (nullable), is_edited,
+  is_deleted_for_everyone, read_at, auto_delete_expires_at
+- **MessageDeletion**: link_message_id, link_user_profile_id
+  (composite soft-delete for "delete for me")
+- **TypingIndicator**: link_conversation_id, link_user_profile_id,
+  last_typed_at
+
+## URL Patterns (HTTP)
+
+### Pages
+| URL             | View         | Notes            |
+|-----------------|--------------|------------------|
+| /messenger/     | views.home   | Two-panel layout (login_required) |
+
+### Conversation List APIs
+| URL                                      | View                              | Method |
+|------------------------------------------|-----------------------------------|--------|
+| /messenger/api/unread-count/              | views_api.api_unread_count         | GET    |
+| /messenger/api/conversations/             | views_api.api_conversation_list    | GET    |
+| /messenger/api/conversations/start/       | views_api.api_conversation_start   | POST   |
+
+### Message Operation APIs
+| URL                                                               | View                                 | Method |
+|-------------------------------------------------------------------|--------------------------------------|--------|
+| /messenger/api/messages/<conversation_id>/                         | api_message_list                     | GET    |
+| /messenger/api/messages/<conversation_id>/send/                    | api_message_send                      | POST   |
+| /messenger/api/messages/<conversation_id>/poll/                    | api_message_poll                      | GET    |
+| /messenger/api/messages/<conversation_id>/read/                    | api_message_mark_read                 | POST   |
+| /messenger/api/messages/<conversation_id>/delete-for-me/<msg_id>/  | api_message_delete_for_me             | POST   |
+| /messenger/api/messages/<conversation_id>/delete-for-everyone/<msg_id>/| api_message_delete_for_everyone   | POST   |
+| /messenger/api/messages/<conversation_id>/edit/<msg_id>/           | api_message_edit                      | POST   |
+
+### Conversation Settings APIs
+| URL                                                   | View                                 | Method |
+|-------------------------------------------------------|--------------------------------------|--------|
+| /messenger/api/conversations/<id>/set-auto-delete/    | api_conversation_set_auto_delete      | POST   |
+| /messenger/api/conversations/<id>/clear-all/          | api_conversation_clear_all            | POST   |
+| /messenger/api/conversations/<id>/pin/                | api_conversation_pin                  | POST   |
+| /messenger/api/conversations/<id>/mute/               | api_conversation_mute                 | POST   |
+
+### Typing Indicator APIs
+| URL                                           | View                          | Method |
+|-----------------------------------------------|-------------------------------|--------|
+| /messenger/api/typing/<conversation_id>/       | api_typing_indicator           | POST   |
+| /messenger/api/typing/<conversation_id>/status/| api_typing_status              | GET    |
+
+## WebSocket (routing.py)
+
+```
+ws://<host>/ws/messenger/<conversation_id>/  →  MessengerConsumer
+```
+
+Django Channels AsyncWebsocketConsumer. One group per conversation:
+`messenger_conversation_<conversation_id>`. HTTP endpoints broadcast
+new messages and typing to group members via
+`channel_layer.group_send()`.
+
+## HTTP Views (views_api.py)
+
+### Helpers
+- `_is_blocked(user_a, user_b)` — check bidirectional block via
+  social.UserBlock
+- `_get_other_participant_info(conversation, current_profile_id)` —
+  for direct conversations, return the other user's display_name,
+  username_handle, avatar_url
+
+### Conversation list
+- `api_unread_count` — sum of ConversationParticipant.unread_count over
+  current user's active participations. Polled every ~30s by the sidebar
+  badge.
+- `api_conversation_list` — return conversations sorted pinned-first
+  then by last_message_at DESC. Each entry includes unread badge,
+  auto-delete seconds, last-message preview.
+- `api_conversation_start` — find or create a direct conversation
+  between two users. Rejects if either side has blocked the other.
+  Returns is_new flag.
+
+### Messages
+- `api_message_list` — cursor-paginated (?before=<msg_id>). Filters out
+  messages in MessageDeletion for current user, expired messages
+  (auto_delete_expires_at), and is_deleted_for_everyone. Batch-fetches
+  reply-to message text for quoted replies.
+- `api_message_send` — INSERT Message, re-check block status, increment
+  unread_count on other participants, create a newsengine notification
+  (event_code='new_message'), broadcast via
+  channel_layer.group_send('new_message'). Returns the inserted row.
+- `api_message_poll` — fallback endpoint for when WebSocket fails.
+  Returns messages with id > ?after param.
+- `api_message_mark_read` — sets Message.read_at, zeroes
+  ConversationParticipant.unread_count for current user.
+- `api_message_delete_for_me` — inserts MessageDeletion row (soft-delete).
+- `api_message_delete_for_everyone` — sets
+  Message.is_deleted_for_everyone = True. Only own messages, enforced.
+- `api_message_edit` — updates Message.message_text, sets is_edited=True.
+  Only own messages.
+
+### Typing
+- `api_typing_indicator` — upsert TypingIndicator (conversation_id +
+  user_profile_id unique, updates last_typed_at).
+- `api_typing_status` — return users typing "now" (last_typed_at within
+  last 5 seconds).
+
+### Settings
+- `api_conversation_set_auto_delete` — sets Conversation.auto_delete_after_seconds
+  and auto_delete_set_at. Options: 1d / 7d / 30d / 1y.
+- `api_conversation_clear_all` — inserts MessageDeletion rows for every
+  message in the conversation (soft-delete for current user only).
+- `api_conversation_pin` — toggles ConversationParticipant.is_pinned.
+- `api_conversation_mute` — toggles ConversationParticipant.is_muted.
+
+## WebSocket Consumer (consumers.py)
+
+### Class: MessengerConsumer(AsyncWebsocketConsumer)
+
+- **`_is_conversation_participant()`** [database_sync_to_async]
+  Resolves request user → UserProfile.user_profile_id → checks for an
+  active ConversationParticipant row in the requested conversation.
+  Returns False on auth failure or missing profile.
+  **Added in Phase 3 audit (2026-04-11)** — previously the WebSocket
+  accepted any authenticated user regardless of membership.
+
+- **`connect()`**
+  1. Close if request user is not authenticated
+  2. Extract conversation_id from url_route kwargs
+  3. Call _is_conversation_participant() → close if False
+  4. channel_layer.group_add('messenger_conversation_<id>')
+  5. accept()
+
+- **`disconnect(close_code)`** — channel_layer.group_discard
+
+- **`receive(text_data)`**
+  Parses JSON. Only 'typing' event handled here. Broadcasts
+  'typing_indicator' event to the group.
+
+- **Group handlers** (called by channel_layer.group_send from HTTP views)
+  - `new_message(event)` — forwards a new Message JSON to all connected
+    clients in the conversation group. Triggered by api_message_send.
+  - `typing_indicator(event)` — forwards typing status. Triggered by
+    receive() on 'typing' type.
+
+## Templates
+
+Under `site_apps/messenger/templates/messenger/pages/`:
+
+- **messenger-home.html** — WhatsApp-style two-panel layout:
+  - Left sidebar: search input, conversation list with avatars, pinned
+    icons, unread badges
+  - Right chat panel: header with avatar + name + status + settings
+    dropdown, messages area (day separators, reply quotes, read
+    checkmarks), input textarea + emoji picker + send button
+  - Context menu (right-click / long-press on a bubble): Reply, Copy,
+    Edit, Delete for me, Delete for everyone
+  - Settings dropdown: auto-delete (1d/7d/30d/1y), clear all messages
+  - Reply preview bar: shown above input when replying, with cancel X
+  - Scroll-to-bottom FAB with unread count badge
+
+## Static Assets
+
+Under `site_apps/messenger/static/messenger/assets/`:
+
+### CSS
+- css/pages/messenger-home.css — Two-panel grid (280px sidebar + 1fr
+  chat). Scoped CSS custom properties
+  (`--messenger-bubble-sent-bg`, `--messenger-bubble-received-bg`,
+  `--messenger-check-read`). Dark mode via `[data-theme="dark"]`. 44px
+  touch targets, prefers-reduced-motion respected.
+
+### JS
+- js/pages/messenger-home.js (~1190 lines, single-file SPA IIFE) —
+  handles everything:
+  - **Conversation list**: loadConversationList() + 30s polling when tab
+    not hidden
+  - **Message rendering**: buildMessagesHtml() with date separators,
+    sender avatars, reply quotes, checkmark icons (sent/delivered/read)
+  - **Send message**: optimistic UI — insert a temporary bubble with a
+    temp ID, then POST to api_message_send, replace temp ID with real ID
+    on response. Tracks pendingSentIds to dedupe when WebSocket delivers
+    before the POST returns (see duplicate reply bug below)
+  - **Real-time**: connectMessengerWebSocket() opens
+    ws://<host>/ws/messenger/<conversation_id>/ . On message, append to
+    DOM. On close, fall back to pollNewMessages() every 3s
+  - **Polling fallback**: pollNewMessages(?after=lastMessageId) and
+    pollTypingStatus() run when WebSocket is unavailable
+  - **Local storage recovery**: loadFailedMessagesFromStorage() on page
+    load — restores unsent messages from localStorage so nothing is lost
+    across reloads
+  - **Typing indicator**: 300ms debounce, broadcast 'typing' event type
+  - **Edit/delete**: context menu; edit inline in the bubble; delete-for-me
+    or delete-for-everyone via the API
+  - **Reply quotes**: stores link_reply_to_message_id; displays first 100
+    chars of the quoted message above the new bubble
+  - **Auto-delete countdown**: countdown display on messages with
+    auto_delete_expires_at
+  - **Emoji picker**: 45 hardcoded emoji buttons; click inserts into
+    the textarea
+  - **Cleanup**: closeMessengerWebSocket() + stopPolling() on SPA nav
+
+## Features
+
+- **Start conversation** via POST /api/conversations/start/ (blocked
+  pairs rejected)
+- **Send text message** (max 4000 chars)
+- **Read receipts** via checkmarks (sent / delivered / read)
+- **Typing indicators** with 5-second timeout
+- **Reply quotes** via link_reply_to_message_id
+- **Edit own messages** with "edited" badge
+- **Delete for me** (soft, only current user) and **delete for everyone**
+  (hard, all participants)
+- **Auto-delete** messages after 1d/7d/30d/1y
+- **Pin/mute** conversations per participant
+- **Clear all messages** (soft-delete for current user only)
+- **Sidebar unread badge** (sum across all conversations, polled ~30s)
+- **Client-side search** on conversation titles
+- **Optimistic UI** — message appears instantly, replaced with real ID on
+  server response
+- **Offline recovery** — unsent messages persisted to localStorage, restored
+  on reload
+
+### NOT implemented
+- **Message reactions** (no MessageReaction model, no emoji reaction API)
+- **File attachments** (no file upload path; message_text is text-only)
+- **Group chat creation UI** (conversation_type_code='group' exists in
+  schema but no UI to create multi-user conversations)
+- **Voice/video calls**
+
+## Notifications Integration
+
+When a message is sent, `api_message_send` calls
+`newsengine.notifications.create_notification()` with:
+- event_code='new_message'
+- source_app='messenger'
+- content_id=message_id
+- message=`'<SenderName>: <first 100 chars>'`
+- url=`'/messenger/?conversation=<conversation_id>'`
+
+There is **no separate pulse app integration** — notifications are
+standalone create_notification calls. The sidebar unread badge is driven
+directly by `api_unread_count`, not by notification counts.
+
+## Troubleshooting / Gotchas
+
+- **Duplicate reply bubbles (fixed commit 7305a2e)** — race condition
+  where the WebSocket broadcasts a new_message event for the user's own
+  message while the optimistic UI temp bubble still exists. Fix:
+  pendingSentIds Set tracks message IDs awaiting the temp→real swap; the
+  WebSocket handler consults it before appending. If the temp bubble
+  reuse path fires first, the WebSocket duplicate is dropped. Symptom
+  was two identical bubbles in a row.
+
+- **ConversationParticipant auth check added Phase 3 audit (2026-04-11)** —
+  consumers.py:connect now calls _is_conversation_participant() before
+  accepting the WebSocket. If you add a new WebSocket event handler, it
+  runs AFTER this check, so the user is guaranteed to be an active
+  participant.
+
+- **WebSocket → polling fallback** — if connectMessengerWebSocket fails
+  or onclose fires, the client starts pollNewMessages every 3 seconds
+  and keeps retrying the WebSocket every 3 seconds. Expect ~3s delay in
+  seeing new messages when the WebSocket is down.
+
+- **Auto-delete is lazy** — there is no background cleanup job for
+  expired messages. They remain in the DB until the next
+  api_message_list call, which filters them out by auto_delete_expires_at.
+  An optional management command `cleanup_expired_messages` exists
+  but is NOT called automatically — run it manually or via cron if
+  hard cleanup is needed.
+
+- **Cursor pagination direction** — api_message_list with ?before=<id>
+  loads OLDER messages (scrolling up). Results are reversed client-side
+  to show oldest-first. Newest messages sit at the bottom of the DOM;
+  loading older prepends without disturbing scroll position.
+
+- **SPA cleanup** — on navigation away, the JS calls
+  closeMessengerWebSocket (onclose=null then close()) + stopPolling to
+  prevent zombie connections. If a user hard-navigates (full reload)
+  without SPA, the browser closes the socket naturally.
+
+- **Blocked users** — api_message_send and api_conversation_start both
+  call _is_blocked (bidirectional). A blocked pair cannot create a new
+  conversation and cannot send new messages in an existing one, but old
+  messages remain visible.
+
+## File Paths
+
+### Python
+- amolnama_news/site_apps/messenger/models.py
+- amolnama_news/site_apps/messenger/urls.py
+- amolnama_news/site_apps/messenger/views.py (just home())
+- amolnama_news/site_apps/messenger/views_api.py (18 API functions)
+- amolnama_news/site_apps/messenger/consumers.py (MessengerConsumer)
+- amolnama_news/site_apps/messenger/routing.py (WebSocket URL)
+- amolnama_news/site_apps/messenger/management/commands/cleanup_expired_messages.py
+
+### Templates
+- amolnama_news/site_apps/messenger/templates/messenger/pages/messenger-home.html
+
+### Static
+- amolnama_news/site_apps/messenger/static/messenger/assets/css/pages/messenger-home.css
+- amolnama_news/site_apps/messenger/static/messenger/assets/js/pages/messenger-home.js
+
+### Related docs
+- amolnama_news/notes/claude/app_documentation/session-2026-04-04-messenger.txt
+  (earlier session log covering initial implementation)

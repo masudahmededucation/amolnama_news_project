@@ -153,3 +153,193 @@ If counts seem wrong, check for orphan records where is_active logic may have be
 ### Profile Page Changes
 - Follower/following counts on user-profile.html are now clickable <a> links
 - .user-profile-stat-link CSS class for hover state
+
+
+================================================================================
+UPDATE 2026-04-11 — BOOKMARKS + ARTICLES PROFILE + DUAL-ACTIVE NAV FIX
+================================================================================
+
+Three refactors landed between 2026-04-07 and 2026-04-11 that are not in
+the earlier sections above. The stable features (follow/unfollow, follow
+lists, block, lists) are unchanged.
+
+## New URL: /social/@<handle>/articles/
+
+Public profile's blog content (not posts). Shows every piece of
+published content a user has authored across art, story, poem,
+destination, media, debate, AND newshub (PubArticle) ordered by newest
+first. Rendered as promo cards using the shared content-promo-card
+component.
+
+Added to urls.py:
+```python
+path('@<str:username_handle>/articles/', views.public_profile_articles,
+     name='public_profile_articles'),
+```
+
+## Phase 3b Refactor: public_profile_articles
+
+Commit 569110d (2026-04-11) replaced an if/elif chain with a generic
+spec-driven lookup using content_type_registry.
+
+### Old shape
+```python
+from amolnama_news.site_apps.art.models import CollArtwork
+from amolnama_news.site_apps.stories.models import CollStory
+from amolnama_news.site_apps.bangladesh.models import CollDestination
+from amolnama_news.site_apps.poem.models import CollPoemEntry
+
+for item in registry_items:
+    type_code = ...
+    slug = item.content_slug or ''
+    if type_code == 'art' and slug:
+        row = CollArtwork.objects.filter(artwork_slug=slug).only('...').first()
+        source_id = row.blog_art_coll_artwork_id if row else None
+    elif type_code == 'story' and slug:
+        row = CollStory.objects.filter(story_slug=slug).only('...').first()
+        source_id = row.blog_stories_coll_story_id if row else None
+    elif type_code == 'destination' and slug:
+        ...
+    elif type_code == 'poem' and slug:
+        ...
+```
+
+### New shape
+```python
+from amolnama_news.site_apps.content.content_type_registry import (
+    get_spec, get_model_class,
+)
+
+for item in registry_items:
+    type_code = ...
+    slug = item.content_slug or ''
+    if not type_code or not slug:
+        continue
+    spec = get_spec(type_code)
+    if not spec or not spec.get('slug_field') or not spec.get('pk_field'):
+        continue
+    model_class = get_model_class(type_code)
+    if model_class is None:
+        continue
+    row = (model_class.objects
+           .filter(**{spec['slug_field']: slug})
+           .only(spec['pk_field'])
+           .first())
+    if row is not None:
+        source_id = getattr(row, spec['pk_field'], None)
+        if source_id:
+            registry_to_source_id[item.content_registry_id] = (type_code, source_id)
+```
+
+No hardcoded model imports. Adding a new blog content type to the
+articles profile page now requires zero edits — just add a spec to
+content_type_registry.
+
+Covers still resolved via `get_cover_urls_for_content_refs()` (bulk
+lookup per content type). Presentation metadata (badge, color, cta)
+still resolved via `get_content_type_metadata()` — both of those
+helpers now read from the registry too.
+
+## New Module: views_bookmarks.py (2026-04-10)
+
+Previously bookmarks was part of views.py. Split into its own file as
+an atomic feature:
+
+- `_fetch_post_bookmarks()` — wall-post bookmarks from
+  [post].[post_bookmark] (legacy table, max 50)
+- `_fetch_universal_bookmarks()` — content bookmarks from
+  [newsengine].[bookmark_content] (the universal bookmark table, max 50)
+  Resolves cover URLs via `get_cover_urls_for_content_refs()` across all
+  registered content types.
+- `bookmarks(request)` — orchestrator, renders both lists together in
+  bookmarks.html
+
+Bookmarks page at `/social/bookmarks/` uses a borderless list-row style
+(Twitter/Threads/Instagram saved), not boxed cards. Each row shows
+48x48 cover thumbnail + title + type badge + date + unbookmark action.
+
+## Dual-Active Sidebar Nav Fix (commit 8d131e6, 2026-04-11)
+
+Social was the most visible place this bug surfaced. When a user was
+on `/social/bookmarks/`, BOTH the Social nav item AND the Bookmarks nav
+item lit up. F5 fixed it temporarily; next SPA click brought it back.
+
+### Root cause
+The client-side SPA navigation in core/spa-navigation.js used
+`url.startsWith(href)` to decide which sidebar item was active. That
+gave a false positive for `/social/bookmarks/` matching both `/social/`
+AND `/social/bookmarks/`.
+
+Earlier session had already fixed the server-side context processor
+(`core/context_processors.py:active_sidebar_nav` + ordered
+SIDEBAR_NAV_RULES that match exact paths before namespace fallbacks),
+but the JS rebuilt the same bug after the content swap.
+
+### Fix
+Server already computes the correct single nav id. Embed it on the
+page itself so the JS can read it instead of re-deriving:
+
+1. `core/templates/core/base.html` —
+   `<main data-active-sidebar-nav-id="{{ active_sidebar_nav_id }}">`
+2. `spa-navigation.js:updateSidebarActiveState()` now reads that data
+   attribute from the parsed `<main>` after content swap and toggles
+   sidebar items by matching the suffix of their id
+   (`sidebar-navigation-item-X`). Single source of truth on both
+   server AND client — structurally impossible to dual-light.
+
+Verified end-to-end via authenticated test client:
+```
+/                          -> home       (only)
+/social/bookmarks/          -> bookmarks  (only)
+/social/@joes/articles/     -> social     (only)
+```
+
+No social-app-specific changes — the fix lives in core. Mentioning it
+here because social was the reproduction case.
+
+## Files Touched in Phase 3 Audit (code quality)
+
+- `var(--text-muted)` → `var(--muted)` across user-profile.css,
+  follow-list.css, bookmarks.css (8 occurrences)
+- Extracted social-lists.js from an inline `<script>` block
+- Added social-home.css for the unauthenticated landing
+- Fixed hover text-decoration on bookmark rows
+
+## UserBlock Integration
+
+social.UserBlock is the bidirectional block model. Checked by:
+- `messenger.views_api._is_blocked()` — rejects new conversations /
+  new messages between a blocked pair
+- `post/views.py` feed queries — filters out posts from blocked users
+- `social.views.api_block_toggle` — toggles the block row
+
+The check is bidirectional: if A blocks B, neither can message the
+other or see the other's content.
+
+## Updated File List
+
+### Python
+- amolnama_news/site_apps/social/models.py — UserFollow, UserBlock, UserList, UserListMember
+- amolnama_news/site_apps/social/views.py — home, public_profile, public_profile_articles (refactored), followers_page, following_page, lists_page
+- amolnama_news/site_apps/social/views_api.py — api_follow_toggle, api_block_toggle, api_follow_list, api_list_create, api_list_member_toggle
+- amolnama_news/site_apps/social/views_bookmarks.py — NEW, atomic bookmarks feature
+- amolnama_news/site_apps/social/urls.py
+
+### Templates
+- amolnama_news/site_apps/social/templates/social/pages/social-home.html
+- amolnama_news/site_apps/social/templates/social/pages/user-profile.html
+- amolnama_news/site_apps/social/templates/social/pages/user-profile-articles.html — NEW
+- amolnama_news/site_apps/social/templates/social/pages/follow-list.html
+- amolnama_news/site_apps/social/templates/social/pages/social-lists.html
+- amolnama_news/site_apps/social/templates/social/pages/bookmarks.html
+- amolnama_news/site_apps/social/templates/social/pages/user-profile-not-found.html
+
+### Static JS
+- amolnama_news/site_apps/social/static/social/assets/js/pages/social-lists.js — NEW (extracted)
+- amolnama_news/site_apps/social/static/social/assets/js/pages/user-profile.js
+- amolnama_news/site_apps/social/static/social/assets/js/pages/follow-list.js
+
+## Related Session Docs
+- notes/claude/app_documentation/session-2026-04-11-unified-blog-migration.txt
+  — full Phase 2/3/3b walkthrough, including the public_profile_articles
+  refactor and the dual-active nav fix
