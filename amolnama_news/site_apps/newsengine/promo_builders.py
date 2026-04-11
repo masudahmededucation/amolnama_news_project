@@ -72,6 +72,10 @@ def build_all_promo_items():
 # TOOLS — static tool pages, randomly promoted
 # =========================================================
 
+# Sample images live at /static/tools/assets/img/promo-samples/{slug}.webp.
+# Recommended dimensions: 600×320 (aspect 15:8). Composite before→after works
+# best for visual tools (background remover, passport resizer, file shrink).
+# Empty/missing path = card renders without image (degrades gracefully).
 TOOLS_CATALOG = [
     {
         'tool_name_bn': 'ফাইল কম্প্রেশন',
@@ -79,6 +83,7 @@ TOOLS_CATALOG = [
         'tool_description': 'ছবি, PDF ও ডকুমেন্টের ফাইল সাইজ কমান — সম্পূর্ণ বিনামূল্যে।',
         'tool_url': '/tools/reduce-file-size/',
         'tool_icon': '📦',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/reduce-file-size.webp',
     },
     {
         'tool_name_bn': 'ফাইল রূপান্তর',
@@ -86,6 +91,7 @@ TOOLS_CATALOG = [
         'tool_description': 'ছবি, ডকুমেন্ট, অডিও, ভিডিও ফরম্যাট রূপান্তর করুন।',
         'tool_url': '/tools/file-conversion/',
         'tool_icon': '🔄',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/file-conversion.webp',
     },
     {
         'tool_name_bn': 'জিপ ক্রিয়েটর',
@@ -93,6 +99,7 @@ TOOLS_CATALOG = [
         'tool_description': 'একাধিক ফাইল একটি ZIP আর্কাইভে বান্ডেল করুন।',
         'tool_url': '/tools/zip-creator/',
         'tool_icon': '🗜️',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/zip-creator.webp',
     },
     {
         'tool_name_bn': 'পাসপোর্ট ফটো রিসাইজার',
@@ -100,6 +107,7 @@ TOOLS_CATALOG = [
         'tool_description': 'পাসপোর্ট, ভিসা, NID ছবি ও স্বাক্ষর রিসাইজ করুন।',
         'tool_url': '/tools/passport-photo-resizer/',
         'tool_icon': '📷',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/passport-photo-resizer.webp',
     },
     {
         'tool_name_bn': 'ব্যাকগ্রাউন্ড রিমুভার',
@@ -107,6 +115,7 @@ TOOLS_CATALOG = [
         'tool_description': 'AI দিয়ে ছবির ব্যাকগ্রাউন্ড সরান — ব্রাউজারেই।',
         'tool_url': '/tools/background-remover/',
         'tool_icon': '🪄',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/background-remover.webp',
     },
     {
         'tool_name_bn': 'ডকুমেন্ট মার্জ',
@@ -114,6 +123,7 @@ TOOLS_CATALOG = [
         'tool_description': 'একাধিক PDF ও ছবি একটি PDF-এ একত্রিত করুন।',
         'tool_url': '/tools/merge-documents/',
         'tool_icon': '📑',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/merge-documents.webp',
     },
     {
         'tool_name_bn': 'পিডিএফ স্প্লিট',
@@ -121,6 +131,7 @@ TOOLS_CATALOG = [
         'tool_description': 'পিডিএফ থেকে নির্দিষ্ট পাতা আলাদা করুন।',
         'tool_url': '/tools/split-pdf/',
         'tool_icon': '✂️',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/split-pdf.webp',
     },
     {
         'tool_name_bn': 'ফটো অ্যালবাম মেকার',
@@ -128,6 +139,7 @@ TOOLS_CATALOG = [
         'tool_description': 'প্রিন্ট-রেডি ফটো অ্যালবাম পেজ তৈরি করুন।',
         'tool_url': '/tools/photo-album/',
         'tool_icon': '🖼️',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/photo-album.webp',
     },
     {
         'tool_name_bn': 'জিপিএ ক্যালকুলেটর',
@@ -135,6 +147,7 @@ TOOLS_CATALOG = [
         'tool_description': 'এসএসসি, এইচএসসি জিপিএ ও বিশ্ববিদ্যালয় সিজিপিএ হিসাব করুন।',
         'tool_url': '/tools/gpa-calculator/',
         'tool_icon': '🎓',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/gpa-calculator.webp',
     },
     {
         'tool_name_bn': 'বয়স ক্যালকুলেটর',
@@ -142,6 +155,7 @@ TOOLS_CATALOG = [
         'tool_description': 'জন্মতারিখ থেকে বয়স, রাশি, হৃদপিণ্ডের স্পন্দন ও মজার তথ্য জানুন।',
         'tool_url': '/tools/age-calculator/',
         'tool_icon': '🎂',
+        'tool_sample_image_url': '/static/tools/assets/img/promo-samples/age-calculator.webp',
     },
 ]
 
@@ -158,6 +172,7 @@ def _build_tools_promo_items():
             'tool_name_en': tool['tool_name_en'],
             'tool_description': tool['tool_description'],
             'tool_url': tool['tool_url'],
+            'tool_sample_image_url': tool.get('tool_sample_image_url') or '',
         })
     return items
 

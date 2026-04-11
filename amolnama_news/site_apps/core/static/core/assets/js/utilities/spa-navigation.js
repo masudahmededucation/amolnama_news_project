@@ -128,8 +128,8 @@
           history.pushState({ url: url }, '', url);
         }
 
-        // Step 6: Update sidebar highlight
-        updateSidebarActiveState(url);
+        // Step 6: Update sidebar highlight (read server-resolved id from parsed <main>)
+        updateSidebarActiveState(parsed);
 
         // Step 7: Load page-specific JS
         loadPageJs(parsed);
@@ -176,12 +176,24 @@
   // SIDEBAR ACTIVE STATE
   // =========================================================
 
-  function updateSidebarActiveState(url) {
+  /* Single source of truth: server writes the resolved nav id on <main
+     data-active-sidebar-nav-id="X">. Each sidebar <a> has
+     id="sidebar-navigation-item-X". Match by id suffix → toggle exactly one
+     item active. Prevents the dual-active bug (Social + Bookmarks both lit)
+     that url.startsWith() matching caused on /social/bookmarks/. */
+  function updateSidebarActiveState(parsedDocument) {
+    const newMain = parsedDocument && parsedDocument.querySelector('main');
+    const activeId = newMain ? (newMain.getAttribute('data-active-sidebar-nav-id') || '') : '';
     sidebarNav.querySelectorAll('.sidebar-navigation-item').forEach(function (item) {
-      let href = item.getAttribute('href') || '';
-      const isActive = (href === '/' && url === '/') || (href !== '/' && url.startsWith(href));
-      item.classList.toggle('sidebar-navigation-item-active', isActive);
+      const itemId = item.id || '';
+      const itemNavId = itemId.replace(/^sidebar-navigation-item-/, '');
+      item.classList.toggle('sidebar-navigation-item-active', itemNavId === activeId);
     });
+    // Mirror the resolved id onto the live <main> so subsequent calls (and
+    // any other code that introspects it) see the new value too.
+    if (mainElement && activeId) {
+      mainElement.setAttribute('data-active-sidebar-nav-id', activeId);
+    }
   }
 
   // =========================================================

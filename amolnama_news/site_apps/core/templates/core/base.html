@@ -105,7 +105,7 @@
         </div>
       </header>
 
-      <main>
+      <main data-active-sidebar-nav-id="{{ active_sidebar_nav_id|default:'' }}">
         {% if seo.breadcrumbs %}{% include "core/components/breadcrumb.html" with breadcrumbs=seo.breadcrumbs %}{% endif %}
         {% block content %}{% endblock %}
       </main>

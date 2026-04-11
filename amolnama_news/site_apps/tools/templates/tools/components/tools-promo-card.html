@@ -10,6 +10,11 @@
         <p class="tools-promo-card-description" id="tools-promo-card-description-{{ promo.tool_name_en|slugify }}" name="tools_promo_card_description_{{ promo.tool_name_en|slugify }}">{{ promo.tool_description }}</p>
       </div>
     </div>
+    {% if promo.tool_sample_image_url %}
+    <div class="tools-promo-card-sample" id="tools-promo-card-sample-{{ promo.tool_name_en|slugify }}" name="tools_promo_card_sample_{{ promo.tool_name_en|slugify }}">
+      <img src="{{ promo.tool_sample_image_url }}" alt="{{ promo.tool_name_bn }} — sample" loading="lazy" decoding="async" class="tools-promo-card-sample-image" onerror="this.parentNode.hidden=true">
+    </div>
+    {% endif %}
   </a>
   <div class="tools-promo-card-footer" id="tools-promo-card-footer-{{ promo.tool_name_en|slugify }}" name="tools_promo_card_footer_{{ promo.tool_name_en|slugify }}">
     <span class="tools-promo-card-cta" id="tools-promo-card-cta-{{ promo.tool_name_en|slugify }}" name="tools_promo_card_cta_{{ promo.tool_name_en|slugify }}">ব্যবহার করুন →</span>

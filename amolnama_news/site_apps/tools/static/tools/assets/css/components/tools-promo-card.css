@@ -29,6 +29,23 @@
 .tools-promo-card-title { font-size: .92rem; font-weight: 700; margin: 0 0 .15rem; line-height: 1.3; }
 .tools-promo-card-description { font-size: .75rem; color: var(--muted); margin: 0; line-height: 1.4; }
 
+/* Sample work image — gives "sample work vibe" by showing what the tool produces.
+   Renders only when tool_sample_image_url is set in TOOLS_CATALOG. Aspect 15:8.
+   onerror handler hides the wrapper if the file is missing — degrades cleanly. */
+.tools-promo-card-sample {
+  margin-top: .55rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  aspect-ratio: 15 / 8;
+}
+.tools-promo-card-sample-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Footer — CTA + share */
 .tools-promo-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
 .tools-promo-card-cta {
