@@ -125,6 +125,8 @@ for general it is normally blank with placeholder suggestions
 --double nav menu active
 when bookmark is selected/social is selected too
 we are supposed to have two different url right?
+on refresh f5 it goes away.
+then check again, it is back
 
 
 ####
@@ -155,3 +157,20 @@ this is first time
 - i have seen tools promo cards
 we haven't pay any attention to the tools promo card.
 make sure, it is working, and promoting naturally
+possible to show before and after picture for promo tools.
+show it as a picture?
+it would give a sample work vibe.
+if it is too much of a ask, 
+then simply show sample input picture only when appropriate
+
+Remaining matches are: 
+(a) vestigial model column definitions 
+(DB still has the columns, 
+can't remove without DB migration 
+— leave as-is), and (b) stories' 
+link_blog_stories_ref_story_age_group_id 
+which is the column being repurposed 
+in place to store unified subcategory IDs 
+(functionally correct, name is misleading until DB rename).
+
+

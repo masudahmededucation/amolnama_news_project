@@ -135,3 +135,5 @@ all share should be public
 --editors
 --should be able to edit anyone's posts
 
+promo card
+--reduced to one line preview
