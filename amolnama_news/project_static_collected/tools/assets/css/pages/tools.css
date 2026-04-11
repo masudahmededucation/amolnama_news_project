@@ -1,46 +1,85 @@
-/* ========== Tools Landing & Tool Pages ========== */
+/* ============================================================
+   TOOLS LANDING PAGE
+
+   Mobile-first: default styles target 320px viewport, scale up for
+   tablets / desktops via @media (min-width: ...). Per-card brand
+   colors live in local CSS custom properties so they're introspectable,
+   editable in one line, and dark-mode aware.
+   ============================================================ */
 
 .tools-header {
-  padding: 1rem 0 .5rem;
+  padding: var(--space-4) 0 var(--space-2);
 }
 
 .tools-header h1 {
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--text);
   margin: 0;
 }
 
-/* ---- Tool cards grid ---- */
+/* ---- Tool cards grid (mobile-first: 1 col, tablet: 2, desktop: auto-fill) ---- */
 
 .tools-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: .5rem 0 2rem;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  padding: var(--space-2) 0 var(--space-8);
 }
+
+@media (min-width: 641px) {
+  .tools-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+/* ---- Shared card shell — per-card accent via local custom property ---- */
 
 .tool-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 1.25rem 1rem;
+  padding: var(--space-5);
   border-radius: var(--radius);
-  text-decoration: none;
+  border: 1.5px solid var(--border);
+  border-left: 3px solid var(--tool-card-accent, var(--primary));
+  background: var(--tool-card-bg, var(--card));
+  box-shadow: var(--shadow);
   color: var(--text);
+  text-decoration: none;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color .2s, box-shadow .2s;
+  min-height: var(--touch-target);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.tool-card:hover {
+  border-color: var(--tool-card-accent, var(--primary));
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card:active {
+  transform: scale(.97);
+  border-color: var(--tool-card-accent, var(--primary));
+  box-shadow: var(--shadow-md);
+}
+
+.tool-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Tick checkmark — fully hidden, appears only on hover */
-.tool-card .tool-card-tick {
+.tool-card-tick {
   position: absolute;
-  top: 8px;
-  right: 10px;
+  top: var(--space-2);
+  right: var(--space-3);
   width: 22px;
   height: 22px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--primary);
   display: flex;
   align-items: center;
@@ -49,10 +88,10 @@
   font-weight: 700;
   color: #fff;
   opacity: 0;
-  transition: opacity .2s;
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 
-.tool-card .tool-card-tick::after {
+.tool-card-tick::after {
   content: '\2713';
 }
 
@@ -60,302 +99,159 @@
   opacity: 1;
 }
 
-/* ---- Reduce File Size card — soft sage ---- */
-
-.tool-card--compress {
-  background: linear-gradient(135deg, #fbfefc 0%, #f4faf6 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #8ec5a2;
-}
-
-.tool-card--compress:hover {
-  border-color: #8ec5a2;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--compress h3 {
-  color: var(--text);
-}
-
-.tool-card--compress p {
-  color: var(--muted);
-}
-
-/* ---- File Conversion card — soft blue ---- */
-
-.tool-card--convert {
-  background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #7ba4d9;
-}
-
-.tool-card--convert:hover {
-  border-color: #7ba4d9;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--convert h3 {
-  color: var(--text);
-}
-
-.tool-card--convert p {
-  color: var(--muted);
-}
-
-/* ---- ZIP Creator card — soft amber ---- */
-
-.tool-card--zip {
-  background: linear-gradient(135deg, #fffdf5 0%, var(--warning-light) 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #ffa000;
-}
-
-.tool-card--zip:hover {
-  border-color: #ffa000;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--zip h3 {
-  color: var(--text);
-}
-
-.tool-card--zip p {
-  color: var(--muted);
-}
-
-/* ---- Passport Photo Resizer card — soft violet ---- */
-
-.tool-card--photo-resizer {
-  background: linear-gradient(135deg, #faf8ff 0%, #f0ecff 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #7c6bc4;
-}
-
-.tool-card--photo-resizer:hover {
-  border-color: #7c6bc4;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--photo-resizer h3 {
-  color: var(--text);
-}
-
-.tool-card--photo-resizer p {
-  color: var(--muted);
-}
-
-/* ---- Background Remover card — soft teal ---- */
-
-.tool-card--bg-remover {
-  background: linear-gradient(135deg, #f5fcfb 0%, #e8f8f5 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #1abc9c;
-}
-
-.tool-card--bg-remover:hover {
-  border-color: #1abc9c;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--bg-remover h3 {
-  color: var(--text);
-}
-
-.tool-card--bg-remover p {
-  color: var(--muted);
-}
-
-/* ---- Merge Documents card — soft coral ---- */
-
-.tool-card--merge-docs {
-  background: linear-gradient(135deg, #fffaf8 0%, #fff0eb 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #e17055;
-}
-
-.tool-card--merge-docs:hover {
-  border-color: #e17055;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--merge-docs h3 {
-  color: var(--text);
-}
-
-.tool-card--merge-docs p {
-  color: var(--muted);
-}
-
-/* ---- Split PDF card — soft steel blue ---- */
-
-.tool-card--split-pdf {
-  background: linear-gradient(135deg, #f8faff 0%, #edf2fc 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #5c7cba;
-}
-
-.tool-card--split-pdf:hover {
-  border-color: #5c7cba;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--split-pdf h3 {
-  color: var(--text);
-}
-
-.tool-card--split-pdf p {
-  color: var(--muted);
-}
-
-/* ---- Photo Album card — warm brown ---- */
-
-.tool-card--photo-album {
-  background: linear-gradient(135deg, #fdf8f3 0%, #f5ece3 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #d4845a;
-}
-
-.tool-card--photo-album:hover {
-  border-color: #d4845a;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--photo-album h3 {
-  color: var(--text);
-}
-
-.tool-card--photo-album p {
-  color: var(--muted);
-}
-
-/* ---- GPA Calculator card — academic indigo ---- */
-
-.tool-card--gpa {
-  background: linear-gradient(135deg, #f5f3ff 0%, var(--purple-light) 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid var(--info);
-}
-
-.tool-card--gpa:hover {
-  border-color: var(--info);
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--gpa h3 {
-  color: var(--text);
-}
-
-.tool-card--gpa p {
-  color: var(--muted);
-}
-
-/* ---- Age Calculator card — warm rose ---- */
-
-.tool-card--age {
-  background: linear-gradient(135deg, #fef5f7 0%, #fce4ec 100%);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
-  border-left: 3px solid #e91e63;
-}
-
-.tool-card--age:hover {
-  border-color: #e91e63;
-  box-shadow: var(--shadow-md);
-}
-
-.tool-card--age h3 {
-  color: var(--text);
-}
-
-.tool-card--age p {
-  color: var(--muted);
-}
-
 /* ---- Shared card elements ---- */
 
 .tool-card-icon {
-  font-size: 2rem;
-  margin-bottom: .5rem;
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-2);
 }
 
 .tool-card h3 {
-  margin: 0 0 .35rem;
-  font-size: 1.05rem;
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
   font-weight: 700;
+  color: var(--text);
 }
 
 .tool-card p {
   margin: 0;
-  font-size: .85rem;
-  line-height: 1.5;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--muted);
 }
 
-/* ---- Tool page layout ---- */
+/* ---- Per-card brand colors — scoped local custom properties.
+        Change a card's accent by editing one line here.
+        Gradient backgrounds only apply in light mode; dark mode falls
+        back to the shared --card surface via the fallback chain. ---- */
+
+.tool-card--compress {
+  --tool-card-accent: #8ec5a2;
+  --tool-card-bg: linear-gradient(135deg, #fbfefc 0%, #f4faf6 100%);
+}
+.tool-card--convert {
+  --tool-card-accent: #7ba4d9;
+  --tool-card-bg: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+}
+.tool-card--zip {
+  --tool-card-accent: #ffa000;
+  --tool-card-bg: linear-gradient(135deg, #fffdf5 0%, var(--warning-light) 100%);
+}
+.tool-card--photo-resizer {
+  --tool-card-accent: #7c6bc4;
+  --tool-card-bg: linear-gradient(135deg, #faf8ff 0%, #f0ecff 100%);
+}
+.tool-card--bg-remover {
+  --tool-card-accent: #1abc9c;
+  --tool-card-bg: linear-gradient(135deg, #f5fcfb 0%, #e8f8f5 100%);
+}
+.tool-card--merge-docs {
+  --tool-card-accent: #e17055;
+  --tool-card-bg: linear-gradient(135deg, #fffaf8 0%, #fff0eb 100%);
+}
+.tool-card--split-pdf {
+  --tool-card-accent: #5c7cba;
+  --tool-card-bg: linear-gradient(135deg, #f8faff 0%, #edf2fc 100%);
+}
+.tool-card--photo-album {
+  --tool-card-accent: #d4845a;
+  --tool-card-bg: linear-gradient(135deg, #fdf8f3 0%, #f5ece3 100%);
+}
+.tool-card--gpa {
+  --tool-card-accent: var(--info);
+  --tool-card-bg: linear-gradient(135deg, #f5f3ff 0%, var(--purple-light) 100%);
+}
+.tool-card--age {
+  --tool-card-accent: #e91e63;
+  --tool-card-bg: linear-gradient(135deg, #fef5f7 0%, #fce4ec 100%);
+}
+
+/* Dark mode — drop the gradients, use plain card surface, keep accent. */
+[data-theme="dark"] .tool-card,
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) .tool-card {
+    --tool-card-bg: var(--card);
+  }
+}
+[data-theme="dark"] .tool-card {
+  --tool-card-bg: var(--card);
+}
+
+/* ---- Tool page layout (shown inside each tool) ---- */
 
 .tool-page {
   max-width: 720px;
-  padding: 2rem 0 3rem;
+  padding: var(--space-4) 0 var(--space-8);
+}
+
+.tool-page h1 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 var(--space-6);
+}
+
+@media (min-width: 641px) {
+  .tool-page {
+    padding: var(--space-8) 0 var(--space-12);
+  }
+  .tool-page h1 {
+    font-size: var(--text-2xl);
+  }
 }
 
 .tool-page .tool-back {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
-  font-size: .95rem;
+  gap: var(--space-2);
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   text-decoration: none;
-  margin-bottom: 1.5rem;
-  padding: .45rem .9rem .45rem .65rem;
+  margin-bottom: var(--space-6);
+  padding: var(--space-2) var(--space-4);
   background: var(--card);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  transition: border-color .2s, color .2s, background .2s, transform .1s;
+  min-height: var(--touch-target);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .tool-page .tool-back:hover {
   color: var(--primary);
   border-color: var(--primary);
-  background: var(--primary-light, rgba(76,175,80,0.06));
+  background: var(--primary-light);
 }
 
 .tool-page .tool-back:active {
-  transform: scale(0.97);
+  transform: scale(.97);
 }
 
-.tool-page h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 0 0 1.5rem;
+.tool-page .tool-back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ---- Form styling for tool pages ---- */
 
 .tool-form .form-field {
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-5);
 }
 
 .tool-form label {
   display: block;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: var(--text-sm);
   color: var(--text);
-  margin-bottom: .35rem;
+  margin-bottom: var(--space-1);
 }
 
 .tool-form .required-mark {
   color: var(--danger);
-  margin-left: .15rem;
+  margin-left: 2px;
 }
 
 .tool-form input[type="text"],
@@ -367,14 +263,30 @@
 .tool-form select,
 .tool-form textarea {
   width: 100%;
-  padding: .55rem .75rem;
-  font-size: .9rem;
-  border: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
+  /* 16px on mobile (base.css global rule enforces this too); 14px on desktop. */
+  font-size: var(--text-base);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--text);
-  transition: border-color .2s;
+  min-height: var(--touch-target);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
   box-sizing: border-box;
+}
+
+@media (min-width: 641px) {
+  .tool-form input[type="text"],
+  .tool-form input[type="email"],
+  .tool-form input[type="tel"],
+  .tool-form input[type="number"],
+  .tool-form input[type="date"],
+  .tool-form input[type="file"],
+  .tool-form select,
+  .tool-form textarea {
+    font-size: var(--text-sm);
+  }
 }
 
 .tool-form input:focus,
@@ -386,41 +298,60 @@
 }
 
 .tool-form .hint {
-  font-size: .78rem;
+  font-size: var(--text-xs);
   color: var(--muted);
-  margin-top: .25rem;
+  margin-top: var(--space-1);
 }
 
 .tool-form .button-submit {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
-  padding: .65rem 1.5rem;
-  font-size: .95rem;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
   border: none;
   border-radius: var(--radius-sm);
+  min-height: var(--touch-target);
   cursor: pointer;
-  transition: background .2s;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .tool-form .button-submit:hover {
   background: var(--primary-hover);
 }
 
-/* ---- File drop zone (for Reduce File Size tool) ---- */
+.tool-form .button-submit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tool-form .button-submit:active {
+  transform: scale(.97);
+}
+
+/* Full-width submit on mobile for thumb-friendly reach */
+@media (max-width: 640px) {
+  .tool-form .button-submit {
+    width: 100%;
+  }
+}
+
+/* ---- File drop zone ---- */
 
 .tool-dropzone {
   border: 2px dashed var(--border);
   border-radius: var(--radius);
-  padding: 2.5rem 1.5rem;
+  padding: var(--space-8) var(--space-5);
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s;
   background: var(--card);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
 }
 
 .tool-dropzone:hover,
@@ -430,13 +361,13 @@
 }
 
 .tool-dropzone-icon {
-  font-size: 2.5rem;
-  margin-bottom: .5rem;
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-2);
 }
 
 .tool-dropzone p {
-  margin: .25rem 0;
-  font-size: .9rem;
+  margin: var(--space-1) 0;
+  font-size: var(--text-sm);
 }
 
 .tool-dropzone .browse-link {
@@ -449,13 +380,13 @@
 /* ---- Result card ---- */
 
 .tool-result {
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) var(--space-5);
   background: var(--primary-light);
   border: 1px solid var(--primary);
   border-radius: var(--radius-sm);
-  margin-top: 1.5rem;
-  font-size: .9rem;
-  line-height: 1.6;
+  margin-top: var(--space-6);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
   color: var(--text);
 }
 
@@ -471,12 +402,11 @@
 }
 
 .tool-section-reveal {
-  animation: tool-slide-in .3s ease-out both;
+  animation: tool-slide-in var(--duration-slow) var(--ease-out) both;
 }
 
 /* ---- Touch & mobile foundations ---- */
 
-/* Prevent 300ms tap delay on all interactive elements */
 .tool-page button,
 .tool-page a,
 .tool-page input,
@@ -484,43 +414,27 @@
 .tool-page label,
 .tool-card {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 
-/* Card active state for touch feedback */
-.tool-card:active {
-  transform: scale(0.97);
-  transition: transform .1s ease;
-}
+/* ---- Reduced motion fallback ---- */
 
-.tool-card--compress:active  { border-color: #8ec5a2; box-shadow: var(--shadow-md); }
-.tool-card--convert:active   { border-color: #7ba4d9; box-shadow: var(--shadow-md); }
-.tool-card--zip:active       { border-color: #ffa000; box-shadow: var(--shadow-md); }
-.tool-card--photo-resizer:active { border-color: #7c6bc4; box-shadow: var(--shadow-md); }
-.tool-card--bg-remover:active    { border-color: #1abc9c; box-shadow: var(--shadow-md); }
-.tool-card--merge-docs:active    { border-color: #e17055; box-shadow: var(--shadow-md); }
-.tool-card--split-pdf:active     { border-color: #5c7cba; box-shadow: var(--shadow-md); }
-.tool-card--photo-album:active   { border-color: #d4845a; box-shadow: var(--shadow-md); }
-.tool-card--gpa:active           { border-color: var(--info); box-shadow: var(--shadow-md); }
-.tool-card--age:active           { border-color: #e91e63; box-shadow: var(--shadow-md); }
-
-/* ---- Responsive ---- */
-
-@media (max-width: 640px) {
-  .tools-grid {
-    grid-template-columns: 1fr;
+@media (prefers-reduced-motion: reduce) {
+  .tool-card,
+  .tool-page .tool-back,
+  .tool-form .button-submit,
+  .tool-form input,
+  .tool-form select,
+  .tool-form textarea,
+  .tool-dropzone {
+    transition: none;
   }
-
-  .tool-page {
-    padding: 1rem 0 2rem;
+  .tool-card:active,
+  .tool-page .tool-back:active,
+  .tool-form .button-submit:active {
+    transform: none;
   }
-
-  /* Ensure minimum 44px touch targets on mobile */
-  .tool-page button {
-    min-height: 44px;
-  }
-
-  .tool-card {
-    padding: 1.25rem;
+  .tool-section-reveal {
+    animation: none;
+    opacity: 1;
   }
 }
