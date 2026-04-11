@@ -72,7 +72,7 @@ def home(request):
     story_items = []
     for story in stories:
         subcategory = subcategory_map.get(story.link_content_ref_content_subcategory_id)
-        age_group = age_group_map.get(story.link_blog_stories_ref_story_age_group_id)  # FK now stores ref_content_subcategory ID
+        age_group = age_group_map.get(story.link_content_ref_content_subcategory_age_group_id)
         story_items.append({
             'story_id': story.blog_stories_coll_story_id,
             'title_bn': story.story_title_bn,
@@ -82,7 +82,7 @@ def home(request):
             'category_id': story.link_content_ref_content_subcategory_id or '',
             'category_name_bn': subcategory.subcategory_name_bn if subcategory else '',
             'category_icon': subcategory.subcategory_icon if subcategory else '',
-            'age_id': story.link_blog_stories_ref_story_age_group_id or '',
+            'age_id': story.link_content_ref_content_subcategory_age_group_id or '',
             'age_group_name_bn': age_group.subcategory_name_bn if age_group else '',
             'reading_time_minutes': story.reading_time_minutes,
             'author_name': author_map.get(story.link_user_profile_id, 'লেখক'),
@@ -124,7 +124,7 @@ def detail(request, story_slug):
         pass
 
     category = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=story.link_content_ref_content_subcategory_id).first()
-    age_group = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=story.link_blog_stories_ref_story_age_group_id).first()
+    age_group = RefContentSubcategory.objects.filter(content_ref_content_subcategory_id=story.link_content_ref_content_subcategory_age_group_id).first()
 
     # Story pages (for paginated reading)
     pages = list(StoryPage.objects.filter(

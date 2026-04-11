@@ -40,7 +40,6 @@ class RefSeason(models.Model):
 class CollDestination(models.Model):
     blog_bangladesh_coll_destination_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_blog_bangladesh_ref_destination_category_id = models.IntegerField()
     link_blog_bangladesh_ref_season_id = models.IntegerField(blank=True, null=True)
     link_division_id = models.IntegerField(blank=True, null=True)
     link_district_id = models.IntegerField(blank=True, null=True)

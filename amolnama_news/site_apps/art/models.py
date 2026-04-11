@@ -13,7 +13,6 @@ class CollArtwork(models.Model):
     blog_art_coll_artwork_id = models.BigAutoField(primary_key=True)
     artwork_guid = models.UUIDField()
     link_user_profile_id = models.BigIntegerField()
-    link_blog_art_ref_art_category_id = models.IntegerField()
     link_blog_art_ref_art_medium_id = models.IntegerField(blank=True, null=True)
     link_blog_art_ref_art_difficulty_id = models.IntegerField(blank=True, null=True)
     artwork_title_bn = models.CharField(max_length=300)

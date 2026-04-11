@@ -35,7 +35,7 @@ def api_story_create(request):
     story_content_html_bn = (request.POST.get('story_content_html_bn') or '').strip()
     story_source_attribution_bn = (request.POST.get('story_source_attribution_bn') or '').strip() or None
     link_content_ref_content_subcategory_id = request.POST.get('link_content_ref_content_subcategory_id')
-    link_blog_stories_ref_story_age_group_id = request.POST.get('link_blog_stories_ref_story_age_group_id')
+    link_content_ref_content_subcategory_age_group_id = request.POST.get('link_content_ref_content_subcategory_age_group_id')
     reading_time_minutes = request.POST.get('reading_time_minutes') or 5
 
     if not story_title_bn:
@@ -44,7 +44,7 @@ def api_story_create(request):
         return JsonResponse({'success': False, 'error': 'গল্প লিখুন'}, status=400)
     if not link_content_ref_content_subcategory_id:
         return JsonResponse({'success': False, 'error': 'বিভাগ নির্বাচন করুন'}, status=400)
-    if not link_blog_stories_ref_story_age_group_id:
+    if not link_content_ref_content_subcategory_age_group_id:
         return JsonResponse({'success': False, 'error': 'বয়সভিত্তিক শ্রেণী নির্বাচন করুন'}, status=400)
 
     try:
@@ -58,7 +58,7 @@ def api_story_create(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             INSERT INTO [blog_stories].[coll_story]
-                ([story_guid], [link_user_profile_id], [link_content_ref_content_subcategory_id], [link_blog_stories_ref_story_age_group_id],
+                ([story_guid], [link_user_profile_id], [link_content_ref_content_subcategory_id], [link_content_ref_content_subcategory_age_group_id],
                  [story_title_bn], [story_title_en], [story_slug], [story_summary_bn],
                  [story_content_html_bn], [story_source_attribution_bn],
                  [story_type_code], [reading_time_minutes], [is_published], [is_active])
@@ -66,7 +66,7 @@ def api_story_create(request):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, %s, %s, %s)
         """, [
             story_guid, user_profile.user_profile_id, link_content_ref_content_subcategory_id,
-            link_blog_stories_ref_story_age_group_id, story_title_bn, story_title_en, story_slug,
+            link_content_ref_content_subcategory_age_group_id, story_title_bn, story_title_en, story_slug,
             story_summary_bn, story_content_html_bn, story_source_attribution_bn,
             'text', reading_time_minutes, 1, 1,
         ])
