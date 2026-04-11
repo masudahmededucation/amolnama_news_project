@@ -697,3 +697,24 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Polish pass (mobile UX) ---- */
+.poem-audio-collapse-button,
+.poem-audio-play-button,
+.poem-audio-video-button,
+.poem-audio-vol-button,
+.poem-detail-action-button,
+.poem-detail-edit-button {
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.poem-audio-collapse-button:focus-visible,
+.poem-audio-play-button:focus-visible,
+.poem-audio-video-button:focus-visible,
+.poem-audio-vol-button:focus-visible,
+.poem-detail-action-button:focus-visible,
+.poem-detail-edit-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

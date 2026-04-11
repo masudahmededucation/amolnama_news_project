@@ -37,12 +37,15 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color .2s, background .2s, color .2s;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
   user-select: none;
   line-height: 1.4;
+  touch-action: manipulation;
 }
 
 .filter-pills-pill:hover {

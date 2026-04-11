@@ -175,5 +175,11 @@ in place to store unified subcategory IDs
 
 
 ###################
+############
+attached file 
+think labeling for mobile friendly
+camera option
+upload photo/attached file
 
-
+remove watermark from picture
+https://www.watermarkremover.io/upload

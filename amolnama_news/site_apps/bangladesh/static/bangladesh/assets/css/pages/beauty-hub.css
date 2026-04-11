@@ -94,3 +94,20 @@ main a, main a:hover, main a:focus { text-decoration: none; }
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Polish pass (mobile UX) ---- */
+.beauty-hub-clear-form-button,
+.beauty-hub-filter-pill,
+.beauty-hub-header-cta,
+.beauty-hub-load-more-button {
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.beauty-hub-clear-form-button:focus-visible,
+.beauty-hub-filter-pill:focus-visible,
+.beauty-hub-header-cta:focus-visible,
+.beauty-hub-load-more-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

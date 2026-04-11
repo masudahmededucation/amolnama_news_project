@@ -91,3 +91,20 @@ main a, main a:hover, main a:focus { text-decoration: none; }
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Polish pass (mobile UX) ---- */
+.travel-hub-clear-form-button,
+.travel-hub-filter-pill,
+.travel-hub-header-cta,
+.travel-hub-load-more-button {
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.travel-hub-clear-form-button:focus-visible,
+.travel-hub-filter-pill:focus-visible,
+.travel-hub-header-cta:focus-visible,
+.travel-hub-load-more-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

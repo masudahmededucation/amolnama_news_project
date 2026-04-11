@@ -241,3 +241,18 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Polish pass (mobile UX) ---- */
+.avatar-cropper-cancel-button,
+.avatar-cropper-save-button,
+.avatar-upload-button {
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.avatar-cropper-cancel-button:focus-visible,
+.avatar-cropper-save-button:focus-visible,
+.avatar-upload-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
