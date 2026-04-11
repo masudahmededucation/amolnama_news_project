@@ -37,14 +37,60 @@ body {
   line-height: 1.6;
   letter-spacing: .2px;
   min-height: 100vh;
+  /* iOS: prevent rubber-band scroll from exposing white space behind body. */
+  overscroll-behavior-y: none;
+}
+
+/* ============================================================
+   PHASE 0 GLOBAL MOBILE SAFETY NET — added 2026-04-11.
+
+   Two rules applied to the entire project via the base stylesheet:
+   1. iOS Safari auto-zooms the viewport when a form input with
+      font-size < 16px receives focus. This is a jarring UX.
+      This rule forces every form element to 16px on mobile,
+      regardless of its per-app class. Uses !important because it's
+      a platform compatibility safety net — the standard pattern
+      used by Bootstrap, Tailwind, Material UI for the same fix.
+   2. Tap highlight color — prevent the ugly default grey flash on
+      iOS when a user taps a link or button. Replace with a subtle
+      primary-colored wash.
+   ============================================================ */
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+* {
+  -webkit-tap-highlight-color: rgba(27, 107, 74, .1);
 }
 
 
-/* Sticky footer layout */
+/* Sticky footer layout with iPhone safe-area support.
+   env(safe-area-inset-*) requires `viewport-fit=cover` in the <meta viewport>
+   tag — set in core/base.html. The max() fallback uses 0 when the env var
+   is not available (non-notched devices, older browsers), so no layout
+   shift for users on iPhone 8 or Android. */
 .page-wrapper {
   min-height: 100vh;
+  min-height: 100dvh;  /* dvh = dynamic viewport height, handles iOS URL bar */
   display: flex;
   flex-direction: column;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Utility classes for sticky headers / bottom bars that need to sit above
+   the notch or home indicator. Apply via class instead of hardcoding
+   padding in every component. */
+.safe-top {
+  padding-top: max(var(--space-2), env(safe-area-inset-top));
+}
+.safe-bottom {
+  padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
 }
 
 main {

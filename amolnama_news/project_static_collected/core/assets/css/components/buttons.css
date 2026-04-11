@@ -1,53 +1,266 @@
-/* Button styles for primary actions and icon buttons */
+/* ============================================================
+   BUTTON SYSTEM — shared across all apps.
+
+   Design principles
+   -----------------
+   - 44px minimum touch target on mobile (iOS HIG).
+   - Focus-visible ring that's accessible without being ugly.
+   - Reduced-motion fallback — no transforms for users who opt out.
+   - Dark mode parity via CSS tokens (no hex).
+   - Variants: primary, secondary, ghost, danger, link.
+   - Sizes: sm, md (default), lg, xl.
+   - States: hover, focus-visible, active, disabled, loading.
+
+   Usage
+   -----
+   <button class="button button-primary">Save</button>
+   <button class="button button-ghost button-sm">Cancel</button>
+   <button class="button button-danger button-lg" disabled>Delete</button>
+   <button class="button button-primary button-loading">Saving…</button>
+
+   Legacy classes (.button, .button.primary, .icon-button) are preserved
+   at the top for existing pages that haven't migrated yet.
+   ============================================================ */
+
+/* ---- Legacy (kept for backwards compat — do not remove) ---- */
 
 .button {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
+  gap: var(--space-2);
   border-radius: var(--radius-sm);
-  padding: .6rem 1rem;
+  padding: var(--space-2) var(--space-4);
   border: 1px solid var(--border);
   background: var(--card);
+  color: var(--text);
   font-weight: 600;
+  font-size: var(--text-sm);
+  font-family: inherit;
   box-shadow: var(--shadow);
   cursor: pointer;
-  transition: all .2s;
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+  min-height: var(--touch-target);
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .button:hover {
   box-shadow: var(--shadow-md);
 }
 
-.button.primary {
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.button:active {
+  box-shadow: var(--shadow-xs);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Legacy `.button.primary` — keep, redirect styling to new primary variant */
+.button.primary,
+.button-primary {
   background: var(--primary);
   color: #fff;
   border-color: transparent;
 }
-
-.button.primary:hover {
+.button.primary:hover,
+.button-primary:hover {
   background: var(--primary-hover);
   box-shadow: var(--shadow-md);
 }
 
-/* Icon button (header controls) */
+/* ---- New variants (additive) ---- */
+
+.button-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.button-secondary:hover {
+  background: var(--card);
+  border-color: var(--primary);
+}
+
+.button-ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: transparent;
+  box-shadow: none;
+}
+.button-ghost:hover {
+  background: var(--surface);
+  box-shadow: none;
+}
+.button-ghost:active {
+  box-shadow: none;
+}
+
+.button-danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: transparent;
+}
+.button-danger:hover {
+  background: var(--danger-text);
+}
+
+.button-link {
+  background: transparent;
+  color: var(--accent);
+  border-color: transparent;
+  padding: var(--space-1) var(--space-2);
+  box-shadow: none;
+  min-height: auto;
+}
+.button-link:hover {
+  text-decoration: underline;
+  box-shadow: none;
+}
+
+/* ---- Sizes ---- */
+
+.button-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  min-height: 36px;
+}
+
+.button-md {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  min-height: var(--touch-target);
+}
+
+.button-lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  min-height: 52px;
+}
+
+.button-xl {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+  min-height: 60px;
+  border-radius: var(--radius);
+}
+
+/* Full-width modifier — stretches to parent container width */
+.button-block {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---- Icon button ---- */
+
 .icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--card);
+  color: var(--text);
   box-shadow: var(--shadow);
   cursor: pointer;
-  transition: all .2s;
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+  padding: 0;
 }
 
 .icon-button:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
+.icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.icon-button:disabled,
+.icon-button[aria-disabled="true"] {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Icon button ghost — transparent, for toolbars */
+.icon-button-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.icon-button-ghost:hover {
+  background: var(--surface);
+  box-shadow: none;
+}
+
+/* Icon button sm — for compact toolbars */
+.icon-button-sm {
+  width: 36px;
+  height: 36px;
+}
+
+/* ---- Loading state ---- */
+
+.button-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.button-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: button-spinner var(--duration-slow) linear infinite;
+  color: var(--text);
+}
+.button-loading.button-primary::after,
+.button-loading.button-danger::after {
+  color: #fff;
+}
+
+@keyframes button-spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Reduced motion fallback ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .icon-button {
+    transition: none;
+  }
+  .button-loading::after {
+    animation: none;
+    opacity: .6;
+  }
+}
+
+/* ---- Mobile touch area override (legacy class — keep) ---- */
+
 @media (max-width: 640px) {
-  .button-icon { width: 44px; height: 44px; }
+  .button-icon {
+    width: var(--touch-target);
+    height: var(--touch-target);
+  }
 }

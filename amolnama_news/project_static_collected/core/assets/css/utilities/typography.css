@@ -1,4 +1,21 @@
-/* Typography helper classes for muted text and section kickers */
+/* ============================================================
+   TYPOGRAPHY UTILITIES — shared type scale used across all apps.
+
+   Tokens (font-size, line-height) live in colors.css.
+   This file exposes ready-to-use classes that apply them.
+
+   Design notes
+   ------------
+   - Bengali matras (ে, ি, ু, ো, etc.) need extra vertical space or they
+     collide with adjacent letters. Default <body> line-height is
+     var(--leading-relaxed) = 1.625 to give matras breathing room.
+   - Headings use tighter line-height (var(--leading-tight) = 1.25)
+     because display type has less ambiguity.
+   - Font sizes use rem so they scale with user browser zoom preference.
+   - Text utilities have descriptive names (no short aliases) per Gate 5.
+   ============================================================ */
+
+/* ---- Legacy helper classes — kept for backwards compatibility ---- */
 
 .muted {
   color: var(--muted);
@@ -9,5 +26,150 @@
   font-weight: 700;
   letter-spacing: .3px;
   text-transform: uppercase;
-  font-size: .75rem;
+  font-size: var(--text-xs);
+}
+
+/* ---- Font-size utility classes ---- */
+
+.text-xs    { font-size: var(--text-xs); }     /* 12px */
+.text-sm    { font-size: var(--text-sm); }     /* 14px */
+.text-base  { font-size: var(--text-base); }   /* 16px — default body */
+.text-lg    { font-size: var(--text-lg); }     /* 18px */
+.text-xl    { font-size: var(--text-xl); }     /* 20px */
+.text-2xl   { font-size: var(--text-2xl); }    /* 24px */
+.text-3xl   { font-size: var(--text-3xl); }    /* 30px */
+.text-4xl   { font-size: var(--text-4xl); }    /* 36px */
+.text-5xl   { font-size: var(--text-5xl); }    /* 48px — display */
+
+/* ---- Line-height utilities ---- */
+
+.leading-tight   { line-height: var(--leading-tight); }
+.leading-snug    { line-height: var(--leading-snug); }
+.leading-normal  { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+.leading-loose   { line-height: var(--leading-loose); }
+
+/* ---- Font weight utilities ---- */
+
+.font-normal    { font-weight: 400; }
+.font-medium    { font-weight: 500; }
+.font-semibold  { font-weight: 600; }
+.font-bold      { font-weight: 700; }
+.font-extrabold { font-weight: 800; }
+
+/* ---- Heading semantic classes — consistent size + weight + leading ---- */
+
+.heading-1 {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  line-height: var(--leading-tight);
+  letter-spacing: -.02em;
+}
+.heading-2 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: -.01em;
+}
+.heading-3 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: var(--leading-snug);
+}
+.heading-4 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+}
+.heading-5 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+}
+.heading-6 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: var(--leading-normal);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* Headings shrink on mobile so they don't dominate a 320px viewport. */
+@media (max-width: 640px) {
+  .heading-1 { font-size: var(--text-3xl); }
+  .heading-2 { font-size: var(--text-2xl); }
+  .heading-3 { font-size: var(--text-xl); }
+}
+
+/* ---- Prose (long-form article body) ---- */
+
+.prose {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--text);
+  max-width: 65ch;       /* Optimal reading width per typography research. */
+}
+.prose > * + * {
+  margin-top: var(--space-4);
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+}
+.prose p {
+  line-height: var(--leading-relaxed);
+}
+.prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* ---- Text alignment utilities ---- */
+
+.text-left    { text-align: left; }
+.text-center  { text-align: center; }
+.text-right   { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* ---- Text color utilities (use tokens) ---- */
+
+.text-primary { color: var(--primary); }
+.text-accent  { color: var(--accent); }
+.text-danger  { color: var(--danger); }
+.text-muted   { color: var(--muted); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+
+/* ---- Text overflow / truncation ---- */
+
+.text-truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.text-clamp-2,
+.text-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.text-clamp-2 { -webkit-line-clamp: 2; }
+.text-clamp-3 { -webkit-line-clamp: 3; }
+
+/* ---- Bengali-specific adjustments ---- */
+
+/* Bengali body text gets extra breathing room for matras. */
+[lang="bn"],
+[lang="bn"] p,
+[lang="bn"] li {
+  line-height: var(--leading-relaxed);
+}
+
+/* Bengali headings also need a touch more leading than Latin. */
+[lang="bn"] h1,
+[lang="bn"] h2,
+[lang="bn"] h3 {
+  line-height: var(--leading-snug);
 }

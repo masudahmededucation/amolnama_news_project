@@ -1,1 +1,264 @@
-/* Moved to user_account/static/user_account/assets/css/components/forms.css */
+/* ============================================================
+   FORM SYSTEM — shared across all apps.
+
+   Design principles
+   -----------------
+   - 16px font-size on mobile (prevents iOS Safari auto-zoom on focus).
+   - 44px minimum height on all inputs (iOS HIG touch target).
+   - Focus-visible ring that's accessible.
+   - Error state with visible icon + message.
+   - Dark mode parity via CSS tokens (no hex).
+   - Bengali input gets extra vertical padding for matras.
+   - Mobile-first: default styles work at 320px, desktop adds refinement.
+
+   Legacy utility classes (.form-input, .form-label, .form-group etc.)
+   live in utilities/forms.css — those are kept for backwards compat.
+   This file exposes the new, polished `.field-*` system.
+
+   Usage
+   -----
+   <div class="field">
+     <label class="field-label" for="email">Email</label>
+     <input class="field-input" type="email" id="email" name="email" required>
+     <p class="field-help">We'll never share your address.</p>
+   </div>
+
+   Error state:
+   <div class="field field-error">
+     <label class="field-label" for="email">Email</label>
+     <input class="field-input" type="email" id="email" name="email" aria-invalid="true">
+     <p class="field-error-message">Please enter a valid email address.</p>
+   </div>
+   ============================================================ */
+
+/* ---- Field container ---- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+/* Field row — horizontal fields side by side, stacks on mobile */
+.field-row {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.field-row > .field {
+  flex: 1;
+  margin-bottom: 0;
+}
+@media (max-width: 640px) {
+  .field-row {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+/* ---- Label ---- */
+
+.field-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.field-label-required::after {
+  content: "*";
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.field-label-optional::after {
+  content: "(optional)";
+  color: var(--muted);
+  font-weight: 400;
+  font-size: var(--text-xs);
+  margin-left: var(--space-1);
+}
+
+/* ---- Input base ---- */
+
+.field-input,
+.field-select,
+.field-textarea {
+  /* 16px font-size — critical for iOS Safari zoom prevention on focus. */
+  font-size: var(--text-base);
+  font-family: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  width: 100%;
+  min-height: var(--touch-target);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+  appearance: none;
+  -webkit-appearance: none;
+  /* Prevent mobile browsers from styling inputs themselves. */
+  box-shadow: none;
+}
+
+.field-input:hover,
+.field-select:hover,
+.field-textarea:hover {
+  border-color: var(--muted);
+}
+
+.field-input:focus,
+.field-input:focus-visible,
+.field-select:focus,
+.field-select:focus-visible,
+.field-textarea:focus,
+.field-textarea:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(27, 107, 74, .15);
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--muted);
+  opacity: .75;
+}
+
+.field-input:disabled,
+.field-select:disabled,
+.field-textarea:disabled {
+  background: var(--surface);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+/* Readonly keeps the look but disables editing */
+.field-input:read-only,
+.field-textarea:read-only {
+  background: var(--surface);
+  cursor: default;
+}
+
+/* ---- Textarea ---- */
+
+.field-textarea {
+  resize: vertical;
+  min-height: calc(var(--touch-target) * 2);
+  line-height: var(--leading-relaxed);  /* Matras need breathing room */
+}
+
+/* ---- Select — custom chevron that respects dark mode via currentColor ---- */
+
+.field-select {
+  padding-right: var(--space-10);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  background-size: 18px;
+  cursor: pointer;
+}
+
+/* ---- Error state ---- */
+
+.field-error .field-input,
+.field-error .field-select,
+.field-error .field-textarea,
+.field-input[aria-invalid="true"],
+.field-select[aria-invalid="true"],
+.field-textarea[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field-error .field-input:focus,
+.field-input[aria-invalid="true"]:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(197, 48, 48, .15);
+}
+
+.field-error-message {
+  font-size: var(--text-xs);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.field-error-message::before {
+  content: "⚠";
+  font-size: var(--text-sm);
+}
+
+/* ---- Help text ---- */
+
+.field-help {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ---- Checkbox + radio — bigger, touch-friendly ---- */
+
+.field-checkbox,
+.field-radio {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  font-size: var(--text-base);
+}
+
+.field-checkbox input[type="checkbox"],
+.field-radio input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ---- Fieldset legend ---- */
+
+.field-legend {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--space-3);
+  padding: 0;
+}
+
+/* ---- Form actions row ---- */
+
+.field-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .field-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .field-actions > .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- Reduced motion fallback ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .field-input,
+  .field-select,
+  .field-textarea {
+    transition: none;
+  }
+}
