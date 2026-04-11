@@ -82,3 +82,16 @@
   .content-dashboard-item { flex-direction: column; align-items: flex-start; gap: .4rem; }
   .content-dashboard-item-right { align-self: flex-end; }
 }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

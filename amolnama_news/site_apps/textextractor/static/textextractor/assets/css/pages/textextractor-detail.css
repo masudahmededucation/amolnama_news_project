@@ -54,3 +54,16 @@
   .textextractor-detail-title { font-size: 1rem; }
   .textextractor-detail-text-content { font-size: .88rem; padding: .6rem; }
 }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

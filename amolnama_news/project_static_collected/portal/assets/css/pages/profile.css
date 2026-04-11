@@ -347,3 +347,16 @@
 .muted-words-list { display: flex; flex-wrap: wrap; gap: .3rem; }
 .muted-words-tag { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .5rem; background: var(--surface); border-radius: 14px; font-size: .75rem; }
 .muted-words-tag-remove-button { background: none; border: none; font-size: .8rem; cursor: pointer; color: var(--danger); padding: 0; }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

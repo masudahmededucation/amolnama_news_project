@@ -24,3 +24,16 @@
 .moderation-item-view { border-color: var(--border); color: var(--muted); background: transparent; text-decoration: none; display: inline-flex; align-items: center; }
 
 .moderation-empty { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

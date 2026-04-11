@@ -96,3 +96,16 @@
   .content-promo-card-cta { padding: .2rem .5rem; font-size: .68rem; }
   .content-promo-card-image-wrapper { width: 90px; }
 }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

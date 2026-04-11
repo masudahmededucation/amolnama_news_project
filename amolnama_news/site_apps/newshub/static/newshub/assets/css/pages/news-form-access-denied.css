@@ -51,3 +51,16 @@
   .news-form-access-denied-title { font-size: 1.2rem; }
   .news-form-access-denied-icon { font-size: 3rem; }
 }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

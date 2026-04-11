@@ -13,3 +13,16 @@
 /* - voting-selection.css: Breadcrumbs & selection lists */
 /* - voting-progress.css: Progress bars & party results */
 /* - voting-form.css: Forms, buttons & messages */
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

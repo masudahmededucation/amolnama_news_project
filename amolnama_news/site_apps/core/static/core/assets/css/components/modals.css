@@ -120,3 +120,16 @@
   .modal-footer { padding: .6rem .8rem; }
   .modal-close-button { min-width: 44px; min-height: 44px; }
 }
+
+
+/* ---- Reduced motion fallback (mobile UX phase) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
