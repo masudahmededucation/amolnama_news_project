@@ -22,25 +22,44 @@ from django.utils import timezone
 
 
 # =========================================================
-# Content type metadata — single source of truth for badge / color / CTA mapping
-# used by promo cards, bookmarks list, feed cards, search results, etc.
-# Add a new content type here once — every consumer picks it up automatically.
+# Content type metadata — thin adapter over content_type_registry.
+# Kept for backwards compatibility with existing callers; the single
+# source of truth lives in content/content_type_registry.py.
 # =========================================================
-CONTENT_TYPE_METADATA = {
-    'news':        {'badge': 'NEWS',   'color': 'rose',   'cta': 'পড়ুন'},
-    'poem':        {'badge': 'POEM',   'color': 'purple', 'cta': 'পড়ুন'},
-    'story':       {'badge': 'STORY',  'color': 'amber',  'cta': 'পড়ুন'},
-    'art':         {'badge': 'ART',    'color': 'blue',   'cta': 'দেখুন'},
-    'destination': {'badge': 'TRAVEL', 'color': 'green',  'cta': 'ঘুরে আসুন'},
-    'debate':      {'badge': 'DEBATE', 'color': 'amber',  'cta': 'দেখুন'},
-}
-
-_CONTENT_TYPE_DEFAULT = {'badge': 'CONTENT', 'color': 'blue', 'cta': 'দেখুন'}
+# 'news' is not in the registry (PubArticle has a split schema that
+# doesn't fit the shared shape yet) — keep it here so newshub consumers
+# still resolve badge/color/cta through this module.
+_NEWS_PRESENTATION = {'badge': 'NEWS', 'color': 'rose', 'cta': 'পড়ুন'}
 
 
 def get_content_type_metadata(content_type_code):
-    """Return {'badge', 'color', 'cta'} for a content_type_code. Falls back to a generic default."""
-    return CONTENT_TYPE_METADATA.get(content_type_code, _CONTENT_TYPE_DEFAULT)
+    """Return {'badge', 'color', 'cta'} for a content_type_code.
+
+    Reads from content_type_registry for all registered blog types. Falls
+    back to the _NEWS_PRESENTATION override for 'news' (not in registry),
+    and to a generic default for anything else.
+    """
+    if content_type_code == 'news':
+        return _NEWS_PRESENTATION
+    from amolnama_news.site_apps.content.content_type_registry import get_spec
+    spec = get_spec(content_type_code)
+    if spec:
+        return {'badge': spec['badge'], 'color': spec['color'], 'cta': spec['cta']}
+    return {'badge': 'CONTENT', 'color': 'blue', 'cta': 'দেখুন'}
+
+
+# Backwards-compat alias — some views import CONTENT_TYPE_METADATA as a dict
+# and iterate over it. Build it lazily on first access so the registry stays
+# the canonical source.
+def _build_content_type_metadata_dict():
+    from amolnama_news.site_apps.content.content_type_registry import CONTENT_TYPE_REGISTRY
+    data = {'news': _NEWS_PRESENTATION}
+    for code, spec in CONTENT_TYPE_REGISTRY.items():
+        data[code] = {'badge': spec['badge'], 'color': spec['color'], 'cta': spec['cta']}
+    return data
+
+
+CONTENT_TYPE_METADATA = _build_content_type_metadata_dict()
 
 
 # =========================================================

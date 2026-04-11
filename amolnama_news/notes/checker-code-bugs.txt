@@ -168,8 +168,9 @@ don't touch other things.
 start implementing.
 
 --create or update documentation
-architecture, features, functions, and troubleshooting.
-folders.
+architecture, E2E data entry, features, functions, and troubleshooting.
+update claude.md rules if appropriate
+folders, 
 \notes\claude\app_documentation
 \notes\claude\memory-training\
 

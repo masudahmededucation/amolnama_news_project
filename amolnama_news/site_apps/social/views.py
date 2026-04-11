@@ -205,32 +205,32 @@ def public_profile_articles(request, username_handle):
         # Map ContentRegistry to per-app source rows for cover-URL resolution.
         # The cover_urls helper takes (content_type_code, source_table_id) tuples,
         # but ContentRegistry stores its own ID — we need to fetch the per-app
-        # source table primary key by URL slug.
-        from amolnama_news.site_apps.poem.models import CollPoemEntry
-        from amolnama_news.site_apps.art.models import CollArtwork
-        from amolnama_news.site_apps.stories.models import CollStory
-        from amolnama_news.site_apps.bangladesh.models import CollDestination
+        # source table primary key by URL slug. Resolved via the unified
+        # content type registry — zero if/elif per type, zero duplicate imports.
+        from amolnama_news.site_apps.content.content_type_registry import (
+            get_spec, get_model_class,
+        )
 
-        # Group source PKs by content_type for bulk cover lookup
         registry_to_source_id = {}
         for item in registry_items:
             type_code = category_code_by_id.get(item.link_content_ref_content_category_id, '')
             slug = item.content_slug or ''
-            source_id = None
-            if type_code == 'art' and slug:
-                row = CollArtwork.objects.filter(artwork_slug=slug).only('blog_art_coll_artwork_id').first()
-                source_id = row.blog_art_coll_artwork_id if row else None
-            elif type_code == 'story' and slug:
-                row = CollStory.objects.filter(story_slug=slug).only('blog_stories_coll_story_id').first()
-                source_id = row.blog_stories_coll_story_id if row else None
-            elif type_code == 'destination' and slug:
-                row = CollDestination.objects.filter(destination_slug=slug).only('blog_bangladesh_coll_destination_id').first()
-                source_id = row.blog_bangladesh_coll_destination_id if row else None
-            elif type_code == 'poem' and slug:
-                row = CollPoemEntry.objects.filter(poem_slug=slug).only('blog_poem_coll_poem_entry_id').first()
-                source_id = row.blog_poem_coll_poem_entry_id if row else None
-            if source_id:
-                registry_to_source_id[item.content_registry_id] = (type_code, source_id)
+            if not type_code or not slug:
+                continue
+            spec = get_spec(type_code)
+            if not spec or not spec.get('slug_field') or not spec.get('pk_field'):
+                continue
+            model_class = get_model_class(type_code)
+            if model_class is None:
+                continue
+            row = (model_class.objects
+                   .filter(**{spec['slug_field']: slug})
+                   .only(spec['pk_field'])
+                   .first())
+            if row is not None:
+                source_id = getattr(row, spec['pk_field'], None)
+                if source_id:
+                    registry_to_source_id[item.content_registry_id] = (type_code, source_id)
 
         # Bulk-fetch covers for all source rows in one call per content type
         cover_url_lookup = get_cover_urls_for_content_refs(list(registry_to_source_id.values()))

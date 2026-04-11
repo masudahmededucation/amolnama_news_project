@@ -400,98 +400,59 @@ def _format_created_at(created_at_value):
 
 
 def _collect_content_dashboard_items():
-    """Collect content items from all content apps — single source of truth."""
-    from amolnama_news.site_apps.newshub.models import PubArticle
-    from amolnama_news.site_apps.poem.models import CollPoemEntry
-    from amolnama_news.site_apps.stories.models import CollStory
-    from amolnama_news.site_apps.art.models import CollArtwork
-    from amolnama_news.site_apps.bangladesh.models import CollDestination
+    """Collect content items from all content apps — single source of truth.
 
-    content_sources = [
-        {
-            'content_type': 'newshub',
-            'content_type_label': 'NEWS',
-            'content_type_color': 'rose',
-            'queryset': PubArticle.objects.all().order_by('-created_at')[:50],
-            'id_attribute': 'pub_article_id',
-            'title_attribute': 'pub_article_headline_bn',
-            'slug_attribute': 'pub_article_slug',
-            'url_prefix': '/newshub/article/',
-            'published_attribute': 'is_published',
-        },
-        {
-            'content_type': 'poem',
-            'content_type_label': 'POEM',
-            'content_type_color': 'purple',
-            'queryset': CollPoemEntry.objects.all().order_by('-created_at')[:50],
-            'id_attribute': 'blog_poem_coll_poem_entry_id',
-            'title_attribute': 'poem_title_bn',
-            'slug_attribute': 'poem_slug',
-            'url_prefix': '/bangla-kobita-gaan/',
-            'status_code_attribute': 'poem_status_code',
-        },
-        {
-            'content_type': 'stories',
-            'content_type_label': 'STORY',
-            'content_type_color': 'amber',
-            'queryset': CollStory.objects.all().order_by('-created_at')[:50],
-            'id_attribute': 'blog_stories_coll_story_id',
-            'title_attribute': 'story_title_bn',
-            'slug_attribute': 'story_slug',
-            'url_prefix': '/stories-for-kids/',
-            'published_attribute': 'is_published',
-        },
-        {
-            'content_type': 'art',
-            'content_type_label': 'ART',
-            'content_type_color': 'blue',
-            'queryset': CollArtwork.objects.all().order_by('-created_at')[:50],
-            'id_attribute': 'blog_art_coll_artwork_id',
-            'title_attribute': 'artwork_title_bn',
-            'slug_attribute': 'artwork_slug',
-            'url_prefix': '/art-and-craft/',
-            'published_attribute': 'is_published',
-        },
-        {
-            'content_type': 'travel',
-            'content_type_label': 'TRAVEL',
-            'content_type_color': 'green',
-            'queryset': CollDestination.objects.all().order_by('-created_at')[:50],
-            'id_attribute': 'blog_bangladesh_coll_destination_id',
-            'title_attribute': 'destination_name_bn',
-            'title_fallback_attribute': 'destination_name_en',
-            'slug_attribute': 'destination_slug',
-            'url_prefix': '/bangladesh-tourist-destinations/travel/',
-            'status_code_attribute': 'destination_status',
-        },
-    ]
+    The blog content types are driven by content_type_registry, so adding a
+    new blog type = ONE entry in the registry, zero edits here. newshub is
+    handled separately because PubArticle has a split schema that doesn't
+    fit the shared shape.
+    """
+    from amolnama_news.site_apps.content.content_type_registry import (
+        iter_all_specs, get_model_class, get_title, get_slug,
+        get_detail_url, get_is_published, get_pk,
+    )
 
     content_items = []
-    for source in content_sources:
-        for instance in source['queryset']:
-            slug_value = getattr(instance, source['slug_attribute'], '') or ''
-            title_value = getattr(instance, source['title_attribute'], '') or ''
-            if not title_value and source.get('title_fallback_attribute'):
-                title_value = getattr(instance, source['title_fallback_attribute'], '') or ''
 
-            if 'published_attribute' in source:
-                is_published_flag = bool(getattr(instance, source['published_attribute'], False))
-            else:
-                is_published_flag = getattr(instance, source['status_code_attribute'], '') == 'published'
-
+    # --- Registry-driven blog content types (art/story/poem/destination/media/debate) ---
+    for code, spec in iter_all_specs():
+        model_class = get_model_class(code)
+        if model_class is None:
+            continue
+        queryset = model_class.objects.all().order_by('-created_at')[:50]
+        for instance in queryset:
             created_at_value = getattr(instance, 'created_at', None)
             content_items.append({
-                'content_type': source['content_type'],
-                'content_type_label': source['content_type_label'],
-                'content_type_color': source['content_type_color'],
-                'content_id': getattr(instance, source['id_attribute']),
-                'content_title': title_value or '(no title)',
-                'content_slug': slug_value,
-                'content_url': f"{source['url_prefix']}{slug_value}/" if slug_value else '',
-                'is_published': is_published_flag,
-                'created_at': created_at_value,
+                'content_type':         code,
+                'content_type_label':   spec['badge'],
+                'content_type_color':   spec['color'],
+                'content_id':           get_pk(instance),
+                'content_title':        get_title(instance) or '(no title)',
+                'content_slug':         get_slug(instance),
+                'content_url':          get_detail_url(instance),
+                'is_published':         get_is_published(instance),
+                'created_at':           created_at_value,
                 'created_at_formatted': _format_created_at(created_at_value),
             })
+
+    # --- newshub (not in registry — PubArticle has a different shape) ---
+    from amolnama_news.site_apps.newshub.models import PubArticle
+    for article in PubArticle.objects.all().order_by('-created_at')[:50]:
+        slug_value = getattr(article, 'pub_article_slug', '') or ''
+        title_value = getattr(article, 'pub_article_headline_bn', '') or ''
+        created_at_value = getattr(article, 'created_at', None)
+        content_items.append({
+            'content_type':         'newshub',
+            'content_type_label':   'NEWS',
+            'content_type_color':   'rose',
+            'content_id':           getattr(article, 'pub_article_id', None),
+            'content_title':        title_value or '(no title)',
+            'content_slug':         slug_value,
+            'content_url':          f'/newshub/article/{slug_value}/' if slug_value else '',
+            'is_published':         bool(getattr(article, 'is_published', False)),
+            'created_at':           created_at_value,
+            'created_at_formatted': _format_created_at(created_at_value),
+        })
 
     content_items.sort(key=lambda entry: entry.get('created_at') or timezone.now(), reverse=True)
     return content_items
