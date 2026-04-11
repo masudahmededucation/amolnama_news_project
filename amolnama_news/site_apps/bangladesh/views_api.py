@@ -18,7 +18,7 @@ from amolnama_news.site_apps.core.utils import bangla_slugify
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from .models import (
-    CollDestination, RefSeason,
+    CollDestination,
     CollMediaEntry,
     DestinationPhoto, DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationReview, EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
@@ -71,7 +71,7 @@ def api_destination_list(request):
     if category:
         queryset = queryset.filter(link_content_ref_content_subcategory_id=int(category))
     if season:
-        queryset = queryset.filter(link_blog_bangladesh_ref_season_id=int(season))
+        queryset = queryset.filter(link_content_ref_content_subcategory_season_id=int(season))
     if search_query:
         queryset = queryset.filter(
             Q(destination_name_bn__icontains=search_query)
@@ -143,7 +143,7 @@ def api_destination_create(request):
     dest = CollDestination.objects.create(
         link_user_profile_id=profile_id,
         link_content_ref_content_subcategory_id=category_id,
-        link_blog_bangladesh_ref_season_id=data.get("link_blog_bangladesh_ref_season_id") or None,
+        link_content_ref_content_subcategory_season_id=data.get("link_content_ref_content_subcategory_season_id") or None,
         link_division_id=data.get("link_division_id") or None,
         link_district_id=data.get("link_district_id") or None,
         link_upazila_id=data.get("link_upazila_id") or None,
@@ -248,7 +248,7 @@ def api_destination_update(request, destination_id):
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
     dest.link_content_ref_content_subcategory_id = category_id
-    dest.link_blog_bangladesh_ref_season_id = data.get("link_blog_bangladesh_ref_season_id") or None
+    dest.link_content_ref_content_subcategory_season_id = data.get("link_content_ref_content_subcategory_season_id") or None
     dest.destination_name_bn = name_bn or name_en
     dest.destination_name_en = name_en or name_bn
     dest.destination_description_bn = _sanitize_html((data.get("destination_description_bn") or "").strip()) or None
@@ -290,7 +290,7 @@ def api_media_list(request):
     if media_type in ("photo", "video"):
         queryset = queryset.filter(media_type=media_type)
     if season:
-        queryset = queryset.filter(link_season_id=int(season))
+        queryset = queryset.filter(link_content_ref_content_subcategory_season_id=int(season))
     if search_query:
         queryset = queryset.filter(
             Q(media_title_bn__icontains=search_query)
@@ -372,7 +372,7 @@ def api_media_upload(request):
     entry = CollMediaEntry.objects.create(
         link_user_profile_id=profile_id,
         link_content_ref_content_subcategory_id=int(category_id),
-        link_season_id=int(request.POST.get("link_season_id")) if request.POST.get("link_season_id") else None,
+        link_content_ref_content_subcategory_season_id=int(request.POST.get("link_content_ref_content_subcategory_season_id")) if request.POST.get("link_content_ref_content_subcategory_season_id") else None,
         media_title_bn=(request.POST.get("media_title_bn") or "").strip() or None,
         media_title_en=(request.POST.get("media_title_en") or "").strip() or None,
         media_description_bn=_sanitize_html((request.POST.get("media_description_bn") or "").strip()) or None,

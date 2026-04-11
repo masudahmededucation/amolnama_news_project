@@ -80,7 +80,7 @@
     formData.append("media_title_bn", (document.getElementById("beauty-hub-title-bn").value || "").trim());
     formData.append("media_description_bn", (document.getElementById("beauty-hub-description-bn").value || "").trim());
     formData.append("location_name_bn", (document.getElementById("beauty-hub-location-bn").value || "").trim());
-    formData.append("link_season_id", document.getElementById("beauty-hub-season").value);
+    formData.append("link_content_ref_content_subcategory_season_id", document.getElementById("beauty-hub-season").value);
     formData.append("exif_camera_model", (document.getElementById("beauty-hub-camera").value || "").trim());
     formData.append("time_of_day", document.getElementById("beauty-hub-time-of-day").value);
     formData.append("event_date_from", document.getElementById("beauty-hub-event-date-from").value);

@@ -9,28 +9,8 @@ from django.utils import timezone
 # ============================================================================
 
 # RefDestinationCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_bangladesh_destination_category'
-
-
-class RefSeason(models.Model):
-    blog_bangladesh_ref_season_id = models.IntegerField(primary_key=True)
-    season_code = models.CharField(max_length=50)
-    season_name_en = models.CharField(max_length=100)
-    season_name_bn = models.CharField(max_length=100)
-    season_months = models.CharField(max_length=200, blank=True, null=True)
-    sort_order = models.IntegerField(blank=True, null=True)
-    is_active = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = "[blog_bangladesh].[ref_season]"
-
-    def __str__(self):
-        return self.season_name_en
-
-
 # RefMediaCategory removed — replaced by [content].[ref_content_subcategory] group_code='blog_bangladesh_media_category'
+# RefSeason removed — replaced by [content].[ref_content_subcategory] group_code='blog_bangladesh_season' (months kept in subcategory_metadata_json)
 
 
 # ============================================================================
@@ -40,7 +20,7 @@ class RefSeason(models.Model):
 class CollDestination(models.Model):
     blog_bangladesh_coll_destination_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_blog_bangladesh_ref_season_id = models.IntegerField(blank=True, null=True)
+    link_content_ref_content_subcategory_season_id = models.IntegerField(blank=True, null=True)
     link_division_id = models.IntegerField(blank=True, null=True)
     link_district_id = models.IntegerField(blank=True, null=True)
     link_upazila_id = models.IntegerField(blank=True, null=True)
@@ -292,8 +272,7 @@ class DestinationReferenceLink(models.Model):
 class CollMediaEntry(models.Model):
     blog_bangladesh_coll_media_entry_id = models.BigAutoField(primary_key=True)
     link_user_profile_id = models.BigIntegerField()
-    link_blog_bangladesh_ref_media_category_id = models.IntegerField()
-    link_blog_bangladesh_ref_season_id = models.IntegerField(blank=True, null=True)
+    link_content_ref_content_subcategory_season_id = models.IntegerField(blank=True, null=True)
     link_division_id = models.IntegerField(blank=True, null=True)
     link_district_id = models.IntegerField(blank=True, null=True)
 

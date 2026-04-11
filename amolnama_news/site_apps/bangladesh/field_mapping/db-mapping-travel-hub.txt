@@ -54,8 +54,9 @@ Existing:
   CollTravelTip             → [bangladesh].[coll_travel_tip]
   EngDestinationReview      → [bangladesh].[eng_destination_review]
   EngDestinationBookmark    → [bangladesh].[eng_destination_bookmark]
-  RefDestinationCategory    → [bangladesh].[ref_destination_category]
-  RefSeason                 → [bangladesh].[ref_season]
+  RefDestinationCategory    → [content].[ref_content_subcategory] group_code='blog_bangladesh_destination_category'
+  RefSeason                 → [content].[ref_content_subcategory] group_code='blog_bangladesh_season'
+  RefMediaCategory          → [content].[ref_content_subcategory] group_code='blog_bangladesh_media_category'
 
 New (added 2026-03-24):
   CollDestinationYoutubeLink    → [bangladesh].[coll_destination_youtube_link]

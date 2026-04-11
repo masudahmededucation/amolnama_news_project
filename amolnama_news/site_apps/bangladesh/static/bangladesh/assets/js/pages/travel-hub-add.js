@@ -75,7 +75,7 @@
       destination_name_en: document.getElementById("travel-hub-name-en").value.trim(),
       destination_short_description_bn: document.getElementById("travel-hub-short-description-bn").value.trim(),
       destination_description_bn: document.getElementById("travel-hub-description-bn").value.trim(),
-      link_best_season_id: parseInt(document.getElementById("travel-hub-season").value) || null,
+      link_content_ref_content_subcategory_season_id: parseInt(document.getElementById("travel-hub-season").value) || null,
       difficulty_level: document.getElementById("travel-hub-difficulty").value || null,
       entry_fee_bdt: parseFloat(document.getElementById("travel-hub-entry-fee").value) || null,
       visiting_hours_bn: document.getElementById("travel-hub-visiting-hours").value.trim() || null,

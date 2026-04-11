@@ -18,7 +18,6 @@ from .models import (
     TransportRoute, TravelTip, EngagementDestinationReview,
     DestinationYoutubeLink, DestinationReferenceLink,
     EngagementDestinationPhotoLike, EngagementDestinationVideoLike,
-    RefSeason,
     CollMediaEntry,
 )
 from amolnama_news.site_apps.content.models import RefContentSubcategory
@@ -65,7 +64,7 @@ def travel_hub(request):
         .order_by("sort_order")
     )
     seasons = list(
-        RefSeason.objects.filter(is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_season', is_active=True).order_by("sort_order")
     )
 
     destinations = list(
@@ -134,7 +133,7 @@ def travel_hub_add(request):
         .order_by("sort_order")
     )
     seasons = list(
-        RefSeason.objects.filter(is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_season', is_active=True).order_by("sort_order")
     )
 
     context = {
@@ -164,7 +163,7 @@ def travel_hub_add(request):
                 "name_en": dest.destination_name_en or "",
                 "short_desc_bn": dest.destination_short_description_bn or "",
                 "desc_bn": dest.destination_description_bn or "",
-                "season_id": dest.link_blog_bangladesh_ref_season_id,
+                "season_id": dest.link_content_ref_content_subcategory_season_id,
                 "difficulty": dest.difficulty_level or "",
                 "entry_fee": float(dest.entry_fee_bdt) if dest.entry_fee_bdt else "",
                 "visiting_hours": dest.visiting_hours_bn or "",
@@ -251,12 +250,15 @@ def travel_hub_detail_by_slug(request, destination_slug):
         dest.category_icon = ""
 
     # Season
-    if dest.link_blog_bangladesh_ref_season_id:
+    if dest.link_content_ref_content_subcategory_season_id:
         try:
-            season = RefSeason.objects.get(blog_bangladesh_ref_season_id=dest.link_blog_bangladesh_ref_season_id)
-            dest.best_season_bn = season.season_name_bn
-            dest.best_season_en = season.season_name_en
-        except RefSeason.DoesNotExist:
+            season = RefContentSubcategory.objects.get(
+                content_ref_content_subcategory_id=dest.link_content_ref_content_subcategory_season_id,
+                group_code='blog_bangladesh_season',
+            )
+            dest.best_season_bn = season.subcategory_name_bn
+            dest.best_season_en = season.subcategory_name_en
+        except RefContentSubcategory.DoesNotExist:
             dest.best_season_bn = ""
             dest.best_season_en = ""
     else:
@@ -513,7 +515,7 @@ def beauty_hub(request):
         .order_by("sort_order", "subcategory_name_en")
     )
     seasons = list(
-        RefSeason.objects.filter(is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_season', is_active=True).order_by("sort_order")
     )
 
     entries = list(
@@ -556,7 +558,7 @@ def beauty_hub_upload(request):
         .order_by("sort_order", "subcategory_name_en")
     )
     seasons = list(
-        RefSeason.objects.filter(is_active=True).order_by("sort_order")
+        RefContentSubcategory.objects.filter(group_code='blog_bangladesh_season', is_active=True).order_by("sort_order")
     )
     return render(request, "bangladesh/pages/beauty-hub-upload.html", {
         "categories": categories,
