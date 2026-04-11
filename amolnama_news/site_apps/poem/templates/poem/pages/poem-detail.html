@@ -133,7 +133,7 @@
   {# ── Backstory (collapsible) ── #}
   {% if poem.poem_backstory_bn or poem.poem_backstory_en %}
   <div class="poem-detail-section">
-    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="backstory">
+    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="backstory" id="poem-detail-section-toggle" name="poem_detail_section_toggle" >
       রচনার গল্প (Story Behind the Writing)
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -144,7 +144,7 @@
   {# ── Interpretation (collapsible) ── #}
   {% if poem.poem_interpretation_bn or poem.poem_interpretation_en %}
   <div class="poem-detail-section">
-    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="interpretation">
+    <button type="button" class="poem-detail-section-toggle" aria-expanded="false" data-toggle="interpretation" id="poem-detail-section-toggle-2" name="poem_detail_section_toggle_2" >
       কবির ভাবনা (Poet's Interpretation)
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>

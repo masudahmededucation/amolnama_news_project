@@ -47,9 +47,9 @@
 
 {# ── Category Filter ── #}
 <div class="filter-pills-group" id="travel-hub-filter-pills" name="travel_hub_filter_pills">
-  <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="">সব ধরন (All)</button>
+  <button type="button" class="filter-pills-pill filter-pills-pill-active" data-category="" id="filter-pills-pill" name="filter_pills_pill" >সব ধরন (All)</button>
   {% for cat in categories %}
-    <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
+    <button type="button" class="filter-pills-pill" data-category="{{ cat.content_ref_content_subcategory_id }}" id="filter-pills-pill-2" name="filter_pills_pill_2" >
       {{ cat.subcategory_icon }} {{ cat.subcategory_name_bn }}
     </button>
   {% endfor %}

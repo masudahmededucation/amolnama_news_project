@@ -167,7 +167,7 @@
       {% if '.mp4' in media_url or '.webm' in media_url or '.mov' in media_url %}
       <div class="post-card-media-item post-card-media-item-single post-card-media-item-video-wrapper" id="post-card-media-video-wrapper-{{ post_item.post_post_id }}-{{ forloop.counter }}" name="post_card_media_video_wrapper_{{ post_item.post_post_id }}_{{ forloop.counter }}">
         <video src="{{ media_url }}#t=1" class="post-card-media-video-full" controls muted playsinline preload="none"></video>
-        <button type="button" class="post-card-media-video-unmute-button" aria-label="Unmute">🔇</button>
+        <button type="button" class="post-card-media-video-unmute-button" aria-label="Unmute" id="post-card-media-video-unmute-button" name="post_card_media_video_unmute_button" >🔇</button>
       </div>
       {% elif post_item.media_urls|length == 1 %}
       <div class="post-card-media-item post-card-media-item-single" data-photo-url="{{ media_url }}">

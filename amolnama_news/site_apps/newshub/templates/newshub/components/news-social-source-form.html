@@ -16,12 +16,12 @@
     <div class="social-source-row" data-row-index="">
       <div class="social-source-row-header">
         <span class="social-source-row-number"></span>
-        <button type="button" class="button-repeater-delete button-remove-social-source" title="ডিলিট করুন (Delete)">ডিলিট <span class="button-delete-x">&times;</span></button>
+        <button type="button" class="button-repeater-delete button-remove-social-source" title="ডিলিট করুন (Delete)" id="button-repeater-delete" name="button_repeater_delete" >ডিলিট <span class="button-delete-x">&times;</span></button>
       </div>
 
       <div class="form-field">
         <span class="form-label">প্ল্যাটফর্ম (Platform)</span>
-        <select class="social-row-platform" name="social-source-platform">
+        <select class="social-row-platform" name="social-source-platform" id="social-row-platform" >
           <option value="">-- প্ল্যাটফর্ম নির্বাচন করুন --</option>
           {% for pt in platform_types %}
             {% if pt.sort_order == 3 or pt.sort_order == 7 %}
@@ -37,13 +37,13 @@
 
       <div class="form-field">
         <span class="form-label">সোশ্যাল লিঙ্ক (Social URL)</span>
-        <input type="url" class="social-row-url" name="social-source-url" placeholder="https://facebook.com/...">
+        <input type="url" class="social-row-url" name="social-source-url" placeholder="https://facebook.com/..." id="social-row-url" >
         <div class="social-url-mismatch" hidden></div>
       </div>
 
       <div class="form-field">
         <span class="form-label">এম্বেড কোড (Embed Code)</span>
-        <textarea class="social-row-embed" name="social-source-embed" rows="2" placeholder="<iframe>...</iframe>"></textarea>
+        <textarea class="social-row-embed" name="social-source-embed" rows="2" placeholder="<iframe id="social-row-embed" >...</iframe>"></textarea>
       </div>
     </div>
   </template>

@@ -39,16 +39,16 @@
       <span class="placeholder-item-category">{{ placeholder.placeholder_category_code }}</span>
       <div class="placeholder-item-actions">
         <label class="placeholder-toggle-switch" title="ফিচার ৩০ মিনিট">
-          <input type="checkbox" class="placeholder-toggle-input" data-action="feature" {% if placeholder.is_featured %}checked{% endif %}>
+          <input type="checkbox" class="placeholder-toggle-input" data-action="feature" {% if placeholder.is_featured %}checked{% endif %} id="placeholder-toggle-input" name="placeholder_toggle_input" >
           <span class="placeholder-toggle-slider"></span>
           <span class="placeholder-toggle-label">ফিচার</span>
         </label>
         <label class="placeholder-toggle-switch" title="সক্রিয়/নিষ্ক্রিয়">
-          <input type="checkbox" class="placeholder-toggle-input" data-action="toggle" {% if placeholder.is_active %}checked{% endif %}>
+          <input type="checkbox" class="placeholder-toggle-input" data-action="toggle" {% if placeholder.is_active %}checked{% endif %} id="placeholder-toggle-input-2" name="placeholder_toggle_input_2" >
           <span class="placeholder-toggle-slider"></span>
           <span class="placeholder-toggle-label">সক্রিয়</span>
         </label>
-        <button type="button" class="placeholder-delete-button" data-action="delete" title="মুছুন">🗑 মুছুন</button>
+        <button type="button" class="placeholder-delete-button" data-action="delete" title="মুছুন" id="placeholder-delete-button" name="placeholder_delete_button" >🗑 মুছুন</button>
       </div>
     </div>
     {% empty %}

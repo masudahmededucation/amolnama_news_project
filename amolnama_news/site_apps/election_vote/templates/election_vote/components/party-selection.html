@@ -1,6 +1,6 @@
 <!-- Party Selection (Step 4) -->
 <div id="party-view" name="party_view" hidden>
-  <button class="back-button" onclick="navigateBackToConstituencies()">← Back / পিছনে</button>
+  <button class="back-button" onclick="navigateBackToConstituencies()" id="back-button" name="back_button" >← Back / পিছনে</button>
   {% if not user.is_authenticated %}
     <div class="page-message page-message--warning">
       ভোট দিতে অনুগ্রহ করে <a href="/account/login/">লগইন</a> করুন। (Please <a href="/account/login/">log in</a> to cast your vote.)

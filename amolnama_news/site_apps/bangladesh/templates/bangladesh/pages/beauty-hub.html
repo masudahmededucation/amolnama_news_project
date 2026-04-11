@@ -47,11 +47,11 @@
 {# ── Filter Bar ── #}
 <div class="beauty-hub-filter-bar">
   <div class="beauty-hub-filter-pills" id="beauty-hub-filter-pills" name="beauty_hub_filter_pills">
-    <button type="button" class="beauty-hub-filter-pill bh-filter-pill--active" data-category="">সব</button>
-    <button type="button" class="beauty-hub-filter-pill" data-type="photo">📷 ছবি</button>
-    <button type="button" class="beauty-hub-filter-pill" data-type="video">🎬 ভিডিও</button>
+    <button type="button" class="beauty-hub-filter-pill bh-filter-pill--active" data-category="" id="beauty-hub-filter-pill" name="beauty_hub_filter_pill" >সব</button>
+    <button type="button" class="beauty-hub-filter-pill" data-type="photo" id="beauty-hub-filter-pill-2" name="beauty_hub_filter_pill_2" >📷 ছবি</button>
+    <button type="button" class="beauty-hub-filter-pill" data-type="video" id="beauty-hub-filter-pill-3" name="beauty_hub_filter_pill_3" >🎬 ভিডিও</button>
     {% for cat in categories %}
-      <button type="button" class="beauty-hub-filter-pill" data-category="{{ cat.content_ref_content_subcategory_id }}">
+      <button type="button" class="beauty-hub-filter-pill" data-category="{{ cat.content_ref_content_subcategory_id }}" id="beauty-hub-filter-pill-4" name="beauty_hub_filter_pill_4" >
         {{ cat.subcategory_name_bn }}
       </button>
     {% endfor %}

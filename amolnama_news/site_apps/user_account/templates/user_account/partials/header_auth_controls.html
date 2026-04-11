@@ -20,7 +20,7 @@
   </div>
   {% if user.is_authenticated %}
     <div class="header-user-menu">
-      <button class="button header-user-menu-toggle" aria-expanded="false" aria-haspopup="true">
+      <button class="button header-user-menu-toggle" aria-expanded="false" aria-haspopup="true" id="button" name="button" >
         {{ user_display_name }}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 4l4 4 4-4"/></svg>
       </button>
@@ -28,7 +28,7 @@
         <a href="{% url 'portal:profile' %}" class="header-user-menu-dropdown-item">Profile</a>
         <form method="post" action="{% url 'user_account:logout' %}" onsubmit="try{localStorage.removeItem('newshub_draft');localStorage.removeItem('newshub_draft_tags')}catch(e){}">
           {% csrf_token %}
-          <button type="submit" class="header-user-menu-dropdown-item header-user-menu-logout-button">Logout</button>
+          <button type="submit" class="header-user-menu-dropdown-item header-user-menu-logout-button" id="header-user-menu-dropdown-item" name="header_user_menu_dropdown_item" >Logout</button>
         </form>
       </div>
     </div>

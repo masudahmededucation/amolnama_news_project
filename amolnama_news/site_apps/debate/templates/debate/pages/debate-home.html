@@ -25,9 +25,9 @@
   </div>
 
   <div class="filter-pills-group" id="debate-home-filter-pills" name="debate_home_filter_pills">
-    <button type="button" class="filter-pills-pill filter-pills-pill-active" data-debate-type="">সব ধরন (All)</button>
+    <button type="button" class="filter-pills-pill filter-pills-pill-active" data-debate-type="" id="filter-pills-pill" name="filter_pills_pill" >সব ধরন (All)</button>
     {% for sub in debate_subcategories %}
-    <button type="button" class="filter-pills-pill" data-debate-type="{{ sub.subcategory_code }}">{{ sub.subcategory_icon }} {{ sub.subcategory_name_bn }} ({{ sub.subcategory_name_en }})</button>
+    <button type="button" class="filter-pills-pill" data-debate-type="{{ sub.subcategory_code }}" id="filter-pills-pill-2" name="filter_pills_pill_2" >{{ sub.subcategory_icon }} {{ sub.subcategory_name_bn }} ({{ sub.subcategory_name_en }})</button>
     {% endfor %}
   </div>
 
