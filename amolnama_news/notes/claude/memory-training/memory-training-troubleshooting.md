@@ -332,4 +332,111 @@ This is NOT hydration mismatch (React/Vue concept). This is purely CSS loading t
 See notes/spa-fouc-prevention-rules.txt for full rules.
 NEVER use requestAnimationFrame alone to reveal SPA content.
 NEVER show content before CSS is loaded.
+
+
+## 20. SQL Server Computed Columns — Never Declare as Django Model Fields
+
+### Symptom
+INSERT or UPDATE into a blog collection table raises:
+
+    Msg 271: The column "..." cannot be modified because it is either a
+    computed column or is the result of a UNION operator.
+
+Happens on coll_poem_entry, coll_destination, coll_media_entry after
+their is_published columns were added as PERSISTED computed columns in
+Phase 3 (2026-04-11).
+
+### Root Cause
+Django's ORM includes every declared field in the column list of an
+INSERT or UPDATE, even with `editable=False`. SQL Server rejects any
+write to a computed column. Even though Phase 3's is_published columns
+compute themselves from poem_status_code / destination_status / media_status,
+Django will still try to pass a value if is_published is declared as a
+`models.BooleanField`.
+
+The docs for `editable` say it affects forms, not ORM SQL generation.
+Many developers assume `editable=False` makes a field read-only at the
+DB layer. It does not.
+
+### Fix — use @property, not a model field
+In the Django model, DELETE is_published from the field list and add a
+Python `@property` that reads the base status column:
+
+```python
+class CollPoemEntry(models.Model):
+    ...
+    poem_status_code = models.CharField(max_length=100)
+    # NO is_published = models.BooleanField(...) here
+    ...
+
+    @property
+    def is_published(self):
+        return self.poem_status_code == 'published'
+```
+
+Now:
+- DB side: PERSISTED computed column returns 0/1 automatically on every
+  UPDATE to poem_status_code. One source of truth.
+- Python side: `row.is_published` returns the same boolean, computed in
+  Python from the in-memory status_code value.
+- Django ORM: never sees is_published as a field, never tries to write it.
+- Shared code (content_type_registry helpers) calls get_is_published(row)
+  and gets the same answer via the property.
+
+### Where it happens in this project
+All THREE of these tables have a PERSISTED computed is_published column
+driven by their respective status code:
+- [blog_poem].[coll_poem_entry].is_published           <- poem_status_code
+- [blog_bangladesh].[coll_destination].is_published    <- destination_status
+- [blog_bangladesh].[coll_media_entry].is_published    <- media_status
+
+Corresponding models all expose is_published as a @property, NOT a field.
+Never add is_published as a field on any of these models.
+
+### Lesson
+Whenever a DB column is computed/persisted/generated, the Django model
+must read it via a property. Rule applies to ANY computed column, not
+just is_published. See CLAUDE.md Gate 7 (DB rules, unmanaged models).
+
+
+## 21. ref_content_subcategory has TWO Computed Columns — Don't Name Them in INSERT
+
+### Symptom
+INSERT into [content].[ref_content_subcategory] fails with:
+
+    Msg 271: The column "link_subcategory_id" cannot be modified because
+    it is either a computed column or is the result of a UNION operator.
+
+### Root Cause
+The table has these two PERSISTED computed columns:
+
+    link_subcategory_id      = concat('link_content_ref_content_subcategory_', group_code, '_id')
+    link_subcategory_code    = lower(concat('link_content_ref_content_subcategory_', group_code, '_', subcategory_code, '_id'))
+
+They are self-documenting FK name strings, auto-generated from group_code
+and subcategory_code. Any INSERT that names them fails.
+
+Also: content_ref_content_subcategory_id is IDENTITY, is_active DEFAULTs
+to 1, created_at DEFAULTs to sysdatetime(). None of these should be
+named in INSERT either.
+
+### Fix
+List exactly these columns in INSERT, and only these:
+
+    link_content_ref_content_category_id,
+    group_code,
+    subcategory_code,
+    subcategory_name_en,
+    subcategory_name_bn,
+    subcategory_icon,
+    sort_order,
+    subcategory_metadata_json
+
+NEVER use `SELECT *` or `INSERT INTO ref_content_subcategory` without
+an explicit column list. The Phase 2 bangladesh-season-migration.sql
+shows the correct pattern.
+
+### Lesson
+Every INSERT into ref_content_subcategory must enumerate columns.
+This applies to all SQL scripts touching this table.
 ALWAYS have a timeout fallback.

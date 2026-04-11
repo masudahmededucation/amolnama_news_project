@@ -1,0 +1,296 @@
+================================================================================
+SESSION 2026-04-11 — Unified Blog Migration (Phases 2, 3, 3b)
+================================================================================
+
+Goal
+----
+Bring every blog collection table (art, stories, poem, destination, media,
+debate) onto a consistent, gold-standard structure so shared code can treat
+them uniformly through one registry instead of per-type if/elif ladders.
+Safe migration throughout — each phase in its own transaction, idempotent,
+no data rewrites except minimal backfills.
+
+Approach: Option X (additive) — no column renames on existing live data,
+no API contract changes. Every phase verifiable independently.
+
+Branch: newshub-multiform
+Commits: 23a7d0d (Phase 2), 701ccc2 (Phase 3), 569110d (Phase 3b)
+
+================================================================================
+PHASE 2 — season migration + media category seed
+================================================================================
+
+SQL script: notes/sql-script/bangladesh-season-migration.sql
+
+Changes
+-------
+1. Seeded 10 media categories under group_code='blog_bangladesh_media_category'
+   (landscape, rivers_waterways, hills_mountains, architecture, people_culture,
+    festival, food, wildlife, urban_city, rural_village).
+
+2. Seeded 6 Bangladeshi seasons under group_code='blog_bangladesh_season':
+   grishmo (Summer),  borsha (Monsoon), shorot (Autumn),
+   hemonto (Late Autumn), sheet (Winter), boshonto (Spring).
+   Season months stored in subcategory_metadata_json as
+   {"months":"April - May"} etc. — no data loss from the old ref_season table.
+
+3. Dropped 2 FK constraints on the old season columns:
+     FK_bangladesh_coll_destination_best_season
+     FK_bangladesh_coll_media_entry_season
+
+4. Backfilled coll_destination.link_blog_bangladesh_ref_season_id via
+   JOIN on season_code (1 row updated to id 105 = sheet/Winter). No data
+   on coll_media_entry (empty table).
+
+5. Renamed columns to unified naming:
+     coll_destination.link_blog_bangladesh_ref_season_id
+       -> link_content_ref_content_subcategory_season_id
+     coll_media_entry.link_blog_bangladesh_ref_season_id
+       -> link_content_ref_content_subcategory_season_id
+
+6. Dropped the old per-app [blog_bangladesh].[ref_season] table.
+
+Python changes
+--------------
+- bangladesh/models.py: removed RefSeason model entirely, renamed the
+  season field on CollDestination + CollMediaEntry to
+  link_content_ref_content_subcategory_season_id.
+- bangladesh/views.py: removed RefSeason import, switched all 4 season
+  queries to RefContentSubcategory.filter(group_code='blog_bangladesh_season').
+  Detail view's season lookup rewritten to read subcategory_name_bn/en
+  from the unified table.
+- bangladesh/views_api.py: updated 4 call sites (filter, create, update,
+  beauty hub media create) to use the new field name.
+- Templates: travel-hub-add.html + beauty-hub-upload.html <option> tags
+  now read content_ref_content_subcategory_id + subcategory_name_*.
+- JS: travel-hub-add.js + beauty-hub-upload.js renamed POST field keys.
+
+Bonus bugs surfaced and fixed in the same commit
+------------------------------------------------
+While grepping for the old field names, discovered 3 silent bugs where
+JS was sending one key and the API expected another — meaning every
+destination create/update and every beauty hub media create was being
+silently rejected at the category-required check:
+
+  - JS sent link_destination_category_id, API expected link_content_ref_content_subcategory_id
+  - JS sent link_best_season_id, API expected link_blog_bangladesh_ref_season_id
+  - JS sent link_season_id, views_api create had a typo
+
+All fixed in the Phase 2 commit. CollDestination edit pre-fill also had
+the old per-app FK name — fixed to read from the new unified column.
+
+================================================================================
+PHASE 3 — blog structural alignment (Option X, additive)
+================================================================================
+
+SQL script: notes/sql-script/phase3-blog-structural-alignment.sql
+
+Goal: make every blog collection table share the same universal fields
+(is_published, is_active, is_featured, bookmark/like/view/comment counts,
+summary_bn/en) so shared code doesn't need to know which fields exist where.
+
+stories/coll_story was the gold standard — already had everything.
+
+Changes per table
+-----------------
+art/coll_artwork:
+  + artwork_summary_bn NVARCHAR(500) NULL
+  + artwork_summary_en NVARCHAR(500) NULL
+(Already had all counters + flags.)
+
+poem/coll_poem_entry:
+  + is_active         BIT NOT NULL DEFAULT 1
+  + is_featured       BIT NOT NULL DEFAULT 0
+  + bookmark_count    INT NOT NULL DEFAULT 0
+  + comment_count     INT NOT NULL DEFAULT 0
+  + poem_summary_bn   NVARCHAR(500) NULL
+  + poem_summary_en   NVARCHAR(500) NULL
+  + is_published      AS (CASE WHEN poem_status_code = N'published'
+                              THEN 1 ELSE 0 END) PERSISTED
+
+bangladesh/coll_destination:
+  + is_active         BIT NOT NULL DEFAULT 1
+  + comment_count     INT NOT NULL DEFAULT 0
+  + is_published      AS (CASE WHEN destination_status = N'published'
+                              THEN 1 ELSE 0 END) PERSISTED
+
+bangladesh/coll_media_entry:
+  + is_active         BIT NOT NULL DEFAULT 1
+  + is_featured       BIT NOT NULL DEFAULT 0
+  + bookmark_count    INT NOT NULL DEFAULT 0
+  + media_slug        NVARCHAR(400) NULL
+  + is_published      AS (CASE WHEN media_status = N'published'
+                              THEN 1 ELSE 0 END) PERSISTED
+
+debate/coll_topic:
+  + bookmark_count    INT NOT NULL DEFAULT 0
+  + like_count        INT NOT NULL DEFAULT 0
+  + view_count        INT NOT NULL DEFAULT 0
+  + comment_count     INT NOT NULL DEFAULT 0
+
+Why PERSISTED computed is_published
+------------------------------------
+Stories + art store is_published as a real boolean column. Poem, destination,
+media use string status codes (poem_status_code, destination_status,
+media_status). Adding a parallel is_published BIT column would create two
+sources of truth that drift. A PERSISTED computed column stays canonically
+in sync automatically — SQL Server recomputes on UPDATE, no triggers needed.
+
+Python side: Django models cannot declare a computed column as a field
+(ORM would include it in INSERT/UPDATE, SQL Server rejects). Instead,
+poem/destination/media models.py exposes is_published as a Python @property
+that reads status_code. Shared code calls row.is_published uniformly,
+writes never touch it. Same answer from both sides.
+
+Why no is_published on debate
+------------------------------
+Debate has a richer lifecycle — scheduled / live / paused / closed /
+archived / winner_decided — than a boolean can represent. The existing
+link_blog_debate_ref_topic_status_id FK models this correctly. Debate
+still gets the 4 universal counters so cross-content features (bookmark,
+like, view, comment) work.
+
+================================================================================
+PHASE 3B — content_type_registry (single source of truth)
+================================================================================
+
+SQL script: notes/sql-script/phase3b-content-type-extended-properties.sql
+(SQL is DB-side cross-reference only — the main work is in Python.)
+
+New file: content/content_type_registry.py
+
+Registry dict CONTENT_TYPE_REGISTRY holds, per content_type_code, every
+field name needed by shared code:
+  code, label_bn, badge, color, cta,
+  model_module, model_name, table_schema, table_name, pk_field,
+  title_bn_field, title_en_field, slug_field,
+  summary_bn_field, summary_en_field,
+  is_published_field, is_active_field, is_featured_field, status_code_field,
+  bookmark_count_field, like_count_field, view_count_field, comment_count_field,
+  detail_url_prefix, category_group_code, secondary_group_code
+
+6 content types registered: art, story, poem, destination, media, debate.
+newshub is deliberately NOT registered — PubArticle has a split schema
+(PubArticle <-> CollNewsEntry) that doesn't fit the shared shape.
+
+Helper API (import from content.content_type_registry)
+------------------------------------------------------
+  get_spec(code), iter_all_specs(), get_model_class(code)
+  get_code_for_instance(row)
+  get_title(row), get_summary(row), get_slug(row), get_pk(row)
+  get_detail_url(row)      — slug-based, falls back to /prefix/<pk>/
+  get_is_published(row)    — reads real column OR @property uniformly
+  get_counts(row)          — {bookmark, like, view, comment}
+  get_presentation(code)   — {badge, color, cta, label_bn}
+
+Consumers refactored
+--------------------
+- content/bookmarks.py: CONTENT_TYPE_METADATA now a thin adapter that
+  delegates to the registry. Backwards compatible. Gained 'media' entry
+  for free (was missing from the old hand-maintained dict).
+
+- portal/views.py:_collect_content_dashboard_items: 80-line
+  content_sources list collapsed to a 15-line loop over iter_all_specs().
+  Template needs no edits — output shape unchanged.
+
+- social/views.py:public_profile_articles: art/story/destination/poem
+  if/elif slug-lookup chain replaced with a generic spec-driven lookup
+  (get_spec → get_model_class → filter by spec['slug_field']).
+
+Not migrated yet (deferred per newsengine rule — separate session):
+  - newsengine/related_content.py:_ENRICHMENT_MAP
+  - newsengine/recommendations.py
+  - search/views_api.py (genuinely different per-type search logic)
+
+Database cross-reference — extended properties
+-----------------------------------------------
+The SQL script is auto-generated from the Python registry and stamps
+'registry_role' extended properties on every registered column. After
+running it, SSMS tooltips show the role when hovering a column, and
+this query returns the full registry in tabular form:
+
+    SELECT OBJECT_SCHEMA_NAME(ep.major_id) AS schema_name,
+           OBJECT_NAME(ep.major_id)        AS table_name,
+           c.name                           AS column_name,
+           CAST(ep.value AS NVARCHAR(500)) AS registry_role
+    FROM sys.extended_properties ep
+    JOIN sys.columns c
+         ON c.object_id = ep.major_id AND c.column_id = ep.minor_id
+    WHERE ep.name = N'registry_role'
+    ORDER BY schema_name, table_name, column_name;
+
+Idempotent — DROP + ADD per column — so after any edit to the Python
+registry, re-run the script and the DB cross-reference updates in place.
+
+================================================================================
+VERIFICATION (all phases)
+================================================================================
+
+- python manage.py check -> 0 issues at every phase commit
+- 6 blog landings render 200 with correct filter pill counts
+- Registry round-trip on every content type:
+    art         title/slug/pk/URL/counts/is_published    all correct
+    story       title/slug/pk/URL/counts/is_published    all correct
+    poem        title/slug/pk/URL/counts/is_published    all correct (via @property)
+    destination title/slug/pk/URL/counts/is_published    all correct (via @property)
+    media       title/slug/pk/URL/counts/is_published    (empty table, fields load)
+    debate      title/pk/URL=prefix+pk/counts            slug=None handled
+- Raw INSERT into [blog_stories].[coll_story] with renamed column OK
+- Portal dashboard collector returns 14 items across 6 content types
+- Social profile articles page renders 317 promo cards
+- /portal/content/ and /social/@user/articles/ both 200
+
+================================================================================
+ARTIFACTS
+================================================================================
+
+SQL scripts (all archived for audit trail):
+  notes/sql-script/bangladesh-media-category-cleanup.sql      (pre-Phase 2)
+  notes/sql-script/bangladesh-season-migration.sql            (Phase 2)
+  notes/sql-script/phase3-blog-structural-alignment.sql       (Phase 3)
+  notes/sql-script/phase3b-content-type-extended-properties.sql (Phase 3b)
+
+Python changes:
+  site_apps/content/content_type_registry.py                  (NEW)
+  site_apps/content/bookmarks.py                              (refactored)
+  site_apps/portal/views.py                                   (refactored)
+  site_apps/social/views.py                                   (refactored)
+  site_apps/art/models.py                                     (+2 fields)
+  site_apps/poem/models.py                                    (+6 fields + @property)
+  site_apps/bangladesh/models.py                              (+fields + @property)
+  site_apps/debate/models.py                                  (+4 counters)
+
+Docs updated:
+  notes/claude/app_documentation/app-content-registry.txt
+  notes/claude/app_documentation/app-bangladesh.txt
+  notes/claude/app_documentation/app-poem.txt
+  notes/claude/app_documentation/app-debate.txt
+  (this session doc)
+
+================================================================================
+LESSONS LEARNED (write to CLAUDE.md troubleshooting if recurring)
+================================================================================
+
+1. SQL Server computed columns: never declare them as Django model fields.
+   Django ORM includes them in INSERT/UPDATE; SQL Server rejects. Use a
+   Python @property that reads the base column, and keep the DB PERSISTED
+   computed as the canonical answer.
+
+2. ref_content_subcategory has TWO computed columns (link_subcategory_id,
+   link_subcategory_code) that INSERT statements must NOT name. Always list
+   columns explicitly — never use SELECT *.
+
+3. Silent field-name typos across JS <-> API: grep-verify both sides of
+   every POST key rename. Three JS/API mismatches (destination category,
+   best season, season) were silently killing create flows until Phase 2
+   surfaced them.
+
+4. Additive migrations (Option X) are the professional default: no
+   renames on existing columns, all new columns NULL or DEFAULTed,
+   everything wrapped in a single SQL transaction with TRY/CATCH +
+   XACT_ABORT ON. Idempotent guards (IF EXISTS / COL_LENGTH) make
+   scripts re-runnable after partial success.
+
+5. Extended properties are a gold-standard way to document DB-side roles
+   without having to manually keep docs in sync. Generate them from the
+   Python source of truth, not the other way around.

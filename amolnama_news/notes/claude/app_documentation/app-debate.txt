@@ -19,21 +19,47 @@ Blue (Pro) vs Red (Against) with crossing-over rebuttals.
 - Reply Drawer: centered bottom panel (max-width 600px) with crossing-over color
 - Mobile: stacked boards (no forced 3 columns)
 
-## Models (11 tables, all managed=False)
+## Models (11 tables, all managed=False, schema [blog_debate])
 
-| Model                  | DB Table                                  | Purpose                    |
-|------------------------|-------------------------------------------|----------------------------|
-| RefTeamSide            | [debate].[ref_team_side]                 | Blue (Pro) vs Red (Against) |
-| RefTopicStatus         | [debate].[ref_topic_status]              | draft/scheduled/live/paused/closed/archived |
-| RefPostKind            | [debate].[ref_post_kind]                 | argument vs rebuttal       |
-| RefModerationStatus    | [debate].[ref_moderation_status]         | pending/approved/rejected/hidden/flagged |
-| RefVoteTargetType      | [debate].[ref_vote_target_type]          | topic or post              |
-| CollTopic              | [debate].[coll_topic]                    | Debate event + rules + passion board stats |
-| CollTopicParticipant   | [debate].[coll_topic_participant]         | User joins topic on one side |
-| CollPost               | [debate].[coll_post]                     | Argument or rebuttal with routing |
-| FactPostModeration     | [debate].[fact_post_moderation]           | Moderation audit trail     |
-| CollVote               | [debate].[coll_vote]                     | One vote per user per target |
-| CollPostEditHistory    | [debate].[coll_post_edit_history]         | Edit audit trail           |
+| Model                  | DB Table                                        | Purpose                    |
+|------------------------|-------------------------------------------------|----------------------------|
+| RefTeamSide            | [blog_debate].[ref_team_side]                   | Blue (Pro) vs Red (Against) |
+| RefTopicStatus         | [blog_debate].[ref_topic_status]                | draft/scheduled/live/paused/closed/archived |
+| RefPostKind            | [blog_debate].[ref_post_kind]                   | argument vs rebuttal       |
+| RefModerationStatus    | [blog_debate].[ref_moderation_status]           | pending/approved/rejected/hidden/flagged |
+| RefVoteTargetType      | [blog_debate].[ref_vote_target_type]            | topic or post              |
+| CollTopic              | [blog_debate].[coll_topic]                      | Debate event + rules + passion board stats |
+| CollTopicParticipant   | [blog_debate].[coll_topic_participant]          | User joins topic on one side |
+| CollPost               | [blog_debate].[coll_post]                       | Argument or rebuttal with routing |
+| FactDebatePostModeration| [blog_debate].[fact_debate_post_moderation]    | Moderation audit trail     |
+| Vote                   | [blog_debate].[vote]                            | One vote per user per target |
+| FactDebatePostEditHistory| [blog_debate].[fact_debate_post_edit_history] | Edit audit trail           |
+
+## Phase 3 additions to CollTopic (2026-04-11)
+
+Added 4 universal counters so debate participates in cross-content features
+(bookmarks, likes, views, comments) via the content_type_registry:
+
+  bookmark_count  INT NOT NULL DEFAULT 0
+  like_count      INT NOT NULL DEFAULT 0
+  view_count      INT NOT NULL DEFAULT 0
+  comment_count   INT NOT NULL DEFAULT 0
+
+NOT added:
+  - is_published       — debate lifecycle is richer than a boolean
+                         (scheduled / live / closed / archived). The
+                         existing link_blog_debate_ref_topic_status_id FK
+                         models this correctly.
+  - slug_field         — debates use topic_guid for URLs
+  - is_featured        — not used for debate
+  - title_bn / title_en — single topic_title column stays (mono-language)
+  - summary fields     — topic_description already serves this role
+
+Debate still participates in the content_type_registry as type 'debate'
+with slug_field=None, is_published_field=None, is_featured_field=None.
+get_detail_url(row) falls back to /debate/topic/<pk>/ when slug is None.
+get_is_published(row) returns False for debate (registry marks it None,
+helper treats None as False).
 
 ## URL Patterns (14)
 

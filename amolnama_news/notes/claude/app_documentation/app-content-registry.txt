@@ -1,11 +1,25 @@
 ================================================================================
-APP: CONTENT — Master Content Registry
+APP: CONTENT — Master Content Registry + Blog Content Type Registry
 ================================================================================
 
 Schema: [content]
 Django App: site_apps/content/
-Role: Universal content index for ALL content (posts + blog). Single source of truth
-      for content identity, categories, subcategories.
+Role: Universal content index for ALL content (posts + blog). Single source of
+      truth for content identity, categories, subcategories, AND the runtime
+      metadata registry that lets shared code treat every blog content type
+      uniformly (title, slug, summary, URL, counts, is_published).
+
+This doc covers TWO separate concerns that live in this app:
+
+  1. [content].[content_registry] DB table  — universal content ID for every
+     piece of content (post + blog). Row-level.
+
+  2. content/content_type_registry.py       — Python-side registry that tells
+     shared code which fields play which role on each content type. Type-level.
+
+The two concerns work together: content_registry knows what is published
+(row), content_type_registry knows how to read a title/slug/count off any
+content row (type).
 
 ================================================================================
 TABLES
@@ -20,15 +34,20 @@ TABLES
   - PK: content_ref_content_subcategory_id (INT)
   - FK: link_content_ref_content_category_id → ref_content_category
   - Topic/subject within each category: Crime, Love, Painting, Beach, etc.
-  - 85+ subcategories across all apps
+  - 100+ subcategories across all apps (post-Phase 2 seeding)
   - Computed columns: link_subcategory_id, link_subcategory_code (self-documenting FK names)
+  - Metadata blob: subcategory_metadata_json — used to park type-specific
+    data (e.g. Bengali season months for blog_bangladesh_season)
   - group_code: identifies which app/filter group the subcategory belongs to
-    Current group_codes:
-      blog_art_category, blog_art_medium, blog_art_difficulty,
-      blog_poem_category,
-      blog_stories_category,
-      blog_bangladesh_destination_category, blog_bangladesh_media_category,
-      blog_debate_category,
+    Current group_codes (Phase 2 added media + season):
+      blog_art_category
+      blog_poem_category
+      blog_stories_category
+      blog_stories_age_group
+      blog_bangladesh_destination_category
+      blog_bangladesh_media_category       (added 2026-04-11 Phase 2)
+      blog_bangladesh_season               (added 2026-04-11 Phase 2, replaces [blog_bangladesh].[ref_season])
+      blog_debate_category
       newshub_topic
 
 [content].[content_registry]
@@ -64,6 +83,98 @@ update_content_registry(content_registry_id, **fields)
 get_unified_subcategory_id(group_code, category_code)
   - Look up unified subcategory ID from per-app category code
   - Used by art, poem, story, destination create flows
+
+================================================================================
+CONTENT TYPE REGISTRY (content/content_type_registry.py)  — added 2026-04-11 Phase 3b
+================================================================================
+
+Purpose
+-------
+Runtime metadata registry for every blog content type. Single Python dict
+CONTENT_TYPE_REGISTRY holds, per content_type_code, everything a shared
+consumer needs to know:
+
+  code, label_bn, badge, color, cta,
+  model_module, model_name, table_schema, table_name, pk_field,
+  title_bn_field, title_en_field, slug_field,
+  summary_bn_field, summary_en_field,
+  is_published_field, is_active_field, is_featured_field,
+  status_code_field,
+  bookmark_count_field, like_count_field, view_count_field, comment_count_field,
+  detail_url_prefix, category_group_code, secondary_group_code
+
+Adding a new blog content type = ONE entry in this dict. Zero edits in
+shared consumers. Portal dashboard, social profile feed, bookmarks,
+presentation metadata all pick it up automatically.
+
+Helpers (import from content.content_type_registry)
+---------------------------------------------------
+  get_spec(code)                  - raw dict for a content_type_code
+  iter_all_specs()                - (code, spec) iterator over every type
+  get_model_class(code)           - lazy-import the Django model class
+  get_code_for_instance(row)      - reverse lookup: model instance -> code
+
+  get_title(row, lang='bn')       - title with bn/en fallback
+  get_summary(row, lang='bn')     - summary with bn/en fallback
+  get_slug(row)                   - slug_field value, '' if slugless
+  get_pk(row)                     - PK value
+  get_detail_url(row)             - /prefix/<slug>/ or /prefix/<pk>/ fallback
+  get_is_published(row)           - bool, reads real column OR @property uniformly
+  get_counts(row)                 - {bookmark, like, view, comment}
+  get_presentation(code)          - {badge, color, cta, label_bn}
+
+Currently registered content types (6):
+  art, story, poem, destination, media, debate
+
+Not registered (deliberately):
+  - newshub / PubArticle — split schema doesn't fit the shared shape
+  - post — different app (post/coll_post), not a blog content type
+
+is_published: real columns vs @property
+----------------------------------------
+Stories + art store is_published as a real BIT NOT NULL column.
+Poem/destination/media use string status codes (poem_status_code etc.);
+the DB has a PERSISTED computed column that reads
+  CASE WHEN <status_code> = 'published' THEN 1 ELSE 0 END.
+The computed column CANNOT be declared as a Django model field (SQL Server
+rejects writes, Django ORM would include it in INSERT/UPDATE). Instead,
+the models.py on poem/destination/media exposes is_published as a Python
+@property that reads status_code. Shared code calls get_is_published(row)
+and gets the same answer regardless of mechanism.
+
+Extended properties — cross-reference in the DB
+------------------------------------------------
+notes/sql-script/phase3b-content-type-extended-properties.sql is
+auto-generated from the Python registry. Running it stamps a
+'registry_role' extended property on every registered column with the
+value '<content_type>:<role_key>' (e.g. 'art:title_bn_field').
+Inspect from SSMS:
+
+    SELECT OBJECT_SCHEMA_NAME(ep.major_id) AS schema_name,
+           OBJECT_NAME(ep.major_id)        AS table_name,
+           c.name                           AS column_name,
+           CAST(ep.value AS NVARCHAR(500)) AS registry_role
+    FROM sys.extended_properties ep
+    JOIN sys.columns c
+         ON c.object_id = ep.major_id AND c.column_id = ep.minor_id
+    WHERE ep.name = N'registry_role'
+    ORDER BY schema_name, table_name, column_name;
+
+Idempotent — re-running the script updates properties in place. Do this
+after any edit to CONTENT_TYPE_REGISTRY so the DB cross-reference stays
+current.
+
+Consumers that already use the registry (Phase 3b)
+---------------------------------------------------
+- content/bookmarks.py:CONTENT_TYPE_METADATA    — thin adapter over registry
+- portal/views.py:_collect_content_dashboard_items — single loop over specs
+- social/views.py:public_profile_articles       — spec-driven slug lookup
+
+Consumers NOT migrated yet (intentional — newsengine session deferred)
+----------------------------------------------------------------------
+- newsengine/related_content.py:_ENRICHMENT_MAP
+- newsengine/recommendations.py
+- search/views_api.py (genuinely different per-type search logic)
 
 ================================================================================
 FK CONSTRAINTS (18 total)

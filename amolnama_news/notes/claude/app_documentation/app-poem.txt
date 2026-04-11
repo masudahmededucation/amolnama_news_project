@@ -9,21 +9,50 @@ URL prefix: /bangla-kobita-gaan/
 Bengali poetry and song collection platform. Users can create, edit,
 browse, like, and share poems/songs with category tagging.
 
-## Models (3 models, all managed=False)
+## Models (2 models, all managed=False)
 
-| Model            | DB Table                         | Purpose            |
-|------------------|----------------------------------|--------------------|
-| RefPoemCategory  | [poem].[ref_poem_category]       | Poem categories    |
-| CollPoemEntry    | [poem].[coll_poem_entry]         | Poem/song entries  |
-| EngPoemLike      | [poem].[eng_poem_like]           | User likes         |
+| Model             | DB Table                               | Purpose            |
+|-------------------|----------------------------------------|--------------------|
+| CollPoemEntry     | [blog_poem].[coll_poem_entry]          | Poem/song entries  |
+| EngagementPoemLike| [blog_poem].[engagement_poem_like]     | User likes         |
+
+RefPoemCategory was removed — replaced by [content].[ref_content_subcategory]
+with group_code='blog_poem_category'. 12 categories seeded (ids 21-32):
+love, nature, patriotic, sad, spiritual, political, children, free_verse,
+romantic, humorous, protest, life.
 
 ### Key Fields on CollPoemEntry
-- poem_entry_id (PK), poem_slug (Bengali-safe via bangla_slugify)
-- title_bn, body_bn, poet_name_bn
-- link_poem_category_id, link_user_profile_id
-- poem_type_code (poem/song)
+- blog_poem_coll_poem_entry_id (PK, BIGINT)
+- poem_slug (Bengali-safe via bangla_slugify)
+- poem_title_bn, poem_title_en
+- poem_body_bn, poem_body_en
+- poem_summary_bn, poem_summary_en      (added 2026-04-11 Phase 3)
+- poem_backstory_bn / _en, poem_interpretation_bn / _en
+- poem_author_display_name, poem_language_code, poem_type_code (poem/song)
+- poem_status_code (draft, published, archived, ...)
+- poem_audio_url, poem_audio_reciter_name, poem_audio_description
+
+### Counters (Phase 3 added bookmark + comment)
 - like_count, view_count
-- is_published, is_active
+- bookmark_count, comment_count          (added 2026-04-11 Phase 3)
+
+### Status flags (Phase 3 added is_active + is_featured)
+- is_active, is_featured                 (added 2026-04-11 Phase 3)
+- is_published                           (PERSISTED computed column —
+  CASE WHEN poem_status_code = 'published' THEN 1 ELSE 0 END)
+
+### Content registry integration
+- link_content_registry_id               (Phase 1 content registry)
+- link_content_ref_content_subcategory_id (Phase 2 unified category FK;
+  holds id from group_code='blog_poem_category')
+
+### Why is_published is a @property in the Django model, not a field
+Django's ORM would include is_published in INSERT/UPDATE if it were a
+field. SQL Server rejects writes to computed columns. So poem/models.py
+exposes it as a Python @property that reads poem_status_code and returns
+True iff it equals 'published'. Shared code calls row.is_published (or
+get_is_published(row) via content_type_registry helpers) and the answer
+is consistent with the DB-side PERSISTED column.
 
 ## URL Patterns (14 total)
 

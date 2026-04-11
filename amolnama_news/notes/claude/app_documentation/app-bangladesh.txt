@@ -11,14 +11,23 @@ with photo/video galleries, reviews, accommodations, transport routes,
 and travel tips. Two main sections: Travel Hub (destinations) and
 Beauty Hub (photo/video gallery).
 
-## Models (19 models, all managed=False)
+## Models (16 models, all managed=False)
+
+Phase 2 (2026-04-11) removed the 3 per-app ref tables — destination category,
+season, and media category all live under [content].[ref_content_subcategory]
+with group_codes blog_bangladesh_destination_category, blog_bangladesh_season,
+and blog_bangladesh_media_category. The Bengali season_months string is
+parked in subcategory_metadata_json on each season row.
+
+FK column link_blog_bangladesh_ref_season_id renamed to
+link_content_ref_content_subcategory_season_id on BOTH coll_destination
+AND coll_media_entry. FK constraints dropped (no longer needed — the
+unified subcategory table is the referent, FK enforcement is done at
+the app layer via get_unified_subcategory_id / get_spec).
 
 | Model                        | DB Table                                  | Purpose                         |
 |------------------------------|-------------------------------------------|---------------------------------|
-| RefDestinationCategory       | [bangladesh].[ref_destination_category]    | Destination categories          |
-| RefSeason                    | [bangladesh].[ref_season]                  | Travel seasons                  |
-| RefMediaCategory             | [bangladesh].[ref_media_category]          | Media categories                |
-| CollDestination              | [bangladesh].[coll_destination]            | Main destination records        |
+| CollDestination              | [blog_bangladesh].[coll_destination]       | Main destination records        |
 | CollDestinationPhoto         | [bangladesh].[coll_destination_photo]      | Destination photos              |
 | CollAccommodation            | [bangladesh].[coll_accommodation]          | Hotels/accommodation            |
 | CollTransportRoute           | [bangladesh].[coll_transport_route]        | Transport routes                |
@@ -106,6 +115,21 @@ YouTube/reference link CRUD, cover image set, community contribution edit/delete
 - Map search Enter key: must preventDefault() inside <form>
 - Bengali slugs: use bangla_slugify() from core/utils.py
 - Nominatim: state_district=district, county=upazila. Use extractNameBefore() for parsing
+- Seasons (Phase 2): read via RefContentSubcategory.filter(group_code='blog_bangladesh_season').
+  Do NOT import RefSeason — it was removed 2026-04-11. Bengali months live in
+  subcategory_metadata_json, e.g. {"months":"April - May"}.
+- Media categories (Phase 2): 10 seeded under group_code='blog_bangladesh_media_category'
+  (landscape, rivers_waterways, hills_mountains, architecture, people_culture,
+  festival, food, wildlife, urban_city, rural_village).
+- Destination create/update: JS POST key must be link_content_ref_content_subcategory_id
+  for category and link_content_ref_content_subcategory_season_id for season.
+  The old link_destination_category_id / link_best_season_id / link_season_id keys
+  are dead — API will silently reject them.
+- is_published on CollDestination is a PERSISTED computed column:
+  CASE WHEN destination_status = 'published' THEN 1 ELSE 0 END.
+  Read it via row.is_published (@property on the Django model). Never write
+  to it — SQL Server rejects computed column writes. Update destination_status
+  instead.
 
 ## Session 2026-04-03 — Naming Convention Enforcement
 
