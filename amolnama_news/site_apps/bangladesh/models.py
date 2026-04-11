@@ -47,11 +47,18 @@ class CollDestination(models.Model):
     cover_image_url = models.CharField(max_length=1000, blank=True, null=True)
     destination_status = models.CharField(max_length=20)
     is_featured = models.BooleanField()
+    is_active = models.BooleanField(default=True)
+    # is_published exists in the DB as a PERSISTED computed column —
+    # CASE WHEN destination_status = 'published' THEN 1 ELSE 0 END.
+    # Not declared as a model field because Django's ORM would write it
+    # in INSERT/UPDATE (SQL Server rejects writes to computed columns).
+    # Shared Python code reads the @property below.
 
     like_count = models.IntegerField()
     view_count = models.IntegerField()
     review_count = models.IntegerField()
     bookmark_count = models.IntegerField(default=0)
+    comment_count = models.IntegerField(default=0)
     avg_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
 
     created_at = models.DateTimeField()
@@ -65,6 +72,11 @@ class CollDestination(models.Model):
 
     def __str__(self):
         return self.destination_name_en
+
+    @property
+    def is_published(self):
+        """Mirror the DB PERSISTED computed column — read-only."""
+        return self.destination_status == 'published'
 
 
 class DestinationPhoto(models.Model):
@@ -278,6 +290,7 @@ class CollMediaEntry(models.Model):
 
     media_title_en = models.CharField(max_length=300, blank=True, null=True)
     media_title_bn = models.CharField(max_length=300, blank=True, null=True)
+    media_slug = models.CharField(max_length=400, blank=True, null=True)
     media_description_en = models.TextField(blank=True, null=True)
     media_description_bn = models.TextField(blank=True, null=True)
 
@@ -315,10 +328,17 @@ class CollMediaEntry(models.Model):
 
     visibility = models.CharField(max_length=20)
     media_status = models.CharField(max_length=20)
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    # is_published exists in the DB as a PERSISTED computed column —
+    # CASE WHEN media_status = 'published' THEN 1 ELSE 0 END.
+    # Not declared as a model field (SQL Server rejects writes). Shared
+    # code reads the @property below.
 
     like_count = models.IntegerField()
     view_count = models.IntegerField()
     comment_count = models.IntegerField()
+    bookmark_count = models.IntegerField(default=0)
 
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
@@ -331,6 +351,11 @@ class CollMediaEntry(models.Model):
 
     def __str__(self):
         return self.media_title_bn or self.media_title_en or f"Media({self.blog_bangladesh_coll_media_entry_id})"
+
+    @property
+    def is_published(self):
+        """Mirror the DB PERSISTED computed column — read-only."""
+        return self.media_status == 'published'
 
 
 class CollMediaAlbum(models.Model):

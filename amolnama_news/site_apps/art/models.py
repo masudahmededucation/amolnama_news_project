@@ -18,6 +18,8 @@ class CollArtwork(models.Model):
     artwork_title_bn = models.CharField(max_length=300)
     artwork_title_en = models.CharField(max_length=300, blank=True, null=True)
     artwork_slug = models.CharField(max_length=400)
+    artwork_summary_bn = models.CharField(max_length=500, blank=True, null=True)
+    artwork_summary_en = models.CharField(max_length=500, blank=True, null=True)
     artwork_description_bn = models.TextField(blank=True, null=True)
     artwork_description_en = models.TextField(blank=True, null=True)
     artwork_backstory_bn = models.TextField(blank=True, null=True)

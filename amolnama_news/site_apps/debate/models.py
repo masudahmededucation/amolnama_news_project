@@ -152,6 +152,15 @@ class CollTopic(models.Model):
     winning_side_code = models.CharField(max_length=10, blank=True, null=True)
     audience_blue_vote_count = models.IntegerField(default=0)
     audience_red_vote_count = models.IntegerField(default=0)
+    # Universal content counters — added in Phase 3 to align with other
+    # blog collection tables (art, stories, poem, destination, media).
+    # Debate tracks votes separately (topic_upvote_count / blue_* / red_*);
+    # these counters are for cross-content features like the universal
+    # bookmark endpoint, shared actions bar, and universal feed ranking.
+    bookmark_count = models.IntegerField(default=0)
+    like_count = models.IntegerField(default=0)
+    view_count = models.IntegerField(default=0)
+    comment_count = models.IntegerField(default=0)
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)

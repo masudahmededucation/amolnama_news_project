@@ -27,12 +27,28 @@ class CollPoemEntry(models.Model):
     poem_audio_description = models.CharField(max_length=500, blank=True, null=True)
     poem_type_code = models.CharField(max_length=50)
     poem_status_code = models.CharField(max_length=100)
-    like_count = models.IntegerField()
-    view_count = models.IntegerField()
+    poem_summary_bn = models.CharField(max_length=500, blank=True, null=True)
+    poem_summary_en = models.CharField(max_length=500, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
+    # is_published exists in the DB as a PERSISTED computed column —
+    # [CASE WHEN poem_status_code = 'published' THEN 1 ELSE 0 END]. It is
+    # NOT declared as a model field because Django's ORM would include it
+    # in INSERT/UPDATE even with editable=False (SQL Server rejects writes
+    # to computed columns). Shared code reads the Python property below.
+    like_count = models.IntegerField(default=0)
+    view_count = models.IntegerField(default=0)
+    bookmark_count = models.IntegerField(default=0)
+    comment_count = models.IntegerField(default=0)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
     link_content_registry_id = models.BigIntegerField(blank=True, null=True)
     link_content_ref_content_subcategory_id = models.IntegerField(blank=True, null=True)
+
+    @property
+    def is_published(self):
+        """Mirror the DB PERSISTED computed column — read-only, Python side."""
+        return self.poem_status_code == 'published'
 
     class Meta:
         managed = False
