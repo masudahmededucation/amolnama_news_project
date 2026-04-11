@@ -159,7 +159,7 @@ def travel_hub_add(request):
             dest = CollDestination.objects.get(blog_bangladesh_coll_destination_id=int(edit_id))
             context["edit_entry_id"] = int(edit_id)
             context["edit_data_json"] = json.dumps({
-                "category_id": dest.link_blog_bangladesh_ref_destination_category_id,
+                "category_id": dest.link_content_ref_content_subcategory_id,
                 "name_bn": dest.destination_name_bn or "",
                 "name_en": dest.destination_name_en or "",
                 "short_desc_bn": dest.destination_short_description_bn or "",

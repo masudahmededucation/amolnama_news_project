@@ -70,7 +70,7 @@
     if (descEditor) descEditor.syncToHidden();
 
     const payload = {
-      link_destination_category_id: parseInt(document.getElementById("travel-hub-category").value) || null,
+      link_content_ref_content_subcategory_id: parseInt(document.getElementById("travel-hub-category").value) || null,
       destination_name_bn: document.getElementById("travel-hub-name-bn").value.trim(),
       destination_name_en: document.getElementById("travel-hub-name-en").value.trim(),
       destination_short_description_bn: document.getElementById("travel-hub-short-description-bn").value.trim(),

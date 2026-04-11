@@ -44,7 +44,7 @@
     <select id="travel-hub-category" name="travel_hub_category" class="form-input" required>
       <option value="" data-en="-- Select --">-- বাছাই করুন --</option>
       {% for cat in categories %}
-        <option value="{{ cat.bangladesh_ref_destination_category_id }}" data-en="{{ cat.destination_category_name_en }}">{{ cat.destination_category_name_bn }} ({{ cat.destination_category_name_en }})</option>
+        <option value="{{ cat.content_ref_content_subcategory_id }}" data-en="{{ cat.subcategory_name_en }}">{{ cat.subcategory_name_bn }} ({{ cat.subcategory_name_en }})</option>
       {% endfor %}
     </select>
   </div>

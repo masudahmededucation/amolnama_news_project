@@ -130,7 +130,7 @@ def api_destination_create(request):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_blog_bangladesh_ref_destination_category_id")
+    category_id = data.get("link_content_ref_content_subcategory_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 
@@ -243,7 +243,7 @@ def api_destination_update(request, destination_id):
     if not name_bn and not name_en:
         return JsonResponse({"success": False, "error": "Destination name is required"}, status=400)
 
-    category_id = data.get("link_content_ref_content_subcategory_id") or data.get("link_blog_bangladesh_ref_destination_category_id")
+    category_id = data.get("link_content_ref_content_subcategory_id")
     if not category_id:
         return JsonResponse({"success": False, "error": "Category is required"}, status=400)
 

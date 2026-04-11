@@ -2,14 +2,24 @@
 
 from .models import CollPoemEntry
 
-# Category similarity map — ordered by thematic closeness
-# IDs: 1=Love, 2=Nature, 3=Patriotic, 4=Sad, 5=Spiritual, 6=Political,
-#       7=Children, 9=Free Verse, 10=Romantic, 11=Humorous, 12=Protest, 13=Life
+# Category similarity map — ordered by thematic closeness.
+# Uses unified subcategory IDs from [content].[ref_content_subcategory]
+# group_code='blog_poem_category':
+#   21=love, 22=nature, 23=patriotic, 24=sad, 25=spiritual, 26=political,
+#   27=children, 28=free_verse, 29=romantic, 30=humorous, 31=protest, 32=life
 SIMILAR_CATEGORIES = {
-    1: [10, 4, 13, 9, 2], 2: [13, 9, 5, 1, 7], 3: [12, 6, 13, 9, 4],
-    4: [1, 10, 13, 9, 5], 5: [13, 2, 9, 4, 1], 6: [12, 3, 13, 9, 4],
-    7: [11, 2, 13, 9, 1], 9: [13, 4, 1, 2, 10], 10: [1, 4, 13, 9, 2],
-    11: [7, 9, 13, 2, 1], 12: [6, 3, 13, 9, 4], 13: [9, 4, 2, 5, 1],
+    21: [29, 24, 32, 28, 22],  # love → romantic, sad, life, free_verse, nature
+    22: [32, 28, 25, 21, 27],  # nature → life, free_verse, spiritual, love, children
+    23: [31, 26, 32, 28, 24],  # patriotic → protest, political, life, free_verse, sad
+    24: [21, 29, 32, 28, 25],  # sad → love, romantic, life, free_verse, spiritual
+    25: [32, 22, 28, 24, 21],  # spiritual → life, nature, free_verse, sad, love
+    26: [31, 23, 32, 28, 24],  # political → protest, patriotic, life, free_verse, sad
+    27: [30, 22, 32, 28, 21],  # children → humorous, nature, life, free_verse, love
+    28: [32, 24, 21, 22, 29],  # free_verse → life, sad, love, nature, romantic
+    29: [21, 24, 32, 28, 22],  # romantic → love, sad, life, free_verse, nature
+    30: [27, 28, 32, 22, 21],  # humorous → children, free_verse, life, nature, love
+    31: [26, 23, 32, 28, 24],  # protest → political, patriotic, life, free_verse, sad
+    32: [28, 24, 22, 25, 21],  # life → free_verse, sad, nature, spiritual, love
 }
 
 
@@ -28,7 +38,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
       6. Similar categories, any type
       7. Any remaining by popularity
     """
-    current_cat = poem.link_blog_poem_ref_poem_category_id
+    current_cat = poem.link_content_ref_content_subcategory_id
     current_author = poem.poem_author_display_name
     current_type = poem.poem_type_code or "poem"
 
@@ -61,7 +71,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
     if current_author and _remaining() > 0:
         _add(_base().filter(
             poem_author_display_name=current_author,
-            link_blog_poem_ref_poem_category_id=current_cat,
+            link_content_ref_content_subcategory_id=current_cat,
             poem_type_code=current_type,
         ).order_by("-like_count")[:_remaining()])
 
@@ -75,14 +85,14 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
     # Priority 3: Same category + same type
     if _remaining() > 0:
         _add(_base().filter(
-            link_blog_poem_ref_poem_category_id=current_cat,
+            link_content_ref_content_subcategory_id=current_cat,
             poem_type_code=current_type,
         ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 4: Same category, any type
     if _remaining() > 0:
         _add(_base().filter(
-            link_blog_poem_ref_poem_category_id=current_cat,
+            link_content_ref_content_subcategory_id=current_cat,
         ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 5: Similar categories + same type
@@ -91,7 +101,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
             if _remaining() <= 0:
                 break
             _add(_base().filter(
-                link_blog_poem_ref_poem_category_id=similar_cat,
+                link_content_ref_content_subcategory_id=similar_cat,
                 poem_type_code=current_type,
             ).order_by("-like_count", "-view_count")[:_remaining()])
 
@@ -101,7 +111,7 @@ def get_smart_related_poems(poem, limit=4, exclude_ids=None, require_audio=False
             if _remaining() <= 0:
                 break
             _add(_base().filter(
-                link_blog_poem_ref_poem_category_id=similar_cat,
+                link_content_ref_content_subcategory_id=similar_cat,
             ).order_by("-like_count", "-view_count")[:_remaining()])
 
     # Priority 7: Any remaining by popularity
