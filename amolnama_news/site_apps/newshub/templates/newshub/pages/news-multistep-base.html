@@ -39,7 +39,7 @@
   {% csrf_token %}
 
   {% if edit_entry_id %}
-    <input type="hidden" name="edit_entry_id" value="{{ edit_entry_id }}">
+    <input type="hidden" id="edit_entry_id" name="edit_entry_id" value="{{ edit_entry_id }}">
   {% endif %}
 
   {# Language toggle lives in header (news-form-lang.js reads input[name="form_lang"] globally) #}

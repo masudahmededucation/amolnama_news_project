@@ -22,7 +22,7 @@
 
     <form method="post" class="signup-form" novalidate>
       {% csrf_token %}
-      <input type="hidden" name="email" value="{{ email }}">
+      <input type="hidden" id="signup_complete_email" name="email" value="{{ email }}">
 
       <div class="signup-form-group">
         <label class="signup-form-label" for="{{ form.first_name.id_for_label }}">First name</label>
