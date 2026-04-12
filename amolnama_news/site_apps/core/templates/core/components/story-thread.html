@@ -1,0 +1,28 @@
+{% comment %}
+Story Thread — "Full Coverage" component.
+Shows other articles in the same developing story arc.
+
+Context variables:
+  story_threads — list of dicts from get_story_thread_for_article():
+    [{'thread_id': int, 'title_bn': str, 'title_en': str, 'slug': str,
+      'article_count': int, 'status_code': str}, ...]
+
+  entry — the current CollNewsEntry (used to exclude self from thread article list)
+
+The component fetches thread articles lazily via a data attribute + JS loader,
+or renders server-side if story_thread_articles is provided.
+{% endcomment %}
+{% if story_threads %}
+{% for thread in story_threads %}
+<section class="story-thread-section" id="story-thread-{{ thread.thread_id }}" data-thread-id="{{ thread.thread_id }}" data-exclude-entry-id="{{ entry.newshub_coll_news_entry_id }}">
+  <div class="story-thread-header">
+    <span class="story-thread-icon">📰</span>
+    <h2 class="story-thread-title">{{ thread.title_bn }}</h2>
+    <span class="story-thread-badge">{{ thread.article_count }} টি সংবাদ</span>
+  </div>
+  <div class="story-thread-list" id="story-thread-list-{{ thread.thread_id }}">
+    {% comment %}Articles loaded via JS or passed server-side{% endcomment %}
+  </div>
+</section>
+{% endfor %}
+{% endif %}

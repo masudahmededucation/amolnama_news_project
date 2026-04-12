@@ -26,6 +26,9 @@ urlpatterns = [
     # APIs — related content (cache-first)
     path('api/related-content/', views_api.api_related_content, name='api_related_content'),
 
+    # APIs — story threads
+    path('api/story-thread/<int:thread_id>/articles/', views_api.api_story_thread_articles, name='api_story_thread_articles'),
+
     # APIs — muted words
     path('api/muted-words/', views_api.api_muted_words_list, name='api_muted_words_list'),
     path('api/muted-words/add/', views_api.api_muted_word_add, name='api_muted_word_add'),

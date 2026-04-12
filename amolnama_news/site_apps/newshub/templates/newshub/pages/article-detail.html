@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-card.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/photo-lightbox.css' %}">
 <link rel="stylesheet" href="{% static 'core/assets/css/components/related-content.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/story-thread.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -277,6 +278,7 @@
   </div>
 </div>
 
+{% include "core/components/story-thread.html" %}
 {% include "core/components/related-content.html" %}
 
 {% if all_photos %}
@@ -289,5 +291,6 @@
 <script src="{% static 'core/assets/js/components/photo-card.js' %}" defer></script>
 <script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
 <script src="{% static 'newshub/assets/js/pages/article-detail.js' %}" defer></script>
+<script src="{% static 'core/assets/js/components/story-thread-loader.js' %}" defer></script>
 <script src="{% static 'core/assets/js/components/related-content-loader.js' %}" defer></script>
 {% endblock %}

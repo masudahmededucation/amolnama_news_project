@@ -7,7 +7,7 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 logger = logging.getLogger(__name__)
 
@@ -373,3 +373,26 @@ def api_related_content(request):
         compute_and_cache_related_content_background(content_type_code, content_id, text)
 
     return JsonResponse({'success': True, 'items': []})
+
+
+# =========================================================
+# STORY THREAD — articles in a developing story
+# =========================================================
+
+@require_GET
+def api_story_thread_articles(request, thread_id):
+    """GET /newsengine/api/story-thread/<id>/articles/ — articles in a story thread."""
+    from .story_clustering import get_articles_in_thread
+
+    exclude_entry_id = None
+    try:
+        exclude_entry_id = int(request.GET.get('exclude', 0)) or None
+    except (ValueError, TypeError):
+        pass
+
+    articles = get_articles_in_thread(thread_id, limit=10, exclude_entry_id=exclude_entry_id)
+
+    return JsonResponse({
+        'success': True,
+        'articles': articles,
+    })
