@@ -22,7 +22,7 @@
 .saved-office-select-row select {
   flex: 1;
   padding: .4rem .5rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   border: 1px solid var(--border);
   border-radius: 3px;
   background: var(--card);
@@ -37,7 +37,7 @@
 .saved-office-save-row input[type="text"] {
   flex: 1;
   padding: .4rem .5rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   border: 1px solid var(--border);
   border-radius: 3px;
 }
@@ -46,14 +46,14 @@
   display: flex;
   align-items: center;
   gap: .25rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
   cursor: pointer;
 }
 
 .button-saved-office {
   padding: .35rem .75rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   border: 1px solid var(--border);
   border-radius: 3px;
   cursor: pointer;
@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--muted);
@@ -133,7 +133,7 @@
 }
 
 .step-label {
-  font-size: .7rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   white-space: nowrap;
   transition: color .3s;
@@ -202,7 +202,7 @@
 }
 
 .step-counter {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   font-weight: 500;
 }
@@ -212,7 +212,7 @@
   padding: .6rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   transition: background .2s, color .2s;
@@ -253,7 +253,7 @@
 }
 
 .cert-section-title {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin: 0 0 1.1rem;
@@ -265,7 +265,7 @@
 }
 
 .cert-section-title .section-icon {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 .cert-subsection {
@@ -301,7 +301,7 @@
 .cert-form .form-field-label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .3rem;
 }
@@ -309,7 +309,7 @@
 .cert-form label .label-en {
   font-weight: 400;
   color: var(--muted);
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .cert-form .required-mark {
@@ -325,7 +325,7 @@
 .cert-form textarea {
   width: 100%;
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
@@ -348,7 +348,7 @@
 }
 
 .cert-form .hint {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .2rem;
 }
@@ -368,7 +368,7 @@
   align-items: center;
   gap: .3rem;
   padding: .4rem .85rem;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: background .15s, color .15s;
@@ -414,11 +414,11 @@
 }
 
 .cert-sig-upload .sig-icon {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
 }
 
 .cert-sig-upload .sig-text {
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .cert-sig-upload input[type="file"] {
@@ -506,7 +506,7 @@ span.flatpickr-weekday {
   background: #8b6914;
   color: rgba(255, 255, 255, .8);
   font-weight: 600;
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .flatpickr-day:hover,
@@ -592,7 +592,7 @@ span.flatpickr-weekday {
 }
 
 .cert-header-govt {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -600,13 +600,13 @@ span.flatpickr-weekday {
 }
 
 .cert-header-office {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   margin: 0 0 .15rem;
 }
 
 .cert-header-address {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin: 0 0 .75rem;
 }
@@ -615,7 +615,7 @@ span.flatpickr-weekday {
   display: flex;
   justify-content: center;
   gap: 3rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   margin-top: .5rem;
 }
 
@@ -647,7 +647,7 @@ span.flatpickr-weekday {
 
 .cert-title-box h2 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .15em;
@@ -658,7 +658,7 @@ span.flatpickr-weekday {
 
 .cert-body {
   padding: 1.25rem 2.5rem 1rem;
-  font-size: .92rem;
+  font-size: var(--text-base);
   line-height: 2;
   text-align: justify;
 }
@@ -688,12 +688,12 @@ span.flatpickr-weekday {
 
 .cert-footer-col {
   text-align: center;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
 .cert-footer-col-title {
-  font-size: .7rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .04em;
@@ -710,7 +710,7 @@ span.flatpickr-weekday {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .65rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
@@ -737,11 +737,11 @@ span.flatpickr-weekday {
 
 .cert-footer-name {
   font-weight: 700;
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 .cert-footer-desg {
-  font-size: .72rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
@@ -757,7 +757,7 @@ span.flatpickr-weekday {
 
 .button-cert-print {
   padding: .6rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: #8b6914;
@@ -773,7 +773,7 @@ span.flatpickr-weekday {
 
 .button-cert-edit {
   padding: .6rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   background: transparent;
@@ -850,11 +850,11 @@ span.flatpickr-weekday {
   .step-num {
     width: 28px;
     height: 28px;
-    font-size: .75rem;
+    font-size: var(--text-sm);
   }
 
   .step-label {
-    font-size: .6rem;
+    font-size: var(--text-xs);
   }
 
   .step-line {
@@ -869,7 +869,7 @@ span.flatpickr-weekday {
   .button-step-prev,
   .button-step-next {
     padding: .5rem 1rem;
-    font-size: .8rem;
+    font-size: var(--text-sm);
   }
 
   .cert-form .form-row-half,
@@ -882,7 +882,7 @@ span.flatpickr-weekday {
   }
 
   .cert-preview {
-    font-size: .85rem;
+    font-size: var(--text-sm);
   }
 
   .cert-header {

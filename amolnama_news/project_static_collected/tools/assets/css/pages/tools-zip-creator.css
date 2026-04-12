@@ -2,7 +2,7 @@
 
 .tool-page--zip .tool-subtitle {
   color: var(--muted);
-  font-size: .9rem;
+  font-size: var(--text-base);
   margin: -.75rem 0 1.5rem;
 }
 
@@ -26,27 +26,27 @@
 }
 
 .zip-dropzone-icon {
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
   margin-bottom: .5rem;
 }
 
 .zip-dropzone-text {
   margin: .25rem 0;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
 }
 
 .zip-dropzone-or {
   margin: .35rem 0;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
 .zip-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--primary);
   background: transparent;
@@ -68,7 +68,7 @@
 
 .zip-dropzone-hint {
   margin: .75rem 0 0;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -88,7 +88,7 @@
 
 .zip-add-button {
   padding: .45rem 1rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--primary);
   background: transparent;
@@ -110,7 +110,7 @@
 
 .zip-clear-button {
   padding: .45rem 1rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--danger);
   background: transparent;
@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
@@ -179,7 +179,7 @@
 
 .zip-file-item-name {
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -187,7 +187,7 @@
 }
 
 .zip-file-item-meta {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .1rem;
 }
@@ -232,13 +232,13 @@
 }
 
 .zip-summary-label {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   font-weight: 500;
 }
 
 .zip-summary-value {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text);
 }
@@ -252,7 +252,7 @@
 .zip-name-field label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .35rem;
 }
@@ -266,7 +266,7 @@
 .zip-name-input-wrap input {
   flex: 1;
   padding: .5rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm) 0 0 var(--radius-sm);
   background: var(--card);
@@ -281,7 +281,7 @@
 
 .zip-name-ext {
   padding: .5rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--muted);
   background: var(--bg);
@@ -298,7 +298,7 @@
   gap: .5rem;
   margin-top: 1.25rem;
   padding: .65rem 1.5rem;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
@@ -347,13 +347,13 @@
 
 .zip-result-header h3 {
   margin: 0 0 .75rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
 }
 
 .zip-result-details {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   color: var(--text);
   line-height: 1.8;
   margin-bottom: 1rem;
@@ -380,12 +380,12 @@
 
 .zip-result-details .zip-stat-label {
   color: var(--muted);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 .zip-result-details .zip-stat-value {
   font-weight: 700;
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 .zip-result-details .zip-savings-positive {
@@ -404,7 +404,7 @@
 
 .zip-download-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
@@ -425,7 +425,7 @@
 
 .zip-another-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   background: transparent;
@@ -450,7 +450,7 @@
 .zip-compression-note {
   margin-top: .75rem;
   padding: .6rem .85rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: #5d4037;
   background: var(--warning-light);
@@ -473,7 +473,7 @@
 .zip-breakdown-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .zip-breakdown-table th {

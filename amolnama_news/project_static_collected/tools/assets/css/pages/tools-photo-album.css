@@ -3,7 +3,7 @@
 /* ---- Subtitle ---- */
 
 .tool-page--photo-album .tool-subtitle {
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--muted);
   margin: -.75rem 0 1.5rem;
   line-height: 1.6;
@@ -18,7 +18,7 @@
 .album-label {
   display: block;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--text);
   margin-bottom: .35rem;
 }
@@ -26,7 +26,7 @@
 .album-select {
   width: 100%;
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
@@ -102,7 +102,7 @@
 
 /* Layout label below thumbnail */
 .album-layout-label {
-  font-size: .6rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--muted);
   line-height: 1;
@@ -222,7 +222,7 @@
 
 .album-drag-hint {
   text-align: center;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .35rem;
   line-height: 1.4;
@@ -291,7 +291,7 @@
 }
 
 .album-frame-placeholder-text {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   font-weight: 500;
 }
 
@@ -330,7 +330,7 @@
   border-radius: 50%;
   background: rgba(0, 0, 0, .55);
   color: #fff;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -362,7 +362,7 @@
   left: 4px;
   background: rgba(0, 0, 0, .5);
   color: #fff;
-  font-size: .65rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   padding: 1px 5px;
   border-radius: 3px;
@@ -374,7 +374,7 @@
 
 .album-swap-hint {
   text-align: center;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .5rem;
   min-height: 1.4em;
@@ -402,7 +402,7 @@
 .album-control label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .3rem;
 }
@@ -414,7 +414,7 @@
 }
 
 .album-control-value {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   text-align: right;
 }
@@ -430,7 +430,7 @@
 
 .album-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   border: none;
   border-radius: var(--radius-sm);
@@ -500,7 +500,7 @@
 }
 
 .album-result-title {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   margin: 0 0 .75rem;
@@ -517,7 +517,7 @@
 }
 
 .album-result-info {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-bottom: .75rem;
   text-align: center;
@@ -534,7 +534,7 @@
 
 .album-info {
   margin-top: .5rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   line-height: 1.5;
 }

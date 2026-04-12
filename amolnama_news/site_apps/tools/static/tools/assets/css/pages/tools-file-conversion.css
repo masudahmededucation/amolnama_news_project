@@ -2,7 +2,7 @@
 
 .tool-page--convert .tool-subtitle {
   color: var(--muted);
-  font-size: .9rem;
+  font-size: var(--text-base);
   margin: -.75rem 0 1.5rem;
 }
 
@@ -26,27 +26,27 @@
 }
 
 .convert-dropzone-icon {
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
   margin-bottom: .5rem;
 }
 
 .convert-dropzone-text {
   margin: .25rem 0;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
 }
 
 .convert-dropzone-or {
   margin: .35rem 0;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
 .convert-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--primary);
   background: transparent;
@@ -68,7 +68,7 @@
 
 .convert-dropzone-hint {
   margin: .75rem 0 0;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: #fff;
   text-transform: uppercase;
@@ -110,7 +110,7 @@
 
 .convert-file-name {
   font-weight: 600;
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
@@ -118,14 +118,14 @@
 }
 
 .convert-file-meta {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .1rem;
 }
 
 .convert-change-button {
   padding: .35rem .85rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--primary);
   background: transparent;
@@ -174,7 +174,7 @@
 }
 
 .convert-options h3 {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   margin: 0 0 .75rem;
@@ -188,7 +188,7 @@
 
 .convert-format-button {
   padding: .5rem 1rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-transform: uppercase;
   border: 1.5px solid var(--border);
@@ -223,7 +223,7 @@
   gap: .5rem;
   margin-top: 1.25rem;
   padding: .65rem 1.5rem;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
@@ -272,13 +272,13 @@
 
 .convert-result-header h3 {
   margin: 0 0 .75rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
 }
 
 .convert-result-info {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   color: var(--text);
   line-height: 1.6;
   margin-bottom: 1rem;
@@ -296,7 +296,7 @@
 
 .convert-download-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
@@ -317,7 +317,7 @@
 
 .convert-another-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   background: transparent;
@@ -355,7 +355,7 @@
 
   .convert-format-button {
     padding: .5rem .85rem;
-    font-size: .82rem;
+    font-size: var(--text-sm);
   }
 
   .convert-result-actions {

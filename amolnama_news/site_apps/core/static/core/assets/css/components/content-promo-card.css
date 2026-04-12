@@ -52,7 +52,7 @@
 /* Header */
 .content-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; flex-wrap: wrap; }
 .content-promo-card-badge {
-  font-size: .58rem; font-weight: 800; letter-spacing: .06em;
+  font-size: var(--text-xs); font-weight: 800; letter-spacing: .06em;
   color: #fff; padding: .1rem .45rem; border-radius: 8px;
   text-transform: uppercase;
 }
@@ -61,19 +61,19 @@
 .content-promo-card-badge-purple { background: var(--purple); }
 .content-promo-card-badge-amber { background: var(--amber); }
 .content-promo-card-badge-rose { background: var(--rose); }
-.content-promo-card-author { font-size: .72rem; font-weight: 600; color: var(--muted); }
-.content-promo-card-date { font-size: .65rem; color: var(--muted); margin-left: auto; }
+.content-promo-card-author { font-size: var(--text-xs); font-weight: 600; color: var(--muted); }
+.content-promo-card-date { font-size: var(--text-xs); color: var(--muted); margin-left: auto; }
 
 /* Title + Description */
-.content-promo-card-title { font-size: .95rem; font-weight: 700; margin: 0 0 .25rem; line-height: 1.4; }
-.content-promo-card-description { font-size: .78rem; color: var(--muted); margin: 0 0 .4rem; line-height: 1.5; }
+.content-promo-card-title { font-size: var(--text-base); font-weight: 700; margin: 0 0 .25rem; line-height: 1.4; }
+.content-promo-card-description { font-size: var(--text-sm); color: var(--muted); margin: 0 0 .4rem; line-height: 1.5; }
 
 /* Footer */
 .content-promo-card-footer { display: flex; justify-content: space-between; align-items: center; }
-.content-promo-card-stats { display: flex; gap: .6rem; font-size: .7rem; color: var(--muted); }
+.content-promo-card-stats { display: flex; gap: .6rem; font-size: var(--text-xs); color: var(--muted); }
 .content-promo-card-stat { white-space: nowrap; }
 .content-promo-card-cta {
-  font-size: .72rem; font-weight: 700; color: #fff;
+  font-size: var(--text-xs); font-weight: 700; color: #fff;
   padding: .2rem .6rem; border-radius: 12px;
   transition: opacity .15s;
 }
@@ -89,11 +89,11 @@
 
 @media (max-width: 640px) {
   .content-promo-card { padding: .6rem .75rem; gap: .5rem; }
-  .content-promo-card-title { font-size: .88rem; }
-  .content-promo-card-description { font-size: .72rem; }
+  .content-promo-card-title { font-size: var(--text-sm); }
+  .content-promo-card-description { font-size: var(--text-xs); }
   .content-promo-card-footer { flex-wrap: wrap; gap: .3rem; }
-  .content-promo-card-stats { gap: .4rem; font-size: .65rem; }
-  .content-promo-card-cta { padding: .2rem .5rem; font-size: .68rem; }
+  .content-promo-card-stats { gap: .4rem; font-size: var(--text-xs); }
+  .content-promo-card-cta { padding: .2rem .5rem; font-size: var(--text-xs); }
   .content-promo-card-image-wrapper { width: 90px; }
 }
 

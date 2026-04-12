@@ -16,7 +16,7 @@
 
 .poem-create-form-panel h1 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   font-weight: 800;
   color: var(--text);
 }
@@ -33,7 +33,7 @@
 
 .poem-create-lang-button {
   padding: .35rem .85rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   border: none;
   border-radius: 6px;
@@ -65,7 +65,7 @@
 }
 
 .poem-create-label {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text);
 }
@@ -79,7 +79,7 @@
 .poem-create-textarea,
 .poem-create-select {
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--card);
@@ -110,7 +110,7 @@
 
 /* Counter */
 .poem-create-counter {
-  font-size: .72rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   text-align: right;
 }
@@ -123,7 +123,7 @@
 /* Submit */
 .poem-create-submit {
   padding: .6rem 2rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: #fff;
   background: var(--primary);
@@ -148,7 +148,7 @@
 /* Error */
 .poem-create-error {
   padding: .5rem .75rem;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: #e74c3c;
   background: #fdf0ef;
   border: 1px solid #f5c6cb;
@@ -162,7 +162,7 @@
 
 /* Draft indicator */
 .poem-create-draft-badge {
-  font-size: .7rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   background: var(--surface);
   border-radius: 4px;
@@ -186,7 +186,7 @@
 }
 
 .poem-create-preview-label {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--muted);
   text-transform: uppercase;
@@ -196,7 +196,7 @@
 
 .poem-create-preview-title {
   margin: 0 0 .5rem;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 800;
   color: var(--text);
   min-height: 1.5em;
@@ -205,7 +205,7 @@
 
 .poem-create-preview-author {
   text-align: center;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-style: italic;
   color: var(--muted);
   margin-bottom: .75rem;
@@ -213,7 +213,7 @@
 
 .poem-create-preview-body {
   white-space: pre-line;
-  font-size: .95rem;
+  font-size: var(--text-base);
   line-height: 1.7;
   color: var(--text);
   padding: .75rem;
@@ -232,14 +232,14 @@
 }
 
 .poem-create-preview-section-title {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--muted);
   margin-bottom: .3rem;
 }
 
 .poem-create-preview-section-text {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--text);
   white-space: pre-line;
@@ -248,14 +248,14 @@
 .poem-create-preview-empty {
   color: var(--muted);
   font-style: italic;
-  font-size: .88rem;
+  font-size: var(--text-sm);
 }
 
 /* ---- Clear form button ---- */
 
 .poem-clear-form-button {
   padding: .35rem .85rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--danger);
   background: var(--danger-light);
@@ -278,7 +278,7 @@
 }
 
 .poem-clear-form-message {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   white-space: nowrap;
 }

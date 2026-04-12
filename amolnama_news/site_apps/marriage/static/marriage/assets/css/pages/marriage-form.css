@@ -29,7 +29,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--muted);
@@ -37,7 +37,7 @@
 }
 
 .step-label {
-  font-size: .7rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   white-space: nowrap;
   transition: color .3s;
@@ -130,7 +130,7 @@
 }
 
 .step-counter {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   font-weight: 500;
 }
@@ -140,7 +140,7 @@
   padding: .6rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   transition: background .2s, color .2s;
@@ -182,7 +182,7 @@
 }
 
 .marriage-section-title {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin: 0 0 1.1rem;
@@ -194,7 +194,7 @@
 }
 
 .marriage-section-title .section-icon {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 /* Subsection headers */
@@ -223,7 +223,7 @@
 .marriage-form label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .3rem;
 }
@@ -231,7 +231,7 @@
 .marriage-form label .label-en {
   font-weight: 400;
   color: var(--muted);
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .marriage-form .required-mark {
@@ -247,7 +247,7 @@
 .marriage-form textarea {
   width: 100%;
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
@@ -270,7 +270,7 @@
 }
 
 .marriage-form .hint {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .2rem;
 }
@@ -290,7 +290,7 @@
   align-items: center;
   gap: .3rem;
   padding: .4rem .85rem;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: background .15s, color .15s;
@@ -313,7 +313,7 @@
 /* ---- Question number labels ---- */
 
 .marriage-q-number {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: #8a6d3b;
   margin: 1.1rem 0 .6rem;
@@ -350,11 +350,11 @@
 }
 
 .marriage-sig-upload .sig-icon {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
 }
 
 .marriage-sig-upload .sig-text {
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .marriage-sig-upload input[type="file"] {
@@ -380,7 +380,7 @@
   gap: .4rem;
   margin-bottom: .75rem;
   cursor: pointer;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--text);
 }
 
@@ -409,13 +409,13 @@
 
 .marriage-preview-header h2 {
   margin: 0 0 .25rem;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 700;
 }
 
 .marriage-preview-header p {
   margin: 0;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   opacity: .85;
 }
 
@@ -428,7 +428,7 @@
 }
 
 .preview-group-title {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: #c8960c;
   margin: 0 0 .6rem;
@@ -439,7 +439,7 @@
 .preview-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 .preview-table tr {
@@ -484,7 +484,7 @@
 .preview-reg-title {
   margin: 0 0 .4rem;
   text-align: center;
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: #c8960c;
 }
@@ -492,7 +492,7 @@
 .preview-reg-subtitle {
   margin: 0 0 1rem;
   text-align: center;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -508,7 +508,7 @@
 }
 
 .preview-reg-label {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   white-space: nowrap;
@@ -516,7 +516,7 @@
 }
 
 .preview-reg-value {
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   border-bottom: 1px solid var(--border);
@@ -526,7 +526,7 @@
 }
 
 .preview-reg-row-divider {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: #c8960c;
   margin-top: .4rem;
@@ -555,7 +555,7 @@
 .preview-nikah-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 .preview-nikah-table tr {
@@ -598,7 +598,7 @@
 }
 
 .preview-sig-title {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: #c8960c;
   margin-bottom: .75rem;
@@ -627,7 +627,7 @@
 }
 
 .preview-sig-line-label {
-  font-size: .8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   line-height: 1.4;
@@ -683,7 +683,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   color: #ede4cd;
   line-height: 1;
 }
@@ -694,7 +694,7 @@
   bottom: -14px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: .6rem;
+  font-size: var(--text-xs);
   color: #ddd4bc;
   font-style: italic;
   white-space: nowrap;
@@ -716,7 +716,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   color: #ede4cd;
   line-height: 1;
 }
@@ -727,7 +727,7 @@
   bottom: -14px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: .6rem;
+  font-size: var(--text-xs);
   color: #ddd4bc;
   font-style: italic;
   white-space: nowrap;
@@ -778,7 +778,7 @@
 }
 
 .preview-sig-label {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   margin-bottom: .35rem;
@@ -804,7 +804,7 @@
 
 .button-marriage-print {
   padding: .6rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: #c8960c;
@@ -820,7 +820,7 @@
 
 .button-marriage-edit {
   padding: .6rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   background: transparent;
@@ -848,7 +848,7 @@
 
 .step-validation-msg {
   color: var(--danger-text);
-  font-size: .9rem;
+  font-size: var(--text-base);
   line-height: 1.6;
 }
 
@@ -922,7 +922,7 @@ span.flatpickr-weekday {
   background: #c8960c;
   color: rgba(255, 255, 255, .8);
   font-weight: 600;
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .flatpickr-day:hover,
@@ -1002,7 +1002,7 @@ span.flatpickr-weekday {
   position: absolute;
   bottom: 2px;
   right: 0;
-  font-size: .65rem;
+  font-size: var(--text-xs);
   color: #ddd4bc;
   font-style: italic;
 }
@@ -1019,7 +1019,7 @@ span.flatpickr-weekday {
 .preview-a4-page-footer {
   padding: 2mm 14mm 5mm;
   text-align: center;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   border-top: 1px solid #f0e6c8;
 }
@@ -1049,7 +1049,7 @@ span.flatpickr-weekday {
 
 .preview-seal-area::after {
   content: 'সিল';
-  font-size: .7rem;
+  font-size: var(--text-xs);
   color: #ddd4bc;
   font-style: italic;
 }
@@ -1068,7 +1068,7 @@ span.flatpickr-weekday {
 
 .preview-stamp-area::after {
   content: 'স্ট্যাম্প';
-  font-size: .7rem;
+  font-size: var(--text-xs);
   color: #ddd4bc;
   font-style: italic;
 }
@@ -1079,7 +1079,7 @@ span.flatpickr-weekday {
   display: flex;
   align-items: center;
   gap: .5rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   cursor: pointer;
   margin-bottom: .5rem;
 }
@@ -1112,7 +1112,7 @@ span.flatpickr-weekday {
   padding-top: .5rem;
   text-align: center;
   color: var(--muted);
-  font-size: .75rem;
+  font-size: var(--text-sm);
   font-style: italic;
 }
 
@@ -1204,11 +1204,11 @@ span.flatpickr-weekday {
   .step-num {
     width: 28px;
     height: 28px;
-    font-size: .75rem;
+    font-size: var(--text-sm);
   }
 
   .step-label {
-    font-size: .6rem;
+    font-size: var(--text-xs);
   }
 
   .step-line {
@@ -1223,7 +1223,7 @@ span.flatpickr-weekday {
   .button-step-prev,
   .button-step-next {
     padding: .5rem 1rem;
-    font-size: .8rem;
+    font-size: var(--text-sm);
   }
 
   .marriage-form .form-row-half {
@@ -1247,7 +1247,7 @@ span.flatpickr-weekday {
 /* ========== Step 8: Photo Upload ========== */
 
 .marriage-photo-hint {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-bottom: 1.25rem;
 }
@@ -1261,7 +1261,7 @@ span.flatpickr-weekday {
 }
 
 .marriage-photo-section h3 {
-  font-size: .92rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin: 0 0 .75rem;
@@ -1300,7 +1300,7 @@ span.flatpickr-weekday {
   background: rgba(0,0,0,.6);
   color: #fff;
   border: none;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -1319,7 +1319,7 @@ span.flatpickr-weekday {
   align-items: center;
   gap: .3rem;
   padding: .4rem .85rem;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #c8960c;
   background: #fdf8f0;
@@ -1350,7 +1350,7 @@ span.flatpickr-weekday {
 
 .marriage-clear-form-button {
   padding: .35rem .85rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--danger);
   background: var(--danger-light);
@@ -1373,7 +1373,7 @@ span.flatpickr-weekday {
 }
 
 .marriage-clear-form-message {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -1398,13 +1398,13 @@ span.flatpickr-weekday {
 
 .preview-photo-page-title {
   text-align: center;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   margin: 0 0 .75rem;
   color: #8a6d3b;
 }
 
 .preview-photo-page-label {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #5a4a2a;
   margin: 0 0 .5rem;

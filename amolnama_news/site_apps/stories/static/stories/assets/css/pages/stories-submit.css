@@ -7,7 +7,7 @@
 }
 
 .stories-submit-title {
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   font-weight: 800;
   margin: 0 0 1rem;
 }
@@ -25,7 +25,7 @@
 }
 
 .stories-submit-label {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text);
 }
@@ -40,7 +40,7 @@
   padding: .5rem .6rem;
   border: 1.5px solid var(--border);
   border-radius: 8px;
-  font-size: .88rem;
+  font-size: var(--text-sm);
   color: var(--text);
   background: var(--card);
   transition: border-color .15s;
@@ -61,7 +61,7 @@
 
 .stories-submit-content-textarea {
   min-height: 300px;
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 2;
 }
 
@@ -70,11 +70,11 @@
 }
 
 .stories-submit-file-input {
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 .stories-submit-hint {
-  font-size: .72rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   margin: .15rem 0 0;
 }
@@ -90,7 +90,7 @@
   border-radius: 25px;
   background: var(--purple);
   color: var(--card);
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
   transition: opacity .15s, transform .15s;
@@ -112,7 +112,7 @@
   border: 1px solid var(--danger-border);
   border-radius: 8px;
   color: var(--danger-text);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 /* ---- Mobile ---- */
@@ -123,7 +123,7 @@
   }
 
   .stories-submit-title {
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
   }
 
   .stories-submit-form {
@@ -134,7 +134,7 @@
   .stories-submit-textarea,
   .stories-submit-select {
     padding: .6rem;
-    font-size: .85rem;
+    font-size: var(--text-sm);
   }
 
   .stories-submit-content-textarea {

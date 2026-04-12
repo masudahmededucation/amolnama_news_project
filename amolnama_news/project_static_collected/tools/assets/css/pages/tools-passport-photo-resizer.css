@@ -3,7 +3,7 @@
 /* ---- Subtitle ---- */
 
 .tool-page--photo-resizer .tool-subtitle {
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--muted);
   margin: -.75rem 0 1.5rem;
   line-height: 1.6;
@@ -20,7 +20,7 @@
 
 .photo-resizer-mode-button {
   padding: .5rem 1rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -54,7 +54,7 @@
 .photo-resizer-label {
   display: block;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--text);
   margin-bottom: .35rem;
 }
@@ -62,7 +62,7 @@
 .photo-resizer-select {
   width: 100%;
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
@@ -89,7 +89,7 @@
 }
 
 .photo-resizer-times {
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   color: var(--muted);
   padding-bottom: .4rem;
 }
@@ -102,7 +102,7 @@
 .photo-resizer-field label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .3rem;
 }
@@ -110,7 +110,7 @@
 .photo-resizer-field input {
   width: 100%;
   padding: .5rem .65rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--card);
@@ -125,7 +125,7 @@
 }
 
 .photo-resizer-field .hint {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .2rem;
 }
@@ -140,14 +140,14 @@
 }
 
 .photo-resizer-size-sep {
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--muted);
   padding-bottom: .8rem;
 }
 
 .photo-resizer-custom > .hint {
   display: block;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-bottom: .5rem;
 }
@@ -214,27 +214,27 @@
 }
 
 .photo-resizer-dropzone-icon {
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
   margin-bottom: .5rem;
 }
 
 .photo-resizer-dropzone-text {
   margin: .25rem 0;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
 }
 
 .photo-resizer-dropzone-or {
   margin: .25rem 0;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
 .photo-resizer-browse-button {
   display: inline-block;
   padding: .55rem 1.5rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: #fff;
   background: #7c6bc4;
@@ -255,14 +255,14 @@
 
 .photo-resizer-dropzone-hint {
   margin: .5rem 0 0;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
 /* ---- Drag hint ---- */
 
 .photo-resizer-drag-hint {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin: 0 0 1rem;
   line-height: 1.5;
@@ -279,7 +279,7 @@
 
 .photo-resizer-source h3,
 .photo-resizer-preview h3 {
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--text);
   margin: 0 0 .5rem;
@@ -332,7 +332,7 @@
 }
 
 .photo-resizer-zoom label {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text);
   white-space: nowrap;
@@ -345,7 +345,7 @@
 }
 
 .photo-resizer-zoom span {
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   min-width: 3rem;
   text-align: right;
@@ -371,7 +371,7 @@
 
 .photo-resizer-info {
   margin-top: .5rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   line-height: 1.5;
 }
@@ -386,7 +386,7 @@
 
 .photo-resizer-button {
   padding: .6rem 1.25rem;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   border: none;
   border-radius: var(--radius-sm);
@@ -486,7 +486,7 @@
 
   .photo-resizer-browse-button {
     padding: .65rem 1.5rem;
-    font-size: .95rem;
+    font-size: var(--text-base);
   }
 }
 

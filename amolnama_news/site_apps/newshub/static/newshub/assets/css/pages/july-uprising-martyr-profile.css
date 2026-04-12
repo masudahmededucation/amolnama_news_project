@@ -15,14 +15,14 @@
   margin-bottom: 1.5rem;
 }
 .martyr-name-bn {
-  font-size: 2rem;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--text);
   margin: 0;
   line-height: 1.3;
 }
 .martyr-name-en {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--muted);
   margin-top: .3rem;
 }
@@ -30,7 +30,7 @@
   display: inline-block;
   padding: .35rem 1rem;
   border-radius: 20px;
-  font-size: .9rem;
+  font-size: var(--text-base);
   font-weight: 600;
   margin-top: .75rem;
   color: var(--bg);
@@ -51,7 +51,7 @@
   border-radius: 8px;
 }
 .martyr-section h2 {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--primary);
   margin: 0 0 .75rem 0;
   padding-bottom: .5rem;
@@ -66,13 +66,13 @@
 .info-item label,
 .info-item .form-field-label {
   display: block;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: .5px;
 }
 .info-item span {
-  font-size: .95rem;
+  font-size: var(--text-base);
   color: var(--text);
 }
 
@@ -80,7 +80,7 @@
   margin-bottom: .75rem;
 }
 .story-block h3 {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin: 0 0 .25rem 0;
 }
@@ -98,14 +98,14 @@
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
   border-radius: 4px;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   margin: .15rem .2rem;
 }
 .evidence-badge {
   display: inline-block;
   padding: .2rem .6rem;
   border-radius: 4px;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   margin: .15rem .2rem;
 }
 .evidence-verified { background: var(--success-light); color: var(--primary); border: 1px solid var(--success-light); }
@@ -123,7 +123,7 @@
   margin-bottom: 1.5rem;
 }
 .share-section h2 {
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--primary);
   margin: 0 0 .75rem 0;
 }
@@ -139,7 +139,7 @@
   gap: .4rem;
   padding: .5rem 1rem;
   border-radius: 6px;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
@@ -153,14 +153,14 @@
   text-align: center;
   padding: 1rem;
   color: var(--muted);
-  font-size: .8rem;
+  font-size: var(--text-sm);
   border-top: 1px solid var(--border);
   margin-top: 1rem;
 }
 
 @media (max-width: 600px) {
   .info-grid { grid-template-columns: 1fr; }
-  .martyr-name-bn { font-size: 1.5rem; }
+  .martyr-name-bn { font-size: var(--text-2xl); }
 }
 
 

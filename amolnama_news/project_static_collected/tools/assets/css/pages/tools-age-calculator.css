@@ -3,7 +3,7 @@
    ============================================================ */
 
 .tool-page--age .tool-subtitle {
-  font-size: .9rem;
+  font-size: var(--text-base);
   color: var(--muted);
   margin: -.75rem 0 1.5rem;
 }
@@ -31,7 +31,7 @@
 .age-form-field label {
   display: block;
   font-weight: 600;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   margin-bottom: .35rem;
 }
@@ -39,7 +39,7 @@
 .age-form-field input[type="date"] {
   width: 100%;
   padding: .65rem .85rem;
-  font-size: .92rem;
+  font-size: var(--text-base);
   border: 1.5px solid var(--border);
   border-radius: 8px;
   background: var(--card);
@@ -55,7 +55,7 @@
 }
 
 .age-form-field .hint {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin-top: .25rem;
 }
@@ -76,7 +76,7 @@
   width: 100%;
   padding: .65rem .85rem;
   padding-right: 2.5rem;
-  font-size: .92rem;
+  font-size: var(--text-base);
   border: 1.5px solid #d4d4de;
   border-radius: 8px;
   background: var(--card);
@@ -105,7 +105,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   cursor: pointer;
   padding: .3rem;
   border-radius: 4px;
@@ -154,7 +154,7 @@
 .age-cal-header button {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   cursor: pointer;
   padding: .25rem .45rem;
   border-radius: 6px;
@@ -168,7 +168,7 @@
 }
 
 .age-cal-title {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
@@ -189,7 +189,7 @@
 }
 
 .age-cal-weekdays span {
-  font-size: .68rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: #9a9ab0;
   padding: .2rem 0;
@@ -208,7 +208,7 @@
   width: 34px;
   height: 34px;
   margin: 0 auto;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text);
   border-radius: 50%;
@@ -251,7 +251,7 @@
 
 .age-cal-grid button {
   padding: .45rem;
-  font-size: .8rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text);
   background: none;
@@ -283,7 +283,7 @@
   align-items: center;
   gap: .5rem;
   padding: .7rem 2rem;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, #5b6abf 0%, #7c6bae 100%);
@@ -316,7 +316,7 @@
 }
 
 .age-primary-label {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: rgba(255,255,255,.7);
   margin-bottom: .5rem;
@@ -333,14 +333,14 @@
 }
 
 .age-big {
-  font-size: 2.5rem;
+  font-size: var(--text-4xl);
   font-weight: 800;
   color: #fff;
   line-height: 1;
 }
 
 .age-unit {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: rgba(255,255,255,.65);
   margin-right: .75rem;
@@ -362,12 +362,12 @@
 }
 
 .age-birthday-icon {
-  font-size: 2rem;
+  font-size: var(--text-3xl);
   flex-shrink: 0;
 }
 
 .age-birthday-label {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #8a7460;
   text-transform: uppercase;
@@ -375,18 +375,18 @@
 }
 
 .age-birthday-countdown {
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: #b07d3c;
 }
 
 .age-birthday-date {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
 }
 
 .age-birthday-day {
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -410,7 +410,7 @@
 
 .age-detail-value {
   display: block;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: #4a5078;
   line-height: 1.2;
@@ -418,7 +418,7 @@
 
 .age-detail-label {
   display: block;
-  font-size: .68rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   margin-top: .2rem;
 }
@@ -435,7 +435,7 @@
 }
 
 .age-fun-facts h3 {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin: 0 0 .5rem;
@@ -449,7 +449,7 @@
 
 .age-fun-facts li {
   padding: .4rem 0;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--text);
   border-bottom: 1px solid #eae6dc;
 }
@@ -475,7 +475,7 @@
 }
 
 .age-milestones h3 {
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin: 0 0 .75rem;
@@ -493,7 +493,7 @@
   gap: .75rem;
   padding: .45rem .75rem;
   border-radius: 6px;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   transition: transform .1s;
 }
 
@@ -514,7 +514,7 @@
 }
 
 .age-milestone-icon {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   flex-shrink: 0;
 }
 

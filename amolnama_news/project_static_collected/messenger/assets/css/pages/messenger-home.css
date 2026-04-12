@@ -59,7 +59,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-sidebar-collapse-button {
   background: none;
   border: none;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   cursor: pointer;
   color: var(--muted);
   padding: .2rem .4rem;
@@ -69,7 +69,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-sidebar-collapse-button:hover { background: var(--surface); color: var(--text); }
 
 .messenger-sidebar-title {
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 800;
   margin: 0;
   color: var(--text);
@@ -85,7 +85,7 @@ main:has(.messenger) { padding-top: .25rem; }
   padding: .45rem .75rem;
   border: 1px solid var(--border);
   border-radius: 20px;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   outline: none;
   background: var(--surface);
@@ -105,7 +105,7 @@ main:has(.messenger) { padding-top: .25rem; }
   text-align: center;
   padding: 2rem;
   color: var(--muted);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 /* Conversation item */
@@ -140,7 +140,7 @@ main:has(.messenger) { padding-top: .25rem; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 700;
 }
 
@@ -157,7 +157,7 @@ main:has(.messenger) { padding-top: .25rem; }
 }
 
 .messenger-conversation-item-name {
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text);
   white-space: nowrap;
@@ -166,7 +166,7 @@ main:has(.messenger) { padding-top: .25rem; }
 }
 
 .messenger-conversation-item-time {
-  font-size: .65rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   flex-shrink: 0;
 }
@@ -179,7 +179,7 @@ main:has(.messenger) { padding-top: .25rem; }
 }
 
 .messenger-conversation-item-last-message {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -191,7 +191,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-conversation-item-unread-badge {
   background: var(--primary);
   color: var(--messenger-on-primary);
-  font-size: .6rem;
+  font-size: var(--text-xs);
   font-weight: 800;
   min-width: 20px;
   height: 20px;
@@ -224,9 +224,9 @@ main:has(.messenger) { padding-top: .25rem; }
   color: var(--muted);
   gap: .3rem;
 }
-.messenger-chat-empty-icon { font-size: 3rem; }
-.messenger-chat-empty-title { font-size: 1rem; font-weight: 700; margin: 0; }
-.messenger-chat-empty-subtitle { font-size: .82rem; margin: 0; }
+.messenger-chat-empty-icon { font-size: var(--text-5xl); }
+.messenger-chat-empty-title { font-size: var(--text-base); font-weight: 700; margin: 0; }
+.messenger-chat-empty-subtitle { font-size: var(--text-sm); margin: 0; }
 
 /* Chat header */
 .messenger-chat-header {
@@ -269,8 +269,8 @@ main:has(.messenger) { padding-top: .25rem; }
   display: flex;
   flex-direction: column;
 }
-.messenger-chat-header-name { font-size: .92rem; font-weight: 700; color: var(--text); }
-.messenger-chat-header-status { font-size: .72rem; color: var(--muted); }
+.messenger-chat-header-name { font-size: var(--text-base); font-weight: 700; color: var(--text); }
+.messenger-chat-header-status { font-size: var(--text-xs); color: var(--muted); }
 .messenger-chat-header-status-typing { color: var(--primary); font-weight: 600; }
 
 /* Chat settings dropdown */
@@ -299,14 +299,14 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-chat-settings-item {
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 10px 16px; border: none; background: none;
-  font-size: .88rem; font-family: inherit; color: var(--text); cursor: pointer;
+  font-size: var(--text-sm); font-family: inherit; color: var(--text); cursor: pointer;
   text-align: left; transition: background .15s;
 }
 .messenger-chat-settings-item:hover { background: var(--surface); }
 .messenger-chat-settings-item-danger { color: var(--danger); }
 .messenger-chat-settings-item-danger:hover { background: var(--danger-light); }
 .messenger-chat-settings-submenu-toggle { display: flex; justify-content: space-between; align-items: center; }
-.messenger-chat-settings-arrow { font-size: .65rem; color: var(--muted); transition: transform .2s ease; }
+.messenger-chat-settings-arrow { font-size: var(--text-xs); color: var(--muted); transition: transform .2s ease; }
 .messenger-chat-settings-submenu-open .messenger-chat-settings-arrow { transform: rotate(90deg); }
 .messenger-chat-settings-submenu {
   padding: 4px 0 4px 0; margin: 2px 0;
@@ -323,8 +323,8 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-chat-settings-subitem:hover { background: rgba(0,0,0,.04); }
 [data-theme="dark"] .messenger-chat-settings-subitem:hover { background: rgba(255,255,255,.06); }
 .messenger-chat-settings-subitem-active { color: var(--primary); font-weight: 600; }
-.messenger-chat-settings-subitem-active::after { content: '✓'; font-size: .85rem; color: var(--primary); margin-left: auto; }
-.messenger-chat-settings-subitem-off { color: var(--muted); font-size: .82rem; }
+.messenger-chat-settings-subitem-active::after { content: '✓'; font-size: var(--text-sm); color: var(--primary); margin-left: auto; }
+.messenger-chat-settings-subitem-off { color: var(--muted); font-size: var(--text-sm); }
 .messenger-chat-settings-divider { height: 1px; background: var(--border); margin: 4px 16px; }
 
 /* Messages area */
@@ -342,7 +342,7 @@ main:has(.messenger) { padding-top: .25rem; }
   text-align: center;
   padding: 2rem;
   color: var(--muted);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 /* Date separator */
@@ -357,7 +357,7 @@ main:has(.messenger) { padding-top: .25rem; }
   padding: .2rem .75rem;
   background: var(--card);
   border-radius: var(--radius-sm);
-  font-size: .68rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   box-shadow: var(--shadow);
 }
@@ -367,7 +367,7 @@ main:has(.messenger) { padding-top: .25rem; }
   max-width: 65%;
   padding: .5rem .7rem .3rem;
   border-radius: 8px;
-  font-size: .9rem;
+  font-size: var(--text-base);
   line-height: 1.5;
   color: var(--text);
   position: relative;
@@ -390,7 +390,7 @@ main:has(.messenger) { padding-top: .25rem; }
   object-fit: cover;
 }
 .messenger-bubble-sender-name {
-  font-size: .68rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--primary);
 }
@@ -445,7 +445,7 @@ main:has(.messenger) { padding-top: .25rem; }
 }
 
 .messenger-bubble-time {
-  font-size: .62rem;
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 
@@ -458,10 +458,10 @@ main:has(.messenger) { padding-top: .25rem; }
 
 /* Failed message */
 .messenger-bubble-failed { opacity: .7; border: 1px dashed var(--danger); }
-.messenger-bubble-failed-text { font-size: .65rem; color: var(--danger); }
+.messenger-bubble-failed-text { font-size: var(--text-xs); color: var(--danger); }
 .messenger-bubble-retry-button {
   background: none; border: 1px solid var(--danger); border-radius: 10px;
-  color: var(--danger); font-size: .62rem; font-weight: 700; font-family: inherit;
+  color: var(--danger); font-size: var(--text-xs); font-weight: 700; font-family: inherit;
   padding: .15rem .5rem; cursor: pointer; margin-left: .3rem;
   transition: background .1s;
 }
@@ -471,13 +471,13 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-bubble-deleted {
   font-style: italic;
   color: var(--muted);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 /* System message */
 .messenger-system-message {
   text-align: center;
-  font-size: .72rem;
+  font-size: var(--text-xs);
   color: var(--muted);
   padding: .3rem 0;
 }
@@ -509,7 +509,7 @@ main:has(.messenger) { padding-top: .25rem; }
   right: -2px;
   background: var(--primary);
   color: var(--messenger-on-primary);
-  font-size: .55rem;
+  font-size: var(--text-xs);
   font-weight: 800;
   min-width: 16px;
   height: 16px;
@@ -540,7 +540,7 @@ main:has(.messenger) { padding-top: .25rem; }
   padding: .55rem .8rem;
   border: none;
   background: none;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   color: var(--text);
   cursor: pointer;
@@ -561,7 +561,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border-radius: 50%;
   width: 24px;
   height: 24px;
-  font-size: .7rem;
+  font-size: var(--text-xs);
   cursor: pointer;
   display: none;
   align-items: center;
@@ -581,7 +581,7 @@ main:has(.messenger) { padding-top: .25rem; }
   background: rgba(0,0,0,.05);
   border-left: 3px solid var(--primary);
   border-radius: 6px;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   cursor: pointer;
   display: -webkit-box;
@@ -608,7 +608,7 @@ main:has(.messenger) { padding-top: .25rem; }
 }
 .messenger-reply-preview-content {
   flex: 1;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
@@ -619,7 +619,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: .9rem;
+  font-size: var(--text-base);
   padding: .2rem;
   transition: color .1s;
 }
@@ -638,7 +638,7 @@ main:has(.messenger) { padding-top: .25rem; }
   left: .6rem;
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   cursor: pointer;
   padding: .2rem;
   transition: transform .1s;
@@ -661,7 +661,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-emoji-item {
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   cursor: pointer;
   padding: .3rem;
   border-radius: 6px;
@@ -690,7 +690,7 @@ main:has(.messenger) { padding-top: .25rem; }
   padding: .7rem 1rem .7rem 2.5rem;
   border: 2px solid var(--border);
   border-radius: 22px;
-  font-size: .95rem;
+  font-size: var(--text-base);
   font-family: inherit;
   outline: none;
   resize: none;
@@ -728,13 +728,13 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger.messenger-sidebar-collapsed { grid-template-columns: 180px 1fr; }
 .messenger-sidebar-collapsed .messenger-sidebar { overflow: hidden; }
 .messenger-sidebar-collapsed .messenger-sidebar-search { display: none; }
-.messenger-sidebar-collapsed .messenger-sidebar-title { font-size: .82rem; }
+.messenger-sidebar-collapsed .messenger-sidebar-title { font-size: var(--text-sm); }
 .messenger-sidebar-collapsed .messenger-conversation-item { padding: .45rem .6rem; gap: .4rem; }
 .messenger-sidebar-collapsed .messenger-conversation-item-avatar,
-.messenger-sidebar-collapsed .messenger-conversation-item-avatar-default { width: 28px; height: 28px; font-size: .7rem; }
+.messenger-sidebar-collapsed .messenger-conversation-item-avatar-default { width: 28px; height: 28px; font-size: var(--text-xs); }
 .messenger-sidebar-collapsed .messenger-conversation-item-bottom-row { display: none; }
 .messenger-sidebar-collapsed .messenger-conversation-item-time { display: none; }
-.messenger-sidebar-collapsed .messenger-conversation-item-name { font-size: .75rem; }
+.messenger-sidebar-collapsed .messenger-conversation-item-name { font-size: var(--text-sm); }
 
 /* ── Mobile: single-panel mode ── */
 
@@ -769,7 +769,7 @@ main:has(.messenger) { padding-top: .25rem; }
 /* Inline input error message — used by messenger-home.js showInputError() */
 .messenger-input-error {
   color: var(--danger);
-  font-size: .72rem;
+  font-size: var(--text-xs);
   padding: .2rem .75rem;
 }
 

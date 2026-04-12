@@ -1,17 +1,17 @@
 /* Social lists page */
 
 .social-lists-page { max-width: 700px; margin: 0 auto; padding: 1rem; }
-.social-lists-page-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 .5rem; }
-.social-lists-page-description { font-size: .78rem; color: var(--muted); margin-bottom: 1rem; }
+.social-lists-page-title { font-size: var(--text-xl); font-weight: 800; margin: 0 0 .5rem; }
+.social-lists-page-description { font-size: var(--text-sm); color: var(--muted); margin-bottom: 1rem; }
 
 .social-lists-create-row { display: flex; gap: .4rem; margin-bottom: 1rem; }
-.social-lists-create-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 8px; font-size: .82rem; }
-.social-lists-create-button { padding: .4rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: .75rem; font-weight: 700; cursor: pointer; }
+.social-lists-create-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 8px; font-size: var(--text-sm); }
+.social-lists-create-button { padding: .4rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: var(--text-sm); font-weight: 700; cursor: pointer; }
 
 .social-lists-item { padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .4rem; display: flex; justify-content: space-between; align-items: center; }
-.social-lists-item-name { font-size: .88rem; font-weight: 700; }
-.social-lists-item-member-count { font-size: .65rem; color: var(--muted); margin-left: .3rem; }
-.social-lists-empty-message { color: var(--muted); font-size: .82rem; }
+.social-lists-item-name { font-size: var(--text-sm); font-weight: 700; }
+.social-lists-item-member-count { font-size: var(--text-xs); color: var(--muted); margin-left: .3rem; }
+.social-lists-empty-message { color: var(--muted); font-size: var(--text-sm); }
 
 .social-lists-create-error {
   margin: .4rem 0 .8rem;
@@ -20,11 +20,11 @@
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
   border-radius: 6px;
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 @media (max-width: 640px) {
-  .social-lists-create-input { font-size: .85rem; min-height: 44px; }
+  .social-lists-create-input { font-size: var(--text-sm); min-height: 44px; }
   .social-lists-create-button { min-height: 44px; padding: .5rem 1rem; }
   .social-lists-item { padding: .7rem .8rem; min-height: 44px; }
 }

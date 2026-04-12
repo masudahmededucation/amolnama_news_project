@@ -12,7 +12,7 @@
 }
 
 .art-detail-title {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   font-weight: 800;
   color: var(--text);
   margin: 0;
@@ -20,7 +20,7 @@
 }
 
 .art-detail-title-english {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   margin: .2rem 0 0;
 }
@@ -40,7 +40,7 @@
   display: inline-block;
   padding: .2rem .5rem;
   border-radius: 12px;
-  font-size: .72rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -61,11 +61,11 @@
 
 .art-detail-author-name {
   font-weight: 700;
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 .art-detail-timestamp {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -96,7 +96,7 @@
 
 .art-detail-gallery-caption {
   padding: .3rem .5rem;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   background: var(--surface);
 }
@@ -110,7 +110,7 @@
 }
 
 .art-detail-section-title {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   margin: 0 0 .5rem;
   color: var(--text);
@@ -118,19 +118,19 @@
 
 .art-detail-description,
 .art-detail-backstory {
-  font-size: .9rem;
+  font-size: var(--text-base);
   line-height: 1.7;
   color: var(--text);
 }
 
 .art-detail-materials,
 .art-detail-dimensions {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   color: var(--text);
 }
 
 .art-detail-materials-english {
-  font-size: .8rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -160,13 +160,13 @@
   border-radius: 50%;
   background: var(--primary);
   color: var(--card);
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .art-detail-step-content {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -198,11 +198,11 @@
 
 .art-detail-youtube-play {
   color: var(--danger);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 .art-detail-youtube-title {
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 /* Actions Bar */
@@ -225,7 +225,7 @@
   border-radius: 20px;
   background: transparent;
   cursor: pointer;
-  font-size: .82rem;
+  font-size: var(--text-sm);
   color: var(--text);
   transition: background .15s, border-color .15s, transform .15s;
 }
@@ -252,7 +252,7 @@
 }
 
 .art-detail-action-label {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -265,7 +265,7 @@
 
 @media (max-width: 600px) {
   .art-detail-title {
-    font-size: 1.2rem;
+    font-size: var(--text-xl);
   }
 
   .art-detail-actions {
@@ -274,7 +274,7 @@
 
   .art-detail-action-button {
     padding: .3rem .5rem;
-    font-size: .75rem;
+    font-size: var(--text-sm);
     min-height: 44px;
   }
 

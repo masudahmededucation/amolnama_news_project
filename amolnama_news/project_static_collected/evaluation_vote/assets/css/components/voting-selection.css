@@ -7,7 +7,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   color: var(--muted);
 }
 
@@ -65,14 +65,14 @@
 }
 
 .selection-list li .name-bn {
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   opacity: 0.8;
 }
 
 /* Area info for constituencies */
 .area-info {
   margin-top: 0.25rem;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -92,7 +92,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   box-shadow: var(--shadow);
   transition: all .2s;
 }
@@ -121,7 +121,7 @@
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
   .breadcrumb {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     gap: 0.35rem;
   }
 
@@ -138,7 +138,7 @@
 /* Mobile phones (480px) */
 @media (max-width: 480px) {
   .breadcrumb {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     justify-content: center;
     text-align: center;
   }
@@ -155,17 +155,17 @@
 
   .selection-list li .name-en {
     display: block;
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 
   .selection-list li .name-bn {
     display: block;
-    font-size: 0.9rem;
+    font-size: var(--text-base);
     margin-top: 0.15rem;
   }
 
   .area-info {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     margin-top: 0.35rem;
     line-height: 1.4;
   }
@@ -180,19 +180,19 @@
 /* Small phones (360px) */
 @media (max-width: 360px) {
   .breadcrumb {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
   }
 
   .selection-list li .name-en {
-    font-size: 0.95rem;
+    font-size: var(--text-base);
   }
 
   .selection-list li .name-bn {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
   }
 
   .area-info {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
   }
 }
 
