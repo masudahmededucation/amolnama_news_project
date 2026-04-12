@@ -1588,6 +1588,15 @@ def article_detail(request, slug):
     except Exception:
         logger.debug('article embedding encode trigger failed for %s', published_article.pub_article_id, exc_info=True)
 
+    # Entity extraction — populate article_topic_auto_tags_json with NER results.
+    # Lazy: runs on first view (background thread). Subsequent views skip if already populated.
+    if not entry.article_topic_auto_tags_json:
+        try:
+            from amolnama_news.site_apps.newsengine.entity_extractor import extract_and_store_entities_background
+            extract_and_store_entities_background(entry.newshub_coll_news_entry_id)
+        except Exception:
+            logger.debug('entity extraction trigger failed for entry %s', entry.newshub_coll_news_entry_id, exc_info=True)
+
     # Story thread clustering — attach this article to a developing story arc
     # if it's similar enough to existing threads, or create a new thread if
     # 2+ unattached articles cluster together. 100% local, no API.
