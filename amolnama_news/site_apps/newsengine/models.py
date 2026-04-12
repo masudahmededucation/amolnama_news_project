@@ -23,13 +23,17 @@ class FactFeedUserContentView(models.Model):
 
 
 class FactFeedContentScore(models.Model):
-    """Cached content ranking scores."""
+    """Cached content ranking scores.
+
+    NOTE: feed_recency_score was dropped from the DB schema — recency is now
+    computed on read (live, never cached) so it can't go stale between writes.
+    Do not re-add this field without re-adding the column.
+    """
     newsengine_fact_feed_content_score_id = models.BigAutoField(primary_key=True)
     feed_content_type_code = models.CharField(max_length=30)
     feed_content_id = models.BigIntegerField()
     feed_engagement_score = models.DecimalField(max_digits=10, decimal_places=4, default=0)
     feed_trending_score = models.DecimalField(max_digits=10, decimal_places=4, default=0)
-    feed_recency_score = models.DecimalField(max_digits=10, decimal_places=4, default=0)
     feed_total_score = models.DecimalField(max_digits=10, decimal_places=4, default=0)
     feed_scored_at = models.DateTimeField()
     is_active = models.BooleanField(default=True)

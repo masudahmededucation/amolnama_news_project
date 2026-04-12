@@ -129,6 +129,8 @@ class UserProfile(models.Model):
     feed_preference_debate = models.BooleanField(default=True)
     feed_preference_tools = models.BooleanField(default=True)
     link_avatar_asset_id = models.BigIntegerField(blank=True, null=True)
+    last_active_at = models.DateTimeField(blank=True, null=True)
+    user_credibility_score = models.FloatField(default=1.0)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 

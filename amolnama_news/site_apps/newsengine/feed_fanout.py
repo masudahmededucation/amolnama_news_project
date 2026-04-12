@@ -43,10 +43,14 @@ def fanout_post_to_interested_users(post_post_id, author_user_profile_id, is_bre
 
 
 def _fanout_to_followers(post_post_id, author_user_profile_id):
-    """Insert post into feed cache for all followers of the author."""
+    """Insert post into feed cache for ACTIVE followers of the author.
+
+    Dormant followers (last_active_at > 14 days ago or NULL) are skipped.
+    When they return, the fallback pipeline in feed_builder.py builds their
+    feed from scratch — zero wasted writes for users who aren't watching.
+    """
     try:
         with connection.cursor() as cursor:
-            # Get followers via existing social.user_follow table (faster than graph for simple follows)
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_user_feed_cache]
                     (link_user_profile_id, link_post_id, feed_cache_score,
@@ -59,8 +63,11 @@ def _fanout_to_followers(post_post_id, author_user_profile_id):
                     1,
                     GETDATE()
                 FROM [social].[user_follow] uf
+                JOIN [account].[user_profile] up
+                    ON up.user_profile_id = uf.link_follower_user_profile_id
                 WHERE uf.link_following_user_profile_id = %s
                   AND uf.is_active = 1
+                  AND up.last_active_at > DATEADD(DAY, -14, GETDATE())
                   AND NOT EXISTS (
                       SELECT 1 FROM [newsengine].[fact_user_feed_cache] fc
                       WHERE fc.link_user_profile_id = uf.link_follower_user_profile_id
@@ -70,7 +77,7 @@ def _fanout_to_followers(post_post_id, author_user_profile_id):
                   author_user_profile_id, post_post_id])
             follower_count = cursor.rowcount
             if follower_count > 0:
-                logger.info('feed_fanout: post %s fanned out to %d followers',
+                logger.info('feed_fanout: post %s fanned out to %d active followers',
                              post_post_id, follower_count)
     except Exception as follower_error:
         logger.error('feed_fanout: follower fanout failed for post %s — %s',
@@ -99,7 +106,7 @@ def _notify_followers_of_new_content(post_post_id, author_user_profile_id):
         notification_message = f'{author_display_name} নতুন পোস্ট করেছেন: {post_title}'
         notification_url = f'/post/{post_post_id}/'
 
-        # Bulk insert notifications for all followers
+        # Bulk insert notifications for ACTIVE followers only
         with connection.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO [newsengine].[notification_item]
@@ -119,8 +126,11 @@ def _notify_followers_of_new_content(post_post_id, author_user_profile_id):
                     1,
                     GETDATE()
                 FROM [social].[user_follow] uf
+                JOIN [account].[user_profile] up
+                    ON up.user_profile_id = uf.link_follower_user_profile_id
                 WHERE uf.link_following_user_profile_id = %s
                   AND uf.is_active = 1
+                  AND up.last_active_at > DATEADD(DAY, -14, GETDATE())
             """, [
                 author_user_profile_id, post_post_id,
                 notification_message, notification_url,
@@ -136,10 +146,11 @@ def _notify_followers_of_new_content(post_post_id, author_user_profile_id):
 
 
 def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
-    """Find users interested in this post's topics via graph MATCH and insert into feed cache."""
+    """Find ACTIVE users interested in this post's topics via graph MATCH and insert into feed cache."""
     try:
         with connection.cursor() as cursor:
             # Graph traversal: post → topic ← interested_in ← user
+            # Gated by last_active_at — dormant users are skipped.
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_user_feed_cache]
                     (link_user_profile_id, link_post_id, feed_cache_score,
@@ -157,11 +168,14 @@ def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
                     [newsengine].[graph_topic_node] t,
                     [newsengine].[graph_user_interested_in_topic] i,
                     [newsengine].[graph_user_node] u
+                JOIN [account].[user_profile] up
+                    ON up.user_profile_id = u.link_user_profile_id
                 WHERE MATCH(p-(pt)->t<-(i)-u)
                   AND p.link_post_id = %s
                   AND t.is_active = 1
                   AND u.link_user_profile_id != %s
                   AND i.interest_weight >= 0.3
+                  AND up.last_active_at > DATEADD(DAY, -14, GETDATE())
                   AND NOT EXISTS (
                       SELECT 1 FROM [newsengine].[fact_user_feed_cache] fc
                       WHERE fc.link_user_profile_id = u.link_user_profile_id
@@ -171,7 +185,7 @@ def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
                   post_post_id, author_user_profile_id, post_post_id])
             interest_count = cursor.rowcount
             if interest_count > 0:
-                logger.info('feed_fanout: post %s fanned out to %d interested users',
+                logger.info('feed_fanout: post %s fanned out to %d active interested users',
                              post_post_id, interest_count)
     except Exception as interest_error:
         logger.error('feed_fanout: interest fanout failed for post %s — %s',
@@ -179,7 +193,7 @@ def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
 
 
 def _fanout_breaking_news(post_post_id):
-    """Push breaking news to all active users' feed caches."""
+    """Push breaking news to ACTIVE users' feed caches only."""
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -194,7 +208,10 @@ def _fanout_breaking_news(post_post_id):
                     1,
                     GETDATE()
                 FROM [newsengine].[graph_user_node] gu
-                WHERE NOT EXISTS (
+                JOIN [account].[user_profile] up
+                    ON up.user_profile_id = gu.link_user_profile_id
+                WHERE up.last_active_at > DATEADD(DAY, -14, GETDATE())
+                  AND NOT EXISTS (
                     SELECT 1 FROM [newsengine].[fact_user_feed_cache] fc
                     WHERE fc.link_user_profile_id = gu.link_user_profile_id
                       AND fc.link_post_id = %s
@@ -202,7 +219,7 @@ def _fanout_breaking_news(post_post_id):
             """, [MAX_FANOUT_USERS, post_post_id, REASON_BREAKING, post_post_id])
             breaking_count = cursor.rowcount
             if breaking_count > 0:
-                logger.info('feed_fanout: breaking news post %s pushed to %d users',
+                logger.info('feed_fanout: breaking news post %s pushed to %d active users',
                              post_post_id, breaking_count)
     except Exception as breaking_error:
         logger.error('feed_fanout: breaking news fanout failed for post %s — %s',

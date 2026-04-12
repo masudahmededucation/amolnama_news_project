@@ -93,6 +93,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
     "amolnama_news.middleware.anti_scraper.AntiScraperMiddleware",
+    "amolnama_news.site_apps.newsengine.middleware.UpdateLastActiveMiddleware",
 ]
 
 ROOT_URLCONF = "amolnama_news.urls"

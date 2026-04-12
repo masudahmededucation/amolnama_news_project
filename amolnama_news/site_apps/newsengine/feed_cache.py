@@ -1,19 +1,46 @@
-"""Feed score caching — populates and reads from [newsengine].[fact_feed_content_score].
+"""Feed score caching — populates [newsengine].[fact_feed_content_score].
 
-Replaces per-request ranking recalculation with cached scores.
-Scores are refreshed on: post create, engagement change (like/vote/repost), and periodic background refresh.
+Design: "static partial on write, live recency on read"
+========================================================
+
+The final ranking formula is unchanged:
+
+    total_score = recency × W_RECENCY
+                + engagement × W_ENGAGEMENT
+                + author_reputation × W_AUTHOR_REPUTATION
+                + content_quality × W_CONTENT_QUALITY
+
+But only the TIME-INDEPENDENT parts are cached to the DB. Recency (which is
+literally `now - created_at`) and the brand-new-post freshness boost are
+computed on READ by the caller. This means cached scores can never go stale
+between engagement events — the time-sensitive piece is always current to
+the microsecond because it's recomputed every time someone asks.
+
+What the cache stores:
+    feed_engagement_score   — from like/vote/view/repost/reply counts
+    feed_trending_score     — engagement-weighted only (no recency component)
+    feed_total_score        — static partial: engagement + author_rep + quality
+                              (with their weights applied). NO recency. NO
+                              freshness boost. Caller must combine with live
+                              recency on read.
+    feed_scored_at          — when this row was last refreshed
+
+What callers do on read:
+
+    live_recency = calculate_recency_score(post.created_at)
+    live_total   = cache['feed_total_score'] + live_recency × W_RECENCY
+    if age_seconds < 300:
+        live_total += 10.0   # brand-new freshness boost, applied live
 
 Usage:
-    from newsengine.feed_cache import cache_content_score, get_cached_scores, refresh_stale_scores
+    from newsengine.feed_cache import cache_content_score, get_cached_scores
 
     # On post create or engagement change:
     cache_content_score('post', post_id, post_item_dict)
 
-    # On feed load — get cached scores for a list of content:
+    # On feed load — get cached static partials:
     scores = get_cached_scores(content_keys)  # [('post', 123), ('post', 456)]
-
-    # Periodic background refresh (call from management command or scheduled task):
-    refresh_stale_scores(max_age_minutes=60)
+    # caller must then add live recency per-item (see docstring on that function)
 """
 
 import logging
@@ -82,6 +109,10 @@ def cache_content_score(content_type_code, content_id, post_item):
 
     now = timezone.now()
 
+    # Recency is NOT written to the DB — it's computed on read so it can never
+    # go stale between engagement events. The `recency_score` computed above is
+    # still used to derive `trending_score` and `total_score` at write time,
+    # but those will be recomputed on read in a follow-up change.
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -93,21 +124,20 @@ def cache_content_score(content_type_code, content_id, post_item):
                     UPDATE SET
                         feed_engagement_score = %s,
                         feed_trending_score = %s,
-                        feed_recency_score = %s,
                         feed_total_score = %s,
                         feed_scored_at = %s,
                         is_active = 1
                 WHEN NOT MATCHED THEN
                     INSERT (feed_content_type_code, feed_content_id,
                             feed_engagement_score, feed_trending_score,
-                            feed_recency_score, feed_total_score,
+                            feed_total_score,
                             feed_scored_at, is_active)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, 1);
+                    VALUES (%s, %s, %s, %s, %s, %s, 1);
             """, [
                 content_type_code, content_id,
-                engagement_score, trending_score, recency_score, total_score, now,
+                engagement_score, trending_score, total_score, now,
                 content_type_code, content_id,
-                engagement_score, trending_score, recency_score, total_score, now,
+                engagement_score, trending_score, total_score, now,
             ])
     except Exception as cache_error:
         logger.error('feed_cache: cache_content_score failed for %s:%s — %s',
