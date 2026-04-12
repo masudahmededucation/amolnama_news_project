@@ -253,10 +253,10 @@ def api_transliterate(request):
             "text=" + urllib.parse.quote(text) +
             "&itc=bn-t-i0-und&num=5&cp=0&cs=1&ie=utf-8&oe=utf-8"
         )
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        resp = urllib.request.urlopen(req, timeout=3)
+        http_request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        http_response = urllib.request.urlopen(http_request, timeout=3)
         import json
-        data = json.loads(resp.read().decode())
+        data = json.loads(http_response.read().decode())
         if data[0] == "SUCCESS" and len(data[1]) > 0:
             return JsonResponse({"suggestions": data[1][0][1]})
     except Exception as spell_check_error:

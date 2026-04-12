@@ -2631,12 +2631,12 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
             ext_legal_raw = request.POST.get('ext_legal', '')
             if ext_legal_raw:
                 try:
-                    el = json.loads(ext_legal_raw)
-                    law_ids         = set(int(x) for x in (el.get('applicableLawIds') or []) if x)
-                    support_ids     = set(int(x) for x in (el.get('supportServiceIds') or []) if x)
-                    retaliation_ids = set(int(x) for x in (el.get('retaliationIds') or []) if x)
-                    fir_status_id   = int(el.get('firStatusId') or 0)
-                    case_status_id  = int(el.get('caseStatusId') or 0) or None
+                    extortion_legal_data = json.loads(ext_legal_raw)
+                    law_ids         = set(int(x) for x in (extortion_legal_data.get('applicableLawIds') or []) if x)
+                    support_ids     = set(int(x) for x in (extortion_legal_data.get('supportServiceIds') or []) if x)
+                    retaliation_ids = set(int(x) for x in (extortion_legal_data.get('retaliationIds') or []) if x)
+                    fir_status_id   = int(extortion_legal_data.get('firStatusId') or 0)
+                    case_status_id  = int(extortion_legal_data.get('caseStatusId') or 0) or None
 
                     # Only save legal action if FIR status was selected (NOT NULL column)
                     if fir_status_id:
@@ -2653,10 +2653,10 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                         ExtortionFormVictimLegalAction.objects.create(
                             link_newshub_coll_news_entry_id=entry.newshub_coll_news_entry_id,
                             link_ref_status_law_gd_fir_status_id=fir_status_id,
-                            gd_fir_case_gd_number=(el.get('caseNumber') or '').strip() or None,
-                            gd_fir_reason_not_filing_and_plans=(el.get('noFirReason') or '').strip() or None,
-                            gd_fir_police_refusal_statement=(el.get('policeRefusalStatement') or '').strip() or None,
-                            gd_fir_location_display_title_en=(el.get('policeStation') or '').strip() or None,
+                            gd_fir_case_gd_number=(extortion_legal_data.get('caseNumber') or '').strip() or None,
+                            gd_fir_reason_not_filing_and_plans=(extortion_legal_data.get('noFirReason') or '').strip() or None,
+                            gd_fir_police_refusal_statement=(extortion_legal_data.get('policeRefusalStatement') or '').strip() or None,
+                            gd_fir_location_display_title_en=(extortion_legal_data.get('policeStation') or '').strip() or None,
                             link_ref_status_law_case_status_id=case_status_id,
                             is_law_penal_code_383_389='penal_code_383_389' in law_codes,
                             is_law_anti_terrorism_act='anti_terrorism_act' in law_codes,
@@ -2674,7 +2674,7 @@ def _handle_news_submission(request, template_name='newshub/pages/news-collectio
                             is_risk_threat_eviction_threat='eviction_threat' in retaliation_codes,
                             is_risk_threat_retaliation_threat='retaliation_threat' in retaliation_codes,
                             is_risk_threat_death_or_physical_harm_threat='death_or_physical_harm_threat' in retaliation_codes,
-                            legal_action_additional_remarks=(el.get('remarks') or '').strip() or None,
+                            legal_action_additional_remarks=(extortion_legal_data.get('remarks') or '').strip() or None,
                             created_at=now,
                         )
                 except (json.JSONDecodeError, ValueError, TypeError):
