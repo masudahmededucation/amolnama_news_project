@@ -156,6 +156,7 @@ CSS bugs.
 SQL bugs.
 JS null checks.
 Duplicate listeners.
+silent swallower
 Banned alert().
 Banned confirm().
 Debug console.*

@@ -30,12 +30,6 @@ https://xeroxtree.com/pdf/modina_sonod_o_bangladesher_songbidhan.pdf
 -put a QR code for video
 https://www.icsbook.info/audio
 
-################
-profile app
-
-দালাল/গাদ্দার/জুলাই বিরোধী 
-score 
-49 points gemini voting
 
 
 
@@ -83,14 +77,6 @@ extraordinary talent people or teacher.
 probashi news
 
 
-####
-poltibaj
-
-
-###
---similar posts
---dilara jaman
---salauddin ahmed - shilong
 
 
 ####
@@ -102,6 +88,37 @@ poltibaj
 ###
 --jokes app
 
+
+####
+poltibaj
+
+
+###
+--similar posts
+--dilara jaman
+--salauddin ahmed - shilong
+
+################
+--profile app
+--sample report card
+স্যাম্পল ক্যান্ডিডেট রিপোর্ট কার্ড
+প্রার্থীর নাম: জনাব আব্দুল্লাহ আল-মামুন
+নির্বাচনী এলাকা: ঢাকা-এক্স
+তারিখ: ৪ জানুয়ারি, ২০২৬
+
+
+দালাল/গাদ্দার/জুলাই বিরোধী 
+score 
+49 points gemini voting
+
+questions,
+evidence,
+answers
+scoring system - v04
+
+https://gemini.google.com/app/6b4d38b53badd7e9
+
+
 ############
 --history teachers
 question and answers
@@ -112,9 +129,21 @@ party leader history
 this way, people cannot lied
 specially election and MP candidates
 
+history books will be fed into the system
+then it will show paragraph and ask questions
+based on that paragraph.
 
+
+
+
+
+####
 --পার্থ কি চিনি চোরের পোলা?
 
 পার্থর বাবা কিভাবে চিনি চুরি করেছিলেন?
 তথ্য দিয়ে সাহায্য করুন। 
 
+
+#####
+--news relativity
+--news category
