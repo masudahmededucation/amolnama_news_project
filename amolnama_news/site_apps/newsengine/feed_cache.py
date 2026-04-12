@@ -50,15 +50,15 @@ from django.db import connection
 from django.utils import timezone
 
 from .ranking import (
-    calculate_recency_score,
     calculate_engagement_score,
     calculate_author_reputation_score,
     calculate_content_quality_score,
-    WEIGHT_RECENCY,
     WEIGHT_ENGAGEMENT,
     WEIGHT_AUTHOR_REPUTATION,
     WEIGHT_CONTENT_QUALITY,
 )
+# NOTE: calculate_recency_score and WEIGHT_RECENCY are intentionally NOT imported.
+# Recency is computed on read by callers (always current to the microsecond).
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +67,17 @@ SCORE_STALE_THRESHOLD_MINUTES = 30
 
 
 def cache_content_score(content_type_code, content_id, post_item):
-    """Calculate and upsert ranking score into fact_feed_content_score.
+    """Calculate and upsert the STATIC PARTIAL ranking score.
 
     Called after: post create, like, vote, repost, reply — any engagement change.
     Uses MERGE (SQL Server upsert) to insert or update.
+
+    IMPORTANT: recency is NOT included in the cached total_score. It changes
+    every second, so caching it is always wrong. Callers must add live recency
+    on read via: live_total = cached_total + calculate_recency_score(created_at) * WEIGHT_RECENCY
+    The brand-new-post freshness boost (+10.0 for <5 min old) is also applied
+    on read, not here, because it's time-dependent.
     """
-    recency_score = calculate_recency_score(post_item.get('created_at_raw'))
     engagement_score = calculate_engagement_score(
         post_item.get('like_count', 0),
         post_item.get('view_count', 0),
@@ -87,32 +92,20 @@ def cache_content_score(content_type_code, content_id, post_item):
         post_item.get('post_text', '')
     )
 
-    # Trending = engagement weighted more heavily (engagement-only score for trending tab)
-    trending_score = round(engagement_score * 0.7 + recency_score * 0.3, 4)
+    # Trending = engagement-only (no recency — trending should reflect momentum,
+    # not how recently the post was created)
+    trending_score = round(engagement_score, 4)
 
-    total_score = round(
-        recency_score * WEIGHT_RECENCY
-        + engagement_score * WEIGHT_ENGAGEMENT
+    # Static partial = everything EXCEPT recency and freshness boost.
+    # The caller adds recency on read so it's always accurate to the microsecond.
+    static_partial_score = round(
+        engagement_score * WEIGHT_ENGAGEMENT
         + author_reputation_score * WEIGHT_AUTHOR_REPUTATION
         + content_quality_score * WEIGHT_CONTENT_QUALITY,
         4,
     )
 
-    # Brand-new posts (< 5 minutes old) get massive boost
-    created_at = post_item.get('created_at_raw')
-    if created_at:
-        if timezone.is_naive(created_at):
-            created_at = timezone.make_aware(created_at)
-        age_seconds = max((timezone.now() - created_at).total_seconds(), 0)
-        if age_seconds < 300:
-            total_score += 10.0
-
     now = timezone.now()
-
-    # Recency is NOT written to the DB — it's computed on read so it can never
-    # go stale between engagement events. The `recency_score` computed above is
-    # still used to derive `trending_score` and `total_score` at write time,
-    # but those will be recomputed on read in a follow-up change.
     try:
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -135,9 +128,9 @@ def cache_content_score(content_type_code, content_id, post_item):
                     VALUES (%s, %s, %s, %s, %s, %s, 1);
             """, [
                 content_type_code, content_id,
-                engagement_score, trending_score, total_score, now,
+                engagement_score, trending_score, static_partial_score, now,
                 content_type_code, content_id,
-                engagement_score, trending_score, total_score, now,
+                engagement_score, trending_score, static_partial_score, now,
             ])
     except Exception as cache_error:
         logger.error('feed_cache: cache_content_score failed for %s:%s — %s',
@@ -145,15 +138,22 @@ def cache_content_score(content_type_code, content_id, post_item):
 
 
 def get_cached_scores(content_keys):
-    """Read cached scores for a list of (content_type_code, content_id) tuples.
+    """Read cached STATIC PARTIAL scores for a list of (content_type_code, content_id) tuples.
 
-    Returns dict: {(type, id): {'total_score': float, 'trending_score': float, ...}, ...}
+    Returns dict: {(type, id): {'static_partial_score': float, 'trending_score': float, ...}}
     Missing keys = no cached score (caller should compute live or skip).
+
+    IMPORTANT: the returned 'static_partial_score' does NOT include recency.
+    Callers must add live recency themselves:
+
+        from newsengine.ranking import calculate_recency_score, WEIGHT_RECENCY
+        live_total = score['static_partial_score'] + calculate_recency_score(created_at) * WEIGHT_RECENCY
+        if age_seconds < 300:
+            live_total += 10.0  # brand-new freshness boost
     """
     if not content_keys:
         return {}
 
-    # Build WHERE clause — SQL Server doesn't support tuple-IN, use OR pattern
     or_clauses = []
     params = []
     for content_type_code, content_id in content_keys:
@@ -167,7 +167,7 @@ def get_cached_scores(content_keys):
             cursor.execute("""
                 SELECT feed_content_type_code, feed_content_id,
                        feed_engagement_score, feed_trending_score,
-                       feed_recency_score, feed_total_score, feed_scored_at
+                       feed_total_score, feed_scored_at
                 FROM [newsengine].[fact_feed_content_score]
                 WHERE is_active = 1
                   AND (""" + ' OR '.join(or_clauses) + """)
@@ -181,14 +181,13 @@ def get_cached_scores(content_keys):
     scores = {}
     for row in rows:
         key = (row[0], row[1])
-        scored_at = row[6]
+        scored_at = row[5]
         if scored_at and timezone.is_naive(scored_at):
             scored_at = timezone.make_aware(scored_at)
         scores[key] = {
             'engagement_score': float(row[2] or 0),
             'trending_score': float(row[3] or 0),
-            'recency_score': float(row[4] or 0),
-            'total_score': float(row[5] or 0),
+            'static_partial_score': float(row[4] or 0),
             'scored_at': scored_at,
             'is_stale': scored_at and scored_at < stale_cutoff,
         }

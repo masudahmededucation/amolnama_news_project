@@ -1588,6 +1588,20 @@ def article_detail(request, slug):
     except Exception:
         logger.debug('article embedding encode trigger failed for %s', published_article.pub_article_id, exc_info=True)
 
+    # Story thread clustering — attach this article to a developing story arc
+    # if it's similar enough to existing threads, or create a new thread if
+    # 2+ unattached articles cluster together. 100% local, no API.
+    try:
+        from amolnama_news.site_apps.newsengine.story_clustering import (
+            assign_article_to_story_thread_background,
+            get_story_thread_for_article,
+        )
+        assign_article_to_story_thread_background(entry.newshub_coll_news_entry_id)
+        story_threads = get_story_thread_for_article(entry.newshub_coll_news_entry_id)
+    except Exception:
+        story_threads = []
+        logger.debug('story thread lookup failed for entry %s', entry.newshub_coll_news_entry_id, exc_info=True)
+
     context = {
         'published_article': published_article,
         'entry': entry,
@@ -1623,6 +1637,7 @@ def article_detail(request, slug):
             'article', published_article.pub_article_id, limit=5,
         ),
         'related_content_api_url': f'/newsengine/api/related-content/?type=article&id={published_article.pub_article_id}',
+        'story_threads': story_threads,
         'seo': seo_context,
     }
     return render(request, 'newshub/pages/article-detail.html', context)
