@@ -1578,6 +1578,16 @@ def article_detail(request, slug):
             logger.error('record_content_view failed for article %s — %s',
                          published_article.pub_article_id, record_view_error)
 
+    # Ensure this article has an embedding for related content discovery.
+    # Lazy: encodes on first view (background thread), subsequent views are no-ops.
+    try:
+        article_text = (published_article.pub_article_headline_bn or '') + ' ' + (published_article.pub_article_content_bn or '')
+        if len(article_text.strip()) > 20:
+            from amolnama_news.site_apps.newsengine.embeddings import encode_and_store_embedding_background
+            encode_and_store_embedding_background('article', published_article.pub_article_id, article_text)
+    except Exception:
+        logger.debug('article embedding encode trigger failed for %s', published_article.pub_article_id, exc_info=True)
+
     context = {
         'published_article': published_article,
         'entry': entry,

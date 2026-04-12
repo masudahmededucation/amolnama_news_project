@@ -73,6 +73,17 @@ _ENRICHMENT_MAP = {
         'url_template': '/bangladesh-tourist-destinations/travel/{slug}/',
         'url_fallback': '/bangladesh-tourist-destinations/travel/',
     },
+    'article': {
+        'query': """
+            SELECT pa.pub_article_headline_bn, pa.pub_article_slug
+            FROM [newshub].[pub_article] pa
+            WHERE pa.pub_article_id = %s AND pa.is_active = 1
+        """,
+        'title_index': 0,
+        'slug_index': 1,
+        'url_template': '/newshub/article/{slug}/',
+        'url_fallback': '/newshub/',
+    },
 }
 
 

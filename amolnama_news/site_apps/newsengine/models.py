@@ -398,3 +398,45 @@ class FactRelatedContentCache(models.Model):
     class Meta:
         managed = False
         db_table = '[newsengine].[fact_related_content_cache]'
+
+
+# =========================================================
+# GROUP: story_thread_
+# =========================================================
+
+class StoryThread(models.Model):
+    """A developing story arc (e.g., "USA-Iran Conflict 2026").
+    Articles are linked to threads via StoryThreadArticle junction."""
+    newsengine_story_thread_id = models.BigAutoField(primary_key=True)
+    thread_title_bn = models.CharField(max_length=300)
+    thread_title_en = models.CharField(max_length=300)
+    thread_slug = models.CharField(max_length=200)
+    thread_summary_bn = models.CharField(max_length=1000, blank=True, null=True)
+    thread_summary_en = models.CharField(max_length=1000, blank=True, null=True)
+    thread_status_code = models.CharField(max_length=30, default='developing')
+    thread_article_count = models.IntegerField(default=0)
+    thread_cover_image_url = models.CharField(max_length=500, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[story_thread]'
+
+    def __str__(self):
+        return self.thread_title_en
+
+
+class StoryThreadArticle(models.Model):
+    """Junction: links a news article to a story thread (many-to-many)."""
+    newsengine_story_thread_article_id = models.BigAutoField(primary_key=True)
+    link_story_thread_id = models.BigIntegerField()
+    link_newshub_coll_news_entry_id = models.BigIntegerField()
+    similarity_score = models.DecimalField(max_digits=5, decimal_places=4, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[newsengine].[story_thread_article]'

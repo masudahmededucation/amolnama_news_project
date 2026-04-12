@@ -216,8 +216,10 @@ class CollNewsEntry(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField(blank=True, null=True)
     link_content_ref_content_subcategory_id = models.IntegerField(blank=True, null=True)
-    # hash_headline_check — excluded from Django model
-    # so ORM never includes it in INSERT/UPDATE statements.
+    article_topic_auto_tags_json = models.TextField(blank=True, null=True)
+    # hash_headline_check — excluded (computed column, read-only from Django)
+    # article_primary_entity_en — excluded (computed column from article_topic_auto_tags_json)
+    # article_story_slug — excluded (computed column from article_topic_auto_tags_json)
 
     class Meta:
         managed = False
