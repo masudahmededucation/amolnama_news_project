@@ -103,6 +103,19 @@
   box-shadow: var(--shadow-md);
 }
 
+/* ---- Focus-visible rings — gold standard keyboard accessibility ---- */
+
+.selection-list li:focus-visible,
+.back-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.selection-list li,
+.back-button {
+  touch-action: manipulation;
+}
+
 /* ========== RESPONSIVE - SELECTION ========== */
 
 /* Tablets and below (768px) */

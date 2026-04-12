@@ -864,7 +864,10 @@
     if (tipsBar) tipsBar.hidden = true;
 
     swatches.forEach(function (s) { s.classList.remove('active'); });
-    document.querySelector('.bgr-swatch--transparent').classList.add('active');
+    const transparentSwatch = document.querySelector('.bgr-swatch--transparent');
+    if (transparentSwatch) {
+      transparentSwatch.classList.add('active');
+    }
     resultWrap.classList.add('bgr-checkerboard');
   }
 
@@ -969,8 +972,10 @@
     if (processing) return;
     swatches.forEach(function (s) { s.classList.remove('active'); });
     const customSwatch = document.querySelector('.bgr-swatch--custom');
-    customSwatch.classList.add('active');
-    customSwatch.style.background = customColorInput.value;
+    if (customSwatch) {
+      customSwatch.classList.add('active');
+      customSwatch.style.background = customColorInput.value;
+    }
     currentBg = customColorInput.value;
 
     if (workingMask) renderAsync();

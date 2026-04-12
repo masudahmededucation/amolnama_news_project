@@ -60,6 +60,16 @@ body {
   transform: translateX(5px);
 }
 
+.party-list li:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.party-list li {
+  touch-action: manipulation;
+  min-height: var(--touch-target);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .party-list li { transition: none; }
   .party-list li:hover { transform: none; }

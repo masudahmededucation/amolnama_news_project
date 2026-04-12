@@ -1,40 +1,91 @@
-/* Social home — guest landing (login prompt) */
+/* ============================================================
+   Social home — guest landing (login prompt) — gold standard
+   Mobile-first, tokens for spacing/motion/elevation, focus ring.
+   ============================================================ */
 
 .social-home-guest {
   max-width: 680px;
-  margin: 2rem auto;
+  margin: var(--space-8) auto;
   text-align: center;
-  padding: 2rem;
+  padding: var(--space-8) var(--space-4);
 }
 
 .social-home-guest-title {
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   font-weight: 800;
-  margin-bottom: .5rem;
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+  letter-spacing: -.01em;
 }
 
 .social-home-guest-message {
   color: var(--muted);
-  margin-bottom: 1rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-4);
 }
 
 .social-home-guest-login-link {
-  display: inline-block;
-  padding: .5rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-6);
   background: var(--primary);
   color: #fff;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
   font-weight: 700;
   text-decoration: none;
-  min-height: 44px;
-  line-height: 1.6;
+  box-shadow: var(--elevation-1);
+  touch-action: manipulation;
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .social-home-guest-login-link:hover {
   background: var(--primary-hover);
+  box-shadow: var(--elevation-2);
+  transform: translateY(-1px);
   text-decoration: none;
 }
 
+.social-home-guest-login-link:active {
+  transform: scale(.97);
+}
+
+.social-home-guest-login-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .social-home-guest {
+    margin: var(--space-12) auto;
+    padding: var(--space-12) var(--space-6);
+  }
+  .social-home-guest-title {
+    font-size: var(--text-2xl);
+  }
+}
+
+@media (max-width: 380px) {
+  .social-home-guest {
+    margin: var(--space-4) auto;
+    padding: var(--space-5) var(--space-3);
+  }
+  .social-home-guest-title {
+    font-size: var(--text-lg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .social-home-guest-login-link { transition: none; }
+  .social-home-guest-login-link,
+  .social-home-guest-login-link:hover,
+  .social-home-guest-login-link:active {
+    transform: none;
+    transition: none;
+  }
 }

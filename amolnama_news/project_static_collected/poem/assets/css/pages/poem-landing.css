@@ -1,51 +1,78 @@
-/* ========== Poem Landing Page ========== */
+/* ============================================================
+   Poem Landing Page — gold standard polish pass
+   Mobile-first, tokenized spacing/motion/elevation, focus rings,
+   touch targets, reduced-motion safety.
+   ============================================================ */
 
-/* Header — clean, professional, no gradient */
+/* ---- Page header ---- */
+
 .poem-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-  padding-bottom: .75rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border);
 }
 
 .poem-header-left h1 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--text);
+  letter-spacing: -.01em;
 }
 
 .poem-header-left p {
-  margin: .15rem 0 0;
-  font-size: .8rem;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
   color: var(--muted);
+}
+
+/* ---- CTA buttons (create poem + create song) ---- */
+
+.poem-header-cta-group {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
 }
 
 .poem-header-cta {
   display: inline-flex;
   align-items: center;
-  gap: .35rem;
-  padding: .45rem 1rem;
-  font-size: .82rem;
-  font-weight: 600;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 700;
   color: #fff;
   background: var(--primary);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   text-decoration: none;
   white-space: nowrap;
-  transition: background .2s, box-shadow .2s;
+  box-shadow: var(--elevation-1);
+  touch-action: manipulation;
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .poem-header-cta:hover {
-  box-shadow: var(--shadow-md);
+  background: var(--primary-hover);
+  box-shadow: var(--elevation-2);
+  transform: translateY(-1px);
 }
 
 .poem-header-cta:active {
   transform: scale(.97);
+}
+
+.poem-header-cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .poem-header-cta--song {
@@ -53,7 +80,8 @@
 }
 
 .poem-header-cta--song:hover {
-  opacity: .9;
+  background: var(--purple);
+  opacity: .92;
 }
 
 .poem-header-cta svg {
@@ -61,13 +89,8 @@
   height: 14px;
 }
 
-.poem-header-cta-group {
-  display: flex;
-  gap: .5rem;
-  width: 100%;
-}
+/* ---- Header search ---- */
 
-/* Header Search — between title and CTA */
 .poem-header-search {
   position: relative;
   flex: 1;
@@ -76,65 +99,83 @@
 
 .poem-header-search-input {
   width: 100%;
-  padding: .55rem .85rem .55rem 2.3rem;
-  font-size: .88rem;
-  border: 2px solid var(--border);
-  border-radius: 25px;
-  background: var(--surface, #f5f5f5);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-8);
+  font-size: var(--text-base);
+  font-family: inherit;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
   color: var(--text);
-  outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  min-height: var(--touch-target);
   box-sizing: border-box;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.poem-header-search-input:focus {
+.poem-header-search-input:focus,
+.poem-header-search-input:focus-visible {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .poem-header-search-icon {
   position: absolute;
-  left: .65rem;
+  left: var(--space-3);
   top: 50%;
   transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--muted);
   pointer-events: none;
 }
 
-/* Filter Bar */
+/* ---- Filter bar ---- */
+
 .poem-filter-bar {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
-  margin-bottom: 1.25rem;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 
 /* Type tabs (সব / কবিতা / গানের কথা) */
+
 .poem-type-tabs {
   display: flex;
-  gap: .4rem;
-  margin-bottom: .6rem;
-  padding-bottom: .6rem;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border);
 }
 
 .poem-type-tab {
-  padding: .4rem 1rem;
-  font-size: .82rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--info);
   background: var(--info-light);
   border: 1.5px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: border-color .2s, background .2s, color .2s;
+  touch-action: manipulation;
   white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
 }
 
 .poem-type-tab:hover {
   border-color: var(--info);
+}
+
+.poem-type-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .poem-type-tab--active {
@@ -173,83 +214,153 @@
   border-color: var(--purple);
 }
 
+/* Filter crumbs — uses shared filter-crumbs component from core */
 
-/* Active filter breadcrumbs */
-/* Filter crumbs — uses shared filter-crumbs.css from core */
+/* ---- Card grid ---- */
 
-/* Card Grid */
 .poem-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
 }
 
-/* Empty State */
+@media (min-width: 481px) {
+  .poem-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 768px) {
+  .poem-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+/* ---- Empty state ---- */
+
 .poem-empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 3rem 1rem;
+  padding: var(--space-12) var(--space-4);
   color: var(--muted);
-  font-size: .88rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
   background: var(--surface);
   border: 1px dashed var(--border);
   border-radius: var(--radius);
 }
 
-/* Load More */
+/* ---- Load more button ---- */
+
 .poem-load-more {
   text-align: center;
-  margin-top: 1.25rem;
+  margin-top: var(--space-5);
 }
 
 .poem-load-more-button {
-  padding: .45rem 1.5rem;
-  font-size: .82rem;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  font-weight: 700;
   color: var(--primary);
   background: var(--card);
-  border: 1px solid var(--primary);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background .2s, color .2s, box-shadow .2s;
+  box-shadow: var(--elevation-1);
+  touch-action: manipulation;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .poem-load-more-button:hover {
   background: var(--primary);
   color: #fff;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-2);
+  transform: translateY(-1px);
+}
+
+.poem-load-more-button:active {
+  transform: scale(.97);
+}
+
+.poem-load-more-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .poem-load-more-button:disabled {
   opacity: .5;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Responsive */
+/* ---- Tablet / desktop refinements ---- */
+
+@media (min-width: 768px) {
+  .poem-header-left h1 {
+    font-size: var(--text-2xl);
+  }
+  .poem-header {
+    padding-bottom: var(--space-4);
+  }
+  .poem-filter-bar {
+    gap: var(--space-4);
+  }
+  .poem-header-search {
+    max-width: 360px;
+  }
+}
+
+/* ---- Small mobile — stack header, full-width search ---- */
+
 @media (max-width: 640px) {
   .poem-header {
     flex-direction: column;
     align-items: stretch;
-    gap: .5rem;
+    gap: var(--space-2);
   }
-
   .poem-header-search {
     max-width: none;
   }
-
   .poem-filter-bar {
     flex-direction: column;
     align-items: stretch;
   }
+}
 
-  .poem-card-grid {
-    grid-template-columns: 1fr;
+/* ---- Very small mobile ---- */
+
+@media (max-width: 380px) {
+  .poem-header-left h1 {
+    font-size: var(--text-lg);
+  }
+  .poem-header-cta {
+    font-size: var(--text-xs);
+    padding: var(--space-2) var(--space-4);
   }
 }
 
+/* ---- Reduced motion fallback ---- */
 
-/* ---- Reduced motion fallback (mobile UX phase) ---- */
 @media (prefers-reduced-motion: reduce) {
+  .poem-header-cta,
+  .poem-header-cta:hover,
+  .poem-header-cta:active,
+  .poem-load-more-button,
+  .poem-load-more-button:hover,
+  .poem-load-more-button:active,
+  .poem-type-tab {
+    transform: none;
+    transition: none;
+  }
   *,
   *::before,
   *::after {
@@ -257,39 +368,5 @@
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
-  }
-}
-
-
-/* ---- Polish pass (mobile UX) ---- */
-.poem-header-cta,
-.poem-load-more-button {
-  min-height: var(--touch-target, 44px);
-  touch-action: manipulation;
-}
-.poem-header-cta:focus-visible,
-.poem-load-more-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-
-/* ---- Tablet breakpoint (mobile UX phase) ----
-   On tablets, the poem card grid locks to a 2-col minimum instead of
-   auto-fill squeezing cards too narrow, header goes horizontal,
-   filter bar gets comfortable horizontal spacing. */
-@media (min-width: 768px) {
-  .poem-card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-6, 1.5rem);
-  }
-  .poem-header {
-    padding: var(--space-4, 1rem) 0;
-  }
-  .poem-filter-bar {
-    gap: var(--space-4, 1rem);
-  }
-  .poem-header-search {
-    max-width: 360px;
   }
 }
