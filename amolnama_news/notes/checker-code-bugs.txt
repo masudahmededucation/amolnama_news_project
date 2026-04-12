@@ -162,6 +162,7 @@ Debug console.*
 Missing .catch().
 XSS vulnerabilities.
 tech debt item.
+don't leave anything broken after change
 don't touch other things.
 
 --start implementing

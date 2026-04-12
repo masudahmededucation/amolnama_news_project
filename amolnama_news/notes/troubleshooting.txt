@@ -184,3 +184,17 @@ upload photo/attached file
 remove watermark from picture
 https://www.watermarkremover.io/upload
 
+
+####
+just realised - tools don't have scrolling options 
+- it does scroll without scrolling bar. 
+that is fine. 
+scroll bar is on the whole page which is far on the right.
+but people may have no idea that there are more tools available.
+maybe show down arrow with text 
+more tools in below to show there are more.
+adding scroll bar in the middle content area 
+add more complexity.
+or advertise on the top scroll down to check more
+actually main idea to flash our all the tools.
+not just what are available on first page.
