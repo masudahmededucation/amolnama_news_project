@@ -194,48 +194,8 @@ def get_cached_scores(content_keys):
     return scores
 
 
-def refresh_stale_scores(max_age_minutes=60, batch_size=100):
-    """Refresh scores older than max_age_minutes. Call periodically (every 15-30 min).
 
-    Recalculates scores from live post data. Designed for background task / management command.
-    """
-    from amolnama_news.site_apps.post.models import Post
-
-    stale_cutoff = timezone.now() - timedelta(minutes=max_age_minutes)
-
-    try:
-        from .models import FactFeedContentScore
-        stale_entries = FactFeedContentScore.objects.filter(
-            is_active=True,
-            feed_scored_at__lt=stale_cutoff,
-        ).values_list('feed_content_type_code', 'feed_content_id')[:batch_size]
-
-        post_ids = [entry[1] for entry in stale_entries if entry[0] == 'post']
-        if not post_ids:
-            return 0
-
-        posts = Post.objects.filter(
-            post_post_id__in=post_ids, is_active=True,
-        )
-
-        refreshed_count = 0
-        for post in posts:
-            post_item = {
-                'created_at_raw': post.created_at,
-                'like_count': post.like_count or 0,
-                'view_count': post.view_count or 0,
-                'reply_count': post.reply_count or 0,
-                'repost_count': post.repost_count or 0,
-                'vote_score_count': post.vote_score_count or 0,
-                'post_text': post.post_text or '',
-                'author_contribution_score': 0,
-            }
-            cache_content_score('post', post.post_post_id, post_item)
-            refreshed_count += 1
-
-        logger.info('feed_cache: refreshed %d stale scores', refreshed_count)
-        return refreshed_count
-
-    except Exception as refresh_error:
-        logger.error('feed_cache: refresh_stale_scores failed — %s', refresh_error)
-        return 0
+# refresh_stale_scores() removed — the periodic-scheduler pattern is explicitly
+# not used. Recency is computed live on read (always current). Engagement scores
+# are refreshed via fan-out (fact_user_feed_cache) on write events, not via
+# a polling loop on fact_feed_content_score. Zero scheduler, zero cron.

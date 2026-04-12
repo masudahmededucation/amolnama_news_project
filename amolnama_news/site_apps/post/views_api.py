@@ -24,32 +24,10 @@ MEDIA_EXTENSION_MAP = {
 }
 
 
-def _refresh_post_feed_score_background(post_post_id):
-    """Refresh cached feed score for a post after engagement change (like/vote/repost/reply).
-    Runs in background thread — does not block the API response."""
-    from amolnama_news.site_apps.newsengine.utils import run_background_task
 
-    def _background_refresh(background_post_id):
-        try:
-            post = Post.objects.filter(post_post_id=background_post_id).first()
-            if not post:
-                return
-            from amolnama_news.site_apps.newsengine.feed_cache import cache_content_score
-            post_item = {
-                'created_at_raw': post.created_at,
-                'like_count': post.like_count or 0,
-                'view_count': post.view_count or 0,
-                'reply_count': post.reply_count or 0,
-                'repost_count': post.repost_count or 0,
-                'vote_score_count': post.vote_score_count or 0,
-                'post_text': post.post_text or '',
-                'author_contribution_score': 0,
-            }
-            cache_content_score('post', background_post_id, post_item)
-        except Exception:
-            logger.exception('Feed score refresh failed for post %s', background_post_id)
-
-    run_background_task(_background_refresh, post_post_id)
+# _refresh_post_feed_score_background removed — fact_feed_content_score is a
+# dead cache (no readers). Feed ranking uses fact_user_feed_cache via fan-out,
+# and recency is computed live on read. Zero per-engagement writes needed.
 
 
 @require_POST
@@ -271,23 +249,9 @@ def api_post_create(request):
                 logger.exception('Fact-check failed for post %s', background_post_id)
         run_background_task(_background_fact_check, post.post_post_id, post_text, post_content_registry_id)
 
-    # Cache content score — populate fact_feed_content_score for feed ranking cache
-    try:
-        def _background_cache_content_score(background_post_id, background_post_item):
-            try:
-                from amolnama_news.site_apps.newsengine.feed_cache import cache_content_score
-                cache_content_score('post', background_post_id, background_post_item)
-            except Exception:
-                logger.exception('Feed score caching failed for post %s', background_post_id)
-        cache_item = {
-            'created_at_raw': post.created_at,
-            'like_count': 0, 'view_count': 0, 'reply_count': 0,
-            'repost_count': 0, 'vote_score_count': 0,
-            'post_text': post_text or '', 'author_contribution_score': 0,
-        }
-        run_background_task(_background_cache_content_score, post.post_post_id, cache_item)
-    except Exception:
-        logger.exception('Feed cache thread failed for post %s', post.post_post_id)
+    # Feed score cache (fact_feed_content_score) removed — recency is now computed
+    # on read, and the live feed cache (fact_user_feed_cache) is populated by
+    # fan-out in feed_fanout.py. No per-engagement score caching needed.
 
     # Encode content embedding — vector for AI-driven discovery
     if post_text and len(post_text) >= 10:
@@ -636,8 +600,7 @@ def api_post_like_toggle(request, post_post_id):
         post_post_id=post_post_id
     ).values_list('like_count', flat=True).first() or 0
 
-    # Refresh cached feed score + update interest graph
-    _refresh_post_feed_score_background(post_post_id)
+    # Update interest graph (feed score cache removed — recency computed on read)
     try:
         from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
         record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'like')
@@ -800,7 +763,6 @@ def api_post_repost(request, post_post_id):
     Post.objects.filter(post_post_id=post_post_id).update(repost_count=actual_repost_count)
     new_repost_count = actual_repost_count
 
-    _refresh_post_feed_score_background(post_post_id)
     try:
         from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
         record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'repost')
@@ -1089,7 +1051,6 @@ def api_post_vote_toggle(request, post_post_id):
     from amolnama_news.site_apps.newsengine.utils import run_background_task
     run_background_task(_update_contribution_score_background, post.link_user_profile_id)
 
-    _refresh_post_feed_score_background(post_post_id)
     try:
         from amolnama_news.site_apps.newsengine.interest_graph import record_engagement_interest_background
         record_engagement_interest_background(user_profile.user_profile_id, post_post_id, 'like')
