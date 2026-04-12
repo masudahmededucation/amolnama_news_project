@@ -113,6 +113,64 @@ main a:hover {
   text-decoration: none;
 }
 
+/* ============================================================
+   PHASE-GOLD GLOBAL INTERACTION POLISH — added 2026-04-12.
+
+   These rules establish the project-wide "feel" so every interactive
+   element inherits the same polished behavior without per-file copies.
+   Gold-standard design systems (Linear, Vercel, Stripe, Figma) all
+   ship these as project-level defaults, not per-component.
+   ============================================================ */
+
+/* Unified focus ring — 2px accent solid + soft glow halo.
+   Only applies to :focus-visible (keyboard nav), not :focus (mouse click).
+   Overrides `outline: none` without breaking accessibility. */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Text selection color — matches project accent instead of browser default. */
+::selection {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+/* Smooth scroll for in-page anchor links. Respects reduced-motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Prevent text size adjust on orientation change (iOS Safari bug). */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better image defaults — never exceed container, preserve aspect ratio. */
+main img,
+main video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Reduce motion — universal guard (in addition to per-component fallbacks) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
 /* Promoted label — shared across all promo card types */
 .promo-promoted-label { font-size: .6rem; color: var(--muted); font-weight: 600; margin-left: .4rem; text-transform: uppercase; letter-spacing: .03em; }
 
