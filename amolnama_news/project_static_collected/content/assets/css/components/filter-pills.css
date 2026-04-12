@@ -30,7 +30,7 @@
   align-items: center;
   gap: .25rem;
   padding: .3rem .7rem;
-  font-size: .75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   background: var(--card);
@@ -100,7 +100,7 @@
   .filter-pills-group::-webkit-scrollbar { display: none; }
   .filter-pills-pill {
     padding: .45rem .85rem;
-    font-size: .8rem;
+    font-size: var(--text-sm);
     min-height: 2.75rem;
   }
 }

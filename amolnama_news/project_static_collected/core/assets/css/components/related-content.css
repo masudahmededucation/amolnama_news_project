@@ -7,7 +7,7 @@
 }
 
 .related-content-title {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   color: var(--text);
   margin-bottom: 1rem;
@@ -36,7 +36,7 @@
 }
 
 .related-content-item-type {
-  font-size: .65rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--primary);
   background: var(--primary-light);
@@ -47,7 +47,7 @@
 }
 
 .related-content-item-title {
-  font-size: .88rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -55,7 +55,7 @@
 }
 
 .related-content-item-author {
-  font-size: .75rem;
+  font-size: var(--text-sm);
   color: var(--muted);
   white-space: nowrap;
   flex-shrink: 0;

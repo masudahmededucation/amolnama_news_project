@@ -11,7 +11,7 @@
   border-radius: 20px;
   background: var(--card, #fff);
   color: var(--muted);
-  font-size: .8rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: color .2s, background .2s, border-color .2s;
@@ -36,16 +36,16 @@
 }
 
 .like-button-icon {
-  font-size: .9rem;
+  font-size: var(--text-base);
   line-height: 1;
 }
 
 .like-button-label {
-  font-size: .78rem;
+  font-size: var(--text-sm);
 }
 
 .like-button-count {
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 700;
 }
 

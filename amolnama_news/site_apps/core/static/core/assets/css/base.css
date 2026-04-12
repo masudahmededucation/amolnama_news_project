@@ -60,7 +60,7 @@ body {
   input,
   select,
   textarea {
-    font-size: 16px !important;
+    font-size: var(--text-base) !important;
   }
 }
 
@@ -172,7 +172,7 @@ main video {
 }
 
 /* Promoted label — shared across all promo card types */
-.promo-promoted-label { font-size: .6rem; color: var(--muted); font-weight: 600; margin-left: .4rem; text-transform: uppercase; letter-spacing: .03em; }
+.promo-promoted-label { font-size: var(--text-xs); color: var(--muted); font-weight: 600; margin-left: .4rem; text-transform: uppercase; letter-spacing: .03em; }
 
 /* User-generated text — preserve newlines globally.
    Apply to any element displaying user/OCR content. */
@@ -197,7 +197,7 @@ footer {
   color: var(--muted);
   text-align: center;
   padding: 1.5rem 0 1rem 0;
-  font-size: 1rem;
+  font-size: var(--text-base);
   border-top: 1px solid var(--border);
 }
 
@@ -230,13 +230,13 @@ footer {
     padding: 0 1rem;
   }
   footer {
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     padding: 1rem 0 0.5rem 0;
   }
 }
 
 /* Global breadcrumb — used on every page */
-.global-breadcrumb { font-size: 1.2rem; color: var(--muted); margin-bottom: .75rem; padding: .3rem 0; }
+.global-breadcrumb { font-size: var(--text-xl); color: var(--muted); margin-bottom: .75rem; padding: .3rem 0; }
 .global-breadcrumb-link { color: var(--primary); text-decoration: none; }
 .global-breadcrumb-link:hover { opacity: .8; text-decoration: none; }
 .global-breadcrumb-separator { margin: 0 .3rem; color: var(--border); }

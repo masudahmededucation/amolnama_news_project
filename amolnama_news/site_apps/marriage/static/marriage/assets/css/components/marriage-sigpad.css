@@ -8,7 +8,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: .5rem;
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 .sig-mode-toggle label {
@@ -38,7 +38,7 @@
   top: 6px;
   right: 6px;
   padding: 2px 10px;
-  font-size: .72rem;
+  font-size: var(--text-xs);
   background: #f5f0e3;
   border: 1px solid var(--border);
   border-radius: 3px;
@@ -55,7 +55,7 @@
 @media (max-width: 640px) {
   .sig-mode-toggle {
     gap: .5rem;
-    font-size: .78rem;
+    font-size: var(--text-sm);
   }
 
   .sig-canvas {

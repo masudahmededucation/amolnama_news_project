@@ -101,7 +101,7 @@ body {
 
 .party-short {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 .party-separator {
@@ -109,12 +109,12 @@ body {
 }
 
 .party-name {
-  font-size: 0.95rem;
+  font-size: var(--text-base);
 }
 
 .party-details {
   margin-top: 0.25rem;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -162,11 +162,11 @@ body {
   }
 
   .party-short {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 
   .party-name {
-    font-size: 0.9rem;
+    font-size: var(--text-base);
   }
 }
 
@@ -178,15 +178,15 @@ body {
   }
 
   .party-short {
-    font-size: 0.95rem;
+    font-size: var(--text-base);
   }
 
   .party-name {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
   }
 
   .party-details {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
   }
 }
 

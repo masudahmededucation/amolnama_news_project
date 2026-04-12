@@ -29,7 +29,7 @@
   text-transform: uppercase;
   letter-spacing: .6px;
   opacity: .9;
-  font-size: .8rem;
+  font-size: var(--text-sm);
 }
 
 .ribbon h1 {
@@ -58,15 +58,15 @@
   }
 
   .ribbon h1 {
-    font-size: 1.15rem;
+    font-size: var(--text-lg);
   }
 
   .ribbon .kicker {
-    font-size: .7rem;
+    font-size: var(--text-xs);
   }
 
   .ribbon p {
-    font-size: .82rem;
+    font-size: var(--text-sm);
   }
 }
 

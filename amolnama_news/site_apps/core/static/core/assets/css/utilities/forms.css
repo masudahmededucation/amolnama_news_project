@@ -11,8 +11,8 @@
 
 /* ---- Labels ---- */
 
-.form-label { font-weight: 600; font-size: .85rem; display: block; margin-bottom: .3rem; }
-.form-hint { font-size: .72rem; color: var(--muted); }
+.form-label { font-weight: 600; font-size: var(--text-sm); display: block; margin-bottom: .3rem; }
+.form-hint { font-size: var(--text-xs); color: var(--muted); }
 
 /* ---- Inputs ---- */
 
@@ -21,7 +21,7 @@
   padding: .45rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-family: inherit;
   background: var(--card);
   color: var(--text);
@@ -31,15 +31,15 @@
 .form-input-medium { max-width: 180px; }
 .form-input-wide { max-width: 300px; }
 .form-textarea { min-width: 100%; resize: vertical; }
-.form-label-small { font-size: .8rem; display: block; margin-bottom: .2rem; }
-.form-input-small { width: 100%; padding: .4rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .82rem; font-family: inherit; background: var(--card); color: var(--text); }
+.form-label-small { font-size: var(--text-sm); display: block; margin-bottom: .2rem; }
+.form-input-small { width: 100%; padding: .4rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: var(--text-sm); font-family: inherit; background: var(--card); color: var(--text); }
 .form-input-small:focus { border-color: var(--primary); outline: none; }
 
 /* ---- Buttons ---- */
 
 .form-button-primary {
   padding: .55rem 1.5rem;
-  font-size: .88rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: #fff;
   background: var(--primary);
@@ -52,7 +52,7 @@
 
 .form-button-secondary {
   padding: .55rem 1.5rem;
-  font-size: .88rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text);
   background: var(--surface);
@@ -66,7 +66,7 @@
 
 /* ---- Error messages ---- */
 
-.form-error-message { color: var(--danger); font-size: .82rem; margin-bottom: .75rem; display: none; }
+.form-error-message { color: var(--danger); font-size: var(--text-sm); margin-bottom: .75rem; display: none; }
 
 /* ---- Visibility ---- */
 

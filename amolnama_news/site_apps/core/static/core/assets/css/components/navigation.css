@@ -6,7 +6,7 @@
 .topbar {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  font-size: .9rem;
+  font-size: var(--text-base);
 }
 
 /* Row for the live Bangla clock */

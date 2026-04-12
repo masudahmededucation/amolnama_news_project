@@ -31,23 +31,23 @@
 /* Header — badge + status */
 .debate-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
 .debate-promo-card-badge {
-  font-size: .6rem; font-weight: 800; letter-spacing: .08em;
+  font-size: var(--text-xs); font-weight: 800; letter-spacing: .08em;
   background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
   color: var(--debate-promo-on-color); padding: .1rem .5rem; border-radius: 10px;
 }
-.debate-promo-card-status { font-size: .6rem; font-weight: 700; padding: .1rem .4rem; border-radius: 8px; }
+.debate-promo-card-status { font-size: var(--text-xs); font-weight: 700; padding: .1rem .4rem; border-radius: 8px; }
 .debate-promo-card-status-live { background: var(--success-light); color: var(--primary); }
 .debate-promo-card-status-scheduled { background: var(--warning-light); color: var(--warning-text); }
 .debate-promo-card-status-closed { background: var(--surface); color: var(--debate-promo-argument-text-ink); }
 .debate-promo-card-status-paused { background: var(--warning-light); color: var(--warning-text); }
 
 /* Title */
-.debate-promo-card-title { font-size: 1rem; font-weight: 800; margin: 0 0 .3rem; line-height: 1.4; }
-.debate-promo-card-description { font-size: .78rem; color: var(--muted); margin: 0 0 .5rem; line-height: 1.4; }
+.debate-promo-card-title { font-size: var(--text-base); font-weight: 800; margin: 0 0 .3rem; line-height: 1.4; }
+.debate-promo-card-description { font-size: var(--text-sm); color: var(--muted); margin: 0 0 .5rem; line-height: 1.4; }
 
 /* Side labels + mini passion bar */
 .debate-promo-card-sides { display: flex; align-items: center; gap: .4rem; margin-bottom: .5rem; }
-.debate-promo-card-side-label { font-size: .68rem; font-weight: 700; white-space: nowrap; }
+.debate-promo-card-side-label { font-size: var(--text-xs); font-weight: 700; white-space: nowrap; }
 .debate-promo-card-side-label-blue { color: var(--info); }
 .debate-promo-card-side-label-red { color: var(--danger); }
 .debate-promo-card-passion-bar { flex: 1; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--border); }
@@ -58,18 +58,18 @@
 
 /* Argument snippets */
 .debate-promo-card-arguments { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-bottom: .5rem; }
-.debate-promo-card-argument { padding: .4rem .5rem; border-radius: 8px; font-size: .75rem; line-height: 1.4; }
+.debate-promo-card-argument { padding: .4rem .5rem; border-radius: 8px; font-size: var(--text-sm); line-height: 1.4; }
 .debate-promo-card-argument-blue { background: var(--info-light); border-left: 2px solid var(--info); }
 .debate-promo-card-argument-red { background: var(--danger-light); border-left: 2px solid var(--danger); }
-.debate-promo-card-argument-author { font-size: .65rem; font-weight: 700; display: block; margin-bottom: .15rem; }
+.debate-promo-card-argument-author { font-size: var(--text-xs); font-weight: 700; display: block; margin-bottom: .15rem; }
 .debate-promo-card-argument-text { margin: 0; color: var(--debate-promo-argument-text-ink); }
 
 /* Footer — stats + CTA */
 .debate-promo-card-footer { display: flex; justify-content: space-between; align-items: center; }
-.debate-promo-card-stats { display: flex; gap: .75rem; font-size: .72rem; color: var(--muted); }
+.debate-promo-card-stats { display: flex; gap: .75rem; font-size: var(--text-xs); color: var(--muted); }
 .debate-promo-card-stat { white-space: nowrap; }
 .debate-promo-card-cta {
-  font-size: .75rem; font-weight: 700; color: var(--debate-promo-on-color);
+  font-size: var(--text-sm); font-weight: 700; color: var(--debate-promo-on-color);
   background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
   padding: .25rem .75rem; border-radius: 14px;
   transition: opacity .15s;

@@ -8,7 +8,7 @@
 
 .vote-content h3 {
   margin-bottom: 1rem;
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
 }
 
 .section-head h1 {
@@ -24,26 +24,26 @@
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
   .vote-content h3 {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 }
 
 /* Mobile phones (480px) */
 @media (max-width: 480px) {
   .vote-content h3 {
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     text-align: center;
   }
 
   .section-head h1 {
-    font-size: 1.2rem;
+    font-size: var(--text-xl);
   }
 }
 
 /* Small phones (360px) */
 @media (max-width: 360px) {
   .vote-content h3 {
-    font-size: 0.9rem;
+    font-size: var(--text-base);
   }
 }
 

@@ -41,7 +41,7 @@
 
 .photo-lightbox-caption {
   color: #fff;
-  font-size: .88rem;
+  font-size: var(--text-sm);
   margin-top: .5rem;
   text-align: center;
   max-width: 600px;
@@ -49,7 +49,7 @@
 
 .photo-lightbox-counter {
   color: rgba(255, 255, 255, .6);
-  font-size: .75rem;
+  font-size: var(--text-sm);
   margin-top: .3rem;
 }
 
@@ -74,7 +74,7 @@
 .photo-lightbox-close-button {
   top: 1rem;
   right: 1.5rem;
-  font-size: 2rem;
+  font-size: var(--text-3xl);
   font-weight: 300;
 }
 
@@ -82,7 +82,7 @@
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 3rem;
+  font-size: var(--text-5xl);
   font-weight: 300;
 }
 
@@ -90,13 +90,13 @@
   right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 3rem;
+  font-size: var(--text-5xl);
   font-weight: 300;
 }
 
 @media (max-width: 768px) {
-  .photo-lightbox-previous-button { left: .3rem; font-size: 2rem; }
-  .photo-lightbox-next-button { right: .3rem; font-size: 2rem; }
+  .photo-lightbox-previous-button { left: .3rem; font-size: var(--text-3xl); }
+  .photo-lightbox-next-button { right: .3rem; font-size: var(--text-3xl); }
 }
 
 

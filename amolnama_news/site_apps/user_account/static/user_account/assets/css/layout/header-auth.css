@@ -17,7 +17,7 @@
 .header-signup-link:visited,
 .header-signup-link:active,
 .header-signup-link:focus {
-  font-size: .85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   text-decoration: none;
@@ -45,7 +45,7 @@
 
 .header-user-menu-toggle {
   cursor: pointer;
-  font-size: .85rem;
+  font-size: var(--text-sm);
 }
 
 .header-user-menu-toggle svg {
@@ -84,7 +84,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   font-family: inherit;
 }
@@ -100,7 +100,7 @@
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: .15rem .4rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
   cursor: pointer;
   line-height: 1;
   transition: background .15s, box-shadow .15s;
@@ -128,7 +128,7 @@
 
 .header-lang-option span {
   padding: .3rem .7rem;
-  font-size: .78rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
   transition: color .15s, background .15s;

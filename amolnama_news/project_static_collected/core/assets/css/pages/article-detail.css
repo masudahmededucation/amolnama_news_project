@@ -22,7 +22,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: .35rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
@@ -40,20 +40,20 @@
 
 .article-detail__hero figcaption {
   margin-top: .5rem;
-  font-size: .85rem;
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 
 .article-detail__body {
   display: grid;
   gap: 1rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .article-detail__body h2 {
   margin-top: 1.25rem;
   margin-bottom: .25rem;
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
 }
 
 .article-detail__body ul {
@@ -70,7 +70,7 @@
 @media (max-width: 640px) {
   .article-detail { padding: 1rem; }
   .article-hero-image { max-height: 280px; }
-  .article-detail h1 { font-size: 1.2rem; }
+  .article-detail h1 { font-size: var(--text-xl); }
 }
 
 

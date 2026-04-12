@@ -15,7 +15,7 @@
   background: var(--primary-light);
   color: var(--primary);
   border-radius: var(--radius);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: bold;
   box-shadow: var(--shadow);
 }
@@ -25,7 +25,7 @@
 /* Tablets and below (768px) */
 @media (max-width: 768px) {
   .highlight-vote {
-    font-size: 1rem;
+    font-size: var(--text-base);
     padding: 0.4rem 1.2rem;
   }
 }
@@ -33,7 +33,7 @@
 /* Mobile phones (480px) */
 @media (max-width: 480px) {
   .highlight-vote {
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     padding: 0.3rem 1rem;
   }
 }
@@ -41,7 +41,7 @@
 /* Small phones (360px) */
 @media (max-width: 360px) {
   .highlight-vote {
-    font-size: 0.9rem;
+    font-size: var(--text-base);
     padding: 0.25rem 0.8rem;
   }
 }
