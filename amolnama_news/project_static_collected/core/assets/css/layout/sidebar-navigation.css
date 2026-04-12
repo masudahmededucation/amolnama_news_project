@@ -307,16 +307,21 @@
 @media (min-width: 769px) and (max-width: 1024px) {
   .app-layout,
   .app-layout-collapsed {
-    grid-template-columns: 60px minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr);
   }
 
   .sidebar-navigation {
-    width: 60px;
+    width: 72px;
   }
 
   .sidebar-navigation-logo-image {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .sidebar-navigation-item {
+    padding: .6rem .5rem;
+    justify-content: center;
   }
 
   .sidebar-navigation-item-label {
@@ -330,8 +335,8 @@
   }
 
   .sidebar-navigation-toggle {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     font-size: 1rem;
   }
 
