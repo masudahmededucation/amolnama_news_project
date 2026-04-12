@@ -70,22 +70,11 @@ from .models import (
 
 # ========== Helpers ==========
 
-def _sanitize_rich_html(html):
-    """Strip dangerous tags/attributes from Quill rich text HTML."""
-    if not html:
-        return html
-    # Remove dangerous tags and their content (matched pairs)
-    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
-    # Remove self-closing dangerous tags
-    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*/>', '', html, flags=re.IGNORECASE)
-    # Remove orphaned opening/closing dangerous tags
-    html = re.sub(r'</?(?:script|style|iframe|object|embed|form)[^>]*>', '', html, flags=re.IGNORECASE)
-    # Remove on* event handler attributes
-    html = re.sub(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', '', html, flags=re.IGNORECASE)
-    html = re.sub(r'\s+on\w+\s*=\s*\S+', '', html, flags=re.IGNORECASE)
-    # Remove javascript: URLs
-    html = re.sub(r'href\s*=\s*["\']javascript:[^"\']*["\']', 'href="#"', html, flags=re.IGNORECASE)
-    return html.strip()
+# Rich-text sanitizer — delegates to the shared core whitelist parser.
+# The old regex-based version was brittle (bypassable via <scr<script>ipt>,
+# javascript: in non-href attributes, SVG/MathML, style expressions, etc).
+# Kept as a thin alias so existing call sites don't need to change.
+from amolnama_news.site_apps.core.utils import sanitize_user_html as _sanitize_rich_html  # noqa: F401
 
 
 def _unique_news_category_tags():

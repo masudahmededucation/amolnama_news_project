@@ -1,12 +1,15 @@
 """Poem OG image generator — renders Bengali text properly using Chrome headless."""
 
 import io
+import logging
 import os
 import subprocess
 import tempfile
 
 from django.http import HttpResponse, Http404
 from django.views.decorators.cache import cache_control
+
+logger = logging.getLogger(__name__)
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
 from .models import CollPoemEntry
@@ -184,12 +187,12 @@ def _render_og_image(poem):
         buf.seek(0)
         return HttpResponse(buf.getvalue(), content_type="image/png")
     finally:
-        # Cleanup temp files
+        # Cleanup temp files — debug-log failures, never block the response
         try:
             os.unlink(html_path)
         except OSError:
-            pass
+            logger.debug('temp file cleanup failed for %s', html_path, exc_info=True)
         try:
             os.unlink(png_path)
         except OSError:
-            pass
+            logger.debug('temp file cleanup failed for %s', png_path, exc_info=True)

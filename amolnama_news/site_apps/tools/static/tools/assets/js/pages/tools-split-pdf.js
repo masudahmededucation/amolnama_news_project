@@ -487,7 +487,10 @@ if (typeof pdfjsLib !== 'undefined') {
 
     splitting = true;
     splitBtn.disabled = true;
-    splitBtn.querySelector('.spl-button-text').textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
+    const splitBtnLabel = splitBtn.querySelector('.spl-button-text');
+    if (splitBtnLabel) {
+      splitBtnLabel.textContent = '⏳ প্রক্রিয়াধীন… (Processing…)';
+    }
     resultEl.hidden = true;
     setProgress(0, 'স্প্লিট হচ্ছে… (Splitting…)');
 

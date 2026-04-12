@@ -3,8 +3,202 @@
 import logging
 import re
 import unicodedata
+from html import escape as html_escape
+from html.parser import HTMLParser
 
 logger = logging.getLogger(__name__)
+
+
+# ============================================================
+# HTML SANITIZER — gold-standard shared implementation
+# ============================================================
+#
+# Whitelist-based HTML sanitizer for user-submitted rich text (Quill editor
+# output) used by newshub article body, bangladesh destination descriptions,
+# and any other app that stores user-provided formatted text.
+#
+# Uses stdlib html.parser.HTMLParser instead of regex — regex-based sanitizers
+# are vulnerable to malformed input bypasses like `<scr<script>ipt>`,
+# uppercase variants, attribute-wrapping tricks, and nested tag confusion.
+# A real parser normalizes these into a tree we can safely whitelist.
+#
+# Allowed tags and attributes are deliberately minimal. If you need more,
+# add them here — don't fork this function.
+
+_SANITIZE_ALLOWED_TAGS = frozenset({
+    'p', 'br', 'hr',
+    'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'sub', 'sup',
+    'a',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li',
+    'blockquote', 'code', 'pre',
+    'span', 'div',
+})
+
+# Tags whose contents must also be dropped (never rendered), not just unwrapped.
+# For most disallowed tags we unwrap (keep text). For these we drop everything.
+_SANITIZE_DROP_CONTENT_TAGS = frozenset({
+    'script', 'style', 'iframe', 'object', 'embed', 'form',
+    'svg', 'math', 'noscript', 'template', 'applet', 'base',
+    'link', 'meta', 'frame', 'frameset',
+})
+
+_SANITIZE_ALLOWED_ATTRS_BY_TAG = {
+    'a': frozenset({'href', 'title', 'rel', 'target'}),
+    'span': frozenset({'class'}),
+    'div': frozenset({'class'}),
+    'p': frozenset({'class'}),
+    'blockquote': frozenset({'class'}),
+    'code': frozenset({'class'}),
+    'pre': frozenset({'class'}),
+    'h1': frozenset({'class'}),
+    'h2': frozenset({'class'}),
+    'h3': frozenset({'class'}),
+    'h4': frozenset({'class'}),
+    'h5': frozenset({'class'}),
+    'h6': frozenset({'class'}),
+    'ul': frozenset({'class'}),
+    'ol': frozenset({'class'}),
+    'li': frozenset({'class'}),
+}
+
+_SANITIZE_VOID_TAGS = frozenset({'br', 'hr'})
+
+_SANITIZE_SAFE_URL_SCHEMES = frozenset({'http', 'https', 'mailto', 'tel'})
+
+
+def _sanitize_is_safe_url(url):
+    """Return True if URL has a safe scheme or is relative/fragment."""
+    if not url:
+        return False
+    url_stripped = url.strip()
+    if not url_stripped:
+        return False
+    # Relative URLs, fragments, and path-only URLs are safe
+    if url_stripped.startswith(('/', '#', '?')):
+        return True
+    # Check for scheme
+    if ':' not in url_stripped:
+        return True  # no scheme = relative
+    scheme = url_stripped.split(':', 1)[0].strip().lower()
+    # Strip any whitespace/control characters that might hide the real scheme
+    scheme = re.sub(r'[\s\x00-\x1f]', '', scheme)
+    return scheme in _SANITIZE_SAFE_URL_SCHEMES
+
+
+class _SanitizingHTMLParser(HTMLParser):
+    """Whitelist-based HTML sanitizer.
+
+    - Allowed tags are re-emitted with only whitelisted attributes.
+    - Disallowed tags in DROP_CONTENT_TAGS drop both tag and content.
+    - Other disallowed tags are unwrapped (content kept, tag removed).
+    - Text is HTML-escaped (handled by the parser giving us raw text which
+      we then escape on output).
+    - URL schemes for href are validated — javascript:, vbscript:, data:
+      are rejected.
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self._output_parts = []
+        self._drop_depth = 0  # >0 while inside a drop-content tag
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        if tag in _SANITIZE_DROP_CONTENT_TAGS:
+            self._drop_depth += 1
+            return
+        if self._drop_depth > 0:
+            return
+        if tag not in _SANITIZE_ALLOWED_TAGS:
+            return  # unwrap: drop the tag, keep the content
+        allowed_attrs = _SANITIZE_ALLOWED_ATTRS_BY_TAG.get(tag, frozenset())
+        safe_attrs = []
+        for attr_name, attr_value in attrs:
+            if not attr_name:
+                continue
+            attr_name_lower = attr_name.lower()
+            # Block ALL event handlers defensively (on* attributes) and
+            # style attributes (can contain expression()/url(javascript:))
+            if attr_name_lower.startswith('on') or attr_name_lower == 'style':
+                continue
+            if attr_name_lower not in allowed_attrs:
+                continue
+            if attr_value is None:
+                safe_attrs.append((attr_name_lower, ''))
+                continue
+            # URL scheme validation for href
+            if attr_name_lower == 'href':
+                if not _sanitize_is_safe_url(attr_value):
+                    attr_value = '#'
+            # Force safe defaults on links
+            safe_attrs.append((attr_name_lower, attr_value))
+        # For <a> tags, force rel="noopener noreferrer" when target=_blank
+        if tag == 'a':
+            has_target_blank = any(
+                k == 'target' and (v or '').lower() == '_blank'
+                for k, v in safe_attrs
+            )
+            if has_target_blank:
+                safe_attrs = [(k, v) for k, v in safe_attrs if k != 'rel']
+                safe_attrs.append(('rel', 'noopener noreferrer'))
+        attr_str = ''.join(
+            ' {}="{}"'.format(k, html_escape(v, quote=True))
+            for k, v in safe_attrs
+        )
+        if tag in _SANITIZE_VOID_TAGS:
+            self._output_parts.append('<{}{} />'.format(tag, attr_str))
+        else:
+            self._output_parts.append('<{}{}>'.format(tag, attr_str))
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag in _SANITIZE_DROP_CONTENT_TAGS:
+            if self._drop_depth > 0:
+                self._drop_depth -= 1
+            return
+        if self._drop_depth > 0:
+            return
+        if tag not in _SANITIZE_ALLOWED_TAGS:
+            return
+        if tag in _SANITIZE_VOID_TAGS:
+            return
+        self._output_parts.append('</{}>'.format(tag))
+
+    def handle_startendtag(self, tag, attrs):
+        # Self-closing tags like <br/> or <img/>
+        self.handle_starttag(tag, attrs)
+        if tag.lower() not in _SANITIZE_VOID_TAGS and tag.lower() in _SANITIZE_ALLOWED_TAGS:
+            self.handle_endtag(tag)
+
+    def handle_data(self, data):
+        if self._drop_depth > 0:
+            return
+        self._output_parts.append(html_escape(data, quote=False))
+
+    def get_sanitized_html(self):
+        return ''.join(self._output_parts)
+
+
+def sanitize_user_html(html):
+    """Sanitize user-submitted rich text HTML via a whitelist parser.
+
+    Safe to render with |safe in templates. Use this for any HTML coming from
+    a WYSIWYG editor (Quill, TinyMCE, etc.) before storing it in the DB.
+
+    Returns empty string for None/empty input. Never raises — on parse error,
+    returns the HTML-escaped original so nothing is ever rendered as live HTML.
+    """
+    if not html:
+        return html
+    parser = _SanitizingHTMLParser()
+    try:
+        parser.feed(html)
+        parser.close()
+        return parser.get_sanitized_html().strip()
+    except Exception:
+        logger.exception('sanitize_user_html failed; returning escaped original')
+        return html_escape(html, quote=True)
 
 
 def get_user_avatar_url(user_profile):

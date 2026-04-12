@@ -646,7 +646,7 @@ def topic_download_pdf(request, topic_id):
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
             except OSError:
-                pass
+                logger.debug('temp file cleanup failed for %s', temp_path, exc_info=True)
 
     filename = _sanitize_pdf_filename(topic.topic_title)
     response = HttpResponse(pdf_bytes, content_type='application/pdf')

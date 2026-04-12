@@ -34,19 +34,10 @@ MAX_VIDEO_SIZE = 50 * 1024 * 1024  # 50MB
 MAX_VIDEO_DURATION = 40  # seconds
 
 
-def _sanitize_html(html):
-    """Strip dangerous tags/attributes from rich text HTML. Allow safe formatting only."""
-    if not html:
-        return html
-    # Remove script/style/iframe/object/embed tags and their content
-    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
-    html = re.sub(r'<(script|style|iframe|object|embed|form)[^>]*/>', '', html, flags=re.IGNORECASE)
-    # Remove on* event attributes (onclick, onerror, etc.)
-    html = re.sub(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', '', html, flags=re.IGNORECASE)
-    html = re.sub(r'\s+on\w+\s*=\s*\S+', '', html, flags=re.IGNORECASE)
-    # Remove javascript: URLs
-    html = re.sub(r'href\s*=\s*["\']javascript:[^"\']*["\']', 'href="#"', html, flags=re.IGNORECASE)
-    return html.strip()
+# Rich-text sanitizer — delegates to the shared core whitelist parser.
+# Replaces the previous regex-based version which was bypassable via
+# malformed tags, SVG/MathML, style expression(), and non-href URL attributes.
+from amolnama_news.site_apps.core.utils import sanitize_user_html as _sanitize_html  # noqa: F401
 
 
 

@@ -83,7 +83,7 @@ def extract(file_path):
             try:
                 os.remove(extracted_audio_path)
             except OSError:
-                pass
+                logger.debug('temp audio cleanup failed for %s', extracted_audio_path, exc_info=True)
 
     if not segments_list:
         return {'success': True, 'text': '', 'word_count': 0, 'confidence': 0.0,

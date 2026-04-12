@@ -144,7 +144,7 @@ def build_post_feed_items(request, posts=None):
                             if row:
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
-                        pass
+                        logger.exception('shared cover lookup failed for content_registry_id=%s category=%s', item.content_registry_id, category_id)
             elif category_id == 4:  # Story — story_asset
                 for item in items:
                     if item.content_cover_image_url:
@@ -164,7 +164,7 @@ def build_post_feed_items(request, posts=None):
                             if row:
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
-                        pass
+                        logger.exception('shared cover lookup failed for content_registry_id=%s category=%s', item.content_registry_id, category_id)
             elif category_id == 1:  # Newshub article — news_asset
                 for item in items:
                     if item.content_cover_image_url:
@@ -184,7 +184,7 @@ def build_post_feed_items(request, posts=None):
                             if row:
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
-                        pass
+                        logger.exception('shared cover lookup failed for content_registry_id=%s category=%s', item.content_registry_id, category_id)
             elif category_id == 6:  # Destination — cover_image_url on coll_destination
                 for item in items:
                     if item.content_cover_image_url:
@@ -201,7 +201,7 @@ def build_post_feed_items(request, posts=None):
                             if row and row[0]:
                                 shared_cover_map[item.content_registry_id] = row[0]
                     except Exception:
-                        pass
+                        logger.exception('shared cover lookup failed for content_registry_id=%s category=%s', item.content_registry_id, category_id)
 
     # Bulk-fetch original posts for reposts
     repost_original_ids = set(
@@ -541,7 +541,7 @@ def post_detail(request, post_post_id):
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
                 record_content_view(viewer_user_profile_id, 'post', post_post_id)
         except Exception:
-            pass
+            logger.exception('record_content_view failed for post %s', post_post_id)
 
     return render(request, 'post/pages/post-detail.html', {
         'post_item': post_item,

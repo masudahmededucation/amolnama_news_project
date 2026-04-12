@@ -1,8 +1,11 @@
 """Bangladesh app — page views."""
 
 import json
+import logging
 from amolnama_news.site_apps.core.utils import time_ago as _time_ago
 import re
+
+logger = logging.getLogger(__name__)
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
@@ -450,7 +453,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(dest.link_user_profile_id, request, profile_suffix='articles/')
 
-    # Record content view for personalization
+    # Record content view for personalization (non-critical — log but never block)
     if request.user.is_authenticated:
         try:
             from amolnama_news.site_apps.core.utils import get_user_profile_id
@@ -459,7 +462,7 @@ def travel_hub_detail_by_slug(request, destination_slug):
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
                 record_content_view(viewer_user_profile_id, 'destination', dest.blog_bangladesh_coll_destination_id)
         except Exception:
-            pass
+            logger.exception('record_content_view failed for destination %s', dest.blog_bangladesh_coll_destination_id)
 
     return render(request, "bangladesh/pages/travel-hub-detail.html", {
         "dest": dest,

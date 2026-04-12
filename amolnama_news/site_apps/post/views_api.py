@@ -1269,14 +1269,19 @@ def api_poll_vote(request, post_post_id):
             VALUES (%s, %s, %s)
         """, [poll_id, user_profile.user_profile_id, selected_option_number])
 
-    # Update cached counts
-    vote_count_column = f'poll_option_{selected_option_number}_vote_count'
-    with connection.cursor() as cursor:
-        cursor.execute(f"""
-            UPDATE [post].[post_poll]
-            SET [{vote_count_column}] = [{vote_count_column}] + 1, [total_vote_count] = [total_vote_count] + 1
-            WHERE [post_post_poll_id] = %s
-        """, [poll_id])
+    # Update cached counts — use ORM F() expressions to avoid dynamic SQL.
+    # Explicit mapping (not f-string) so the column name is a hardcoded literal.
+    vote_count_field_by_option = {
+        1: 'poll_option_1_vote_count',
+        2: 'poll_option_2_vote_count',
+        3: 'poll_option_3_vote_count',
+        4: 'poll_option_4_vote_count',
+    }
+    vote_count_field_name = vote_count_field_by_option[selected_option_number]
+    PostPoll.objects.filter(post_post_poll_id=poll_id).update(**{
+        vote_count_field_name: F(vote_count_field_name) + 1,
+        'total_vote_count': F('total_vote_count') + 1,
+    })
 
     # Return updated results
     poll.refresh_from_db()

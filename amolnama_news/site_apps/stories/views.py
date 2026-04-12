@@ -1,10 +1,14 @@
 """Stories for Kids views — landing, detail, submit pages."""
 
+import logging
+
 from django.contrib.auth.decorators import login_required
 from amolnama_news.site_apps.core.utils import time_ago as _calculate_time_ago
 from django.http import Http404
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+logger = logging.getLogger(__name__)
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
 
@@ -175,7 +179,7 @@ def detail(request, story_slug):
     from amolnama_news.site_apps.core.utils import build_actions_bar_author_context, build_related_content_items
     actions_bar_author_context = build_actions_bar_author_context(story.link_user_profile_id, request, profile_suffix='articles/')
 
-    # Record content view for personalization
+    # Record content view for personalization (non-critical — log but never block)
     if request.user.is_authenticated:
         try:
             from amolnama_news.site_apps.core.utils import get_user_profile_id
@@ -184,7 +188,7 @@ def detail(request, story_slug):
                 from amolnama_news.site_apps.newsengine.personalization import record_content_view
                 record_content_view(viewer_user_profile_id, 'story', story.blog_stories_coll_story_id)
         except Exception:
-            pass
+            logger.exception('record_content_view failed for story %s', story.blog_stories_coll_story_id)
 
     return render(request, 'stories/pages/stories-detail.html', {
         'story': story_item,
