@@ -305,14 +305,39 @@
 /* ---- Tablet: collapsed sidebar, no right panel ---- */
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .app-layout {
+  .app-layout,
+  .app-layout-collapsed {
     grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .sidebar-navigation {
+    width: 60px;
+  }
+
+  .sidebar-navigation-logo-image {
+    width: 32px;
+    height: 32px;
   }
 
   .sidebar-navigation-item-label {
     opacity: 0;
     width: 0;
     overflow: hidden;
+  }
+
+  .sidebar-navigation-section-label {
+    display: none;
+  }
+
+  .sidebar-navigation-toggle {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .sidebar-navigation-header {
+    justify-content: center;
+    padding: .5rem .25rem;
   }
 }
 
