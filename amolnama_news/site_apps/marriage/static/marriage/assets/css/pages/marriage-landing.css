@@ -205,3 +205,17 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Marriage landing card grid expands to 2 columns on tablets so the
+   feature cards don't stretch too wide. */
+@media (min-width: 768px) {
+  .marriage-grid {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap: var(--space-6, 1.5rem);
+  }
+  .tool-page {
+    padding: var(--space-8, 2rem) 0 var(--space-12, 3rem);
+  }
+}

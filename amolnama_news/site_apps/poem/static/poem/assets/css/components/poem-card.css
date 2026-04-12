@@ -219,3 +219,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Poem card gets comfortable padding and hover elevation on tablet+. */
+@media (min-width: 768px) {
+  .poem-card {
+    padding: var(--space-5, 1.25rem);
+  }
+  .poem-card:hover {
+    transform: translateY(-2px);
+  }
+}

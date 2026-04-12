@@ -718,3 +718,25 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Detail page expands: prose body gets comfortable 65ch reading width,
+   audio player and action bar go horizontal, related section gets 2-col. */
+@media (min-width: 768px) {
+  .poem-detail {
+    max-width: 720px;
+    padding: var(--space-8, 2rem) var(--space-6, 1.5rem);
+  }
+  .poem-detail-body {
+    font-size: var(--text-lg, 1.125rem);
+    line-height: var(--leading-relaxed, 1.625);
+  }
+  .poem-detail-related {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4, 1rem);
+  }
+  .poem-audio-player {
+    max-width: 640px;
+  }
+}

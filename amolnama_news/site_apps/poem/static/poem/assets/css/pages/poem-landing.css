@@ -272,3 +272,24 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   On tablets, the poem card grid locks to a 2-col minimum instead of
+   auto-fill squeezing cards too narrow, header goes horizontal,
+   filter bar gets comfortable horizontal spacing. */
+@media (min-width: 768px) {
+  .poem-card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6, 1.5rem);
+  }
+  .poem-header {
+    padding: var(--space-4, 1rem) 0;
+  }
+  .poem-filter-bar {
+    gap: var(--space-4, 1rem);
+  }
+  .poem-header-search {
+    max-width: 360px;
+  }
+}

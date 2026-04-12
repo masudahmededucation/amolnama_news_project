@@ -95,3 +95,23 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Upload page: container gets comfortable padding, dropzone icon grows,
+   result preview gets more reading space. */
+@media (min-width: 768px) {
+  .textextractor-upload-container {
+    padding: var(--space-10, 2.5rem) var(--space-6, 1.5rem);
+  }
+  .textextractor-upload-dropzone {
+    padding: var(--space-16, 4rem) var(--space-12, 3rem);
+  }
+  .textextractor-upload-dropzone-icon {
+    font-size: var(--text-5xl, 3rem);
+  }
+  .textextractor-upload-result-preview {
+    max-height: 320px;
+    font-size: var(--text-base, 1rem);
+  }
+}

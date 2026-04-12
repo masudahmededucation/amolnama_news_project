@@ -1456,3 +1456,26 @@ span.flatpickr-weekday {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Real tablet refinements: form container widens to take advantage of
+   768px+ viewports, stepper goes horizontal, action buttons get inline
+   layout with comfortable spacing, and field rows use 2-col grid. */
+@media (min-width: 768px) {
+  .marriage-form .form-row-half {
+    gap: var(--space-4, 1rem);
+  }
+  .marriage-form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: var(--space-4, 1rem);
+  }
+  .marriage-form-actions .marriage-clear-form-button,
+  .marriage-form-actions button[type="submit"] {
+    min-width: 180px;
+  }
+  .marriage-photo-upload-area {
+    max-width: 420px;
+  }
+}

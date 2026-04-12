@@ -917,3 +917,26 @@ span.flatpickr-weekday {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ---- Tablet breakpoint (mobile UX phase) ----
+   Certificate form widens on tablets: subsections get 2-col field rows,
+   signature pad area grows, cert header uses horizontal layout. */
+@media (min-width: 768px) {
+  .cert-section {
+    padding: var(--space-6, 1.5rem);
+  }
+  .cert-form .form-row-half {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4, 1rem);
+  }
+  .cert-form .form-row-third {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-4, 1rem);
+  }
+  .cert-header-meta {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-6, 1.5rem);
+  }
+}

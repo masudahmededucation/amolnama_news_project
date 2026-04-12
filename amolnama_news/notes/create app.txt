@@ -29,3 +29,87 @@ https://xeroxtree.com/pdf/modina_sonod_o_bangladesher_songbidhan.pdf
 -print a book with text
 -put a QR code for video
 https://www.icsbook.info/audio
+
+################
+profile app
+
+দালাল/গাদ্দার/জুলাই বিরোধী 
+score 
+49 points gemini voting
+
+
+
+#################
+--auto posting app
+automatic scrapping current news
+news related to bangladesh
+automatic post
+need a nav menu options for this
+i should be able to give hint.
+then it should grab related to that hint and post.
+i should be able to tell how many post for that related hint.
+if i say 3 posts,
+then it should find 3 different topic for that same hint and post.
+in the beginning it will help to build a portfolio.
+if the wall is empty and i struggle to find users, 
+then the app may die soon. 
+this automatic posting will reduce my effort and time.
+it will make the app lively.
+
+
+####################
+revenue or advertisement app
+
+
+######
+facebook post creator
+text and image input
+output large picture -
+including text/image/logo/date
+
+
+############
+marketing
+
+####
+school/university campus life app
+we need a form
+encourage the best thing about their campus
+encourage student to encourage their best talent.
+extraordinary talent people or teacher.
+
+
+###
+probashi news
+
+
+####
+poltibaj
+
+
+###
+--similar posts
+--dilara jaman
+--salauddin ahmed - shilong
+
+
+####
+---political article/editorial
+
+###
+--trend news/ breaking news
+
+###
+--jokes app
+
+############
+--history teachers
+question and answers
+
+paragraph and also multiple choice questions
+questions mainly to teach about party history
+party leader history
+this way, people cannot lied
+specially election and MP candidates
+
+
