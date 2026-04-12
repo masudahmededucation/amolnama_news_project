@@ -287,7 +287,7 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-chat-settings-dropdown {
   position: absolute; top: calc(100% + 4px); right: 0;
   background: var(--card); border: none; border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0,0,0,.12), 0 0 2px rgba(0,0,0,.06);
+  box-shadow: var(--elevation-3);
   min-width: 220px; z-index: 50; padding: 6px 0;
   transform-origin: top right;
   animation: messenger-dropdown-enter .15s ease-out;
@@ -372,7 +372,7 @@ main:has(.messenger) { padding-top: .25rem; }
   color: var(--text);
   position: relative;
   word-wrap: break-word;
-  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  box-shadow: var(--elevation-1);
   margin-bottom: .1rem;
 }
 
@@ -771,4 +771,59 @@ main:has(.messenger) { padding-top: .25rem; }
   color: var(--danger);
   font-size: .72rem;
   padding: .2rem .75rem;
+}
+
+/* ============================================================
+   Focus-visible rings — gold standard accessibility
+   Keyboard users need a visible focus indicator on every
+   interactive element. Mouse users don't see these.
+   ============================================================ */
+
+.messenger-conversation-item:focus-visible,
+.messenger-send-button:focus-visible,
+.messenger-chat-settings-button:focus-visible,
+.messenger-attach-button:focus-visible,
+.messenger-emoji-button:focus-visible,
+.messenger-back-button:focus-visible,
+.messenger-new-chat-button:focus-visible,
+.messenger-input-textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Touch targets + touch-action on interactive buttons ---- */
+
+.messenger-send-button,
+.messenger-chat-settings-button,
+.messenger-attach-button,
+.messenger-emoji-button,
+.messenger-back-button,
+.messenger-new-chat-button,
+.messenger-conversation-item {
+  touch-action: manipulation;
+}
+
+/* ============================================================
+   Reduced motion fallback
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .messenger-chat-settings-dropdown,
+  .messenger-bubble,
+  .messenger-conversation-item,
+  .messenger-conversation-item:hover,
+  .messenger-send-button,
+  .messenger-send-button:hover {
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

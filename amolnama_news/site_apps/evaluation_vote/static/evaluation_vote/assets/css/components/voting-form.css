@@ -333,6 +333,22 @@
   /* Additional small phone optimizations */
 }
 
+/* ---- Focus-visible rings — gold standard keyboard accessibility ---- */
+
+.submit-button:focus-visible,
+.update-button:focus-visible,
+.new-vote-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.submit-button,
+.update-button,
+.new-vote-button {
+  touch-action: manipulation;
+  min-height: var(--touch-target);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .submit-button,
   .update-button,
