@@ -60,7 +60,7 @@
   padding: .6rem .75rem;
   min-height: 44px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font-size: var(--text-base);
@@ -116,7 +116,7 @@
 /* ── Flash messages / alerts ── */
 .auth-alert {
   padding: .6rem 1rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-size: var(--text-sm);
   margin-bottom: 1rem;
 }
@@ -176,7 +176,7 @@
   min-height: 44px;
   padding: .7rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--card);
   color: var(--text);
   font-size: var(--text-base);
@@ -245,7 +245,7 @@
   width: 200px;
   padding: .6rem .5rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font-size: var(--text-sm);
@@ -269,7 +269,7 @@
   align-items: center;
   padding: 0 .65rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font-size: var(--text-base);
@@ -402,7 +402,7 @@
 .profile-form textarea {
   padding: .6rem .75rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
   font-size: var(--text-base);

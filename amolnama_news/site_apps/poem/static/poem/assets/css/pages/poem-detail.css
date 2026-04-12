@@ -21,7 +21,7 @@
 .poem-detail-category {
   background: var(--primary);
   color: #fff;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: .2rem .6rem;
   font-size: var(--text-sm);
   font-weight: 600;
@@ -32,7 +32,7 @@
   font-weight: 700;
   color: var(--muted);
   background: var(--surface);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: .15rem .4rem;
   text-transform: uppercase;
 }
@@ -52,7 +52,7 @@
   font-weight: 600;
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   text-decoration: none;
   transition: color .15s, border-color .15s;
 }
@@ -134,7 +134,7 @@
     linear-gradient(to right, rgba(80,55,20,.08) 0%, rgba(120,90,40,.03) .5%, transparent 2%, transparent 98%, rgba(120,90,40,.03) 99.5%, rgba(80,55,20,.06) 100%),
     /* L1 — Base cream gradient */
     linear-gradient(to bottom, #efe3d0 0%, #f4ead8 3%, #f6eee0 12%, #f8f0e2 50%, #f6eee0 88%, #f4ead8 97%, #efe3d0 100%);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   border: none;
   box-shadow: var(--elevation-2),
     0 0 1px rgba(0,0,0,.06),
@@ -158,7 +158,7 @@
     linear-gradient(to right, rgba(80,55,20,.1) 0%, rgba(120,90,40,.04) .6%, transparent 2.5%),
     linear-gradient(to bottom, rgba(100,70,30,.04) 0%, transparent 2.5%),
     linear-gradient(to top, rgba(100,70,30,.04) 0%, transparent 2.5%);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   pointer-events: none;
   z-index: 1;
 }
@@ -201,7 +201,7 @@
       rgba(90,60,20,.005) 7px
     );
   pointer-events: none;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   z-index: 1;
   opacity: .7;
 }
@@ -217,7 +217,7 @@
   z-index: 1;
   opacity: .12;
   mix-blend-mode: multiply;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* Title & author inside the old book page */
@@ -264,7 +264,7 @@
   align-items: center;
   gap: .5rem;
   background: #1a1a2e;
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: .5rem .75rem;
 }
 
@@ -331,7 +331,7 @@
 .poem-audio-progress-bar {
   height: 4px;
   background: #333;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   position: relative;
   overflow: visible;
@@ -344,7 +344,7 @@
 .poem-audio-progress-fill {
   height: 4px;
   background: var(--primary);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   width: 0%;
   transition: width .1s linear;
   pointer-events: none;
@@ -370,7 +370,7 @@
   color: #aaa;
   cursor: pointer;
   padding: .2rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   transition: color .15s;
   display: flex;
   align-items: center;
@@ -388,7 +388,7 @@
   color: #aaa;
   cursor: pointer;
   padding: .3rem .5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: color .15s, border-color .15s;
   display: flex;
   align-items: center;
@@ -404,7 +404,7 @@
 /* Video expand area */
 .poem-audio-video-wrap {
   margin-top: .5rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: #000;
 }
@@ -450,7 +450,7 @@
 
 .poem-radio-next {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--radius) var(--radius);
   padding: .75rem 1rem;
   margin-top: -2px;
   animation: poem-radio-slide-in .3s ease-out;
@@ -496,7 +496,7 @@
   color: #aaa;
   font-size: var(--text-xs);
   padding: .2rem .6rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: color .15s, border-color .15s;
 }
@@ -600,7 +600,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted);
   cursor: pointer;

@@ -64,7 +64,7 @@
   width: 100%;
   background: var(--card, #fff);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   box-shadow: 0 2px 16px rgba(0, 0, 0, .06);
   padding: 2rem;
 }
@@ -132,7 +132,7 @@
   width: 100%;
   padding: .65rem 1rem;
   border: 2px solid var(--border);
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   background: var(--surface, #f5f5f5);
   color: var(--text);
   font-size: var(--text-base);
@@ -151,7 +151,7 @@
 }
 
 .profile-form textarea {
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   resize: vertical;
   min-height: 70px;
 }
@@ -177,7 +177,7 @@
   padding: .7rem 2rem;
   min-height: 44px;
   border: none;
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   background: var(--primary, #1877f2);
   color: var(--card, #fff);
   font-size: var(--text-base);
@@ -220,7 +220,7 @@
   padding: .5rem .65rem;
   font-size: var(--text-sm);
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card, #fff);
   color: var(--text);
 }
@@ -235,7 +235,7 @@
   padding: .5rem .65rem;
   font-size: var(--text-sm);
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card, #fff);
   color: var(--text);
   resize: vertical;
@@ -257,7 +257,7 @@
   display: flex;
   align-items: center;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
@@ -295,7 +295,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   border: none;
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   background: var(--primary, #1877f2);
   color: var(--card, #fff);
   cursor: pointer;
@@ -312,7 +312,7 @@
 
 .profile-message {
   padding: .5rem .75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   margin-bottom: .4rem;
 }
@@ -342,10 +342,10 @@
 /* ── Muted words section ── */
 .muted-words-description { font-size: var(--text-sm); color: var(--muted); margin-bottom: .5rem; }
 .muted-words-input-row { display: flex; gap: .4rem; margin-bottom: .5rem; }
-.muted-words-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 8px; font-size: var(--text-sm); }
-.muted-words-add-button { padding: .4rem .8rem; min-height: 44px; background: var(--primary); color: var(--card); border: none; border-radius: 8px; font-size: var(--text-sm); font-weight: 700; cursor: pointer; }
+.muted-words-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.muted-words-add-button { padding: .4rem .8rem; min-height: 44px; background: var(--primary); color: var(--card); border: none; border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 700; cursor: pointer; }
 .muted-words-list { display: flex; flex-wrap: wrap; gap: .3rem; }
-.muted-words-tag { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .5rem; background: var(--surface); border-radius: 14px; font-size: var(--text-sm); }
+.muted-words-tag { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .5rem; background: var(--surface); border-radius: var(--radius-lg); font-size: var(--text-sm); }
 .muted-words-tag-remove-button { background: none; border: none; font-size: var(--text-sm); cursor: pointer; color: var(--danger); padding: 0; }
 
 

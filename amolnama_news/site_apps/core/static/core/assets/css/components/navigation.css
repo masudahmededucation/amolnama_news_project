@@ -75,7 +75,7 @@
   color: var(--text);
   font-weight: 600;
   padding: .5rem .75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   text-decoration: none;
 }
 

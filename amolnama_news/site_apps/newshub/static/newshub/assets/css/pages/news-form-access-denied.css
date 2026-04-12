@@ -35,7 +35,7 @@
   padding: .6rem 1.5rem;
   background: var(--primary);
   color: var(--bg);
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: 700;
   text-decoration: none;

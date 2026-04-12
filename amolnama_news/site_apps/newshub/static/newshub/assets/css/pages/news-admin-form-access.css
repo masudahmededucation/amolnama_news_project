@@ -69,7 +69,7 @@
   padding: .6rem .8rem;
   font-size: var(--text-sm);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--text);
   outline: none;
@@ -94,7 +94,7 @@
   justify-content: space-between;
   padding: .5rem .75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   cursor: pointer;
   transition: background .15s, border-color .15s;
@@ -120,7 +120,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   padding: .15rem .4rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--info-light);
   color: var(--info);
 }
@@ -133,7 +133,7 @@
 .news-admin-form-access-user-header {
   padding: .75rem;
   background: var(--surface);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1rem;
   font-size: var(--text-sm);
   font-weight: 600;
@@ -153,7 +153,7 @@
   justify-content: space-between;
   padding: .6rem .75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card);
   transition: border-color .15s;
 }
@@ -206,7 +206,7 @@
   width: 36px;
   height: 20px;
   background: var(--border);
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   transition: background .2s;
   flex-shrink: 0;
 }
@@ -258,7 +258,7 @@
   justify-content: space-between;
   padding: .6rem .75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--card);
 }
 
@@ -278,7 +278,7 @@
 .news-admin-form-access-inline-message {
   font-size: var(--text-sm);
   padding: .4rem .6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-top: .5rem;
 }
 

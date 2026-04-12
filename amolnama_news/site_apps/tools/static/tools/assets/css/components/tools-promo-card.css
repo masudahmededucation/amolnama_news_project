@@ -3,7 +3,7 @@
 .tools-promo-card {
   border: 1px solid var(--border);
   border-left: 3px solid #0ea5e9;
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: .75rem 1rem;
   margin-bottom: .5rem;
   background: linear-gradient(135deg, #f0f9ff 0%, var(--card) 100%);
@@ -18,7 +18,7 @@
 .tools-promo-card-header { margin-bottom: .3rem; }
 .tools-promo-card-badge {
   font-size: var(--text-xs); font-weight: 800; letter-spacing: .08em;
-  background: #0ea5e9; color: #fff; padding: .1rem .45rem; border-radius: 8px;
+  background: #0ea5e9; color: #fff; padding: .1rem .45rem; border-radius: var(--radius-sm);
   text-transform: uppercase;
 }
 
@@ -34,7 +34,7 @@
    onerror handler hides the wrapper if the file is missing — degrades cleanly. */
 .tools-promo-card-sample {
   margin-top: .55rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--surface);
   aspect-ratio: 15 / 8;

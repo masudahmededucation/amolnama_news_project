@@ -43,7 +43,7 @@
   color: var(--info);
   background: var(--info-light);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 
 /* Remove button inside chip — 44px touch target on mobile */

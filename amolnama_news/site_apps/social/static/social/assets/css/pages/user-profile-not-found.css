@@ -4,7 +4,7 @@
 .user-profile-not-found-icon { font-size: 3rem; margin-bottom: 1rem; }
 .user-profile-not-found-title { font-size: 1.2rem; margin-bottom: .5rem; }
 .user-profile-not-found-message { color: var(--muted); font-size: .9rem; }
-.user-profile-not-found-home-link { display: inline-block; margin-top: 1rem; padding: .5rem 1.5rem; background: var(--primary); color: #fff; border-radius: 8px; font-size: .85rem; }
+.user-profile-not-found-home-link { display: inline-block; margin-top: 1rem; padding: .5rem 1.5rem; background: var(--primary); color: #fff; border-radius: var(--radius-sm); font-size: .85rem; }
 
 
 /* ---- Reduced motion fallback (mobile UX phase) ---- */

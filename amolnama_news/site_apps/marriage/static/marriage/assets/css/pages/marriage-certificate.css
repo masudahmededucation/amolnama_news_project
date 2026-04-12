@@ -24,7 +24,7 @@
   padding: .4rem .5rem;
   font-size: var(--text-sm);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--card);
 }
 
@@ -39,7 +39,7 @@
   padding: .4rem .5rem;
   font-size: var(--text-sm);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .saved-office-default-label {
@@ -55,7 +55,7 @@
   padding: .35rem .75rem;
   font-size: var(--text-sm);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -449,7 +449,7 @@
 
 .flatpickr-calendar {
   font-family: inherit;
-  border-radius: 10px;
+  border-radius: var(--radius);
   box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
   border: 1px solid var(--border);
 }
@@ -490,7 +490,7 @@
 .flatpickr-months .flatpickr-prev-month:hover,
 .flatpickr-months .flatpickr-next-month:hover {
   background: rgba(255, 255, 255, .15);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .flatpickr-months .flatpickr-prev-month:hover svg,
@@ -565,7 +565,7 @@ span.flatpickr-weekday {
 .cert-preview {
   background: var(--card);
   border: 3px double #8b6914;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   max-width: 800px;
   margin: 0 auto;
   font-family: 'Times New Roman', 'Nirmala UI', serif;
@@ -579,7 +579,7 @@ span.flatpickr-weekday {
   position: absolute;
   inset: 6px;
   border: 1px solid #d4b86a;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   pointer-events: none;
 }
 

@@ -5,7 +5,7 @@
   align-items: stretch;
   gap: .75rem;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: .85rem 1rem;
   margin-bottom: .5rem;
   background: var(--card);
@@ -23,7 +23,7 @@
 .content-promo-card-image-wrapper {
   flex-shrink: 0;
   width: 130px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   overflow: hidden;
   align-self: center;
 }
@@ -32,7 +32,7 @@
   height: 100%;
   object-fit: cover;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: var(--radius);
   transition: transform .3s;
 }
 .content-promo-card:hover .content-promo-card-image { transform: scale(1.05); }
@@ -53,7 +53,7 @@
 .content-promo-card-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; flex-wrap: wrap; }
 .content-promo-card-badge {
   font-size: var(--text-xs); font-weight: 800; letter-spacing: .06em;
-  color: #fff; padding: .1rem .45rem; border-radius: 8px;
+  color: #fff; padding: .1rem .45rem; border-radius: var(--radius-sm);
   text-transform: uppercase;
 }
 .content-promo-card-badge-blue { background: var(--info); }
@@ -74,7 +74,7 @@
 .content-promo-card-stat { white-space: nowrap; }
 .content-promo-card-cta {
   font-size: var(--text-xs); font-weight: 700; color: #fff;
-  padding: .2rem .6rem; border-radius: 12px;
+  padding: .2rem .6rem; border-radius: var(--radius);
   transition: opacity .15s;
 }
 .content-promo-card-cta-blue { background: var(--info); }

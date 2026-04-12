@@ -41,7 +41,7 @@
   font-size: var(--text-xs);
   background: #f5f0e3;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   color: var(--muted);
 }

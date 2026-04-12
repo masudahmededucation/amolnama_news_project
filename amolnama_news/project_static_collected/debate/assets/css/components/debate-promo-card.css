@@ -13,7 +13,7 @@
 .debate-promo-card {
   display: block;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: .85rem 1rem;
   margin-bottom: .5rem;
   background: linear-gradient(135deg, var(--debate-promo-gradient-start) 0%, var(--card) 40%, var(--info-light) 100%);
@@ -33,9 +33,9 @@
 .debate-promo-card-badge {
   font-size: var(--text-xs); font-weight: 800; letter-spacing: .08em;
   background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
-  color: var(--debate-promo-on-color); padding: .1rem .5rem; border-radius: 10px;
+  color: var(--debate-promo-on-color); padding: .1rem .5rem; border-radius: var(--radius);
 }
-.debate-promo-card-status { font-size: var(--text-xs); font-weight: 700; padding: .1rem .4rem; border-radius: 8px; }
+.debate-promo-card-status { font-size: var(--text-xs); font-weight: 700; padding: .1rem .4rem; border-radius: var(--radius-sm); }
 .debate-promo-card-status-live { background: var(--success-light); color: var(--primary); }
 .debate-promo-card-status-scheduled { background: var(--warning-light); color: var(--warning-text); }
 .debate-promo-card-status-closed { background: var(--surface); color: var(--debate-promo-argument-text-ink); }
@@ -50,7 +50,7 @@
 .debate-promo-card-side-label { font-size: var(--text-xs); font-weight: 700; white-space: nowrap; }
 .debate-promo-card-side-label-blue { color: var(--info); }
 .debate-promo-card-side-label-red { color: var(--danger); }
-.debate-promo-card-passion-bar { flex: 1; height: 8px; border-radius: 4px; overflow: hidden; display: flex; background: var(--border); }
+.debate-promo-card-passion-bar { flex: 1; height: 8px; border-radius: var(--radius-xs); overflow: hidden; display: flex; background: var(--border); }
 .debate-promo-card-passion-bar-blue { background: linear-gradient(90deg, var(--info), var(--debate-promo-passion-bar-blue-end)); height: 100%; min-width: 2px; border-radius: 4px 0 0 4px; }
 .debate-promo-card-passion-bar-blue-dynamic { width: var(--debate-promo-passion-blue-pct, 0%); }
 .debate-promo-card-passion-bar-red-dynamic { width: var(--debate-promo-passion-red-pct, 0%); }
@@ -71,7 +71,7 @@
 .debate-promo-card-cta {
   font-size: var(--text-sm); font-weight: 700; color: var(--debate-promo-on-color);
   background: linear-gradient(135deg, var(--debate-promo-badge-gradient-start), var(--danger));
-  padding: .25rem .75rem; border-radius: 14px;
+  padding: .25rem .75rem; border-radius: var(--radius-lg);
   transition: opacity .15s;
 }
 .debate-promo-card:hover .debate-promo-card-cta { opacity: .9; }

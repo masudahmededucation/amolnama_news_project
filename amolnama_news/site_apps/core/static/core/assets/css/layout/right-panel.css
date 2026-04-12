@@ -51,7 +51,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   padding: .15rem .5rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   margin-bottom: .4rem;
 }
 
@@ -111,7 +111,7 @@
   align-items: center;
   gap: .75rem;
   padding: .6rem .7rem;
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text);
