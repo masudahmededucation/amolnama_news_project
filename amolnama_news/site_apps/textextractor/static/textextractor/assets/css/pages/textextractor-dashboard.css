@@ -79,7 +79,7 @@
   border-color: var(--primary);
 }
 .textextractor-job-card, .textextractor-job-card:hover, .textextractor-job-card:visited { color: inherit; text-decoration: none; }
-.textextractor-job-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+.textextractor-job-card:hover { box-shadow: var(--elevation-2); transform: translateY(-1px); }
 .textextractor-job-card-removing { opacity: 0; transition: opacity .3s ease-out; }
 
 .textextractor-job-icon { font-size: 1.5rem; flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--surface); border-radius: 10px; margin-top: .2rem; }
@@ -143,7 +143,7 @@
 
 /* Drop Overlay — full page */
 .textextractor-drop-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(5, 150, 105, .15); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; }
-.textextractor-drop-overlay-content { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 2rem 3rem; background: var(--card); border: 3px dashed var(--success); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+.textextractor-drop-overlay-content { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 2rem 3rem; background: var(--card); border: 3px dashed var(--success); border-radius: 20px; box-shadow: var(--elevation-4); }
 .textextractor-drop-overlay-icon { font-size: 3rem; }
 .textextractor-drop-overlay-text { font-size: 1.1rem; font-weight: 700; color: var(--success); }
 

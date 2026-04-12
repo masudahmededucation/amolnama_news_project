@@ -14,7 +14,7 @@
   text-decoration: none;
   color: inherit;
 }
-.content-promo-card:hover { text-decoration: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.content-promo-card:hover { text-decoration: none; box-shadow: var(--elevation-2); }
 
 /* Body — text content, takes remaining space */
 .content-promo-card-body { flex: 1; min-width: 0; }

@@ -111,6 +111,22 @@
 
   /* Touch target — iOS HIG minimum, enforced on every interactive element. */
   --touch-target: 44px;
+
+  /* Elevation shadows — theme-aware box-shadow strings.
+     Light mode uses subtle rgba(0,0,0,*). Dark mode overrides (below)
+     increase opacity so shadows stay visible against dark surfaces.
+     Gold standard practice: match Linear, Vercel, Stripe, Figma elevation
+     tokens. Use these instead of hardcoded box-shadow strings.
+     --shadow     already declared above (legacy small).
+     --shadow-md  already declared above (legacy medium).
+     --shadow-xs  already declared above.
+     --shadow-lg  already declared above.
+     --shadow-xl  already declared above. */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, .04), 0 1px 3px rgba(0, 0, 0, .06);
+  --elevation-2: 0 2px 4px rgba(0, 0, 0, .06), 0 4px 8px rgba(0, 0, 0, .08);
+  --elevation-3: 0 4px 8px rgba(0, 0, 0, .08), 0 8px 16px rgba(0, 0, 0, .12);
+  --elevation-4: 0 8px 16px rgba(0, 0, 0, .1),  0 16px 32px rgba(0, 0, 0, .15);
+  --elevation-5: 0 16px 32px rgba(0, 0, 0, .12), 0 24px 48px rgba(0, 0, 0, .18);
 }
 
 /* Dark mode — manual toggle via [data-theme="dark"] on <html> */
@@ -130,6 +146,12 @@
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, .3);
   --shadow-lg: 0 12px 36px rgba(0, 0, 0, .55);
   --shadow-xl: 0 24px 60px rgba(0, 0, 0, .65);
+  /* Elevation tokens need heavier opacity on dark bg to stay visible. */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, .3),  0 1px 3px rgba(0, 0, 0, .35);
+  --elevation-2: 0 2px 4px rgba(0, 0, 0, .35), 0 4px 8px rgba(0, 0, 0, .4);
+  --elevation-3: 0 4px 8px rgba(0, 0, 0, .4),  0 8px 16px rgba(0, 0, 0, .5);
+  --elevation-4: 0 8px 16px rgba(0, 0, 0, .5), 0 16px 32px rgba(0, 0, 0, .6);
+  --elevation-5: 0 16px 32px rgba(0, 0, 0, .55), 0 24px 48px rgba(0, 0, 0, .7);
   --accent: #4a9ede;
   --success: #34d399;
   --success-light: #052e1c;
@@ -167,6 +189,12 @@
     --shadow-xs: 0 1px 3px rgba(0, 0, 0, .3);
     --shadow-lg: 0 12px 36px rgba(0, 0, 0, .55);
     --shadow-xl: 0 24px 60px rgba(0, 0, 0, .65);
+    /* Elevation dark overrides — same as [data-theme="dark"] above. */
+    --elevation-1: 0 1px 2px rgba(0, 0, 0, .3),  0 1px 3px rgba(0, 0, 0, .35);
+    --elevation-2: 0 2px 4px rgba(0, 0, 0, .35), 0 4px 8px rgba(0, 0, 0, .4);
+    --elevation-3: 0 4px 8px rgba(0, 0, 0, .4),  0 8px 16px rgba(0, 0, 0, .5);
+    --elevation-4: 0 8px 16px rgba(0, 0, 0, .5), 0 16px 32px rgba(0, 0, 0, .6);
+    --elevation-5: 0 16px 32px rgba(0, 0, 0, .55), 0 24px 48px rgba(0, 0, 0, .7);
     --accent: #4a9ede;
     --success: #34d399;
     --success-light: #052e1c;

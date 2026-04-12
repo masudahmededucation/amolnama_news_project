@@ -729,7 +729,7 @@
 .map-search-input:hover {
   border-color: var(--muted);
   background: var(--surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  box-shadow: var(--elevation-2);
 }
 
 .map-search-input:focus {
@@ -1279,7 +1279,7 @@
 .tag-search-input:hover {
   border-color: var(--muted);
   background: var(--surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  box-shadow: var(--elevation-2);
 }
 
 .tag-search-input:focus {

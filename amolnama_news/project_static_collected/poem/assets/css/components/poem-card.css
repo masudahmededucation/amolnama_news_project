@@ -10,8 +10,7 @@
   color: inherit;
   cursor: pointer;
   transition: border-color .25s, box-shadow .25s, transform .2s;
-  box-shadow:
-    0 2px 8px rgba(0,0,0,.08),
+  box-shadow: var(--elevation-2),
     0 0 1px rgba(0,0,0,.06);
   position: relative;
 }
@@ -43,8 +42,7 @@
 
 .poem-card:hover {
   border-color: #8b6d3f;
-  box-shadow:
-    0 4px 16px rgba(0,0,0,.12),
+  box-shadow: var(--elevation-3),
     0 0 2px rgba(0,0,0,.08);
   transform: translateY(-2px);
 }

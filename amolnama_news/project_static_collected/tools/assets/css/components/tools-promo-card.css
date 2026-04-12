@@ -64,7 +64,7 @@
 .tools-promo-card-share-dropdown {
   display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: .3rem;
   background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 170px; z-index: 200; overflow: hidden;
+  box-shadow: var(--elevation-3); min-width: 170px; z-index: 200; overflow: hidden;
 }
 .tools-promo-card-share-dropdown-open { display: block; }
 .tools-promo-card-share-item {
