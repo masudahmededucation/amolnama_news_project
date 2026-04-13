@@ -19,7 +19,7 @@
   padding: 2.5rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color .2s, background .2s, opacity .3s;
+  transition: border-color var(--duration-base), background var(--duration-base), opacity var(--duration-slow);
   background: var(--card);
 }
 
@@ -32,7 +32,7 @@
 .compress-dropzone-icon {
   color: var(--muted);
   margin-bottom: .5rem;
-  transition: color .2s;
+  transition: color var(--duration-base);
 }
 
 .compress-dropzone:hover .compress-dropzone-icon,
@@ -63,7 +63,7 @@
   border: 1.5px solid var(--primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .compress-browse-button:hover,
@@ -111,7 +111,7 @@
   font-weight: 600;
   padding: .35rem .6rem;
   border-radius: var(--radius-sm);
-  transition: background .15s, transform .1s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .compress-clear-button:hover,
@@ -190,7 +190,7 @@
   color: var(--muted);
   font-size: var(--text-xl);
   border-radius: 50%;
-  transition: background .15s, color .15s, transform .1s;
+  transition: background var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
   flex-shrink: 0;
 }
 
@@ -258,7 +258,7 @@
   border: 3.5px solid var(--primary);
   box-shadow: 0 1px 6px rgba(0,0,0,0.25);
   cursor: grab;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .compress-slider::-webkit-slider-thumb:hover {
@@ -306,7 +306,7 @@
   cursor: pointer;
   padding: .35rem .6rem;
   border-radius: var(--radius-sm);
-  transition: background .15s, transform .1s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .compress-slider-label:hover,
@@ -450,7 +450,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, opacity .2s, transform .1s;
+  transition: background var(--duration-base), opacity var(--duration-base), transform var(--duration-fast);
 }
 
 .compress-action-button:hover:not(:disabled),
@@ -512,7 +512,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
 }
 
 .compress-download-all-button:hover,
@@ -639,7 +639,7 @@
   cursor: pointer;
   font-size: var(--text-base);
   flex-shrink: 0;
-  transition: background .15s, transform .1s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .compress-result-download:hover,
@@ -667,7 +667,7 @@
   background: var(--primary);
   border-radius: var(--radius-xs);
   width: 0%;
-  transition: width .3s ease;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 /* ---- Output Format Select ---- */
@@ -759,7 +759,7 @@
   cursor: pointer;
   font-size: var(--text-sm);
   flex-shrink: 0;
-  transition: border-color .15s, background .15s;
+  transition: border-color var(--duration-fast), background var(--duration-fast);
   color: var(--text);
 }
 
@@ -846,7 +846,7 @@
   color: var(--muted);
   cursor: pointer;
   border-radius: 50%;
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .compress-compare-close:hover {

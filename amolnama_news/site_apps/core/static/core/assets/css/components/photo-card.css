@@ -55,7 +55,7 @@
   font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .photo-card-set-cover-button:hover {
@@ -106,7 +106,7 @@
   color: var(--muted);
   padding: .1rem .3rem;
   border-radius: var(--radius-xs);
-  transition: color .15s, background .15s;
+  transition: color var(--duration-fast), background var(--duration-fast);
 }
 
 .photo-card-like-button:hover {
@@ -178,7 +178,7 @@
   padding: .1rem .25rem;
   border-radius: var(--radius-xs);
   color: var(--muted);
-  transition: color .15s, background .15s;
+  transition: color var(--duration-fast), background var(--duration-fast);
   line-height: 1;
 }
 

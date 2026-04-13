@@ -22,12 +22,12 @@
 .placeholder-toggle-input { display: none; }
 .placeholder-toggle-slider {
   width: 36px; height: 20px; background: var(--border); border-radius: var(--radius);
-  position: relative; transition: background .2s; flex-shrink: 0;
+  position: relative; transition: background var(--duration-base); flex-shrink: 0;
 }
 .placeholder-toggle-slider::after {
   content: ''; position: absolute; top: 2px; left: 2px;
   width: 16px; height: 16px; background: var(--card); border-radius: 50%;
-  transition: transform .2s;
+  transition: transform var(--duration-base);
 }
 .placeholder-toggle-input:checked + .placeholder-toggle-slider { background: var(--primary); }
 .placeholder-toggle-input:checked + .placeholder-toggle-slider::after { transform: translateX(16px); }
@@ -40,7 +40,7 @@
   border: 1px solid var(--danger); border-radius: var(--radius-sm);
   font-size: var(--text-sm); font-weight: 700; font-family: inherit;
   cursor: pointer; background: var(--card); color: var(--danger);
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 .placeholder-delete-button:hover { background: var(--danger); color: var(--card); }
 

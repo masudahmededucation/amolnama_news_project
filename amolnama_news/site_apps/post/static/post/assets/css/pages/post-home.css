@@ -11,7 +11,7 @@
   background: var(--card, #fff);
   box-shadow: var(--elevation-1);
   margin-bottom: 1rem;
-  transition: padding .3s ease, box-shadow .3s ease, border-color .3s ease;
+  transition: padding var(--duration-slow) var(--ease-out), box-shadow var(--duration-slow) var(--ease-out), border-color var(--duration-slow) var(--ease-out);
 }
 .post-composer:hover { box-shadow: var(--elevation-2); }
 .post-composer:focus-within { border-color: var(--primary, #1877f2); box-shadow: 0 2px 16px rgba(24,119,242,.1); }
@@ -28,7 +28,7 @@
 }
 
 .post-composer-body {
-  transition: all .3s ease;
+  transition: all var(--duration-slow) var(--ease-out);
 }
 
 /* Collapsed state — compact one-liner */
@@ -161,7 +161,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
-  transition: all .2s;
+  transition: all var(--duration-base);
   text-decoration: none;
   border-radius: var(--radius);
 }
@@ -216,7 +216,7 @@
   background: none;
   font-size: var(--text-lg);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
   text-align: center;
 }
 
@@ -248,7 +248,7 @@
   border-radius: var(--radius-sm);
   border: none;
   background: none;
-  transition: background .1s, transform .1s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .post-composer-emoji-item:hover {
@@ -269,12 +269,12 @@
   cursor: pointer;
   outline: none;
   appearance: none;
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23999' d='M2 3l3 3 3-3'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right .5rem center;
   padding-right: 1.5rem;
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
 }
 
 .post-composer-visibility-select:focus {
@@ -319,7 +319,7 @@
   font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
   box-shadow: 0 2px 8px rgba(24,119,242,.2);
   letter-spacing: .02em;
 }
@@ -357,7 +357,7 @@
   background-position: center;
   border: 2px solid var(--border);
   overflow: hidden;
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
 }
 .post-composer-media-preview-item:hover { border-color: var(--primary); }
 
@@ -376,7 +376,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 .post-composer-media-preview-remove:hover { background: var(--danger); }
 
@@ -388,7 +388,7 @@
 .post-composer-link-preview-title { font-size: var(--text-sm); font-weight: 700; color: var(--text); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .post-composer-link-preview-description { font-size: var(--text-xs); color: var(--muted); margin-top: .2rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .post-composer-link-preview-domain { font-size: var(--text-xs); color: var(--muted); margin-top: .2rem; }
-.post-composer-link-preview-dismiss { position: absolute; top: .3rem; right: .3rem; background: none; border: none; font-size: var(--text-base); cursor: pointer; color: var(--muted); line-height: 1; padding: .1rem .3rem; border-radius: 50%; transition: background .15s, color .15s; }
+.post-composer-link-preview-dismiss { position: absolute; top: .3rem; right: .3rem; background: none; border: none; font-size: var(--text-base); cursor: pointer; color: var(--muted); line-height: 1; padding: .1rem .3rem; border-radius: 50%; transition: background var(--duration-fast), color var(--duration-fast); }
 .post-composer-link-preview-dismiss:hover, .post-composer-link-preview-dismiss:focus { background: var(--surface); color: var(--text); outline: none; }
 
 /* ---- Login prompt ---- */
@@ -446,7 +446,7 @@
   background: none;
   color: var(--primary, #1877f2);
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s, transform .15s;
+  transition: background var(--duration-base), color var(--duration-base), border-color var(--duration-base), transform var(--duration-fast);
   white-space: nowrap;
 }
 
@@ -727,7 +727,7 @@
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
-  transition: background .15s, transform .15s, border-color .15s;
+  transition: background var(--duration-fast), transform var(--duration-fast), border-color var(--duration-fast);
 }
 
 .post-card-edit-cancel-button:hover { background: var(--border); transform: scale(1.02); }
@@ -735,7 +735,7 @@
 /* ---- Feed Tabs (For You / Following / My Posts) ---- */
 /* Category filter tabs */
 .post-feed-category-filters { display: flex; gap: .3rem; padding: .4rem .5rem; margin-bottom: .5rem; flex-wrap: wrap; }
-.post-feed-category-filter { font-size: var(--text-xs); font-weight: 600; padding: .2rem .5rem; border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--muted); text-decoration: none; transition: all .15s; }
+.post-feed-category-filter { font-size: var(--text-xs); font-weight: 600; padding: .2rem .5rem; border: 1px solid var(--border); border-radius: var(--radius-lg); color: var(--muted); text-decoration: none; transition: all var(--duration-fast); }
 .post-feed-category-filter:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
 .post-feed-category-filter-active { background: var(--primary, #2563eb); color: #fff; border-color: var(--primary, #2563eb); }
 .post-feed-category-filter-active:hover { text-decoration: none; }
@@ -760,7 +760,7 @@
   color: var(--muted);
   text-decoration: none;
   border-bottom: 3px solid transparent;
-  transition: color .15s, border-color .15s;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
   cursor: pointer;
 }
 
@@ -798,7 +798,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: .5rem;
-  transition: background .15s;
+  transition: background var(--duration-fast);
   cursor: pointer;
 }
 
@@ -815,7 +815,7 @@
   background: var(--surface);
   text-decoration: none;
   color: inherit;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
 }
 
 .post-card-shared-content:hover {
@@ -877,7 +877,7 @@
   object-fit: cover;
   aspect-ratio: 1;
   border-radius: var(--radius);
-  transition: transform .3s;
+  transition: transform var(--duration-slow);
 }
 
 .post-card-shared-content:hover .post-card-shared-content-image {
@@ -1011,7 +1011,7 @@
   padding: .1rem .3rem;
   border-radius: 50%;
   line-height: 1;
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .post-card-more-menu-button:hover {
@@ -1047,7 +1047,7 @@
   font-size: var(--text-sm);
   color: var(--text);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .post-card-more-menu-item:hover {
@@ -1118,15 +1118,15 @@
 }
 
 /* Hashtag links */
-.post-hashtag { color: var(--primary); font-weight: 600; transition: color .15s; }
+.post-hashtag { color: var(--primary); font-weight: 600; transition: color var(--duration-fast); }
 .post-hashtag:hover, .post-hashtag:focus { text-decoration: underline; outline: none; }
 
 /* @Mention links */
-.post-mention { color: var(--primary); font-weight: 600; transition: color .15s; }
+.post-mention { color: var(--primary); font-weight: 600; transition: color var(--duration-fast); }
 .post-mention:hover, .post-mention:focus { text-decoration: underline; outline: none; }
 
 /* Edit history */
-.post-card-edited-label { cursor: pointer; color: var(--muted); font-size: var(--text-sm); transition: color .15s; }
+.post-card-edited-label { cursor: pointer; color: var(--muted); font-size: var(--text-sm); transition: color var(--duration-fast); }
 .post-card-edited-label:hover, .post-card-edited-label:focus { text-decoration: underline; color: var(--primary); outline: none; }
 .post-card-edit-history { margin-top: .5rem; padding: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--elevation-1); }
 .post-card-edit-history-title { font-size: var(--text-sm); font-weight: 700; color: var(--muted); margin-bottom: .4rem; }
@@ -1137,7 +1137,7 @@
 
 /* Mention autocomplete dropdown */
 .post-composer-mention-dropdown { position: absolute; bottom: 100%; left: 0; right: 0; z-index: 200; background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--elevation-2); max-height: 240px; overflow-y: auto; display: none; }
-.post-composer-mention-item { display: flex; align-items: center; gap: .5rem; padding: .45rem .6rem; cursor: pointer; transition: background .15s; }
+.post-composer-mention-item { display: flex; align-items: center; gap: .5rem; padding: .45rem .6rem; cursor: pointer; transition: background var(--duration-fast); }
 .post-composer-mention-item:hover, .post-composer-mention-item:focus { background: var(--surface); outline: none; }
 .post-composer-mention-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .post-composer-mention-avatar-initials { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-size: var(--text-xs); font-weight: 700; flex-shrink: 0; }
@@ -1163,7 +1163,7 @@
   background: var(--info-light);
   border-radius: var(--radius);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .post-card-keyword-tag:hover {
@@ -1242,13 +1242,13 @@
   font-size: var(--text-base);
   cursor: pointer;
   z-index: 2;
-  transition: background .2s;
+  transition: background var(--duration-base);
 }
 
 .post-card-media-video-unmute-button:hover { background: rgba(0, 0, 0, .85); }
 
 /* Quick edit button — visible on post card header for owner */
-.post-card-quick-edit-button { background: none; border: none; font-size: var(--text-lg); cursor: pointer; padding: .1rem .3rem; transition: transform .15s; }
+.post-card-quick-edit-button { background: none; border: none; font-size: var(--text-lg); cursor: pointer; padding: .1rem .3rem; transition: transform var(--duration-fast); }
 .post-card-quick-edit-button:hover { transform: scale(1.2); }
 
 /* Edited label */
@@ -1259,7 +1259,7 @@
 
 /* Link preview in post card */
 .post-card-link-previews { margin-top: .3rem; }
-.post-card-link-preview-card { display: flex; gap: .4rem; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: var(--radius); background: #fafafa; margin-top: .2rem; font-size: var(--text-sm); text-decoration: none; color: inherit; transition: border-color .15s; }
+.post-card-link-preview-card { display: flex; gap: .4rem; padding: .4rem .5rem; border: 1px solid var(--border); border-radius: var(--radius); background: #fafafa; margin-top: .2rem; font-size: var(--text-sm); text-decoration: none; color: inherit; transition: border-color var(--duration-fast); }
 .post-card-link-preview-card:hover { border-color: var(--primary); text-decoration: none; }
 .post-card-link-preview-image { width: 52px; height: 52px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; }
 .post-card-link-preview-info { flex: 1; min-width: 0; }
@@ -1269,11 +1269,11 @@
 /* Poll display */
 .post-card-poll { margin-top: .4rem; padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius); }
 .post-card-poll-question { font-size: var(--text-sm); font-weight: 700; margin-bottom: .4rem; }
-.post-card-poll-option { display: flex; align-items: center; width: 100%; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); cursor: pointer; font-size: var(--text-sm); font-weight: 600; margin-bottom: .3rem; position: relative; overflow: hidden; transition: all .15s; text-align: left; }
+.post-card-poll-option { display: flex; align-items: center; width: 100%; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); cursor: pointer; font-size: var(--text-sm); font-weight: 600; margin-bottom: .3rem; position: relative; overflow: hidden; transition: all var(--duration-fast); text-align: left; }
 .post-card-poll-option:hover { border-color: var(--primary); background: var(--info-light); }
 .post-card-poll-option-voted { cursor: default; background: var(--surface); }
 .post-card-poll-option-text { position: relative; z-index: 1; flex: 1; }
-.post-card-poll-option-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(24,119,242,.1); border-radius: var(--radius); transition: width .3s; }
+.post-card-poll-option-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(24,119,242,.1); border-radius: var(--radius); transition: width var(--duration-slow); }
 .post-card-poll-option-percentage { position: relative; z-index: 1; font-size: var(--text-xs); font-weight: 800; color: var(--primary); margin-left: .3rem; }
 .post-card-poll-total { font-size: var(--text-xs); color: var(--muted); margin-top: .2rem; }
 
@@ -1286,7 +1286,7 @@
 
 /* Schedule button */
 .post-composer-schedule-wrapper { display: inline-flex; align-items: center; gap: .2rem; }
-.post-composer-schedule-button { background: none; border: none; font-size: var(--text-lg); cursor: pointer; padding: .1rem; transition: transform .15s; }
+.post-composer-schedule-button { background: none; border: none; font-size: var(--text-lg); cursor: pointer; padding: .1rem; transition: transform var(--duration-fast); }
 .post-composer-schedule-button:hover { transform: scale(1.15); }
 .post-composer-schedule-input { font-size: var(--text-xs); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .2rem .3rem; font-family: inherit; }
 .post-composer-schedule-input-hidden { display: none; }
@@ -1374,7 +1374,7 @@
   cursor: pointer;
   padding: .25rem .4rem;
   border-radius: var(--radius-full);
-  transition: color .15s, background .15s, transform .15s ease-out;
+  transition: color var(--duration-fast), background var(--duration-fast), transform var(--duration-fast) var(--ease-out);
 }
 
 .post-card-action-button:hover {
@@ -1488,7 +1488,7 @@
   font-size: var(--text-sm);
   color: var(--text);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .post-card-share-menu-item:hover {
@@ -1510,7 +1510,7 @@
   border: 1px dashed var(--border);
   border-radius: var(--radius-sm);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, .05);
-  transition: opacity .2s;
+  transition: opacity var(--duration-base);
   animation: repliesSectionSlideIn .2s ease-out;
 }
 
@@ -1662,7 +1662,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .post-card-reply-submit-button:hover {
@@ -1683,8 +1683,8 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background .15s, transform .15s, border-color .15s;
-  transition: background .15s;
+  transition: background var(--duration-fast), transform var(--duration-fast), border-color var(--duration-fast);
+  transition: background var(--duration-fast);
 }
 
 .post-card-reply-cancel-button:hover {
@@ -1802,7 +1802,7 @@
   color: var(--muted);
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
 }
 
 .post-card-reply-vote-button .post-card-vote-svg {
@@ -1834,7 +1834,7 @@
   cursor: pointer;
   padding: .15rem .5rem;
   border-radius: var(--radius-sm);
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -1898,7 +1898,7 @@
 /* ---- Missing hover/focus/transition polish ---- */
 
 .post-card-flag-cancel-button {
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .post-card-flag-cancel-button:hover {
@@ -1912,7 +1912,7 @@
 }
 
 .post-card-edit-textarea {
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
 }
 
 .post-card-embed-box-code:focus {
@@ -2000,7 +2000,7 @@
   font-weight: 700;
   text-align: center;
   cursor: pointer;
-  transition: background .2s;
+  transition: background var(--duration-base);
 }
 
 .post-feed-new-posts-pill:hover {

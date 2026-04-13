@@ -40,7 +40,7 @@
   cursor: pointer;
   background: transparent;
   color: var(--muted);
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .poem-create-lang-button--active {
@@ -85,7 +85,7 @@
   background: var(--card);
   color: var(--text);
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
 }
 
 .poem-create-input:focus,
@@ -130,7 +130,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
   width: fit-content;
 }
 
@@ -262,7 +262,7 @@
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .poem-clear-form-button:hover {

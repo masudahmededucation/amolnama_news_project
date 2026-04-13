@@ -13,7 +13,7 @@
 .analytics-content-bar { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; --analytics-content-bar-fill-percent: 0%; }
 .analytics-content-bar-label { font-size: var(--text-sm); font-weight: 600; min-width: 120px; }
 .analytics-content-bar-track { flex: 1; height: 20px; background: var(--surface); border-radius: var(--radius-sm); overflow: hidden; }
-.analytics-content-bar-fill { height: 100%; width: var(--analytics-content-bar-fill-percent); border-radius: var(--radius-sm); transition: width .3s; }
+.analytics-content-bar-fill { height: 100%; width: var(--analytics-content-bar-fill-percent); border-radius: var(--radius-sm); transition: width var(--duration-slow); }
 .analytics-content-bar-fill-rose { background: var(--rose); }
 .analytics-content-bar-fill-purple { background: var(--purple); }
 .analytics-content-bar-fill-amber { background: var(--warning); }

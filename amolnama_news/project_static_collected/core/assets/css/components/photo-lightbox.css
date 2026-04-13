@@ -62,7 +62,7 @@
   border: none;
   color: #fff;
   cursor: pointer;
-  transition: opacity .2s;
+  transition: opacity var(--duration-base);
 }
 
 .photo-lightbox-close-button:hover,

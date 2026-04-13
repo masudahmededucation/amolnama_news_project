@@ -20,7 +20,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
   white-space: nowrap;
   text-align: center;
 }
@@ -128,7 +128,7 @@
   background: var(--card);
   color: var(--text);
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
   flex-shrink: 0;
 }
 
@@ -173,7 +173,7 @@
   background: var(--card);
   color: var(--text);
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
 }
 
 .gpa-uni-row input:focus,
@@ -198,7 +198,7 @@
   color: var(--muted);
   cursor: pointer;
   font-size: var(--text-sm);
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .gpa-uni-remove:hover {
@@ -216,7 +216,7 @@
   border: 1px dashed var(--info);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
   margin-top: .5rem;
 }
 
@@ -248,7 +248,7 @@
   background: var(--card);
   color: var(--text);
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
   box-sizing: border-box;
 }
 
@@ -357,7 +357,7 @@
 .gpa-progress-fill {
   height: 100%;
   border-radius: var(--radius-xs);
-  transition: width .4s ease, background .3s;
+  transition: width .4s var(--ease-out), background var(--duration-slow);
 }
 
 .gpa-progress-fill--easy { background: var(--success); }

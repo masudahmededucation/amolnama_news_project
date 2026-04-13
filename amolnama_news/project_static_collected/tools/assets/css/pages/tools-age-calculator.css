@@ -45,7 +45,7 @@
   background: var(--card);
   color: var(--text);
   box-sizing: border-box;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base);
 }
 
 .age-form-field input[type="date"]:focus {
@@ -82,7 +82,7 @@
   background: var(--card);
   color: var(--text);
   box-sizing: border-box;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base);
   font-family: 'Courier New', monospace;
   letter-spacing: .1em;
 }
@@ -109,7 +109,7 @@
   cursor: pointer;
   padding: .3rem;
   border-radius: var(--radius-xs);
-  transition: background .15s;
+  transition: background var(--duration-fast);
   line-height: 1;
 }
 
@@ -159,7 +159,7 @@
   padding: .25rem .45rem;
   border-radius: var(--radius-sm);
   color: var(--text);
-  transition: background .15s;
+  transition: background var(--duration-fast);
   line-height: 1;
 }
 
@@ -174,7 +174,7 @@
   cursor: pointer;
   padding: .2rem .5rem;
   border-radius: var(--radius-sm);
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .age-cal-title:hover {
@@ -213,7 +213,7 @@
   color: var(--text);
   border-radius: 50%;
   cursor: pointer;
-  transition: background .12s, color .12s;
+  transition: background var(--duration-fast), color var(--duration-fast);
   border: none;
   background: none;
 }
@@ -258,7 +258,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .12s;
+  transition: background var(--duration-fast);
 }
 
 .age-cal-grid button:hover {
@@ -290,7 +290,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: transform .15s, box-shadow .2s;
+  transition: transform var(--duration-fast), box-shadow var(--duration-base);
   box-shadow: 0 2px 8px rgba(91,106,191,.2);
 }
 
@@ -494,7 +494,7 @@
   padding: .45rem .75rem;
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
-  transition: transform .1s;
+  transition: transform var(--duration-fast);
 }
 
 .age-milestone:hover {

@@ -27,7 +27,7 @@
   background: var(--card);
   color: var(--text);
   cursor: pointer;
-  transition: border-color .2s, background .2s, transform .1s;
+  transition: border-color var(--duration-base), background var(--duration-base), transform var(--duration-fast);
 }
 
 .photo-resizer-mode-button:hover,
@@ -176,7 +176,7 @@
   border-radius: 50%;
   border: 2px solid var(--border);
   cursor: pointer;
-  transition: border-color .2s, box-shadow .2s, transform .1s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-fast);
 }
 
 .photo-resizer-swatch:hover,
@@ -202,7 +202,7 @@
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s, opacity .3s;
+  transition: border-color var(--duration-base), background var(--duration-base), opacity var(--duration-slow);
   background: var(--card);
   margin-bottom: 1.5rem;
 }
@@ -241,7 +241,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
 }
 
 .photo-resizer-browse-button:hover {
@@ -391,7 +391,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
 }
 
 .photo-resizer-button:active {

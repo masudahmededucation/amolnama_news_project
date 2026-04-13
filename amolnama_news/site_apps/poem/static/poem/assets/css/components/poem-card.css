@@ -9,7 +9,7 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: border-color .25s, box-shadow .25s, transform .2s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-base);
   box-shadow: var(--elevation-2),
     0 0 1px rgba(0,0,0,.06);
   position: relative;
@@ -174,7 +174,7 @@
 
 .poem-card:active {
   transform: scale(.98);
-  transition: transform .1s ease;
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
 /* ---- Mobile ---- */

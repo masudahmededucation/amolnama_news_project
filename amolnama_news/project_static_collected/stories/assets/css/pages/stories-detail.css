@@ -127,7 +127,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background .15s, border-color .15s, transform .15s;
+  transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
 }
 
 .stories-detail-page-prev-button:hover,

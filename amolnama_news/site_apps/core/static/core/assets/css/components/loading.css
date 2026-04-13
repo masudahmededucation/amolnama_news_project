@@ -120,7 +120,7 @@
   height: 100%;
   background: var(--primary);
   border-radius: var(--radius-xs);
-  transition: width .4s ease-out;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 /* Indeterminate progress — slides back and forth */

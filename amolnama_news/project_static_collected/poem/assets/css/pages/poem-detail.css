@@ -54,7 +54,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   text-decoration: none;
-  transition: color .15s, border-color .15s;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
 }
 
 .poem-detail-edit-button:hover {
@@ -281,7 +281,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .15s, transform .1s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .poem-audio-play-button:hover {
@@ -346,7 +346,7 @@
   background: var(--primary);
   border-radius: var(--radius-xs);
   width: 0%;
-  transition: width .1s linear;
+  transition: width var(--duration-fast) linear;
   pointer-events: none;
 }
 
@@ -371,7 +371,7 @@
   cursor: pointer;
   padding: .2rem;
   border-radius: var(--radius-xs);
-  transition: color .15s;
+  transition: color var(--duration-fast);
   display: flex;
   align-items: center;
 }
@@ -389,7 +389,7 @@
   cursor: pointer;
   padding: .3rem .5rem;
   border-radius: var(--radius-sm);
-  transition: color .15s, border-color .15s;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
   display: flex;
   align-items: center;
   gap: .2rem;
@@ -424,7 +424,7 @@
   color: var(--muted);
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: color .15s;
+  transition: color var(--duration-fast);
 }
 
 .poem-audio-collapse-button:hover {
@@ -498,7 +498,7 @@
   padding: .2rem .6rem;
   border-radius: var(--radius-xs);
   cursor: pointer;
-  transition: color .15s, border-color .15s;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
 }
 
 .poem-radio-next-cancel:hover {
@@ -550,7 +550,7 @@
   background: var(--surface);
   border: none;
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .poem-detail-section-toggle:hover {
@@ -561,7 +561,7 @@
   width: 18px;
   height: 18px;
   color: var(--muted);
-  transition: transform .2s;
+  transition: transform var(--duration-base);
 }
 
 .poem-detail-section-toggle[aria-expanded="true"] svg {
@@ -604,7 +604,7 @@
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
 }
 
 .poem-detail-action-button:hover {

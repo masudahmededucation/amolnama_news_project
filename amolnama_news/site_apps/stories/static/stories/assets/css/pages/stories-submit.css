@@ -43,7 +43,7 @@
   font-size: var(--text-sm);
   color: var(--text);
   background: var(--card);
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
 }
 
 .stories-submit-input:focus,
@@ -93,7 +93,7 @@
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity .15s, transform .15s;
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
 }
 
 .stories-submit-button:hover {

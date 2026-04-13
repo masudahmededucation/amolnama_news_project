@@ -33,7 +33,7 @@
   color: var(--text);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base);
 }
 
 /* Tick checkmark — fully hidden, appears only on hover */
@@ -52,7 +52,7 @@
   font-weight: 700;
   color: #fff;
   opacity: 0;
-  transition: opacity .2s;
+  transition: opacity var(--duration-base);
 }
 
 .tool-card .tool-card-tick::after {
@@ -216,7 +216,7 @@
   border-radius: var(--radius-sm);
   background: var(--card);
   color: var(--text);
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
   box-sizing: border-box;
 }
 
@@ -246,7 +246,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s;
+  transition: background var(--duration-base);
 }
 
 .tool-form .button-submit:hover {
@@ -262,7 +262,7 @@
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s;
+  transition: border-color var(--duration-base), background var(--duration-base);
   background: var(--card);
 }
 

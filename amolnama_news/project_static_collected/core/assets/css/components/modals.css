@@ -12,7 +12,7 @@
   padding: 1rem;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .25s ease, visibility .25s;
+  transition: opacity var(--duration-base) var(--ease-out), visibility var(--duration-base);
 }
 
 .modal-backdrop-open {
@@ -36,7 +36,7 @@
   overflow-y: auto;
   transform: scale(.92);
   opacity: 0;
-  transition: transform .25s ease, opacity .25s ease;
+  transition: transform var(--duration-base) var(--ease-out), opacity var(--duration-base) var(--ease-out);
 }
 
 .modal-backdrop-open .modal-dialog {
@@ -78,7 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
 }
 
 .modal-close-button:hover {

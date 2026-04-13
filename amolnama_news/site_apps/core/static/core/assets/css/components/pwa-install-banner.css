@@ -13,7 +13,7 @@
   border: 1.5px solid #e17055;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), border-color var(--duration-base), transform var(--duration-fast);
   flex-shrink: 0;
   text-decoration: none;
 }
@@ -57,7 +57,7 @@
   line-height: 1.45;
   opacity: 0;
   transform: translateY(-4px);
-  transition: opacity .25s, transform .25s;
+  transition: opacity var(--duration-base), transform var(--duration-base);
   pointer-events: none;
 }
 

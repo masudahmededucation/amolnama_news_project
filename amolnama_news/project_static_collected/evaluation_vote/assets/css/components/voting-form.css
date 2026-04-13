@@ -143,7 +143,7 @@
   font-size: var(--text-lg);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-base) var(--ease-out);
 }
 
 .submit-button:hover {
@@ -167,7 +167,7 @@
   font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-base) var(--ease-out);
 }
 
 .update-button:hover {
@@ -184,7 +184,7 @@
   border-radius: 0.5rem;
   font-size: var(--text-base);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-base) var(--ease-out);
 }
 
 .new-vote-button:hover {

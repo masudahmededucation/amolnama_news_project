@@ -14,7 +14,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: color .2s, background .2s, border-color .2s;
+  transition: color var(--duration-base), background var(--duration-base), border-color var(--duration-base);
   user-select: none;
 }
 

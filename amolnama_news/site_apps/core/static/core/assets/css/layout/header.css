@@ -68,7 +68,7 @@
   width: 0;
   opacity: 0;
   transform: scaleX(.8);
-  transition: width .2s ease, opacity .2s ease, transform .2s ease, border-color .2s;
+  transition: width var(--duration-base) var(--ease-out), opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), border-color var(--duration-base);
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);

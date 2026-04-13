@@ -15,7 +15,7 @@
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s, opacity .3s;
+  transition: border-color var(--duration-base), background var(--duration-base), opacity var(--duration-slow);
   background: var(--card);
 }
 
@@ -53,7 +53,7 @@
   border: 1.5px solid var(--primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-browse-button:hover,
@@ -95,7 +95,7 @@
   border: 1.5px solid var(--primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-add-button:hover,
@@ -117,7 +117,7 @@
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-clear-button:hover,
@@ -205,7 +205,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color .15s;
+  transition: color var(--duration-fast);
 }
 
 .zip-file-item-remove:hover,
@@ -272,7 +272,7 @@
   background: var(--card);
   color: var(--text);
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
 }
 
 .zip-name-input-wrap input:focus {
@@ -305,7 +305,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, opacity .2s, transform .1s;
+  transition: background var(--duration-base), opacity var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-action-button:hover:not(:disabled),
@@ -411,7 +411,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-download-button:hover,
@@ -432,7 +432,7 @@
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color .2s, color .2s, transform .1s;
+  transition: border-color var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .zip-another-button:hover,

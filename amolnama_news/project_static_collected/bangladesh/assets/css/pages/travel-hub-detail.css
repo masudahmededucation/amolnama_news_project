@@ -244,7 +244,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: var(--muted);
   padding: .1rem .3rem;
   border-radius: var(--radius-xs);
-  transition: color .15s;
+  transition: color var(--duration-fast);
 }
 
 .travel-hub-detail-media-like-button:hover { color: #1877f2; background: var(--info-light); }
@@ -340,7 +340,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform .15s;
+  transition: transform var(--duration-fast);
 }
 
 .travel-hub-detail-youtube-thumb-placeholder {
@@ -579,7 +579,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   color: #fff;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity .2s;
+  transition: opacity var(--duration-base);
 }
 
 .travel-hub-detail-add-button:hover { opacity: .85; }
@@ -632,7 +632,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   padding: .1rem .25rem;
   border-radius: var(--radius-xs);
   color: var(--muted);
-  transition: color .15s, background .15s;
+  transition: color var(--duration-fast), background var(--duration-fast);
   line-height: 1;
 }
 
@@ -810,7 +810,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
   font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .travel-hub-detail-set-cover-button:hover {

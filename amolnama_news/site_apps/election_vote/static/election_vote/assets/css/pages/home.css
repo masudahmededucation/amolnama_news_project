@@ -10,7 +10,7 @@
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   box-shadow: var(--elevation-1);
-  transition: box-shadow .3s;
+  transition: box-shadow var(--duration-slow);
 }
 
 .ev-card:hover {
@@ -30,7 +30,7 @@
   border-radius: var(--radius-sm);
   padding: 1rem 1.25rem 1rem 5rem;
   box-shadow: var(--elevation-1);
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 #election-view .selection-list li::before {
@@ -41,7 +41,7 @@
   transform: translateY(-50%);
   font-size: var(--text-lg);
   color: var(--danger);
-  transition: color 0.2s ease;
+  transition: color var(--duration-base) var(--ease-out);
 }
 
 #election-view .selection-list li:hover {

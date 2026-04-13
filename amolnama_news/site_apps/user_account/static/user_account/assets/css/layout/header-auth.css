@@ -49,7 +49,7 @@
 }
 
 .header-user-menu-toggle svg {
-  transition: transform .2s;
+  transition: transform var(--duration-base);
 }
 
 .header-user-menu-toggle[aria-expanded="true"] svg {
@@ -103,7 +103,7 @@
   font-size: var(--text-base);
   cursor: pointer;
   line-height: 1;
-  transition: background .15s, box-shadow .15s;
+  transition: background var(--duration-fast), box-shadow var(--duration-fast);
 }
 .header-theme-toggle:hover, .header-theme-toggle:focus { background: var(--surface); box-shadow: var(--elevation-1); outline: none; }
 
@@ -131,7 +131,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--muted);
-  transition: color .15s, background .15s;
+  transition: color var(--duration-fast), background var(--duration-fast);
 }
 
 .header-lang-option:has(input:checked) span {

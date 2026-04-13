@@ -29,7 +29,7 @@
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: auto;
-  transition: width .25s ease;
+  transition: width var(--duration-base) var(--ease-out);
   width: 220px;
 }
 
@@ -58,7 +58,7 @@
   width: 120px;
   height: auto;
   object-fit: contain;
-  transition: width .25s ease;
+  transition: width var(--duration-base) var(--ease-out);
 }
 
 .app-layout-collapsed .sidebar-navigation-logo-image {
@@ -89,7 +89,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   white-space: nowrap;
-  transition: background .15s, color .15s;
+  transition: background var(--duration-fast), color var(--duration-fast);
   min-height: 2.5rem;
 }
 
@@ -147,7 +147,7 @@
   width: 1.5rem;
   text-align: center;
   flex-shrink: 0;
-  transition: transform .15s;
+  transition: transform var(--duration-fast);
   position: relative;
 }
 
@@ -174,7 +174,7 @@
 
 .sidebar-navigation-item-label {
   opacity: 1;
-  transition: opacity .2s ease;
+  transition: opacity var(--duration-base) var(--ease-out);
 }
 
 .app-layout-collapsed .sidebar-navigation-item-label {
@@ -203,7 +203,7 @@
   border-radius: 50%;
   width: 34px;
   height: 34px;
-  transition: background .15s, transform .15s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
   flex-shrink: 0;
 }
 

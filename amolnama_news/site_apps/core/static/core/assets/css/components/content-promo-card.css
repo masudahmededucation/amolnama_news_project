@@ -9,7 +9,7 @@
   padding: .85rem 1rem;
   margin-bottom: .5rem;
   background: var(--card);
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
   cursor: pointer;
   text-decoration: none;
   color: inherit;
@@ -33,7 +33,7 @@
   object-fit: cover;
   aspect-ratio: 1;
   border-radius: var(--radius);
-  transition: transform .3s;
+  transition: transform var(--duration-slow);
 }
 .content-promo-card:hover .content-promo-card-image { transform: scale(1.05); }
 
@@ -75,7 +75,7 @@
 .content-promo-card-cta {
   font-size: var(--text-xs); font-weight: 700; color: #fff;
   padding: .2rem .6rem; border-radius: var(--radius);
-  transition: opacity .15s;
+  transition: opacity var(--duration-fast);
 }
 .content-promo-card-cta-blue { background: var(--info); }
 .content-promo-card-cta-green { background: var(--success); }

@@ -22,7 +22,7 @@
   color: var(--text);
   text-decoration: none;
   font-size: var(--text-base);
-  transition: background .2s;
+  transition: background var(--duration-base);
 }
 
 .profile-sidebar-item:hover {
@@ -138,7 +138,7 @@
   font-size: var(--text-base);
   font-family: inherit;
   outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base);
   box-sizing: border-box;
 }
 
@@ -184,7 +184,7 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 1rem;
-  transition: background .15s, transform .15s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .profile-form .signup-submit-button:hover,
@@ -299,7 +299,7 @@
   background: var(--primary, #1877f2);
   color: var(--card, #fff);
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .profile-save-button:hover {

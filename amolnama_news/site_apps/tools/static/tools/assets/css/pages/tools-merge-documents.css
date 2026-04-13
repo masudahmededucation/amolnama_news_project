@@ -19,7 +19,7 @@
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s;
+  transition: border-color var(--duration-base), background var(--duration-base);
   background: var(--card);
 }
 
@@ -57,7 +57,7 @@
   border: 1.5px solid #e17055;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .mgr-browse-button:hover,
@@ -102,7 +102,7 @@
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .mgr-try-again-button:hover {
@@ -153,7 +153,7 @@
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: border-color .2s, color .2s;
+  transition: border-color var(--duration-base), color var(--duration-base);
 }
 
 .mgr-tool-button:hover {
@@ -191,7 +191,7 @@
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: grab;
-  transition: border-color .2s, box-shadow .2s, transform .15s, opacity .15s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-fast), opacity var(--duration-fast);
   user-select: none;
 }
 
@@ -267,7 +267,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s;
+  transition: background var(--duration-base), color var(--duration-base), border-color var(--duration-base);
   padding: 0;
   line-height: 1;
 }
@@ -361,7 +361,7 @@
   color: var(--text);
   min-width: 200px;
   max-width: 300px;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
 }
 
 .mgr-input:focus {
@@ -385,7 +385,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s, opacity .2s;
+  transition: background var(--duration-base), transform var(--duration-fast), opacity var(--duration-base);
 }
 
 .mgr-button:active {
@@ -445,7 +445,7 @@
   width: 0;
   background: #e17055;
   border-radius: var(--radius-xs);
-  transition: width .3s ease;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 .mgr-progress-text {

@@ -82,7 +82,7 @@
   border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .art-detail-gallery-item:hover {
@@ -188,7 +188,7 @@
   border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--text);
-  transition: background .15s, border-color .15s;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
 }
 
 .art-detail-youtube-item:hover {
@@ -227,7 +227,7 @@
   cursor: pointer;
   font-size: var(--text-sm);
   color: var(--text);
-  transition: background .15s, border-color .15s, transform .15s;
+  transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
 }
 
 .art-detail-action-button:hover {

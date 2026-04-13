@@ -58,7 +58,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .avatar-upload-button:hover {
@@ -140,7 +140,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .avatar-cropper-save-button:hover {
@@ -161,7 +161,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .avatar-cropper-cancel-button:hover {

@@ -20,7 +20,7 @@
   border-radius: var(--radius);
   padding: 1.5rem;
   box-shadow: var(--elevation-1);
-  transition: box-shadow .3s;
+  transition: box-shadow var(--duration-slow);
 }
 
 .form-section:hover {
@@ -85,7 +85,7 @@
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
-  transition: all .2s;
+  transition: all var(--duration-base);
   outline: none;
 }
 
@@ -151,7 +151,7 @@
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
-  transition: all .2s;
+  transition: all var(--duration-base);
   box-sizing: border-box;
   outline: none;
 }
@@ -241,7 +241,7 @@
   color: var(--text);
   box-sizing: border-box;
   outline: none;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .occurrence-part input[type="date"]:hover,
@@ -389,7 +389,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+  transition: background var(--duration-base), color var(--duration-base), border-color var(--duration-base), box-shadow var(--duration-base);
   white-space: nowrap;
   flex-shrink: 0;
   line-height: 1;
@@ -413,7 +413,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   line-height: 1;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .button-repeater-delete:hover .button-delete-x {
@@ -474,7 +474,7 @@
   border: 1.5px dashed var(--warning);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .button-add-file:hover {
@@ -534,7 +534,7 @@
   border: 1.5px solid rgba(197, 48, 48, .25);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .news-clear-form-button:hover {
@@ -571,7 +571,7 @@
 
 .news-collection-form .sidebar .widget {
   padding: .85rem;
-  transition: box-shadow .3s;
+  transition: box-shadow var(--duration-slow);
 }
 
 .news-collection-form .sidebar .widget:hover {
@@ -608,7 +608,7 @@
   border-radius: var(--radius);
   box-shadow: var(--elevation-1);
   padding: .75rem 1rem 1rem;
-  transition: box-shadow .3s;
+  transition: box-shadow var(--duration-slow);
 }
 
 .widget-location:hover {
@@ -670,7 +670,7 @@
   color: var(--text);
   box-sizing: border-box;
   outline: none;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .widget-location select:hover {
@@ -723,7 +723,7 @@
   color: var(--text);
   box-sizing: border-box;
   outline: none;
-  transition: all .25s;
+  transition: all var(--duration-base);
 }
 
 .map-search-input:hover {
@@ -761,7 +761,7 @@
   color: var(--text);
   cursor: pointer;
   border-bottom: 1px solid var(--border);
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .map-search-item:last-child {
@@ -817,7 +817,7 @@
   align-items: center;
   flex-wrap: nowrap;
   overflow: hidden;
-  transition: all .2s;
+  transition: all var(--duration-base);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A5A5A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: .5rem center;
@@ -907,7 +907,7 @@
   padding: .4rem .65rem;
   font-size: var(--text-sm);
   color: var(--text);
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .widget-location .ts-dropdown .active,
@@ -931,7 +931,7 @@
   color: var(--text);
   box-sizing: border-box;
   outline: none;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .sidebar .widget select:hover,
@@ -1110,7 +1110,7 @@
   align-items: center;
   flex-wrap: nowrap;
   overflow: hidden;
-  transition: all .2s;
+  transition: all var(--duration-base);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A5A5A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: .5rem center;
@@ -1243,7 +1243,7 @@
   color: var(--text);
   box-sizing: border-box;
   outline: none;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .village-other-input:hover {
@@ -1273,7 +1273,7 @@
   background-color: var(--card);
   color: var(--text);
   outline: none;
-  transition: all .25s;
+  transition: all var(--duration-base);
 }
 
 .tag-search-input:hover {
@@ -1311,7 +1311,7 @@
   color: var(--text);
   cursor: pointer;
   border-bottom: 1px solid var(--border);
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .tag-search-item:last-child {
@@ -1405,7 +1405,7 @@
   cursor: pointer;
   color: var(--text);
   padding: .15rem .35rem;
-  transition: color .15s, background .15s;
+  transition: color var(--duration-fast), background var(--duration-fast);
 }
 
 .tag-available-item::before {
@@ -1416,7 +1416,7 @@
   border: 1.5px solid var(--muted);
   border-radius: var(--radius-xs);
   flex-shrink: 0;
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
 }
 
 .tag-available-item:hover {
@@ -1449,7 +1449,7 @@
   padding: 12px 28px;
   font-size: var(--text-base);
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .submit-widget .button:hover {
@@ -1546,7 +1546,7 @@
   margin-bottom: .75rem;
   background: var(--card);
   overflow: hidden;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .social-source-row:hover {
@@ -1617,7 +1617,7 @@
   font-weight: 600;
   font-size: var(--text-sm);
   cursor: pointer;
-  transition: border-color .2s, color .2s, background .2s;
+  transition: border-color var(--duration-base), color var(--duration-base), background var(--duration-base);
 }
 
 .button-add-social-source:hover {
@@ -1660,7 +1660,7 @@
   cursor: pointer;
   border-bottom: 1px solid var(--border);
   color: var(--text);
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .org-autocomplete-item:last-child {
@@ -1806,7 +1806,7 @@
   margin-bottom: .75rem;
   background: var(--card);
   overflow: hidden;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .commodity-price-row:hover {
@@ -1935,7 +1935,7 @@
   border: 1.5px dashed var(--primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .button-add-commodity:hover {
@@ -1962,7 +1962,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: border-color .2s, background .2s;
+  transition: border-color var(--duration-base), background var(--duration-base);
 }
 
 .actor-add-button:hover {
@@ -2004,7 +2004,7 @@
   margin-bottom: .75rem;
   background: var(--card);
   overflow: hidden;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .actor-card:hover {
@@ -2069,7 +2069,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: color .2s;
+  transition: color var(--duration-base);
 }
 
 .actor-details-toggle:hover {
@@ -2149,7 +2149,7 @@
   margin-bottom: .75rem;
   background: var(--card);
   overflow: hidden;
-  transition: box-shadow .2s;
+  transition: box-shadow var(--duration-base);
 }
 
 .wcv-accused-card:hover {

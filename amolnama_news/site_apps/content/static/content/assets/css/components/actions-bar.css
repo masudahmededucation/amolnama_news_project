@@ -57,7 +57,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   cursor: pointer;
-  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
   white-space: nowrap;
 }
 
@@ -105,7 +105,7 @@
   cursor: pointer;
   text-decoration: none;
   user-select: none;
-  transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .1s ease;
+  transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 
 .actions-bar-like-button:focus-visible,
@@ -251,7 +251,7 @@
   cursor: pointer;
   text-align: left;
   text-decoration: none;
-  transition: background-color .12s ease;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .actions-bar-share-option:hover {

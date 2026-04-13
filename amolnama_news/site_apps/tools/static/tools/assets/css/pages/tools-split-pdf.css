@@ -19,7 +19,7 @@
   text-align: center;
   color: var(--muted);
   cursor: pointer;
-  transition: border-color .2s, background .2s;
+  transition: border-color var(--duration-base), background var(--duration-base);
   background: var(--card);
 }
 
@@ -57,7 +57,7 @@
   border: 1.5px solid #e17055;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s, transform .1s;
+  transition: background var(--duration-base), color var(--duration-base), transform var(--duration-fast);
 }
 
 .spl-browse-button:hover,
@@ -102,7 +102,7 @@
   border: 1.5px solid var(--danger);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .spl-try-again-button:hover {
@@ -154,7 +154,7 @@
   border: 1px solid #e17055;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, color .2s;
+  transition: background var(--duration-base), color var(--duration-base);
 }
 
 .spl-change-button:hover {
@@ -188,7 +188,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all .15s ease;
+  transition: all var(--duration-fast) var(--ease-out);
   white-space: nowrap;
 }
 
@@ -266,7 +266,7 @@
 /* Selectable state (pick mode) */
 .spl-page-card.spl-selectable {
   cursor: pointer;
-  transition: border-color .15s, background .15s, box-shadow .15s;
+  transition: border-color var(--duration-fast), background var(--duration-fast), box-shadow var(--duration-fast);
 }
 
 .spl-page-card.spl-selectable:hover {
@@ -299,7 +299,7 @@
   justify-content: center;
   font-size: var(--text-xs);
   color: transparent;
-  transition: background .15s, border-color .15s, color .15s;
+  transition: background var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast);
 }
 
 .spl-selected .spl-page-check {
@@ -418,7 +418,7 @@
   color: var(--text);
   min-width: 200px;
   max-width: 400px;
-  transition: border-color .2s;
+  transition: border-color var(--duration-base);
 }
 
 .spl-input:focus {
@@ -442,7 +442,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s, opacity .2s;
+  transition: background var(--duration-base), transform var(--duration-fast), opacity var(--duration-base);
 }
 
 .spl-button:active {
@@ -502,7 +502,7 @@
   width: 0;
   background: #e17055;
   border-radius: var(--radius-xs);
-  transition: width .3s ease;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 .spl-progress-text {

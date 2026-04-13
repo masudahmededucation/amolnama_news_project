@@ -45,7 +45,7 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   box-shadow: var(--elevation-1);
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .selection-list li:hover {
@@ -94,7 +94,7 @@
   cursor: pointer;
   font-size: var(--text-base);
   box-shadow: var(--elevation-1);
-  transition: all .2s;
+  transition: all var(--duration-base);
 }
 
 .back-button:hover {

@@ -63,7 +63,7 @@
   border-radius: var(--radius-sm);
   background: var(--card);
   cursor: pointer;
-  transition: border-color .2s, background .2s, transform .1s;
+  transition: border-color var(--duration-base), background var(--duration-base), transform var(--duration-fast);
   padding: 4px 6px 2px;
   gap: 2px;
 }
@@ -163,7 +163,7 @@
   border-radius: 50%;
   border: 2px solid var(--border);
   cursor: pointer;
-  transition: border-color .2s, box-shadow .2s, transform .1s;
+  transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-fast);
 }
 
 .album-swatch:hover,
@@ -238,7 +238,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color .2s, background .2s;
+  transition: border-color var(--duration-base), background var(--duration-base);
   background: rgba(255, 255, 255, .4);
   overflow: hidden;
   touch-action: none;  /* Prevent browser pan/zoom on touch drag */
@@ -315,7 +315,7 @@
   display: flex;
   gap: 3px;
   opacity: 0;
-  transition: opacity .2s;
+  transition: opacity var(--duration-base);
   z-index: 5;
 }
 
@@ -335,7 +335,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background .2s;
+  transition: background var(--duration-base);
   pointer-events: auto;
 }
 
@@ -435,7 +435,7 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background .2s, transform .1s;
+  transition: background var(--duration-base), transform var(--duration-fast);
 }
 
 .album-button:active {

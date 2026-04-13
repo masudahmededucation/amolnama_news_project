@@ -92,7 +92,7 @@
   align-items: center;
   padding: .3rem .5rem;
   border-radius: var(--radius-sm);
-  transition: background .15s, box-shadow .15s;
+  transition: background var(--duration-fast), box-shadow var(--duration-fast);
 }
 .right-panel-trending-hashtag-item:hover, .right-panel-trending-hashtag-item:focus { background: var(--surface); box-shadow: var(--elevation-1); outline: none; }
 .right-panel-trending-hashtag-text { font-size: var(--text-sm); font-weight: 600; color: var(--primary); }
@@ -116,7 +116,7 @@
   font-weight: 500;
   color: var(--text);
   text-decoration: none;
-  transition: background .15s;
+  transition: background var(--duration-fast);
 }
 
 .right-panel-quick-link:hover {

@@ -43,7 +43,7 @@
   font-size: var(--text-sm);
   color: var(--text);
   background: var(--card);
-  transition: border-color .15s;
+  transition: border-color var(--duration-fast);
   min-height: 44px;
 }
 
@@ -99,7 +99,7 @@
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
-  transition: background .15s, transform .15s;
+  transition: background var(--duration-fast), transform var(--duration-fast);
 }
 
 .art-upload-submit-button:hover {
