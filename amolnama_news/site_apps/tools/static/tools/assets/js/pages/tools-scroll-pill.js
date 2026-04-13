@@ -72,13 +72,13 @@
     new MutationObserver(checkPage).observe(mainElement, { childList: true, subtree: true });
   }
 
-  // Fallback: check every 2 seconds for URL changes the above might miss
+  // Fallback: check every 500ms for URL changes the above might miss
   var lastPath = window.location.pathname;
   setInterval(function () {
     var currentPath = window.location.pathname;
     if (currentPath !== lastPath) {
       lastPath = currentPath;
-      checkPage();
+      setTimeout(checkPage, 200);
     }
-  }, 2000);
+  }, 500);
 })();
