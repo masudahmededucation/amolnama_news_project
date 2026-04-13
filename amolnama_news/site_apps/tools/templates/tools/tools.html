@@ -93,17 +93,27 @@
   আরো টুল দেখুন ↓
 </div>
 <script>
-document.getElementById('tools-scroll-pill').onclick = function () {
-  window.scrollBy({ top: 400, behavior: 'smooth' });
-};
-window.addEventListener('scroll', function handler() {
-  var toolsGrid = document.querySelector('.tools-grid');
-  if (!toolsGrid) return;
-  var gridBottom = toolsGrid.getBoundingClientRect().bottom;
-  if (gridBottom <= window.innerHeight) {
-    document.getElementById('tools-scroll-pill').style.display = 'none';
-    window.removeEventListener('scroll', handler);
+(function () {
+  var pill = document.getElementById('tools-scroll-pill');
+  var grid = document.querySelector('.tools-grid');
+  if (!pill || !grid) return;
+
+  // If all tools already visible on screen — hide pill, no point saying "scroll"
+  if (grid.getBoundingClientRect().bottom <= window.innerHeight) {
+    pill.style.display = 'none';
+    return;
   }
-}, { passive: true });
+
+  // Tools extend below fold — show pill, hide when user reaches the bottom
+  pill.onclick = function () {
+    window.scrollBy({ top: 400, behavior: 'smooth' });
+  };
+  window.addEventListener('scroll', function handler() {
+    if (grid.getBoundingClientRect().bottom <= window.innerHeight) {
+      pill.style.display = 'none';
+      window.removeEventListener('scroll', handler);
+    }
+  }, { passive: true });
+})();
 </script>
 {% endblock %}

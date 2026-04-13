@@ -35,6 +35,7 @@
   cursor: pointer;
   z-index: 50;
   touch-action: manipulation;
+  visibility: visible;
   animation: tools-pill-bounce 2s var(--ease-out) infinite;
 }
 
