@@ -1,7 +1,7 @@
 /**
  * Tools scroll pill — floating "আরো টুল দেখুন 👇" indicator.
  * Shows on tools landing page only. Hides when user reaches bottom.
- * Handles SPA navigation via popstate + MutationObserver + periodic check.
+ * Listens for spa:navigate event to handle SPA page transitions.
  */
 (function () {
   'use strict';
@@ -61,24 +61,6 @@
   // Run on initial page load
   window.addEventListener('load', checkPage);
 
-  // Run on SPA back/forward navigation
-  window.addEventListener('popstate', function () {
-    setTimeout(checkPage, 100);
-  });
-
-  // Watch for <main> content swaps (SPA replaces innerHTML)
-  var mainElement = document.querySelector('main');
-  if (mainElement) {
-    new MutationObserver(checkPage).observe(mainElement, { childList: true, subtree: true });
-  }
-
-  // Fallback: check every 500ms for URL changes the above might miss
-  var lastPath = window.location.pathname;
-  setInterval(function () {
-    var currentPath = window.location.pathname;
-    if (currentPath !== lastPath) {
-      lastPath = currentPath;
-      setTimeout(checkPage, 200);
-    }
-  }, 500);
+  // Run when SPA navigation completes (custom event from spa-navigation.js)
+  document.addEventListener('spa:navigate', checkPage);
 })();

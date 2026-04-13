@@ -151,6 +151,8 @@
           });
           hideLoadingBar();
           isNavigating = false;
+          // Notify other scripts that SPA navigation completed
+          document.dispatchEvent(new CustomEvent('spa:navigate'));
         }
 
         // Race: CSS load vs 500ms timeout (never leave page invisible)
