@@ -1,7 +1,7 @@
 /**
  * Tools scroll pill — floating "আরো টুল দেখুন 👇" indicator.
  * Shows on tools landing page only. Hides when user reaches bottom.
- * Handles SPA navigation: creates on tools page, removes on leave.
+ * Handles SPA navigation via popstate + MutationObserver + periodic check.
  */
 (function () {
   'use strict';
@@ -10,8 +10,8 @@
   var scrollHandler = null;
 
   function createPill() {
-    if (pill) return; // already exists
-    if (!document.querySelector('.tools-grid')) return; // not on tools page
+    if (pill) return;
+    if (!document.querySelector('.tools-grid')) return;
 
     pill = document.createElement('div');
     pill.className = 'tools-scroll-pill';
@@ -58,12 +58,27 @@
     }
   }
 
-  // Run on page load
+  // Run on initial page load
   window.addEventListener('load', checkPage);
 
-  // Run on SPA navigation (MutationObserver watches <main> content swaps)
+  // Run on SPA back/forward navigation
+  window.addEventListener('popstate', function () {
+    setTimeout(checkPage, 100);
+  });
+
+  // Watch for <main> content swaps (SPA replaces innerHTML)
   var mainElement = document.querySelector('main');
   if (mainElement) {
-    new MutationObserver(checkPage).observe(mainElement, { childList: true });
+    new MutationObserver(checkPage).observe(mainElement, { childList: true, subtree: true });
   }
+
+  // Fallback: check every 2 seconds for URL changes the above might miss
+  var lastPath = window.location.pathname;
+  setInterval(function () {
+    var currentPath = window.location.pathname;
+    if (currentPath !== lastPath) {
+      lastPath = currentPath;
+      checkPage();
+    }
+  }, 2000);
 })();
