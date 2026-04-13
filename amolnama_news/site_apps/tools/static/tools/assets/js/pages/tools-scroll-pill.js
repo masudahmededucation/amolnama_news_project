@@ -1,7 +1,7 @@
 /**
- * Tools scroll pill — floating "আরো টুল দেখুন 👇" indicator.
- * Shows on tools landing page only. Hides when user reaches bottom.
- * Listens for spa:navigate event to handle SPA page transitions.
+ * Tools scroll pill — MutationObserver watchdog approach (Gemini).
+ * Watches document.body for .tools-grid to appear/disappear.
+ * No timing, no events, no polling — just watches the DOM.
  */
 (function () {
   'use strict';
@@ -9,9 +9,8 @@
   var pill = null;
   var scrollHandler = null;
 
-  function createPill() {
+  function initPill() {
     if (pill) return;
-    if (!document.querySelector('.tools-grid')) return;
 
     pill = document.createElement('div');
     pill.className = 'tools-scroll-pill';
@@ -24,6 +23,13 @@
     };
 
     scrollHandler = function () {
+      if (!document.contains(pill)) {
+        window.removeEventListener('scroll', scrollHandler);
+        window.removeEventListener('resize', scrollHandler);
+        pill = null;
+        scrollHandler = null;
+        return;
+      }
       var scrollHeight = document.documentElement.scrollHeight;
       var scrollPos = window.innerHeight + window.pageYOffset;
       if ((scrollHeight - scrollPos) < 50) {
@@ -39,31 +45,31 @@
     window.addEventListener('resize', scrollHandler);
   }
 
-  function removePill() {
+  function destroyPill() {
     if (!pill) return;
-    pill.remove();
-    pill = null;
     if (scrollHandler) {
       window.removeEventListener('scroll', scrollHandler);
       window.removeEventListener('resize', scrollHandler);
       scrollHandler = null;
     }
+    pill.remove();
+    pill = null;
   }
 
-  function checkPage() {
-    if (document.querySelector('.tools-grid')) {
-      createPill();
-    } else {
-      removePill();
+  // Watchdog: observe document.body for .tools-grid appearing/disappearing
+  var observer = new MutationObserver(function () {
+    var grid = document.querySelector('.tools-grid');
+    if (grid && !pill) {
+      initPill();
+    } else if (!grid && pill) {
+      destroyPill();
     }
-  }
-
-  // Run on initial page load
-  window.addEventListener('load', checkPage);
-
-  // Run when SPA navigation completes (custom event from spa-navigation.js)
-  // Small delay ensures the DOM has fully painted after content swap
-  document.addEventListener('spa:navigate', function () {
-    setTimeout(checkPage, 150);
   });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Also check immediately on load
+  if (document.querySelector('.tools-grid')) {
+    initPill();
+  }
 })();
