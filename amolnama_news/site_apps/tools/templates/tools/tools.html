@@ -98,16 +98,10 @@
   var grid = document.querySelector('.tools-grid');
   if (!pill || !grid) return;
 
-  // If all tools already visible on screen — hide pill, no point saying "scroll"
-  if (grid.getBoundingClientRect().bottom <= window.innerHeight) {
-    pill.style.display = 'none';
-    return;
-  }
-
-  // Tools extend below fold — show pill, hide when user reaches the bottom
   pill.onclick = function () {
     window.scrollBy({ top: 400, behavior: 'smooth' });
   };
+
   window.addEventListener('scroll', function handler() {
     if (grid.getBoundingClientRect().bottom <= window.innerHeight) {
       pill.style.display = 'none';
