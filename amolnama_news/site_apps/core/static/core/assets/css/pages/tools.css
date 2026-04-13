@@ -18,12 +18,13 @@
 }
 
 /* ---- Scroll-for-more pill ---- */
-/* Pure CSS: bounces for 6 seconds then fades out. No JS needed. */
+/* Stays visible until user scrolls down. Gentle bounce to draw attention. */
 
 .tools-scroll-pill {
   position: fixed;
   bottom: var(--space-8);
   left: 50%;
+  transform: translateX(-50%);
   padding: var(--space-2) var(--space-5);
   background: var(--primary);
   color: #fff;
@@ -31,21 +32,15 @@
   font-weight: 700;
   border-radius: var(--radius-full);
   box-shadow: var(--elevation-3);
+  cursor: pointer;
   z-index: 50;
-  pointer-events: none;
-  animation: tools-pill-lifecycle 7s var(--ease-out) forwards;
+  touch-action: manipulation;
+  animation: tools-pill-bounce 2s var(--ease-out) infinite;
 }
 
-@keyframes tools-pill-lifecycle {
-  0%   { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  7%   { transform: translateX(-50%) translateY(-8px);  opacity: 1; }
-  14%  { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  21%  { transform: translateX(-50%) translateY(-8px);  opacity: 1; }
-  28%  { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  35%  { transform: translateX(-50%) translateY(-8px);  opacity: 1; }
-  42%  { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  85%  { transform: translateX(-50%) translateY(0);    opacity: 1; }
-  100% { transform: translateX(-50%) translateY(0);    opacity: 0; pointer-events: none; }
+@keyframes tools-pill-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
 }
 
 @media (max-width: 768px) {
@@ -57,7 +52,6 @@
 @media (prefers-reduced-motion: reduce) {
   .tools-scroll-pill {
     animation: none;
-    opacity: 0;
   }
 }
 
