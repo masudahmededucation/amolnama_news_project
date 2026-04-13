@@ -88,43 +88,8 @@
 
 </div>
 
-{# Scroll-for-more pill — auto-hides after user scrolls past 50% #}
+{# Scroll-for-more pill — visible for 6s via pure CSS animation, no JS hiding #}
 <div class="tools-scroll-pill" id="tools-scroll-pill" name="tools_scroll_pill">
   আরো টুল দেখুন ↓
 </div>
-
-<script defer>
-(function () {
-  var pill = document.getElementById('tools-scroll-pill');
-  if (!pill) return;
-
-  // Always visible for 6 seconds — no conditions, no scroll checks on load
-  pill.hidden = false;
-
-  setTimeout(function () { pill.hidden = true; }, 6000);
-
-  // If page is scrollable, also hide on scroll and enable click-to-scroll
-  function onReady() {
-    var scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-    if (scrollableHeight > 100) {
-      window.addEventListener('scroll', function onScroll() {
-        if (window.scrollY > scrollableHeight * 0.4) {
-          pill.hidden = true;
-          window.removeEventListener('scroll', onScroll);
-        }
-      }, { passive: true });
-
-      pill.addEventListener('click', function () {
-        window.scrollBy({ top: window.innerHeight * 0.7, behavior: 'smooth' });
-      });
-    }
-  }
-
-  if (document.readyState === 'complete') {
-    onReady();
-  } else {
-    window.addEventListener('load', onReady);
-  }
-})();
-</script>
 {% endblock %}
