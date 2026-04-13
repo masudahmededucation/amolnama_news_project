@@ -22,7 +22,7 @@
 
 .tools-scroll-pill {
   position: fixed;
-  bottom: var(--space-8);
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   padding: var(--space-2) var(--space-5);
