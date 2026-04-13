@@ -57,20 +57,20 @@
   var origPushState = history.pushState;
   history.pushState = function () {
     var result = origPushState.apply(this, arguments);
-    setTimeout(syncPillState, 200);
+    setTimeout(syncPillState, 500);
     return result;
   };
 
   var origReplaceState = history.replaceState;
   history.replaceState = function () {
     var result = origReplaceState.apply(this, arguments);
-    setTimeout(syncPillState, 200);
+    setTimeout(syncPillState, 500);
     return result;
   };
 
   // Back/forward buttons
   window.addEventListener('popstate', function () {
-    setTimeout(syncPillState, 200);
+    setTimeout(syncPillState, 500);
   });
 
   // Initial page load
