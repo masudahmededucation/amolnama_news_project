@@ -79,12 +79,12 @@ window.debateCategorySideLabels = (function () {
       const redDefaultLabel = meta && meta.red_side_label_bn ? meta.red_side_label_bn : null;
 
       if (blueDefaultLabel || redDefaultLabel) {
-        /* This category has default side labels — auto-fill blanks, mark them */
-        if (blueDefaultLabel && !blueInput.value.trim()) {
+        /* This category has default side labels — auto-fill if blank OR if previously auto-filled */
+        if (blueDefaultLabel && (!blueInput.value.trim() || blueInput.getAttribute(AUTO_FILLED_ATTR) === '1')) {
           blueInput.value = blueDefaultLabel;
           blueInput.setAttribute(AUTO_FILLED_ATTR, '1');
         }
-        if (redDefaultLabel && !redInput.value.trim()) {
+        if (redDefaultLabel && (!redInput.value.trim() || redInput.getAttribute(AUTO_FILLED_ATTR) === '1')) {
           redInput.value = redDefaultLabel;
           redInput.setAttribute(AUTO_FILLED_ATTR, '1');
         }
