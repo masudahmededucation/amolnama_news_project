@@ -382,7 +382,7 @@
 
 /* ---- Link preview in composer ---- */
 .post-composer-link-preview { margin-top: .5rem; }
-.post-composer-link-preview-card { display: flex; gap: .6rem; padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); position: relative; box-shadow: var(--shadow); }
+.post-composer-link-preview-card { display: flex; gap: .6rem; padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); position: relative; box-shadow: var(--elevation-1); }
 .post-composer-link-preview-image { width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; }
 .post-composer-link-preview-info { flex: 1; min-width: 0; }
 .post-composer-link-preview-title { font-size: var(--text-sm); font-weight: 700; color: var(--text); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -1128,7 +1128,7 @@
 /* Edit history */
 .post-card-edited-label { cursor: pointer; color: var(--muted); font-size: var(--text-sm); transition: color .15s; }
 .post-card-edited-label:hover, .post-card-edited-label:focus { text-decoration: underline; color: var(--primary); outline: none; }
-.post-card-edit-history { margin-top: .5rem; padding: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow); }
+.post-card-edit-history { margin-top: .5rem; padding: .6rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--elevation-1); }
 .post-card-edit-history-title { font-size: var(--text-sm); font-weight: 700; color: var(--muted); margin-bottom: .4rem; }
 .post-card-edit-history-item { padding: .4rem 0; border-bottom: 1px solid var(--border); }
 .post-card-edit-history-item:last-child { border-bottom: none; }
@@ -1136,7 +1136,7 @@
 .post-card-edit-history-date { font-size: var(--text-xs); color: var(--muted); margin-top: .2rem; }
 
 /* Mention autocomplete dropdown */
-.post-composer-mention-dropdown { position: absolute; bottom: 100%; left: 0; right: 0; z-index: 200; background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); max-height: 240px; overflow-y: auto; display: none; }
+.post-composer-mention-dropdown { position: absolute; bottom: 100%; left: 0; right: 0; z-index: 200; background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--elevation-2); max-height: 240px; overflow-y: auto; display: none; }
 .post-composer-mention-item { display: flex; align-items: center; gap: .5rem; padding: .45rem .6rem; cursor: pointer; transition: background .15s; }
 .post-composer-mention-item:hover, .post-composer-mention-item:focus { background: var(--surface); outline: none; }
 .post-composer-mention-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }

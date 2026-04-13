@@ -9,12 +9,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   transition: box-shadow .3s;
 }
 
 .ev-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .ev-placeholder {
@@ -29,7 +29,7 @@
   border-left: 4px solid var(--danger);
   border-radius: var(--radius-sm);
   padding: 1rem 1.25rem 1rem 5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   transition: all .2s;
 }
 
@@ -50,7 +50,7 @@
   border-color: var(--danger);
   border-left-color: var(--card);
   transform: translateX(4px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 #election-view .selection-list li:hover::before {

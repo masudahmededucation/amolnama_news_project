@@ -4,7 +4,7 @@
   background: var(--card);
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   padding: 1.5rem 1.75rem;
 }
 

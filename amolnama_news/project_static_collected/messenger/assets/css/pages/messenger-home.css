@@ -25,7 +25,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 /* Respect user's reduced-motion preference — disable transitions/animations. */
@@ -359,7 +359,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
   color: var(--muted);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Message bubble — WhatsApp speech tail shape */
@@ -492,7 +492,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border-radius: 50%;
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -527,7 +527,7 @@ main:has(.messenger) { padding-top: .25rem; }
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   min-width: 180px;
   padding: .3rem 0;
   overflow: hidden;
@@ -568,7 +568,7 @@ main:has(.messenger) { padding-top: .25rem; }
   justify-content: center;
   color: var(--muted);
   transition: background .1s;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 .messenger-bubble-sent .messenger-bubble-reply-button { right: auto; left: -.5rem; }
 .messenger-bubble:hover .messenger-bubble-reply-button { display: flex; }

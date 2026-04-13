@@ -86,7 +86,7 @@
 }
 
 .art-detail-gallery-item:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .art-detail-gallery-image {

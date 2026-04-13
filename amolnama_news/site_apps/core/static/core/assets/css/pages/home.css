@@ -5,7 +5,7 @@
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 .hero .main img {

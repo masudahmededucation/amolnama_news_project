@@ -10,14 +10,14 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: .75rem;
-  box-shadow: var(--elevation-1, var(--shadow));
+  box-shadow: var(--elevation-1);
   transition: box-shadow var(--duration-fast, .12s) var(--ease-out, ease-out),
               border-color var(--duration-fast, .12s) var(--ease-out, ease-out),
               transform var(--duration-fast, .12s) var(--ease-out, ease-out);
 }
 
 .card:hover {
-  box-shadow: var(--elevation-2, var(--shadow-md));
+  box-shadow: var(--elevation-2);
   border-color: var(--primary);
   transform: translateY(-2px);
 }
@@ -59,7 +59,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--elevation-1, var(--shadow));
+  box-shadow: var(--elevation-1);
   display: flex;
   flex-direction: column;
   transition: box-shadow var(--duration-fast, .12s) var(--ease-out, ease-out),
@@ -68,7 +68,7 @@
 }
 
 .article:hover {
-  box-shadow: var(--elevation-3, var(--shadow-md));
+  box-shadow: var(--elevation-3);
   border-color: var(--primary);
   transform: translateY(-3px);
 }

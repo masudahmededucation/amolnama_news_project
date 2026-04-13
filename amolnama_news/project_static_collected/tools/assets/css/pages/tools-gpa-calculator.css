@@ -32,7 +32,7 @@
 .gpa-tab--active {
   background: var(--card);
   color: var(--text);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Panel */

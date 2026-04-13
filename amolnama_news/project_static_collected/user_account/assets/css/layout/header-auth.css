@@ -64,7 +64,7 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   min-width: 160px;
   z-index: 60;
   overflow: hidden;
@@ -105,7 +105,7 @@
   line-height: 1;
   transition: background .15s, box-shadow .15s;
 }
-.header-theme-toggle:hover, .header-theme-toggle:focus { background: var(--surface); box-shadow: var(--shadow); outline: none; }
+.header-theme-toggle:hover, .header-theme-toggle:focus { background: var(--surface); box-shadow: var(--elevation-1); outline: none; }
 
 /* ── Language toggle pill (authenticated header) — marriage-style ── */
 .header-lang-toggle {

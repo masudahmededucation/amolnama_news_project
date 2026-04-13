@@ -44,7 +44,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   transition: all .2s;
 }
 
@@ -53,7 +53,7 @@
   color: var(--evaluation-vote-on-primary);
   border-color: var(--danger);
   transform: translateX(5px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .selection-list li:active {
@@ -93,14 +93,14 @@
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: var(--text-base);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   transition: all .2s;
 }
 
 .back-button:hover {
   background: var(--card);
   border-color: var(--border);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 /* ---- Focus-visible rings — gold standard keyboard accessibility ---- */
@@ -235,6 +235,6 @@
   .back-button:active {
     background: var(--card);
     border-color: var(--border);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--elevation-2);
   }
 }

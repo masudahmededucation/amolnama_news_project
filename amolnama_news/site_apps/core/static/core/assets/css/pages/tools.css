@@ -68,7 +68,7 @@
 .tool-card--marriage {
   /* background-image set inline via {% static %} in template */
   border: 1.5px solid #8b5e3c;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   border-left: 3px solid #c8960c;
   position: relative;
   min-height: 160px;
@@ -92,7 +92,7 @@
 
 .tool-card--marriage:hover {
   border-color: #c8960c;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .tool-card--marriage h3 {
@@ -109,13 +109,13 @@
 .tool-card--compress {
   background: linear-gradient(135deg, #fbfefc 0%, #f4faf6 100%);
   border: 1.5px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   border-left: 3px solid #8ec5a2;
 }
 
 .tool-card--compress:hover {
   border-color: #8ec5a2;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .tool-card--compress h3 {

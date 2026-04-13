@@ -504,7 +504,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   margin-bottom: var(--gap);
 }
 

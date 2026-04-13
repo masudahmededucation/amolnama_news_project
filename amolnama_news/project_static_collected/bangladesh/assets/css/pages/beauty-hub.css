@@ -31,8 +31,8 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 /* Masonry gallery grid */
 .beauty-hub-gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1rem; padding:.5rem 0 2rem; }
 
-.beauty-hub-card { position:relative; border-radius:var(--radius); overflow:hidden; background:var(--card); border:2.5px solid transparent; box-shadow:var(--shadow); cursor:pointer; transition:border-color .25s, box-shadow .25s; }
-.beauty-hub-card:hover { box-shadow:var(--shadow-md); border-color:var(--primary); }
+.beauty-hub-card { position:relative; border-radius:var(--radius); overflow:hidden; background:var(--card); border:2.5px solid transparent; box-shadow:var(--elevation-1); cursor:pointer; transition:border-color .25s, box-shadow .25s; }
+.beauty-hub-card:hover { box-shadow:var(--elevation-2); border-color:var(--primary); }
 .beauty-hub-card::after { content:'✓'; position:absolute; top:.5rem; right:.5rem; width:24px; height:24px; border-radius:50%; background:var(--primary); color:#fff; font-size:var(--text-sm); font-weight:700; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; z-index:1; }
 .beauty-hub-card:hover::after { opacity:1; }
 

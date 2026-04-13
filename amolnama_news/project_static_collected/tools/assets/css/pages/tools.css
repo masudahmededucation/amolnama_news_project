@@ -45,7 +45,7 @@
   border: 1.5px solid var(--border);
   border-left: 3px solid var(--tool-card-accent, var(--primary));
   background: var(--tool-card-bg, var(--card));
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   color: var(--text);
   text-decoration: none;
   overflow: hidden;
@@ -58,13 +58,13 @@
 
 .tool-card:hover {
   border-color: var(--tool-card-accent, var(--primary));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .tool-card:active {
   transform: scale(.97);
   border-color: var(--tool-card-accent, var(--primary));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .tool-card:focus-visible {

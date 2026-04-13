@@ -19,12 +19,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   transition: box-shadow .3s;
 }
 
 .form-section:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 /* ---- Section headers (icon-badge style) ---- */
@@ -479,7 +479,7 @@
 
 .button-add-file:hover {
   background: var(--card);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 .button-add-file:disabled {
@@ -575,7 +575,7 @@
 }
 
 .news-collection-form .sidebar .widget:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 /* ---- Sidebar widget headers (icon-badge style) ---- */
@@ -606,13 +606,13 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
   padding: .75rem 1rem 1rem;
   transition: box-shadow .3s;
 }
 
 .widget-location:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .widget-location h4 {
@@ -750,7 +750,7 @@
   border: 1px solid var(--border);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   background: var(--card);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   max-height: 220px;
   overflow-y: auto;
 }
@@ -899,7 +899,7 @@
 .widget-category .ts-dropdown {
   border: 1px solid var(--border);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .widget-location .ts-dropdown .option,
@@ -1300,7 +1300,7 @@
   border: 1px solid var(--border);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   background: var(--card);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   max-height: 220px;
   overflow-y: auto;
 }
@@ -1454,7 +1454,7 @@
 
 .submit-widget .button:hover {
   background: var(--primary-hover);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
 }
 
 .rumor-warning {
@@ -1550,7 +1550,7 @@
 }
 
 .social-source-row:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Colored header bar — flush with card edges via negative margin */
@@ -1649,7 +1649,7 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   max-height: 220px;
   overflow-y: auto;
 }
@@ -1810,7 +1810,7 @@
 }
 
 .commodity-price-row:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Colored header bar — flush with card edges via negative margin */
@@ -1940,7 +1940,7 @@
 
 .button-add-commodity:hover {
   background: var(--card);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* ========== Involved Parties — Dynamic Repeater Cards ========== */
@@ -2008,7 +2008,7 @@
 }
 
 .actor-card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Card header: colored bar flush with card edges */
@@ -2153,7 +2153,7 @@
 }
 
 .wcv-accused-card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-1);
 }
 
 /* Colored header bar — flush with card edges via negative margin */
