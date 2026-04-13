@@ -1,7 +1,6 @@
 /**
- * Tools scroll pill — MutationObserver watchdog approach (Gemini).
- * Watches document.body for .tools-grid to appear/disappear.
- * No timing, no events, no polling — just watches the DOM.
+ * Tools scroll pill — pushState intercept approach.
+ * Re-runs check every time the URL changes via SPA navigation.
  */
 (function () {
   'use strict';
@@ -9,67 +8,72 @@
   var pill = null;
   var scrollHandler = null;
 
-  function initPill() {
-    if (pill) return;
+  function syncPillState() {
+    var grid = document.querySelector('.tools-grid');
 
-    pill = document.createElement('div');
-    pill.className = 'tools-scroll-pill';
-    pill.id = 'tools-scroll-pill';
-    pill.innerHTML = 'আরো টুল দেখুন <span style="font-size:28px">👇</span>';
-    document.body.appendChild(pill);
+    if (grid && !pill) {
+      pill = document.createElement('div');
+      pill.className = 'tools-scroll-pill';
+      pill.id = 'tools-scroll-pill';
+      pill.innerHTML = 'আরো টুল দেখুন <span style="font-size:28px">👇</span>';
+      document.body.appendChild(pill);
 
-    pill.onclick = function () {
-      window.scrollBy({ top: 500, behavior: 'smooth' });
-    };
+      pill.onclick = function () {
+        window.scrollBy({ top: 500, behavior: 'smooth' });
+      };
 
-    scrollHandler = function () {
-      if (!document.contains(pill)) {
-        window.removeEventListener('scroll', scrollHandler);
-        window.removeEventListener('resize', scrollHandler);
-        pill = null;
-        scrollHandler = null;
-        return;
-      }
-      var scrollHeight = document.documentElement.scrollHeight;
-      var scrollPos = window.innerHeight + window.pageYOffset;
-      if ((scrollHeight - scrollPos) < 50) {
-        pill.style.opacity = '0';
-        pill.style.pointerEvents = 'none';
-      } else {
-        pill.style.opacity = '1';
-        pill.style.pointerEvents = 'auto';
-      }
-    };
+      scrollHandler = function () {
+        if (!document.contains(pill)) {
+          window.removeEventListener('scroll', scrollHandler);
+          window.removeEventListener('resize', scrollHandler);
+          pill = null;
+          scrollHandler = null;
+          return;
+        }
+        var scrollHeight = document.documentElement.scrollHeight;
+        var scrollPos = window.innerHeight + window.pageYOffset;
+        if ((scrollHeight - scrollPos) < 50) {
+          pill.style.opacity = '0';
+          pill.style.pointerEvents = 'none';
+        } else {
+          pill.style.opacity = '1';
+          pill.style.pointerEvents = 'auto';
+        }
+      };
 
-    window.addEventListener('scroll', scrollHandler, { passive: true });
-    window.addEventListener('resize', scrollHandler);
-  }
+      window.addEventListener('scroll', scrollHandler, { passive: true });
+      window.addEventListener('resize', scrollHandler);
 
-  function destroyPill() {
-    if (!pill) return;
-    if (scrollHandler) {
+    } else if (!grid && pill) {
       window.removeEventListener('scroll', scrollHandler);
       window.removeEventListener('resize', scrollHandler);
+      pill.remove();
+      pill = null;
       scrollHandler = null;
     }
-    pill.remove();
-    pill = null;
   }
 
-  // Watchdog: observe document.body for .tools-grid appearing/disappearing
-  var observer = new MutationObserver(function () {
-    var grid = document.querySelector('.tools-grid');
-    if (grid && !pill) {
-      initPill();
-    } else if (!grid && pill) {
-      destroyPill();
-    }
+  // Intercept pushState and replaceState so we know when SPA navigates
+  var origPushState = history.pushState;
+  history.pushState = function () {
+    var result = origPushState.apply(this, arguments);
+    setTimeout(syncPillState, 200);
+    return result;
+  };
+
+  var origReplaceState = history.replaceState;
+  history.replaceState = function () {
+    var result = origReplaceState.apply(this, arguments);
+    setTimeout(syncPillState, 200);
+    return result;
+  };
+
+  // Back/forward buttons
+  window.addEventListener('popstate', function () {
+    setTimeout(syncPillState, 200);
   });
 
-  observer.observe(document.body, { childList: true, subtree: true });
-
-  // Also check immediately on load
-  if (document.querySelector('.tools-grid')) {
-    initPill();
-  }
+  // Initial page load
+  window.addEventListener('DOMContentLoaded', syncPillState);
+  window.addEventListener('load', syncPillState);
 })();
