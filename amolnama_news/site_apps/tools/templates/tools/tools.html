@@ -88,33 +88,30 @@
 
 </div>
 
-{# Scroll-for-more pill — hides only when last tool card is visible #}
-<div class="tools-scroll-pill" id="tools-scroll-pill" name="tools_scroll_pill">
-  আরো টুল দেখুন ↓
-</div>
 <script>
 window.addEventListener('load', function () {
-  var pill = document.getElementById('tools-scroll-pill');
   var grid = document.querySelector('.tools-grid');
-  if (!pill || !grid) return;
-
+  if (!grid) return;
   var lastCard = grid.querySelector('.tool-card:last-child');
   if (!lastCard) return;
 
-  // If last card already visible after full layout — pill not needed
-  if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
-    pill.style.display = 'none';
-    return;
-  }
+  // If last card already visible — no pill needed
+  if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) return;
+
+  // Create pill on document.body — outside main, so position:fixed works
+  var pill = document.createElement('div');
+  pill.className = 'tools-scroll-pill';
+  pill.id = 'tools-scroll-pill';
+  pill.textContent = 'আরো টুল দেখুন ↓';
+  document.body.appendChild(pill);
 
   pill.onclick = function () {
     window.scrollBy({ top: 400, behavior: 'smooth' });
   };
 
   window.addEventListener('scroll', function handler() {
-    var rect = lastCard.getBoundingClientRect();
-    if (rect.bottom > 0 && rect.bottom <= window.innerHeight) {
-      pill.style.display = 'none';
+    if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
+      pill.remove();
       window.removeEventListener('scroll', handler);
     }
   }, { passive: true });
