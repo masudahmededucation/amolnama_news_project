@@ -88,26 +88,36 @@
 
 </div>
 
-{# Scroll-for-more pill — stays visible until user scrolls to see more tools #}
+{# Scroll-for-more pill — hides only when last tool card is visible #}
 <div class="tools-scroll-pill" id="tools-scroll-pill" name="tools_scroll_pill">
   আরো টুল দেখুন ↓
 </div>
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
   var pill = document.getElementById('tools-scroll-pill');
   var grid = document.querySelector('.tools-grid');
   if (!pill || !grid) return;
 
+  var lastCard = grid.querySelector('.tool-card:last-child');
+  if (!lastCard) return;
+
+  // If last card is already visible on load, pill not needed
+  if (lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
+    pill.style.display = 'none';
+    return;
+  }
+
+  // Show pill, hide when last card becomes visible
+  pill.style.display = 'block';
   pill.onclick = function () {
     window.scrollBy({ top: 400, behavior: 'smooth' });
   };
-
   window.addEventListener('scroll', function handler() {
-    if (grid.getBoundingClientRect().bottom <= window.innerHeight) {
+    if (lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
       pill.style.display = 'none';
       window.removeEventListener('scroll', handler);
     }
   }, { passive: true });
-})();
+});
 </script>
 {% endblock %}
