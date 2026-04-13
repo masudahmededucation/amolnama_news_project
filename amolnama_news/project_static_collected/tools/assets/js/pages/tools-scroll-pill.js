@@ -62,5 +62,8 @@
   window.addEventListener('load', checkPage);
 
   // Run when SPA navigation completes (custom event from spa-navigation.js)
-  document.addEventListener('spa:navigate', checkPage);
+  // Small delay ensures the DOM has fully painted after content swap
+  document.addEventListener('spa:navigate', function () {
+    setTimeout(checkPage, 150);
+  });
 })();
