@@ -34,11 +34,10 @@
   <div class="form-group">
     <label class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
     <div class="file-upload-actions">
-      <label class="file-upload-camera-button" for="beauty-hub-camera-file">📷 ক্যামেরা (Camera)</label>
+      <button type="button" class="file-upload-camera-button" id="beauty-hub-camera-button" name="beauty_hub_camera_button" onclick="if(window.cameraCapture){window.cameraCapture.open(function(f){var dt=new DataTransfer();dt.items.add(f);document.getElementById('beauty-hub-file').files=dt.files;document.getElementById('beauty-hub-file').dispatchEvent(new Event('change'));})}">📷 ক্যামেরা (Camera)</button>
       <label class="file-upload-add-button" for="beauty-hub-file">📁 ফাইল নির্বাচন (Choose File)</label>
     </div>
     <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input" hidden>
-    <input type="file" id="beauty-hub-camera-file" name="beauty_hub_camera_file" accept="image/*" capture="environment" hidden>
     <div id="beauty-hub-file-preview" name="beauty_hub_file_preview" class="beauty-hub-file-preview" hidden>
       <img id="beauty-hub-image-preview" name="beauty_hub_image_preview" class="beauty-hub-media-preview" hidden>
       <video id="beauty-hub-video-preview" name="beauty_hub_video_preview" class="beauty-hub-media-preview" hidden controls></video>

@@ -45,25 +45,24 @@
       renderPreviews(files);
     });
 
-    /* Camera input — captured photo previews alongside gallery picks */
-    const cameraInput = document.getElementById('art-upload-camera');
-    if (cameraInput) {
-      cameraInput.addEventListener('change', function () {
-        if (cameraInput.files && cameraInput.files.length) {
-          /* Merge camera file into main file input via DataTransfer */
-          const dataTransfer = new DataTransfer();
-          for (let i = 0; i < fileInput.files.length; i++) {
-            dataTransfer.items.add(fileInput.files[i]);
-          }
-          for (let j = 0; j < cameraInput.files.length; j++) {
-            dataTransfer.items.add(cameraInput.files[j]);
-          }
-          if (dataTransfer.files.length > 10) {
-            showError('সর্বোচ্চ ১০টি ছবি আপলোড করা যায়');
-            return;
-          }
-          fileInput.files = dataTransfer.files;
-          renderPreviews(fileInput.files);
+    /* Camera button — opens live camera modal */
+    const artCameraButton = document.getElementById('art-upload-camera-button');
+    if (artCameraButton) {
+      artCameraButton.addEventListener('click', function () {
+        if (window.cameraCapture) {
+          window.cameraCapture.open(function (capturedFile) {
+            var dataTransfer = new DataTransfer();
+            for (var i = 0; i < fileInput.files.length; i++) {
+              dataTransfer.items.add(fileInput.files[i]);
+            }
+            dataTransfer.items.add(capturedFile);
+            if (dataTransfer.files.length > 10) {
+              showError('সর্বোচ্চ ১০টি ছবি আপলোড করা যায়');
+              return;
+            }
+            fileInput.files = dataTransfer.files;
+            renderPreviews(fileInput.files);
+          });
         }
       });
     }

@@ -386,16 +386,14 @@
       }
     });
 
-    /* Camera button — opens device camera directly on mobile */
-    if (cameraButton && cameraPicker) {
+    /* Camera button — opens live camera modal (works on desktop + mobile) */
+    if (cameraButton) {
       cameraButton.addEventListener('click', function () {
         if (attachedFiles.length >= MAX_COUNT) return;
-        cameraPicker.value = '';
-        cameraPicker.click();
-      });
-      cameraPicker.addEventListener('change', function () {
-        if (cameraPicker.files && cameraPicker.files.length) {
-          addSelectedFiles(cameraPicker.files);
+        if (window.cameraCapture) {
+          window.cameraCapture.open(function (capturedFile) {
+            addSelectedFiles([capturedFile]);
+          });
         }
       });
     }

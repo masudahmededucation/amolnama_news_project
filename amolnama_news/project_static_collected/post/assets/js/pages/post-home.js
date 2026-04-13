@@ -420,11 +420,19 @@
     });
   }
 
-  /* Camera input — feeds into the same media pipeline */
-  const cameraInput = document.getElementById('post-composer-camera-input');
-  if (cameraInput && mediaPreviewContainer) {
-    cameraInput.addEventListener('change', function () {
-      handleMediaFileChange(cameraInput);
+  /* Camera button — opens live camera modal */
+  const cameraButton = document.getElementById('post-composer-camera-button');
+  if (cameraButton && mediaPreviewContainer) {
+    cameraButton.addEventListener('click', function () {
+      if (selectedMediaFiles.length >= 4) return;
+      if (window.cameraCapture) {
+        window.cameraCapture.open(function (capturedFile) {
+          selectedMediaFiles.push(capturedFile);
+          if (selectedMediaFiles.length > 4) selectedMediaFiles = selectedMediaFiles.slice(0, 4);
+          renderMediaPreviews();
+          if (submitButton) submitButton.disabled = false;
+        });
+      }
     });
   }
 

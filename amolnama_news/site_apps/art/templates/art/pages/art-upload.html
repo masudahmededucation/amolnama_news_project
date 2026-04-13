@@ -72,11 +72,10 @@
     <div class="art-upload-field">
       <label for="art-upload-photos" class="art-upload-label">ছবি আপলোড <span class="field-mandatory-star">*</span></label>
       <div class="file-upload-actions">
-        <label class="file-upload-camera-button" for="art-upload-camera">📷 ক্যামেরা (Camera)</label>
+        <button type="button" class="file-upload-camera-button" id="art-upload-camera-button" name="art_upload_camera_button">📷 ক্যামেরা (Camera)</button>
         <label class="file-upload-add-button" for="art-upload-photos">📁 ফাইল নির্বাচন (Choose File)</label>
       </div>
       <input type="file" class="art-upload-file-input" id="art-upload-photos" name="artwork_media_files" accept="image/*" multiple required hidden>
-      <input type="file" id="art-upload-camera" name="art_upload_camera" accept="image/*" capture="environment" hidden>
       <p class="art-upload-hint">প্রথম ছবিটি কভার হিসেবে ব্যবহৃত হবে। সর্বোচ্চ ১০টি ছবি।</p>
       <div class="art-upload-preview" id="art-upload-preview" name="art_upload_preview"></div>
     </div>
