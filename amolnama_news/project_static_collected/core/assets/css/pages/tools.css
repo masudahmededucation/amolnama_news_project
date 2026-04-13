@@ -21,20 +21,22 @@
 /* Stays visible until user scrolls down. Gentle bounce to draw attention. */
 
 .tools-scroll-pill {
-  position: fixed !important;
-  bottom: 80px !important;
-  left: 50% !important;
+  display: block;
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
   transform: translateX(-50%);
-  padding: 10px 24px;
-  background: #1B6B4A;
-  color: #fff;
+  padding: 12px 24px;
+  background: #0070f3;
+  color: #ffffff;
   font-size: 14px;
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: 50px;
   box-shadow: 0 4px 12px rgba(0,0,0,.15);
   cursor: pointer;
-  z-index: 9999 !important;
-  touch-action: manipulation;
+  z-index: 9999;
+  transition: opacity .3s ease;
+  visibility: visible !important;
   animation: tools-pill-bounce 2s ease-out infinite;
 }
 

@@ -89,32 +89,35 @@
 </div>
 
 <script>
-window.addEventListener('load', function () {
-  var grid = document.querySelector('.tools-grid');
-  if (!grid) return;
-  var lastCard = grid.querySelector('.tool-card:last-child');
-  if (!lastCard) return;
-
-  // If last card already visible — no pill needed
-  if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) return;
-
-  // Create pill on document.body — outside main, so position:fixed works
+(function () {
+  // Create pill on document.body — outside main so position:fixed works
   var pill = document.createElement('div');
   pill.className = 'tools-scroll-pill';
   pill.id = 'tools-scroll-pill';
   pill.textContent = 'আরো টুল দেখুন ↓';
   document.body.appendChild(pill);
 
+  var grid = document.querySelector('.tools-grid');
+
   pill.onclick = function () {
     window.scrollBy({ top: 400, behavior: 'smooth' });
   };
 
-  window.addEventListener('scroll', function handler() {
-    if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
-      pill.remove();
-      window.removeEventListener('scroll', handler);
+  function updatePillVisibility() {
+    if (!grid) return;
+    var rect = grid.getBoundingClientRect();
+    if (rect.height > 100 && rect.bottom <= window.innerHeight) {
+      pill.style.opacity = '0';
+      pill.style.pointerEvents = 'none';
+      setTimeout(function () { pill.style.display = 'none'; }, 300);
+    } else {
+      pill.style.display = 'block';
+      pill.style.opacity = '1';
     }
-  }, { passive: true });
-});
+  }
+
+  window.addEventListener('load', updatePillVisibility);
+  window.addEventListener('scroll', updatePillVisibility, { passive: true });
+})();
 </script>
 {% endblock %}
