@@ -84,6 +84,8 @@ def encode_and_store_embedding(content_type_code, content_id, text):
 
     try:
         with connection.cursor() as cursor:
+            # CAST(%s AS NVARCHAR(MAX)) prevents pyodbc sending long strings
+            # as ntext which breaks UTF-8/_SC collation (see CLAUDE.md Gate 7 rule 11).
             cursor.execute("""
                 MERGE [newsengine].[fact_content_embedding] AS target
                 USING (SELECT %s AS embedding_content_type_code,
@@ -92,7 +94,7 @@ def encode_and_store_embedding(content_type_code, content_id, text):
                    AND target.embedding_content_id = source.embedding_content_id
                 WHEN MATCHED THEN
                     UPDATE SET
-                        embedding_vector_json = %s,
+                        embedding_vector_json = CAST(%s AS NVARCHAR(MAX)),
                         embedding_model_name = %s,
                         embedding_dimension_count = %s,
                         modified_at = %s,
@@ -101,7 +103,7 @@ def encode_and_store_embedding(content_type_code, content_id, text):
                     INSERT (embedding_content_type_code, embedding_content_id,
                             embedding_vector_json, embedding_model_name,
                             embedding_dimension_count, is_active, created_at, modified_at)
-                    VALUES (%s, %s, %s, %s, %s, 1, %s, %s);
+                    VALUES (%s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, 1, %s, %s);
             """, [
                 content_type_code, content_id,
                 vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now,
