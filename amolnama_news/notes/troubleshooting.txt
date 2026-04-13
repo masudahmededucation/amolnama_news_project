@@ -201,6 +201,40 @@ not just what are available on first page.
 
 
 ###
+--position: fixed broken inside main/page-wrapper (2026-04-13)
+
+PROBLEM: position: fixed on an element inside <main> or .page-wrapper
+does NOT float relative to the viewport. Instead it behaves like
+position: absolute — scrolls with the page content.
+
+ROOT CAUSE: CSS spec says position: fixed is relative to the viewport
+UNLESS an ancestor has transform, filter, perspective, or will-change
+set. The .page-wrapper and <main> in base.html have properties that
+create a new containing block, breaking fixed positioning for all
+children.
+
+Additionally, <main> starts with visibility: hidden (FOUC prevention).
+Any JavaScript that checks getBoundingClientRect() before the page
+fully renders will get rect.bottom = 0 or rect.height = 0, causing
+the script to think the content fits on screen and immediately hide
+the element.
+
+FIX: Create the fixed element via JavaScript and append it to
+document.body directly — completely outside <main> and .page-wrapper.
+
+  var pill = document.createElement('div');
+  pill.className = 'my-fixed-element';
+  document.body.appendChild(pill);  // NOT inside {% block content %}
+
+RULE: Any element that needs position: fixed MUST be on document.body,
+not inside {% block content %} which renders inside <main>.
+
+APPLIES TO: scroll pills, floating action buttons, toast notifications,
+sticky banners, cookie consent bars — anything that should float on
+the viewport.
+
+
+###
 --sitemaps seo friendly
 sitemaps need to be seo friendly right? 
 are we supposed to use bengali words instead of ids for debate and blog articles?
