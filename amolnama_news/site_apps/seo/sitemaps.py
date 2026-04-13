@@ -280,7 +280,7 @@ class DebateTopicSitemap(Sitemap):
         return topic.updated_at or topic.created_at
 
     def location(self, topic):
-        return f"/debate/topic/{topic.blog_debate_coll_topic_id}/"
+        return f"/debate/topic/{topic.topic_slug}/" if topic.topic_slug else f"/debate/topic/{topic.blog_debate_coll_topic_id}/"
 
 
 # Registry for urls.py

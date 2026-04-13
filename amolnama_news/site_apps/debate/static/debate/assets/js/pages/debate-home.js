@@ -397,7 +397,7 @@
       .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
       .then(function (data) {
         if (data.success) {
-          window.location.href = '/debate/topic/' + data.debate_coll_topic_id + '/';
+          window.location.href = '/debate/topic/' + (data.topic_slug || data.debate_coll_topic_id) + '/';
         } else {
           const errorElement = formContainer.querySelector('.debate-arena-inline-message');
           if (errorElement) errorElement.remove();

@@ -198,3 +198,13 @@ add more complexity.
 or advertise on the top scroll down to check more
 actually main idea to flash our all the tools.
 not just what are available on first page.
+
+
+###
+--sitemaps seo friendly
+sitemaps need to be seo friendly right? 
+are we supposed to use bengali words instead of ids for debate and blog articles?
+is that better options for seo? 
+home wall posts with ids is fine, right?
+but specially all the blog posts and news article should be in bengali,
+right? better for seo right?

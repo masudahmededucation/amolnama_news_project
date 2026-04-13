@@ -100,7 +100,7 @@ def api_search(request):
                 'content_type_label': 'debate',
                 'content_type_color': 'amber',
                 'title': topic.topic_title or '',
-                'url': f'/debate/topic/{topic.debate_coll_topic_id}/',
+                'url': f'/debate/topic/{topic.topic_slug or topic.debate_coll_topic_id}/',
                 'date': topic.scheduled_start_at.strftime('%d %b %Y') if topic.scheduled_start_at else '',
             })
     except Exception:

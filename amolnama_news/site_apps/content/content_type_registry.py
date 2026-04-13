@@ -215,7 +215,7 @@ CONTENT_TYPE_REGISTRY = {
         'pk_field':              'blog_debate_coll_topic_id',
         'title_bn_field':        'topic_title',
         'title_en_field':        None,
-        'slug_field':            None,              # debates use topic_guid for URLs
+        'slug_field':            'topic_slug',
         'summary_bn_field':      'topic_description',
         'summary_en_field':      None,
         'is_published_field':    None,              # debate lifecycle is richer than a boolean

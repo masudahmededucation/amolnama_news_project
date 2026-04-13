@@ -215,22 +215,28 @@ def api_topic_create(request):
     # Register in content registry (subcategory already set in INSERT above)
     try:
         from amolnama_news.site_apps.content.utils import register_content
+        # Generate SEO-friendly Bengali slug
+        from amolnama_news.site_apps.core.utils import bangla_slugify
+        topic_slug = bangla_slugify(topic_title)[:400]
+        from .models import CollTopic
+        CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(topic_slug=topic_slug)
+
         content_registry_id = register_content(
             content_category_id=8,  # debate
             user_profile_id=user_profile_id,
             title_bn=topic_title,
             summary_bn=(topic_description or '')[:500] if topic_description else None,
-            content_url=f'/debate/topic/{topic_id}/',
+            content_url=f'/debate/topic/{topic_slug}/',
             subcategory_id=debate_subcategory_id,
             is_published=True,
         )
         if content_registry_id:
-            from .models import CollTopic
             CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(link_content_registry_id=content_registry_id)
     except Exception:
         logger.exception('Content registry failed for debate topic %s', topic_id)
+        topic_slug = str(topic_id)
 
-    return JsonResponse({'success': True, 'blog_debate_coll_topic_id': topic_id})
+    return JsonResponse({'success': True, 'blog_debate_coll_topic_id': topic_id, 'topic_slug': topic_slug})
 
 
 @login_required

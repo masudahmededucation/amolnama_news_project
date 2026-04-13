@@ -102,7 +102,7 @@ def _get_popular_in_category(category, viewed_keys, limit=2):
                 items.append({
                     'content_type': 'debate',
                     'title': topic.topic_title or '',
-                    'url': f'/debate/topic/{topic.debate_coll_topic_id}/',
+                    'url': f'/debate/topic/{topic.topic_slug or topic.debate_coll_topic_id}/',
                     'like_count': topic.total_post_count or 0,
                 })
                 if len(items) >= limit:

@@ -554,7 +554,16 @@ def moderation_queue_view(request):
         fact_check_flag_count__gt=0, is_deleted=False, is_active=True,
     ).order_by('-fact_check_flag_count')[:20]
 
+    # Pre-fetch topic slugs for flagged debate posts
+    debate_topic_ids = set(post.link_topic_id for post in flagged_debate_posts if post.link_topic_id)
+    debate_topic_slug_map = {}
+    if debate_topic_ids:
+        from amolnama_news.site_apps.debate.models import CollTopic
+        for topic in CollTopic.objects.filter(blog_debate_coll_topic_id__in=debate_topic_ids):
+            debate_topic_slug_map[topic.blog_debate_coll_topic_id] = topic.topic_slug
+
     for post in flagged_debate_posts:
+        topic_slug = debate_topic_slug_map.get(post.link_topic_id) or post.link_topic_id
         flagged_items.append({
             'content_type': 'debate_post',
             'content_type_label': 'DEBATE',
@@ -563,7 +572,7 @@ def moderation_queue_view(request):
             'content_preview': (post.post_content or '')[:100],
             'flag_count': post.fact_check_flag_count,
             'is_fact_check_needed': post.is_fact_check_needed,
-            'content_url': f'/debate/topic/{post.link_topic_id}/',
+            'content_url': f'/debate/topic/{topic_slug}/',
         })
 
     # Auto-flagged posts from content classifier

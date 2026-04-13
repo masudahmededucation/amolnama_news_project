@@ -6,7 +6,7 @@ import logging
 import subprocess
 import tempfile
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -123,6 +123,7 @@ def home(request):
         subcategory = subcategory_map.get(topic.link_content_ref_content_subcategory_id)
         topic_items.append({
             'blog_debate_coll_topic_id': topic.blog_debate_coll_topic_id,
+            'topic_slug': topic.topic_slug or str(topic.blog_debate_coll_topic_id),
             'topic_title': topic.topic_title,
             'topic_description': topic.topic_description,
             'topic_status_code': status.topic_status_code if status else '',
@@ -153,12 +154,26 @@ def home(request):
 
 
 @ensure_csrf_cookie
-def topic_detail(request, topic_id):
-    """Debate arena — three-column layout: Blue board | Topic | Red board."""
+def topic_detail_redirect(request, topic_id):
+    """301 redirect from old /debate/topic/<int>/ to /debate/topic/<slug>/."""
     try:
         topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
     except CollTopic.DoesNotExist:
         raise Http404
+    if not topic.topic_slug:
+        from amolnama_news.site_apps.core.utils import bangla_slugify
+        topic.topic_slug = bangla_slugify(topic.topic_title)[:400]
+        CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(topic_slug=topic.topic_slug)
+    return redirect(f'/debate/topic/{topic.topic_slug}/', permanent=True)
+
+
+def topic_detail(request, topic_slug):
+    """Debate arena — three-column layout: Blue board | Topic | Red board."""
+    try:
+        topic = CollTopic.objects.get(topic_slug=topic_slug, is_active=True)
+    except CollTopic.DoesNotExist:
+        raise Http404
+    topic_id = topic.blog_debate_coll_topic_id
 
     status_map = _get_topic_status_map()
     team_side_map = _get_team_side_map()
@@ -468,6 +483,7 @@ def build_debate_promo_items():
             'item_type': 'debate_promo',
             'created_at_raw': topic.scheduled_start_at,
             'blog_debate_coll_topic_id': topic_id,
+            'topic_slug': topic.topic_slug or str(topic_id),
             'topic_title': topic.topic_title,
             'topic_description': topic.topic_description,
             'topic_status_code': status.topic_status_code if status else '',
@@ -496,12 +512,13 @@ def _sanitize_pdf_filename(raw_title):
     return name + '.pdf'
 
 
-def topic_download_pdf(request, topic_id):
+def topic_download_pdf(request, topic_slug):
     """Generate PDF of debate arena via Edge headless — direct download, perfect Bengali text."""
     try:
-        topic = CollTopic.objects.get(blog_debate_coll_topic_id=topic_id, is_active=True)
+        topic = CollTopic.objects.get(topic_slug=topic_slug, is_active=True)
     except CollTopic.DoesNotExist:
         raise Http404
+    topic_id = topic.blog_debate_coll_topic_id
 
     status_map = _get_topic_status_map()
     team_side_map = _get_team_side_map()

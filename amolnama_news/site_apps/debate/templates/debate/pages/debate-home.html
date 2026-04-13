@@ -40,7 +40,7 @@
   {% if topic_items %}
   <div class="debate-topic-list" id="debate-topic-list" name="debate_topic_list">
     {% for topic in topic_items %}
-    <a href="{% url 'debate:topic_detail' topic_id=topic.blog_debate_coll_topic_id %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}" name="debate_topic_card_{{ topic.blog_debate_coll_topic_id }}" data-debate-type="{{ topic.debate_category_code }}">
+    <a href="{% url 'debate:topic_detail' topic_slug=topic.topic_slug %}" class="debate-topic-card" id="debate-topic-card-{{ topic.blog_debate_coll_topic_id }}" name="debate_topic_card_{{ topic.blog_debate_coll_topic_id }}" data-debate-type="{{ topic.debate_category_code }}">
       <div class="debate-topic-card-header">
         <h2 class="debate-topic-card-title">{{ topic.topic_title }}</h2>
         {% if topic.debate_category_code != 'general' %}<span class="debate-topic-card-category-badge">{{ topic.debate_category_icon }} {{ topic.debate_category_name_bn }}</span>{% endif %}

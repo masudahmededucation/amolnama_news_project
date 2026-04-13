@@ -6,12 +6,15 @@ from . import views_api
 app_name = 'debate'
 
 urlpatterns = [
-    # Pages
+    # Pages — SEO-friendly Bengali slug URLs
     path('', views.home, name='home'),
-    path('topic/<int:topic_id>/', views.topic_detail, name='topic_detail'),
-    path('topic/<int:topic_id>/download-pdf/', views.topic_download_pdf, name='topic_download_pdf'),
+    path('topic/<str:topic_slug>/', views.topic_detail, name='topic_detail'),
+    path('topic/<str:topic_slug>/download-pdf/', views.topic_download_pdf, name='topic_download_pdf'),
 
-    # APIs — topic management
+    # 301 redirects from old integer ID URLs (preserve existing links/bookmarks)
+    path('topic/<int:topic_id>/', views.topic_detail_redirect, name='topic_detail_redirect'),
+
+    # APIs — topic management (keep integer IDs — internal, not SEO-indexed)
     path('api/topic/create/', views_api.api_topic_create, name='api_topic_create'),
     path('api/topic/<int:topic_id>/edit/', views_api.api_topic_edit, name='api_topic_edit'),
     path('api/topic/<int:topic_id>/join/', views_api.api_topic_join, name='api_topic_join'),

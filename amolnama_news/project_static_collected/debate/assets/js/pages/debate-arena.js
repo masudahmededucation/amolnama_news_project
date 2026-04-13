@@ -429,7 +429,7 @@
     const copyLinkButton = document.getElementById('debate-arena-share-copy-link');
     if (copyLinkButton) {
       copyLinkButton.addEventListener('click', function () {
-        const debateUrl = window.location.origin + '/debate/topic/' + topicId + '/';
+        const debateUrl = window.location.href;
         navigator.clipboard.writeText(debateUrl).then(function () {
           copyLinkButton.textContent = '✓ Copied!';
           setTimeout(function () {
@@ -448,7 +448,7 @@
           const topicTitleElement = document.querySelector('.debate-arena-topic-title');
           navigator.share({
             title: topicTitleElement ? topicTitleElement.textContent : 'বিতর্ক',
-            url: window.location.origin + '/debate/topic/' + topicId + '/',
+            url: window.location.href,
           });
           shareDropdown.classList.remove('debate-arena-share-dropdown-open');
         });
@@ -489,7 +489,7 @@
         previewWindow.document.title = escapeHtml(pdfFilename);
       }
 
-      fetch('/debate/topic/' + topicId + '/download-pdf/')
+      fetch(window.location.pathname + 'download-pdf/')
         .then(function (response) {
           if (!response.ok) throw new Error('PDF generation failed');
           return response.blob();

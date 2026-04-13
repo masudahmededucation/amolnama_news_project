@@ -112,6 +112,7 @@ class CollTopic(models.Model):
     blog_debate_coll_topic_id = models.BigAutoField(primary_key=True)
     topic_guid = models.UUIDField()
     topic_title = models.CharField(max_length=300)
+    topic_slug = models.CharField(max_length=400, blank=True, null=True)
     topic_description = models.TextField(blank=True, null=True)
     blue_side_label = models.CharField(max_length=200, blank=True, null=True)
     red_side_label = models.CharField(max_length=200, blank=True, null=True)
