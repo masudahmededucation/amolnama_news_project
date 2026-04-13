@@ -86,8 +86,8 @@ amolnama_news/site_apps/
 
 # 🎨 GATE 4 — Styling / CSS / UI standards
 
-1. **External CSS files only.** No internal `<style>` blocks unless absolutely required.
-2. **No inline `style=""`** — extract to CSS class.
+1. **External CSS files only.** No internal `<style>` blocks unless absolutely required (critical CSS in base.html, self-contained PDF/embed templates are legitimate exceptions).
+2. **No inline `style=""`** — extract to CSS class. Exception: dynamic values (`background-image:url(...)`, `width: {{ pct }}%`) that CSS cannot express statically.
 3. **Use global tokens** from `colors.css`. Never hardcoded colors.
 4. **`colors.css` is the single source of truth for `:root`.** No other file redefines `:root`.
 5. **`hidden` HTML attribute**, not `display: none` CSS class. `.hidden = true/false` in JS. `:not([hidden])` in CSS.
@@ -103,6 +103,24 @@ amolnama_news/site_apps/
 15. **Polished, gen-z proof, full of life, professional, minimal.** No amateur look.
 16. **Service worker cache version** = `seo/views.py:CACHE_NAME`. Bump after every JS/CSS change. Run `collectstatic --noinput`.
 17. **Never blame "browser cache"** — check what server is actually serving (`curl` it).
+
+### Design tokens (mandatory for all new CSS)
+18. **Font sizes** — ALWAYS use `var(--text-xs)` through `var(--text-5xl)`. NEVER hardcode `font-size: .85rem` or `font-size: 14px`. The full project is tokenized — do not regress.
+19. **Border radius** — ALWAYS use `var(--radius-xs)`, `var(--radius-sm)`, `var(--radius)`, `var(--radius-lg)`, `var(--radius-full)`. NEVER hardcode `border-radius: 8px`. Exception: composite values like `8px 8px 0 0` (not a single token).
+20. **Box shadows / elevation** — ALWAYS use `var(--elevation-1)` through `var(--elevation-5)`. NEVER use `var(--shadow)` or `var(--shadow-md)` (legacy, migrated). NEVER hardcode `box-shadow: 0 2px 8px rgba(...)`.
+21. **Focus-visible rings** — every interactive element (button, link, input, card) MUST have `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`. No exceptions.
+22. **Touch targets** — every clickable element MUST have `min-height: var(--touch-target)` (44px) and `touch-action: manipulation`.
+23. **Reduced motion** — every CSS file with transitions or animations MUST include `@media (prefers-reduced-motion: reduce)` block at the end.
+
+### Performance (mandatory for all new pages/templates)
+24. **Images** — all `<img>` tags MUST have either `loading="lazy"` (below fold) or `fetchpriority="high"` (above fold / hero). Add `decoding="async"` on lazy images.
+25. **Scripts** — all `<script src>` tags in page templates MUST use `defer`. Only sync utilities in base.html (csrf-token, escape-html) are exempt.
+26. **External fonts** — NEVER add a blocking `<link rel="stylesheet">` for fonts. Use `media="print" onload="this.media='all'"` pattern with `<link rel="preload" as="style">`.
+27. **External CSS** — non-critical stylesheets (footer, modals, loading indicators) use `media="print" onload="this.media='all'"` to avoid blocking render.
+
+### Security (mandatory for all user-submitted content)
+28. **HTML sanitization** — all user-submitted rich text (Quill, WYSIWYG) MUST pass through `core.utils.sanitize_user_html()` before storing in DB. NEVER write a regex-based sanitizer — use the shared whitelist parser.
+29. **No raw SQL with dynamic column names** — use ORM `F()` expressions or explicit field-name maps. NEVER interpolate column names via f-strings even if input is validated.
 
 ---
 
