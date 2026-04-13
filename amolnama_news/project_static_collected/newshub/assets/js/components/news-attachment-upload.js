@@ -419,7 +419,12 @@
         if (attachedFiles.length >= MAX_COUNT) return;
         if (window.cameraCapture) {
           window.cameraCapture.open(function (capturedFile) {
-            addSelectedFiles([capturedFile]);
+            /* Camera files are always valid JPEG — skip validation, add directly */
+            attachedFiles.push(capturedFile);
+            fileDescriptions.push('');
+            syncFilesToFormInput();
+            syncDescriptions();
+            renderFileList();
           });
         }
       });
