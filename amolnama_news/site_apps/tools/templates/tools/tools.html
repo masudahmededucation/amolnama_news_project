@@ -97,20 +97,30 @@
 (function () {
   var pill = document.getElementById('tools-scroll-pill');
   if (!pill) return;
-  var dismissed = false;
-  function checkScroll() {
-    if (dismissed) return;
-    var scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
-    if (scrollPercent > 0.35) {
-      pill.hidden = true;
-      dismissed = true;
-      window.removeEventListener('scroll', checkScroll);
+
+  var scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  var isScrollable = scrollableHeight > 100;
+
+  // Auto-dismiss: hide after 6 seconds OR after scrolling past 50%
+  var dismissTimer = setTimeout(function () { pill.hidden = true; }, 6000);
+
+  if (isScrollable) {
+    function checkScroll() {
+      if (window.scrollY > scrollableHeight * 0.5) {
+        pill.hidden = true;
+        clearTimeout(dismissTimer);
+        window.removeEventListener('scroll', checkScroll);
+      }
     }
+    window.addEventListener('scroll', checkScroll, { passive: true });
+
+    pill.addEventListener('click', function () {
+      window.scrollBy({ top: window.innerHeight * 0.7, behavior: 'smooth' });
+    });
+  } else {
+    // Page fits on screen — pill just shows briefly as a "we have many tools" signal
+    pill.style.cursor = 'default';
   }
-  window.addEventListener('scroll', checkScroll, { passive: true });
-  pill.addEventListener('click', function () {
-    window.scrollBy({ top: window.innerHeight * 0.7, behavior: 'smooth' });
-  });
 })();
 </script>
 {% endblock %}
