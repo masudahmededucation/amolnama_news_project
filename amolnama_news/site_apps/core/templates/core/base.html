@@ -34,11 +34,9 @@
   <link rel="preconnect" href="https://cdn.quilljs.com" crossorigin>
 
   <!-- Google Fonts — non-blocking load with swap fallback.
-       The media="print" trick loads the CSS without blocking render.
-       onload swaps it to media="all" so fonts apply as soon as they arrive.
-       display=swap ensures text is visible immediately in system font,
-       then repaints when the web font loads (no invisible text). -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" as="style" crossorigin>
+       media="print" trick loads CSS without blocking render. onload swaps
+       to media="all" so fonts apply when ready. display=swap ensures text
+       is visible immediately in system font, repaints when web font loads. -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet"></noscript>
 
