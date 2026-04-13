@@ -85,6 +85,7 @@ The platform operates in both Bengali (বাংলা) and English.
 - [Bangladesh Marriage Registration]({host}bangladesh-marriage-registration/) — Marriage registration services
 - [শিল্পকলা (Art & Craft)]({host}art-and-craft/) — Bengali traditional and contemporary art gallery, tutorials, community uploads
 - [গল্পের ঝুলি (Stories for Kids)]({host}stories-for-kids/) — Bengali children's stories — ঠাকুরমার ঝুলি, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প
+- [বিতর্ক (Debate)]({host}debate/) — Structured debate platform with blue/red sides, fact-checking, audience voting
 
 ## শিল্পকলা (Art & Craft)
 
