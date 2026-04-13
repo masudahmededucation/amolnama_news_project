@@ -12,6 +12,7 @@ The rules are ordered as a workflow: think → research → plan → design → 
 
 This is the master rule. Every other rule in this file is mandatory. There is no "advisory". There is no "later". Adding more rules to a list I don't read is not a fix — the fix is reading and applying THIS file at the start of every task.
 
+- **Fix the headache, don't cut the head.** Every change must preserve or improve existing functionality. NEVER remove a working feature in the name of "fixing", "cleaning", or "improving". If something works, make it work better — don't make it stop working. Verify before AND after every change that all user-facing behavior is identical or strictly better. This is the #1 rule.
 - **Don't lie about following rules.** Don't say "modularised", "shared everywhere", "tested" without grep-verifying.
 - **Don't argue when the user reports an issue.** ACT immediately. If told twice, you already failed once.
 - **Don't defend, don't explain, don't blame the cache/browser/environment.** Verify server-side first.

@@ -19,17 +19,24 @@ Core → Newsengine → Pulse
 FILES
 ================================================================================
 
-feed_builder.py     — Assembles home feed: posts + promos + boosts + ranking + dedup + filtering
-promo_builders.py   — Collects published content from all 7 apps + tools catalog
-ranking.py          — Content scoring: recency(0.3) + engagement(0.4) + reputation(0.1) + quality(0.2)
-trending.py         — Finds fastest-growing content in last 24h
-personalization.py  — User interest profile from view history, boosts matching content
-recommendations.py  — "You liked X, you might like Y" — category-based collaborative filtering
-notifications.py    — Global notification helper: create_notification(), get_unread_count(), mark_all_read()
-rate_limiter.py     — Per-action rate limits: check_rate_limit(user_id, action_code)
-models.py           — FactUserContentView, FactContentScore, CollNotification, CollContentBookmark, FactRateLimitLog, CollHashtag, CollPostHashtag
-views_api.py        — APIs: notifications, bookmarks, feed pagination, recommendations, trending hashtags
-urls.py             — 5 API routes
+feed_builder.py      — Assembles home feed: posts + promos + boosts + ranking + dedup + filtering
+feed_fanout.py       — Fan-out-on-write: pre-populates per-user feed cache for active followers
+feed_cache.py        — Static partial score caching (engagement+author+quality, NO recency — computed live on read)
+promo_builders.py    — Collects published content from all 7 apps + tools catalog
+ranking.py           — Content scoring: recency(0.3) + engagement(0.4) + reputation(0.1) + quality(0.2)
+trending.py          — Finds fastest-growing content in last 24h
+personalization.py   — User interest profile from view history, boosts matching content
+recommendations.py   — "You liked X, you might like Y" — category-based collaborative filtering
+notifications.py     — Global notification helper: create_notification(), get_unread_count(), mark_all_read()
+rate_limiter.py      — Per-action rate limits: check_rate_limit(user_id, action_code)
+embeddings.py        — 384-dim MiniLM vectors for semantic similarity (Bengali+English)
+related_content.py   — Cache-first related content via vector cosine similarity
+story_clustering.py  — Story thread grouping: attaches articles to developing story arcs via embedding similarity
+entity_extractor.py  — NER entity extraction (PER/ORG/LOC) via multilingual BERT — 100% local, zero API
+middleware.py        — UpdateLastActiveMiddleware: stamps user_profile.last_active_at (debounced 5 min)
+models.py            — Feed, notification, bookmark, rate limit, hashtag, embedding, classification, graph, story thread models
+views_api.py         — APIs: notifications, bookmarks, feed, recommendations, trending, related content, story threads
+urls.py              — 8 API routes
 
 ================================================================================
 FEED PIPELINE (feed_builder._build_intelligent_feed)
@@ -216,14 +223,44 @@ Link Preview API (shared):
 
 ## New Features (2026-04-06) — Feed Cache + Embeddings + Video Transcoding
 
-### Feed Score Caching (feed_cache.py)
-- Populates [newsengine].[fact_feed_content_score] with pre-calculated ranking scores
-- MERGE (upsert) pattern — insert on post create, update on engagement change
-- Triggered from: api_post_create, api_post_like_toggle, api_post_vote_toggle, api_post_repost (all via _refresh_post_feed_score_background)
-- Scores: engagement, trending, recency, total (same formula as ranking.py)
-- refresh_stale_scores() for periodic background refresh of old scores
-- get_cached_scores() for batch read of cached scores
-- Replaces per-request recalculation with cached values
+### Feed Score Caching (feed_cache.py) — "Static Partial on Write, Live Recency on Read"
+- Stores STATIC PARTIAL scores (engagement + author_reputation + quality) — NO recency
+- Recency is computed live on every read via calculate_recency_score(created_at)
+  → always current to the microsecond, never goes stale between writes
+- Brand-new freshness boost (+10.0 for <5 min old) also applied on read, not cached
+- feed_recency_score column DROPPED from DB (2026-04-12)
+- Dead cache writers removed: _refresh_post_feed_score_background and all callers deleted
+  from post/views_api.py (save ~2ms per engagement event)
+- refresh_stale_scores() removed — no scheduler, no cron, no daemon needed
+- The live feed uses fact_user_feed_cache (fan-out) not fact_feed_content_score
+
+### Active User Gating (feed_fanout.py + middleware.py)
+- UpdateLastActiveMiddleware stamps user_profile.last_active_at on every authenticated request
+  (debounced 5 min via session — near-zero DB cost for active browsing)
+- All 4 fan-out queries (followers, interest, breaking, notifications) now filter by
+  last_active_at > 14 days — dormant followers cost zero writes
+- When dormant users return, fallback pipeline in feed_builder.py builds feed from scratch
+
+### Story Thread Clustering (story_clustering.py) — 100% local, zero API cost
+- On article view, compares embedding against active thread centroids (cosine similarity)
+- Similarity > 0.78 → attach to existing thread
+- No match → scan recent unattached articles → create new thread if 2+ cluster (> 0.82)
+- Bengali + English supported natively via multilingual MiniLM model
+- DB: [newsengine].[story_thread] + [newsengine].[story_thread_article]
+- API: GET /newsengine/api/story-thread/<id>/articles/
+- UI: story-thread.html component + story-thread-loader.js on article detail page
+
+### Entity Extraction (entity_extractor.py) — 100% local NER
+- Uses Davlan/bert-base-multilingual-cased-ner-hrl (already installed via transformers)
+- Extracts PER/ORG/LOC entities at 98-99% accuracy for both Bengali and English
+- Stores in coll_news_entry.article_topic_auto_tags_json (NVARCHAR(MAX) + ISJSON constraint)
+- Computed columns: article_primary_entity_en + article_story_slug (indexed for fast lookup)
+- Lazy trigger: runs on first article view if JSON is NULL (background thread)
+
+### News Article Related Content (related_content.py)
+- 'article' added to _ENRICHMENT_MAP — related articles now appear on news detail pages
+- Article detail view triggers embedding encode on first view (background, non-blocking)
+- Uses same cache-first pattern as poems/stories/art (24h TTL, zero compute on page view)
 
 ### Content Embeddings (embeddings.py)
 - sentence-transformers model: paraphrase-multilingual-MiniLM-L12-v2 (384-dim, supports Bengali+English)
