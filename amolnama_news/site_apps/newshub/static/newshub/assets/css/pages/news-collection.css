@@ -103,7 +103,7 @@
 /* ---- Field rows ---- */
 
 .form-field {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-field:last-child {
@@ -113,17 +113,17 @@
 .form-field label,
 .form-field .form-field-label {
   display: block;
-  font-size: .875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  margin-bottom: .4rem;
+  margin-bottom: .5rem;
   color: var(--text);
 }
 
 .field-label {
   display: block;
-  font-size: .875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
-  margin-bottom: .4rem;
+  margin-bottom: .5rem;
   color: var(--text);
 }
 
@@ -145,7 +145,8 @@
 .form-field textarea {
   display: block;
   width: 100%;
-  padding: .6rem .85rem;
+  padding: .75rem 1rem;
+  min-height: var(--touch-target);
   font-size: var(--text-base);
   border: 2px solid var(--border);
   border-radius: var(--radius-sm);
