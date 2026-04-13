@@ -161,9 +161,11 @@
         }
         var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
         var file = new File([blob], 'camera-' + timestamp + '.jpg', { type: 'image/jpeg' });
+        // Save callback before cleanup (cleanup sets onCaptureCallback = null)
+        var savedCallback = onCaptureCallback;
         cleanup();
-        if (onCaptureCallback) {
-          onCaptureCallback(file);
+        if (savedCallback) {
+          savedCallback(file);
         }
       }, 'image/jpeg', 0.92);
     });
