@@ -4,7 +4,44 @@
 {% block title %}ফ্রি অনলাইন টুলস — আমলনামা নিউজ | Free Online Tools{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+<style>
+.tools-scroll-pill {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0070f3;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.3);
+  z-index: 99999;
+  cursor: pointer;
+  transition: opacity .3s ease, transform .2s ease;
+  user-select: none;
+  animation: pill-bounce 2s infinite;
+}
+.tools-scroll-pill:active {
+  transform: translateX(-50%) scale(.95);
+}
+@keyframes pill-bounce {
+  0%, 100% { bottom: 30px; }
+  50% { bottom: 38px; }
+}
+@media (max-width: 768px) {
+  .tools-scroll-pill { bottom: 70px; }
+  @keyframes pill-bounce {
+    0%, 100% { bottom: 70px; }
+    50% { bottom: 78px; }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tools-scroll-pill { animation: none; }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -85,39 +122,34 @@
     <p>জন্মতারিখ দিন — বছর, মাস, দিন ও পরবর্তী জন্মদিন কত দিন বাকি তা জানুন</p>
   </a>
 
-
 </div>
 
 <script>
 (function () {
-  // Create pill on document.body — outside main so position:fixed works
   var pill = document.createElement('div');
   pill.className = 'tools-scroll-pill';
-  pill.id = 'tools-scroll-pill';
-  pill.textContent = 'আরো টুল দেখুন ↓';
+  pill.innerHTML = 'আরো টুল দেখুন ↓';
   document.body.appendChild(pill);
 
-  var grid = document.querySelector('.tools-grid');
-
   pill.onclick = function () {
-    window.scrollBy({ top: 400, behavior: 'smooth' });
+    window.scrollBy({ top: 500, behavior: 'smooth' });
   };
 
-  function updatePillVisibility() {
-    if (!grid) return;
-    var rect = grid.getBoundingClientRect();
-    if (rect.height > 100 && rect.bottom <= window.innerHeight) {
+  function handleVisibility() {
+    var scrollHeight = document.documentElement.scrollHeight;
+    var scrollPos = window.innerHeight + window.pageYOffset;
+    if ((scrollHeight - scrollPos) < 50) {
       pill.style.opacity = '0';
       pill.style.pointerEvents = 'none';
-      setTimeout(function () { pill.style.display = 'none'; }, 300);
     } else {
-      pill.style.display = 'block';
       pill.style.opacity = '1';
+      pill.style.pointerEvents = 'auto';
     }
   }
 
-  window.addEventListener('load', updatePillVisibility);
-  window.addEventListener('scroll', updatePillVisibility, { passive: true });
+  window.addEventListener('scroll', handleVisibility, { passive: true });
+  window.addEventListener('resize', handleVisibility);
+  handleVisibility();
 })();
 </script>
 {% endblock %}
