@@ -93,7 +93,7 @@
   আরো টুল দেখুন ↓
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+window.addEventListener('load', function () {
   var pill = document.getElementById('tools-scroll-pill');
   var grid = document.querySelector('.tools-grid');
   if (!pill || !grid) return;
@@ -101,19 +101,19 @@ document.addEventListener('DOMContentLoaded', function () {
   var lastCard = grid.querySelector('.tool-card:last-child');
   if (!lastCard) return;
 
-  // If last card is already visible on load, pill not needed
-  if (lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
+  // If last card already visible after full layout — pill not needed
+  if (lastCard.getBoundingClientRect().bottom > 0 && lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
     pill.style.display = 'none';
     return;
   }
 
-  // Show pill, hide when last card becomes visible
-  pill.style.display = 'block';
   pill.onclick = function () {
     window.scrollBy({ top: 400, behavior: 'smooth' });
   };
+
   window.addEventListener('scroll', function handler() {
-    if (lastCard.getBoundingClientRect().bottom <= window.innerHeight) {
+    var rect = lastCard.getBoundingClientRect();
+    if (rect.bottom > 0 && rect.bottom <= window.innerHeight) {
       pill.style.display = 'none';
       window.removeEventListener('scroll', handler);
     }
