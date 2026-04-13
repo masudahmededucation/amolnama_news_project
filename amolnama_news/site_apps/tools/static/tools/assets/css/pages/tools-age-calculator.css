@@ -290,17 +290,15 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: transform var(--duration-fast), box-shadow var(--duration-base);
+  transition: box-shadow var(--duration-base);
   box-shadow: 0 2px 8px rgba(91,106,191,.2);
 }
 
 .age-form .button-submit:hover {
-  transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(91,106,191,.28);
 }
 
 .age-form .button-submit:active {
-  transform: translateY(0) scale(.98);
 }
 
 /* ---- Primary age card ---- */
@@ -494,11 +492,9 @@
   padding: .45rem .75rem;
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
-  transition: transform var(--duration-fast);
 }
 
 .age-milestone:hover {
-  transform: translateX(2px);
 }
 
 .age-milestone--past {

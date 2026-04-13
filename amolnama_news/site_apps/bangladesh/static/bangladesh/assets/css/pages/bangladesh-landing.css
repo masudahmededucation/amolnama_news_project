@@ -2,7 +2,7 @@
    Bangladesh Landing Page — gold standard polish pass
    Mobile-first, hub cards with per-brand accent colors scoped as
    local CSS custom properties. Elevation tokens, focus rings,
-   hover lift, reduced-motion safety.
+   reduced-motion safety.
    ============================================================ */
 
 /* No underline on hover — all links */
@@ -98,23 +98,17 @@ main a:focus {
   touch-action: manipulation;
   min-height: var(--touch-target);
   transition: border-color var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .bangladesh-hub-card:hover {
   border-color: var(--hub-card-accent, var(--primary));
   box-shadow: var(--elevation-3);
-  transform: translateY(-2px);
 }
 
 .bangladesh-hub-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-}
-
-.bangladesh-hub-card:active {
-  transform: translateY(-1px) scale(.99);
 }
 
 /* Hover checkmark badge */
@@ -332,11 +326,9 @@ main a:focus {
 @media (prefers-reduced-motion: reduce) {
   .bangladesh-hub-card,
   .bangladesh-hub-card:hover,
-  .bangladesh-hub-card:active,
   .bangladesh-hub-card::after,
   .bangladesh-hub-card-arrow,
   .bangladesh-hub-card:hover .bangladesh-hub-card-arrow {
-    transform: none;
     transition: none;
   }
   *,

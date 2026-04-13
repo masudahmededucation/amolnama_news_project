@@ -1103,7 +1103,6 @@ span.flatpickr-weekday {
 .watchdog-selection-change:hover {
   background: linear-gradient(135deg, var(--info), var(--info));
   box-shadow: 0 3px 10px rgba(25, 118, 210, .45);
-  transform: translateY(-1px);
 }
 
 /* ======== Inline-style migration: component utility classes ======== */

@@ -105,7 +105,7 @@
   cursor: pointer;
   text-decoration: none;
   user-select: none;
-  transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+  transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
 }
 
 .actions-bar-like-button:focus-visible,
@@ -120,7 +120,6 @@
 .actions-bar-bookmark-button:active,
 .actions-bar-share-button:active,
 .actions-bar-edit-button:active {
-  transform: scale(.96);
 }
 
 /* SVG icons inside buttons should never block clicks */

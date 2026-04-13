@@ -55,7 +55,7 @@
   color: #fff;
 }
 
-.bgr-browse-button:active { transform: scale(0.96); }
+.bgr-browse-button:active { }
 
 .bgr-dropzone-hint { margin: .75rem 0 0; font-size: var(--text-sm); color: var(--muted); }
 
@@ -124,7 +124,7 @@
 
 .bgr-try-again-button:hover,
 .bgr-try-again-button:active { background: var(--danger); color: #fff; }
-.bgr-try-again-button:active { transform: scale(0.96); }
+.bgr-try-again-button:active { }
 
 /* ---- Editor ---- */
 
@@ -312,7 +312,7 @@
 }
 
 .bgr-brush-button:hover { border-color: var(--primary); color: var(--primary); }
-.bgr-brush-button:active { transform: scale(0.96); }
+.bgr-brush-button:active { }
 .bgr-brush-button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
 .bgr-brush-button--move.active { background: #2980b9; border-color: #2980b9; color: #fff; }
@@ -387,8 +387,8 @@
   outline: none;
 }
 
-.bgr-swatch:hover { transform: scale(1.1); }
-.bgr-swatch:active { transform: scale(0.95); }
+.bgr-swatch:hover { }
+.bgr-swatch:active { }
 .bgr-swatch.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
 
 .bgr-swatch--white      { background: var(--card); }
@@ -487,7 +487,7 @@
   transition: background var(--duration-base), transform var(--duration-fast), opacity var(--duration-base);
 }
 
-.bgr-button:active { transform: scale(0.96); }
+.bgr-button:active { }
 
 .bgr-button--download-png,
 .bgr-button--download-jpg { color: #fff; background: var(--primary); }

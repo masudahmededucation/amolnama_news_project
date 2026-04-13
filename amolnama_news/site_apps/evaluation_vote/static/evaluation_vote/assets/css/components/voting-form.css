@@ -148,12 +148,8 @@
 
 .submit-button:hover {
   background: var(--primary-hover);
-  transform: translateY(-2px);
 }
 
-.submit-button:active {
-  transform: translateY(0);
-}
 
 /* Update button */
 .update-button {
@@ -354,8 +350,5 @@
   .update-button,
   .new-vote-button {
     transition: none;
-  }
-  .submit-button:hover {
-    transform: none;
   }
 }

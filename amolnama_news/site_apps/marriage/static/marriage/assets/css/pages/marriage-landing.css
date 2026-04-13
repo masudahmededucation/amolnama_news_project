@@ -1,6 +1,6 @@
 /* ============================================================
    Marriage Landing & Shared Page Layout — gold standard polish
-   Mobile-first, tokens, elevation, hover lift, focus rings,
+   Mobile-first, tokens, elevation, focus rings,
    touch targets, reduced-motion safety.
    ============================================================ */
 
@@ -59,22 +59,16 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: border-color var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .tool-card:hover {
   box-shadow: var(--elevation-3);
-  transform: translateY(-2px);
 }
 
 .tool-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-}
-
-.tool-card:active {
-  transform: translateY(-1px) scale(.99);
 }
 
 /* Tick checkmark — appears on hover */
@@ -176,11 +170,6 @@
   height: 140px;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  transition: transform var(--duration-slow) var(--ease-out);
-}
-
-.tool-card:hover .marriage-card-picture img {
-  transform: scale(1.04);
 }
 
 /* ---- Shared card content ---- */
@@ -281,11 +270,8 @@
 @media (prefers-reduced-motion: reduce) {
   .tool-card,
   .tool-card:hover,
-  .tool-card:active,
   .tool-card-tick,
-  .tool-card:hover .tool-card-tick,
-  .tool-card:hover .marriage-card-picture img {
-    transform: none;
+  .tool-card:hover .tool-card-tick {
     transition: none;
   }
   *,

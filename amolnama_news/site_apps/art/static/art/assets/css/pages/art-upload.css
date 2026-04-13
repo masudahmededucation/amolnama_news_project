@@ -99,12 +99,11 @@
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
-  transition: background var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast);
 }
 
 .art-upload-submit-button:hover {
   background: var(--primary-hover);
-  transform: scale(1.02);
 }
 
 .art-upload-submit-button:disabled {

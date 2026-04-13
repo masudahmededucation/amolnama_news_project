@@ -132,12 +132,11 @@
 
 .submenu.ribbon a:hover {
   filter: brightness(1.08);
-  transform: scale(1.03);
   text-decoration: none;
 }
 
 .submenu.ribbon a {
-  transition: filter var(--duration-fast), transform var(--duration-fast);
+  transition: filter var(--duration-fast);
 }
 
 .submenu.ribbon a::before {

@@ -93,12 +93,11 @@
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity var(--duration-fast), transform var(--duration-fast);
+  transition: opacity var(--duration-fast);
 }
 
 .stories-submit-button:hover {
   opacity: .9;
-  transform: scale(1.02);
 }
 
 .stories-submit-button:disabled {

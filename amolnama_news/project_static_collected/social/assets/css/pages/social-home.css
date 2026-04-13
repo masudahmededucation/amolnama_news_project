@@ -41,19 +41,13 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: background var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .social-home-guest-login-link:hover {
   background: var(--primary-hover);
   box-shadow: var(--elevation-2);
-  transform: translateY(-1px);
   text-decoration: none;
-}
-
-.social-home-guest-login-link:active {
-  transform: scale(.97);
 }
 
 .social-home-guest-login-link:focus-visible {
@@ -83,9 +77,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .social-home-guest-login-link,
-  .social-home-guest-login-link:hover,
-  .social-home-guest-login-link:active {
-    transform: none;
+  .social-home-guest-login-link:hover {
     transition: none;
   }
 }

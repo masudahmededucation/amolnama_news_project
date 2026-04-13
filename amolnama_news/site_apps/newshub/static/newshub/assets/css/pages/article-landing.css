@@ -1,7 +1,7 @@
 /* ============================================================
    Newshub Article Landing — gold standard polish pass
-   Mobile-first (1 col), elevation tokens, hover lift + Ken Burns
-   image hover, focus-visible rings, reduced-motion safety.
+   Mobile-first (1 col), elevation tokens, focus-visible rings,
+   reduced-motion safety.
    ============================================================ */
 
 .article-landing-header {
@@ -68,14 +68,12 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: border-color var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .article-landing-card:hover {
   border-color: var(--primary);
   box-shadow: var(--elevation-3);
-  transform: translateY(-3px);
 }
 
 .article-landing-card:focus-visible {
@@ -84,11 +82,7 @@
   border-color: var(--primary);
 }
 
-.article-landing-card:active {
-  transform: translateY(-1px) scale(.99);
-}
-
-/* ---- Card image with Ken Burns hover effect ---- */
+/* ---- Card image ---- */
 
 .article-landing-card-image {
   width: 100%;
@@ -96,11 +90,6 @@
   background-size: cover;
   background-position: center;
   background-color: var(--border);
-  transition: transform var(--duration-slow) var(--ease-out);
-}
-
-.article-landing-card:hover .article-landing-card-image {
-  transform: scale(1.04);
 }
 
 /* ---- Card body content ---- */
@@ -257,11 +246,7 @@
 @media (prefers-reduced-motion: reduce) {
   .article-landing-card,
   .article-landing-card:hover,
-  .article-landing-card:active,
-  .article-landing-card-image,
-  .article-landing-card:hover .article-landing-card-image,
   .article-landing-card-breaking {
-    transform: none;
     transition: none;
     animation: none;
   }

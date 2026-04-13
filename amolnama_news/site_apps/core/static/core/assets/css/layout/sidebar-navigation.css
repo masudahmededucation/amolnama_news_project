@@ -209,7 +209,6 @@
 
 .sidebar-navigation-toggle:hover {
   background: var(--primary-hover);
-  transform: scale(1.1);
 }
 
 /* ---- Page wrapper (center column) ---- */

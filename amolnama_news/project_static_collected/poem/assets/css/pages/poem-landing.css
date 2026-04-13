@@ -56,18 +56,12 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: background var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .poem-header-cta:hover {
   background: var(--primary-hover);
   box-shadow: var(--elevation-2);
-  transform: translateY(-1px);
-}
-
-.poem-header-cta:active {
-  transform: scale(.97);
 }
 
 .poem-header-cta:focus-visible {
@@ -276,19 +270,13 @@
   touch-action: manipulation;
   transition: background var(--duration-fast) var(--ease-out),
               color var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .poem-load-more-button:hover {
   background: var(--primary);
   color: #fff;
   box-shadow: var(--elevation-2);
-  transform: translateY(-1px);
-}
-
-.poem-load-more-button:active {
-  transform: scale(.97);
 }
 
 .poem-load-more-button:focus-visible {
@@ -353,12 +341,9 @@
 @media (prefers-reduced-motion: reduce) {
   .poem-header-cta,
   .poem-header-cta:hover,
-  .poem-header-cta:active,
   .poem-load-more-button,
   .poem-load-more-button:hover,
-  .poem-load-more-button:active,
   .poem-type-tab {
-    transform: none;
     transition: none;
   }
   *,

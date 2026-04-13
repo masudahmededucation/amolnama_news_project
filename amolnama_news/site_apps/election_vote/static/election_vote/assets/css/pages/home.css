@@ -49,7 +49,6 @@
   color: white;
   border-color: var(--danger);
   border-left-color: var(--card);
-  transform: translateX(4px);
   box-shadow: var(--elevation-2);
 }
 

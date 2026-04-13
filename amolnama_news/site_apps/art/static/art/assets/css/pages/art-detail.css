@@ -227,12 +227,11 @@
   cursor: pointer;
   font-size: var(--text-sm);
   color: var(--text);
-  transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast), border-color var(--duration-fast);
 }
 
 .art-detail-action-button:hover {
   background: var(--surface);
-  transform: scale(1.03);
 }
 
 .art-detail-like-button-active {

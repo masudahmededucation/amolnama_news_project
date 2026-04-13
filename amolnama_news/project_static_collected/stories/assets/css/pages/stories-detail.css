@@ -127,14 +127,13 @@
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast), border-color var(--duration-fast);
 }
 
 .stories-detail-page-prev-button:hover,
 .stories-detail-page-next-button:hover {
   background: var(--surface);
   border-color: var(--purple);
-  transform: scale(1.02);
 }
 
 .stories-detail-page-prev-button:disabled,

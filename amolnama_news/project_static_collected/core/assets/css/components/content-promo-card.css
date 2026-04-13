@@ -33,9 +33,7 @@
   object-fit: cover;
   aspect-ratio: 1;
   border-radius: var(--radius);
-  transition: transform var(--duration-slow);
 }
-.content-promo-card:hover .content-promo-card-image { transform: scale(1.05); }
 
 /* Color variants — left border accent */
 .content-promo-card-blue { border-left: 3px solid var(--info); }

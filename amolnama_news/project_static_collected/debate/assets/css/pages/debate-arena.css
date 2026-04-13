@@ -317,8 +317,8 @@
 }
 .debate-audience-vote-button-blue, .debate-audience-vote-button-blue .debate-audience-vote-arrow, .debate-audience-vote-button-blue .debate-audience-vote-count { color: var(--debate-blue-soft); }
 .debate-audience-vote-button-red, .debate-audience-vote-button-red .debate-audience-vote-arrow, .debate-audience-vote-button-red .debate-audience-vote-count { color: var(--debate-red-soft); }
-.debate-audience-vote-button:hover { transform: scale(1.03); }
-.debate-audience-vote-button:active { transform: scale(0.97); }
+.debate-audience-vote-button:hover { }
+.debate-audience-vote-button:active { }
 .debate-audience-vote-button-blue { border-color: var(--info); background: var(--warning-light); }
 .debate-audience-vote-button-blue:hover { background: var(--warning-light); border-color: var(--debate-blue-soft); box-shadow: 0 0 12px var(--debate-blue-ring-strong); }
 .debate-audience-vote-button-red { border-color: var(--danger); background: var(--warning-light); }

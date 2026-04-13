@@ -47,26 +47,12 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: background var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .art-landing-upload-button:hover {
   background: var(--primary-hover);
   box-shadow: var(--elevation-2);
-  transform: translateY(-1px);
-}
-
-.art-landing-upload-button:active {
-  transform: scale(.97);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .art-landing-upload-button,
-  .art-landing-upload-button:hover,
-  .art-landing-upload-button:active {
-    transform: none;
-  }
 }
 
 /* Category filter pills — uses shared filter-pills.css from core */
@@ -104,14 +90,12 @@
   box-shadow: var(--elevation-1);
   touch-action: manipulation;
   transition: box-shadow var(--duration-fast) var(--ease-out),
-              border-color var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+              border-color var(--duration-fast) var(--ease-out);
 }
 
 .art-gallery-card:hover {
   box-shadow: var(--elevation-3);
   border-color: var(--primary);
-  transform: translateY(-3px);
 }
 
 .art-gallery-card:focus-visible {
@@ -120,17 +104,6 @@
   border-color: var(--primary);
 }
 
-.art-gallery-card:active {
-  transform: translateY(-1px) scale(.99);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .art-gallery-card,
-  .art-gallery-card:hover,
-  .art-gallery-card:active {
-    transform: none;
-  }
-}
 
 .art-gallery-card-image-wrapper {
   position: relative;
@@ -143,19 +116,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--duration-slow) var(--ease-out);
-}
-
-.art-gallery-card:hover .art-gallery-card-image {
-  transform: scale(1.05);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .art-gallery-card-image,
-  .art-gallery-card:hover .art-gallery-card-image {
-    transform: none;
-    transition: none;
-  }
 }
 
 .art-gallery-card-image-placeholder {

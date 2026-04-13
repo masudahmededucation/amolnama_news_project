@@ -184,13 +184,12 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 1rem;
-  transition: background var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast);
 }
 
 .profile-form .signup-submit-button:hover,
 .profile-form button[type="submit"]:hover {
   background: var(--primary-dark, var(--primary));
-  transform: translateY(-1px);
 }
 
 /* ── Form labels — cleaner ── */

@@ -130,13 +130,12 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background var(--duration-base), transform var(--duration-fast);
+  transition: background var(--duration-base);
   width: fit-content;
 }
 
 .poem-create-submit:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
 }
 
 .poem-create-submit:disabled {

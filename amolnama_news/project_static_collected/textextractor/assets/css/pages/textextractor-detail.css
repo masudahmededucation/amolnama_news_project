@@ -39,13 +39,11 @@
   min-height: var(--touch-target);
   touch-action: manipulation;
   transition: background var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out),
               border-color var(--duration-fast) var(--ease-out);
 }
 .textextractor-detail-copy-button:hover,
 .textextractor-detail-download-button:hover {
   background: var(--surface);
-  transform: scale(1.02);
   border-color: var(--primary);
 }
 .textextractor-detail-copy-button:focus-visible,

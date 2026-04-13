@@ -9,7 +9,7 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: border-color var(--duration-base), box-shadow var(--duration-base), transform var(--duration-base);
+  transition: border-color var(--duration-base), box-shadow var(--duration-base);
   box-shadow: var(--elevation-2),
     0 0 1px rgba(0,0,0,.06);
   position: relative;
@@ -44,7 +44,6 @@
   border-color: #8b6d3f;
   box-shadow: var(--elevation-3),
     0 0 2px rgba(0,0,0,.08);
-  transform: translateY(-2px);
 }
 
 .poem-card:hover, .poem-card:focus { text-decoration: none; }
@@ -172,10 +171,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.poem-card:active {
-  transform: scale(.98);
-  transition: transform var(--duration-fast) var(--ease-out);
-}
 
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
@@ -224,8 +219,5 @@
 @media (min-width: 768px) {
   .poem-card {
     padding: var(--space-5, 1.25rem);
-  }
-  .poem-card:hover {
-    transform: translateY(-2px);
   }
 }

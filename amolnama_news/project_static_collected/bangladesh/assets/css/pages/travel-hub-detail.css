@@ -356,7 +356,7 @@ main a, main a:hover, main a:focus { text-decoration: none; }
 }
 
 .travel-hub-detail-youtube-thumb:hover .travel-hub-detail-youtube-play {
-  transform: translate(-50%, -50%) scale(1.1);
+  transform: translate(-50%, -50%);
 }
 
 .travel-hub-detail-youtube-info {

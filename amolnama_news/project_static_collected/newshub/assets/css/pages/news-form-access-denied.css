@@ -39,12 +39,11 @@
   font-size: var(--text-sm);
   font-weight: 700;
   text-decoration: none;
-  transition: background var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast);
 }
 
 .news-form-access-denied-button:hover {
   background: var(--primary-hover);
-  transform: scale(1.03);
 }
 
 @media (max-width: 600px) {

@@ -645,7 +645,7 @@ main:has(.messenger) { padding-top: .25rem; }
   z-index: 2;
   opacity: .6;
 }
-.messenger-emoji-toggle:hover { transform: scale(1.15); opacity: 1; }
+.messenger-emoji-toggle:hover { opacity: 1; }
 
 /* Emoji picker grid */
 .messenger-emoji-picker {
@@ -721,7 +721,7 @@ main:has(.messenger) { padding-top: .25rem; }
   transition: background var(--duration-fast), transform var(--duration-fast);
 }
 .messenger-send-button:hover { background: var(--primary-hover); }
-.messenger-send-button:active { transform: scale(.95); }
+.messenger-send-button:active { }
 
 /* ── Collapsed sidebar: name only, no preview ── */
 .messenger { transition: grid-template-columns var(--duration-base) var(--ease-out); }

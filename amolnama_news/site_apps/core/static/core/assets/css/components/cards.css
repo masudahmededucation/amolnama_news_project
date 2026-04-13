@@ -12,22 +12,12 @@
   padding: .75rem;
   box-shadow: var(--elevation-1);
   transition: box-shadow var(--duration-fast, .12s) var(--ease-out, ease-out),
-              border-color var(--duration-fast, .12s) var(--ease-out, ease-out),
-              transform var(--duration-fast, .12s) var(--ease-out, ease-out);
+              border-color var(--duration-fast, .12s) var(--ease-out, ease-out);
 }
 
 .card:hover {
   box-shadow: var(--elevation-2);
   border-color: var(--primary);
-  transform: translateY(-2px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card,
-  .card:hover {
-    transform: none;
-    transition: none;
-  }
 }
 
 .card img {
@@ -63,32 +53,12 @@
   display: flex;
   flex-direction: column;
   transition: box-shadow var(--duration-fast, .12s) var(--ease-out, ease-out),
-              border-color var(--duration-fast, .12s) var(--ease-out, ease-out),
-              transform var(--duration-fast, .12s) var(--ease-out, ease-out);
+              border-color var(--duration-fast, .12s) var(--ease-out, ease-out);
 }
 
 .article:hover {
   box-shadow: var(--elevation-3);
   border-color: var(--primary);
-  transform: translateY(-3px);
-}
-
-.article:hover img {
-  transform: scale(1.02);
-}
-
-.article img {
-  transition: transform var(--duration-slow, .35s) var(--ease-out, ease-out);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .article,
-  .article:hover,
-  .article img,
-  .article:hover img {
-    transform: none;
-    transition: none;
-  }
 }
 
 .article img {
