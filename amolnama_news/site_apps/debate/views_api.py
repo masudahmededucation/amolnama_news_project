@@ -614,8 +614,7 @@ def api_post_reply(request, topic_id):
         return JsonResponse({'success': False, 'error': 'আপনি এই বিতর্কে যোগ দেননি'}, status=403)
 
     # CROSSING-OVER RULE: reply author MUST be opposite side of parent author
-    # TODO: Remove admin bypass before production — only here for testing with single account
-    if participant.link_blog_debate_ref_team_side_id == parent_post.link_blog_debate_ref_team_side_id and not request.user.is_staff:
+    if participant.link_blog_debate_ref_team_side_id == parent_post.link_blog_debate_ref_team_side_id:
         return JsonResponse({'success': False, 'error': 'আপনি নিজের পক্ষের যুক্তির উত্তর দিতে পারবেন না'}, status=400)
 
     new_depth = parent_post.post_reply_depth + 1
