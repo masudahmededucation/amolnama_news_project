@@ -10,6 +10,7 @@
 {% block content %}
 <section class="tools-header">
   <h1>Tools</h1>
+  <p class="tools-header-count">১০টি ফ্রি টুল উপলব্ধ — নিচে স্ক্রল করুন ↓</p>
 </section>
 
 <div class="tools-grid">
@@ -86,4 +87,30 @@
 
 
 </div>
+
+{# Scroll-for-more pill — auto-hides after user scrolls past 50% #}
+<div class="tools-scroll-pill" id="tools-scroll-pill" name="tools_scroll_pill">
+  আরো টুল দেখুন ↓
+</div>
+
+<script defer>
+(function () {
+  var pill = document.getElementById('tools-scroll-pill');
+  if (!pill) return;
+  var dismissed = false;
+  function checkScroll() {
+    if (dismissed) return;
+    var scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    if (scrollPercent > 0.35) {
+      pill.hidden = true;
+      dismissed = true;
+      window.removeEventListener('scroll', checkScroll);
+    }
+  }
+  window.addEventListener('scroll', checkScroll, { passive: true });
+  pill.addEventListener('click', function () {
+    window.scrollBy({ top: window.innerHeight * 0.7, behavior: 'smooth' });
+  });
+})();
+</script>
 {% endblock %}

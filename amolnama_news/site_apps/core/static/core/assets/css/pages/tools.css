@@ -11,6 +11,49 @@
   margin: 0;
 }
 
+.tools-header-count {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: var(--space-1) 0 0;
+}
+
+/* ---- Scroll-for-more pill ---- */
+
+.tools-scroll-pill {
+  position: fixed;
+  bottom: var(--space-8);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-2) var(--space-5);
+  background: var(--primary);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  box-shadow: var(--elevation-3);
+  cursor: pointer;
+  z-index: 50;
+  touch-action: manipulation;
+  animation: tools-scroll-pill-bounce 2s ease-in-out infinite;
+}
+
+@keyframes tools-scroll-pill-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
+@media (max-width: 768px) {
+  .tools-scroll-pill {
+    bottom: 70px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tools-scroll-pill {
+    animation: none;
+  }
+}
+
 /* ---- Tool cards grid ---- */
 
 .tools-grid {
