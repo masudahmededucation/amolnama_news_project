@@ -82,8 +82,10 @@
     const MAX_COUNT = config.maxCount || 4;
 
     const filePicker = document.getElementById(config.pickerId);
+    const cameraPicker = document.getElementById(config.cameraPickerId);
     const hiddenFileInput = document.getElementById(config.hiddenInputId);
     const addFileButton = document.getElementById(config.addButtonId);
+    const cameraButton = document.getElementById(config.cameraButtonId);
     const fileListContainer = document.getElementById(config.fileListId);
     const featuredInput = config.featuredInputId
       ? document.getElementById(config.featuredInputId)
@@ -384,6 +386,20 @@
       }
     });
 
+    /* Camera button — opens device camera directly on mobile */
+    if (cameraButton && cameraPicker) {
+      cameraButton.addEventListener('click', function () {
+        if (attachedFiles.length >= MAX_COUNT) return;
+        cameraPicker.value = '';
+        cameraPicker.click();
+      });
+      cameraPicker.addEventListener('change', function () {
+        if (cameraPicker.files && cameraPicker.files.length) {
+          addSelectedFiles(cameraPicker.files);
+        }
+      });
+    }
+
     fileListContainer.addEventListener('click', function (e) {
       const removeButton = e.target.closest('.file-info-remove');
       if (removeButton) {
@@ -441,8 +457,10 @@
 
   const attachmentApi = initFileUploadSection({
     pickerId: 'attachment-picker',
+    cameraPickerId: 'attachment-camera-picker',
     hiddenInputId: 'attachment-real',
     addButtonId: 'attachment-add-button',
+    cameraButtonId: 'attachment-camera-button',
     fileListId: 'attachment-file-list',
     featuredInputId: 'featured-file-index',
     descriptionsInputId: 'attachment-descriptions-json',
@@ -453,8 +471,10 @@
 
   const evidenceApi = initFileUploadSection({
     pickerId: 'evidence-picker',
+    cameraPickerId: 'evidence-camera-picker',
     hiddenInputId: 'evidence-real',
     addButtonId: 'evidence-add-button',
+    cameraButtonId: 'evidence-camera-button',
     fileListId: 'evidence-file-list',
     featuredInputId: null,
     descriptionsInputId: 'evidence-descriptions-json',
@@ -465,8 +485,10 @@
 
   const crimeEvidenceApi = initFileUploadSection({
     pickerId: 'crime-evidence-picker',
+    cameraPickerId: 'crime-evidence-camera-picker',
     hiddenInputId: 'crime-evidence-real',
     addButtonId: 'crime-evidence-add-button',
+    cameraButtonId: 'crime-evidence-camera-button',
     fileListId: 'crime-evidence-file-list',
     featuredInputId: null,
     descriptionsInputId: 'crime-evidence-descriptions-json',
@@ -477,8 +499,10 @@
 
   const accusedPhotosApi = initFileUploadSection({
     pickerId: 'accused-photos-picker',
+    cameraPickerId: 'accused-photos-camera-picker',
     hiddenInputId: 'accused-photos-real',
     addButtonId: 'accused-photos-add-button',
+    cameraButtonId: 'accused-photos-camera-button',
     fileListId: 'accused-photos-file-list',
     featuredInputId: null,
     descriptionsInputId: 'accused-photos-descriptions-json',
@@ -489,8 +513,10 @@
 
   const victimPhotosApi = initFileUploadSection({
     pickerId: 'victim-photos-picker',
+    cameraPickerId: 'victim-photos-camera-picker',
     hiddenInputId: 'victim-photos-real',
     addButtonId: 'victim-photos-add-button',
+    cameraButtonId: 'victim-photos-camera-button',
     fileListId: 'victim-photos-file-list',
     featuredInputId: null,
     descriptionsInputId: 'victim-photos-descriptions-json',
@@ -501,8 +527,10 @@
 
   const witnessPhotosApi = initFileUploadSection({
     pickerId: 'witness-photos-picker',
+    cameraPickerId: 'witness-photos-camera-picker',
     hiddenInputId: 'witness-photos-real',
     addButtonId: 'witness-photos-add-button',
+    cameraButtonId: 'witness-photos-camera-button',
     fileListId: 'witness-photos-file-list',
     featuredInputId: null,
     descriptionsInputId: 'witness-photos-descriptions-json',

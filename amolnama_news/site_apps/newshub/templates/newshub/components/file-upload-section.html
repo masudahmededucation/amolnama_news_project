@@ -13,9 +13,11 @@
     upload_hint         — hint text below the upload (optional)
 
   ID convention (all auto-generated from upload_prefix):
-    {prefix}-picker            — hidden file picker input
+    {prefix}-picker            — hidden file picker input (gallery/files)
+    {prefix}-camera-picker     — hidden file picker input (camera capture)
     {prefix}-real              — hidden real file input (synced before submit)
-    {prefix}-add-button           — "add files" button
+    {prefix}-add-button        — "choose file" button
+    {prefix}-camera-button     — "take photo" button (mobile camera)
     {prefix}-file-list         — file list container
     {prefix}-descriptions-json — per-file descriptions hidden input
 
@@ -24,12 +26,28 @@
 
 <div class="form-field">
   <span class="field-label">{{ upload_label }}</span>
+
   {# Hidden real input — JS syncs files into this before submit #}
   <input type="file" id="{{ upload_prefix }}-real" name="{{ upload_name }}" hidden multiple>
-  {# Picker trigger — hidden, opened by JS #}
+
+  {# Picker trigger — gallery/files (hidden, opened by JS) #}
   <input type="file" id="{{ upload_prefix }}-picker" name="{{ upload_prefix }}_picker"
          accept="{{ upload_accept }}" hidden multiple>
-  <button type="button" id="{{ upload_prefix }}-add-button" name="{{ upload_prefix }}_add_btn" class="button-add-file">{{ upload_btn_label }}</button>
+
+  {# Camera picker — opens device camera directly on mobile (hidden, opened by JS) #}
+  <input type="file" id="{{ upload_prefix }}-camera-picker" name="{{ upload_prefix }}_camera_picker"
+         accept="image/*" capture="environment" hidden>
+
+  {# Upload action buttons — mobile-friendly, big touch targets #}
+  <div class="file-upload-actions">
+    <button type="button" id="{{ upload_prefix }}-camera-button" name="{{ upload_prefix }}_camera_btn" class="file-upload-camera-button">
+      📷 ক্যামেরা (Camera)
+    </button>
+    <button type="button" id="{{ upload_prefix }}-add-button" name="{{ upload_prefix }}_add_btn" class="file-upload-add-button">
+      📁 {{ upload_btn_label }}
+    </button>
+  </div>
+
   <div id="{{ upload_prefix }}-file-list" name="{{ upload_prefix }}_file_list" class="file-info" hidden></div>
 
   {% if upload_show_featured %}
