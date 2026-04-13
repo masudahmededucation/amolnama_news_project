@@ -148,11 +148,13 @@
             // Restore transition for smooth fade-in (was disabled in Step 1)
             mainElement.style.transition = 'opacity .15s ease';
             mainElement.style.opacity = '1';
+            // Notify AFTER paint — DOM is fully ready for querySelector
+            requestAnimationFrame(function () {
+              document.dispatchEvent(new CustomEvent('spa:navigate'));
+            });
           });
           hideLoadingBar();
           isNavigating = false;
-          // Notify other scripts that SPA navigation completed
-          document.dispatchEvent(new CustomEvent('spa:navigate'));
         }
 
         // Race: CSS load vs 500ms timeout (never leave page invisible)
