@@ -50,7 +50,7 @@
 .tools-promo-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: .5rem; }
 .tools-promo-card-cta {
   font-size: var(--text-xs); font-weight: 700; color: #fff;
-  background: #0ea5e9; padding: .2rem .6rem; border-radius: 12px;
+  background: #0ea5e9; padding: .2rem .6rem; border-radius: var(--radius);
 }
 
 /* Share */
@@ -63,7 +63,7 @@
 .tools-promo-card-share-toggle:hover { border-color: #0ea5e9; color: #0ea5e9; }
 .tools-promo-card-share-dropdown {
   display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: .3rem;
-  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
   box-shadow: var(--elevation-3); min-width: 170px; z-index: 200; overflow: hidden;
 }
 .tools-promo-card-share-dropdown-open { display: block; }

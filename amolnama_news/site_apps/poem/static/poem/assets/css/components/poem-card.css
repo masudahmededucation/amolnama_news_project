@@ -2,7 +2,7 @@
 
 .poem-card {
   border: 2.5px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -84,7 +84,7 @@
 .poem-card-category-badge {
   background: rgba(80,55,20,.1);
   color: #6b4c2a;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: .1rem .45rem;
   font-size: var(--text-xs);
   font-weight: 700;
@@ -96,7 +96,7 @@
   font-weight: 700;
   color: #8b6d3f;
   background: rgba(80,55,20,.07);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: .1rem .3rem;
   text-transform: uppercase;
   letter-spacing: .03em;

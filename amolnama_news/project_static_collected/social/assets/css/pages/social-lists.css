@@ -5,10 +5,10 @@
 .social-lists-page-description { font-size: var(--text-sm); color: var(--muted); margin-bottom: 1rem; }
 
 .social-lists-create-row { display: flex; gap: .4rem; margin-bottom: 1rem; }
-.social-lists-create-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: 8px; font-size: var(--text-sm); }
-.social-lists-create-button { padding: .4rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: var(--text-sm); font-weight: 700; cursor: pointer; }
+.social-lists-create-input { flex: 1; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.social-lists-create-button { padding: .4rem .8rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius-sm); font-size: var(--text-sm); font-weight: 700; cursor: pointer; }
 
-.social-lists-item { padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .4rem; display: flex; justify-content: space-between; align-items: center; }
+.social-lists-item { padding: .6rem .8rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .4rem; display: flex; justify-content: space-between; align-items: center; }
 .social-lists-item-name { font-size: var(--text-sm); font-weight: 700; }
 .social-lists-item-member-count { font-size: var(--text-xs); color: var(--muted); margin-left: .3rem; }
 .social-lists-empty-message { color: var(--muted); font-size: var(--text-sm); }
@@ -19,7 +19,7 @@
   background: var(--danger-light);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
 

@@ -47,7 +47,7 @@
 .section-icon {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--primary-light);
   display: inline-flex;
   align-items: center;
@@ -981,7 +981,7 @@
   color: var(--bg);
   background: var(--danger);
   padding: .15rem .5rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   white-space: nowrap;
 }
 
@@ -1026,7 +1026,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   padding: .1rem .35rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--primary-light);
   color: var(--primary);
   white-space: nowrap;
@@ -1338,7 +1338,7 @@
   gap: .25rem;
   font-size: var(--text-sm);
   padding: .2rem .5rem;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   background: var(--teal);
   color: var(--bg);
 }
@@ -1364,7 +1364,7 @@
   gap: .25rem;
   font-size: var(--text-sm);
   padding: .2rem .6rem;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   border: none;
   background: var(--danger);
   color: var(--bg);
@@ -1414,7 +1414,7 @@
   width: 14px;
   height: 14px;
   border: 1.5px solid var(--muted);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   flex-shrink: 0;
   transition: border-color .15s;
 }
@@ -1422,7 +1422,7 @@
 .tag-available-item:hover {
   color: var(--bg);
   background: var(--danger);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .tag-available-item:hover::before {

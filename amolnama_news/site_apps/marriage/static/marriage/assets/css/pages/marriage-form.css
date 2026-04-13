@@ -476,7 +476,7 @@
 .preview-reg-header {
   background: #fdf8ec;
   border: 1px solid #f0e6c8;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
 }
@@ -705,7 +705,7 @@
   width: 100px;
   height: 45px;
   border: 2px dashed #ede4cd;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin: .5rem 0 0;
   position: relative;
 }
@@ -865,7 +865,7 @@
 
 .flatpickr-calendar {
   font-family: inherit;
-  border-radius: 10px;
+  border-radius: var(--radius);
   box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
   border: 1px solid var(--border);
 }
@@ -906,7 +906,7 @@
 .flatpickr-months .flatpickr-prev-month:hover,
 .flatpickr-months .flatpickr-next-month:hover {
   background: rgba(255, 255, 255, .15);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .flatpickr-months .flatpickr-prev-month:hover svg,
@@ -1059,7 +1059,7 @@ span.flatpickr-weekday {
   width: 120px;
   height: 50px;
   border: 2px dashed #ede4cd;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin: .5rem auto 0;
   display: flex;
   align-items: center;
@@ -1255,7 +1255,7 @@ span.flatpickr-weekday {
 .marriage-photo-section {
   margin-bottom: 1.5rem;
   border: 1.5px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 1rem;
   background: var(--card);
 }
@@ -1279,7 +1279,7 @@ span.flatpickr-weekday {
   position: relative;
   width: 110px;
   height: 110px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   border: 1.5px solid var(--border);
 }
@@ -1324,7 +1324,7 @@ span.flatpickr-weekday {
   color: #c8960c;
   background: #fdf8f0;
   border: 1.5px dashed #c8960c;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background .15s;
 }
@@ -1414,7 +1414,7 @@ span.flatpickr-weekday {
   width: 480px;
   height: 672px;
   border: 2px solid #d4c9a8;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
   box-shadow: 0 3px 12px rgba(0, 0, 0, .15);
   background: #f8f6f0;

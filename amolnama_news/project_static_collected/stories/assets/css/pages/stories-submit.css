@@ -39,7 +39,7 @@
 .stories-submit-select {
   padding: .5rem .6rem;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-sm);
   color: var(--text);
   background: var(--card);
@@ -87,7 +87,7 @@
   min-height: 44px;
   padding: .6rem 1.5rem;
   border: none;
-  border-radius: 25px;
+  border-radius: var(--radius-full);
   background: var(--purple);
   color: var(--card);
   font-size: var(--text-base);
@@ -110,7 +110,7 @@
   padding: .5rem .75rem;
   background: var(--danger-light);
   border: 1px solid var(--danger-border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--danger-text);
   font-size: var(--text-sm);
 }

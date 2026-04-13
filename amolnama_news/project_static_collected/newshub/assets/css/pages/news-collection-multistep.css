@@ -196,7 +196,7 @@
   color: var(--muted);
   background: var(--surface);
   padding: .15rem .5rem;
-  border-radius: 10px;
+  border-radius: var(--radius);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -667,7 +667,7 @@
 /* Calendar popup */
 .flatpickr-calendar {
   font-family: inherit;
-  border-radius: 10px;
+  border-radius: var(--radius);
   box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
   border: 1px solid var(--border);
 }
@@ -710,7 +710,7 @@
 .flatpickr-months .flatpickr-prev-month:hover,
 .flatpickr-months .flatpickr-next-month:hover {
   background: rgba(255, 255, 255, .15);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .flatpickr-months .flatpickr-prev-month:hover svg,
@@ -947,7 +947,7 @@ span.flatpickr-weekday {
 
 .contradiction-block {
   border-left: 4px solid;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 1rem 1.25rem;
   margin-bottom: 1.25rem;
 }
@@ -980,7 +980,7 @@ span.flatpickr-weekday {
 
 .radio-card-group {
   border-left: 4px solid;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: .75rem 1rem 1rem;
   margin-bottom: 1rem;
 }
@@ -1055,7 +1055,7 @@ span.flatpickr-weekday {
   align-items: flex-start;
   gap: .6rem;
   border-left: 4px solid var(--muted);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: .75rem 1rem;
   margin-bottom: 1rem;
   background: var(--surface);
@@ -1073,7 +1073,7 @@ span.flatpickr-weekday {
   text-transform: uppercase;
   background: rgba(0, 0, 0, .08);
   padding: .15rem .5rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   align-self: flex-start;
 }
 
@@ -1089,7 +1089,7 @@ span.flatpickr-weekday {
   gap: .4rem;
   background: linear-gradient(135deg, var(--info), var(--info));
   border: none;
-  border-radius: 20px;
+  border-radius: var(--radius-full);
   padding: .4rem 1rem .4rem .75rem;
   font-size: var(--text-sm);
   font-weight: 600;

@@ -58,7 +58,7 @@
 
 /* Argument snippets */
 .debate-promo-card-arguments { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-bottom: .5rem; }
-.debate-promo-card-argument { padding: .4rem .5rem; border-radius: 8px; font-size: var(--text-sm); line-height: 1.4; }
+.debate-promo-card-argument { padding: .4rem .5rem; border-radius: var(--radius-sm); font-size: var(--text-sm); line-height: 1.4; }
 .debate-promo-card-argument-blue { background: var(--info-light); border-left: 2px solid var(--info); }
 .debate-promo-card-argument-red { background: var(--danger-light); border-left: 2px solid var(--danger); }
 .debate-promo-card-argument-author { font-size: var(--text-xs); font-weight: 700; display: block; margin-bottom: .15rem; }
