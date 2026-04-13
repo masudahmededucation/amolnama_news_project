@@ -174,8 +174,14 @@
 
       let html = '<div class="file-info-block' + (isChecked ? ' file-info-featured' : '') + '">';
 
-      /* Top row: file meta + remove button */
+      /* Image thumbnail preview */
+      if (isImage) {
+        html += '<div class="file-info-thumbnail" id="file-thumb-' + config.hiddenInputId + '-' + index + '"></div>';
+      }
+
+      /* Top row: attached badge + file meta + remove button */
       html += '<div class="file-info-row">';
+      html += '<span class="file-info-attached-badge">\u2713 \u09B8\u0982\u09AF\u09C1\u0995\u09CD\u09A4 (Attached)</span>';
       if (featuredInput && isImage) {
         html += '<label class="file-featured-radio">'
           + '<input type="radio" name="' + radioName + '" value="' + index + '"'
@@ -185,7 +191,6 @@
       }
       html += '<span class="file-info-name">' + file.name + '</span>'
         + '<span class="file-info-size">' + formatFileSize(file.size) + '</span>'
-        + '<span class="file-info-type">' + (file.type || 'unknown') + '</span>'
         + '<button type="button" class="button-repeater-delete file-info-remove" data-index="' + index + '"'
         + ' title="\u09A1\u09BF\u09B2\u09BF\u099F \u0995\u09B0\u09C1\u09A8 (Delete)">'
         + '\u09A1\u09BF\u09B2\u09BF\u099F <span class="button-delete-x">&times;</span></button>';
@@ -204,6 +209,27 @@
 
       html += '</div>';
       return html;
+    }
+
+    /* ===== Generate image thumbnail previews ===== */
+
+    function renderThumbnails() {
+      for (var thumbIndex = 0; thumbIndex < attachedFiles.length; thumbIndex++) {
+        if (!isImageFile(attachedFiles[thumbIndex])) continue;
+        var thumbId = 'file-thumb-' + config.hiddenInputId + '-' + thumbIndex;
+        var thumbContainer = document.getElementById(thumbId);
+        if (!thumbContainer || thumbContainer.querySelector('img')) continue;
+        (function (container, file) {
+          var reader = new FileReader();
+          reader.onload = function (event) {
+            var img = document.createElement('img');
+            img.src = event.target.result;
+            img.className = 'file-info-thumbnail-image';
+            container.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        })(thumbContainer, attachedFiles[thumbIndex]);
+      }
     }
 
     /* ===== Update button label ===== */
@@ -244,6 +270,7 @@
         }
         fileListContainer.innerHTML = html;
         fileListContainer.hidden = false;
+        renderThumbnails();
       }
       updateAddButtonState();
     }
