@@ -21,14 +21,8 @@
 
   /* Image preview */
   if (fileInput && previewContainer) {
-    fileInput.addEventListener('change', function () {
+    function renderPreviews(files) {
       previewContainer.innerHTML = '';
-      const files = fileInput.files;
-      if (files.length > 10) {
-        showError('সর্বোচ্চ ১০টি ছবি আপলোড করা যায়');
-        fileInput.value = '';
-        return;
-      }
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         const reader = new FileReader();
         reader.onload = function (event) {
@@ -39,7 +33,40 @@
         };
         reader.readAsDataURL(files[fileIndex]);
       }
+    }
+
+    fileInput.addEventListener('change', function () {
+      const files = fileInput.files;
+      if (files.length > 10) {
+        showError('সর্বোচ্চ ১০টি ছবি আপলোড করা যায়');
+        fileInput.value = '';
+        return;
+      }
+      renderPreviews(files);
     });
+
+    /* Camera input — captured photo previews alongside gallery picks */
+    const cameraInput = document.getElementById('art-upload-camera');
+    if (cameraInput) {
+      cameraInput.addEventListener('change', function () {
+        if (cameraInput.files && cameraInput.files.length) {
+          /* Merge camera file into main file input via DataTransfer */
+          const dataTransfer = new DataTransfer();
+          for (let i = 0; i < fileInput.files.length; i++) {
+            dataTransfer.items.add(fileInput.files[i]);
+          }
+          for (let j = 0; j < cameraInput.files.length; j++) {
+            dataTransfer.items.add(cameraInput.files[j]);
+          }
+          if (dataTransfer.files.length > 10) {
+            showError('সর্বোচ্চ ১০টি ছবি আপলোড করা যায়');
+            return;
+          }
+          fileInput.files = dataTransfer.files;
+          renderPreviews(fileInput.files);
+        }
+      });
+    }
   }
 
   /* Form submit */

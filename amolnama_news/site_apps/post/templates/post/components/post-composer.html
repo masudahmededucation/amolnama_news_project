@@ -14,9 +14,14 @@
     <textarea class="post-composer-textarea" id="post-composer-textarea" name="post_composer_textarea" placeholder="কী ঘটছে?" maxlength="1000" rows="1" data-bangla-input="true"></textarea>
     <div class="post-composer-media-bar" id="post-composer-media-bar" name="post_composer_media_bar">
       <label class="post-composer-media-option post-composer-media-option-photo-video" id="post-composer-photo-video-option" name="post_composer_photo_video_option" title="ছবি/ভিডিও যোগ করুন (Add photo/video)">
-        <span class="post-composer-media-option-icon">🖼️ 🎥</span>
+        <span class="post-composer-media-option-icon">🖼️</span>
         <span class="post-composer-media-option-label">ছবি/ভিডিও</span>
         <input type="file" id="post-composer-media-input" name="post_composer_media_input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" multiple hidden>
+      </label>
+      <label class="post-composer-media-option post-composer-media-option-camera" id="post-composer-camera-option" name="post_composer_camera_option" title="ক্যামেরা দিয়ে তুলুন (Take photo)">
+        <span class="post-composer-media-option-icon">📷</span>
+        <span class="post-composer-media-option-label">ক্যামেরা</span>
+        <input type="file" id="post-composer-camera-input" name="post_composer_camera_input" accept="image/*" capture="environment" hidden>
       </label>
       <button type="button" class="post-composer-media-option post-composer-media-option-emoji" id="post-composer-emoji-button" name="post_composer_emoji_button" title="ইমোজি (Emoji)">
         <span class="post-composer-media-option-icon">😊</span>

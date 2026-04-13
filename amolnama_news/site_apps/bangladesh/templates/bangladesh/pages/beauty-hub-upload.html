@@ -32,8 +32,13 @@
 <form id="beauty-hub-upload-form" name="beauty_hub_upload_form" class="beauty-hub-upload-form" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
   <div class="form-group">
-    <label for="beauty-hub-file" class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
-    <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input">
+    <label class="form-label" data-en="Choose File *">ফাইল আপলোড করুন *</label>
+    <div class="file-upload-actions">
+      <label class="file-upload-camera-button" for="beauty-hub-camera-file">📷 ক্যামেরা (Camera)</label>
+      <label class="file-upload-add-button" for="beauty-hub-file">📁 ফাইল নির্বাচন (Choose File)</label>
+    </div>
+    <input type="file" id="beauty-hub-file" name="beauty_hub_file" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" required class="form-input" hidden>
+    <input type="file" id="beauty-hub-camera-file" name="beauty_hub_camera_file" accept="image/*" capture="environment" hidden>
     <div id="beauty-hub-file-preview" name="beauty_hub_file_preview" class="beauty-hub-file-preview" hidden>
       <img id="beauty-hub-image-preview" name="beauty_hub_image_preview" class="beauty-hub-media-preview" hidden>
       <video id="beauty-hub-video-preview" name="beauty_hub_video_preview" class="beauty-hub-media-preview" hidden controls></video>

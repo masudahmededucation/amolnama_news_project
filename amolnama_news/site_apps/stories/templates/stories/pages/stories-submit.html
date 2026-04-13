@@ -65,8 +65,13 @@
     </div>
 
     <div class="stories-submit-field">
-      <label for="stories-submit-cover" class="stories-submit-label">কভার ছবি</label>
-      <input type="file" class="stories-submit-file-input" id="stories-submit-cover" name="story_cover_image" accept="image/jpeg,image/png,image/webp,image/gif">
+      <label class="stories-submit-label">কভার ছবি</label>
+      <div class="file-upload-actions">
+        <label class="file-upload-camera-button" for="stories-submit-camera">📷 ক্যামেরা (Camera)</label>
+        <label class="file-upload-add-button" for="stories-submit-cover">📁 ফাইল নির্বাচন (Choose File)</label>
+      </div>
+      <input type="file" class="stories-submit-file-input" id="stories-submit-cover" name="story_cover_image" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+      <input type="file" id="stories-submit-camera" name="stories_submit_camera" accept="image/*" capture="environment" hidden>
       <p class="stories-submit-hint">গল্পের কভার ছবি আপলোড করুন (ঐচ্ছিক)</p>
     </div>
 

@@ -190,6 +190,9 @@
 .post-composer-media-option-photo-video { border-color: #bbf7d0; }
 .post-composer-media-option-photo-video:hover { border-color: var(--success); color: #16a34a; box-shadow: 0 2px 8px rgba(34,197,94,.12); }
 .post-composer-media-option-photo-video .post-composer-media-option-icon { color: var(--success); }
+.post-composer-media-option-camera { border-color: #bfdbfe; }
+.post-composer-media-option-camera:hover { border-color: var(--info); color: var(--info); box-shadow: var(--elevation-1); }
+.post-composer-media-option-camera .post-composer-media-option-icon { color: var(--info); }
 .post-composer-media-option-emoji { border-color: #fde68a; }
 .post-composer-media-option-emoji:hover { border-color: var(--warning); color: var(--warning); box-shadow: 0 2px 8px rgba(245,158,11,.12); }
 .post-composer-media-option-emoji .post-composer-media-option-icon { color: var(--warning); }

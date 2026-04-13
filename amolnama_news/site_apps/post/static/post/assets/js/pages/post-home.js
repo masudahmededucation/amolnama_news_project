@@ -402,18 +402,29 @@
   const mediaPreviewContainer = document.getElementById('post-composer-media-preview');
   let selectedMediaFiles = [];
 
+  function handleMediaFileChange(fileInput) {
+    const files = Array.from(fileInput.files);
+    if (selectedMediaFiles.length + files.length > 4) {
+      return;
+    }
+    selectedMediaFiles = selectedMediaFiles.concat(files).slice(0, 4);
+    renderMediaPreviews();
+    if (submitButton && selectedMediaFiles.length > 0) {
+      submitButton.disabled = false;
+    }
+  }
+
   if (mediaInput && mediaPreviewContainer) {
     mediaInput.addEventListener('change', function () {
-      const files = Array.from(mediaInput.files);
-      if (selectedMediaFiles.length + files.length > 4) {
-        return;
-      }
-      selectedMediaFiles = selectedMediaFiles.concat(files).slice(0, 4);
-      renderMediaPreviews();
-      /* Enable submit when media is selected */
-      if (submitButton && selectedMediaFiles.length > 0) {
-        submitButton.disabled = false;
-      }
+      handleMediaFileChange(mediaInput);
+    });
+  }
+
+  /* Camera input — feeds into the same media pipeline */
+  const cameraInput = document.getElementById('post-composer-camera-input');
+  if (cameraInput && mediaPreviewContainer) {
+    cameraInput.addEventListener('change', function () {
+      handleMediaFileChange(cameraInput);
     });
   }
 

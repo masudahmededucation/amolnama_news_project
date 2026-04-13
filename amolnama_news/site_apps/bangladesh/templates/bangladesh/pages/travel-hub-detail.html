@@ -117,9 +117,14 @@
     {% if user.is_authenticated %}
     <div class="travel-hub-detail-add-form" id="travel-hub-detail-photo-form" name="travel_hub_detail_photo_form">
       <div class="travel-hub-detail-add-form-row">
-        <input type="file" id="travel-hub-detail-photo-file" name="travel-hub-detail-photo-file" accept="image/jpeg,image/png,image/webp" class="travel-hub-detail-file-input">
+        <div class="file-upload-actions">
+          <label class="file-upload-camera-button" for="travel-hub-detail-camera-file">📷 ক্যামেরা</label>
+          <label class="file-upload-add-button" for="travel-hub-detail-photo-file">📁 ফাইল</label>
+        </div>
+        <input type="file" id="travel-hub-detail-photo-file" name="travel-hub-detail-photo-file" accept="image/jpeg,image/png,image/webp" class="travel-hub-detail-file-input" hidden>
+        <input type="file" id="travel-hub-detail-camera-file" name="travel_hub_detail_camera_file" accept="image/*" capture="environment" hidden>
         <input type="text" id="travel-hub-detail-photo-caption" name="travel-hub-detail-photo-caption" placeholder="ছবির ক্যাপশন (Caption)" class="travel-hub-detail-text-input" maxlength="500">
-        <button type="button" id="travel-hub-detail-photo-upload-button" name="travel_hub_detail_photo_upload" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ আপলোড 📷</button>
+        <button type="button" id="travel-hub-detail-photo-upload-button" name="travel_hub_detail_photo_upload" class="travel-hub-detail-add-button" data-dest-id="{{ dest.blog_bangladesh_coll_destination_id }}">+ আপলোড</button>
       </div>
     </div>
     {% endif %}
