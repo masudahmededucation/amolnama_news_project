@@ -419,14 +419,19 @@
         if (attachedFiles.length >= MAX_COUNT) return;
         if (window.cameraCapture) {
           window.cameraCapture.open(function (capturedFile) {
+            console.error('Camera callback fired. File:', capturedFile.name, capturedFile.size, capturedFile.type);
+            console.error('attachedFiles before:', attachedFiles.length);
+            console.error('fileListContainer:', fileListContainer, 'hidden:', fileListContainer.hidden);
             try {
               attachedFiles.push(capturedFile);
               fileDescriptions.push('');
               syncFilesToFormInput();
               syncDescriptions();
               renderFileList();
+              console.error('Camera attach SUCCESS. attachedFiles after:', attachedFiles.length);
+              console.error('fileListContainer after:', fileListContainer.hidden, fileListContainer.innerHTML.substring(0, 200));
             } catch (cameraAttachError) {
-              console.error('Camera attach failed:', cameraAttachError);
+              console.error('Camera attach FAILED:', cameraAttachError);
             }
           });
         }
