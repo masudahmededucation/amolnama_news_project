@@ -97,7 +97,10 @@ document.getElementById('tools-scroll-pill').onclick = function () {
   window.scrollBy({ top: 400, behavior: 'smooth' });
 };
 window.addEventListener('scroll', function handler() {
-  if (window.scrollY > 200) {
+  var toolsGrid = document.querySelector('.tools-grid');
+  if (!toolsGrid) return;
+  var gridBottom = toolsGrid.getBoundingClientRect().bottom;
+  if (gridBottom <= window.innerHeight) {
     document.getElementById('tools-scroll-pill').style.display = 'none';
     window.removeEventListener('scroll', handler);
   }
