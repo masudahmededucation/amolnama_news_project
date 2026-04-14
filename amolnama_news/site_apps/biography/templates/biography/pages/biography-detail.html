@@ -1,0 +1,146 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load content_tags %}
+
+{% block title %}{{ entry.biography_entry_title_bn }} — জীবনকথা{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'biography/assets/css/pages/biography-detail.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="biography-detail">
+
+  {% if entry.cover_image_url %}
+  <div class="biography-detail-hero" id="biography-detail-hero" name="biography_detail_hero">
+    <img src="{{ entry.cover_image_url }}" alt="{{ entry.biography_entry_title_bn }}" class="biography-detail-hero-image" fetchpriority="high">
+  </div>
+  {% endif %}
+
+  <div class="biography-detail-header" id="biography-detail-header" name="biography_detail_header">
+    {% if category %}<span class="biography-detail-category">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</span>{% endif %}
+    {% if entry.is_memoriam %}<span class="biography-detail-memoriam-badge">🕯️ স্মৃতিচারণ</span>{% endif %}
+    <h1 class="biography-detail-title">{{ entry.biography_entry_title_bn }}</h1>
+    {% if entry.biography_entry_title_en %}<p class="biography-detail-subtitle">{{ entry.biography_entry_title_en }}</p>{% endif %}
+  </div>
+
+  {# ===== Subject info card (Wikipedia-style) ===== #}
+  {% if entry.subject_full_name_bn or entry.subject_birth_date or entry.subject_occupation_bn %}
+  <div class="biography-detail-infobox" id="biography-detail-infobox" name="biography_detail_infobox">
+    <table class="biography-detail-infobox-table">
+      {% if entry.subject_full_name_bn %}<tr><th>পূর্ণ নাম</th><td>{{ entry.subject_full_name_bn }}{% if entry.subject_full_name_en %} ({{ entry.subject_full_name_en }}){% endif %}</td></tr>{% endif %}
+      {% if entry.subject_birth_date %}<tr><th>জন্ম</th><td>{{ entry.subject_birth_date }}{% if entry.subject_birth_place_bn %} · {{ entry.subject_birth_place_bn }}{% endif %}</td></tr>{% endif %}
+      {% if entry.subject_death_date %}<tr><th>মৃত্যু</th><td>{{ entry.subject_death_date }}</td></tr>{% endif %}
+      {% if entry.subject_nationality_bn %}<tr><th>জাতীয়তা</th><td>{{ entry.subject_nationality_bn }}</td></tr>{% endif %}
+      {% if entry.subject_occupation_bn %}<tr><th>পেশা</th><td>{{ entry.subject_occupation_bn }}</td></tr>{% endif %}
+      {% if entry.subject_known_for_bn %}<tr><th>পরিচিত</th><td>{{ entry.subject_known_for_bn }}</td></tr>{% endif %}
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="biography-detail-meta">
+    <span>👁 {{ biography_entry_view_count }}</span>
+    <span>{{ entry.time_ago }}</span>
+    <span>✍️ {{ author_display_name }}</span>
+  </div>
+
+  {% content_actions_bar entry.blog_biography_coll_biography_entry_id entry.biography_entry_title_bn "biography" position="top" like_count=biography_entry_like_count view_count=biography_entry_view_count %}
+
+  {# ===== Main description ===== #}
+  {% if entry.biography_entry_description_bn %}
+  <div class="biography-detail-description" id="biography-detail-description" name="biography_detail_description">
+    {{ entry.biography_entry_description_bn|safe }}
+  </div>
+  {% endif %}
+
+  {# ===== Life sections (Early Life, Education, Career, Legacy) ===== #}
+  {% if life_sections %}
+  <div class="biography-detail-life-sections" id="biography-detail-life-sections" name="biography_detail_life_sections">
+    {% for section in life_sections %}
+    <div class="biography-detail-life-section" id="biography-detail-life-section-{{ section.section_id }}" name="biography_detail_life_section_{{ section.section_id }}">
+      <h2 class="biography-detail-life-section-title">
+        {{ section.title_bn }}
+        {% if section.start_year %}<span class="biography-detail-life-section-years">({{ section.start_year }}{% if section.end_year %}-{{ section.end_year }}{% endif %})</span>{% endif %}
+      </h2>
+      {% if section.content_bn %}<div class="biography-detail-life-section-content">{{ section.content_bn|safe }}</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ===== Famous quotes ===== #}
+  {% if quotes %}
+  <div class="biography-detail-section" id="biography-detail-quotes-section" name="biography_detail_quotes_section">
+    <h2 class="biography-detail-section-title">💬 বিখ্যাত উক্তি</h2>
+    <div class="biography-detail-quotes">
+      {% for quote in quotes %}
+      <div class="biography-detail-quote-card" id="biography-detail-quote-{{ quote.quote_id }}" name="biography_detail_quote_{{ quote.quote_id }}">
+        <span class="biography-detail-quote-title">{{ quote.title_bn }}</span>
+        <blockquote class="biography-detail-quote-text">"{{ quote.text_bn }}"</blockquote>
+        {% if quote.explanation_bn %}<p class="biography-detail-quote-explanation">{{ quote.explanation_bn }}</p>{% endif %}
+        {% if quote.source_bn %}<span class="biography-detail-quote-source">— {{ quote.source_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ===== Photos ===== #}
+  {% if photos %}
+  <div class="biography-detail-section" id="biography-detail-photos-section" name="biography_detail_photos_section">
+    <h2 class="biography-detail-section-title">📷 ছবি</h2>
+    <div class="biography-detail-photo-grid">
+      {% for photo in photos %}
+      <div class="biography-detail-photo-card" id="biography-detail-photo-{{ photo.photo_id }}" name="biography_detail_photo_{{ photo.photo_id }}">
+        <img src="{{ photo.photo_url }}" alt="{{ photo.caption_bn|default:'Photo' }}" loading="lazy" decoding="async" class="biography-detail-photo-image">
+        {% if photo.era_label_bn %}<span class="biography-detail-photo-era">{{ photo.era_label_bn }}</span>{% endif %}
+        {% if photo.caption_bn %}<span class="biography-detail-photo-caption">{{ photo.caption_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ===== YouTube videos ===== #}
+  {% if youtube_links %}
+  <div class="biography-detail-section" id="biography-detail-youtube-section" name="biography_detail_youtube_section">
+    <h2 class="biography-detail-section-title">🎬 ভিডিও</h2>
+    <div class="biography-detail-video-grid">
+      {% for video in youtube_links %}
+      <a href="{{ video.url }}" target="_blank" rel="noopener" class="biography-detail-video-card" id="biography-detail-video-{{ video.link_id }}" name="biography_detail_video_{{ video.link_id }}">
+        {% if video.thumbnail_url %}<img src="{{ video.thumbnail_url }}" alt="{{ video.title_bn|default:'Video' }}" loading="lazy" decoding="async" class="biography-detail-video-thumbnail">{% endif %}
+        <span class="biography-detail-video-title">{{ video.title_bn|default:video.url }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ===== Tributes (memoriam only) ===== #}
+  {% if entry.is_memoriam %}
+  <div class="biography-detail-section" id="biography-detail-tributes-section" name="biography_detail_tributes_section">
+    <h2 class="biography-detail-section-title">🕯️ শ্রদ্ধাঞ্জলি</h2>
+    {% if tributes %}
+    <div class="biography-detail-tributes">
+      {% for tribute in tributes %}
+      <div class="biography-detail-tribute-card" id="biography-detail-tribute-{{ tribute.tribute_id }}" name="biography_detail_tribute_{{ tribute.tribute_id }}">
+        <p class="biography-detail-tribute-text">"{{ tribute.text_bn }}"</p>
+        {% if tribute.relationship_bn %}<span class="biography-detail-tribute-relationship">— {{ tribute.relationship_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="biography-detail-tribute-empty">এখনো কোনো শ্রদ্ধাঞ্জলি যোগ করা হয়নি।</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% content_actions_bar entry.blog_biography_coll_biography_entry_id entry.biography_entry_title_bn "biography" position="bottom" like_count=biography_entry_like_count view_count=biography_entry_view_count %}
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
+{% endblock %}

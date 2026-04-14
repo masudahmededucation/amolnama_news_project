@@ -8,11 +8,63 @@
 {% endblock %}
 
 {% block content %}
-<section class="biography-landing">
-  <h1 class="biography-landing-title">জীবনকথা</h1>
-  <p class="biography-landing-subtitle">মহান ব্যক্তিদের জীবনী, অনুপ্রেরণামূলক গল্প এবং জীবনের শিক্ষা</p>
+<section class="biography-header">
+  <div class="biography-header-text">
+    <h1 class="biography-header-title">জীবনকথা</h1>
+    <p class="biography-header-subtitle">মহান ব্যক্তিদের জীবনী, অনুপ্রেরণামূলক গল্প এবং জীবনের শিক্ষা</p>
+  </div>
+  {% if user.is_authenticated %}
+  <a href="{% url 'biography:add' %}" class="biography-header-add-button" id="biography-header-add-button" name="biography_header_add_button">+ জীবনকথা লিখুন</a>
+  {% else %}
+  <a href="/account/login/?next={% url 'biography:add' %}" class="biography-header-add-button" id="biography-header-add-button" name="biography_header_add_button">+ জীবনকথা লিখুন</a>
+  {% endif %}
 </section>
+
+<div class="biography-filter-pills" id="biography-filter-pills" name="biography_filter_pills">
+  <button type="button" class="biography-filter-pill biography-filter-pill--active" data-category="" id="biography-filter-pill-all" name="biography_filter_pill_all">সব ধরন</button>
+  {% for category in categories %}
+  <button type="button" class="biography-filter-pill" data-category="{{ category.content_ref_content_subcategory_id }}" id="biography-filter-pill-{{ category.subcategory_code }}" name="biography_filter_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</button>
+  {% endfor %}
+</div>
+
+<div class="biography-entry-grid" id="biography-entry-grid" name="biography_entry_grid">
+  {% for entry in entries %}
+  <a href="{% url 'biography:detail' biography_entry_slug=entry.biography_entry_slug %}" class="biography-entry-card" data-category="{{ entry.link_content_ref_content_subcategory_id }}" id="biography-entry-card-{{ entry.blog_biography_coll_biography_entry_id }}" name="biography_entry_card_{{ entry.blog_biography_coll_biography_entry_id }}">
+    <div class="biography-entry-card-image">
+      {% if entry.cover_image_url %}
+      <img src="{{ entry.cover_image_url }}" alt="{{ entry.biography_entry_title_bn }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="biography-entry-card-placeholder">📖</div>
+      {% endif %}
+    </div>
+    <div class="biography-entry-card-body">
+      {% if entry.category_icon %}<span class="biography-entry-card-category">{{ entry.category_icon }} {{ entry.category_name_bn }}</span>{% endif %}
+      <h3 class="biography-entry-card-title">{{ entry.biography_entry_title_bn }}</h3>
+      {% if entry.subject_occupation_bn %}<span class="biography-entry-card-occupation">{{ entry.subject_occupation_bn }}</span>{% endif %}
+      {% if entry.biography_entry_short_description_bn %}<p class="biography-entry-card-description">{{ entry.biography_entry_short_description_bn|truncatewords:25 }}</p>{% endif %}
+      <div class="biography-entry-card-footer">
+        <span class="biography-entry-card-stat">👁 {{ entry.view_count }}</span>
+        {% if entry.is_memoriam %}<span class="biography-entry-card-memoriam">🕯️ স্মৃতিচারণ</span>{% endif %}
+        <span class="biography-entry-card-time">{{ entry.time_ago }}</span>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="biography-empty-state" id="biography-empty-state" name="biography_empty_state">
+    <div class="biography-empty-state-icon">📖</div>
+    <p class="biography-empty-state-text">এখনো কোনো জীবনকথা যোগ করা হয়নি</p>
+    <p class="biography-empty-state-hint">প্রথম জীবনকথা লিখুন — একজন মহান ব্যক্তির গল্প শেয়ার করুন!</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% if has_next %}
+<div class="biography-load-more">
+  <button type="button" class="biography-load-more-button" id="biography-load-more-button" name="biography_load_more_button">আরো দেখুন</button>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'biography/assets/js/pages/biography-home.js' %}" defer></script>
 {% endblock %}

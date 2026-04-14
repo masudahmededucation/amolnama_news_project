@@ -1,0 +1,89 @@
+--biography app feature research
+জীবনকথা (Jibonkotha) — Biography Platform
+
+== Phase 1 (build now — blog pattern) ==
+
+Gallery Section Titles:
+- প্রারম্ভিক জীবন (Early Life)
+- শিক্ষাজীবন (Education)
+- কর্মজীবন (Career)
+- পারিবারিক জীবন (Family)
+- অবদান (Contributions)
+- উত্তরাধিকার (Legacy)
+- স্মৃতিচারণ (Memoriam/Tribute)
+
+Categories (DB-driven pills):
+- ঐতিহাসিক ব্যক্তি (Historical Figure)
+- শিক্ষাবিদ (Educator)
+- বিজ্ঞানী (Scientist)
+- শিল্পী (Artist)
+- সাহিত্যিক (Writer/Poet)
+- রাজনীতিবিদ (Politician)
+- ক্রীড়াবিদ (Sportsperson)
+- উদ্যোক্তা (Entrepreneur)
+- সমাজসেবক (Social Worker)
+- ধর্মীয় ব্যক্তিত্ব (Religious Figure)
+- পারিবারিক জীবনী (Family Biography)
+- স্থানীয় কিংবদন্তি (Local Legend)
+
+Core features (Phase 1):
+- Rich text biography (Quill editor — already available)
+- Cover image + photo gallery (existing blog pattern)
+- YouTube video links (existing pattern)
+- Category filter pills (DB-driven)
+- Actions bar (like/bookmark/share — shared component)
+- Subject info: name, birth/death dates, birthplace, occupation
+- Bengali slug for SEO
+
+== Phase 2 (future) ==
+
+1. The Storyteller's Workshop (Creation & Editing Suite)
+   A. Rich Text Editor — block-based (Gutenberg/Notion style)
+      - Formatting: Bold, Italic, Underline, Strikethrough, Hyperlinks
+      - Headings: H1, H2, H3 for sectioning (Early Life, Career, Family)
+      - Block Types: Lists, blockquotes, separators
+      - Drafting & Revisions: autosave + revision history
+
+   B. Comprehensive Audio Integration
+      - Direct audio upload (MP3, WAV, AAC)
+      - In-app recording via microphone
+      - Custom audio player (play/pause, waveform, seek bar)
+      - Transcription support (optional AI transcription)
+
+   C. Video Integration & Display
+      - Direct video upload (MP4/MOV)
+      - Embed support (YouTube, Vimeo, Dailymotion)
+      - Custom video player with captions/subtitles (VTT/SRT)
+
+   D. Supporting Media & Documents
+      - Inline images within text flow
+      - Photo galleries grouped by life period
+      - Document uploads (certificates, letters, news clippings as PDF/image)
+
+2. Structuring and Navigating
+   A. Dynamic Timeline View
+      - Interactive vertical/horizontal timeline
+      - Auto-generated from key dates
+      - Click milestone → jump to chapter
+
+   B. Posthumous Tributes / In Memoriam
+      - Dedicated memoriam biography type
+      - Collaborative creation (multiple authors)
+      - Tributes guestbook (moderated, separate from comments)
+
+   C. Content Categorization
+      - Pre-defined categories + custom tags
+      - Era/decade filtering
+      - Origin location filtering
+
+3. Search, Discovery, and Engagement
+   A. Advanced Search — multivariable filtering
+   B. Moderated comments
+   C. Bookmark/reading list
+   D. Professional sharing (email, WhatsApp, LinkedIn)
+
+== Inspiration ==
+- StoryCorps — oral histories (text + audio)
+- Medium — clean block-based editor
+- Ancestry.com / MyHeritage — timelines, documents, family collaboration
+- Online memoriam sites — tribute guestbooks, co-authoring

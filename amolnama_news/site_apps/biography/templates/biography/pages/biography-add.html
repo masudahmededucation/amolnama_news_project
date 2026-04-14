@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}জীবনকথা যোগ করুন — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'biography/assets/css/pages/biography-add.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="biography-add">
+  <a href="{% url 'biography:home' %}" class="biography-add-back">&larr; জীবনকথায় ফিরুন</a>
+  <h1 class="biography-add-title">জীবনকথা যোগ করুন</h1>
+  <p class="biography-add-subtitle">একজন মহান ব্যক্তির জীবনকথা লিখুন এবং শেয়ার করুন</p>
+
+  <form class="biography-add-form" id="biography-add-form" name="biography_add_form">
+    {# Category #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-category" class="biography-add-label">ধরন (Category)</label>
+      <select id="biography-add-category" name="biography_add_category" class="biography-add-select" required>
+        <option value="">নির্বাচন করুন</option>
+        {% for category in categories %}
+        <option value="{{ category.content_ref_content_subcategory_id }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }} ({{ category.subcategory_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {# Title #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-title-bn" class="biography-add-label">শিরোনাম (Title) *</label>
+      <input type="text" id="biography-add-title-bn" name="biography_add_title_bn" class="biography-add-input" maxlength="300" required placeholder="আপনার এন্ট্রির শিরোনাম" data-bangla-input="true">
+    </div>
+
+    {# Institution #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-institution-name-bn" class="biography-add-label">প্রতিষ্ঠানের নাম (Institution)</label>
+      <input type="text" id="biography-add-institution-name-bn" name="biography_add_institution_name_bn" class="biography-add-input" maxlength="300" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়" data-bangla-input="true">
+    </div>
+
+    {# Institution type #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-institution-type" class="biography-add-label">প্রতিষ্ঠানের ধরন</label>
+      <select id="biography-add-institution-type" name="biography_add_institution_type" class="biography-add-select">
+        <option value="">নির্বাচন করুন</option>
+        <option value="university">বিশ্ববিদ্যালয়</option>
+        <option value="college">কলেজ</option>
+        <option value="school">স্কুল</option>
+        <option value="madrasa">মাদ্রাসা</option>
+        <option value="other">অন্যান্য</option>
+      </select>
+    </div>
+
+    {# Location #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-institution-location" class="biography-add-label">অবস্থান (Location)</label>
+      <input type="text" id="biography-add-institution-location" name="biography_add_institution_location" class="biography-add-input" maxlength="300" placeholder="যেমন: মতিঝিল, ঢাকা" data-bangla-input="true">
+    </div>
+
+    {# Short description #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-short-description" class="biography-add-label">সংক্ষিপ্ত বিবরণ</label>
+      <input type="text" id="biography-add-short-description" name="biography_add_short_description" class="biography-add-input" maxlength="500" placeholder="এক লাইনে সারসংক্ষেপ" data-bangla-input="true">
+    </div>
+
+    {# Description #}
+    <div class="biography-add-field-group">
+      <label for="biography-add-description" class="biography-add-label">বিস্তারিত বিবরণ</label>
+      <textarea id="biography-add-description" name="biography_add_description" class="biography-add-textarea" rows="6" placeholder="আপনার ক্যাম্পাসের গল্প বিস্তারিত লিখুন..." data-bangla-input="true"></textarea>
+    </div>
+
+    {# Submit #}
+    <div class="biography-add-actions">
+      <button type="submit" class="biography-add-submit-button" id="biography-add-submit-button" name="biography_add_submit_button">প্রকাশ করুন (Publish)</button>
+    </div>
+
+    {# Inline message #}
+    <div class="biography-add-message" id="biography-add-message" name="biography_add_message" hidden></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'biography/assets/js/pages/biography-add.js' %}" defer></script>
+{% endblock %}

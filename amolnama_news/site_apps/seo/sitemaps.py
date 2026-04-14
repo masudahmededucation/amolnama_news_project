@@ -16,6 +16,7 @@ from amolnama_news.site_apps.poem.models import CollPoemEntry
 from amolnama_news.site_apps.stories.models import CollStory
 from amolnama_news.site_apps.studentlife.models import CollCampusEntry
 from amolnama_news.site_apps.probashbarta.models import CollProbashEntry
+from amolnama_news.site_apps.biography.models import CollBiographyEntry
 
 
 class StaticPageSitemap(Sitemap):
@@ -348,6 +349,37 @@ class ProbashBartaDetailSitemap(Sitemap):
         return f'/probash-barta/{entry.probash_entry_slug}/'
 
 
+class BiographyLandingSitemap(Sitemap):
+    """Biography landing page."""
+    changefreq = "weekly"
+    priority = 0.6
+    protocol = "https"
+
+    def items(self):
+        return ["biography:home"]
+
+    def location(self, item):
+        return reverse(item)
+
+
+class BiographyDetailSitemap(Sitemap):
+    """Individual biography entries."""
+    changefreq = "monthly"
+    priority = 0.5
+    protocol = "https"
+
+    def items(self):
+        return CollBiographyEntry.objects.filter(
+            biography_entry_status_code='published', is_active=True,
+        ).exclude(biography_entry_slug__isnull=True).exclude(biography_entry_slug='').order_by('-created_at')
+
+    def lastmod(self, entry):
+        return entry.updated_at or entry.created_at
+
+    def location(self, entry):
+        return f'/jibonkotha/{entry.biography_entry_slug}/'
+
+
 # Registry for urls.py
 SITEMAPS = {
     "static": StaticPageSitemap,
@@ -370,4 +402,6 @@ SITEMAPS = {
     "campus_life_detail": CampusLifeDetailSitemap,
     "probash_barta_landing": ProbashBartaLandingSitemap,
     "probash_barta_detail": ProbashBartaDetailSitemap,
+    "biography_landing": BiographyLandingSitemap,
+    "biography_detail": BiographyDetailSitemap,
 }
