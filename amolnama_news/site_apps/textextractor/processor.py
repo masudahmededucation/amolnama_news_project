@@ -257,9 +257,9 @@ def create_job_from_file(file_path, user_profile_id=None, folder_watcher_id=None
 
     source_type = 'folder_watcher' if folder_watcher_id else 'web_upload'
 
-    # Determine output path — always use media/textextractor/output/
+    # Determine output path — always use media/app_static/admin_tools/textextractor/output/
     from django.conf import settings
-    output_directory = os.path.join(settings.MEDIA_ROOT, 'textextractor', 'output')
+    output_directory = os.path.join(settings.MEDIA_ROOT, 'app_static', 'admin_tools', 'textextractor', 'output')
     os.makedirs(output_directory, exist_ok=True)
     output_file_path = os.path.join(output_directory, f'EXTRACTED_{file_name}.txt')
 

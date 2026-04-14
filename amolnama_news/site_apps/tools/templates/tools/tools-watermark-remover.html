@@ -40,7 +40,26 @@
       </div>
     </div>
 
-    <p class="wmr-instruction">ওয়াটারমার্কের উপর ব্রাশ করুন (লাল রং দেখাবে) → তারপর "রিমুভ" চাপুন<br>Brush over the watermark (shown in red) → then click "Remove"</p>
+    <div class="wmr-guide" id="wmr-guide" name="wmr_guide">
+      <p class="wmr-guide-title">কিভাবে কাজ করে (How it works)</p>
+      <div class="wmr-guide-visual-steps">
+        <div class="wmr-guide-visual-step">
+          <img src="{% static 'tools/assets/img/watermark-guide/step-1-original.webp' %}" alt="Step 1: Original image with watermark" class="wmr-guide-visual-step-image" loading="lazy" decoding="async">
+          <span class="wmr-guide-visual-step-label">১. ছবি আপলোড করুন</span>
+          <span class="wmr-guide-hint">Upload your image</span>
+        </div>
+        <div class="wmr-guide-visual-step">
+          <img src="{% static 'tools/assets/img/watermark-guide/step-2-brushed.webp' %}" alt="Step 2: Brush over watermark with red paint" class="wmr-guide-visual-step-image" loading="lazy" decoding="async">
+          <span class="wmr-guide-visual-step-label">২. লাল ব্রাশ দিয়ে রং করুন</span>
+          <span class="wmr-guide-hint">Brush over the watermark</span>
+        </div>
+        <div class="wmr-guide-visual-step">
+          <img src="{% static 'tools/assets/img/watermark-guide/step-3-result.webp' %}" alt="Step 3: Clean result after AI removal" class="wmr-guide-visual-step-image" loading="lazy" decoding="async">
+          <span class="wmr-guide-visual-step-label">৩. ডাউনলোড করুন</span>
+          <span class="wmr-guide-hint">Download the clean image</span>
+        </div>
+      </div>
+    </div>
 
     <div class="wmr-canvas-wrapper" id="wmr-canvas-wrapper" name="wmr_canvas_wrapper">
       <canvas id="wmr-canvas" name="wmr_canvas"></canvas>

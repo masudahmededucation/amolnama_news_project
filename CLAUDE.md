@@ -182,6 +182,11 @@ amolnama_news/site_apps/
 7. **Don't pre-compute static lists** that the DB can return live. Cache the query if needed, never the list.
 5. **Never claim "shared/modular/used everywhere"** without grep-verifying it's actually used in every place.
 
+### File path references — update everywhere
+1. **When reorganizing media/static folder structure**, always update BOTH file system paths AND DB-stored path references. App-owned images (logos, guide samples, config images) may have paths stored in DB tables — grep for the old path across all tables and Python code.
+2. **Two types of images**: static assets (guide images, icons, logos → `static/`) vs user uploads (processing results, avatars → `media/`). Never mix them.
+3. **DB path updates**: when moving files, provide SQL UPDATE scripts to fix stored paths in all affected tables.
+
 ### When user says
 - **"Modularise"** = collapse to ONE source of truth, not config-dict the duplication.
 - **"Fix everywhere"** = find every instance of the pattern across the entire project, fix all in one session.

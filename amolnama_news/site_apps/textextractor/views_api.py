@@ -42,8 +42,8 @@ def api_extraction_upload(request):
     # Hide all previous jobs so dashboard only shows new upload(s)
     CollExtractionJob.objects.filter(is_active=True).update(is_active=False)
 
-    # Save uploaded file to media/textextractor/uploads/
-    upload_directory = os.path.join(settings.MEDIA_ROOT, 'textextractor', 'uploads')
+    # Save uploaded file to media/app_static/admin_tools/textextractor/uploads/
+    upload_directory = os.path.join(settings.MEDIA_ROOT, 'app_static', 'admin_tools', 'textextractor', 'uploads')
     os.makedirs(upload_directory, exist_ok=True)
 
     safe_filename = f'{uuid.uuid4()}_{uploaded_file.name}'
