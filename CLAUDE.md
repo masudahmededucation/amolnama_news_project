@@ -20,6 +20,7 @@ This is the master rule. Every other rule in this file is mandatory. There is no
 - **Don't half-do work then ask user to test.** Complete ALL fixes, verify ALL related code, bump cache, THEN report done.
 - **Don't say "later" or "next session"** for things the user said to do now.
 - **Don't silently abandon good solutions.** When a better approach has a technical blocker (install failure, compatibility issue, missing dependency), TELL the user immediately — show the error, suggest a workaround, ask for help. NEVER silently downgrade to a worse alternative without communicating why. The user can often solve blockers you can't.
+- **Don't dismiss errors as "pre-existing" or "not from my code".** If you see an error, warning, or 404 in the server logs — either fix it NOW or flag it clearly to the user with the exact error and location. Never say "that's a known issue" without acting. Log unfixed issues in `notes/claude/app_documentation/app-troubleshooting.txt`.
 - **Don't add new memory files when caught.** The rule already exists in this file. Re-read it.
 
 ---
@@ -285,6 +286,7 @@ Run through this 20-point scan after every change:
 - **Global file changes without verification** — audit impact
 - **Silent error swallowing** (except `pass`) — add inline message + log
 - **Missing CSP-allowed sources** for external scripts/fonts/tiles — add
+- **Check `notes/claude/app_documentation/app-troubleshooting.txt`** — verify all active issues are addressed or flagged to the user. Never leave the session with unacknowledged errors.
 
 ---
 

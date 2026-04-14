@@ -24,6 +24,8 @@
 
     function isComposerInDraftMode() {
       if (filePickerIsOpen) return true;
+      var emojiPicker = document.getElementById('post-composer-emoji-picker');
+      if (emojiPicker && !emojiPicker.hidden) return true;
       let textarea = composerElement.querySelector('.post-composer-textarea');
       const hasText = textarea && textarea.value.trim().length > 0;
       const previewContainer = document.getElementById('post-composer-media-preview');
@@ -328,8 +330,31 @@
     hearts: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','🫶','💑','💏','💋','🌹','🥀','💐','🌸','🌺','🌻','🌷'],
     objects: ['📰','🗞️','📸','📷','🎥','🎬','📺','📻','🎙️','🎤','🔔','📢','📣','🏆','🥇','🥈','🥉','⚽','🏏','🏀','🎾','🏐','🎯','🪁','🎮','🎰','🎲','♟️','🎭','🎨','🎪','🎟️','🎫','💰','💵','💸','🏦','📊','📈','📉','⚖️','🔒','🔓','🔑','🗝️','🛡️','⚔️','💣','🔫','💊','💉','🩺','🏥','🏫','🏢','🏗️'],
     nature: ['🌿','🍃','🌱','🌲','🌳','🌴','🌵','🌾','🌊','🌈','⭐','🌙','☀️','⛅','🌤️','🌧️','⛈️','🌩️','❄️','🔥','💧','🌍','🌏','🐦','🦅','🐟','🐬','🦋','🐝','🐞','🌸','🌺','🌻','🌹','🌷','🍀','🍁','🍂','🍃'],
-    flags: ['🇧🇩','🇮🇳','🇵🇰','🇸🇦','🇦🇪','🇲🇾','🇬🇧','🇺🇸','🇨🇦','🇦🇺','🇯🇵','🇰🇷','🇨🇳','🇫🇷','🇩🇪','🇮🇹','🇪🇸','🇧🇷','🇹🇷','🇶🇦','🇰🇼','🇴🇲','🇧🇭','🇯🇴','🇱🇧','🇮🇶','🇪🇬','🏳️','🏴','🏁','🚩','🏳️‍🌈'],
+    flags: ['🇧🇩','🇮🇳','🇵🇰','🇸🇦','🇦🇪','🇲🇾','🇬🇧','🇺🇸','🇨🇦','🇦🇺','🇯🇵','🇰🇷','🇨🇳','🇫🇷','🇩🇪','🇮🇹','🇪🇸','🇧🇷','🇹🇷','🇶🇦','🇰🇼','🇴🇲','🇧🇭','🇯🇴','🇱🇧','🇮🇶','🇪🇬'],
   };
+
+  /* Flag emoji → country code label (Windows doesn't render flag emojis) */
+  var flagLabels = {
+    '🇧🇩': 'BD', '🇮🇳': 'IN', '🇵🇰': 'PK', '🇸🇦': 'SA', '🇦🇪': 'AE',
+    '🇲🇾': 'MY', '🇬🇧': 'GB', '🇺🇸': 'US', '🇨🇦': 'CA', '🇦🇺': 'AU',
+    '🇯🇵': 'JP', '🇰🇷': 'KR', '🇨🇳': 'CN', '🇫🇷': 'FR', '🇩🇪': 'DE',
+    '🇮🇹': 'IT', '🇪🇸': 'ES', '🇧🇷': 'BR', '🇹🇷': 'TR', '🇶🇦': 'QA',
+    '🇰🇼': 'KW', '🇴🇲': 'OM', '🇧🇭': 'BH', '🇯🇴': 'JO', '🇱🇧': 'LB',
+    '🇮🇶': 'IQ', '🇪🇬': 'EG'
+  };
+
+  /* Convert flag emoji codepoints to Twemoji CDN image URL */
+  function getFlagImageUrl(flagEmoji) {
+    var codepoints = [];
+    for (var charIndex = 0; charIndex < flagEmoji.length; charIndex++) {
+      var codePoint = flagEmoji.codePointAt(charIndex);
+      if (codePoint > 0xFFFF) charIndex++; /* skip surrogate pair */
+      /* Skip variation selectors and ZWJ */
+      if (codePoint === 0xFE0F || codePoint === 0x200D) continue;
+      codepoints.push(codePoint.toString(16));
+    }
+    return 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/' + codepoints.join('-') + '.svg';
+  }
 
   const emojiPickerElement = document.getElementById('post-composer-emoji-picker');
   const emojiGridElement = document.getElementById('post-composer-emoji-grid');
@@ -339,22 +364,53 @@
     if (!emojiGridElement) return;
     const emojis = emojiCategories[categoryName] || [];
     emojiGridElement.innerHTML = '';
+    var isFlags = categoryName === 'flags';
     for (let emojiIndex = 0; emojiIndex < emojis.length; emojiIndex++) {
       let emojiItem = document.createElement('button');
       emojiItem.type = 'button';
       emojiItem.className = 'post-composer-emoji-item';
-      emojiItem.textContent = emojis[emojiIndex];
       emojiItem.setAttribute('data-emoji', emojis[emojiIndex]);
+
+      if (isFlags && flagLabels[emojis[emojiIndex]]) {
+        /* Render flag as image + country code for Windows compatibility */
+        var flagImage = document.createElement('img');
+        flagImage.src = getFlagImageUrl(emojis[emojiIndex]);
+        flagImage.alt = emojis[emojiIndex];
+        flagImage.width = 20;
+        flagImage.height = 20;
+        flagImage.loading = 'lazy';
+        flagImage.decoding = 'async';
+        flagImage.className = 'post-composer-flag-image';
+        var flagCode = document.createElement('span');
+        flagCode.className = 'post-composer-flag-code';
+        flagCode.textContent = flagLabels[emojis[emojiIndex]];
+        emojiItem.appendChild(flagImage);
+        emojiItem.appendChild(flagCode);
+        emojiItem.classList.add('post-composer-emoji-item--flag');
+      } else if (isFlags) {
+        /* Non-country flags (generic) — render as image only */
+        var genericFlagImage = document.createElement('img');
+        genericFlagImage.src = getFlagImageUrl(emojis[emojiIndex]);
+        genericFlagImage.alt = emojis[emojiIndex];
+        genericFlagImage.width = 22;
+        genericFlagImage.height = 22;
+        genericFlagImage.loading = 'lazy';
+        genericFlagImage.decoding = 'async';
+        emojiItem.appendChild(genericFlagImage);
+      } else {
+        emojiItem.textContent = emojis[emojiIndex];
+      }
+
       emojiGridElement.appendChild(emojiItem);
     }
   }
 
   if (emojiButton && emojiPickerElement) {
-    /* Toggle picker */
+    /* Toggle picker — uses hidden attribute (not style.display) */
     emojiButton.addEventListener('click', function () {
-      const isVisible = emojiPickerElement.style.display !== 'none';
-      emojiPickerElement.style.display = isVisible ? 'none' : 'block';
-      if (!isVisible) renderEmojiCategory('smileys');
+      var isHidden = emojiPickerElement.hidden;
+      emojiPickerElement.hidden = !isHidden;
+      if (isHidden) renderEmojiCategory('smileys');
     });
 
     /* Tab switching */
@@ -369,17 +425,31 @@
       });
     }
 
+    /* Close emoji picker when user manually clicks the textarea (not programmatic focus) */
+    var emojiInsertInProgress = false;
+    if (composerTextarea) {
+      composerTextarea.addEventListener('mousedown', function () {
+        if (!emojiInsertInProgress) {
+          emojiPickerElement.hidden = true;
+        }
+      });
+    }
+
     /* Insert emoji into textarea */
     emojiGridElement.addEventListener('click', function (event) {
       const emojiItem = event.target.closest('.post-composer-emoji-item');
       if (!emojiItem || !composerTextarea) return;
       const emoji = emojiItem.getAttribute('data-emoji');
+      /* Insert just the flag emoji — renders on mobile/Mac, shows as country code on Windows */
+      var insertText = emoji;
       const cursorPosition = composerTextarea.selectionStart;
       const textBefore = composerTextarea.value.substring(0, cursorPosition);
       const textAfter = composerTextarea.value.substring(composerTextarea.selectionEnd);
-      composerTextarea.value = textBefore + emoji + textAfter;
-      composerTextarea.selectionStart = composerTextarea.selectionEnd = cursorPosition + emoji.length;
+      composerTextarea.value = textBefore + insertText + textAfter;
+      composerTextarea.selectionStart = composerTextarea.selectionEnd = cursorPosition + insertText.length;
+      emojiInsertInProgress = true;
       composerTextarea.focus();
+      emojiInsertInProgress = false;
       composerTextarea.dispatchEvent(new Event('input'));
     });
   }

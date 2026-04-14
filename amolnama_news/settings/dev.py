@@ -29,11 +29,15 @@ STORAGES = {
     }
 }
 
-# Dev-friendly logging
+# Dev-friendly logging — prevent duplicate console output
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {
+        "django.server": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "django.request": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
     "root": {"handlers": ["console"], "level": "INFO"},
 }
 

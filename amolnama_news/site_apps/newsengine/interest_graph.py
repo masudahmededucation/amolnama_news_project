@@ -202,6 +202,15 @@ def record_dwell_time(user_profile_id, post_post_id, dwell_duration_seconds):
 
     ensure_user_node_exists(user_profile_id)
 
+    # Ensure post node exists (may not have been created if post predates graph)
+    try:
+        from amolnama_news.site_apps.post.models import Post
+        post_record = Post.objects.filter(post_post_id=post_post_id).only('link_user_profile_id').first()
+        if post_record:
+            create_post_node(post_post_id, post_record.link_user_profile_id)
+    except Exception:
+        pass  # Non-critical — dwell edge insert will fail gracefully below
+
     # Step 1: Log raw dwell time
     try:
         with connection.cursor() as cursor:

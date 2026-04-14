@@ -84,32 +84,31 @@ def encode_and_store_embedding(content_type_code, content_id, text):
 
     try:
         with connection.cursor() as cursor:
-            # CAST(%s AS NVARCHAR(MAX)) prevents pyodbc sending long strings
-            # as ntext which breaks UTF-8/_SC collation (see CLAUDE.md Gate 7 rule 11).
+            # Two-step upsert instead of MERGE — avoids pyodbc ntext binding
+            # issue where CAST(%s AS NVARCHAR(MAX)) in MERGE still fails because
+            # pyodbc binds the parameter as SQL_WLONGVARCHAR before SQL Server
+            # can cast it (see CLAUDE.md Gate 7 rule 11).
             cursor.execute("""
-                MERGE [newsengine].[fact_content_embedding] AS target
-                USING (SELECT %s AS embedding_content_type_code,
-                              %s AS embedding_content_id) AS source
-                ON target.embedding_content_type_code = source.embedding_content_type_code
-                   AND target.embedding_content_id = source.embedding_content_id
-                WHEN MATCHED THEN
-                    UPDATE SET
-                        embedding_vector_json = CAST(%s AS NVARCHAR(MAX)),
-                        embedding_model_name = %s,
-                        embedding_dimension_count = %s,
-                        modified_at = %s,
-                        is_active = 1
-                WHEN NOT MATCHED THEN
-                    INSERT (embedding_content_type_code, embedding_content_id,
-                            embedding_vector_json, embedding_model_name,
-                            embedding_dimension_count, is_active, created_at, modified_at)
-                    VALUES (%s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, 1, %s, %s);
-            """, [
-                content_type_code, content_id,
-                vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now,
-                content_type_code, content_id,
-                vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now, now,
-            ])
+                UPDATE [newsengine].[fact_content_embedding]
+                SET embedding_vector_json = CAST(%s AS NVARCHAR(MAX)),
+                    embedding_model_name = %s,
+                    embedding_dimension_count = %s,
+                    modified_at = %s,
+                    is_active = 1
+                WHERE embedding_content_type_code = %s
+                  AND embedding_content_id = %s
+            """, [vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now,
+                  content_type_code, content_id])
+
+            if cursor.rowcount == 0:
+                cursor.execute("""
+                    INSERT INTO [newsengine].[fact_content_embedding]
+                        (embedding_content_type_code, embedding_content_id,
+                         embedding_vector_json, embedding_model_name,
+                         embedding_dimension_count, is_active, created_at, modified_at)
+                    VALUES (%s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, 1, %s, %s)
+                """, [content_type_code, content_id,
+                      vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now, now])
         return True
     except Exception as store_error:
         logger.error('embeddings: store failed for %s:%s — %s',

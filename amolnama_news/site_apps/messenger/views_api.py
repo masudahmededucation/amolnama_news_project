@@ -797,3 +797,109 @@ def api_conversation_clear_all(request, conversation_id):
         """, [conversation_id, user_profile_id, 'সব মেসেজ মুছে ফেলা হয়েছে'])
 
     return JsonResponse({'success': True})
+
+
+# =========================================================
+# CALL — initiate
+# =========================================================
+
+@login_required
+@require_POST
+def api_call_initiate(request):
+    """POST — create a CallLog and notify callee via channel layer.
+
+    Body: { conversation_id, call_type_code ('audio'|'video') }
+    Returns: { success, call_id }
+    """
+    user_profile_id = _get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    conversation_id = data.get('conversation_id')
+    call_type_code = data.get('call_type_code', 'audio')
+    if call_type_code not in ('audio', 'video'):
+        call_type_code = 'audio'
+
+    if not conversation_id:
+        return JsonResponse({'success': False, 'error': 'conversation_id required'}, status=400)
+
+    # Verify caller is a participant
+    is_participant = ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id,
+        link_user_profile_id=user_profile_id,
+        is_active=True,
+    ).exists()
+    if not is_participant:
+        return JsonResponse({'success': False, 'error': 'Not a participant'}, status=403)
+
+    # Get callee profile id
+    callee_participant = ConversationParticipant.objects.filter(
+        link_conversation_id=conversation_id,
+        is_active=True,
+    ).exclude(link_user_profile_id=user_profile_id).first()
+    if not callee_participant:
+        return JsonResponse({'success': False, 'error': 'No other participant'}, status=400)
+
+    callee_profile_id = callee_participant.link_user_profile_id
+
+    # Block check
+    if _is_blocked(user_profile_id, callee_profile_id):
+        return JsonResponse({'success': False, 'error': 'ব্লক করা ব্যবহারকারী'}, status=403)
+
+    # Prevent spam — check for existing active call
+    from .models import CallLog
+    active_call = CallLog.objects.filter(
+        link_caller_user_profile_id=user_profile_id,
+        call_status_code__in=['ringing', 'answered'],
+        is_active=True,
+    ).exists()
+    if active_call:
+        return JsonResponse({'success': False, 'error': 'ইতিমধ্যে একটি কল চলছে'}, status=409)
+
+    # Create call log
+    now = timezone.now()
+    call_log = CallLog.objects.create(
+        link_conversation_id=conversation_id,
+        link_caller_user_profile_id=user_profile_id,
+        link_callee_user_profile_id=callee_profile_id,
+        call_type_code=call_type_code,
+        call_status_code='ringing',
+        started_at=now,
+        created_at=now,
+    )
+
+    # Notify callee via their personal notification channel
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+    channel_layer = get_channel_layer()
+    if channel_layer:
+        from amolnama_news.site_apps.user_account.models import UserProfile
+        caller_profile = UserProfile.objects.filter(
+            user_profile_id=user_profile_id
+        ).only('display_name').first()
+        caller_name = (caller_profile.display_name or 'Unknown') if caller_profile else 'Unknown'
+
+        # Send ring notification via the conversation WebSocket group
+        # (callee is already connected to this group)
+        async_to_sync(channel_layer.group_send)(
+            f'messenger_conversation_{conversation_id}',
+            {
+                'type': 'incoming_call',
+                'call_id': call_log.messenger_call_log_id,
+                'call_type_code': call_type_code,
+                'caller_name': caller_name,
+                'caller_profile_id': user_profile_id,
+                'conversation_id': conversation_id,
+            }
+        )
+
+    return JsonResponse({
+        'success': True,
+        'call_id': call_log.messenger_call_log_id,
+        'callee_profile_id': callee_profile_id,
+    })

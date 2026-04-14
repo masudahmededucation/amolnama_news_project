@@ -9,6 +9,27 @@ Returns HTML with <mark> tags for inline display.
 import re
 from django.utils.html import escape
 
+# ============================================================================
+# FLAG EMOJI → TWEMOJI SVG (Windows can't render flag emojis)
+# ============================================================================
+
+_FLAG_EMOJI_PATTERN = re.compile(r'([\U0001F1E6-\U0001F1FF]{2})')
+_TWEMOJI_CDN = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg'
+
+
+def _replace_flag_emoji_with_twemoji(text):
+    """Replace flag emoji Unicode pairs with Twemoji SVG <img> tags."""
+    def _replace_flag(match):
+        flag = match.group(1)
+        codepoints = '-'.join(f'{ord(c):x}' for c in flag)
+        return (
+            f'<img src="{_TWEMOJI_CDN}/{codepoints}.svg" '
+            f'alt="{flag}" class="post-twemoji-flag" '
+            f'width="20" height="20" loading="lazy" decoding="async" '
+            f'crossorigin="anonymous">'
+        )
+    return _FLAG_EMOJI_PATTERN.sub(_replace_flag, text)
+
 
 # ============================================================================
 # ENTITY DICTIONARIES
@@ -281,7 +302,7 @@ def highlight_entities_in_text(text, keywords=None):
                 all_entities.append((match.start(), match.end(), 'keyword'))
 
     if not all_entities:
-        return escape(text)
+        return _replace_flag_emoji_with_twemoji(escape(text))
 
     # Resolve overlaps — higher priority entity types win
     # Priority order: person=0, book=1, location=2, date=3, religious=4, keyword=5
@@ -322,4 +343,10 @@ def highlight_entities_in_text(text, keywords=None):
     if last_position < len(text):
         result_parts.append(escape(text[last_position:]))
 
-    return ''.join(result_parts)
+    result_html = ''.join(result_parts)
+
+    # Replace flag emojis with Twemoji images (Windows can't render flag emojis).
+    # Runs AFTER HTML build so flag img tags won't be corrupted by entity detection.
+    result_html = _replace_flag_emoji_with_twemoji(result_html)
+
+    return result_html

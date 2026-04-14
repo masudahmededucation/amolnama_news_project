@@ -64,7 +64,7 @@
   width: 100%;
   background: var(--card, #fff);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius);
   box-shadow: 0 2px 16px rgba(0, 0, 0, .06);
   padding: 2rem;
 }

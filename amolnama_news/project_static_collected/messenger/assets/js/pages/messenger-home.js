@@ -276,7 +276,18 @@
       }
 
       if (message.is_system_message) {
-        html += '<div class="messenger-system-message">' + escapeHtml(message.message_text) + '</div>';
+        var isCallLog = message.content_type_code === 'call_log';
+        html += '<div class="messenger-system-message' + (isCallLog ? ' messenger-system-message--call' : '') + '">';
+        if (isCallLog) {
+          var callIcon = (message.message_text || '').indexOf('ভিডিও') !== -1 ? '📹' : '📞';
+          html += '<span class="messenger-call-log-icon">' + callIcon + '</span> ';
+        }
+        html += escapeHtml(message.message_text);
+        if (isCallLog) {
+          var callType = (message.message_text || '').indexOf('ভিডিও') !== -1 ? 'video' : 'audio';
+          html += ' <button type="button" class="messenger-call-again-button" data-call-type="' + callType + '">আবার কল করুন (Call again)</button>';
+        }
+        html += '</div>';
         lastSenderId = null;
         return;
       }
@@ -686,6 +697,14 @@
     });
   });
 
+  /* Call again button (inside call log system messages) */
+  messagesContainer.addEventListener('click', function (event) {
+    var callAgainButton = event.target.closest('.messenger-call-again-button');
+    if (!callAgainButton || !activeConversationId || !window.messengerCall) return;
+    var callType = callAgainButton.getAttribute('data-call-type') || 'audio';
+    window.messengerCall.start(activeConversationId, callType);
+  });
+
   function showInputError(message) {
     const existing = document.getElementById('messenger-input-error');
     if (existing) existing.remove();
@@ -841,6 +860,18 @@
             } else {
               headerStatus.textContent = '';
               headerStatus.classList.remove('messenger-chat-header-status-typing');
+            }
+          } else if (data.type === 'incoming_call') {
+            /* Incoming call ring — relay to call-webrtc for UI */
+            if (window.messengerCall && data.caller_profile_id !== window.messengerCurrentUserProfileId) {
+              document.dispatchEvent(new CustomEvent('call:state', {
+                detail: {
+                  state: 'incoming',
+                  callId: data.call_id,
+                  callType: data.call_type_code,
+                  remoteName: data.caller_name
+                }
+              }));
             }
           }
         } catch (parseError) { /* ignore malformed messages */ }
@@ -1024,6 +1055,26 @@
       const isCollapsed = messengerElement.classList.contains('messenger-sidebar-collapsed');
       collapseButton.textContent = isCollapsed ? '▶' : '◀';
       collapseButton.title = isCollapsed ? 'বিস্তারিত করুন' : 'সংকুচিত করুন';
+    });
+  }
+
+  // =========================================================
+  // CALL BUTTONS (audio + video)
+  // =========================================================
+
+  const audioCallButton = document.getElementById('messenger-audio-call-button');
+  const videoCallButton = document.getElementById('messenger-video-call-button');
+
+  if (audioCallButton) {
+    audioCallButton.addEventListener('click', function () {
+      if (!activeConversationId || !window.messengerCall) return;
+      window.messengerCall.start(activeConversationId, 'audio');
+    });
+  }
+  if (videoCallButton) {
+    videoCallButton.addEventListener('click', function () {
+      if (!activeConversationId || !window.messengerCall) return;
+      window.messengerCall.start(activeConversationId, 'video');
     });
   }
 

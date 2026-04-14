@@ -7,7 +7,7 @@
   gap: .75rem;
   padding: 1.25rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-lg);
   background: var(--card, #fff);
   box-shadow: var(--elevation-1);
   margin-bottom: 1rem;
@@ -18,13 +18,17 @@
 
 /* Elements that expand/collapse — no animation to avoid jank on file picker */
 .post-composer-media-bar,
-.post-composer-emoji-picker,
 .post-composer-media-preview,
 .post-composer-visibility,
 .post-composer-character-count {
   max-height: 200px;
   opacity: 1;
   overflow: hidden;
+}
+
+.post-composer-emoji-picker {
+  max-height: 320px;
+  opacity: 1;
 }
 
 .post-composer-body {
@@ -251,6 +255,24 @@
 
 .post-composer-emoji-item:hover {
   background: var(--info-light);
+}
+
+/* Flag emoji items — image + country code */
+.post-composer-emoji-item--flag {
+  flex-direction: column;
+  gap: .1rem;
+  padding: .25rem;
+}
+
+.post-composer-flag-image {
+  display: block;
+}
+
+.post-composer-flag-code {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1;
 }
 
 /* ---- Visibility selector ---- */
@@ -1062,6 +1084,14 @@
   line-height: 1.5;
   color: var(--text);
   margin-bottom: .5rem;
+}
+
+/* Twemoji flag images — inline with text */
+.post-twemoji-flag {
+  display: inline;
+  vertical-align: -0.15em;
+  width: 1.2em;
+  height: 1.2em;
 }
 
 /* ---- Named Entity + Keyword inline highlights ---- */
@@ -1917,6 +1947,9 @@
   .post-composer { padding: .6rem; }
   .post-composer-expanded .post-composer-textarea { min-height: 60px; }
   .post-composer-emoji-grid { grid-template-columns: repeat(6, 1fr); }
+  .post-composer-emoji-tabs { flex-wrap: wrap; }
+  .post-composer-media-bar { flex-wrap: wrap; gap: .25rem; }
+  .post-composer-media-option-label { display: none; }
   .post-composer-media-preview-item { width: 60px; height: 60px; }
   .post-composer-mention-dropdown { max-height: 180px; }
   .post-composer-link-preview-image { width: 60px; height: 60px; }
@@ -1924,6 +1957,10 @@
   .post-composer-link-preview-description { font-size: var(--text-xs); }
   .post-feed-tabs { gap: 0; }
   .post-feed-tab { padding: .5rem .6rem; font-size: var(--text-sm); }
+}
+
+@media (max-width: 400px) {
+  .post-composer-emoji-grid { grid-template-columns: repeat(5, 1fr); }
 }
 
 @media (max-width: 480px) {

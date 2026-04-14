@@ -151,6 +151,7 @@ def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
         with connection.cursor() as cursor:
             # Graph traversal: post → topic ← interested_in ← user
             # Gated by last_active_at — dormant users are skipped.
+            # SQL Server: MATCH cannot be combined with JOIN — use subquery for active user check
             cursor.execute("""
                 INSERT INTO [newsengine].[fact_user_feed_cache]
                     (link_user_profile_id, link_post_id, feed_cache_score,
@@ -168,14 +169,16 @@ def _fanout_to_interested_users_by_topic(post_post_id, author_user_profile_id):
                     [newsengine].[graph_topic_node] t,
                     [newsengine].[graph_user_interested_in_topic] i,
                     [newsengine].[graph_user_node] u
-                JOIN [account].[user_profile] up
-                    ON up.user_profile_id = u.link_user_profile_id
                 WHERE MATCH(p-(pt)->t<-(i)-u)
                   AND p.link_post_id = %s
                   AND t.is_active = 1
                   AND u.link_user_profile_id != %s
                   AND i.interest_weight >= 0.3
-                  AND up.last_active_at > DATEADD(DAY, -14, GETDATE())
+                  AND EXISTS (
+                      SELECT 1 FROM [account].[user_profile] up
+                      WHERE up.user_profile_id = u.link_user_profile_id
+                        AND up.last_active_at > DATEADD(DAY, -14, GETDATE())
+                  )
                   AND NOT EXISTS (
                       SELECT 1 FROM [newsengine].[fact_user_feed_cache] fc
                       WHERE fc.link_user_profile_id = u.link_user_profile_id

@@ -1,0 +1,131 @@
+APP TROUBLESHOOTING — Known Issues & Ignored Problems Log
+==========================================================
+
+This file tracks issues that were observed but NOT fixed at the time.
+Every session, check this list. Fix what you can. Don't let things pile up.
+
+RULE: If you see an error/warning/404 in the console or server logs,
+either fix it NOW or log it here with date + exact error. Never dismiss
+as "pre-existing" or "not from my code" without telling the user.
+
+
+## ACTIVE ISSUES (unfixed)
+--------------------------------------------------------------
+
+(none — all cleared as of 2026-04-14)
+
+
+## RESOLVED ISSUES
+--------------------------------------------------------------
+
+### R1. CSRF token wrong pattern in call-webrtc.js
+Date: 2026-04-14
+Was: Used meta[name="csrf-token"] — doesn't exist in this project.
+Fix: Changed to getCsrfTokenValue() global function from csrf-token.js.
+
+### R2. @latest in Twemoji CDN URL detected as mention
+Date: 2026-04-14
+Was: URL contained @latest which mention regex @([\w.-]+) matched.
+Fix: Changed to pinned version @14.0.2 in both text_highlight.py and
+post-home.js getFlagImageUrl().
+
+### R3. @14.0.2 still detected as mention (server-side)
+Date: 2026-04-14
+Was: text_highlight.py mention regex matched @14 in the Twemoji URL.
+Fix: Moved flag replacement to run AFTER HTML build in
+highlight_entities_in_text(), so mention detection runs on raw text
+(which has Unicode flag chars, not URLs).
+
+### R4. @14.0.2 STILL corrupted (client-side duplicate linkifier)
+Date: 2026-04-14
+Was: post-feed-interactions.js line 1383 had a JS mention regex that ran
+on innerHTML of .post-card-text elements. It matched @14 inside <img>
+src attributes and replaced it with an <a> tag, breaking the Twemoji URL.
+Root cause: DUPLICATE mention linkifier — server-side text_highlight.py
+already handles @mention → <a> conversion. The JS one was redundant.
+Fix: Removed the JS mention linkifier entirely from
+post-feed-interactions.js. Server-side is the single source of truth.
+Lesson: Duplicate logic is a bug factory. One source of truth always.
+
+### R5. Early return skipping flag replacement
+Date: 2026-04-14
+Was: highlight_entities_in_text() returned escape(text) early when no
+entities found, skipping the flag replacement at the bottom.
+Fix: Added _replace_flag_emoji_with_twemoji() to the early return path.
+
+### R6. Emoji picker collapsing on click (post composer)
+Date: 2026-04-14
+Was: style.display toggle conflicted with HTML hidden attribute.
+Fix: Switched to .hidden property. Added emoji picker state to
+isComposerInDraftMode() to prevent auto-collapse. Emoji picker stays
+open while clicking emojis, closes on textarea mousedown.
+
+### R7. Profile card border-radius clipping text
+Date: 2026-04-14
+Was: .profile-card used --radius-full (9999px pill shape).
+Fix: Changed to --radius (12px).
+
+### R8. Post composer border-radius clipping text
+Date: 2026-04-14
+Was: .post-composer used --radius-full (9999px pill shape).
+Fix: Changed to --radius-lg (16px).
+
+### R9. Double border on messenger textarea focus
+Date: 2026-04-14
+Was: :focus border-color change + :focus-visible outline = double ring.
+Fix: Set :focus-visible { outline: none } on textarea.
+
+### R10. Promo sample images 404
+Date: 2026-04-14
+Was: promo_builders.py TOOLS_CATALOG referenced .webp images that don't
+exist (split-pdf.webp, background-remover.webp, zip-creator.webp, etc.)
+Fix: Cleared all tool_sample_image_url values to empty string.
+Template already degrades gracefully (onerror hides image section).
+TODO: Create actual promo images and re-add URLs.
+
+### R11. graph_user_dwell_on_post NULL $to_id INSERT failure
+Date: 2026-04-14
+Error: Cannot insert NULL into column 'to_id_...' (515)
+Was: Dwell edge INSERT subquery (SELECT $node_id FROM graph_post_node
+WHERE link_post_id = %s) returned NULL because post node didn't exist.
+ensure_user_node_exists() was called but create_post_node() was not.
+Fix: Added create_post_node() call before dwell edge insert in
+interest_graph.py. Looks up actual post author from Post model.
+Location: newsengine/interest_graph.py, record_dwell_time() function.
+
+### R12. feed_fanout MATCH + JOIN incompatibility
+Date: 2026-04-14
+Error: Identifier 'u' in a MATCH clause is used with a JOIN clause (13920)
+Was: Query used JOIN [account].[user_profile] with MATCH clause on graph
+tables. SQL Server doesn't allow JOIN on graph node tables when MATCH
+is used in WHERE.
+Fix: Replaced JOIN with EXISTS subquery for active user check.
+Location: newsengine/feed_fanout.py, _fanout_to_interested_users_by_topic().
+
+### R13. embeddings store ntext/UTF-8 collation failure
+Date: 2026-04-14
+Error: Cannot convert to text/ntext or collate to
+'Latin1_General_100_CI_AS_SC_UTF8' (4189)
+Was: MERGE statement with CAST(%s AS NVARCHAR(MAX)) still failed because
+pyodbc binds the parameter as SQL_WLONGVARCHAR (ntext) before SQL Server
+can cast it. The MERGE parameterization is more complex for pyodbc.
+Fix: Replaced MERGE with two-step UPDATE then INSERT (if rowcount=0).
+Simpler parameterization avoids pyodbc ntext binding.
+Location: newsengine/embeddings.py, store_embedding() function.
+
+### R14. Duplicate server log lines in dev
+Date: 2026-04-14
+Was: Every HTTP request logged twice in console.
+Fix: Added propagate: False to django.server and django.request loggers
+in dev.py LOGGING config.
+Location: settings/dev.py.
+
+### R15. Flag emojis not rendering on Windows
+Date: 2026-04-14
+Was: Windows doesn't render flag emojis (shows as "BD" text instead of flag).
+Fix: Added _replace_flag_emoji_with_twemoji() in text_highlight.py that
+converts regional indicator Unicode pairs to Twemoji CDN SVG <img> tags.
+Runs after entity detection + HTML build. CSS class: .post-twemoji-flag.
+Also added flag rendering in emoji picker (getFlagImageUrl + country code
+labels) using Twemoji CDN images.
+Location: post/text_highlight.py, post/static/post/assets/css/pages/post-home.css.

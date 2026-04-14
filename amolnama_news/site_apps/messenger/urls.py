@@ -37,4 +37,7 @@ urlpatterns = [
     # Typing indicator
     path('api/typing/<int:conversation_id>/', views_api.api_typing_indicator, name='api_typing_indicator'),
     path('api/typing/<int:conversation_id>/status/', views_api.api_typing_status, name='api_typing_status'),
+
+    # Call
+    path('api/call/initiate/', views_api.api_call_initiate, name='api_call_initiate'),
 ]

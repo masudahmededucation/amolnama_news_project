@@ -1375,16 +1375,9 @@
     });
   });
 
-  /* ---- @MENTION RENDERING — convert @username to clickable links ---- */
-  postTextElements.forEach(function (textElement) {
-    const html = textElement.innerHTML;
-    if (html.indexOf('@') === -1) return;
-    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
-    const newHtml = html.replace(mentionRegex, '<a href="/portal/profile/public/?user=$1" class="post-card-mention-link">@$1</a>');
-    if (newHtml !== html) {
-      textElement.innerHTML = newHtml;
-    }
-  });
+  /* @MENTION RENDERING — handled server-side by text_highlight.py.
+     Removed JS-side regex replace because it ran on innerHTML and corrupted
+     @version strings inside <img src="...@14.0.2/..."> attributes. */
 
   /* ---- VIDEO AUTO-PLAY ON SCROLL — play when 50%+ visible, pause when not ---- */
   const videoAutoPlayObserver = new IntersectionObserver(function (entries) {

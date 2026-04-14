@@ -93,3 +93,14 @@ class MessengerConsumer(AsyncWebsocketConsumer):
                 'user_id': event['user_id'],
                 'is_typing': event['is_typing'],
             }))
+
+    async def incoming_call(self, event):
+        """Notify participant of an incoming call."""
+        await self.send(text_data=json.dumps({
+            'type': 'incoming_call',
+            'call_id': event['call_id'],
+            'call_type_code': event['call_type_code'],
+            'caller_name': event['caller_name'],
+            'caller_profile_id': event['caller_profile_id'],
+            'conversation_id': event['conversation_id'],
+        }))

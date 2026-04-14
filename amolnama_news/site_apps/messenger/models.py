@@ -93,3 +93,26 @@ class TypingIndicator(models.Model):
     class Meta:
         managed = False
         db_table = '[messenger].[typing_indicator]'
+
+
+class CallLog(models.Model):
+    messenger_call_log_id = models.BigAutoField(primary_key=True)
+    link_conversation_id = models.BigIntegerField()
+    link_caller_user_profile_id = models.BigIntegerField()
+    link_callee_user_profile_id = models.BigIntegerField()
+    call_type_code = models.CharField(max_length=20, default='audio')
+    call_status_code = models.CharField(max_length=20, default='ringing')
+    started_at = models.DateTimeField()
+    answered_at = models.DateTimeField(blank=True, null=True)
+    ended_at = models.DateTimeField(blank=True, null=True)
+    duration_seconds = models.IntegerField(blank=True, null=True)
+    end_reason_code = models.CharField(max_length=30, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = '[messenger].[call_log]'
+
+    def __str__(self):
+        return f'Call {self.messenger_call_log_id} ({self.call_type_code}) {self.call_status_code}'
