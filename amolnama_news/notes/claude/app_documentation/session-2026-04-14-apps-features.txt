@@ -1,0 +1,138 @@
+Session 2026-04-14 — Apps, Features, Bug Fixes
+================================================
+
+## New Apps Created
+
+### 1. Messenger Live Call (audio/video)
+- WebRTC peer-to-peer via WebSocket signaling
+- DB: [messenger].[call_log]
+- Files: consumers_call.py, call-webrtc.js, call-ui.js, call.css
+- Features: 1-on-1 calls, mute/camera/screen share, call timer,
+  ring notification, accept/reject/end, call log in chat
+- STUN: Google free servers. TURN: not configured yet.
+- Needs live testing (two real users on two devices)
+
+### 2. Student Life (studentlife) — /campus-life/
+- Sidebar: 🎓 ক্যাম্পাস লাইফ under ছাত্র জীবন
+- DB: [blog_studentlife] schema, 7 tables
+  coll_campus_entry, campus_entry_photo, campus_entry_youtube_link,
+  engagement (like, bookmark, comment, photo_like)
+- Categories: 6 (campus showcase, talent, teacher, admission, travel, life story)
+- Content registry: campus_life (blue)
+- Pattern: travel hub blog style
+
+### 3. Probash Barta (probashbarta) — /probash-barta/
+- Sidebar: ✈️ প্রবাস বার্তা under প্রবাস জীবন
+- DB: [blog_probashbarta] schema, 7 tables
+  coll_probash_entry (with country/region fields), probash_entry_photo,
+  probash_entry_youtube_link, engagement (like, bookmark, comment, photo_like)
+- Topics: 10 (visa, jobs, lifestyle, struggle, success, country guide,
+  legal, health, remittance, community events)
+- Regions: 6 (Middle East, Europe, North America, UK, Southeast Asia, Australia)
+- Country dropdown: 213 countries from [location].[country] table
+- Content registry: probash_barta (teal)
+- Pattern: travel hub with dual filters (topic + region)
+
+### 4. Biography (biography) — /jibonkotha/
+- Sidebar: 📖 জীবনকথা under ছাত্র জীবন
+- DB: [blog_biography] schema, 10 tables
+  coll_biography_entry (with subject biographical fields),
+  biography_life_section (structured chapters with year ranges),
+  biography_quote (title + quote + explanation + source),
+  biography_entry_photo (with era labels), biography_entry_youtube_link,
+  biography_tribute (memorial guestbook),
+  engagement (like, bookmark, comment, photo_like)
+- Categories: 12 (historical figure, educator, scientist, artist,
+  writer/poet, politician, sportsperson, entrepreneur, social worker,
+  religious figure, family biography, local legend)
+- Content registry: biography (purple)
+- Unique: Wikipedia-style infobox, life sections, quotes, tributes
+- Phase 1b planned: ref_biography_person table, quick-add cards,
+  detail page sub-content forms
+
+## Sidebar Navigation Restructure
+
+ছাত্র জীবন (Student Life)
+  🎓 ক্যাম্পাস লাইফ
+  🔧 সফটওয়্যার
+  📖 জীবনকথা
+নাগরিক বার্তা (Citizen Voice)
+  📰 নাগরিক সংবাদ
+  🗞️ নাগরিক সাংবাদিকতা
+  🗳️ নির্বাচন
+অমর বাংলা (Immortal Bengal)
+  📝 কবিতা ও গান
+  🎨 শিল্পকলা
+  📚 গল্পের ঝুলি
+  🇧🇩 বাংলাদেশ প্রকৃতি
+প্রবাস জীবন (Diaspora Life)
+  ✈️ প্রবাস বার্তা
+জীবন সেবা (Life Services)
+  💍 বিবাহ
+  🏥 স্বাস্থ্য
+
+Section labels use --cultural modifier (primary color, distinct from
+gray Admin Panel label).
+
+## Features Built
+
+### Twemoji Flag Rendering
+- Windows doesn't render flag emojis natively
+- Solution: _replace_flag_emoji_with_twemoji() in text_highlight.py
+  replaces regional indicator Unicode pairs with Twemoji CDN SVG images
+- Runs after entity detection + HTML build to avoid mention regex corruption
+- Removed duplicate JS mention linkifier in post-feed-interactions.js
+  that was corrupting img src attributes containing @14.0.2
+- CDN: cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2
+
+### Shared Emoji Picker Component
+- core/assets/js/components/emoji-picker.js + emoji-picker.css
+- Used by: post composer (full mode, 6 categories), messenger (compact mode)
+- Flag emojis rendered as Twemoji images + country code labels
+- One source of truth — replaced 130 lines in post-home.js + 25 in messenger
+
+### Watermark Remover Guide
+- 3-step visual guide with sample images (step 1/2/3)
+- Images compressed to 8KB each (400px width)
+- Static assets in tools/static/tools/assets/img/watermark-guide/
+
+### Post Composer Fixes
+- Emoji picker: hidden attr toggle, draft mode guard, auto-close on textarea click
+- Border-radius: --radius-full → --radius-lg (no text clipping)
+- Mobile responsive: emoji grid 5 cols on <400px, media labels hidden
+
+### Messenger Fixes
+- Emoji padding: moved inward from border
+- Focus: removed double border (outline: none on focus-visible)
+- Call buttons: 44px touch target, accent hover
+
+### Profile Card Fix
+- Border-radius: --radius-full → --radius (no text clipping)
+
+## Bug Fixes
+
+### Pre-existing (found and fixed)
+1. graph_user_dwell_on_post NULL $to_id — added create_post_node() call
+2. feed_fanout MATCH+JOIN — replaced JOIN with EXISTS subquery
+3. embeddings store ntext/UTF-8 — replaced MERGE with UPDATE/INSERT
+4. Promo images 404 — cleared missing URLs from catalog
+5. Duplicate server log lines — propagate: False in LOGGING config
+6. Duplicate JS mention linkifier — removed (server handles it)
+
+### Session bugs
+1. CSRF token wrong pattern in call-webrtc.js
+2. @latest/@14.0.2 in Twemoji URL detected as mention (3 iterations to fix)
+3. Early return skipping flag replacement
+4. Emoji picker collapsing on click
+5. biography-add.js error message leftover from copy
+
+## Media Folder Reorganization
+- media/app_static/ now contains: admin_tools/, blogs/, newshub/, tools/
+- All code refs updated (textextractor, poem CSS comments)
+- DB paths updated via SQL scripts
+
+## Rules Added to CLAUDE.md
+- Gate 0: Don't dismiss errors as "pre-existing"
+- Gate 6: File path references — update code + DB when moving files
+- Gate 10: Check app-troubleshooting.txt at end of session
+- Gate 12: Documentation — all app docs go to notes/claude/app_documentation/
