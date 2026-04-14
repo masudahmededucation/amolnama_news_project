@@ -308,11 +308,14 @@ def tools_watermark_remover(request):
 def api_watermark_remove(request):
     """POST — accept image + mask, return inpainted image with watermark removed.
 
-    User brushes over watermark area (mask = white on black). Server inpaints
-    using OpenCV Telea algorithm with smoothing for natural-looking results.
+    Uses LaMa (Large Mask inpainting) — state-of-the-art AI model that
+    reconstructs texture naturally. ~200MB model, CPU-only, 5-15s per image.
+    Falls back to OpenCV Telea if LaMa is not available.
     """
+    import io
     import numpy as np
     import cv2
+    from PIL import Image
     from django.http import HttpResponse
 
     if request.method != 'POST':
@@ -328,53 +331,45 @@ def api_watermark_remove(request):
         return JsonResponse({'success': False, 'error': 'Image too large (max 10MB)'}, status=400)
 
     try:
-        # Read image
-        image_bytes = image_file.read()
-        image_array = np.frombuffer(image_bytes, np.uint8)
-        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-        if image is None:
-            return JsonResponse({'success': False, 'error': 'Invalid image file'}, status=400)
+        # Read image as PIL (LaMa expects PIL Image)
+        image_pil = Image.open(image_file).convert('RGB')
 
-        # Cap image size at 2000px for fast processing
+        # Cap at 2000px for speed
         max_dimension = 2000
-        height, width = image.shape[:2]
-        if max(height, width) > max_dimension:
-            scale = max_dimension / max(height, width)
-            image = cv2.resize(image, (int(width * scale), int(height * scale)))
+        if max(image_pil.size) > max_dimension:
+            ratio = max_dimension / max(image_pil.size)
+            new_size = (int(image_pil.width * ratio), int(image_pil.height * ratio))
+            image_pil = image_pil.resize(new_size, Image.LANCZOS)
 
-        # Read mask (user-drawn: white = watermark area to remove)
-        mask_bytes = mask_file.read()
-        mask_array = np.frombuffer(mask_bytes, np.uint8)
-        mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
-        if mask_raw is None:
-            return JsonResponse({'success': False, 'error': 'Invalid mask file'}, status=400)
+        # Read mask as PIL grayscale
+        mask_pil = Image.open(mask_file).convert('L')
+        if mask_pil.size != image_pil.size:
+            mask_pil = mask_pil.resize(image_pil.size, Image.LANCZOS)
 
-        if mask_raw.shape[:2] != image.shape[:2]:
-            mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
-        _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
-
-        if cv2.countNonZero(mask_binary) == 0:
+        # Check mask is not empty
+        mask_array = np.array(mask_pil)
+        if np.max(mask_array) < 10:
             return JsonResponse({'success': False, 'error': 'ওয়াটারমার্কের উপর ব্রাশ করুন (Brush over the watermark first)'}, status=400)
 
-        # Inpaint using Telea algorithm (larger radius = smoother blending)
-        inpaint_radius = 10
-        result = cv2.inpaint(image, mask_binary, inpaint_radius, cv2.INPAINT_TELEA)
+        # Try LaMa first (best quality), fall back to OpenCV
+        try:
+            from simple_lama_inpainting import SimpleLama
+            lama = SimpleLama()
+            result_pil = lama(image_pil, mask_pil)
+        except Exception as lama_error:
+            logger.warning('LaMa inpainting failed, falling back to OpenCV — %s', lama_error)
+            # Fallback: OpenCV Telea
+            image_cv = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
+            _, mask_binary = cv2.threshold(mask_array, 127, 255, cv2.THRESH_BINARY)
+            result_cv = cv2.inpaint(image_cv, mask_binary, 10, cv2.INPAINT_TELEA)
+            result_pil = Image.fromarray(cv2.cvtColor(result_cv, cv2.COLOR_BGR2RGB))
 
-        # Smooth the inpainted area to reduce "iron burn" artifacts
-        # Blend the inpainted region with a slight Gaussian blur
-        blurred = cv2.GaussianBlur(result, (5, 5), 0)
-        # Only blend in the masked area — keep the rest sharp
-        mask_3channel = cv2.merge([mask_binary, mask_binary, mask_binary])
-        # Dilate mask slightly for smoother edge transition
-        blend_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-        blend_mask = cv2.dilate(mask_binary, blend_kernel, iterations=1)
-        blend_mask_3ch = cv2.merge([blend_mask, blend_mask, blend_mask])
-        # Feathered blend: 70% inpainted + 30% blurred in the masked area
-        blend_mask_float = blend_mask_3ch.astype(float) / 255.0
-        result = (result * (1 - blend_mask_float * 0.3) + blurred * blend_mask_float * 0.3).astype(np.uint8)
+        # Encode as JPEG
+        output_buffer = io.BytesIO()
+        result_pil.save(output_buffer, format='JPEG', quality=92)
+        result_bytes = output_buffer.getvalue()
 
-        # Encode result as JPEG
-        _, result_buffer = cv2.imencode('.jpg', result, [cv2.IMWRITE_JPEG_QUALITY, 92])
+        return HttpResponse(result_bytes, content_type='image/jpeg')
         result_bytes = result_buffer.tobytes()
 
         return HttpResponse(result_bytes, content_type='image/jpeg')
