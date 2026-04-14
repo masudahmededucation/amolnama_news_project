@@ -1,4 +1,4 @@
-create app "content". follow the app structure in core. 
+create app "biography". follow the app structure in core. 
 app location site_apps/<app_name>
 copy all the folder structure only strictly. 
 don't copy files.
@@ -22,6 +22,9 @@ create image from text for facebook post.
 question answer format
 https://xeroxtree.com/pdf/modina_sonod_o_bangladesher_songbidhan.pdf
 
+
+######
+--biographray
 
 #hadi
 -collect all videos
@@ -65,12 +68,7 @@ including text/image/logo/date
 ############
 marketing
 
-####
-school/university campus life app
-we need a form
-encourage the best thing about their campus
-encourage student to encourage their best talent.
-extraordinary talent people or teacher.
+
 
 
 ###

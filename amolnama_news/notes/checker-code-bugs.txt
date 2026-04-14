@@ -21,7 +21,7 @@ no rush and check.
 check and check for unlimited time.
 no test and test, keep doing test.
 re-check everything now.
-yes, i want you to implement it.
+
 
 
 --create implementation plan
@@ -75,6 +75,7 @@ split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
 don't touch other things.
 
+
 --check styling
 make professional.
 do some research.
@@ -127,26 +128,7 @@ don't touch other things.
 --attribute naming convention
 all attributes should have its id and name.
 
---faster load
-load UI immediate, load data in the background.
-keep loading related data in the background.
-ready to show the data once user asks.
-proactive prefetch.
-don't touch other things.
 
-
---check code for faster and efficiency
-Optimize code for speed and efficiency.
-Avoid unnecessary or long logic for small tasks.
-Ensure efficiency does not sacrifice the goal.
-Achieve objectives without breaking the code.
-Ensure the code is future bug-proof.
-Keep the code burden-less and maintainable.
-Deliver the same results through cleaner paths.
-Eliminate waste without changing functionality or removing features.
-Handle edge cases without leaving technical landmines.
-Write simple code that is easy to read and maintain.
-don't touch other things.
 
 --check for bugs
 check for bugs, bad code, broken code, illegal code, dead code.
@@ -168,8 +150,28 @@ tech debt item.
 don't leave anything broken after change
 don't touch other things.
 
---start implementing
-start implementing.
+
+--faster load
+load UI immediate, load data in the background.
+keep loading related data in the background.
+ready to show the data once user asks.
+proactive prefetch.
+don't touch other things.
+
+
+--check code for faster and efficiency
+Optimize code for speed and efficiency.
+Avoid unnecessary or long logic for small tasks.
+Ensure efficiency does not sacrifice the goal.
+Achieve objectives without breaking the code.
+Ensure the code is future bug-proof.
+Keep the code burden-less and maintainable.
+Deliver the same results through cleaner paths.
+Eliminate waste without changing functionality or removing features.
+Handle edge cases without leaving technical landmines.
+Write simple code that is easy to read and maintain.
+don't touch other things.
+
 
 --create or update documentation
 architecture, E2E data entry, features, functions, and troubleshooting.
