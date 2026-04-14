@@ -30,7 +30,7 @@
 
   if (!canvas || !fileInput) return;
 
-  var context = canvas.getContext('2d');
+  var context = canvas.getContext('2d', { willReadFrequently: true });
   var originalImage = null;
   var originalImageDataURL = null;
   var maskHistory = [];
@@ -270,7 +270,7 @@
         fetch('/tools/api/watermark-remove/', {
           method: 'POST',
           body: formData,
-          headers: { 'X-CSRFToken': window.getCSRFToken() }
+          headers: { 'X-CSRFToken': window.getCsrfTokenValue() }
         })
         .then(function (response) {
           if (!response.ok) {
