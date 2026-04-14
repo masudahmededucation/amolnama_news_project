@@ -1,0 +1,22 @@
+--student life
+school/university campus life app
+we need a form
+encourage the best thing or feature about their campus
+encourage student to encourage their best talent.
+extraordinary talent people or teacher.
+when the admission test coming for university admission
+tips to pass admission test
+how to travel?
+
+i like clean form style like 
+how our blog posts pages are 
+like news article travel hub. 
+similar image, youtube link, like action bar, 
+top and bottom, small card preview, promo card preview. 
+create your list.
+
+--db
+but must follow table and column name 
+and blog table standard 
+including standard use of category 
+and ref subcategory tables.
