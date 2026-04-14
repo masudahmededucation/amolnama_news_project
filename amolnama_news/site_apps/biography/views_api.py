@@ -287,3 +287,69 @@ def api_biography_quick_add_youtube(request):
         'success': True,
         'biography_slug': biography.biography_entry_slug,
     })
+
+
+@login_required
+@require_POST
+def api_biography_quick_add_photo(request):
+    """POST (multipart) — quick-add a photo for a person."""
+    import os
+    from django.conf import settings
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    person_id = request.POST.get('person_id')
+    photo_file = request.FILES.get('photo_file')
+
+    if not person_id or not photo_file:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি ও ছবি আবশ্যক'}, status=400)
+
+    allowed_types = ['image/jpeg', 'image/png', 'image/webp']
+    if photo_file.content_type not in allowed_types:
+        return JsonResponse({'success': False, 'error': 'শুধু JPG, PNG বা WebP ছবি আপলোড করুন'}, status=400)
+
+    if photo_file.size > 10 * 1024 * 1024:
+        return JsonResponse({'success': False, 'error': 'ছবির সাইজ ১০ MB এর বেশি হতে পারবে না'}, status=400)
+
+    biography = _get_or_create_stub_biography(int(person_id), user_profile_id)
+    if not biography:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি পাওয়া যায়নি'}, status=400)
+
+    upload_directory = os.path.join(settings.MEDIA_ROOT, 'app_static', 'blogs', 'biography', 'photos')
+    os.makedirs(upload_directory, exist_ok=True)
+
+    import uuid
+    file_extension = os.path.splitext(photo_file.name)[1].lower()
+    saved_filename = f'{uuid.uuid4().hex}{file_extension}'
+    saved_filepath = os.path.join(upload_directory, saved_filename)
+
+    with open(saved_filepath, 'wb+') as destination:
+        for chunk in photo_file.chunks():
+            destination.write(chunk)
+
+    photo_url = f'/media/app_static/blogs/biography/photos/{saved_filename}'
+    caption_bn = (request.POST.get('caption_bn') or '').strip() or None
+    photo_era_label_bn = (request.POST.get('photo_era_label_bn') or '').strip() or None
+
+    from django.db import connection as db_connection
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [blog_biography].[biography_entry_photo]
+                (link_blog_biography_coll_biography_entry_id, link_user_profile_id,
+                 photo_url, caption_bn, photo_era_label_bn, sort_order)
+            VALUES (%s, %s, %s, %s, %s, 0)
+        """, [
+            biography.blog_biography_coll_biography_entry_id,
+            user_profile_id,
+            photo_url,
+            caption_bn,
+            photo_era_label_bn,
+        ])
+
+    return JsonResponse({
+        'success': True,
+        'biography_slug': biography.biography_entry_slug,
+        'photo_url': photo_url,
+    })

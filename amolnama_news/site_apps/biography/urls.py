@@ -16,4 +16,5 @@ urlpatterns = [
     path('api/persons/search/', views_api.api_biography_person_search, name='api_biography_person_search'),
     path('api/quick-add/quote/', views_api.api_biography_quick_add_quote, name='api_biography_quick_add_quote'),
     path('api/quick-add/youtube/', views_api.api_biography_quick_add_youtube, name='api_biography_quick_add_youtube'),
+    path('api/quick-add/photo/', views_api.api_biography_quick_add_photo, name='api_biography_quick_add_photo'),
 ]

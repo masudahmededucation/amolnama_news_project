@@ -120,6 +120,10 @@
     document.getElementById('biography-quick-add-quote-person-id')
   );
   setupPersonSearch(
+    document.getElementById('biography-quick-add-photo-person'),
+    document.getElementById('biography-quick-add-photo-person-id')
+  );
+  setupPersonSearch(
     document.getElementById('biography-quick-add-youtube-person'),
     document.getElementById('biography-quick-add-youtube-person-id')
   );
@@ -225,6 +229,80 @@
         messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
         messageElement.hidden = false;
         youtubeSubmitButton.disabled = false;
+      });
+    });
+  }
+
+  /* ── Photo quick-add ── */
+  var photoBrowseButton = document.getElementById('biography-quick-add-photo-browse-button');
+  var photoFileInput = document.getElementById('biography-quick-add-photo-file');
+  var photoPreview = document.getElementById('biography-quick-add-photo-preview');
+  var photoSubmitButton = document.getElementById('biography-quick-add-photo-submit');
+
+  if (photoBrowseButton && photoFileInput) {
+    photoBrowseButton.addEventListener('click', function () {
+      photoFileInput.click();
+    });
+
+    photoFileInput.addEventListener('change', function () {
+      if (!photoFileInput.files.length) return;
+      var file = photoFileInput.files[0];
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        photoPreview.innerHTML = '<img src="' + event.target.result + '" style="max-width:100%;max-height:150px;border-radius:8px;">';
+        photoPreview.hidden = false;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (photoSubmitButton) {
+    photoSubmitButton.addEventListener('click', function () {
+      var messageElement = document.getElementById('biography-quick-add-photo-message');
+      var personId = document.getElementById('biography-quick-add-photo-person-id').value;
+
+      if (!personId || !photoFileInput.files.length) {
+        messageElement.textContent = 'ব্যক্তি ও ছবি আবশ্যক';
+        messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
+        messageElement.hidden = false;
+        return;
+      }
+
+      photoSubmitButton.disabled = true;
+      var formData = new FormData();
+      formData.append('person_id', personId);
+      formData.append('photo_file', photoFileInput.files[0]);
+      formData.append('caption_bn', (document.getElementById('biography-quick-add-photo-caption').value || '').trim());
+      formData.append('photo_era_label_bn', (document.getElementById('biography-quick-add-photo-era-label').value || '').trim());
+
+      fetch('/jibonkotha/api/quick-add/photo/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfTokenValue() },
+        body: formData
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          messageElement.textContent = 'ছবি সফলভাবে যোগ হয়েছে!';
+          messageElement.className = 'biography-quick-add-message biography-quick-add-message--success';
+          messageElement.hidden = false;
+          photoFileInput.value = '';
+          photoPreview.hidden = true;
+          document.getElementById('biography-quick-add-photo-caption').value = '';
+          document.getElementById('biography-quick-add-photo-era-label').value = '';
+        } else {
+          messageElement.textContent = data.error || 'সমস্যা হয়েছে';
+          messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
+          messageElement.hidden = false;
+        }
+        photoSubmitButton.disabled = false;
+      })
+      .catch(function (error) {
+        console.error('Photo quick-add failed:', error);
+        messageElement.textContent = 'নেটওয়ার্ক সমস্যা';
+        messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
+        messageElement.hidden = false;
+        photoSubmitButton.disabled = false;
       });
     });
   }
