@@ -18,7 +18,7 @@
     <div class="studentlife-add-field-group">
       <label for="studentlife-add-category" class="studentlife-add-label">ধরন (Category)</label>
       <select id="studentlife-add-category" name="studentlife_add_category" class="studentlife-add-select" required>
-        <option value="">বিভাগ নির্বাচন করুন</option>
+        <option value="">নির্বাচন করুন</option>
         {% for category in categories %}
         <option value="{{ category.content_ref_content_subcategory_id }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }} ({{ category.subcategory_name_en }})</option>
         {% endfor %}

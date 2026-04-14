@@ -1,0 +1,18 @@
+/* ========== Probash Barta Landing Page ========== */
+
+.probashbarta-landing {
+  padding: 2rem 0;
+}
+
+.probashbarta-landing-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+.probashbarta-landing-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0;
+}
