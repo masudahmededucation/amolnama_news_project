@@ -339,6 +339,13 @@ def api_watermark_remove(request):
         if image is None:
             return JsonResponse({'success': False, 'error': 'Invalid image file'}, status=400)
 
+        # Cap image size at 2000px for fast processing (5-10s max on CPU)
+        max_dimension = 2000
+        height, width = image.shape[:2]
+        if max(height, width) > max_dimension:
+            scale = max_dimension / max(height, width)
+            image = cv2.resize(image, (int(width * scale), int(height * scale)))
+
         # Read mask
         mask_bytes = mask_file.read()
         mask_array = np.frombuffer(mask_bytes, np.uint8)

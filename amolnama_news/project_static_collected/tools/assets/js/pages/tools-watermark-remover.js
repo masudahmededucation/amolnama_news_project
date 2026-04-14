@@ -141,12 +141,15 @@
   }
 
   function startDraw(event) {
+    if (isProcessing) return;
     isDrawing = true;
     draw(event);
   }
 
+  var isProcessing = false;
+
   function draw(event) {
-    if (!isDrawing) return;
+    if (!isDrawing || isProcessing) return;
     var x = event.offsetX;
     var y = event.offsetY;
 
@@ -195,7 +198,13 @@
   /* ===== Step 3: Remove Watermark ===== */
 
   removeButton.addEventListener('click', function () {
-    if (!originalImage) return;
+    if (!originalImage || isProcessing) return;
+
+    /* Lock canvas during processing */
+    isProcessing = true;
+    canvas.style.pointerEvents = 'none';
+    canvas.style.opacity = '0.6';
+    removeButton.disabled = true;
 
     /* Generate mask image: white where user painted red, black elsewhere */
     var maskCanvas = document.createElement('canvas');
@@ -273,6 +282,9 @@
         })
         .then(function (resultBlob) {
           processingOverlay.hidden = true;
+          isProcessing = false;
+          canvas.style.pointerEvents = '';
+          canvas.style.opacity = '';
           removeButton.disabled = false;
 
           if (resultBlobURL) URL.revokeObjectURL(resultBlobURL);
@@ -286,6 +298,9 @@
         })
         .catch(function (fetchError) {
           processingOverlay.hidden = true;
+          isProcessing = false;
+          canvas.style.pointerEvents = '';
+          canvas.style.opacity = '';
           removeButton.disabled = false;
           showError('প্রক্রিয়াকরণ ব্যর্থ — ' + fetchError.message);
         });
