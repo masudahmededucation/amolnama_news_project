@@ -114,8 +114,8 @@
   /* ── Format timer ── */
   function formatTime(seconds) {
     var minutes = Math.floor(seconds / 60);
-    var secs = seconds % 60;
-    return (minutes < 10 ? '0' : '') + minutes + ':' + (secs < 10 ? '0' : '') + secs;
+    var remainingSeconds = seconds % 60;
+    return (minutes < 10 ? '0' : '') + minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
   }
 
   /* ── Show / hide helpers ── */

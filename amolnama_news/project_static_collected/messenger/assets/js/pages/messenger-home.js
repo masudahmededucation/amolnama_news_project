@@ -1173,33 +1173,17 @@
   // EMOJI PICKER
   // =========================================================
 
+  /* Emoji picker (shared component — compact mode for messenger) */
   const emojiToggle = document.getElementById('messenger-emoji-toggle');
-  const emojiPicker = document.getElementById('messenger-emoji-picker');
-  const commonEmojis = ['😊','😂','❤️','👍','🙏','😢','😡','🔥','💯','✅','👏','🎉','😍','🤔','😎','💪','🥰','😭','🤣','👀','💀','🫡','😤','🥺','😅','🙄','😳','🤝','💜','🌹','🇧🇩','⭐','💬','📌','🗑','✏️','↩','📋','🔗','👁','📩','🔔','❌','⚡','🎯','💡','📸','🎵','🏆','🌟'];
-
-  if (emojiToggle && emojiPicker) {
-    let emojiHtml = '';
-    commonEmojis.forEach(function (emoji) {
-      emojiHtml += '<button type="button" class="messenger-emoji-item">' + emoji + '</button>';
-    });
-    emojiPicker.innerHTML = emojiHtml;
-
-    emojiToggle.addEventListener('click', function () {
-      emojiPicker.classList.toggle('messenger-hidden');
-    });
-
-    emojiPicker.addEventListener('click', function (event) {
-      const item = event.target.closest('.messenger-emoji-item');
-      if (!item) return;
-      const emoji = item.textContent;
-      const cursorPosition = textarea.selectionStart;
-      const before = textarea.value.substring(0, cursorPosition);
-      const after = textarea.value.substring(cursorPosition);
-      textarea.value = before + emoji + after;
-      textarea.selectionStart = textarea.selectionEnd = cursorPosition + emoji.length;
-      textarea.focus();
-      updateSendButtonVisibility();
-      emojiPicker.classList.add('messenger-hidden');
+  const emojiPickerContainer = document.getElementById('messenger-emoji-picker');
+  if (emojiToggle && emojiPickerContainer && textarea && window.emojiPicker) {
+    window.emojiPicker.attach({
+      toggleButton: emojiToggle,
+      pickerContainer: emojiPickerContainer,
+      targetTextarea: textarea,
+      mode: 'compact',
+      idPrefix: 'messenger',
+      onInsert: function () { updateSendButtonVisibility(); }
     });
   }
 

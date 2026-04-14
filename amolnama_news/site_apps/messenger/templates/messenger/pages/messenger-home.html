@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'messenger/assets/css/pages/messenger-home.css' %}">
 <link rel="stylesheet" href="{% static 'messenger/assets/css/components/call.css' %}">
+<link rel="stylesheet" href="{% static 'core/assets/css/components/emoji-picker.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -111,8 +112,8 @@
       </div>
     </div>
 
-    <!-- Emoji picker -->
-    <div class="messenger-emoji-picker messenger-hidden" id="messenger-emoji-picker" name="messenger_emoji_picker"></div>
+    <!-- Emoji picker (shared component) -->
+    <div class="messenger-emoji-picker" id="messenger-emoji-picker" name="messenger_emoji_picker" hidden></div>
 
   </div>
 
@@ -120,6 +121,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'core/assets/js/components/emoji-picker.js' %}" defer></script>
 <script src="{% static 'messenger/assets/js/components/call-webrtc.js' %}" defer></script>
 <script src="{% static 'messenger/assets/js/components/call-ui.js' %}" defer></script>
 <script src="{% static 'messenger/assets/js/pages/messenger-home.js' %}" defer></script>

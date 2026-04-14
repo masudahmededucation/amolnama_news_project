@@ -206,74 +206,7 @@
   overflow: hidden;
 }
 
-.post-composer-emoji-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-}
-
-.post-composer-emoji-tab {
-  flex: 1;
-  padding: .4rem;
-  border: none;
-  background: none;
-  font-size: var(--text-lg);
-  cursor: pointer;
-  transition: background var(--duration-fast);
-  text-align: center;
-}
-
-.post-composer-emoji-tab:hover {
-  background: var(--surface, #f5f5f5);
-}
-
-.post-composer-emoji-tab-active {
-  background: var(--info-light);
-  border-bottom: 2px solid var(--primary, #1877f2);
-}
-
-.post-composer-emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
-  padding: .4rem;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.post-composer-emoji-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: .3rem;
-  font-size: var(--text-xl);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  border: none;
-  background: none;
-  transition: background var(--duration-fast);
-}
-
-.post-composer-emoji-item:hover {
-  background: var(--info-light);
-}
-
-/* Flag emoji items — image + country code */
-.post-composer-emoji-item--flag {
-  flex-direction: column;
-  gap: .1rem;
-  padding: .25rem;
-}
-
-.post-composer-flag-image {
-  display: block;
-}
-
-.post-composer-flag-code {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--muted);
-  line-height: 1;
-}
+/* Emoji tabs/grid/items — shared component in core/assets/css/components/emoji-picker.css */
 
 /* ---- Visibility selector ---- */
 
@@ -1098,7 +1031,7 @@
 
 .post-entity-person {
   font-weight: 600;
-  color: #1565c0;
+  color: var(--info);
   background: none;
 }
 
@@ -1110,20 +1043,20 @@
 
 .post-entity-date {
   font-weight: 600;
-  color: #e65100;
+  color: var(--warning);
   background: none;
 }
 
 .post-entity-book {
   font-weight: 600;
-  color: #6a1b9a;
+  color: var(--purple);
   font-style: italic;
   background: none;
 }
 
 .post-entity-religious {
   font-weight: 600;
-  color: #00838f;
+  color: var(--teal);
   background: none;
 }
 

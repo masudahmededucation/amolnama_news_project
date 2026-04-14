@@ -285,7 +285,7 @@ main:has(.messenger) { padding-top: .25rem; }
   border: none;
   cursor: pointer;
   color: var(--muted);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -311,9 +311,11 @@ main:has(.messenger) { padding-top: .25rem; }
 .messenger-chat-settings-wrapper { position: relative; }
 .messenger-chat-settings-button {
   background: none; border: none; cursor: pointer;
-  color: var(--muted); border-radius: 50%;
+  color: var(--muted); border-radius: var(--radius-full);
   display: flex; align-items: center; justify-content: center;
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
   transition: background var(--duration-base), color var(--duration-base);
 }
 .messenger-chat-settings-button:hover { background: var(--surface); color: var(--text); }

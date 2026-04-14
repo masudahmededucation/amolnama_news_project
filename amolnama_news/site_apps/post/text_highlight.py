@@ -286,7 +286,6 @@ def highlight_entities_in_text(text, keywords=None):
         all_entities.append((start, end, 'religious'))
 
     # Detect hashtags (#ট্যাগ, #tag)
-    import re
     for match in re.finditer(r'#([\w\u0980-\u09FF]+)', text):
         all_entities.append((match.start(), match.end(), 'hashtag'))
 
