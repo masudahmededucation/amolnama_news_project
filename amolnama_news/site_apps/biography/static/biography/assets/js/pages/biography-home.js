@@ -51,7 +51,14 @@
 
       card.addEventListener('click', function (event) {
         if (event.target.closest('.biography-quick-add-card-form')) return;
-        form.hidden = !form.hidden;
+        var wasHidden = form.hidden;
+        /* Collapse all cards first (accordion) */
+        for (var collapseIndex = 0; collapseIndex < quickAddCards.length; collapseIndex++) {
+          var otherForm = quickAddCards[collapseIndex].querySelector('.biography-quick-add-card-form');
+          if (otherForm) otherForm.hidden = true;
+        }
+        /* Toggle clicked card */
+        form.hidden = !wasHidden;
       });
     })(quickAddCards[cardIndex]);
   }
