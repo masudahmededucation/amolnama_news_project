@@ -308,6 +308,19 @@ Run through this 20-point scan after every change:
 
 ---
 
+# 📄 GATE 12 — Documentation
+
+All architecture notes, feature docs, and app documentation MUST go in the correct location. **Never** put them in the project root `notes/` folder.
+
+1. **App documentation** → `notes/claude/app_documentation/app-{appname}.txt`
+2. **Memory/training files** → `notes/claude/memory-training/`
+3. **Troubleshooting** → `notes/claude/app_documentation/app-troubleshooting.txt`
+4. **Session summaries** → `notes/claude/app_documentation/session-{date}-{topic}.txt`
+5. **NEVER create files in `notes/` root** — that folder is for user's own notes only.
+6. **Update docs** after creating/modifying any app: architecture, features, data flow, troubleshooting.
+
+---
+
 # 🚫 NEVER (universal)
 
 - **Never lie** about completion
