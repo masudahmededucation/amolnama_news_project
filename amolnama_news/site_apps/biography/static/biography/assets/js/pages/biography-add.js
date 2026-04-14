@@ -67,7 +67,7 @@
       }
     })
     .catch(function (error) {
-      console.error('Campus entry create failed:', error);
+      console.error('Biography entry create failed:', error);
       showMessage('নেটওয়ার্ক সমস্যা — আবার চেষ্টা করুন', true);
       submitButton.disabled = false;
       submitButton.textContent = 'প্রকাশ করুন (Publish)';
