@@ -330,6 +330,26 @@ directly by `api_unread_count`, not by notification counts.
 - amolnama_news/site_apps/messenger/static/messenger/assets/css/pages/messenger-home.css
 - amolnama_news/site_apps/messenger/static/messenger/assets/js/pages/messenger-home.js
 
+### Live Audio/Video Call (2026-04-14)
+- WebRTC peer-to-peer via WebSocket signaling (consumers_call.py)
+- DB: [messenger].[call_log] — tracks call history
+- Files: call-webrtc.js, call-ui.js, call.css
+- Features: 1-on-1 audio/video, mute/camera/screen share, call timer,
+  ring notification, accept/reject/end, call log system messages in chat
+- STUN: Google free servers. TURN: not configured yet.
+- Needs live testing with two real users on separate devices.
+
+### Planned: Call Privacy Settings (not yet built)
+- User setting to turn off audio/video calls entirely
+- Call permission levels:
+  - Public: anyone can call
+  - Friends only: only mutual followers can call
+  - Certain users: whitelist specific users who can call
+  - Disabled: no one can call
+- DB: needs column on user_profile or a separate call_privacy_settings table
+- UI: settings page toggle + permission dropdown
+- API: check permission before initiating call in api_call_initiate()
+
 ### Related docs
 - amolnama_news/notes/claude/app_documentation/session-2026-04-04-messenger.txt
   (earlier session log covering initial implementation)
