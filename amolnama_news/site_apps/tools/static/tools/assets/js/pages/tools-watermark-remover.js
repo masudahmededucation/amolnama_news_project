@@ -35,8 +35,13 @@
   var originalImageDataURL = null;
   var maskHistory = [];
   var isDrawing = false;
+  var isProcessing = false;
   var brushSize = 25;
   var resultBlobURL = null;
+
+  /* Separate mask canvas — tracks where user brushed (white on black) */
+  var maskCanvas = document.createElement('canvas');
+  var maskContext = maskCanvas.getContext('2d');
 
   /* ===== Step 1: File Upload ===== */
 
@@ -106,6 +111,13 @@
 
     /* Draw image */
     context.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+
+    /* Init mask canvas — same size, all black (nothing masked) */
+    maskCanvas.width = canvas.width;
+    maskCanvas.height = canvas.height;
+    maskContext.fillStyle = '#000';
+    maskContext.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
     maskHistory = [];
     saveMaskState();
   }
@@ -146,19 +158,23 @@
     draw(event);
   }
 
-  var isProcessing = false;
-
   function draw(event) {
     if (!isDrawing || isProcessing) return;
     var x = event.offsetX;
     var y = event.offsetY;
 
-    /* Draw red semi-transparent brush stroke */
+    /* Draw red semi-transparent brush on visible canvas */
     context.globalCompositeOperation = 'source-over';
     context.fillStyle = 'rgba(255, 0, 0, 0.4)';
     context.beginPath();
     context.arc(x, y, brushSize / 2, 0, Math.PI * 2);
     context.fill();
+
+    /* Draw white circle on mask canvas (tracks what to inpaint) */
+    maskContext.fillStyle = '#fff';
+    maskContext.beginPath();
+    maskContext.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+    maskContext.fill();
   }
 
   function stopDraw() {
@@ -184,6 +200,8 @@
   /* Clear mask */
   clearButton.addEventListener('click', function () {
     context.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+    maskContext.fillStyle = '#000';
+    maskContext.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
     maskHistory = [];
     saveMaskState();
   });
@@ -206,63 +224,27 @@
     canvas.style.opacity = '0.6';
     removeButton.disabled = true;
 
-    /* Generate mask image: white where user painted red, black elsewhere */
-    var maskCanvas = document.createElement('canvas');
-    maskCanvas.width = canvas.width;
-    maskCanvas.height = canvas.height;
-    var maskContext = maskCanvas.getContext('2d');
-
-    /* Get current canvas pixels */
-    var canvasData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-    /* Get original image pixels for comparison */
-    var origCanvas = document.createElement('canvas');
-    origCanvas.width = canvas.width;
-    origCanvas.height = canvas.height;
-    var origContext = origCanvas.getContext('2d');
-    origContext.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-    var origData = origContext.getImageData(0, 0, canvas.width, canvas.height);
-
-    /* Build mask: where pixels differ from original (user drew red), mark white */
-    var maskImageData = maskContext.createImageData(canvas.width, canvas.height);
-    for (var i = 0; i < canvasData.data.length; i += 4) {
-      var diffR = Math.abs(canvasData.data[i] - origData.data[i]);
-      var diffG = Math.abs(canvasData.data[i + 1] - origData.data[i + 1]);
-      var diffB = Math.abs(canvasData.data[i + 2] - origData.data[i + 2]);
-      var totalDiff = diffR + diffG + diffB;
-
-      if (totalDiff > 30) {
-        maskImageData.data[i] = 255;
-        maskImageData.data[i + 1] = 255;
-        maskImageData.data[i + 2] = 255;
-        maskImageData.data[i + 3] = 255;
-      } else {
-        maskImageData.data[i] = 0;
-        maskImageData.data[i + 1] = 0;
-        maskImageData.data[i + 2] = 0;
-        maskImageData.data[i + 3] = 255;
-      }
-    }
-    maskContext.putImageData(maskImageData, 0, 0);
+    /* Mask is already built on maskCanvas while user was brushing.
+       White = areas to inpaint, black = keep as-is. */
 
     /* Send original image + mask to server */
     processingOverlay.hidden = false;
     removeButton.disabled = true;
 
     /* Convert original image to blob at full resolution */
-    origCanvas.width = originalImage.width;
-    origCanvas.height = originalImage.height;
-    origContext.drawImage(originalImage, 0, 0);
+    var sendImageCanvas = document.createElement('canvas');
+    sendImageCanvas.width = originalImage.width;
+    sendImageCanvas.height = originalImage.height;
+    sendImageCanvas.getContext('2d').drawImage(originalImage, 0, 0);
 
-    /* Resize mask to full resolution */
-    var fullMaskCanvas = document.createElement('canvas');
-    fullMaskCanvas.width = originalImage.width;
-    fullMaskCanvas.height = originalImage.height;
-    var fullMaskContext = fullMaskCanvas.getContext('2d');
-    fullMaskContext.drawImage(maskCanvas, 0, 0, originalImage.width, originalImage.height);
+    /* Scale mask to full resolution */
+    var sendMaskCanvas = document.createElement('canvas');
+    sendMaskCanvas.width = originalImage.width;
+    sendMaskCanvas.height = originalImage.height;
+    sendMaskCanvas.getContext('2d').drawImage(maskCanvas, 0, 0, originalImage.width, originalImage.height);
 
-    origCanvas.toBlob(function (imageBlob) {
-      fullMaskCanvas.toBlob(function (maskBlob) {
+    sendImageCanvas.toBlob(function (imageBlob) {
+      sendMaskCanvas.toBlob(function (maskBlob) {
         var formData = new FormData();
         formData.append('image_file', imageBlob, 'image.jpg');
         formData.append('mask_file', maskBlob, 'mask.png');
