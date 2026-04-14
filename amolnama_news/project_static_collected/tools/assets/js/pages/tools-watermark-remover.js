@@ -10,7 +10,6 @@
   var fileInput = document.getElementById('wmr-file-input');
   var dropzone = document.getElementById('wmr-dropzone');
   var browseButton = document.getElementById('wmr-browse-button');
-  var cameraButton = document.getElementById('wmr-camera-button');
   var uploadSection = document.getElementById('wmr-upload-section');
   var editorSection = document.getElementById('wmr-editor-section');
   var resultSection = document.getElementById('wmr-result-section');
@@ -45,14 +44,6 @@
     fileInput.value = '';
     fileInput.click();
   });
-
-  if (cameraButton && window.cameraCapture) {
-    cameraButton.addEventListener('click', function () {
-      window.cameraCapture.open(function (capturedFile) {
-        loadImageFile(capturedFile);
-      });
-    });
-  }
 
   fileInput.addEventListener('change', function () {
     if (fileInput.files && fileInput.files[0]) {

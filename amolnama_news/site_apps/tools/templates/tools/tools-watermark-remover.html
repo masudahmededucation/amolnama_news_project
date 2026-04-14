@@ -21,10 +21,7 @@
       <div class="wmr-dropzone-icon">🖼️</div>
       <p class="wmr-dropzone-text">ছবি এখানে টেনে আনুন (Drag & drop image)</p>
       <p class="wmr-dropzone-or">অথবা (or)</p>
-      <div class="file-upload-actions">
-        <button type="button" class="file-upload-camera-button" id="wmr-camera-button" name="wmr_camera_button">📷 ক্যামেরা (Camera)</button>
-        <button type="button" class="file-upload-add-button" id="wmr-browse-button" name="wmr_browse_button">📁 ফাইল নির্বাচন (Browse)</button>
-      </div>
+      <button type="button" class="file-upload-add-button" id="wmr-browse-button" name="wmr_browse_button">📁 ফাইল নির্বাচন (Browse)</button>
       <p class="wmr-dropzone-hint">JPG, PNG, WebP &middot; সর্বোচ্চ ১০ MB</p>
     </div>
   </div>
@@ -75,10 +72,10 @@
     </div>
   </div>
 
-  {# ===== Processing overlay ===== #}
-  <div class="wmr-processing" id="wmr-processing" name="wmr_processing" hidden>
-    <div class="wmr-processing-spinner"></div>
-    <p>প্রক্রিয়াকরণ চলছে... (Processing...)</p>
+  {# ===== Inline processing status (not overlay — user can navigate away) ===== #}
+  <div class="wmr-processing-inline" id="wmr-processing" name="wmr_processing" hidden>
+    <div class="wmr-processing-spinner-inline"></div>
+    <span>প্রক্রিয়াকরণ চলছে... (Processing...)</span>
   </div>
 
   {# ===== Error display ===== #}
