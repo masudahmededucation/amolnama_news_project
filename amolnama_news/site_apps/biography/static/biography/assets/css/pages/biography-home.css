@@ -272,16 +272,17 @@
 }
 
 .biography-quick-add-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: .75rem;
+  align-items: flex-start;
 }
 
 .biography-quick-add-card {
+  flex: 1;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--card);
-  padding: 1rem;
+  padding: .75rem;
   cursor: pointer;
   transition: box-shadow var(--duration-fast);
   text-align: center;
@@ -457,7 +458,7 @@
 }
 
 @media (max-width: 768px) {
-  .biography-quick-add-cards { grid-template-columns: 1fr; }
+  .biography-quick-add-cards { flex-direction: column; }
 }
 
 /* Reduced motion */
