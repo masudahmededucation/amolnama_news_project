@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ক্যাম্পাস এন্ট্রি যোগ করুন — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'studentlife/assets/css/pages/studentlife-add.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="studentlife-add">
+  <a href="{% url 'studentlife:home' %}" class="studentlife-add-back">&larr; ক্যাম্পাস লাইফে ফিরুন</a>
+  <h1 class="studentlife-add-title">ক্যাম্পাস এন্ট্রি যোগ করুন</h1>
+  <p class="studentlife-add-subtitle">আপনার ক্যাম্পাসের গল্প, প্রতিভা বা টিপস শেয়ার করুন</p>
+
+  <form class="studentlife-add-form" id="studentlife-add-form" name="studentlife_add_form">
+    {# Category #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-category" class="studentlife-add-label">ধরন (Category)</label>
+      <select id="studentlife-add-category" name="studentlife_add_category" class="studentlife-add-select" required>
+        <option value="">বিভাগ নির্বাচন করুন</option>
+        {% for category in categories %}
+        <option value="{{ category.content_ref_content_subcategory_id }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }} ({{ category.subcategory_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {# Title #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-title-bn" class="studentlife-add-label">শিরোনাম (Title) *</label>
+      <input type="text" id="studentlife-add-title-bn" name="studentlife_add_title_bn" class="studentlife-add-input" maxlength="300" required placeholder="আপনার এন্ট্রির শিরোনাম" data-bangla-input="true">
+    </div>
+
+    {# Institution #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-institution-name-bn" class="studentlife-add-label">প্রতিষ্ঠানের নাম (Institution)</label>
+      <input type="text" id="studentlife-add-institution-name-bn" name="studentlife_add_institution_name_bn" class="studentlife-add-input" maxlength="300" placeholder="যেমন: ঢাকা বিশ্ববিদ্যালয়" data-bangla-input="true">
+    </div>
+
+    {# Institution type #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-institution-type" class="studentlife-add-label">প্রতিষ্ঠানের ধরন</label>
+      <select id="studentlife-add-institution-type" name="studentlife_add_institution_type" class="studentlife-add-select">
+        <option value="">নির্বাচন করুন</option>
+        <option value="university">বিশ্ববিদ্যালয়</option>
+        <option value="college">কলেজ</option>
+        <option value="school">স্কুল</option>
+        <option value="madrasa">মাদ্রাসা</option>
+        <option value="other">অন্যান্য</option>
+      </select>
+    </div>
+
+    {# Location #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-institution-location" class="studentlife-add-label">অবস্থান (Location)</label>
+      <input type="text" id="studentlife-add-institution-location" name="studentlife_add_institution_location" class="studentlife-add-input" maxlength="300" placeholder="যেমন: মতিঝিল, ঢাকা" data-bangla-input="true">
+    </div>
+
+    {# Short description #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-short-description" class="studentlife-add-label">সংক্ষিপ্ত বিবরণ</label>
+      <input type="text" id="studentlife-add-short-description" name="studentlife_add_short_description" class="studentlife-add-input" maxlength="500" placeholder="এক লাইনে সারসংক্ষেপ" data-bangla-input="true">
+    </div>
+
+    {# Description #}
+    <div class="studentlife-add-field-group">
+      <label for="studentlife-add-description" class="studentlife-add-label">বিস্তারিত বিবরণ</label>
+      <textarea id="studentlife-add-description" name="studentlife_add_description" class="studentlife-add-textarea" rows="6" placeholder="আপনার ক্যাম্পাসের গল্প বিস্তারিত লিখুন..." data-bangla-input="true"></textarea>
+    </div>
+
+    {# Submit #}
+    <div class="studentlife-add-actions">
+      <button type="submit" class="studentlife-add-submit-button" id="studentlife-add-submit-button" name="studentlife_add_submit_button">প্রকাশ করুন (Publish)</button>
+    </div>
+
+    {# Inline message #}
+    <div class="studentlife-add-message" id="studentlife-add-message" name="studentlife_add_message" hidden></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'studentlife/assets/js/pages/studentlife-add.js' %}" defer></script>
+{% endblock %}

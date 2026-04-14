@@ -1,18 +1,270 @@
-/* ========== Student Life Landing Page ========== */
+/* ========== Campus Life Landing Page ========== */
 
-.studentlife-landing {
-  padding: 2rem 0;
+/* Header */
+.studentlife-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 0 1rem;
 }
 
-.studentlife-landing-title {
-  font-size: var(--text-3xl);
+.studentlife-header-title {
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--text);
-  margin: 0 0 .5rem;
+  margin: 0;
 }
 
-.studentlife-landing-subtitle {
+.studentlife-header-subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: .25rem 0 0;
+}
+
+.studentlife-header-add-button {
+  padding: .5rem 1.25rem;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  min-height: var(--touch-target, 44px);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: background var(--duration-fast);
+}
+
+.studentlife-header-add-button:hover {
+  filter: brightness(.9);
+}
+
+.studentlife-header-add-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Filter pills */
+.studentlife-filter-pills {
+  display: flex;
+  gap: .4rem;
+  overflow-x: auto;
+  padding: .5rem 0 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.studentlife-filter-pill {
+  padding: .4rem .8rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: var(--touch-target, 44px);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.studentlife-filter-pill:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.studentlife-filter-pill--active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.studentlife-filter-pill:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Entry grid */
+.studentlife-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* Entry card */
+.studentlife-entry-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow var(--duration-fast);
+}
+
+.studentlife-entry-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.studentlife-entry-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.studentlife-entry-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.studentlife-entry-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.studentlife-entry-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-3xl);
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.studentlife-entry-card-body {
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  flex: 1;
+}
+
+.studentlife-entry-card-category {
+  font-size: var(--text-xs);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.studentlife-entry-card-title {
   font-size: var(--text-base);
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.studentlife-entry-card-institution {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.studentlife-entry-card-description {
+  font-size: var(--text-sm);
   color: var(--muted);
   margin: 0;
+  line-height: 1.5;
+}
+
+.studentlife-entry-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: .4rem;
+}
+
+.studentlife-entry-card-stat {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.studentlife-entry-card-time {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Empty state */
+.studentlife-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.studentlife-empty-state-icon {
+  font-size: var(--text-5xl);
+  margin-bottom: .5rem;
+}
+
+.studentlife-empty-state-text {
+  font-size: var(--text-base);
+  color: var(--text);
+  font-weight: 600;
+  margin: 0 0 .25rem;
+}
+
+.studentlife-empty-state-hint {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Load more */
+.studentlife-load-more {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.studentlife-load-more-button {
+  padding: .5rem 2rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+  transition: background var(--duration-fast);
+}
+
+.studentlife-load-more-button:hover {
+  background: var(--surface);
+}
+
+.studentlife-load-more-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .studentlife-entry-grid { grid-template-columns: repeat(2, 1fr); }
+  .studentlife-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .studentlife-entry-grid { grid-template-columns: 1fr; }
+  .studentlife-header-title { font-size: var(--text-xl); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .studentlife-entry-card,
+  .studentlife-filter-pill,
+  .studentlife-header-add-button,
+  .studentlife-load-more-button {
+    transition: none;
+  }
 }

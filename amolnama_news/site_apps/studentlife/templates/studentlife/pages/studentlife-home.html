@@ -8,11 +8,64 @@
 {% endblock %}
 
 {% block content %}
-<section class="studentlife-landing">
-  <h1 class="studentlife-landing-title">ক্যাম্পাস লাইফ</h1>
-  <p class="studentlife-landing-subtitle">বিশ্ববিদ্যালয় ও স্কুল ক্যাম্পাসের গল্প, প্রতিভা, এবং অভিজ্ঞতা শেয়ার করুন</p>
+<section class="studentlife-header">
+  <div class="studentlife-header-text">
+    <h1 class="studentlife-header-title">ক্যাম্পাস লাইফ</h1>
+    <p class="studentlife-header-subtitle">বিশ্ববিদ্যালয় ও স্কুল ক্যাম্পাসের গল্প, প্রতিভা এবং অভিজ্ঞতা</p>
+  </div>
+  {% if user.is_authenticated %}
+  <a href="{% url 'studentlife:add' %}" class="studentlife-header-add-button" id="studentlife-header-add-button" name="studentlife_header_add_button">+ এন্ট্রি যোগ করুন</a>
+  {% else %}
+  <a href="/account/login/?next={% url 'studentlife:add' %}" class="studentlife-header-add-button" id="studentlife-header-add-button" name="studentlife_header_add_button">+ এন্ট্রি যোগ করুন</a>
+  {% endif %}
 </section>
+
+{# ===== Category filter pills ===== #}
+<div class="studentlife-filter-pills" id="studentlife-filter-pills" name="studentlife_filter_pills">
+  <button type="button" class="studentlife-filter-pill studentlife-filter-pill--active" data-category="" id="studentlife-filter-pill-all" name="studentlife_filter_pill_all">সব ধরন</button>
+  {% for category in categories %}
+  <button type="button" class="studentlife-filter-pill" data-category="{{ category.content_ref_content_subcategory_id }}" id="studentlife-filter-pill-{{ category.subcategory_code }}" name="studentlife_filter_pill_{{ category.subcategory_code }}">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</button>
+  {% endfor %}
+</div>
+
+{# ===== Entry grid ===== #}
+<div class="studentlife-entry-grid" id="studentlife-entry-grid" name="studentlife_entry_grid">
+  {% for entry in entries %}
+  <a href="{% url 'studentlife:detail' campus_entry_slug=entry.campus_entry_slug %}" class="studentlife-entry-card" data-category="{{ entry.link_content_ref_content_subcategory_id }}" id="studentlife-entry-card-{{ entry.blog_studentlife_coll_campus_entry_id }}" name="studentlife_entry_card_{{ entry.blog_studentlife_coll_campus_entry_id }}">
+    <div class="studentlife-entry-card-image">
+      {% if entry.cover_image_url %}
+      <img src="{{ entry.cover_image_url }}" alt="{{ entry.campus_entry_title_bn }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="studentlife-entry-card-placeholder">🎓</div>
+      {% endif %}
+    </div>
+    <div class="studentlife-entry-card-body">
+      {% if entry.category_icon %}<span class="studentlife-entry-card-category">{{ entry.category_icon }} {{ entry.category_name_bn }}</span>{% endif %}
+      <h3 class="studentlife-entry-card-title">{{ entry.campus_entry_title_bn }}</h3>
+      {% if entry.institution_name_bn %}<span class="studentlife-entry-card-institution">🏫 {{ entry.institution_name_bn }}</span>{% endif %}
+      {% if entry.campus_entry_short_description_bn %}<p class="studentlife-entry-card-description">{{ entry.campus_entry_short_description_bn|truncatewords:25 }}</p>{% endif %}
+      <div class="studentlife-entry-card-footer">
+        <span class="studentlife-entry-card-stat">👁 {{ entry.view_count }}</span>
+        <span class="studentlife-entry-card-time">{{ entry.time_ago }}</span>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="studentlife-empty-state" id="studentlife-empty-state" name="studentlife_empty_state">
+    <div class="studentlife-empty-state-icon">🎓</div>
+    <p class="studentlife-empty-state-text">এখনো কোনো ক্যাম্পাস এন্ট্রি যোগ করা হয়নি</p>
+    <p class="studentlife-empty-state-hint">প্রথম এন্ট্রি যোগ করুন — আপনার ক্যাম্পাসের গল্প শেয়ার করুন!</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% if has_next %}
+<div class="studentlife-load-more">
+  <button type="button" class="studentlife-load-more-button" id="studentlife-load-more-button" name="studentlife_load_more_button">আরো দেখুন</button>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'studentlife/assets/js/pages/studentlife-home.js' %}" defer></script>
 {% endblock %}

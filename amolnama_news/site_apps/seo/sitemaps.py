@@ -14,6 +14,7 @@ from amolnama_news.site_apps.debate.models import CollTopic
 from amolnama_news.site_apps.newshub.models import PubArticle
 from amolnama_news.site_apps.poem.models import CollPoemEntry
 from amolnama_news.site_apps.stories.models import CollStory
+from amolnama_news.site_apps.studentlife.models import CollCampusEntry
 
 
 class StaticPageSitemap(Sitemap):
@@ -284,6 +285,37 @@ class DebateTopicSitemap(Sitemap):
         return f"/debate/topic/{topic.topic_slug}/" if topic.topic_slug else f"/debate/topic/{topic.blog_debate_coll_topic_id}/"
 
 
+class CampusLifeLandingSitemap(Sitemap):
+    """Campus Life landing page."""
+    changefreq = "weekly"
+    priority = 0.6
+    protocol = "https"
+
+    def items(self):
+        return ["studentlife:home"]
+
+    def location(self, item):
+        return reverse(item)
+
+
+class CampusLifeDetailSitemap(Sitemap):
+    """Individual campus life entries."""
+    changefreq = "monthly"
+    priority = 0.5
+    protocol = "https"
+
+    def items(self):
+        return CollCampusEntry.objects.filter(
+            campus_entry_status_code='published', is_active=True,
+        ).exclude(campus_entry_slug__isnull=True).exclude(campus_entry_slug='').order_by('-created_at')
+
+    def lastmod(self, entry):
+        return entry.updated_at or entry.created_at
+
+    def location(self, entry):
+        return f'/campus-life/{entry.campus_entry_slug}/'
+
+
 # Registry for urls.py
 SITEMAPS = {
     "static": StaticPageSitemap,
@@ -302,4 +334,6 @@ SITEMAPS = {
     "story_detail": StoryDetailSitemap,
     "debate_landing": DebateLandingSitemap,
     "debate_topic": DebateTopicSitemap,
+    "campus_life_landing": CampusLifeLandingSitemap,
+    "campus_life_detail": CampusLifeDetailSitemap,
 }

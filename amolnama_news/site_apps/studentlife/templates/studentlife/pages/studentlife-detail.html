@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load content_tags %}
+
+{% block title %}{{ entry.campus_entry_title_bn }} — ক্যাম্পাস লাইফ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'studentlife/assets/css/pages/studentlife-detail.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="studentlife-detail">
+
+  {# ===== Hero image ===== #}
+  {% if entry.cover_image_url %}
+  <div class="studentlife-detail-hero" id="studentlife-detail-hero" name="studentlife_detail_hero">
+    <img src="{{ entry.cover_image_url }}" alt="{{ entry.campus_entry_title_bn }}" class="studentlife-detail-hero-image" fetchpriority="high">
+  </div>
+  {% endif %}
+
+  {# ===== Header ===== #}
+  <div class="studentlife-detail-header" id="studentlife-detail-header" name="studentlife_detail_header">
+    {% if category %}
+    <span class="studentlife-detail-category">{{ category.subcategory_icon }} {{ category.subcategory_name_bn }}</span>
+    {% endif %}
+    <h1 class="studentlife-detail-title">{{ entry.campus_entry_title_bn }}</h1>
+    {% if entry.campus_entry_title_en %}
+    <p class="studentlife-detail-subtitle">{{ entry.campus_entry_title_en }}</p>
+    {% endif %}
+    {% if entry.institution_name_bn %}
+    <p class="studentlife-detail-institution">🏫 {{ entry.institution_name_bn }}{% if entry.institution_location_bn %} · 📍 {{ entry.institution_location_bn }}{% endif %}</p>
+    {% endif %}
+    <div class="studentlife-detail-meta">
+      <span>👁 {{ campus_entry_view_count }}</span>
+      <span>{{ entry.time_ago }}</span>
+      <span>✍️ {{ author_display_name }}</span>
+    </div>
+  </div>
+
+  {# ===== Top actions bar ===== #}
+  {% content_actions_bar entry.blog_studentlife_coll_campus_entry_id entry.campus_entry_title_bn "campus_life" position="top" like_count=campus_entry_like_count view_count=campus_entry_view_count %}
+
+  {# ===== Description ===== #}
+  {% if entry.campus_entry_description_bn %}
+  <div class="studentlife-detail-description" id="studentlife-detail-description" name="studentlife_detail_description">
+    {{ entry.campus_entry_description_bn|safe }}
+  </div>
+  {% endif %}
+
+  {# ===== Photos section ===== #}
+  {% if photos %}
+  <div class="studentlife-detail-section" id="studentlife-detail-photos-section" name="studentlife_detail_photos_section">
+    <h2 class="studentlife-detail-section-title">📷 ছবি</h2>
+    <div class="studentlife-detail-photo-grid">
+      {% for photo in photos %}
+      <div class="studentlife-detail-photo-card" id="studentlife-detail-photo-{{ photo.photo_id }}" name="studentlife_detail_photo_{{ photo.photo_id }}">
+        <img src="{{ photo.photo_url }}" alt="{{ photo.caption_bn|default:'Campus photo' }}" loading="lazy" decoding="async" class="studentlife-detail-photo-image">
+        {% if photo.caption_bn %}<span class="studentlife-detail-photo-caption">{{ photo.caption_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ===== YouTube section ===== #}
+  {% if youtube_links %}
+  <div class="studentlife-detail-section" id="studentlife-detail-youtube-section" name="studentlife_detail_youtube_section">
+    <h2 class="studentlife-detail-section-title">🎬 ভিডিও</h2>
+    <div class="studentlife-detail-video-grid">
+      {% for video in youtube_links %}
+      <a href="{{ video.url }}" target="_blank" rel="noopener" class="studentlife-detail-video-card" id="studentlife-detail-video-{{ video.link_id }}" name="studentlife_detail_video_{{ video.link_id }}">
+        {% if video.thumbnail_url %}
+        <img src="{{ video.thumbnail_url }}" alt="{{ video.title_bn|default:'Video' }}" loading="lazy" decoding="async" class="studentlife-detail-video-thumbnail">
+        {% endif %}
+        <span class="studentlife-detail-video-title">{{ video.title_bn|default:video.url }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ===== Bottom actions bar ===== #}
+  {% content_actions_bar entry.blog_studentlife_coll_campus_entry_id entry.campus_entry_title_bn "campus_life" position="bottom" like_count=campus_entry_like_count view_count=campus_entry_view_count %}
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
+{% endblock %}
