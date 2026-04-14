@@ -279,3 +279,90 @@ def api_file_conversion_map(request):
         ]
         conversion_map[ext] = destinations
     return JsonResponse(conversion_map)
+
+
+def tools_watermark_remover(request):
+    """Watermark remover tool page — user draws mask, server inpaints."""
+    context = {
+        "seo": {
+            "title": "ওয়াটারমার্ক রিমুভার — ছবি থেকে ওয়াটারমার্ক মুছুন বিনামূল্যে | Watermark Remover",
+            "description": (
+                "ছবি থেকে ওয়াটারমার্ক, লোগো বা টেক্সট মুছুন — AI ইনপেইন্টিং দিয়ে মূল ছবি অক্ষত রেখে। "
+                "সম্পূর্ণ বিনামূল্যে। "
+                "Remove watermarks, logos or text from images — AI inpainting keeps the original intact. Free."
+            ),
+            "og_type": "website",
+            "json_ld": _tool_json_ld(
+                request,
+                "ওয়াটারমার্ক রিমুভার", "Watermark Remover",
+                "ছবি থেকে ওয়াটারমার্ক মুছুন।",
+                "Remove watermarks from images using AI inpainting.",
+                "/tools/watermark-remover/",
+            ),
+            "breadcrumbs": _tools_breadcrumbs("ওয়াটারমার্ক রিমুভার", "/tools/watermark-remover/"),
+        },
+    }
+    return render(request, "tools/tools-watermark-remover.html", context)
+
+
+def api_watermark_remove(request):
+    """POST — accept image + mask, return inpainted image with watermark removed.
+
+    Uses OpenCV's Telea inpainting algorithm (fast, CPU-only, no extra dependencies).
+    Expects multipart form: image_file + mask_file (both as image files).
+    Returns the inpainted image as JPEG.
+    """
+    import io
+    import numpy as np
+    import cv2
+    from PIL import Image
+    from django.http import HttpResponse
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'POST required'}, status=405)
+
+    image_file = request.FILES.get('image_file')
+    mask_file = request.FILES.get('mask_file')
+
+    if not image_file or not mask_file:
+        return JsonResponse({'success': False, 'error': 'image_file and mask_file required'}, status=400)
+
+    # Size limit: 10MB
+    if image_file.size > 10 * 1024 * 1024:
+        return JsonResponse({'success': False, 'error': 'Image too large (max 10MB)'}, status=400)
+
+    try:
+        # Read image
+        image_bytes = image_file.read()
+        image_array = np.frombuffer(image_bytes, np.uint8)
+        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        if image is None:
+            return JsonResponse({'success': False, 'error': 'Invalid image file'}, status=400)
+
+        # Read mask
+        mask_bytes = mask_file.read()
+        mask_array = np.frombuffer(mask_bytes, np.uint8)
+        mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
+        if mask_raw is None:
+            return JsonResponse({'success': False, 'error': 'Invalid mask file'}, status=400)
+
+        # Resize mask to match image if needed
+        if mask_raw.shape[:2] != image.shape[:2]:
+            mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
+
+        # Threshold mask — white areas = watermark to remove
+        _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
+
+        # Inpaint using Telea algorithm (best for text/logo watermarks)
+        inpaint_radius = 5
+        result = cv2.inpaint(image, mask_binary, inpaint_radius, cv2.INPAINT_TELEA)
+
+        # Encode result as JPEG
+        _, result_buffer = cv2.imencode('.jpg', result, [cv2.IMWRITE_JPEG_QUALITY, 92])
+        result_bytes = result_buffer.tobytes()
+
+        return HttpResponse(result_bytes, content_type='image/jpeg')
+
+    except Exception as inpaint_error:
+        logger.error('Watermark removal failed — %s', inpaint_error)
+        return JsonResponse({'success': False, 'error': 'Processing failed'}, status=500)

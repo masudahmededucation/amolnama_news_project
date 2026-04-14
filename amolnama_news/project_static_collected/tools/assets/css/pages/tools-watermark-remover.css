@@ -1,0 +1,263 @@
+/* ============================================================
+   Watermark Remover Tool
+   ============================================================ */
+
+/* ---- Upload dropzone ---- */
+
+.wmr-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+
+.wmr-dropzone:hover {
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.wmr-dropzone-icon { font-size: var(--text-4xl); margin-bottom: var(--space-2); }
+.wmr-dropzone-text { font-size: var(--text-base); font-weight: 600; color: var(--text); margin: 0 0 var(--space-1); }
+.wmr-dropzone-or { font-size: var(--text-sm); color: var(--muted); margin: 0 0 var(--space-3); }
+.wmr-dropzone-hint { font-size: var(--text-xs); color: var(--muted); margin: var(--space-3) 0 0; }
+
+/* ---- Editor: toolbar + canvas ---- */
+
+.wmr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+}
+
+.wmr-toolbar-left,
+.wmr-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wmr-brush-label { font-size: var(--text-sm); font-weight: 600; color: var(--text); }
+.wmr-brush-slider { width: 120px; }
+.wmr-brush-size-display { font-size: var(--text-xs); color: var(--muted); min-width: 35px; }
+
+.wmr-undo-button,
+.wmr-clear-button {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+}
+
+.wmr-undo-button:hover,
+.wmr-clear-button:hover {
+  background: var(--surface);
+}
+
+.wmr-instruction {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: var(--space-3);
+  line-height: var(--leading-relaxed);
+}
+
+.wmr-canvas-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: var(--space-4);
+}
+
+#wmr-canvas {
+  max-width: 100%;
+  cursor: crosshair;
+}
+
+/* ---- Action buttons ---- */
+
+.wmr-action-buttons {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wmr-remove-button {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+}
+
+.wmr-remove-button:hover { opacity: .9; }
+.wmr-remove-button:disabled { opacity: .5; cursor: not-allowed; }
+
+.wmr-change-button {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  min-height: var(--touch-target);
+}
+
+/* ---- Result section ---- */
+
+.wmr-result-title {
+  text-align: center;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--success);
+  margin-bottom: var(--space-4);
+}
+
+.wmr-result-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.wmr-result-card {
+  text-align: center;
+}
+
+.wmr-result-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+
+.wmr-result-card img {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.wmr-result-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wmr-download-button {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: #fff;
+  background: var(--success);
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  min-height: var(--touch-target);
+}
+
+.wmr-retry-button,
+.wmr-new-button {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  min-height: var(--touch-target);
+}
+
+/* ---- Processing overlay ---- */
+
+.wmr-processing {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, .7);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: #fff;
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.wmr-processing-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, .3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: wmr-spin 1s linear infinite;
+}
+
+@keyframes wmr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Error ---- */
+
+.wmr-error {
+  padding: var(--space-3) var(--space-4);
+  background: var(--danger-light);
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  margin-top: var(--space-3);
+}
+
+/* ---- Mobile ---- */
+
+@media (max-width: 640px) {
+  .wmr-result-compare {
+    grid-template-columns: 1fr;
+  }
+  .wmr-action-buttons,
+  .wmr-result-actions {
+    flex-direction: column;
+  }
+  .wmr-remove-button,
+  .wmr-download-button,
+  .wmr-retry-button,
+  .wmr-new-button,
+  .wmr-change-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wmr-processing-spinner { animation: none; }
+}

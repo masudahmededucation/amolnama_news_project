@@ -47,7 +47,7 @@
 {% block content %}
 <section class="tools-header">
   <h1>Tools</h1>
-  <p class="tools-header-count">১০টি ফ্রি টুল উপলব্ধ — নিচে স্ক্রল করুন ↓</p>
+  <p class="tools-header-count">১১টি ফ্রি টুল উপলব্ধ — নিচে স্ক্রল করুন ↓</p>
 </section>
 
 <div class="tools-grid">
@@ -120,6 +120,13 @@
     <div class="tool-card-icon">🎂</div>
     <h3>বয়স ক্যালকুলেটর (Age Calculator)</h3>
     <p>জন্মতারিখ দিন — বছর, মাস, দিন ও পরবর্তী জন্মদিন কত দিন বাকি তা জানুন</p>
+  </a>
+
+  <a href="{% url 'tools:tools_watermark_remover' %}" class="tool-card tool-card--watermark">
+    <span class="tool-card-tick"></span>
+    <div class="tool-card-icon">🪄</div>
+    <h3>ওয়াটারমার্ক রিমুভার (Watermark Remover)</h3>
+    <p>ছবি থেকে ওয়াটারমার্ক, লোগো বা টেক্সট মুছুন — মূল ছবি অক্ষত থাকবে</p>
   </a>
 
 </div>

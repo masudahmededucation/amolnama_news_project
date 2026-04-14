@@ -15,6 +15,8 @@ urlpatterns = [
     path("photo-album/", views.tools_photo_album, name="tools_photo_album"),
     path("gpa-calculator/", views.tools_gpa_calculator, name="tools_gpa_calculator"),
     path("age-calculator/", views.tools_age_calculator, name="tools_age_calculator"),
+    path("watermark-remover/", views.tools_watermark_remover, name="tools_watermark_remover"),
     path("api/transliterate/", views.api_transliterate, name="api_transliterate"),
     path("api/file-conversion-map/", views.api_file_conversion_map, name="api_file_conversion_map"),
+    path("api/watermark-remove/", views.api_watermark_remove, name="api_watermark_remove"),
 ]

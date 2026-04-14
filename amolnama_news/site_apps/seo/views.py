@@ -122,6 +122,7 @@ Community-driven travel guide for Bangladesh. Destinations include:
 - [Document Merger]({host}tools/merge-documents/) — Merge PDFs and images into one PDF
 - [PDF Splitter]({host}tools/split-pdf/) — Extract specific pages from a PDF file
 - [Photo Album Maker]({host}tools/photo-album/) — Create printable photo album pages
+- [Watermark Remover]({host}tools/watermark-remover/) — Remove watermarks, logos, and unwanted text from images
 
 ## Contact
 
@@ -198,7 +199,7 @@ def service_worker_js(request):
     concrete color values and cannot reference CSS variables.
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v609';
+var CACHE_NAME = 'amolnama-v610';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

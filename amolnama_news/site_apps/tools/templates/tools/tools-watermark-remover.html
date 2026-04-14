@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ওয়াটারমার্ক রিমুভার · Tools · Amolnama News{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools.css' %}">
+<link rel="stylesheet" href="{% static 'tools/assets/css/pages/tools-watermark-remover.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="tool-page tool-page--watermark-remover">
+  <a href="{% url 'tools:tools' %}" class="tool-back">&larr; টুলসে ফিরুন (Back to Tools)</a>
+  <h1>ওয়াটারমার্ক রিমুভার (Watermark Remover)</h1>
+  <p class="tool-subtitle">ছবি থেকে ওয়াটারমার্ক, লোগো বা অবাঞ্ছিত টেক্সট মুছুন — ওয়াটারমার্কের উপর ব্রাশ করুন, তারপর রিমুভ চাপুন।<br>Remove watermarks, logos or unwanted text — brush over the area, then click Remove.</p>
+
+  {# ===== Step 1: Upload ===== #}
+  <div class="wmr-upload-section" id="wmr-upload-section" name="wmr_upload_section">
+    <div class="wmr-dropzone" id="wmr-dropzone" name="wmr_dropzone">
+      <input type="file" id="wmr-file-input" name="wmr_file_input" accept="image/*" hidden>
+      <div class="wmr-dropzone-icon">🖼️</div>
+      <p class="wmr-dropzone-text">ছবি এখানে টেনে আনুন (Drag & drop image)</p>
+      <p class="wmr-dropzone-or">অথবা (or)</p>
+      <div class="file-upload-actions">
+        <button type="button" class="file-upload-camera-button" id="wmr-camera-button" name="wmr_camera_button">📷 ক্যামেরা (Camera)</button>
+        <button type="button" class="file-upload-add-button" id="wmr-browse-button" name="wmr_browse_button">📁 ফাইল নির্বাচন (Browse)</button>
+      </div>
+      <p class="wmr-dropzone-hint">JPG, PNG, WebP &middot; সর্বোচ্চ ১০ MB</p>
+    </div>
+  </div>
+
+  {# ===== Step 2: Mask Drawing ===== #}
+  <div class="wmr-editor-section" id="wmr-editor-section" name="wmr_editor_section" hidden>
+    <div class="wmr-toolbar" id="wmr-toolbar" name="wmr_toolbar">
+      <div class="wmr-toolbar-left">
+        <label class="wmr-brush-label" for="wmr-brush-size">ব্রাশ সাইজ:</label>
+        <input type="range" id="wmr-brush-size" name="wmr_brush_size" min="5" max="80" value="25" class="wmr-brush-slider">
+        <span class="wmr-brush-size-display" id="wmr-brush-size-display" name="wmr_brush_size_display">25px</span>
+      </div>
+      <div class="wmr-toolbar-right">
+        <button type="button" class="wmr-undo-button" id="wmr-undo-button" name="wmr_undo_button" title="আনডু (Undo)">↩ আনডু</button>
+        <button type="button" class="wmr-clear-button" id="wmr-clear-button" name="wmr_clear_button" title="মাস্ক মুছুন (Clear mask)">🗑 পরিষ্কার</button>
+      </div>
+    </div>
+
+    <p class="wmr-instruction">ওয়াটারমার্কের উপর ব্রাশ করুন (লাল রং দেখাবে) → তারপর "রিমুভ" চাপুন<br>Brush over the watermark (shown in red) → then click "Remove"</p>
+
+    <div class="wmr-canvas-wrapper" id="wmr-canvas-wrapper" name="wmr_canvas_wrapper">
+      <canvas id="wmr-canvas" name="wmr_canvas"></canvas>
+    </div>
+
+    <div class="wmr-action-buttons">
+      <button type="button" class="wmr-remove-button" id="wmr-remove-button" name="wmr_remove_button">🪄 ওয়াটারমার্ক রিমুভ করুন (Remove Watermark)</button>
+      <button type="button" class="wmr-change-button" id="wmr-change-button" name="wmr_change_button">🔄 অন্য ছবি (Change Image)</button>
+    </div>
+  </div>
+
+  {# ===== Step 3: Result ===== #}
+  <div class="wmr-result-section" id="wmr-result-section" name="wmr_result_section" hidden>
+    <h2 class="wmr-result-title">✓ ওয়াটারমার্ক সফলভাবে মুছে ফেলা হয়েছে (Watermark Removed)</h2>
+    <div class="wmr-result-compare">
+      <div class="wmr-result-card">
+        <span class="wmr-result-label">আগে (Before)</span>
+        <img id="wmr-result-before" name="wmr_result_before" alt="Before">
+      </div>
+      <div class="wmr-result-card">
+        <span class="wmr-result-label">পরে (After)</span>
+        <img id="wmr-result-after" name="wmr_result_after" alt="After">
+      </div>
+    </div>
+    <div class="wmr-result-actions">
+      <button type="button" class="wmr-download-button" id="wmr-download-button" name="wmr_download_button">💾 ডাউনলোড (Download)</button>
+      <button type="button" class="wmr-retry-button" id="wmr-retry-button" name="wmr_retry_button">↺ আবার চেষ্টা (Retry with mask)</button>
+      <button type="button" class="wmr-new-button" id="wmr-new-button" name="wmr_new_button">🖼️ নতুন ছবি (New Image)</button>
+    </div>
+  </div>
+
+  {# ===== Processing overlay ===== #}
+  <div class="wmr-processing" id="wmr-processing" name="wmr_processing" hidden>
+    <div class="wmr-processing-spinner"></div>
+    <p>প্রক্রিয়াকরণ চলছে... (Processing...)</p>
+  </div>
+
+  {# ===== Error display ===== #}
+  <div class="wmr-error" id="wmr-error" name="wmr_error" hidden></div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{% static 'tools/assets/js/pages/tools-watermark-remover.js' %}"></script>
+{% endblock %}

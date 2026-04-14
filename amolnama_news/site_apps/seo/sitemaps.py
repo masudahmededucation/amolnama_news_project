@@ -83,6 +83,7 @@ class ToolsSitemap(Sitemap):
             "tools:tools_merge_documents",
             "tools:tools_split_pdf",
             "tools:tools_photo_album",
+            "tools:tools_watermark_remover",
         ]
 
     def location(self, item):
