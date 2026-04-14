@@ -15,6 +15,7 @@ from amolnama_news.site_apps.newshub.models import PubArticle
 from amolnama_news.site_apps.poem.models import CollPoemEntry
 from amolnama_news.site_apps.stories.models import CollStory
 from amolnama_news.site_apps.studentlife.models import CollCampusEntry
+from amolnama_news.site_apps.probashbarta.models import CollProbashEntry
 
 
 class StaticPageSitemap(Sitemap):
@@ -316,6 +317,37 @@ class CampusLifeDetailSitemap(Sitemap):
         return f'/campus-life/{entry.campus_entry_slug}/'
 
 
+class ProbashBartaLandingSitemap(Sitemap):
+    """Probash Barta landing page."""
+    changefreq = "weekly"
+    priority = 0.6
+    protocol = "https"
+
+    def items(self):
+        return ["probashbarta:home"]
+
+    def location(self, item):
+        return reverse(item)
+
+
+class ProbashBartaDetailSitemap(Sitemap):
+    """Individual probash barta entries."""
+    changefreq = "monthly"
+    priority = 0.5
+    protocol = "https"
+
+    def items(self):
+        return CollProbashEntry.objects.filter(
+            probash_entry_status_code='published', is_active=True,
+        ).exclude(probash_entry_slug__isnull=True).exclude(probash_entry_slug='').order_by('-created_at')
+
+    def lastmod(self, entry):
+        return entry.updated_at or entry.created_at
+
+    def location(self, entry):
+        return f'/probash-barta/{entry.probash_entry_slug}/'
+
+
 # Registry for urls.py
 SITEMAPS = {
     "static": StaticPageSitemap,
@@ -336,4 +368,6 @@ SITEMAPS = {
     "debate_topic": DebateTopicSitemap,
     "campus_life_landing": CampusLifeLandingSitemap,
     "campus_life_detail": CampusLifeDetailSitemap,
+    "probash_barta_landing": ProbashBartaLandingSitemap,
+    "probash_barta_detail": ProbashBartaDetailSitemap,
 }

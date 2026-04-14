@@ -8,11 +8,80 @@
 {% endblock %}
 
 {% block content %}
-<section class="probashbarta-landing">
-  <h1 class="probashbarta-landing-title">প্রবাস বার্তা</h1>
-  <p class="probashbarta-landing-subtitle">প্রবাসী বাংলাদেশিদের গল্প, অভিজ্ঞতা, টিপস এবং সংবাদ</p>
+<section class="probashbarta-header">
+  <div class="probashbarta-header-text">
+    <h1 class="probashbarta-header-title">প্রবাস বার্তা</h1>
+    <p class="probashbarta-header-subtitle">প্রবাসী বাংলাদেশিদের গল্প, অভিজ্ঞতা, টিপস এবং সংবাদ</p>
+  </div>
+  {% if user.is_authenticated %}
+  <a href="{% url 'probashbarta:add' %}" class="probashbarta-header-add-button" id="probashbarta-header-add-button" name="probashbarta_header_add_button">+ গল্প শেয়ার করুন</a>
+  {% else %}
+  <a href="/account/login/?next={% url 'probashbarta:add' %}" class="probashbarta-header-add-button" id="probashbarta-header-add-button" name="probashbarta_header_add_button">+ গল্প শেয়ার করুন</a>
+  {% endif %}
 </section>
+
+{# ===== Region filter pills ===== #}
+<div class="probashbarta-filter-row" id="probashbarta-filter-region" name="probashbarta_filter_region">
+  <span class="probashbarta-filter-label">অঞ্চল:</span>
+  <div class="probashbarta-filter-pills">
+    <button type="button" class="probashbarta-filter-pill probashbarta-filter-pill--active" data-region="" id="probashbarta-region-pill-all" name="probashbarta_region_pill_all">সব অঞ্চল</button>
+    {% for region in regions %}
+    <button type="button" class="probashbarta-filter-pill" data-region="{{ region.subcategory_code }}" id="probashbarta-region-pill-{{ region.subcategory_code }}" name="probashbarta_region_pill_{{ region.subcategory_code }}">{{ region.subcategory_icon }} {{ region.subcategory_name_bn }}</button>
+    {% endfor %}
+  </div>
+</div>
+
+{# ===== Topic filter pills ===== #}
+<div class="probashbarta-filter-row" id="probashbarta-filter-topic" name="probashbarta_filter_topic">
+  <span class="probashbarta-filter-label">বিষয়:</span>
+  <div class="probashbarta-filter-pills">
+    <button type="button" class="probashbarta-filter-pill probashbarta-filter-pill--active" data-topic="" id="probashbarta-topic-pill-all" name="probashbarta_topic_pill_all">সব বিষয়</button>
+    {% for topic in topics %}
+    <button type="button" class="probashbarta-filter-pill" data-topic="{{ topic.content_ref_content_subcategory_id }}" id="probashbarta-topic-pill-{{ topic.subcategory_code }}" name="probashbarta_topic_pill_{{ topic.subcategory_code }}">{{ topic.subcategory_icon }} {{ topic.subcategory_name_bn }}</button>
+    {% endfor %}
+  </div>
+</div>
+
+{# ===== Entry grid ===== #}
+<div class="probashbarta-entry-grid" id="probashbarta-entry-grid" name="probashbarta_entry_grid">
+  {% for entry in entries %}
+  <a href="{% url 'probashbarta:detail' probash_entry_slug=entry.probash_entry_slug %}" class="probashbarta-entry-card" data-topic="{{ entry.link_content_ref_content_subcategory_id }}" data-region="{{ entry.probash_region_code }}" id="probashbarta-entry-card-{{ entry.blog_probashbarta_coll_probash_entry_id }}" name="probashbarta_entry_card_{{ entry.blog_probashbarta_coll_probash_entry_id }}">
+    <div class="probashbarta-entry-card-image">
+      {% if entry.cover_image_url %}
+      <img src="{{ entry.cover_image_url }}" alt="{{ entry.probash_entry_title_bn }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="probashbarta-entry-card-placeholder">✈️</div>
+      {% endif %}
+    </div>
+    <div class="probashbarta-entry-card-body">
+      <div class="probashbarta-entry-card-badges">
+        {% if entry.topic_icon %}<span class="probashbarta-entry-card-topic">{{ entry.topic_icon }} {{ entry.topic_name_bn }}</span>{% endif %}
+        {% if entry.probash_country_name_bn %}<span class="probashbarta-entry-card-country">📍 {{ entry.probash_country_name_bn }}</span>{% endif %}
+      </div>
+      <h3 class="probashbarta-entry-card-title">{{ entry.probash_entry_title_bn }}</h3>
+      {% if entry.probash_entry_short_description_bn %}<p class="probashbarta-entry-card-description">{{ entry.probash_entry_short_description_bn|truncatewords:25 }}</p>{% endif %}
+      <div class="probashbarta-entry-card-footer">
+        <span class="probashbarta-entry-card-stat">👁 {{ entry.view_count }}</span>
+        <span class="probashbarta-entry-card-time">{{ entry.time_ago }}</span>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="probashbarta-empty-state" id="probashbarta-empty-state" name="probashbarta_empty_state">
+    <div class="probashbarta-empty-state-icon">✈️</div>
+    <p class="probashbarta-empty-state-text">এখনো কোনো প্রবাস বার্তা যোগ করা হয়নি</p>
+    <p class="probashbarta-empty-state-hint">প্রথম গল্প শেয়ার করুন — আপনার প্রবাস জীবনের অভিজ্ঞতা!</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% if has_next %}
+<div class="probashbarta-load-more">
+  <button type="button" class="probashbarta-load-more-button" id="probashbarta-load-more-button" name="probashbarta_load_more_button">আরো দেখুন</button>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'probashbarta/assets/js/pages/probashbarta-home.js' %}" defer></script>
 {% endblock %}

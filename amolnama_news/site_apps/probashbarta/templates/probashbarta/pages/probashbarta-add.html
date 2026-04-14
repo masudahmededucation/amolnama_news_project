@@ -1,0 +1,83 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}প্রবাস বার্তা যোগ করুন — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'probashbarta/assets/css/pages/probashbarta-add.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="probashbarta-add">
+  <a href="{% url 'probashbarta:home' %}" class="probashbarta-add-back">&larr; প্রবাস বার্তায় ফিরুন</a>
+  <h1 class="probashbarta-add-title">প্রবাস বার্তা যোগ করুন</h1>
+  <p class="probashbarta-add-subtitle">আপনার প্রবাস জীবনের গল্প, অভিজ্ঞতা বা টিপস শেয়ার করুন</p>
+
+  <form class="probashbarta-add-form" id="probashbarta-add-form" name="probashbarta_add_form">
+    {# Topic #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-topic" class="probashbarta-add-label">বিষয় (Topic)</label>
+      <select id="probashbarta-add-topic" name="probashbarta_add_topic" class="probashbarta-add-select" required>
+        <option value="">নির্বাচন করুন</option>
+        {% for topic in topics %}
+        <option value="{{ topic.content_ref_content_subcategory_id }}">{{ topic.subcategory_icon }} {{ topic.subcategory_name_bn }} ({{ topic.subcategory_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {# Region #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-region" class="probashbarta-add-label">অঞ্চল (Region)</label>
+      <select id="probashbarta-add-region" name="probashbarta_add_region" class="probashbarta-add-select">
+        <option value="">নির্বাচন করুন</option>
+        {% for region in regions %}
+        <option value="{{ region.subcategory_code }}">{{ region.subcategory_icon }} {{ region.subcategory_name_bn }} ({{ region.subcategory_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {# Country — cascaded from location tables #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-country" class="probashbarta-add-label">দেশ (Country)</label>
+      <select id="probashbarta-add-country" name="probashbarta_add_country" class="probashbarta-add-select">
+        <option value="">নির্বাচন করুন</option>
+      </select>
+    </div>
+
+    {# City #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-city" class="probashbarta-add-label">শহর (City)</label>
+      <input type="text" id="probashbarta-add-city" name="probashbarta_add_city" class="probashbarta-add-input" maxlength="200" placeholder="যেমন: রিয়াদ, লন্ডন, নিউ ইয়র্ক" data-bangla-input="true">
+    </div>
+
+    {# Title #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-title-bn" class="probashbarta-add-label">শিরোনাম (Title) *</label>
+      <input type="text" id="probashbarta-add-title-bn" name="probashbarta_add_title_bn" class="probashbarta-add-input" maxlength="300" required placeholder="আপনার গল্পের শিরোনাম" data-bangla-input="true">
+    </div>
+
+    {# Short description #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-short-description" class="probashbarta-add-label">সংক্ষিপ্ত বিবরণ</label>
+      <input type="text" id="probashbarta-add-short-description" name="probashbarta_add_short_description" class="probashbarta-add-input" maxlength="500" placeholder="এক লাইনে সারসংক্ষেপ" data-bangla-input="true">
+    </div>
+
+    {# Description #}
+    <div class="probashbarta-add-field-group">
+      <label for="probashbarta-add-description" class="probashbarta-add-label">বিস্তারিত বিবরণ</label>
+      <textarea id="probashbarta-add-description" name="probashbarta_add_description" class="probashbarta-add-textarea" rows="6" placeholder="আপনার প্রবাস জীবনের গল্প বিস্তারিত লিখুন..." data-bangla-input="true"></textarea>
+    </div>
+
+    {# Submit #}
+    <div class="probashbarta-add-actions">
+      <button type="submit" class="probashbarta-add-submit-button" id="probashbarta-add-submit-button" name="probashbarta_add_submit_button">প্রকাশ করুন (Publish)</button>
+    </div>
+
+    <div class="probashbarta-add-message" id="probashbarta-add-message" name="probashbarta_add_message" hidden></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'probashbarta/assets/js/pages/probashbarta-add.js' %}" defer></script>
+{% endblock %}

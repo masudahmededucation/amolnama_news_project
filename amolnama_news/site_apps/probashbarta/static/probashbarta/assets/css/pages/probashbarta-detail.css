@@ -1,0 +1,159 @@
+/* ========== Probash Barta Detail Page ========== */
+
+.probashbarta-detail {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.probashbarta-detail-hero {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.probashbarta-detail-hero-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+/* Header */
+.probashbarta-detail-header {
+  margin-bottom: 1rem;
+}
+
+.probashbarta-detail-category {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--primary);
+  display: inline-block;
+  margin-bottom: .3rem;
+}
+
+.probashbarta-detail-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .25rem;
+  line-height: 1.3;
+}
+
+.probashbarta-detail-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0 0 .25rem;
+}
+
+.probashbarta-detail-institution {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0 0 .5rem;
+}
+
+.probashbarta-detail-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Description */
+.probashbarta-detail-description {
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--text);
+  margin: 1.5rem 0;
+}
+
+/* Sections */
+.probashbarta-detail-section {
+  margin: 2rem 0;
+}
+
+.probashbarta-detail-section-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+  padding-bottom: .4rem;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Photo grid */
+.probashbarta-detail-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+
+.probashbarta-detail-photo-card {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.probashbarta-detail-photo-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.probashbarta-detail-photo-caption {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  padding: .25rem;
+  text-align: center;
+}
+
+/* Video grid */
+.probashbarta-detail-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .75rem;
+}
+
+.probashbarta-detail-video-card {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow var(--duration-fast);
+}
+
+.probashbarta-detail-video-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.probashbarta-detail-video-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.probashbarta-detail-video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.probashbarta-detail-video-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: .4rem .5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .probashbarta-detail-photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .probashbarta-detail-video-grid { grid-template-columns: 1fr; }
+  .probashbarta-detail-title { font-size: var(--text-xl); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .probashbarta-detail-video-card { transition: none; }
+}

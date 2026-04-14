@@ -1,0 +1,78 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load content_tags %}
+
+{% block title %}{{ entry.probash_entry_title_bn }} — প্রবাস বার্তা{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'probashbarta/assets/css/pages/probashbarta-detail.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="probashbarta-detail">
+
+  {% if entry.cover_image_url %}
+  <div class="probashbarta-detail-hero" id="probashbarta-detail-hero" name="probashbarta_detail_hero">
+    <img src="{{ entry.cover_image_url }}" alt="{{ entry.probash_entry_title_bn }}" class="probashbarta-detail-hero-image" fetchpriority="high">
+  </div>
+  {% endif %}
+
+  <div class="probashbarta-detail-header" id="probashbarta-detail-header" name="probashbarta_detail_header">
+    <div class="probashbarta-detail-badges">
+      {% if topic %}<span class="probashbarta-detail-topic">{{ topic.subcategory_icon }} {{ topic.subcategory_name_bn }}</span>{% endif %}
+      {% if entry.probash_country_name_bn %}<span class="probashbarta-detail-country">📍 {{ entry.probash_country_name_bn }}{% if entry.probash_city_name_bn %} · {{ entry.probash_city_name_bn }}{% endif %}</span>{% endif %}
+    </div>
+    <h1 class="probashbarta-detail-title">{{ entry.probash_entry_title_bn }}</h1>
+    {% if entry.probash_entry_title_en %}<p class="probashbarta-detail-subtitle">{{ entry.probash_entry_title_en }}</p>{% endif %}
+    <div class="probashbarta-detail-meta">
+      <span>👁 {{ probash_entry_view_count }}</span>
+      <span>{{ entry.time_ago }}</span>
+      <span>✍️ {{ author_display_name }}</span>
+    </div>
+  </div>
+
+  {% content_actions_bar entry.blog_probashbarta_coll_probash_entry_id entry.probash_entry_title_bn "probash_barta" position="top" like_count=probash_entry_like_count view_count=probash_entry_view_count %}
+
+  {% if entry.probash_entry_description_bn %}
+  <div class="probashbarta-detail-description" id="probashbarta-detail-description" name="probashbarta_detail_description">
+    {{ entry.probash_entry_description_bn|safe }}
+  </div>
+  {% endif %}
+
+  {% if photos %}
+  <div class="probashbarta-detail-section" id="probashbarta-detail-photos-section" name="probashbarta_detail_photos_section">
+    <h2 class="probashbarta-detail-section-title">📷 ছবি</h2>
+    <div class="probashbarta-detail-photo-grid">
+      {% for photo in photos %}
+      <div class="probashbarta-detail-photo-card" id="probashbarta-detail-photo-{{ photo.photo_id }}" name="probashbarta_detail_photo_{{ photo.photo_id }}">
+        <img src="{{ photo.photo_url }}" alt="{{ photo.caption_bn|default:'Photo' }}" loading="lazy" decoding="async" class="probashbarta-detail-photo-image">
+        {% if photo.caption_bn %}<span class="probashbarta-detail-photo-caption">{{ photo.caption_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if youtube_links %}
+  <div class="probashbarta-detail-section" id="probashbarta-detail-youtube-section" name="probashbarta_detail_youtube_section">
+    <h2 class="probashbarta-detail-section-title">🎬 ভিডিও</h2>
+    <div class="probashbarta-detail-video-grid">
+      {% for video in youtube_links %}
+      <a href="{{ video.url }}" target="_blank" rel="noopener" class="probashbarta-detail-video-card" id="probashbarta-detail-video-{{ video.link_id }}" name="probashbarta_detail_video_{{ video.link_id }}">
+        {% if video.thumbnail_url %}<img src="{{ video.thumbnail_url }}" alt="{{ video.title_bn|default:'Video' }}" loading="lazy" decoding="async" class="probashbarta-detail-video-thumbnail">{% endif %}
+        <span class="probashbarta-detail-video-title">{{ video.title_bn|default:video.url }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% content_actions_bar entry.blog_probashbarta_coll_probash_entry_id entry.probash_entry_title_bn "probash_barta" position="bottom" like_count=probash_entry_like_count view_count=probash_entry_view_count %}
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
+{% endblock %}
