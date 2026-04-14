@@ -40,4 +40,5 @@ urlpatterns = [
 
     # Call
     path('api/call/initiate/', views_api.api_call_initiate, name='api_call_initiate'),
+    path('api/call/privacy/', views_api.api_call_privacy_update, name='api_call_privacy_update'),
 ]

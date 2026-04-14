@@ -71,25 +71,4 @@
   });
 
   loadMutedWords();
-
-  /* ── Call privacy setting ── */
-  var callPrivacySelect = document.getElementById('profile-call-privacy-select');
-  if (callPrivacySelect) {
-    callPrivacySelect.addEventListener('change', function () {
-      fetch('/portal/api/call-privacy/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getMutedWordCsrfToken() },
-        body: JSON.stringify({ call_privacy_code: callPrivacySelect.value })
-      })
-      .then(function (response) { return response.json(); })
-      .then(function (data) {
-        if (!data.success) {
-          console.error('Call privacy update failed:', data.error);
-        }
-      })
-      .catch(function (error) {
-        console.error('Call privacy update failed:', error);
-      });
-    });
-  }
 })();

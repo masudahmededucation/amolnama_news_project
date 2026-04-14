@@ -25,5 +25,4 @@ urlpatterns = [
     path('api/placeholders/toggle/', views_api.api_placeholder_toggle, name='api_placeholder_toggle'),
     path('api/placeholders/feature/', views_api.api_placeholder_feature, name='api_placeholder_feature'),
     path('api/placeholders/delete/', views_api.api_placeholder_delete, name='api_placeholder_delete'),
-    path('api/call-privacy/', views_api.api_call_privacy_update, name='api_call_privacy_update'),
 ]

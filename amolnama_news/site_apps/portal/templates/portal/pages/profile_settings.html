@@ -48,20 +48,6 @@
 
 <hr class="profile-settings-divider">
 
-<h2 class="profile-section-title" id="call-privacy-section-title" name="call_privacy_section_title">📞 কল সেটিংস (Call Privacy)</h2>
-<p class="muted-words-description">কে আপনাকে অডিও/ভিডিও কল করতে পারবে তা নির্বাচন করুন।</p>
-
-<div class="profile-field-group">
-  <label for="profile-call-privacy-select" class="profile-field-label">কল অনুমতি</label>
-  <select id="profile-call-privacy-select" name="profile_call_privacy_select" class="profile-field-input">
-    <option value="public"{% if call_privacy_code == 'public' %} selected{% endif %}>🌐 সবাই কল করতে পারবে (Public)</option>
-    <option value="friends_only"{% if call_privacy_code == 'friends_only' %} selected{% endif %}>👥 শুধু বন্ধুরা (Friends Only)</option>
-    <option value="disabled"{% if call_privacy_code == 'disabled' %} selected{% endif %}>🚫 কল বন্ধ (Disabled)</option>
-  </select>
-</div>
-
-<hr class="profile-settings-divider">
-
 <h2 class="profile-section-title" id="muted-words-section-title" name="muted_words_section_title">🔇 Muted Words</h2>
 <p class="muted-words-description">এই শব্দগুলো থাকলে পোস্ট আপনার ফিডে দেখাবে না।</p>
 

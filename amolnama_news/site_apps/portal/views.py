@@ -385,20 +385,9 @@ def profile_settings_view(request):
             return redirect("portal:profile_settings")
     else:
         form = ChangePasswordForm(user=request.user)
-    # Get call privacy setting
-    from amolnama_news.site_apps.core.utils import get_user_profile_id
-    from amolnama_news.site_apps.user_account.models import UserProfile
-    call_privacy_code = 'public'
-    user_profile_id = get_user_profile_id(request)
-    if user_profile_id:
-        profile = UserProfile.objects.filter(user_profile_id=user_profile_id).only('call_privacy_code').first()
-        if profile:
-            call_privacy_code = profile.call_privacy_code or 'public'
-
     return render(request, "portal/pages/profile_settings.html", {
         "active_tab": "settings",
         "form": form,
-        "call_privacy_code": call_privacy_code,
         "seo": {"noindex": True, "breadcrumbs": [{"name": "হোম", "url": "/"}, {"name": "পোর্টাল", "url": "/portal/"}, {"name": "প্রোফাইল"}]},
     })
 

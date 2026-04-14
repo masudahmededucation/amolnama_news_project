@@ -1109,6 +1109,37 @@
       });
     }
 
+    // Call privacy submenu toggle
+    const callPrivacyToggle = document.getElementById('messenger-call-privacy-toggle');
+    const callPrivacySubmenu = document.getElementById('messenger-call-privacy-submenu');
+    if (callPrivacyToggle && callPrivacySubmenu) {
+      callPrivacyToggle.addEventListener('click', function () {
+        callPrivacySubmenu.classList.toggle('messenger-hidden');
+        callPrivacyToggle.classList.toggle('messenger-chat-settings-submenu-open');
+      });
+    }
+
+    // Call privacy buttons
+    settingsDropdown.addEventListener('click', function (event) {
+      var privacyItem = event.target.closest('[data-call-privacy]');
+      if (!privacyItem) return;
+      var privacyValue = privacyItem.getAttribute('data-call-privacy');
+      fetch('/messenger/api/call/privacy/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfTokenValue() },
+        body: JSON.stringify({ call_privacy_code: privacyValue })
+      })
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (data.success) {
+          settingsDropdown.classList.add('messenger-hidden');
+        }
+      })
+      .catch(function (error) {
+        console.error('Call privacy update failed:', error);
+      });
+    });
+
     // Auto-delete timer buttons
     settingsDropdown.addEventListener('click', function (event) {
       let item = event.target.closest('[data-auto-delete]');
