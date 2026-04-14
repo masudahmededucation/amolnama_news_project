@@ -246,6 +246,48 @@
   var photoPreview = document.getElementById('biography-quick-add-photo-preview');
   var photoSubmitButton = document.getElementById('biography-quick-add-photo-submit');
 
+  var selectedPhotoFiles = [];
+
+  function renderPhotoThumbnails() {
+    photoPreview.innerHTML = '';
+    if (selectedPhotoFiles.length === 0) {
+      photoPreview.hidden = true;
+      photoBrowseButton.textContent = '📁 ছবি নির্বাচন করুন';
+      return;
+    }
+    for (var thumbIndex = 0; thumbIndex < selectedPhotoFiles.length; thumbIndex++) {
+      (function (file, removeIndex) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'biography-quick-add-photo-thumbnail-wrapper';
+
+        var reader = new FileReader();
+        reader.onload = function (event) {
+          var thumbnailImage = document.createElement('img');
+          thumbnailImage.src = event.target.result;
+          thumbnailImage.className = 'biography-quick-add-photo-thumbnail';
+          wrapper.appendChild(thumbnailImage);
+        };
+        reader.readAsDataURL(file);
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'biography-quick-add-photo-remove-button';
+        removeButton.textContent = '✕';
+        removeButton.title = 'মুছুন';
+        removeButton.addEventListener('click', function (event) {
+          event.stopPropagation();
+          selectedPhotoFiles.splice(removeIndex, 1);
+          renderPhotoThumbnails();
+        });
+        wrapper.appendChild(removeButton);
+
+        photoPreview.appendChild(wrapper);
+      })(selectedPhotoFiles[thumbIndex], thumbIndex);
+    }
+    photoPreview.hidden = false;
+    photoBrowseButton.textContent = '📁 ' + selectedPhotoFiles.length + ' টি ছবি নির্বাচিত';
+  }
+
   if (photoBrowseButton && photoFileInput) {
     photoBrowseButton.addEventListener('click', function () {
       photoFileInput.click();
@@ -253,21 +295,11 @@
 
     photoFileInput.addEventListener('change', function () {
       if (!photoFileInput.files.length) return;
-      photoPreview.innerHTML = '';
       for (var fileIndex = 0; fileIndex < photoFileInput.files.length; fileIndex++) {
-        (function (file) {
-          var reader = new FileReader();
-          reader.onload = function (event) {
-            var thumbnailImage = document.createElement('img');
-            thumbnailImage.src = event.target.result;
-            thumbnailImage.className = 'biography-quick-add-photo-thumbnail';
-            photoPreview.appendChild(thumbnailImage);
-          };
-          reader.readAsDataURL(file);
-        })(photoFileInput.files[fileIndex]);
+        selectedPhotoFiles.push(photoFileInput.files[fileIndex]);
       }
-      photoPreview.hidden = false;
-      photoBrowseButton.textContent = '📁 ' + photoFileInput.files.length + ' টি ছবি নির্বাচিত';
+      photoFileInput.value = '';
+      renderPhotoThumbnails();
     });
   }
 
@@ -276,7 +308,7 @@
       var messageElement = document.getElementById('biography-quick-add-photo-message');
       var personId = document.getElementById('biography-quick-add-photo-person-id').value;
 
-      if (!personId || !photoFileInput.files.length) {
+      if (!personId || !selectedPhotoFiles.length) {
         messageElement.textContent = 'ব্যক্তি ও ছবি আবশ্যক';
         messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
         messageElement.hidden = false;
@@ -287,7 +319,7 @@
       photoSubmitButton.textContent = 'আপলোড হচ্ছে...';
       var captionBn = (document.getElementById('biography-quick-add-photo-caption').value || '').trim();
       var photoEraLabelBn = (document.getElementById('biography-quick-add-photo-era-label').value || '').trim();
-      var totalFiles = photoFileInput.files.length;
+      var totalFiles = selectedPhotoFiles.length;
       var uploadedCount = 0;
       var failedCount = 0;
 
@@ -327,15 +359,13 @@
               messageElement.hidden = false;
               photoSubmitButton.disabled = false;
               photoSubmitButton.textContent = 'আপলোড করুন';
-              photoFileInput.value = '';
-              photoPreview.hidden = true;
-              photoPreview.innerHTML = '';
-              photoBrowseButton.textContent = '📁 ছবি নির্বাচন করুন';
+              selectedPhotoFiles = [];
+              renderPhotoThumbnails();
               document.getElementById('biography-quick-add-photo-caption').value = '';
               document.getElementById('biography-quick-add-photo-era-label').value = '';
             }
           });
-        })(photoFileInput.files[fileIndex]);
+        })(selectedPhotoFiles[fileIndex]);
       }
     });
   }
