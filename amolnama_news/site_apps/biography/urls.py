@@ -13,4 +13,7 @@ urlpatterns = [
 
     # API
     path('api/create/', views_api.api_biography_entry_create, name='api_biography_entry_create'),
+    path('api/persons/search/', views_api.api_biography_person_search, name='api_biography_person_search'),
+    path('api/quick-add/quote/', views_api.api_biography_quick_add_quote, name='api_biography_quick_add_quote'),
+    path('api/quick-add/youtube/', views_api.api_biography_quick_add_youtube, name='api_biography_quick_add_youtube'),
 ]

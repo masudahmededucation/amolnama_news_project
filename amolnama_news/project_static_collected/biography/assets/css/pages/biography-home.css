@@ -259,12 +259,177 @@
   .biography-header-title { font-size: var(--text-xl); }
 }
 
+/* Quick-add section */
+.biography-quick-add-section {
+  margin-bottom: 1.5rem;
+}
+
+.biography-quick-add-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+}
+
+.biography-quick-add-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .75rem;
+}
+
+.biography-quick-add-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  padding: 1rem;
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast);
+  text-align: center;
+}
+
+.biography-quick-add-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.biography-quick-add-card-icon {
+  font-size: var(--text-2xl);
+  margin-bottom: .3rem;
+}
+
+.biography-quick-add-card-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.biography-quick-add-card-hint {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: .25rem 0 0;
+}
+
+.biography-quick-add-card-form {
+  margin-top: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  text-align: left;
+}
+
+.biography-quick-add-input,
+.biography-quick-add-textarea {
+  width: 100%;
+  padding: .5rem .6rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.biography-quick-add-input:focus,
+.biography-quick-add-textarea:focus {
+  border-color: var(--purple);
+}
+
+.biography-quick-add-textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.biography-quick-add-submit-button {
+  padding: .4rem 1rem;
+  min-height: var(--touch-target, 44px);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--purple);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.biography-quick-add-submit-button:hover {
+  filter: brightness(.9);
+}
+
+.biography-quick-add-submit-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.biography-quick-add-message {
+  font-size: var(--text-xs);
+  padding: .3rem .5rem;
+  border-radius: var(--radius-sm);
+}
+
+.biography-quick-add-message--success {
+  background: var(--success-light);
+  color: var(--primary);
+}
+
+.biography-quick-add-message--error {
+  background: var(--danger-light);
+  color: var(--danger-text);
+}
+
+/* Person search dropdown */
+.biography-quick-add-person-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--elevation-3);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.biography-quick-add-person-option {
+  padding: .4rem .6rem;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  display: block;
+  color: var(--text);
+}
+
+.biography-quick-add-person-option:hover {
+  background: var(--surface);
+}
+
+.biography-quick-add-person-option-name {
+  font-weight: 600;
+}
+
+.biography-quick-add-person-option-info {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+@media (max-width: 768px) {
+  .biography-quick-add-cards { grid-template-columns: 1fr; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .biography-entry-card,
   .biography-filter-pill,
   .biography-header-add-button,
-  .biography-load-more-button {
+  .biography-load-more-button,
+  .biography-quick-add-card {
     transition: none;
   }
 }

@@ -27,6 +27,52 @@
   {% endfor %}
 </div>
 
+{# ===== Quick-add cards ===== #}
+{% if user.is_authenticated %}
+<div class="biography-quick-add-section" id="biography-quick-add-section" name="biography_quick_add_section">
+  <h2 class="biography-quick-add-title">দ্রুত যোগ করুন (Quick Add)</h2>
+  <div class="biography-quick-add-cards">
+
+    {# Quote quick-add #}
+    <div class="biography-quick-add-card" id="biography-quick-add-quote-card" name="biography_quick_add_quote_card">
+      <div class="biography-quick-add-card-icon">💬</div>
+      <h3 class="biography-quick-add-card-label">উক্তি যোগ করুন</h3>
+      <div class="biography-quick-add-card-form" id="biography-quick-add-quote-form" name="biography_quick_add_quote_form" hidden>
+        <input type="text" class="biography-quick-add-input biography-quick-add-person-search" id="biography-quick-add-quote-person" name="biography_quick_add_quote_person" placeholder="ব্যক্তির নাম লিখুন..." autocomplete="off">
+        <input type="hidden" id="biography-quick-add-quote-person-id" name="biography_quick_add_quote_person_id">
+        <input type="text" class="biography-quick-add-input" id="biography-quick-add-quote-title" name="biography_quick_add_quote_title" placeholder="শিরোনাম (২ শব্দ)" maxlength="100">
+        <textarea class="biography-quick-add-textarea" id="biography-quick-add-quote-text" name="biography_quick_add_quote_text" placeholder="উক্তি লিখুন..." rows="2" maxlength="2000"></textarea>
+        <textarea class="biography-quick-add-textarea" id="biography-quick-add-quote-explanation" name="biography_quick_add_quote_explanation" placeholder="ব্যাখ্যা (ঐচ্ছিক)" rows="2"></textarea>
+        <button type="button" class="biography-quick-add-submit-button" id="biography-quick-add-quote-submit" name="biography_quick_add_quote_submit">যোগ করুন</button>
+        <div class="biography-quick-add-message" id="biography-quick-add-quote-message" name="biography_quick_add_quote_message" hidden></div>
+      </div>
+    </div>
+
+    {# YouTube quick-add #}
+    <div class="biography-quick-add-card" id="biography-quick-add-youtube-card" name="biography_quick_add_youtube_card">
+      <div class="biography-quick-add-card-icon">🎬</div>
+      <h3 class="biography-quick-add-card-label">ভিডিও যোগ করুন</h3>
+      <div class="biography-quick-add-card-form" id="biography-quick-add-youtube-form" name="biography_quick_add_youtube_form" hidden>
+        <input type="text" class="biography-quick-add-input biography-quick-add-person-search" id="biography-quick-add-youtube-person" name="biography_quick_add_youtube_person" placeholder="ব্যক্তির নাম লিখুন..." autocomplete="off">
+        <input type="hidden" id="biography-quick-add-youtube-person-id" name="biography_quick_add_youtube_person_id">
+        <input type="url" class="biography-quick-add-input" id="biography-quick-add-youtube-url" name="biography_quick_add_youtube_url" placeholder="YouTube URL" data-no-bangla="">
+        <input type="text" class="biography-quick-add-input" id="biography-quick-add-youtube-title" name="biography_quick_add_youtube_title" placeholder="ভিডিও শিরোনাম (ঐচ্ছিক)" maxlength="300">
+        <button type="button" class="biography-quick-add-submit-button" id="biography-quick-add-youtube-submit" name="biography_quick_add_youtube_submit">যোগ করুন</button>
+        <div class="biography-quick-add-message" id="biography-quick-add-youtube-message" name="biography_quick_add_youtube_message" hidden></div>
+      </div>
+    </div>
+
+    {# Photo quick-add (placeholder — needs file upload) #}
+    <div class="biography-quick-add-card" id="biography-quick-add-photo-card" name="biography_quick_add_photo_card">
+      <div class="biography-quick-add-card-icon">📷</div>
+      <h3 class="biography-quick-add-card-label">ছবি যোগ করুন</h3>
+      <p class="biography-quick-add-card-hint">শীঘ্রই আসছে</p>
+    </div>
+
+  </div>
+</div>
+{% endif %}
+
 <div class="biography-entry-grid" id="biography-entry-grid" name="biography_entry_grid">
   {% for entry in entries %}
   <a href="{% url 'biography:detail' biography_entry_slug=entry.biography_entry_slug %}" class="biography-entry-card" data-category="{{ entry.link_content_ref_content_subcategory_id }}" id="biography-entry-card-{{ entry.blog_biography_coll_biography_entry_id }}" name="biography_entry_card_{{ entry.blog_biography_coll_biography_entry_id }}">

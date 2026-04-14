@@ -82,3 +82,208 @@ def api_biography_entry_create(request):
         'biography_entry_id': entry.blog_biography_coll_biography_entry_id,
         'biography_entry_slug': entry.biography_entry_slug,
     })
+
+
+# =========================================================
+# PERSON SEARCH (Tom Select autocomplete)
+# =========================================================
+
+def api_biography_person_search(request):
+    """GET — search ref_biography_person for Tom Select dropdown.
+
+    Query: ?q=রবীন্দ্র or ?q=Tagore
+    Returns: list of matching persons with id, name_bn, name_en, occupation.
+    """
+    from django.db import connection as db_connection
+    from django.db.models import Q
+
+    query = (request.GET.get('q') or '').strip()
+    if len(query) < 1:
+        return JsonResponse({'success': True, 'persons': []})
+
+    try:
+        with db_connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT TOP 20 blog_biography_ref_biography_person_id,
+                       person_name_bn, person_name_en,
+                       person_birth_year, person_death_year,
+                       person_occupation_bn, person_category_code
+                FROM [blog_biography].[ref_biography_person]
+                WHERE is_active = 1
+                  AND (person_name_bn LIKE %s OR person_name_en LIKE %s)
+                ORDER BY person_name_en
+            """, [f'%{query}%', f'%{query}%'])
+            persons = [
+                {
+                    'person_id': row[0],
+                    'person_name_bn': row[1],
+                    'person_name_en': row[2],
+                    'person_birth_year': row[3],
+                    'person_death_year': row[4],
+                    'person_occupation_bn': row[5],
+                    'person_category_code': row[6],
+                }
+                for row in cursor.fetchall()
+            ]
+        return JsonResponse({'success': True, 'persons': persons})
+    except Exception as search_error:
+        logger.exception('Biography person search failed')
+        return JsonResponse({'success': False, 'error': str(search_error)}, status=500)
+
+
+# =========================================================
+# QUICK-ADD — stub biography + sub-content in one step
+# =========================================================
+
+def _get_or_create_stub_biography(person_id, user_profile_id):
+    """Get existing biography for person, or create a minimal stub."""
+    from django.db import connection as db_connection
+
+    # Check if biography already exists for this person
+    existing = CollBiographyEntry.objects.filter(
+        link_blog_biography_ref_biography_person_id=person_id,
+        is_active=True,
+    ).first()
+    if existing:
+        return existing
+
+    # Get person info from ref table
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT person_name_bn, person_name_en, person_occupation_bn,
+                   person_category_code, person_birth_year, person_death_year
+            FROM [blog_biography].[ref_biography_person]
+            WHERE blog_biography_ref_biography_person_id = %s AND is_active = 1
+        """, [person_id])
+        row = cursor.fetchone()
+        if not row:
+            return None
+
+    person_name_bn = row[0]
+    person_name_en = row[1]
+    person_occupation_bn = row[2]
+    person_category_code = row[3]
+    person_birth_year = row[4]
+    person_death_year = row[5]
+
+    # Find matching subcategory
+    from amolnama_news.site_apps.content.models import RefContentSubcategory
+    subcategory = RefContentSubcategory.objects.filter(
+        group_code='blog_biography_category',
+        subcategory_code=person_category_code,
+        is_active=True,
+    ).first()
+
+    slug = bangla_slugify(person_name_bn or person_name_en)
+    existing_slug_count = CollBiographyEntry.objects.filter(biography_entry_slug=slug).count()
+    if existing_slug_count > 0:
+        slug = f'{slug}-{existing_slug_count + 1}'
+
+    now = timezone.now()
+    stub = CollBiographyEntry.objects.create(
+        link_user_profile_id=user_profile_id,
+        biography_entry_title_bn=person_name_bn,
+        biography_entry_title_en=person_name_en,
+        biography_entry_slug=slug,
+        biography_entry_short_description_bn=person_occupation_bn,
+        link_content_ref_content_subcategory_id=subcategory.content_ref_content_subcategory_id if subcategory else None,
+        link_blog_biography_ref_biography_person_id=person_id,
+        subject_full_name_bn=person_name_bn,
+        subject_full_name_en=person_name_en,
+        subject_occupation_bn=person_occupation_bn,
+        subject_birth_date=None,
+        is_living_person=person_death_year is None,
+        biography_entry_status_code='published',
+        created_at=now,
+    )
+    return stub
+
+
+@login_required
+@require_POST
+def api_biography_quick_add_quote(request):
+    """POST — quick-add a quote for a person. Auto-creates stub biography if needed."""
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    person_id = data.get('person_id')
+    quote_title_bn = (data.get('quote_title_bn') or '').strip()
+    quote_text_bn = (data.get('quote_text_bn') or '').strip()
+
+    if not person_id or not quote_title_bn or not quote_text_bn:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি, শিরোনাম ও উক্তি আবশ্যক'}, status=400)
+
+    biography = _get_or_create_stub_biography(person_id, user_profile_id)
+    if not biography:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি পাওয়া যায়নি'}, status=400)
+
+    from django.db import connection as db_connection
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [blog_biography].[biography_quote]
+                (link_blog_biography_coll_biography_entry_id, quote_title_bn,
+                 quote_text_bn, quote_text_en, quote_explanation_bn, quote_source_bn, sort_order)
+            VALUES (%s, %s, %s, %s, %s, %s, 0)
+        """, [
+            biography.blog_biography_coll_biography_entry_id,
+            quote_title_bn,
+            quote_text_bn,
+            (data.get('quote_text_en') or '').strip() or None,
+            (data.get('quote_explanation_bn') or '').strip() or None,
+            (data.get('quote_source_bn') or '').strip() or None,
+        ])
+
+    return JsonResponse({
+        'success': True,
+        'biography_slug': biography.biography_entry_slug,
+    })
+
+
+@login_required
+@require_POST
+def api_biography_quick_add_youtube(request):
+    """POST — quick-add a YouTube link for a person."""
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    person_id = data.get('person_id')
+    youtube_url = (data.get('youtube_url') or '').strip()
+
+    if not person_id or not youtube_url:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি ও ভিডিও URL আবশ্যক'}, status=400)
+
+    biography = _get_or_create_stub_biography(person_id, user_profile_id)
+    if not biography:
+        return JsonResponse({'success': False, 'error': 'ব্যক্তি পাওয়া যায়নি'}, status=400)
+
+    from django.db import connection as db_connection
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO [blog_biography].[biography_entry_youtube_link]
+                (link_blog_biography_coll_biography_entry_id, link_user_profile_id,
+                 youtube_url, video_title_bn, description_bn, sort_order)
+            VALUES (%s, %s, %s, %s, %s, 0)
+        """, [
+            biography.blog_biography_coll_biography_entry_id,
+            user_profile_id,
+            youtube_url,
+            (data.get('video_title_bn') or '').strip() or None,
+            (data.get('description_bn') or '').strip() or None,
+        ])
+
+    return JsonResponse({
+        'success': True,
+        'biography_slug': biography.biography_entry_slug,
+    })
