@@ -130,6 +130,10 @@
   letter-spacing: .08em;
 }
 
+.sidebar-navigation-section-label--cultural {
+  color: var(--primary);
+}
+
 .app-layout-collapsed .sidebar-navigation-section-label {
   display: none;
 }
