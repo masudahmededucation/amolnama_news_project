@@ -306,16 +306,18 @@ def tools_watermark_remover(request):
 
 
 def api_watermark_remove(request):
-    """POST — accept image + mask, return inpainted image with watermark removed.
+    """POST — accept image + optional mask, return inpainted image.
+
+    Two modes:
+    1. Manual mask: image_file + mask_file → inpaint masked areas
+    2. Auto-detect: image_file only (no mask or empty mask) → detect bright
+       watermarks via thresholding and inpaint them automatically
 
     Uses OpenCV's Telea inpainting algorithm (fast, CPU-only, no extra dependencies).
-    Expects multipart form: image_file + mask_file (both as image files).
     Returns the inpainted image as JPEG.
     """
-    import io
     import numpy as np
     import cv2
-    from PIL import Image
     from django.http import HttpResponse
 
     if request.method != 'POST':
@@ -324,10 +326,9 @@ def api_watermark_remove(request):
     image_file = request.FILES.get('image_file')
     mask_file = request.FILES.get('mask_file')
 
-    if not image_file or not mask_file:
-        return JsonResponse({'success': False, 'error': 'image_file and mask_file required'}, status=400)
+    if not image_file:
+        return JsonResponse({'success': False, 'error': 'image_file required'}, status=400)
 
-    # Size limit: 10MB
     if image_file.size > 10 * 1024 * 1024:
         return JsonResponse({'success': False, 'error': 'Image too large (max 10MB)'}, status=400)
 
@@ -339,28 +340,37 @@ def api_watermark_remove(request):
         if image is None:
             return JsonResponse({'success': False, 'error': 'Invalid image file'}, status=400)
 
-        # Cap image size at 2000px for fast processing (5-10s max on CPU)
+        # Cap image size at 2000px for fast processing
         max_dimension = 2000
         height, width = image.shape[:2]
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
             image = cv2.resize(image, (int(width * scale), int(height * scale)))
 
-        # Read mask
-        mask_bytes = mask_file.read()
-        mask_array = np.frombuffer(mask_bytes, np.uint8)
-        mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
-        if mask_raw is None:
-            return JsonResponse({'success': False, 'error': 'Invalid mask file'}, status=400)
+        mask_binary = None
 
-        # Resize mask to match image if needed
-        if mask_raw.shape[:2] != image.shape[:2]:
-            mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
+        if mask_file:
+            # Manual mask provided
+            mask_bytes = mask_file.read()
+            mask_array = np.frombuffer(mask_bytes, np.uint8)
+            mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
+            if mask_raw is not None:
+                if mask_raw.shape[:2] != image.shape[:2]:
+                    mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
+                _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
+                # Check if mask is empty (all black — user didn't brush)
+                if cv2.countNonZero(mask_binary) == 0:
+                    mask_binary = None
 
-        # Threshold mask — white areas = watermark to remove
-        _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
+        if mask_binary is None:
+            # Auto-detect: threshold bright areas as watermark candidates
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            _, mask_binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+            # Dilate to cover edges of watermark text/logo
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            mask_binary = cv2.dilate(mask_binary, kernel, iterations=2)
 
-        # Inpaint using Telea algorithm (best for text/logo watermarks)
+        # Inpaint using Telea algorithm
         inpaint_radius = 5
         result = cv2.inpaint(image, mask_binary, inpaint_radius, cv2.INPAINT_TELEA)
 

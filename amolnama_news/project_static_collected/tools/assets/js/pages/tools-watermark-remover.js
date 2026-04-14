@@ -147,8 +147,8 @@
     var rect = canvas.getBoundingClientRect();
     var touch = event.touches[0];
     return {
-      offsetX: touch.clientX - rect.left,
-      offsetY: touch.clientY - rect.top
+      clientX: touch.clientX,
+      clientY: touch.clientY
     };
   }
 
@@ -160,8 +160,13 @@
 
   function draw(event) {
     if (!isDrawing || isProcessing) return;
-    var x = event.offsetX;
-    var y = event.offsetY;
+
+    /* Fix mouse offset: account for CSS scaling of canvas */
+    var rect = canvas.getBoundingClientRect();
+    var scaleX = canvas.width / rect.width;
+    var scaleY = canvas.height / rect.height;
+    var x = (event.clientX - rect.left) * scaleX;
+    var y = (event.clientY - rect.top) * scaleY;
 
     /* Draw red semi-transparent brush on visible canvas */
     context.globalCompositeOperation = 'source-over';
@@ -215,6 +220,34 @@
 
   /* ===== Step 3: Remove Watermark ===== */
 
+  /* Auto remove — send image only, server detects watermark */
+  var autoRemoveButton = document.getElementById('wmr-auto-remove-button');
+  if (autoRemoveButton) {
+    autoRemoveButton.addEventListener('click', function () {
+      if (!originalImage || isProcessing) return;
+      isProcessing = true;
+      canvas.style.pointerEvents = 'none';
+      canvas.style.opacity = '0.6';
+      autoRemoveButton.disabled = true;
+      removeButton.disabled = true;
+      processingOverlay.hidden = false;
+
+      var sendCanvas = document.createElement('canvas');
+      sendCanvas.width = originalImage.width;
+      sendCanvas.height = originalImage.height;
+      sendCanvas.getContext('2d').drawImage(originalImage, 0, 0);
+
+      sendCanvas.toBlob(function (imageBlob) {
+        var formData = new FormData();
+        formData.append('image_file', imageBlob, 'image.jpg');
+        /* No mask_file — server auto-detects */
+
+        sendToServer(formData);
+      }, 'image/jpeg', 0.95);
+    });
+  }
+
+  /* Manual remove — send image + brushed mask */
   removeButton.addEventListener('click', function () {
     if (!originalImage || isProcessing) return;
 
@@ -224,20 +257,14 @@
     canvas.style.opacity = '0.6';
     removeButton.disabled = true;
 
-    /* Mask is already built on maskCanvas while user was brushing.
-       White = areas to inpaint, black = keep as-is. */
-
-    /* Send original image + mask to server */
+    /* Send image + brushed mask */
     processingOverlay.hidden = false;
-    removeButton.disabled = true;
 
-    /* Convert original image to blob at full resolution */
     var sendImageCanvas = document.createElement('canvas');
     sendImageCanvas.width = originalImage.width;
     sendImageCanvas.height = originalImage.height;
     sendImageCanvas.getContext('2d').drawImage(originalImage, 0, 0);
 
-    /* Scale mask to full resolution */
     var sendMaskCanvas = document.createElement('canvas');
     sendMaskCanvas.width = originalImage.width;
     sendMaskCanvas.height = originalImage.height;
@@ -248,47 +275,49 @@
         var formData = new FormData();
         formData.append('image_file', imageBlob, 'image.jpg');
         formData.append('mask_file', maskBlob, 'mask.png');
-
-        fetch('/tools/api/watermark-remove/', {
-          method: 'POST',
-          body: formData,
-          headers: { 'X-CSRFToken': window.getCsrfTokenValue() }
-        })
-        .then(function (response) {
-          if (!response.ok) {
-            return response.json().then(function (data) {
-              throw new Error(data.error || 'Server error');
-            });
-          }
-          return response.blob();
-        })
-        .then(function (resultBlob) {
-          processingOverlay.hidden = true;
-          isProcessing = false;
-          canvas.style.pointerEvents = '';
-          canvas.style.opacity = '';
-          removeButton.disabled = false;
-
-          if (resultBlobURL) URL.revokeObjectURL(resultBlobURL);
-          resultBlobURL = URL.createObjectURL(resultBlob);
-
-          resultBefore.src = originalImageDataURL;
-          resultAfter.src = resultBlobURL;
-
-          editorSection.hidden = true;
-          resultSection.hidden = false;
-        })
-        .catch(function (fetchError) {
-          processingOverlay.hidden = true;
-          isProcessing = false;
-          canvas.style.pointerEvents = '';
-          canvas.style.opacity = '';
-          removeButton.disabled = false;
-          showError('প্রক্রিয়াকরণ ব্যর্থ — ' + fetchError.message);
-        });
+        sendToServer(formData);
       }, 'image/png');
     }, 'image/jpeg', 0.95);
   });
+
+  /* Shared server call */
+  function sendToServer(formData) {
+    fetch('/tools/api/watermark-remove/', {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-CSRFToken': window.getCsrfTokenValue() }
+    })
+    .then(function (response) {
+      if (!response.ok) {
+        return response.json().then(function (data) {
+          throw new Error(data.error || 'Server error');
+        });
+      }
+      return response.blob();
+    })
+    .then(function (resultBlob) {
+      unlockUI();
+      if (resultBlobURL) URL.revokeObjectURL(resultBlobURL);
+      resultBlobURL = URL.createObjectURL(resultBlob);
+      resultBefore.src = originalImageDataURL;
+      resultAfter.src = resultBlobURL;
+      editorSection.hidden = true;
+      resultSection.hidden = false;
+    })
+    .catch(function (fetchError) {
+      unlockUI();
+      showError('প্রক্রিয়াকরণ ব্যর্থ — ' + fetchError.message);
+    });
+  }
+
+  function unlockUI() {
+    processingOverlay.hidden = true;
+    isProcessing = false;
+    canvas.style.pointerEvents = '';
+    canvas.style.opacity = '';
+    removeButton.disabled = false;
+    if (autoRemoveButton) autoRemoveButton.disabled = false;
+  }
 
   /* ===== Step 4: Result Actions ===== */
 
