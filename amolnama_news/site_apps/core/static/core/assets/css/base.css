@@ -3,6 +3,13 @@
 
 /* All :root variables live in colors.css — the single source of truth */
 
+/* Global hidden attribute enforcement — ensures [hidden] ALWAYS hides
+   an element regardless of any CSS display: flex/grid/block declaration.
+   Without this, any CSS that sets display overrides the HTML hidden attribute. */
+[hidden] {
+  display: none !important;
+}
+
 /* Always show scrollbar to prevent layout shift when navigating between pages */
 html {
   overflow-y: scroll;
