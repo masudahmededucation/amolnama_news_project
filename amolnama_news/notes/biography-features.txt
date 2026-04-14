@@ -82,8 +82,40 @@ Core features (Phase 1):
    C. Bookmark/reading list
    D. Professional sharing (email, WhatsApp, LinkedIn)
 
+== Phase 1b (next — quick-add cards + person ref table) ==
+
+1. Reference Person Table — [blog_biography].[ref_biography_person]
+   - Pre-populated with notable Bangladeshi figures
+   - Fields: person_name_bn, person_name_en, person_slug, birth_year,
+     death_year, occupation_bn, category_code, is_active
+   - Search API: /jibonkotha/api/persons/search/?q=রবীন্দ্র
+   - Tom Select integration on all biography forms
+   - When user types name → search-and-select dropdown
+   - If person not in ref table → user can add new (with verification)
+   - Links to coll_biography_entry via link_ref_biography_person_id
+
+2. Quick-Add Cards (standalone entry points on landing page)
+   - "উক্তি যোগ করুন" (Add Quote) card
+     → Pick person (search-and-select) → title → quote → explanation
+     → Auto-links to existing biography or creates stub
+   - "ছবি গ্যালারি" (Photo Gallery) card
+     → Pick person → upload photos with era labels
+   - "ভিডিও যোগ করুন" (Add Video) card
+     → Pick person → paste YouTube URL → title
+   - Minimum info collected: person + content = auto-connected
+
+3. Detail Page Sub-Content Forms
+   - On biography detail page, show add forms for:
+     - Quotes (if logged in)
+     - Photos (if logged in)
+     - YouTube links (if logged in)
+     - Tributes (if memoriam + logged in)
+   - Same pattern as travel hub community contributions
+
 == Inspiration ==
 - StoryCorps — oral histories (text + audio)
 - Medium — clean block-based editor
 - Ancestry.com / MyHeritage — timelines, documents, family collaboration
 - Online memoriam sites — tribute guestbooks, co-authoring
+
+
