@@ -50,19 +50,7 @@ as a result to identify group of table for fact check? for all other group of wo
 should we rename our table like that?
 don't touch other things.
 
---naming conventions
-check name rules.
-seo friendly name.
-check variables, filename, functions, features.
-all files css, js, ajax, html.
-use large descriptive name always.
-do not use partial name or short name.
-update documents.
-update troubleshooting documents.
-don't touch other things.
 
---attribute naming convention
-all attributes should have its id and name.
 
 --modularise everything
 make a rule - any new features - should be modularised.
@@ -124,6 +112,20 @@ don't touch other things.
 Show UI immediately, load data in background.
 apply this to all interactions.
 don't touch other things.
+
+--naming conventions
+check name rules.
+seo friendly name.
+check variables, filename, functions, features.
+all files css, js, ajax, html.
+use large descriptive name always.
+do not use partial name or short name.
+update documents.
+update troubleshooting documents.
+don't touch other things.
+
+--attribute naming convention
+all attributes should have its id and name.
 
 --faster load
 load UI immediate, load data in the background.

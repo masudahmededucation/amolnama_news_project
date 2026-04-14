@@ -179,8 +179,17 @@ in place to store unified subcategory IDs
 attached file 
 think labeling for mobile friendly
 camera option
-upload photo/attached file
+upload photo/attached file.
+it opened camera, gave me option to use photo. 
+but it didn't attached. 
+it should something has been attached. 
+also put preview if it is a picture.
 
+put preview options if the uploaded or captures is in image. 
+it will give user confidence of the correct file being attached.
+
+####
+--remove watermark
 remove watermark from picture
 https://www.watermarkremover.io/upload
 
@@ -198,6 +207,14 @@ add more complexity.
 or advertise on the top scroll down to check more
 actually main idea to flash our all the tools.
 not just what are available on first page.
+
+i have noticed one thing, on the tools page 
+- the scroll down floating text does not appear on first time. 
+upon refresh f5, it appears mostly. 
+also it doesnot go away automaticaly when move to another page or url. 
+upon refresh f5 it goes away.
+
+Ctrl+F5 on home → click tools → no pill → click tools again → pill appears?
 
 
 ###
