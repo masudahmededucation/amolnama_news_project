@@ -65,6 +65,11 @@ impossible because the resolver returns exactly one nav_id per request.
 
     <span class="sidebar-navigation-section-label sidebar-navigation-section-label--cultural" id="sidebar-navigation-section-label-chatro-jibon" name="sidebar_navigation_section_label_chatro_jibon">ছাত্র জীবন</span>
 
+    <a href="{% url 'studentlife:home' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'studentlife' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-studentlife" name="sidebar_navigation_item_studentlife" title="ক্যাম্পাস লাইফ (Campus Life)">
+      <span class="sidebar-navigation-item-icon">🎓</span>
+      <span class="sidebar-navigation-item-label">ক্যাম্পাস লাইফ</span>
+    </a>
+
     <a href="{% url 'tools:tools' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'tools' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-tools" name="sidebar_navigation_item_tools" title="সফটওয়্যার (Tools)">
       <span class="sidebar-navigation-item-icon">🔧</span>
       <span class="sidebar-navigation-item-label">সফটওয়্যার</span>

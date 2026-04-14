@@ -35,6 +35,7 @@ urlpatterns = [
     path("bangladesh-marriage-registration/", include("amolnama_news.site_apps.marriage.urls")),  # Marriage
     path("health/", include("amolnama_news.site_apps.health.urls")),  # Health
     path("debate/", include("amolnama_news.site_apps.debate.urls")),  # Debate — discussion & argumentation platform
+    path("campus-life/", include("amolnama_news.site_apps.studentlife.urls")),  # Student Life — campus experiences & talent
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     # englishtobangla: no URL routes — app ships JS utilities only (static/englishtobangla/...)
