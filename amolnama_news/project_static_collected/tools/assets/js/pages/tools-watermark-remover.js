@@ -221,33 +221,7 @@
   /* ===== Step 3: Remove Watermark ===== */
 
   /* Auto remove — send image only, server detects watermark */
-  var autoRemoveButton = document.getElementById('wmr-auto-remove-button');
-  if (autoRemoveButton) {
-    autoRemoveButton.addEventListener('click', function () {
-      if (!originalImage || isProcessing) return;
-      isProcessing = true;
-      canvas.style.pointerEvents = 'none';
-      canvas.style.opacity = '0.6';
-      autoRemoveButton.disabled = true;
-      removeButton.disabled = true;
-      processingOverlay.hidden = false;
-
-      var sendCanvas = document.createElement('canvas');
-      sendCanvas.width = originalImage.width;
-      sendCanvas.height = originalImage.height;
-      sendCanvas.getContext('2d').drawImage(originalImage, 0, 0);
-
-      sendCanvas.toBlob(function (imageBlob) {
-        var formData = new FormData();
-        formData.append('image_file', imageBlob, 'image.jpg');
-        /* No mask_file — server auto-detects */
-
-        sendToServer(formData);
-      }, 'image/jpeg', 0.95);
-    });
-  }
-
-  /* Manual remove — send image + brushed mask */
+  /* Remove brushed area */
   removeButton.addEventListener('click', function () {
     if (!originalImage || isProcessing) return;
 
@@ -316,7 +290,6 @@
     canvas.style.pointerEvents = '';
     canvas.style.opacity = '';
     removeButton.disabled = false;
-    if (autoRemoveButton) autoRemoveButton.disabled = false;
   }
 
   /* ===== Step 4: Result Actions ===== */

@@ -306,15 +306,10 @@ def tools_watermark_remover(request):
 
 
 def api_watermark_remove(request):
-    """POST — accept image + optional mask, return inpainted image.
+    """POST — accept image + mask, return inpainted image with watermark removed.
 
-    Two modes:
-    1. Manual mask: image_file + mask_file → inpaint masked areas
-    2. Auto-detect: image_file only (no mask or empty mask) → detect bright
-       watermarks via thresholding and inpaint them automatically
-
-    Uses OpenCV's Telea inpainting algorithm (fast, CPU-only, no extra dependencies).
-    Returns the inpainted image as JPEG.
+    User brushes over watermark area (mask = white on black). Server inpaints
+    using OpenCV Telea algorithm with smoothing for natural-looking results.
     """
     import numpy as np
     import cv2
@@ -326,8 +321,8 @@ def api_watermark_remove(request):
     image_file = request.FILES.get('image_file')
     mask_file = request.FILES.get('mask_file')
 
-    if not image_file:
-        return JsonResponse({'success': False, 'error': 'image_file required'}, status=400)
+    if not image_file or not mask_file:
+        return JsonResponse({'success': False, 'error': 'image_file and mask_file required'}, status=400)
 
     if image_file.size > 10 * 1024 * 1024:
         return JsonResponse({'success': False, 'error': 'Image too large (max 10MB)'}, status=400)
@@ -347,32 +342,36 @@ def api_watermark_remove(request):
             scale = max_dimension / max(height, width)
             image = cv2.resize(image, (int(width * scale), int(height * scale)))
 
-        mask_binary = None
+        # Read mask (user-drawn: white = watermark area to remove)
+        mask_bytes = mask_file.read()
+        mask_array = np.frombuffer(mask_bytes, np.uint8)
+        mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
+        if mask_raw is None:
+            return JsonResponse({'success': False, 'error': 'Invalid mask file'}, status=400)
 
-        if mask_file:
-            # Manual mask provided
-            mask_bytes = mask_file.read()
-            mask_array = np.frombuffer(mask_bytes, np.uint8)
-            mask_raw = cv2.imdecode(mask_array, cv2.IMREAD_GRAYSCALE)
-            if mask_raw is not None:
-                if mask_raw.shape[:2] != image.shape[:2]:
-                    mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
-                _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
-                # Check if mask is empty (all black — user didn't brush)
-                if cv2.countNonZero(mask_binary) == 0:
-                    mask_binary = None
+        if mask_raw.shape[:2] != image.shape[:2]:
+            mask_raw = cv2.resize(mask_raw, (image.shape[1], image.shape[0]))
+        _, mask_binary = cv2.threshold(mask_raw, 127, 255, cv2.THRESH_BINARY)
 
-        if mask_binary is None:
-            # Auto-detect: threshold bright areas as watermark candidates
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            _, mask_binary = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
-            # Dilate to cover edges of watermark text/logo
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-            mask_binary = cv2.dilate(mask_binary, kernel, iterations=2)
+        if cv2.countNonZero(mask_binary) == 0:
+            return JsonResponse({'success': False, 'error': 'ওয়াটারমার্কের উপর ব্রাশ করুন (Brush over the watermark first)'}, status=400)
 
-        # Inpaint using Telea algorithm
-        inpaint_radius = 5
+        # Inpaint using Telea algorithm (larger radius = smoother blending)
+        inpaint_radius = 10
         result = cv2.inpaint(image, mask_binary, inpaint_radius, cv2.INPAINT_TELEA)
+
+        # Smooth the inpainted area to reduce "iron burn" artifacts
+        # Blend the inpainted region with a slight Gaussian blur
+        blurred = cv2.GaussianBlur(result, (5, 5), 0)
+        # Only blend in the masked area — keep the rest sharp
+        mask_3channel = cv2.merge([mask_binary, mask_binary, mask_binary])
+        # Dilate mask slightly for smoother edge transition
+        blend_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+        blend_mask = cv2.dilate(mask_binary, blend_kernel, iterations=1)
+        blend_mask_3ch = cv2.merge([blend_mask, blend_mask, blend_mask])
+        # Feathered blend: 70% inpainted + 30% blurred in the masked area
+        blend_mask_float = blend_mask_3ch.astype(float) / 255.0
+        result = (result * (1 - blend_mask_float * 0.3) + blurred * blend_mask_float * 0.3).astype(np.uint8)
 
         # Encode result as JPEG
         _, result_buffer = cv2.imencode('.jpg', result, [cv2.IMWRITE_JPEG_QUALITY, 92])
