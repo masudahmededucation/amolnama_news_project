@@ -333,3 +333,30 @@ def api_placeholder_delete(request):
     ).delete()
 
     return JsonResponse({'success': True})
+
+
+@login_required
+@require_POST
+def api_call_privacy_update(request):
+    """POST — update call_privacy_code on user profile."""
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'success': False, 'error': 'Profile not found'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+
+    call_privacy_code = data.get('call_privacy_code', 'public')
+    if call_privacy_code not in ('public', 'friends_only', 'disabled'):
+        return JsonResponse({'success': False, 'error': 'Invalid value'}, status=400)
+
+    UserProfile.objects.filter(user_profile_id=user_profile_id).update(
+        call_privacy_code=call_privacy_code
+    )
+
+    return JsonResponse({'success': True})

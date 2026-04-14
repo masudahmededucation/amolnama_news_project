@@ -131,6 +131,7 @@ class UserProfile(models.Model):
     link_avatar_asset_id = models.BigIntegerField(blank=True, null=True)
     last_active_at = models.DateTimeField(blank=True, null=True)
     user_credibility_score = models.FloatField(default=1.0)
+    call_privacy_code = models.CharField(max_length=20, default='public')
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 

@@ -851,6 +851,33 @@ def api_call_initiate(request):
     if _is_blocked(user_profile_id, callee_profile_id):
         return JsonResponse({'success': False, 'error': 'ব্লক করা ব্যবহারকারী'}, status=403)
 
+    # Call privacy check
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    callee_profile = UserProfile.objects.filter(
+        user_profile_id=callee_profile_id
+    ).only('call_privacy_code').first()
+
+    if callee_profile:
+        call_privacy = callee_profile.call_privacy_code or 'public'
+        if call_privacy == 'disabled':
+            return JsonResponse({'success': False, 'error': 'এই ব্যবহারকারী কল গ্রহণ করেন না'}, status=403)
+        if call_privacy == 'friends_only':
+            from amolnama_news.site_apps.social.models import UserFollow
+            is_mutual = (
+                UserFollow.objects.filter(
+                    link_follower_user_profile_id=user_profile_id,
+                    link_following_user_profile_id=callee_profile_id,
+                    is_active=True,
+                ).exists()
+                and UserFollow.objects.filter(
+                    link_follower_user_profile_id=callee_profile_id,
+                    link_following_user_profile_id=user_profile_id,
+                    is_active=True,
+                ).exists()
+            )
+            if not is_mutual:
+                return JsonResponse({'success': False, 'error': 'শুধু বন্ধুরা কল করতে পারবে'}, status=403)
+
     # Prevent spam — check for existing active call
     from .models import CallLog
     active_call = CallLog.objects.filter(
