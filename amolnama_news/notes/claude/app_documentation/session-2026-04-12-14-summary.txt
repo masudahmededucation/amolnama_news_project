@@ -1,0 +1,121 @@
+================================================================================
+SESSION SUMMARY: 2026-04-12 to 2026-04-14
+================================================================================
+
+COMMITS: 50+ across newshub-multiform branch
+CACHE: v560 → v619
+
+================================================================================
+SECURITY (3 items)
+================================================================================
+- Shared HTML sanitizer (core/utils.py:sanitize_user_html) — whitelist parser,
+  19 attack vectors blocked, replaces 2 brittle regex versions
+- SQL injection hardening — ORM F() replaces f-string in poll vote
+- Debate admin bypass removed (crossing-over rule now applies to all users)
+
+================================================================================
+FEED FRESHNESS ARCHITECTURE (4 items)
+================================================================================
+- last_active_at column on user_profile + middleware (debounced 5 min)
+- Fan-out gating: 4 queries now skip dormant followers (> 14 days inactive)
+- Recency-on-read split: feed_recency_score column dropped, recency computed
+  live on every read — always accurate to the microsecond
+- Dead cache writers removed (-90 lines, ~2ms faster per engagement event)
+
+================================================================================
+NEWS ARTICLE RELATIVITY (5 items)
+================================================================================
+- Articles wired into existing embedding + related content pipeline
+- article_topic_auto_tags_json column on coll_news_entry (NVARCHAR(MAX))
+- story_thread + story_thread_article tables for developing story arcs
+- Story clustering logic (100% local, cosine similarity, zero API cost)
+- NER entity extraction (Davlan/bert-base-multilingual-cased-ner-hrl)
+  — Bengali + English at 98-99% accuracy, lazy trigger on first article view
+
+================================================================================
+CSS DESIGN SYSTEM (complete tokenization)
+================================================================================
+- font-size: ~1,279 values → var(--text-*)
+- border-radius: ~424 values → var(--radius-*)
+- box-shadow: ~70 values → var(--elevation-*)
+- transitions: ~524 values → var(--duration-*) + var(--ease-*)
+- TOTAL: ~2,297 values unified under design tokens
+- All hover lift/zoom/shrink transforms removed (user requested no jumpy effects)
+- Global [hidden] { display: none !important } in base.css
+
+================================================================================
+SEO (4 items)
+================================================================================
+- Sitemaps: added art, stories, debate (11 → 17 sitemap classes)
+- Debate slug migration: /debate/topic/42/ → /debate/topic/বিতর্ক-শিরোনাম/
+  + 301 redirect from old URLs
+- llms.txt: added debate + watermark remover sections
+- Non-blocking Google Fonts load (media="print" onload trick)
+
+================================================================================
+PRODUCTION READINESS (3 items)
+================================================================================
+- Custom 404/500/403 error pages (Bengali, self-contained)
+- Form field spacing fix (1rem → 1.5rem between fields, touch-target inputs)
+- Silent exception swallowers fixed (6 files)
+
+================================================================================
+MOBILE / CAMERA (3 items)
+================================================================================
+- Camera capture modal (core/js/components/camera-capture.js) — WebRTC,
+  works on desktop+laptop+mobile, snap+preview+confirm flow
+- Camera button on all 15 upload points across 7 apps
+- File upload buttons: mobile-friendly, touch targets, stacked on small screens
+
+================================================================================
+NEW TOOL: WATERMARK REMOVER
+================================================================================
+- URL: /tools/watermark-remover/
+- Server: LaMa AI inpainting model (simple-lama-inpainting, ~200MB)
+  — state-of-the-art texture reconstruction, CPU-only, 5-15s per image
+  — falls back to OpenCV Telea if LaMa unavailable
+- Client: canvas brush mask drawing with adjustable size, undo, clear
+  — mouse offset fixed for CSS-scaled canvas
+  — touch support for mobile
+- Before/after comparison + download result
+
+================================================================================
+TOOLS SCROLL PILL
+================================================================================
+- Floating "আরো টুল দেখুন 👇" indicator on tools landing page
+- Uses history.pushState intercept for SPA navigation detection
+- Hides when user reaches bottom of page
+- position:fixed must be on document.body (not inside <main>)
+  — documented in troubleshooting-position-fixed.txt
+
+================================================================================
+DB MIGRATIONS RUN
+================================================================================
+- feed-freshness-prep.sql: last_active_at + drop feed_recency_score
+- news-relativity-prep.sql: article_topic_auto_tags_json + story_thread tables
+- structural-cleanup.sql: polymorphic backfill + debate topic_slug
+
+================================================================================
+CLAUDE.md RULES ADDED (14 new rules)
+================================================================================
+Gate 0:
+- "Fix the headache, don't cut the head" (#1 rule)
+- "Don't silently abandon good solutions" (communicate blockers)
+
+Gate 4 (design tokens):
+- Rules 18-23: font-size, border-radius, elevation, focus-visible, touch targets,
+  reduced-motion — all mandatory for new CSS
+
+Gate 4 (performance):
+- Rules 24-27: image loading, script defer, non-blocking fonts, non-blocking CSS
+
+Gate 4 (security):
+- Rules 28-29: shared HTML sanitizer, no dynamic SQL column names
+
+================================================================================
+REMAINING (needs live DB or future session)
+================================================================================
+- Bookmark save/display issues
+- Social profile promo card preview
+- Embeddings store UTF-8 fix (committed but needs server restart to verify)
+- Watermark remover: auto-detect mode (needs better AI, not threshold)
