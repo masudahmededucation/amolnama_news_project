@@ -1,0 +1,18 @@
+/* ========== Biography Landing Page ========== */
+
+.biography-landing {
+  padding: 2rem 0;
+}
+
+.biography-landing-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+.biography-landing-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0;
+}

@@ -79,6 +79,7 @@ LOCAL_APPS = [
     "amolnama_news.site_apps.debate",
     "amolnama_news.site_apps.studentlife",
     "amolnama_news.site_apps.probashbarta",
+    "amolnama_news.site_apps.biography",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
