@@ -246,13 +246,21 @@
 
     photoFileInput.addEventListener('change', function () {
       if (!photoFileInput.files.length) return;
-      var file = photoFileInput.files[0];
-      var reader = new FileReader();
-      reader.onload = function (event) {
-        photoPreview.innerHTML = '<img src="' + event.target.result + '" style="max-width:100%;max-height:150px;border-radius:8px;">';
-        photoPreview.hidden = false;
-      };
-      reader.readAsDataURL(file);
+      photoPreview.innerHTML = '';
+      for (var fileIndex = 0; fileIndex < photoFileInput.files.length; fileIndex++) {
+        (function (file) {
+          var reader = new FileReader();
+          reader.onload = function (event) {
+            var thumbnailImage = document.createElement('img');
+            thumbnailImage.src = event.target.result;
+            thumbnailImage.className = 'biography-quick-add-photo-thumbnail';
+            photoPreview.appendChild(thumbnailImage);
+          };
+          reader.readAsDataURL(file);
+        })(photoFileInput.files[fileIndex]);
+      }
+      photoPreview.hidden = false;
+      photoBrowseButton.textContent = '📁 ' + photoFileInput.files.length + ' টি ছবি নির্বাচিত';
     });
   }
 
@@ -269,41 +277,59 @@
       }
 
       photoSubmitButton.disabled = true;
-      var formData = new FormData();
-      formData.append('person_id', personId);
-      formData.append('photo_file', photoFileInput.files[0]);
-      formData.append('caption_bn', (document.getElementById('biography-quick-add-photo-caption').value || '').trim());
-      formData.append('photo_era_label_bn', (document.getElementById('biography-quick-add-photo-era-label').value || '').trim());
+      photoSubmitButton.textContent = 'আপলোড হচ্ছে...';
+      var captionBn = (document.getElementById('biography-quick-add-photo-caption').value || '').trim();
+      var photoEraLabelBn = (document.getElementById('biography-quick-add-photo-era-label').value || '').trim();
+      var totalFiles = photoFileInput.files.length;
+      var uploadedCount = 0;
+      var failedCount = 0;
 
-      fetch('/jibonkotha/api/quick-add/photo/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfTokenValue() },
-        body: formData
-      })
-      .then(function (response) { return response.json(); })
-      .then(function (data) {
-        if (data.success) {
-          messageElement.textContent = 'ছবি সফলভাবে যোগ হয়েছে!';
-          messageElement.className = 'biography-quick-add-message biography-quick-add-message--success';
-          messageElement.hidden = false;
-          photoFileInput.value = '';
-          photoPreview.hidden = true;
-          document.getElementById('biography-quick-add-photo-caption').value = '';
-          document.getElementById('biography-quick-add-photo-era-label').value = '';
-        } else {
-          messageElement.textContent = data.error || 'সমস্যা হয়েছে';
-          messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
-          messageElement.hidden = false;
-        }
-        photoSubmitButton.disabled = false;
-      })
-      .catch(function (error) {
-        console.error('Photo quick-add failed:', error);
-        messageElement.textContent = 'নেটওয়ার্ক সমস্যা';
-        messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
-        messageElement.hidden = false;
-        photoSubmitButton.disabled = false;
-      });
+      for (var fileIndex = 0; fileIndex < totalFiles; fileIndex++) {
+        (function (file) {
+          var formData = new FormData();
+          formData.append('person_id', personId);
+          formData.append('photo_file', file);
+          formData.append('caption_bn', captionBn);
+          formData.append('photo_era_label_bn', photoEraLabelBn);
+
+          fetch('/jibonkotha/api/quick-add/photo/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCsrfTokenValue() },
+            body: formData
+          })
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (data.success) {
+              uploadedCount++;
+            } else {
+              failedCount++;
+            }
+          })
+          .catch(function () {
+            failedCount++;
+          })
+          .finally(function () {
+            if (uploadedCount + failedCount === totalFiles) {
+              if (failedCount === 0) {
+                messageElement.textContent = uploadedCount + ' টি ছবি সফলভাবে যোগ হয়েছে!';
+                messageElement.className = 'biography-quick-add-message biography-quick-add-message--success';
+              } else {
+                messageElement.textContent = uploadedCount + ' সফল, ' + failedCount + ' ব্যর্থ';
+                messageElement.className = 'biography-quick-add-message biography-quick-add-message--error';
+              }
+              messageElement.hidden = false;
+              photoSubmitButton.disabled = false;
+              photoSubmitButton.textContent = 'আপলোড করুন';
+              photoFileInput.value = '';
+              photoPreview.hidden = true;
+              photoPreview.innerHTML = '';
+              photoBrowseButton.textContent = '📁 ছবি নির্বাচন করুন';
+              document.getElementById('biography-quick-add-photo-caption').value = '';
+              document.getElementById('biography-quick-add-photo-era-label').value = '';
+            }
+          });
+        })(photoFileInput.files[fileIndex]);
+      }
     });
   }
 })();
