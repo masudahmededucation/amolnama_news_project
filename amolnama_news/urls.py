@@ -38,6 +38,7 @@ urlpatterns = [
     path("campus-life/", include("amolnama_news.site_apps.studentlife.urls")),  # Student Life — campus experiences & talent
     path("probash-barta/", include("amolnama_news.site_apps.probashbarta.urls")),  # Probash Barta — diaspora stories & experiences
     path("jibonkotha/", include("amolnama_news.site_apps.biography.urls")),  # Biography — জীবনকথা, inspirational life stories
+    path("songbidhan/", include("amolnama_news.site_apps.constitutionbd.urls")),  # Constitution BD — সংবিধান
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     # englishtobangla: no URL routes — app ships JS utilities only (static/englishtobangla/...)

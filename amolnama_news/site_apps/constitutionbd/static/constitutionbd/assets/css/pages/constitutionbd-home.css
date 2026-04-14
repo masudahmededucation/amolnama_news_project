@@ -1,0 +1,18 @@
+/* ========== Constitution BD Landing Page ========== */
+
+.constitutionbd-landing {
+  padding: 2rem 0;
+}
+
+.constitutionbd-landing-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+.constitutionbd-landing-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0;
+}
