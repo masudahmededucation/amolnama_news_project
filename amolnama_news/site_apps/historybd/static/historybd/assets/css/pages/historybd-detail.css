@@ -1,0 +1,325 @@
+/* ========== Biography Detail Page ========== */
+
+.historybd-detail {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.historybd-detail-hero {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.historybd-detail-hero-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+/* Header */
+.historybd-detail-header {
+  margin-bottom: 1rem;
+}
+
+.historybd-detail-category {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--primary);
+  display: inline-block;
+  margin-bottom: .3rem;
+}
+
+.historybd-detail-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .25rem;
+  line-height: 1.3;
+}
+
+.historybd-detail-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0 0 .25rem;
+}
+
+.historybd-detail-institution {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0 0 .5rem;
+}
+
+.historybd-detail-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* Description */
+.historybd-detail-description {
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--text);
+  margin: 1.5rem 0;
+}
+
+/* Sections */
+.historybd-detail-section {
+  margin: 2rem 0;
+}
+
+.historybd-detail-section-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .75rem;
+  padding-bottom: .4rem;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Photo grid */
+.historybd-detail-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+
+.historybd-detail-photo-card {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.historybd-detail-photo-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.historybd-detail-photo-caption {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  padding: .25rem;
+  text-align: center;
+}
+
+/* Video grid */
+.historybd-detail-video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .75rem;
+}
+
+.historybd-detail-video-card {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow var(--duration-fast);
+}
+
+.historybd-detail-video-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.historybd-detail-video-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.historybd-detail-video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.historybd-detail-video-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: .4rem .5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .historybd-detail-photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .historybd-detail-video-grid { grid-template-columns: 1fr; }
+  .historybd-detail-title { font-size: var(--text-xl); }
+}
+
+/* ── Memoriam badge ── */
+.historybd-detail-memoriam-badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  background: var(--surface);
+  padding: .2rem .5rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: .3rem;
+}
+
+/* ── Wikipedia-style infobox ── */
+.historybd-detail-infobox {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: .75rem;
+  margin-bottom: 1rem;
+}
+
+.historybd-detail-infobox-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.historybd-detail-infobox-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  padding: .3rem .5rem .3rem 0;
+  width: 30%;
+  vertical-align: top;
+}
+
+.historybd-detail-infobox-table td {
+  padding: .3rem 0;
+  color: var(--text);
+}
+
+/* ── Life sections ── */
+.historybd-detail-life-sections {
+  margin: 1.5rem 0;
+}
+
+.historybd-detail-life-section {
+  margin-bottom: 1.5rem;
+}
+
+.historybd-detail-life-section-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+  padding-bottom: .3rem;
+  border-bottom: 2px solid var(--warning);
+  display: inline-block;
+}
+
+.historybd-detail-life-section-years {
+  font-weight: 400;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.historybd-detail-life-section-content {
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ── Quotes ── */
+.historybd-detail-quotes {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.historybd-detail-quote-card {
+  border-left: 3px solid var(--warning);
+  padding: .75rem 1rem;
+  background: var(--surface);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.historybd-detail-quote-title {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--warning);
+  display: block;
+  margin-bottom: .25rem;
+}
+
+.historybd-detail-quote-text {
+  font-size: var(--text-base);
+  font-style: italic;
+  color: var(--text);
+  margin: 0 0 .3rem;
+  line-height: 1.6;
+}
+
+.historybd-detail-quote-explanation {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: .25rem 0 .25rem;
+  line-height: 1.5;
+}
+
+.historybd-detail-quote-source {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* ── Photo era label ── */
+.historybd-detail-photo-era {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--warning);
+  padding: .15rem .25rem;
+}
+
+/* ── Occupation on card ── */
+.historybd-entry-card-occupation {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.historybd-entry-card-memoriam {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* ── Tributes ── */
+.historybd-detail-tributes {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.historybd-detail-tribute-card {
+  padding: .6rem .75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+.historybd-detail-tribute-text {
+  font-size: var(--text-sm);
+  color: var(--text);
+  font-style: italic;
+  margin: 0 0 .2rem;
+  line-height: 1.5;
+}
+
+.historybd-detail-tribute-relationship {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.historybd-detail-tribute-empty {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .historybd-detail-video-card { transition: none; }
+}

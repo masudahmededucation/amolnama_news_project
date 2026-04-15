@@ -1,0 +1,129 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% load content_tags %}
+
+{% block title %}{{ entry.history_event_title_bn }} — ইতিহাস{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'historybd/assets/css/pages/historybd-detail.css' %}">
+<link rel="stylesheet" href="{% static 'content/assets/css/components/actions-bar.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="historybd-detail">
+
+  {% if entry.cover_image_url %}
+  <div class="historybd-detail-hero" id="historybd-detail-hero" name="historybd_detail_hero">
+    <img src="{{ entry.cover_image_url }}" alt="{{ entry.history_event_title_bn }}" class="historybd-detail-hero-image" fetchpriority="high">
+  </div>
+  {% endif %}
+
+  <div class="historybd-detail-header" id="historybd-detail-header" name="historybd_detail_header">
+    <div class="historybd-detail-badges">
+      {% if era %}<span class="historybd-detail-era">{{ era.subcategory_icon }} {{ era.subcategory_name_bn }}</span>{% endif %}
+      {% if entry.event_year %}<span class="historybd-detail-year">📅 {{ entry.event_year }}</span>{% endif %}
+      {% if entry.is_turning_point %}<span class="historybd-detail-turning-point">⭐ টার্নিং পয়েন্ট</span>{% endif %}
+    </div>
+    <h1 class="historybd-detail-title">{{ entry.history_event_title_bn }}</h1>
+    {% if entry.history_event_title_en %}<p class="historybd-detail-subtitle">{{ entry.history_event_title_en }}</p>{% endif %}
+  </div>
+
+  {# ===== Event info card ===== #}
+  {% if entry.event_location_bn or entry.key_figures_bn or entry.event_date_start %}
+  <div class="historybd-detail-infobox" id="historybd-detail-infobox" name="historybd_detail_infobox">
+    <table class="historybd-detail-infobox-table">
+      {% if entry.event_date_start %}<tr><th>তারিখ</th><td>{{ entry.event_date_start }}{% if entry.event_date_end %} — {{ entry.event_date_end }}{% endif %}</td></tr>{% endif %}
+      {% if entry.event_location_bn %}<tr><th>স্থান</th><td>📍 {{ entry.event_location_bn }}</td></tr>{% endif %}
+      {% if entry.key_figures_bn %}<tr><th>মূল ব্যক্তিত্ব</th><td>{{ entry.key_figures_bn }}</td></tr>{% endif %}
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="historybd-detail-meta">
+    <span>👁 {{ history_event_view_count }}</span>
+    <span>{{ entry.time_ago }}</span>
+    <span>✍️ {{ author_display_name }}</span>
+  </div>
+
+  {% content_actions_bar entry.blog_historybd_coll_history_event_id entry.history_event_title_bn "history_bd" position="top" like_count=history_event_like_count view_count=history_event_view_count %}
+
+  {% if entry.history_event_description_bn %}
+  <div class="historybd-detail-description" id="historybd-detail-description" name="historybd_detail_description">
+    <h2 class="historybd-detail-section-title">📝 কী ঘটেছিল</h2>
+    {{ entry.history_event_description_bn|safe }}
+  </div>
+  {% endif %}
+
+  {% if entry.history_event_significance_bn %}
+  <div class="historybd-detail-section" id="historybd-detail-significance" name="historybd_detail_significance">
+    <h2 class="historybd-detail-section-title">💡 কেন গুরুত্বপূর্ণ</h2>
+    <div class="historybd-detail-significance-content">{{ entry.history_event_significance_bn|safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if perspectives %}
+  <div class="historybd-detail-section" id="historybd-detail-perspectives" name="historybd_detail_perspectives">
+    <h2 class="historybd-detail-section-title">🔍 বিভিন্ন দৃষ্টিভঙ্গি</h2>
+    <div class="historybd-detail-perspectives-list">
+      {% for perspective in perspectives %}
+      <div class="historybd-detail-perspective-card" id="historybd-detail-perspective-{{ perspective.perspective_id }}" name="historybd_detail_perspective_{{ perspective.perspective_id }}">
+        <h3 class="historybd-detail-perspective-title">{{ perspective.title_bn }}</h3>
+        <div class="historybd-detail-perspective-content">{{ perspective.content_bn|safe }}</div>
+        {% if perspective.source_bn %}<span class="historybd-detail-perspective-source">সূত্র: {{ perspective.source_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if documents %}
+  <div class="historybd-detail-section" id="historybd-detail-documents" name="historybd_detail_documents">
+    <h2 class="historybd-detail-section-title">📄 ঐতিহাসিক দলিল</h2>
+    <div class="historybd-detail-documents-list">
+      {% for document in documents %}
+      <a href="{{ document.url }}" target="_blank" rel="noopener" class="historybd-detail-document-card" id="historybd-detail-document-{{ document.document_id }}" name="historybd_detail_document_{{ document.document_id }}">
+        <span class="historybd-detail-document-title">📎 {{ document.title_bn }}</span>
+        {% if document.description_bn %}<span class="historybd-detail-document-description">{{ document.description_bn }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if photos %}
+  <div class="historybd-detail-section" id="historybd-detail-photos" name="historybd_detail_photos">
+    <h2 class="historybd-detail-section-title">📷 ছবি</h2>
+    <div class="historybd-detail-photo-grid">
+      {% for photo in photos %}
+      <div class="historybd-detail-photo-card" id="historybd-detail-photo-{{ photo.photo_id }}" name="historybd_detail_photo_{{ photo.photo_id }}">
+        <img src="{{ photo.photo_url }}" alt="{{ photo.caption_bn|default:'Photo' }}" loading="lazy" decoding="async" class="historybd-detail-photo-image">
+        {% if photo.era_label_bn %}<span class="historybd-detail-photo-era">{{ photo.era_label_bn }}</span>{% endif %}
+        {% if photo.caption_bn %}<span class="historybd-detail-photo-caption">{{ photo.caption_bn }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if youtube_links %}
+  <div class="historybd-detail-section" id="historybd-detail-youtube" name="historybd_detail_youtube">
+    <h2 class="historybd-detail-section-title">🎬 ভিডিও</h2>
+    <div class="historybd-detail-video-grid">
+      {% for video in youtube_links %}
+      <a href="{{ video.url }}" target="_blank" rel="noopener" class="historybd-detail-video-card" id="historybd-detail-video-{{ video.link_id }}" name="historybd_detail_video_{{ video.link_id }}">
+        {% if video.thumbnail_url %}<img src="{{ video.thumbnail_url }}" alt="{{ video.title_bn|default:'Video' }}" loading="lazy" decoding="async" class="historybd-detail-video-thumbnail">{% endif %}
+        <span class="historybd-detail-video-title">{{ video.title_bn|default:video.url }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% content_actions_bar entry.blog_historybd_coll_history_event_id entry.history_event_title_bn "history_bd" position="bottom" like_count=history_event_like_count view_count=history_event_view_count %}
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'content/assets/js/components/actions-bar.js' %}" defer></script>
+{% endblock %}

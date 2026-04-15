@@ -1,0 +1,73 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ঐতিহাসিক ঘটনা যোগ করুন — আমলনামা নিউজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'historybd/assets/css/pages/historybd-add.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="historybd-add">
+  <a href="{% url 'historybd:home' %}" class="historybd-add-back">&larr; ইতিহাসে ফিরুন</a>
+  <h1 class="historybd-add-title">ঐতিহাসিক ঘটনা যোগ করুন</h1>
+  <p class="historybd-add-subtitle">বাংলাদেশের ইতিহাসের একটি গুরুত্বপূর্ণ ঘটনা নথিবদ্ধ করুন</p>
+
+  <form class="historybd-add-form" id="historybd-add-form" name="historybd_add_form">
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-era" class="historybd-add-label">যুগ (Era)</label>
+      <select id="historybd-add-era" name="historybd_add_era" class="historybd-add-select" required>
+        <option value="">নির্বাচন করুন</option>
+        {% for era in eras %}
+        <option value="{{ era.content_ref_content_subcategory_id }}">{{ era.subcategory_icon }} {{ era.subcategory_name_bn }} ({{ era.subcategory_name_en }})</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-title-bn" class="historybd-add-label">ঘটনার শিরোনাম *</label>
+      <input type="text" id="historybd-add-title-bn" name="historybd_add_title_bn" class="historybd-add-input" maxlength="300" required placeholder="যেমন: পলাশীর যুদ্ধ ১৭৫৭" data-bangla-input="true">
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-event-year" class="historybd-add-label">সাল (Year)</label>
+      <input type="number" id="historybd-add-event-year" name="historybd_add_event_year" class="historybd-add-input" placeholder="যেমন: 1757" data-no-bangla="">
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-location" class="historybd-add-label">স্থান (Location)</label>
+      <input type="text" id="historybd-add-location" name="historybd_add_location" class="historybd-add-input" maxlength="300" placeholder="যেমন: পলাশী, মুর্শিদাবাদ" data-bangla-input="true">
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-key-figures" class="historybd-add-label">মূল ব্যক্তিত্ব</label>
+      <input type="text" id="historybd-add-key-figures" name="historybd_add_key_figures" class="historybd-add-input" maxlength="1000" placeholder="যেমন: নবাব সিরাজউদ্দৌলা, রবার্ট ক্লাইভ" data-bangla-input="true">
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-short-description" class="historybd-add-label">সংক্ষিপ্ত বিবরণ</label>
+      <input type="text" id="historybd-add-short-description" name="historybd_add_short_description" class="historybd-add-input" maxlength="500" placeholder="এক লাইনে সারসংক্ষেপ" data-bangla-input="true">
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-description" class="historybd-add-label">কী ঘটেছিল (বিস্তারিত)</label>
+      <textarea id="historybd-add-description" name="historybd_add_description" class="historybd-add-textarea" rows="6" placeholder="ঘটনার বিস্তারিত বিবরণ..." data-bangla-input="true"></textarea>
+    </div>
+
+    <div class="historybd-add-field-group">
+      <label for="historybd-add-significance" class="historybd-add-label">কেন গুরুত্বপূর্ণ</label>
+      <textarea id="historybd-add-significance" name="historybd_add_significance" class="historybd-add-textarea" rows="3" placeholder="এই ঘটনার ঐতিহাসিক গুরুত্ব..." data-bangla-input="true"></textarea>
+    </div>
+
+    <div class="historybd-add-actions">
+      <button type="submit" class="historybd-add-submit-button" id="historybd-add-submit-button" name="historybd_add_submit_button">প্রকাশ করুন (Publish)</button>
+    </div>
+
+    <div class="historybd-add-message" id="historybd-add-message" name="historybd_add_message" hidden></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'historybd/assets/js/pages/historybd-add.js' %}" defer></script>
+{% endblock %}

@@ -8,11 +8,66 @@
 {% endblock %}
 
 {% block content %}
-<section class="historybd-landing">
-  <h1 class="historybd-landing-title">ইতিহাস</h1>
-  <p class="historybd-landing-subtitle">বাংলাদেশের ইতিহাস, ঐতিহাসিক ঘটনা, মুক্তিযুদ্ধ এবং সভ্যতার ধারা</p>
+<section class="historybd-header">
+  <div class="historybd-header-text">
+    <h1 class="historybd-header-title">ইতিহাস</h1>
+    <p class="historybd-header-subtitle">বাংলাদেশের ইতিহাস, ঐতিহাসিক ঘটনা, মুক্তিযুদ্ধ এবং সভ্যতার ধারা</p>
+  </div>
+  {% if user.is_authenticated %}
+  <a href="{% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
+  {% else %}
+  <a href="/account/login/?next={% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
+  {% endif %}
 </section>
+
+<div class="historybd-filter-pills" id="historybd-filter-pills" name="historybd_filter_pills">
+  <button type="button" class="historybd-filter-pill historybd-filter-pill--active" data-category="" id="historybd-filter-pill-all" name="historybd_filter_pill_all">সব যুগ</button>
+  {% for era in eras %}
+  <button type="button" class="historybd-filter-pill" data-category="{{ era.content_ref_content_subcategory_id }}" id="historybd-filter-pill-{{ era.subcategory_code }}" name="historybd_filter_pill_{{ era.subcategory_code }}">{{ era.subcategory_icon }} {{ era.subcategory_name_bn }}</button>
+  {% endfor %}
+</div>
+
+<div class="historybd-entry-grid" id="historybd-entry-grid" name="historybd_entry_grid">
+  {% for entry in entries %}
+  <a href="{% url 'historybd:detail' history_event_slug=entry.history_event_slug %}" class="historybd-entry-card" data-category="{{ entry.link_content_ref_content_subcategory_id }}" id="historybd-entry-card-{{ entry.blog_historybd_coll_history_event_id }}" name="historybd_entry_card_{{ entry.blog_historybd_coll_history_event_id }}">
+    <div class="historybd-entry-card-image">
+      {% if entry.cover_image_url %}
+      <img src="{{ entry.cover_image_url }}" alt="{{ entry.history_event_title_bn }}" loading="lazy" decoding="async">
+      {% else %}
+      <div class="historybd-entry-card-placeholder">🏛️</div>
+      {% endif %}
+    </div>
+    <div class="historybd-entry-card-body">
+      <div class="historybd-entry-card-badges">
+        {% if entry.era_icon %}<span class="historybd-entry-card-category">{{ entry.era_icon }} {{ entry.era_name_bn }}</span>{% endif %}
+        {% if entry.event_year %}<span class="historybd-entry-card-year">📅 {{ entry.event_year }}</span>{% endif %}
+        {% if entry.is_turning_point %}<span class="historybd-entry-card-turning-point">⭐ টার্নিং পয়েন্ট</span>{% endif %}
+      </div>
+      <h3 class="historybd-entry-card-title">{{ entry.history_event_title_bn }}</h3>
+      {% if entry.event_location_bn %}<span class="historybd-entry-card-location">📍 {{ entry.event_location_bn }}</span>{% endif %}
+      {% if entry.history_event_short_description_bn %}<p class="historybd-entry-card-description">{{ entry.history_event_short_description_bn|truncatewords:25 }}</p>{% endif %}
+      <div class="historybd-entry-card-footer">
+        <span class="historybd-entry-card-stat">👁 {{ entry.view_count }}</span>
+        <span class="historybd-entry-card-time">{{ entry.time_ago }}</span>
+      </div>
+    </div>
+  </a>
+  {% empty %}
+  <div class="historybd-empty-state" id="historybd-empty-state" name="historybd_empty_state">
+    <div class="historybd-empty-state-icon">🏛️</div>
+    <p class="historybd-empty-state-text">এখনো কোনো ঐতিহাসিক ঘটনা যোগ করা হয়নি</p>
+    <p class="historybd-empty-state-hint">প্রথম ঘটনা যোগ করুন — বাংলাদেশের ইতিহাস সংরক্ষণ করুন!</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% if has_next %}
+<div class="historybd-load-more">
+  <button type="button" class="historybd-load-more-button" id="historybd-load-more-button" name="historybd_load_more_button">আরো দেখুন</button>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'historybd/assets/js/pages/historybd-home.js' %}" defer></script>
 {% endblock %}

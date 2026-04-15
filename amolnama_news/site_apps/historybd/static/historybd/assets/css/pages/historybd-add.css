@@ -1,0 +1,132 @@
+/* ========== Campus Life Add/Edit Form ========== */
+
+.historybd-add {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.historybd-add-back {
+  font-size: var(--text-sm);
+  color: var(--warning);
+  text-decoration: none;
+}
+
+.historybd-add-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: .75rem 0 .25rem;
+}
+
+.historybd-add-subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+}
+
+.historybd-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.historybd-add-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.historybd-add-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.historybd-add-input,
+.historybd-add-select,
+.historybd-add-textarea {
+  width: 100%;
+  padding: .6rem .8rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--text);
+  font-size: var(--text-base);
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--duration-fast);
+  box-sizing: border-box;
+}
+
+.historybd-add-input:focus,
+.historybd-add-select:focus,
+.historybd-add-textarea:focus {
+  border-color: var(--warning);
+}
+
+.historybd-add-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.historybd-add-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .8rem center;
+  padding-right: 2.5rem;
+}
+
+.historybd-add-actions {
+  padding-top: .5rem;
+}
+
+.historybd-add-submit-button {
+  padding: .6rem 2rem;
+  min-height: var(--touch-target, 44px);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--warning);
+  color: #fff;
+  font-size: var(--text-base);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background var(--duration-fast);
+}
+
+.historybd-add-submit-button:hover {
+  filter: brightness(.9);
+}
+
+.historybd-add-submit-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.historybd-add-message {
+  padding: .5rem .75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+}
+
+.historybd-add-message--success {
+  background: var(--success-light);
+  color: var(--warning);
+}
+
+.historybd-add-message--error {
+  background: var(--danger-light);
+  color: var(--danger-text);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .historybd-add-input,
+  .historybd-add-select,
+  .historybd-add-textarea,
+  .historybd-add-submit-button {
+    transition: none;
+  }
+}
