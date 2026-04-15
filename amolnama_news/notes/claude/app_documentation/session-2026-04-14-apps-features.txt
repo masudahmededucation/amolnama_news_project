@@ -47,8 +47,26 @@ Session 2026-04-14 — Apps, Features, Bug Fixes
   religious figure, family biography, local legend)
 - Content registry: biography (purple)
 - Unique: Wikipedia-style infobox, life sections, quotes, tributes
-- Phase 1b planned: ref_biography_person table, quick-add cards,
-  detail page sub-content forms
+- Phase 1b built: ref_biography_person (30 notable figures), person
+  search API with dropdown, quick-add cards (quote, YouTube, photo
+  with multi-select + remove), accordion toggle
+
+### 5. Constitution BD (constitutionbd) — /songbidhan/
+- Sidebar: ⚖️ সংবিধান under ছাত্র জীবন
+- App skeleton only — no DB tables yet
+
+### 6. History BD (historybd) — /itihas/
+- Sidebar: 🏛️ ইতিহাস under ছাত্র জীবন
+- DB: [blog_historybd] schema, 9 tables
+  coll_history_event (with event date, year, era, location, key figures,
+  significance, turning point flag), history_event_photo, youtube_link,
+  history_event_document (historical papers/treaties),
+  history_event_perspective (multiple viewpoints),
+  engagement (like, bookmark, comment, photo_like)
+- Eras: 7 (Ancient, Mughal, British Colonial, Pakistan Period,
+  Liberation War 1971, Independent Bangladesh, July Revolution 2024)
+- Content registry: history_bd (amber)
+- Unique: perspectives section, document attachments, significance section
 
 ## Sidebar Navigation Restructure
 
@@ -56,6 +74,8 @@ Session 2026-04-14 — Apps, Features, Bug Fixes
   🎓 ক্যাম্পাস লাইফ
   🔧 সফটওয়্যার
   📖 জীবনকথা
+  ⚖️ সংবিধান
+  🏛️ ইতিহাস
 নাগরিক বার্তা (Citizen Voice)
   📰 নাগরিক সংবাদ
   🗞️ নাগরিক সাংবাদিকতা
