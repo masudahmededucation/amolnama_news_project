@@ -80,6 +80,7 @@ amolnama_news/site_apps/
 **Rules:**
 - **`core` = display only.** No engine/processing/background logic. Those go in `newsengine`.
 - **`newsengine` = all brain logic.** Classification, ranking, graph, feed, embeddings, BookmarkContent, recommendations.
+- **`mastermind` = cross-app intelligence brain.** No display logic, no templates, no CSS, no public URLs. Backend processing only. Like newsengine but for cross-app coordination.
 - **Never modify `newsengine`** without explicit user permission. Ask first.
 - **Cross-cutting user features** (bookmarks, follow, lists) → `social`, not the per-content app.
 - **Background tasks**: ALL background threading MUST use `newsengine/utils.py:run_background_task()`. No raw `threading.Thread`.
