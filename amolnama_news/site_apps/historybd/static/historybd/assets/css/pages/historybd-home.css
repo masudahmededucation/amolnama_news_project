@@ -1,0 +1,18 @@
+/* ========== History BD Landing Page ========== */
+
+.historybd-landing {
+  padding: 2rem 0;
+}
+
+.historybd-landing-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 .5rem;
+}
+
+.historybd-landing-subtitle {
+  font-size: var(--text-base);
+  color: var(--muted);
+  margin: 0;
+}
