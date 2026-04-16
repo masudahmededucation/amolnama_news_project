@@ -18,12 +18,12 @@
       cloneButton.disabled = true;
       try {
         var result = await window.quizadminPost('/quizadmin/api/quiz/' + examId + '/clone/', {});
-        showInline('Quiz cloned. Redirecting to edit...', 'success');
+        window.quizadminShowInline(inlineMessage,'Quiz cloned. Redirecting to edit...', 'success');
         setTimeout(function () {
           window.location.href = '/quizadmin/quiz/' + result.exam_id + '/edit/';
         }, 500);
       } catch (error) {
-        showInline(error.message || 'Clone failed.', 'error');
+        window.quizadminShowInline(inlineMessage,error.message || 'Clone failed.', 'error');
         cloneButton.disabled = false;
       }
       return;
@@ -49,9 +49,9 @@
       try {
         await window.quizadminPost('/quizadmin/api/quiz/' + deleteExamId + '/delete/', {});
         if (row) row.remove();
-        showInline('Quiz deleted.', 'success');
+        window.quizadminShowInline(inlineMessage,'Quiz deleted.', 'success');
       } catch (error) {
-        showInline(error.message || 'Delete failed.', 'error');
+        window.quizadminShowInline(inlineMessage,error.message || 'Delete failed.', 'error');
         deleteButton.disabled = false;
       }
     }

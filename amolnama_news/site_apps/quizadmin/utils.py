@@ -435,7 +435,7 @@ def get_question_form_context(question_id=None):
 QUIZ_SORT_OPTIONS = {
     'newest': '-created_at',
     'oldest': 'created_at',
-    'title': 'exam_title_bn',
+    'title': 'exam_title_en',
     'most_questions': '-exam_total_questions',
 }
 
