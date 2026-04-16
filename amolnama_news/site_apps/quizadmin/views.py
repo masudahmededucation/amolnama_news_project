@@ -145,6 +145,16 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def quiz_creators_page(request):
+    context = {
+        'page_title': 'Quiz Creators',
+        'quizadmin_active_tab': 'creators',
+        'creators': utils.get_quiz_creators_list(),
+    }
+    return render(request, 'quizadmin/pages/quiz_creators.html', context)
+
+
+@staff_member_required
 def quiz_workflow_log_page(request, exam_id):
     from amolnama_news.site_apps.mastermind.models import CollQuiz
     exam = (

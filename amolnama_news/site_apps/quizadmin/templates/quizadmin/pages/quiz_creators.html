@@ -1,0 +1,99 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-quiz-creators.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">Non-staff users granted quiz creation access. {{ creators|length }} creator{{ creators|length|pluralize }} total.</p>
+</section>
+
+<section class="quizadmin-section" aria-label="Grant new creator">
+  <h2 class="quizadmin-section-title">Grant quiz creator access</h2>
+  <div class="quizadmin-creator-grant-form">
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Search user by email</span>
+      <input type="text" id="quizadmin-creator-search-input" name="quizadmin_creator_search_input" class="quizadmin-form-input" placeholder="Type email (min 3 chars)..." autocomplete="off">
+      <div id="quizadmin-creator-search-results" class="quizadmin-creator-search-results" hidden></div>
+    </label>
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Expiry date (optional)</span>
+      <input type="datetime-local" id="quizadmin-creator-expires-at" name="quizadmin_creator_expires_at" class="quizadmin-form-input">
+    </label>
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Notes (optional)</span>
+      <input type="text" id="quizadmin-creator-notes" name="quizadmin_creator_notes" class="quizadmin-form-input" placeholder="Why granting access...">
+    </label>
+    <input type="hidden" id="quizadmin-creator-selected-user-profile-id" name="quizadmin_creator_selected_user_profile_id" value="">
+    <button type="button" id="quizadmin-creator-grant-button" name="quizadmin_creator_grant_button" class="quizadmin-form-submit" disabled>Grant access</button>
+  </div>
+  <div class="quizadmin-inline-message" id="quizadmin-creator-inline-message" role="status" aria-live="polite" hidden></div>
+</section>
+
+{% if creators %}
+<section class="quizadmin-section" aria-label="Creator list">
+  <h2 class="quizadmin-section-title">Active creators</h2>
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-creators-table">
+      <thead>
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col">Email</th>
+          <th scope="col">Status</th>
+          <th scope="col">Granted by</th>
+          <th scope="col">Granted</th>
+          <th scope="col">Expires</th>
+          <th scope="col">Notes</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for creator in creators %}
+        <tr data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">
+          <td class="quizadmin-table-title-bn">{{ creator.display_name }}</td>
+          <td><span class="quizadmin-code-inline">{{ creator.email }}</span></td>
+          <td>
+            <span class="quizadmin-status-chip quizadmin-status-chip-{% if creator.permission_status_code == 'active' %}completed{% elif creator.permission_status_code == 'revoked' %}failed{% else %}pending{% endif %}">
+              {{ creator.permission_status_code }}
+            </span>
+          </td>
+          <td>{{ creator.granted_by_display_name }}</td>
+          <td>{{ creator.granted_at|date:"Y-m-d" }}</td>
+          <td>
+            {% if creator.expires_at %}
+              {{ creator.expires_at|date:"Y-m-d H:i" }}
+              <button type="button" class="quizadmin-creator-edit-expiry-button quizadmin-table-action" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Edit</button>
+            {% else %}
+              Never
+            {% endif %}
+          </td>
+          <td>{{ creator.permission_notes|default:"—" }}</td>
+          <td>
+            {% if creator.permission_status_code == 'active' %}
+            <button type="button" class="quizadmin-table-action quizadmin-creator-revoke-button" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Revoke</button>
+            {% else %}
+            <span class="quizadmin-code-inline">{{ creator.permission_status_code }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">👤</p>
+  <h2 class="quizadmin-empty-hero-title">No quiz creators</h2>
+  <p class="quizadmin-empty-hero-body">Grant access to non-staff users above. They will be able to create and manage their own quizzes.</p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-quiz-creators.js' %}" defer></script>
+{% endblock %}

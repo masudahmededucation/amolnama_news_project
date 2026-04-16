@@ -705,6 +705,25 @@ class CollQuestionMatchPair(models.Model):
         db_table = '[mastermind].[coll_question_match_pair]'
 
 
+class CollQuizCreatorPermission(models.Model):
+    """Non-staff user granted quiz creation access by staff."""
+    mastermind_coll_quiz_creator_permission_id = models.BigAutoField(primary_key=True)
+    link_user_profile_id = models.BigIntegerField(unique=True)
+    link_granted_by_user_profile_id = models.BigIntegerField()
+    permission_status_code = models.CharField(max_length=20, default='active')
+    granted_at = models.DateTimeField(default=timezone.now)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    permission_notes = models.CharField(max_length=500, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_creator_permission]'
+
+
 class CollQuizSourceRegistry(models.Model):
     """Public record of books in the system — proves questions aren't biased."""
     mastermind_coll_quiz_source_registry_id = models.BigAutoField(primary_key=True)

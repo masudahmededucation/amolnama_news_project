@@ -521,3 +521,123 @@ def api_coll_question_import_csv(request):
     if errors:
         result['errors'] = errors[:20]
     return JsonResponse(result)
+
+
+# ================================================================
+# Quiz creator permission management (staff only)
+# ================================================================
+
+@staff_member_required
+@require_POST
+def api_quiz_creator_grant(request):
+    """Grant quiz creator permission to a non-staff user."""
+    payload, error_response = _parse_json_body(request)
+    if error_response is not None:
+        return error_response
+
+    target_user_profile_id = payload.get('user_profile_id')
+    expires_at_raw = payload.get('expires_at')
+    permission_notes = (payload.get('permission_notes') or '').strip() or None
+
+    if not target_user_profile_id or not isinstance(target_user_profile_id, int):
+        return JsonResponse({'error': 'user_profile_id is required.'}, status=400)
+
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    if not UserProfile.objects.filter(user_profile_id=target_user_profile_id).exists():
+        return JsonResponse({'error': 'User not found.'}, status=404)
+
+    from amolnama_news.site_apps.mastermind.models import CollQuizCreatorPermission
+    from django.utils import timezone
+    from django.utils.dateparse import parse_datetime
+
+    expires_at = None
+    if expires_at_raw:
+        expires_at = parse_datetime(str(expires_at_raw))
+        if expires_at and expires_at < timezone.now():
+            return JsonResponse({'error': 'Expiry date must be in the future.'}, status=400)
+
+    granter_profile_id, profile_error = _get_user_profile_id_or_error(request)
+    if profile_error is not None:
+        return profile_error
+
+    existing = CollQuizCreatorPermission.objects.filter(
+        link_user_profile_id=target_user_profile_id,
+    ).first()
+
+    if existing:
+        CollQuizCreatorPermission.objects.filter(
+            mastermind_coll_quiz_creator_permission_id=existing.mastermind_coll_quiz_creator_permission_id,
+        ).update(
+            permission_status_code='active',
+            link_granted_by_user_profile_id=granter_profile_id,
+            expires_at=expires_at,
+            revoked_at=None,
+            permission_notes=permission_notes,
+            is_active=True,
+            updated_at=timezone.now(),
+        )
+        return JsonResponse({'success': True, 'action': 'reactivated'})
+
+    CollQuizCreatorPermission.objects.create(
+        link_user_profile_id=target_user_profile_id,
+        link_granted_by_user_profile_id=granter_profile_id,
+        permission_status_code='active',
+        expires_at=expires_at,
+        permission_notes=permission_notes,
+    )
+    return JsonResponse({'success': True, 'action': 'granted'})
+
+
+@staff_member_required
+@require_POST
+def api_quiz_creator_revoke(request, permission_id):
+    """Revoke quiz creator permission."""
+    from amolnama_news.site_apps.mastermind.models import CollQuizCreatorPermission
+    from django.utils import timezone
+
+    updated = CollQuizCreatorPermission.objects.filter(
+        mastermind_coll_quiz_creator_permission_id=permission_id,
+        is_active=True,
+    ).update(
+        permission_status_code='revoked',
+        revoked_at=timezone.now(),
+        updated_at=timezone.now(),
+    )
+    if not updated:
+        return JsonResponse({'error': 'Permission not found.'}, status=404)
+    return JsonResponse({'success': True})
+
+
+@staff_member_required
+@require_POST
+def api_quiz_creator_update_expiry(request, permission_id):
+    """Update the expiry date of a quiz creator permission."""
+    payload, error_response = _parse_json_body(request)
+    if error_response is not None:
+        return error_response
+
+    from amolnama_news.site_apps.mastermind.models import CollQuizCreatorPermission
+    from django.utils import timezone
+    from django.utils.dateparse import parse_datetime
+
+    expires_at_raw = payload.get('expires_at')
+    expires_at = parse_datetime(str(expires_at_raw)) if expires_at_raw else None
+
+    updated = CollQuizCreatorPermission.objects.filter(
+        mastermind_coll_quiz_creator_permission_id=permission_id,
+        is_active=True,
+    ).update(
+        expires_at=expires_at,
+        updated_at=timezone.now(),
+    )
+    if not updated:
+        return JsonResponse({'error': 'Permission not found.'}, status=404)
+    return JsonResponse({'success': True})
+
+
+@staff_member_required
+def api_quiz_creator_search_users(request):
+    """Search users by email for the grant form."""
+    query = request.GET.get('q', '')
+    results = utils.search_users_by_email_or_name(query, limit=10)
+    return JsonResponse({'results': results})

@@ -21,6 +21,7 @@ urlpatterns = [
     path('quiz/<int:exam_id>/preview/',    views.quiz_preview_page,      name='quiz_preview'),
     path('quiz/<int:exam_id>/print/',      views.quiz_print_page,        name='quiz_print'),
     path('quiz/<int:exam_id>/workflow/',   views.quiz_workflow_log_page, name='quiz_workflow_log'),
+    path('creators/',                      views.quiz_creators_page,     name='quiz_creators'),
 
     path('api/approve/',  views_api.api_coll_question_approve,   name='api_coll_question_approve'),
     path('api/reject/',   views_api.api_coll_question_reject,    name='api_coll_question_reject'),
@@ -35,4 +36,8 @@ urlpatterns = [
     path('api/quiz/<int:exam_id>/update/', views_api.api_coll_exam_update,  name='api_coll_exam_update'),
     path('api/quiz/<int:exam_id>/clone/',  views_api.api_coll_exam_clone,   name='api_coll_exam_clone'),
     path('api/quiz/<int:exam_id>/delete/', views_api.api_coll_exam_delete,  name='api_coll_exam_delete'),
+    path('api/creator/grant/',                          views_api.api_quiz_creator_grant,          name='api_quiz_creator_grant'),
+    path('api/creator/<int:permission_id>/revoke/',     views_api.api_quiz_creator_revoke,         name='api_quiz_creator_revoke'),
+    path('api/creator/<int:permission_id>/update-expiry/', views_api.api_quiz_creator_update_expiry, name='api_quiz_creator_update_expiry'),
+    path('api/creator/search-users/',                   views_api.api_quiz_creator_search_users,   name='api_quiz_creator_search_users'),
 ]

@@ -15,6 +15,128 @@ from amolnama_news.site_apps.mastermind.models import (
 REVIEW_ORDER_FIELDS = ('created_at', 'mastermind_coll_question_id')
 
 
+def has_quiz_creator_permission(user_profile_id):
+    """Check if a non-staff user has active quiz creator permission."""
+    from amolnama_news.site_apps.mastermind.models import CollQuizCreatorPermission
+    from django.utils import timezone
+
+    if not user_profile_id:
+        return False
+    permission = (
+        CollQuizCreatorPermission.objects
+        .filter(
+            link_user_profile_id=user_profile_id,
+            permission_status_code='active',
+            is_active=True,
+        )
+        .values('expires_at')
+        .first()
+    )
+    if not permission:
+        return False
+    if permission['expires_at'] and permission['expires_at'] < timezone.now():
+        return False
+    return True
+
+
+def is_staff_or_quiz_creator(request):
+    """Check if user is staff OR has quiz creator permission."""
+    if request.user.is_staff or request.user.is_superuser:
+        return True
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    return has_quiz_creator_permission(get_user_profile_id(request))
+
+
+def get_quiz_creators_list():
+    """All quiz creator permissions for the staff admin page."""
+    from amolnama_news.site_apps.mastermind.models import CollQuizCreatorPermission
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    creators = list(
+        CollQuizCreatorPermission.objects
+        .filter(is_active=True)
+        .order_by('-granted_at')
+        .values(
+            'mastermind_coll_quiz_creator_permission_id',
+            'link_user_profile_id', 'link_granted_by_user_profile_id',
+            'permission_status_code', 'granted_at', 'expires_at',
+            'revoked_at', 'permission_notes',
+        )
+    )
+
+    user_ids = set()
+    for creator in creators:
+        user_ids.add(creator['link_user_profile_id'])
+        user_ids.add(creator['link_granted_by_user_profile_id'])
+
+    display_names = dict(
+        UserProfile.objects.filter(user_profile_id__in=user_ids)
+        .values_list('user_profile_id', 'display_name')
+    ) if user_ids else {}
+
+    email_map = {}
+    if user_ids:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        profile_to_user = dict(
+            UserProfile.objects.filter(user_profile_id__in=user_ids)
+            .values_list('user_profile_id', 'link_user_id')
+        )
+        user_ids_auth = set(profile_to_user.values())
+        email_map_by_user = dict(
+            User.objects.filter(id__in=user_ids_auth).values_list('id', 'email')
+        )
+        for profile_id, user_id in profile_to_user.items():
+            email_map[profile_id] = email_map_by_user.get(user_id, '')
+
+    for creator in creators:
+        creator['display_name'] = display_names.get(creator['link_user_profile_id'], 'Unknown')
+        creator['email'] = email_map.get(creator['link_user_profile_id'], '')
+        creator['granted_by_display_name'] = display_names.get(creator['link_granted_by_user_profile_id'], 'Unknown')
+
+    return creators
+
+
+def search_users_by_email_or_name(query, limit=10):
+    """Search registered users by email or display name for the creator grant form."""
+    from django.db.models import Q
+    from django.contrib.auth import get_user_model
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    User = get_user_model()
+    query = (query or '').strip()
+    if len(query) < 3:
+        return []
+
+    matching_users = list(
+        User.objects.filter(
+            Q(email__icontains=query),
+            is_active=True,
+        ).values('id', 'email')[:limit]
+    )
+    user_ids = [u['id'] for u in matching_users]
+
+    profiles = dict(
+        UserProfile.objects.filter(link_user_id__in=user_ids)
+        .values_list('link_user_id', 'user_profile_id')
+    )
+    display_names = dict(
+        UserProfile.objects.filter(link_user_id__in=user_ids)
+        .values_list('link_user_id', 'display_name')
+    )
+
+    results = []
+    for user in matching_users:
+        profile_id = profiles.get(user['id'])
+        if profile_id:
+            results.append({
+                'user_profile_id': profile_id,
+                'email': user['email'],
+                'display_name': display_names.get(user['id'], ''),
+            })
+    return results
+
+
 def get_dashboard_metrics():
     """Aggregate counts used by the dashboard metric cards."""
     question_status_counts = dict(
