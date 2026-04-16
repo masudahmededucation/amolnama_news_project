@@ -34,8 +34,12 @@ def has_quiz_creator_permission(user_profile_id):
     )
     if not permission:
         return False
-    if permission['expires_at'] and permission['expires_at'] < timezone.now():
-        return False
+    expires_at = permission['expires_at']
+    if expires_at:
+        if timezone.is_naive(expires_at):
+            expires_at = timezone.make_aware(expires_at)
+        if expires_at < timezone.now():
+            return False
     return True
 
 
@@ -984,6 +988,7 @@ def get_quiz_preview_context(exam_id):
             'exam_pass_percentage', 'exam_negative_marking_per_wrong',
             'exam_shuffle_questions', 'exam_shuffle_options',
             'exam_status_code',
+            'link_mastermind_coll_quiz_topic_id',
         )
         .first()
     )

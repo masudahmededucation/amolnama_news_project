@@ -160,8 +160,8 @@
         row.innerHTML = '<input type="text" id="quizadmin-match-stem-' + token + '" name="quizadmin_match_stem_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-stem" placeholder="Stem (left side)" value="' + ((pairData.stem_text_bn || '').replace(/"/g, '&quot;')) + '">' +
           '<span class="quizadmin-quiz-form-match-arrow">→</span>' +
           '<input type="text" id="quizadmin-match-response-' + token + '" name="quizadmin_match_response_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-response" placeholder="Response (right side)" value="' + ((pairData.response_text_bn || '').replace(/"/g, '&quot;')) + '">' +
-          '<button type="button" id="quizadmin-match-remove-' + token + '" name="quizadmin_match_remove_' + token + '" class="quizadmin-form-option-remove" aria-label="Remove pair">✕</button>';
-        row.querySelector('.quizadmin-form-option-remove').addEventListener('click', function () { row.remove(); });
+          '<button type="button" id="quizadmin-match-remove-' + token + '" name="quizadmin_match_remove_' + token + '" class="quizadmin-quiz-form-option-remove" aria-label="Remove pair">✕</button>';
+        row.querySelector('.quizadmin-quiz-form-option-remove').addEventListener('click', function () { row.remove(); });
         return row;
       };
 

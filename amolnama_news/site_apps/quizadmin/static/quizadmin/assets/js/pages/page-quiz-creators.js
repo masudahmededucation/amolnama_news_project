@@ -83,6 +83,59 @@
   }
 
   document.addEventListener('click', async function (event) {
+    var editExpiryButton = event.target.closest('.quizadmin-creator-edit-expiry-button');
+    if (editExpiryButton) {
+      var permissionId = editExpiryButton.dataset.permissionId;
+      var newExpiryRaw = window.prompt ? null : null;
+      var newExpiryInput = document.createElement('input');
+      newExpiryInput.type = 'datetime-local';
+      newExpiryInput.id = 'quizadmin-creator-inline-expiry-' + permissionId;
+      newExpiryInput.name = 'quizadmin_creator_inline_expiry';
+      newExpiryInput.className = 'quizadmin-form-input';
+
+      if (editExpiryButton.dataset.editing === 'true') return;
+      editExpiryButton.dataset.editing = 'true';
+
+      var cell = editExpiryButton.parentElement;
+      var originalContent = cell.innerHTML;
+      cell.innerHTML = '';
+      cell.appendChild(newExpiryInput);
+
+      var saveButton = document.createElement('button');
+      saveButton.type = 'button';
+      saveButton.textContent = 'Save';
+      saveButton.className = 'quizadmin-table-action';
+      saveButton.id = 'quizadmin-creator-inline-save-' + permissionId;
+      saveButton.name = 'quizadmin_creator_inline_save';
+      cell.appendChild(saveButton);
+
+      var cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = 'Cancel';
+      cancelButton.className = 'quizadmin-table-action';
+      cancelButton.id = 'quizadmin-creator-inline-cancel-' + permissionId;
+      cancelButton.name = 'quizadmin_creator_inline_cancel';
+      cell.appendChild(cancelButton);
+
+      newExpiryInput.focus();
+
+      cancelButton.addEventListener('click', function () { cell.innerHTML = originalContent; });
+      saveButton.addEventListener('click', async function () {
+        saveButton.disabled = true;
+        try {
+          await window.quizadminPost('/quizadmin/api/creator/' + permissionId + '/update-expiry/', {
+            expires_at: newExpiryInput.value || null,
+          });
+          window.quizadminShowInline(inlineMessage, 'Expiry updated.', 'success');
+          setTimeout(function () { window.location.reload(); }, 600);
+        } catch (error) {
+          window.quizadminShowInline(inlineMessage, error.message || 'Update failed.', 'error');
+          saveButton.disabled = false;
+        }
+      });
+      return;
+    }
+
     var revokeButton = event.target.closest('.quizadmin-creator-revoke-button');
     if (revokeButton) {
       var permissionId = revokeButton.dataset.permissionId;

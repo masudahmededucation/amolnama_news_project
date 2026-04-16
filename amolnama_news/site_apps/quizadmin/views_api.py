@@ -206,7 +206,7 @@ def api_coll_question_bulk_status(request):
     if len(question_ids) > MAX_BULK_QUESTION_IDS:
         return JsonResponse({'error': f'Maximum {MAX_BULK_QUESTION_IDS} questions per batch.'}, status=400)
 
-    if not all(isinstance(question_id, int) and question_id > 0 for question_id in question_ids):
+    if not all(isinstance(question_id, int) and not isinstance(question_id, bool) and question_id > 0 for question_id in question_ids):
         return JsonResponse({'error': 'All question IDs must be positive integers.'}, status=400)
 
     if new_status not in VALID_QUESTION_STATUS_CODES:
@@ -231,6 +231,7 @@ def api_coll_exam_clone(request, exam_id):
     """Deep-clone a quiz: metadata + question pool → new draft."""
     from amolnama_news.site_apps.mastermind.models import CollQuiz, MapQuizQuestionPool
     from amolnama_news.site_apps.core.utils import english_slug_from_text
+    from django.db import transaction
     from django.utils import timezone
 
     exam = (
@@ -248,6 +249,22 @@ def api_coll_exam_clone(request, exam_id):
     original_title_bn = exam.exam_title_bn or ''
     cloned_title_bn = f'{original_title_bn} (copy)'
     cloned_title_en = f'{exam.exam_title_en} (copy)' if exam.exam_title_en else None
+
+    with transaction.atomic():
+        clone = _clone_exam_atomic(exam, cloned_title_bn, cloned_title_en, user_profile_id, exam_id)
+
+    return JsonResponse({
+        'success': True,
+        'exam_id': clone.mastermind_coll_quiz_id,
+        'exam_slug': clone.exam_slug,
+    })
+
+
+def _clone_exam_atomic(exam, cloned_title_bn, cloned_title_en, user_profile_id, source_exam_id):
+    """Inner clone helper — runs under transaction.atomic()."""
+    from amolnama_news.site_apps.mastermind.models import CollQuiz, MapQuizQuestionPool
+    from amolnama_news.site_apps.core.utils import english_slug_from_text
+    from django.utils import timezone
 
     clone = CollQuiz(
         exam_title_bn=cloned_title_bn,
@@ -279,21 +296,21 @@ def api_coll_exam_clone(request, exam_id):
 
     pool_entries = list(
         MapQuizQuestionPool.objects
-        .filter(link_mastermind_coll_quiz_id=exam_id)
+        .filter(link_mastermind_coll_quiz_id=source_exam_id)
+        .order_by('mastermind_map_quiz_question_pool_id')
         .values('link_mastermind_coll_question_id', 'is_mandatory')
     )
-    for entry in pool_entries:
-        MapQuizQuestionPool.objects.create(
+    new_pool_rows = [
+        MapQuizQuestionPool(
             link_mastermind_coll_quiz_id=clone.mastermind_coll_quiz_id,
             link_mastermind_coll_question_id=entry['link_mastermind_coll_question_id'],
             is_mandatory=entry['is_mandatory'],
         )
-
-    return JsonResponse({
-        'success': True,
-        'exam_id': clone.mastermind_coll_quiz_id,
-        'exam_slug': clone.exam_slug,
-    })
+        for entry in pool_entries
+    ]
+    if new_pool_rows:
+        MapQuizQuestionPool.objects.bulk_create(new_pool_rows)
+    return clone
 
 
 @staff_member_required
@@ -493,7 +510,7 @@ def api_coll_question_import_csv(request):
                 link_mastermind_ref_quiz_difficulty_level_id=difficulty_id,
                 link_mastermind_coll_quiz_topic_id=topic_id,
                 question_points=int(row.get('points', '1') or '1'),
-                question_status_code=row.get('status', 'draft') or 'draft',
+                question_status_code=(row.get('status', 'draft') or 'draft') if (row.get('status', 'draft') or 'draft') in VALID_QUESTION_STATUS_CODES else 'draft',
                 question_generation_source_code='imported',
                 link_created_by_user_profile_id=user_profile_id,
                 source_page_number=int(row['page_number']) if (row.get('page_number') or '').strip().isdigit() else None,
@@ -553,6 +570,8 @@ def api_quiz_creator_grant(request):
     expires_at = None
     if expires_at_raw:
         expires_at = parse_datetime(str(expires_at_raw))
+        if expires_at and timezone.is_naive(expires_at):
+            expires_at = timezone.make_aware(expires_at)
         if expires_at and expires_at < timezone.now():
             return JsonResponse({'error': 'Expiry date must be in the future.'}, status=400)
 
@@ -560,31 +579,36 @@ def api_quiz_creator_grant(request):
     if profile_error is not None:
         return profile_error
 
-    existing = CollQuizCreatorPermission.objects.filter(
-        link_user_profile_id=target_user_profile_id,
-    ).first()
-
-    if existing:
-        CollQuizCreatorPermission.objects.filter(
-            mastermind_coll_quiz_creator_permission_id=existing.mastermind_coll_quiz_creator_permission_id,
-        ).update(
-            permission_status_code='active',
-            link_granted_by_user_profile_id=granter_profile_id,
-            expires_at=expires_at,
-            revoked_at=None,
-            permission_notes=permission_notes,
-            is_active=True,
-            updated_at=timezone.now(),
+    from django.db import transaction
+    with transaction.atomic():
+        existing = (
+            CollQuizCreatorPermission.objects
+            .select_for_update()
+            .filter(link_user_profile_id=target_user_profile_id)
+            .first()
         )
-        return JsonResponse({'success': True, 'action': 'reactivated'})
 
-    CollQuizCreatorPermission.objects.create(
-        link_user_profile_id=target_user_profile_id,
-        link_granted_by_user_profile_id=granter_profile_id,
-        permission_status_code='active',
-        expires_at=expires_at,
-        permission_notes=permission_notes,
-    )
+        if existing:
+            CollQuizCreatorPermission.objects.filter(
+                mastermind_coll_quiz_creator_permission_id=existing.mastermind_coll_quiz_creator_permission_id,
+            ).update(
+                permission_status_code='active',
+                link_granted_by_user_profile_id=granter_profile_id,
+                expires_at=expires_at,
+                revoked_at=None,
+                permission_notes=permission_notes,
+                is_active=True,
+                updated_at=timezone.now(),
+            )
+            return JsonResponse({'success': True, 'action': 'reactivated'})
+
+        CollQuizCreatorPermission.objects.create(
+            link_user_profile_id=target_user_profile_id,
+            link_granted_by_user_profile_id=granter_profile_id,
+            permission_status_code='active',
+            expires_at=expires_at,
+            permission_notes=permission_notes,
+        )
     return JsonResponse({'success': True, 'action': 'granted'})
 
 
@@ -622,6 +646,8 @@ def api_quiz_creator_update_expiry(request, permission_id):
 
     expires_at_raw = payload.get('expires_at')
     expires_at = parse_datetime(str(expires_at_raw)) if expires_at_raw else None
+    if expires_at and timezone.is_naive(expires_at):
+        expires_at = timezone.make_aware(expires_at)
 
     updated = CollQuizCreatorPermission.objects.filter(
         mastermind_coll_quiz_creator_permission_id=permission_id,

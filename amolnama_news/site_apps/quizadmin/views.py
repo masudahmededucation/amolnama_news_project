@@ -168,7 +168,7 @@ def quiz_workflow_log_page(request, exam_id):
         'page_title': f'Workflow log: {exam["exam_title_bn"]}',
         'quizadmin_active_tab': 'quiz_list',
         'quiz': exam,
-        'logs': utils.get_quiz_workflow_log(exam_id=int(exam_id)),
+        'logs': utils.get_quiz_workflow_log(quiz_id=int(exam_id)),
     }
     return render(request, 'quizadmin/pages/quiz_workflow_log.html', context)
 
