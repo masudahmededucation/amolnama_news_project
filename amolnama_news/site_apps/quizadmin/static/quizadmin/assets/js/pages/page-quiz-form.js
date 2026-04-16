@@ -149,6 +149,7 @@
   const renderQuestionRow = (questionIndex, data) => {
     const row = document.createElement('div');
     row.className = 'quizadmin-quiz-form-question-row';
+    row.draggable = true;
     row.dataset.questionIndex = String(questionIndex);
     if (data.mastermind_coll_question_id) {
       row.dataset.questionId = String(data.mastermind_coll_question_id);
@@ -175,6 +176,7 @@
     const questionToken = `q${questionIndex}t${Math.random().toString(36).slice(2, 6)}`;
     row.innerHTML = `
       <header class="quizadmin-quiz-form-question-header">
+        <span class="quizadmin-quiz-form-drag-handle" aria-label="Drag to reorder" title="Drag to reorder">⠿</span>
         <span class="quizadmin-quiz-form-question-number">Q<span class="quizadmin-quiz-form-question-number-value">${questionIndex + 1}</span></span>
         <select id="quizadmin-quiz-form-question-type-${questionToken}"
                 name="quizadmin_quiz_form_question_type_${questionToken}"
@@ -258,6 +260,48 @@
     countPlural.textContent = total === 1 ? '' : 's';
   };
 
+  var draggedRow = null;
+  container.addEventListener('dragstart', function (event) {
+    var row = event.target.closest('.quizadmin-quiz-form-question-row');
+    if (!row) return;
+    draggedRow = row;
+    row.classList.add('quizadmin-quiz-form-question-dragging');
+    event.dataTransfer.effectAllowed = 'move';
+  });
+  container.addEventListener('dragend', function () {
+    if (draggedRow) {
+      draggedRow.classList.remove('quizadmin-quiz-form-question-dragging');
+      draggedRow = null;
+    }
+    [...container.querySelectorAll('.quizadmin-quiz-form-question-drop-target')].forEach(function (element) {
+      element.classList.remove('quizadmin-quiz-form-question-drop-target');
+    });
+  });
+  container.addEventListener('dragover', function (event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    var target = event.target.closest('.quizadmin-quiz-form-question-row');
+    if (!target || target === draggedRow) return;
+    [...container.querySelectorAll('.quizadmin-quiz-form-question-drop-target')].forEach(function (element) {
+      element.classList.remove('quizadmin-quiz-form-question-drop-target');
+    });
+    target.classList.add('quizadmin-quiz-form-question-drop-target');
+  });
+  container.addEventListener('drop', function (event) {
+    event.preventDefault();
+    var target = event.target.closest('.quizadmin-quiz-form-question-row');
+    if (!target || !draggedRow || target === draggedRow) return;
+    var allRows = [...container.children];
+    var dragIndex = allRows.indexOf(draggedRow);
+    var dropIndex = allRows.indexOf(target);
+    if (dragIndex < dropIndex) {
+      container.insertBefore(draggedRow, target.nextSibling);
+    } else {
+      container.insertBefore(draggedRow, target);
+    }
+    relabelQuestionRows();
+  });
+
   addQuestionButton.addEventListener('click', () => {
     container.appendChild(renderQuestionRow(container.children.length, {}));
     relabelQuestionRows();
@@ -340,6 +384,8 @@
       exam_shuffle_questions: readBool('exam_shuffle_questions'),
       exam_shuffle_options: readBool('exam_shuffle_options'),
       exam_allow_review: readBool('exam_allow_review'),
+      exam_scheduled_publish_at: readStr('exam_scheduled_publish_at') || null,
+      exam_scheduled_close_at: readStr('exam_scheduled_close_at') || null,
       exam_rewards_enabled: readBool('exam_rewards_enabled'),
       exam_reward_criteria_code: readStr('exam_reward_criteria_code'),
       exam_reward_threshold_percent: readFloat('exam_reward_threshold_percent'),

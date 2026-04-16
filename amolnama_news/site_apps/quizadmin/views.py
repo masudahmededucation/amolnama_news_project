@@ -145,6 +145,17 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def quiz_print_page(request, exam_id):
+    context_data = utils.get_quiz_preview_context(exam_id=int(exam_id))
+    if context_data is None:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    show_answers = request.GET.get('answers') == '1'
+    context_data['page_title'] = context_data['quiz']['exam_title_bn']
+    context_data['show_answers'] = show_answers
+    return render(request, 'quizadmin/pages/quiz_print.html', context_data)
+
+
+@staff_member_required
 def question_create_page(request):
     context = {
         'page_title': 'Create question',

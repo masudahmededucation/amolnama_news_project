@@ -116,6 +116,21 @@
     </div>
   </section>
 
+  <section class="quizadmin-form-section" aria-label="Scheduling">
+    <h2 class="quizadmin-form-section-title">Scheduling (optional)</h2>
+    <p class="quizadmin-form-help-text">Set a future date to auto-publish or auto-close the quiz.</p>
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Auto-publish at</span>
+        <input type="datetime-local" id="exam_scheduled_publish_at" name="exam_scheduled_publish_at" class="quizadmin-form-input" value="{% if quiz.exam_scheduled_publish_at %}{{ quiz.exam_scheduled_publish_at|date:'Y-m-d\TH:i' }}{% endif %}">
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Auto-close at</span>
+        <input type="datetime-local" id="exam_scheduled_close_at" name="exam_scheduled_close_at" class="quizadmin-form-input" value="{% if quiz.exam_scheduled_close_at %}{{ quiz.exam_scheduled_close_at|date:'Y-m-d\TH:i' }}{% endif %}">
+      </label>
+    </div>
+  </section>
+
   <section class="quizadmin-form-section" aria-label="Rewards">
     <h2 class="quizadmin-form-section-title">Rewards (optional)</h2>
     <label class="quizadmin-form-checkbox">

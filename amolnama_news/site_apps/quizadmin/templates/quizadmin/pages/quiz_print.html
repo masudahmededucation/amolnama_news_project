@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="bn" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }} — Print</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'SolaimanLipi', 'Noto Sans Bengali', sans-serif; font-size: 14px; line-height: 1.6; color: #111; padding: 24px; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    .quiz-print-meta { color: #666; font-size: 12px; margin-bottom: 20px; border-bottom: 2px solid #111; padding-bottom: 8px; }
+    .quiz-print-question { margin-bottom: 20px; page-break-inside: avoid; }
+    .quiz-print-question-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .quiz-print-question-number { font-weight: 700; color: #333; min-width: 30px; }
+    .quiz-print-question-points { font-size: 11px; color: #999; margin-left: auto; }
+    .quiz-print-question-text { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+    .quiz-print-options { list-style: none; padding-left: 0; }
+    .quiz-print-option { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; }
+    .quiz-print-option-label { font-weight: 700; min-width: 20px; color: #555; }
+    .quiz-print-option-correct { font-weight: 700; }
+    .quiz-print-option-correct .quiz-print-option-label { color: #16a34a; }
+    .quiz-print-answer-key { margin-top: 30px; border-top: 2px solid #111; padding-top: 12px; }
+    .quiz-print-answer-key h2 { font-size: 16px; margin-bottom: 8px; }
+    .quiz-print-answer-row { display: inline-block; min-width: 80px; font-size: 13px; }
+    .quiz-print-no-print { margin-bottom: 16px; }
+    .quiz-print-no-print button, .quiz-print-no-print a {
+      padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px;
+      background: #fff; cursor: pointer; font-size: 13px; margin-right: 8px;
+      text-decoration: none; color: #111;
+    }
+    .quiz-print-no-print button:hover, .quiz-print-no-print a:hover { background: #f5f5f5; }
+    @media print {
+      .quiz-print-no-print { display: none; }
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-print-no-print">
+    <button type="button" onclick="window.print()" id="quiz-print-button" name="quiz_print_button">Print / Save as PDF</button>
+    {% if not show_answers %}
+    <a href="?answers=1" id="quiz-print-with-answers" name="quiz_print_with_answers">Print with answer key</a>
+    {% else %}
+    <a href="?" id="quiz-print-without-answers" name="quiz_print_without_answers">Print without answers</a>
+    {% endif %}
+    <a href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/preview/" id="quiz-print-back" name="quiz_print_back">Back to preview</a>
+  </div>
+
+  <h1>{{ page_title }}</h1>
+  <div class="quiz-print-meta">
+    {{ total_questions }} question{{ total_questions|pluralize }}
+    {% if quiz.exam_time_limit_minutes %} · {{ quiz.exam_time_limit_minutes }} minutes{% endif %}
+    · Pass: {{ quiz.exam_pass_percentage }}%
+    {% if quiz.exam_negative_marking_per_wrong %} · Negative marking: -{{ quiz.exam_negative_marking_per_wrong }}{% endif %}
+  </div>
+
+  {% for question in questions %}
+  <div class="quiz-print-question">
+    <div class="quiz-print-question-header">
+      <span class="quiz-print-question-number">{{ forloop.counter }}.</span>
+      <span class="quiz-print-question-text">{{ question.question_text_bn }}</span>
+      <span class="quiz-print-question-points">{{ question.question_points }} pt{{ question.question_points|pluralize }}</span>
+    </div>
+
+    {% if question.options %}
+    <ol class="quiz-print-options">
+      {% for option in question.options %}
+      <li class="quiz-print-option {% if show_answers and option.is_correct %}quiz-print-option-correct{% endif %}">
+        <span class="quiz-print-option-label">{{ option.option_label }})</span>
+        <span>{{ option.option_text_bn }}</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if show_answers %}
+  <div class="quiz-print-answer-key">
+    <h2>Answer Key</h2>
+    {% for question in questions %}
+      <span class="quiz-print-answer-row">
+        {{ forloop.counter }}.
+        {% for option in question.options %}{% if option.is_correct %}{{ option.option_label }}{% endif %}{% endfor %}
+      </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</body>
+</html>

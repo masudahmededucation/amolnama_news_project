@@ -18,6 +18,7 @@ urlpatterns = [
     path('quiz/<int:exam_id>/edit/',       views.quiz_edit_page,         name='quiz_edit'),
     path('quiz/<int:exam_id>/leaderboard/',views.quiz_leaderboard_page,  name='quiz_leaderboard'),
     path('quiz/<int:exam_id>/preview/',    views.quiz_preview_page,      name='quiz_preview'),
+    path('quiz/<int:exam_id>/print/',      views.quiz_print_page,        name='quiz_print'),
 
     path('api/approve/',  views_api.api_coll_question_approve,   name='api_coll_question_approve'),
     path('api/reject/',   views_api.api_coll_question_reject,    name='api_coll_question_reject'),
