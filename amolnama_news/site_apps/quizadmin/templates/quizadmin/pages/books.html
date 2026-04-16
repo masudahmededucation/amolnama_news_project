@@ -50,6 +50,10 @@
   </div>
 </section>
 {% else %}
-<p class="quizadmin-empty-state">No books ingested yet.</p>
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📖</p>
+  <h2 class="quizadmin-empty-hero-title">No books ingested yet</h2>
+  <p class="quizadmin-empty-hero-body">Upload a PDF book via the mastermind API to start generating questions.</p>
+</section>
 {% endif %}
 {% endblock %}

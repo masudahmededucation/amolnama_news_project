@@ -185,18 +185,25 @@ main.quizadmin-shell a:focus-visible {
 }
 
 .quizadmin-table-wrapper tbody tr:hover { background: var(--primary-light); }
+.quizadmin-table-wrapper tbody tr:nth-child(even) { background: var(--bg); }
+.quizadmin-table-wrapper tbody tr:nth-child(even):hover { background: var(--primary-light); }
 
 .quizadmin-table-numeric { text-align: right; font-variant-numeric: tabular-nums; }
 .quizadmin-table-title-bn { font-weight: 600; color: var(--text); font-size: var(--text-base); }
 .quizadmin-table-title-en { color: var(--muted); font-size: var(--text-xs); }
 .quizadmin-table-action {
-  display: inline-block;
-  padding: var(--space-1) var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
   border-radius: var(--radius-xs);
   font-size: var(--text-xs);
   color: var(--accent);
   margin-right: var(--space-1);
+  touch-action: manipulation;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
+.quizadmin-table-action:hover { background: var(--primary-light); text-decoration: none; }
 .quizadmin-table-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .quizadmin-code-inline {
@@ -222,8 +229,15 @@ main.quizadmin-shell a:focus-visible {
 .quizadmin-status-chip-completed  { background: var(--success); }
 .quizadmin-status-chip-processing { background: var(--info); }
 .quizadmin-status-chip-failed     { background: var(--danger); }
-.quizadmin-status-chip-pending    { background: var(--amber); }
+.quizadmin-status-chip-pending    { background: var(--amber); color: var(--text); }
 .quizadmin-status-chip-unknown    { background: var(--muted); }
+.quizadmin-status-chip-draft      { background: var(--muted); }
+.quizadmin-status-chip-review     { background: var(--amber); color: var(--text); }
+.quizadmin-status-chip-published  { background: var(--success); }
+.quizadmin-status-chip-archived   { background: var(--danger); }
+.quizadmin-status-chip-active     { background: var(--success); }
+.quizadmin-status-chip-revoked    { background: var(--danger); }
+.quizadmin-status-chip-expired    { background: var(--muted); }
 
 /* Empty state ------------------------------------------------------- */
 .quizadmin-empty-state {
@@ -255,13 +269,16 @@ main.quizadmin-shell a:focus-visible {
   gap: var(--space-2);
 }
 .quizadmin-quick-links a {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   min-height: var(--touch-target);
   touch-action: manipulation;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
+.quizadmin-quick-links a:hover { background: var(--primary-light); text-decoration: none; }
 .quizadmin-quick-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Pagination ------------------------------------------------------- */
@@ -321,7 +338,7 @@ main.quizadmin-shell a:focus-visible {
 .quizadmin-form-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   flex: 1;
 }
 
@@ -421,7 +438,10 @@ main.quizadmin-shell a:focus-visible {
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
+  transition: background-color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
 }
+.quizadmin-form-add-button:hover { background: var(--info-light); border-color: var(--accent); }
 .quizadmin-form-add-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .quizadmin-form-help-text {

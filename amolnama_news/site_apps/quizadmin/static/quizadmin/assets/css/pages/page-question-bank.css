@@ -153,12 +153,6 @@
   white-space: nowrap;
 }
 
-/* Status chip variants for question statuses */
-.quizadmin-status-chip-draft     { background: var(--muted); }
-.quizadmin-status-chip-review    { background: var(--amber); color: #000; }
-.quizadmin-status-chip-published { background: var(--success); }
-.quizadmin-status-chip-archived  { background: var(--danger); }
-
 .quizadmin-question-delete-button {
   background: none;
   border: 1px solid var(--border);

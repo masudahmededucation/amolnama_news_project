@@ -40,8 +40,11 @@
   padding: var(--space-1);
   border-radius: var(--radius-xs);
   touch-action: none;
-  min-width: 24px;
-  text-align: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .quizadmin-quiz-form-drag-handle:hover { color: var(--text); background: var(--bg); }
 
