@@ -90,6 +90,34 @@
   margin-bottom: var(--space-2);
 }
 
+/* Matching pairs */
+.quizadmin-quiz-form-match-pair-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.quizadmin-quiz-form-match-pair-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.quizadmin-quiz-form-match-arrow {
+  font-size: var(--text-lg);
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .quizadmin-quiz-form-match-pair-row {
+    grid-template-columns: 1fr 1fr auto;
+  }
+  .quizadmin-quiz-form-match-arrow { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .quizadmin-quiz-form-question-row { transition: none; }
 }

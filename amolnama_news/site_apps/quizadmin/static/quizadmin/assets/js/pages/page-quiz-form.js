@@ -142,6 +142,38 @@
                  value="${initial.replace(/"/g, '&quot;')}">
         </label>
       `;
+    } else if (questionTypeCode === 'matching') {
+      const pairList = document.createElement('div');
+      pairList.className = 'quizadmin-quiz-form-match-pair-list';
+      const addPairButton = document.createElement('button');
+      addPairButton.type = 'button';
+      addPairButton.className = 'quizadmin-quiz-form-option-add';
+      addPairButton.textContent = '+ Add pair';
+      var pairToken = window.quizadminGenerateToken();
+      addPairButton.id = 'quizadmin-quiz-form-match-add-' + pairToken;
+      addPairButton.name = 'quizadmin_quiz_form_match_add_' + pairToken;
+
+      var renderPairRow = function (pairIndex, pairData) {
+        var row = document.createElement('div');
+        row.className = 'quizadmin-quiz-form-match-pair-row';
+        var token = window.quizadminGenerateToken();
+        row.innerHTML = '<input type="text" id="quizadmin-match-stem-' + token + '" name="quizadmin_match_stem_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-stem" placeholder="Stem (left side)" value="' + ((pairData.stem_text_bn || '').replace(/"/g, '&quot;')) + '">' +
+          '<span class="quizadmin-quiz-form-match-arrow">→</span>' +
+          '<input type="text" id="quizadmin-match-response-' + token + '" name="quizadmin_match_response_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-response" placeholder="Response (right side)" value="' + ((pairData.response_text_bn || '').replace(/"/g, '&quot;')) + '">' +
+          '<button type="button" id="quizadmin-match-remove-' + token + '" name="quizadmin_match_remove_' + token + '" class="quizadmin-form-option-remove" aria-label="Remove pair">✕</button>';
+        row.querySelector('.quizadmin-form-option-remove').addEventListener('click', function () { row.remove(); });
+        return row;
+      };
+
+      addPairButton.addEventListener('click', function () {
+        pairList.appendChild(renderPairRow(pairList.children.length, {}));
+      });
+
+      var seedPairs = (seedOptions && seedOptions.length) ? seedOptions : [{}, {}, {}];
+      seedPairs.forEach(function (pairData, index) { pairList.appendChild(renderPairRow(index, pairData)); });
+
+      wrapper.appendChild(pairList);
+      wrapper.appendChild(addPairButton);
     }
     return wrapper;
   };
@@ -355,6 +387,13 @@
     } else if (code === 'fill_blank' || code === 'short_answer' || code === 'essay') {
       const answerInput = row.querySelector('.quizadmin-quiz-form-answer-text');
       payload.answer_text = answerInput ? answerInput.value : '';
+    } else if (code === 'matching') {
+      payload.match_pairs = [...row.querySelectorAll('.quizadmin-quiz-form-match-pair-row')].map(function (pairRow) {
+        return {
+          stem_text_bn: pairRow.querySelector('.quizadmin-quiz-form-match-stem').value,
+          response_text_bn: pairRow.querySelector('.quizadmin-quiz-form-match-response').value,
+        };
+      });
     }
     return payload;
   };

@@ -145,6 +145,37 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def quiz_workflow_log_page(request, exam_id):
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    exam = (
+        CollQuiz.objects.filter(mastermind_coll_quiz_id=exam_id, is_active=True)
+        .values('mastermind_coll_quiz_id', 'exam_title_bn', 'exam_title_en')
+        .first()
+    )
+    if not exam:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    context = {
+        'page_title': f'Workflow log: {exam["exam_title_bn"]}',
+        'quizadmin_active_tab': 'quiz_list',
+        'quiz': exam,
+        'logs': utils.get_quiz_workflow_log(exam_id=int(exam_id)),
+    }
+    return render(request, 'quizadmin/pages/quiz_workflow_log.html', context)
+
+
+@staff_member_required
+def question_history_page(request, question_id):
+    versions = utils.get_question_version_history(question_id=int(question_id))
+    context = {
+        'page_title': f'Edit history: Q#{question_id}',
+        'quizadmin_active_tab': 'question_bank',
+        'question_id': question_id,
+        'versions': versions,
+    }
+    return render(request, 'quizadmin/pages/question_history.html', context)
+
+
+@staff_member_required
 def quiz_print_page(request, exam_id):
     context_data = utils.get_quiz_preview_context(exam_id=int(exam_id))
     if context_data is None:

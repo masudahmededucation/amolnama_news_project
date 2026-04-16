@@ -638,6 +638,73 @@ class CollQuestionReport(models.Model):
 # TIER 7 — Transparency Ledger
 # ================================================================
 
+class CollQuestionVersion(models.Model):
+    """Immutable version snapshot — each edit creates a new version."""
+    mastermind_coll_question_version_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_question_id = models.BigIntegerField()
+    version_number = models.IntegerField(default=1)
+    question_text_bn = models.TextField()
+    question_text_en = models.TextField(null=True, blank=True)
+    question_explanation_bn = models.TextField(null=True, blank=True)
+    question_explanation_en = models.TextField(null=True, blank=True)
+    question_metadata_json = models.TextField(null=True, blank=True)
+    link_modified_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    change_summary = models.CharField(max_length=500, null=True, blank=True)
+    is_current = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_question_version]'
+
+
+class MapQuizRoleAssignment(models.Model):
+    """Per-quiz role assignment — creator, reviewer, publisher."""
+    mastermind_map_quiz_role_assignment_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    role_code = models.CharField(max_length=20)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[map_quiz_role_assignment]'
+
+
+class CollQuizWorkflowLog(models.Model):
+    """Audit trail of quiz status transitions — who changed what, when."""
+    mastermind_coll_quiz_workflow_log_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+    from_status_code = models.CharField(max_length=20, null=True, blank=True)
+    to_status_code = models.CharField(max_length=20)
+    link_user_profile_id = models.BigIntegerField()
+    role_code = models.CharField(max_length=20)
+    workflow_comment = models.CharField(max_length=500, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_workflow_log]'
+
+
+class CollQuestionMatchPair(models.Model):
+    """Stem-response pair for matching questions. NULL stem = distractor."""
+    mastermind_coll_question_match_pair_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_question_id = models.BigIntegerField()
+    stem_text_bn = models.CharField(max_length=500, null=True, blank=True)
+    stem_text_en = models.CharField(max_length=500, null=True, blank=True)
+    response_text_bn = models.CharField(max_length=500)
+    response_text_en = models.CharField(max_length=500, null=True, blank=True)
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_question_match_pair]'
+
+
 class CollQuizSourceRegistry(models.Model):
     """Public record of books in the system — proves questions aren't biased."""
     mastermind_coll_quiz_source_registry_id = models.BigAutoField(primary_key=True)

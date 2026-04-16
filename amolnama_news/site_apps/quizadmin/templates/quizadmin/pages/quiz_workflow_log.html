@@ -1,0 +1,54 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">{{ logs|length }} transition{{ logs|length|pluralize }} recorded.</p>
+</section>
+
+{% if logs %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">When</th>
+          <th scope="col">Who</th>
+          <th scope="col">Role</th>
+          <th scope="col">From</th>
+          <th scope="col">To</th>
+          <th scope="col">Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{{ log.display_name }}</td>
+          <td><span class="quizadmin-code-inline">{{ log.role_code }}</span></td>
+          <td>
+            {% if log.from_status_code %}
+            <span class="quizadmin-status-chip quizadmin-status-chip-{{ log.from_status_code }}">{{ log.from_status_code }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td><span class="quizadmin-status-chip quizadmin-status-chip-{{ log.to_status_code }}">{{ log.to_status_code }}</span></td>
+          <td>{{ log.workflow_comment|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📋</p>
+  <h2 class="quizadmin-empty-hero-title">No workflow history</h2>
+  <p class="quizadmin-empty-hero-body">Status transitions will be recorded here when the quiz status changes.</p>
+</section>
+{% endif %}
+
+<section class="quizadmin-form-actions">
+  <a href="/quizadmin/quiz/" class="quizadmin-form-cancel" id="quizadmin-workflow-back" name="quizadmin_workflow_back">Back to quizzes</a>
+  <a href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/edit/" class="quizadmin-form-submit" id="quizadmin-workflow-edit" name="quizadmin_workflow_edit">Edit quiz</a>
+</section>
+{% endblock %}

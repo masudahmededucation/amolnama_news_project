@@ -776,6 +776,79 @@ def get_dashboard_chart_data():
     }
 
 
+def log_quiz_workflow_transition(quiz_id, from_status, to_status, user_profile_id, role_code='staff', comment=None):
+    """Record a quiz status transition in the audit log."""
+    from amolnama_news.site_apps.mastermind.models import CollQuizWorkflowLog
+    CollQuizWorkflowLog.objects.create(
+        link_mastermind_coll_quiz_id=quiz_id,
+        from_status_code=from_status,
+        to_status_code=to_status,
+        link_user_profile_id=user_profile_id,
+        role_code=role_code,
+        workflow_comment=comment,
+    )
+
+
+def get_quiz_workflow_log(quiz_id):
+    """Audit trail for one quiz — newest first."""
+    from amolnama_news.site_apps.mastermind.models import CollQuizWorkflowLog
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    logs = list(
+        CollQuizWorkflowLog.objects
+        .filter(link_mastermind_coll_quiz_id=quiz_id)
+        .order_by('-created_at')
+        .values(
+            'mastermind_coll_quiz_workflow_log_id',
+            'from_status_code', 'to_status_code',
+            'link_user_profile_id', 'role_code',
+            'workflow_comment', 'created_at',
+        )
+    )
+
+    user_ids = {log['link_user_profile_id'] for log in logs}
+    display_names = dict(
+        UserProfile.objects.filter(user_profile_id__in=user_ids)
+        .values_list('user_profile_id', 'display_name')
+    ) if user_ids else {}
+
+    for log in logs:
+        log['display_name'] = display_names.get(log['link_user_profile_id'], 'System')
+
+    return logs
+
+
+def get_question_version_history(question_id):
+    """Version history for one question — newest first."""
+    from amolnama_news.site_apps.mastermind.models import CollQuestionVersion
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    versions = list(
+        CollQuestionVersion.objects
+        .filter(link_mastermind_coll_question_id=question_id)
+        .order_by('-version_number')
+        .values(
+            'mastermind_coll_question_version_id', 'version_number',
+            'question_text_bn', 'question_metadata_json',
+            'link_modified_by_user_profile_id', 'change_summary',
+            'is_current', 'created_at',
+        )
+    )
+
+    user_ids = {v['link_modified_by_user_profile_id'] for v in versions if v['link_modified_by_user_profile_id']}
+    display_names = dict(
+        UserProfile.objects.filter(user_profile_id__in=user_ids)
+        .values_list('user_profile_id', 'display_name')
+    ) if user_ids else {}
+
+    for version in versions:
+        version['modified_by_display_name'] = display_names.get(
+            version['link_modified_by_user_profile_id'], 'System'
+        )
+
+    return versions
+
+
 def get_quiz_preview_context(exam_id):
     """Read-only preview of a quiz — shows all questions + options as a student would see them."""
     from amolnama_news.site_apps.mastermind.models import (

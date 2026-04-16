@@ -1,0 +1,44 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-question-history.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">{{ versions|length }} version{{ versions|length|pluralize }} recorded.</p>
+</section>
+
+{% if versions %}
+<section class="quizadmin-section">
+  <div class="quizadmin-version-timeline">
+    {% for version in versions %}
+    <div class="quizadmin-version-card {% if version.is_current %}quizadmin-version-card-current{% endif %}">
+      <header class="quizadmin-version-card-header">
+        <span class="quizadmin-version-badge">v{{ version.version_number }}</span>
+        {% if version.is_current %}<span class="quizadmin-status-chip quizadmin-status-chip-completed">current</span>{% endif %}
+        <span class="quizadmin-version-meta">{{ version.modified_by_display_name }} · {{ version.created_at|date:"Y-m-d H:i" }}</span>
+      </header>
+      {% if version.change_summary %}
+      <p class="quizadmin-version-summary">{{ version.change_summary }}</p>
+      {% endif %}
+      <div class="quizadmin-version-text">{{ version.question_text_bn|truncatewords:30 }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📝</p>
+  <h2 class="quizadmin-empty-hero-title">No edit history</h2>
+  <p class="quizadmin-empty-hero-body">Version history will appear after the first edit.</p>
+</section>
+{% endif %}
+
+<section class="quizadmin-form-actions">
+  <a href="/quizadmin/questions/" class="quizadmin-form-cancel" id="quizadmin-history-back" name="quizadmin_history_back">Back to questions</a>
+  <a href="/quizadmin/question/{{ question_id }}/edit/" class="quizadmin-form-submit" id="quizadmin-history-edit" name="quizadmin_history_edit">Edit question</a>
+</section>
+{% endblock %}
