@@ -22,27 +22,27 @@
     <span class="quizadmin-analytics-metric-label">Correct answers</span>
     <span class="quizadmin-analytics-metric-value">{{ total_correct }}</span>
   </div>
-  <div class="quizadmin-analytics-metric-card">
+  <div class="quizadmin-analytics-metric-card" title="Percentage of students who answered correctly. 30-80% is ideal. Below 30% = too hard, above 80% = too easy.">
     <span class="quizadmin-analytics-metric-label">Difficulty index</span>
     <span class="quizadmin-analytics-metric-value {% if difficulty_index is not None %}{% if difficulty_index < 30 %}quizadmin-analytics-metric-danger{% elif difficulty_index > 80 %}quizadmin-analytics-metric-warning{% else %}quizadmin-analytics-metric-success{% endif %}{% endif %}">
       {% if difficulty_index is not None %}{{ difficulty_index }}%{% else %}—{% endif %}
     </span>
     <span class="quizadmin-analytics-metric-hint">
       {% if difficulty_index is not None %}
-        {% if difficulty_index < 30 %}Too hard{% elif difficulty_index > 80 %}Too easy{% else %}Good range{% endif %}
+        {% if difficulty_index < 30 %}Too hard — consider simplifying{% elif difficulty_index > 80 %}Too easy — consider making harder{% else %}Good range (30-80%){% endif %}
       {% endif %}
     </span>
   </div>
-  <div class="quizadmin-analytics-metric-card">
+  <div class="quizadmin-analytics-metric-card" title="Measures how well this question separates strong from weak students. Calculated as: (top 25% correct rate) - (bottom 25% correct rate). Above 0.4 = excellent, 0.2-0.4 = acceptable, below 0.2 = poor discriminator.">
     <span class="quizadmin-analytics-metric-label">Discrimination index</span>
     <span class="quizadmin-analytics-metric-value {% if discrimination_index is not None %}{% if discrimination_index < 0.2 %}quizadmin-analytics-metric-danger{% elif discrimination_index >= 0.4 %}quizadmin-analytics-metric-success{% else %}quizadmin-analytics-metric-warning{% endif %}{% endif %}">
       {% if discrimination_index is not None %}{{ discrimination_index }}{% else %}—{% endif %}
     </span>
     <span class="quizadmin-analytics-metric-hint">
       {% if discrimination_index is not None %}
-        {% if discrimination_index >= 0.4 %}Excellent{% elif discrimination_index >= 0.2 %}Acceptable{% else %}Poor — review question{% endif %}
+        {% if discrimination_index >= 0.4 %}Excellent discriminator{% elif discrimination_index >= 0.2 %}Acceptable — could be improved{% else %}Poor — strong students miss this too. Review wording.{% endif %}
       {% else %}
-        Need 10+ attempts
+        Need 10+ attempts to calculate
       {% endif %}
     </span>
   </div>

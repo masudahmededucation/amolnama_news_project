@@ -39,6 +39,7 @@ def review_queue_page(request):
     book_id_raw = request.GET.get('book_id')
     confidence_level = request.GET.get('confidence_level') or None
     verdict_code = request.GET.get('verdict_code') or None
+    search_query = request.GET.get('search') or None
     question_id_raw = request.GET.get('question_id')
 
     topic_id = int(topic_id_raw) if topic_id_raw and topic_id_raw.isdigit() else None
@@ -48,6 +49,7 @@ def review_queue_page(request):
     ordered_ids = utils.get_review_queue_ids(
         topic_id=topic_id, book_id=book_id,
         confidence_level=confidence_level, verdict_code=verdict_code,
+        search_query=search_query,
     )
     current_id = question_id if question_id in ordered_ids else (
         ordered_ids[0] if ordered_ids else None
@@ -61,6 +63,7 @@ def review_queue_page(request):
         'active_filters': {
             'topic_id': topic_id, 'book_id': book_id,
             'confidence_level': confidence_level, 'verdict_code': verdict_code,
+            'search': search_query,
         },
         'pending_total': len(ordered_ids),
         'current_index': (ordered_ids.index(current_id) + 1) if current_id in ordered_ids else 0,
@@ -83,11 +86,15 @@ def books_page(request):
 
 @staff_member_required
 def quiz_list_page(request):
+    sort_by = request.GET.get('sort') or None
     context = {
         'page_title': 'Quizzes',
         'quizadmin_active_tab': 'quiz_list',
+        'sort_options': list(utils.QUIZ_SORT_OPTIONS.keys()),
+        'active_sort': sort_by,
         **utils.paginate_quizzes(
             page_number=int(request.GET.get('page', '1') or 1),
+            sort_by=sort_by,
         ),
     }
     return render(request, 'quizadmin/pages/quiz_list.html', context)
@@ -168,23 +175,25 @@ def question_bank_page(request):
     status_code = request.GET.get('status_code') or None
     source_code = request.GET.get('source_code') or None
     search_query = request.GET.get('q') or None
+    sort_by = request.GET.get('sort') or None
     page_number = int(request.GET.get('page', '1') or 1)
 
     context = {
         'page_title': 'Question Bank',
         'quizadmin_active_tab': 'question_bank',
         'filter_options': utils.get_question_bank_filter_options(),
+        'sort_options': list(utils.QUESTION_SORT_OPTIONS.keys()),
         'active_filters': {
             'topic_id': topic_id, 'book_id': book_id,
             'status_code': status_code, 'source_code': source_code,
             'question_type_id': question_type_id, 'difficulty_id': difficulty_id,
-            'q': search_query,
+            'q': search_query, 'sort': sort_by,
         },
         **utils.paginate_questions(
             page_number=page_number, topic_id=topic_id, book_id=book_id,
             status_code=status_code, question_type_id=question_type_id,
             difficulty_id=difficulty_id, source_code=source_code,
-            search_query=search_query,
+            search_query=search_query, sort_by=sort_by,
         ),
     }
     return render(request, 'quizadmin/pages/question_bank.html', context)

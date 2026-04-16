@@ -86,6 +86,15 @@
           {% endfor %}
         </select>
       </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Sort by</span>
+        <select id="quizadmin-filter-sort" name="sort" class="quizadmin-form-select">
+          {% for sort_option in sort_options %}
+          <option value="{{ sort_option }}" {% if active_filters.sort == sort_option %}selected{% endif %}>{{ sort_option|cut:"_" }}</option>
+          {% endfor %}
+        </select>
+      </label>
     </div>
 
     <div class="quizadmin-question-bank-actions-row">
@@ -167,6 +176,7 @@
           <td>
             <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/edit/">Edit</a>
             <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/analytics/">Stats</a>
+            <button type="button" class="quizadmin-table-action quizadmin-question-delete-button" data-question-id="{{ question.mastermind_coll_question_id }}">Delete</button>
           </td>
         </tr>
         {% endfor %}
@@ -177,11 +187,11 @@
   {% if total_pages > 1 %}
   <nav class="quizadmin-pagination" aria-label="Pagination">
     {% if has_previous %}
-    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}">← Previous</a>
+    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}&sort={{ active_filters.sort|default:'' }}">← Previous</a>
     {% endif %}
     <span class="quizadmin-pagination-current">Page {{ page_number }} of {{ total_pages }}</span>
     {% if has_next %}
-    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}">Next →</a>
+    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}&sort={{ active_filters.sort|default:'' }}">Next →</a>
     {% endif %}
   </nav>
   {% endif %}

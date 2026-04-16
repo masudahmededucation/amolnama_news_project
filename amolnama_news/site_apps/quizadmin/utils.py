@@ -121,11 +121,13 @@ def get_books_with_question_counts():
 
 
 def get_review_queue_ids(topic_id=None, book_id=None, confidence_level=None,
-                        verdict_code=None):
+                        verdict_code=None, search_query=None):
     """Return the ordered list of pending-review AI question IDs.
 
     Used to compute prev/next for keyboard navigation on the review page.
     """
+    from django.db.models import Q
+
     filters = {
         'is_active': True,
         'question_status_code': 'review',
@@ -139,9 +141,15 @@ def get_review_queue_ids(topic_id=None, book_id=None, confidence_level=None,
         filters['nli_confidence_level_code'] = confidence_level
     if verdict_code:
         filters['nli_verdict_code'] = verdict_code
+
+    queryset = CollQuestion.objects.filter(**filters)
+    if search_query:
+        queryset = queryset.filter(
+            Q(question_text_bn__icontains=search_query) |
+            Q(question_text_en__icontains=search_query)
+        )
     return list(
-        CollQuestion.objects.filter(**filters)
-        .order_by(*REVIEW_ORDER_FIELDS)
+        queryset.order_by(*REVIEW_ORDER_FIELDS)
         .values_list('mastermind_coll_question_id', flat=True)
     )
 
@@ -302,14 +310,23 @@ def get_question_form_context(question_id=None):
     return context
 
 
-def paginate_quizzes(page_number=1, per_page=50):
+QUIZ_SORT_OPTIONS = {
+    'newest': '-created_at',
+    'oldest': 'created_at',
+    'title': 'exam_title_bn',
+    'most_questions': '-exam_total_questions',
+}
+
+
+def paginate_quizzes(page_number=1, per_page=50, sort_by=None):
     """Quiz list (coll_quiz) with question count + creator."""
     from django.core.paginator import EmptyPage, Paginator
     from amolnama_news.site_apps.mastermind.models import CollQuiz, MapQuizQuestionPool
 
+    order_field = QUIZ_SORT_OPTIONS.get(sort_by, '-created_at')
     queryset = (
         CollQuiz.objects.filter(is_active=True)
-        .order_by('-created_at')
+        .order_by(order_field)
         .values(
             'mastermind_coll_quiz_id',
             'exam_title_bn', 'exam_title_en', 'exam_slug',
@@ -477,10 +494,22 @@ def get_quiz_leaderboard_context(exam_id, limit=50):
     return {'quiz': exam_row, 'leaderboard_rows': completed_sessions}
 
 
+QUESTION_SORT_OPTIONS = {
+    'newest': '-created_at',
+    'oldest': 'created_at',
+    'most_used': '-usage_count',
+    'least_used': 'usage_count',
+    'highest_accuracy': '-correct_answer_rate',
+    'lowest_accuracy': 'correct_answer_rate',
+    'id_asc': 'mastermind_coll_question_id',
+    'id_desc': '-mastermind_coll_question_id',
+}
+
+
 def paginate_questions(page_number=1, per_page=50, topic_id=None, book_id=None,
                        status_code=None, question_type_id=None, difficulty_id=None,
-                       source_code=None, search_query=None):
-    """Full question bank browser with filtering and search."""
+                       source_code=None, search_query=None, sort_by=None):
+    """Full question bank browser with filtering, search, and sorting."""
     from django.core.paginator import EmptyPage, Paginator
     from django.db.models import Q
 
@@ -504,7 +533,8 @@ def paginate_questions(page_number=1, per_page=50, topic_id=None, book_id=None,
             Q(question_text_bn__icontains=search_query) |
             Q(question_text_en__icontains=search_query)
         )
-    queryset = queryset.order_by('-created_at').values(
+    order_field = QUESTION_SORT_OPTIONS.get(sort_by, '-created_at')
+    queryset = queryset.order_by(order_field).values(
         'mastermind_coll_question_id',
         'question_text_bn', 'question_text_en',
         'question_status_code',

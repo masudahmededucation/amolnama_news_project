@@ -3,6 +3,18 @@
 
 .quizadmin-page-intro { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 
+.quizadmin-quiz-list-sort-form {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.quizadmin-quiz-list-sort-form .quizadmin-form-select {
+  font-size: var(--text-sm);
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-2);
+}
+
 .quizadmin-quiz-clone-button,
 .quizadmin-quiz-delete-button {
   background: none;

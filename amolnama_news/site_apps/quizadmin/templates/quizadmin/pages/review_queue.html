@@ -29,6 +29,11 @@
 
   <form class="quizadmin-review-filter-form" method="get" action="" id="quizadmin-review-filter-form" name="quizadmin_review_filter_form">
     <label class="quizadmin-filter-label">
+      <span>Search</span>
+      <input type="text" id="quizadmin-filter-search" name="search" class="quizadmin-form-input" value="{{ active_filters.search|default:'' }}" placeholder="Search question text...">
+    </label>
+
+    <label class="quizadmin-filter-label">
       <span>Topic</span>
       <select id="quizadmin-filter-topic" name="topic_id" class="quizadmin-form-select">
         <option value="">All</option>

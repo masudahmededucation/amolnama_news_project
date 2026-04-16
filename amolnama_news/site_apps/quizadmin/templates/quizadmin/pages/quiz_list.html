@@ -9,6 +9,16 @@
 <section class="quizadmin-page-intro">
   <h1 class="quizadmin-page-title">{{ page_title }}</h1>
   <p class="quizadmin-page-subtitle">{{ total_count }} quiz{{ total_count|pluralize:'zes' }} total.</p>
+  <form class="quizadmin-quiz-list-sort-form" method="get" action="" id="quizadmin-quiz-list-sort-form" name="quizadmin_quiz_list_sort_form">
+    <label class="quizadmin-filter-label">
+      <span>Sort</span>
+      <select id="quizadmin-quiz-sort" name="sort" class="quizadmin-form-select" onchange="this.form.submit()">
+        {% for sort_option in sort_options %}
+        <option value="{{ sort_option }}" {% if active_sort == sort_option %}selected{% endif %}>{{ sort_option }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
 </section>
 
 {% if quizzes %}
@@ -63,9 +73,9 @@
 
   {% if total_pages > 1 %}
   <nav class="quizadmin-pagination" aria-label="Pagination">
-    {% if has_previous %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}">← Previous</a>{% endif %}
+    {% if has_previous %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&sort={{ active_sort|default:'' }}">← Previous</a>{% endif %}
     <span class="quizadmin-pagination-current">Page {{ page_number }} of {{ total_pages }}</span>
-    {% if has_next %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}">Next →</a>{% endif %}
+    {% if has_next %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}&sort={{ active_sort|default:'' }}">Next →</a>{% endif %}
   </nav>
   {% endif %}
 </section>

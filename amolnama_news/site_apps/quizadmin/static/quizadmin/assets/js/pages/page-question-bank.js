@@ -130,4 +130,38 @@
       importFileInput.value = '';
     });
   }
+
+  document.addEventListener('click', async function (event) {
+    var deleteButton = event.target.closest('.quizadmin-question-delete-button');
+    if (!deleteButton) return;
+
+    var questionId = deleteButton.dataset.questionId;
+    if (deleteButton.dataset.confirmed !== 'true') {
+      deleteButton.dataset.confirmed = 'true';
+      deleteButton.textContent = 'Confirm';
+      deleteButton.classList.add('quizadmin-question-delete-confirm');
+      setTimeout(function () {
+        if (deleteButton.dataset.confirmed === 'true') {
+          deleteButton.textContent = 'Delete';
+          delete deleteButton.dataset.confirmed;
+          deleteButton.classList.remove('quizadmin-question-delete-confirm');
+        }
+      }, 3000);
+      return;
+    }
+
+    deleteButton.disabled = true;
+    try {
+      await window.quizadminPost('/quizadmin/api/question/' + questionId + '/delete/', {});
+      var row = deleteButton.closest('tr');
+      if (row) row.remove();
+      window.quizadminShowInline(inlineMessage, 'Question deleted.', 'success');
+    } catch (error) {
+      window.quizadminShowInline(inlineMessage, error.message || 'Delete failed.', 'error');
+      deleteButton.disabled = false;
+      deleteButton.textContent = 'Delete';
+      delete deleteButton.dataset.confirmed;
+      deleteButton.classList.remove('quizadmin-question-delete-confirm');
+    }
+  });
 })();

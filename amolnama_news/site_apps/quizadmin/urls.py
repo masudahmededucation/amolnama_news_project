@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/skip/',     views_api.api_coll_question_skip,      name='api_coll_question_skip'),
     path('api/question/create/',                   views_api.api_coll_question_create,   name='api_coll_question_create'),
     path('api/question/<int:question_id>/update/', views_api.api_coll_question_update,   name='api_coll_question_update'),
+    path('api/question/<int:question_id>/delete/', views_api.api_coll_question_delete,   name='api_coll_question_delete'),
     path('api/question/bulk-status/',              views_api.api_coll_question_bulk_status, name='api_coll_question_bulk_status'),
     path('api/question/export-csv/',               views_api.api_coll_question_export_csv,  name='api_coll_question_export_csv'),
     path('api/question/import-csv/',               views_api.api_coll_question_import_csv,  name='api_coll_question_import_csv'),

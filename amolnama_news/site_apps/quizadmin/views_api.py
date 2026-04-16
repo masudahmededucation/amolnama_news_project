@@ -172,6 +172,19 @@ def api_coll_question_update(request, question_id):
     return _handle_engine_mutation(request, update_question_manual, question_id=int(question_id))
 
 
+@staff_member_required
+@require_POST
+def api_coll_question_delete(request, question_id):
+    """Soft-delete a question (set is_active=0)."""
+    from amolnama_news.site_apps.mastermind.models import CollQuestion
+    updated = CollQuestion.objects.filter(
+        mastermind_coll_question_id=int(question_id), is_active=True,
+    ).update(is_active=False)
+    if not updated:
+        return JsonResponse({'error': 'Question not found or already deleted.'}, status=404)
+    return JsonResponse({'success': True})
+
+
 # ================================================================
 # Bulk operations
 # ================================================================
@@ -193,8 +206,8 @@ def api_coll_question_bulk_status(request):
     if len(question_ids) > MAX_BULK_QUESTION_IDS:
         return JsonResponse({'error': f'Maximum {MAX_BULK_QUESTION_IDS} questions per batch.'}, status=400)
 
-    if not all(isinstance(question_id, int) for question_id in question_ids):
-        return JsonResponse({'error': 'All question IDs must be integers.'}, status=400)
+    if not all(isinstance(question_id, int) and question_id > 0 for question_id in question_ids):
+        return JsonResponse({'error': 'All question IDs must be positive integers.'}, status=400)
 
     if new_status not in VALID_QUESTION_STATUS_CODES:
         return JsonResponse({'error': f'Invalid status. Must be one of: {", ".join(sorted(VALID_QUESTION_STATUS_CODES))}'}, status=400)

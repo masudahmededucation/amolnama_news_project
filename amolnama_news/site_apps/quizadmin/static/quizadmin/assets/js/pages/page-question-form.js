@@ -167,4 +167,19 @@
   });
 
   applyQuestionType();
+
+  var bookSelect = document.getElementById('book_id');
+  var chapterSelect = document.getElementById('chapter_id');
+  if (bookSelect && chapterSelect) {
+    var allChapterOptions = Array.from(chapterSelect.querySelectorAll('option'));
+    bookSelect.addEventListener('change', function () {
+      var selectedBookId = bookSelect.value;
+      chapterSelect.innerHTML = '';
+      allChapterOptions.forEach(function (option) {
+        if (!option.value || option.dataset.bookId === selectedBookId || !selectedBookId) {
+          chapterSelect.appendChild(option.cloneNode(true));
+        }
+      });
+    });
+  }
 })();
