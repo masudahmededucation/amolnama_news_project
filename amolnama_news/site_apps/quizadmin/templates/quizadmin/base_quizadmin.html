@@ -8,6 +8,8 @@
 {% block quizadmin_css %}{% endblock %}
 {% endblock %}
 
+{% block extra_head %}{% block quizadmin_head %}{% endblock %}{% endblock %}
+
 {% block content %}
 <section id="quizadmin-shell" class="quizadmin-shell">
   {% include "quizadmin/partials/quizadmin_top_nav.html" with active=quizadmin_active_tab %}

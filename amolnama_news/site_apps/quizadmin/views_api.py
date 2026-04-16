@@ -8,7 +8,7 @@ import io
 import json
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.core.utils import get_user_profile_id
@@ -71,7 +71,12 @@ def _get_user_profile_id_or_error(request):
 
 
 def _handle_review_action(request, action_function):
-    """Shared handler for approve/reject — validate, call engine, return next id."""
+    """Shared handler for approve/reject — validate, call engine, return next id.
+
+    Important: compute next_id BEFORE the action mutates the queue. Otherwise
+    the just-acted-on question is no longer in the pending list, so .index()
+    fails and we'd send the reviewer back to position 0 every time.
+    """
     is_valid, payload = validate_question_action_payload(request.body)
     if not is_valid:
         return JsonResponse({'error': payload}, status=400)
@@ -80,19 +85,25 @@ def _handle_review_action(request, action_function):
     if error_response is not None:
         return error_response
 
+    next_id = _next_id_after(payload['question_id'], _extract_queue_filters(request))
+
     result = action_function(
         question_id=payload['question_id'],
         reviewer_user_profile_id=user_profile_id,
     )
+    if not isinstance(result, dict):
+        return JsonResponse({'error': 'Engine returned invalid response.'}, status=500)
     if result.get('error'):
         return JsonResponse({'error': result['error']}, status=400)
 
-    next_id = _next_id_after(payload['question_id'], _extract_queue_filters(request))
     return JsonResponse({'success': True, 'next_question_id': next_id})
 
 
 def _handle_engine_mutation(request, engine_function, **engine_kwargs):
     """Shared handler for quiz/question create/update — parse JSON, call engine."""
+    import logging
+    logger = logging.getLogger(__name__)
+
     payload, error_response = _parse_json_body(request)
     if error_response is not None:
         return error_response
@@ -105,6 +116,11 @@ def _handle_engine_mutation(request, engine_function, **engine_kwargs):
         result = engine_function(payload=payload, user_profile_id=user_profile_id, **engine_kwargs)
     except ValueError as validation_error:
         return JsonResponse({'error': str(validation_error)}, status=400)
+    except Exception as engine_error:
+        logger.exception('Engine call failed: %s', engine_function.__name__)
+        return JsonResponse({'error': 'Server error. Please try again.'}, status=500)
+    if not isinstance(result, dict):
+        return JsonResponse({'error': 'Engine returned invalid response.'}, status=500)
     if result.get('error'):
         return JsonResponse({'error': result['error']}, status=400)
     return JsonResponse(result)
@@ -347,7 +363,7 @@ def api_coll_question_export_csv(request):
     if status_code and status_code in VALID_QUESTION_STATUS_CODES:
         filters['question_status_code'] = status_code
 
-    questions = list(
+    questions_queryset = (
         CollQuestion.objects.filter(**filters)
         .order_by('mastermind_coll_question_id')
         .values(
@@ -361,19 +377,7 @@ def api_coll_question_export_csv(request):
         )
     )
 
-    question_ids = [q['mastermind_coll_question_id'] for q in questions]
-    options_by_question = {}
-    for opt in (
-        CollQuestionOption.objects
-        .filter(link_mastermind_coll_question_id__in=question_ids, is_active=True)
-        .order_by('sort_order')
-        .values('link_mastermind_coll_question_id', 'option_label', 'option_text_bn', 'is_correct')
-    ):
-        options_by_question.setdefault(opt['link_mastermind_coll_question_id'], []).append(opt)
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow([
+    csv_header = [
         'question_id', 'question_text_bn', 'question_text_en', 'explanation_bn',
         'status', 'source', 'points', 'type_id', 'difficulty_id', 'topic_id',
         'page_number', 'created_at',
@@ -382,32 +386,47 @@ def api_coll_question_export_csv(request):
         'option_c', 'option_c_label', 'option_c_correct',
         'option_d', 'option_d_label', 'option_d_correct',
         'option_e', 'option_e_label', 'option_e_correct',
-    ])
+    ]
 
-    for question in questions:
-        question_id = question['mastermind_coll_question_id']
-        opts = options_by_question.get(question_id, [])
-        row = [
-            question_id, question['question_text_bn'], question['question_text_en'] or '',
-            question['question_explanation_bn'] or '',
-            question['question_status_code'], question['question_generation_source_code'],
-            question['question_points'],
-            question['link_mastermind_ref_quiz_question_type_id'],
-            question['link_mastermind_ref_quiz_difficulty_level_id'],
-            question['link_mastermind_coll_quiz_topic_id'],
-            question['source_page_number'] or '',
-            str(question['created_at'] or ''),
-        ]
-        for option_index in range(5):
-            if option_index < len(opts):
-                row.append(opts[option_index]['option_text_bn'])
-                row.append(opts[option_index]['option_label'])
-                row.append('1' if opts[option_index]['is_correct'] else '0')
-            else:
-                row.extend(['', '', ''])
-        writer.writerow(row)
+    def _row_iterator():
+        buffer = io.StringIO()
+        writer = csv.writer(buffer)
+        writer.writerow(csv_header)
+        yield buffer.getvalue()
+        buffer.seek(0); buffer.truncate(0)
 
-    response = HttpResponse(output.getvalue(), content_type='text/csv; charset=utf-8-sig')
+        chunk_size = 200
+        for question in questions_queryset.iterator(chunk_size=chunk_size):
+            question_id = question['mastermind_coll_question_id']
+            opts = list(
+                CollQuestionOption.objects
+                .filter(link_mastermind_coll_question_id=question_id, is_active=True)
+                .order_by('sort_order')
+                .values('option_label', 'option_text_bn', 'is_correct')[:5]
+            )
+            row = [
+                question_id, question['question_text_bn'], question['question_text_en'] or '',
+                question['question_explanation_bn'] or '',
+                question['question_status_code'], question['question_generation_source_code'],
+                question['question_points'],
+                question['link_mastermind_ref_quiz_question_type_id'],
+                question['link_mastermind_ref_quiz_difficulty_level_id'],
+                question['link_mastermind_coll_quiz_topic_id'],
+                question['source_page_number'] or '',
+                str(question['created_at'] or ''),
+            ]
+            for option_index in range(5):
+                if option_index < len(opts):
+                    row.append(opts[option_index]['option_text_bn'])
+                    row.append(opts[option_index]['option_label'])
+                    row.append('1' if opts[option_index]['is_correct'] else '0')
+                else:
+                    row.extend(['', '', ''])
+            writer.writerow(row)
+            yield buffer.getvalue()
+            buffer.seek(0); buffer.truncate(0)
+
+    response = StreamingHttpResponse(_row_iterator(), content_type='text/csv; charset=utf-8-sig')
     response['Content-Disposition'] = 'attachment; filename="question_bank_export.csv"'
     return response
 
@@ -434,6 +453,13 @@ def api_coll_question_import_csv(request):
     from amolnama_news.site_apps.mastermind.models import (
         CollQuestion, CollQuestionOption, CollQuizTopic,
         RefQuizQuestionType, RefQuizDifficultyLevel,
+    )
+    from django.db import transaction
+
+    mcq_type_codes = set(
+        RefQuizQuestionType.objects
+        .filter(question_type_code__in=('mcq_single', 'mcq_multi'))
+        .values_list('mastermind_ref_quiz_question_type_id', flat=True)
     )
 
     try:
@@ -501,37 +527,54 @@ def api_coll_question_import_csv(request):
             errors.append(f'Row {row_number}: unknown topic_id {topic_id}')
             continue
 
+        if type_id in mcq_type_codes:
+            mcq_options = []
+            option_labels = ['a', 'b', 'c', 'd', 'e']
+            for label in option_labels:
+                option_text = (row.get(f'option_{label}') or '').strip()
+                if option_text:
+                    is_correct = (row.get(f'option_{label}_correct') or '0').strip() == '1'
+                    mcq_options.append((label, option_text, is_correct))
+            if not mcq_options:
+                errors.append(f'Row {row_number}: MCQ question requires at least one option')
+                continue
+            if not any(is_correct for _, _, is_correct in mcq_options):
+                errors.append(f'Row {row_number}: MCQ question requires at least one correct option')
+                continue
+
         try:
-            question = CollQuestion.objects.create(
-                question_text_bn=question_text_bn,
-                question_text_en=(row.get('question_text_en') or '').strip() or None,
-                question_explanation_bn=(row.get('explanation_bn') or '').strip() or None,
-                link_mastermind_ref_quiz_question_type_id=type_id,
-                link_mastermind_ref_quiz_difficulty_level_id=difficulty_id,
-                link_mastermind_coll_quiz_topic_id=topic_id,
-                question_points=int(row.get('points', '1') or '1'),
-                question_status_code=(row.get('status', 'draft') or 'draft') if (row.get('status', 'draft') or 'draft') in VALID_QUESTION_STATUS_CODES else 'draft',
-                question_generation_source_code='imported',
-                link_created_by_user_profile_id=user_profile_id,
-                source_page_number=int(row['page_number']) if (row.get('page_number') or '').strip().isdigit() else None,
-            )
+            with transaction.atomic():
+                question = CollQuestion.objects.create(
+                    question_text_bn=question_text_bn,
+                    question_text_en=(row.get('question_text_en') or '').strip() or None,
+                    question_explanation_bn=(row.get('explanation_bn') or '').strip() or None,
+                    link_mastermind_ref_quiz_question_type_id=type_id,
+                    link_mastermind_ref_quiz_difficulty_level_id=difficulty_id,
+                    link_mastermind_coll_quiz_topic_id=topic_id,
+                    question_points=int(row.get('points', '1') or '1'),
+                    question_status_code=(row.get('status', 'draft') or 'draft') if (row.get('status', 'draft') or 'draft') in VALID_QUESTION_STATUS_CODES else 'draft',
+                    question_generation_source_code='imported',
+                    link_created_by_user_profile_id=user_profile_id,
+                    source_page_number=int(row['page_number']) if (row.get('page_number') or '').strip().isdigit() else None,
+                )
+
+                option_labels = ['a', 'b', 'c', 'd', 'e']
+                for option_index, label in enumerate(option_labels):
+                    option_text = (row.get(f'option_{label}') or '').strip()
+                    if not option_text:
+                        continue
+                    is_correct = (row.get(f'option_{label}_correct') or '0').strip() == '1'
+                    CollQuestionOption.objects.create(
+                        link_mastermind_coll_question_id=question.mastermind_coll_question_id,
+                        option_label=label,
+                        option_text_bn=option_text,
+                        is_correct=is_correct,
+                        sort_order=option_index,
+                    )
         except Exception as create_error:
             errors.append(f'Row {row_number}: {create_error}')
             continue
 
-        option_labels = ['a', 'b', 'c', 'd', 'e']
-        for option_index, label in enumerate(option_labels):
-            option_text = (row.get(f'option_{label}') or '').strip()
-            if not option_text:
-                continue
-            is_correct = (row.get(f'option_{label}_correct') or '0').strip() == '1'
-            CollQuestionOption.objects.create(
-                link_mastermind_coll_question_id=question.mastermind_coll_question_id,
-                option_label=label,
-                option_text_bn=option_text,
-                is_correct=is_correct,
-                sort_order=option_index,
-            )
         created_count += 1
 
     result = {'success': True, 'created_count': created_count}
@@ -570,9 +613,11 @@ def api_quiz_creator_grant(request):
     expires_at = None
     if expires_at_raw:
         expires_at = parse_datetime(str(expires_at_raw))
-        if expires_at and timezone.is_naive(expires_at):
+        if expires_at is None:
+            return JsonResponse({'error': 'Invalid expiry date format.'}, status=400)
+        if timezone.is_naive(expires_at):
             expires_at = timezone.make_aware(expires_at)
-        if expires_at and expires_at < timezone.now():
+        if expires_at < timezone.now():
             return JsonResponse({'error': 'Expiry date must be in the future.'}, status=400)
 
     granter_profile_id, profile_error = _get_user_profile_id_or_error(request)
@@ -645,9 +690,13 @@ def api_quiz_creator_update_expiry(request, permission_id):
     from django.utils.dateparse import parse_datetime
 
     expires_at_raw = payload.get('expires_at')
-    expires_at = parse_datetime(str(expires_at_raw)) if expires_at_raw else None
-    if expires_at and timezone.is_naive(expires_at):
-        expires_at = timezone.make_aware(expires_at)
+    expires_at = None
+    if expires_at_raw:
+        expires_at = parse_datetime(str(expires_at_raw))
+        if expires_at is None:
+            return JsonResponse({'error': 'Invalid expiry date format.'}, status=400)
+        if timezone.is_naive(expires_at):
+            expires_at = timezone.make_aware(expires_at)
 
     updated = CollQuizCreatorPermission.objects.filter(
         mastermind_coll_quiz_creator_permission_id=permission_id,

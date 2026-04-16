@@ -188,7 +188,7 @@
   {% if total_pages > 1 %}
   <nav class="quizadmin-pagination" aria-label="Pagination">
     {% if has_previous %}
-    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}&sort={{ active_filters.sort|default:'' }}">← Previous</a>
+    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&q={{ active_filters.q|default:''|urlencode }}&topic_id={{ active_filters.topic_id|default:''|urlencode }}&book_id={{ active_filters.book_id|default:''|urlencode }}&status_code={{ active_filters.status_code|default:''|urlencode }}&question_type_id={{ active_filters.question_type_id|default:''|urlencode }}&difficulty_id={{ active_filters.difficulty_id|default:''|urlencode }}&source_code={{ active_filters.source_code|default:''|urlencode }}&sort={{ active_filters.sort|default:''|urlencode }}">← Previous</a>
     {% endif %}
     <span class="quizadmin-pagination-current">Page {{ page_number }} of {{ total_pages }}</span>
     {% if has_next %}

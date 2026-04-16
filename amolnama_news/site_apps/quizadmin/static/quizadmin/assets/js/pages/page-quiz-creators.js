@@ -14,6 +14,8 @@
   if (searchInput) {
     searchInput.addEventListener('input', function () {
       clearTimeout(searchTimeout);
+      selectedUserInput.value = '';
+      grantButton.disabled = true;
       var query = searchInput.value.trim();
       if (query.length < 3) {
         searchResults.hidden = true;
@@ -86,7 +88,6 @@
     var editExpiryButton = event.target.closest('.quizadmin-creator-edit-expiry-button');
     if (editExpiryButton) {
       var permissionId = editExpiryButton.dataset.permissionId;
-      var newExpiryRaw = window.prompt ? null : null;
       var newExpiryInput = document.createElement('input');
       newExpiryInput.type = 'datetime-local';
       newExpiryInput.id = 'quizadmin-creator-inline-expiry-' + permissionId;

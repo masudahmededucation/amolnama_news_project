@@ -8,9 +8,9 @@
 <link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-review-queue.css' %}">
 {% endblock %}
 
-{% block extra_head %}
+{% block quizadmin_head %}
 {% if next_id %}
-<link rel="prefetch" href="/quizadmin/review/?question_id={{ next_id }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&confidence_level={{ active_filters.confidence_level|default:'' }}&verdict_code={{ active_filters.verdict_code|default:'' }}" as="document">
+<link rel="prefetch" href="/quizadmin/review/?question_id={{ next_id }}&topic_id={{ active_filters.topic_id|default:''|urlencode }}&book_id={{ active_filters.book_id|default:''|urlencode }}&confidence_level={{ active_filters.confidence_level|default:''|urlencode }}&verdict_code={{ active_filters.verdict_code|default:''|urlencode }}" as="document">
 {% endif %}
 {% endblock %}
 
