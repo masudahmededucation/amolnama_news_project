@@ -1,0 +1,20 @@
+{% load static %}
+{% comment %}
+Top nav for all quizadmin pages. `active` param marks the current tab.
+Loads the scroll-preservation utility that runs on every quizadmin page.
+{% endcomment %}
+<script src="{% static 'quizadmin/assets/js/utilities/scroll-preservation.js' %}" defer></script>
+
+<h2 class="quizadmin-top-nav-heading" id="quizadmin-top-nav-heading">📋 Quiz Panel</h2>
+
+<nav class="quizadmin-top-nav" aria-label="Quiz Panel navigation">
+  <ul class="quizadmin-top-nav-list">
+    <li><a href="/quizadmin/"        class="quizadmin-top-nav-link {% if active == 'dashboard' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-dashboard" name="quizadmin_top_nav_link_dashboard">Dashboard</a></li>
+    <li><a href="/quizadmin/review/" class="quizadmin-top-nav-link {% if active == 'review_queue' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-review-queue" name="quizadmin_top_nav_link_review_queue">Review queue</a></li>
+    <li><a href="/quizadmin/questions/" class="quizadmin-top-nav-link {% if active == 'question_bank' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-questions" name="quizadmin_top_nav_link_questions">Questions</a></li>
+    <li><a href="/quizadmin/quiz/"   class="quizadmin-top-nav-link {% if active == 'quiz_list' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-quizzes" name="quizadmin_top_nav_link_quizzes">Quizzes</a></li>
+    <li><a href="/quizadmin/books/"  class="quizadmin-top-nav-link {% if active == 'books' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-books" name="quizadmin_top_nav_link_books">Books</a></li>
+    <li><a href="/quizadmin/jobs/"   class="quizadmin-top-nav-link {% if active == 'generation_jobs' %}quizadmin-top-nav-link-active{% endif %}" id="quizadmin-top-nav-link-generation-jobs" name="quizadmin_top_nav_link_generation_jobs">Jobs</a></li>
+  </ul>
+  <a class="quizadmin-create-quiz-button" href="/quizadmin/quiz/create/" id="quizadmin-top-nav-create" name="quizadmin_top_nav_create">+ Create Quiz</a>
+</nav>

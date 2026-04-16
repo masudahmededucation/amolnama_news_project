@@ -1,0 +1,212 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} — Quiz Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/layout/quizadmin-shell.css' %}">
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-question-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section id="quizadmin-shell" class="quizadmin-shell">
+  {% include "quizadmin/partials/quizadmin_top_nav.html" with active="question_form" %}
+
+  <section class="quizadmin-page-intro">
+    <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+    <p class="quizadmin-page-subtitle">
+      {% if mode == 'create' %}
+        Add a new question with its answer set. All fields marked with * are required.
+      {% else %}
+        Update the question text, options, metadata, or status. Changes apply immediately.
+      {% endif %}
+    </p>
+  </section>
+
+  <form id="quizadmin-question-form" name="quizadmin_question_form" class="quizadmin-question-form"
+        data-mode="{{ mode }}"
+        data-question-id="{% if question %}{{ question.mastermind_coll_question_id }}{% endif %}">
+
+    <section class="quizadmin-question-form-section" aria-label="Question text">
+      <h2 class="quizadmin-question-form-section-title">Question</h2>
+
+      <label class="quizadmin-question-form-field">
+        <span class="quizadmin-question-form-label">Question (Bengali) *</span>
+        <textarea id="question_text_bn" name="question_text_bn" class="quizadmin-question-form-textarea" rows="3" required>{{ question.question_text_bn|default:'' }}</textarea>
+      </label>
+
+      <label class="quizadmin-question-form-field">
+        <span class="quizadmin-question-form-label">Question (English, optional)</span>
+        <textarea id="question_text_en" name="question_text_en" class="quizadmin-question-form-textarea" rows="2">{{ question.question_text_en|default:'' }}</textarea>
+      </label>
+
+      <label class="quizadmin-question-form-field">
+        <span class="quizadmin-question-form-label">Explanation (Bengali)</span>
+        <textarea id="question_explanation_bn" name="question_explanation_bn" class="quizadmin-question-form-textarea" rows="2">{{ question.question_explanation_bn|default:'' }}</textarea>
+      </label>
+
+      <label class="quizadmin-question-form-field">
+        <span class="quizadmin-question-form-label">Hint (optional)</span>
+        <input type="text" id="question_hint_bn" name="question_hint_bn" class="quizadmin-question-form-input" value="{{ question.question_hint_bn|default:'' }}">
+      </label>
+    </section>
+
+    <section class="quizadmin-question-form-section" aria-label="Classification">
+      <h2 class="quizadmin-question-form-section-title">Classification</h2>
+
+      <div class="quizadmin-question-form-row">
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Question type *</span>
+          <select id="question_type_id" name="question_type_id" class="quizadmin-question-form-select" required>
+            {% for question_type in question_types %}
+              <option value="{{ question_type.mastermind_ref_quiz_question_type_id }}"
+                      data-code="{{ question_type.question_type_code }}"
+                      {% if question.link_mastermind_ref_quiz_question_type_id == question_type.mastermind_ref_quiz_question_type_id %}selected{% endif %}>
+                {{ question_type.question_type_name_bn }} ({{ question_type.question_type_name_en }})
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Difficulty *</span>
+          <select id="difficulty_id" name="difficulty_id" class="quizadmin-question-form-select" required>
+            {% for level in difficulty_levels %}
+              <option value="{{ level.mastermind_ref_quiz_difficulty_level_id }}"
+                      {% if question.link_mastermind_ref_quiz_difficulty_level_id == level.mastermind_ref_quiz_difficulty_level_id %}selected{% endif %}>
+                {{ level.difficulty_name_bn }} ({{ level.difficulty_name_en }})
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Topic *</span>
+          <select id="topic_id" name="topic_id" class="quizadmin-question-form-select" required>
+            {% for topic in topics %}
+              <option value="{{ topic.mastermind_coll_quiz_topic_id }}"
+                      {% if question.link_mastermind_coll_quiz_topic_id == topic.mastermind_coll_quiz_topic_id %}selected{% endif %}>
+                {{ topic.topic_name_bn }} ({{ topic.topic_name_en }})
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="quizadmin-question-form-section" aria-label="Source">
+      <h2 class="quizadmin-question-form-section-title">Source citation (optional but recommended)</h2>
+
+      <div class="quizadmin-question-form-row">
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Book</span>
+          <select id="book_id" name="book_id" class="quizadmin-question-form-select">
+            <option value="">— none —</option>
+            {% for book in books %}
+              <option value="{{ book.mastermind_coll_book_id }}"
+                      {% if question.link_mastermind_coll_book_id == book.mastermind_coll_book_id %}selected{% endif %}>
+                {{ book.book_title_bn }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Chapter</span>
+          <select id="chapter_id" name="chapter_id" class="quizadmin-question-form-select">
+            <option value="">— none —</option>
+            {% for chapter in chapters %}
+              <option value="{{ chapter.mastermind_coll_book_chapter_id }}"
+                      data-book-id="{{ chapter.link_mastermind_coll_book_id }}"
+                      {% if question.link_mastermind_coll_book_chapter_id == chapter.mastermind_coll_book_chapter_id %}selected{% endif %}>
+                {{ chapter.chapter_number }}. {{ chapter.chapter_title_bn }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Page number</span>
+          <input type="number" id="source_page_number" name="source_page_number" class="quizadmin-question-form-input" min="1" value="{{ question.source_page_number|default:'' }}">
+        </label>
+      </div>
+
+      <label class="quizadmin-question-form-field">
+        <span class="quizadmin-question-form-label">Source snippet (paragraph that supports the answer)</span>
+        <textarea id="source_snippet_text" name="source_snippet_text" class="quizadmin-question-form-textarea" rows="3">{{ question.source_snippet_text|default:'' }}</textarea>
+      </label>
+    </section>
+
+    <section class="quizadmin-question-form-section" aria-label="Answer options" id="quizadmin-question-form-answers">
+      <h2 class="quizadmin-question-form-section-title">Answer options</h2>
+      <p class="quizadmin-question-form-help" id="quizadmin-question-form-answers-help">Options load based on question type.</p>
+
+      <div id="quizadmin-question-form-options-container"></div>
+      <button type="button" id="quizadmin-question-form-add-option" name="add_option" class="quizadmin-question-form-add-option" hidden>+ Add option</button>
+
+      <label class="quizadmin-question-form-field" id="quizadmin-question-form-answer-text-wrapper" hidden>
+        <span class="quizadmin-question-form-label">Correct answer text</span>
+        <input type="text" id="answer_text" name="answer_text" class="quizadmin-question-form-input">
+      </label>
+
+      <div class="quizadmin-question-form-field" id="quizadmin-question-form-is-true-wrapper" hidden>
+        <span class="quizadmin-question-form-label">Correct verdict</span>
+        <div class="quizadmin-question-form-radio-group">
+          <label class="quizadmin-question-form-radio">
+            <input type="radio" id="is_true_true" name="is_true" value="true" checked>
+            <span>সত্য (True)</span>
+          </label>
+          <label class="quizadmin-question-form-radio">
+            <input type="radio" id="is_true_false" name="is_true" value="false">
+            <span>মিথ্যা (False)</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="quizadmin-question-form-section" aria-label="Scoring + status">
+      <h2 class="quizadmin-question-form-section-title">Scoring &amp; status</h2>
+
+      <div class="quizadmin-question-form-row">
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Points</span>
+          <input type="number" id="question_points" name="question_points" class="quizadmin-question-form-input" min="0" value="{{ question.question_points|default:1 }}">
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Time limit (seconds)</span>
+          <input type="number" id="question_time_limit_seconds" name="question_time_limit_seconds" class="quizadmin-question-form-input" min="0" value="{{ question.question_time_limit_seconds|default:'' }}">
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Negative marking</span>
+          <input type="number" id="question_negative_marking_points" name="question_negative_marking_points" class="quizadmin-question-form-input" step="0.25" value="{{ question.question_negative_marking_points|default:0 }}">
+        </label>
+
+        <label class="quizadmin-question-form-field">
+          <span class="quizadmin-question-form-label">Status</span>
+          <select id="question_status_code" name="question_status_code" class="quizadmin-question-form-select">
+            {% for status_code in question_status_codes %}
+              <option value="{{ status_code }}" {% if question.question_status_code == status_code %}selected{% elif mode == 'create' and status_code == 'draft' %}selected{% endif %}>{{ status_code }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <footer class="quizadmin-question-form-actions">
+      <a href="/quizadmin/" class="quizadmin-question-form-cancel" id="quizadmin-question-form-cancel" name="cancel">Cancel</a>
+      <button type="submit" class="quizadmin-question-form-submit" id="quizadmin-question-form-submit" name="submit">
+        {% if mode == 'create' %}Create question{% else %}Save changes{% endif %}
+      </button>
+    </footer>
+
+    <div class="quizadmin-question-form-inline-message" id="quizadmin-question-form-inline-message" role="status" aria-live="polite" hidden></div>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ question.options|default:''|json_script:"quizadmin-existing-options" }}
+<script src="{% static 'quizadmin/assets/js/pages/page-question-form.js' %}" defer></script>
+{% endblock %}

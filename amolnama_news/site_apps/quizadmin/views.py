@@ -1,0 +1,212 @@
+"""Quizadmin page views — staff-only dashboards for the mastermind engine.
+
+All mutations go through mastermind engine functions via views_api.py.
+These page views are strictly read-only; they render context for the UI.
+"""
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+
+from . import utils
+
+
+def _render_not_found(request, entity_label, entity_id, back_href, back_label):
+    """Shared 404 handler for any entity type."""
+    return render(request, 'quizadmin/pages/not_found.html', {
+        'page_title': f'{entity_label} not found',
+        'entity_label': entity_label,
+        'entity_id': entity_id,
+        'back_href': back_href,
+        'back_label': back_label,
+        'quizadmin_active_tab': '',
+    }, status=404)
+
+
+@staff_member_required
+def dashboard_page(request):
+    context = {
+        'page_title': 'Quiz Panel',
+        'quizadmin_active_tab': 'dashboard',
+        'metrics': utils.get_dashboard_metrics(),
+        'charts': utils.get_dashboard_chart_data(),
+        'recent_jobs': utils.get_recent_generation_jobs(limit=10),
+    }
+    return render(request, 'quizadmin/pages/dashboard.html', context)
+
+
+@staff_member_required
+def review_queue_page(request):
+    topic_id_raw = request.GET.get('topic_id')
+    book_id_raw = request.GET.get('book_id')
+    confidence_level = request.GET.get('confidence_level') or None
+    verdict_code = request.GET.get('verdict_code') or None
+    question_id_raw = request.GET.get('question_id')
+
+    topic_id = int(topic_id_raw) if topic_id_raw and topic_id_raw.isdigit() else None
+    book_id = int(book_id_raw) if book_id_raw and book_id_raw.isdigit() else None
+    question_id = int(question_id_raw) if question_id_raw and question_id_raw.isdigit() else None
+
+    ordered_ids = utils.get_review_queue_ids(
+        topic_id=topic_id, book_id=book_id,
+        confidence_level=confidence_level, verdict_code=verdict_code,
+    )
+    current_id = question_id if question_id in ordered_ids else (
+        ordered_ids[0] if ordered_ids else None
+    )
+    previous_id, current_id, next_id = utils.get_review_neighbors(current_id, ordered_ids)
+
+    context = {
+        'page_title': 'Review Queue',
+        'quizadmin_active_tab': 'review_queue',
+        'filter_options': utils.get_filter_options(),
+        'active_filters': {
+            'topic_id': topic_id, 'book_id': book_id,
+            'confidence_level': confidence_level, 'verdict_code': verdict_code,
+        },
+        'pending_total': len(ordered_ids),
+        'current_index': (ordered_ids.index(current_id) + 1) if current_id in ordered_ids else 0,
+        'question': utils.build_review_question_context(current_id) if current_id else None,
+        'previous_id': previous_id,
+        'next_id': next_id,
+    }
+    return render(request, 'quizadmin/pages/review_queue.html', context)
+
+
+@staff_member_required
+def books_page(request):
+    context = {
+        'page_title': 'Books',
+        'quizadmin_active_tab': 'books',
+        'books': utils.get_books_with_question_counts(),
+    }
+    return render(request, 'quizadmin/pages/books.html', context)
+
+
+@staff_member_required
+def quiz_list_page(request):
+    context = {
+        'page_title': 'Quizzes',
+        'quizadmin_active_tab': 'quiz_list',
+        **utils.paginate_quizzes(
+            page_number=int(request.GET.get('page', '1') or 1),
+        ),
+    }
+    return render(request, 'quizadmin/pages/quiz_list.html', context)
+
+
+@staff_member_required
+def quiz_create_page(request):
+    context = {
+        'page_title': 'Create Quiz',
+        'quizadmin_active_tab': 'quiz_list',
+        'mode': 'create',
+        **utils.get_quiz_form_context(exam_id=None),
+    }
+    return render(request, 'quizadmin/pages/quiz_form.html', context)
+
+
+@staff_member_required
+def quiz_edit_page(request, exam_id):
+    context_data = utils.get_quiz_form_context(exam_id=int(exam_id))
+    if context_data.get('quiz') is None:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    context_data.update({
+        'page_title': f'Edit quiz: {context_data["quiz"]["exam_title_bn"]}',
+        'quizadmin_active_tab': 'quiz_list',
+        'mode': 'edit',
+    })
+    return render(request, 'quizadmin/pages/quiz_form.html', context_data)
+
+
+@staff_member_required
+def quiz_leaderboard_page(request, exam_id):
+    context_data = utils.get_quiz_leaderboard_context(exam_id=int(exam_id))
+    if context_data.get('quiz') is None:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    context_data['page_title'] = f'Leaderboard: {context_data["quiz"]["exam_title_bn"]}'
+    context_data['quizadmin_active_tab'] = 'quiz_list'
+    return render(request, 'quizadmin/pages/quiz_leaderboard.html', context_data)
+
+
+@staff_member_required
+def quiz_preview_page(request, exam_id):
+    context_data = utils.get_quiz_preview_context(exam_id=int(exam_id))
+    if context_data is None:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    context_data['page_title'] = f'Preview: {context_data["quiz"]["exam_title_bn"]}'
+    context_data['quizadmin_active_tab'] = 'quiz_list'
+    return render(request, 'quizadmin/pages/quiz_preview.html', context_data)
+
+
+@staff_member_required
+def question_create_page(request):
+    context = {
+        'page_title': 'Create question',
+        'quizadmin_active_tab': '',
+        'mode': 'create',
+        **utils.get_question_form_context(question_id=None),
+    }
+    return render(request, 'quizadmin/pages/question_form.html', context)
+
+
+@staff_member_required
+def question_edit_page(request, question_id):
+    context = utils.get_question_form_context(question_id=int(question_id))
+    if not context.get('question'):
+        return _render_not_found(request, 'Question', question_id, '/quizadmin/', 'Back to dashboard')
+    context['page_title'] = f'Edit question #{question_id}'
+    context['quizadmin_active_tab'] = ''
+    context['mode'] = 'edit'
+    return render(request, 'quizadmin/pages/question_form.html', context)
+
+
+@staff_member_required
+def question_bank_page(request):
+    topic_id = int(request.GET['topic_id']) if request.GET.get('topic_id', '').isdigit() else None
+    book_id = int(request.GET['book_id']) if request.GET.get('book_id', '').isdigit() else None
+    question_type_id = int(request.GET['question_type_id']) if request.GET.get('question_type_id', '').isdigit() else None
+    difficulty_id = int(request.GET['difficulty_id']) if request.GET.get('difficulty_id', '').isdigit() else None
+    status_code = request.GET.get('status_code') or None
+    source_code = request.GET.get('source_code') or None
+    search_query = request.GET.get('q') or None
+    page_number = int(request.GET.get('page', '1') or 1)
+
+    context = {
+        'page_title': 'Question Bank',
+        'quizadmin_active_tab': 'question_bank',
+        'filter_options': utils.get_question_bank_filter_options(),
+        'active_filters': {
+            'topic_id': topic_id, 'book_id': book_id,
+            'status_code': status_code, 'source_code': source_code,
+            'question_type_id': question_type_id, 'difficulty_id': difficulty_id,
+            'q': search_query,
+        },
+        **utils.paginate_questions(
+            page_number=page_number, topic_id=topic_id, book_id=book_id,
+            status_code=status_code, question_type_id=question_type_id,
+            difficulty_id=difficulty_id, source_code=source_code,
+            search_query=search_query,
+        ),
+    }
+    return render(request, 'quizadmin/pages/question_bank.html', context)
+
+
+@staff_member_required
+def question_analytics_page(request, question_id):
+    context_data = utils.get_question_analytics_context(question_id=int(question_id))
+    if context_data is None:
+        return _render_not_found(request, 'Question', question_id, '/quizadmin/questions/', 'Back to questions')
+    context_data['page_title'] = f'Analytics: Q#{question_id}'
+    context_data['quizadmin_active_tab'] = 'question_bank'
+    return render(request, 'quizadmin/pages/question_analytics.html', context_data)
+
+
+@staff_member_required
+def generation_jobs_page(request):
+    page_number_raw = request.GET.get('page', '1')
+    page_number = int(page_number_raw) if page_number_raw.isdigit() else 1
+    context = {
+        'page_title': 'Generation Jobs',
+        'quizadmin_active_tab': 'generation_jobs',
+        **utils.paginate_generation_jobs(page_number=page_number),
+    }
+    return render(request, 'quizadmin/pages/generation_jobs.html', context)

@@ -1,0 +1,65 @@
+/* Quiz builder form — page-specific overrides only.
+   All shared form components live in quizadmin-shell.css. */
+
+.quizadmin-quiz-form-questions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.quizadmin-quiz-form-questions-count {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.quizadmin-quiz-form-question-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.quizadmin-quiz-form-question-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quizadmin-quiz-form-question-number {
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 40px;
+}
+
+.quizadmin-quiz-form-question-remove {
+  margin-left: auto;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  touch-action: manipulation;
+}
+.quizadmin-quiz-form-question-remove:hover { background: var(--danger-light); }
+.quizadmin-quiz-form-question-remove:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quizadmin-quiz-form-question-options {
+  padding: var(--space-3);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.quizadmin-quiz-form-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}

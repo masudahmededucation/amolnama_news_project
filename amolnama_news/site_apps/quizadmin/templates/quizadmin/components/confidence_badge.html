@@ -1,0 +1,5 @@
+{# Traffic-light badge for NLI confidence. Param: level (high/medium/low/None). #}
+<span class="quizadmin-confidence-badge quizadmin-confidence-badge-{{ level|default:'none' }}">
+  <span class="quizadmin-confidence-badge-dot" aria-hidden="true"></span>
+  <span class="quizadmin-confidence-badge-label">{{ level|default:"—" }} confidence</span>
+</span>

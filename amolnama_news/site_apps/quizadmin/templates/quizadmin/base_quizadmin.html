@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} — Quiz Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/layout/quizadmin-shell.css' %}">
+{% block quizadmin_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<section id="quizadmin-shell" class="quizadmin-shell">
+  {% include "quizadmin/partials/quizadmin_top_nav.html" with active=quizadmin_active_tab %}
+
+  {% block quizadmin_content %}{% endblock %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% block quizadmin_js %}{% endblock %}
+{% endblock %}

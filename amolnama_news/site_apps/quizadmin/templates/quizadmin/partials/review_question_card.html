@@ -1,0 +1,79 @@
+{# Main card for the review queue — question + chunk + NLI scores + actions. #}
+<article id="quizadmin-review-card" class="quizadmin-review-card" data-question-id="{{ question.mastermind_coll_question_id }}">
+
+  <header class="quizadmin-review-card-header">
+    <div class="quizadmin-review-card-header-left">
+      <span class="quizadmin-review-card-id">#{{ question.mastermind_coll_question_id }}</span>
+      {% include "quizadmin/components/confidence_badge.html" with level=question.nli_confidence_level_code %}
+      <span class="quizadmin-review-card-verdict">verdict: <code class="quizadmin-code-inline">{{ question.nli_verdict_code|default:"—" }}</code></span>
+    </div>
+    <div class="quizadmin-review-card-header-right">
+      <a class="quizadmin-review-card-edit-link" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/edit/" id="quizadmin-review-card-edit-link" name="quizadmin_review_card_edit_link">Edit</a>
+    </div>
+  </header>
+
+  <section class="quizadmin-review-card-question">
+    <h2 class="quizadmin-review-card-question-text">{{ question.question_text_bn }}</h2>
+    {% if question.question_explanation_bn %}
+    <p class="quizadmin-review-card-explanation">
+      <span class="quizadmin-review-card-explanation-label">Explanation:</span>
+      {{ question.question_explanation_bn }}
+    </p>
+    {% endif %}
+  </section>
+
+  <div class="quizadmin-review-card-split">
+    <section class="quizadmin-review-card-chunk" aria-label="Source chunk">
+      <h3 class="quizadmin-review-card-section-title">Source chunk</h3>
+      <p class="quizadmin-review-card-citation">
+        {{ question.book_title_bn|default:"—" }}
+        {% if question.chapter_title_bn %}· {{ question.chapter_title_bn }}{% endif %}
+        {% if question.source_page_number %}· page {{ question.source_page_number }}{% endif %}
+      </p>
+      <div class="quizadmin-review-card-chunk-text">
+        {{ question.source_snippet_text|default:"(no snippet stored)"|linebreaksbr }}
+      </div>
+    </section>
+
+    <section class="quizadmin-review-card-options" aria-label="Options">
+      <h3 class="quizadmin-review-card-section-title">Options</h3>
+      <ol class="quizadmin-review-card-option-list">
+        {% for option in question.options %}
+        <li class="quizadmin-review-card-option {% if option.is_correct %}quizadmin-review-card-option-correct{% endif %}">
+          <span class="quizadmin-review-card-option-label">{{ option.option_label }}</span>
+          <span class="quizadmin-review-card-option-text">{{ option.option_text_bn }}</span>
+          {% if option.is_correct %}<span class="quizadmin-review-card-option-badge" aria-label="correct answer">✓</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+  </div>
+
+  {% include "quizadmin/components/nli_score_row.html" with scores=question %}
+
+  <footer class="quizadmin-review-card-actions">
+    <div class="quizadmin-review-card-actions-left">
+      {% if previous_id %}
+        <a class="quizadmin-review-button quizadmin-review-button-ghost" href="?question_id={{ previous_id }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&confidence_level={{ active_filters.confidence_level|default:'' }}&verdict_code={{ active_filters.verdict_code|default:'' }}" id="quizadmin-review-button-previous" name="previous">← Previous</a>
+      {% else %}
+        <button type="button" class="quizadmin-review-button quizadmin-review-button-ghost" id="quizadmin-review-button-previous-disabled" name="previous_disabled" disabled>← Previous</button>
+      {% endif %}
+    </div>
+
+    <div class="quizadmin-review-card-actions-center">
+      <button type="button" class="quizadmin-review-button quizadmin-review-button-reject" id="quizadmin-review-button-reject" name="reject" data-question-id="{{ question.mastermind_coll_question_id }}">✗ Reject</button>
+      <button type="button" class="quizadmin-review-button quizadmin-review-button-skip" id="quizadmin-review-button-skip" name="skip" data-question-id="{{ question.mastermind_coll_question_id }}">Skip</button>
+      <button type="button" class="quizadmin-review-button quizadmin-review-button-approve" id="quizadmin-review-button-approve" name="approve" data-question-id="{{ question.mastermind_coll_question_id }}">✓ Approve</button>
+    </div>
+
+    <div class="quizadmin-review-card-actions-right">
+      {% if next_id %}
+        <a class="quizadmin-review-button quizadmin-review-button-ghost" href="?question_id={{ next_id }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&confidence_level={{ active_filters.confidence_level|default:'' }}&verdict_code={{ active_filters.verdict_code|default:'' }}" id="quizadmin-review-button-next" name="next">Next →</a>
+      {% else %}
+        <button type="button" class="quizadmin-review-button quizadmin-review-button-ghost" id="quizadmin-review-button-next-disabled" name="next_disabled" disabled>Next →</button>
+      {% endif %}
+    </div>
+  </footer>
+
+  <div class="quizadmin-review-card-inline-message" id="quizadmin-review-card-inline-message" role="status" aria-live="polite" hidden></div>
+</article>

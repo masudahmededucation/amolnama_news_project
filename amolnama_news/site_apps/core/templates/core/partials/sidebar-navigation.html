@@ -188,6 +188,11 @@ impossible because the resolver returns exactly one nav_id per request.
       <span class="sidebar-navigation-item-icon">🔐</span>
       <span class="sidebar-navigation-item-label">Form Access</span>
     </a>
+
+    <a href="{% url 'quizadmin:dashboard' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'quizadmin' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-quizadmin" name="sidebar_navigation_item_quizadmin" title="Quiz Panel — AI question review">
+      <span class="sidebar-navigation-item-icon">📋</span>
+      <span class="sidebar-navigation-item-label">Quiz Panel</span>
+    </a>
     {% endif %}
   </div>
 </nav>

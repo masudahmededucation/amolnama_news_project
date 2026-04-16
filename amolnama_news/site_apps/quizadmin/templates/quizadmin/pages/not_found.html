@@ -1,0 +1,10 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-empty-hero" aria-live="polite">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">🔍</p>
+  <h1 class="quizadmin-empty-hero-title">{{ entity_label }} not found</h1>
+  <p class="quizadmin-empty-hero-body">{{ entity_label }} #{{ entity_id }} does not exist or has been archived.</p>
+  <a class="quizadmin-create-quiz-button" href="{{ back_href }}" id="quizadmin-not-found-back-link" name="quizadmin_not_found_back_link">{{ back_label }}</a>
+</section>
+{% endblock %}

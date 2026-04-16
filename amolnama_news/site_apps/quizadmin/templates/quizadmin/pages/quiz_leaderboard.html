@@ -1,0 +1,59 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {% if quiz.exam_rewards_enabled %}
+      Rewards: <strong>{{ quiz.exam_reward_criteria_code|default:"—" }}</strong>
+      {% if quiz.exam_reward_criteria_code == 'threshold' %}at {{ quiz.exam_reward_threshold_percent }}%{% endif %}
+      {% if quiz.exam_reward_criteria_code == 'top_n' %}(top {{ quiz.exam_reward_top_n }}){% endif %}
+    {% else %}
+      Rewards are not enabled for this quiz.
+    {% endif %}
+  </p>
+</section>
+
+{% if leaderboard_rows %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col" class="quizadmin-table-numeric">Rank</th>
+          <th scope="col">Participant</th>
+          <th scope="col" class="quizadmin-table-numeric">Score %</th>
+          <th scope="col" class="quizadmin-table-numeric">Time (s)</th>
+          <th scope="col">Passed</th>
+          <th scope="col">Completed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in leaderboard_rows %}
+        <tr>
+          <td class="quizadmin-table-numeric">{{ row.rank }}</td>
+          <td>{{ row.display_name }}</td>
+          <td class="quizadmin-table-numeric">{{ row.session_score_percentage|default:"—" }}</td>
+          <td class="quizadmin-table-numeric">{{ row.session_time_taken_seconds|default:"—" }}</td>
+          <td>
+            {% if row.session_is_passed %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-completed">passed</span>
+            {% else %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-failed">failed</span>
+            {% endif %}
+          </td>
+          <td>{{ row.session_completed_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">🏆</p>
+  <h2 class="quizadmin-empty-hero-title">No scores yet</h2>
+  <p class="quizadmin-empty-hero-body">Scores will appear here once participants complete this quiz.</p>
+</section>
+{% endif %}
+{% endblock %}

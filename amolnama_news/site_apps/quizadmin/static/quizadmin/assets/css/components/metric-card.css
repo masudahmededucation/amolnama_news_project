@@ -1,0 +1,72 @@
+/* Metric card — dashboard stat tile. */
+
+.quizadmin-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.quizadmin-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-1);
+  min-height: 120px;
+  touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+}
+
+.quizadmin-metric-card-clickable {
+  display: flex;
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+.quizadmin-metric-card-clickable:hover { box-shadow: var(--elevation-2); }
+.quizadmin-metric-card-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quizadmin-metric-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--muted);
+  border-radius: var(--radius-full);
+}
+
+.quizadmin-metric-card-tone-amber::before { background: var(--amber); }
+.quizadmin-metric-card-tone-green::before { background: var(--success); }
+.quizadmin-metric-card-tone-red::before   { background: var(--danger); }
+.quizadmin-metric-card-tone-grey::before  { background: var(--muted); }
+.quizadmin-metric-card-tone-blue::before  { background: var(--info); }
+
+.quizadmin-metric-card-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.quizadmin-metric-card-value {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.quizadmin-metric-card-cta {
+  margin-top: auto;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizadmin-metric-card-clickable { transition: none; }
+}

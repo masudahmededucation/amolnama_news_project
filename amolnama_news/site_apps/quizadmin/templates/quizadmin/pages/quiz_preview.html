@@ -1,0 +1,78 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-quiz-preview.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {{ total_questions }} question{{ total_questions|pluralize }}
+    {% if quiz.exam_time_limit_minutes %} · {{ quiz.exam_time_limit_minutes }} min{% endif %}
+    · Pass: {{ quiz.exam_pass_percentage }}%
+    {% if quiz.exam_negative_marking_per_wrong %} · Negative: -{{ quiz.exam_negative_marking_per_wrong }}{% endif %}
+    · Status: <span class="quizadmin-status-chip quizadmin-status-chip-{{ quiz.exam_status_code }}">{{ quiz.exam_status_code }}</span>
+  </p>
+</section>
+
+<section class="quizadmin-preview-notice">
+  <strong>Staff preview mode</strong> — this is a read-only view. No session is created, no scores are recorded.
+</section>
+
+{% for question in questions %}
+<section class="quizadmin-preview-question">
+  <header class="quizadmin-preview-question-header">
+    <span class="quizadmin-preview-question-number">Q{{ forloop.counter }}</span>
+    <span class="quizadmin-preview-question-points">{{ question.question_points }} pt{{ question.question_points|pluralize }}</span>
+  </header>
+
+  <div class="quizadmin-preview-question-text">{{ question.question_text_bn }}</div>
+  {% if question.question_text_en %}
+  <div class="quizadmin-preview-question-text-en">{{ question.question_text_en }}</div>
+  {% endif %}
+
+  {% if question.question_image_url %}
+  <img class="quizadmin-preview-question-image" src="{{ question.question_image_url }}" alt="Question image" loading="lazy" decoding="async">
+  {% endif %}
+
+  {% if question.options %}
+  <div class="quizadmin-preview-options">
+    {% for option in question.options %}
+    <div class="quizadmin-preview-option {% if option.is_correct %}quizadmin-preview-option-correct{% endif %}">
+      <span class="quizadmin-preview-option-label">{{ option.option_label }}</span>
+      <span class="quizadmin-preview-option-text">{{ option.option_text_bn }}</span>
+      {% if option.is_correct %}<span class="quizadmin-preview-option-badge">correct</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if question.question_explanation_bn %}
+  <details class="quizadmin-preview-explanation">
+    <summary>Explanation</summary>
+    <p>{{ question.question_explanation_bn }}</p>
+  </details>
+  {% endif %}
+
+  {% if question.source_snippet_text %}
+  <details class="quizadmin-preview-source">
+    <summary>Source citation{% if question.source_page_number %} (p. {{ question.source_page_number }}){% endif %}</summary>
+    <blockquote>{{ question.source_snippet_text }}</blockquote>
+  </details>
+  {% endif %}
+</section>
+{% empty %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📝</p>
+  <h2 class="quizadmin-empty-hero-title">No questions in this quiz</h2>
+  <p class="quizadmin-empty-hero-body">Add questions to the quiz to preview it.</p>
+</section>
+{% endfor %}
+
+<section class="quizadmin-form-actions">
+  <a href="/quizadmin/quiz/" class="quizadmin-form-cancel" id="quizadmin-preview-back" name="quizadmin_preview_back">Back to quizzes</a>
+  <a href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/edit/" class="quizadmin-form-submit" id="quizadmin-preview-edit" name="quizadmin_preview_edit">Edit quiz</a>
+</section>
+{% endblock %}

@@ -40,6 +40,8 @@ urlpatterns = [
     path("jibonkotha/", include("amolnama_news.site_apps.biography.urls")),  # Biography — জীবনকথা, inspirational life stories
     path("songbidhan/", include("amolnama_news.site_apps.constitutionbd.urls")),  # Constitution BD — সংবিধান
     path("itihas/", include("amolnama_news.site_apps.historybd.urls")),  # History BD — ইতিহাস
+    path("mastermind/", include("amolnama_news.site_apps.mastermind.urls")),  # Mastermind — quiz/exam engine (API only, no pages)
+    path("quizadmin/", include("amolnama_news.site_apps.quizadmin.urls")),  # Quiz Panel — staff-only admin dashboard
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     # englishtobangla: no URL routes — app ships JS utilities only (static/englishtobangla/...)
@@ -51,6 +53,19 @@ urlpatterns = [
     path("marriage/<path:rest>", RedirectView.as_view(url="/bangladesh-marriage-registration/%(rest)s", permanent=True)),
     path("bangladesh/", RedirectView.as_view(url="/bangladesh-tourist-destinations/", permanent=True)),
     path("bangladesh/<path:rest>", RedirectView.as_view(url="/bangladesh-tourist-destinations/%(rest)s", permanent=True)),
+
+    # 301 redirects from old Bengali slugs → new English slugs (slug migration 2026-04-16)
+    # Poem (6 records)
+    path("bangla-kobita-gaan/দর্পন-কবির-বসন্ত-নয়-অবহেলা/", RedirectView.as_view(url="/bangla-kobita-gaan/bosonto-noyo-obhela/", permanent=True)),
+    path("bangla-kobita-gaan/ইমরান-কায়েস-একটাই-জীবন/", RedirectView.as_view(url="/bangla-kobita-gaan/ektai-jibon/", permanent=True)),
+    path("bangla-kobita-gaan/নির্মলেন্দু-গুণ-তোমার-চোখ-এতো-লাল-কেনো/", RedirectView.as_view(url="/bangla-kobita-gaan/tomar-chokh-eto-lal-keno/", permanent=True)),
+    path("bangla-kobita-gaan/সুনীল-গঙ্গোপাধ্যায়-কেউ-কথা-রাখেনি/", RedirectView.as_view(url="/bangla-kobita-gaan/keu-kotha-rakheni/", permanent=True)),
+    path("bangla-kobita-gaan/জীবনানন্দ-দাশ-আবার-আসিব-ফিরে/", RedirectView.as_view(url="/bangla-kobita-gaan/abar-asib-fire/", permanent=True)),
+    path("bangla-kobita-gaan/পাগল-হাসান-না-জ্বালাইলে-লাগে-আমার-কি-জানি-কি-নাই/", RedirectView.as_view(url="/bangla-kobita-gaan/na-jbalaile-lage-amar-ki-jani-ki-nai/", permanent=True)),
+    # Debate (1 record)
+    path("debate/topic/৭২-এর-সংবিধান-কি-ছুঁড়ে-ফেলা-উচিত/", RedirectView.as_view(url="/debate/topic/72-er-songbidhan-ki-chunre-fela-uchit/", permanent=True)),
+    # Newshub (1 record)
+    path("newshub/article/chandabaji-dhaka-সড়কে-চাঁদাবাজির-বর্তমান-চিত্র-2026/", RedirectView.as_view(url="/newshub/article/sorke-chandabajir-bortman-chitro/", permanent=True)),
 
 ]
 

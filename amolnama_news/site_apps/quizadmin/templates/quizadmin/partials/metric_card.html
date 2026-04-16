@@ -1,0 +1,13 @@
+{# Metric card for dashboard. Params: label, value, tone, href?, cta? #}
+{% if href %}
+<a class="quizadmin-metric-card quizadmin-metric-card-tone-{{ tone|default:'blue' }} quizadmin-metric-card-clickable" href="{{ href }}">
+  <span class="quizadmin-metric-card-label">{{ label }}</span>
+  <span class="quizadmin-metric-card-value">{{ value }}</span>
+  {% if cta %}<span class="quizadmin-metric-card-cta">{{ cta }} →</span>{% endif %}
+</a>
+{% else %}
+<article class="quizadmin-metric-card quizadmin-metric-card-tone-{{ tone|default:'blue' }}">
+  <span class="quizadmin-metric-card-label">{{ label }}</span>
+  <span class="quizadmin-metric-card-value">{{ value }}</span>
+</article>
+{% endif %}

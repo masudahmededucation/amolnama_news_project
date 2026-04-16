@@ -1,0 +1,87 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-quiz-list.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">{{ total_count }} quiz{{ total_count|pluralize:'zes' }} total.</p>
+</section>
+
+{% if quizzes %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-quiz-list-table">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col" class="quizadmin-table-numeric">Questions</th>
+          <th scope="col" class="quizadmin-table-numeric">Pass %</th>
+          <th scope="col" class="quizadmin-table-numeric">Time (min)</th>
+          <th scope="col">Rewards</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for quiz in quizzes %}
+        <tr>
+          <td>
+            <div class="quizadmin-table-title-bn">{{ quiz.exam_title_bn }}</div>
+            {% if quiz.exam_title_en %}<div class="quizadmin-table-title-en">{{ quiz.exam_title_en }}</div>{% endif %}
+          </td>
+          <td class="quizadmin-table-numeric">{{ quiz.actual_question_count }}</td>
+          <td class="quizadmin-table-numeric">{{ quiz.exam_pass_percentage|default:"—" }}</td>
+          <td class="quizadmin-table-numeric">{{ quiz.exam_time_limit_minutes|default:"—" }}</td>
+          <td>
+            {% if quiz.exam_rewards_enabled %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-completed">{{ quiz.exam_reward_criteria_code|default:"—" }}</span>
+            {% else %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-unknown">off</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="quizadmin-status-chip quizadmin-status-chip-{{ quiz.exam_status_code }}">
+              {{ quiz.exam_status_code }}
+            </span>
+          </td>
+          <td>
+            <a class="quizadmin-table-action" href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/edit/">Edit</a>
+            <a class="quizadmin-table-action" href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/preview/">Preview</a>
+            <a class="quizadmin-table-action" href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/leaderboard/">Leaderboard</a>
+            <button type="button" class="quizadmin-table-action quizadmin-quiz-clone-button" data-exam-id="{{ quiz.mastermind_coll_quiz_id }}">Clone</button>
+            <button type="button" class="quizadmin-table-action quizadmin-quiz-delete-button" data-exam-id="{{ quiz.mastermind_coll_quiz_id }}">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_pages > 1 %}
+  <nav class="quizadmin-pagination" aria-label="Pagination">
+    {% if has_previous %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}">← Previous</a>{% endif %}
+    <span class="quizadmin-pagination-current">Page {{ page_number }} of {{ total_pages }}</span>
+    {% if has_next %}<a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}">Next →</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% else %}
+  <section class="quizadmin-empty-hero">
+    <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📋</p>
+    <h2 class="quizadmin-empty-hero-title">No quizzes yet</h2>
+    <p class="quizadmin-empty-hero-body">Create the first quiz to get started.</p>
+    <a class="quizadmin-create-quiz-button" href="/quizadmin/quiz/create/" id="quizadmin-quiz-list-empty-create-link" name="quizadmin_quiz_list_empty_create_link">+ Create Quiz</a>
+  </section>
+{% endif %}
+
+<div class="quizadmin-inline-message" id="quizadmin-quiz-list-inline-message" role="status" aria-live="polite" hidden></div>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-quiz-list.js' %}" defer></script>
+{% endblock %}

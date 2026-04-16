@@ -1,0 +1,108 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/confidence-badge.css' %}">
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/nli-score-row.css' %}">
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/review-question-card.css' %}">
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-review-queue.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+{% if next_id %}
+<link rel="prefetch" href="/quizadmin/review/?question_id={{ next_id }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&confidence_level={{ active_filters.confidence_level|default:'' }}&verdict_code={{ active_filters.verdict_code|default:'' }}" as="document">
+{% endif %}
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-review-header">
+  <div class="quizadmin-review-header-title">
+    <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+    <p class="quizadmin-page-subtitle">
+      {% if pending_total %}
+        Question {{ current_index }} of {{ pending_total }} pending
+      {% else %}
+        No questions pending review
+      {% endif %}
+    </p>
+  </div>
+
+  <form class="quizadmin-review-filter-form" method="get" action="" id="quizadmin-review-filter-form" name="quizadmin_review_filter_form">
+    <label class="quizadmin-filter-label">
+      <span>Topic</span>
+      <select id="quizadmin-filter-topic" name="topic_id" class="quizadmin-form-select">
+        <option value="">All</option>
+        {% for topic in filter_options.topics %}
+        <option value="{{ topic.mastermind_coll_quiz_topic_id }}" {% if active_filters.topic_id == topic.mastermind_coll_quiz_topic_id %}selected{% endif %}>
+          {{ topic.topic_name_bn }} ({{ topic.topic_name_en }})
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="quizadmin-filter-label">
+      <span>Book</span>
+      <select id="quizadmin-filter-book" name="book_id" class="quizadmin-form-select">
+        <option value="">All</option>
+        {% for book in filter_options.books %}
+        <option value="{{ book.mastermind_coll_book_id }}" {% if active_filters.book_id == book.mastermind_coll_book_id %}selected{% endif %}>
+          {{ book.book_title_bn }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="quizadmin-filter-label">
+      <span>Confidence</span>
+      <select id="quizadmin-filter-confidence" name="confidence_level" class="quizadmin-form-select">
+        <option value="">All</option>
+        {% for level in filter_options.confidence_levels %}
+        <option value="{{ level }}" {% if active_filters.confidence_level == level %}selected{% endif %}>{{ level }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="quizadmin-filter-label">
+      <span>Verdict</span>
+      <select id="quizadmin-filter-verdict" name="verdict_code" class="quizadmin-form-select">
+        <option value="">All</option>
+        {% for code in filter_options.verdict_codes %}
+        <option value="{{ code }}" {% if active_filters.verdict_code == code %}selected{% endif %}>{{ code }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <button id="quizadmin-filter-apply" name="apply" type="submit" class="quizadmin-filter-apply">Apply</button>
+  </form>
+</section>
+
+{% if question %}
+  {% include "quizadmin/partials/review_question_card.html" %}
+{% else %}
+  <section class="quizadmin-empty-hero" aria-live="polite">
+    <p class="quizadmin-empty-hero-emoji" aria-hidden="true">✅</p>
+    <h2 class="quizadmin-empty-hero-title">Queue clear</h2>
+    <p class="quizadmin-empty-hero-body">No AI-generated questions are pending review with the current filters.</p>
+    <a class="quizadmin-create-quiz-button" href="/quizadmin/" id="quizadmin-review-empty-back-link" name="quizadmin_review_empty_back_link">Back to dashboard</a>
+  </section>
+{% endif %}
+
+<section class="quizadmin-review-shortcuts" aria-label="Keyboard shortcuts">
+  <h2 class="quizadmin-section-subtitle">Keyboard shortcuts</h2>
+  <ul class="quizadmin-review-shortcut-list">
+    <li><kbd>A</kbd> approve</li>
+    <li><kbd>R</kbd> reject</li>
+    <li><kbd>J</kbd> next</li>
+    <li><kbd>K</kbd> previous</li>
+    <li><kbd>S</kbd> skip</li>
+  </ul>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+{{ previous_id|json_script:"quizadmin-previous-id" }}
+{{ next_id|json_script:"quizadmin-next-id" }}
+{{ question.mastermind_coll_question_id|json_script:"quizadmin-current-id" }}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-review-queue.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% comment %}NLI score row — sim/entail/contra with colour-coded bars. Param: scores dict.{% endcomment %}
+<section class="quizadmin-nli-score-row" aria-label="NLI verification scores">
+  <div class="quizadmin-nli-score">
+    <span class="quizadmin-nli-score-label">Similarity</span>
+    <span class="quizadmin-nli-score-value">{{ scores.nli_similarity_score|default:"—" }}</span>
+    <div class="quizadmin-nli-score-bar" aria-hidden="true">
+      <div class="quizadmin-nli-score-bar-fill quizadmin-nli-score-bar-fill-similarity"
+           style="width: {% widthratio scores.nli_similarity_score|default:0 1 100 %}%"></div>
+    </div>
+  </div>
+
+  <div class="quizadmin-nli-score">
+    <span class="quizadmin-nli-score-label">Entailment</span>
+    <span class="quizadmin-nli-score-value">{{ scores.nli_entailment_score|default:"—" }}</span>
+    <div class="quizadmin-nli-score-bar" aria-hidden="true">
+      <div class="quizadmin-nli-score-bar-fill quizadmin-nli-score-bar-fill-entailment"
+           style="width: {% widthratio scores.nli_entailment_score|default:0 1 100 %}%"></div>
+    </div>
+  </div>
+
+  <div class="quizadmin-nli-score">
+    <span class="quizadmin-nli-score-label">Contradiction</span>
+    <span class="quizadmin-nli-score-value">{{ scores.nli_contradiction_score|default:"—" }}</span>
+    <div class="quizadmin-nli-score-bar" aria-hidden="true">
+      <div class="quizadmin-nli-score-bar-fill quizadmin-nli-score-bar-fill-contradiction"
+           style="width: {% widthratio scores.nli_contradiction_score|default:0 1 100 %}%"></div>
+    </div>
+  </div>
+</section>

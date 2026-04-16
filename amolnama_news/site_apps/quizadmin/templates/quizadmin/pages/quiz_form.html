@@ -1,0 +1,196 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-quiz-form.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {% if mode == 'create' %}
+      Add a new quiz. Set title, rules, and rewards, then add your questions one at a time.
+    {% else %}
+      Update the quiz metadata or questions. All changes save in a single transaction.
+    {% endif %}
+  </p>
+</section>
+
+<form id="quizadmin-quiz-form" name="quizadmin_quiz_form" class="quizadmin-form-container"
+      data-mode="{{ mode }}"
+      data-exam-id="{% if quiz %}{{ quiz.mastermind_coll_quiz_id }}{% endif %}">
+
+  <section class="quizadmin-form-section" aria-label="Quiz details">
+    <h2 class="quizadmin-form-section-title">Quiz details</h2>
+
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Quiz title (Bengali) *</span>
+      <input type="text" id="exam_title_bn" name="exam_title_bn" class="quizadmin-form-input" value="{{ quiz.exam_title_bn|default:'' }}" required>
+    </label>
+
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Quiz title (English, optional)</span>
+      <input type="text" id="exam_title_en" name="exam_title_en" class="quizadmin-form-input" value="{{ quiz.exam_title_en|default:'' }}">
+    </label>
+
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Description</span>
+      <textarea id="exam_description_bn" name="exam_description_bn" class="quizadmin-form-textarea" rows="2">{{ quiz.exam_description_bn|default:'' }}</textarea>
+    </label>
+
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Topic</span>
+        <select id="link_mastermind_coll_quiz_topic_id" name="link_mastermind_coll_quiz_topic_id" class="quizadmin-form-select">
+          <option value="">— none —</option>
+          {% for topic in topics %}
+            <option value="{{ topic.mastermind_coll_quiz_topic_id }}"
+                    {% if quiz.link_mastermind_coll_quiz_topic_id == topic.mastermind_coll_quiz_topic_id %}selected{% endif %}>
+              {{ topic.topic_name_bn }} ({{ topic.topic_name_en }})
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Source book (optional)</span>
+        <select id="link_mastermind_coll_book_id" name="link_mastermind_coll_book_id" class="quizadmin-form-select">
+          <option value="">— none —</option>
+          {% for book in books %}
+            <option value="{{ book.mastermind_coll_book_id }}"
+                    {% if quiz.link_mastermind_coll_book_id == book.mastermind_coll_book_id %}selected{% endif %}>
+              {{ book.book_title_bn }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Status</span>
+        <select id="exam_status_code" name="exam_status_code" class="quizadmin-form-select">
+          {% for status_code in exam_status_codes %}
+            <option value="{{ status_code }}"
+                    {% if quiz.exam_status_code == status_code %}selected{% elif mode == 'create' and status_code == 'draft' %}selected{% endif %}>
+              {{ status_code }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="quizadmin-form-section" aria-label="Rules">
+    <h2 class="quizadmin-form-section-title">Rules &amp; scoring</h2>
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Time limit (minutes)</span>
+        <input type="number" id="exam_time_limit_minutes" name="exam_time_limit_minutes" class="quizadmin-form-input" min="0" value="{{ quiz.exam_time_limit_minutes|default:'' }}">
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Pass percentage</span>
+        <input type="number" id="exam_pass_percentage" name="exam_pass_percentage" class="quizadmin-form-input" min="0" max="100" step="0.5" value="{{ quiz.exam_pass_percentage|default:50 }}">
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Negative marking per wrong</span>
+        <input type="number" id="exam_negative_marking_per_wrong" name="exam_negative_marking_per_wrong" class="quizadmin-form-input" step="0.25" value="{{ quiz.exam_negative_marking_per_wrong|default:0 }}">
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Max attempts</span>
+        <input type="number" id="exam_max_attempts" name="exam_max_attempts" class="quizadmin-form-input" min="1" value="{{ quiz.exam_max_attempts|default:'' }}">
+      </label>
+    </div>
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-checkbox">
+        <input type="checkbox" id="exam_shuffle_questions" name="exam_shuffle_questions" {% if quiz.exam_shuffle_questions or mode == 'create' %}checked{% endif %}>
+        <span>Shuffle question order</span>
+      </label>
+      <label class="quizadmin-form-checkbox">
+        <input type="checkbox" id="exam_shuffle_options" name="exam_shuffle_options" {% if quiz.exam_shuffle_options or mode == 'create' %}checked{% endif %}>
+        <span>Shuffle option order</span>
+      </label>
+      <label class="quizadmin-form-checkbox">
+        <input type="checkbox" id="exam_allow_review" name="exam_allow_review" {% if quiz.exam_allow_review or mode == 'create' %}checked{% endif %}>
+        <span>Allow answer review after submit</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="quizadmin-form-section" aria-label="Rewards">
+    <h2 class="quizadmin-form-section-title">Rewards (optional)</h2>
+    <label class="quizadmin-form-checkbox">
+      <input type="checkbox" id="exam_rewards_enabled" name="exam_rewards_enabled" {% if quiz.exam_rewards_enabled %}checked{% endif %}>
+      <span>Enable rewards for this quiz</span>
+    </label>
+
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Winner criteria</span>
+        <select id="exam_reward_criteria_code" name="exam_reward_criteria_code" class="quizadmin-form-select">
+          {% for code, label in reward_criteria_codes %}
+            <option value="{{ code }}"
+                    {% if quiz.exam_reward_criteria_code == code %}selected{% elif mode == 'create' and code == 'threshold' %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="quizadmin-form-field" id="exam_reward_threshold_wrapper">
+        <span class="quizadmin-form-label">Threshold percentage</span>
+        <input type="number" id="exam_reward_threshold_percent" name="exam_reward_threshold_percent" class="quizadmin-form-input" min="0" max="100" step="0.5" value="{{ quiz.exam_reward_threshold_percent|default:80 }}">
+      </label>
+      <label class="quizadmin-form-field" id="exam_reward_top_n_wrapper">
+        <span class="quizadmin-form-label">Top N</span>
+        <input type="number" id="exam_reward_top_n" name="exam_reward_top_n" class="quizadmin-form-input" min="1" value="{{ quiz.exam_reward_top_n|default:3 }}">
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Badge to award</span>
+        <select id="link_reward_badge_id" name="link_reward_badge_id" class="quizadmin-form-select">
+          <option value="">— none —</option>
+          {% for badge in badges %}
+            <option value="{{ badge.mastermind_ref_quiz_badge_id }}"
+                    {% if quiz.link_reward_badge_id == badge.mastermind_ref_quiz_badge_id %}selected{% endif %}>
+              {{ badge.badge_icon }} {{ badge.badge_name_bn }} ({{ badge.badge_name_en }})
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Physical prize description (optional)</span>
+      <input type="text" id="exam_reward_description" name="exam_reward_description" class="quizadmin-form-input" value="{{ quiz.exam_reward_description|default:'' }}" placeholder="e.g. book voucher, gift certificate">
+    </label>
+  </section>
+
+  <section class="quizadmin-form-section" aria-label="Questions">
+    <div class="quizadmin-quiz-form-questions-header">
+      <h2 class="quizadmin-form-section-title">Questions</h2>
+      <span class="quizadmin-quiz-form-questions-count">
+        <span id="quizadmin-quiz-form-questions-count-value">0</span> question<span id="quizadmin-quiz-form-questions-count-plural"></span>
+      </span>
+    </div>
+
+    <div id="quizadmin-quiz-form-questions-container"></div>
+
+    <button type="button" id="quizadmin-quiz-form-add-question" name="add_question" class="quizadmin-form-add-button">+ Add question</button>
+  </section>
+
+  <footer class="quizadmin-form-actions">
+    <a href="/quizadmin/quiz/" class="quizadmin-form-cancel" id="quizadmin-quiz-form-cancel" name="cancel">Cancel</a>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-quiz-form-submit" name="submit">
+      {% if mode == 'create' %}Create quiz{% else %}Save changes{% endif %}
+    </button>
+  </footer>
+
+  <div class="quizadmin-inline-message" id="quizadmin-quiz-form-inline-message" role="status" aria-live="polite" hidden></div>
+</form>
+{% endblock %}
+
+{% block quizadmin_js %}
+{{ question_types|json_script:"quizadmin-question-types" }}
+{{ difficulty_levels|json_script:"quizadmin-difficulty-levels" }}
+{{ quiz.questions|default:''|json_script:"quizadmin-existing-questions" }}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-quiz-form.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-question-bank.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">{{ total_count }} question{{ total_count|pluralize }} total.</p>
+</section>
+
+<section class="quizadmin-question-bank-toolbar">
+  <form class="quizadmin-question-bank-filter-form" method="get" action="" id="quizadmin-question-bank-filter-form" name="quizadmin_question_bank_filter_form">
+    <div class="quizadmin-question-bank-filter-row">
+      <label class="quizadmin-filter-label">
+        <span>Search</span>
+        <input type="text" id="quizadmin-filter-search" name="q" class="quizadmin-form-input" value="{{ active_filters.q|default:'' }}" placeholder="Search question text...">
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Topic</span>
+        <select id="quizadmin-filter-topic" name="topic_id" class="quizadmin-form-select">
+          <option value="">All topics</option>
+          {% for topic in filter_options.topics %}
+          <option value="{{ topic.mastermind_coll_quiz_topic_id }}" {% if active_filters.topic_id == topic.mastermind_coll_quiz_topic_id %}selected{% endif %}>
+            {{ topic.topic_name_bn }} ({{ topic.topic_name_en }})
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Book</span>
+        <select id="quizadmin-filter-book" name="book_id" class="quizadmin-form-select">
+          <option value="">All books</option>
+          {% for book in filter_options.books %}
+          <option value="{{ book.mastermind_coll_book_id }}" {% if active_filters.book_id == book.mastermind_coll_book_id %}selected{% endif %}>
+            {{ book.book_title_bn }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Status</span>
+        <select id="quizadmin-filter-status" name="status_code" class="quizadmin-form-select">
+          <option value="">All statuses</option>
+          {% for code in filter_options.status_codes %}
+          <option value="{{ code }}" {% if active_filters.status_code == code %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Type</span>
+        <select id="quizadmin-filter-type" name="question_type_id" class="quizadmin-form-select">
+          <option value="">All types</option>
+          {% for qt in filter_options.question_types %}
+          <option value="{{ qt.mastermind_ref_quiz_question_type_id }}" {% if active_filters.question_type_id == qt.mastermind_ref_quiz_question_type_id %}selected{% endif %}>
+            {{ qt.question_type_name_en }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Difficulty</span>
+        <select id="quizadmin-filter-difficulty" name="difficulty_id" class="quizadmin-form-select">
+          <option value="">All</option>
+          {% for level in filter_options.difficulty_levels %}
+          <option value="{{ level.mastermind_ref_quiz_difficulty_level_id }}" {% if active_filters.difficulty_id == level.mastermind_ref_quiz_difficulty_level_id %}selected{% endif %}>
+            {{ level.difficulty_name_en }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label class="quizadmin-filter-label">
+        <span>Source</span>
+        <select id="quizadmin-filter-source" name="source_code" class="quizadmin-form-select">
+          <option value="">All sources</option>
+          {% for code in filter_options.source_codes %}
+          <option value="{{ code }}" {% if active_filters.source_code == code %}selected{% endif %}>{{ code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="quizadmin-question-bank-actions-row">
+      <button type="submit" id="quizadmin-filter-apply" name="apply" class="quizadmin-filter-apply">Apply filters</button>
+      <a href="/quizadmin/questions/" class="quizadmin-filter-clear" id="quizadmin-filter-clear" name="quizadmin_filter_clear">Clear</a>
+
+      <span class="quizadmin-question-bank-spacer"></span>
+
+      <a href="/quizadmin/api/question/export-csv/?topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}"
+         class="quizadmin-question-bank-export-link" id="quizadmin-export-csv" name="quizadmin_export_csv">Export CSV</a>
+
+      <button type="button" id="quizadmin-import-csv-trigger" name="quizadmin_import_csv_trigger" class="quizadmin-question-bank-import-button">Import CSV</button>
+      <input type="file" id="quizadmin-import-csv-file" name="csv_file" accept=".csv" hidden>
+
+      <a href="/quizadmin/question/create/" class="quizadmin-question-bank-create-link" id="quizadmin-question-bank-create" name="quizadmin_question_bank_create">+ Create question</a>
+    </div>
+  </form>
+
+  <div class="quizadmin-question-bank-bulk-bar" id="quizadmin-bulk-bar" hidden>
+    <span id="quizadmin-bulk-count">0</span> selected
+    <button type="button" id="quizadmin-bulk-publish" name="quizadmin_bulk_publish" class="quizadmin-bulk-action quizadmin-bulk-action-publish">Publish</button>
+    <button type="button" id="quizadmin-bulk-draft" name="quizadmin_bulk_draft" class="quizadmin-bulk-action quizadmin-bulk-action-draft">Set draft</button>
+    <button type="button" id="quizadmin-bulk-archive" name="quizadmin_bulk_archive" class="quizadmin-bulk-action quizadmin-bulk-action-archive">Archive</button>
+    <button type="button" id="quizadmin-bulk-deselect" name="quizadmin_bulk_deselect" class="quizadmin-bulk-action">Deselect all</button>
+  </div>
+
+  <div class="quizadmin-inline-message" id="quizadmin-question-bank-inline-message" role="status" aria-live="polite" hidden></div>
+</section>
+
+{% if questions %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-question-bank-table">
+      <thead>
+        <tr>
+          <th scope="col" class="quizadmin-table-checkbox-col">
+            <input type="checkbox" id="quizadmin-select-all" name="quizadmin_select_all" aria-label="Select all questions">
+          </th>
+          <th scope="col">ID</th>
+          <th scope="col">Question</th>
+          <th scope="col">Topic</th>
+          <th scope="col">Type</th>
+          <th scope="col">Difficulty</th>
+          <th scope="col">Status</th>
+          <th scope="col">Source</th>
+          <th scope="col" class="quizadmin-table-numeric">Uses</th>
+          <th scope="col" class="quizadmin-table-numeric">Accuracy</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for question in questions %}
+        <tr data-question-id="{{ question.mastermind_coll_question_id }}">
+          <td class="quizadmin-table-checkbox-col">
+            <input type="checkbox" class="quizadmin-question-checkbox" value="{{ question.mastermind_coll_question_id }}" aria-label="Select question {{ question.mastermind_coll_question_id }}">
+          </td>
+          <td class="quizadmin-table-mono">{{ question.mastermind_coll_question_id }}</td>
+          <td>
+            <div class="quizadmin-table-title-bn quizadmin-question-bank-text-preview">{{ question.question_text_bn|truncatewords:12 }}</div>
+            {% if question.question_text_en %}<div class="quizadmin-table-title-en">{{ question.question_text_en|truncatewords:8 }}</div>{% endif %}
+          </td>
+          <td><span class="quizadmin-table-title-en">{{ question.topic_name_bn }}</span></td>
+          <td><span class="quizadmin-code-inline">{{ question.question_type_name_en }}</span></td>
+          <td><span class="quizadmin-code-inline">{{ question.difficulty_name_en }}</span></td>
+          <td>
+            <span class="quizadmin-status-chip quizadmin-status-chip-{{ question.question_status_code }}">
+              {{ question.question_status_code }}
+            </span>
+          </td>
+          <td><span class="quizadmin-code-inline">{{ question.question_generation_source_code }}</span></td>
+          <td class="quizadmin-table-numeric">{{ question.usage_count }}</td>
+          <td class="quizadmin-table-numeric">
+            {% if question.correct_answer_rate is not None %}
+              {{ question.correct_answer_rate }}%
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>
+            <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/edit/">Edit</a>
+            <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/analytics/">Stats</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if total_pages > 1 %}
+  <nav class="quizadmin-pagination" aria-label="Pagination">
+    {% if has_previous %}
+    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'-1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}">← Previous</a>
+    {% endif %}
+    <span class="quizadmin-pagination-current">Page {{ page_number }} of {{ total_pages }}</span>
+    {% if has_next %}
+    <a class="quizadmin-pagination-link" href="?page={{ page_number|add:'1' }}&q={{ active_filters.q|default:'' }}&topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}&question_type_id={{ active_filters.question_type_id|default:'' }}&difficulty_id={{ active_filters.difficulty_id|default:'' }}&source_code={{ active_filters.source_code|default:'' }}">Next →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📚</p>
+  <h2 class="quizadmin-empty-hero-title">No questions found</h2>
+  <p class="quizadmin-empty-hero-body">Try adjusting your filters or create a new question.</p>
+  <a class="quizadmin-create-quiz-button" href="/quizadmin/question/create/" id="quizadmin-question-bank-empty-create" name="quizadmin_question_bank_empty_create">+ Create question</a>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-question-bank.js' %}" defer></script>
+{% endblock %}

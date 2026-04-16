@@ -1,0 +1,55 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-books.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">Books ingested into the mastermind engine.</p>
+</section>
+
+{% if books %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-books-table">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col" class="quizadmin-table-numeric">Pages</th>
+          <th scope="col" class="quizadmin-table-numeric">Chunks</th>
+          <th scope="col" class="quizadmin-table-numeric">Review</th>
+          <th scope="col" class="quizadmin-table-numeric">Published</th>
+          <th scope="col" class="quizadmin-table-numeric">Draft</th>
+          <th scope="col" class="quizadmin-table-numeric">Total Qs</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for book in books %}
+        <tr>
+          <td>
+            <div class="quizadmin-table-title-bn">{{ book.book_title_bn }}</div>
+            {% if book.book_title_en %}<div class="quizadmin-table-title-en">{{ book.book_title_en }}</div>{% endif %}
+          </td>
+          <td class="quizadmin-table-numeric">{{ book.book_total_pages|default:"—" }}</td>
+          <td class="quizadmin-table-numeric">{{ book.chunks }}</td>
+          <td class="quizadmin-table-numeric">{{ book.questions_review }}</td>
+          <td class="quizadmin-table-numeric">{{ book.questions_published }}</td>
+          <td class="quizadmin-table-numeric">{{ book.questions_draft }}</td>
+          <td class="quizadmin-table-numeric">{{ book.questions_total }}</td>
+          <td>
+            <a class="quizadmin-table-action" href="/quizadmin/review/?book_id={{ book.mastermind_coll_book_id }}">Review</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<p class="quizadmin-empty-state">No books ingested yet.</p>
+{% endif %}
+{% endblock %}

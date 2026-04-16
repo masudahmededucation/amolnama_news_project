@@ -1,0 +1,99 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-question-analytics.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {{ question.question_text_bn|truncatewords:15 }}
+  </p>
+</section>
+
+<section class="quizadmin-analytics-metrics">
+  <div class="quizadmin-analytics-metric-card">
+    <span class="quizadmin-analytics-metric-label">Total attempts</span>
+    <span class="quizadmin-analytics-metric-value">{{ total_attempts }}</span>
+  </div>
+  <div class="quizadmin-analytics-metric-card">
+    <span class="quizadmin-analytics-metric-label">Correct answers</span>
+    <span class="quizadmin-analytics-metric-value">{{ total_correct }}</span>
+  </div>
+  <div class="quizadmin-analytics-metric-card">
+    <span class="quizadmin-analytics-metric-label">Difficulty index</span>
+    <span class="quizadmin-analytics-metric-value {% if difficulty_index is not None %}{% if difficulty_index < 30 %}quizadmin-analytics-metric-danger{% elif difficulty_index > 80 %}quizadmin-analytics-metric-warning{% else %}quizadmin-analytics-metric-success{% endif %}{% endif %}">
+      {% if difficulty_index is not None %}{{ difficulty_index }}%{% else %}—{% endif %}
+    </span>
+    <span class="quizadmin-analytics-metric-hint">
+      {% if difficulty_index is not None %}
+        {% if difficulty_index < 30 %}Too hard{% elif difficulty_index > 80 %}Too easy{% else %}Good range{% endif %}
+      {% endif %}
+    </span>
+  </div>
+  <div class="quizadmin-analytics-metric-card">
+    <span class="quizadmin-analytics-metric-label">Discrimination index</span>
+    <span class="quizadmin-analytics-metric-value {% if discrimination_index is not None %}{% if discrimination_index < 0.2 %}quizadmin-analytics-metric-danger{% elif discrimination_index >= 0.4 %}quizadmin-analytics-metric-success{% else %}quizadmin-analytics-metric-warning{% endif %}{% endif %}">
+      {% if discrimination_index is not None %}{{ discrimination_index }}{% else %}—{% endif %}
+    </span>
+    <span class="quizadmin-analytics-metric-hint">
+      {% if discrimination_index is not None %}
+        {% if discrimination_index >= 0.4 %}Excellent{% elif discrimination_index >= 0.2 %}Acceptable{% else %}Poor — review question{% endif %}
+      {% else %}
+        Need 10+ attempts
+      {% endif %}
+    </span>
+  </div>
+  <div class="quizadmin-analytics-metric-card">
+    <span class="quizadmin-analytics-metric-label">Avg. time</span>
+    <span class="quizadmin-analytics-metric-value">
+      {% if average_time_seconds is not None %}{{ average_time_seconds }}s{% else %}—{% endif %}
+    </span>
+  </div>
+</section>
+
+{% if options %}
+<section class="quizadmin-section" aria-label="Option distribution">
+  <h2 class="quizadmin-section-title">Option selection distribution</h2>
+  <div class="quizadmin-analytics-options">
+    {% for option in options %}
+    <div class="quizadmin-analytics-option-row {% if option.is_correct %}quizadmin-analytics-option-correct{% endif %}">
+      <span class="quizadmin-analytics-option-label">{{ option.option_label }}</span>
+      <span class="quizadmin-analytics-option-text">{{ option.option_text_bn|truncatewords:10 }}</span>
+      <div class="quizadmin-analytics-option-bar-wrapper">
+        <div class="quizadmin-analytics-option-bar" style="width: {{ option.selection_percentage }}%"></div>
+      </div>
+      <span class="quizadmin-analytics-option-pct">{{ option.selection_percentage }}%</span>
+      <span class="quizadmin-analytics-option-count">({{ option.selection_count }})</span>
+      {% if option.is_correct %}<span class="quizadmin-analytics-option-correct-badge">correct</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="quizadmin-section" aria-label="Question details">
+  <h2 class="quizadmin-section-title">Question details</h2>
+  <dl class="quizadmin-analytics-details">
+    <dt>Status</dt>
+    <dd><span class="quizadmin-status-chip quizadmin-status-chip-{{ question.question_status_code }}">{{ question.question_status_code }}</span></dd>
+    <dt>Source</dt>
+    <dd><span class="quizadmin-code-inline">{{ question.question_generation_source_code }}</span></dd>
+    {% if question.topic_name_bn %}
+    <dt>Topic</dt>
+    <dd>{{ question.topic_name_bn }}</dd>
+    {% endif %}
+    {% if question.book_title_bn %}
+    <dt>Book</dt>
+    <dd>{{ question.book_title_bn }}</dd>
+    {% endif %}
+  </dl>
+</section>
+
+<section class="quizadmin-form-actions">
+  <a href="/quizadmin/questions/" class="quizadmin-form-cancel" id="quizadmin-analytics-back" name="quizadmin_analytics_back">Back to questions</a>
+  <a href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/edit/" class="quizadmin-form-submit" id="quizadmin-analytics-edit" name="quizadmin_analytics_edit">Edit question</a>
+</section>
+{% endblock %}

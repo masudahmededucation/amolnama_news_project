@@ -1,0 +1,122 @@
+/* Review queue page — filter bar + empty hero + shortcuts footer. */
+
+.quizadmin-review-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-1);
+}
+
+.quizadmin-review-header-title { display: flex; flex-direction: column; gap: var(--space-1); }
+
+.quizadmin-review-filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.quizadmin-filter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+
+.quizadmin-filter-select {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-sm);
+  min-width: 160px;
+  touch-action: manipulation;
+}
+.quizadmin-filter-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quizadmin-filter-apply {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.quizadmin-filter-apply:hover  { filter: brightness(1.05); }
+.quizadmin-filter-apply:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Empty hero -------------------------------------------------------- */
+.quizadmin-empty-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-4);
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.quizadmin-empty-hero-emoji  { font-size: var(--text-5xl); margin: 0; }
+.quizadmin-empty-hero-title  { margin: 0; font-size: var(--text-2xl); color: var(--text); }
+.quizadmin-empty-hero-body   { margin: 0; color: var(--muted); }
+.quizadmin-empty-hero-action {
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none !important;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+}
+.quizadmin-empty-hero-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Shortcuts --------------------------------------------------------- */
+.quizadmin-review-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.quizadmin-review-shortcut-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.quizadmin-review-shortcut-list kbd {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  box-shadow: var(--elevation-1);
+  margin-right: var(--space-1);
+}

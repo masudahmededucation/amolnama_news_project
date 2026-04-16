@@ -1,0 +1,24 @@
+/* Quiz list page — page-specific overrides only.
+   Shared table styles live in quizadmin-shell.css. */
+
+.quizadmin-page-intro { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
+.quizadmin-quiz-clone-button,
+.quizadmin-quiz-delete-button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+}
+.quizadmin-quiz-clone-button:hover { background: var(--info-light); }
+.quizadmin-quiz-delete-button:hover { background: var(--danger-light); color: var(--danger); }
+.quizadmin-quiz-delete-button:focus-visible,
+.quizadmin-quiz-clone-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+button.quizadmin-quiz-delete-confirm.quizadmin-quiz-delete-button {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}

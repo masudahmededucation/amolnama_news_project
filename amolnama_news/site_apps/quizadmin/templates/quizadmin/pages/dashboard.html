@@ -1,0 +1,89 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/metric-card.css' %}">
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-dashboard.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-dashboard-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">AI-generated question review and pipeline audit.</p>
+</section>
+
+<section class="quizadmin-metric-grid" aria-label="Key metrics">
+  {% include "quizadmin/partials/metric_card.html" with label="Pending review" value=metrics.pending_review tone="amber" href="/quizadmin/review/" cta="Start reviewing" %}
+  {% include "quizadmin/partials/metric_card.html" with label="Published" value=metrics.published tone="green" %}
+  {% include "quizadmin/partials/metric_card.html" with label="Draft" value=metrics.draft tone="grey" %}
+  {% include "quizadmin/partials/metric_card.html" with label="Rejected / archived" value=metrics.rejected tone="red" %}
+  {% include "quizadmin/partials/metric_card.html" with label="AI-generated total" value=metrics.ai_generated_total tone="blue" %}
+  {% include "quizadmin/partials/metric_card.html" with label="Books ingested" value=metrics.books_ingested tone="blue" href="/quizadmin/books/" cta="View books" %}
+</section>
+
+<section class="quizadmin-chart-grid" aria-label="Visual analytics">
+  <div class="quizadmin-chart-card">
+    <h2 class="quizadmin-section-subtitle">Question status breakdown</h2>
+    <div class="quizadmin-chart-donut" id="quizadmin-chart-status">
+      {% for status_code, count in charts.status_distribution.items %}
+      <div class="quizadmin-chart-donut-row">
+        <span class="quizadmin-chart-donut-color quizadmin-chart-color-{{ status_code }}"></span>
+        <span class="quizadmin-chart-donut-label">{{ status_code }}</span>
+        <span class="quizadmin-chart-donut-value">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="quizadmin-chart-card">
+    <h2 class="quizadmin-section-subtitle">Questions by topic</h2>
+    <div class="quizadmin-chart-bars">
+      {% for row in charts.topic_distribution %}
+      <div class="quizadmin-chart-bar-row">
+        <span class="quizadmin-chart-bar-label">{{ row.topic_name_en|default:"Unknown"|truncatewords:3 }}</span>
+        <div class="quizadmin-chart-bar-track">
+          <div class="quizadmin-chart-bar-fill" style="width: {{ row.bar_width_percent }}%"></div>
+        </div>
+        <span class="quizadmin-chart-bar-value">{{ row.total }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="quizadmin-chart-card">
+    <h2 class="quizadmin-section-subtitle">Generation activity (last 14 days)</h2>
+    <div class="quizadmin-chart-bars">
+      {% for row in charts.daily_generation %}
+      <div class="quizadmin-chart-bar-row">
+        <span class="quizadmin-chart-bar-label">{{ row.generation_date|date:"M d" }}</span>
+        <div class="quizadmin-chart-bar-track">
+          <div class="quizadmin-chart-bar-fill quizadmin-chart-bar-fill-accent" style="width: {{ row.bar_width_percent }}%"></div>
+        </div>
+        <span class="quizadmin-chart-bar-value">{{ row.total_created }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="quizadmin-section" aria-label="Recent generation jobs">
+  <header class="quizadmin-section-header">
+    <h2 class="quizadmin-section-title">Recent generation jobs</h2>
+    <a class="quizadmin-section-link" href="/quizadmin/jobs/">All jobs →</a>
+  </header>
+  {% include "quizadmin/partials/recent_jobs_table.html" with jobs=recent_jobs %}
+</section>
+
+<section class="quizadmin-section" aria-label="Quick actions">
+  <header class="quizadmin-section-header">
+    <h2 class="quizadmin-section-title">Quick actions</h2>
+  </header>
+  <ul class="quizadmin-quick-links">
+    <li><a href="/quizadmin/quiz/create/">+ Create new quiz</a></li>
+    <li><a href="/quizadmin/questions/">Browse question bank</a></li>
+    <li><a href="/quizadmin/review/">Review pending AI questions</a></li>
+    <li><a href="/quizadmin/books/">Books overview</a></li>
+    <li><a href="/quizadmin/jobs/">Generation jobs audit</a></li>
+  </ul>
+</section>
+{% endblock %}
