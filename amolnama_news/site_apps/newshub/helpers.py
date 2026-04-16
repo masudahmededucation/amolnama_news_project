@@ -1071,7 +1071,7 @@ def build_article_seo_slug(entry, form_type_code):
     Returns:
         str: slug suitable for URL
     """
-    from amolnama_news.site_apps.core.utils import bangla_slugify
+    from amolnama_news.site_apps.core.utils import english_slug_from_text
 
     parts = []
 
@@ -1094,7 +1094,7 @@ def build_article_seo_slug(entry, form_type_code):
     # 3. Headline keywords (first ~6 words from Bengali headline, transliterated)
     headline = entry.news_headline_bn or entry.news_headline_en or ""
     if headline:
-        headline_slug = bangla_slugify(headline)
+        headline_slug = english_slug_from_text(text_bn=headline)
         # Take first ~80 chars to keep URL reasonable
         if len(headline_slug) > 80:
             headline_slug = headline_slug[:80].rsplit('-', 1)[0]

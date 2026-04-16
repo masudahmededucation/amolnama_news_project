@@ -49,6 +49,7 @@ SIDEBAR_NAV_RULES = [
     ('marriage',              'ns:marriage'),
     ('health',                'ns:health'),
     ('textextractor',         'ns:textextractor'),
+    ('quizadmin',             'ns:quizadmin'),
 ]
 
 

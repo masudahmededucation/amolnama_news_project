@@ -290,6 +290,33 @@ def bangla_slugify(text, max_length=450):
     return text[:max_length] if text else ''
 
 
+def english_slug_from_text(text_en=None, text_bn=None, max_length=450):
+    """Generate an English-only URL slug from available text.
+
+    Priority:
+        1. text_en (if provided and non-empty) → Django slugify
+        2. text_bn (Bengali) → bengali_to_english() from englishtobangla app
+           → Django slugify. Uses practical Romanization with manual overrides
+           for common words (12/12 benchmark accuracy).
+        3. Fallback → empty string (caller must handle)
+
+    Used by all blog apps for SEO-friendly English article slugs.
+    """
+    from django.utils.text import slugify
+
+    if text_en and text_en.strip():
+        candidate = slugify(text_en.strip())
+        return candidate[:max_length] if candidate else ''
+
+    if text_bn and text_bn.strip():
+        from amolnama_news.site_apps.englishtobangla.transliterate import bengali_to_english
+        transliterated = bengali_to_english(text_bn.strip())
+        candidate = slugify(transliterated)
+        return candidate[:max_length] if candidate else ''
+
+    return ''
+
+
 def generate_username_handle(display_name):
     """Generate a unique @username handle from display name.
 

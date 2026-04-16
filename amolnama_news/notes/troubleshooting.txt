@@ -36,7 +36,7 @@ all options need to be standardise dynamic modularised
 
 --remove 
 you should be using this [content].[ref_content_subcategory]
-tables only to show categtories or subcategories.
+tables only to show categories or subcategories.
 remove the other blog specific category or subcategory tables. 
 report me blog posts old tables needed 
 to be remove then give me script to remove them. 

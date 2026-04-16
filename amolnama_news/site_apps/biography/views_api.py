@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
-from amolnama_news.site_apps.core.utils import bangla_slugify, get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.core.utils import english_slug_from_text, get_user_profile_id, sanitize_user_html
 
 from .models import CollBiographyEntry
 
@@ -48,7 +48,7 @@ def api_biography_entry_create(request):
         description_bn = sanitize_user_html(description_bn)
 
     slug_source = title_bn
-    biography_entry_slug = bangla_slugify(slug_source)
+    biography_entry_slug = english_slug_from_text(text_bn=slug_source)
     existing_slug_count = CollBiographyEntry.objects.filter(biography_entry_slug=biography_entry_slug).count()
     if existing_slug_count > 0:
         biography_entry_slug = f'{biography_entry_slug}-{existing_slug_count + 1}'
@@ -89,7 +89,7 @@ def api_biography_entry_create(request):
 # =========================================================
 
 def api_biography_person_search(request):
-    """GET — search ref_biography_person for Tom Select dropdown.
+    """GET — search coll_biography_person for Tom Select dropdown.
 
     Query: ?q=রবীন্দ্র or ?q=Tagore
     Returns: list of matching persons with id, name_bn, name_en, occupation.
@@ -104,11 +104,11 @@ def api_biography_person_search(request):
     try:
         with db_connection.cursor() as cursor:
             cursor.execute("""
-                SELECT TOP 20 blog_biography_ref_biography_person_id,
+                SELECT TOP 20 blog_biography_coll_biography_person_id,
                        person_name_bn, person_name_en,
                        person_birth_year, person_death_year,
                        person_occupation_bn, person_category_code
-                FROM [blog_biography].[ref_biography_person]
+                FROM [blog_biography].[coll_biography_person]
                 WHERE is_active = 1
                   AND (person_name_bn LIKE %s OR person_name_en LIKE %s)
                 ORDER BY person_name_en
@@ -141,7 +141,7 @@ def _get_or_create_stub_biography(person_id, user_profile_id):
 
     # Check if biography already exists for this person
     existing = CollBiographyEntry.objects.filter(
-        link_blog_biography_ref_biography_person_id=person_id,
+        link_blog_biography_coll_biography_person_id=person_id,
         is_active=True,
     ).first()
     if existing:
@@ -152,8 +152,8 @@ def _get_or_create_stub_biography(person_id, user_profile_id):
         cursor.execute("""
             SELECT person_name_bn, person_name_en, person_occupation_bn,
                    person_category_code, person_birth_year, person_death_year
-            FROM [blog_biography].[ref_biography_person]
-            WHERE blog_biography_ref_biography_person_id = %s AND is_active = 1
+            FROM [blog_biography].[coll_biography_person]
+            WHERE blog_biography_coll_biography_person_id = %s AND is_active = 1
         """, [person_id])
         row = cursor.fetchone()
         if not row:
@@ -174,7 +174,7 @@ def _get_or_create_stub_biography(person_id, user_profile_id):
         is_active=True,
     ).first()
 
-    slug = bangla_slugify(person_name_bn or person_name_en)
+    slug = english_slug_from_text(text_bn=person_name_bn or person_name_en)
     existing_slug_count = CollBiographyEntry.objects.filter(biography_entry_slug=slug).count()
     if existing_slug_count > 0:
         slug = f'{slug}-{existing_slug_count + 1}'
@@ -187,7 +187,7 @@ def _get_or_create_stub_biography(person_id, user_profile_id):
         biography_entry_slug=slug,
         biography_entry_short_description_bn=person_occupation_bn,
         link_content_ref_content_subcategory_id=subcategory.content_ref_content_subcategory_id if subcategory else None,
-        link_blog_biography_ref_biography_person_id=person_id,
+        link_blog_biography_coll_biography_person_id=person_id,
         subject_full_name_bn=person_name_bn,
         subject_full_name_en=person_name_en,
         subject_occupation_bn=person_occupation_bn,

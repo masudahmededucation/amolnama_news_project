@@ -1,0 +1,25 @@
+it make sense to add them in the 
+detail page.
+but i think we also need separate entry 
+like card style to add picture gallery of someone,
+ just add quote, or youtube links. 
+ it should have intelligence 
+ or collect minimum information to connect them together.
+
+also, we need a basic minimum level of 
+all interested person which biography 
+could be import for bangladesh in the ref table 
+so that the names are always correct. 
+whenever someone types name 
+it should give options to select it. 
+like search and select in the newshub location step.
+
+sometimes user may not want to write. 
+they may want to add a small piece only.
+
+keep option to date, location, and details for every piece of information
+but optional.
+
+it should display the already added biography, 
+quote, gallery, video right?
+

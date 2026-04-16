@@ -14,7 +14,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
-from amolnama_news.site_apps.core.utils import bangla_slugify
+from amolnama_news.site_apps.core.utils import english_slug_from_text
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
 from .models import (
@@ -191,7 +191,7 @@ def api_destination_create(request):
 def _generate_destination_slug(dest):
     """Generate URL slug from destination name. Called on create and update."""
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
-    slug = bangla_slugify(base_name)
+    slug = english_slug_from_text(text_bn=base_name)
     if not slug:
         slug = str(dest.blog_bangladesh_coll_destination_id)
     candidate = slug

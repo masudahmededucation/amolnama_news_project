@@ -216,8 +216,8 @@ def api_topic_create(request):
     try:
         from amolnama_news.site_apps.content.utils import register_content
         # Generate SEO-friendly Bengali slug
-        from amolnama_news.site_apps.core.utils import bangla_slugify
-        topic_slug = bangla_slugify(topic_title)[:400]
+        from amolnama_news.site_apps.core.utils import english_slug_from_text
+        topic_slug = english_slug_from_text(text_bn=topic_title)[:400]
         from .models import CollTopic
         CollTopic.objects.filter(blog_debate_coll_topic_id=topic_id).update(topic_slug=topic_slug)
 

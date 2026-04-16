@@ -28,7 +28,7 @@ MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB per image
 def api_artwork_create(request):
     """Create a new artwork with photo upload."""
     from amolnama_news.site_apps.user_account.models import UserProfile
-    from amolnama_news.site_apps.core.utils import bangla_slugify
+    from amolnama_news.site_apps.core.utils import english_slug_from_text
 
     artwork_title_bn = (request.POST.get('artwork_title_bn') or '').strip()
     artwork_title_en = (request.POST.get('artwork_title_en') or '').strip() or None
@@ -64,7 +64,7 @@ def api_artwork_create(request):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    artwork_slug = bangla_slugify(artwork_title_bn)
+    artwork_slug = english_slug_from_text(text_bn=artwork_title_bn)
 
     # Create artwork via raw SQL (UUID issue with custom db_backend)
     artwork_guid = str(uuid.uuid4())

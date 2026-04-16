@@ -22,6 +22,96 @@ This is the master rule. Every other rule in this file is mandatory. There is no
 - **Don't silently abandon good solutions.** When a better approach has a technical blocker (install failure, compatibility issue, missing dependency), TELL the user immediately — show the error, suggest a workaround, ask for help. NEVER silently downgrade to a worse alternative without communicating why. The user can often solve blockers you can't.
 - **Don't dismiss errors as "pre-existing" or "not from my code".** If you see an error, warning, or 404 in the server logs — either fix it NOW or flag it clearly to the user with the exact error and location. Never say "that's a known issue" without acting. Log unfixed issues in `notes/claude/app_documentation/app-troubleshooting.txt`.
 - **Don't add new memory files when caught.** The rule already exists in this file. Re-read it.
+- **Release resources when not working. Zero idle burn.** Anything I start (Ollama server, model-loaded Python processes, Django dev server, background scripts, ML model warm-ups) MUST be explicitly shut down when the task is done. Never leave Ollama `serve` running after a pilot. Never leave a Python process holding sentence-transformers/mDeBERTa RAM. User's PC should sit at idle CPU/RAM when I'm not actively running something. Before saying "done" on any task that used heavy tooling, check `tasklist` for `ollama.exe`, `python.exe` with >500MB, or anything else I spawned — and kill what I started. If a tool is meant to stay running (e.g. Django dev server for the session), say so explicitly so the user knows to expect it.
+- **When stuck, confused, or struggling — STOP and TALK, don't iterate blindly.** Trigger this protocol on ANY of: (a) a fix didn't work, (b) you don't fully understand why something is failing, (c) you're unsure which of several approaches is right, (d) the code/schema/requirement feels ambiguous, (e) you're about to guess. Do NOT try another blind fix. Do NOT silently pick an option when you're unsure. Run this EXACT Q&A protocol with the user:
+
+  **Step 1 — Describe the problem (me to user):**
+  ```
+  ## The problem, plainly
+  **Goal:** [what I'm trying to accomplish in one sentence]
+  **Symptom:** [exact error message or wrong behavior, with evidence]
+  **Root cause (best guess):** [what I think is happening and why]
+
+  ## What I've tried
+  | Attempt | Hypothesis | Result |
+  |---------|-----------|--------|
+  | 1 | ... | failed because ... |
+  | 2 | ... | failed because ... |
+
+  ## What I haven't tried (options)
+  - **Option A:** [approach] — pros: ... / cons: ...
+  - **Option B:** [approach] — pros: ... / cons: ...
+  - **Option C:** [approach] — pros: ... / cons: ...
+
+  ## Questions for you
+  1. [specific question — e.g., "is this library installed?", "do you have X constraint?"]
+  2. [specific question]
+
+  I'm waiting for your direction before trying anything else.
+  ```
+
+  **Step 2 — Wait (no tool calls that change state).** Read-only exploration (Grep, Read, Glob) is OK to gather info while waiting. No Edits, no Writes, no destructive Bash until the user responds.
+
+  **Step 3 — After user responds:**
+  - If they chose an option → implement that one ONLY
+  - If they gave new info → re-plan with that info, don't just act
+  - If they asked a question back → answer it, don't code
+
+  **Why this matters:** Blind iteration wastes tokens, time, and trust. The user has seen this class of problem before and may have a clue I don't. The user's context (team decisions, past incidents, infra constraints) is often the missing piece. Say "I'm stuck, here's what I know, here are the options" — then WAIT. Don't guess #3, #4, #5.
+
+  **Triggers for this protocol (any ONE of these):**
+  - Same error reappears after a fix (proves my theory was wrong)
+  - I don't understand WHY something is failing (just guessing)
+  - The obvious fix didn't work
+  - I'm about to try a workaround instead of a root-cause fix
+  - User seems frustrated ("you keep rushing", "do you need help")
+  - I'm confused about requirements, scope, or which direction to take
+  - The user's instruction is ambiguous and I'm tempted to pick an interpretation
+  - I'm weighing 2+ approaches and don't know which is right
+  - I'm about to make a judgment call that could go either way
+  - I notice a contradiction between what the user asked and what the code/schema says
+
+  **Rule of thumb:** if I'm about to write "I'll assume…" or "I'll just go with…", STOP. That's the signal — ask instead.
+
+- **Exhaustive plan BEFORE any code change.** For any multi-file or multi-app change:
+  1. Write a plan document listing EVERY file, EVERY app, EVERY record affected.
+  2. List EVERY bug that could arise and how to prevent each one.
+  3. Include a rollback plan.
+  4. Include a pre-flight checklist.
+  5. Include a verification report format (what the final output looks like).
+  6. Get user approval on the plan BEFORE touching a single file.
+  7. Never start coding "on the fly" while still discovering scope.
+
+- **Check troubleshooting docs BEFORE building anything with known pitfalls.** Recurring issues that waste hours every time:
+  - **Scroll-to-top on navigation:** Any new nav menu, any page with approve/reject/filter actions — check `memory/troubleshooting.md` §19 for the sessionStorage + anchor pattern BEFORE writing the first template. Don't build it, discover it scrolls, then spend 3 hours fixing.
+  - **Nested `<main>` tags:** Templates that `{% extends "core/base.html" %}` already get a `<main>` from base. Never add another `<main>` inside `{% block content %}`. Use `<section>` or `<div>`.
+  - **pyodbc ntext on long Bengali text:** Any NVARCHAR(MAX) column with text >2000 chars + UTF-8 collation DB — use raw pyodbc cursor with `setinputsizes([(pyodbc.SQL_WVARCHAR, 0, 0)])`. CAST doesn't work (error is at parameter level). Truncation loses AI context. See `memory/troubleshooting.md` §5b for the exact code pattern.
+  - **Django template comments `{# ... #}`:** Single-line ONLY. Multi-line comments leak to HTML. Use `{% comment %}...{% endcomment %}` for multi-line.
+  - **`var(--primary)` is green:** Quiz Panel / staff tools should use `var(--accent)` (blue) for action buttons, not `var(--primary)` (brand green). Check BEFORE writing CSS, not after user reports green buttons.
+  - **Service worker cache:** After ANY static file change, bump `CACHE_NAME` in `seo/views.py` + run `collectstatic`. Do this in the SAME edit pass, not as an afterthought.
+
+  **Rule:** Before building ANY new page, nav component, or form: open `memory/troubleshooting.md` and scan the table of contents. If the thing you're about to build matches a known pattern, apply the documented fix PROACTIVELY. Don't rediscover it.
+
+- **Fix ALL instances in ONE pass.** When a bug is found in one place:
+  1. Grep the ENTIRE project for the same pattern.
+  2. Fix EVERY instance in one commit.
+  3. Report the total count changed.
+  4. Never fix one, ask user to test, find another, fix that, repeat 10 times.
+
+- **Every table name must be self-documenting.** Someone reading `coll_quiz_session` should know EXACTLY what it stores without opening a dictionary. Rules:
+  1. Prefix tells the data lifecycle: `ref_` = static admin config, `coll_` = growing collection, `eng_` = computed/derived, `map_` = junction/many-to-many.
+  2. `ref_` tables ONLY for data that admin/staff creates rarely and users NEVER create. If users can input data into it, or staff adds rows regularly, it is `coll_`.
+  3. Add the domain word when the table name is ambiguous: `ref_quiz_badge` not `ref_badge`, `coll_quiz_topic` not `ref_topic`. Ask: "topic of WHAT? badge for WHAT?"
+  4. Every new table MUST get an `MS_Description` extended property in SQL Server at creation time, not as an afterthought.
+  5. All column names use `link_` prefix for FKs, entity prefix for grouped columns, `_bn`/`_en` suffix only for display labels needing both languages.
+  6. Before naming a table, check if a similar name exists in another schema. 200+ tables means collisions are likely. Be explicit.
+
+- **Every DB table must have a dictionary entry (MS_Description).** When creating a new table:
+  1. Write the `EXEC sp_addextendedproperty 'MS_Description', '...', 'SCHEMA', '...', 'TABLE', '...'` in the SAME SQL script that creates the table.
+  2. The description must say: what data it stores, who writes to it (user/staff/system), and how it grows.
+  3. Never create a table without a description. It's as mandatory as the PRIMARY KEY.
+
+- **Bengali → English transliteration for URL slugs.** All blog apps auto-generate English slugs from Bengali titles using `core/utils.py:english_slug_from_text()` which calls `englishtobangla/transliterate.py:bengali_to_english()`. The transliteration uses a hybrid approach: manual overrides dictionary (50+ common words) + algorithmic fallback (handles inherent vowels, schwa deletion, cluster compression, allophonic conjuncts). When a new word produces a bad slug, add it to `MANUAL_OVERRIDES` in `transliterate.py` — one line, no algorithm change.
 
 ---
 

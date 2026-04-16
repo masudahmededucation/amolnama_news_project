@@ -18,6 +18,22 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R0. Quiz Panel review queue scrolled to top on approve/reject
+Date: 2026-04-16
+Was: Clicking approve/reject on /quizadmin/review/ reloaded the page and
+     browser scrolled to top, losing reviewer's visual context.
+Root cause: navigateToQuestionId() in page-review-queue.js set
+     window.location.search which causes a full reload, and reload
+     always scrolls to top. Prev/Next anchor links had the same issue.
+Fix: Append #quizadmin-review-card fragment to every navigation URL, so
+     the browser automatically scrolls to the review card on load.
+     Added id="quizadmin-review-card" to the <article> element. Full path
+     is now window.location.pathname + '?' + params + '#quizadmin-review-card'.
+Lesson: When a page reload is necessary in a staff workflow where the
+     user's visual focus is mid-page, use URL fragments (#anchor) so the
+     browser restores focus. Don't let the reviewer chase the UI.
+
+
 ### R1. CSRF token wrong pattern in call-webrtc.js
 Date: 2026-04-14
 Was: Used meta[name="csrf-token"] — doesn't exist in this project.

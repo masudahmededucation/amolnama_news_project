@@ -49,7 +49,7 @@ class CollBiographyEntry(models.Model):
     comment_count = models.IntegerField(default=0)
 
     # Reference person (search-and-select)
-    link_blog_biography_ref_biography_person_id = models.IntegerField(blank=True, null=True)
+    link_blog_biography_coll_biography_person_id = models.IntegerField(blank=True, null=True)
 
     # Content registry
     link_content_registry_id = models.BigIntegerField(blank=True, null=True)

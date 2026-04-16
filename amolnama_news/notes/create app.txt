@@ -1,4 +1,4 @@
-create app "biography". follow the app structure in core. 
+create app "quizadmin". follow the app structure in core. 
 app location site_apps/<app_name>
 copy all the folder structure only strictly. 
 don't copy files.
@@ -90,6 +90,8 @@ probashi news
 ####
 poltibaj
 
+show the events in the order of time 
+it has happened.
 
 ###
 --similar posts
@@ -114,23 +116,9 @@ evidence,
 answers
 scoring system - v04
 
+
+
 https://gemini.google.com/app/6b4d38b53badd7e9
-
-
-############
---history teachers
-question and answers
-
-paragraph and also multiple choice questions
-questions mainly to teach about party history
-party leader history
-this way, people cannot lied
-specially election and MP candidates
-
-history books will be fed into the system
-then it will show paragraph and ask questions
-based on that paragraph.
-
 
 
 
@@ -145,3 +133,65 @@ based on that paragraph.
 #####
 --news relativity
 --news category
+
+
+#############
+upload books,
+based on that book, 
+create questions and answers automatically
+keep a record of the score
+reward people.
+post winner.
+people should be able to vote
+
+--this should happen in all of blog posts
+
+
+#######
+--voting and polling.
+once a poll is created.
+should be able to share it on wall post.
+once live, people should be able to vote directly on the home wall post,
+without redirecting to the voting app.
+
+
+for example:
+what is the best place to travel in bangladesh?
+what is the constituent rule means?
+
+questions could be multiple choice,
+fill in the blanks.
+write a paragraph.
+
+
+--voting admin only 
+user those are not staff or admin but 
+i want to grant them to be able to create voting.
+they should be able to modify only voting created by them.
+need to create a db_role or user group?
+how to handle this better.
+we also need admin interface to control them,
+including, add them with permission expiry date,
+delete them, modify expiry date.
+should be able to add them by
+user registered verified email or username handler.
+
+##########
+--art
+paper material
+picture with ...........dotted line to fold
+also show animation of making it
+
+
+
+#############
+admin panel for 
+person's job title
+person's organisation name edit.
+so we will have our ref table with job title 
+and organisation.
+but if the user's entered job title or org is not in our list.
+then it will give us option to verify and add to our ref table.
+we can query these two info from table
+and surface only if they don't already exists 
+in our related ref table. 

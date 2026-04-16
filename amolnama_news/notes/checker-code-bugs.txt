@@ -109,10 +109,7 @@ safe practice.
 no shortcut dangerous practice.
 don't touch other things.
 
---immediate load
-Show UI immediately, load data in background.
-apply this to all interactions.
-don't touch other things.
+
 
 --naming conventions
 check name rules.
@@ -129,7 +126,6 @@ don't touch other things.
 all attributes should have its id and name.
 
 
-
 --check for bugs
 check for bugs, bad code, broken code, illegal code, dead code.
 sql injection risk.
@@ -139,7 +135,7 @@ clear clean code of error handing.
 CSS bugs.
 SQL bugs.
 JS null checks.
-Duplicate listeners.
+Unnecessary duplicate function, caller, listeners.
 silent swallower
 Banned alert().
 Banned confirm().
@@ -151,6 +147,8 @@ don't leave anything broken after change
 don't touch other things.
 
 
+
+--without removing functionality, features, and messing up 
 --faster load
 load UI immediate, load data in the background.
 keep loading related data in the background.
@@ -158,6 +156,10 @@ ready to show the data once user asks.
 proactive prefetch.
 don't touch other things.
 
+--immediate load
+Show UI immediately, load data in background.
+apply this to all interactions.
+don't touch other things.
 
 --check code for faster and efficiency
 Optimize code for speed and efficiency.
@@ -174,12 +176,13 @@ don't touch other things.
 
 
 --create or update documentation
-architecture, E2E data entry, features, functions, and troubleshooting.
+--for each apps
+architecture, E2E data entry, features, functions, and document the troubleshooting.
 update claude.md rules if appropriate
 folders, 
 \notes\claude\app_documentation
 \notes\claude\memory-training\
-
+\notes root directory- user space
 --bump cache
 bump cache + Collect-static + service worker cache.
 
@@ -205,4 +208,5 @@ rather than individual file or small section.
 
 --pre-flight and claude.md
 This rule is now part of the auto-loaded preflight. 
-Want me to commit just this CLAUDE.md update, or hold for more rule edits?
+Want me to commit just this CLAUDE.md update, 
+or hold for more rule edits?

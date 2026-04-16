@@ -27,7 +27,7 @@ MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 def api_story_create(request):
     """Create a new story."""
     from amolnama_news.site_apps.user_account.models import UserProfile
-    from amolnama_news.site_apps.core.utils import bangla_slugify
+    from amolnama_news.site_apps.core.utils import english_slug_from_text
 
     story_title_bn = (request.POST.get('story_title_bn') or '').strip()
     story_title_en = (request.POST.get('story_title_en') or '').strip() or None
@@ -52,7 +52,7 @@ def api_story_create(request):
     except UserProfile.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'প্রোফাইল পাওয়া যায়নি'}, status=400)
 
-    story_slug = bangla_slugify(story_title_bn)
+    story_slug = english_slug_from_text(text_bn=story_title_bn)
 
     story_guid = str(uuid.uuid4())
     with connection.cursor() as cursor:

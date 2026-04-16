@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
-from amolnama_news.site_apps.core.utils import bangla_slugify, get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.core.utils import english_slug_from_text, get_user_profile_id, sanitize_user_html
 
 from .models import CollHistoryEvent
 
@@ -51,7 +51,7 @@ def api_history_event_create(request):
     if significance_bn:
         significance_bn = sanitize_user_html(significance_bn)
 
-    slug = bangla_slugify(title_bn)
+    slug = english_slug_from_text(text_bn=title_bn)
     existing_slug_count = CollHistoryEvent.objects.filter(history_event_slug=slug).count()
     if existing_slug_count > 0:
         slug = f'{slug}-{existing_slug_count + 1}'

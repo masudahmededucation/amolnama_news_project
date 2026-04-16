@@ -1,0 +1,329 @@
+QUIZADMIN APP — IMPLEMENTATION PLAN
+=====================================
+
+Purpose: Staff-only dashboard that makes reviewing AI-generated quiz
+questions fast, accurate, and auditable. Primary consumer of mastermind
+engine; no display-to-end-user logic lives here.
+
+Not a replacement for Django admin — complements it. Django admin stays
+authoritative for raw CRUD. Quizadmin owns the reviewer workflow.
+
+
+## GOLD-STANDARD RESEARCH
+=========================
+
+Benchmarked tools for AI-generated-content review:
+
+1. Hugging Face annotation tools (Argilla, Label Studio):
+   - Side-by-side source + output + confidence scores
+   - Keyboard shortcuts (j/k/a/r)
+   - Pagination with infinite scroll
+   - Filter rail on the left
+   - One-keystroke decisions
+
+2. Linear (issue triage):
+   - Dense lists, compact rows
+   - Filters as chip-style dropdowns in header
+   - Bulk select with shift-click
+   - Inline state transitions
+
+3. Grafana (dashboard):
+   - Metric cards in a responsive grid
+   - Color-coded by status (pending=amber, published=green, rejected=red)
+   - Drill-down from card → filtered list page
+
+4. Django admin (already in place):
+   - Authoritative for edit/delete, bulk actions, raw filtering
+   - We LINK to it rather than rebuild it
+
+Takeaways baked into this plan:
+- Review Queue is THE workflow. Optimise for density + keyboard speed.
+- Dashboard shows metrics Django admin hides (pending review = first metric).
+- All per-row destructive operations must show undo within 5 seconds.
+- Everything the user can do via UI must also be doable via Django admin
+  (one source of truth; admin is the fallback).
+
+
+## PAGES
+========
+
+1. Dashboard   /quizadmin/
+   Purpose: at-a-glance health of the question bank + generation pipeline.
+   Metric cards:
+     - Pending review (amber, highest-priority card, always first)
+     - Published questions (green)
+     - Draft questions (grey)
+     - Rejected questions (red, collapsed by default)
+     - AI-generated total (count across all statuses)
+     - Books ingested (book count with >=1 chunk)
+     - Acceptance rate last 7 days (published / total reviewed)
+   Recent generation jobs (last 10, newest first): book, chunks processed,
+     created, rejected, duration, status badge.
+   CTA button: "Start reviewing" → /quizadmin/review/
+   Link to Django admin for power operations.
+
+2. Review Queue   /quizadmin/review/
+   Purpose: sequentially review pending AI questions with full context.
+   Top bar: pending count, filters (topic, confidence, book, verdict),
+     sort (oldest/newest/confidence asc/desc).
+   Main area: one question card at a time (NOT a long list — focused view).
+   Question card shows:
+     - Question text (Bengali)
+     - Source chunk text with the answer highlighted
+     - Options (ক/খ/গ/ঘ) with correct option marked
+     - NLI scores: similarity, entailment, contradiction (traffic-light)
+     - Confidence badge: high / medium / low
+     - Verdict code: pass_exact_substring / pass_word_match / pass_similarity
+       / pass_nli
+     - Source citation: book → chapter → page number
+   Actions:
+     - Approve (keyboard: A)
+     - Reject with optional reason (keyboard: R)
+     - Skip / next (keyboard: J, right-arrow)
+     - Previous (keyboard: K, left-arrow)
+     - Edit in Django admin (link)
+     - Bookmark for later (keyboard: B)
+   URL holds the current question id — refresh-safe, deep-linkable.
+
+3. Books   /quizadmin/books/
+   Purpose: overview of ingested books + per-book question counts.
+   Table columns: title, pages ingested, chunks, AI questions (total/review/
+     published), last generation job, actions (→ review queue filtered by
+     this book, → Django admin).
+
+4. Generation Jobs   /quizadmin/jobs/
+   Purpose: audit trail of every ingest + generation run.
+   Table columns: book, topic, prompt template, model, chunks, created,
+     rejected, duration, status, started_by.
+   No actions — read-only audit view.
+
+Optional future pages (NOT in this pass):
+   - /quizadmin/analytics/ : acceptance rate trends, per-topic accuracy
+   - /quizadmin/topics/   : topic-level stats
+   - /quizadmin/books/<id>/ingest/ : upload + ingest UI (right now via
+     Django admin + shell scripts)
+
+
+## FILE STRUCTURE
+=================
+
+site_apps/quizadmin/
+├── apps.py                    (exists — name 'Quiz Panel')
+├── views.py                   page views (render HTML)
+├── views_api.py               AJAX endpoints: approve/reject/skip/bookmark
+├── urls.py                    routes
+├── context_processors.py      pending_review_count for nav badge (later)
+├── utils.py                   helpers: build review context, format scores
+├── validators.py              request validation for AJAX endpoints
+├── templates/quizadmin/
+│   ├── pages/
+│   │   ├── dashboard.html
+│   │   ├── review_queue.html
+│   │   ├── books.html
+│   │   └── generation_jobs.html
+│   ├── partials/
+│   │   ├── metric_card.html          (reusable dashboard card)
+│   │   ├── recent_jobs_table.html
+│   │   └── review_question_card.html (the big side-by-side view)
+│   └── components/
+│       ├── nli_score_row.html        (sim/entail/contra display)
+│       ├── confidence_badge.html     (high/medium/low traffic-light)
+│       └── verdict_code_chip.html
+└── static/quizadmin/assets/
+    ├── css/
+    │   ├── layout/
+    │   │   └── quizadmin-shell.css   (page layout, top nav)
+    │   ├── pages/
+    │   │   ├── page-dashboard.css
+    │   │   ├── page-review-queue.css
+    │   │   ├── page-books.css
+    │   │   └── page-generation-jobs.css
+    │   └── components/
+    │       ├── metric-card.css
+    │       ├── review-question-card.css
+    │       ├── nli-score-row.css
+    │       ├── confidence-badge.css
+    │       └── verdict-code-chip.css
+    └── js/
+        ├── pages/
+        │   ├── page-review-queue.js  (approve/reject, keyboard nav, fetch next)
+        │   └── page-dashboard.js     (drill-down links only; minimal)
+        └── utilities/
+            └── (none — reuse core csrf-token.js, escape-html.js)
+
+
+## VIEW SIGNATURES
+==================
+
+views.py
+  @staff_member_required
+  def dashboard_page(request) -> HttpResponse
+    Reads: CollQuestion counts by status; CollGenerationJob last 10;
+    returns context with metric numbers + recent jobs.
+
+  @staff_member_required
+  def review_queue_page(request) -> HttpResponse
+    GET params: topic_id, book_id, confidence_level, verdict_code, question_id
+    If question_id given, show that one; otherwise next pending by filter.
+    Returns full context: question + options + chunk + NLI scores +
+    prev/next ids for keyboard nav.
+
+  @staff_member_required
+  def books_page(request) -> HttpResponse
+    Reads: RefBook list with per-book counts (chunks, questions by status).
+
+  @staff_member_required
+  def generation_jobs_page(request) -> HttpResponse
+    Reads: CollGenerationJob paginated (50 per page).
+
+views_api.py
+  @staff_member_required @require_POST
+  def api_approve(request) -> JsonResponse
+    Body: {question_id}
+    Returns: {success, next_question_id} for chaining.
+    Calls: mastermind.ai_generator.approve_question(...)
+
+  @staff_member_required @require_POST
+  def api_reject(request) -> JsonResponse
+    Body: {question_id, reason_code?}
+    Returns: {success, next_question_id}
+    Calls: mastermind.ai_generator.reject_question(...)
+
+  @staff_member_required @require_POST
+  def api_skip(request) -> JsonResponse
+    Body: {question_id}
+    Returns: {next_question_id}
+    No DB mutation; purely returns next id.
+
+All three reuse existing mastermind APIs where possible — no duplicate logic.
+
+
+## URLS
+=======
+
+urls.py
+  app_name = 'quizadmin'
+  path('',              views.dashboard_page,          name='dashboard')
+  path('review/',       views.review_queue_page,       name='review-queue')
+  path('books/',        views.books_page,              name='books')
+  path('jobs/',         views.generation_jobs_page,    name='generation-jobs')
+  path('api/approve/',  views_api.api_approve,         name='api-approve')
+  path('api/reject/',   views_api.api_reject,          name='api-reject')
+  path('api/skip/',     views_api.api_skip,            name='api-skip')
+
+
+## DESIGN TOKENS + CONVENTIONS (enforce in every file)
+======================================================
+
+- Extend core/base.html. No new <html>/<head>.
+- External CSS only — no internal <style> blocks, no inline style=.
+- All font sizes from --text-xs through --text-5xl. Zero hardcoded rem/px.
+- All border-radius from --radius-*.
+- All shadows from --elevation-*.
+- Every interactive element: :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+- Every clickable: min-height:var(--touch-target); touch-action:manipulation.
+- Every CSS file ends with @media (prefers-reduced-motion:reduce) block.
+- Every <img>: loading="lazy" unless above-fold (fetchpriority="high").
+- Every <script src>: defer.
+- All HTML class names: .quizadmin-component-element pattern.
+- NO popup alert()/confirm()/prompt(). Inline error/success bars.
+- NO .upper()/.toUpperCase(). Use CSS text-transform:uppercase.
+- All form elements: id + name attributes.
+
+
+## SECURITY
+===========
+
+- All page views: @staff_member_required (Django built-in).
+- All API views: @login_required + @require_POST + explicit is_staff check.
+- CSRF: use Django's default csrf_token in forms; fetch uses
+  X-CSRFToken header via window.getCsrfTokenValue() from core/csrf-token.js.
+- No raw SQL. ORM only.
+- No user-submitted HTML rendering without core.utils.sanitize_user_html()
+  (N/A for this app — we only render existing DB strings; they came from
+  OCR/LLM which is already considered trusted-but-not-safe, so we always
+  Django-escape via default autoescape).
+- Rejection reason: if we ever add a free-text field, sanitize it.
+
+
+## PERFORMANCE
+==============
+
+- Dashboard: one SELECT per metric card. Cache 60 seconds in Django cache
+  (memcache on prod). Invalidate on new question insert (signal handler
+  deferred — not in this pass).
+- Review queue: one question at a time; prefetch next 3 question IDs so
+  "J = next" is instant (proactive prefetch per CLAUDE.md).
+- Books/jobs pages: server-side pagination, 50 rows per page.
+- No N+1 — use select_related / prefetch_related for FK joins.
+- Service worker cache bump after CSS/JS changes.
+
+
+## COMPATIBILITY WITH MASTERMIND ENGINE
+=======================================
+
+Quizadmin reads mastermind models directly (read-only in views.py).
+Quizadmin calls mastermind.ai_generator functions for mutations
+(approve_question, reject_question, bulk_approve_questions).
+
+Zero new tables. Zero new Django models. Zero new migrations.
+If we need a per-reviewer metric (e.g. reviews per day), that lives in
+mastermind, not here — mastermind is the brain.
+
+
+## TESTS (post-implementation)
+==============================
+
+tests/test_views.py
+  - dashboard_page returns 200 for staff, 302 for anonymous, 302 for non-staff
+  - review_queue_page with no pending questions shows empty state
+  - review_queue_page with ?question_id=X shows that specific question
+  - books_page renders without crashing on empty DB
+  - generation_jobs_page paginates correctly
+
+tests/test_api.py
+  - api_approve: staff POST → 200 + next id; non-staff → 403
+  - api_reject: same gates; stores rejection reason if given
+  - api_skip: no DB mutation; returns next id
+  - All three reject GET requests
+
+Run via: python -m unittest amolnama_news.site_apps.quizadmin.tests.test_views
+
+
+## OUT OF SCOPE (explicit)
+==========================
+
+- Creating exams / quiz sessions (future page — needs design)
+- Topic management UI (Django admin suffices)
+- User-facing quiz taking (that's consumer apps: historybd, constitutionbd)
+- PDF upload UI (currently scripts; later page)
+- Real-time notification of new pending questions (WebSocket — deferred)
+- Bengali/English i18n toggle (post-launch polish)
+- Mobile-native review (responsive web only in this pass)
+
+
+## KNOWN RISKS / OPEN QUESTIONS
+===============================
+
+R1. pending_review_count context processor runs a COUNT query on every
+    page. If the review queue grows past 10K rows, this could slow pages.
+    Mitigation: add 30-second Django cache; move to context processor
+    AFTER verifying count stays small in real data.
+
+R2. "Next question" chaining depends on stable ordering. If reviewer
+    approves question A, then the next page needs a consistent
+    ordering function. Use `.order_by('created_at', 'mastermind_coll_
+    question_id')` everywhere; document the rule.
+
+R3. Bulk operations could delete/reject many questions at once. Add a
+    confirmation step (inline bar, not modal) and an undo window via
+    soft delete (is_active flag already exists on CollQuestion).
+    Deferred: this pass uses per-row actions only.
+
+R4. If two reviewers open the same question in different tabs, both could
+    approve it. Reject should be idempotent (already true in engine).
+    Approve should be idempotent too. Verify in implementation.
+
+R5. Dashboard metric queries hit the DB. If dashboard becomes popular,
+    cache each metric with a short TTL. In this pass, no cache — we'll
+    measure real usage first.

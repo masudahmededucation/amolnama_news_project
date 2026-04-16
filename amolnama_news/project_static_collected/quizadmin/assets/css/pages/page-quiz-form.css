@@ -1,0 +1,158 @@
+/* Quiz builder form — page-specific overrides only.
+   All shared form components live in quizadmin-shell.css. */
+
+.quizadmin-quiz-form-questions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.quizadmin-quiz-form-questions-count {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.quizadmin-quiz-form-question-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: opacity var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+
+.quizadmin-quiz-form-question-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quizadmin-quiz-form-drag-handle {
+  cursor: grab;
+  font-size: var(--text-lg);
+  color: var(--muted);
+  user-select: none;
+  padding: var(--space-1);
+  border-radius: var(--radius-xs);
+  touch-action: none;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quizadmin-quiz-form-drag-handle:hover { color: var(--text); background: var(--bg); }
+
+.quizadmin-quiz-form-question-dragging {
+  opacity: 0.4;
+  border-color: var(--accent);
+}
+
+.quizadmin-quiz-form-question-drop-target {
+  border-color: var(--accent);
+  border-style: dashed;
+  background: var(--info-light);
+}
+
+.quizadmin-quiz-form-question-number {
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 40px;
+}
+
+.quizadmin-quiz-form-question-remove {
+  margin-left: auto;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  touch-action: manipulation;
+}
+.quizadmin-quiz-form-question-remove:hover { background: var(--danger-light); }
+.quizadmin-quiz-form-question-remove:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quizadmin-quiz-form-question-options {
+  padding: var(--space-3);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+}
+
+.quizadmin-quiz-form-option-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+/* Option remove button (used in MCQ option rows AND matching pair rows) */
+.quizadmin-quiz-form-option-remove {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--danger);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.quizadmin-quiz-form-option-remove:hover { background: var(--danger-light); }
+.quizadmin-quiz-form-option-remove:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Option add button — already styled via shared .quizadmin-form-add-button or local */
+.quizadmin-quiz-form-option-add {
+  align-self: flex-start;
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.quizadmin-quiz-form-option-add:hover { background: var(--info-light); border-color: var(--accent); }
+.quizadmin-quiz-form-option-add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Matching pairs */
+.quizadmin-quiz-form-match-pair-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.quizadmin-quiz-form-match-pair-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.quizadmin-quiz-form-match-arrow {
+  font-size: var(--text-lg);
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .quizadmin-quiz-form-match-pair-row {
+    grid-template-columns: 1fr 1fr auto;
+  }
+  .quizadmin-quiz-form-match-arrow { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizadmin-quiz-form-question-row { transition: none; }
+}

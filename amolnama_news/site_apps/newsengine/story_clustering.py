@@ -307,8 +307,8 @@ def _try_create_thread_from_unattached(article_vector, coll_news_entry_id):
     thread_title_en = current_headline_en[:300] or other_headline_en[:300] or 'Related News'
 
     # Generate slug from English title
-    from amolnama_news.site_apps.core.utils import bangla_slugify
-    thread_slug = bangla_slugify(thread_title_en or thread_title_bn)[:200]
+    from amolnama_news.site_apps.core.utils import english_slug_from_text
+    thread_slug = english_slug_from_text(text_bn=thread_title_en or thread_title_bn)[:200]
     if not thread_slug:
         thread_slug = f'thread-{coll_news_entry_id}'
 

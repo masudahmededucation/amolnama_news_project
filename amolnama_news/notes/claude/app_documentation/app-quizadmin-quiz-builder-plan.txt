@@ -1,0 +1,499 @@
+QUIZ BUILDER — RESEARCH + PLAN
+===============================
+
+WHAT I BUILT BEFORE (AND WHY IT WAS SHALLOW)
+--------------------------------------------
+I built a single-question create/edit form. Your requirements are for a
+QUIZ (set of questions with a title, question count, and mixed types),
+backed by the existing coll_exam table. I mis-scoped the primary entity.
+Apologies. This plan is the corrected scope.
+
+
+GOLD-STANDARD FEATURE FRAMEWORK (FROM YOUR REFERENCE, ADAPTED)
+---------------------------------------------------------------
+The reference you pasted lists six pillars for a professional quiz admin
+panel. Mapping each pillar to what we ALREADY HAVE in the schema and what
+needs NEW work, then breaking into phases so we don't build a monster.
+
+1. QUIZ & CONTENT MANAGEMENT
+   - Multimedia support                  → coll_question.question_image_url exists; V1 supports URL, V2 adds upload
+   - Question Library (reuse questions)  → coll_question is already topic-scoped; V1 adds "pick from library" picker
+   - Bulk Import/Export (CSV)            → mastermind.api_bulk_import_questions exists; V2 adds CSV upload UI
+   - Categorization (tags / folders)     → ref_question_tag + map_question_tag exist; V2 adds tag picker UI
+   - Versioning (drafts + history)       → question_status_code has draft/review/published/archived; V1 uses draft<->publish; history audit log in V3
+
+2. ADVANCED QUESTION ENGINE
+   - MCQ single                          → 'mcq_single'       [EXISTS, V1]
+   - MCQ multi                           → 'mcq_multi'        [EXISTS, V1]
+   - Fill in the blanks                  → 'fill_blank'       [EXISTS, V1]
+   - Matching pairs                      → NEW type; DEFER to V2 (needs new schema or JSON blob)
+   - Ordering / ranking                  → NEW type; DEFER to V2
+   - Essay / open-ended                  → NEW type 'essay'   [V1, one SQL row in ref_question_type]
+   - True / False                        → 'true_false'       [EXISTS, V1]
+   - Images as question stem             → per-question image_url, V1
+   - Randomization (shuffle Qs / opts)   → coll_exam.exam_shuffle_questions / _options [EXISTS, V1]
+   - Logic branching                     → DEFER to V3 (survey pattern, not exam)
+
+3. CONFIGURATION & LOGIC
+   - Points per question                 → coll_question.question_points          [EXISTS, V1]
+   - Negative marking                    → coll_exam.exam_negative_marking_per_wrong [EXISTS, V1]
+   - Weighted scoring                    → coll_question.question_points serves this [EXISTS, V1]
+   - Global timer                        → coll_exam.exam_time_limit_minutes       [EXISTS, V1]
+   - Per-question timer                  → coll_question.question_time_limit_seconds [EXISTS, V1]
+   - Public vs Private (password)        → DEFER to V2 (add coll_exam.exam_access_password column)
+   - Single vs multiple attempts         → coll_exam.exam_max_attempts              [EXISTS, V1]
+   - Scheduled availability (start/end)  → DEFER to V2 (add start_at / end_at columns)
+   - Passing criteria (pass %)           → coll_exam.exam_pass_percentage           [EXISTS, V1]
+
+4. USER & PARTICIPANT MANAGEMENT
+   - User roles (admin, editor, grader)  → Django is_staff + is_superuser + new groups in V2
+   - Group management                    → V2 (needs quiz_group table)
+   - Self-registration                   → user_account app handles it [EXISTS]
+   - Proctoring (IP, webcam)             → DEFER to V3 (high effort, low current need)
+
+5. ANALYTICS & REPORTING
+   - Real-time dashboard                 → Quiz Panel dashboard in place; V2 adds live counters
+   - Question analysis (per-question %)  → engine_advanced.update_question_correct_rate exists; V2 UI
+   - Performance trends                  → V2 (read from coll_exam_session history)
+   - Exportable reports                  → V3 (PDF/CSV export of session results)
+   - Manual grading                      → V2 (essay review queue; required for essay type adoption)
+
+6. AUTOMATION & INTEGRATION
+   - Auto-certification (PDF cert)       → V3
+   - Email notifications                 → V3 (messenger app can power this)
+   - Webhooks / API                      → V3
+   - Custom branding                     → V3
+
+PRO-TIP BAKED IN:
+   - Mobile preview toggle               → V2 (iframe preview at 375px width)
+
+PHASING SUMMARY
+   V1 (now, what I'll build):    Pillars 1-3 core, 5 question types + images via URL,
+                                  all scoring/timing/shuffle/pass-% config,
+                                  draft vs publish.
+   V2 (next sprint):              matching/ordering question types, CSV upload,
+                                  tag picker, scheduled availability, password
+                                  protection, manual essay grading, mobile preview,
+                                  question analytics page, user roles.
+   V3 (future):                   logic branching, proctoring, certificates,
+                                  email/webhooks, branding, exportable PDFs.
+
+
+COMPETITIVE COMPARISON (HOW OUR V1 STACKS UP)
+---------------------------------------------
+vs Google Forms quiz mode: we match MCQ / checkbox / fill / essay + image,
+   shuffle, scoring. They have linear scale + grid; we skip (rarely used).
+vs Kahoot: we match MCQ + true/false + fill + time limit + points. They
+   add puzzle/poll; we skip.
+vs Typeform: we match core types. They add picture-choice + ranking; ranking
+   is V2, picture-choice is covered by "MCQ + image option" which our
+   coll_question_option.option_image_url column already supports.
+vs Microsoft Forms / Quizizz: parity on V1 core features.
+
+Conclusion: V1 covers ~80% of real staff workflows for an exam prep site.
+
+
+2026 COMPETITIVE FEATURES (SECOND REFERENCE, ADAPTED)
+-----------------------------------------------------
+Modern leaders (Quizizz, Typeform, Kahoot, Moodle) differentiate on AI,
+live control, outcome logic, proctoring, and granular analytics. Where
+each fits our roadmap:
+
+1. AI-POWERED "MAGIC" CREATION  ← OUR BIGGEST EXISTING STRENGTH
+   - Smart Import (OCR + URL → quiz)   → mastermind.ai_generator ALREADY does
+                                           PDF+OCR+LLM+NLI gate. V1 exposes a
+                                           "Generate quiz from book" button in
+                                           the quiz builder that calls the
+                                           existing start_generation_job API.
+                                           This is our MOAT vs Google Forms etc.
+   - URL → quiz (web scrape + LLM)     → V2 (add URL fetch + same engine)
+   - AI Question Enhancer              → V2 (button on each question row:
+                                           "Improve distractors" → calls Ollama
+                                           with existing question as input)
+   - Auto-Image Sourcing               → V3 (copyright concerns, defer)
+
+2. DYNAMIC LIVE CONTROL ("GAME-SHOW MODE")
+   - Real-time lobby / kick / music    → V3 (Kahoot-style live play needs
+                                           WebSocket infrastructure; we already
+                                           have channels + daphne for it, but
+                                           this is a whole app)
+   - Live reaction feed                → V3
+   - Presenter mobile-app view         → V3
+
+3. OUTCOME ENGINE (LEAD GEN / PERSONALITY)
+   - Visual logic map (flowchart)      → V3 (requires new schema — question
+                                           branching rules)
+   - Multi-outcome scoring             → V2 (add coll_exam.scoring_mode =
+                                           'single' | 'multi_topic')
+   - Email gating / A/B test           → V3
+
+4. ADVANCED PROCTORING
+   - Tab-switch detection              → V2 (simple JS + new
+                                           coll_exam_session_event table)
+   - IP monitoring (duplicate-IP alert) → V2 (already store login IP via
+                                             django-axes; just need the alert)
+   - Browser lockdown                   → V3 (browser APIs limited)
+
+5. GRANULAR ANALYTICS
+   - Drop-off funnel per question       → V2 (compute from
+                                             coll_exam_session_question)
+   - Discriminatory index               → V2 (classic psychometric calc —
+                                             correlation of q correctness vs
+                                             total score)
+   - Segmented comparison               → V2 (needs groups, see Pillar 4)
+
+COMPETITOR UNIQUE FEATURES — OUR TAKE
+   - Quizizz "Teleportation" (reuse public quizzes): V3 (public quiz library)
+   - Typeform CRM integration:                       V3 (webhooks)
+   - Kahoot licensed media:                          we skip (licensing cost)
+   - Moodle "Regrading" (update past sessions):      V2 (rescore-session helper;
+                                                       touches coll_exam_session_
+                                                       question.is_correct + total)
+
+
+OUR COMPETITIVE POSITIONING
+---------------------------
+The AI engine (mastermind) is already built and ahead of Google Forms
+on this axis. V1 should surface this clearly:
+  - Quiz builder has two tabs: "Manual" and "AI-Generated (from book)"
+  - "AI-Generated" tab lets staff pick a book + topic + question count,
+    kicks off start_generation_job, shows live progress, and drops the
+    generated questions into the quiz ready for human review.
+  - One human approves → quiz is published.
+
+This is the differentiator. Everything else is table stakes.
+
+
+REWARDS & WINNER MODULE (THIRD REFERENCE — EDUCATIONAL QUIZ FOCUS)
+------------------------------------------------------------------
+Educational quizzes motivate through competition + recognition. Adding a
+"Rewards & Recognition" pillar to the plan.
+
+Current schema coverage:
+  - ref_badge                            — digital badges EXIST
+  - coll_user_badge                      — assigns badges to users EXISTS
+  - eng_user_topic_mastery               — per-user proficiency EXISTS
+  - engine_advanced.get_leaderboard()    — leaderboard API EXISTS
+  - engine_advanced.award_streak_freeze  — points/currency pattern EXISTS
+
+New schema needs (V1 minimum):
+  - coll_exam.exam_rewards_enabled          BIT
+  - coll_exam.exam_reward_criteria_code     'top_n' | 'threshold' | 'speed'
+  - coll_exam.exam_reward_threshold_percent DECIMAL (when criteria = 'threshold')
+  - coll_exam.exam_reward_top_n             INT (when criteria = 'top_n')
+  - coll_exam.link_reward_badge_id          FK → ref_badge
+  - coll_exam.exam_reward_description       NVARCHAR(500) (physical prize text)
+
+V1 — REWARDS FEATURES (minimum useful)
+  1. "Enable rewards" toggle per quiz + badge picker.
+  2. Winner criteria dropdown (top_n / threshold / speed).
+  3. Auto-award badge when a session satisfies criteria (engine hook fires
+     on complete_exam_session → inserts coll_user_badge).
+  4. Leaderboard page already exists in engine_advanced — surface it in the
+     Quiz Panel at /quizadmin/quiz/<id>/leaderboard/ (read-only for V1).
+
+V2 — REWARDS FEATURES
+  5. Prize shop (inventory items, points redemption).
+  6. Raffle mode ("score above 70% → 1 ticket, random draw").
+  7. Anti-cheat flag on winners (speed anomaly, tab-switch count).
+  8. Manual override (admin veto / add winners).
+  9. Privacy toggle on leaderboard (name / username / anonymous).
+  10. Seasonal leaderboards (month/week/year aggregates).
+  11. Presenter mode (reveal-at-end leaderboard).
+
+V3 — REWARDS FEATURES
+  12. Auto-generated PDF certificate with student name + quiz score.
+  13. Social sharing graphic (image with name + rank) — uses existing
+      multimedia app.
+  14. Avatar skin unlocks / custom titles.
+  15. In-app currency spending UI.
+
+
+FINAL V1 SCOPE — WHAT I COMMIT TO BUILDING
+-------------------------------------------
+The V1 is tight and ships this session:
+
+  A. DB (one SQL script, staff runs it):
+     - Insert 'essay' into ref_question_type.
+     - Add 6 reward columns to coll_exam.
+
+  B. Backend (mastermind/):
+     - create_quiz_with_questions(payload) — transactional writer.
+     - update_quiz_with_questions(exam_id, payload) — transactional updater.
+     - award_badge_if_qualified(session) — engine hook on session complete.
+
+  C. Quiz Panel pages:
+     - /quizadmin/quiz/                  Quiz list (table, paginated)
+     - /quizadmin/quiz/create/           Builder (manual + AI-generated tabs)
+     - /quizadmin/quiz/<id>/edit/        Same builder, pre-populated
+     - /quizadmin/quiz/<id>/leaderboard/ Read-only leaderboard view
+
+  D. Quiz Panel APIs:
+     - POST /api/quiz/create/           create from payload
+     - POST /api/quiz/<id>/update/      update
+     - POST /api/quiz/<id>/ai-fill/     call start_generation_job, attach
+                                         resulting questions to the quiz
+     - GET  /api/quiz/<id>/progress/    progress of the AI fill job
+
+  E. Question types in V1: mcq_single, mcq_multi, fill_blank, essay,
+     true_false. Plus image URL on any question type.
+
+  F. Rewards in V1: toggle + criteria dropdown + badge picker + auto-award.
+
+  G. Retained from current build: dashboard, review queue (now filtered
+     to show pending questions from ANY quiz), books, generation jobs.
+     The current question_form.html becomes the single-question editor
+     reached from within a quiz builder, not from the top nav.
+
+  H. Cache bump, collectstatic, all pages return HTTP 200 in Django
+     test client. 4-case smoke test for the API (create empty, create
+     with 3 questions, update add question, update remove question).
+
+
+GOLD-STANDARD RESEARCH — HOW DO PROFESSIONAL QUIZ BUILDERS WORK?
+-----------------------------------------------------------------
+
+1. GOOGLE FORMS (quiz mode)
+   Flow: create → set title + description → add questions one at a time.
+   Each question has a type dropdown. Types supported:
+     - Short answer, Paragraph (essay)
+     - Multiple choice (radio), Checkboxes (multi), Dropdown
+     - File upload, Linear scale, Multiple-choice grid, Checkbox grid
+     - Date, Time
+   For each MCQ/checkbox question, staff add answer options inline and
+   flag which are correct (with feedback per option).
+   Images: any question type can have an image attached (stem image).
+   Setting per form: shuffle question order, shuffle option order,
+   show correct answers after submit, send scores by email.
+
+2. KAHOOT
+   Flow: title + cover image → add slides (questions). Types:
+     - Quiz (4-option MCQ)
+     - True/False
+     - Puzzle (order answers)
+     - Type answer (fill in the blank)
+     - Poll / word cloud / open-ended (no correct answer)
+   Each question has its own image or video attachment, time limit, points
+   weight. Global settings: randomise question + answer order.
+
+3. TYPEFORM / MICROSOFT FORMS / QUIZIZZ
+   Same pattern — sequential question builder, per-question type picker,
+   per-question image attachment, quiz-level settings for time/shuffle.
+
+COMMON DENOMINATOR (what I'm baking into our builder):
+  - Quiz has: title (BN + EN), description, topic, time limit, pass %,
+    negative marking, shuffle-questions, shuffle-options, attempts allowed,
+    cover image.
+  - Questions belong to a quiz; each has a TYPE selected from a dropdown.
+  - Each question type renders its own inline editor.
+  - Image attachment is a per-question feature, not a question type per se
+    (a radio-button question can still have an image in the stem).
+  - Drag-reorder of questions within a quiz.
+  - "Save draft" vs "Publish" two-step.
+
+
+YOUR SPECIFIC QUESTION TYPES — MAPPED TO OUR SCHEMA
+----------------------------------------------------
+You listed:
+  1. radio button choice  → ref_question_type.question_type_code = 'mcq_single'   [EXISTS]
+  2. multiple checkbox    → 'mcq_multi'                                           [EXISTS]
+  3. fill in the blanks   → 'fill_blank'                                          [EXISTS]
+  4. images               → NOT a separate type. It's an IMAGE STEM on top of
+                             any existing type. Use coll_question.question_image_url.
+  5. write paragraph      → NEW question type code 'essay'. (short_answer exists
+                             but is intended for 1-line answers. Essay is
+                             multi-paragraph and NOT auto-gradable.)
+
+DB CHANGES REQUIRED
+-------------------
+One SQL INSERT into ref_question_type to add 'essay':
+  INSERT INTO [mastermind].[ref_question_type]
+    (question_type_code, question_type_name_bn, question_type_name_en,
+     is_auto_gradable, sort_order)
+  VALUES
+    ('essay', N'বিস্তারিত উত্তর', 'Essay (Paragraph)', 0, 6);
+
+That's the ONLY DB change. Image support reuses the existing
+coll_question.question_image_url column (already in the model). No new
+tables, no new columns, no migrations — unmanaged models stay unchanged.
+
+
+UI FLOW — THE "CREATE QUIZ" EXPERIENCE
+---------------------------------------
+Route: /quizadmin/quiz/create/
+
+Step 1: Quiz details (top of form)
+  - Quiz title (Bengali *)
+  - Quiz title (English)
+  - Description (Bengali)
+  - Topic (dropdown)
+  - Book (dropdown; optional — for source citation)
+  - Time limit (minutes)
+  - Pass percentage
+  - Negative marking per wrong answer
+  - Total questions (auto-computed from added questions, read-only)
+  - Shuffle questions (checkbox)
+  - Shuffle options (checkbox)
+  - Show explanation when (dropdown: each question / after submit / never)
+  - Max attempts
+  - Cover image (optional)
+
+Step 2: Questions (below, dynamic list)
+  For each question:
+    - Question number auto-computed (ক, খ, ... or 1, 2, ...)
+    - Question type picker (radio / checkbox / fill blank / essay)
+    - Image attachment (optional, per-question)
+    - Question text (Bengali *, English optional)
+    - Type-specific answer editor:
+        RADIO/CHECKBOX: inline option rows with "correct" flag
+        FILL BLANK:    single correct-answer input
+        ESSAY:         no options; reviewer grades manually (not auto-gradable)
+    - Explanation (optional)
+    - Difficulty (easy / medium / hard / expert)
+    - Source citation (page number, snippet)
+    - Points
+    - Remove-question button
+  + Add question button at the bottom
+  Drag handles to reorder questions.
+
+Step 3: Save
+  - "Save as draft" → coll_exam.exam_status_code='draft',
+                      coll_question.question_status_code='draft'
+  - "Publish"       → both set to 'published', exam becomes available
+
+EDIT MODE
+  Route: /quizadmin/quiz/<exam_id>/edit/
+  Same form pre-populated from coll_exam + its map_exam_question_pool rows.
+
+
+DB WRITE LOGIC — ONE TRANSACTION PER SAVE
+-----------------------------------------
+On save, wrap in transaction.atomic():
+
+  1. Upsert coll_exam row (create if new, update if editing).
+  2. For each question in the form:
+       a. Upsert coll_question row (link_mastermind_ref_question_type_id,
+          link_mastermind_ref_topic_id, link_mastermind_ref_book_id, etc).
+       b. Replace coll_question_option rows for MCQ types (delete all +
+          re-insert, same approach as my current update_question_manual).
+       c. For essay type, no options are created.
+       d. Upsert map_exam_question_pool row linking question → exam.
+  3. Delete any stale map_exam_question_pool rows for questions removed
+     from the form (soft-delete or hard-delete — I'll use is_active=0).
+
+Rationale for "replace wholesale" on options: simpler than diffing,
+matches UX (one form submit, one batch).
+
+
+NEW FILES / EXTENDED FILES
+---------------------------
+
+NEW:
+  mastermind/ai_generator.py  — add create_quiz_with_questions(),
+                                 update_quiz_with_questions() helpers
+                                 (thin layer over the current create_question_manual +
+                                 exam row upsert).
+  quizadmin/views.py          — quiz_create_page, quiz_edit_page,
+                                 quiz_list_page (shows all quizzes)
+  quizadmin/views_api.py      — api_coll_exam_create, api_coll_exam_update
+  quizadmin/templates/quizadmin/pages/
+       quiz_form.html          — Step 1 + Step 2 combined single-page form
+       quiz_list.html          — table of all quizzes (edit / delete / preview links)
+  quizadmin/templates/quizadmin/partials/
+       quiz_form_question_row.html   — one question block, rendered per type
+  quizadmin/static/quizadmin/assets/js/pages/
+       page-quiz-form.js       — dynamic add-question, type switch per row,
+                                 drag reorder, autosave to localStorage,
+                                 submit to API
+  quizadmin/static/quizadmin/assets/css/pages/
+       page-quiz-form.css      — form styling
+       page-quiz-list.css      — list styling
+
+EXTENDED:
+  quizadmin/urls.py           — /quizadmin/quiz/, /create/, /<id>/edit/,
+                                 /api/quiz/create/, /api/quiz/<id>/update/
+  quizadmin/templates/quizadmin/partials/quizadmin_top_nav.html
+                              — "+ Create Quiz" link already in place, just
+                                 re-point to /quizadmin/quiz/create/
+  quizadmin/templates/quizadmin/pages/dashboard.html
+                              — add "Quizzes" metric card + "All quizzes" link
+
+REMOVED:
+  The current /quizadmin/question/create/ and /edit/ become internal —
+  still accessible as single-question editors from within a quiz, but
+  not linked from the top nav. The "Create Quiz" flow is the primary path.
+
+
+NAMING CONVENTIONS (APPLIED)
+----------------------------
+- URL pattern: api_coll_exam_{action} (exam table-scoped)
+- Function names: create_quiz_with_questions, update_quiz_with_questions
+  (full descriptive, not create_quiz or make_quiz)
+- CSS: .quizadmin-quiz-form-…, .quizadmin-quiz-list-…
+- Every form element has id + name.
+- JS vars: selectedQuestionTypeCode, questionRowIndex (no abbreviations).
+
+
+PERFORMANCE + UX
+----------------
+- Quiz list: paginate 50 rows per page, cache the metric queries 60s.
+- Quiz form: save-as-draft autosave to localStorage every 30s so a crash
+  doesn't lose the staff's work.
+- Shuffle + randomise apply at SESSION start (coll_exam_session), not at
+  creation — already how the schema is designed.
+- Essay questions auto-create a "manual review" flag in the grading path
+  (not in this pass — but note for future: coll_exam_session_question.is_correct
+  stays NULL for essay until reviewer fills it in).
+
+
+OUT OF SCOPE (EXPLICIT)
+-----------------------
+- Image upload UI and storage — we'll reuse the existing NEWSHUB upload
+  pipeline or add a simple multipart endpoint. DEFERRED one pass.
+- Drag-reorder of questions — nice-to-have but not required for v1.
+- Autosave to localStorage — mentioned but deferred.
+- Preview-quiz-as-student mode — future page.
+- Per-option feedback / hints — schema supports it, but UI deferred.
+- Audio / video question types — out of scope.
+- Bulk import from CSV — out of scope.
+
+
+BUG-CHECK OF THE PLAN
+---------------------
+1. Duplicate logic check: the existing create_question_manual() becomes a
+   helper called from create_quiz_with_questions() in a loop. No duplicate
+   paths — one writer function, many callers.
+2. Django admin dependency: zero. All CRUD goes through quizadmin.
+3. Naming: api_coll_exam_* follows Gate 5.
+4. Security: @staff_member_required on all page views, @login_required +
+   is_staff check + 403 JSON on all API views, CSRF via X-CSRFToken.
+5. Scroll: quiz form will reuse scroll-preservation.js.
+6. Mobile: form uses responsive grid (same tokens as other quizadmin CSS).
+7. Tests to add: quiz_create / quiz_edit / api_create / api_update
+   all HTTP-assertable via Django test client. Essay question stores
+   no options. MCQ stores 4+ options. Transaction rollback on error path.
+8. Cache bump required after CSS/JS build.
+
+
+TIME ESTIMATE
+-------------
+With focused work: 2-3 hours. This matches what I should have done
+from the start. I'll ask for your confirmation before touching a single
+file, as per CLAUDE.md Gate 0.
+
+
+QUESTIONS FOR YOU BEFORE I START
+--------------------------------
+Q1. Should the IMAGE per question be a URL field (you paste a URL from an
+    external source OR from our media library), or a real file-upload
+    input with drag-and-drop? Upload needs extra server-side handling;
+    URL field is faster to ship in v1.
+Q2. Do you want the Create-Quiz page to REPLACE the Create-Question page
+    (so the question form only opens from within a quiz), or keep both as
+    independent options in the top nav?
+Q3. Do you want Essay answers to be human-reviewed (reviewer sees the
+    student's text, marks it right/wrong) — if yes, that's Phase 2 because
+    it needs a separate review queue for essays.
+Q4. Is the coll_exam table's "exam" wording fine for the UI, or should
+    the UI always say "Quiz" and use "exam" purely as the DB name?
+    (My assumption: UI says "Quiz", DB keeps "exam".)

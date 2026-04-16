@@ -1,0 +1,240 @@
+MASTERMIND APP — Architecture & Documentation
+==============================================
+Last updated: 2026-04-16
+
+PURPOSE
+-------
+Quiz engine — the brain for all knowledge-testing features.
+Ingests books (PDF/OCR), generates questions (manual + AI), runs
+randomized quizzes, tracks scores, streaks, mastery, and badges.
+
+NO display logic. NO templates. NO CSS/JS. Backend brain only.
+Consumer apps (historybd, constitutionbd, etc.) own their UI.
+Staff admin UI lives in quizadmin app (separate).
+
+
+ARCHITECTURE
+------------
+Schema: [mastermind].*
+27 tables, all unmanaged Django models.
+
+Table naming convention:
+  coll_*   = collection (growing data from users/AI/staff)
+  ref_*    = reference (static admin-only config, rarely changes)
+  eng_*    = engine (computed/derived data)
+  map_*    = junction (many-to-many relationships)
+
+All table descriptions stored in DB via SQL Server extended properties.
+Query: SELECT t.name, ep.value FROM sys.tables t LEFT JOIN
+       sys.extended_properties ep ON ep.major_id = t.object_id
+       WHERE t.schema_id = SCHEMA_ID('mastermind');
+
+
+TABLE DICTIONARY (27 tables)
+-----------------------------
+
+Source Material:
+  coll_book                              Books/PDFs ingested for question generation
+  coll_book_chapter                      Chapters within books (for source citation)
+  coll_book_chunk                        OCR text chunks from book pages (~300 words each)
+
+Quiz Definition:
+  coll_quiz                              Quiz definitions — title, rules, scoring, rewards
+  coll_quiz_topic                        Quiz subject areas (bd_constitution, bcs_exam, etc.)
+  coll_quiz_source_registry              Public registry of books (transparency / anti-bias)
+
+Question Bank:
+  coll_question                          Universal question bank (AI-generated + manual)
+  coll_question_option                   Answer options per question (ক/খ/গ/ঘ)
+  coll_question_report                   User-reported problems with questions
+
+Quiz Sessions:
+  coll_quiz_session                      One user's attempt at taking a quiz
+  coll_quiz_session_question             Per-question response within a session
+
+Gamification:
+  coll_user_quiz_badge                   Quiz badges earned by users
+  coll_user_card                         Spaced-repetition flashcards (Anki SM-2)
+  coll_user_streak                       Daily activity streak records
+  coll_streak_freeze                     Streak freeze tokens
+
+AI Pipeline:
+  coll_generation_job                    AI question-generation run records
+  coll_background_job                    Background task tracking
+
+Reference (static):
+  ref_quiz_badge                         Badge definitions (first_quiz, perfect_score, etc.)
+  ref_quiz_difficulty_level              easy / medium / hard / expert (4 rows, never changes)
+  ref_quiz_question_type                 mcq_single / mcq_multi / true_false / fill_blank / essay
+  ref_quiz_question_tag                  Cross-cutting tags for question organization
+
+Engine (computed):
+  eng_quiz_semantic_embedding            Semantic vectors for dedup + similarity search
+  eng_quiz_question_option_analytics     Per-option selection stats
+  eng_user_quiz_topic_mastery            Per-user proficiency per topic
+
+Junctions:
+  map_quiz_question_pool                 Which questions belong to which quiz
+  map_quiz_question_source               Question → book/chapter source citations
+  map_quiz_question_tag                  Question → tag assignments
+
+
+E2E DATA FLOW
+-------------
+
+=== MANUAL QUIZ CREATION (staff via Quiz Panel) ===
+
+1. Staff opens Quiz Panel → /quizadmin/quiz/create/
+2. Fills quiz title, topic, rules, rewards → submits
+3. quiz_builder.py:create_quiz_with_questions()
+   → INSERT coll_quiz (title, topic, pass%, timer, rewards)
+   → For each question in the form:
+      → INSERT coll_question (text, type, difficulty, source citation)
+      → INSERT coll_question_option × N (ক/খ/গ/ঘ with is_correct flag)
+      → INSERT map_quiz_question_pool (links question to quiz)
+   → All in one transaction.atomic()
+4. Quiz appears on /quizadmin/quiz/ list with status=draft
+5. Staff changes status to published → quiz is live
+
+=== AI QUIZ GENERATION (PDF → Ollama → NLI gate) ===
+
+1. Staff uploads PDF book
+   → INSERT coll_book (title, file_path)
+2. Staff triggers ingestion
+   → textextractor PyMuPDF + Tesseract OCR → page text
+   → Split into ~300-word chunks
+   → Raw pyodbc INSERT coll_book_chunk (with setinputsizes to avoid ntext bug)
+   → Embed each chunk → INSERT eng_quiz_semantic_embedding
+3. Staff triggers generation
+   → INSERT coll_generation_job (status=processing)
+   → For each chunk:
+      → Build prompt with chunk text
+      → POST to Ollama localhost:11434 (llama3.2:3b, num_predict=1500)
+      → Parse JSON response
+      → For each question in response:
+         → Tier 0: word-match pre-filter (≥50% words present → pass)
+         → Tier 1: bi-encoder similarity (< 0.30 → reject, otherwise → Tier 2)
+         → Tier 2: mDeBERTa NLI entailment (entail ≥ 0.50 AND > contra → pass)
+         → Dedup check: cosine similarity > 0.90 against existing questions → reject
+         → INSERT coll_question (status=review, NLI scores persisted)
+         → INSERT coll_question_option
+         → INSERT eng_quiz_semantic_embedding (for future dedup)
+   → UPDATE coll_generation_job (status=completed, counts)
+4. Staff reviews in Quiz Panel → /quizadmin/review/
+   → Sees question + source chunk + NLI scores side-by-side
+   → Keyboard: A=approve, R=reject, J=next, K=prev
+   → Approve → UPDATE coll_question (status=published)
+   → Reject → UPDATE coll_question (status=archived, is_active=0)
+
+=== QUIZ TAKING (user via consumer app) ===
+
+1. User starts quiz
+   → engine.py:start_exam_session()
+   → SELECT questions from map_quiz_question_pool
+   → Deduplicate variant groups (question_group_id)
+   → Randomize question order (if quiz.exam_shuffle_questions)
+   → Randomize option order per question (if quiz.exam_shuffle_options)
+   → INSERT coll_quiz_session (status=in_progress)
+   → INSERT coll_quiz_session_question × N (display order frozen)
+2. User answers each question
+   → engine.py:submit_answer()
+   → Grade: MCQ checks is_correct, fill_blank does NFC-normalized comparison
+   → UPDATE coll_quiz_session_question (is_correct, points_earned, time)
+   → UPDATE coll_quiz_session (counters)
+3. User finishes quiz
+   → engine.py:complete_exam_session()
+   → Calculate final score, percentage, pass/fail
+   → UPDATE coll_quiz_session (status=completed, scores)
+   → engine_advanced.py:_update_user_mastery() → UPSERT eng_user_quiz_topic_mastery
+   → engine_advanced.py:_update_user_streak() → INSERT coll_user_streak
+   → engine_advanced.py:create_cards_from_session() → INSERT coll_user_card (SRS)
+   → quiz_builder.py:award_badge_if_qualified() → INSERT coll_user_quiz_badge
+   → engine_advanced.py:update_question_analytics() → UPSERT eng_quiz_question_option_analytics
+4. User reviews answers
+   → engine.py:get_session_review()
+   → Returns all questions + selected options + correct options + source citations
+
+
+FILES
+-----
+models.py           — 27 Django models (all managed=False)
+engine.py           — Core: start_exam_session, submit_answer, complete_exam_session,
+                      get_session_review, get_user_stats, get_user_streak_count
+engine_advanced.py  — Advanced: leaderboard, SRS, retry, readiness, badges, analytics,
+                      adaptive, calibration, reports, bulk import, practice, history
+ai_generator.py     — AI: ingest_book_from_pdf, generate_questions_from_chunk,
+                      start_generation_job, get_review_queue, approve/reject_question,
+                      create_question_manual, update_question_manual
+quiz_builder.py     — Quiz CRUD: create_quiz_with_questions, update_quiz_with_questions,
+                      award_badge_if_qualified
+embeddings.py       — Semantic: compute_embedding, verify_faithfulness, nli_classify,
+                      find_similar_questions, is_duplicate_question
+views_api.py        — 25 API endpoints (JSON, login_required)
+urls.py             — All API routes under /mastermind/
+
+
+QUESTION TYPES
+--------------
+mcq_single    — Single correct answer (auto-graded)
+mcq_multi     — Multiple correct answers (auto-graded, all-or-nothing)
+true_false    — Two options: সত্য/মিথ্যা (auto-graded)
+fill_blank    — User types answer, NFC-normalized comparison (auto-graded)
+essay         — Free text, reviewer grades manually (V2)
+
+
+AI PIPELINE CONFIG
+------------------
+Ollama:
+  URL: http://localhost:11434/api/generate
+  Model: llama3.2:3b (2GB, CPU)
+  Temperature: 0.3
+  num_predict: 1500 (prevents runaway generation)
+  Timeout: 600s
+  Install: C:\Users\mehfil\AppData\Local\Programs\Ollama\ollama.exe
+
+Embeddings:
+  Model: paraphrase-multilingual-MiniLM-L12-v2 (~400MB, Bengali)
+  Dimension: 384 float32
+  Storage: VARBINARY(MAX) via numpy tobytes()
+
+NLI cross-encoder:
+  Model: MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 (~1.5GB)
+  Gate: Tier 0 (word-match) → Tier 1 (similarity, reject <0.30) → Tier 2 (NLI entailment ≥0.50)
+  NLI always fires if similarity ≥ 0.30 (no auto-pass shortcut — negation pairs proved it unsafe)
+
+NLI scores persisted on coll_question:
+  nli_similarity_score, nli_entailment_score, nli_contradiction_score,
+  nli_verdict_code, nli_confidence_level_code
+
+
+CONSUMER INTEGRATION
+--------------------
+Consumer apps import from mastermind.engine:
+
+    from amolnama_news.site_apps.mastermind.engine import (
+        start_exam_session,
+        submit_answer,
+        complete_exam_session,
+        get_session_review,
+        get_user_stats,
+    )
+
+Consumer apps own their templates/CSS/JS. Mastermind returns dicts/JSON.
+
+
+KNOWN ISSUES + FIXES
+--------------------
+1. pyodbc ntext on chunk_text: use raw pyodbc cursor with per-param
+   setinputsizes([(SQL_WVARCHAR, 0, 0)]). See troubleshooting.md §5b.
+2. Ollama 70% JSON parse failures: add format='json' to Ollama call (pending).
+3. NLI name-swap blind spot: mDeBERTa entails single-name substitutions at 0.69.
+   Needs named-entity post-check in V2.
+4. option_label truncation: derive from index position, never trust LLM output.
+
+
+FUTURE SCALING — laptop → server
+----------------------------------
+GPU: auto-detected by Ollama + torch (zero code change).
+CPU parallelism: NOT automatic — needs runtime_profile.py module (deferred).
+Triggers: GPU available, or >50 book backlog, or gen <30s per call.
+Effort: ~2 hours when needed.

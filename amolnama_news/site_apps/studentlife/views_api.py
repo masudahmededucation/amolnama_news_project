@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
-from amolnama_news.site_apps.core.utils import bangla_slugify, get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.core.utils import english_slug_from_text, get_user_profile_id, sanitize_user_html
 
 from .models import CollCampusEntry
 
@@ -55,7 +55,7 @@ def api_campus_entry_create(request):
 
     # Generate slug
     slug_source = title_bn or title_en
-    campus_entry_slug = bangla_slugify(slug_source)
+    campus_entry_slug = english_slug_from_text(text_bn=slug_source)
 
     # Deduplicate slug
     existing_slug_count = CollCampusEntry.objects.filter(campus_entry_slug=campus_entry_slug).count()

@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from amolnama_news.site_apps.content.models import RefContentSubcategory
-from amolnama_news.site_apps.core.utils import bangla_slugify, get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.core.utils import english_slug_from_text, get_user_profile_id, sanitize_user_html
 
 from .models import CollProbashEntry
 
@@ -51,7 +51,7 @@ def api_probash_entry_create(request):
         description_bn = sanitize_user_html(description_bn)
 
     slug_source = title_bn or title_en
-    probash_entry_slug = bangla_slugify(slug_source)
+    probash_entry_slug = english_slug_from_text(text_bn=slug_source)
     existing_slug_count = CollProbashEntry.objects.filter(probash_entry_slug=probash_entry_slug).count()
     if existing_slug_count > 0:
         probash_entry_slug = f'{probash_entry_slug}-{existing_slug_count + 1}'

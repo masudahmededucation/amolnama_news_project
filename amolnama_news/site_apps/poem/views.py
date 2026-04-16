@@ -8,7 +8,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from amolnama_news.site_apps.core.utils import bangla_slugify
+from amolnama_news.site_apps.core.utils import english_slug_from_text
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .helpers import get_smart_related_poems
@@ -33,7 +33,7 @@ def _ensure_poem_slug(poem):
     if not parts:
         parts.append(str(poem.blog_poem_coll_poem_entry_id))
 
-    slug = bangla_slugify("-".join(parts))
+    slug = english_slug_from_text(text_bn="-".join(parts))
     if not slug:
         slug = str(poem.blog_poem_coll_poem_entry_id)
 

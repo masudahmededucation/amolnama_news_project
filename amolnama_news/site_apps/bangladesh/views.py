@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.http import Http404
 from django.shortcuts import redirect, render
-from amolnama_news.site_apps.core.utils import bangla_slugify
+from amolnama_news.site_apps.core.utils import english_slug_from_text
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from amolnama_news.site_apps.user_account.models import UserProfile
@@ -183,7 +183,7 @@ def _ensure_destination_slug(dest):
     if dest.destination_slug:
         return
     base_name = dest.destination_name_en or dest.destination_name_bn or ""
-    slug = bangla_slugify(base_name)
+    slug = english_slug_from_text(text_bn=base_name)
     if not slug:
         slug = str(dest.blog_bangladesh_coll_destination_id)
     # Ensure uniqueness

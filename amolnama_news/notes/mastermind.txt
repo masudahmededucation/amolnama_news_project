@@ -1,0 +1,221 @@
+
+############
+--mastermind
+so basically i want to feed the book. 
+mainly the book could be pdf 
+or any other familiar book extension.
+then i want my app to create questions set based on that book. 
+i want to make it automatic rather 
+than i feed the questions and answer set.
+
+
+
+
+questions and answer
+This is what i want for constituent and history and party leaders. 
+i want to feed the 
+system with books.
+then it will ask questions based on 
+chapter. will give reference of books and writers.
+also  questions and answers based on full book.
+
+paragraph and also multiple choice questions
+questions mainly to teach about party history
+party leader history
+this way, people cannot lied
+specially election and MP candidates
+
+books will be fed into the system
+then it will ask questions based on 
+chapter.
+also based on full book.
+
+books could be any time of books,
+including BCS exam for bangladesh administrative positions.
+could be UK driving theory test.
+
+--randomness
+questions need to be in random order.
+also the multiple choices or other answer types
+need to be in random order.
+ask questions in affirmative and negative way.
+ask questions in different angle
+
+--questions need to keep a ref of the 
+chapter, paragraph, page number.
+it is a clue for the user,
+sot that they can check themselves
+
+
+remember some questions and answers could be only picture,
+mix of picture and text based?
+
+
+
+--AI model
+https://ollama.com/download
+irm https://ollama.com/install.ps1 | iex
+https://ollama.com/download
+
+--constituent app
+will show only questions and answers 
+based on constituent of bd.
+
+--history
+will show only questions and answers 
+based on history of bd.
+
+--quran
+it could be religious books
+
+--language learning grammar books?
+should we have different engine for language learning model?
+
+
+
+Mastermind follows gold standard patterns from competitive research:
+
+Pattern	Source	Implemented
+Question bank + option table (not JSON)	Coursera, Khan Academy	Yes
+Randomization frozen at session level	Coursera	Yes
+Source citation on every answer	Full Fact, FactCheck.org, PolitiFact	Yes
+Affirmative/negative variants	BCS apps, DVSA	Yes
+Negative marking	BCS exam format	Yes
+Topic mastery levels	Khan Academy	Yes
+Daily streaks	Duolingo	Yes
+Badge system	Duolingo, Khan Academy	Yes
+Question pool with mandatory/optional	Coursera	Yes
+Transparency ledger	Wahl-O-Mat, Vote Smart	Yes
+NFC-normalized Bengali comparison	Project standard	Yes
+Auto-gradable + manual grading types	Universal	Yes
+Scalable topic system (DB-driven)	All platforms	Yes
+Scalability: Adding a new topic/book/badge = one DB INSERT. No code changes. No redeployment. The engine is topic-agnostic — constitution, Quran, grammar, driving theory all use the same pipeline.
+
+No masked issues. Everything works — E2E tested and verified.
+
+What's next?
+
+how would score mastermind with competitve professional app?
+Honest assessment against the gold standard platforms:
+
+Feature	Mastermind	Quizlet	Khan	Duolingo	BCS Apps	DVSA	Score
+Question bank	5 types, source-cited	4 types	7 types	8 types	MCQ only	MCQ + hazard	7/10
+Randomization	Session-frozen	Per-study	Fixed order	Adaptive	Random	Random	9/10
+Source citation	Book+chapter+page+snippet	None	None	None	Partial	Highway Code ref	10/10
+Grading	Auto + manual	Auto	Auto + peer	Auto	Auto	Auto	8/10
+Negative marking	Configurable per exam	No	No	Hearts system	Yes (-0.5)	No	9/10
+Mastery tracking	4 levels, accuracy-based	2 levels	4 levels	Crown system	% per subject	Traffic light	7/10
+Streaks	Daily, consecutive count	Daily	Daily	Daily + freeze	Basic	Days studied	6/10
+Badges	8 badges, DB-driven	Basic	5 tiers	50+	Minimal	None	5/10
+Leaderboard	Not built yet	Class-level	None	Weekly leagues	Merit rank	None	0/10
+Spaced repetition	Not built yet (planned)	SM-2 variant	Mastery decay	Full SRS	None	Weak topic retry	0/10
+Live/multiplayer	Not built yet	Live mode	None	None	None	None	0/10
+UI/UX	No UI (API only)	Polished	Polished	World-class	Basic	Clean	N/A
+Anti-lying/verification	Source snippet proof	None	None	None	None	None	10/10
+Transparency ledger	Public book registry	None	None	None	None	None	10/10
+Scalability	Any topic = 1 INSERT	Manual sets	Curated	Curated	Fixed subjects	Fixed	9/10
+Overall: 6.5/10 for Phase 1
+
+What's missing to reach 9/10:
+Priority	Feature	Effort	Impact
+1	Leaderboard — weekly/all-time per topic	Medium	High — competitive pressure drives engagement
+2	Spaced repetition — Anki-style card scheduling for "learn mode"	Medium	High — retention is the killer feature
+3	"Retry wrong only" mode — quiz from mistakes	Small	High — every platform has this
+4	Readiness gauge — "you are/aren't ready for the real test" (DVSA pattern)	Small	Medium — confidence builder
+5	More badges — 20-30 with criteria_json auto-evaluation	Small	Medium — Duolingo proves badges drive retention
+6	Streak freeze — skip 1 day without breaking streak (Duolingo)	Small	Medium — reduces churn
+7	Question analytics — distractor analysis, per-option selection %	Medium	Medium — improves question quality
+8	Timed mode UI — countdown, per-question timer	UI only	Medium — exam pressure simulation
+9	Live quiz mode — join code, real-time (Kahoot pattern)	Large	High — social/classroom use
+10	AI generation (Phase 2) — PDF → questions via Ollama	Large	Transformative — infinite question supply
+The 10/10 areas (source citation, anti-lying, transparency, scalability) are the unique differentiators. No competitor has all three. That's the moat.
+
+Want me to start on any of these gaps?
+
+how would you score mastermind with competitve professional app?
+Let me be brutally honest this time.
+
+Mastermind today vs a production app a user would actually use: 3/10
+
+Why? Because right now it's an engine with no face. A user can't touch it. There's no UI, no page to visit, no button to click. It's plumbing — excellent plumbing — but plumbing.
+
+Here's the real breakdown:
+
+What matters to users	Status	Score
+Can I open it and take a quiz?	No UI exists	0/10
+Can I see my score?	API returns JSON, no page	0/10
+Can I see a leaderboard?	Not built	0/10
+Can I retry my mistakes?	Not built	0/10
+Does it look professional?	No templates/CSS	0/10
+Does it work on mobile?	No UI	0/10
+Can I share my score?	Not built	0/10
+What matters to the platform	Status	Score
+DB schema	Gold standard, 19 tables, fully indexed	10/10
+Question engine	Randomization, grading, negative marking	9/10
+Source citation (unique differentiator)	Book + chapter + page + snippet	10/10
+Scalability	Any topic = 1 INSERT	10/10
+Anti-lying transparency	Ledger + source proof	10/10
+API design	10 endpoints, clean, tested	9/10
+Security	ORM only, sanitized, login-required	9/10
+Foundation: 9.5/10. User experience: 0/10.
+
+The engine is ready. The car has no steering wheel. Next step is building the consumer UI — either inside a consumer app (constitutionbd, historybd) or a standalone quiz-taking page. That's where it goes from 3/10 to 8/10.
+
+Want to build the quiz-taking UI?
+
+okay, start building engine logic what is missing to be 10
+
+
+
+
+
+
+####
+will our mastermind ai engine automatically 
+scale up when we change from laptop to 
+proper server machine?
+or do we need to tell it?
+can this be made automatic?
+so that whenever the physical machine,
+it runs on changes, then automatically 
+it adjusts its working process or processor,
+or task manager whatever way you describe it.
+
+What auto-scales on new hardware (zero code change)
+Ollama: detects GPU (CUDA/ROCm) automatically. Plug in an RTX 4090 → llama goes GPU → ~10x faster generation. No config.
+mDeBERTa NLI + sentence-transformers: use torch. If CUDA visible, they auto-use GPU. Otherwise CPU.
+Ollama CPU threads: uses all cores by default.
+SQL Server connection pool: scales with DB server config, independent of our Python.
+What does NOT auto-scale
+Chunk processing loop (ai_generator.py:823) is strictly sequential — one chunk at a time, regardless of core count. On a 32-core server we'd still use ~1 core of wall-clock for generation.
+Tesseract OCR — one page at a time, CPU-bound.
+Embedding saves — one DB round-trip per question.
+Can we make it automatic?
+Yes — a single mastermind/runtime_profile.py module introspects hardware at startup and picks defaults:
+
+
+import os, psutil, torch
+
+WORKERS = max(1, os.cpu_count() - 1)          # 3 on laptop, 31 on server
+USE_GPU = torch.cuda.is_available()            # False on laptop, True on server
+OCR_PARALLELISM = max(1, os.cpu_count() // 2)  # I/O + CPU mix
+EMBEDDING_BATCH_SIZE = 16 if not USE_GPU else 128
+OLLAMA_CONCURRENCY = 1 if not USE_GPU else 4   # GPU handles concurrent requests cleanly
+Engine imports constants from there. Laptop: modest. Server: aggressive. Zero manual config.
+
+Recommendation
+Not now. Premature. Current bottleneck is llama3.2:3b on CPU (~60-180s per call) + Bengali JSON parse failures. Even with parallelism we'd still be bottlenecked on the LLM itself.
+
+When to build the runtime_profile module: after we deploy to actual production hardware AND the bottleneck analysis shows parallelism matters. Estimated ~2 hours of work when it's needed. I'd rather leave the code simple + sequential until there's a real server to test against.
+
+Logging this as a deferred task so we don't forget.
+
+TL;DR:
+
+GPU detection: already automatic (torch + Ollama handle it, zero code change).
+CPU core count: NOT automatic — our chunk loop is sequential, ignores core count.
+Making it fully automatic: one small module (runtime_profile.py) that reads os.cpu_count(), torch.cuda.is_available(), and psutil.virtual_memory() at startup and picks defaults. ~2 hours to build.
+When: after production hardware is chosen — premature today because llama3.2:3b on CPU is the bottleneck and parallelism won't fix that.
+
+Logged as deferred todo. Will build when there's real hardware to target. 
+Yes, it can be fully automatic.

@@ -1,0 +1,107 @@
+####
+--admin panel
+need an admin panel to create question and answer set.
+
+rather than having django admin, 
+we should have our own admin page. 
+don't want to interact with django admin panel. 
+it should be our own admin with the edit options. 
+create question and answer set option.
+
+quiz admin should have options to
+quiz title
+number of questions
+choose question type.
+-radio button choice
+-fil in the blanks
+-images
+-write paragraph
+-multiple checkbox
+
+
+--quiz admin only 
+user those are not staff or admin but 
+i want to grant them to be able to create quiz.
+they should be able to modify only quiz created by them.
+need to create a db_role or user group?
+how to handle this better.
+we also need admin interface to control them,
+including, add them with permission expiry date,
+delete them, modify expiry date.
+should be able to add them by
+user registered verified email or username handler.
+
+##########################################################
+##########################################################
+
+Competitive Rating: Our Quiz Admin vs. Industry
+What We Have (Strong)
+Feature	Our Status	Competitive Level
+Question bank with topics/tags/difficulty	Full	Mid-tier (Kahoot/Quizizz level)
+5 question types (MCQ single/multi, T/F, fill blank, short answer)	Full	Mid-tier
+AI question generation from PDF	Full (Ollama + NLI validation)	Above mid-tier — source-grounded, anti-hallucination
+Review queue with NLI scores	Full	Unique — no competitor shows NLI confidence
+Source citation (book/chapter/page)	Full	Unique — PolitiFact-grade transparency
+Spaced repetition (SM-2)	Full	Above mid-tier (only Duolingo/Anki have this)
+Badges + streaks + mastery	Full	Mid-tier (Duolingo-level)
+Streak freeze	Full	Mid-tier (Duolingo pattern)
+Negative marking	Full	Professional-tier (BCS exam standard)
+Leaderboard with period filtering	Full	Mid-tier
+Readiness gauge	Full	Unique (DVSA pattern)
+Keyboard shortcuts in review queue	Full	Above average
+Bengali + English bilingual	Full	Unique for this market
+Transparency ledger	Full	Unique
+What's Missing (Gaps)
+Critical Missing (every competitor has these):
+
+#	Feature	Who Has It	Impact
+1	Bulk import (CSV/XLSX)	Kahoot, Quizizz, ProProfs, Moodle, Canvas, ClassMarker	Staff can't upload 100 questions at once
+2	Bulk export	All mid-tier+ platforms	Can't backup or migrate question banks
+3	Question search/filter in admin	All platforms	Can only filter in review queue, not full question bank
+4	Question bank browser (list all questions, paginated, filterable)	All platforms	No way to see/manage all questions outside review queue
+5	Duplicate/clone quiz	Kahoot, Quizizz, Google Forms, Moodle	Must recreate from scratch
+6	Bulk status change (publish/archive multiple questions)	Moodle, Canvas, ExamSoft	One-by-one only
+7	Dashboard charts/graphs (visual analytics)	All mid-tier+	Numbers only, no visualization
+8	Per-question analytics in admin (difficulty index, discrimination)	Moodle, Canvas, ExamSoft	Raw counts only, no psychometric analysis
+9	Quiz preview (take quiz as staff to test it)	All platforms	Staff can't test before publishing
+10	Delete/archive quiz	All platforms	No delete endpoint exists
+Important Missing (most mid-tier+ have):
+
+#	Feature	Who Has It	Impact
+11	Matching question type	Moodle, Canvas, ProProfs, Quizizz	Limited question variety
+12	Ordering/sequence question type	Moodle, Canvas, Kahoot, Quizizz	Can't test sequencing knowledge
+13	Essay/long-answer question type	Moodle, Canvas, Google Forms, ProProfs	Can't do subjective assessment
+14	Image/media in questions (upload, not just URL)	All platforms	URL-only, no file upload in form
+15	Question versioning/history	Moodle, Canvas, ExamSoft	No audit trail of question edits
+16	Bulk question pool selection (filter + select all matching)	Moodle, Canvas	Must add questions one by one to quiz
+17	Student/user management in admin	All LMS platforms	No user list/management in quizadmin
+18	Email notifications (quiz assigned, results ready)	ProProfs, ClassMarker, LMS platforms	No notification system
+19	Quiz scheduling (auto-publish/close at datetime)	ProProfs, ClassMarker, Moodle, Canvas	Manual publish only
+20	Print quiz (PDF export for offline use)	ProProfs, ClassMarker, Moodle	No print/PDF option
+Nice-to-Have (professional tier):
+
+#	Feature	Who Has It
+21	IP restriction / access control	ExamSoft, ClassMarker
+22	Question tagging with auto-suggest	Moodle, Canvas
+23	Drag-and-drop question reordering	Kahoot, Typeform
+24	Real-time collaboration (multi-admin editing)	Google Forms
+25	QTI import/export (interoperability standard)	Moodle, Canvas, ExamSoft
+26	Custom certificates	ProProfs, ClassMarker, Canvas
+27	Webhook/API integrations	Typeform, ProProfs
+28	Accommodation overrides (extra time per student)	ExamSoft, Canvas
+29	Question difficulty auto-calibration (IRT)	ExamSoft, Duolingo
+30	Activity log / audit trail	All enterprise platforms
+Overall Rating
+Dimension	Score	Notes
+Question creation	7/10	Good types, good AI, but no bulk import
+Question management	4/10	No question bank browser, no search, no bulk ops
+Quiz creation	7/10	Good config, rewards, but no clone/preview
+Analytics	4/10	Raw numbers only, no charts, no psychometrics
+Admin UX	5/10	Functional but no drag-drop, no bulk select
+Gamification	9/10	Best-in-class (badges+streaks+SRS+mastery+readiness)
+AI/NLI pipeline	9/10	Unique source-grounded generation
+Transparency	10/10	Unique (citation + ledger)
+Overall	6.5/10	Strong engine, weak admin tooling
+The engine (mastermind) is 9/10. The admin panel (quizadmin) is 5/10. The gap is admin tooling — bulk operations, question bank browser, visual analytics, quiz lifecycle management.
+
+Want me to create an implementation plan to close the critical gaps (items 1-10)? Those would bring us to solid mid-tier (Kahoot/Quizizz level) for admin tooling. The nice-to-haves (21-30) can wait.

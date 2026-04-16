@@ -203,3 +203,7 @@ it is dull, amateurish.
 
 ###############
 --live audio video call
+
+messenger need option to turnoff audio and video call. 
+and also options who can call other person audio or video. 
+like friends only, certain friends or users, or public

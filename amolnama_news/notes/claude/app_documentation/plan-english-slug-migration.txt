@@ -1,0 +1,233 @@
+ENGLISH SLUG MIGRATION — PLAN
+==============================
+
+Goal: Replace Bengali article slugs with English slugs across all 8 blog
+apps. App-level URL prefixes stay Bengali. Only per-article slugs change.
+
+Data surveyed 2026-04-16. Total: 14 records across 8 apps.
+
+
+ACTUAL DATA — WHAT EXISTS RIGHT NOW
+------------------------------------
+
+| # | App        | Records | Current slug example                          | Has _en title? | Already English? |
+|---|------------|---------|-----------------------------------------------|----------------|------------------|
+| 1 | Poem       | 6       | দর্পন-কবির-বসন্ত-নয়-অবহেলা                   | NO             | NO               |
+| 2 | Art        | 3       | nakshi-kanthar-maya                            | YES            | YES              |
+| 3 | Stories    | 2       | rupkothar-rajkonna                             | YES            | YES              |
+| 4 | Debate     | 1       | ৭২-এর-সংবিধান-কি-ছুঁড়ে-ফেলা-উচিত            | NO             | NO               |
+| 5 | Biography  | 0       | (empty)                                        | —              | —                |
+| 6 | HistoryBD  | 0       | (empty)                                        | —              | —                |
+| 7 | Bangladesh | 1       | red-water-lily-dibir-haor-jaintiapur-sylhet    | YES            | YES              |
+| 8 | Newshub    | 1       | chandabaji-dhaka-সড়কে-চাঁদাবাজির-বর্তমান-চিত্র-2026 | PARTIAL  | MIXED            |
+
+FINDINGS:
+  - Art, Stories, Bangladesh: ALREADY English slugs. No data migration needed.
+    Only code change: switch slug generator from bangla_slugify → english_slug_from_text.
+  - Poem: 6 Bengali slugs, no English titles → need manual English titles OR
+    accept unidecode transliteration (poor quality: "bsnt-ny-abhelaa").
+  - Debate: 1 Bengali slug, no English title → same situation.
+  - Newshub: 1 mixed slug (English prefix + Bengali suffix) → needs cleanup.
+  - Biography, HistoryBD: 0 records. Only code change for future posts.
+
+DECISION NEEDED FROM USER:
+  For Poem (6 records) + Debate (1 record) + Newshub (1 record) = 8 records
+  that have Bengali slugs and NO English title:
+    Option A: User provides English titles → I generate clean slugs
+    Option B: Use unidecode auto-transliteration (rough but functional)
+    Option C: Skip these for now, change code only for future posts
+
+
+MIGRATION STEPS — PER APP
+--------------------------
+
+For EACH of the 8 apps, in this exact order:
+
+  Step 1. SLUG GENERATION CODE
+    File: site_apps/{app}/views_api.py (or views.py for debate)
+    Change: Replace bangla_slugify(title_bn) → english_slug_from_text(title_en, title_bn)
+    The new function lives in core/utils.py (already built).
+
+  Step 2. SQL DATA UPDATE (only for apps with existing Bengali slugs)
+    Script: UPDATE [schema].[table] SET slug_column = '{new_english_slug}'
+            WHERE pk = {id};
+    I provide the script. User runs it.
+
+  Step 3. 301 REDIRECT (only for apps with existing Bengali slugs)
+    File: amolnama_news/urls.py
+    Add: path("app-prefix/old-bengali-slug", RedirectView(url="/app-prefix/new-english-slug", permanent=True))
+    Only ~8 redirect entries total across all apps.
+
+  Step 4. SITEMAP VERIFICATION
+    File: site_apps/seo/sitemaps.py
+    Verify the sitemap class for this app uses the slug field (it does — no change needed
+    since the slug column name stays the same, only the VALUE changes).
+
+  Step 5. VERIFY
+    - Old URL → 301 → new URL
+    - New URL → 200
+    - Sitemap lists new URL
+
+
+APP-BY-APP EXECUTION ORDER
+----------------------------
+
+Phase 1 — CODE ONLY (0 records to migrate, 0 redirects needed):
+  1. Biography (0 records) — change views_api.py slug generator only
+  2. HistoryBD (0 records) — change views_api.py slug generator only
+
+Phase 2 — ALREADY ENGLISH (no data migration, no redirects):
+  3. Art (3 records, already English) — change slug generator only
+  4. Stories (2 records, already English) — change slug generator only
+  5. Bangladesh (1 record, already English) — change slug generator only
+
+Phase 3 — ACTUAL MIGRATION (Bengali → English slugs + redirects):
+  6. Debate (1 record) — slug + SQL + 1 redirect
+  7. Newshub (1 record) — slug + SQL + 1 redirect
+  8. Poem (6 records) — slug + SQL + 6 redirects
+
+Phase 3 requires either user-provided English titles or unidecode fallback.
+
+
+FILES TOUCHED PER APP
+-----------------------
+
+Each app touches exactly 2-3 files:
+  1. site_apps/{app}/views_api.py — slug generation line (1 line change)
+  2. amolnama_news/urls.py — 301 redirect entry (1 line per record, Phase 3 only)
+  3. SQL script — UPDATE statement (Phase 3 only)
+
+NO changes to: models.py, urls.py (app-level), templates, CSS, JS, sitemaps.
+
+
+WHAT DOES NOT CHANGE
+---------------------
+  - App-level URL prefixes: /bangla-kobita-gaan/, /jibonkotha/, /itihas/ etc.
+  - Slug column names in DB (poem_slug stays poem_slug)
+  - Slug column types (NVARCHAR stays NVARCHAR)
+  - Template references to slug field
+  - Sitemap class logic
+  - bangla_slugify() function (kept for any future need, not deleted)
+
+
+RISK CHECK
+-----------
+  R1. Old Google-indexed URLs break → mitigated by 301 redirects
+  R2. Bookmarked URLs break → same 301 redirects
+  R3. Internal links in content body referencing old URLs → grep for them
+  R4. Social media shared links → 301 handles these too
+  R5. Slug collision (two articles get same English slug) →
+      english_slug_from_text doesn't handle uniqueness. Need to add
+      collision detection same as biography/historybd pattern.
+
+  Fix for R5: add uniqueness check to english_slug_from_text or handle
+  in each app's create view (append -2, -3 on collision). Same pattern
+  already used by biography and historybd.
+
+
+VERIFICATION REPORT FORMAT (delivered after all 8 apps done)
+-------------------------------------------------------------
+
+| # | App | Old URL | Expected | Actual | New URL | Expected | Actual |
+|---|-----|---------|----------|--------|---------|----------|--------|
+| 1 | Poem | /bangla-kobita-gaan/দর্পন-.../ | 301 | ? | /bangla-kobita-gaan/new-slug/ | 200 | ? |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+Plus: sitemap check, collectstatic, cache bump.
+
+
+BUGS & ISSUES — ANTICIPATED + PREVENTION
+------------------------------------------
+
+BUG 1: 301 redirect loop
+  Scenario: Old Bengali slug URL redirects to new English slug URL, but the
+  new URL also triggers the redirect because pattern matching is too broad.
+  Prevention: Use EXACT path match in redirect (not regex/prefix). Each
+  redirect is a single explicit path() entry with the full old slug string.
+  Test: After adding redirect, curl the old URL — must get exactly 1 redirect,
+  not a chain.
+
+BUG 2: Slug collision
+  Scenario: Two articles get the same English slug (e.g. both titled "History
+  of Bangladesh").
+  Prevention: Add uniqueness check in english_slug_from_text — query the
+  model for existing slugs, append -2, -3 if collision. Same pattern already
+  used by biography/historybd.
+  Test: Create two articles with identical English titles → slugs must differ.
+
+BUG 3: Empty English slug (no _en title + unidecode produces garbage)
+  Scenario: Bengali title like "বঙ্গবন্ধু" → unidecode → "bnggbndhu" →
+  slugify → "bnggbndhu". Technically valid but unreadable.
+  Prevention: For Phase 3 apps (Poem, Debate, Newshub), ask user to provide
+  English titles. Unidecode is fallback only.
+  Test: Verify no slug is empty or <3 chars after migration.
+
+BUG 4: Sitemap shows old Bengali URLs after migration
+  Scenario: Sitemap cache not regenerated → Google keeps crawling old URLs.
+  Prevention: Sitemaps read slug from DB dynamically (no cache). After SQL
+  UPDATE runs, sitemap automatically reflects new slugs. Verify by fetching
+  /sitemap.xml and grepping for Bengali chars.
+  Test: curl /sitemap.xml | grep -P '[\x{0980}-\x{09FF}]' → must be 0 matches
+  in article URLs (app-level prefixes like /jibonkotha/ are OK).
+
+BUG 5: Social sharing / Open Graph URL mismatch
+  Scenario: og:url meta tag still points to old Bengali URL.
+  Prevention: og:url is generated from request.build_absolute_uri() in SEO
+  context processor → uses the CURRENT URL, not a stored slug. As long as
+  the user accesses the new English URL, og:url is correct.
+  Test: View page source of each article → check og:url matches new URL.
+
+BUG 6: Internal cross-links in article body
+  Scenario: Article body contains a hardcoded link to another article using
+  the old Bengali slug (e.g. <a href="/bangla-kobita-gaan/old-slug/">).
+  Prevention: Grep all article body text columns for the old slug strings.
+  If found, UPDATE them too.
+  Test: Grep content columns for Bengali URL fragments.
+
+BUG 7: Browser autocomplete / address bar history
+  Scenario: User types old Bengali URL from browser history → gets 301 →
+  browser eventually learns the new URL. No action needed. Self-healing.
+
+BUG 8: pyodbc ntext error on long English slugs (>4000 chars)
+  Scenario: Extremely long English title → slug exceeds 4000 chars → ntext
+  promotion → collation error.
+  Prevention: english_slug_from_text caps at max_length=450 (well under 4000).
+  Already handled.
+
+BUG 9: Service worker caches old page with Bengali slug in HTML
+  Scenario: PWA offline cache serves stale HTML with old URLs.
+  Prevention: Bump CACHE_NAME after migration → service worker invalidates
+  old cache on next visit.
+  Test: Verify CACHE_NAME is bumped in final verification step.
+
+BUG 10: Content registry has old slug stored
+  Scenario: content_registry table (if used) stores article URLs with old
+  Bengali slugs.
+  Prevention: Grep content_registry for slug references. If present, UPDATE
+  those rows too.
+  Test: Query content_registry WHERE content_url LIKE '%Bengali-chars%'.
+
+
+ROLLBACK PLAN
+--------------
+If something goes wrong after partial migration:
+
+  1. SQL rollback: Each app's SQL script includes the OLD slug value in a
+     comment. Run UPDATE ... SET slug = 'old-value' WHERE pk = id; to revert.
+  2. Code rollback: Revert views_api.py to use bangla_slugify(). One-line
+     change per app.
+  3. Remove 301 redirects from urls.py.
+  4. Bump cache version.
+
+Since there are only 14 records, full manual rollback takes <5 minutes.
+
+
+PRE-FLIGHT CHECKLIST (before starting Phase 1)
+------------------------------------------------
+[ ] Plan reviewed by user
+[ ] All 8 apps + record counts verified
+[ ] english_slug_from_text utility tested
+[ ] User decided on Poem/Debate/Newshub English titles (Option A/B/C)
+[ ] Backup of current slug values saved (SELECT slug, pk FROM each table)
+[ ] Django dev server stopped during SQL updates
+[ ] L5 burn-in status checked (avoid concurrent DB writes)
