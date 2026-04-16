@@ -149,7 +149,7 @@
         {% for question in questions %}
         <tr data-question-id="{{ question.mastermind_coll_question_id }}">
           <td class="quizadmin-table-checkbox-col">
-            <input type="checkbox" class="quizadmin-question-checkbox" value="{{ question.mastermind_coll_question_id }}" aria-label="Select question {{ question.mastermind_coll_question_id }}">
+            <input type="checkbox" class="quizadmin-question-checkbox" id="quizadmin-question-checkbox-{{ question.mastermind_coll_question_id }}" name="quizadmin_question_checkbox" value="{{ question.mastermind_coll_question_id }}" aria-label="Select question {{ question.mastermind_coll_question_id }}">
           </td>
           <td class="quizadmin-table-mono">{{ question.mastermind_coll_question_id }}</td>
           <td>
@@ -177,7 +177,7 @@
             <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/edit/">Edit</a>
             <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/analytics/">Stats</a>
             <a class="quizadmin-table-action" href="/quizadmin/question/{{ question.mastermind_coll_question_id }}/history/">History</a>
-            <button type="button" class="quizadmin-table-action quizadmin-question-delete-button" data-question-id="{{ question.mastermind_coll_question_id }}">Delete</button>
+            <button type="button" class="quizadmin-table-action quizadmin-question-delete-button" id="quizadmin-question-delete-{{ question.mastermind_coll_question_id }}" name="quizadmin_question_delete" data-question-id="{{ question.mastermind_coll_question_id }}">Delete</button>
           </td>
         </tr>
         {% endfor %}

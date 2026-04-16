@@ -52,24 +52,24 @@
       addButton.id = `quizadmin-quiz-form-option-add-${addButtonUniqueToken}`;
       addButton.name = `quizadmin_quiz_form_option_add_${addButtonUniqueToken}`;
 
-      const renderOption = (optionIndex, data) => {
+      const renderOption = (optionIndex, optionData) => {
         const row = document.createElement('div');
         row.className = 'quizadmin-quiz-form-option-row';
         row.dataset.optionIndex = String(optionIndex);
         const label = BENGALI_LABELS[optionIndex] || String(optionIndex + 1);
-        const uniqueToken = `q${row.parentNode ? row.parentNode.children.length : Math.random().toString(36).slice(2, 8)}o${optionIndex}`;
+        const uniqueToken = `q${row.parentNode ? row.parentNode.children.length : window.quizadminGenerateToken()}o${optionIndex}`;
         row.innerHTML = `
           <span class="quizadmin-quiz-form-option-label">${label}</span>
           <input type="text"
                  id="quizadmin-quiz-form-option-text-${uniqueToken}"
                  name="quizadmin_quiz_form_option_text_${uniqueToken}"
                  class="quizadmin-quiz-form-input quizadmin-quiz-form-option-text"
-                 placeholder="Option text (Bengali)" value="${(data.option_text_bn || '').replace(/"/g, '&quot;')}" required>
+                 placeholder="Option text (Bengali)" value="${(optionData.option_text_bn || '').replace(/"/g, '&quot;')}" required>
           <label class="quizadmin-quiz-form-option-correct">
             <input type="checkbox"
                    id="quizadmin-quiz-form-option-is-correct-${uniqueToken}"
                    name="quizadmin_quiz_form_option_is_correct_${uniqueToken}"
-                   class="quizadmin-quiz-form-option-is-correct" ${data.is_correct ? 'checked' : ''}>
+                   class="quizadmin-quiz-form-option-is-correct" ${optionData.is_correct ? 'checked' : ''}>
             <span>Correct</span>
           </label>
           <button type="button"
@@ -399,38 +399,38 @@
   };
 
   const gatherQuizPayload = () => {
-    const readBool = (id) => document.getElementById(id)?.checked || false;
-    const readStr = (id) => document.getElementById(id)?.value || '';
-    const readInt = (id) => {
-      const rawValue = readStr(id);
+    const readBooleanValue = (id) => document.getElementById(id)?.checked || false;
+    const readStringValue = (id) => document.getElementById(id)?.value || '';
+    const readIntegerValue = (id) => {
+      const rawValue = readStringValue(id);
       return rawValue ? parseInt(rawValue, 10) : null;
     };
-    const readFloat = (id) => {
-      const rawValue = readStr(id);
+    const readFloatValue = (id) => {
+      const rawValue = readStringValue(id);
       return rawValue ? parseFloat(rawValue) : null;
     };
     return {
-      exam_title_bn: readStr('exam_title_bn'),
-      exam_title_en: readStr('exam_title_en'),
-      exam_description_bn: readStr('exam_description_bn'),
-      link_mastermind_coll_quiz_topic_id: readInt('link_mastermind_coll_quiz_topic_id'),
-      link_mastermind_coll_book_id: readInt('link_mastermind_coll_book_id'),
-      exam_status_code: readStr('exam_status_code'),
-      exam_time_limit_minutes: readInt('exam_time_limit_minutes'),
-      exam_pass_percentage: readFloat('exam_pass_percentage'),
-      exam_negative_marking_per_wrong: readFloat('exam_negative_marking_per_wrong'),
-      exam_max_attempts: readInt('exam_max_attempts'),
-      exam_shuffle_questions: readBool('exam_shuffle_questions'),
-      exam_shuffle_options: readBool('exam_shuffle_options'),
-      exam_allow_review: readBool('exam_allow_review'),
-      exam_scheduled_publish_at: readStr('exam_scheduled_publish_at') || null,
-      exam_scheduled_close_at: readStr('exam_scheduled_close_at') || null,
-      exam_rewards_enabled: readBool('exam_rewards_enabled'),
-      exam_reward_criteria_code: readStr('exam_reward_criteria_code'),
-      exam_reward_threshold_percent: readFloat('exam_reward_threshold_percent'),
-      exam_reward_top_n: readInt('exam_reward_top_n'),
-      link_reward_badge_id: readInt('link_reward_badge_id'),
-      exam_reward_description: readStr('exam_reward_description'),
+      exam_title_bn: readStringValue('exam_title_bn'),
+      exam_title_en: readStringValue('exam_title_en'),
+      exam_description_bn: readStringValue('exam_description_bn'),
+      link_mastermind_coll_quiz_topic_id: readIntegerValue('link_mastermind_coll_quiz_topic_id'),
+      link_mastermind_coll_book_id: readIntegerValue('link_mastermind_coll_book_id'),
+      exam_status_code: readStringValue('exam_status_code'),
+      exam_time_limit_minutes: readIntegerValue('exam_time_limit_minutes'),
+      exam_pass_percentage: readFloatValue('exam_pass_percentage'),
+      exam_negative_marking_per_wrong: readFloatValue('exam_negative_marking_per_wrong'),
+      exam_max_attempts: readIntegerValue('exam_max_attempts'),
+      exam_shuffle_questions: readBooleanValue('exam_shuffle_questions'),
+      exam_shuffle_options: readBooleanValue('exam_shuffle_options'),
+      exam_allow_review: readBooleanValue('exam_allow_review'),
+      exam_scheduled_publish_at: readStringValue('exam_scheduled_publish_at') || null,
+      exam_scheduled_close_at: readStringValue('exam_scheduled_close_at') || null,
+      exam_rewards_enabled: readBooleanValue('exam_rewards_enabled'),
+      exam_reward_criteria_code: readStringValue('exam_reward_criteria_code'),
+      exam_reward_threshold_percent: readFloatValue('exam_reward_threshold_percent'),
+      exam_reward_top_n: readIntegerValue('exam_reward_top_n'),
+      link_reward_badge_id: readIntegerValue('link_reward_badge_id'),
+      exam_reward_description: readStringValue('exam_reward_description'),
       questions: [...container.children].map((row) => gatherQuestionPayload(row)),
     };
   };

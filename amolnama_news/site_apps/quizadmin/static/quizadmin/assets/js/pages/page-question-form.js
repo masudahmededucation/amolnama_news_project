@@ -20,7 +20,7 @@
   const existingOptions = window.quizadminReadJson('quizadmin-existing-options', []);
   const BENGALI_LABELS = window.QUIZADMIN_BENGALI_LABELS;
 
-  const renderOptionRow = (optionIndex, data) => {
+  const renderOptionRow = (optionIndex, optionData) => {
     const row = document.createElement('div');
     row.className = 'quizadmin-question-form-option-row';
     row.dataset.optionIndex = String(optionIndex);
@@ -30,9 +30,9 @@
       <span class="quizadmin-question-form-option-label">${label}</span>
       <input type="text" id="option_${optionIndex}_text_bn" name="option_${optionIndex}_text_bn"
              class="quizadmin-question-form-input quizadmin-question-form-option-input"
-             placeholder="Option text (Bengali)" value="${(data.option_text_bn || '').replace(/"/g, '&quot;')}" required>
+             placeholder="Option text (Bengali)" value="${(optionData.option_text_bn || '').replace(/"/g, '&quot;')}" required>
       <label class="quizadmin-question-form-option-correct">
-        <input type="checkbox" id="option_${optionIndex}_is_correct" name="option_${optionIndex}_is_correct" ${data.is_correct ? 'checked' : ''}>
+        <input type="checkbox" id="option_${optionIndex}_is_correct" name="option_${optionIndex}_is_correct" ${optionData.is_correct ? 'checked' : ''}>
         <span>Correct</span>
       </label>
       <button type="button" class="quizadmin-question-form-option-remove"

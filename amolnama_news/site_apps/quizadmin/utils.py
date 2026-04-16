@@ -696,17 +696,17 @@ def paginate_questions(page_number=1, per_page=50, topic_id=None, book_id=None,
         .values_list('mastermind_ref_quiz_question_type_id', 'question_type_name_en')
     ) if type_ids else {}
 
-    diff_ids = {q['link_mastermind_ref_quiz_difficulty_level_id'] for q in questions if q['link_mastermind_ref_quiz_difficulty_level_id']}
-    diff_names = dict(
-        RefQuizDifficultyLevel.objects.filter(mastermind_ref_quiz_difficulty_level_id__in=diff_ids)
+    difficulty_ids = {q['link_mastermind_ref_quiz_difficulty_level_id'] for q in questions if q['link_mastermind_ref_quiz_difficulty_level_id']}
+    difficulty_names = dict(
+        RefQuizDifficultyLevel.objects.filter(mastermind_ref_quiz_difficulty_level_id__in=difficulty_ids)
         .values_list('mastermind_ref_quiz_difficulty_level_id', 'difficulty_name_en')
-    ) if diff_ids else {}
+    ) if difficulty_ids else {}
 
     for question in questions:
         question['topic_name_bn'] = topic_names.get(question['link_mastermind_coll_quiz_topic_id'], '—')
         question['book_title_bn'] = book_names.get(question['link_mastermind_coll_book_id'], '—')
         question['question_type_name_en'] = type_names.get(question['link_mastermind_ref_quiz_question_type_id'], '—')
-        question['difficulty_name_en'] = diff_names.get(question['link_mastermind_ref_quiz_difficulty_level_id'], '—')
+        question['difficulty_name_en'] = difficulty_names.get(question['link_mastermind_ref_quiz_difficulty_level_id'], '—')
 
     return {
         'questions': questions,

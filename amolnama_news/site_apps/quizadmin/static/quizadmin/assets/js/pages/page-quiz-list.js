@@ -1,15 +1,15 @@
-/* Quiz list — clone and delete actions with inline confirmation. */
+/* Quiz list — sort auto-submit, clone and delete with inline confirmation. */
 (function () {
   'use strict';
 
   var inlineMessage = document.getElementById('quizadmin-quiz-list-inline-message');
+  var sortSelect = document.getElementById('quizadmin-quiz-sort');
 
-  var showInline = function (text, tone) {
-    if (!inlineMessage) return;
-    inlineMessage.textContent = text;
-    inlineMessage.dataset.tone = tone;
-    inlineMessage.hidden = false;
-  };
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function () {
+      sortSelect.closest('form').submit();
+    });
+  }
 
   document.addEventListener('click', async function (event) {
     var cloneButton = event.target.closest('.quizadmin-quiz-clone-button');

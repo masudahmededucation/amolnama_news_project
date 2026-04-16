@@ -65,7 +65,7 @@
           <td>
             {% if creator.expires_at %}
               {{ creator.expires_at|date:"Y-m-d H:i" }}
-              <button type="button" class="quizadmin-creator-edit-expiry-button quizadmin-table-action" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Edit</button>
+              <button type="button" class="quizadmin-creator-edit-expiry-button quizadmin-table-action" id="quizadmin-creator-edit-expiry-{{ creator.mastermind_coll_quiz_creator_permission_id }}" name="quizadmin_creator_edit_expiry" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Edit</button>
             {% else %}
               Never
             {% endif %}
@@ -73,7 +73,7 @@
           <td>{{ creator.permission_notes|default:"—" }}</td>
           <td>
             {% if creator.permission_status_code == 'active' %}
-            <button type="button" class="quizadmin-table-action quizadmin-creator-revoke-button" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Revoke</button>
+            <button type="button" class="quizadmin-table-action quizadmin-creator-revoke-button" id="quizadmin-creator-revoke-{{ creator.mastermind_coll_quiz_creator_permission_id }}" name="quizadmin_creator_revoke" data-permission-id="{{ creator.mastermind_coll_quiz_creator_permission_id }}">Revoke</button>
             {% else %}
             <span class="quizadmin-code-inline">{{ creator.permission_status_code }}</span>
             {% endif %}
