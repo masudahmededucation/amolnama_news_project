@@ -450,3 +450,224 @@ def award_badge_if_qualified(session):
         'badge_id': exam.link_reward_badge_id,
         'reason': reason,
     }
+
+
+# ================================================================
+# Permission helper — single source of truth for "can this user touch this quiz?"
+# ================================================================
+
+def can_user_manage_quiz(quiz, user):
+    """Return True if user is staff/superuser OR is the original quiz creator.
+
+    Returns False for anonymous users, missing quizzes, or unrelated users.
+    """
+    if quiz is None or user is None:
+        return False
+    if not user.is_authenticated:
+        return False
+    if user.is_staff or user.is_superuser:
+        return True
+    user_profile_id = getattr(user, 'user_profile_id', None) or getattr(getattr(user, 'profile', None), 'user_profile_id', None)
+    if user_profile_id is None:
+        from amolnama_news.site_apps.core.utils import get_user_profile_id
+        class _FakeRequest:
+            pass
+        fake = _FakeRequest()
+        fake.user = user
+        user_profile_id = get_user_profile_id(fake)
+    return bool(user_profile_id) and quiz.link_created_by_user_profile_id == user_profile_id
+
+
+# ================================================================
+# Quiz lifecycle — clone, archive, delete
+# ================================================================
+
+def clone_quiz(source_quiz_id, user_profile_id):
+    """Duplicate an existing quiz + every linked question + every option.
+
+    The new quiz starts in 'draft' status with title suffix " (copy)".
+    Question rows are duplicated (not shared) so edits on the clone do not
+    affect the source. Returns {'success': bool, 'new_quiz_id': int, 'error': str}.
+    """
+    if not source_quiz_id:
+        return {'success': False, 'error': 'source_quiz_id required.'}
+    if not user_profile_id:
+        return {'success': False, 'error': 'user_profile_id required.'}
+
+    source = CollQuiz.objects.filter(
+        mastermind_coll_quiz_id=source_quiz_id, is_active=True,
+    ).first()
+    if not source:
+        return {'success': False, 'error': 'Source quiz not found.'}
+
+    cloned_title_bn = (source.exam_title_bn or '') + ' (copy)'
+    cloned_title_en = (source.exam_title_en or '') + ' (copy)' if source.exam_title_en else None
+    base_slug = _generate_quiz_slug(text_en=cloned_title_en, text_bn=cloned_title_bn)
+    unique_slug = _ensure_unique_slug(base_slug)
+
+    try:
+        with transaction.atomic():
+            cloned = CollQuiz.objects.create(
+                exam_title_bn=cloned_title_bn,
+                exam_title_en=cloned_title_en,
+                exam_description_bn=source.exam_description_bn,
+                exam_slug=unique_slug,
+                link_mastermind_coll_quiz_topic_id=source.link_mastermind_coll_quiz_topic_id,
+                link_mastermind_coll_book_id=source.link_mastermind_coll_book_id,
+                exam_total_questions=source.exam_total_questions,
+                exam_time_limit_minutes=source.exam_time_limit_minutes,
+                exam_pass_percentage=source.exam_pass_percentage,
+                exam_negative_marking_per_wrong=source.exam_negative_marking_per_wrong,
+                exam_shuffle_questions=source.exam_shuffle_questions,
+                exam_shuffle_options=source.exam_shuffle_options,
+                exam_show_explanation_code=source.exam_show_explanation_code,
+                exam_allow_review=source.exam_allow_review,
+                exam_max_attempts=source.exam_max_attempts,
+                exam_proctoring_level=source.exam_proctoring_level,
+                exam_proctoring_max_score=source.exam_proctoring_max_score,
+                exam_rewards_enabled=source.exam_rewards_enabled,
+                exam_reward_criteria_code=source.exam_reward_criteria_code,
+                exam_reward_threshold_percent=source.exam_reward_threshold_percent,
+                exam_reward_top_n=source.exam_reward_top_n,
+                link_reward_badge_id=source.link_reward_badge_id,
+                exam_reward_description=source.exam_reward_description,
+                exam_status_code='draft',
+                link_created_by_user_profile_id=user_profile_id,
+                created_at=timezone.now(),
+            )
+
+            source_pool_links = list(
+                MapQuizQuestionPool.objects
+                .filter(link_mastermind_coll_quiz_id=source_quiz_id)
+                .order_by('mastermind_map_quiz_question_pool_id')
+                .values('link_mastermind_coll_question_id', 'is_mandatory')
+            )
+
+            for pool_link in source_pool_links:
+                source_question_id = pool_link['link_mastermind_coll_question_id']
+                cloned_question_id = _clone_question_with_options(source_question_id, user_profile_id)
+                if cloned_question_id is None:
+                    continue
+                MapQuizQuestionPool.objects.create(
+                    link_mastermind_coll_quiz_id=cloned.mastermind_coll_quiz_id,
+                    link_mastermind_coll_question_id=cloned_question_id,
+                    is_mandatory=pool_link.get('is_mandatory') or False,
+                    created_at=timezone.now(),
+                )
+
+        _log_workflow(cloned.mastermind_coll_quiz_id, None, 'draft', user_profile_id)
+        return {
+            'success': True,
+            'new_quiz_id': cloned.mastermind_coll_quiz_id,
+            'new_quiz_slug': cloned.exam_slug,
+        }
+    except Exception:
+        logger.exception('Failed to clone quiz %s', source_quiz_id)
+        return {'success': False, 'error': 'Server error during clone.'}
+
+
+def _clone_question_with_options(source_question_id, user_profile_id):
+    """Duplicate one question row and all its active options. Returns new question_id."""
+    source = CollQuestion.objects.filter(
+        mastermind_coll_question_id=source_question_id, is_active=True,
+    ).first()
+    if not source:
+        return None
+
+    cloned = CollQuestion.objects.create(
+        link_mastermind_ref_quiz_question_type_id=source.link_mastermind_ref_quiz_question_type_id,
+        link_mastermind_ref_quiz_difficulty_level_id=source.link_mastermind_ref_quiz_difficulty_level_id,
+        link_mastermind_coll_quiz_topic_id=source.link_mastermind_coll_quiz_topic_id,
+        question_text_bn=source.question_text_bn,
+        question_text_en=source.question_text_en,
+        question_explanation_bn=source.question_explanation_bn,
+        question_explanation_en=source.question_explanation_en,
+        question_hint_bn=source.question_hint_bn,
+        question_hint_en=source.question_hint_en,
+        question_image_url=source.question_image_url,
+        question_points=source.question_points,
+        question_time_limit_seconds=source.question_time_limit_seconds,
+        question_negative_marking_points=source.question_negative_marking_points,
+        link_mastermind_coll_book_id=source.link_mastermind_coll_book_id,
+        link_mastermind_coll_book_chapter_id=source.link_mastermind_coll_book_chapter_id,
+        source_page_number=source.source_page_number,
+        source_snippet_text=source.source_snippet_text,
+        question_status_code=source.question_status_code,
+        link_created_by_user_profile_id=user_profile_id,
+        question_generation_source_code='manual',
+        created_at=timezone.now(),
+    )
+
+    source_options = list(
+        CollQuestionOption.objects
+        .filter(link_mastermind_coll_question_id=source_question_id, is_active=True)
+        .order_by('sort_order', 'mastermind_coll_question_option_id')
+    )
+    for source_option in source_options:
+        CollQuestionOption.objects.create(
+            link_mastermind_coll_question_id=cloned.mastermind_coll_question_id,
+            option_label=source_option.option_label,
+            option_text_bn=source_option.option_text_bn,
+            option_text_en=source_option.option_text_en,
+            option_image_url=source_option.option_image_url,
+            is_correct=source_option.is_correct,
+            option_explanation_bn=source_option.option_explanation_bn,
+            sort_order=source_option.sort_order,
+            created_at=timezone.now(),
+        )
+
+    return cloned.mastermind_coll_question_id
+
+
+def archive_quiz(quiz_id, user_profile_id, unarchive=False):
+    """Set exam_status_code to 'archived' (or back to 'draft' if unarchive=True).
+
+    Soft action — quiz row stays alive, just hidden from default lists.
+    """
+    if not quiz_id:
+        return {'success': False, 'error': 'quiz_id required.'}
+
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id, is_active=True).first()
+    if not quiz:
+        return {'success': False, 'error': 'Quiz not found.'}
+
+    previous_status = quiz.exam_status_code
+    new_status = 'draft' if unarchive else 'archived'
+    if previous_status == new_status:
+        return {'success': True, 'quiz_id': quiz_id, 'status': new_status, 'unchanged': True}
+
+    CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id).update(
+        exam_status_code=new_status,
+        updated_at=timezone.now(),
+    )
+    _log_workflow(quiz_id, previous_status, new_status, user_profile_id)
+    return {'success': True, 'quiz_id': quiz_id, 'status': new_status}
+
+
+def delete_quiz(quiz_id, user_profile_id):
+    """Soft-delete a quiz by flipping is_active = False.
+
+    Question rows are NOT cascaded — they're shared by other quizzes via the
+    pool table. Pool links to this quiz are dropped so the questions can be
+    reused cleanly elsewhere.
+    """
+    if not quiz_id:
+        return {'success': False, 'error': 'quiz_id required.'}
+
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id, is_active=True).first()
+    if not quiz:
+        return {'success': False, 'error': 'Quiz not found or already deleted.'}
+
+    try:
+        with transaction.atomic():
+            CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id).update(
+                is_active=False,
+                exam_status_code='archived',
+                updated_at=timezone.now(),
+            )
+            MapQuizQuestionPool.objects.filter(link_mastermind_coll_quiz_id=quiz_id).delete()
+        _log_workflow(quiz_id, quiz.exam_status_code, 'deleted', user_profile_id)
+        return {'success': True, 'quiz_id': quiz_id}
+    except Exception:
+        logger.exception('Failed to delete quiz %s', quiz_id)
+        return {'success': False, 'error': 'Server error during delete.'}

@@ -1,5 +1,6 @@
 """Mastermind quiz engine — start session, submit answers, compute scores."""
 
+import json
 import logging
 import random
 from datetime import date
@@ -299,11 +300,20 @@ def _build_session_response(session, exam, session_questions):
 
 def submit_answer(session_question_id, user_profile_id, selected_option_id=None,
                   fill_blank_answer_text=None, short_answer_text=None,
+                  matching_pairs=None, ordering_option_ids=None,
                   time_spent_seconds=None):
     """Submit an answer for a single question in an active session.
 
     Returns dict with is_correct, points_earned, explanation (if configured),
     source citation, or error dict.
+
+    Per-type response payload:
+      mcq_single / true_false:  selected_option_id (int)
+      mcq_multi:                selected_option_id (comma-separated str of ints)
+      fill_blank:               fill_blank_answer_text (str)
+      short_answer / essay:     short_answer_text (str) — manual grading, is_correct=None
+      matching:                 matching_pairs (list of {stem_pair_id, response_pair_id})
+      ordering:                 ordering_option_ids (list of option_id ints in user's order)
     """
     try:
         session_question = CollQuizSessionQuestion.objects.get(
@@ -380,9 +390,27 @@ def submit_answer(session_question_id, user_profile_id, selected_option_id=None,
         else:
             is_correct = False
 
-    elif question_type_code == 'short_answer':
-        # Short answer requires manual grading
+    elif question_type_code in ('short_answer', 'essay'):
+        # Long-form text answers need a human grader; engine cannot decide.
         is_correct = None
+
+    elif question_type_code == 'matching':
+        if matching_pairs:
+            is_correct = _grade_matching(
+                question.mastermind_coll_question_id,
+                matching_pairs,
+            )
+        else:
+            is_correct = False
+
+    elif question_type_code == 'ordering':
+        if ordering_option_ids:
+            is_correct = _grade_ordering(
+                question.mastermind_coll_question_id,
+                ordering_option_ids,
+            )
+        else:
+            is_correct = False
 
     # Calculate points
     if is_correct is True:
@@ -396,6 +424,12 @@ def submit_answer(session_question_id, user_profile_id, selected_option_id=None,
     )
     session_question.fill_blank_answer_text = fill_blank_answer_text or None
     session_question.short_answer_text = short_answer_text or None
+    session_question.matching_pairs_json = (
+        json.dumps(matching_pairs, ensure_ascii=False) if matching_pairs else None
+    )
+    session_question.ordering_option_ids_json = (
+        json.dumps(ordering_option_ids) if ordering_option_ids else None
+    )
     session_question.is_correct = is_correct
     session_question.points_earned = points_earned
     session_question.time_spent_seconds = time_spent_seconds
@@ -493,6 +527,70 @@ def _grade_fill_blank(question_id, answer_text):
     return False
 
 
+def _grade_matching(question_id, matching_pairs):
+    """Grade a matching question — every stem must be paired with its own response.
+
+    matching_pairs is a list of {stem_pair_id, response_pair_id} dicts
+    referencing rows in coll_question_match_pair. Correct iff every stem's
+    chosen response_pair_id equals its own primary key (stems and responses
+    share the same row in match_pair — sort_order pairs them by index).
+    """
+    from .models import CollQuestionMatchPair
+
+    if not matching_pairs:
+        return False
+
+    pairs_by_id = {
+        pair.mastermind_coll_question_match_pair_id: pair
+        for pair in CollQuestionMatchPair.objects.filter(
+            link_mastermind_coll_question_id=question_id, is_active=True,
+        )
+    }
+    if not pairs_by_id:
+        return False
+
+    stem_pairs = [pair for pair in pairs_by_id.values() if pair.stem_text_bn or pair.stem_text_en]
+    if len(matching_pairs) != len(stem_pairs):
+        return False
+
+    for entry in matching_pairs:
+        stem_pair_id = entry.get('stem_pair_id')
+        response_pair_id = entry.get('response_pair_id')
+        if stem_pair_id is None or response_pair_id is None:
+            return False
+        if stem_pair_id not in pairs_by_id:
+            return False
+        # Correct pairing: the response chosen for this stem must be the same row
+        # (i.e. the response that lives on the same match_pair record as the stem).
+        if stem_pair_id != response_pair_id:
+            return False
+    return True
+
+
+def _grade_ordering(question_id, ordering_option_ids):
+    """Grade an ordering question — student arranged options must match sort_order.
+
+    ordering_option_ids is the list of CollQuestionOption ids in the order the
+    student picked. Correct iff that list equals the active options sorted by
+    sort_order (ascending).
+    """
+    canonical_order = list(
+        CollQuestionOption.objects
+        .filter(link_mastermind_coll_question_id=question_id, is_active=True)
+        .order_by('sort_order', 'mastermind_coll_question_option_id')
+        .values_list('mastermind_coll_question_option_id', flat=True)
+    )
+    if not canonical_order:
+        return False
+    if len(ordering_option_ids) != len(canonical_order):
+        return False
+    try:
+        student_order = [int(option_id) for option_id in ordering_option_ids]
+    except (TypeError, ValueError):
+        return False
+    return student_order == canonical_order
+
+
 # ================================================================
 # Session Completion
 # ================================================================
@@ -552,6 +650,10 @@ def complete_exam_session(session_id, user_profile_id):
     # Advanced post-session processing (SRS cards, analytics, badges, streak freeze)
     from .engine_advanced import post_session_processing
     post_result = post_session_processing(user_profile_id, session.mastermind_coll_quiz_session_id)
+
+    # Email the student that their results are ready (soft-fail if SMTP off)
+    from .notifications import notify_quiz_results_ready
+    notify_quiz_results_ready(session.mastermind_coll_quiz_session_id)
 
     return {
         'session_id': session.mastermind_coll_quiz_session_id,

@@ -702,15 +702,20 @@ def api_quiz_creator_grant(request):
                 is_active=True,
                 updated_at=timezone.now(),
             )
+            from amolnama_news.site_apps.mastermind.notifications import notify_quiz_creator_permission_granted
+            notify_quiz_creator_permission_granted(existing.mastermind_coll_quiz_creator_permission_id)
             return JsonResponse({'success': True, 'action': 'reactivated'})
 
-        CollQuizCreatorPermission.objects.create(
+        new_permission = CollQuizCreatorPermission.objects.create(
             link_user_profile_id=target_user_profile_id,
             link_granted_by_user_profile_id=granter_profile_id,
             permission_status_code='active',
             expires_at=expires_at,
             permission_notes=permission_notes,
         )
+
+    from amolnama_news.site_apps.mastermind.notifications import notify_quiz_creator_permission_granted
+    notify_quiz_creator_permission_granted(new_permission.mastermind_coll_quiz_creator_permission_id)
     return JsonResponse({'success': True, 'action': 'granted'})
 
 

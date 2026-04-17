@@ -871,6 +871,10 @@ def start_generation_job(book_id, topic_id, chapter_id=None,
     job.completed_at = timezone.now()
     job.save()
 
+    # Email the user who started the job (soft-fail if SMTP off)
+    from .notifications import notify_ai_generation_completed
+    notify_ai_generation_completed(job.mastermind_coll_generation_job_id)
+
     return {
         'success': True,
         'job_id': job.mastermind_coll_generation_job_id,

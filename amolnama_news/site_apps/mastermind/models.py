@@ -391,6 +391,8 @@ class CollQuizSessionQuestion(models.Model):
     link_selected_option_id = models.BigIntegerField(null=True, blank=True)
     fill_blank_answer_text = models.TextField(null=True, blank=True)
     short_answer_text = models.TextField(null=True, blank=True)
+    matching_pairs_json = models.TextField(null=True, blank=True)
+    ordering_option_ids_json = models.TextField(null=True, blank=True)
 
     is_correct = models.BooleanField(null=True, blank=True)
     is_bookmarked = models.BooleanField(default=False)

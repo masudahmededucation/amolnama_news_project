@@ -341,6 +341,8 @@ def api_exam_answer(request, exam_id):
         selected_option_id=data.get('selected_option_id'),
         fill_blank_answer_text=data.get('fill_blank_answer_text'),
         short_answer_text=data.get('short_answer_text'),
+        matching_pairs=data.get('matching_pairs'),
+        ordering_option_ids=data.get('ordering_option_ids'),
         time_spent_seconds=data.get('time_spent_seconds'),
     )
     if 'error' in result:
@@ -900,3 +902,173 @@ def api_proctoring_log_violation(request):
     if not result.get('success'):
         return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
     return JsonResponse(result)
+
+
+# ================================================================
+# Quiz lifecycle — clone, archive, delete
+# ================================================================
+
+def _get_quiz_or_403(request, quiz_id):
+    """Return (quiz, error_response). If error_response is not None, return it directly."""
+    from .quiz_builder import can_user_manage_quiz
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id, is_active=True).first()
+    if not quiz:
+        return None, JsonResponse({'error': 'Quiz not found.'}, status=404)
+    if not can_user_manage_quiz(quiz, request.user):
+        return None, JsonResponse({'error': 'Permission denied.'}, status=403)
+    return quiz, None
+
+
+@login_required
+@require_POST
+def api_quiz_clone(request, quiz_id):
+    """Duplicate a quiz + every question + every option. Returns new quiz_id."""
+    from .quiz_builder import clone_quiz
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    user_profile_id = get_user_profile_id(request)
+    result = clone_quiz(quiz_id, user_profile_id)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_archive(request, quiz_id):
+    """Soft-archive (status=archived) — quiz hidden from default lists, restorable."""
+    from .quiz_builder import archive_quiz
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    user_profile_id = get_user_profile_id(request)
+    result = archive_quiz(quiz_id, user_profile_id, unarchive=False)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_unarchive(request, quiz_id):
+    """Restore an archived quiz back to draft."""
+    from .quiz_builder import archive_quiz
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    user_profile_id = get_user_profile_id(request)
+    result = archive_quiz(quiz_id, user_profile_id, unarchive=True)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_delete(request, quiz_id):
+    """Soft-delete (is_active=False) + drop pool links. Questions remain reusable."""
+    from .quiz_builder import delete_quiz
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    user_profile_id = get_user_profile_id(request)
+    result = delete_quiz(quiz_id, user_profile_id)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+# ================================================================
+# Bulk export — questions + quizzes (CSV + JSON)
+# ================================================================
+
+@login_required
+@require_GET
+def api_export_questions(request):
+    """Export questions as JSON or CSV.
+
+    Query params:
+      format=json (default) | csv
+      topic_id=<int>     optional
+      book_id=<int>      optional
+      question_ids=<csv> optional (comma-separated IDs)
+    """
+    from django.http import HttpResponse
+    from .exporters import export_questions_to_dicts, export_questions_to_csv_bytes
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+
+    export_format = (request.GET.get('format') or 'json').lower()
+    topic_id_raw = request.GET.get('topic_id')
+    book_id_raw = request.GET.get('book_id')
+    question_ids_raw = request.GET.get('question_ids')
+
+    topic_id = int(topic_id_raw) if topic_id_raw and topic_id_raw.isdigit() else None
+    book_id = int(book_id_raw) if book_id_raw and book_id_raw.isdigit() else None
+    question_id_list = None
+    if question_ids_raw:
+        question_id_list = [int(part) for part in question_ids_raw.split(',') if part.strip().isdigit()]
+
+    timestamp_suffix = timezone.now().strftime('%Y%m%d-%H%M%S')
+
+    if export_format == 'csv':
+        body_bytes = export_questions_to_csv_bytes(
+            question_id_list=question_id_list, topic_id=topic_id, book_id=book_id,
+        )
+        response = HttpResponse(body_bytes, content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="mastermind-questions-{timestamp_suffix}.csv"'
+        return response
+
+    rows = export_questions_to_dicts(
+        question_id_list=question_id_list, topic_id=topic_id, book_id=book_id,
+    )
+    response = JsonResponse({
+        'success': True,
+        'export_format_version': '1.0',
+        'exported_at': timezone.now().isoformat(),
+        'question_count': len(rows),
+        'questions': rows,
+    })
+    response['Content-Disposition'] = f'attachment; filename="mastermind-questions-{timestamp_suffix}.json"'
+    return response
+
+
+@login_required
+@require_POST
+def api_upload_question_image(request):
+    """Accept a multipart image, store it, return its public URL.
+
+    Multipart fields:
+      file:  the image (required)
+      scope: 'question' (default) or 'option'
+    """
+    from .image_uploads import upload_question_image
+
+    uploaded_file = request.FILES.get('file')
+    scope = (request.POST.get('scope') or 'question').strip().lower()
+    result = upload_question_image(uploaded_file, scope=scope)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Upload failed.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_GET
+def api_export_quiz(request, quiz_id):
+    """Export a single quiz + its question pool as a round-trip-safe JSON bundle."""
+    from django.http import HttpResponse
+    from .exporters import export_quiz_to_dict
+
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    bundle = export_quiz_to_dict(quiz_id)
+    if not bundle:
+        return JsonResponse({'error': 'Quiz not found.'}, status=404)
+    timestamp_suffix = timezone.now().strftime('%Y%m%d-%H%M%S')
+    body = json.dumps(bundle, ensure_ascii=False, indent=2).encode('utf-8')
+    response = HttpResponse(body, content_type='application/json; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="mastermind-quiz-{quiz_id}-{timestamp_suffix}.json"'
+    return response

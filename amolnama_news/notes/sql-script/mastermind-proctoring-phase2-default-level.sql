@@ -14,8 +14,9 @@
 /*      keep whatever level they were created with.                   */
 /* ------------------------------------------------------------------ */
 
-USE [amolnama_news];
-GO
+/* Run this in SSMS while connected to the amolnama_news database
+   (whatever you named it on your server). No USE statement here so the
+   script works regardless of the local database name. */
 
 DECLARE @constraint_name NVARCHAR(200);
 

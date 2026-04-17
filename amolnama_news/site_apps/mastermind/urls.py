@@ -24,6 +24,17 @@ urlpatterns = [
 
     # Exam management
     path('api/exam/create/', views_api.api_exam_create, name='api_exam_create'),
+    path('api/exam/<int:quiz_id>/clone/', views_api.api_quiz_clone, name='api_quiz_clone'),
+    path('api/exam/<int:quiz_id>/archive/', views_api.api_quiz_archive, name='api_quiz_archive'),
+    path('api/exam/<int:quiz_id>/unarchive/', views_api.api_quiz_unarchive, name='api_quiz_unarchive'),
+    path('api/exam/<int:quiz_id>/delete/', views_api.api_quiz_delete, name='api_quiz_delete'),
+    path('api/exam/<int:quiz_id>/export/', views_api.api_export_quiz, name='api_export_quiz'),
+
+    # Bulk question export
+    path('api/question/export/', views_api.api_export_questions, name='api_export_questions'),
+
+    # Question / option image upload (returns public URL)
+    path('api/question/upload-image/', views_api.api_upload_question_image, name='api_upload_question_image'),
 
     # Exam session (quiz taking)
     path('api/exam/<int:exam_id>/start/', views_api.api_exam_start, name='api_exam_start'),
