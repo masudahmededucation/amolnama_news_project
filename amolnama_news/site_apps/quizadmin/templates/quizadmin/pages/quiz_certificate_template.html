@@ -1,0 +1,68 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-quiz-certificate-template.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Edit the HTML rendered when a student passes this quiz. Save an empty template to disable certificates for this quiz.
+    <a href="/quizadmin/quiz/" class="quizadmin-page-back-link">← Back to quizzes</a>
+  </p>
+</section>
+
+<div class="quizadmin-cert-editor-grid">
+  <section class="quizadmin-cert-editor-main" aria-label="Template editor">
+    <header class="quizadmin-cert-editor-header">
+      <h2 class="quizadmin-cert-editor-section-title">Template HTML</h2>
+      <div class="quizadmin-cert-editor-actions">
+        <button type="button" class="quizadmin-cert-editor-button-secondary" id="quizadmin-cert-editor-load-default" name="quizadmin_cert_editor_load_default">Load default template</button>
+        <button type="button" class="quizadmin-cert-editor-button-secondary" id="quizadmin-cert-editor-preview" name="quizadmin_cert_editor_preview">Preview in new tab</button>
+        <button type="button" class="quizadmin-cert-editor-button-primary" id="quizadmin-cert-editor-save" name="quizadmin_cert_editor_save">Save</button>
+      </div>
+    </header>
+    <textarea
+      class="quizadmin-cert-editor-textarea"
+      id="quizadmin-cert-editor-textarea"
+      name="exam_certificate_template_html"
+      spellcheck="false"
+      autocomplete="off"
+      data-exam-id="{{ quiz.mastermind_coll_quiz_id }}"
+      placeholder="Paste your full <html>…</html> here. Use the placeholders on the right to inject dynamic data per recipient.">{{ template_html }}</textarea>
+    <div class="quizadmin-inline-message" id="quizadmin-cert-editor-message" role="status" aria-live="polite" hidden></div>
+  </section>
+
+  <aside class="quizadmin-cert-editor-sidebar" aria-label="Reference">
+    <section class="quizadmin-cert-editor-tokens">
+      <h2 class="quizadmin-cert-editor-section-title">Available placeholders</h2>
+      <p class="quizadmin-cert-editor-help">Each token below is replaced when a real certificate is rendered. Click to copy.</p>
+      <ul class="quizadmin-cert-editor-token-list">
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{recipient_name}}' }}">{{ '{{recipient_name}}' }}</button><span>Student's display name</span></li>
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{quiz_title}}' }}">{{ '{{quiz_title}}' }}</button><span>The quiz's title</span></li>
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{score_percentage}}' }}">{{ '{{score_percentage}}' }}</button><span>e.g. <code>85.5%</code></span></li>
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{issued_date}}' }}">{{ '{{issued_date}}' }}</button><span>e.g. <code>2026-04-17</code></span></li>
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{certificate_serial}}' }}">{{ '{{certificate_serial}}' }}</button><span>Public unforgeable id</span></li>
+        <li><button type="button" class="quizadmin-cert-editor-token" data-token="{{ '{{verification_url}}' }}">{{ '{{verification_url}}' }}</button><span>Public verify URL</span></li>
+      </ul>
+    </section>
+
+    <section class="quizadmin-cert-editor-tips">
+      <h2 class="quizadmin-cert-editor-section-title">Tips</h2>
+      <ul class="quizadmin-cert-editor-tip-list">
+        <li><strong>Self-contained.</strong> Use inline <code>&lt;style&gt;</code> — external CSS files are NOT loaded on the public certificate page.</li>
+        <li><strong>Print-friendly.</strong> Add <code>@media print</code> styles. The student saves to PDF via Ctrl+P.</li>
+        <li><strong>Mobile-friendly.</strong> Set <code>&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;</code>.</li>
+        <li><strong>Verify QR.</strong> Render <code>{{ '{{verification_url}}' }}</code> as a QR code via any inline QR library if you want offline verification.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-quiz-certificate-template.js' %}" defer></script>
+{% endblock %}

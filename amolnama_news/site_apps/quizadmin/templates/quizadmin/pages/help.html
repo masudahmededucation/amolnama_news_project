@@ -1,0 +1,239 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-help.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">A guided tour of Quiz Panel — what each tab does, in the order you'll use them.</p>
+</section>
+
+<section class="quizadmin-help-section" aria-label="Workflow diagram">
+  <h2 class="quizadmin-help-section-title">The full workflow, left to right</h2>
+  <p class="quizadmin-help-section-hint">Every box is a tab in the top nav. Arrows show what feeds what. Click a box to jump there.</p>
+
+  <ol class="quizadmin-help-flow" aria-label="Quiz Panel workflow">
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-source">
+      <a href="/quizadmin/books/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">1</span>
+        <span class="quizadmin-help-flow-step-title">Books</span>
+        <span class="quizadmin-help-flow-step-body">Upload PDFs of your source material — textbooks, constitutions, scripture, exam guides.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Upload PDF</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-source">
+      <a href="/quizadmin/generation-jobs/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">2</span>
+        <span class="quizadmin-help-flow-step-title">AI Jobs</span>
+        <span class="quizadmin-help-flow-step-body">Trigger Ollama to generate questions from each book chapter, with NLI anti-hallucination.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Start generation</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-approve">
+      <a href="/quizadmin/review/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">3</span>
+        <span class="quizadmin-help-flow-step-title">Review</span>
+        <span class="quizadmin-help-flow-step-body">Approve or reject AI-generated questions one by one, with NLI confidence visible.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Approve / reject</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-bank">
+      <a href="/quizadmin/questions/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">4</span>
+        <span class="quizadmin-help-flow-step-title">Questions</span>
+        <span class="quizadmin-help-flow-step-body">Browse the universal question bank. Filter, search, edit, version, or hand-author new ones.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Edit / author</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-assemble">
+      <a href="/quizadmin/quiz/create/" class="quizadmin-help-flow-link quizadmin-help-flow-link-cta">
+        <span class="quizadmin-help-flow-step-num">5</span>
+        <span class="quizadmin-help-flow-step-title">+ Create Quiz</span>
+        <span class="quizadmin-help-flow-step-body">Pick questions from the bank, set scoring, time limit, proctoring level, certificate template.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Assemble + publish</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-manage">
+      <a href="/quizadmin/quiz/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">6</span>
+        <span class="quizadmin-help-flow-step-title">Quizzes</span>
+        <span class="quizadmin-help-flow-step-body">Manage every quiz — clone, edit, schedule, archive, leaderboard, certificate template.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Manage lifecycle</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-measure">
+      <a href="/quizadmin/analytics/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">7</span>
+        <span class="quizadmin-help-flow-step-title">Analytics</span>
+        <span class="quizadmin-help-flow-step-body">Visual charts: score distribution, pass rate, hardest questions, topic engagement.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Measure outcomes</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-audit">
+      <a href="/quizadmin/proctoring/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">8</span>
+        <span class="quizadmin-help-flow-step-title">Proctoring</span>
+        <span class="quizadmin-help-flow-step-body">Live feed of integrity violations across all sessions. Forgive false positives.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Audit + forgive</strong></span>
+      </a>
+    </li>
+    <li class="quizadmin-help-flow-step quizadmin-help-flow-step-admin">
+      <a href="/quizadmin/creators/" class="quizadmin-help-flow-link">
+        <span class="quizadmin-help-flow-step-num">9</span>
+        <span class="quizadmin-help-flow-step-title">Creators</span>
+        <span class="quizadmin-help-flow-step-body">Grant non-staff users permission to create quizzes; set expiry dates, revoke at any time.</span>
+        <span class="quizadmin-help-flow-step-action">Action: <strong>Grant / revoke</strong></span>
+      </a>
+    </li>
+  </ol>
+</section>
+
+<section class="quizadmin-help-section" aria-label="Roles and what they do">
+  <h2 class="quizadmin-help-section-title">Who does what</h2>
+  <div class="quizadmin-help-roles">
+    <article class="quizadmin-help-role-card">
+      <h3 class="quizadmin-help-role-title">Staff (admin)</h3>
+      <ul class="quizadmin-help-role-list">
+        <li>Upload books and start AI generation jobs.</li>
+        <li>Approve / reject AI-generated questions in the Review queue.</li>
+        <li>Create quizzes; publish, archive, or delete them.</li>
+        <li>Set the proctoring level and certificate template per quiz.</li>
+        <li>Forgive proctoring false positives.</li>
+        <li>Grant quiz-creator rights to non-staff users.</li>
+      </ul>
+    </article>
+    <article class="quizadmin-help-role-card">
+      <h3 class="quizadmin-help-role-title">Quiz creator (non-staff with permission)</h3>
+      <ul class="quizadmin-help-role-list">
+        <li>Receive a permission grant from staff (visible in their messenger inbox).</li>
+        <li>Author new quizzes — but only edit ones they themselves created.</li>
+        <li>See analytics for their own quizzes.</li>
+      </ul>
+    </article>
+    <article class="quizadmin-help-role-card">
+      <h3 class="quizadmin-help-role-title">Student (any logged-in user)</h3>
+      <ul class="quizadmin-help-role-list">
+        <li>Take any published quiz from the consumer site (historybd, constitutionbd, etc.).</li>
+        <li>If the quiz is level 2 (webcam), see the privacy consent screen first.</li>
+        <li>Get score + correct-answer review immediately on submit.</li>
+        <li>Receive a pulse notification + DM when results are ready.</li>
+        <li>Earn streaks, badges, mastery, and a public-verifiable certificate (if the quiz issues one).</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section class="quizadmin-help-section" aria-label="Frequently asked questions">
+  <h2 class="quizadmin-help-section-title">Frequently asked questions</h2>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do I create my first quiz?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>1. Click <a href="/quizadmin/quiz/create/">+ Create Quiz</a>.</p>
+      <p>2. Fill in the title, topic, time limit, pass percentage, and proctoring level (defaults to <strong>1 — browser lockdown</strong>).</p>
+      <p>3. Either pick existing questions from the bank, or hand-author new ones inline.</p>
+      <p>4. Save as draft, then publish from the Quizzes list when ready.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do AI-generated questions work?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Upload a PDF in <a href="/quizadmin/books/">Books</a>. The system extracts text via PyMuPDF (with Tesseract OCR fallback for scanned pages), splits into chunks, and stores them.</p>
+      <p>Then in <a href="/quizadmin/generation-jobs/">AI Jobs</a> you trigger Ollama (local LLM) to generate N questions per chunk. Every generated question is fed through an NLI (Natural Language Inference) classifier — if the proposed answer doesn't entail from the source chunk, the question is auto-rejected as a hallucination.</p>
+      <p>Surviving questions land in the <a href="/quizadmin/review/">Review</a> queue with their NLI confidence visible. You approve / reject before they enter the question bank.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">What are the 3 proctoring levels?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p><strong>Level 0 — None.</strong> No anti-cheating. Use for casual practice quizzes.</p>
+      <p><strong>Level 1 — Browser lockdown (default).</strong> Detects tab switching, copy/paste attempts, fullscreen exit, dev-tools shortcuts. No camera. No consent needed.</p>
+      <p><strong>Level 2 — Lockdown + webcam AI (opt-in only).</strong> Adds face presence + multi-face + gaze tracking via MediaPipe in the browser. <strong>ZERO IMAGES</strong> — nothing leaves the browser; only text events ("look_away", "multiple_faces") with timestamps. Requires student consent screen before the quiz starts.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do certificates work?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>For each quiz, click <strong>Certificate</strong> in the row actions on the <a href="/quizadmin/quiz/">Quizzes</a> page. Paste an HTML template (or click <strong>Load default</strong> for a polished bilingual one). Save.</p>
+      <p>Now whenever a student passes that quiz, the engine auto-issues a certificate with an unforgeable serial. The student gets a public verify URL: <code>/mastermind/certificate/&lt;serial&gt;/</code>. Anyone can verify authenticity.</p>
+      <p>The student saves it as PDF via Ctrl+P (browser-native, no server PDF library).</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do students get notified when results are ready?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Two channels, both in-house, both free:</p>
+      <p>1. A <strong>pulse notification badge</strong> on their homepage (newsengine.NotificationItem + WebSocket).</p>
+      <p>2. A <strong>direct message in their messenger inbox</strong> from a designated system sender account (configure with the <code>MASTERMIND_SYSTEM_SENDER_PROFILE_ID</code> env var; without it the DM is silently skipped and only pulse fires).</p>
+      <p>No email. No SMTP. No third party.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">Can I let a non-staff user create quizzes?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Yes — go to <a href="/quizadmin/creators/">Creators</a>, search by email, set an optional expiry date, click Grant. The user gets a notification and can immediately access Quiz Panel. They can edit only the quizzes they themselves created. Staff can still edit anything.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">A student needs extra time (accommodation). How do I grant it?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Once the student starts a session, you can POST to <code>/mastermind/api/session/&lt;session_id&gt;/accommodation/</code> with <code>{ "extra_time_minutes": 15, "notes": "documented dyslexia" }</code> or <code>{ "no_time_limit": true }</code>. The engine honors the override on the next page reload. (UI for this lands on the proctoring session audit page in a future round.)</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do I plug Mastermind into Slack / Discord / Zapier?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>POST to <code>/mastermind/api/webhook/subscriptions/create/</code> with <code>{ "webhook_event_code": "quiz_session_passed", "webhook_target_url": "https://...", "webhook_secret": "..." }</code>. Whenever the event fires, Mastermind POSTs a signed JSON envelope to your URL. The signature is HMAC-SHA256 in the <code>X-Mastermind-Signature</code> header — verify it on your side to guarantee authenticity.</p>
+      <p>Supported event codes: <code>quiz_session_completed / passed / failed</code>, <code>ai_generation_completed</code>, <code>quiz_creator_permission_granted</code>, <code>proctoring_violation_logged</code>.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">Can I export questions to back up or migrate?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Yes. <code>GET /mastermind/api/question/export/?format=csv</code> exports the entire bank as a CSV (UTF-8 with BOM so Excel opens Bengali correctly). <code>?format=json</code> exports as JSON. Both are round-trip compatible with the bulk-import endpoint at <code>/mastermind/api/question/bulk-import/</code>.</p>
+      <p>For a single quiz with its question pool: <code>GET /mastermind/api/exam/&lt;id&gt;/export/</code>.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">What does "ZERO IMAGES" actually mean in proctoring?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Three guarantees:</p>
+      <ol>
+        <li><strong>Schema-level:</strong> the <code>coll_quiz_proctoring_log</code> table has no BLOB / VARBINARY column. Even if rogue code wanted to store an image, it physically cannot.</li>
+        <li><strong>Client-level:</strong> all face / landmark / gaze processing happens in WebAssembly + WebGL inside the browser. The MediaPipe stream attaches to a hidden in-page <code>&lt;video&gt;</code>, never sent over the network.</li>
+        <li><strong>Network-level:</strong> our CSP only allows POSTs to <code>'self'</code>. Even a hostile script cannot exfiltrate frames to a third party.</li>
+      </ol>
+      <p>The server only ever receives small text events: <code>{ type: "look_away", timestamp: "2026-04-17T10:23:11Z" }</code>.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">What question types are supported?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Eight types, ordered by difficulty to author:</p>
+      <ol>
+        <li><strong>MCQ single</strong> — pick one correct option.</li>
+        <li><strong>MCQ multi</strong> — pick all correct options.</li>
+        <li><strong>True / False</strong> — binary.</li>
+        <li><strong>Fill in the blank</strong> — short text answer matched against allowed answers.</li>
+        <li><strong>Short answer</strong> — free text, requires manual grading.</li>
+        <li><strong>Essay (paragraph)</strong> — long-form, requires manual grading.</li>
+        <li><strong>Matching</strong> — pair stems with responses.</li>
+        <li><strong>Ordering / sequence</strong> — arrange items into the correct order.</li>
+      </ol>
+    </div>
+  </details>
+</section>
+{% endblock %}

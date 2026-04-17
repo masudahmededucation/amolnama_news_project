@@ -154,6 +154,36 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def help_page(request):
+    """Quiz Panel — workflow diagram + Q&A. Single source of truth for 'how do I…?'."""
+    context = {
+        'page_title': 'Help & Workflow',
+        'quizadmin_active_tab': 'help',
+    }
+    return render(request, 'quizadmin/pages/help.html', context)
+
+
+@staff_member_required
+def quiz_certificate_template_page(request, exam_id):
+    """Editor for the per-quiz certificate HTML template.
+
+    Loads the current exam_certificate_template_html (or empty string if none).
+    The save handler is /quizadmin/api/quiz/<id>/certificate-template/.
+    """
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=int(exam_id), is_active=True).first()
+    if not quiz:
+        return render(request, 'quizadmin/pages/not_found.html', {'page_title': 'Quiz not found'})
+    context = {
+        'page_title': f'Certificate template — {quiz.exam_title_bn or quiz.exam_title_en}',
+        'quizadmin_active_tab': 'quiz_list',
+        'quiz': quiz,
+        'template_html': quiz.exam_certificate_template_html or '',
+    }
+    return render(request, 'quizadmin/pages/quiz_certificate_template.html', context)
+
+
+@staff_member_required
 def analytics_dashboard_page(request):
     """Visual analytics dashboard — Chart.js widgets fed by mastermind analytics API."""
     from amolnama_news.site_apps.mastermind.models import CollQuiz

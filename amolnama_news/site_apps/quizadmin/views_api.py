@@ -794,6 +794,39 @@ def api_quiz_creator_search_users(request):
 
 @staff_member_required
 @require_POST
+def api_quiz_certificate_template_save(request, exam_id):
+    """Persist the per-quiz certificate HTML template.
+
+    Empty body / blank string clears the template (quiz stops issuing
+    certificates for new passes). Existing certificates already issued are
+    NOT affected — they keep rendering against the template snapshot.
+    """
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    from django.utils import timezone
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=int(exam_id), is_active=True).first()
+    if not quiz:
+        return JsonResponse({'error': 'Quiz not found.'}, status=404)
+
+    template_html = (payload.get('exam_certificate_template_html') or '').strip()
+    CollQuiz.objects.filter(mastermind_coll_quiz_id=int(exam_id)).update(
+        exam_certificate_template_html=template_html or None,
+        updated_at=timezone.now(),
+    )
+    return JsonResponse({
+        'success': True,
+        'template_length': len(template_html),
+        'is_active': bool(template_html),
+    })
+
+
+@staff_member_required
+@require_POST
 def api_proctoring_forgive_violation(request, violation_id):
     """Soft-delete a proctoring violation row and recompute the session's score."""
     from amolnama_news.site_apps.mastermind.proctoring import forgive_violation
