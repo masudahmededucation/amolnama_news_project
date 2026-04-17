@@ -331,3 +331,62 @@ Deferred — full written plans under notes/claude/app_documentation/:
   - plan-mastermind-future-extras.txt        (8 small items, ~25 dev-days total)
 
 Nothing on the deferred list blocks current platform usage.
+
+
+CHANGELOG — 2026-04-17 (round 4 — consumer-side quiz-take UX)
+-------------------------------------------------------------
+First end-user-facing UI for the engine. Closes the largest functional
+gap (engine had no consumer until now).
+
+Reusable partial:
+  - mastermind/templates/mastermind/partials/quiz_take.html
+  - mastermind/static/mastermind/assets/css/components/quiz-take.css
+  - mastermind/static/mastermind/assets/js/quiz-take.js
+
+  Drop into any consumer page that wants to render Mastermind quizzes:
+    {% include 'mastermind/partials/quiz_take.html' with quiz_id=quiz.id quiz=quiz %}
+
+  Provides:
+    - Welcome screen with quiz metadata (title, total questions, time limit,
+      pass mark, proctoring level)
+    - Per-question loop (7 of 8 question types supported — matching TODO)
+    - Server-driven timer with warning + critical colour states
+    - Immediate explanation rendering when exam_show_explanation_code='each_question'
+    - Source citation rendered inline (book #, chapter #, page) per CLAUDE.md
+      rule 7 — "anti-lying feature"
+    - Submit on finish OR auto-submit on time-out
+    - Results screen with pass/fail badge, score breakdown, badges earned
+
+  Question type renderers in quiz-take.js:
+    mcq_single / true_false   → radio group
+    mcq_multi                 → checkbox group
+    fill_blank                → text input
+    short_answer / essay      → textarea (manual grading)
+    ordering                  → up/down arrow list with shuffled initial order
+    matching                  → NOT YET (engine API needs match_pairs payload)
+
+  Proctoring auto-boots when exam_proctoring_level >= 1 via
+  window.mastermindProctoring.start(). Level 2 webcam consent gate fires
+  via the existing proctoring_consent partial.
+
+First consumer page (staff dogfood):
+  - /quizadmin/quiz/<id>/take/  (Quizzes list → "Take" row action)
+  - quizadmin/views.py:quiz_take_page
+  - quizadmin/templates/quizadmin/pages/quiz_take.html (just includes the partial)
+
+Engine endpoints used by quiz-take.js:
+  POST /mastermind/api/exam/<id>/start/   → session + all questions
+  POST /mastermind/api/exam/<id>/answer/  → grade one answer + explanation
+  POST /mastermind/api/exam/<id>/submit/  → finalise score, auto-issue cert,
+                                            fire pulse + DM + webhook events
+
+KNOWN LIMITATIONS / FOLLOW-UP TODOS:
+  - matching question type display (engine API extension needed)
+  - certificate link not yet shown on results screen (need a
+    /api/session/<id>/certificate/ lookup endpoint or include serial in
+    submit response)
+  - resume mid-session (engine supports it; UI just restarts welcome)
+  - mobile drag-and-drop for ordering (current up/down arrows are fine
+    but drag would be nicer)
+
+Cache bumped to v708.

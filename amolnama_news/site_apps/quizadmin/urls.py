@@ -22,6 +22,7 @@ urlpatterns = [
     path('quiz/<int:exam_id>/print/',      views.quiz_print_page,        name='quiz_print'),
     path('quiz/<int:exam_id>/workflow/',   views.quiz_workflow_log_page, name='quiz_workflow_log'),
     path('creators/',                      views.quiz_creators_page,     name='quiz_creators'),
+    path('quiz/<int:exam_id>/take/', views.quiz_take_page, name='quiz_take_page'),
     path('quiz/<int:exam_id>/certificate-template/', views.quiz_certificate_template_page, name='quiz_certificate_template'),
     path('api/quiz/<int:exam_id>/certificate-template/', views_api.api_quiz_certificate_template_save, name='api_quiz_certificate_template_save'),
     path('analytics/',                     views.analytics_dashboard_page,            name='analytics_dashboard'),

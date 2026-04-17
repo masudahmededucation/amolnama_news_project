@@ -180,6 +180,25 @@ def webhooks_page(request):
 
 
 @staff_member_required
+def quiz_take_page(request, exam_id):
+    """Staff dogfood — actually take a quiz end-to-end via mastermind engine.
+
+    Same partial used here is meant to be dropped into consumer apps
+    (historybd / constitutionbd) when they're ready.
+    """
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=int(exam_id), is_active=True).first()
+    if not quiz:
+        return render(request, 'quizadmin/pages/not_found.html', {'page_title': 'Quiz not found'})
+    context = {
+        'page_title': 'Take quiz — ' + (quiz.exam_title_bn or quiz.exam_title_en or f'#{exam_id}'),
+        'quizadmin_active_tab': 'quiz_list',
+        'quiz': quiz,
+    }
+    return render(request, 'quizadmin/pages/quiz_take.html', context)
+
+
+@staff_member_required
 def help_page(request):
     """Quiz Panel — workflow diagram + Q&A. Single source of truth for 'how do I…?'."""
     context = {

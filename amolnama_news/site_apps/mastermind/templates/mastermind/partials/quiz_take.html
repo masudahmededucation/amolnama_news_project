@@ -1,0 +1,95 @@
+{% load static %}
+{# Reusable quiz-taking shell. Drop into any consumer page that wants to
+   render a Mastermind quiz to end users.
+
+   Usage:
+     {% include 'mastermind/partials/quiz_take.html' with quiz_id=quiz.id %}
+
+   What you get:
+     - Welcome screen showing quiz metadata (title, total questions, time limit, proctoring level)
+     - "Start quiz" button that POSTs /mastermind/api/exam/<id>/start/ to create a session
+     - Per-question rendering for 7 of 8 question types (matching is the one TODO)
+     - Server-side timer reflected client-side
+     - Submit on finish OR auto-submit on time-out
+     - Results screen with score, breakdown, certificate link if applicable
+     - Proctoring auto-boots when exam_proctoring_level >= 1
+     - Level 2 → consent screen first via the existing proctoring_consent partial
+
+   What the consumer must provide:
+     - The user must be logged in (login_required on the wrapper view)
+     - The wrapper view passes quiz_id (the integer mastermind_coll_quiz_id)
+#}
+<link rel="stylesheet" href="{% static 'mastermind/assets/css/components/quiz-take.css' %}">
+
+<div class="mastermind-quiz-take" id="mastermind-quiz-take" data-quiz-id="{{ quiz_id }}">
+{% if quiz %}
+<script type="application/json" id="mastermind-quiz-take-metadata">
+{
+  "exam_title_bn": "{{ quiz.exam_title_bn|default_if_none:''|escapejs }}",
+  "exam_title_en": "{{ quiz.exam_title_en|default_if_none:''|escapejs }}",
+  "exam_total_questions": {{ quiz.exam_total_questions|default:0 }},
+  "exam_time_limit_minutes": {% if quiz.exam_time_limit_minutes %}{{ quiz.exam_time_limit_minutes }}{% else %}null{% endif %},
+  "exam_pass_percentage": "{{ quiz.exam_pass_percentage|default_if_none:'50' }}",
+  "exam_proctoring_level": {{ quiz.exam_proctoring_level|default:0 }},
+  "exam_max_attempts": {% if quiz.exam_max_attempts %}{{ quiz.exam_max_attempts }}{% else %}null{% endif %}
+}
+</script>
+{% endif %}
+
+  {# State 1: pre-start welcome ----------------------------------- #}
+  <section class="mastermind-quiz-take-state" data-state="welcome">
+    <header class="mastermind-quiz-take-welcome-header">
+      <h1 class="mastermind-quiz-take-welcome-title" id="mastermind-quiz-take-welcome-title">Loading…</h1>
+      <p class="mastermind-quiz-take-welcome-subtitle" id="mastermind-quiz-take-welcome-subtitle"></p>
+    </header>
+    <dl class="mastermind-quiz-take-welcome-meta" id="mastermind-quiz-take-welcome-meta"></dl>
+    <div class="mastermind-quiz-take-actions">
+      <button type="button" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-start-button" name="mastermind_quiz_take_start_button" disabled>Start quiz</button>
+    </div>
+    <p class="mastermind-quiz-take-error-message" id="mastermind-quiz-take-welcome-error" role="alert" hidden></p>
+  </section>
+
+  {# State 2: in-progress question loop --------------------------- #}
+  <section class="mastermind-quiz-take-state" data-state="playing" hidden>
+    <header class="mastermind-quiz-take-playing-header">
+      <div class="mastermind-quiz-take-progress" id="mastermind-quiz-take-progress" aria-live="polite">Question 1 / 1</div>
+      <div class="mastermind-quiz-take-timer" id="mastermind-quiz-take-timer" aria-live="polite" hidden></div>
+    </header>
+    <div class="mastermind-quiz-take-progress-track">
+      <div class="mastermind-quiz-take-progress-fill" id="mastermind-quiz-take-progress-fill" style="width: 0%"></div>
+    </div>
+
+    <article class="mastermind-quiz-take-question" id="mastermind-quiz-take-question" aria-live="polite">
+      <p class="mastermind-quiz-take-question-text" id="mastermind-quiz-take-question-text"></p>
+      <img class="mastermind-quiz-take-question-image" id="mastermind-quiz-take-question-image" alt="" hidden>
+      <div class="mastermind-quiz-take-answer-region" id="mastermind-quiz-take-answer-region"></div>
+      <p class="mastermind-quiz-take-hint" id="mastermind-quiz-take-hint" hidden></p>
+    </article>
+
+    <div class="mastermind-quiz-take-explanation" id="mastermind-quiz-take-explanation" hidden></div>
+    <p class="mastermind-quiz-take-error-message" id="mastermind-quiz-take-playing-error" role="alert" hidden></p>
+
+    <footer class="mastermind-quiz-take-footer">
+      <button type="button" class="mastermind-quiz-take-button-secondary" id="mastermind-quiz-take-skip-button" name="mastermind_quiz_take_skip_button">Skip</button>
+      <button type="button" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-submit-answer-button" name="mastermind_quiz_take_submit_answer_button">Submit answer</button>
+      <button type="button" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-next-button" name="mastermind_quiz_take_next_button" hidden>Next question</button>
+      <button type="button" class="mastermind-quiz-take-button-primary mastermind-quiz-take-button-finish" id="mastermind-quiz-take-finish-button" name="mastermind_quiz_take_finish_button" hidden>Finish quiz</button>
+    </footer>
+  </section>
+
+  {# State 3: post-submit results --------------------------------- #}
+  <section class="mastermind-quiz-take-state" data-state="results" hidden>
+    <header class="mastermind-quiz-take-results-header">
+      <h1 class="mastermind-quiz-take-results-title" id="mastermind-quiz-take-results-title">Results</h1>
+      <p class="mastermind-quiz-take-results-subtitle" id="mastermind-quiz-take-results-subtitle"></p>
+    </header>
+    <div class="mastermind-quiz-take-results-score" id="mastermind-quiz-take-results-score">—%</div>
+    <dl class="mastermind-quiz-take-results-grid" id="mastermind-quiz-take-results-grid"></dl>
+    <div class="mastermind-quiz-take-results-actions">
+      <a href="#" class="mastermind-quiz-take-button-secondary" id="mastermind-quiz-take-results-back" name="mastermind_quiz_take_results_back">Back</a>
+      <a href="#" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-results-certificate-link" name="mastermind_quiz_take_results_certificate_link" hidden>View certificate</a>
+    </div>
+  </section>
+</div>
+
+<script src="{% static 'mastermind/assets/js/quiz-take.js' %}" defer></script>

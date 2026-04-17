@@ -140,6 +140,15 @@
   </details>
 
   <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">How do I dogfood-take a quiz to test it before publishing?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>From the <a href="/quizadmin/quiz/">Quizzes</a> list, click the <strong>Take</strong> action on any row. You'll get the same UI the end users see: welcome screen with quiz metadata, timer, per-question view, immediate explanation, and a results screen at the end. Browser lockdown / webcam consent fire exactly as they will for real students.</p>
+      <p>The take page is a reusable partial at <code>mastermind/templates/mastermind/partials/quiz_take.html</code> — consumer apps (historybd / constitutionbd / etc.) include the same partial when they want to render quizzes to their own users. One source of truth for the take UX.</p>
+      <p>Supported question types in this version: MCQ single, MCQ multi, true/false, fill-blank, short answer, essay, ordering. Matching is the one TODO — needs an engine API extension.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
     <summary class="quizadmin-help-faq-question">How do AI-generated questions work?</summary>
     <div class="quizadmin-help-faq-answer">
       <p>Upload a PDF in <a href="/quizadmin/books/">Books</a>. The system extracts text via PyMuPDF (with Tesseract OCR fallback for scanned pages), splits into chunks, and stores them.</p>

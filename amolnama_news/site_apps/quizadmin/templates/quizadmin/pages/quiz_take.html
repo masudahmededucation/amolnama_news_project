@@ -1,0 +1,23 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <p class="quizadmin-page-subtitle">
+    <a href="/quizadmin/quiz/" class="quizadmin-page-back-link">← Back to quizzes</a>
+    · Staff dogfood — this is the same partial that consumer apps will use.
+  </p>
+</section>
+
+{# Mastermind take partial — fully reusable, drop-in #}
+{% include 'mastermind/partials/quiz_take.html' with quiz_id=quiz.mastermind_coll_quiz_id quiz=quiz %}
+
+{# Optional: Phase 2 webcam consent gate. Renders a no-op if level < 2. #}
+{% include 'mastermind/partials/proctoring_consent.html' with quiz_id=quiz.mastermind_coll_quiz_id session_id=0 proctoring_level=quiz.exam_proctoring_level %}
+{% endblock %}
+
+{% block quizadmin_js %}
+{# Lockdown engine boots automatically when proctoring level >= 1; webcam.js
+   piggy-backs onto it when level == 2. Both are no-ops at level 0. #}
+<script src="{% static 'mastermind/assets/js/proctoring-lockdown.js' %}" defer></script>
+{% endblock %}
