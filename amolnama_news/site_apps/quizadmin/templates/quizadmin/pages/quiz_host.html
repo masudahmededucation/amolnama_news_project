@@ -45,6 +45,10 @@
       <span class="mastermind-lobby-progress" id="mastermind-lobby-progress">Question 1 / 1</span>
       <span class="mastermind-lobby-timer" id="mastermind-lobby-timer" aria-live="polite" hidden></span>
     </header>
+    {# Quiz-level progress: same shared component as the player page #}
+    <div class="mastermind-lobby-progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="mastermind-lobby-progress-track">
+      <div class="mastermind-lobby-progress-fill" id="mastermind-lobby-progress-fill" style="width: 0%"></div>
+    </div>
     <article class="mastermind-lobby-question">
       <p class="mastermind-lobby-question-text" id="mastermind-lobby-question-text"></p>
     </article>

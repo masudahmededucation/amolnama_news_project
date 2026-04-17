@@ -508,4 +508,35 @@ BUG-SCAN FIXES
 SQL SCRIPT RUN ORDER (this session)
   notes/sql-script/mastermind-multiplayer-lobby.sql   — REQUIRED for multi-player
 
-Cache bumped to v715.
+10/10 POLISH PASS
+  Sound (mastermind/static/mastermind/assets/js/lobby-sfx.js — new module):
+    Web Audio API synth — zero external files. 8 events:
+    question_advance, lock_in, correct, wrong, time_warning, time_up,
+    lobby_start, game_over. Lazy AudioContext init. Honours
+    prefers-reduced-motion + localStorage("mastermind_lobby_sfx").
+    150ms per-event debounce. Single source of truth for the
+    🔊 / 🔇 toggle wiring via wireToggleButton(buttonElement) — both
+    lobby-player.js and lobby-host.js call it with one line each
+    (no duplicate 18-line wiring code).
+  Animations (lobby.css keyframes):
+    - mastermind-lobby-question-enter (320ms slide-up + fade)
+    - mastermind-lobby-timer-pulse (1.2s warning ≤10s, 0.6s critical ≤5s)
+    - mastermind-lobby-status-flash (240ms scale pop on answer feedback)
+    - mastermind-lobby-podium-drop (staggered drop, top-3 reveal last)
+    - mastermind-lobby-confetti-spin (🎉 emoji rotates above #1 row)
+    All gated behind @media (prefers-reduced-motion: reduce).
+  Progress bar:
+    - 4px gradient track shows fraction complete across all questions
+    - role="progressbar" + aria-valuenow updated on every advance
+    - Smooth 320ms width transition with reduced-motion override
+    - Same component on both player + host pages (single CSS class)
+  Keyboard shortcuts (player only):
+    - 1-9 picks the Nth radio option
+    - Enter submits when an answer is locked
+    - Skipped when typing in input/textarea/select
+  Floating SFX toggle on host page:
+    - Desktop: absolute top-right of lobby grid
+    - Mobile (≤768px): fixed bottom-right of viewport (avoids share-code overlap)
+    - Elevation-3 shadow on mobile for legibility above scrolling content
+
+Cache bumped to v717.

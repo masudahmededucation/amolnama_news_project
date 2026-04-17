@@ -201,3 +201,37 @@ table/tbody/tr/td to display:block, hides thead, and adds td::before {
 content: attr(data-label) } so each cell becomes a labelled stack.
 Location: quizadmin/templates/quizadmin/pages/flagged_questions.html,
 quizadmin/static/quizadmin/assets/css/pages/page-flagged-questions.css.
+
+### R21. Web Audio API — non-essential sound that must never break the app
+Date: 2026-04-17
+Was: Lobby pages need sound effects (correct, wrong, time-warning, etc.)
+without external audio files (CSP-safe + free). Sound is non-essential —
+gameplay must continue if the audio context fails.
+Pattern (mastermind/static/mastermind/assets/js/lobby-sfx.js):
+  - AudioContext created lazily on first play() call (browser autoplay policy
+    requires user gesture — don't construct on script load)
+  - Each sound is composed at play time as a tiny synth pattern
+    (oscillator + gainNode with smooth attack/release envelopes — no clicks)
+  - Three intentional silent catches: localStorage blocked (private mode),
+    AudioContext.resume() failed (autoplay policy), _playToneSequence threw
+    (browser quirk). All annotated. Sound is explicitly non-essential so
+    swallow + comment is the correct design (NOT a bug).
+  - Per-event 150ms debounce so spammed state messages don't blast the user.
+  - Honours prefers-reduced-motion AND localStorage("mastermind_lobby_sfx")
+    so users can mute persistently.
+  - Module exposes wireToggleButton(buttonElement) — single source of truth
+    for wiring 🔊 / 🔇 toggle buttons (used by both lobby-player.js and
+    lobby-host.js with one line each, no duplication).
+Location: mastermind/static/mastermind/assets/js/lobby-sfx.js.
+
+### R22. Floating action buttons need fixed positioning on mobile
+Date: 2026-04-17
+Was: SFX-toggle button on the host lobby page was position:absolute at top-right
+of .mastermind-lobby. On desktop it sat above the share-code panel cleanly.
+On mobile (≤768px) the lobby collapses to single column and the share-code
+panel becomes the first child — the absolute toggle overlapped it.
+Fix: At ≤768px switch to position:fixed; bottom: var(--space-4); right: var(--space-3);
+so the toggle anchors to the viewport corner instead of the (now-collapsing)
+container. Adds elevation-3 shadow to make it readable above scrolling content.
+Location: mastermind/static/mastermind/assets/css/components/lobby.css,
+.mastermind-lobby-sfx-toggle-floating.

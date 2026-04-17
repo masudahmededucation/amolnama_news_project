@@ -32,6 +32,8 @@
   var leaderboardListEl = document.getElementById('mastermind-lobby-leaderboard-list');
   var finalLeaderboardEl = document.getElementById('mastermind-lobby-final-leaderboard');
   var progressEl = document.getElementById('mastermind-lobby-progress');
+  var progressTrackEl = document.getElementById('mastermind-lobby-progress-track');
+  var progressFillEl = document.getElementById('mastermind-lobby-progress-fill');
   var timerEl = document.getElementById('mastermind-lobby-timer');
   var questionTextEl = document.getElementById('mastermind-lobby-question-text');
   var answerInfoEl = document.getElementById('mastermind-lobby-host-answer-info');
@@ -195,6 +197,11 @@
     var question = serverState.current_question;
     if (!question) return;
     progressEl.textContent = 'Question ' + (serverState.current_question_index + 1) + ' / ' + serverState.total_questions;
+    if (progressFillEl && progressTrackEl && serverState.total_questions > 0) {
+      var completedPercent = Math.round(((serverState.current_question_index + 1) / serverState.total_questions) * 100);
+      progressFillEl.style.width = completedPercent + '%';
+      progressTrackEl.setAttribute('aria-valuenow', String(completedPercent));
+    }
     questionTextEl.textContent = question.question_text_bn || question.question_text_en || '';
 
     if (serverState.question_seconds) {
@@ -229,25 +236,9 @@
     });
   }
 
-  // Sound-effects mute toggle (host can mute too)
-  var sfxToggleButton = document.getElementById('mastermind-lobby-sfx-toggle');
-  if (sfxToggleButton && window.mastermindLobbySfx) {
-    function _refreshSfxToggleLabel() {
-      var muted = window.mastermindLobbySfx.isMuted();
-      sfxToggleButton.textContent = muted ? '🔇' : '🔊';
-      sfxToggleButton.setAttribute('aria-pressed', muted ? 'true' : 'false');
-      sfxToggleButton.setAttribute(
-        'aria-label',
-        muted ? 'Sound off — click to enable' : 'Sound on — click to mute'
-      );
-    }
-    sfxToggleButton.addEventListener('click', function () {
-      var nextMutedState = !window.mastermindLobbySfx.isMuted();
-      window.mastermindLobbySfx.setMuted(nextMutedState);
-      _refreshSfxToggleLabel();
-      if (!nextMutedState) _playSfx('lock_in');
-    });
-    _refreshSfxToggleLabel();
+  // Sound-effects mute toggle (single source of truth in lobby-sfx.js)
+  if (window.mastermindLobbySfx && typeof window.mastermindLobbySfx.wireToggleButton === 'function') {
+    window.mastermindLobbySfx.wireToggleButton(document.getElementById('mastermind-lobby-sfx-toggle'));
   }
 
   // Bootstrap from server-side state then connect for live updates

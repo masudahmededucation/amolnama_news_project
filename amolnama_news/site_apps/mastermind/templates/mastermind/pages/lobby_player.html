@@ -39,6 +39,10 @@
       <span class="mastermind-lobby-progress" id="mastermind-lobby-progress" aria-live="polite">Question 1 / 1</span>
       <span class="mastermind-lobby-timer" id="mastermind-lobby-timer" aria-live="polite" hidden></span>
     </header>
+    {# Quiz-level progress: filled bar shows fraction complete (questionIndex / total) #}
+    <div class="mastermind-lobby-progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="mastermind-lobby-progress-track">
+      <div class="mastermind-lobby-progress-fill" id="mastermind-lobby-progress-fill" style="width: 0%"></div>
+    </div>
     <article class="mastermind-lobby-question" id="mastermind-lobby-question" aria-live="polite">
       <p class="mastermind-lobby-question-text" id="mastermind-lobby-question-text"></p>
       <img class="mastermind-lobby-question-image" id="mastermind-lobby-question-image" alt="" hidden>

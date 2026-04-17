@@ -143,5 +143,41 @@
 
   function isMuted() { return _isMuted(); }
 
-  window.mastermindLobbySfx = { play: play, setMuted: setMuted, isMuted: isMuted };
+  /**
+   * Wire a 🔊 / 🔇 toggle button to the SFX module.
+   *
+   * Single source of truth — both lobby-player.js and lobby-host.js call this
+   * with their toggle button reference. Handles label/aria refresh, click
+   * binding, and a confirmation chime when un-muting (so the user knows the
+   * toggle worked even before any other event fires).
+   *
+   * Safe to call with null / undefined (does nothing).
+   */
+  function wireToggleButton(toggleButtonElement) {
+    if (!toggleButtonElement) return;
+    function _refreshLabel() {
+      var muted = _isMuted();
+      toggleButtonElement.textContent = muted ? '🔇' : '🔊';
+      toggleButtonElement.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      toggleButtonElement.setAttribute(
+        'aria-label',
+        muted ? 'Sound off — click to enable' : 'Sound on — click to mute'
+      );
+    }
+    toggleButtonElement.addEventListener('click', function () {
+      var nextMutedState = !_isMuted();
+      setMuted(nextMutedState);
+      _refreshLabel();
+      // Confirmation chime when un-muting (audible proof the toggle worked)
+      if (!nextMutedState) play('lock_in');
+    });
+    _refreshLabel();
+  }
+
+  window.mastermindLobbySfx = {
+    play: play,
+    setMuted: setMuted,
+    isMuted: isMuted,
+    wireToggleButton: wireToggleButton,
+  };
 })();
