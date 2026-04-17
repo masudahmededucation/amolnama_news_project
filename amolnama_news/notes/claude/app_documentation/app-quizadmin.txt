@@ -1,12 +1,13 @@
 QUIZADMIN APP — Architecture & Documentation
 =============================================
-Last updated: 2026-04-16
+Last updated: 2026-04-17
 
 PURPOSE
 -------
-Staff-only admin dashboard for the mastermind quiz engine.
+Staff/creator dashboard for the mastermind quiz engine.
 Provides CRUD, review, analytics, and management UI for questions,
-quizzes, books, and AI generation jobs. No public-facing pages.
+quizzes, books, AI generation jobs, version history, workflow audit,
+matching pairs, and creator permissions.
 
 Mastermind = backend brain (no UI). Quizadmin = admin UI that wraps it.
 Consumer apps (historybd, constitutionbd) own user-facing quiz UI.
@@ -14,138 +15,194 @@ Consumer apps (historybd, constitutionbd) own user-facing quiz UI.
 
 URL PREFIX
 ----------
-/quizadmin/  (staff_member_required on all views and API endpoints)
+/quizadmin/
+
+PERMISSION MODEL
+----------------
+Two access tiers:
+
+1. Staff (is_staff=True) — full access to all 18 pages and 19 API endpoints.
+   Decorator: @staff_member_required.
+
+2. Quiz creators (granted via /quizadmin/creators/, optional expiry) —
+   restricted access:
+   - CAN: view/create/edit/clone/delete OWN quizzes only
+   - CAN: view quiz preview, leaderboard, workflow log, print, scheduling
+   - CANNOT: dashboard, question bank, review queue, books, generation jobs,
+            creator management, question CRUD
+   Decorator: @utils.staff_or_quiz_creator_required.
+   Ownership enforced via _user_can_modify_quiz() helper on update/clone/delete.
 
 
 ARCHITECTURE
 ------------
-- Views (views.py): 13 page views, all read-only rendering
-- API (views_api.py): 12 POST endpoints, all @staff_member_required
-- Utils (utils.py): query builders, pagination, analytics computation
-- Validators (validators.py): payload validation for review actions
-- Templates: 11 page templates, 4 partials, 2 components
-- CSS: 1 shell + 11 page/component styles (all tokenized)
-- JS: 2 utilities + 5 page scripts (all use shared quizadmin-utils.js)
+- views.py: 17 page views (mix of @staff_member_required and creator-allowed)
+- views_api.py: 19 POST/GET endpoints (all auth-gated)
+- utils.py: query builders, pagination, analytics, permission checks
+- validators.py: payload validation for review actions
+- Templates: 17 page templates, 4 partials, 2 components
+- CSS: 1 shell + 13 page/component styles (all tokenized via design system)
+- JS: 2 utilities + 6 page scripts (all use shared quizadmin-utils.js)
 
 No models — all queries use mastermind.models (unmanaged).
-No migrations — DB is managed via SQL scripts.
+No migrations — DB is managed via SQL scripts in notes/sql-script/.
 
 
-PAGES (13 total)
+PAGES (17 total)
 -----------------
-1. Dashboard (/quizadmin/)
+1. Dashboard (/quizadmin/) [staff only]
    - 6 metric cards (pending, published, draft, rejected, AI total, books)
    - 3 visual charts (status breakdown, topic distribution, 14-day generation)
    - Recent generation jobs table (10 newest)
    - Quick action links
 
-2. Review Queue (/quizadmin/review/)
+2. Review Queue (/quizadmin/review/) [staff only]
    - One-at-a-time AI question approval interface
-   - 5 filters: search text, topic, book, confidence level, NLI verdict
+   - 5 filters: text search, topic, book, confidence level, NLI verdict
    - Keyboard shortcuts: A=approve, R=reject, S=skip, J/K=next/prev
    - NLI score display (similarity, entailment, contradiction)
    - Source citation (book, chapter, page, snippet)
    - Reject requires double-click confirmation
+   - Filter context (incl. search) preserved on skip/approve/reject
+   - Prefetch link to next question for fast navigation
 
-3. Question Bank (/quizadmin/questions/)
+3. Question Bank (/quizadmin/questions/) [staff only]
    - Paginated list of ALL questions (50/page)
-   - 8 filters: search, topic, book, status, type, difficulty, source, sort
+   - 8 filters: text search, topic, book, status, type, difficulty, source, sort
    - Sort options: newest, oldest, most/least used, highest/lowest accuracy, ID
-   - Bulk toolbar: select-all checkbox, Publish/Draft/Archive buttons
-   - CSV export (respects active filters)
-   - CSV import (validates FK IDs against DB, 2000 row limit)
-   - Per-question actions: Edit, Stats (analytics), Delete (inline confirm)
+   - Bulk toolbar: select-all checkbox, Publish/Draft/Archive (per-button confirm)
+   - CSV export (respects ALL active filters: search, topic, book, status, type, difficulty, source)
+   - CSV import (validates FK IDs against DB, 2000 row limit, per-row atomic, MCQ correctness check)
+   - Per-question actions: Edit, Stats, History, Delete (inline confirm)
 
-4. Question Analytics (/quizadmin/question/<id>/analytics/)
-   - Difficulty index (% correct, 30-80% ideal range)
-   - Discrimination index (top vs bottom quartile, needs 10+ attempts)
+4. Question Analytics (/quizadmin/question/<id>/analytics/) [staff only]
+   - Difficulty index (% correct, 30-80% ideal range, with tooltip)
+   - Discrimination index (top vs bottom quartile, 10+ attempts required, with tooltip)
    - Per-option selection distribution (horizontal bar chart)
    - Average time per question
-   - Tooltips explaining each metric
 
-5. Question Create (/quizadmin/question/create/)
+5. Question Edit History (/quizadmin/question/<id>/history/) [staff only]
+   - Timeline of all versions of a question
+   - Version number, modifier, timestamp, change summary
+   - Current version highlighted with chip
+   - Auto-snapshot on every edit via _create_question_version_snapshot()
+
+6. Question Create (/quizadmin/question/create/) [staff only]
    - 5 question types: MCQ single, MCQ multi, true/false, fill blank, short answer
    - Bengali labels (ক, খ, গ, ঘ, ঙ)
    - Source citation fields (book, chapter, page, snippet)
    - Unsaved changes warning (beforeunload)
    - Client-side validation (empty text, missing correct answer)
+   - Uses shared quizadmin-form-* CSS classes from shell
 
-6. Question Edit (/quizadmin/question/<id>/edit/)
+7. Question Edit (/quizadmin/question/<id>/edit/) [staff only]
    - Same form as create, pre-populated
    - Chapter cascade: chapters filter by selected book
 
-7. Quiz List (/quizadmin/quiz/)
-   - Paginated list of all quizzes (50/page)
-   - Sort dropdown: newest, oldest, title, most questions
-   - Per-quiz actions: Edit, Preview, Leaderboard, Clone, Delete
+8. Quiz List (/quizadmin/quiz/) [staff or creator]
+   - Paginated list of quizzes (50/page)
+   - Sort dropdown: newest, oldest, title (uses _en), most questions
+   - Per-quiz actions: Edit, Preview, Leaderboard, Log, Clone, Delete
+   - Creator-only viewers see only their own quizzes
 
-8. Quiz Create (/quizadmin/quiz/create/)
+9. Quiz Create (/quizadmin/quiz/create/) [staff or creator]
    - 4 sections: Details, Rules & Scoring, Scheduling, Rewards
    - Drag-and-drop question reordering (HTML5 DnD API)
    - Dynamic question rows with inline option editors
-   - Scheduling: auto-publish at, auto-close at (datetime-local)
+   - 6 question types supported (MCQ single/multi, T/F, fill-blank, short-answer, matching*)
+   - Scheduling: auto-publish at, auto-close at (datetime-local, timezone-aware)
    - Rewards: threshold/top_n/speed criteria + badge assignment
 
-9. Quiz Edit (/quizadmin/quiz/<id>/edit/)
-   - Same form as create, pre-populated with all questions + options
+10. Quiz Edit (/quizadmin/quiz/<id>/edit/) [staff or own-creator]
+    - Same form as create, pre-populated with all questions + options
+    - Creator-only ownership enforced (404 if not owner)
 
-10. Quiz Preview (/quizadmin/quiz/<id>/preview/)
+11. Quiz Preview (/quizadmin/quiz/<id>/preview/) [staff only]
     - Read-only view showing all questions + correct answers
     - Source citations + explanations in collapsible details
     - Links to Print/PDF and Edit
 
-11. Quiz Print (/quizadmin/quiz/<id>/print/)
+12. Quiz Print (/quizadmin/quiz/<id>/print/) [staff only]
     - Standalone print-friendly page (no nav, no shell)
     - Two modes: without answers (exam paper) / with answer key (?answers=1)
     - Browser Print button → Save as PDF
-    - @media print hides toolbar
 
-12. Quiz Leaderboard (/quizadmin/quiz/<id>/leaderboard/)
+13. Quiz Leaderboard (/quizadmin/quiz/<id>/leaderboard/) [staff only]
     - Top 50 scorers by percentage + time
     - Styled empty state when no scores yet
 
-13. Generation Jobs (/quizadmin/jobs/)
+14. Quiz Workflow Log (/quizadmin/quiz/<id>/workflow/) [staff only]
+    - Audit trail of quiz status transitions (draft→review→published→archived)
+    - Records who, when, role, comment for each transition
+    - Auto-logged on quiz create + status change via _log_workflow()
+
+15. Generation Jobs (/quizadmin/generation-jobs/) [staff only]
     - Paginated audit trail of AI generation runs
     - Book title, model, questions requested/created/rejected, time
-    - Styled empty state
 
-14. Books (/quizadmin/books/)
+16. Books (/quizadmin/books/) [staff only]
     - Per-book: pages, chunks, questions by status (review/published/draft)
+    - Styled empty state if no books ingested
+
+17. Quiz Creators (/quizadmin/creators/) [staff only]
+    - Manage non-staff users who can create quizzes
+    - User search by email (live search with dropdown)
+    - Grant access with optional expiry date + notes
+    - Inline edit expiry date
+    - Revoke with inline confirmation
+    - Status badges: active / revoked / expired
+
+* Matching question type: DB table exists (coll_question_match_pair),
+  UI editor exists (pair-editor in quiz form), but engine integration
+  pending. Pairs sent on save are silently dropped until completed.
 
 
-API ENDPOINTS (12 total)
+API ENDPOINTS (19 total)
 ------------------------
-Review actions:
-  POST /quizadmin/api/approve/           — approve AI question
-  POST /quizadmin/api/reject/            — reject AI question
-  POST /quizadmin/api/skip/              — skip to next
+Review actions [staff only]:
+  POST /quizadmin/api/approve/                       — approve AI question
+  POST /quizadmin/api/reject/                        — reject AI question
+  POST /quizadmin/api/skip/                          — skip to next
 
-Question CRUD:
-  POST /quizadmin/api/question/create/            — create question
-  POST /quizadmin/api/question/<id>/update/        — update question
-  POST /quizadmin/api/question/<id>/delete/        — soft-delete question
+Question CRUD [staff only]:
+  POST /quizadmin/api/question/create/                — create question
+  POST /quizadmin/api/question/<id>/update/           — update question (auto-snapshots version)
+  POST /quizadmin/api/question/<id>/delete/           — soft-delete question
 
-Bulk operations:
-  POST /quizadmin/api/question/bulk-status/        — change N questions' status
-  GET  /quizadmin/api/question/export-csv/         — download CSV
-  POST /quizadmin/api/question/import-csv/         — upload CSV
+Bulk operations [staff only]:
+  POST /quizadmin/api/question/bulk-status/           — change N questions' status
+  GET  /quizadmin/api/question/export-csv/            — streaming CSV download (respects all filters)
+  POST /quizadmin/api/question/import-csv/            — upload CSV (per-row atomic)
 
-Quiz CRUD:
-  POST /quizadmin/api/quiz/create/                 — create quiz + questions
-  POST /quizadmin/api/quiz/<id>/update/            — update quiz + questions
-  POST /quizadmin/api/quiz/<id>/clone/             — deep-clone quiz
-  POST /quizadmin/api/quiz/<id>/delete/            — soft-delete quiz
+Quiz CRUD [staff or creator with ownership check]:
+  POST /quizadmin/api/quiz/create/                    — create quiz + questions (auto-logs workflow)
+  POST /quizadmin/api/quiz/<id>/update/               — update quiz + questions (auto-logs status changes)
+  POST /quizadmin/api/quiz/<id>/clone/                — deep-clone quiz (uuid suffix, length-truncated)
+  POST /quizadmin/api/quiz/<id>/delete/               — soft-delete quiz
+
+Creator permission management [staff only]:
+  POST /quizadmin/api/creator/grant/                  — grant access (validates expiry, atomic w/ select_for_update)
+  POST /quizadmin/api/creator/<id>/revoke/            — revoke access
+  POST /quizadmin/api/creator/<id>/update-expiry/     — change expiry date
+  GET  /quizadmin/api/creator/search-users/?q=email   — live user search
 
 
-SECURITY
---------
-- ALL views: @staff_member_required decorator
-- ALL API endpoints: @staff_member_required decorator
+SECURITY MODEL
+--------------
+- ALL views: @staff_member_required OR @utils.staff_or_quiz_creator_required
+- ALL API endpoints: same decorators
+- staff_or_quiz_creator_required returns:
+  - JSON 403 for /quizadmin/api/* paths
+  - HTML access-denied page for normal page requests
+  - Login redirect if unauthenticated
+- _user_can_modify_quiz() ownership check on quiz update/clone/delete for non-staff
 - user_profile_id null safety on all mutation endpoints
-- CSV import: 5MB file size limit, 2000 row limit, FK validation
-- Bulk operations: 500 question ID limit per batch
+- CSV import: 5MB file size, 2000 row limit, FK validation, MCQ correctness check, per-row atomic
+- Bulk operations: 500 question ID limit per batch, bool-int trap closed
 - Inline confirmations on all destructive actions (reject, delete, archive)
 - No raw SQL — ORM only
+- All JS template strings escape via quizadminEscapeHtml() (XSS-safe)
+- Naive datetime inputs converted to timezone-aware before comparison/storage
 
 
 UX PATTERNS
@@ -156,13 +213,18 @@ UX PATTERNS
 - Keyboard shortcuts: review queue (A/R/S/J/K)
 - Scroll preservation: sessionStorage-based across navigations
 - Inline confirm: click once = "Confirm delete", click again = execute
+- Per-button confirmation timer (no module-scoped state, no race)
 - Empty states: styled hero with emoji + message on all list pages
+- All tables zebra-striped + hover background
+- Touch targets: min-height var(--touch-target) on all interactive elements
 
 
 CSS ARCHITECTURE
 ----------------
 Layout:
-  quizadmin-shell.css — top nav, page layout, shared form components, empty states
+  quizadmin-shell.css — top nav (wraps to 2 lines), page layout, shared form
+                         components, status chips for ALL codes, empty states,
+                         table actions with hover, table zebra striping
 
 Components:
   confidence-badge.css — NLI confidence level display
@@ -171,36 +233,54 @@ Components:
   review-question-card.css — review queue question display
 
 Pages:
-  page-dashboard.css — charts
+  page-dashboard.css — charts (CSS-only bar charts)
   page-question-bank.css — filter bar, bulk toolbar, delete confirm
   page-question-analytics.css — metric cards, option bars
-  page-quiz-form.css — drag handle, dragging/drop-target states
+  page-question-history.css — version timeline cards
+  page-quiz-form.css — drag handle (44px), dragging/drop-target states,
+                        matching pair grid, option add/remove
   page-quiz-list.css — sort form, clone/delete buttons
   page-quiz-preview.css — question cards with correct answer highlight
+  page-quiz-creators.css — search dropdown (scoped position:relative),
+                            inline edit expiry
   page-review-queue.css — filter form layout
 
 All CSS uses design tokens (--text-*, --radius-*, --elevation-*, --touch-target).
 All interactive elements have :focus-visible outlines.
 All files with transitions have @media (prefers-reduced-motion: reduce).
-No !important. No hardcoded colors/font-sizes/border-radius.
+No !important on display/color (only on z-index/positioning if needed).
+Status chip colors defined for: completed, processing, failed, pending,
+unknown, draft, review, published, archived, active, revoked, expired.
 
 
 JS ARCHITECTURE
 ---------------
 Utilities (loaded on every page via top_nav.html):
-  quizadmin-utils.js — quizadminReadJson, quizadminShowInline, quizadminPost,
-                        quizadminSetLoading, quizadminTrackUnsavedChanges,
-                        quizadminGenerateToken, QUIZADMIN_BENGALI_LABELS
+  quizadmin-utils.js
+    - quizadminReadJson(elementId, fallback) — type-safe JSON parser
+    - quizadminShowInline(messageElement, text, tone)
+    - quizadminHideInline(messageElement)
+    - quizadminPost(endpoint, payload) — CSRF-aware fetch
+    - quizadminSetLoading(buttonElement, isLoading, originalText)
+    - quizadminGenerateToken() — random 6-char token
+    - quizadminTrackUnsavedChanges(formElement) — beforeunload handler
+    - quizadminEscapeHtml(value) — XSS-safe HTML escape (&, <, >, ", ')
+    - QUIZADMIN_BENGALI_LABELS
+
   scroll-preservation.js — sessionStorage scroll position save/restore
 
 Pages:
   page-review-queue.js — approve/reject/skip + keyboard shortcuts + loading
-  page-question-bank.js — bulk select, bulk status, CSV import, question delete
+  page-question-bank.js — bulk select, bulk status (per-button confirm),
+                           CSV import, question delete
   page-question-form.js — dynamic options by type, chapter cascade, validation
-  page-quiz-form.js — drag-and-drop reorder, dynamic questions, rewards toggle
-  page-quiz-list.js — quiz clone + delete with inline confirm
+  page-quiz-form.js — drag-and-drop reorder, dynamic questions, matching pairs,
+                       rewards toggle, scheduling, XSS-safe interpolation
+  page-quiz-list.js — quiz clone + delete + sort auto-submit
+  page-quiz-creators.js — user search, grant, revoke, edit expiry inline
 
 All page scripts use shared utilities (no local copies of readJson/showInline).
+No console.log/debug. All fetch wrapped in try/catch with inline error display.
 
 
 DATA FLOW
@@ -209,15 +289,32 @@ DATA FLOW
 2. Staff triggers AI generation → Ollama generates questions with NLI validation
 3. Questions land in review queue (status='review')
 4. Staff approves/rejects via review queue → status='published'/'archived'
-5. Staff creates quiz → selects questions from bank → sets rules/rewards
-6. Users take quiz via consumer app → mastermind.engine manages session
-7. Staff monitors via dashboard charts + question analytics
+   - Each edit auto-snapshots a version via _create_question_version_snapshot
+5. Staff creates quiz → selects questions from bank → sets rules/rewards/scheduling
+   - Workflow log auto-records creation
+6. Staff or creator manages own quiz lifecycle (clone/delete with ownership check)
+7. Users take quiz via consumer app → mastermind.engine manages session
+8. Staff monitors via dashboard charts + question analytics + workflow log
 
 
 TROUBLESHOOTING
 ---------------
-Q: Quiz form scheduling fields not saving?
+Q: /quizadmin/creators/ returns 500 with "Invalid object name"?
+A: Run SQL script: notes/sql-script/mastermind-quiz-creator-permission.sql
+
+Q: Question history page returns 500?
+A: Run SQL script: notes/sql-script/mastermind-versioning-workflow-matching.sql
+
+Q: Quiz scheduling fields don't save?
 A: Run SQL script: notes/sql-script/mastermind-quiz-scheduling-columns.sql
+
+Q: Granted creator can't access quiz panel?
+A: Verify the user has UserProfile (not just User), and the permission row
+   has permission_status_code='active' AND (expires_at IS NULL OR expires_at > NOW()).
+
+Q: Granted creator sees 403 with HTML page on API call?
+A: Fixed in commit c939b00 — staff_or_quiz_creator_required now returns
+   JSON 403 for /quizadmin/api/* paths.
 
 Q: Question bank shows 0 questions?
 A: Check that questions have is_active=True. Deleted questions have is_active=0.
@@ -225,6 +322,9 @@ A: Check that questions have is_active=True. Deleted questions have is_active=0.
 Q: CSV import fails with "unknown type_id"?
 A: The type_id in CSV must match mastermind.ref_quiz_question_type IDs.
    Check: SELECT * FROM [mastermind].[ref_quiz_question_type]
+
+Q: CSV import fails with "MCQ requires correct option"?
+A: For MCQ rows, at least one option_X_correct must equal '1'.
 
 Q: Dashboard charts empty?
 A: Charts need questions in DB. Status chart needs any questions,
@@ -238,3 +338,46 @@ A: Drag the ⠿ handle, not the question content. Works on desktop only
 Q: Print page shows raw HTML?
 A: The print template is standalone (not extending base_quizadmin.html).
    It has its own inline <style> — this is intentional for print isolation.
+
+Q: Review queue navigation jumps to position 0 after approve?
+A: Fixed in commit 3c85ca6 — _next_id_after now computed BEFORE the
+   action mutates state. If still happening, check filter persistence.
+
+Q: Question edit form shows blank fields?
+A: Fixed in commit c939b00 — build_review_question_context now returns
+   all fields needed by the edit form.
+
+Q: Bug fix attempts find more bugs?
+A: This is normal — see commits dc55811, 6ef006d, 3c85ca6, 9f2079b, c939b00.
+   36 bugs found and fixed across 5 audit passes. Use the test suite
+   in mastermind/tests/ to lock in behavior. quizadmin lacks tests
+   (technical debt — flag for future work).
+
+
+KNOWN GAPS / TECHNICAL DEBT
+---------------------------
+- No automated tests for quizadmin (mastermind has full test suite)
+- Matching question type: DB + UI exist, engine save not wired
+- Essay question type: UI option in quiz builder, no answer storage path
+- Drag-and-drop: no keyboard alternative (a11y gap, WCAG 2.1.1)
+- VALID_QUESTION_STATUS_CODES hardcoded (should be DB-driven via ref table)
+- CSV import: no progress indicator for large files
+- Workflow log: no UI to add comment when changing status
+- Question edit: type change wipes user's intermediate option edits
+
+
+COMMITS HISTORY (this app)
+--------------------------
+- 7a83be7 — initial 10 competitive features
+- 9aa2da8 — sort/search/delete/cascade/tooltips
+- 0e6df68 — drag-drop/scheduling/print
+- 7090949 — initial documentation
+- b5d39f6 — versioning/workflow/matching
+- 49de788 — creator permissions
+- d608adc — naming convention fixes (16)
+- cf02447 — styling polish
+- dc55811 — quiz-list runtime bug
+- 6ef006d — second-pass scan (10 bugs)
+- 3c85ca6 — third-pass scan (10 bugs)
+- 9f2079b — fourth-pass scan (7 bugs incl. creator perm enforcement)
+- c939b00 — fifth-pass scan (7 bugs incl. XSS escape, JSON template, slug uuid)
