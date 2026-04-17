@@ -208,6 +208,8 @@ def _deduplicate_question_groups(question_ids):
 
 def _build_session_response(session, exam, session_questions):
     """Build the JSON-serializable response for a session."""
+    from .models import CollQuestionMatchPair
+
     # Load all question data
     question_ids = [session_item.link_mastermind_coll_question_id for session_item in session_questions]
     questions = {
@@ -229,6 +231,19 @@ def _build_session_response(session, exam, session_questions):
         options_by_question.setdefault(
             option.link_mastermind_coll_question_id, []
         ).append(option)
+
+    # Load all match pairs (one query for all matching questions in the session)
+    match_pairs_by_question = {}
+    all_match_pairs = list(
+        CollQuestionMatchPair.objects.filter(
+            link_mastermind_coll_question_id__in=question_ids,
+            is_active=True,
+        ).order_by('sort_order', 'mastermind_coll_question_match_pair_id')
+    )
+    for pair in all_match_pairs:
+        match_pairs_by_question.setdefault(
+            pair.link_mastermind_coll_question_id, []
+        ).append(pair)
 
     # Build questions list respecting display order
     questions_list = []
@@ -255,6 +270,37 @@ def _build_session_response(session, exam, session_questions):
         else:
             ordered_options = sorted(question_options, key=lambda option: option.sort_order)
 
+        question_type_code = _get_question_type_code(
+            question.link_mastermind_ref_quiz_question_type_id
+        )
+
+        # Matching: split rows into stems (left column) and shuffled responses (right column)
+        match_stems = None
+        match_responses = None
+        if question_type_code == 'matching':
+            pairs_for_question = match_pairs_by_question.get(
+                question.mastermind_coll_question_id, []
+            )
+            match_stems = [
+                {
+                    'pair_id': pair.mastermind_coll_question_match_pair_id,
+                    'stem_text_bn': pair.stem_text_bn,
+                    'stem_text_en': pair.stem_text_en,
+                }
+                for pair in pairs_for_question if pair.stem_text_bn or pair.stem_text_en
+            ]
+            response_pool = [
+                {
+                    'pair_id': pair.mastermind_coll_question_match_pair_id,
+                    'response_text_bn': pair.response_text_bn,
+                    'response_text_en': pair.response_text_en,
+                }
+                for pair in pairs_for_question if pair.response_text_bn or pair.response_text_en
+            ]
+            if exam.exam_shuffle_options and response_pool:
+                random.shuffle(response_pool)
+            match_responses = response_pool
+
         questions_list.append({
             'session_question_id': session_question.mastermind_coll_quiz_session_question_id,
             'question_id': question.mastermind_coll_question_id,
@@ -265,9 +311,7 @@ def _build_session_response(session, exam, session_questions):
             'question_hint_bn': question.question_hint_bn,
             'question_hint_en': question.question_hint_en,
             'question_points': question.question_points,
-            'question_type_code': _get_question_type_code(
-                question.link_mastermind_ref_quiz_question_type_id
-            ),
+            'question_type_code': question_type_code,
             'options': [
                 {
                     'option_id': option.mastermind_coll_question_option_id,
@@ -278,6 +322,8 @@ def _build_session_response(session, exam, session_questions):
                 }
                 for option in ordered_options
             ],
+            'match_stems': match_stems,
+            'match_responses': match_responses,
         })
 
     return {

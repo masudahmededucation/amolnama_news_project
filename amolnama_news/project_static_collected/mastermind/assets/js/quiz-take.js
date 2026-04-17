@@ -1,14 +1,11 @@
 /* Mastermind quiz-take controller — wraps the engine API into a UX.
  *
  * Reads the quiz id from #mastermind-quiz-take[data-quiz-id], then drives:
- *   1. Welcome screen (fetches quiz metadata + start button)
- *   2. Per-question loop (renders 7 of 8 question types — matching is TODO)
+ *   1. Welcome screen (resumes any in-progress session, else starts fresh)
+ *   2. Per-question loop (renders all 8 question types)
  *   3. Results screen (score, breakdown, certificate link if any)
  *
  * Boots browser-lockdown proctoring automatically if exam_proctoring_level >= 1.
- *
- * NOT supported in this version (deferred):
- *   - matching question type (engine API needs match_pairs payload extension)
  */
 (function () {
   'use strict';
@@ -36,6 +33,8 @@
   var welcomeMeta = document.getElementById('mastermind-quiz-take-welcome-meta');
   var welcomeError = document.getElementById('mastermind-quiz-take-welcome-error');
   var startButton = document.getElementById('mastermind-quiz-take-start-button');
+  var resumeButton = document.getElementById('mastermind-quiz-take-resume-button');
+  var resumeBanner = document.getElementById('mastermind-quiz-take-resume-banner');
 
   var progressLabel = document.getElementById('mastermind-quiz-take-progress');
   var progressFill = document.getElementById('mastermind-quiz-take-progress-fill');
@@ -135,6 +134,21 @@
     } catch (error) {
       _setError(welcomeError, 'Could not parse quiz metadata: ' + error.message);
     }
+    _checkForResumableSession();
+  }
+
+  async function _checkForResumableSession() {
+    if (!resumeButton || !resumeBanner) return;
+    try {
+      var lookup = await _fetchJson('/mastermind/api/exam/' + quizId + '/resume-check/');
+      if (lookup && lookup.in_progress_session_id) {
+        state.sessionId = lookup.in_progress_session_id;
+        resumeBanner.hidden = false;
+        resumeButton.hidden = false;
+      }
+    } catch (error) {
+      /* resume-check is best-effort — falling through to normal start flow */
+    }
   }
 
   function _proctoringLabel(level) {
@@ -144,6 +158,39 @@
   }
 
   startButton.addEventListener('click', _startSession);
+  if (resumeButton) resumeButton.addEventListener('click', _resumeSession);
+
+  async function _resumeSession() {
+    if (!state.sessionId) return;
+    resumeButton.disabled = true;
+    startButton.disabled = true;
+    resumeButton.textContent = 'Resuming…';
+    try {
+      var response = await _postJson('/mastermind/api/session/' + state.sessionId + '/resume/');
+      state.sessionPayload = response;
+      // Jump to the first unanswered question
+      var firstUnansweredIndex = (response.questions || []).findIndex(function (question) {
+        return !question.already_answered;
+      });
+      state.currentQuestionIndex = firstUnansweredIndex === -1 ? 0 : firstUnansweredIndex;
+
+      _bootProctoringIfNeeded(response);
+      _showState('playing');
+      if (state.currentQuestionIndex >= response.questions.length) {
+        _finishQuiz();
+        return;
+      }
+      _renderCurrentQuestion();
+      if (response.exam_time_limit_minutes) {
+        _startTimer(response.exam_time_limit_minutes);
+      }
+    } catch (error) {
+      resumeButton.disabled = false;
+      startButton.disabled = false;
+      resumeButton.textContent = 'Resume attempt';
+      _setError(welcomeError, error.message);
+    }
+  }
 
   async function _startSession() {
     startButton.disabled = true;
@@ -229,6 +276,7 @@
     'short_answer': _renderTextarea,
     'essay':        _renderTextarea,
     'ordering':     _renderOrdering,
+    'matching':     _renderMatching,
   };
 
   function _renderRadioGroup(question) {
@@ -333,6 +381,74 @@
     state.currentAnswer = { ordering_option_ids: orderedIds.slice() };
   }
 
+  function _renderMatching(question) {
+    // Each stem is a row; each row owns a <select> populated with all responses.
+    // The user's payload is matching_pairs = [{stem_pair_id, response_pair_id}, ...]
+    var stems = question.match_stems || [];
+    var responses = question.match_responses || [];
+    if (!stems.length || !responses.length) {
+      _renderUnsupportedType(question);
+      return;
+    }
+
+    var picks = {}; // stem_pair_id -> response_pair_id
+
+    function _syncAnswer() {
+      state.currentAnswer = {
+        matching_pairs: stems.map(function (stem) {
+          return {
+            stem_pair_id: stem.pair_id,
+            response_pair_id: picks[stem.pair_id] || null,
+          };
+        }),
+      };
+    }
+
+    var listElement = document.createElement('ul');
+    listElement.className = 'mastermind-quiz-take-matching-list';
+    answerRegion.appendChild(listElement);
+
+    stems.forEach(function (stem) {
+      var row = document.createElement('li');
+      row.className = 'mastermind-quiz-take-matching-row';
+
+      var stemLabel = document.createElement('span');
+      stemLabel.className = 'mastermind-quiz-take-matching-stem';
+      stemLabel.textContent = stem.stem_text_bn || stem.stem_text_en || '';
+
+      var selectId = 'mastermind-quiz-take-matching-' + stem.pair_id;
+      var selectElement = document.createElement('select');
+      selectElement.className = 'mastermind-quiz-take-matching-select';
+      selectElement.id = selectId;
+      selectElement.name = selectId;
+
+      var placeholderOption = document.createElement('option');
+      placeholderOption.value = '';
+      placeholderOption.textContent = 'Pick a match…';
+      selectElement.appendChild(placeholderOption);
+
+      responses.forEach(function (response) {
+        var optionElement = document.createElement('option');
+        optionElement.value = String(response.pair_id);
+        optionElement.textContent = response.response_text_bn || response.response_text_en || '';
+        selectElement.appendChild(optionElement);
+      });
+
+      selectElement.addEventListener('change', function () {
+        var value = selectElement.value;
+        if (value) picks[stem.pair_id] = parseInt(value, 10);
+        else delete picks[stem.pair_id];
+        _syncAnswer();
+      });
+
+      row.appendChild(stemLabel);
+      row.appendChild(selectElement);
+      listElement.appendChild(row);
+    });
+
+    _syncAnswer();
+  }
+
   function _renderUnsupportedType(question) {
     answerRegion.innerHTML = '<p class="mastermind-quiz-take-error-message">Question type "' + _escapeHtml(question.question_type_code) + '" is not supported in this take page yet. Skip to continue.</p>';
   }
@@ -348,6 +464,14 @@
     if (!state.currentAnswer && question.question_type_code !== 'short_answer' && question.question_type_code !== 'essay') {
       _setError(playingError, 'Please pick an answer first (or click Skip).');
       return;
+    }
+    // For matching, every stem must be paired before submitting
+    if (question.question_type_code === 'matching' && state.currentAnswer && state.currentAnswer.matching_pairs) {
+      var unmatchedCount = state.currentAnswer.matching_pairs.filter(function (p) { return !p.response_pair_id; }).length;
+      if (unmatchedCount > 0) {
+        _setError(playingError, 'Please pick a match for every item (' + unmatchedCount + ' remaining).');
+        return;
+      }
     }
     submitAnswerButton.disabled = true;
     var originalText = submitAnswerButton.textContent;
@@ -424,6 +548,13 @@
 
   function _advanceQuestion() {
     state.currentQuestionIndex += 1;
+    // Skip questions that were already answered in a previous (resumed) session
+    while (
+      state.currentQuestionIndex < state.sessionPayload.questions.length
+      && state.sessionPayload.questions[state.currentQuestionIndex].already_answered
+    ) {
+      state.currentQuestionIndex += 1;
+    }
     if (state.currentQuestionIndex >= state.sessionPayload.questions.length) {
       _finishQuiz();
       return;
@@ -493,10 +624,28 @@
   }
 
   async function _pollForCertificate() {
-    // Public verify URL is /mastermind/certificate/<serial>/. We don't have the
-    // serial, so we hit a hypothetical /api/session/<id>/certificate/ — for now
-    // just leave the link hidden. (Future enhancement: add that lookup endpoint.)
-    // Pulse notification will surface the cert separately.
+    // Issuance happens on submit but inside post-session processing — poll up to
+    // 3 times (issuance is synchronous in current engine, so usually first hit).
+    if (!state.sessionId) return;
+    if (!resultsCertificateLink) return;
+    var attemptCount = 0;
+    var maxAttempts = 3;
+    var delayMs = 1500;
+    async function _attempt() {
+      attemptCount += 1;
+      try {
+        var lookup = await _fetchJson('/mastermind/api/session/' + state.sessionId + '/certificate/');
+        if (lookup && lookup.certificate_serial) {
+          resultsCertificateLink.href = lookup.verify_url;
+          resultsCertificateLink.hidden = false;
+          return;
+        }
+      } catch (error) {
+        /* lookup is best-effort — pulse notification will surface the cert */
+      }
+      if (attemptCount < maxAttempts) setTimeout(_attempt, delayMs);
+    }
+    _attempt();
   }
 
   resultsBackLink.addEventListener('click', function (event) {

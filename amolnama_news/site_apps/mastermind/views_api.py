@@ -1304,6 +1304,127 @@ def api_upload_question_image(request):
 
 @login_required
 @require_GET
+def api_session_certificate(request, session_id):
+    """Look up the certificate for a completed session owned by the caller.
+
+    Returns {certificate_serial, verify_url, issued_at} when present, or
+    {certificate_serial: null} when no cert exists. Used by the take page to
+    surface a download link on the results screen.
+    """
+    from .models import CollCertificate, CollQuizSession
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+
+    session_owner = (
+        CollQuizSession.objects
+        .filter(mastermind_coll_quiz_session_id=session_id)
+        .values_list('link_user_profile_id', flat=True)
+        .first()
+    )
+    if session_owner is None:
+        return JsonResponse({'error': 'Session not found.'}, status=404)
+    if session_owner != user_profile_id:
+        return JsonResponse({'error': 'Session does not belong to user.'}, status=403)
+
+    certificate = (
+        CollCertificate.objects
+        .filter(link_mastermind_coll_quiz_session_id=session_id, is_active=True)
+        .first()
+    )
+    if not certificate:
+        return JsonResponse({'certificate_serial': None})
+
+    verify_url = request.build_absolute_uri(
+        f'/mastermind/certificate/{certificate.certificate_serial}/'
+    )
+    return JsonResponse({
+        'certificate_serial': certificate.certificate_serial,
+        'verify_url': verify_url,
+        'issued_at': certificate.certificate_issued_at.isoformat() if certificate.certificate_issued_at else None,
+    })
+
+
+@login_required
+@require_GET
+def api_session_resume_check(request, exam_id):
+    """Return the user's open in-progress session for this quiz, if any.
+
+    Lets the take page offer "Resume" instead of starting fresh. Returns
+    {in_progress_session_id} or {in_progress_session_id: null}.
+    """
+    from .models import CollQuizSession
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+
+    open_session_id = (
+        CollQuizSession.objects
+        .filter(
+            link_mastermind_coll_quiz_id=exam_id,
+            link_user_profile_id=user_profile_id,
+            session_status_code='in_progress',
+        )
+        .order_by('-session_started_at')
+        .values_list('mastermind_coll_quiz_session_id', flat=True)
+        .first()
+    )
+    return JsonResponse({'in_progress_session_id': open_session_id})
+
+
+@login_required
+@require_POST
+def api_session_resume(request, session_id):
+    """Rebuild the start-session payload for an existing in-progress session.
+
+    Used to resume a partially-completed quiz. Skips already-answered
+    questions on the client side via the included answered_at hints.
+    """
+    from .engine import _build_session_response, _get_question_type_code  # noqa
+    from .models import CollQuiz, CollQuizSession, CollQuizSessionQuestion
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+
+    try:
+        session = CollQuizSession.objects.get(
+            mastermind_coll_quiz_session_id=session_id,
+            link_user_profile_id=user_profile_id,
+            session_status_code='in_progress',
+        )
+    except CollQuizSession.DoesNotExist:
+        return JsonResponse({'error': 'Session not found or not in progress.'}, status=404)
+
+    try:
+        exam = CollQuiz.objects.get(mastermind_coll_quiz_id=session.link_mastermind_coll_quiz_id)
+    except CollQuiz.DoesNotExist:
+        return JsonResponse({'error': 'Exam not found.'}, status=404)
+
+    session_questions = list(
+        CollQuizSessionQuestion.objects
+        .filter(link_mastermind_coll_quiz_session_id=session_id)
+        .order_by('question_display_order')
+    )
+    response = _build_session_response(session, exam, session_questions)
+
+    # Mark which questions are already answered so the client skips them
+    answered_session_question_ids = {
+        sq.mastermind_coll_quiz_session_question_id: sq.answered_at
+        for sq in session_questions if sq.answered_at is not None
+    }
+    for question_payload in response.get('questions', []):
+        sq_id = question_payload['session_question_id']
+        question_payload['already_answered'] = sq_id in answered_session_question_ids
+
+    response['resumed'] = True
+    return JsonResponse(response)
+
+
+@login_required
+@require_GET
 def api_export_quiz(request, quiz_id):
     """Export a single quiz + its question pool as a round-trip-safe JSON bundle."""
     from django.http import HttpResponse

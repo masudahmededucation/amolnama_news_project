@@ -8,10 +8,13 @@
    What you get:
      - Welcome screen showing quiz metadata (title, total questions, time limit, proctoring level)
      - "Start quiz" button that POSTs /mastermind/api/exam/<id>/start/ to create a session
-     - Per-question rendering for 7 of 8 question types (matching is the one TODO)
+     - Per-question rendering for all 8 question types (mcq_single, mcq_multi,
+       true_false, fill_blank, short_answer, essay, ordering, matching)
+     - Resume detection: if you abandoned a previous session, the welcome screen
+       offers a "Resume" button alongside "Start fresh"
      - Server-side timer reflected client-side
      - Submit on finish OR auto-submit on time-out
-     - Results screen with score, breakdown, certificate link if applicable
+     - Results screen with score, breakdown, certificate link (auto-issued if quiz has a template)
      - Proctoring auto-boots when exam_proctoring_level >= 1
      - Level 2 → consent screen first via the existing proctoring_consent partial
 
@@ -43,7 +46,11 @@
       <p class="mastermind-quiz-take-welcome-subtitle" id="mastermind-quiz-take-welcome-subtitle"></p>
     </header>
     <dl class="mastermind-quiz-take-welcome-meta" id="mastermind-quiz-take-welcome-meta"></dl>
+    <p class="mastermind-quiz-take-resume-banner" id="mastermind-quiz-take-resume-banner" hidden>
+      You have an unfinished attempt. Resume where you left off, or start over.
+    </p>
     <div class="mastermind-quiz-take-actions">
+      <button type="button" class="mastermind-quiz-take-button-secondary" id="mastermind-quiz-take-resume-button" name="mastermind_quiz_take_resume_button" hidden>Resume attempt</button>
       <button type="button" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-start-button" name="mastermind_quiz_take_start_button" disabled>Start quiz</button>
     </div>
     <p class="mastermind-quiz-take-error-message" id="mastermind-quiz-take-welcome-error" role="alert" hidden></p>

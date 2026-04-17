@@ -42,6 +42,13 @@ urlpatterns = [
     # Per-session accommodation override (extra time / no time limit)
     path('api/session/<int:session_id>/accommodation/', views_api.api_grant_session_accommodation, name='api_grant_session_accommodation'),
 
+    # Per-session certificate lookup (results screen)
+    path('api/session/<int:session_id>/certificate/', views_api.api_session_certificate, name='api_session_certificate'),
+
+    # Resume an in-progress session
+    path('api/exam/<int:exam_id>/resume-check/', views_api.api_session_resume_check, name='api_session_resume_check'),
+    path('api/session/<int:session_id>/resume/', views_api.api_session_resume, name='api_session_resume'),
+
     # Webhook subscriptions (staff only)
     path('api/webhook/subscriptions/', views_api.api_webhook_subscription_list, name='api_webhook_subscription_list'),
     path('api/webhook/subscriptions/create/', views_api.api_webhook_subscription_create, name='api_webhook_subscription_create'),
