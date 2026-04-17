@@ -259,6 +259,8 @@
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   box-shadow: var(--elevation-1);
+  /* Below sticky controls bar (z-index 10) but above page content */
+  z-index: 5;
 }
 
 .mastermind-book-reader-sidebar-title {
@@ -295,7 +297,19 @@
   font-family: inherit;
   min-height: var(--touch-target);
   touch-action: manipulation;
+  /* min-width:0 lets the toc-text span ellipsis instead of overflowing */
+  min-width: 0;
+  overflow: hidden;
   transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+/* Long Bengali chapter titles in TOC: ellipsis at the right edge */
+.mastermind-book-reader-toc-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mastermind-book-reader-toc-link:hover {

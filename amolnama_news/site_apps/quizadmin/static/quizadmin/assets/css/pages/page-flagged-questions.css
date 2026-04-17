@@ -12,15 +12,20 @@
   padding-bottom: var(--space-2);
 }
 
-/* Tab pill — explicit color + background on every state to prevent the
-   global `main a { color: var(--accent) }` rule from bleeding through. */
-.quizadmin-flagged-tab {
+/* Tab pill — every selector includes element + 2 classes to GUARANTEE
+   higher specificity than the global `main a { color: var(--accent) }`
+   rule (0,0,2). Literal hex fallbacks on every var() so cascade can
+   never fail. :link / :visited explicitly listed so the browser default
+   anchor blue can't sneak in. */
+a.quizadmin-flagged-tab,
+a.quizadmin-flagged-tab:link,
+a.quizadmin-flagged-tab:visited {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text, #1a1a1a);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
   border-radius: var(--radius-full);
   text-decoration: none;
   min-height: var(--touch-target);
@@ -28,30 +33,33 @@
   align-items: center;
   touch-action: manipulation;
   letter-spacing: 0.01em;
-  transition: background var(--duration-fast), color var(--duration-fast),
+  transition: background-color var(--duration-fast), color var(--duration-fast),
               border-color var(--duration-fast), transform var(--duration-fast);
 }
 
-.quizadmin-flagged-tab:hover {
-  background: var(--surface-elevated, var(--surface));
-  color: var(--accent);
-  border-color: var(--accent);
+a.quizadmin-flagged-tab:hover,
+a.quizadmin-flagged-tab:focus {
+  background-color: var(--surface-elevated, var(--surface, #f4f4f5));
+  color: var(--accent, #0a66c2);
+  border-color: var(--accent, #0a66c2);
   transform: translateY(-1px);
 }
-.quizadmin-flagged-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.quizadmin-flagged-tab--active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  box-shadow: var(--elevation-1);
+a.quizadmin-flagged-tab:focus-visible {
+  outline: 2px solid var(--accent, #0a66c2);
+  outline-offset: 2px;
 }
 
-.quizadmin-flagged-tab--active:hover {
-  /* Active pill must stay readable on hover — keep white text */
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+/* Active state: WHITE text on accent (blue) background — guaranteed. */
+a.quizadmin-flagged-tab.quizadmin-flagged-tab--active,
+a.quizadmin-flagged-tab.quizadmin-flagged-tab--active:link,
+a.quizadmin-flagged-tab.quizadmin-flagged-tab--active:visited,
+a.quizadmin-flagged-tab.quizadmin-flagged-tab--active:hover,
+a.quizadmin-flagged-tab.quizadmin-flagged-tab--active:focus {
+  background-color: var(--accent, #0a66c2);
+  color: #ffffff;
+  border-color: var(--accent, #0a66c2);
+  box-shadow: var(--elevation-1);
 }
 
 .quizadmin-flagged-table tbody tr {

@@ -114,9 +114,14 @@
 }
 
 .mastermind-lobby-player-name {
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
   font-size: var(--text-sm);
   color: var(--text-primary, var(--text));
+  /* Long display names: ellipsis at right of player roster row */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mastermind-lobby-player-ready {
@@ -394,6 +399,8 @@
   max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-shadow: var(--elevation-1);
+  z-index: 5;
+  min-width: 0;
 }
 
 @media (max-width: 768px) {

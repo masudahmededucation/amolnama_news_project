@@ -15,16 +15,21 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* Tab pill — inactive state: explicit border + gray text so the global
-   `main a { color: var(--accent) }` rule can't bleed through and turn
-   the pills blue-on-blue. Every state has explicit color + background. */
-.quizadmin-my-books-tab {
+/* Tab pill — every selector includes element + 2 classes to GUARANTEE
+   higher specificity than the global `main a { color: var(--accent) }`
+   rule (0,0,2). a.classname.classname = (0,2,1). Literal hex fallbacks
+   on the active state so cascade can NEVER fail.
+   :link / :visited explicitly listed so anchor pseudo-classes don't
+   re-introduce blue from the browser default. */
+a.quizadmin-my-books-tab,
+a.quizadmin-my-books-tab:link,
+a.quizadmin-my-books-tab:visited {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--text, #1a1a1a);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e5e7eb);
   border-radius: var(--radius-full);
   text-decoration: none;
   min-height: var(--touch-target);
@@ -32,34 +37,34 @@
   align-items: center;
   touch-action: manipulation;
   letter-spacing: 0.01em;
-  transition: background var(--duration-fast), color var(--duration-fast),
+  transition: background-color var(--duration-fast), color var(--duration-fast),
               border-color var(--duration-fast), transform var(--duration-fast);
 }
 
-.quizadmin-my-books-tab:hover {
-  background: var(--surface-elevated, var(--surface));
-  color: var(--accent);
-  border-color: var(--accent);
+a.quizadmin-my-books-tab:hover,
+a.quizadmin-my-books-tab:focus {
+  background-color: var(--surface-elevated, var(--surface, #f4f4f5));
+  color: var(--accent, #0a66c2);
+  border-color: var(--accent, #0a66c2);
   transform: translateY(-1px);
 }
 
-.quizadmin-my-books-tab:focus-visible {
-  outline: 2px solid var(--accent);
+a.quizadmin-my-books-tab:focus-visible {
+  outline: 2px solid var(--accent, #0a66c2);
   outline-offset: 2px;
 }
 
-.quizadmin-my-books-tab--active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+/* Active state: WHITE text on accent (blue) background. Literal #ffffff +
+   hex fallback for accent so cascade can never make this unreadable. */
+a.quizadmin-my-books-tab.quizadmin-my-books-tab--active,
+a.quizadmin-my-books-tab.quizadmin-my-books-tab--active:link,
+a.quizadmin-my-books-tab.quizadmin-my-books-tab--active:visited,
+a.quizadmin-my-books-tab.quizadmin-my-books-tab--active:hover,
+a.quizadmin-my-books-tab.quizadmin-my-books-tab--active:focus {
+  background-color: var(--accent, #0a66c2);
+  color: #ffffff;
+  border-color: var(--accent, #0a66c2);
   box-shadow: var(--elevation-1);
-}
-
-.quizadmin-my-books-tab--active:hover {
-  /* Active pill must stay readable on hover — keep white text */
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
 }
 
 .quizadmin-book-grid {
@@ -112,12 +117,21 @@
   margin: 0;
   color: var(--text-primary, var(--text, #1a1a1a));
   line-height: 1.3;
+  /* Long Bengali book titles: wrap to max 2 lines, ellipsis after */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 .quizadmin-book-card-title-en {
   font-size: var(--text-xs);
   color: var(--muted);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .quizadmin-book-card-meta {
@@ -375,6 +389,8 @@
   max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-shadow: var(--elevation-1);
+  /* Below quizadmin top nav (z-index 10) but above page content */
+  z-index: 5;
 }
 
 @media (max-width: 768px) {
@@ -491,7 +507,24 @@
   color: var(--text-primary, var(--text, #1a1a1a));
   min-height: var(--touch-target);
   touch-action: manipulation;
+  /* Critical: min-width:0 lets flex children shrink below their content size,
+     so the .chapter-title span can ellipsis instead of pushing row actions out */
+  min-width: 0;
+  overflow: hidden;
   transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+/* Long Bengali chapter titles: ellipsis at the right edge of the sidebar */
+.quizadmin-book-editor-chapter-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quizadmin-book-editor-chapter-number {
+  flex-shrink: 0;
 }
 
 .quizadmin-book-editor-chapter-button:hover {
@@ -534,6 +567,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  /* Grid items overflow their column when content (textarea) is wide.
+     min-width:0 lets the editor pane shrink to fit its column. */
+  min-width: 0;
 }
 
 .quizadmin-book-editor-empty {
@@ -637,6 +673,10 @@
   max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-shadow: var(--elevation-1);
+  /* Below quizadmin top nav (z-index 10) but above page content */
+  z-index: 5;
+  /* Prevent grid item from blowing out the column with long content */
+  min-width: 0;
 }
 
 @media (max-width: 1099px) {
@@ -683,6 +723,9 @@
 /* Cover image preview */
 .quizadmin-book-editor-cover-preview {
   width: 100%;
+  /* min-height fallback for older browsers without aspect-ratio support
+     so the box doesn't collapse to 0 — 240px ≈ 2:3 of a 160px-wide column */
+  min-height: 240px;
   aspect-ratio: 2 / 3;
   background: var(--surface-elevated, var(--surface));
   border: 1px solid var(--border);
