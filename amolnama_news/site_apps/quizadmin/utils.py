@@ -45,8 +45,44 @@ def has_quiz_creator_permission(user_profile_id):
 
 def is_staff_or_quiz_creator(request):
     """Check if user is staff OR has quiz creator permission."""
+    if not request.user.is_authenticated:
+        return False
     if request.user.is_staff or request.user.is_superuser:
         return True
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    return has_quiz_creator_permission(get_user_profile_id(request))
+
+
+def staff_or_quiz_creator_required(view_function):
+    """Decorator: allow staff OR users with active quiz creator permission."""
+    from functools import wraps
+    from django.shortcuts import redirect
+    from django.http import JsonResponse
+
+    @wraps(view_function)
+    def wrapper(request, *args, **kwargs):
+        if is_staff_or_quiz_creator(request):
+            return view_function(request, *args, **kwargs)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'error': 'Quiz creator access required.'}, status=403)
+        if not request.user.is_authenticated:
+            return redirect(f'/account/login/?next={request.path}')
+        from django.shortcuts import render
+        return render(request, 'quizadmin/pages/not_found.html', {
+            'page_title': 'Access denied',
+            'entity_label': 'Quiz Panel',
+            'entity_id': '',
+            'back_href': '/',
+            'back_label': 'Back to home',
+            'quizadmin_active_tab': '',
+        }, status=403)
+    return wrapper
+
+
+def is_quiz_creator_only(request):
+    """Returns True if user is a granted creator but NOT staff (for own-only filtering)."""
+    if request.user.is_staff or request.user.is_superuser:
+        return False
     from amolnama_news.site_apps.core.utils import get_user_profile_id
     return has_quiz_creator_permission(get_user_profile_id(request))
 
@@ -444,14 +480,21 @@ QUIZ_SORT_OPTIONS = {
 }
 
 
-def paginate_quizzes(page_number=1, per_page=50, sort_by=None):
-    """Quiz list (coll_quiz) with question count + creator."""
+def paginate_quizzes(page_number=1, per_page=50, sort_by=None, owner_user_profile_id=None):
+    """Quiz list (coll_quiz) with question count + creator.
+
+    If owner_user_profile_id is provided, results are filtered to quizzes
+    created by that user (used for non-staff quiz creators viewing only their own).
+    """
     from django.core.paginator import EmptyPage, Paginator
     from amolnama_news.site_apps.mastermind.models import CollQuiz, MapQuizQuestionPool
 
     order_field = QUIZ_SORT_OPTIONS.get(sort_by, '-created_at')
+    base_filter = {'is_active': True}
+    if owner_user_profile_id:
+        base_filter['link_created_by_user_profile_id'] = owner_user_profile_id
     queryset = (
-        CollQuiz.objects.filter(is_active=True)
+        CollQuiz.objects.filter(**base_filter)
         .order_by(order_field)
         .values(
             'mastermind_coll_quiz_id',
@@ -459,6 +502,7 @@ def paginate_quizzes(page_number=1, per_page=50, sort_by=None):
             'exam_total_questions', 'exam_status_code',
             'exam_rewards_enabled', 'exam_reward_criteria_code',
             'exam_pass_percentage', 'exam_time_limit_minutes',
+            'link_created_by_user_profile_id',
             'created_at',
         )
     )
@@ -532,7 +576,8 @@ def get_quiz_form_context(exam_id=None):
             'exam_rewards_enabled', 'exam_reward_criteria_code',
             'exam_reward_threshold_percent', 'exam_reward_top_n',
             'link_reward_badge_id', 'exam_reward_description',
-            'exam_status_code', 'created_at', 'updated_at',
+            'exam_status_code', 'link_created_by_user_profile_id',
+            'created_at', 'updated_at',
         )
         .first()
     )

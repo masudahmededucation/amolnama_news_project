@@ -10,12 +10,12 @@
   padding: var(--space-4);
 }
 
-main.quizadmin-shell a {
+.quizadmin-shell a {
   color: var(--accent);
   text-decoration: none;
 }
-main.quizadmin-shell a:hover,
-main.quizadmin-shell a:focus-visible {
+.quizadmin-shell a:hover,
+.quizadmin-shell a:focus-visible {
   text-decoration: underline;
 }
 

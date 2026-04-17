@@ -25,6 +25,12 @@ MAX_BULK_QUESTION_IDS = 500
 VALID_QUESTION_STATUS_CODES = frozenset({'draft', 'review', 'published', 'archived'})
 
 
+def _normalized_status_or_draft(raw):
+    """Strip whitespace + lowercase + validate, fall back to 'draft'."""
+    candidate = (raw or '').strip().lower()
+    return candidate if candidate in VALID_QUESTION_STATUS_CODES else 'draft'
+
+
 # ================================================================
 # Shared helpers — eliminate repeated boilerplate across endpoints.
 # ================================================================
@@ -85,12 +91,19 @@ def _handle_review_action(request, action_function):
     if error_response is not None:
         return error_response
 
+    import logging
+    logger = logging.getLogger(__name__)
+
     next_id = _next_id_after(payload['question_id'], _extract_queue_filters(request))
 
-    result = action_function(
-        question_id=payload['question_id'],
-        reviewer_user_profile_id=user_profile_id,
-    )
+    try:
+        result = action_function(
+            question_id=payload['question_id'],
+            reviewer_user_profile_id=user_profile_id,
+        )
+    except Exception:
+        logger.exception('Review action failed: %s', action_function.__name__)
+        return JsonResponse({'error': 'Server error. Please try again.'}, status=500)
     if not isinstance(result, dict):
         return JsonResponse({'error': 'Engine returned invalid response.'}, status=500)
     if result.get('error'):
@@ -156,17 +169,19 @@ def api_coll_question_skip(request):
 # Quiz CRUD
 # ================================================================
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 @require_POST
 def api_coll_exam_create(request):
     from amolnama_news.site_apps.mastermind.quiz_builder import create_quiz_with_questions
     return _handle_engine_mutation(request, create_quiz_with_questions)
 
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 @require_POST
 def api_coll_exam_update(request, exam_id):
     from amolnama_news.site_apps.mastermind.quiz_builder import update_quiz_with_questions
+    if not _user_can_modify_quiz(request, exam_id):
+        return JsonResponse({'error': 'You can only edit quizzes you created.'}, status=403)
     return _handle_engine_mutation(request, update_quiz_with_questions, exam_id=int(exam_id))
 
 
@@ -241,7 +256,20 @@ def api_coll_question_bulk_status(request):
 # Quiz clone + delete
 # ================================================================
 
-@staff_member_required
+def _user_can_modify_quiz(request, exam_id):
+    """Staff can modify any quiz; creators only their own."""
+    if request.user.is_staff or request.user.is_superuser:
+        return True
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    owner = (
+        CollQuiz.objects.filter(mastermind_coll_quiz_id=exam_id, is_active=True)
+        .values_list('link_created_by_user_profile_id', flat=True).first()
+    )
+    return owner == get_user_profile_id(request)
+
+
+@utils.staff_or_quiz_creator_required
 @require_POST
 def api_coll_exam_clone(request, exam_id):
     """Deep-clone a quiz: metadata + question pool → new draft."""
@@ -257,6 +285,8 @@ def api_coll_exam_clone(request, exam_id):
     )
     if not exam:
         return JsonResponse({'error': 'Quiz not found.'}, status=404)
+    if not _user_can_modify_quiz(request, exam_id):
+        return JsonResponse({'error': 'You can only clone quizzes you created.'}, status=403)
 
     user_profile_id, profile_error = _get_user_profile_id_or_error(request)
     if profile_error is not None:
@@ -329,10 +359,12 @@ def _clone_exam_atomic(exam, cloned_title_bn, cloned_title_en, user_profile_id, 
     return clone
 
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 @require_POST
 def api_coll_exam_delete(request, exam_id):
     """Soft-delete a quiz (set is_active=0)."""
+    if not _user_can_modify_quiz(request, exam_id):
+        return JsonResponse({'error': 'You can only delete quizzes you created.'}, status=403)
     from amolnama_news.site_apps.mastermind.models import CollQuiz
     updated = CollQuiz.objects.filter(
         mastermind_coll_quiz_id=exam_id, is_active=True,
@@ -552,7 +584,7 @@ def api_coll_question_import_csv(request):
                     link_mastermind_ref_quiz_difficulty_level_id=difficulty_id,
                     link_mastermind_coll_quiz_topic_id=topic_id,
                     question_points=int(row.get('points', '1') or '1'),
-                    question_status_code=(row.get('status', 'draft') or 'draft') if (row.get('status', 'draft') or 'draft') in VALID_QUESTION_STATUS_CODES else 'draft',
+                    question_status_code=_normalized_status_or_draft(row.get('status')),
                     question_generation_source_code='imported',
                     link_created_by_user_profile_id=user_profile_id,
                     source_page_number=int(row['page_number']) if (row.get('page_number') or '').strip().isdigit() else None,

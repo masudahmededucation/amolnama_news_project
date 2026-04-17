@@ -84,9 +84,13 @@ def books_page(request):
     return render(request, 'quizadmin/pages/books.html', context)
 
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 def quiz_list_page(request):
     sort_by = request.GET.get('sort') or None
+    creator_only_filter = None
+    if utils.is_quiz_creator_only(request):
+        from amolnama_news.site_apps.core.utils import get_user_profile_id
+        creator_only_filter = get_user_profile_id(request)
     context = {
         'page_title': 'Quizzes',
         'quizadmin_active_tab': 'quiz_list',
@@ -95,12 +99,13 @@ def quiz_list_page(request):
         **utils.paginate_quizzes(
             page_number=int(request.GET.get('page', '1') or 1),
             sort_by=sort_by,
+            owner_user_profile_id=creator_only_filter,
         ),
     }
     return render(request, 'quizadmin/pages/quiz_list.html', context)
 
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 def quiz_create_page(request):
     context = {
         'page_title': 'Create Quiz',
@@ -111,11 +116,15 @@ def quiz_create_page(request):
     return render(request, 'quizadmin/pages/quiz_form.html', context)
 
 
-@staff_member_required
+@utils.staff_or_quiz_creator_required
 def quiz_edit_page(request, exam_id):
     context_data = utils.get_quiz_form_context(exam_id=int(exam_id))
     if context_data.get('quiz') is None:
         return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+    if utils.is_quiz_creator_only(request):
+        from amolnama_news.site_apps.core.utils import get_user_profile_id
+        if context_data['quiz'].get('link_created_by_user_profile_id') != get_user_profile_id(request):
+            return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
     context_data.update({
         'page_title': f'Edit quiz: {context_data["quiz"]["exam_title_bn"]}',
         'quizadmin_active_tab': 'quiz_list',

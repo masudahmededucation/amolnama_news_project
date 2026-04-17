@@ -1144,6 +1144,8 @@ def update_question_manual(question_id, payload, user_profile_id=None):
         .values_list('question_type_code', flat=True)
         .first()
     )
+    if question_type_code is None:
+        return {'error': f'Unknown question_type_id: {question_type_id}'}
 
     with transaction.atomic():
         _create_question_version_snapshot(existing, user_profile_id)

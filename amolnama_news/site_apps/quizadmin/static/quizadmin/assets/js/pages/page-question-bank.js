@@ -44,24 +44,32 @@
     }
   });
 
-  var pendingConfirmation = null;
-
   var performBulkStatus = async function (statusCode, buttonElement) {
     var ids = getCheckedIds();
     if (!ids.length) return;
 
-    if (statusCode === 'archived' && pendingConfirmation !== 'archived') {
-      pendingConfirmation = 'archived';
+    if (statusCode === 'archived' && buttonElement.dataset.pendingConfirm !== 'true') {
+      buttonElement.dataset.pendingConfirm = 'true';
+      buttonElement.dataset.originalLabel = buttonElement.textContent;
       buttonElement.textContent = 'Confirm archive (' + ids.length + ')';
-      setTimeout(function () {
-        if (pendingConfirmation === 'archived') {
-          buttonElement.textContent = 'Archive';
-          pendingConfirmation = null;
+      if (buttonElement.dataset.confirmTimer) {
+        clearTimeout(parseInt(buttonElement.dataset.confirmTimer, 10));
+      }
+      var timer = setTimeout(function () {
+        if (buttonElement.dataset.pendingConfirm === 'true') {
+          buttonElement.textContent = buttonElement.dataset.originalLabel || 'Archive';
+          delete buttonElement.dataset.pendingConfirm;
+          delete buttonElement.dataset.confirmTimer;
         }
       }, 3000);
+      buttonElement.dataset.confirmTimer = String(timer);
       return;
     }
-    pendingConfirmation = null;
+    delete buttonElement.dataset.pendingConfirm;
+    if (buttonElement.dataset.confirmTimer) {
+      clearTimeout(parseInt(buttonElement.dataset.confirmTimer, 10));
+      delete buttonElement.dataset.confirmTimer;
+    }
 
     window.quizadminSetLoading(buttonElement, true);
     try {
