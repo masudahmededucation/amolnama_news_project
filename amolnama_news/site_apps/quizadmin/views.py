@@ -154,6 +154,24 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def analytics_dashboard_page(request):
+    """Visual analytics dashboard — Chart.js widgets fed by mastermind analytics API."""
+    from amolnama_news.site_apps.mastermind.models import CollQuiz
+    quiz_options = list(
+        CollQuiz.objects
+        .filter(is_active=True)
+        .order_by('-created_at')
+        .values('mastermind_coll_quiz_id', 'exam_title_bn', 'exam_title_en')[:200]
+    )
+    context = {
+        'page_title': 'Analytics Dashboard',
+        'quizadmin_active_tab': 'analytics',
+        'quiz_options': quiz_options,
+    }
+    return render(request, 'quizadmin/pages/analytics_dashboard.html', context)
+
+
+@staff_member_required
 def proctoring_dashboard_page(request):
     context = {
         'page_title': 'Proctoring Live Dashboard',

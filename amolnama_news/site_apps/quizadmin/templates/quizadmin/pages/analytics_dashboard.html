@@ -1,0 +1,98 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-analytics-dashboard.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">Live charts pulled from the mastermind analytics API. Pick a quiz to drill in, or scroll for platform-wide trends.</p>
+</section>
+
+<section class="quizadmin-analytics-controls" aria-label="Quiz selector">
+  <label class="quizadmin-analytics-label" for="quizadmin-analytics-quiz-select">
+    <span>Quiz</span>
+    <select id="quizadmin-analytics-quiz-select" name="quizadmin_analytics_quiz_select" class="quizadmin-form-select">
+      <option value="">— Select a quiz —</option>
+      {% for quiz in quiz_options %}
+      <option value="{{ quiz.mastermind_coll_quiz_id }}">{{ quiz.exam_title_bn|default:quiz.exam_title_en|truncatewords:8 }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label class="quizadmin-analytics-label" for="quizadmin-analytics-days-select">
+    <span>Lookback window</span>
+    <select id="quizadmin-analytics-days-select" name="quizadmin_analytics_days_select" class="quizadmin-form-select">
+      <option value="7">Last 7 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="365">Last 365 days</option>
+    </select>
+  </label>
+</section>
+
+<section class="quizadmin-analytics-grid" aria-label="Per-quiz charts">
+  <article class="quizadmin-analytics-card">
+    <header class="quizadmin-analytics-card-header">
+      <h2 class="quizadmin-analytics-card-title">Score distribution</h2>
+      <p class="quizadmin-analytics-card-hint">Histogram of completed-session scores in 10-point buckets.</p>
+    </header>
+    <div class="quizadmin-analytics-card-canvas-wrap">
+      <canvas id="quizadmin-analytics-chart-score-distribution" aria-label="Score distribution histogram"></canvas>
+    </div>
+    <p class="quizadmin-analytics-empty-state" id="quizadmin-analytics-score-distribution-empty" hidden>Pick a quiz above to see its score histogram.</p>
+  </article>
+
+  <article class="quizadmin-analytics-card">
+    <header class="quizadmin-analytics-card-header">
+      <h2 class="quizadmin-analytics-card-title">Pass rate over time</h2>
+      <p class="quizadmin-analytics-card-hint">Daily passed / failed / in-progress counts.</p>
+    </header>
+    <div class="quizadmin-analytics-card-canvas-wrap">
+      <canvas id="quizadmin-analytics-chart-pass-rate" aria-label="Pass rate over time"></canvas>
+    </div>
+    <p class="quizadmin-analytics-empty-state" id="quizadmin-analytics-pass-rate-empty" hidden>Pick a quiz above to see its pass-rate timeline.</p>
+  </article>
+
+  <article class="quizadmin-analytics-card quizadmin-analytics-card-wide">
+    <header class="quizadmin-analytics-card-header">
+      <h2 class="quizadmin-analytics-card-title">Hardest questions</h2>
+      <p class="quizadmin-analytics-card-hint">Lowest correct-rate questions in this quiz. 30–80% is ideal; below 30% means too hard.</p>
+    </header>
+    <div class="quizadmin-analytics-card-canvas-wrap">
+      <canvas id="quizadmin-analytics-chart-question-difficulty" aria-label="Per-question difficulty"></canvas>
+    </div>
+    <p class="quizadmin-analytics-empty-state" id="quizadmin-analytics-question-difficulty-empty" hidden>Pick a quiz above to see per-question difficulty.</p>
+  </article>
+</section>
+
+<section class="quizadmin-analytics-grid" aria-label="Platform charts">
+  <article class="quizadmin-analytics-card">
+    <header class="quizadmin-analytics-card-header">
+      <h2 class="quizadmin-analytics-card-title">Topic engagement</h2>
+      <p class="quizadmin-analytics-card-hint">Total quiz sessions started per topic in the lookback window.</p>
+    </header>
+    <div class="quizadmin-analytics-card-canvas-wrap">
+      <canvas id="quizadmin-analytics-chart-topic-engagement" aria-label="Topic engagement"></canvas>
+    </div>
+    <p class="quizadmin-analytics-empty-state" id="quizadmin-analytics-topic-engagement-empty" hidden>No sessions in this window.</p>
+  </article>
+
+  <article class="quizadmin-analytics-card">
+    <header class="quizadmin-analytics-card-header">
+      <h2 class="quizadmin-analytics-card-title">Your performance by topic</h2>
+      <p class="quizadmin-analytics-card-hint">Average score percentage across topics you've attempted.</p>
+    </header>
+    <div class="quizadmin-analytics-card-canvas-wrap">
+      <canvas id="quizadmin-analytics-chart-user-performance" aria-label="Your performance by topic"></canvas>
+    </div>
+    <p class="quizadmin-analytics-empty-state" id="quizadmin-analytics-user-performance-empty" hidden>Take a quiz to populate your personal performance.</p>
+  </article>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-analytics-dashboard.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,115 @@
+/* Quizadmin Analytics Dashboard — Chart.js widgets.
+   Mobile-first, tokenised, reduced-motion friendly. */
+
+.quizadmin-analytics-controls {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.quizadmin-analytics-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.quizadmin-analytics-label select {
+  font-size: var(--text-sm);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.quizadmin-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.quizadmin-analytics-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--elevation-1);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.quizadmin-analytics-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.quizadmin-analytics-card-wide {
+  grid-column: 1 / -1;
+}
+
+.quizadmin-analytics-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.quizadmin-analytics-card-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.quizadmin-analytics-card-hint {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.quizadmin-analytics-card-canvas-wrap {
+  position: relative;
+  height: 260px;
+  width: 100%;
+}
+
+.quizadmin-analytics-card-wide .quizadmin-analytics-card-canvas-wrap {
+  height: 380px;
+}
+
+.quizadmin-analytics-card-canvas-wrap canvas {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.quizadmin-analytics-empty-state {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  text-align: center;
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--bg-muted, rgba(0, 0, 0, 0.03));
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 768px) {
+  .quizadmin-analytics-card-canvas-wrap {
+    height: 220px;
+  }
+  .quizadmin-analytics-card-wide .quizadmin-analytics-card-canvas-wrap {
+    height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizadmin-analytics-card { transition: none; }
+}

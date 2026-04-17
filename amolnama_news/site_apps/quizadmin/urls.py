@@ -22,6 +22,7 @@ urlpatterns = [
     path('quiz/<int:exam_id>/print/',      views.quiz_print_page,        name='quiz_print'),
     path('quiz/<int:exam_id>/workflow/',   views.quiz_workflow_log_page, name='quiz_workflow_log'),
     path('creators/',                      views.quiz_creators_page,     name='quiz_creators'),
+    path('analytics/',                     views.analytics_dashboard_page,            name='analytics_dashboard'),
     path('proctoring/',                    views.proctoring_dashboard_page,           name='proctoring_dashboard'),
     path('proctoring/feed/',               views.proctoring_dashboard_feed_partial,   name='proctoring_dashboard_feed'),
     path('proctoring/session/<int:session_id>/', views.proctoring_session_audit_page, name='proctoring_session_audit'),
