@@ -1,10 +1,13 @@
 from django.urls import path
 
-from . import views_api
+from . import views, views_api
 
 app_name = 'mastermind'
 
 urlpatterns = [
+    # Public certificate verification page (no auth — serial is unforgeable)
+    path('certificate/<str:certificate_serial>/', views.certificate_public_view, name='certificate_public_view'),
+
     # Book management
     path('api/book/create/', views_api.api_book_create, name='api_book_create'),
     path('api/book/<int:book_id>/chapter/create/', views_api.api_book_chapter_create, name='api_book_chapter_create'),
@@ -35,6 +38,21 @@ urlpatterns = [
 
     # Question / option image upload (returns public URL)
     path('api/question/upload-image/', views_api.api_upload_question_image, name='api_upload_question_image'),
+
+    # Per-session accommodation override (extra time / no time limit)
+    path('api/session/<int:session_id>/accommodation/', views_api.api_grant_session_accommodation, name='api_grant_session_accommodation'),
+
+    # Webhook subscriptions (staff only)
+    path('api/webhook/subscriptions/', views_api.api_webhook_subscription_list, name='api_webhook_subscription_list'),
+    path('api/webhook/subscriptions/create/', views_api.api_webhook_subscription_create, name='api_webhook_subscription_create'),
+    path('api/webhook/subscriptions/<int:subscription_id>/delete/', views_api.api_webhook_subscription_delete, name='api_webhook_subscription_delete'),
+
+    # Analytics (chart data)
+    path('api/analytics/quiz/<int:quiz_id>/score-distribution/', views_api.api_analytics_quiz_score_distribution, name='api_analytics_quiz_score_distribution'),
+    path('api/analytics/quiz/<int:quiz_id>/pass-rate/', views_api.api_analytics_quiz_pass_rate, name='api_analytics_quiz_pass_rate'),
+    path('api/analytics/quiz/<int:quiz_id>/question-difficulty/', views_api.api_analytics_quiz_question_difficulty, name='api_analytics_quiz_question_difficulty'),
+    path('api/analytics/topic/engagement/', views_api.api_analytics_topic_engagement, name='api_analytics_topic_engagement'),
+    path('api/analytics/user/performance/', views_api.api_analytics_user_performance, name='api_analytics_user_performance'),
 
     # Exam session (quiz taking)
     path('api/exam/<int:exam_id>/start/', views_api.api_exam_start, name='api_exam_start'),

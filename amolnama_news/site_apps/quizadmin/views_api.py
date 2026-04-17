@@ -716,6 +716,14 @@ def api_quiz_creator_grant(request):
 
     from amolnama_news.site_apps.mastermind.notifications import notify_quiz_creator_permission_granted
     notify_quiz_creator_permission_granted(new_permission.mastermind_coll_quiz_creator_permission_id)
+
+    from amolnama_news.site_apps.mastermind.webhooks import fire_event
+    fire_event('quiz_creator_permission_granted', {
+        'permission_id': new_permission.mastermind_coll_quiz_creator_permission_id,
+        'recipient_user_profile_id': target_user_profile_id,
+        'granted_by_user_profile_id': granter_profile_id,
+        'expires_at': expires_at.isoformat() if expires_at else None,
+    })
     return JsonResponse({'success': True, 'action': 'granted'})
 
 

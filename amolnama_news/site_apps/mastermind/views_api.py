@@ -1036,6 +1036,173 @@ def api_export_questions(request):
 
 
 @login_required
+@require_GET
+def api_analytics_quiz_score_distribution(request, quiz_id):
+    """Histogram of completed-session score percentages for one quiz."""
+    from .analytics import per_quiz_score_distribution
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    return JsonResponse(per_quiz_score_distribution(quiz_id))
+
+
+@login_required
+@require_GET
+def api_analytics_quiz_pass_rate(request, quiz_id):
+    """Daily passed/failed/in-progress counts for one quiz over last N days (?days=)."""
+    from .analytics import per_quiz_pass_rate_over_time
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    days_raw = request.GET.get('days') or '30'
+    days = int(days_raw) if days_raw.isdigit() else 30
+    return JsonResponse(per_quiz_pass_rate_over_time(quiz_id, days=days))
+
+
+@login_required
+@require_GET
+def api_analytics_quiz_question_difficulty(request, quiz_id):
+    """Per-question correct-answer rate for one quiz."""
+    from .analytics import per_quiz_question_difficulty
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+    return JsonResponse(per_quiz_question_difficulty(quiz_id))
+
+
+@login_required
+@require_GET
+def api_analytics_topic_engagement(request):
+    """Sessions started per topic over last N days (?days=). Staff only."""
+    from .analytics import topic_engagement_overview
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    days_raw = request.GET.get('days') or '30'
+    days = int(days_raw) if days_raw.isdigit() else 30
+    return JsonResponse(topic_engagement_overview(days=days))
+
+
+@login_required
+@require_GET
+def api_analytics_user_performance(request):
+    """All-time per-topic stats for the calling user."""
+    from .analytics import per_user_performance_summary
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    return JsonResponse(per_user_performance_summary(user_profile_id))
+
+
+@login_required
+@require_GET
+def api_webhook_subscription_list(request):
+    """List active webhook subscriptions (staff only)."""
+    from .models import CollWebhookSubscription
+    from .webhooks import list_supported_event_codes
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    subscriptions = list(
+        CollWebhookSubscription.objects
+        .filter(is_active=True)
+        .order_by('-created_at')
+        .values(
+            'mastermind_coll_webhook_subscription_id',
+            'webhook_event_code', 'webhook_target_url', 'webhook_label',
+            'last_dispatch_at', 'last_dispatch_status_code',
+            'last_dispatch_response_code', 'last_dispatch_error_message',
+            'dispatch_success_count', 'dispatch_failure_count', 'created_at',
+        )
+    )
+    return JsonResponse({
+        'subscriptions': subscriptions,
+        'supported_event_codes': list_supported_event_codes(),
+    })
+
+
+@login_required
+@require_POST
+def api_webhook_subscription_create(request):
+    """Register a new webhook subscription (staff only)."""
+    from .models import CollWebhookSubscription
+    from .webhooks import SUPPORTED_EVENT_CODES
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    event_code = (payload.get('webhook_event_code') or '').strip()
+    target_url = (payload.get('webhook_target_url') or '').strip()
+    label = (payload.get('webhook_label') or '').strip() or None
+    secret = (payload.get('webhook_secret') or '').strip() or None
+
+    if event_code not in SUPPORTED_EVENT_CODES:
+        return JsonResponse({'error': f'Unsupported event_code. Allowed: {list(SUPPORTED_EVENT_CODES)}'}, status=400)
+    if not target_url.startswith(('http://', 'https://')):
+        return JsonResponse({'error': 'webhook_target_url must start with http:// or https://'}, status=400)
+
+    granted_by = get_user_profile_id(request)
+    subscription = CollWebhookSubscription.objects.create(
+        webhook_event_code=event_code,
+        webhook_target_url=target_url,
+        webhook_secret=secret,
+        webhook_label=label,
+        link_created_by_user_profile_id=granted_by,
+    )
+    return JsonResponse({
+        'success': True,
+        'subscription_id': subscription.mastermind_coll_webhook_subscription_id,
+    })
+
+
+@login_required
+@require_POST
+def api_webhook_subscription_delete(request, subscription_id):
+    """Soft-delete (is_active=False) a webhook subscription."""
+    from .models import CollWebhookSubscription
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    updated = CollWebhookSubscription.objects.filter(
+        mastermind_coll_webhook_subscription_id=subscription_id, is_active=True,
+    ).update(is_active=False, updated_at=timezone.now())
+    if not updated:
+        return JsonResponse({'error': 'Subscription not found.'}, status=404)
+    return JsonResponse({'success': True})
+
+
+@login_required
+@require_POST
+def api_grant_session_accommodation(request, session_id):
+    """Apply extra-time / no-time-limit accommodation to a single quiz session."""
+    from .engine import grant_session_accommodation
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    granted_by = get_user_profile_id(request)
+    extra_minutes_raw = payload.get('extra_time_minutes')
+    extra_minutes = int(extra_minutes_raw) if extra_minutes_raw not in (None, '') else None
+    no_time_limit = bool(payload.get('no_time_limit', False))
+    notes = (payload.get('notes') or '').strip() or None
+
+    result = grant_session_accommodation(
+        session_id=session_id,
+        granted_by_user_profile_id=granted_by,
+        extra_time_minutes=extra_minutes,
+        no_time_limit=no_time_limit,
+        notes=notes,
+    )
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
 @require_POST
 def api_upload_question_image(request):
     """Accept a multipart image, store it, return its public URL.

@@ -298,6 +298,9 @@ class CollQuiz(models.Model):
     exam_proctoring_level = models.IntegerField(default=1)
     exam_proctoring_max_score = models.IntegerField(null=True, blank=True)
 
+    # Certificate template (HTML; NULL = no certificate issued for this quiz)
+    exam_certificate_template_html = models.TextField(null=True, blank=True)
+
     # Rewards (V1 — nullable so legacy exams without rewards still work)
     exam_rewards_enabled = models.BooleanField(default=False)
     exam_reward_criteria_code = models.CharField(max_length=20, null=True, blank=True)
@@ -367,6 +370,12 @@ class CollQuizSession(models.Model):
     # Proctoring (cached running score + status)
     session_proctoring_score = models.IntegerField(default=0)
     session_proctoring_status_code = models.CharField(max_length=20, default='clean')
+
+    # Accommodation overrides (per-session)
+    session_extra_time_minutes = models.IntegerField(null=True, blank=True)
+    session_no_time_limit = models.BooleanField(default=False)
+    session_accommodation_notes = models.CharField(max_length=500, null=True, blank=True)
+    link_accommodation_granted_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -779,3 +788,52 @@ class CollQuizProctoringLog(models.Model):
     class Meta:
         managed = False
         db_table = '[mastermind].[coll_quiz_proctoring_log]'
+
+
+class CollCertificate(models.Model):
+    """Issued quiz pass certificate. Auto-created when a session passes a quiz
+    that has exam_certificate_template_html set. certificate_serial is the
+    unforgeable URL-safe public id."""
+    mastermind_coll_certificate_id = models.BigAutoField(primary_key=True)
+    certificate_serial = models.CharField(max_length=40, unique=True)
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+    link_mastermind_coll_quiz_session_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    certificate_recipient_name = models.CharField(max_length=200, null=True, blank=True)
+    certificate_score_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+    )
+    certificate_issued_at = models.DateTimeField(default=timezone.now)
+    certificate_revoked_at = models.DateTimeField(null=True, blank=True)
+    link_revoked_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    certificate_revocation_reason = models.CharField(max_length=500, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_certificate]'
+
+
+class CollWebhookSubscription(models.Model):
+    """Registered webhook subscription. Mastermind POSTs JSON to webhook_target_url
+    whenever the named webhook_event_code fires."""
+    mastermind_coll_webhook_subscription_id = models.BigAutoField(primary_key=True)
+    webhook_event_code = models.CharField(max_length=60)
+    webhook_target_url = models.CharField(max_length=1000)
+    webhook_secret = models.CharField(max_length=200, null=True, blank=True)
+    webhook_label = models.CharField(max_length=200, null=True, blank=True)
+    link_created_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    last_dispatch_at = models.DateTimeField(null=True, blank=True)
+    last_dispatch_status_code = models.CharField(max_length=20, null=True, blank=True)
+    last_dispatch_response_code = models.IntegerField(null=True, blank=True)
+    last_dispatch_error_message = models.CharField(max_length=500, null=True, blank=True)
+    dispatch_success_count = models.IntegerField(default=0)
+    dispatch_failure_count = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_webhook_subscription]'

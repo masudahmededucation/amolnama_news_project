@@ -128,6 +128,23 @@ def log_violation(session_id, user_profile_id, quiz_id, violation_type_code,
         return {'success': False, 'error': 'Server error.'}
 
     should_terminate = (previous_status != 'flagged' and new_status == 'flagged')
+
+    # Outbound webhook fan-out — soft-fail
+    try:
+        from .webhooks import fire_event
+        fire_event('proctoring_violation_logged', {
+            'violation_id': log_row.mastermind_coll_quiz_proctoring_log_id,
+            'session_id': session_id,
+            'quiz_id': quiz_id,
+            'user_profile_id': user_profile_id,
+            'violation_type_code': violation_type_code,
+            'severity_points': severity_points,
+            'session_score': new_total,
+            'status': new_status,
+        })
+    except Exception:
+        logger.exception('Webhook fire failed for proctoring violation')
+
     return {
         'success': True,
         'violation_id': log_row.mastermind_coll_quiz_proctoring_log_id,

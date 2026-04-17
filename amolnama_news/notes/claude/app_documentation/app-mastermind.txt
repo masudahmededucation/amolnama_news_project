@@ -1,6 +1,6 @@
 MASTERMIND APP — Architecture & Documentation
 ==============================================
-Last updated: 2026-04-16
+Last updated: 2026-04-17
 
 PURPOSE
 -------
@@ -238,3 +238,71 @@ GPU: auto-detected by Ollama + torch (zero code change).
 CPU parallelism: NOT automatic — needs runtime_profile.py module (deferred).
 Triggers: GPU available, or >50 book backlog, or gen <30s per call.
 Effort: ~2 hours when needed.
+
+
+CHANGELOG — 2026-04-17 (engine completion batch)
+---------------------------------------------------
+Added (engine modules):
+  - notifications.py    — pulse + messenger DM, no email, no SMTP, no third party.
+                          Replaces earlier email-based notifications module.
+                          Public API: notify_quiz_results_ready, notify_quiz_creator_permission_granted,
+                          notify_ai_generation_completed.
+                          Settings: MASTERMIND_SYSTEM_SENDER_PROFILE_ID (optional).
+  - exporters.py        — bulk question + quiz export to JSON or CSV.
+                          Round-trip-safe with bulk_import_questions.
+  - image_uploads.py    — multipart image uploader, validates type/size,
+                          returns public URL for question_image_url / option_image_url.
+  - certificates.py     — auto-issue pass certificates with unforgeable serials.
+                          Browser-native print-to-PDF (no server library needed).
+                          Public verify URL: /mastermind/certificate/<serial>/.
+  - webhooks.py         — outbound HTTP POST when supported events fire
+                          (Zapier / Slack / Discord / n8n / custom).
+                          HMAC-SHA256 signature header X-Mastermind-Signature.
+                          Soft-fail dispatch on background thread.
+  - analytics.py        — read-only aggregation queries for chart dashboards
+                          (per_quiz_score_distribution, per_quiz_pass_rate_over_time,
+                          per_quiz_question_difficulty, per_user_performance_summary,
+                          topic_engagement_overview).
+
+Added (engine functions in existing modules):
+  - quiz_builder.py: clone_quiz(), archive_quiz(), delete_quiz(),
+                     can_user_manage_quiz() permission helper,
+                     _clone_question_with_options() internal.
+  - engine.py:       _grade_matching(), _grade_ordering(),
+                     _effective_time_limit_minutes() accommodation helper,
+                     grant_session_accommodation().
+                     submit_answer() now accepts matching_pairs / ordering_option_ids.
+
+Added (DB columns + tables — see notes/sql-script/):
+  - exam_proctoring_level DEFAULT flipped 0 → 1 (Phase 2 prep)
+  - coll_quiz_session_question.matching_pairs_json / ordering_option_ids_json
+  - ref_quiz_question_type seed: 'ordering' (auto-grade), 'essay' (manual grade)
+  - coll_quiz_session: session_extra_time_minutes, session_no_time_limit,
+                       session_accommodation_notes,
+                       link_accommodation_granted_by_user_profile_id
+  - coll_quiz: exam_certificate_template_html (NVARCHAR(MAX) NULL)
+  - coll_certificate (new table)
+  - coll_webhook_subscription (new table)
+
+API endpoints added (all under /mastermind/api/):
+  POST exam/<id>/clone/                          — duplicate quiz
+  POST exam/<id>/archive/   + unarchive/         — soft-archive
+  POST exam/<id>/delete/                         — soft-delete
+  GET  exam/<id>/export/                         — single quiz JSON bundle
+  GET  question/export/?format=json|csv          — bulk question export
+  POST question/upload-image/                    — multipart image upload
+  POST session/<id>/accommodation/               — grant extra time
+  GET  webhook/subscriptions/  POST create/  POST <id>/delete/
+  GET  analytics/quiz/<id>/score-distribution/
+  GET  analytics/quiz/<id>/pass-rate/?days=
+  GET  analytics/quiz/<id>/question-difficulty/
+  GET  analytics/topic/engagement/?days=
+  GET  analytics/user/performance/
+
+Public-facing URL added (no auth):
+  GET  /mastermind/certificate/<certificate_serial>/
+
+Webhook event codes (consumers subscribe to these):
+  quiz_session_completed, quiz_session_passed, quiz_session_failed,
+  ai_generation_completed, quiz_creator_permission_granted,
+  proctoring_violation_logged.

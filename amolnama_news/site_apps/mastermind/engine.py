@@ -285,7 +285,10 @@ def _build_session_response(session, exam, session_questions):
         'exam_id': exam.mastermind_coll_quiz_id,
         'exam_title_bn': exam.exam_title_bn,
         'exam_title_en': exam.exam_title_en,
-        'exam_time_limit_minutes': exam.exam_time_limit_minutes,
+        'exam_time_limit_minutes': _effective_time_limit_minutes(exam, session),
+        'exam_time_limit_minutes_base': exam.exam_time_limit_minutes,
+        'session_no_time_limit': bool(getattr(session, 'session_no_time_limit', False)),
+        'session_extra_time_minutes': getattr(session, 'session_extra_time_minutes', None),
         'exam_show_explanation_code': exam.exam_show_explanation_code,
         'exam_allow_review': exam.exam_allow_review,
         'total_questions': session.session_total_questions,
@@ -592,6 +595,67 @@ def _grade_ordering(question_id, ordering_option_ids):
 
 
 # ================================================================
+# Accommodation overrides (extra time / no time limit per session)
+# ================================================================
+
+def _effective_time_limit_minutes(exam, session):
+    """Resolve the time limit a single session should display + enforce.
+
+    Order of precedence:
+      1. session_no_time_limit=True → returns None (untimed for this student)
+      2. exam_time_limit_minutes is None → returns None (untimed quiz)
+      3. exam_time_limit_minutes + session_extra_time_minutes (if any)
+    """
+    if getattr(session, 'session_no_time_limit', False):
+        return None
+    base_minutes = exam.exam_time_limit_minutes
+    if base_minutes is None:
+        return None
+    extra_minutes = getattr(session, 'session_extra_time_minutes', None) or 0
+    return base_minutes + extra_minutes
+
+
+def grant_session_accommodation(session_id, granted_by_user_profile_id,
+                                extra_time_minutes=None, no_time_limit=False, notes=None):
+    """Apply a per-session accommodation override.
+
+    Either grants extra minutes on top of the quiz time limit, OR removes the
+    time limit entirely for this student's attempt. notes is a short rationale
+    (e.g. 'documented dyslexia — 50% extra time'). Returns dict with
+    success/error and the resolved effective_time_limit_minutes.
+    """
+    if not session_id:
+        return {'success': False, 'error': 'session_id required.'}
+    if not granted_by_user_profile_id:
+        return {'success': False, 'error': 'granted_by_user_profile_id required.'}
+    if not no_time_limit and (extra_time_minutes is None or extra_time_minutes < 0):
+        return {'success': False, 'error': 'extra_time_minutes must be a non-negative integer (or set no_time_limit=True).'}
+
+    session = CollQuizSession.objects.filter(mastermind_coll_quiz_session_id=session_id).first()
+    if not session:
+        return {'success': False, 'error': 'Session not found.'}
+    if session.session_status_code != 'in_progress':
+        return {'success': False, 'error': 'Session is not in progress; accommodation cannot be applied retroactively.'}
+
+    CollQuizSession.objects.filter(mastermind_coll_quiz_session_id=session_id).update(
+        session_extra_time_minutes=(None if no_time_limit else extra_time_minutes),
+        session_no_time_limit=bool(no_time_limit),
+        session_accommodation_notes=(notes or None),
+        link_accommodation_granted_by_user_profile_id=granted_by_user_profile_id,
+    )
+
+    refreshed_session = CollQuizSession.objects.get(mastermind_coll_quiz_session_id=session_id)
+    exam = CollQuiz.objects.get(mastermind_coll_quiz_id=refreshed_session.link_mastermind_coll_quiz_id)
+    return {
+        'success': True,
+        'session_id': session_id,
+        'no_time_limit': bool(no_time_limit),
+        'extra_time_minutes': (None if no_time_limit else extra_time_minutes),
+        'effective_time_limit_minutes': _effective_time_limit_minutes(exam, refreshed_session),
+    }
+
+
+# ================================================================
 # Session Completion
 # ================================================================
 
@@ -651,9 +715,32 @@ def complete_exam_session(session_id, user_profile_id):
     from .engine_advanced import post_session_processing
     post_result = post_session_processing(user_profile_id, session.mastermind_coll_quiz_session_id)
 
-    # Email the student that their results are ready (soft-fail if SMTP off)
+    # Auto-issue certificate if quiz has template + session passed (idempotent)
+    try:
+        from .certificates import issue_certificate_for_session
+        issue_certificate_for_session(session)
+    except Exception:
+        logger.exception('Certificate issue failed for session %s', session.mastermind_coll_quiz_session_id)
+
+    # In-app notification (pulse + messenger DM) — soft-fail
     from .notifications import notify_quiz_results_ready
     notify_quiz_results_ready(session.mastermind_coll_quiz_session_id)
+
+    # Outbound webhook fan-out — soft-fail, runs on background thread
+    from .webhooks import fire_event
+    webhook_payload = {
+        'session_id': session.mastermind_coll_quiz_session_id,
+        'quiz_id': session.link_mastermind_coll_quiz_id,
+        'user_profile_id': user_profile_id,
+        'score_percentage': float(session.session_score_percentage or 0),
+        'is_passed': bool(session.session_is_passed),
+        'time_taken_seconds': session.session_time_taken_seconds,
+    }
+    fire_event('quiz_session_completed', webhook_payload)
+    if session.session_is_passed is True:
+        fire_event('quiz_session_passed', webhook_payload)
+    elif session.session_is_passed is False:
+        fire_event('quiz_session_failed', webhook_payload)
 
     return {
         'session_id': session.mastermind_coll_quiz_session_id,
