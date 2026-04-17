@@ -1,0 +1,101 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-webhooks.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Outbound HTTP POST integrations for Slack / Discord / Zapier / n8n / custom services.
+    Every dispatch is HMAC-SHA256-signed (header <code>X-Mastermind-Signature</code>) when a secret is set.
+  </p>
+</section>
+
+<section class="quizadmin-section">
+  <h2 class="quizadmin-section-title">Add a new subscription</h2>
+  <form class="quizadmin-webhook-form" id="quizadmin-webhook-form" name="quizadmin_webhook_form">
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Event code</span>
+        <select id="quizadmin-webhook-event-code" name="quizadmin_webhook_event_code" class="quizadmin-form-select" required>
+          {% for code in supported_event_codes %}<option value="{{ code }}">{{ code }}</option>{% endfor %}
+        </select>
+      </label>
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Label (optional)</span>
+        <input type="text" id="quizadmin-webhook-label" name="quizadmin_webhook_label" class="quizadmin-form-input" maxlength="200" placeholder="e.g. #quiz-results Slack">
+      </label>
+    </div>
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Target URL</span>
+      <input type="url" id="quizadmin-webhook-target-url" name="quizadmin_webhook_target_url" class="quizadmin-form-input" required placeholder="https://hooks.slack.com/services/…">
+    </label>
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Shared secret (optional, used to sign payloads)</span>
+      <input type="text" id="quizadmin-webhook-secret" name="quizadmin_webhook_secret" class="quizadmin-form-input" maxlength="200" placeholder="leave blank to disable HMAC signature">
+    </label>
+    <div class="quizadmin-inline-message" id="quizadmin-webhook-form-message" role="status" aria-live="polite" hidden></div>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-webhook-form-submit" name="quizadmin_webhook_form_submit">Add subscription</button>
+  </form>
+</section>
+
+<section class="quizadmin-section">
+  <h2 class="quizadmin-section-title">Active subscriptions ({{ subscriptions|length }})</h2>
+  {% if subscriptions %}
+  <div class="quizadmin-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Event</th>
+          <th scope="col">Label</th>
+          <th scope="col">Target URL</th>
+          <th scope="col" class="quizadmin-table-numeric">Success</th>
+          <th scope="col" class="quizadmin-table-numeric">Failure</th>
+          <th scope="col">Last dispatch</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subscription in subscriptions %}
+        <tr data-subscription-id="{{ subscription.mastermind_coll_webhook_subscription_id }}">
+          <td><span class="quizadmin-code-inline">{{ subscription.webhook_event_code }}</span></td>
+          <td>{{ subscription.webhook_label|default:"—" }}</td>
+          <td class="quizadmin-webhook-url-cell">{{ subscription.webhook_target_url|truncatechars:80 }}</td>
+          <td class="quizadmin-table-numeric">{{ subscription.dispatch_success_count }}</td>
+          <td class="quizadmin-table-numeric">{{ subscription.dispatch_failure_count }}</td>
+          <td>
+            {% if subscription.last_dispatch_at %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-{{ subscription.last_dispatch_status_code|default:'clean' }}">{{ subscription.last_dispatch_status_code|default:"—" }}</span>
+              <small class="quizadmin-webhook-dispatch-time">{{ subscription.last_dispatch_at|date:"Y-m-d H:i" }}</small>
+              {% if subscription.last_dispatch_error_message %}
+                <small class="quizadmin-webhook-dispatch-error">{{ subscription.last_dispatch_error_message|truncatechars:60 }}</small>
+              {% endif %}
+            {% else %}
+              <span class="quizadmin-webhook-dispatch-pending">never fired</span>
+            {% endif %}
+          </td>
+          <td>
+            <button type="button" class="quizadmin-table-action quizadmin-webhook-delete-button" id="quizadmin-webhook-delete-{{ subscription.mastermind_coll_webhook_subscription_id }}" name="quizadmin_webhook_delete" data-subscription-id="{{ subscription.mastermind_coll_webhook_subscription_id }}">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <section class="quizadmin-empty-hero">
+    <p class="quizadmin-empty-hero-emoji" aria-hidden="true">🔌</p>
+    <h2 class="quizadmin-empty-hero-title">No subscriptions yet</h2>
+    <p class="quizadmin-empty-hero-body">Add one above to start firing events to Slack, Discord, Zapier, or any URL that accepts HTTP POST.</p>
+  </section>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-webhooks.js' %}" defer></script>
+{% endblock %}

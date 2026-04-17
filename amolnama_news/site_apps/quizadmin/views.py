@@ -154,6 +154,32 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def webhooks_page(request):
+    """Manage outbound webhook subscriptions — list + add + delete."""
+    from amolnama_news.site_apps.mastermind.models import CollWebhookSubscription
+    from amolnama_news.site_apps.mastermind.webhooks import list_supported_event_codes
+    subscriptions = list(
+        CollWebhookSubscription.objects
+        .filter(is_active=True)
+        .order_by('-created_at')
+        .values(
+            'mastermind_coll_webhook_subscription_id',
+            'webhook_event_code', 'webhook_target_url', 'webhook_label',
+            'last_dispatch_at', 'last_dispatch_status_code',
+            'last_dispatch_response_code', 'last_dispatch_error_message',
+            'dispatch_success_count', 'dispatch_failure_count', 'created_at',
+        )
+    )
+    context = {
+        'page_title': 'Webhook Subscriptions',
+        'quizadmin_active_tab': 'webhooks',
+        'subscriptions': subscriptions,
+        'supported_event_codes': list_supported_event_codes(),
+    }
+    return render(request, 'quizadmin/pages/webhooks.html', context)
+
+
+@staff_member_required
 def help_page(request):
     """Quiz Panel — workflow diagram + Q&A. Single source of truth for 'how do I…?'."""
     context = {

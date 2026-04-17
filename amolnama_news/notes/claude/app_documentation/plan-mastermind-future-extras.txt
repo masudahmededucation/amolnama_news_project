@@ -1,0 +1,134 @@
+PLAN — MASTERMIND FUTURE EXTRAS (low-priority backlog)
+========================================================
+Status: NOT STARTED — small backlog
+Last updated: 2026-04-17
+
+Each item is small enough to fit in 1-3 days. Build only when a customer
+asks OR when the engine has spare capacity.
+
+
+1. ADVANCED QUESTION TYPES (3 types)
+-------------------------------------
+Status: NOT STARTED
+Estimated effort: 2-3 days each
+Priority: LOW — only if BCS / certified-exam users ask
+
+a) calculated  — math expression with variable substitution
+   - DB: new coll_question_calculated_var table (var_name, min, max, step)
+   - Engine: substitute random var values per session, evaluate formula,
+     match student's numeric answer within tolerance
+   - Use case: math / physics / chemistry exam prep
+
+b) drag-drop on image  — student places labels on an image hot-spot
+   - DB: new coll_question_image_hotspot table (x_percent, y_percent,
+     radius_percent, label_text)
+   - Engine: collect (label_id, x, y) tuples; check each landed within radius
+   - Use case: anatomy, geography, parts-of-a-machine
+
+c) regex / pattern  — fill-blank but answer matched against a regex
+   - DB: extend coll_question_option with option_match_pattern column
+   - Engine: re-use _grade_fill_blank with re.fullmatch fallback
+   - Use case: code / language quizzes
+
+
+2. QUIZ TEMPLATE MARKETPLACE
+----------------------------
+Status: NOT STARTED
+Estimated effort: 3-5 days
+Priority: MEDIUM — network effect if users share quiz templates
+
+Vision:
+  Staff or quiz-creators can publish a quiz as a "template". Others
+  can browse the catalogue and clone it as a starting point.
+
+DB:
+  - coll_quiz_template_listing
+      (link_quiz_id, listed_by_user_profile_id, listing_status_code,
+       template_category_code, template_description, clone_count, listed_at)
+  - All cloning already works via the existing /api/exam/<id>/clone/ endpoint
+
+UI:
+  /quizadmin/quiz-templates/  — gallery, filter by topic / language,
+                                  click "Clone to my drafts"
+  Quiz form — new "Publish as template" toggle in the Status section
+
+Auth:
+  - Anyone with edit access on a quiz can publish it as template.
+  - Cloning requires quiz creator permission.
+
+
+3. COMMENT MENTIONS + EMAIL DIGEST
+-----------------------------------
+Status: NOT STARTED
+Estimated effort: 1-2 days
+Priority: LOW — wait for users to actually use comments first
+
+Use case:
+  In a quiz comment, type "@username" — auto-link to their profile +
+  drop a pulse notification ("X mentioned you in a quiz comment").
+
+Tech:
+  - Reuse existing newsengine.notifications.create_notification.
+  - Parse @mentions on save (regex against sanitised HTML).
+  - Use existing UserProfile.display_name index for resolution.
+
+
+4. PER-QUESTION COMMENTS (vs. per-quiz)
+----------------------------------------
+Status: NOT STARTED
+Estimated effort: 1-2 days
+Priority: LOW
+
+Today: comments are per-quiz (1 thread per quiz).
+Add: optional per-question discussion thread for textbook-style
+    "explain this question" deep-dives.
+
+Implementation: reuse coll_quiz_comment table with optional
+link_mastermind_coll_question_id column (NULL = quiz-level, set = question-level).
+Render: tab on the question detail page.
+
+
+5. STUDENT FLAG / DISPUTE A QUESTION
+-------------------------------------
+Status: PARTIAL — coll_question_report exists but no UI surfaces it
+
+Today: model is in models.py, no UI.
+Add: "Flag this question" button on the quiz review screen → row in
+coll_question_report → staff sees backlog in a new /quizadmin/flagged/ page.
+
+Effort: 1 day for the button + 1 day for the staff review page.
+
+
+6. EXPORT TO QTI
+----------------
+See plan-mastermind-qti-import-export.txt — separate doc, larger scope.
+
+
+7. EXPORT GRADEBOOK TO CSV
+---------------------------
+Status: NOT STARTED
+Estimated effort: 1 day
+Priority: LOW
+
+Today: leaderboard page shows a table.
+Add: "Download CSV" button → all sessions for one quiz with score,
+time, pass/fail, completed_at.
+
+
+8. PERIODIC BACKUP-EVERYTHING JSON DUMP
+----------------------------------------
+Status: NOT STARTED
+Estimated effort: 1 day
+Priority: LOW
+
+Today: per-quiz / per-question export exists.
+Add: cron-friendly endpoint /mastermind/api/admin/full-backup/ that
+streams every book + chapter + question + option + match-pair as one
+giant JSON. Useful for off-site backups.
+
+
+SUMMARY OF BACKLOG SIZE
+-----------------------
+Total backlog: ~25 dev-days across 8 items.
+None blocks the current platform.
+Build incrementally as users ask.

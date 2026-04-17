@@ -186,15 +186,39 @@
   <details class="quizadmin-help-faq">
     <summary class="quizadmin-help-faq-question">A student needs extra time (accommodation). How do I grant it?</summary>
     <div class="quizadmin-help-faq-answer">
-      <p>Once the student starts a session, you can POST to <code>/mastermind/api/session/&lt;session_id&gt;/accommodation/</code> with <code>{ "extra_time_minutes": 15, "notes": "documented dyslexia" }</code> or <code>{ "no_time_limit": true }</code>. The engine honors the override on the next page reload. (UI for this lands on the proctoring session audit page in a future round.)</p>
+      <p>While the student's session is in progress, open the <a href="/quizadmin/proctoring/">Proctoring</a> tab → click their session → scroll to the <strong>Grant accommodation</strong> form. Set extra minutes OR tick "Remove time limit entirely", add audit notes (e.g. "documented dyslexia"), click Apply. The engine honors the override the next time the student's page polls.</p>
+      <p>API for programmatic use: POST <code>/mastermind/api/session/&lt;session_id&gt;/accommodation/</code> with <code>{ "extra_time_minutes": 15, "notes": "..." }</code> or <code>{ "no_time_limit": true }</code>.</p>
     </div>
   </details>
 
   <details class="quizadmin-help-faq">
     <summary class="quizadmin-help-faq-question">How do I plug Mastermind into Slack / Discord / Zapier?</summary>
     <div class="quizadmin-help-faq-answer">
-      <p>POST to <code>/mastermind/api/webhook/subscriptions/create/</code> with <code>{ "webhook_event_code": "quiz_session_passed", "webhook_target_url": "https://...", "webhook_secret": "..." }</code>. Whenever the event fires, Mastermind POSTs a signed JSON envelope to your URL. The signature is HMAC-SHA256 in the <code>X-Mastermind-Signature</code> header — verify it on your side to guarantee authenticity.</p>
+      <p>Open the <a href="/quizadmin/webhooks/">Webhooks</a> tab. Pick an event code, paste your target URL (Slack incoming webhook / Discord webhook / Zapier catcher / your own endpoint), optionally add a shared secret for HMAC signing, click Add. Status table shows last dispatch result + success/failure counters per subscription.</p>
       <p>Supported event codes: <code>quiz_session_completed / passed / failed</code>, <code>ai_generation_completed</code>, <code>quiz_creator_permission_granted</code>, <code>proctoring_violation_logged</code>.</p>
+      <p>Every signed dispatch carries header <code>X-Mastermind-Signature: sha256=&lt;hex&gt;</code> — verify on your side to guarantee authenticity.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">Can students discuss a quiz?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Yes. Every quiz leaderboard page includes a <strong>Discussion</strong> section at the bottom. Anyone who can see the leaderboard can post a comment, reply to other comments, like comments, or delete their own. Staff can pin important corrections to the top.</p>
+      <p>HTML in comments is sanitised via <code>core.utils.sanitize_user_html</code> on save — same allowlist used everywhere else in the project.</p>
+    </div>
+  </details>
+
+  <details class="quizadmin-help-faq">
+    <summary class="quizadmin-help-faq-question">What's planned but not shipped yet?</summary>
+    <div class="quizadmin-help-faq-answer">
+      <p>Each deferred feature has a written plan in <code>notes/claude/app_documentation/</code>:</p>
+      <ul>
+        <li><code>plan-mastermind-multiplayer.txt</code> — live Kahoot-style multi-player quizzes (1-2 weeks; high priority).</li>
+        <li><code>plan-mastermind-qti-import-export.txt</code> — Moodle/Canvas interop (1-2 weeks; build only when a customer asks).</li>
+        <li><code>plan-mastermind-realtime-collab-authoring.txt</code> — Google-Docs-style co-authoring (4-8 weeks; recommend cheap optimistic-locking workaround instead).</li>
+        <li><code>plan-mastermind-future-extras.txt</code> — 8 small backlog items (advanced question types, template marketplace, mentions, gradebook CSV, etc.).</li>
+      </ul>
+      <p>Nothing on the deferred list blocks the current platform.</p>
     </div>
   </details>
 

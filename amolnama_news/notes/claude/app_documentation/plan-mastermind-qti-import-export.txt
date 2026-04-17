@@ -1,0 +1,86 @@
+PLAN — MASTERMIND QTI IMPORT / EXPORT
+======================================
+Status: NOT STARTED — deferred
+Estimated effort: 1-2 weeks of focused work
+Priority: LOW — only matters if migrating to/from Moodle/Canvas
+Last updated: 2026-04-17
+
+
+PROBLEM STATEMENT
+-----------------
+QTI (Question and Test Interoperability) is the IMS Global standard XML
+format for moving quizzes between LMSes. Moodle, Canvas, Blackboard,
+ExamSoft, Brightspace can all import/export QTI 2.x or 3.0.
+
+Building this gives Mastermind interop with the entire LMS ecosystem.
+Without it, users who ALSO use Moodle/Canvas have to re-author quizzes.
+
+
+WHY THIS IS LOWER PRIORITY
+--------------------------
+- Our market (Bengali civic education, BCS prep, religious study) does
+  not heavily use Western LMSes. Universities sometimes do.
+- The spec is HUGE. QTI 3.0 is ~2000 pages of XML schema across 100+
+  element types covering question types we don't even support.
+- ROI = customer-driven only. No customer has asked for it yet.
+
+
+SCOPE TO BUILD (when finally tackled)
+-------------------------------------
+Phase 1: QTI 2.x export (read-only, easier)
+  - Export one quiz as QTI 2.x .xml package (zip with manifest + assessment + items)
+  - Map our 8 question types to QTI item types:
+      mcq_single   → choiceInteraction (max-choices=1)
+      mcq_multi    → choiceInteraction (max-choices=N)
+      true_false   → choiceInteraction (boolean)
+      fill_blank   → textEntryInteraction
+      short_answer → extendedTextInteraction (manual grade)
+      essay        → extendedTextInteraction (manual grade)
+      matching     → matchInteraction
+      ordering     → orderInteraction
+  - Bundle media (images) into the package zip
+  - File: mastermind/qti_exporter.py
+
+Phase 2: QTI 2.x import
+  - Parse .xml package
+  - Map QTI item types BACK to our schema (lossy — extras dropped)
+  - Reject unsupported types with clear error
+  - File: mastermind/qti_importer.py
+
+Phase 3 (optional): QTI 3.0 support
+  - 3.0 changes element names, adds JSON variant
+  - Keep 2.x as default; 3.0 only if a customer asks
+
+
+DB CHANGES NEEDED
+-----------------
+None. QTI is purely a serialisation format.
+
+
+WHAT IT DOES NOT DO
+-------------------
+- Round-trip with no loss (QTI doesn't model source-citation, NLI scores,
+  certificates, badges, mastery — those are dropped on export and ignored
+  on import)
+- Two-way live sync with Moodle / Canvas
+- LTI (Learning Tools Interoperability) — different standard, different scope
+
+
+WHAT BLOCKS STARTING THIS
+-------------------------
+- No customer demand yet.
+- 1-2 weeks of XML schema work that only pays off if someone asks.
+
+
+WHAT TO DO INSTEAD (if a customer asks)
+---------------------------------------
+- Export to JSON via existing /mastermind/api/exam/<id>/export/.
+- They can write a one-off QTI converter against our well-documented JSON.
+- Defer building it ourselves until a 2nd customer asks for the same thing.
+
+
+REFERENCES
+----------
+QTI 2.x spec:  https://www.imsglobal.org/spec/qti/v2p1/
+QTI 3.0 spec:  https://www.imsglobal.org/spec/qti/v3p0/
+Moodle qformat plugins: https://docs.moodle.org/dev/Question_formats

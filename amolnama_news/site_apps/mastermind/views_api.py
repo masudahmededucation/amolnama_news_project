@@ -1035,6 +1035,87 @@ def api_export_questions(request):
     return response
 
 
+# ================================================================
+# Per-quiz comments / discussion
+# ================================================================
+
+@login_required
+@require_GET
+def api_quiz_comments_list(request, quiz_id):
+    """List all active comments for a quiz, tree-shaped."""
+    from .comments import list_comments
+    user_profile_id = get_user_profile_id(request)
+    return JsonResponse({
+        'comments': list_comments(quiz_id, viewer_user_profile_id=user_profile_id),
+    })
+
+
+@login_required
+@require_POST
+def api_quiz_comment_create(request, quiz_id):
+    """Create a comment (or reply if parent_comment_id is given)."""
+    from .comments import create_comment
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    result = create_comment(
+        quiz_id=quiz_id,
+        user_profile_id=user_profile_id,
+        text_html=payload.get('comment_text_html') or '',
+        parent_comment_id=payload.get('parent_comment_id'),
+    )
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_comment_delete(request, comment_id):
+    """Soft-delete a comment (owner OR staff)."""
+    from .comments import delete_comment
+    user_profile_id = get_user_profile_id(request)
+    is_staff = bool(request.user.is_staff or request.user.is_superuser)
+    result = delete_comment(comment_id, user_profile_id, is_staff=is_staff)
+    if not result.get('success'):
+        status = 403 if 'denied' in result.get('error', '').lower() else 404
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=status)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_comment_pin(request, comment_id):
+    """Staff-only pin/unpin (?unpin=true to unpin)."""
+    from .comments import pin_comment
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    user_profile_id = get_user_profile_id(request)
+    unpin = request.GET.get('unpin') == 'true'
+    result = pin_comment(comment_id, user_profile_id, unpin=unpin)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=404)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_quiz_comment_reaction_toggle(request, comment_id):
+    """Toggle the caller's like on a comment."""
+    from .comments import toggle_reaction
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    result = toggle_reaction(comment_id, user_profile_id, reaction_type='like')
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)
+
+
 @login_required
 @require_GET
 def api_analytics_quiz_score_distribution(request, quiz_id):

@@ -105,4 +105,41 @@
       if (document.activeElement !== button) resetForgiveButton(button);
     }, 150);
   });
+
+  // ----- accommodation override form ------------------------------
+  var accommodationForm = document.getElementById('quizadmin-accommodation-form');
+  if (accommodationForm) {
+    var accommodationMessage = document.getElementById('quizadmin-accommodation-message');
+    var accommodationSubmit = document.getElementById('quizadmin-accommodation-submit');
+    var sessionId = accommodationForm.dataset.sessionId;
+
+    accommodationForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      accommodationSubmit.disabled = true;
+      var originalText = accommodationSubmit.textContent;
+      accommodationSubmit.textContent = 'Applying…';
+      try {
+        var noTimeLimit = document.getElementById('quizadmin-accommodation-no-limit').checked;
+        var extraMinutesRaw = document.getElementById('quizadmin-accommodation-extra-minutes').value;
+        var notes = document.getElementById('quizadmin-accommodation-notes').value;
+        var payload = {
+          no_time_limit: noTimeLimit,
+          extra_time_minutes: noTimeLimit ? null : (extraMinutesRaw ? parseInt(extraMinutesRaw, 10) : 0),
+          notes: notes,
+        };
+        var result = await window.quizadminPost(
+          '/mastermind/api/session/' + sessionId + '/accommodation/', payload,
+        );
+        var summary = result.no_time_limit
+          ? 'Time limit removed for this session.'
+          : 'Override applied: +' + result.extra_time_minutes + ' minutes (effective ' + result.effective_time_limit_minutes + ' min).';
+        window.quizadminShowInline(accommodationMessage, summary, 'success');
+      } catch (error) {
+        window.quizadminShowInline(accommodationMessage, error.message || 'Apply failed.', 'error');
+      } finally {
+        accommodationSubmit.disabled = false;
+        accommodationSubmit.textContent = originalText;
+      }
+    });
+  }
 })();

@@ -815,6 +815,42 @@ class CollCertificate(models.Model):
         db_table = '[mastermind].[coll_certificate]'
 
 
+class CollQuizComment(models.Model):
+    """Discussion comment on a quiz. One row per comment or reply (link_parent_comment_id).
+    Sanitised HTML body."""
+    mastermind_coll_quiz_comment_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    link_parent_comment_id = models.BigIntegerField(null=True, blank=True)
+    comment_text_html = models.TextField()
+    is_pinned = models.BooleanField(default=False)
+    link_pinned_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    pinned_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    link_deleted_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_comment]'
+
+
+class CollQuizCommentReaction(models.Model):
+    """Like / reaction on a quiz comment. Unique (comment, user, reaction_type)."""
+    mastermind_coll_quiz_comment_reaction_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_comment_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    reaction_type_code = models.CharField(max_length=20, default='like')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_comment_reaction]'
+
+
 class CollWebhookSubscription(models.Model):
     """Registered webhook subscription. Mastermind POSTs JSON to webhook_target_url
     whenever the named webhook_event_code fires."""

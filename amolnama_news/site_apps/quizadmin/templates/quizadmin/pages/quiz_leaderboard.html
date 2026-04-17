@@ -1,4 +1,9 @@
 {% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/quiz-comments.css' %}">
+{% endblock %}
 
 {% block quizadmin_content %}
 <section class="quizadmin-page-intro">
@@ -68,4 +73,27 @@
   <p class="quizadmin-empty-hero-body">Scores will appear here once participants complete this quiz.</p>
 </section>
 {% endif %}
+
+{# Per-quiz discussion thread — loads + posts via mastermind comments API #}
+<section class="quizadmin-quiz-comments" id="quizadmin-quiz-comments" data-quiz-id="{{ quiz.mastermind_coll_quiz_id }}" aria-label="Discussion">
+  <header class="quizadmin-quiz-comments-header">
+    <h2 class="quizadmin-section-title">Discussion</h2>
+    <p class="quizadmin-section-hint">Ask clarifying questions, post errata, or thank the author. Comments are visible to anyone who can see this leaderboard.</p>
+  </header>
+
+  <form class="quizadmin-quiz-comment-form" id="quizadmin-quiz-comment-form" name="quizadmin_quiz_comment_form">
+    <textarea class="quizadmin-quiz-comment-textarea" id="quizadmin-quiz-comment-textarea" name="quizadmin_quiz_comment_textarea" rows="3" maxlength="8000" placeholder="Write a comment… (HTML allowed; sanitised on save)"></textarea>
+    <div class="quizadmin-inline-message" id="quizadmin-quiz-comment-form-message" role="status" aria-live="polite" hidden></div>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-quiz-comment-form-submit" name="quizadmin_quiz_comment_form_submit">Post comment</button>
+  </form>
+
+  <div class="quizadmin-quiz-comments-list" id="quizadmin-quiz-comments-list" aria-live="polite">
+    <p class="quizadmin-quiz-comments-loading" id="quizadmin-quiz-comments-loading">Loading comments…</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/components/quiz-comments.js' %}" defer></script>
 {% endblock %}

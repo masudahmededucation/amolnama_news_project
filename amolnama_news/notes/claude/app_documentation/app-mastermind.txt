@@ -306,3 +306,28 @@ Webhook event codes (consumers subscribe to these):
   quiz_session_completed, quiz_session_passed, quiz_session_failed,
   ai_generation_completed, quiz_creator_permission_granted,
   proctoring_violation_logged.
+
+
+CHANGELOG — 2026-04-17 (round 3 — gap fill + deferred plans)
+-------------------------------------------------------------
+Shipped UIs:
+  - Webhook subscription manager UI at /quizadmin/webhooks/
+  - Accommodation override form on the proctoring session audit page
+  - Per-quiz comments / discussion thread on the quiz leaderboard page
+    (with reply, like, delete, staff pin)
+
+Shipped engine:
+  - mastermind/comments.py — list/create/delete/pin/react helpers
+  - 5 new API endpoints under /mastermind/api/quiz/.../comments/
+
+Shipped DB (run notes/sql-script/mastermind-quiz-comments.sql):
+  - coll_quiz_comment              — discussion comments + replies
+  - coll_quiz_comment_reaction     — likes per (comment, user, type)
+
+Deferred — full written plans under notes/claude/app_documentation/:
+  - plan-mastermind-multiplayer.txt          (HIGH priority, 1-2 weeks)
+  - plan-mastermind-qti-import-export.txt    (LOW, customer-driven)
+  - plan-mastermind-realtime-collab-authoring.txt  (VERY LOW, 4-8 weeks)
+  - plan-mastermind-future-extras.txt        (8 small items, ~25 dev-days total)
+
+Nothing on the deferred list blocks current platform usage.

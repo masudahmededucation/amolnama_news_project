@@ -47,6 +47,13 @@ urlpatterns = [
     path('api/webhook/subscriptions/create/', views_api.api_webhook_subscription_create, name='api_webhook_subscription_create'),
     path('api/webhook/subscriptions/<int:subscription_id>/delete/', views_api.api_webhook_subscription_delete, name='api_webhook_subscription_delete'),
 
+    # Per-quiz comments / discussion
+    path('api/quiz/<int:quiz_id>/comments/', views_api.api_quiz_comments_list, name='api_quiz_comments_list'),
+    path('api/quiz/<int:quiz_id>/comments/create/', views_api.api_quiz_comment_create, name='api_quiz_comment_create'),
+    path('api/quiz/comment/<int:comment_id>/delete/', views_api.api_quiz_comment_delete, name='api_quiz_comment_delete'),
+    path('api/quiz/comment/<int:comment_id>/pin/', views_api.api_quiz_comment_pin, name='api_quiz_comment_pin'),
+    path('api/quiz/comment/<int:comment_id>/like/', views_api.api_quiz_comment_reaction_toggle, name='api_quiz_comment_reaction_toggle'),
+
     # Analytics (chart data)
     path('api/analytics/quiz/<int:quiz_id>/score-distribution/', views_api.api_analytics_quiz_score_distribution, name='api_analytics_quiz_score_distribution'),
     path('api/analytics/quiz/<int:quiz_id>/pass-rate/', views_api.api_analytics_quiz_pass_rate, name='api_analytics_quiz_pass_rate'),

@@ -102,6 +102,38 @@
 </section>
 {% endif %}
 
+{% if session.session_status_code == 'in_progress' %}
+<section class="quizadmin-section quizadmin-accommodation-section" aria-label="Accommodation override">
+  <h2 class="quizadmin-section-title">Grant accommodation</h2>
+  <p class="quizadmin-section-hint">Use this for documented accessibility needs (extra time, untimed). The override applies to this single session only.</p>
+  {% if session.session_extra_time_minutes or session.session_no_time_limit %}
+  <div class="quizadmin-accommodation-current">
+    Current override:
+    {% if session.session_no_time_limit %}<strong>no time limit</strong>{% else %}<strong>+{{ session.session_extra_time_minutes }} minutes</strong>{% endif %}
+    {% if session.session_accommodation_notes %} — “{{ session.session_accommodation_notes }}”{% endif %}
+  </div>
+  {% endif %}
+  <form class="quizadmin-accommodation-form" id="quizadmin-accommodation-form" name="quizadmin_accommodation_form" data-session-id="{{ session.mastermind_coll_quiz_session_id }}">
+    <div class="quizadmin-form-row">
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Extra minutes</span>
+        <input type="number" id="quizadmin-accommodation-extra-minutes" name="quizadmin_accommodation_extra_minutes" class="quizadmin-form-input" min="0" max="600" placeholder="0">
+      </label>
+      <label class="quizadmin-form-field quizadmin-accommodation-checkbox-field">
+        <input type="checkbox" id="quizadmin-accommodation-no-limit" name="quizadmin_accommodation_no_limit">
+        <span>Remove time limit entirely (overrides extra minutes)</span>
+      </label>
+    </div>
+    <label class="quizadmin-form-field">
+      <span class="quizadmin-form-label">Notes (audit trail)</span>
+      <input type="text" id="quizadmin-accommodation-notes" name="quizadmin_accommodation_notes" class="quizadmin-form-input" maxlength="500" placeholder="e.g. documented dyslexia — 50% extra time">
+    </label>
+    <div class="quizadmin-inline-message" id="quizadmin-accommodation-message" role="status" aria-live="polite" hidden></div>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-accommodation-submit" name="quizadmin_accommodation_submit">Apply override</button>
+  </form>
+</section>
+{% endif %}
+
 <section class="quizadmin-form-actions">
   <a href="/quizadmin/proctoring/" class="quizadmin-form-cancel" id="quizadmin-proctoring-back" name="quizadmin_proctoring_back">Back to dashboard</a>
   <a href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/leaderboard/" class="quizadmin-form-submit" id="quizadmin-proctoring-leaderboard" name="quizadmin_proctoring_leaderboard">Quiz leaderboard</a>

@@ -1,0 +1,51 @@
+/* Quiz Panel webhook subscription manager.
+   Tokenised, mobile-first, reduced-motion friendly. */
+
+.quizadmin-webhook-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--elevation-1);
+  padding: var(--space-4);
+}
+
+.quizadmin-webhook-url-cell {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-xs);
+  word-break: break-all;
+  max-width: 360px;
+}
+
+.quizadmin-webhook-dispatch-time {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.quizadmin-webhook-dispatch-error {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--danger);
+  margin-top: 2px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.quizadmin-webhook-dispatch-pending {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.quizadmin-webhook-delete-button {
+  background: var(--surface);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.quizadmin-webhook-delete-button:hover {
+  background: var(--danger);
+  color: #fff;
+}

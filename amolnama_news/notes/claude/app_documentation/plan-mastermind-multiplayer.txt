@@ -1,0 +1,234 @@
+PLAN — MASTERMIND MULTI-PLAYER QUIZZING
+=========================================
+Status: NOT STARTED — deferred for later session
+Estimated effort: 1-2 weeks of focused work
+Priority: HIGH — clear differentiator for Bengali / civic-education market
+Last updated: 2026-04-17
+
+
+PROBLEM STATEMENT
+-----------------
+Mastermind currently runs solo / asynchronous quiz sessions. To compete
+with Kahoot / Quizizz on the social side — and to let teachers, BCS
+coaches, and family/friends do live group quizzes — we need synchronous
+multi-player support.
+
+Scaling concern is misleading: at 100k users we still don't put 100k in
+ONE room. We support many small rooms (5-50 players each), like Kahoot.
+Per-room state is small (~50KB), so a single Channels worker + a small
+Redis instance handles thousands of concurrent rooms comfortably.
+
+
+ARCHITECTURE OVERVIEW
+---------------------
+Layer 1: persistent state (SQL Server — schema below)
+  - coll_quiz_lobby           — one row per game room
+  - coll_quiz_lobby_player    — one row per joined player
+  - coll_quiz_lobby_event     — append-only event log (start/answer/advance/end)
+
+Layer 2: real-time fan-out (Django Channels — already installed for messenger)
+  - Group name: lobby_{lobby_id}
+  - Consumer: mastermind/consumers_lobby.py
+  - Message types: player_joined, player_left, player_ready, question_advance,
+    answer_submitted, leaderboard_update, lobby_completed
+
+Layer 3: engine logic (mastermind/lobby.py — new module)
+  - create_lobby(host_user_profile_id, quiz_id, max_players, mode)
+  - join_lobby(lobby_id, user_profile_id, join_code)
+  - leave_lobby(lobby_id, user_profile_id)
+  - mark_ready(lobby_id, user_profile_id)
+  - advance_question(lobby_id, host_user_profile_id)  # host clicks Next
+  - auto_advance_question(lobby_id)  # timer-driven if mode == 'timed'
+  - submit_lobby_answer(lobby_id, user_profile_id, answer_payload)
+  - finalise_lobby(lobby_id)
+
+
+DB SCHEMA
+---------
+CREATE TABLE [mastermind].[coll_quiz_lobby] (
+    mastermind_coll_quiz_lobby_id          BIGINT IDENTITY(1,1) PRIMARY KEY,
+    link_mastermind_coll_quiz_id           BIGINT NOT NULL,
+    link_host_user_profile_id              BIGINT NOT NULL,
+    lobby_join_code                        NVARCHAR(8) NOT NULL UNIQUE,  -- 6-char human-readable
+    lobby_status_code                      NVARCHAR(20) NOT NULL DEFAULT 'waiting',
+        -- waiting | playing | completed | abandoned
+    lobby_mode_code                        NVARCHAR(20) NOT NULL DEFAULT 'host_advances',
+        -- host_advances | timed_per_question
+    lobby_max_players                      INT NOT NULL DEFAULT 50,
+    lobby_current_question_index           INT NOT NULL DEFAULT 0,
+    lobby_question_started_at              DATETIME2 NULL,
+    lobby_started_at                       DATETIME2 NULL,
+    lobby_completed_at                     DATETIME2 NULL,
+    is_active                              BIT NOT NULL DEFAULT 1,
+    created_at                             DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    updated_at                             DATETIME2 NULL,
+    CONSTRAINT FK_lobby_quiz FOREIGN KEY (link_mastermind_coll_quiz_id)
+        REFERENCES [mastermind].[coll_quiz](mastermind_coll_quiz_id)
+);
+
+CREATE TABLE [mastermind].[coll_quiz_lobby_player] (
+    mastermind_coll_quiz_lobby_player_id   BIGINT IDENTITY(1,1) PRIMARY KEY,
+    link_mastermind_coll_quiz_lobby_id     BIGINT NOT NULL,
+    link_user_profile_id                   BIGINT NOT NULL,
+    join_order                             INT NOT NULL,
+    is_ready                               BIT NOT NULL DEFAULT 0,
+    current_score                          DECIMAL(10,2) NOT NULL DEFAULT 0,
+    correct_count                          INT NOT NULL DEFAULT 0,
+    has_left                               BIT NOT NULL DEFAULT 0,
+    left_at                                DATETIME2 NULL,
+    is_active                              BIT NOT NULL DEFAULT 1,
+    created_at                             DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_lobby_player_lobby FOREIGN KEY (link_mastermind_coll_quiz_lobby_id)
+        REFERENCES [mastermind].[coll_quiz_lobby](mastermind_coll_quiz_lobby_id),
+    CONSTRAINT UQ_lobby_player UNIQUE (link_mastermind_coll_quiz_lobby_id, link_user_profile_id)
+);
+
+CREATE INDEX IX_lobby_player_lobby_active
+    ON [mastermind].[coll_quiz_lobby_player](link_mastermind_coll_quiz_lobby_id, is_active);
+
+CREATE TABLE [mastermind].[coll_quiz_lobby_event] (
+    mastermind_coll_quiz_lobby_event_id    BIGINT IDENTITY(1,1) PRIMARY KEY,
+    link_mastermind_coll_quiz_lobby_id     BIGINT NOT NULL,
+    link_user_profile_id                   BIGINT NULL,
+    event_type_code                        NVARCHAR(40) NOT NULL,
+        -- player_joined | player_left | player_ready | question_advance |
+        -- answer_submitted | lobby_completed
+    event_payload_json                     NVARCHAR(MAX) NULL,
+    created_at                             DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_lobby_event_lobby FOREIGN KEY (link_mastermind_coll_quiz_lobby_id)
+        REFERENCES [mastermind].[coll_quiz_lobby](mastermind_coll_quiz_lobby_id)
+);
+
+
+WEBSOCKET PROTOCOL
+------------------
+Client sends to /ws/mastermind/lobby/<lobby_id>/:
+  { "type": "join", "user_profile_id": 42 }
+  { "type": "ready" }
+  { "type": "leave" }
+  { "type": "submit_answer", "question_index": 3, "answer": {...} }
+  { "type": "advance_question" }   # host only
+
+Server broadcasts to lobby_{lobby_id} group:
+  { "type": "player_joined", "player": { user_profile_id, display_name, avatar_url } }
+  { "type": "player_left", "user_profile_id": 42 }
+  { "type": "player_ready", "user_profile_id": 42, "ready_count": 4, "total_count": 5 }
+  { "type": "question_advance", "question_index": 3, "question": {...}, "started_at": "..." }
+  { "type": "leaderboard_update", "scores": [{user_profile_id, display_name, score, correct}, ...] }
+  { "type": "lobby_completed", "final_leaderboard": [...] }
+
+
+UI PAGES (consumer side)
+------------------------
+Lobby host:
+  /quizadmin/quiz/<id>/host/   — staff or quiz creator
+    - Generate join code + QR + share link
+    - Live waiting-room player list
+    - "Start now" button (greys out until ≥2 players ready)
+    - "Next question" button during play
+    - Final leaderboard with podium
+
+Lobby player join:
+  /play/<join_code>/   — public URL (auth required)
+    - Show quiz title + host name + waiting players
+    - "I'm ready" toggle
+    - During play: question with answer buttons + countdown timer
+    - Live leaderboard sidebar (top 10)
+    - End-of-game results + certificate (if quiz issues one)
+
+
+SUPPORTED MODES
+---------------
+host_advances:
+  - Host clicks "Next question" to move everyone forward
+  - Each player has unlimited time to answer the current question
+  - Late joiners get current question (not history)
+
+timed_per_question:
+  - Server timer auto-advances every N seconds
+  - Players who don't answer in time are scored 0 for that question
+  - Standard Kahoot pattern
+
+
+SCORING NUANCES (vs. solo session)
+----------------------------------
+- Speed bonus (Kahoot pattern): correct_score × (1 - response_time / max_time × 0.5)
+  Gives faster correct answers more points without penalising correct slow ones too much.
+- Streak bonus (Kahoot pattern): +10% per consecutive correct, capped at +50%.
+- Configurable per-quiz via new exam_lobby_speed_bonus + exam_lobby_streak_bonus columns.
+
+
+CONCURRENCY MODEL
+-----------------
+- Per-lobby state is held in Channels worker memory + persisted to SQL.
+- Race condition for "advance_question": only the host sender wins; server
+  validates lobby_current_question_index === expected_index in the message.
+- Race condition for "submit_answer": server validates question_index matches
+  lobby_current_question_index before scoring. Late submissions ignored.
+- On worker restart: read lobby_status_code + lobby_current_question_index +
+  lobby_question_started_at from SQL to resume.
+
+
+SECURITY
+--------
+- Join code is 6 chars from [BCDFGHJKLMNPQRSTVWXYZ23456789] (no ambiguous I/O/0/1).
+- One join per user per lobby (unique constraint).
+- Host cannot kick another player to grief them; can only end the lobby.
+- All WebSocket messages are validated against a schema before processing.
+- HMAC-SHA256-signed lobby join URL token if shared via SMS / Slack /
+  Discord (so the URL can't be guessed if expired).
+
+
+SCALING TARGETS
+---------------
+- 1000 concurrent lobbies × 50 players each = 50,000 WebSocket connections.
+- Single Channels worker handles ~5,000 connections; 10 workers for above.
+- Single Redis instance (8GB) handles all pub/sub.
+- SQL Server load: ~10 writes per question per lobby (lobby_event + lobby_player update).
+  Existing infra handles this fine.
+
+
+WEBHOOK EVENTS TO ADD
+---------------------
+- lobby_started        (when status changes waiting → playing)
+- lobby_completed      (final leaderboard)
+- lobby_player_joined / player_left
+
+
+IMPLEMENTATION ORDER (week 1)
+-----------------------------
+Day 1: SQL schema + Django models + create_lobby/join_lobby helpers
+Day 2: Channels consumer skeleton + WebSocket message validation
+Day 3: Lobby host UI (waiting room + start button)
+Day 4: Lobby player UI (join + ready + waiting room)
+Day 5: Question advance + answer submission + leaderboard
+
+Week 2:
+Day 1: Speed bonus + streak bonus scoring
+Day 2: Late-join handling + worker-restart resume logic
+Day 3: Polish UX (countdown animations, podium, share-results)
+Day 4: Webhook events + lobby completion certificates
+Day 5: Manual QA + bug-bash + docs
+
+
+WHAT IT DOES NOT DO (out of scope)
+----------------------------------
+- Voice / video chat between players (use Discord)
+- Custom backgrounds / themes per lobby
+- Tournament brackets across lobbies
+- Bot players for solo practice
+- Persistent room state across page reloads (no auto-rejoin yet)
+
+
+WHAT BLOCKS STARTING THIS
+-------------------------
+Nothing technical. Just session time.
+Suggest: schedule when consumer-app wiring (1-2 days) is done so
+players have a quiz-taking page to attach the multiplayer layer to.
+
+
+REFERENCES
+----------
+Kahoot scoring:    https://support.kahoot.com/hc/en-us/articles/115002303908
+Quizizz mode list: https://support.quizizz.com/hc/en-us/articles/115005269706
+Channels docs:     https://channels.readthedocs.io/en/stable/

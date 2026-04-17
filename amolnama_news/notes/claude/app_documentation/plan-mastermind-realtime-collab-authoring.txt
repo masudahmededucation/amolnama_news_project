@@ -1,0 +1,100 @@
+PLAN — MASTERMIND REAL-TIME COLLABORATIVE QUIZ AUTHORING
+=========================================================
+Status: NOT STARTED — deferred
+Estimated effort: 4-8 weeks of focused work
+Priority: VERY LOW — only relevant for multi-author teams
+Last updated: 2026-04-17
+
+
+PROBLEM STATEMENT
+-----------------
+Today, two staff editing the same quiz at the same time will overwrite
+each other's changes (last-write-wins). Real-time collaboration would
+let them edit simultaneously like Google Docs, with live cursors and
+no conflicts.
+
+
+WHY THIS IS VERY LOW PRIORITY
+-----------------------------
+- We have 1 person editing each quiz today. Even at 100 staff, the
+  probability of two staff editing the same quiz at the same minute
+  is near zero.
+- The build is huge — Google spent 5 years on Docs CRDTs.
+- Cheap workaround: Optimistic locking — show "User X is currently editing"
+  and refuse save if last-modified-at differs. Solves 99% of the pain
+  for 1% of the effort.
+
+
+CHEAP WORKAROUND (recommended over the real thing)
+--------------------------------------------------
+Optimistic locking on quiz edit:
+  - Add updated_at field to all editable rows (already have).
+  - On edit-form load, capture updated_at as hidden field.
+  - On save, compare submitted updated_at vs. current DB updated_at.
+  - If mismatch → return 409 Conflict with diff and "reload to merge".
+  - Effort: ~1 day. Solves the data-loss case.
+
+Optional add-on: presence indicator
+  - On edit-form load, write a row to coll_quiz_edit_lock
+    (quiz_id, user_id, locked_at).
+  - Other editors loading the form see "User X started editing N min ago".
+  - Auto-expires after 30 min of no save.
+  - Effort: ~1 day. Solves the "did I just stomp on someone?" anxiety.
+
+
+THE REAL THING (if ever needed)
+-------------------------------
+Architecture:
+  - WebSocket per editing session (Channels).
+  - CRDT (Conflict-free Replicated Data Type) per editable field — Yjs
+    or Automerge are the open-source standards.
+  - Operations broadcast to all collaborators in real time.
+  - Cursor presence + selection ranges shared.
+
+Tech stack:
+  - Yjs (https://yjs.dev/) — most mature CRDT, widely-used
+  - y-websocket — server adapter
+  - y-quill or y-prosemirror — for rich-text fields
+  - Server: Node.js sidecar OR Python port (less mature)
+
+DB changes:
+  - coll_quiz_collab_session — one row per active edit session
+  - coll_quiz_collab_operation — append-only op log (for replay)
+  - Optional: coll_quiz_yjs_state — periodic Yjs state snapshots
+
+Effort breakdown:
+  - Week 1-2: WebSocket plumbing + Yjs server integration
+  - Week 3-4: Per-field CRDT bindings (text, options, settings)
+  - Week 5: Cursor presence + user list
+  - Week 6: Conflict-free question reordering
+  - Week 7: Save/load reconciliation with our SQL state
+  - Week 8: Polish + edge cases (network drops, late joins, undo/redo)
+
+
+WHAT IT DOES NOT DO
+-------------------
+- Track-changes / suggestion mode (different feature)
+- Comment-on-paragraph in the authoring UI (different feature)
+- Branching / forking edits
+
+
+WHAT BLOCKS STARTING THIS
+-------------------------
+- No multi-author teams yet.
+- Yjs has Node.js maturity; Python integration is rougher.
+- 4-8 weeks is a major commitment for a feature we're not yet sure we need.
+
+
+RECOMMENDATION
+--------------
+Build the cheap workaround (optimistic locking + presence indicator) when
+the FIRST instance of "two staff overwrote each other" is reported.
+Do NOT build the real thing until we have a documented multi-author team
+losing edits weekly.
+
+
+REFERENCES
+----------
+Yjs:        https://yjs.dev/
+Automerge:  https://automerge.org/
+CRDT intro: https://crdt.tech/
