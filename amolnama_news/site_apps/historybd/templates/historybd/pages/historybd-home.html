@@ -13,11 +13,14 @@
     <h1 class="historybd-header-title">ইতিহাস</h1>
     <p class="historybd-header-subtitle">বাংলাদেশের ইতিহাস, ঐতিহাসিক ঘটনা, মুক্তিযুদ্ধ এবং সভ্যতার ধারা</p>
   </div>
-  {% if user.is_authenticated %}
-  <a href="{% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
-  {% else %}
-  <a href="/account/login/?next={% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
-  {% endif %}
+  <div class="historybd-header-actions">
+    <a href="{% url 'historybd:quiz_list' %}" class="historybd-header-quiz-link" id="historybd-header-quiz-link" name="historybd_header_quiz_link">🧠 কুইজ দিন</a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
+    {% else %}
+    <a href="/account/login/?next={% url 'historybd:add' %}" class="historybd-header-add-button" id="historybd-header-add-button" name="historybd_header_add_button">+ ঘটনা যোগ করুন</a>
+    {% endif %}
+  </div>
 </section>
 
 <div class="historybd-filter-pills" id="historybd-filter-pills" name="historybd_filter_pills">

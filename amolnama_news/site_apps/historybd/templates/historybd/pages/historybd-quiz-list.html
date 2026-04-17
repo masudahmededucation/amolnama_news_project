@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}ইতিহাস কুইজ — আমলনামা নিউজ | Bangladesh History Quiz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'historybd/assets/css/pages/historybd-quiz-list.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="historybd-quiz-list-header">
+  <div class="historybd-quiz-list-header-text">
+    <h1 class="historybd-quiz-list-title">🧠 ইতিহাস কুইজ</h1>
+    <p class="historybd-quiz-list-subtitle">বাংলাদেশের ইতিহাস নিয়ে কুইজ। প্রতিটি প্রশ্নের উত্তর মূল গ্রন্থ থেকে যাচাইযোগ্য।</p>
+  </div>
+  <a href="{% url 'historybd:home' %}" class="historybd-quiz-list-back-link" id="historybd-quiz-list-back-link" name="historybd_quiz_list_back_link">← ফিরে যান</a>
+</section>
+
+{% if quizzes %}
+<div class="historybd-quiz-list-grid" id="historybd-quiz-list-grid" name="historybd_quiz_list_grid">
+  {% for quiz in quizzes %}
+  <a href="{% url 'historybd:quiz_take' quiz_id=quiz.mastermind_coll_quiz_id %}" class="historybd-quiz-card" id="historybd-quiz-card-{{ quiz.mastermind_coll_quiz_id }}" name="historybd_quiz_card_{{ quiz.mastermind_coll_quiz_id }}">
+    <div class="historybd-quiz-card-icon" aria-hidden="true">📜</div>
+    <h2 class="historybd-quiz-card-title">{{ quiz.exam_title_bn }}</h2>
+    {% if quiz.exam_title_en %}<p class="historybd-quiz-card-title-en">{{ quiz.exam_title_en }}</p>{% endif %}
+    {% if quiz.exam_description_bn %}<p class="historybd-quiz-card-description">{{ quiz.exam_description_bn|truncatewords:20 }}</p>{% endif %}
+    <dl class="historybd-quiz-card-meta">
+      <div><dt>প্রশ্ন</dt><dd>{{ quiz.exam_total_questions }}</dd></div>
+      <div><dt>সময়</dt><dd>{% if quiz.exam_time_limit_minutes %}{{ quiz.exam_time_limit_minutes }} min{% else %}Untimed{% endif %}</dd></div>
+      <div><dt>পাস</dt><dd>{{ quiz.exam_pass_percentage|floatformat:0 }}%</dd></div>
+    </dl>
+    <span class="historybd-quiz-card-cta">কুইজ শুরু করুন →</span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<section class="historybd-quiz-list-empty" id="historybd-quiz-list-empty" name="historybd_quiz_list_empty">
+  <div class="historybd-quiz-list-empty-icon" aria-hidden="true">📚</div>
+  <h2 class="historybd-quiz-list-empty-title">এখনো কোনো কুইজ প্রকাশিত হয়নি</h2>
+  <p class="historybd-quiz-list-empty-text">শীঘ্রই বাংলাদেশের ইতিহাস নিয়ে কুইজ পাওয়া যাবে।</p>
+</section>
+{% endif %}
+{% endblock %}

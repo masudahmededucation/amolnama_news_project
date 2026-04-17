@@ -222,6 +222,88 @@ def _render_detail(request, entry):
     })
 
 
+def quiz_list(request):
+    """List all published mastermind quizzes filed under topic 'bd_history'.
+
+    Mastermind owns the quiz engine; historybd is just a presentation surface.
+    Adding a new history quiz = create one in the Quiz Panel with topic=Bangladesh History.
+    No code change needed in this app.
+    """
+    from amolnama_news.site_apps.mastermind.models import CollQuiz, CollQuizTopic
+
+    topic = CollQuizTopic.objects.filter(topic_code='bd_history', is_active=True).first()
+    quizzes = []
+    if topic is not None:
+        quizzes = list(
+            CollQuiz.objects.filter(
+                link_mastermind_coll_quiz_topic_id=topic.mastermind_coll_quiz_topic_id,
+                exam_status_code='published',
+                is_active=True,
+            ).order_by('-created_at').values(
+                'mastermind_coll_quiz_id',
+                'exam_title_bn', 'exam_title_en',
+                'exam_description_bn',
+                'exam_total_questions',
+                'exam_time_limit_minutes',
+                'exam_pass_percentage',
+                'exam_proctoring_level',
+            )
+        )
+
+    return render(request, 'historybd/pages/historybd-quiz-list.html', {
+        'topic': topic,
+        'quizzes': quizzes,
+        'active_sidebar_nav_id': 'historybd',
+        'seo': {
+            'title': 'ইতিহাস কুইজ — আমলনামা নিউজ | Bangladesh History Quiz',
+            'description': 'বাংলাদেশের ইতিহাস নিয়ে কুইজ — মুক্তিযুদ্ধ, ভাষা আন্দোলন, রাজনীতি, সভ্যতা।',
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'ইতিহাস', 'url': '/itihas/'},
+                {'name': 'কুইজ', 'url': None},
+            ],
+        },
+    })
+
+
+@login_required
+@ensure_csrf_cookie
+def quiz_take(request, quiz_id):
+    """Render the mastermind take partial for a single bd_history quiz.
+
+    Quiz must (a) exist, (b) be published, (c) be filed under topic 'bd_history' —
+    we don't let an unrelated quiz get rendered through this URL.
+    """
+    from amolnama_news.site_apps.mastermind.models import CollQuiz, CollQuizTopic
+
+    quiz = CollQuiz.objects.filter(
+        mastermind_coll_quiz_id=quiz_id,
+        exam_status_code='published',
+        is_active=True,
+    ).first()
+    if not quiz:
+        raise Http404
+
+    topic = CollQuizTopic.objects.filter(topic_code='bd_history', is_active=True).first()
+    if not topic or quiz.link_mastermind_coll_quiz_topic_id != topic.mastermind_coll_quiz_topic_id:
+        raise Http404
+
+    return render(request, 'historybd/pages/historybd-quiz-take.html', {
+        'quiz': quiz,
+        'active_sidebar_nav_id': 'historybd',
+        'seo': {
+            'title': f'{quiz.exam_title_bn} — ইতিহাস কুইজ',
+            'description': quiz.exam_description_bn or quiz.exam_title_bn,
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'ইতিহাস', 'url': '/itihas/'},
+                {'name': 'কুইজ', 'url': '/itihas/quiz/'},
+                {'name': quiz.exam_title_bn, 'url': None},
+            ],
+        },
+    })
+
+
 @login_required
 @ensure_csrf_cookie
 def add(request):
