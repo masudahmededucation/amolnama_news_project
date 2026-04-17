@@ -1,5 +1,7 @@
 /* Quiz Panel flagged-questions inbox.
-   Tokenised, mobile-first, reduced-motion friendly. */
+   Tokenised, mobile-first, reduced-motion friendly.
+   On screens ≤ 720px the table reflows into a stacked card layout so staff
+   can triage from a phone without horizontal scrolling. */
 
 .quizadmin-flagged-tabs {
   display: flex;
@@ -11,9 +13,9 @@
 }
 
 .quizadmin-flagged-tab {
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--muted);
   border-radius: var(--radius-full);
   text-decoration: none;
@@ -21,15 +23,29 @@
   display: inline-flex;
   align-items: center;
   touch-action: manipulation;
-  transition: background var(--duration-fast), color var(--duration-fast);
+  letter-spacing: 0.01em;
+  transition: background var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
 }
 
-.quizadmin-flagged-tab:hover { background: var(--surface-elevated, var(--surface)); color: var(--text-primary); }
+.quizadmin-flagged-tab:hover {
+  background: var(--surface-elevated, var(--surface));
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
 .quizadmin-flagged-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .quizadmin-flagged-tab--active {
   background: var(--accent);
   color: #fff;
+  box-shadow: var(--elevation-1);
+}
+
+.quizadmin-flagged-table tbody tr {
+  transition: background var(--duration-fast);
+}
+
+.quizadmin-flagged-table tbody tr:hover {
+  background: var(--surface-elevated, var(--surface));
 }
 
 .quizadmin-flagged-question-link {
@@ -38,9 +54,12 @@
   color: var(--text-primary);
   text-decoration: none;
   line-height: 1.4;
+  min-height: var(--touch-target);
+  padding: var(--space-1) 0;
 }
 
 .quizadmin-flagged-question-link:hover { color: var(--accent); }
+.quizadmin-flagged-question-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .quizadmin-flagged-question-meta {
   display: block;
@@ -70,6 +89,39 @@
   color: var(--muted);
 }
 
+/* Mobile reflow: convert each row into a labelled card stack */
+@media (max-width: 720px) {
+  .quizadmin-flagged-table thead { display: none; }
+  .quizadmin-flagged-table,
+  .quizadmin-flagged-table tbody,
+  .quizadmin-flagged-table tr,
+  .quizadmin-flagged-table td { display: block; width: 100%; }
+  .quizadmin-flagged-table tr {
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    background: var(--surface);
+  }
+  .quizadmin-flagged-table td {
+    padding: var(--space-1) 0;
+    border: none;
+  }
+  .quizadmin-flagged-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+  .quizadmin-flagged-note-cell { max-width: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .quizadmin-flagged-tab { transition: none; }
+  .quizadmin-flagged-tab,
+  .quizadmin-flagged-table tbody tr { transition: none; }
+  .quizadmin-flagged-tab:hover { transform: none; }
 }

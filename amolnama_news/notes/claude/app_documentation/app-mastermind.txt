@@ -381,12 +381,131 @@ Engine endpoints used by quiz-take.js:
                                             fire pulse + DM + webhook events
 
 KNOWN LIMITATIONS / FOLLOW-UP TODOS:
-  - matching question type display (engine API extension needed)
-  - certificate link not yet shown on results screen (need a
-    /api/session/<id>/certificate/ lookup endpoint or include serial in
-    submit response)
-  - resume mid-session (engine supports it; UI just restarts welcome)
+  - matching question type display (engine API extension needed)  ✅ shipped 2026-04-17
+  - certificate link not yet shown on results screen              ✅ shipped 2026-04-17
+  - resume mid-session                                            ✅ shipped 2026-04-17
   - mobile drag-and-drop for ordering (current up/down arrows are fine
-    but drag would be nicer)
+    but drag would be nicer)                                       — deferred
 
 Cache bumped to v708.
+
+================================================================
+2026-04-17 — Round 5 → Multi-player v1 (this session's deltas)
+================================================================
+
+CONSUMER WIRING
+  historybd        → /itihas/quiz/  + /itihas/quiz/<id>/take/
+  constitutionbd   → /songbidhan/quiz/  + /songbidhan/quiz/<id>/take/
+  Both reuse the shared mastermind/partials/quiz_take.html partial.
+  Adding a new history / constitution quiz now needs ZERO code change here:
+  publish in Quiz Panel with topic "Bangladesh History" or
+  "Bangladesh Constitution" and it appears automatically.
+
+CLOSED ROUND-5 GAPS
+  - Matching question type (8/8 types now end-to-end)
+    * engine.py emits match_stems + match_responses (responses shuffled
+      when exam_shuffle_options=True)
+    * quiz-take.js + lobby-player.js render one <select> per stem
+    * submit blocks until every stem has a chosen response
+  - Certificate link on results
+    * GET /mastermind/api/session/<id>/certificate/ (owner-only)
+    * Take page polls 3× × 1.5s on results screen and unhides the
+      "View certificate" link if the engine issued one
+  - Resume mid-session
+    * GET /mastermind/api/exam/<id>/resume-check/  → in_progress_session_id
+    * POST /mastermind/api/session/<id>/resume/    → snapshot + already_answered hints
+    * Welcome screen auto-detects + shows "Resume attempt" alongside Start
+
+FLAG-A-QUESTION (backlog item #5 — DONE)
+  Student side: 🚩 collapsible panel on the take-page explanation block.
+  Six reason codes + optional 500-char note. Auto-archive at 3 pending.
+  Staff side: /quizadmin/flagged/  (added "Flagged" tab in nav).
+  Status filter (pending / resolved / invalid / all). Inline Resolve / Reject.
+  APIs: existing POST /mastermind/api/question/report/ + new
+        GET  /mastermind/api/question/report/list/?status=...
+        POST /mastermind/api/question/report/<id>/review/  body {action: resolve|reject}
+
+GRADEBOOK CSV + FULL BACKUP (backlog #7 + #8 — DONE)
+  GET /mastermind/api/exam/<id>/gradebook.csv  (?include_in_progress=1)
+    One row per session: scores, times, pass/fail, threshold. UTF-8 BOM.
+    "⬇ Download gradebook CSV" button on the leaderboard page.
+  GET /mastermind/api/admin/full-backup/  (staff only)
+    Streams every topic, book, chapter, question (with options + match-pairs
+    + resolved topic_code/difficulty_code), and quiz (with pool entries).
+    Excludes run-state. Round-trip safe with bulk_import_questions.
+
+MULTI-PLAYER v1 (Kahoot/Quizizz-style live group quizzes — SHIPPED)
+  DB:
+    notes/sql-script/mastermind-multiplayer-lobby.sql  (idempotent)
+    [mastermind].[coll_quiz_lobby]         — one row per game room
+    [mastermind].[coll_quiz_lobby_player]  — one row per joined player
+    [mastermind].[coll_quiz_lobby_event]   — append-only audit log
+    coll_quiz.exam_lobby_speed_bonus_enabled / _streak_bonus_enabled
+  Engine (mastermind/lobby.py):
+    create_lobby / join_lobby / leave_lobby / mark_ready / start_lobby /
+    advance_question / submit_lobby_answer / finalise_lobby / get_lobby_state
+    + Kahoot-style speed bonus (1 - elapsed/max × 0.5 multiplier on correct)
+    + Streak bonus (+10% per consecutive correct, capped +50%)
+    + Late-answer / wrong-index / duplicate-answer protection
+    + Idempotent advance via expected_index check
+  Transport (mastermind/consumers_lobby.LobbyConsumer):
+    /ws/mastermind/lobby/<lobby_id>/  via routing.py + asgi.py
+    Group: lobby_<lobby_id>
+    Inbound: ready / leave / start_lobby / advance_question /
+             submit_answer / request_state
+    Personal answer_result + group broadcast_state on every state change
+  HTTP API (UI bootstrap before WS connects):
+    POST /mastermind/api/lobby/create/   {quiz_id, mode_code, max_players, question_seconds}
+    POST /mastermind/api/lobby/join/     {join_code}
+    GET  /mastermind/api/lobby/<id>/
+    GET  /mastermind/api/lobby/by-code/<code>/
+  Player UI:
+    /play/<join_code>/  → /mastermind/play/<code>/  (login required)
+    All 8 question types render in lobby mode.
+    JSON island via {{ lobby_state|json_script:"..." }} (XSS-safe).
+    Sticky live leaderboard, gold/silver/bronze podium gradients,
+    server-driven countdown timer.
+  Host UI:
+    /quizadmin/quiz/<id>/host/  (added "🎮 Host" button on quiz_list)
+    Auto-creates a waiting lobby (re-uses existing).
+    Big join code + share URL + Copy button + ready counts +
+    Start/Next-question controls + final podium.
+  Webhooks (added to webhooks.SUPPORTED_EVENT_CODES):
+    lobby_started + lobby_completed events fire via existing subscriptions
+
+POLISH PASS
+  All today's CSS upgraded with:
+    - hover lift (transform: translateY) on cards + buttons + leaderboard rows
+    - gold/silver/bronze podium gradients on top-3 leaderboard rows
+    - join-code visual: monospace 4xl with accent gradient + dashed accent border
+    - quiz cards: 4px accent slide-in bar on hover + CTA arrow shift
+    - flagged-questions table: mobile reflow to card stack at ≤720px (data-label)
+    - resume banner: warning gradient + 4px left bar
+    - All transitions wrapped in @media (prefers-reduced-motion: reduce)
+    - Mobile breakpoints tightened: ≤480px font drops, ≤768px sidebar collapses,
+      ≤1024px tablet sidebar narrows
+
+NAMING CONVENTION CLEANUP
+  - JS: short loop vars (i, j, n, tmp, raw, chosen, msg, err) renamed to
+    descriptive forms (sourceIndex, swapIndex, swapBuffer, helperDiv,
+    serverMessage, parseError, selectedResponseByStem, etc.)
+  - Python (lobby.py _grade_lobby_answer): raw → raw_selected_option_id,
+    chosen → selected_option_ids, pairs → matching_pairs, entry → pair_entry,
+    student_order/canonical → *_ordered_option_ids
+  - HTML: 3 anchors missing id+name now have them
+    (historybd-quiz-take back link, constitutionbd-quiz-take back link,
+    flagged-questions question-edit link)
+
+BUG-SCAN FIXES
+  - XSS hardening: result.new_badges escaped; lobby JSON islands switched
+    to Django json_script filter (auto-escapes </script> in display_name)
+  - Logic bug: lobby duplicate-answer detection used substring match that
+    falsely matched 1 inside 10/11/12 — anchored with trailing comma
+  - Dead code removed: unused CollQuizLobby import in consumers_lobby.py
+  - Accessibility: JS-rendered radios/checkboxes in lobby-player now get
+    unique inputId + label.htmlFor
+
+SQL SCRIPT RUN ORDER (this session)
+  notes/sql-script/mastermind-multiplayer-lobby.sql   — REQUIRED for multi-player
+
+Cache bumped to v715.

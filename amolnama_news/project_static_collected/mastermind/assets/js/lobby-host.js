@@ -20,7 +20,7 @@
   var joinCode = rootElement.dataset.joinCode || '';
   var bootstrapNode = document.getElementById('mastermind-lobby-bootstrap');
   var bootstrapState = {};
-  try { bootstrapState = JSON.parse(bootstrapNode ? bootstrapNode.textContent : '{}'); } catch (err) { bootstrapState = {}; }
+  try { bootstrapState = JSON.parse(bootstrapNode ? bootstrapNode.textContent : '{}'); } catch (parseError) { bootstrapState = {}; }
 
   var state = { socket: null, latest: bootstrapState };
 
@@ -43,9 +43,9 @@
   var errorElement = document.getElementById('mastermind-lobby-error');
 
   function _escapeHtml(text) {
-    var n = document.createElement('div');
-    n.textContent = text == null ? '' : String(text);
-    return n.innerHTML;
+    var helperDiv = document.createElement('div');
+    helperDiv.textContent = text == null ? '' : String(text);
+    return helperDiv.innerHTML;
   }
 
   function _showState(stateName) {
@@ -84,13 +84,13 @@
     state.socket = socket;
     socket.onopen = function () { _setError(''); };
     socket.onclose = function () { setTimeout(_connect, 2000); };
-    socket.onmessage = function (event) {
-      var msg;
-      try { msg = JSON.parse(event.data); } catch (err) { return; }
-      if (msg.type === 'lobby_state') {
-        _applyState(msg.state);
-      } else if (msg.type === 'error') {
-        _setError(msg.message || 'Unknown error.');
+    socket.onmessage = function (websocketEvent) {
+      var serverMessage;
+      try { serverMessage = JSON.parse(websocketEvent.data); } catch (parseError) { return; }
+      if (serverMessage.type === 'lobby_state') {
+        _applyState(serverMessage.state);
+      } else if (serverMessage.type === 'error') {
+        _setError(serverMessage.message || 'Unknown error.');
       }
     };
   }

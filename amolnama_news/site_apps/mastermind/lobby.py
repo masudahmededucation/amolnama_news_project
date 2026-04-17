@@ -617,16 +617,18 @@ def _grade_lobby_answer(question_payload, answer_payload):
             return False, 0.0
 
     if question_type_code == 'mcq_multi':
-        raw = answer_payload.get('selected_option_id')
-        if not raw:
+        raw_selected_option_id = answer_payload.get('selected_option_id')
+        if not raw_selected_option_id:
             return False, 0.0
-        if isinstance(raw, str):
-            chosen = {int(part) for part in raw.split(',') if part.strip().isdigit()}
-        elif isinstance(raw, (list, tuple, set)):
-            chosen = {int(part) for part in raw}
+        if isinstance(raw_selected_option_id, str):
+            selected_option_ids = {
+                int(part) for part in raw_selected_option_id.split(',') if part.strip().isdigit()
+            }
+        elif isinstance(raw_selected_option_id, (list, tuple, set)):
+            selected_option_ids = {int(part) for part in raw_selected_option_id}
         else:
-            chosen = {int(raw)}
-        return (chosen == correct_ids), base_points
+            selected_option_ids = {int(raw_selected_option_id)}
+        return (selected_option_ids == correct_ids), base_points
 
     if question_type_code == 'fill_blank':
         # Compare normalised text against any correct option text
@@ -634,34 +636,38 @@ def _grade_lobby_answer(question_payload, answer_payload):
         student_text = (answer_payload.get('fill_blank_answer_text') or '').strip().lower()
         if not student_text:
             return False, 0.0
-        normalised = unicodedata.normalize('NFC', student_text)
+        normalised_student_text = unicodedata.normalize('NFC', student_text)
         for option in question_payload.get('options', []):
             if not option.get('is_correct'):
                 continue
-            for key in ('option_text_bn', 'option_text_en'):
-                target = (option.get(key) or '').strip().lower()
-                if target and unicodedata.normalize('NFC', target) == normalised:
+            for option_text_field in ('option_text_bn', 'option_text_en'):
+                target_text = (option.get(option_text_field) or '').strip().lower()
+                if target_text and unicodedata.normalize('NFC', target_text) == normalised_student_text:
                     return True, base_points
         return False, 0.0
 
     if question_type_code == 'matching':
-        pairs = answer_payload.get('matching_pairs') or []
+        matching_pairs = answer_payload.get('matching_pairs') or []
         # Correct iff every stem's chosen response is its own pair_id
-        if not pairs:
+        if not matching_pairs:
             return False, 0.0
-        for entry in pairs:
-            if entry.get('stem_pair_id') != entry.get('response_pair_id'):
+        for pair_entry in matching_pairs:
+            if pair_entry.get('stem_pair_id') != pair_entry.get('response_pair_id'):
                 return False, 0.0
         return True, base_points
 
     if question_type_code == 'ordering':
-        student_order = answer_payload.get('ordering_option_ids') or []
-        canonical = [option['option_id'] for option in question_payload.get('options', [])]
+        student_ordered_option_ids = answer_payload.get('ordering_option_ids') or []
+        canonical_ordered_option_ids = [
+            option['option_id'] for option in question_payload.get('options', [])
+        ]
         try:
-            student_order = [int(option_id) for option_id in student_order]
+            student_ordered_option_ids = [
+                int(option_id) for option_id in student_ordered_option_ids
+            ]
         except (TypeError, ValueError):
             return False, 0.0
-        return (student_order == canonical), base_points
+        return (student_ordered_option_ids == canonical_ordered_option_ids), base_points
 
     # short_answer / essay → manual grading; treat as no auto-score in lobby
     return False, 0.0

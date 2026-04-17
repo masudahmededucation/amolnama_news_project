@@ -40,18 +40,18 @@
       <tbody>
         {% for report in reports %}
         <tr id="quizadmin-flagged-row-{{ report.mastermind_coll_question_report_id }}" data-report-id="{{ report.mastermind_coll_question_report_id }}">
-          <td>
-            <a class="quizadmin-flagged-question-link" href="{% url 'quizadmin:question_edit' question_id=report.link_mastermind_coll_question_id %}">
+          <td data-label="Question">
+            <a class="quizadmin-flagged-question-link" id="quizadmin-flagged-question-link-{{ report.mastermind_coll_question_report_id }}" name="quizadmin_flagged_question_link_{{ report.mastermind_coll_question_report_id }}" href="{% url 'quizadmin:question_edit' question_id=report.link_mastermind_coll_question_id %}">
               {{ report.question_text_bn|default:report.question_text_en|truncatechars:120 }}
             </a>
             <small class="quizadmin-flagged-question-meta">Question #{{ report.link_mastermind_coll_question_id }} · {{ report.question_status_code|default:"—" }}</small>
           </td>
-          <td><span class="quizadmin-status-chip quizadmin-status-chip-warning">{{ report.report_reason_code }}</span></td>
-          <td class="quizadmin-flagged-note-cell">{{ report.report_description|default:"—"|truncatechars:140 }}</td>
-          <td>#{{ report.link_user_profile_id }}</td>
-          <td><span class="quizadmin-status-chip quizadmin-status-chip-{{ report.report_status_code }}">{{ report.report_status_code }}</span></td>
-          <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
-          <td class="quizadmin-flagged-actions-cell">
+          <td data-label="Reason"><span class="quizadmin-status-chip quizadmin-status-chip-warning">{{ report.report_reason_code }}</span></td>
+          <td class="quizadmin-flagged-note-cell" data-label="Note">{{ report.report_description|default:"—"|truncatechars:140 }}</td>
+          <td data-label="Reporter">#{{ report.link_user_profile_id }}</td>
+          <td data-label="Status"><span class="quizadmin-status-chip quizadmin-status-chip-{{ report.report_status_code }}">{{ report.report_status_code }}</span></td>
+          <td data-label="Filed">{{ report.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="quizadmin-flagged-actions-cell" data-label="Actions">
             {% if report.report_status_code == 'pending' %}
               <button type="button" class="quizadmin-table-action quizadmin-flagged-resolve-button" id="quizadmin-flagged-resolve-{{ report.mastermind_coll_question_report_id }}" name="quizadmin_flagged_resolve" data-report-id="{{ report.mastermind_coll_question_report_id }}">Resolve</button>
               <button type="button" class="quizadmin-table-action quizadmin-flagged-reject-button" id="quizadmin-flagged-reject-{{ report.mastermind_coll_question_report_id }}" name="quizadmin_flagged_reject" data-report-id="{{ report.mastermind_coll_question_report_id }}">Reject</button>

@@ -20,7 +20,7 @@
   var bootstrapState = null;
   try {
     bootstrapState = JSON.parse(bootstrapNode ? bootstrapNode.textContent : '{}');
-  } catch (error) {
+  } catch (parseError) {
     bootstrapState = {};
   }
 
@@ -55,9 +55,9 @@
 
   // --- helpers ----------------------------------------------------
   function _escapeHtml(text) {
-    var node = document.createElement('div');
-    node.textContent = text == null ? '' : String(text);
-    return node.innerHTML;
+    var helperDiv = document.createElement('div');
+    helperDiv.textContent = text == null ? '' : String(text);
+    return helperDiv.innerHTML;
   }
 
   function _setError(message) {
@@ -96,16 +96,16 @@
     socket.onerror = function () {
       _setStatus('Connection error');
     };
-    socket.onmessage = function (event) {
-      var msg;
-      try { msg = JSON.parse(event.data); } catch (err) { return; }
-      if (msg.type === 'lobby_state') {
-        _applyState(msg.state);
-      } else if (msg.type === 'answer_result') {
-        _showAnswerResult(msg);
-        _applyState(msg.state);
-      } else if (msg.type === 'error') {
-        _setError(msg.message || 'Unknown error.');
+    socket.onmessage = function (websocketEvent) {
+      var serverMessage;
+      try { serverMessage = JSON.parse(websocketEvent.data); } catch (parseError) { return; }
+      if (serverMessage.type === 'lobby_state') {
+        _applyState(serverMessage.state);
+      } else if (serverMessage.type === 'answer_result') {
+        _showAnswerResult(serverMessage);
+        _applyState(serverMessage.state);
+      } else if (serverMessage.type === 'error') {
+        _setError(serverMessage.message || 'Unknown error.');
       }
     };
   }
@@ -314,42 +314,47 @@
   }
 
   function _renderOrdering(question) {
-    var shuffled = (question.options || []).slice();
-    for (var i = shuffled.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+    var shuffledOptions = (question.options || []).slice();
+    // Fisher-Yates shuffle so each player sees a different starting order
+    for (var sourceIndex = shuffledOptions.length - 1; sourceIndex > 0; sourceIndex--) {
+      var swapIndex = Math.floor(Math.random() * (sourceIndex + 1));
+      var swapBuffer = shuffledOptions[sourceIndex];
+      shuffledOptions[sourceIndex] = shuffledOptions[swapIndex];
+      shuffledOptions[swapIndex] = swapBuffer;
     }
-    var orderedIds = shuffled.map(function (o) { return o.option_id; });
+    var orderedOptionIds = shuffledOptions.map(function (option) { return option.option_id; });
     var listElement = document.createElement('ol');
     listElement.className = 'mastermind-lobby-ordering-list';
     answerRegion.appendChild(listElement);
-    function _refresh() {
+    function _refreshOrderingList() {
       listElement.innerHTML = '';
-      orderedIds.forEach(function (optionId, index) {
-        var option = (question.options || []).find(function (o) { return o.option_id === optionId; });
+      orderedOptionIds.forEach(function (optionId, positionIndex) {
+        var option = (question.options || []).find(function (candidate) { return candidate.option_id === optionId; });
         if (!option) return;
-        var item = document.createElement('li');
-        item.className = 'mastermind-lobby-ordering-item';
-        item.innerHTML =
-          '<span class="mastermind-lobby-ordering-position">' + (index + 1) + '.</span>' +
+        var listItem = document.createElement('li');
+        listItem.className = 'mastermind-lobby-ordering-item';
+        listItem.innerHTML =
+          '<span class="mastermind-lobby-ordering-position">' + (positionIndex + 1) + '.</span>' +
           '<span class="mastermind-lobby-ordering-text">' + _escapeHtml(option.option_text_bn || option.option_text_en || '') + '</span>' +
-          '<button type="button" class="mastermind-lobby-ordering-button" data-direction="up"' + (index === 0 ? ' disabled' : '') + ' aria-label="Move up">↑</button>' +
-          '<button type="button" class="mastermind-lobby-ordering-button" data-direction="down"' + (index === orderedIds.length - 1 ? ' disabled' : '') + ' aria-label="Move down">↓</button>';
-        item.querySelectorAll('button').forEach(function (button) {
-          button.addEventListener('click', function () {
-            var dir = button.dataset.direction;
-            var swapWith = dir === 'up' ? index - 1 : index + 1;
-            if (swapWith < 0 || swapWith >= orderedIds.length) return;
-            var tmp = orderedIds[index]; orderedIds[index] = orderedIds[swapWith]; orderedIds[swapWith] = tmp;
-            state.currentAnswer = { ordering_option_ids: orderedIds.slice() };
-            _refresh();
+          '<button type="button" class="mastermind-lobby-ordering-button" data-direction="up"' + (positionIndex === 0 ? ' disabled' : '') + ' aria-label="Move up">↑</button>' +
+          '<button type="button" class="mastermind-lobby-ordering-button" data-direction="down"' + (positionIndex === orderedOptionIds.length - 1 ? ' disabled' : '') + ' aria-label="Move down">↓</button>';
+        listItem.querySelectorAll('button').forEach(function (moveButton) {
+          moveButton.addEventListener('click', function () {
+            var direction = moveButton.dataset.direction;
+            var swapWithIndex = direction === 'up' ? positionIndex - 1 : positionIndex + 1;
+            if (swapWithIndex < 0 || swapWithIndex >= orderedOptionIds.length) return;
+            var swapBuffer = orderedOptionIds[positionIndex];
+            orderedOptionIds[positionIndex] = orderedOptionIds[swapWithIndex];
+            orderedOptionIds[swapWithIndex] = swapBuffer;
+            state.currentAnswer = { ordering_option_ids: orderedOptionIds.slice() };
+            _refreshOrderingList();
           });
         });
-        listElement.appendChild(item);
+        listElement.appendChild(listItem);
       });
     }
-    _refresh();
-    state.currentAnswer = { ordering_option_ids: orderedIds.slice() };
+    _refreshOrderingList();
+    state.currentAnswer = { ordering_option_ids: orderedOptionIds.slice() };
   }
 
   function _renderMatching(question) {
@@ -359,51 +364,51 @@
       _renderUnsupportedType(question);
       return;
     }
-    var picks = {};
-    function _sync() {
+    var selectedResponseByStem = {};
+    function _syncMatchingAnswer() {
       state.currentAnswer = {
         matching_pairs: stems.map(function (stem) {
           return {
             stem_pair_id: stem.pair_id,
-            response_pair_id: picks[stem.pair_id] || null,
+            response_pair_id: selectedResponseByStem[stem.pair_id] || null,
           };
         }),
       };
     }
-    var list = document.createElement('ul');
-    list.className = 'mastermind-lobby-matching-list';
-    answerRegion.appendChild(list);
+    var matchingList = document.createElement('ul');
+    matchingList.className = 'mastermind-lobby-matching-list';
+    answerRegion.appendChild(matchingList);
     stems.forEach(function (stem) {
-      var row = document.createElement('li');
-      row.className = 'mastermind-lobby-matching-row';
+      var rowItem = document.createElement('li');
+      rowItem.className = 'mastermind-lobby-matching-row';
       var stemSpan = document.createElement('span');
       stemSpan.className = 'mastermind-lobby-matching-stem';
       stemSpan.textContent = stem.stem_text_bn || stem.stem_text_en || '';
       var selectId = 'mastermind-lobby-matching-' + stem.pair_id;
-      var select = document.createElement('select');
-      select.className = 'mastermind-lobby-matching-select';
-      select.id = selectId;
-      select.name = selectId;
-      var placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Pick a match…';
-      select.appendChild(placeholder);
+      var responseSelect = document.createElement('select');
+      responseSelect.className = 'mastermind-lobby-matching-select';
+      responseSelect.id = selectId;
+      responseSelect.name = selectId;
+      var placeholderOption = document.createElement('option');
+      placeholderOption.value = '';
+      placeholderOption.textContent = 'Pick a match…';
+      responseSelect.appendChild(placeholderOption);
       responses.forEach(function (response) {
-        var opt = document.createElement('option');
-        opt.value = String(response.pair_id);
-        opt.textContent = response.response_text_bn || response.response_text_en || '';
-        select.appendChild(opt);
+        var responseOption = document.createElement('option');
+        responseOption.value = String(response.pair_id);
+        responseOption.textContent = response.response_text_bn || response.response_text_en || '';
+        responseSelect.appendChild(responseOption);
       });
-      select.addEventListener('change', function () {
-        if (select.value) picks[stem.pair_id] = parseInt(select.value, 10);
-        else delete picks[stem.pair_id];
-        _sync();
+      responseSelect.addEventListener('change', function () {
+        if (responseSelect.value) selectedResponseByStem[stem.pair_id] = parseInt(responseSelect.value, 10);
+        else delete selectedResponseByStem[stem.pair_id];
+        _syncMatchingAnswer();
       });
-      row.appendChild(stemSpan);
-      row.appendChild(select);
-      list.appendChild(row);
+      rowItem.appendChild(stemSpan);
+      rowItem.appendChild(responseSelect);
+      matchingList.appendChild(rowItem);
     });
-    _sync();
+    _syncMatchingAnswer();
   }
 
   function _renderUnsupportedType(question) {

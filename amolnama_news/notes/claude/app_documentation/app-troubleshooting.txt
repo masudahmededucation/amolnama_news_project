@@ -145,3 +145,59 @@ Runs after entity detection + HTML build. CSS class: .post-twemoji-flag.
 Also added flag rendering in emoji picker (getFlagImageUrl + country code
 labels) using Twemoji CDN images.
 Location: post/text_highlight.py, post/static/post/assets/css/pages/post-home.css.
+
+### R16. JSON island in HTML can leak </script> from user-controlled fields
+Date: 2026-04-17
+Was: Mastermind multi-player lobby pages rendered server-side state via
+<script type="application/json">{{ payload_json|safe }}</script>. The payload
+contains player.display_name from UserProfile. A malicious display_name
+containing </script> would break out of the JSON block.
+Fix: Switched to Django's built-in {{ payload|json_script:"id" }} filter
+which auto-escapes </ → \u003c. View must pre-stringify any datetime /
+Decimal values because json_script can't serialise them — added
+mastermind/views._stringify_dates() helper that walks the dict/list and
+ISO-formats datetimes, floats Decimals.
+Location: mastermind/views.py, mastermind/templates/mastermind/pages/lobby_player.html,
+quizadmin/templates/quizadmin/pages/quiz_host.html, quizadmin/views.py.
+
+### R17. Django ORM __contains substring match has prefix-collision bug
+Date: 2026-04-17
+Was: lobby.submit_lobby_answer used __contains=f'"question_index": {N}' to
+detect duplicate submissions. The substring "question_index": 1 also matches
+"question_index": 10 / 11 / 12 / etc., so a player who answered question 1
+would be falsely blocked from answering questions 10+.
+Fix: Anchor the match with a trailing comma — f'"question_index": {N},'.
+Works because answer_submitted event payloads always have question_index
+followed by other fields (is_correct, points_earned), so the comma is
+guaranteed to be present in the JSON output.
+Location: mastermind/lobby.py, submit_lobby_answer().
+
+### R18. .toUpperCase() on identifier input is OK; on display data is not
+Date: 2026-04-17
+Was: Bug-scan flagged .upper() / .toUpperCase() in lobby.py + views.py for
+join codes. CLAUDE.md rule says no case conversion anywhere.
+Decision: KEPT for join codes — they are identifiers from a deliberately
+uppercase-only alphabet (BCDFGHJKLMNPQRSTVWXYZ23456789), not user-facing
+display data. Normalising user input to match the stored case is required.
+The rule applies to status_code / display data, not fixed-alphabet identifiers.
+Location: mastermind/lobby.py:_generate_unique_join_code, get_lobby_state.
+
+### R19. Django Channels consumer + sync engine functions
+Date: 2026-04-17
+Was: WebSocket consumer (LobbyConsumer) needs to call sync engine functions
+(create_lobby, get_lobby_state, etc.) that hit the SQL Server ORM.
+Pattern: Wrap every engine call in @database_sync_to_async via a helper
+method like `async def _engine_call(self, fn, *args, **kwargs)`. Don't call
+sync ORM directly from async receive() — Django will raise
+SynchronousOnlyOperation.
+Location: mastermind/consumers_lobby.py.
+
+### R20. Mobile-friendly tables — data-label reflow pattern
+Date: 2026-04-17
+Was: Quiz Panel staff inbox tables (flagged questions, leaderboards) horizontal-
+scroll on phones. Cards are easier to triage than scrolling.
+Fix pattern: Add data-label="Column name" to every <td>. CSS at ≤720px sets
+table/tbody/tr/td to display:block, hides thead, and adds td::before {
+content: attr(data-label) } so each cell becomes a labelled stack.
+Location: quizadmin/templates/quizadmin/pages/flagged_questions.html,
+quizadmin/static/quizadmin/assets/css/pages/page-flagged-questions.css.

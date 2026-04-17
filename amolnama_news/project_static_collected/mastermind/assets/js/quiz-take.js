@@ -410,62 +410,62 @@
       return;
     }
 
-    var picks = {}; // stem_pair_id -> response_pair_id
+    var selectedResponseByStem = {}; // stem_pair_id -> response_pair_id
 
-    function _syncAnswer() {
+    function _syncMatchingAnswer() {
       state.currentAnswer = {
         matching_pairs: stems.map(function (stem) {
           return {
             stem_pair_id: stem.pair_id,
-            response_pair_id: picks[stem.pair_id] || null,
+            response_pair_id: selectedResponseByStem[stem.pair_id] || null,
           };
         }),
       };
     }
 
-    var listElement = document.createElement('ul');
-    listElement.className = 'mastermind-quiz-take-matching-list';
-    answerRegion.appendChild(listElement);
+    var matchingList = document.createElement('ul');
+    matchingList.className = 'mastermind-quiz-take-matching-list';
+    answerRegion.appendChild(matchingList);
 
     stems.forEach(function (stem) {
-      var row = document.createElement('li');
-      row.className = 'mastermind-quiz-take-matching-row';
+      var rowItem = document.createElement('li');
+      rowItem.className = 'mastermind-quiz-take-matching-row';
 
       var stemLabel = document.createElement('span');
       stemLabel.className = 'mastermind-quiz-take-matching-stem';
       stemLabel.textContent = stem.stem_text_bn || stem.stem_text_en || '';
 
       var selectId = 'mastermind-quiz-take-matching-' + stem.pair_id;
-      var selectElement = document.createElement('select');
-      selectElement.className = 'mastermind-quiz-take-matching-select';
-      selectElement.id = selectId;
-      selectElement.name = selectId;
+      var responseSelect = document.createElement('select');
+      responseSelect.className = 'mastermind-quiz-take-matching-select';
+      responseSelect.id = selectId;
+      responseSelect.name = selectId;
 
       var placeholderOption = document.createElement('option');
       placeholderOption.value = '';
       placeholderOption.textContent = 'Pick a match…';
-      selectElement.appendChild(placeholderOption);
+      responseSelect.appendChild(placeholderOption);
 
       responses.forEach(function (response) {
-        var optionElement = document.createElement('option');
-        optionElement.value = String(response.pair_id);
-        optionElement.textContent = response.response_text_bn || response.response_text_en || '';
-        selectElement.appendChild(optionElement);
+        var responseOption = document.createElement('option');
+        responseOption.value = String(response.pair_id);
+        responseOption.textContent = response.response_text_bn || response.response_text_en || '';
+        responseSelect.appendChild(responseOption);
       });
 
-      selectElement.addEventListener('change', function () {
-        var value = selectElement.value;
-        if (value) picks[stem.pair_id] = parseInt(value, 10);
-        else delete picks[stem.pair_id];
-        _syncAnswer();
+      responseSelect.addEventListener('change', function () {
+        var pickedValue = responseSelect.value;
+        if (pickedValue) selectedResponseByStem[stem.pair_id] = parseInt(pickedValue, 10);
+        else delete selectedResponseByStem[stem.pair_id];
+        _syncMatchingAnswer();
       });
 
-      row.appendChild(stemLabel);
-      row.appendChild(selectElement);
-      listElement.appendChild(row);
+      rowItem.appendChild(stemLabel);
+      rowItem.appendChild(responseSelect);
+      matchingList.appendChild(rowItem);
     });
 
-    _syncAnswer();
+    _syncMatchingAnswer();
   }
 
   function _renderUnsupportedType(question) {
