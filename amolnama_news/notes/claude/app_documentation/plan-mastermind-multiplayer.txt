@@ -1,9 +1,46 @@
 PLAN — MASTERMIND MULTI-PLAYER QUIZZING
 =========================================
-Status: NOT STARTED — deferred for later session
-Estimated effort: 1-2 weeks of focused work
-Priority: HIGH — clear differentiator for Bengali / civic-education market
+Status: SHIPPED v1 (2026-04-17)
 Last updated: 2026-04-17
+
+Implementation summary
+----------------------
+- SQL: notes/sql-script/mastermind-multiplayer-lobby.sql (3 new tables +
+  2 new columns on coll_quiz). Idempotent. Run via SSMS.
+- Models: CollQuizLobby, CollQuizLobbyPlayer, CollQuizLobbyEvent in models.py
+- Engine: site_apps/mastermind/lobby.py — create_lobby, join_lobby,
+  leave_lobby, mark_ready, start_lobby, advance_question,
+  submit_lobby_answer, finalise_lobby, get_lobby_state. Includes
+  Kahoot-style speed bonus + streak bonus when enabled per quiz.
+- WebSocket: site_apps/mastermind/consumers_lobby.LobbyConsumer at
+  /ws/mastermind/lobby/<id>/. Routed via routing.py + asgi.py.
+  Supports message types: ready, leave, start_lobby, advance_question,
+  submit_answer, request_state.
+- HTTP API:
+    POST /mastermind/api/lobby/create/   {quiz_id, mode_code, max_players, question_seconds}
+    POST /mastermind/api/lobby/join/     {join_code}
+    GET  /mastermind/api/lobby/<id>/
+    GET  /mastermind/api/lobby/by-code/<code>/
+- Player UI: /play/<join_code>/ → /mastermind/play/<code>/ (login required).
+  Renders all 8 question types (mcq_single/multi, true_false, fill_blank,
+  short_answer, essay, ordering, matching). WebSocket reflects all state.
+- Host UI: /quizadmin/quiz/<id>/host/. Auto-creates a waiting lobby (or
+  re-uses an existing waiting one), shows join code + share URL + live
+  roster + Start/Next-question controls + final leaderboard.
+- Webhooks: lobby_started + lobby_completed events fire via the existing
+  webhook subscription system.
+- Audit: every state change is appended to coll_quiz_lobby_event for
+  replay + worker-restart resume + analytics.
+
+Out of scope (deferred for v2)
+------------------------------
+- Bot players for solo practice
+- Tournament brackets across lobbies
+- Custom themes / backgrounds per lobby
+- Voice / video chat (use Discord)
+- QR code generation server-side (any QR JS lib works client-side)
+- Auto-rejoin if the host accidentally closes the tab (manual /host/ revisit
+  works; will also reuse the existing waiting lobby).
 
 
 PROBLEM STATEMENT

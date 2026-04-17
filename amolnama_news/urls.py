@@ -40,7 +40,9 @@ urlpatterns = [
     path("jibonkotha/", include("amolnama_news.site_apps.biography.urls")),  # Biography — জীবনকথা, inspirational life stories
     path("songbidhan/", include("amolnama_news.site_apps.constitutionbd.urls")),  # Constitution BD — সংবিধান
     path("itihas/", include("amolnama_news.site_apps.historybd.urls")),  # History BD — ইতিহাস
-    path("mastermind/", include("amolnama_news.site_apps.mastermind.urls")),  # Mastermind — quiz/exam engine (API only, no pages)
+    path("mastermind/", include("amolnama_news.site_apps.mastermind.urls")),  # Mastermind — quiz/exam engine + multiplayer pages
+    # Friendly top-level alias for shareable multiplayer join URLs.
+    path("play/<str:join_code>/", RedirectView.as_view(url="/mastermind/play/%(join_code)s/", permanent=False)),
     path("quizadmin/", include("amolnama_news.site_apps.quizadmin.urls")),  # Quiz Panel — staff-only admin dashboard
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)

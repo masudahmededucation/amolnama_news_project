@@ -8,6 +8,9 @@ urlpatterns = [
     # Public certificate verification page (no auth — serial is unforgeable)
     path('certificate/<str:certificate_serial>/', views.certificate_public_view, name='certificate_public_view'),
 
+    # Multi-player player join page — also aliased at top-level /play/<code>/
+    path('play/<str:join_code>/', views.lobby_player_page, name='lobby_player_page'),
+
     # Book management
     path('api/book/create/', views_api.api_book_create, name='api_book_create'),
     path('api/book/<int:book_id>/chapter/create/', views_api.api_book_chapter_create, name='api_book_chapter_create'),
@@ -101,4 +104,10 @@ urlpatterns = [
 
     # Proctoring (Phase 1: lockdown event logging)
     path('api/proctoring/log-violation/', views_api.api_proctoring_log_violation, name='api_proctoring_log_violation'),
+
+    # Multi-player lobby (Kahoot/Quizizz-style live group quizzes)
+    path('api/lobby/create/', views_api.api_lobby_create, name='api_lobby_create'),
+    path('api/lobby/join/', views_api.api_lobby_join, name='api_lobby_join'),
+    path('api/lobby/<int:lobby_id>/', views_api.api_lobby_state, name='api_lobby_state'),
+    path('api/lobby/by-code/<str:join_code>/', views_api.api_lobby_state_by_code, name='api_lobby_state_by_code'),
 ]

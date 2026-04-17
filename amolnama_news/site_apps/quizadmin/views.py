@@ -154,6 +154,60 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def quiz_host_page(request, exam_id):
+    """Host-side multiplayer page — auto-creates a lobby for this quiz then renders the host shell.
+
+    The host is the calling staff user. Players join via the printed code or
+    the share URL. All gameplay actions go over the WebSocket (see
+    mastermind.consumers_lobby.LobbyConsumer).
+    """
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    from amolnama_news.site_apps.mastermind.lobby import create_lobby
+    from amolnama_news.site_apps.mastermind.models import CollQuiz, CollQuizLobby
+
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=int(exam_id), is_active=True).first()
+    if not quiz:
+        return _render_not_found(request, 'Quiz', exam_id, '/quizadmin/quiz/', 'Back to quizzes')
+
+    user_profile_id = get_user_profile_id(request)
+    # Reuse an existing waiting lobby for this quiz hosted by the caller, if any
+    existing_lobby = CollQuizLobby.objects.filter(
+        link_mastermind_coll_quiz_id=quiz.mastermind_coll_quiz_id,
+        link_host_user_profile_id=user_profile_id,
+        lobby_status_code='waiting',
+        is_active=True,
+    ).order_by('-created_at').first()
+
+    if existing_lobby is not None:
+        from amolnama_news.site_apps.mastermind.lobby import get_lobby_state
+        lobby_state = get_lobby_state(existing_lobby.mastermind_coll_quiz_lobby_id)
+    else:
+        mode_code = (request.GET.get('mode') or 'host_advances').strip().lower()
+        question_seconds_raw = request.GET.get('seconds')
+        question_seconds = int(question_seconds_raw) if (question_seconds_raw or '').isdigit() else None
+        lobby_state = create_lobby(
+            host_user_profile_id=user_profile_id,
+            quiz_id=quiz.mastermind_coll_quiz_id,
+            mode_code=mode_code if mode_code in ('host_advances', 'timed_per_question') else 'host_advances',
+            max_players=50,
+            question_seconds=question_seconds,
+        )
+
+    if 'error' in (lobby_state or {}):
+        return _render_not_found(request, 'Lobby', '?', '/quizadmin/quiz/', 'Back to quizzes')
+
+    import json as _json
+    context = {
+        'page_title': f'Host: {quiz.exam_title_bn}',
+        'quizadmin_active_tab': 'quiz_list',
+        'quiz': quiz,
+        'lobby_state': lobby_state,
+        'lobby_state_json': _json.dumps(lobby_state, ensure_ascii=False, default=str),
+    }
+    return render(request, 'quizadmin/pages/quiz_host.html', context)
+
+
+@staff_member_required
 def flagged_questions_page(request):
     """Staff inbox: review user-reported question issues.
 

@@ -1464,6 +1464,87 @@ def api_question_report_review(request, report_id):
 
 
 @login_required
+@require_POST
+def api_lobby_create(request):
+    """Create a new multi-player lobby for a quiz. Caller becomes the host."""
+    from .lobby import create_lobby
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+
+    quiz_id = payload.get('quiz_id')
+    if not isinstance(quiz_id, int):
+        return JsonResponse({'error': 'quiz_id (int) is required.'}, status=400)
+
+    mode_code = (payload.get('mode_code') or 'host_advances').strip().lower()
+    max_players_raw = payload.get('max_players')
+    max_players = int(max_players_raw) if isinstance(max_players_raw, int) and max_players_raw > 0 else 50
+    question_seconds_raw = payload.get('question_seconds')
+    question_seconds = int(question_seconds_raw) if isinstance(question_seconds_raw, int) and question_seconds_raw > 0 else None
+
+    result = create_lobby(
+        host_user_profile_id=user_profile_id,
+        quiz_id=quiz_id,
+        mode_code=mode_code,
+        max_players=max_players,
+        question_seconds=question_seconds,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_lobby_join(request):
+    """Join a lobby by 6-char join_code (POST body)."""
+    from .lobby import join_lobby
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    join_code = (payload.get('join_code') or '').strip()
+    if not join_code:
+        return JsonResponse({'error': 'join_code is required.'}, status=400)
+
+    result = join_lobby(join_code, user_profile_id)
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_GET
+def api_lobby_state(request, lobby_id):
+    """Bootstrap state for an existing lobby (used before WebSocket connects)."""
+    from .lobby import get_lobby_state
+    result = get_lobby_state(int(lobby_id))
+    if 'error' in result:
+        return JsonResponse(result, status=404)
+    return JsonResponse(result)
+
+
+@login_required
+@require_GET
+def api_lobby_state_by_code(request, join_code):
+    """Resolve lobby_id (and full state) from a join_code so /play/<code>/ can render."""
+    from .lobby import get_lobby_state
+    result = get_lobby_state(join_code)
+    if 'error' in result:
+        return JsonResponse(result, status=404)
+    return JsonResponse(result)
+
+
+@login_required
 @require_GET
 def api_export_gradebook_csv(request, quiz_id):
     """Stream gradebook (one row per session) for a quiz as CSV.

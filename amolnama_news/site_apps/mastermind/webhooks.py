@@ -33,6 +33,8 @@ SUPPORTED_EVENT_CODES = (
     'ai_generation_completed',
     'quiz_creator_permission_granted',
     'proctoring_violation_logged',
+    'lobby_started',
+    'lobby_completed',
 )
 
 DISPATCH_TIMEOUT_SECONDS = 8

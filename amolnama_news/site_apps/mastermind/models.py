@@ -301,6 +301,10 @@ class CollQuiz(models.Model):
     # Certificate template (HTML; NULL = no certificate issued for this quiz)
     exam_certificate_template_html = models.TextField(null=True, blank=True)
 
+    # Multi-player lobby scoring opt-ins (Kahoot-style)
+    exam_lobby_speed_bonus_enabled = models.BooleanField(default=False)
+    exam_lobby_streak_bonus_enabled = models.BooleanField(default=False)
+
     # Rewards (V1 — nullable so legacy exams without rewards still work)
     exam_rewards_enabled = models.BooleanField(default=False)
     exam_reward_criteria_code = models.CharField(max_length=20, null=True, blank=True)
@@ -873,3 +877,66 @@ class CollWebhookSubscription(models.Model):
     class Meta:
         managed = False
         db_table = '[mastermind].[coll_webhook_subscription]'
+
+
+# ================================================================
+# MULTI-PLAYER LOBBY (Kahoot/Quizizz-style live group quizzes)
+# ================================================================
+
+class CollQuizLobby(models.Model):
+    """One row per multiplayer game room. Status flows waiting→playing→completed."""
+    mastermind_coll_quiz_lobby_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+    link_host_user_profile_id = models.BigIntegerField()
+    lobby_join_code = models.CharField(max_length=8, unique=True)
+    lobby_status_code = models.CharField(max_length=20, default='waiting')
+    lobby_mode_code = models.CharField(max_length=20, default='host_advances')
+    lobby_max_players = models.IntegerField(default=50)
+    lobby_question_seconds = models.IntegerField(null=True, blank=True)
+    lobby_current_question_index = models.IntegerField(default=0)
+    lobby_question_started_at = models.DateTimeField(null=True, blank=True)
+    lobby_started_at = models.DateTimeField(null=True, blank=True)
+    lobby_completed_at = models.DateTimeField(null=True, blank=True)
+    lobby_question_snapshot_json = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_lobby]'
+
+
+class CollQuizLobbyPlayer(models.Model):
+    """One row per joined player in a lobby. Tracks ready, score, streak, leave-state."""
+    mastermind_coll_quiz_lobby_player_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_lobby_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    player_join_order = models.IntegerField()
+    player_is_ready = models.BooleanField(default=False)
+    player_current_score = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    player_correct_count = models.IntegerField(default=0)
+    player_streak_count = models.IntegerField(default=0)
+    player_has_left = models.BooleanField(default=False)
+    player_left_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_lobby_player]'
+
+
+class CollQuizLobbyEvent(models.Model):
+    """Append-only audit log for one lobby. Used for replay + worker-restart resume."""
+    mastermind_coll_quiz_lobby_event_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_lobby_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    event_type_code = models.CharField(max_length=40)
+    event_payload_json = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_lobby_event]'

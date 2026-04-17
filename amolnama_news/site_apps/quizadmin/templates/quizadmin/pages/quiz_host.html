@@ -1,0 +1,71 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'mastermind/assets/css/components/lobby.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Live multiplayer mode. Share the join code or QR with players, then start the game once everyone's in.
+    Mode: <strong>{{ lobby_state.mode_code }}</strong>{% if lobby_state.question_seconds %} · {{ lobby_state.question_seconds }}s/question{% endif %}.
+  </p>
+</section>
+
+<section class="mastermind-lobby" id="mastermind-lobby" data-lobby-id="{{ lobby_state.lobby_id }}" data-join-code="{{ lobby_state.join_code }}" data-role="host">
+
+  <script type="application/json" id="mastermind-lobby-bootstrap">{{ lobby_state_json|safe }}</script>
+
+  {# Join-code share panel ---------------------------------------- #}
+  <aside class="mastermind-lobby-host-share" id="mastermind-lobby-host-share">
+    <span class="mastermind-lobby-host-share-code" id="mastermind-lobby-host-share-code">{{ lobby_state.join_code }}</span>
+    <span class="mastermind-lobby-host-share-url" id="mastermind-lobby-host-share-url"></span>
+    <button type="button" class="mastermind-lobby-button-secondary" id="mastermind-lobby-host-copy-button" name="mastermind_lobby_host_copy_button">Copy share link</button>
+  </aside>
+
+  {# Waiting room with start control ------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="waiting" id="mastermind-lobby-waiting">
+    <h2 class="mastermind-lobby-section-title">Players (<span id="mastermind-lobby-player-count">0</span>)</h2>
+    <ul class="mastermind-lobby-player-list" id="mastermind-lobby-player-list" aria-live="polite"></ul>
+    <div class="mastermind-lobby-host-controls">
+      <button type="button" class="mastermind-lobby-button-primary" id="mastermind-lobby-start-button" name="mastermind_lobby_start_button">Start game</button>
+    </div>
+    <p class="mastermind-lobby-hint" id="mastermind-lobby-host-start-hint">At least 1 player + 1 marked ready before you can start.</p>
+  </section>
+
+  {# Active question + Next button --------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="playing" id="mastermind-lobby-playing" hidden>
+    <header class="mastermind-lobby-playing-header">
+      <span class="mastermind-lobby-progress" id="mastermind-lobby-progress">Question 1 / 1</span>
+      <span class="mastermind-lobby-timer" id="mastermind-lobby-timer" aria-live="polite" hidden></span>
+    </header>
+    <article class="mastermind-lobby-question">
+      <p class="mastermind-lobby-question-text" id="mastermind-lobby-question-text"></p>
+    </article>
+    <p class="mastermind-lobby-host-answer-info" id="mastermind-lobby-host-answer-info" aria-live="polite">Players are answering…</p>
+    <div class="mastermind-lobby-host-controls">
+      <button type="button" class="mastermind-lobby-button-primary" id="mastermind-lobby-next-button" name="mastermind_lobby_next_button">Next question →</button>
+    </div>
+  </section>
+
+  {# Final results ------------------------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="completed" id="mastermind-lobby-completed" hidden>
+    <h2 class="mastermind-lobby-section-title">🏆 Final leaderboard</h2>
+    <ol class="mastermind-lobby-final-leaderboard" id="mastermind-lobby-final-leaderboard"></ol>
+  </section>
+
+  {# Persistent live leaderboard sidebar --------------------------- #}
+  <aside class="mastermind-lobby-leaderboard" id="mastermind-lobby-leaderboard" aria-label="Live leaderboard">
+    <h2 class="mastermind-lobby-section-title">Leaderboard</h2>
+    <ol class="mastermind-lobby-leaderboard-list" id="mastermind-lobby-leaderboard-list" aria-live="polite"></ol>
+  </aside>
+
+  <p class="mastermind-lobby-error" id="mastermind-lobby-error" role="alert" hidden></p>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'mastermind/assets/js/lobby-host.js' %}" defer></script>
+{% endblock %}

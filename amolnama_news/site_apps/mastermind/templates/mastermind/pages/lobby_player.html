@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ lobby_state.quiz_title_bn|default:"Live quiz" }} — লাইভ কুইজ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'mastermind/assets/css/components/lobby.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="mastermind-lobby" id="mastermind-lobby" data-lobby-id="{{ lobby_state.lobby_id }}" data-join-code="{{ join_code }}" data-role="player">
+
+  {# Bootstrap state for the JS controller — no extra HTTP round-trip on first paint. #}
+  <script type="application/json" id="mastermind-lobby-bootstrap">{{ lobby_state_json|safe }}</script>
+
+  <header class="mastermind-lobby-header">
+    <h1 class="mastermind-lobby-title" id="mastermind-lobby-title">{{ lobby_state.quiz_title_bn|default:"Live quiz" }}</h1>
+    <p class="mastermind-lobby-subtitle">
+      Join code <strong class="mastermind-lobby-join-code">{{ join_code }}</strong> ·
+      <span id="mastermind-lobby-status">Connecting…</span>
+    </p>
+  </header>
+
+  {# Waiting room ---------------------------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="waiting" id="mastermind-lobby-waiting">
+    <p class="mastermind-lobby-waiting-text">Waiting for the host to start. Click "I'm ready" so they know you're set.</p>
+    <button type="button" class="mastermind-lobby-button-primary" id="mastermind-lobby-ready-button" name="mastermind_lobby_ready_button" aria-pressed="false">I'm ready</button>
+    <h2 class="mastermind-lobby-section-title">Players (<span id="mastermind-lobby-player-count">0</span>)</h2>
+    <ul class="mastermind-lobby-player-list" id="mastermind-lobby-player-list" aria-live="polite"></ul>
+  </section>
+
+  {# Active question ------------------------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="playing" id="mastermind-lobby-playing" hidden>
+    <header class="mastermind-lobby-playing-header">
+      <span class="mastermind-lobby-progress" id="mastermind-lobby-progress" aria-live="polite">Question 1 / 1</span>
+      <span class="mastermind-lobby-timer" id="mastermind-lobby-timer" aria-live="polite" hidden></span>
+    </header>
+    <article class="mastermind-lobby-question" id="mastermind-lobby-question" aria-live="polite">
+      <p class="mastermind-lobby-question-text" id="mastermind-lobby-question-text"></p>
+      <img class="mastermind-lobby-question-image" id="mastermind-lobby-question-image" alt="" hidden>
+      <div class="mastermind-lobby-answer-region" id="mastermind-lobby-answer-region"></div>
+    </article>
+    <p class="mastermind-lobby-answer-status" id="mastermind-lobby-answer-status" role="status" aria-live="polite" hidden></p>
+    <div class="mastermind-lobby-button-row">
+      <button type="button" class="mastermind-lobby-button-primary" id="mastermind-lobby-submit-answer-button" name="mastermind_lobby_submit_answer_button">Lock in answer</button>
+    </div>
+  </section>
+
+  {# Final results --------------------------------------------------- #}
+  <section class="mastermind-lobby-state" data-state="completed" id="mastermind-lobby-completed" hidden>
+    <h2 class="mastermind-lobby-section-title">🏆 Final leaderboard</h2>
+    <ol class="mastermind-lobby-final-leaderboard" id="mastermind-lobby-final-leaderboard"></ol>
+  </section>
+
+  {# Persistent live leaderboard sidebar ----------------------------- #}
+  <aside class="mastermind-lobby-leaderboard" id="mastermind-lobby-leaderboard" aria-label="Live leaderboard">
+    <h2 class="mastermind-lobby-section-title">Leaderboard</h2>
+    <ol class="mastermind-lobby-leaderboard-list" id="mastermind-lobby-leaderboard-list" aria-live="polite"></ol>
+  </aside>
+
+  <p class="mastermind-lobby-error" id="mastermind-lobby-error" role="alert" hidden></p>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'mastermind/assets/js/lobby-player.js' %}" defer></script>
+{% endblock %}

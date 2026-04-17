@@ -199,7 +199,7 @@ def service_worker_js(request):
     concrete color values and cannot reference CSS variables.
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v712';
+var CACHE_NAME = 'amolnama-v713';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

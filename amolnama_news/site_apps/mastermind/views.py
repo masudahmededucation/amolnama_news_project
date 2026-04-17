@@ -1,11 +1,14 @@
-"""Mastermind views — public certificate verify page only.
+"""Mastermind views — public certificate verify + multiplayer player join page.
 
-Mastermind is a backend engine — no other public pages live here.
-The certificate page is the one exception: it's a public-by-design
-verification URL so anyone can check that a certificate is real.
+Mastermind is mostly a backend engine, but two surfaces live here:
+  - certificate_public_view  — share link for verifying issued certificates
+  - lobby_player_page        — /play/<join_code>/  player join + game UI
 """
+from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from django.views.decorators.cache import cache_control
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET
 
 
@@ -31,3 +34,34 @@ def certificate_public_view(request, certificate_serial):
         raise Http404('Certificate template missing.')
 
     return HttpResponse(rendered_html, content_type='text/html; charset=utf-8')
+
+
+@login_required
+@ensure_csrf_cookie
+def lobby_player_page(request, join_code):
+    """Player-side multiplayer page — render shell + bootstrap state.
+
+    The actual quiz flow runs over WebSocket. This view just hydrates the
+    page with the lobby's metadata so the JS can connect immediately.
+    """
+    from .lobby import get_lobby_state
+    state = get_lobby_state(join_code)
+    if 'error' in state:
+        raise Http404('Lobby not found or closed.')
+    return render(request, 'mastermind/pages/lobby_player.html', {
+        'lobby_state': state,
+        'lobby_state_json': _safe_json_dumps(state),
+        'join_code': join_code.upper(),
+        'seo': {
+            'title': f"{state.get('quiz_title_bn') or 'Live quiz'} — Live game",
+            'description': 'Live multiplayer quiz on Amolnama Mastermind.',
+        },
+    })
+
+
+def _safe_json_dumps(payload):
+    import json as _json
+    try:
+        return _json.dumps(payload, default=str, ensure_ascii=False)
+    except Exception:
+        return '{}'
