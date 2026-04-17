@@ -53,6 +53,7 @@ def _extract_queue_filters(request):
         'book_id': int(request.GET['book_id']) if request.GET.get('book_id', '').isdigit() else None,
         'confidence_level': request.GET.get('confidence_level') or None,
         'verdict_code': request.GET.get('verdict_code') or None,
+        'search_query': request.GET.get('search') or None,
     }
 
 
@@ -293,8 +294,9 @@ def api_coll_exam_clone(request, exam_id):
         return profile_error
 
     original_title_bn = exam.exam_title_bn or ''
-    cloned_title_bn = f'{original_title_bn} (copy)'
-    cloned_title_en = f'{exam.exam_title_en} (copy)' if exam.exam_title_en else None
+    # exam_title_bn is NVARCHAR(500). Truncate base to leave room for ' (copy)'.
+    cloned_title_bn = f'{original_title_bn[:493]} (copy)'
+    cloned_title_en = f'{(exam.exam_title_en or "")[:493]} (copy)' if exam.exam_title_en else None
 
     with transaction.atomic():
         clone = _clone_exam_atomic(exam, cloned_title_bn, cloned_title_en, user_profile_id, exam_id)
@@ -308,15 +310,20 @@ def api_coll_exam_clone(request, exam_id):
 
 def _clone_exam_atomic(exam, cloned_title_bn, cloned_title_en, user_profile_id, source_exam_id):
     """Inner clone helper — runs under transaction.atomic()."""
+    import uuid
     from amolnama_news.site_apps.mastermind.models import CollQuiz, MapQuizQuestionPool
     from amolnama_news.site_apps.core.utils import english_slug_from_text
     from django.utils import timezone
+
+    base_slug = english_slug_from_text(cloned_title_en, cloned_title_bn) or 'quiz'
+    # exam_slug is NVARCHAR(300). Reserve 10 chars for '-' + 8-char uuid suffix.
+    cloned_slug = f'{base_slug[:280]}-{uuid.uuid4().hex[:8]}'
 
     clone = CollQuiz(
         exam_title_bn=cloned_title_bn,
         exam_title_en=cloned_title_en,
         exam_description_bn=exam.exam_description_bn,
-        exam_slug=english_slug_from_text(cloned_title_en, cloned_title_bn) + f'-{int(timezone.now().timestamp())}',
+        exam_slug=cloned_slug,
         link_mastermind_coll_quiz_topic_id=exam.link_mastermind_coll_quiz_topic_id,
         link_mastermind_coll_book_id=exam.link_mastermind_coll_book_id,
         exam_total_questions=exam.exam_total_questions,
@@ -388,15 +395,33 @@ def api_coll_question_export_csv(request):
     topic_id = request.GET.get('topic_id')
     book_id = request.GET.get('book_id')
     status_code = request.GET.get('status_code')
+    question_type_id = request.GET.get('question_type_id')
+    difficulty_id = request.GET.get('difficulty_id')
+    source_code = request.GET.get('source_code')
+    search_query = (request.GET.get('q') or '').strip() or None
+
     if topic_id and topic_id.isdigit():
         filters['link_mastermind_coll_quiz_topic_id'] = int(topic_id)
     if book_id and book_id.isdigit():
         filters['link_mastermind_coll_book_id'] = int(book_id)
     if status_code and status_code in VALID_QUESTION_STATUS_CODES:
         filters['question_status_code'] = status_code
+    if question_type_id and question_type_id.isdigit():
+        filters['link_mastermind_ref_quiz_question_type_id'] = int(question_type_id)
+    if difficulty_id and difficulty_id.isdigit():
+        filters['link_mastermind_ref_quiz_difficulty_level_id'] = int(difficulty_id)
+    if source_code:
+        filters['question_generation_source_code'] = source_code
 
+    from django.db.models import Q
+    questions_queryset = CollQuestion.objects.filter(**filters)
+    if search_query:
+        questions_queryset = questions_queryset.filter(
+            Q(question_text_bn__icontains=search_query) |
+            Q(question_text_en__icontains=search_query)
+        )
     questions_queryset = (
-        CollQuestion.objects.filter(**filters)
+        questions_queryset
         .order_by('mastermind_coll_question_id')
         .values(
             'mastermind_coll_question_id', 'question_text_bn', 'question_text_en',

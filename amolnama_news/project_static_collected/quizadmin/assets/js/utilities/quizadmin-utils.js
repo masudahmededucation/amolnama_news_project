@@ -6,9 +6,16 @@
   'use strict';
 
   window.quizadminReadJson = function (elementId, fallback) {
+    var defaultValue = fallback !== undefined ? fallback : null;
     var node = document.getElementById(elementId);
-    if (!node) return (fallback !== undefined ? fallback : null);
-    try { return JSON.parse(node.textContent) || fallback; } catch { return fallback !== undefined ? fallback : null; }
+    if (!node) return defaultValue;
+    try {
+      var parsed = JSON.parse(node.textContent);
+      if (parsed === null || parsed === undefined || parsed === '') return defaultValue;
+      // If caller expects an array, ensure we return an array
+      if (Array.isArray(fallback) && !Array.isArray(parsed)) return defaultValue;
+      return parsed;
+    } catch { return defaultValue; }
   };
 
   window.quizadminShowInline = function (messageElement, text, tone) {
@@ -72,4 +79,14 @@
   };
 
   window.QUIZADMIN_BENGALI_LABELS = ['ক', 'খ', 'গ', 'ঘ', 'ঙ'];
+
+  window.quizadminEscapeHtml = function (value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  };
 })();

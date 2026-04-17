@@ -64,7 +64,7 @@
                  id="quizadmin-quiz-form-option-text-${uniqueToken}"
                  name="quizadmin_quiz_form_option_text_${uniqueToken}"
                  class="quizadmin-quiz-form-input quizadmin-quiz-form-option-text"
-                 placeholder="Option text (Bengali)" value="${(optionData.option_text_bn || '').replace(/"/g, '&quot;')}" required>
+                 placeholder="Option text (Bengali)" value="${window.quizadminEscapeHtml(optionData.option_text_bn || '')}" required>
           <label class="quizadmin-quiz-form-option-correct">
             <input type="checkbox"
                    id="quizadmin-quiz-form-option-is-correct-${uniqueToken}"
@@ -139,7 +139,7 @@
                  id="quizadmin-quiz-form-answer-text-${answerToken}"
                  name="quizadmin_quiz_form_answer_text_${answerToken}"
                  class="quizadmin-quiz-form-input quizadmin-quiz-form-answer-text"
-                 value="${initial.replace(/"/g, '&quot;')}">
+                 value="${window.quizadminEscapeHtml(initial)}">
         </label>
       `;
     } else if (questionTypeCode === 'matching') {
@@ -157,9 +157,9 @@
         var row = document.createElement('div');
         row.className = 'quizadmin-quiz-form-match-pair-row';
         var token = window.quizadminGenerateToken();
-        row.innerHTML = '<input type="text" id="quizadmin-match-stem-' + token + '" name="quizadmin_match_stem_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-stem" placeholder="Stem (left side)" value="' + ((pairData.stem_text_bn || '').replace(/"/g, '&quot;')) + '">' +
+        row.innerHTML = '<input type="text" id="quizadmin-match-stem-' + token + '" name="quizadmin_match_stem_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-stem" placeholder="Stem (left side)" value="' + window.quizadminEscapeHtml(pairData.stem_text_bn || '') + '">' +
           '<span class="quizadmin-quiz-form-match-arrow">→</span>' +
-          '<input type="text" id="quizadmin-match-response-' + token + '" name="quizadmin_match_response_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-response" placeholder="Response (right side)" value="' + ((pairData.response_text_bn || '').replace(/"/g, '&quot;')) + '">' +
+          '<input type="text" id="quizadmin-match-response-' + token + '" name="quizadmin_match_response_' + token + '" class="quizadmin-quiz-form-input quizadmin-quiz-form-match-response" placeholder="Response (right side)" value="' + window.quizadminEscapeHtml(pairData.response_text_bn || '') + '">' +
           '<button type="button" id="quizadmin-match-remove-' + token + '" name="quizadmin_match_remove_' + token + '" class="quizadmin-quiz-form-option-remove" aria-label="Remove pair">✕</button>';
         row.querySelector('.quizadmin-quiz-form-option-remove').addEventListener('click', function () { row.remove(); });
         return row;
@@ -192,16 +192,16 @@
 
     const questionTypeOptionsHtml = questionTypes.map((type) =>
       `<option value="${type.mastermind_ref_quiz_question_type_id}"
-               data-code="${type.question_type_code}"
+               data-code="${window.quizadminEscapeHtml(type.question_type_code)}"
                ${type.mastermind_ref_quiz_question_type_id === currentTypeId ? 'selected' : ''}>
-         ${type.question_type_name_bn} (${type.question_type_name_en || ''})
+         ${window.quizadminEscapeHtml(type.question_type_name_bn)} (${window.quizadminEscapeHtml(type.question_type_name_en || '')})
        </option>`,
     ).join('');
 
     const difficultyOptionsHtml = difficultyLevels.map((level) =>
       `<option value="${level.mastermind_ref_quiz_difficulty_level_id}"
                ${data.link_mastermind_ref_quiz_difficulty_level_id === level.mastermind_ref_quiz_difficulty_level_id ? 'selected' : ''}>
-         ${level.difficulty_name_bn}
+         ${window.quizadminEscapeHtml(level.difficulty_name_bn)}
        </option>`,
     ).join('');
 
@@ -226,7 +226,7 @@
         <span class="quizadmin-quiz-form-label">Question text (Bengali) *</span>
         <textarea id="quizadmin-quiz-form-question-text-bn-${questionToken}"
                   name="quizadmin_quiz_form_question_text_bn_${questionToken}"
-                  class="quizadmin-quiz-form-textarea quizadmin-quiz-form-question-text-bn" rows="2" required>${(data.question_text_bn || '').replace(/</g, '&lt;')}</textarea>
+                  class="quizadmin-quiz-form-textarea quizadmin-quiz-form-question-text-bn" rows="2" required>${window.quizadminEscapeHtml(data.question_text_bn || '')}</textarea>
       </label>
 
       <div class="quizadmin-quiz-form-row">
@@ -236,7 +236,7 @@
                  id="quizadmin-quiz-form-question-image-url-${questionToken}"
                  name="quizadmin_quiz_form_question_image_url_${questionToken}"
                  class="quizadmin-quiz-form-input quizadmin-quiz-form-question-image-url"
-                 value="${(data.question_image_url || '').replace(/"/g, '&quot;')}"
+                 value="${window.quizadminEscapeHtml(data.question_image_url || '')}"
                  placeholder="https://example.com/image.png">
         </label>
         <label class="quizadmin-quiz-form-field">
@@ -255,7 +255,7 @@
         <span class="quizadmin-quiz-form-label">Explanation (optional)</span>
         <textarea id="quizadmin-quiz-form-question-explanation-${questionToken}"
                   name="quizadmin_quiz_form_question_explanation_${questionToken}"
-                  class="quizadmin-quiz-form-textarea quizadmin-quiz-form-question-explanation" rows="2">${(data.question_explanation_bn || '').replace(/</g, '&lt;')}</textarea>
+                  class="quizadmin-quiz-form-textarea quizadmin-quiz-form-question-explanation" rows="2">${window.quizadminEscapeHtml(data.question_explanation_bn || '')}</textarea>
       </label>
     `;
 

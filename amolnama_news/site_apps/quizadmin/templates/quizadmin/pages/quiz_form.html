@@ -205,7 +205,7 @@
 {% block quizadmin_js %}
 {{ question_types|json_script:"quizadmin-question-types" }}
 {{ difficulty_levels|json_script:"quizadmin-difficulty-levels" }}
-{{ quiz.questions|default:''|json_script:"quizadmin-existing-questions" }}
+{{ quiz.questions|default_if_none:''|json_script:"quizadmin-existing-questions" }}
 <script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
 <script src="{% static 'quizadmin/assets/js/pages/page-quiz-form.js' %}" defer></script>
 {% endblock %}

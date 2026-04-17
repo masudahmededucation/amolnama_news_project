@@ -103,7 +103,7 @@
 
       <span class="quizadmin-question-bank-spacer"></span>
 
-      <a href="/quizadmin/api/question/export-csv/?topic_id={{ active_filters.topic_id|default:'' }}&book_id={{ active_filters.book_id|default:'' }}&status_code={{ active_filters.status_code|default:'' }}"
+      <a href="/quizadmin/api/question/export-csv/?q={{ active_filters.q|default:''|urlencode }}&topic_id={{ active_filters.topic_id|default:''|urlencode }}&book_id={{ active_filters.book_id|default:''|urlencode }}&status_code={{ active_filters.status_code|default:''|urlencode }}&question_type_id={{ active_filters.question_type_id|default:''|urlencode }}&difficulty_id={{ active_filters.difficulty_id|default:''|urlencode }}&source_code={{ active_filters.source_code|default:''|urlencode }}"
          class="quizadmin-question-bank-export-link" id="quizadmin-export-csv" name="quizadmin_export_csv">Export CSV</a>
 
       <button type="button" id="quizadmin-import-csv-trigger" name="quizadmin_import_csv_trigger" class="quizadmin-question-bank-import-button">Import CSV</button>

@@ -30,7 +30,7 @@
       <span class="quizadmin-question-form-option-label">${label}</span>
       <input type="text" id="option_${optionIndex}_text_bn" name="option_${optionIndex}_text_bn"
              class="quizadmin-question-form-input quizadmin-question-form-option-input"
-             placeholder="Option text (Bengali)" value="${(optionData.option_text_bn || '').replace(/"/g, '&quot;')}" required>
+             placeholder="Option text (Bengali)" value="${window.quizadminEscapeHtml(optionData.option_text_bn || '')}" required>
       <label class="quizadmin-question-form-option-correct">
         <input type="checkbox" id="option_${optionIndex}_is_correct" name="option_${optionIndex}_is_correct" ${optionData.is_correct ? 'checked' : ''}>
         <span>Correct</span>

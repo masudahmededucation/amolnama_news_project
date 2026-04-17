@@ -126,7 +126,9 @@ don't touch other things.
 all attributes should have its id and name.
 
 
---check for bugs
+--Run exhaustive bug scan across all categories
+without removing functionality, features, and messing up 
+including followings
 check for bugs, bad code, broken code, illegal code, dead code.
 sql injection risk.
 remove duplicates.

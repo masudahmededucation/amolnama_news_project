@@ -63,7 +63,8 @@ def staff_or_quiz_creator_required(view_function):
     def wrapper(request, *args, **kwargs):
         if is_staff_or_quiz_creator(request):
             return view_function(request, *args, **kwargs)
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        # API endpoints always return JSON 403; browsers handle the rest
+        if request.path.startswith('/quizadmin/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
             return JsonResponse({'error': 'Quiz creator access required.'}, status=403)
         if not request.user.is_authenticated:
             return redirect(f'/account/login/?next={request.path}')
@@ -343,10 +344,14 @@ def build_review_question_context(question_id):
         .filter(mastermind_coll_question_id=question_id, is_active=True)
         .values(
             'mastermind_coll_question_id',
-            'question_text_bn',
-            'question_explanation_bn',
+            'question_text_bn', 'question_text_en',
+            'question_explanation_bn', 'question_hint_bn',
+            'question_image_url', 'question_points',
+            'question_time_limit_seconds', 'question_negative_marking_points',
             'question_status_code',
             'question_generation_source_code',
+            'link_mastermind_ref_quiz_question_type_id',
+            'link_mastermind_ref_quiz_difficulty_level_id',
             'nli_verdict_code',
             'nli_confidence_level_code',
             'nli_similarity_score',
