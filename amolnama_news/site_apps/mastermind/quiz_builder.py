@@ -124,6 +124,8 @@ def create_quiz_with_questions(payload, user_profile_id=None):
             ),
             exam_allow_review=bool(payload.get('exam_allow_review', True)),
             exam_max_attempts=payload.get('exam_max_attempts') or None,
+            exam_proctoring_level=int(payload.get('exam_proctoring_level') or 0),
+            exam_proctoring_max_score=payload.get('exam_proctoring_max_score') or None,
             exam_rewards_enabled=bool(payload.get('exam_rewards_enabled', False)),
             exam_reward_criteria_code=(
                 payload.get('exam_reward_criteria_code') or None
@@ -218,6 +220,8 @@ def update_quiz_with_questions(exam_id, payload, user_profile_id=None):
             ),
             exam_allow_review=bool(payload.get('exam_allow_review', exam.exam_allow_review)),
             exam_max_attempts=payload.get('exam_max_attempts') or None,
+            exam_proctoring_level=int(payload.get('exam_proctoring_level') or exam.exam_proctoring_level or 0),
+            exam_proctoring_max_score=payload.get('exam_proctoring_max_score') or None,
             exam_rewards_enabled=bool(payload.get('exam_rewards_enabled', False)),
             exam_reward_criteria_code=(
                 payload.get('exam_reward_criteria_code') or None

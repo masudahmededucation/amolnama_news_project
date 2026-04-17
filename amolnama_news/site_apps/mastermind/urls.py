@@ -51,4 +51,7 @@ urlpatterns = [
 
     # Readiness gauge
     path('api/readiness/', views_api.api_readiness_gauge, name='api_readiness_gauge'),
+
+    # Proctoring (Phase 1: lockdown event logging)
+    path('api/proctoring/log-violation/', views_api.api_proctoring_log_violation, name='api_proctoring_log_violation'),
 ]

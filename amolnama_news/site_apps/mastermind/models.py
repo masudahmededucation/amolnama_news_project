@@ -294,6 +294,10 @@ class CollQuiz(models.Model):
     exam_scheduled_publish_at = models.DateTimeField(null=True, blank=True)
     exam_scheduled_close_at = models.DateTimeField(null=True, blank=True)
 
+    # Proctoring (Phase 1 = lockdown, Phase 2 = full AI)
+    exam_proctoring_level = models.IntegerField(default=0)
+    exam_proctoring_max_score = models.IntegerField(null=True, blank=True)
+
     # Rewards (V1 — nullable so legacy exams without rewards still work)
     exam_rewards_enabled = models.BooleanField(default=False)
     exam_reward_criteria_code = models.CharField(max_length=20, null=True, blank=True)
@@ -359,6 +363,10 @@ class CollQuizSession(models.Model):
     session_time_taken_seconds = models.IntegerField(null=True, blank=True)
     session_is_passed = models.BooleanField(null=True, blank=True)
     session_attempt_number = models.IntegerField(default=1)
+
+    # Proctoring (cached running score + status)
+    session_proctoring_score = models.IntegerField(default=0)
+    session_proctoring_status_code = models.CharField(max_length=20, default='clean')
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -737,3 +745,35 @@ class CollQuizSourceRegistry(models.Model):
     class Meta:
         managed = False
         db_table = '[mastermind].[coll_quiz_source_registry]'
+
+
+class CollQuizProctoringLog(models.Model):
+    """One row per behavioral violation during a proctored quiz session.
+
+    ZERO IMAGES policy: stores only discrete text events (tab_switch, no_face,
+    phone_detected, etc.). All AI runs client-side in the browser via
+    MediaPipe; only text events cross the network. NEVER stores video,
+    snapshots, or biometric data.
+    """
+    mastermind_coll_quiz_proctoring_log_id = models.BigAutoField(primary_key=True)
+    link_mastermind_coll_quiz_session_id = models.BigIntegerField()
+    link_user_profile_id = models.BigIntegerField()
+    link_mastermind_coll_quiz_id = models.BigIntegerField()
+
+    violation_type_code = models.CharField(max_length=50)
+    violation_severity_points = models.IntegerField(default=1)
+    violation_details = models.CharField(max_length=500, null=True, blank=True)
+    violation_confidence_score = models.DecimalField(
+        max_digits=4, decimal_places=2, null=True, blank=True,
+    )
+    violation_client_reported_at = models.DateTimeField(null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    forgiven_at = models.DateTimeField(null=True, blank=True)
+    link_forgiven_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = '[mastermind].[coll_quiz_proctoring_log]'

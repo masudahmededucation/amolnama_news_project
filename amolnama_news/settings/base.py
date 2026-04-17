@@ -268,3 +268,20 @@ LOGOUT_REDIRECT_URL = "/"
 # Secure cookies toggled by env modules
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+# Mastermind quiz proctoring
+PROCTORING_GLOBAL_THRESHOLD = env.int("PROCTORING_GLOBAL_THRESHOLD", default=15)
+PROCTORING_SEVERITY_POINTS = {
+    'tab_switch':       5,
+    'window_blur':      3,
+    'copy_blocked':     2,
+    'paste_blocked':    2,
+    'context_menu':     1,
+    'fullscreen_exit':  4,
+    'key_blocked':      1,
+    'no_face':          2,
+    'multiple_faces':   8,
+    'look_away':        1,
+    'phone_detected':  10,
+    'audio_detected':   3,
+}

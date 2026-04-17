@@ -578,6 +578,7 @@ def get_quiz_form_context(exam_id=None):
             'exam_show_explanation_code', 'exam_allow_review',
             'exam_max_attempts',
             'exam_scheduled_publish_at', 'exam_scheduled_close_at',
+            'exam_proctoring_level', 'exam_proctoring_max_score',
             'exam_rewards_enabled', 'exam_reward_criteria_code',
             'exam_reward_threshold_percent', 'exam_reward_top_n',
             'link_reward_badge_id', 'exam_reward_description',

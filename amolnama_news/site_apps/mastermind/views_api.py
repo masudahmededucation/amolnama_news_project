@@ -836,3 +836,67 @@ def api_review_question_action(request):
     if 'error' in result:
         return JsonResponse(result, status=400)
     return JsonResponse(result)
+
+
+# ================================================================
+# Proctoring (Phase 1: lockdown event logging)
+# ================================================================
+
+@login_required
+@require_POST
+def api_proctoring_log_violation(request):
+    """Log a single proctoring violation from a quiz session.
+
+    Expected JSON body:
+        {
+            "session_id": 123,
+            "quiz_id": 45,
+            "violation_type_code": "tab_switch",
+            "violation_details": "switched to mail tab",     // optional
+            "violation_confidence_score": 0.92,               // optional (AI events only)
+            "violation_client_reported_at": "2026-04-17T15:30:00"  // optional
+        }
+    Returns the new running score, status, and whether the threshold was just crossed.
+    """
+    import json as _json
+    from .proctoring import log_violation
+
+    try:
+        payload = _json.loads(request.body or b'{}')
+    except _json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+    if not isinstance(payload, dict):
+        return JsonResponse({'error': 'JSON root must be an object.'}, status=400)
+
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=400)
+
+    session_id = payload.get('session_id')
+    quiz_id = payload.get('quiz_id')
+    if not (isinstance(session_id, int) and isinstance(quiz_id, int)):
+        return JsonResponse({'error': 'session_id and quiz_id must be integers.'}, status=400)
+
+    # Verify the session belongs to the calling user (prevent IDOR)
+    from .models import CollQuizSession
+    session_owner = (
+        CollQuizSession.objects
+        .filter(mastermind_coll_quiz_session_id=session_id)
+        .values_list('link_user_profile_id', flat=True)
+        .first()
+    )
+    if session_owner != user_profile_id:
+        return JsonResponse({'error': 'Session does not belong to user.'}, status=403)
+
+    result = log_violation(
+        session_id=session_id,
+        user_profile_id=user_profile_id,
+        quiz_id=quiz_id,
+        violation_type_code=(payload.get('violation_type_code') or '').strip().lower(),
+        details=payload.get('violation_details'),
+        confidence_score=payload.get('violation_confidence_score'),
+        client_reported_at=payload.get('violation_client_reported_at'),
+    )
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)

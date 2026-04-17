@@ -425,6 +425,8 @@
       exam_allow_review: readBooleanValue('exam_allow_review'),
       exam_scheduled_publish_at: readStringValue('exam_scheduled_publish_at') || null,
       exam_scheduled_close_at: readStringValue('exam_scheduled_close_at') || null,
+      exam_proctoring_level: readIntegerValue('exam_proctoring_level') || 0,
+      exam_proctoring_max_score: readIntegerValue('exam_proctoring_max_score'),
       exam_rewards_enabled: readBooleanValue('exam_rewards_enabled'),
       exam_reward_criteria_code: readStringValue('exam_reward_criteria_code'),
       exam_reward_threshold_percent: readFloatValue('exam_reward_threshold_percent'),
