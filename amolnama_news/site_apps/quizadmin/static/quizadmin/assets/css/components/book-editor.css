@@ -110,7 +110,7 @@
   font-size: var(--text-lg);
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   line-height: 1.3;
 }
 
@@ -142,7 +142,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
 }
 
 .quizadmin-book-card-actions {
@@ -198,7 +198,7 @@
   font-size: var(--text-lg);
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
 }
 
 .quizadmin-book-create-card-body {
@@ -245,7 +245,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-elevated, var(--surface));
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: var(--text-sm);
   line-height: 1.6;
@@ -395,7 +395,7 @@
   font-size: var(--text-base);
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
 }
 
 .quizadmin-book-editor-chapter-list {
@@ -454,7 +454,7 @@
 
 .quizadmin-book-editor-chapter-row-action:hover {
   background: var(--surface);
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   border-color: var(--border);
 }
 
@@ -488,7 +488,7 @@
   text-align: left;
   cursor: pointer;
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   min-height: var(--touch-target);
   touch-action: manipulation;
   transition: background var(--duration-fast), border-color var(--duration-fast);
@@ -565,7 +565,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface-elevated, var(--surface));
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: var(--text-sm);
   line-height: 1.6;
@@ -661,7 +661,7 @@
   font-size: var(--text-base);
   font-weight: 700;
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
 }
 
 .quizadmin-book-editor-metadata-form {
@@ -742,7 +742,7 @@
 .quizadmin-needs-edit-question-link {
   display: block;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   text-decoration: none;
   line-height: 1.4;
   min-height: var(--touch-target);

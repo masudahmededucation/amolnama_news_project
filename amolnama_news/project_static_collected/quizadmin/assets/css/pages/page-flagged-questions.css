@@ -65,7 +65,7 @@
 .quizadmin-flagged-question-link {
   display: block;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   text-decoration: none;
   line-height: 1.4;
   min-height: var(--touch-target);
@@ -85,7 +85,7 @@
 .quizadmin-flagged-note-cell {
   max-width: 320px;
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--text-primary, var(--text, #1a1a1a));
   line-height: 1.5;
 }
 
