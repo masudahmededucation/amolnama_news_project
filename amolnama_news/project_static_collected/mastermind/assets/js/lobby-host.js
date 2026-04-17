@@ -44,24 +44,12 @@
   var copyButton = document.getElementById('mastermind-lobby-host-copy-button');
   var errorElement = document.getElementById('mastermind-lobby-error');
 
-  function _escapeHtml(text) {
-    var helperDiv = document.createElement('div');
-    helperDiv.textContent = text == null ? '' : String(text);
-    return helperDiv.innerHTML;
-  }
-
-  function _showState(stateName) {
-    [waitingSection, playingSection, completedSection].forEach(function (section) {
-      if (!section) return;
-      section.hidden = section.dataset.state !== stateName;
-    });
-  }
-
-  function _setError(message) {
-    if (!errorElement) return;
-    errorElement.textContent = message || '';
-    errorElement.hidden = !message;
-  }
+  // Shared module — single source of truth for utility helpers + WS transport.
+  // See mastermind/static/mastermind/assets/js/lobby-shared.js
+  var sharedLobby = window.mastermindLobbyShared || {};
+  function _setError(message) { sharedLobby.setError && sharedLobby.setError(errorElement, message); }
+  function _showState(stateName) { sharedLobby.showState && sharedLobby.showState(rootElement, stateName); }
+  // _escapeHtml not used directly here — sharedLobby renderers handle escaping.
 
   // Build absolute share URL based on current host
   if (shareUrlEl) {
@@ -80,36 +68,23 @@
   }
 
   function _connect() {
-    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    var url = protocol + '//' + window.location.host + '/ws/mastermind/lobby/' + lobbyId + '/';
-    var socket = new WebSocket(url);
-    state.socket = socket;
-    socket.onopen = function () { _setError(''); };
-    socket.onclose = function () { setTimeout(_connect, 2000); };
-    socket.onmessage = function (websocketEvent) {
-      var serverMessage;
-      try { serverMessage = JSON.parse(websocketEvent.data); } catch (parseError) { return; }
-      if (serverMessage.type === 'lobby_state') {
-        _applyState(serverMessage.state);
-      } else if (serverMessage.type === 'error') {
-        _setError(serverMessage.message || 'Unknown error.');
-      }
-    };
+    state.socket = sharedLobby.connectWebSocket({
+      lobbyId: lobbyId,
+      onOpen: function () { _setError(''); },
+      onMessage: function (serverMessage) {
+        if (serverMessage.type === 'lobby_state') _applyState(serverMessage.state);
+        else if (serverMessage.type === 'error') _setError(serverMessage.message || 'Unknown error.');
+      },
+    });
   }
 
   function _send(payload) {
-    if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+    sharedLobby.sendWebSocketMessage(state.socket, payload, function () {
       _setError('Not connected. Retrying…');
-      return;
-    }
-    state.socket.send(JSON.stringify(payload));
+    });
   }
 
-  function _playSfx(eventCode) {
-    if (window.mastermindLobbySfx && typeof window.mastermindLobbySfx.play === 'function') {
-      window.mastermindLobbySfx.play(eventCode);
-    }
-  }
+  function _playSfx(eventCode) { sharedLobby.playSfx && sharedLobby.playSfx(eventCode); }
 
   var previousStatusCode = null;
   var previousQuestionIndex = null;
@@ -157,51 +132,30 @@
   }
 
   function _renderRoster(players) {
-    if (playerCountEl) playerCountEl.textContent = String(players.filter(function (p) { return !p.player_has_left; }).length);
-    if (!playerListEl) return;
-    playerListEl.innerHTML = players.map(function (player) {
-      var ready = player.player_is_ready ? '<span class="mastermind-lobby-player-ready">✅ ready</span>' : '<span class="mastermind-lobby-player-left">not ready</span>';
-      var left = player.player_has_left ? '<span class="mastermind-lobby-player-left">left</span>' : '';
-      return '<li class="mastermind-lobby-player-item">' +
-        '<span class="mastermind-lobby-player-name">' + _escapeHtml(player.display_name || ('Player #' + player.link_user_profile_id)) + '</span>' +
-        ready + left +
-        '</li>';
-    }).join('');
+    if (playerCountEl) {
+      playerCountEl.textContent = String(
+        players.filter(function (player) { return !player.player_has_left; }).length
+      );
+    }
+    sharedLobby.renderRoster(playerListEl, players, { showNotReadyBadge: true });
   }
 
   function _renderLeaderboard(leaderboard) {
-    if (!leaderboardListEl) return;
-    leaderboardListEl.innerHTML = leaderboard.slice(0, 10).map(function (entry, index) {
-      return '<li class="mastermind-lobby-leaderboard-item">' +
-        '<span class="mastermind-lobby-leaderboard-rank">' + (index + 1) + '.</span>' +
-        '<span class="mastermind-lobby-leaderboard-name">' + _escapeHtml(entry.display_name || ('#' + entry.link_user_profile_id)) + '</span>' +
-        '<span class="mastermind-lobby-leaderboard-score">' + (entry.player_current_score || 0).toFixed(1) + '</span>' +
-        '</li>';
-    }).join('');
+    sharedLobby.renderLeaderboard(leaderboardListEl, leaderboard, 10);
   }
 
   function _renderFinalLeaderboard(leaderboard) {
-    if (!finalLeaderboardEl) return;
-    finalLeaderboardEl.innerHTML = leaderboard.map(function (entry, index) {
-      var medal = ['🥇', '🥈', '🥉'][index] || '';
-      return '<li class="mastermind-lobby-final-row">' +
-        '<span class="mastermind-lobby-final-medal">' + medal + (index + 1) + '.</span>' +
-        '<span class="mastermind-lobby-final-name">' + _escapeHtml(entry.display_name || ('#' + entry.link_user_profile_id)) + '</span>' +
-        '<span class="mastermind-lobby-final-score">' + (entry.player_current_score || 0).toFixed(1) + ' pts</span>' +
-        '<span class="mastermind-lobby-final-correct">' + (entry.player_correct_count || 0) + ' correct</span>' +
-        '</li>';
-    }).join('');
+    sharedLobby.renderFinalLeaderboard(finalLeaderboardEl, leaderboard);
   }
 
   function _renderQuestion(serverState) {
     var question = serverState.current_question;
     if (!question) return;
     progressEl.textContent = 'Question ' + (serverState.current_question_index + 1) + ' / ' + serverState.total_questions;
-    if (progressFillEl && progressTrackEl && serverState.total_questions > 0) {
-      var completedPercent = Math.round(((serverState.current_question_index + 1) / serverState.total_questions) * 100);
-      progressFillEl.style.width = completedPercent + '%';
-      progressTrackEl.setAttribute('aria-valuenow', String(completedPercent));
-    }
+    sharedLobby.updateProgressBar(
+      progressTrackEl, progressFillEl,
+      serverState.current_question_index, serverState.total_questions,
+    );
     questionTextEl.textContent = question.question_text_bn || question.question_text_en || '';
 
     if (serverState.question_seconds) {

@@ -540,3 +540,32 @@ SQL SCRIPT RUN ORDER (this session)
     - Elevation-3 shadow on mobile for legibility above scrolling content
 
 Cache bumped to v717.
+
+================================================================
+2026-04-17 (later) — Lobby JS modularisation pass
+================================================================
+
+EXTRACTED SHARED MODULE
+  New: mastermind/static/mastermind/assets/js/lobby-shared.js
+  Exposes window.mastermindLobbyShared.{escapeHtml, setError, showState,
+    connectWebSocket, sendWebSocketMessage, playSfx,
+    renderLeaderboard, renderFinalLeaderboard, renderRoster, updateProgressBar}
+  Loaded BEFORE lobby-host.js + lobby-player.js in both templates.
+
+BEFORE → AFTER
+  - lobby-host.js + lobby-player.js had ~170 lines of duplicated helpers
+    (escapeHtml, setError, showState, connect/send WebSocket, playSfx wrapper,
+    leaderboard / final-leaderboard / roster renderers, progress bar update)
+  - Now both files have ~1-line wrappers delegating to the shared module.
+  - Net: ~30 lines per consumer instead of ~170 — single source of truth,
+    drift-free, easier to test.
+
+KNOWN REMAINING DUPLICATION (deferred)
+  Question-type renderers (_renderRadioGroup / _renderCheckboxGroup /
+  _renderFillBlank / _renderTextarea / _renderOrdering / _renderMatching)
+  are duplicated between lobby-player.js (added today) and quiz-take.js
+  (pre-existing, 4 production consumers). Extracting these would require
+  restructuring closure-captured state — deferred to a separate session
+  to avoid risk to the 4 quiz-take consumers.
+
+Cache bumped to v718.

@@ -224,6 +224,30 @@ Pattern (mastermind/static/mastermind/assets/js/lobby-sfx.js):
     lobby-host.js with one line each, no duplication).
 Location: mastermind/static/mastermind/assets/js/lobby-sfx.js.
 
+### R23. Modularising shared lobby JS — host + player + shared module pattern
+Date: 2026-04-17
+Was: lobby-host.js and lobby-player.js were each defining identical
+  _escapeHtml, _setError, _showState, _connect, _send, _playSfx,
+  _renderRoster, _renderLeaderboard, _renderFinalLeaderboard, plus an inline
+  progress-bar update — about 170 lines of cross-file duplication.
+Fix: Created mastermind/static/mastermind/assets/js/lobby-shared.js exposing
+  window.mastermindLobbyShared.{escapeHtml, setError, showState,
+  connectWebSocket, sendWebSocketMessage, playSfx, renderLeaderboard,
+  renderFinalLeaderboard, renderRoster, updateProgressBar}.
+  Both consumers now keep ~1-line wrappers that delegate to the shared module
+  (so the local API surface stays consistent), but the implementation is one
+  source of truth. Loaded BEFORE the consumer scripts via
+  <script src="lobby-shared.js" defer>.
+Known remaining duplication (out of scope for this pass): the question-type
+  renderers (_renderRadioGroup, _renderCheckboxGroup, _renderFillBlank,
+  _renderTextarea, _renderOrdering, _renderMatching) are duplicated between
+  lobby-player.js (added today) and quiz-take.js (pre-existing, 4 production
+  consumers). Extracting these would require restructuring how closure state
+  is captured — deferred to a separate refactor session.
+Location: mastermind/static/mastermind/assets/js/lobby-shared.js,
+          mastermind/static/mastermind/assets/js/lobby-host.js,
+          mastermind/static/mastermind/assets/js/lobby-player.js.
+
 ### R22. Floating action buttons need fixed positioning on mobile
 Date: 2026-04-17
 Was: SFX-toggle button on the host lobby page was position:absolute at top-right

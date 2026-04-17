@@ -55,77 +55,43 @@
   var answerStatus = document.getElementById('mastermind-lobby-answer-status');
   var submitAnswerButton = document.getElementById('mastermind-lobby-submit-answer-button');
 
-  // --- helpers ----------------------------------------------------
-  function _escapeHtml(text) {
-    var helperDiv = document.createElement('div');
-    helperDiv.textContent = text == null ? '' : String(text);
-    return helperDiv.innerHTML;
-  }
-
-  function _setError(message) {
-    if (!state.errorElement) return;
-    state.errorElement.textContent = message || '';
-    state.errorElement.hidden = !message;
-  }
-
+  // --- helpers (single source of truth in lobby-shared.js) ----------
+  var sharedLobby = window.mastermindLobbyShared || {};
+  function _escapeHtml(text) { return sharedLobby.escapeHtml ? sharedLobby.escapeHtml(text) : String(text || ''); }
+  function _setError(message) { sharedLobby.setError && sharedLobby.setError(state.errorElement, message); }
+  function _showState(stateName) { sharedLobby.showState && sharedLobby.showState(rootElement, stateName); }
   function _setStatus(text) {
     if (state.statusElement) state.statusElement.textContent = text;
   }
 
-  function _showState(stateName) {
-    [waitingSection, playingSection, completedSection].forEach(function (section) {
-      if (!section) return;
-      section.hidden = section.dataset.state !== stateName;
+  // --- websocket (transport via lobby-shared.js) -------------------
+  function _connect() {
+    if (state.socket && state.socket.readyState === WebSocket.OPEN) return;
+    state.socket = sharedLobby.connectWebSocket({
+      lobbyId: lobbyId,
+      onOpen: function () { _setStatus('Connected'); _setError(''); },
+      onClose: function () { _setStatus('Disconnected — retrying…'); },
+      onError: function () { _setStatus('Connection error'); },
+      onMessage: function (serverMessage) {
+        if (serverMessage.type === 'lobby_state') {
+          _applyState(serverMessage.state);
+        } else if (serverMessage.type === 'answer_result') {
+          _showAnswerResult(serverMessage);
+          _applyState(serverMessage.state);
+        } else if (serverMessage.type === 'error') {
+          _setError(serverMessage.message || 'Unknown error.');
+        }
+      },
     });
   }
 
-  // --- websocket --------------------------------------------------
-  function _connect() {
-    if (state.socket && state.socket.readyState === WebSocket.OPEN) return;
-    var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    var url = protocol + '//' + window.location.host + '/ws/mastermind/lobby/' + lobbyId + '/';
-    var socket = new WebSocket(url);
-    state.socket = socket;
-
-    socket.onopen = function () {
-      _setStatus('Connected');
-      _setError('');
-    };
-    socket.onclose = function () {
-      _setStatus('Disconnected — retrying…');
-      setTimeout(_connect, 2000);
-    };
-    socket.onerror = function () {
-      _setStatus('Connection error');
-    };
-    socket.onmessage = function (websocketEvent) {
-      var serverMessage;
-      try { serverMessage = JSON.parse(websocketEvent.data); } catch (parseError) { return; }
-      if (serverMessage.type === 'lobby_state') {
-        _applyState(serverMessage.state);
-      } else if (serverMessage.type === 'answer_result') {
-        _showAnswerResult(serverMessage);
-        _applyState(serverMessage.state);
-      } else if (serverMessage.type === 'error') {
-        _setError(serverMessage.message || 'Unknown error.');
-      }
-    };
-  }
-
   function _send(payload) {
-    if (!state.socket || state.socket.readyState !== WebSocket.OPEN) {
+    sharedLobby.sendWebSocketMessage(state.socket, payload, function () {
       _setError('Not connected. Retrying…');
-      return;
-    }
-    state.socket.send(JSON.stringify(payload));
+    });
   }
 
-  // --- sound-effects helper (no-op when window.mastermindLobbySfx absent) ---
-  function _playSfx(eventCode) {
-    if (window.mastermindLobbySfx && typeof window.mastermindLobbySfx.play === 'function') {
-      window.mastermindLobbySfx.play(eventCode);
-    }
-  }
+  function _playSfx(eventCode) { sharedLobby.playSfx && sharedLobby.playSfx(eventCode); }
 
   // --- state application ------------------------------------------
   var previousStatusCode = null;
@@ -165,39 +131,15 @@
 
   function _renderRoster(players) {
     if (playerCountEl) playerCountEl.textContent = String(players.length);
-    if (!playerListEl) return;
-    playerListEl.innerHTML = players.map(function (player) {
-      var readyBadge = player.player_is_ready ? '<span class="mastermind-lobby-player-ready">✅ ready</span>' : '';
-      var leftBadge = player.player_has_left ? '<span class="mastermind-lobby-player-left">left</span>' : '';
-      return '<li class="mastermind-lobby-player-item">' +
-        '<span class="mastermind-lobby-player-name">' + _escapeHtml(player.display_name || ('Player #' + player.link_user_profile_id)) + '</span>' +
-        readyBadge + leftBadge +
-        '</li>';
-    }).join('');
+    sharedLobby.renderRoster(playerListEl, players, { showNotReadyBadge: false });
   }
 
   function _renderLeaderboard(leaderboard) {
-    if (!leaderboardListEl) return;
-    leaderboardListEl.innerHTML = leaderboard.slice(0, 10).map(function (entry, index) {
-      return '<li class="mastermind-lobby-leaderboard-item">' +
-        '<span class="mastermind-lobby-leaderboard-rank">' + (index + 1) + '.</span>' +
-        '<span class="mastermind-lobby-leaderboard-name">' + _escapeHtml(entry.display_name || ('#' + entry.link_user_profile_id)) + '</span>' +
-        '<span class="mastermind-lobby-leaderboard-score">' + (entry.player_current_score || 0).toFixed(1) + '</span>' +
-        '</li>';
-    }).join('');
+    sharedLobby.renderLeaderboard(leaderboardListEl, leaderboard, 10);
   }
 
   function _renderFinalLeaderboard(leaderboard) {
-    if (!finalLeaderboardEl) return;
-    finalLeaderboardEl.innerHTML = leaderboard.map(function (entry, index) {
-      var medal = ['🥇', '🥈', '🥉'][index] || '';
-      return '<li class="mastermind-lobby-final-row">' +
-        '<span class="mastermind-lobby-final-medal">' + medal + (index + 1) + '.</span>' +
-        '<span class="mastermind-lobby-final-name">' + _escapeHtml(entry.display_name || ('#' + entry.link_user_profile_id)) + '</span>' +
-        '<span class="mastermind-lobby-final-score">' + (entry.player_current_score || 0).toFixed(1) + ' pts</span>' +
-        '<span class="mastermind-lobby-final-correct">' + (entry.player_correct_count || 0) + ' correct</span>' +
-        '</li>';
-    }).join('');
+    sharedLobby.renderFinalLeaderboard(finalLeaderboardEl, leaderboard);
   }
 
   // --- question rendering ----------------------------------------
@@ -218,12 +160,7 @@
     }
 
     if (progressEl) progressEl.textContent = 'Question ' + (questionIndex + 1) + ' / ' + serverState.total_questions;
-    // Quiz-level progress bar — completed fraction (1-based for visual feedback)
-    if (progressFillEl && progressTrackEl && serverState.total_questions > 0) {
-      var completedPercent = Math.round(((questionIndex + 1) / serverState.total_questions) * 100);
-      progressFillEl.style.width = completedPercent + '%';
-      progressTrackEl.setAttribute('aria-valuenow', String(completedPercent));
-    }
+    sharedLobby.updateProgressBar(progressTrackEl, progressFillEl, questionIndex, serverState.total_questions);
     if (questionTextEl) questionTextEl.textContent = question.question_text_bn || question.question_text_en || '';
     if (questionImageEl) {
       if (question.question_image_url) {
