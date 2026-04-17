@@ -1465,6 +1465,60 @@ def api_question_report_review(request, report_id):
 
 @login_required
 @require_GET
+def api_export_gradebook_csv(request, quiz_id):
+    """Stream gradebook (one row per session) for a quiz as CSV.
+
+    Includes UTF-8 BOM so Excel renders Bengali display names correctly.
+    Query params:
+      include_in_progress=1  → include sessions still in_progress (default off)
+    """
+    from django.http import HttpResponse
+    from .exporters import export_gradebook_to_csv_bytes
+
+    quiz, error_response = _get_quiz_or_403(request, quiz_id)
+    if error_response is not None:
+        return error_response
+
+    include_in_progress = request.GET.get('include_in_progress') == '1'
+    body_bytes = export_gradebook_to_csv_bytes(
+        quiz_id, include_in_progress=include_in_progress,
+    )
+    timestamp_suffix = timezone.now().strftime('%Y%m%d-%H%M%S')
+    response = HttpResponse(body_bytes, content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = (
+        f'attachment; filename="mastermind-gradebook-{quiz_id}-{timestamp_suffix}.csv"'
+    )
+    return response
+
+
+@login_required
+@require_GET
+def api_export_full_backup(request):
+    """Stream the entire mastermind authored content tree as one giant JSON.
+
+    Cron-friendly off-site backup endpoint. Includes books, chapters, topics,
+    questions (with options + match-pairs), and quizzes (with pool entries).
+    Sessions / certificates / comments / webhooks are excluded — those are
+    run-state, not authored content.
+    """
+    from django.http import HttpResponse
+    from .exporters import export_full_backup_to_dict
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+
+    bundle = export_full_backup_to_dict()
+    body = json.dumps(bundle, ensure_ascii=False, indent=2).encode('utf-8')
+    timestamp_suffix = timezone.now().strftime('%Y%m%d-%H%M%S')
+    response = HttpResponse(body, content_type='application/json; charset=utf-8')
+    response['Content-Disposition'] = (
+        f'attachment; filename="mastermind-full-backup-{timestamp_suffix}.json"'
+    )
+    return response
+
+
+@login_required
+@require_GET
 def api_export_quiz(request, quiz_id):
     """Export a single quiz + its question pool as a round-trip-safe JSON bundle."""
     from django.http import HttpResponse

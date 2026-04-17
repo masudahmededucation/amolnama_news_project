@@ -274,3 +274,208 @@ def _question_to_dict(question, options, match_pairs, reference_caches):
         'question_status_code': question.question_status_code,
         'created_at': question.created_at.isoformat() if question.created_at else None,
     }
+
+
+# ================================================================
+# GRADEBOOK CSV — every completed session for one quiz
+# ================================================================
+
+GRADEBOOK_CSV_HEADERS = [
+    'session_id', 'attempt_number', 'user_profile_id', 'recipient_display_name',
+    'started_at', 'completed_at', 'time_taken_seconds',
+    'total_questions', 'correct', 'wrong', 'skipped',
+    'score_raw', 'score_max', 'score_percentage',
+    'is_passed', 'pass_percentage_threshold',
+]
+
+
+def export_gradebook_to_csv_bytes(quiz_id, include_in_progress=False):
+    """Stream every session for one quiz as a CSV byte string.
+
+    Includes a UTF-8 BOM so Excel renders Bengali display names correctly. Pairs
+    one row per session — score, time, pass/fail. Joined recipient_display_name
+    via UserProfile in a single batch query (no N+1).
+    """
+    from .models import CollQuizSession
+
+    quiz = CollQuiz.objects.filter(mastermind_coll_quiz_id=quiz_id).first()
+    pass_threshold = float(quiz.exam_pass_percentage) if quiz else 0.0
+
+    queryset = CollQuizSession.objects.filter(link_mastermind_coll_quiz_id=quiz_id)
+    if not include_in_progress:
+        queryset = queryset.filter(session_status_code='completed')
+    sessions = list(queryset.order_by('-session_completed_at', '-session_started_at').values(
+        'mastermind_coll_quiz_session_id', 'session_attempt_number',
+        'link_user_profile_id',
+        'session_started_at', 'session_completed_at', 'session_time_taken_seconds',
+        'session_total_questions', 'session_total_correct',
+        'session_total_wrong', 'session_total_skipped',
+        'session_score_raw', 'session_score_max', 'session_score_percentage',
+        'session_is_passed',
+    ))
+
+    display_names = {}
+    if sessions:
+        try:
+            from amolnama_news.site_apps.user_account.models import UserProfile
+            user_profile_ids = list({session['link_user_profile_id'] for session in sessions})
+            display_names = {
+                profile['user_profile_id']: profile.get('display_name') or ''
+                for profile in UserProfile.objects.filter(
+                    user_profile_id__in=user_profile_ids
+                ).values('user_profile_id', 'display_name')
+            }
+        except Exception:
+            display_names = {}
+
+    output = io.StringIO()
+    output.write('\ufeff')  # UTF-8 BOM for Excel
+    writer = csv.writer(output)
+    writer.writerow(GRADEBOOK_CSV_HEADERS)
+    for session in sessions:
+        writer.writerow([
+            session['mastermind_coll_quiz_session_id'],
+            session['session_attempt_number'],
+            session['link_user_profile_id'],
+            display_names.get(session['link_user_profile_id'], ''),
+            session['session_started_at'].isoformat() if session['session_started_at'] else '',
+            session['session_completed_at'].isoformat() if session['session_completed_at'] else '',
+            session['session_time_taken_seconds'] or '',
+            session['session_total_questions'],
+            session['session_total_correct'],
+            session['session_total_wrong'],
+            session['session_total_skipped'],
+            float(session['session_score_raw'] or 0),
+            float(session['session_score_max'] or 0),
+            float(session['session_score_percentage'] or 0),
+            'pass' if session['session_is_passed'] is True else ('fail' if session['session_is_passed'] is False else ''),
+            pass_threshold,
+        ])
+    return output.getvalue().encode('utf-8')
+
+
+# ================================================================
+# FULL BACKUP — every book + chapter + question + option + match-pair as one stream
+# ================================================================
+
+def export_full_backup_to_dict():
+    """Return the full mastermind content tree as a single dict.
+
+    Suitable for off-site backup. Streams:
+      books → chapters
+      topics
+      questions → options + match-pairs (with topic_code / difficulty_code resolved)
+      quizzes → pool entries
+    Quiz sessions, certificates, comments, webhooks etc. are NOT included —
+    those are run-state, not authored content.
+    """
+    reference_caches = _build_reference_caches()
+
+    books = list(CollBook.objects.filter(is_active=True).values(
+        'mastermind_coll_book_id', 'book_title_bn', 'book_title_en',
+        'book_author_bn', 'book_author_en', 'book_publisher_bn',
+        'book_publisher_en', 'book_isbn', 'book_edition',
+        'book_language_code', 'book_total_pages',
+        'book_cover_image_url', 'book_description', 'book_file_path',
+        'created_at',
+    ))
+    chapters = list(CollBookChapter.objects.filter(is_active=True).values(
+        'mastermind_coll_book_chapter_id', 'link_mastermind_coll_book_id',
+        'chapter_number', 'chapter_title_bn', 'chapter_title_en',
+        'chapter_page_start', 'chapter_page_end', 'sort_order',
+    ))
+    topics = list(CollQuizTopic.objects.filter(is_active=True).values(
+        'mastermind_coll_quiz_topic_id', 'topic_code',
+        'topic_name_bn', 'topic_name_en', 'topic_description', 'topic_icon',
+        'sort_order',
+    ))
+
+    all_questions = list(CollQuestion.objects.filter(is_active=True))
+    questions_payload = []
+    if all_questions:
+        question_ids = [question.mastermind_coll_question_id for question in all_questions]
+
+        options_by_question_id = {}
+        for option in CollQuestionOption.objects.filter(
+            link_mastermind_coll_question_id__in=question_ids, is_active=True,
+        ):
+            options_by_question_id.setdefault(
+                option.link_mastermind_coll_question_id, []
+            ).append({
+                'option_id': option.mastermind_coll_question_option_id,
+                'option_label': option.option_label,
+                'option_text_bn': option.option_text_bn,
+                'option_text_en': option.option_text_en,
+                'option_image_url': option.option_image_url,
+                'is_correct': option.is_correct,
+                'option_explanation_bn': option.option_explanation_bn,
+                'sort_order': option.sort_order,
+            })
+
+        match_pairs_by_question_id = {}
+        for pair in CollQuestionMatchPair.objects.filter(
+            link_mastermind_coll_question_id__in=question_ids, is_active=True,
+        ).order_by('sort_order'):
+            match_pairs_by_question_id.setdefault(
+                pair.link_mastermind_coll_question_id, []
+            ).append({
+                'match_pair_id': pair.mastermind_coll_question_match_pair_id,
+                'stem_text_bn': pair.stem_text_bn,
+                'stem_text_en': pair.stem_text_en,
+                'response_text_bn': pair.response_text_bn,
+                'response_text_en': pair.response_text_en,
+                'sort_order': pair.sort_order,
+            })
+
+        for question in all_questions:
+            questions_payload.append(_question_to_dict(
+                question,
+                options_by_question_id.get(question.mastermind_coll_question_id, []),
+                match_pairs_by_question_id.get(question.mastermind_coll_question_id, []),
+                reference_caches,
+            ))
+
+    quizzes_payload = []
+    for quiz in CollQuiz.objects.filter(is_active=True):
+        quiz_pool_question_ids = list(MapQuizQuestionPool.objects.filter(
+            link_mastermind_coll_quiz_id=quiz.mastermind_coll_quiz_id,
+        ).values_list('link_mastermind_coll_question_id', 'is_mandatory'))
+        quizzes_payload.append({
+            'quiz_id': quiz.mastermind_coll_quiz_id,
+            'exam_title_bn': quiz.exam_title_bn,
+            'exam_title_en': quiz.exam_title_en,
+            'exam_description_bn': quiz.exam_description_bn,
+            'exam_slug': quiz.exam_slug,
+            'topic_code': reference_caches['topic_codes'].get(quiz.link_mastermind_coll_quiz_topic_id),
+            'exam_total_questions': quiz.exam_total_questions,
+            'exam_time_limit_minutes': quiz.exam_time_limit_minutes,
+            'exam_pass_percentage': float(quiz.exam_pass_percentage),
+            'exam_negative_marking_per_wrong': float(quiz.exam_negative_marking_per_wrong or 0),
+            'exam_shuffle_questions': quiz.exam_shuffle_questions,
+            'exam_shuffle_options': quiz.exam_shuffle_options,
+            'exam_show_explanation_code': quiz.exam_show_explanation_code,
+            'exam_allow_review': quiz.exam_allow_review,
+            'exam_max_attempts': quiz.exam_max_attempts,
+            'exam_status_code': quiz.exam_status_code,
+            'pool_entries': [
+                {'question_id': qid, 'is_mandatory': bool(mandatory)}
+                for qid, mandatory in quiz_pool_question_ids
+            ],
+        })
+
+    return {
+        'export_format_version': '1.0',
+        'exported_at': timezone.now().isoformat(),
+        'counts': {
+            'books': len(books),
+            'chapters': len(chapters),
+            'topics': len(topics),
+            'questions': len(questions_payload),
+            'quizzes': len(quizzes_payload),
+        },
+        'topics': topics,
+        'books': books,
+        'chapters': chapters,
+        'questions': questions_payload,
+        'quizzes': quizzes_payload,
+    }

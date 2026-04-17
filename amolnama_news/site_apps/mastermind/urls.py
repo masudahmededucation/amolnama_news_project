@@ -34,6 +34,8 @@ urlpatterns = [
     path('api/exam/<int:quiz_id>/unarchive/', views_api.api_quiz_unarchive, name='api_quiz_unarchive'),
     path('api/exam/<int:quiz_id>/delete/', views_api.api_quiz_delete, name='api_quiz_delete'),
     path('api/exam/<int:quiz_id>/export/', views_api.api_export_quiz, name='api_export_quiz'),
+    path('api/exam/<int:quiz_id>/gradebook.csv', views_api.api_export_gradebook_csv, name='api_export_gradebook_csv'),
+    path('api/admin/full-backup/', views_api.api_export_full_backup, name='api_export_full_backup'),
 
     # Bulk question export
     path('api/question/export/', views_api.api_export_questions, name='api_export_questions'),

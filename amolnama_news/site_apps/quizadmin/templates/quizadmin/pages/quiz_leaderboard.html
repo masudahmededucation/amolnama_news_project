@@ -17,6 +17,9 @@
       Rewards are not enabled for this quiz.
     {% endif %}
   </p>
+  <div class="quizadmin-page-actions">
+    <a class="quizadmin-table-action quizadmin-leaderboard-export-button" href="/mastermind/api/exam/{{ quiz.mastermind_coll_quiz_id }}/gradebook.csv" id="quizadmin-leaderboard-export-button" name="quizadmin_leaderboard_export_button" download>⬇ Download gradebook CSV</a>
+  </div>
 </section>
 
 {% if leaderboard_rows %}

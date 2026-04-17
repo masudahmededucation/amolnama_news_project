@@ -110,25 +110,30 @@ See plan-mastermind-qti-import-export.txt — separate doc, larger scope.
 
 7. EXPORT GRADEBOOK TO CSV
 ---------------------------
-Status: NOT STARTED
-Estimated effort: 1 day
-Priority: LOW
+Status: DONE (2026-04-17)
 
-Today: leaderboard page shows a table.
-Add: "Download CSV" button → all sessions for one quiz with score,
-time, pass/fail, completed_at.
+Shipped:
+  - GET /mastermind/api/exam/<quiz_id>/gradebook.csv  (?include_in_progress=1)
+  - One CSV row per session: session_id, attempt#, user_profile_id,
+    recipient_display_name (joined from UserProfile), started_at, completed_at,
+    time_taken_seconds, total/correct/wrong/skipped, score_raw/max/percentage,
+    is_passed, pass_percentage_threshold
+  - UTF-8 BOM so Excel renders Bengali display names correctly
+  - "⬇ Download gradebook CSV" button on the leaderboard page
 
 
 8. PERIODIC BACKUP-EVERYTHING JSON DUMP
 ----------------------------------------
-Status: NOT STARTED
-Estimated effort: 1 day
-Priority: LOW
+Status: DONE (2026-04-17)
 
-Today: per-quiz / per-question export exists.
-Add: cron-friendly endpoint /mastermind/api/admin/full-backup/ that
-streams every book + chapter + question + option + match-pair as one
-giant JSON. Useful for off-site backups.
+Shipped:
+  - GET /mastermind/api/admin/full-backup/  (staff only)
+  - Streams: topics, books, chapters, questions (with options + match-pairs +
+    resolved topic_code/difficulty_code), quizzes (with pool entries)
+  - Excluded by design (run-state, not authored content): sessions,
+    certificates, comments, webhooks, proctoring violations
+  - Output is round-trip-safe with the existing import pipeline
+  - Cron usage: curl -b cookies https://site/mastermind/api/admin/full-backup/ -o backup.json
 
 
 SUMMARY OF BACKLOG SIZE
