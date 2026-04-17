@@ -30,6 +30,7 @@
         title_en: document.getElementById('quizadmin-book-create-paste-title-en').value,
         language_code: document.getElementById('quizadmin-book-create-paste-language').value,
         description: document.getElementById('quizadmin-book-create-paste-description').value,
+        cover_image_url: document.getElementById('quizadmin-book-create-paste-cover-url').value,
         chapter_title_bn: document.getElementById('quizadmin-book-create-paste-chapter-title-bn').value,
         paste_text: document.getElementById('quizadmin-book-create-paste-text').value,
       };

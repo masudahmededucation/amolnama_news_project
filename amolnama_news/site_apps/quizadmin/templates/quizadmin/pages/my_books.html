@@ -27,12 +27,17 @@
     {% endfor %}
   </nav>
 
+  {# Only show the top "+ Create" button when there ARE books. When the
+     filter returns empty, the empty-hero block below has its own create
+     button and the duplicate would be confusing. #}
+  {% if books %}
   <div class="quizadmin-page-actions">
     <a href="{% url 'quizadmin:book_create_page' %}"
        class="quizadmin-create-quiz-button"
        id="quizadmin-my-books-create-link"
        name="quizadmin_my_books_create_link">+ Create new book</a>
   </div>
+  {% endif %}
 </section>
 
 {% if books %}

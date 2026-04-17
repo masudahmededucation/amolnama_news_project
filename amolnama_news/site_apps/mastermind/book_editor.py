@@ -223,6 +223,7 @@ def _raw_insert_book_chunk(book_id, chapter_id, page_number, paragraph_index,
 
 def create_book_from_paste(title_bn, owner_user_profile_id, paste_text,
                            title_en=None, language_code='bn', description=None,
+                           cover_image_url=None,
                            chapter_title_bn='অধ্যায় ১', chapter_title_en='Chapter 1',
                            chunk_max_words=500):
     """Create a CollBook + first CollBookChapter + chunks from a single paste.
@@ -245,6 +246,7 @@ def create_book_from_paste(title_bn, owner_user_profile_id, paste_text,
         book_title_en=(title_en or '').strip() or None,
         book_language_code=language_code or 'bn',
         book_description=(description or '').strip() or None,
+        book_cover_image_url=(cover_image_url or '').strip() or None,
         link_created_by_user_profile_id=owner_user_profile_id,
         book_origin_code='pasted_text',
         book_status_code='draft',
@@ -278,7 +280,8 @@ def create_book_from_paste(title_bn, owner_user_profile_id, paste_text,
 
 
 def create_blank_authored_book(title_bn, owner_user_profile_id,
-                               title_en=None, language_code='bn', description=None):
+                               title_en=None, language_code='bn', description=None,
+                               cover_image_url=None):
     """Create an empty user-authored book — no chapters yet.
 
     Author goes to /quizadmin/book/<id>/edit/ and adds chapters one by one.
@@ -292,6 +295,7 @@ def create_blank_authored_book(title_bn, owner_user_profile_id,
         book_title_en=(title_en or '').strip() or None,
         book_language_code=language_code or 'bn',
         book_description=(description or '').strip() or None,
+        book_cover_image_url=(cover_image_url or '').strip() or None,
         link_created_by_user_profile_id=owner_user_profile_id,
         book_origin_code='user_authored',
         book_status_code='draft',
@@ -422,52 +426,72 @@ def list_chapters_for_book(book_id):
 
 
 def ensure_default_chapter_for_orphan_chunks(book_id):
-    """One-shot migration: imported PDFs ingest text into coll_book_chunk
-    but don't auto-create a CollBookChapter. The editor groups text by
-    chapter, so orphan chunks (chunks with link_mastermind_coll_book_chapter_id
-    NULL or pointing nowhere) are invisible until linked to a chapter.
+    """Idempotent migration that links orphan CollBookChunk rows to a chapter.
 
-    This function is idempotent — safe to call on every editor page load:
-      - If the book already has chapters, do nothing.
-      - If the book has chunks but no chapters, create ONE default chapter
-        and bulk-update every orphan chunk to point to it.
+    A chunk is "orphan" if its link_mastermind_coll_book_chapter_id is NULL
+    OR points at a chapter that doesn't exist / is inactive. The editor only
+    shows text via chapters, so orphan chunks are invisible.
 
-    Returns True if a default chapter was created, False otherwise.
+    Logic (handles BOTH the imported-PDF case AND the user-added-empty-chapter-
+    first case the user hit on book #21):
+      1. If there are no orphan chunks → no-op, return False.
+      2. Otherwise pick a target chapter:
+         - first existing active chapter (so manually-added chapter wins, the
+           OCR text loads INTO IT instead of into a separately-created one).
+         - if zero chapters exist, create one with the book title.
+      3. Bulk-update every orphan chunk to point at the target chapter.
+
+    Returns True if any orphan chunks were linked, False if there was nothing
+    to do.
     """
-    has_any_chapters = CollBookChapter.objects.filter(
-        link_mastermind_coll_book_id=book_id, is_active=True,
-    ).exists()
-    if has_any_chapters:
+    from django.db.models import Q
+
+    # Find orphan chunks: NULL chapter id OR pointing at a non-active chapter
+    active_chapter_ids = list(
+        CollBookChapter.objects.filter(
+            link_mastermind_coll_book_id=book_id, is_active=True,
+        ).values_list('mastermind_coll_book_chapter_id', flat=True)
+    )
+    orphan_chunks_query = CollBookChunk.objects.filter(
+        link_mastermind_coll_book_id=book_id,
+        is_active=True,
+    ).filter(
+        Q(link_mastermind_coll_book_chapter_id__isnull=True)
+        | ~Q(link_mastermind_coll_book_chapter_id__in=active_chapter_ids)
+    )
+    if not orphan_chunks_query.exists():
         return False
 
-    has_any_chunks = CollBookChunk.objects.filter(
+    # Pick or create the target chapter
+    target_chapter = CollBookChapter.objects.filter(
         link_mastermind_coll_book_id=book_id, is_active=True,
-    ).exists()
-    if not has_any_chunks:
-        return False
+    ).order_by('sort_order', 'mastermind_coll_book_chapter_id').first()
 
-    book = CollBook.objects.filter(mastermind_coll_book_id=book_id).first()
-    default_title_bn = (
-        book.book_title_bn if book and book.book_title_bn else 'অধ্যায় ১'
-    )
-    default_chapter = CollBookChapter.objects.create(
-        link_mastermind_coll_book_id=book_id,
-        chapter_number=1,
-        chapter_title_bn=default_title_bn,
-        chapter_title_en=(book.book_title_en if book else None),
-        sort_order=1,
-        created_at=timezone.now(),
-    )
-    # Link every orphan chunk to this chapter so the editor finds them.
-    CollBookChunk.objects.filter(
-        link_mastermind_coll_book_id=book_id,
-    ).update(
-        link_mastermind_coll_book_chapter_id=default_chapter.mastermind_coll_book_chapter_id,
+    if not target_chapter:
+        book = CollBook.objects.filter(mastermind_coll_book_id=book_id).first()
+        default_title_bn = (
+            book.book_title_bn if book and book.book_title_bn else 'অধ্যায় ১'
+        )
+        target_chapter = CollBookChapter.objects.create(
+            link_mastermind_coll_book_id=book_id,
+            chapter_number=1,
+            chapter_title_bn=default_title_bn,
+            chapter_title_en=(book.book_title_en if book else None),
+            sort_order=1,
+            created_at=timezone.now(),
+        )
+        logger.info(
+            'Auto-created default chapter %s for legacy book %s.',
+            target_chapter.mastermind_coll_book_chapter_id, book_id,
+        )
+
+    # Bulk-link orphans to the target chapter
+    linked_count = orphan_chunks_query.update(
+        link_mastermind_coll_book_chapter_id=target_chapter.mastermind_coll_book_chapter_id,
     )
     logger.info(
-        'Auto-created default chapter %s for legacy book %s '
-        '(linked all orphan chunks).',
-        default_chapter.mastermind_coll_book_chapter_id, book_id,
+        'Linked %d orphan chunks in book %s to chapter %s.',
+        linked_count, book_id, target_chapter.mastermind_coll_book_chapter_id,
     )
     return True
 

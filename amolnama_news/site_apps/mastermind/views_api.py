@@ -1486,6 +1486,7 @@ def api_book_create_from_paste(request):
         title_en=payload.get('title_en'),
         language_code=payload.get('language_code') or 'bn',
         description=payload.get('description'),
+        cover_image_url=payload.get('cover_image_url'),
         chapter_title_bn=(payload.get('chapter_title_bn') or '').strip() or 'অধ্যায় ১',
         chapter_title_en=(payload.get('chapter_title_en') or '').strip() or 'Chapter 1',
     )
@@ -1515,6 +1516,7 @@ def api_book_create_blank_authored(request):
         title_en=payload.get('title_en'),
         language_code=payload.get('language_code') or 'bn',
         description=payload.get('description'),
+        cover_image_url=payload.get('cover_image_url'),
     )
     if 'error' in result:
         return JsonResponse(result, status=400)

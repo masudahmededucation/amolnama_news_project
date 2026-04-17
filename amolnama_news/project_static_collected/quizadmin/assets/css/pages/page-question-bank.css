@@ -95,12 +95,16 @@
 .quizadmin-question-bank-export-link:focus-visible,
 .quizadmin-question-bank-import-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.quizadmin-question-bank-create-link {
+/* element + class selector beats UA `a:link` (specificity 0,1,1).
+   Without `a.classname` the user-agent blue overrides .classname color. */
+a.quizadmin-question-bank-create-link,
+a.quizadmin-question-bank-create-link:link,
+a.quizadmin-question-bank-create-link:visited {
   min-height: var(--touch-target);
   padding: 0 var(--space-4);
   border-radius: var(--radius-sm);
-  background: var(--purple);
-  color: #fff;
+  background-color: var(--purple, #6b21a8);
+  color: #ffffff;
   font-size: var(--text-sm);
   font-weight: 600;
   display: inline-flex;
@@ -109,8 +113,16 @@
   touch-action: manipulation;
   transition: background-color var(--duration-fast) var(--ease-out);
 }
-.quizadmin-question-bank-create-link:hover { background: var(--info); color: #fff; text-decoration: none; }
-.quizadmin-question-bank-create-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+a.quizadmin-question-bank-create-link:hover,
+a.quizadmin-question-bank-create-link:focus {
+  background-color: var(--info, #0a66c2);
+  color: #ffffff;
+  text-decoration: none;
+}
+a.quizadmin-question-bank-create-link:focus-visible {
+  outline: 2px solid var(--accent, #0a66c2);
+  outline-offset: 2px;
+}
 
 /* Bulk bar */
 .quizadmin-question-bank-bulk-bar {

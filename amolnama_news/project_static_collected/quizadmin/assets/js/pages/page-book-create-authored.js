@@ -30,6 +30,7 @@
         title_en: document.getElementById('quizadmin-book-create-authored-title-en').value,
         language_code: document.getElementById('quizadmin-book-create-authored-language').value,
         description: document.getElementById('quizadmin-book-create-authored-description').value,
+        cover_image_url: document.getElementById('quizadmin-book-create-authored-cover-url').value,
       };
       var result = await window.quizadminPost(
         '/mastermind/api/book/create-blank-authored/', payload,
