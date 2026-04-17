@@ -1,18 +1,71 @@
-/* Mastermind public book reader.
+/* Mastermind public book reader v2.
    Tokenised, mobile-first, reduced-motion friendly.
-   Serif body type for readability of long-form prose. */
+   3 themes (light/sepia/dark) via [data-reader-theme="..."]
+   3 font sizes (small/medium/large) via [data-reader-font-size="..."]
+   Theme + font persisted in localStorage. */
+
+/* ================================================================== */
+/* THEME ROOT VARIABLES (cascade onto everything inside the reader)   */
+/* ================================================================== */
 
 .mastermind-book-reader {
-  max-width: 1100px;
+  --reader-bg: var(--surface);
+  --reader-text: var(--text-primary);
+  --reader-muted: var(--muted);
+  --reader-border: var(--border);
+  --reader-pane-bg: var(--surface);
+  --reader-accent: var(--accent);
+}
+
+/* Sepia */
+.mastermind-book-reader[data-reader-theme="sepia"] {
+  --reader-bg: #f4ecd8;
+  --reader-text: #5b4636;
+  --reader-muted: #8a735c;
+  --reader-border: #e2d2b3;
+  --reader-pane-bg: #faf3e0;
+  --reader-accent: #8b5a2b;
+}
+
+/* Dark */
+.mastermind-book-reader[data-reader-theme="dark"] {
+  --reader-bg: #1a1a1a;
+  --reader-text: #e6e6e6;
+  --reader-muted: #9a9a9a;
+  --reader-border: #2a2a2a;
+  --reader-pane-bg: #232323;
+  --reader-accent: #7aa9ff;
+}
+
+/* Apply theme to root + reader */
+.mastermind-book-reader[data-reader-theme="sepia"],
+.mastermind-book-reader[data-reader-theme="dark"] {
+  background: var(--reader-bg);
+  color: var(--reader-text);
+}
+
+/* Font size cascade — applies to .pane content */
+.mastermind-book-reader[data-reader-font-size="small"]  .mastermind-book-reader-pane { font-size: var(--text-sm); line-height: 1.7; }
+.mastermind-book-reader[data-reader-font-size="medium"] .mastermind-book-reader-pane { font-size: var(--text-base); line-height: 1.8; }
+.mastermind-book-reader[data-reader-font-size="large"]  .mastermind-book-reader-pane { font-size: var(--text-lg); line-height: 1.9; }
+
+
+/* ================================================================== */
+/* PAGE LAYOUT                                                        */
+/* ================================================================== */
+
+.mastermind-book-reader {
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--space-4) var(--space-3);
+  position: relative;
 }
 
 .mastermind-book-reader-header {
   text-align: center;
   padding-bottom: var(--space-4);
-  border-bottom: 2px solid var(--border);
-  margin-bottom: var(--space-4);
+  border-bottom: 2px solid var(--reader-border);
+  margin-bottom: var(--space-3);
 }
 
 .mastermind-book-reader-title {
@@ -20,7 +73,7 @@
   font-weight: 800;
   margin: 0;
   line-height: 1.2;
-  color: var(--text-primary);
+  color: var(--reader-text);
 }
 
 @media (max-width: 480px) {
@@ -29,28 +82,129 @@
 
 .mastermind-book-reader-title-en {
   font-size: var(--text-base);
-  color: var(--muted);
+  color: var(--reader-muted);
   margin: var(--space-1) 0 0;
   font-style: italic;
 }
 
 .mastermind-book-reader-meta {
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--reader-muted);
   margin: var(--space-2) 0 0;
 }
 
 .mastermind-book-reader-description {
   font-size: var(--text-base);
-  color: var(--text-primary);
+  color: var(--reader-text);
   line-height: 1.6;
-  margin: var(--space-3) 0 0;
+  margin: var(--space-3) auto 0;
   max-width: 65ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-/* Layout — sidebar TOC + reader pane */
+
+/* ================================================================== */
+/* READER CONTROLS BAR (font / theme / TOC)                           */
+/* ================================================================== */
+
+.mastermind-book-reader-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+  background: var(--reader-pane-bg);
+  border: 1px solid var(--reader-border);
+  border-radius: var(--radius-full);
+  position: sticky;
+  top: var(--space-2);
+  z-index: 10;
+  box-shadow: var(--elevation-1);
+}
+
+.mastermind-book-reader-control-group {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--reader-bg);
+  padding: 2px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--reader-border);
+}
+
+.mastermind-book-reader-control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-3);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  color: var(--reader-text);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-family: inherit;
+  touch-action: manipulation;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.mastermind-book-reader-control-button:hover {
+  background: var(--reader-bg);
+  color: var(--reader-accent);
+}
+
+.mastermind-book-reader-control-button:focus-visible {
+  outline: 2px solid var(--reader-accent);
+  outline-offset: 2px;
+}
+
+.mastermind-book-reader-control-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mastermind-book-reader-theme-button[aria-pressed="true"] {
+  background: var(--reader-accent);
+  color: #fff;
+}
+
+.mastermind-book-reader-toc-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mastermind-book-reader-toc-toggle { display: inline-flex; }
+}
+
+
+/* ================================================================== */
+/* PROGRESS BAR                                                        */
+/* ================================================================== */
+
+.mastermind-book-reader-progress-wrap {
+  height: 4px;
+  background: var(--reader-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--reader-border);
+}
+
+.mastermind-book-reader-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--reader-accent), color-mix(in srgb, var(--reader-accent) 80%, var(--reader-text)));
+  border-radius: var(--radius-full);
+  transition: width 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+/* ================================================================== */
+/* LAYOUT — TOC sidebar + reader pane                                 */
+/* ================================================================== */
+
 .mastermind-book-reader-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
@@ -59,23 +213,52 @@
 }
 
 @media (max-width: 768px) {
-  .mastermind-book-reader-layout { grid-template-columns: 1fr; }
+  .mastermind-book-reader-layout {
+    grid-template-columns: 1fr;
+  }
+  /* Sidebar becomes a slide-in drawer from the left */
+  .mastermind-book-reader-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(80vw, 320px);
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform var(--duration-fast);
+    box-shadow: var(--elevation-3, var(--elevation-2));
+    max-height: 100vh;
+    background: var(--reader-pane-bg);
+  }
+  .mastermind-book-reader-sidebar--open {
+    transform: translateX(0);
+  }
 }
 
-.mastermind-book-reader-sidebar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-3);
-  position: sticky;
-  top: var(--space-3);
-  max-height: calc(100vh - 80px);
-  overflow-y: auto;
-  box-shadow: var(--elevation-1);
+.mastermind-book-reader-drawer-backdrop {
+  display: none;
 }
 
 @media (max-width: 768px) {
-  .mastermind-book-reader-sidebar { position: static; max-height: none; }
+  .mastermind-book-reader-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 29;
+  }
+}
+
+.mastermind-book-reader-sidebar {
+  background: var(--reader-pane-bg);
+  border: 1px solid var(--reader-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  box-shadow: var(--elevation-1);
 }
 
 .mastermind-book-reader-sidebar-title {
@@ -83,7 +266,8 @@
   font-weight: 700;
   margin: 0 0 var(--space-2);
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--reader-border);
+  color: var(--reader-text);
 }
 
 .mastermind-book-reader-toc {
@@ -107,7 +291,7 @@
   text-align: left;
   cursor: pointer;
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--reader-text);
   font-family: inherit;
   min-height: var(--touch-target);
   touch-action: manipulation;
@@ -115,45 +299,67 @@
 }
 
 .mastermind-book-reader-toc-link:hover {
-  background: var(--surface-elevated, var(--surface));
-  border-color: var(--border);
+  background: var(--reader-bg);
+  border-color: var(--reader-border);
 }
 
 .mastermind-book-reader-toc-link:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--reader-accent);
   outline-offset: 2px;
 }
 
 .mastermind-book-reader-toc-link--active {
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface-elevated, var(--surface)));
-  border-color: var(--accent);
+  background: color-mix(in srgb, var(--reader-accent) 14%, var(--reader-pane-bg));
+  border-color: var(--reader-accent);
   font-weight: 700;
 }
 
 .mastermind-book-reader-toc-number {
   font-weight: 700;
-  color: var(--muted);
+  color: var(--reader-muted);
   min-width: 1.75em;
   flex-shrink: 0;
 }
 
 .mastermind-book-reader-toc-empty {
   font-size: var(--text-sm);
-  color: var(--muted);
+  color: var(--reader-muted);
   font-style: italic;
 }
 
-/* Reader pane — long-form prose */
+
+/* ================================================================== */
+/* READER PANE + STICKY HEADER                                         */
+/* ================================================================== */
+
+.mastermind-book-reader-pane-wrap {
+  position: relative;
+}
+
+.mastermind-book-reader-sticky-header {
+  position: sticky;
+  top: 80px;
+  z-index: 5;
+  padding: var(--space-2) var(--space-4);
+  background: color-mix(in srgb, var(--reader-pane-bg) 96%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--reader-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  font-weight: 700;
+  color: var(--reader-text);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
 .mastermind-book-reader-pane {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--reader-pane-bg);
+  border: 1px solid var(--reader-border);
   border-radius: var(--radius);
   padding: var(--space-5, var(--space-4)) var(--space-4);
   box-shadow: var(--elevation-1);
   font-family: Georgia, 'Noto Serif Bengali', 'Hind Siliguri', serif;
-  font-size: var(--text-base);
-  line-height: 1.8;
-  color: var(--text-primary);
+  color: var(--reader-text);
   max-width: 70ch;
   margin: 0 auto;
 }
@@ -162,32 +368,56 @@
   .mastermind-book-reader-pane { padding: var(--space-4) var(--space-3); }
 }
 
-.mastermind-book-reader-paragraph {
-  margin: 0 0 var(--space-3);
-}
-
-.mastermind-book-reader-paragraph:last-child { margin-bottom: 0; }
-
-/* Django |linebreaks generates <p> tags — style them too */
+.mastermind-book-reader-paragraph,
 .mastermind-book-reader-pane > p {
   margin: 0 0 var(--space-3);
 }
 
+.mastermind-book-reader-paragraph:last-child,
+.mastermind-book-reader-pane > p:last-child { margin-bottom: 0; }
+
 .mastermind-book-reader-empty {
   text-align: center;
-  color: var(--muted);
+  color: var(--reader-muted);
   font-style: italic;
 }
+
+
+/* ================================================================== */
+/* PREV / NEXT NAV                                                     */
+/* ================================================================== */
+
+.mastermind-book-reader-pane-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--reader-border);
+}
+
+
+/* ================================================================== */
+/* FOOTER                                                              */
+/* ================================================================== */
 
 .mastermind-book-reader-footer {
   margin-top: var(--space-5, var(--space-4));
   padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--reader-border);
   text-align: center;
   font-size: var(--text-xs);
-  color: var(--muted);
+  color: var(--reader-muted);
 }
 
+
+/* ================================================================== */
+/* REDUCED MOTION                                                      */
+/* ================================================================== */
+
 @media (prefers-reduced-motion: reduce) {
-  .mastermind-book-reader-toc-link { transition: none; }
+  .mastermind-book-reader-toc-link,
+  .mastermind-book-reader-control-button,
+  .mastermind-book-reader-sidebar,
+  .mastermind-book-reader-progress-fill { transition: none; }
 }

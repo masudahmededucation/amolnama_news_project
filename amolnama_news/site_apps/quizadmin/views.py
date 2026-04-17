@@ -564,6 +564,9 @@ def book_editor_page(request, book_id):
     from amolnama_news.site_apps.core.utils import get_user_profile_id
     from amolnama_news.site_apps.mastermind.book_editor import (
         list_chapters_for_book,
+        ensure_default_chapter_for_orphan_chunks,
+        book_word_count,
+        estimate_reading_minutes,
     )
     from amolnama_news.site_apps.mastermind.models import CollBook
 
@@ -581,17 +584,25 @@ def book_editor_page(request, book_id):
             request, 'Book', book_id, '/quizadmin/my-books/', 'Back to my books',
         )
 
+    # Legacy imported books have chunks but no chapters — auto-create a
+    # default chapter on first edit so the orphan text becomes editable.
+    # Idempotent — does nothing on subsequent visits.
+    ensure_default_chapter_for_orphan_chunks(int(book_id))
+
     chapters = list_chapters_for_book(int(book_id))
     public_url = (
         f'/mastermind/book/{book.mastermind_coll_book_id}/{book.book_slug}/'
         if book.book_slug and book.book_status_code == 'published' else None
     )
+    book_total_words = book_word_count(int(book_id))
     context = {
         'page_title': f'Edit: {book.book_title_bn}',
         'quizadmin_active_tab': 'my_books',
         'book': book,
         'chapters': chapters,
         'public_url': public_url,
+        'book_total_words': book_total_words,
+        'book_reading_minutes': estimate_reading_minutes(book_total_words),
     }
     return render(request, 'quizadmin/pages/book_editor.html', context)
 

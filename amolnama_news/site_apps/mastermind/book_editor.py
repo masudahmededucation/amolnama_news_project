@@ -301,14 +301,18 @@ def create_blank_authored_book(title_bn, owner_user_profile_id,
 
 
 def add_chapter_to_book(book_id, owner_user_profile_id, chapter_title_bn,
-                        chapter_title_en=None):
-    """Append a new (empty) chapter at the end of a book."""
+                        chapter_title_en=None, is_staff_user=False):
+    """Append a new (empty) chapter at the end of a book.
+
+    is_staff_user must be passed explicitly by the caller — defaults to False
+    so direct shell calls without a request context fail safely.
+    """
     book = CollBook.objects.filter(
         mastermind_coll_book_id=book_id, is_active=True,
     ).first()
     if not book:
         return {'error': 'Book not found.'}
-    if not _user_can_edit_book(book, owner_user_profile_id, is_staff_user=False):
+    if not _user_can_edit_book(book, owner_user_profile_id, is_staff_user=is_staff_user):
         return {'error': 'Permission denied.'}
 
     last_chapter_number = CollBookChapter.objects.filter(
@@ -417,6 +421,57 @@ def list_chapters_for_book(book_id):
     )
 
 
+def ensure_default_chapter_for_orphan_chunks(book_id):
+    """One-shot migration: imported PDFs ingest text into coll_book_chunk
+    but don't auto-create a CollBookChapter. The editor groups text by
+    chapter, so orphan chunks (chunks with link_mastermind_coll_book_chapter_id
+    NULL or pointing nowhere) are invisible until linked to a chapter.
+
+    This function is idempotent — safe to call on every editor page load:
+      - If the book already has chapters, do nothing.
+      - If the book has chunks but no chapters, create ONE default chapter
+        and bulk-update every orphan chunk to point to it.
+
+    Returns True if a default chapter was created, False otherwise.
+    """
+    has_any_chapters = CollBookChapter.objects.filter(
+        link_mastermind_coll_book_id=book_id, is_active=True,
+    ).exists()
+    if has_any_chapters:
+        return False
+
+    has_any_chunks = CollBookChunk.objects.filter(
+        link_mastermind_coll_book_id=book_id, is_active=True,
+    ).exists()
+    if not has_any_chunks:
+        return False
+
+    book = CollBook.objects.filter(mastermind_coll_book_id=book_id).first()
+    default_title_bn = (
+        book.book_title_bn if book and book.book_title_bn else 'অধ্যায় ১'
+    )
+    default_chapter = CollBookChapter.objects.create(
+        link_mastermind_coll_book_id=book_id,
+        chapter_number=1,
+        chapter_title_bn=default_title_bn,
+        chapter_title_en=(book.book_title_en if book else None),
+        sort_order=1,
+        created_at=timezone.now(),
+    )
+    # Link every orphan chunk to this chapter so the editor finds them.
+    CollBookChunk.objects.filter(
+        link_mastermind_coll_book_id=book_id,
+    ).update(
+        link_mastermind_coll_book_chapter_id=default_chapter.mastermind_coll_book_chapter_id,
+    )
+    logger.info(
+        'Auto-created default chapter %s for legacy book %s '
+        '(linked all orphan chunks).',
+        default_chapter.mastermind_coll_book_chapter_id, book_id,
+    )
+    return True
+
+
 def list_books_for_owner(user_profile_id, status_code=None, include_staff_view=False, limit=200):
     """Author dashboard data source.
 
@@ -508,3 +563,191 @@ def _user_can_edit_book(book, user_profile_id, is_staff_user):
     if not user_profile_id or not book.link_created_by_user_profile_id:
         return False
     return book.link_created_by_user_profile_id == user_profile_id
+
+
+# ================================================================
+# v2 — Book metadata edit (cover, author, publisher, ISBN, …)
+# ================================================================
+
+# Whitelist of CollBook columns the metadata panel is allowed to update.
+# Status code is included so the editor can drop a book back to draft from
+# the metadata panel; book_status_code='published' is gated to publish_book().
+_BOOK_METADATA_WRITABLE_FIELDS = (
+    'book_title_bn', 'book_title_en',
+    'book_author_bn', 'book_author_en',
+    'book_publisher_bn', 'book_publisher_en',
+    'book_edition', 'book_isbn',
+    'book_cover_image_url',
+    'book_description',
+    'book_language_code',
+    'book_total_pages',
+)
+
+
+def update_book_metadata(book_id, owner_user_profile_id, is_staff_user, metadata):
+    """Update any subset of CollBook metadata fields. Permission-checked.
+
+    metadata is a dict — only keys in _BOOK_METADATA_WRITABLE_FIELDS are
+    applied; everything else is silently ignored. Empty strings on optional
+    text fields convert to NULL (per project convention).
+    """
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=book_id, is_active=True,
+    ).first()
+    if not book:
+        return {'error': 'Book not found.'}
+    if not _user_can_edit_book(book, owner_user_profile_id, is_staff_user):
+        return {'error': 'Permission denied.'}
+
+    update_fields = {}
+    for field_name in _BOOK_METADATA_WRITABLE_FIELDS:
+        if field_name not in metadata:
+            continue
+        raw_value = metadata.get(field_name)
+        if field_name == 'book_total_pages':
+            try:
+                update_fields[field_name] = int(raw_value) if raw_value not in (None, '') else None
+            except (TypeError, ValueError):
+                continue
+            continue
+        if isinstance(raw_value, str):
+            stripped_value = raw_value.strip()
+            if field_name in ('book_title_bn',):
+                # Required field — never set to empty
+                if stripped_value:
+                    update_fields[field_name] = stripped_value
+            else:
+                update_fields[field_name] = stripped_value or None
+
+    if not update_fields:
+        return {'success': True, 'book_id': book_id, 'updated_fields': 0}
+
+    update_fields['updated_at'] = timezone.now()
+    CollBook.objects.filter(mastermind_coll_book_id=book_id).update(**update_fields)
+    return {
+        'success': True,
+        'book_id': book_id,
+        'updated_fields': len(update_fields) - 1,
+    }
+
+
+# ================================================================
+# v2 — Chapter delete + reorder
+# ================================================================
+
+def delete_chapter(chapter_id, owner_user_profile_id, is_staff_user):
+    """Soft-delete a chapter (is_active=False). Chunks for that chapter
+    stay in the DB but stop appearing in the editor.
+
+    Permission: only staff or the book owner can delete a chapter.
+    """
+    chapter = CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id, is_active=True,
+    ).first()
+    if not chapter:
+        return {'error': 'Chapter not found.'}
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=chapter.link_mastermind_coll_book_id,
+    ).first()
+    if not book or not _user_can_edit_book(book, owner_user_profile_id, is_staff_user):
+        return {'error': 'Permission denied.'}
+
+    CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id,
+    ).update(is_active=False)
+    # Also soft-deactivate orphaned chunks so they stop showing up in
+    # word-count totals and AI gen runs.
+    CollBookChunk.objects.filter(
+        link_mastermind_coll_book_chapter_id=chapter_id,
+    ).update(is_active=False)
+    return {'success': True, 'chapter_id': chapter_id}
+
+
+def reorder_chapter(chapter_id, owner_user_profile_id, is_staff_user, direction):
+    """Swap a chapter's sort_order with its neighbour above ('up') or below ('down').
+
+    O(1) swap — only two chapters touched. Idempotent at the boundary
+    (already-first chapter moving 'up' returns success but does nothing).
+    """
+    if direction not in ('up', 'down'):
+        return {'error': "direction must be 'up' or 'down'."}
+
+    chapter = CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id, is_active=True,
+    ).first()
+    if not chapter:
+        return {'error': 'Chapter not found.'}
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=chapter.link_mastermind_coll_book_id,
+    ).first()
+    if not book or not _user_can_edit_book(book, owner_user_profile_id, is_staff_user):
+        return {'error': 'Permission denied.'}
+
+    siblings_queryset = CollBookChapter.objects.filter(
+        link_mastermind_coll_book_id=chapter.link_mastermind_coll_book_id,
+        is_active=True,
+    )
+    if direction == 'up':
+        neighbour = siblings_queryset.filter(
+            sort_order__lt=chapter.sort_order,
+        ).order_by('-sort_order', '-mastermind_coll_book_chapter_id').first()
+    else:
+        neighbour = siblings_queryset.filter(
+            sort_order__gt=chapter.sort_order,
+        ).order_by('sort_order', 'mastermind_coll_book_chapter_id').first()
+
+    if not neighbour:
+        # Already at the boundary — no-op
+        return {
+            'success': True,
+            'chapter_id': chapter_id,
+            'moved': False,
+            'reason': 'already_at_boundary',
+        }
+
+    chapter_sort_order_before = chapter.sort_order
+    neighbour_sort_order_before = neighbour.sort_order
+
+    CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id,
+    ).update(sort_order=neighbour_sort_order_before, chapter_number=neighbour.chapter_number)
+    CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=neighbour.mastermind_coll_book_chapter_id,
+    ).update(sort_order=chapter_sort_order_before, chapter_number=chapter.chapter_number)
+
+    return {
+        'success': True,
+        'chapter_id': chapter_id,
+        'moved': True,
+        'swapped_with_chapter_id': neighbour.mastermind_coll_book_chapter_id,
+    }
+
+
+# ================================================================
+# v2 — Word counts + reading-time estimates
+# ================================================================
+
+def chapter_word_count(chapter_id):
+    """Sum chunk_word_count across all active chunks for a chapter."""
+    from django.db.models import Sum
+    aggregate_result = CollBookChunk.objects.filter(
+        link_mastermind_coll_book_chapter_id=chapter_id, is_active=True,
+    ).aggregate(total_words=Sum('chunk_word_count'))
+    return int(aggregate_result['total_words'] or 0)
+
+
+def book_word_count(book_id):
+    """Sum chunk_word_count across all active chunks in a book."""
+    from django.db.models import Sum
+    aggregate_result = CollBookChunk.objects.filter(
+        link_mastermind_coll_book_id=book_id, is_active=True,
+    ).aggregate(total_words=Sum('chunk_word_count'))
+    return int(aggregate_result['total_words'] or 0)
+
+
+def estimate_reading_minutes(word_count, words_per_minute=200):
+    """Rough reading-time estimate. 200 wpm is the conservative default for
+    Bengali + English mixed prose; speed readers go 300+, slower readers 150."""
+    if not word_count or word_count <= 0:
+        return 0
+    return max(1, int(round(word_count / max(1, int(words_per_minute)))))

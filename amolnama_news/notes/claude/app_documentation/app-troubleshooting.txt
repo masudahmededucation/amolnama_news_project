@@ -268,6 +268,69 @@ handle both auth modes. Cleaner permission story.
 Location: site_apps/mastermind/views_api.py (api_book_chapter_get_text +
 api_book_chapter_get_text_public).
 
+### R27. Imported book has chunks but no chapters → "No chapters yet"
+Date: 2026-04-17
+Was: ai_generator.ingest_book_from_pdf creates rows in coll_book_chunk
+but does NOT auto-create rows in coll_book_chapter. The book editor's
+chapter sidebar reads from coll_book_chapter — so for a book imported
+via PDF (where the user never manually added chapters), the editor
+showed "No chapters yet" even though 66 pages of text existed in chunks.
+Fix: book_editor.ensure_default_chapter_for_orphan_chunks(book_id) —
+idempotent migration that creates ONE default chapter and bulk-updates
+every orphan chunk to point to it. Called from book_editor_page on every
+visit (no-op when chapters exist). Result: legacy imported books open in
+the editor with all their text immediately accessible.
+Location: site_apps/mastermind/book_editor.py
+ensure_default_chapter_for_orphan_chunks() + quizadmin/views.py
+book_editor_page() entry block.
+
+### R28. Hardcoded is_staff_user=False breaks staff edits on legacy data
+Date: 2026-04-17
+Was: book_editor.add_chapter_to_book had `is_staff_user=False` baked
+into the call to _user_can_edit_book. For a legacy book where
+link_created_by_user_profile_id is NULL (pre-dates the column), the
+permission check returned False even when the calling user was staff.
+Net effect: 400 Bad Request on every "+ Add chapter" click.
+Fix: Add is_staff_user parameter to add_chapter_to_book; the API
+endpoint extracts it from request.user.is_staff and passes through.
+Same pattern applied to update_chapter_metadata and the new
+update_book_metadata / delete_chapter / reorder_chapter functions.
+Lesson: never bake permission flags into helper signatures — always
+accept them from the caller so the request context stays the source of
+truth. A staff bypass is fine, but it has to ACTUALLY honour staff.
+Location: site_apps/mastermind/book_editor.py + views_api.py.
+
+### R29. CSS custom-property theming via [data-reader-theme="..."]
+Date: 2026-04-17
+Was: Book reader v2 needed light / sepia / dark themes that switch
+instantly without page reload AND cascade onto every element inside the
+reader (background, text, borders, accent, muted text). Class swapping
+(adding/removing .theme-dark) requires every styled element to know about
+the theme class — fragile.
+Pattern: Set CSS custom properties on the root reader element gated by
+[data-reader-theme="sepia"] and [data-reader-theme="dark"] attribute
+selectors. The base rule defines all variables (--reader-bg, --reader-text,
+--reader-muted, --reader-border, --reader-pane-bg, --reader-accent).
+Theme overrides re-set ONLY those variables. Every child uses
+var(--reader-*), so swapping the data attribute on the root re-cascades
+the entire palette.
+Bonus: same pattern works for font-size — [data-reader-font-size="..."]
+gates a single rule that sets font-size on .reader-pane.
+Location: mastermind/static/mastermind/assets/css/components/book-reader.css.
+
+### R30. Engine functions accept is_staff_user explicitly (no implicit context)
+Date: 2026-04-17
+Was: The pure-engine modules (mastermind/book_editor.py) used to default
+is_staff_user=False so a forgetful caller would get the safer behaviour.
+Bit me badly when add_chapter_to_book was called from an API view that
+didn't pass it through — see R28.
+Pattern: For every engine helper that gates on is_staff_user, the
+parameter MUST be supplied explicitly by the caller. The default value
+remains False for safety in shell tests, but every API endpoint is
+responsible for passing `bool(request.user.is_staff or
+request.user.is_superuser)`. Document in the function docstring.
+Location: site_apps/mastermind/book_editor.py.
+
 ### R23. Modularising shared lobby JS — host + player + shared module pattern
 Date: 2026-04-17
 Was: lobby-host.js and lobby-player.js were each defining identical

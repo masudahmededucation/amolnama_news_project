@@ -1533,11 +1533,13 @@ def api_book_chapter_add(request, book_id):
     user_profile_id = get_user_profile_id(request)
     if not user_profile_id:
         return JsonResponse({'error': 'User profile not found.'}, status=403)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
     result = add_chapter_to_book(
         book_id=book_id,
         owner_user_profile_id=user_profile_id,
         chapter_title_bn=payload.get('chapter_title_bn'),
         chapter_title_en=payload.get('chapter_title_en'),
+        is_staff_user=is_staff_user,
     )
     if 'error' in result:
         return JsonResponse(result, status=400)
@@ -1647,6 +1649,80 @@ def api_book_chapter_get_text_public(request, book_id, chapter_id):
     result = get_chapter_with_text(chapter_id)
     if 'error' in result:
         return JsonResponse(result, status=404)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_update_metadata(request, book_id):
+    """Update CollBook metadata fields (cover, author, publisher, ISBN, etc).
+
+    Body: any subset of {book_title_bn, book_title_en, book_author_bn,
+    book_author_en, book_publisher_bn, book_publisher_en, book_edition,
+    book_isbn, book_cover_image_url, book_description, book_language_code,
+    book_total_pages}. Unknown keys silently ignored. Required field
+    book_title_bn cannot be cleared (empty string ignored).
+    """
+    from .book_editor import update_book_metadata
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    result = update_book_metadata(
+        book_id=book_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+        metadata=payload,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_chapter_delete(request, book_id, chapter_id):
+    """Soft-delete a chapter (is_active=False) plus its chunks."""
+    from .book_editor import delete_chapter
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    result = delete_chapter(
+        chapter_id=chapter_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_chapter_move(request, book_id, chapter_id):
+    """Swap chapter with its neighbour. Body: {direction: 'up'|'down'}."""
+    from .book_editor import reorder_chapter
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    result = reorder_chapter(
+        chapter_id=chapter_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+        direction=(payload.get('direction') or '').strip().lower(),
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
     return JsonResponse(result)
 
 

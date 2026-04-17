@@ -1,0 +1,384 @@
+PLAN — MASTERMIND BOOK EDITOR + READER v2 (real functionality, not stubs)
+==========================================================================
+Status: AWAITING APPROVAL (2026-04-17)
+Last updated: 2026-04-17
+Plan author: research-driven from 8 leading apps; v1 stub → v2 functional.
+
+WHY v2 EXISTS
+-------------
+v1 shipped a chapter sidebar + plain textarea + 3 buttons. User feedback was
+direct: "absolute rubbish, no functionality. just a few buttons that even
+don't work." Root cause: I built the data plumbing without doing the UX
+research first. v2 fixes that — research first, then plan, then build.
+
+DEEP RESEARCH (8 apps, real findings)
+-------------------------------------
+Editors (authoring):
+  Reedsy Studio   — LEFT sidebar = chapter list (split/delete/insert);
+                    RIGHT sidebar = Goals & Insights (daily word count,
+                    chapter word/char counts, pinned notes, comments);
+                    autosave; spellcheck; search-in-chapter; toolbar on
+                    the right side. Source: writersanctuary.com,
+                    blog.reedsy.com.
+  Substack        — Rich-text editor; drafts auto-saved; can only edit
+                    one draft at a time; word count visible; SEO metadata
+                    panel; post scheduling; version history; cover/audio/
+                    video upload. Source: substack.com/features,
+                    on.substack.com/p/mobile-editor.
+  Wattpad         — Cover-first creation flow: title → description →
+                    main characters → category → tags → audience →
+                    language → rating BEFORE writing the first chapter.
+                    Then per-chapter rich-text edit, scheduling, and
+                    end-of-chapter calls-to-action. Source: wattpad.com,
+                    selfpublishing.com/wattpad-review.
+  Atticus.io      — Browser-based, cross-platform; built-in writing
+                    interface with distraction-free mode + word count
+                    tracking + chapter organisation + note-keeping;
+                    callout boxes, sidebars, footnotes/endnotes for
+                    nonfiction. Source: kindlepreneur.com/atticus-vs-vellum.
+  Vellum          — NOT a writing app — formatting/design only.
+                    Writers do prose elsewhere. Source: same.
+  Notion          — Block model; LEFT sidebar = pages tree; live cursor
+                    presence; comments; offline saves and syncs;
+                    keyboard shortcuts for new page. Source:
+                    notion.com/notes, ones.com.
+
+Readers (consumption):
+  Kindle web      — 14 font sizes; font family picker (incl. OpenDyslexic);
+                    4 page colours (white/sepia/black + custom themes);
+                    1-or-2-column layout; narrow/medium/wide margins;
+                    line/paragraph/word/character spacing controls;
+                    continuous scroll OR page-turn; progress shown as
+                    "minutes left in chapter" OR location number.
+                    Source: amazon.com customer-service docs.
+  Apple Books     — 9 fonts; bookmarks per page; highlights with optional
+                    notes; search-inside-book; cross-device sync of
+                    bookmarks/highlights/notes; sepia + night-mode + light
+                    themes; line/character/word spacing; auto-saves
+                    reading place. Source: support.apple.com.
+
+Integrated learning:
+  Khan Academy    — Reading + practice on the SAME surface. Khanmigo
+                    generates custom quizzes from passages with no limits
+                    no extra logins. Mastery: extra shot at proficiency
+                    after one wrong answer. Source: blog.khanacademy.org
+                    Spring 2025 + 2025-26 updates.
+
+KEY TAKEAWAYS (top 12 features that are tractable for plain Django + plain JS)
+-----------------------------------------------------------------------------
+For the EDITOR (Quiz Panel side, staff/author):
+  1. Inline chapter rename (click title → editable in place) — Notion + Reedsy
+  2. Chapter delete + reorder (up/down arrows) — every authoring tool
+  3. Live word count + reading-time estimate on active chapter — Reedsy + Atticus
+  4. Last-saved timestamp ("Saved 2 min ago") not just "Saved" — Notion + Substack
+  5. Book metadata side panel: cover image URL, author bn/en, publisher,
+     edition, ISBN, language, description, audience — Wattpad cover-first
+     flow + Substack metadata panel
+  6. "Generate quiz from this chapter" button on each chapter — OUR differentiator
+     (Khan Khanmigo pattern)
+  7. Book-level publish flow with confirmation chip — Substack pattern
+  8. Distraction-free toggle (hides chrome, expands editor) — Atticus
+  9. Mobile chapter drawer (sidebar slides in from left) — every modern editor
+
+For the READER (public side):
+  10. Font size +/- (3 sizes is enough; Kindle's 14 is overkill for v2)
+  11. Theme switcher: light / sepia / dark — universal
+  12. Reading progress bar + "minutes left in chapter" estimate — Kindle pattern
+
+OUT OF SCOPE for v2 (deferred to v3):
+  - Rich-text editor (Quill/TipTap) — plain textarea acceptable, all writers
+    in our user base will be Bengali; Quill's Bengali support is mediocre
+  - Real-time multi-user collaboration (Notion-class) — needs Channels
+    upgrade + presence tracking
+  - Bookmarks / highlights / notes / annotations on the reader side
+  - Cross-device sync of reading position
+  - Find & replace inside the editor (browser Ctrl+F suffices on textarea)
+  - Spellchecker (browser native handles Bengali poorly anyway)
+  - Multi-column reader layout
+  - Audio narration (huge scope — separate project)
+  - Comments on book chapters (use existing universal comments later)
+  - Search inside published book (defer to full-text search v3)
+
+DATA MODEL CHANGES (none — purely Python + UI)
+----------------------------------------------
+Everything fits in the existing schema:
+  - Cover image       → book_cover_image_url (already in CollBook)
+  - Author bn/en      → already in CollBook
+  - Publisher bn/en   → already in CollBook
+  - Edition / ISBN    → already in CollBook
+  - Language          → already in CollBook
+  - Description       → already in CollBook
+  - Owner             → link_created_by_user_profile_id (added in v1)
+  - Origin            → book_origin_code (added in v1)
+  - Status            → book_status_code (added in v1)
+  - Slug              → book_slug (added in v1)
+  - Chapters          → CollBookChapter (already exists)
+  - Chapter text      → CollBookChunk.chunk_text (already exists)
+  - Word count        → derived from chunk_word_count sum (no storage)
+  - Reading-time est. → derived from word count / 200 wpm
+
+NO SQL CHANGES.
+NO new tables.
+NO new columns.
+
+PRE-EXECUTION BUG FIXES (carry-overs from v1)
+---------------------------------------------
+  Bug 1: add_chapter_to_book had hardcoded is_staff_user=False → 400 for
+         legacy book #21. Fix: pass is_staff_user from request.user.is_staff.
+         (Already partially done in this turn.)
+  Bug 2: Imported book #21 has chunks but no chapters → "No chapters yet"
+         even though 66 pages of text exist. Fix: ensure_default_chapter_for_orphan_chunks()
+         auto-creates a chapter and links all orphan chunks on first edit.
+         (Already partially done in this turn — finish wiring + verify.)
+
+
+FILE STRUCTURE — additions for v2 (modularised, single source of truth)
+----------------------------------------------------------------------
+Engine (Python):
+  mastermind/book_editor.py [EXTEND] — add:
+    update_book_metadata(book_id, owner_user_profile_id, is_staff_user,
+                         cover_image_url, author_bn, author_en,
+                         publisher_bn, publisher_en, edition, isbn,
+                         language_code, description, total_pages,
+                         book_status_code)
+    delete_chapter(chapter_id, owner_user_profile_id, is_staff_user)
+    reorder_chapter(chapter_id, owner_user_profile_id, is_staff_user, direction)
+    chapter_word_count(chapter_id) → int
+    book_word_count(book_id)       → int
+    estimate_reading_minutes(word_count, words_per_minute=200) → int
+  Already exists from v1 (no change):
+    create_book_from_paste, create_blank_authored_book,
+    add_chapter_to_book (now is_staff_user-aware),
+    update_chapter_metadata, replace_chapter_chunks,
+    get_chapter_with_text, list_chapters_for_book,
+    list_books_for_owner, publish_book, archive_book,
+    ensure_default_chapter_for_orphan_chunks (NEW, in this turn)
+
+API (Python) — 3 new endpoints in mastermind/views_api.py:
+  POST /mastermind/api/book/<id>/update-metadata/   (owner+staff)
+  POST /mastermind/api/book/<id>/chapter/<id>/delete/   (owner+staff)
+  POST /mastermind/api/book/<id>/chapter/<id>/move/     (body: direction='up'|'down')
+
+Quiz Panel views (Python) — no new pages; rewrite the editor view:
+  quizadmin/views.py:book_editor_page [EXTEND]
+    - Call ensure_default_chapter_for_orphan_chunks(book_id) on entry
+    - Pass full book metadata (every CollBook field) to template
+    - Pass book_word_count + estimate_reading_minutes to template
+
+Templates:
+  quizadmin/pages/book_editor.html [REWRITE]
+    Three columns at desktop (≥1100px):
+      LEFT  : chapter list with rename/delete/move-up/move-down
+      MIDDLE: active chapter editor (title + textarea + word-count chip)
+      RIGHT : book metadata panel (cover, author, publisher, ISBN,
+              edition, language, description, total_pages, status,
+              book-level publish/archive, "🤖 Generate AI quiz from
+              this chapter" button)
+    Two columns at tablet (768-1099px): metadata panel becomes a
+      collapsible accordion above the editor
+    Single column at mobile (<768px): chapter sidebar becomes a slide-in
+      drawer toggled by a button in the header
+
+  mastermind/pages/book_reader.html [REWRITE]
+    Reader controls bar at the top:
+      - Font size −/+ (3 sizes: small / medium / large via CSS class)
+      - Theme switcher: ☀ light / 📜 sepia / 🌙 dark (CSS data-attribute)
+      - Reading progress bar + "≈ N min left" estimate
+    Chapter sidebar collapses to drawer on mobile (same pattern as editor)
+    Sticky chapter title at top of reader pane
+    Footer: prev / next chapter buttons
+
+JS (modular):
+  quizadmin/assets/js/pages/page-book-editor.js [REWRITE]
+    Adds: inline chapter rename, delete with confirmation tap,
+          move-up/down via API call, word-count update on input,
+          last-saved timestamp ("X seconds/minutes ago", refreshed every
+          15s), book metadata panel save (debounced auto-save), distraction-
+          free toggle, mobile drawer toggle, "Generate AI quiz" button
+          → POST to existing AI gen endpoint
+  mastermind/assets/js/book-reader.js [REWRITE]
+    Adds: font-size cycler (3 states), theme cycler (3 states), progress
+          bar update on chapter switch, sticky header on scroll,
+          prev/next chapter buttons, mobile drawer toggle.
+    Persists user choices in localStorage (reader_font_size, reader_theme).
+
+CSS (modular, tokenised, mobile-first):
+  quizadmin/assets/css/components/book-editor.css [EXTEND]
+    Three-column desktop grid; metadata panel; word-count chip;
+    last-saved chip; chapter-row inline edit + actions; mobile drawer.
+  mastermind/assets/css/components/book-reader.css [EXTEND]
+    Reader controls bar; theme variants (light/sepia/dark) via
+    [data-reader-theme="..."] attribute on the root; font-size
+    variants via [data-reader-font-size="small|medium|large"];
+    sticky chapter header; mobile drawer.
+
+Documentation:
+  app-mastermind.txt    [EXTEND] — append v2 deltas
+  app-troubleshooting.txt [EXTEND] — any new gotchas (dock for pasting
+    OCR fixes, drawer-on-mobile pattern, theme persistence in localStorage)
+  plan-mastermind-book-editor-v2.txt [THIS FILE] — mark Status SHIPPED
+                                                    when done
+
+
+NAMING CONVENTIONS (compliance)
+-------------------------------
+DB / engine:
+  book_*       — book-group columns
+  chapter_*    — chapter-group columns
+  link_*       — foreign keys (already in CollBook + CollBookChapter)
+Python:
+  api_book_*       — API endpoints
+  *_page           — Quiz Panel views
+  Function names: descriptive, full words (no shortenings).
+JS:
+  Var names: descriptive (currentChapterId, lastSavedTimestampMs)
+  CSS classes: quizadmin-book-editor-* / mastermind-book-reader-*
+  Function names: _saveBookMetadata, _renameChapterInline, etc.
+HTML attributes:
+  Every <input/select/textarea/button/anchor> gets id + name.
+  Reader theme persisted via [data-reader-theme="..."] root attribute.
+Status code values lowercase (already compliant).
+
+
+STYLING (gen-z, mobile-first, professional, tokenised, accessible)
+------------------------------------------------------------------
+Editor:
+  - 3-column desktop layout via CSS grid
+  - Tablet (≤1100px): metadata panel folds into a <details> accordion
+    above the editor
+  - Mobile (≤768px): chapter sidebar becomes a fixed drawer (slide-in
+    from left); body gets `aria-hidden="true"` while drawer is open
+  - Word-count chip + last-saved chip in the editor header
+    (live-updating, color-coded: idle/typing/saving/saved/error)
+  - Distraction-free toggle button → adds .quizadmin-book-editor--focus
+    class to the root, hides sidebar + metadata panel
+  - All transitions wrapped in @media (prefers-reduced-motion: reduce)
+  - All buttons get focus-visible 2px accent outline + min-height
+    var(--touch-target)
+
+Reader:
+  - Reader controls bar sticky at top of viewport
+  - Font size: small=var(--text-base), medium=var(--text-lg),
+    large=var(--text-xl); applied via [data-reader-font-size="..."]
+    attribute on the reader root
+  - Theme: light (default), sepia (#f4ecd8 / #5b4636 text),
+    dark (#1a1a1a / #e6e6e6 text); applied via [data-reader-theme="..."]
+    on root
+  - Reading progress bar: 4px gradient fill (var(--accent) →
+    var(--accent-strong)) at the top of the reader pane, updated as
+    chapter changes
+  - Sticky chapter header: chapter title fades in as the user scrolls
+    past the original title element
+  - Prev/next chapter buttons in footer; full keyboard support
+    (← → arrows)
+  - Theme + font-size persisted in localStorage (reader_theme,
+    reader_font_size)
+
+
+SPRINT BREAKDOWN (no skipping; mark each step as I finish)
+----------------------------------------------------------
+Step 0   Plan doc (this file) ✅ written
+Step 1   Plan bug-check (next section in this doc)
+Step 2   USER APPROVES PLAN (or asks for changes — wait)
+Step 3   Engine: update_book_metadata + delete_chapter + reorder_chapter +
+         chapter_word_count + book_word_count + estimate_reading_minutes
+Step 4   Engine: ensure_default_chapter_for_orphan_chunks (already started in this turn — verify it's complete)
+Step 5   API: 3 new endpoints + URL registrations
+Step 6   Update book_editor_page view: call orphan-chunk migration; pass
+         metadata + word_count + reading_minutes to template
+Step 7   Rewrite book_editor.html (3-column grid, metadata panel, chapter
+         row actions, word-count chip, last-saved chip, AI-gen button,
+         distraction-free toggle, mobile drawer)
+Step 8   Rewrite page-book-editor.js (inline rename, delete, move-up/down,
+         word-count counter, last-saved timestamp refresh, metadata
+         panel save, AI-gen button click, distraction-free toggle, drawer)
+Step 9   Update book-editor.css (3-column grid, metadata panel, chips,
+         drawer, distraction-free, mobile breakpoints, prefers-reduced-motion)
+Step 10  Rewrite book_reader.html (controls bar, theme/font attributes,
+         progress bar, sticky header, prev/next nav)
+Step 11  Rewrite book-reader.js (font-size cycler, theme cycler, progress
+         updater, sticky header observer, prev/next, localStorage,
+         keyboard shortcuts)
+Step 12  Update book-reader.css (controls bar, theme variants, font-size
+         variants, progress bar, sticky header, prev/next nav, drawer)
+Step 13  Update app-mastermind.txt + app-troubleshooting.txt
+Step 14  Verify: manage.py check; reverse() all new URLs; smoke-test
+         each engine function via Django shell where possible
+Step 15  Bump cache; collectstatic; single commit + push
+
+
+PRE-EXECUTION BUG-CHECK ON THE PLAN ITSELF
+------------------------------------------
+✅ No SQL changes (zero schema risk)
+✅ All new endpoints permission-gated (owner+staff via existing helper)
+✅ chapter_word_count + book_word_count are pure SUM queries on
+   CollBookChunk.chunk_word_count — no N+1 risk
+✅ delete_chapter is soft-delete (is_active=False) — recoverable
+   if user changes mind
+✅ reorder_chapter swaps sort_order between adjacent chapters; no
+   re-numbering of all rows (O(1) update, not O(n))
+✅ Word-count chip updates client-side on `input` event — no server
+   round-trip, accurate enough (split on whitespace)
+✅ Last-saved timestamp uses Date.now() at save time, displayed as
+   "X seconds/minutes ago" — refreshed every 15s via setInterval
+✅ Distraction-free mode is a CSS class toggle on root — zero JS state
+   beyond a boolean, no API
+✅ Mobile drawer uses a backdrop overlay; click-outside closes;
+   ESC key closes; aria-hidden management
+✅ Reader theme uses CSS attribute selector ([data-reader-theme="dark"]),
+   NOT class swap — easier to override per-page
+✅ Reader theme + font-size persisted in localStorage (try/catch wrapped
+   for private mode)
+✅ Reader prev/next chapter buttons handle the boundary cases (first/last
+   chapter)
+✅ Keyboard shortcuts skip when activeElement is INPUT/TEXTAREA/SELECT
+✅ All new HTML form elements get id + name
+✅ All new CSS uses var(--*) tokens; @media reduced-motion guard;
+   focus-visible on every interactive
+✅ AI-gen button calls existing /mastermind/api/book/<id>/generate/
+   endpoint — no new infrastructure
+✅ NO use of console.log/debug/info/warn; NO use of alert/confirm/prompt
+✅ NO inline event handlers in HTML
+✅ NO internal <style> blocks; NO inline style="" except dynamic
+   JS-target widths
+✅ All raw SQL prevented — pure Django ORM (CollBookChunk
+   .aggregate(Sum) for word counts)
+✅ No XSS — all user-controlled text rendered via Django auto-escape OR
+   _escapeHtml in JS
+
+POTENTIAL RISKS (acceptable for v2)
+- Concurrent edits across staff users → last-write wins (same as v1)
+- Very long chapters (>10k words) → textarea may feel sluggish on
+  low-end mobile; revisit if a writer complains
+- Reorder up/down repeated 50 times → 50 small API calls (O(1) each);
+  acceptable but could be batched in v3 if observed
+
+
+DONE-CRITERIA (compare back to this plan when finished)
+-------------------------------------------------------
+[ ] All bug fixes from v1 verified working
+[ ] Editor 3-column layout renders on desktop
+[ ] Editor 1-column drawer renders on mobile
+[ ] Inline chapter rename works
+[ ] Chapter delete (with confirm tap) works
+[ ] Chapter move up/down works
+[ ] Word count updates live as user types
+[ ] Last-saved timestamp shows "Just now" → "X sec ago" → "X min ago"
+[ ] Book metadata panel saves all CollBook fields
+[ ] "Generate AI quiz from this chapter" button calls existing endpoint
+[ ] Distraction-free toggle hides sidebar + metadata
+[ ] Reader font-size cycler works (3 sizes)
+[ ] Reader theme cycler works (light/sepia/dark)
+[ ] Reader progress bar updates on chapter switch
+[ ] Reader prev/next chapter buttons work
+[ ] Reader keyboard shortcuts: ← → for prev/next chapter
+[ ] localStorage persistence for reader font-size + theme
+[ ] All new HTML form elements have id + name
+[ ] All new CSS tokenised + mobile responsive + reduced-motion gate
+[ ] No console.* in new JS
+[ ] manage.py check clean
+[ ] All new URLs reverse()
+[ ] Cache bumped; collectstatic ran
+[ ] Single commit + push
+[ ] app-mastermind.txt updated with v2 section
+[ ] app-troubleshooting.txt updated with new R-entries

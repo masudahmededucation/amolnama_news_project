@@ -7,11 +7,18 @@
 
 {% block quizadmin_content %}
 <section class="quizadmin-page-intro">
-  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <div class="quizadmin-book-editor-toolbar">
+    <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+    <div class="quizadmin-book-editor-toolbar-actions">
+      <button type="button" class="quizadmin-table-action quizadmin-book-editor-drawer-toggle" id="quizadmin-book-editor-drawer-toggle" name="quizadmin_book_editor_drawer_toggle" aria-controls="quizadmin-book-editor-sidebar" aria-expanded="false" hidden>☰ Chapters</button>
+      <button type="button" class="quizadmin-table-action quizadmin-book-editor-focus-toggle" id="quizadmin-book-editor-focus-toggle" name="quizadmin_book_editor_focus_toggle" aria-pressed="false">⛶ Focus mode</button>
+      <a class="quizadmin-table-action" href="{% url 'quizadmin:my_books_page' %}" id="quizadmin-book-editor-back-link" name="quizadmin_book_editor_back_link">← Back</a>
+    </div>
+  </div>
   <p class="quizadmin-page-subtitle">
     Status: <span class="quizadmin-status-chip quizadmin-status-chip-{{ book.book_status_code }}">{{ book.book_status_code }}</span>
     · Origin: <strong>{{ book.book_origin_code }}</strong>
-    · Language: <strong>{{ book.book_language_code }}</strong>
+    · {{ book_total_words }} words · ≈ {{ book_reading_minutes }} min
     {% if public_url %} · <a href="{{ public_url }}" target="_blank" rel="noopener" id="quizadmin-book-editor-public-link" name="quizadmin_book_editor_public_link">View public</a>{% endif %}
   </p>
 </section>
@@ -21,8 +28,8 @@
          data-book-id="{{ book.mastermind_coll_book_id }}"
          data-book-status="{{ book.book_status_code }}">
 
-  {# Chapter sidebar — list, add, switch #}
-  <aside class="quizadmin-book-editor-sidebar" aria-label="Chapter list">
+  {# LEFT — Chapter sidebar / drawer ------------------------------ #}
+  <aside class="quizadmin-book-editor-sidebar" id="quizadmin-book-editor-sidebar" aria-label="Chapter list">
     <header class="quizadmin-book-editor-sidebar-header">
       <h2 class="quizadmin-book-editor-sidebar-title">Chapters</h2>
       <button type="button"
@@ -32,7 +39,7 @@
     </header>
     <ol class="quizadmin-book-editor-chapter-list" id="quizadmin-book-editor-chapter-list" aria-live="polite">
       {% for chapter in chapters %}
-      <li>
+      <li class="quizadmin-book-editor-chapter-row" data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}" data-chapter-number="{{ chapter.chapter_number }}">
         <button type="button"
                 class="quizadmin-book-editor-chapter-button"
                 id="quizadmin-book-editor-chapter-button-{{ chapter.mastermind_coll_book_chapter_id }}"
@@ -42,6 +49,29 @@
           <span class="quizadmin-book-editor-chapter-number">{{ chapter.chapter_number }}.</span>
           <span class="quizadmin-book-editor-chapter-title">{{ chapter.chapter_title_bn }}</span>
         </button>
+        <span class="quizadmin-book-editor-chapter-row-actions">
+          <button type="button"
+                  class="quizadmin-book-editor-chapter-row-action quizadmin-book-editor-chapter-move-up-button"
+                  id="quizadmin-book-editor-chapter-move-up-{{ chapter.mastermind_coll_book_chapter_id }}"
+                  name="quizadmin_book_editor_chapter_move_up_{{ chapter.mastermind_coll_book_chapter_id }}"
+                  data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}"
+                  aria-label="Move chapter up"
+                  title="Move up">↑</button>
+          <button type="button"
+                  class="quizadmin-book-editor-chapter-row-action quizadmin-book-editor-chapter-move-down-button"
+                  id="quizadmin-book-editor-chapter-move-down-{{ chapter.mastermind_coll_book_chapter_id }}"
+                  name="quizadmin_book_editor_chapter_move_down_{{ chapter.mastermind_coll_book_chapter_id }}"
+                  data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}"
+                  aria-label="Move chapter down"
+                  title="Move down">↓</button>
+          <button type="button"
+                  class="quizadmin-book-editor-chapter-row-action quizadmin-book-editor-chapter-delete-button"
+                  id="quizadmin-book-editor-chapter-delete-{{ chapter.mastermind_coll_book_chapter_id }}"
+                  name="quizadmin_book_editor_chapter_delete_{{ chapter.mastermind_coll_book_chapter_id }}"
+                  data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}"
+                  aria-label="Delete chapter"
+                  title="Delete">×</button>
+        </span>
       </li>
       {% empty %}
       <li class="quizadmin-book-editor-chapter-empty" id="quizadmin-book-editor-chapter-empty" name="quizadmin_book_editor_chapter_empty">No chapters yet — click "+ Add".</li>
@@ -49,7 +79,10 @@
     </ol>
   </aside>
 
-  {# Main editor pane #}
+  {# Drawer backdrop (mobile only) ------------------------------- #}
+  <div class="quizadmin-book-editor-drawer-backdrop" id="quizadmin-book-editor-drawer-backdrop" hidden></div>
+
+  {# MIDDLE — main editor pane ----------------------------------- #}
   <main class="quizadmin-book-editor-pane" aria-label="Chapter editor">
     <div class="quizadmin-book-editor-empty" id="quizadmin-book-editor-empty" hidden>
       <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📖</p>
@@ -87,23 +120,118 @@
       </label>
 
       <div class="quizadmin-book-editor-actions">
-        <span class="quizadmin-book-editor-save-status" id="quizadmin-book-editor-save-status" role="status" aria-live="polite"></span>
-        <button type="submit" class="quizadmin-form-submit" id="quizadmin-book-editor-save-button" name="quizadmin_book_editor_save_button">Save chapter</button>
+        <span class="quizadmin-book-editor-chips">
+          <span class="quizadmin-book-editor-word-count-chip" id="quizadmin-book-editor-word-count-chip" aria-live="polite">0 words · ≈ 0 min</span>
+          <span class="quizadmin-book-editor-save-status" id="quizadmin-book-editor-save-status" role="status" aria-live="polite"></span>
+        </span>
+        <span class="quizadmin-book-editor-actions-right">
+          <button type="button" class="quizadmin-table-action quizadmin-book-editor-ai-gen-button" id="quizadmin-book-editor-ai-gen-button" name="quizadmin_book_editor_ai_gen_button">🤖 Generate quiz from this chapter</button>
+          <button type="submit" class="quizadmin-form-submit" id="quizadmin-book-editor-save-button" name="quizadmin_book_editor_save_button">Save chapter</button>
+        </span>
       </div>
     </form>
 
-    {# Book-level publish / archive controls #}
+    <div class="quizadmin-inline-message" id="quizadmin-book-editor-inline-message" role="status" aria-live="polite" hidden></div>
+
+    {# Book-level publish / archive controls ------------------ #}
     <footer class="quizadmin-book-editor-footer">
       {% if book.book_status_code != 'published' %}
       <button type="button" class="quizadmin-form-submit" id="quizadmin-book-editor-publish-button" name="quizadmin_book_editor_publish_button">Publish book</button>
       {% else %}
       <button type="button" class="quizadmin-table-action" id="quizadmin-book-editor-archive-button" name="quizadmin_book_editor_archive_button">Archive book</button>
       {% endif %}
-      <a class="quizadmin-table-action" href="{% url 'quizadmin:my_books_page' %}" id="quizadmin-book-editor-back-link" name="quizadmin_book_editor_back_link">← Back to my books</a>
     </footer>
-
-    <div class="quizadmin-inline-message" id="quizadmin-book-editor-inline-message" role="status" aria-live="polite" hidden></div>
   </main>
+
+  {# RIGHT — Book metadata panel (every CollBook field exposed) ---- #}
+  <aside class="quizadmin-book-editor-metadata" id="quizadmin-book-editor-metadata" aria-label="Book metadata">
+    <header class="quizadmin-book-editor-metadata-header">
+      <h2 class="quizadmin-book-editor-metadata-title">📚 Book details</h2>
+      <span class="quizadmin-book-editor-save-status" id="quizadmin-book-editor-metadata-save-status" role="status" aria-live="polite"></span>
+    </header>
+
+    <form class="quizadmin-book-editor-metadata-form" id="quizadmin-book-editor-metadata-form" name="quizadmin_book_editor_metadata_form">
+
+      {# Cover preview + URL #}
+      <div class="quizadmin-book-editor-cover-preview" id="quizadmin-book-editor-cover-preview">
+        {% if book.book_cover_image_url %}
+          <img src="{{ book.book_cover_image_url }}" alt="Book cover" id="quizadmin-book-editor-cover-image" loading="lazy" decoding="async">
+        {% else %}
+          <span class="quizadmin-book-editor-cover-placeholder" id="quizadmin-book-editor-cover-placeholder" aria-hidden="true">📖</span>
+        {% endif %}
+      </div>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Cover image URL</span>
+        <input type="url" id="quizadmin-book-editor-metadata-cover-input" name="quizadmin_book_editor_metadata_cover_input" class="quizadmin-form-input" maxlength="1000" value="{{ book.book_cover_image_url|default_if_none:'' }}" placeholder="https://…">
+      </label>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Title (Bengali) <span aria-hidden="true">*</span></span>
+        <input type="text" id="quizadmin-book-editor-metadata-title-bn-input" name="quizadmin_book_editor_metadata_title_bn_input" class="quizadmin-form-input" maxlength="500" value="{{ book.book_title_bn|default_if_none:'' }}" required>
+      </label>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Title (English)</span>
+        <input type="text" id="quizadmin-book-editor-metadata-title-en-input" name="quizadmin_book_editor_metadata_title_en_input" class="quizadmin-form-input" maxlength="500" value="{{ book.book_title_en|default_if_none:'' }}">
+      </label>
+
+      <div class="quizadmin-book-editor-metadata-row-pair">
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Author (Bengali)</span>
+          <input type="text" id="quizadmin-book-editor-metadata-author-bn-input" name="quizadmin_book_editor_metadata_author_bn_input" class="quizadmin-form-input" maxlength="300" value="{{ book.book_author_bn|default_if_none:'' }}">
+        </label>
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Author (English)</span>
+          <input type="text" id="quizadmin-book-editor-metadata-author-en-input" name="quizadmin_book_editor_metadata_author_en_input" class="quizadmin-form-input" maxlength="300" value="{{ book.book_author_en|default_if_none:'' }}">
+        </label>
+      </div>
+
+      <div class="quizadmin-book-editor-metadata-row-pair">
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Publisher (Bengali)</span>
+          <input type="text" id="quizadmin-book-editor-metadata-publisher-bn-input" name="quizadmin_book_editor_metadata_publisher_bn_input" class="quizadmin-form-input" maxlength="300" value="{{ book.book_publisher_bn|default_if_none:'' }}">
+        </label>
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Publisher (English)</span>
+          <input type="text" id="quizadmin-book-editor-metadata-publisher-en-input" name="quizadmin_book_editor_metadata_publisher_en_input" class="quizadmin-form-input" maxlength="300" value="{{ book.book_publisher_en|default_if_none:'' }}">
+        </label>
+      </div>
+
+      <div class="quizadmin-book-editor-metadata-row-pair">
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Edition</span>
+          <input type="text" id="quizadmin-book-editor-metadata-edition-input" name="quizadmin_book_editor_metadata_edition_input" class="quizadmin-form-input" maxlength="100" value="{{ book.book_edition|default_if_none:'' }}">
+        </label>
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">ISBN</span>
+          <input type="text" id="quizadmin-book-editor-metadata-isbn-input" name="quizadmin_book_editor_metadata_isbn_input" class="quizadmin-form-input" maxlength="30" value="{{ book.book_isbn|default_if_none:'' }}">
+        </label>
+      </div>
+
+      <div class="quizadmin-book-editor-metadata-row-pair">
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Language</span>
+          <select id="quizadmin-book-editor-metadata-language-input" name="quizadmin_book_editor_metadata_language_input" class="quizadmin-form-select">
+            <option value="bn" {% if book.book_language_code == 'bn' %}selected{% endif %}>বাংলা (bn)</option>
+            <option value="en" {% if book.book_language_code == 'en' %}selected{% endif %}>English (en)</option>
+            <option value="ar" {% if book.book_language_code == 'ar' %}selected{% endif %}>العربية (ar)</option>
+            <option value="hi" {% if book.book_language_code == 'hi' %}selected{% endif %}>हिन्दी (hi)</option>
+            <option value="ur" {% if book.book_language_code == 'ur' %}selected{% endif %}>اردو (ur)</option>
+          </select>
+        </label>
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Total pages (optional)</span>
+          <input type="number" min="0" id="quizadmin-book-editor-metadata-pages-input" name="quizadmin_book_editor_metadata_pages_input" class="quizadmin-form-input" value="{{ book.book_total_pages|default_if_none:'' }}">
+        </label>
+      </div>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Description</span>
+        <textarea id="quizadmin-book-editor-metadata-description-input" name="quizadmin_book_editor_metadata_description_input" class="quizadmin-form-input" rows="3" maxlength="2000">{{ book.book_description|default_if_none:'' }}</textarea>
+      </label>
+    </form>
+  </aside>
 </section>
 {% endblock %}
 

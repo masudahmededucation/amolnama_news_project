@@ -246,19 +246,108 @@
 
 
 /* ================================================================== */
-/* BOOK EDITOR — sidebar + main pane                                   */
+/* BOOK EDITOR v2 — 3-column grid (sidebar / editor / metadata)        */
 /* ================================================================== */
 
-.quizadmin-book-editor {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: var(--space-4);
-  padding: var(--space-3) 0;
-  align-items: start;
+/* Toolbar at top of page (drawer toggle + focus mode + back) */
+.quizadmin-book-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-toolbar-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-drawer-toggle {
+  display: none;
 }
 
 @media (max-width: 768px) {
-  .quizadmin-book-editor { grid-template-columns: 1fr; gap: var(--space-3); }
+  .quizadmin-book-editor-drawer-toggle { display: inline-flex; }
+}
+
+.quizadmin-book-editor-focus-toggle[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Main grid */
+.quizadmin-book-editor {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  align-items: start;
+  position: relative;
+}
+
+@media (max-width: 1099px) {
+  /* Tablet: metadata folds under main editor (2 columns) */
+  .quizadmin-book-editor {
+    grid-template-columns: 240px 1fr;
+    grid-template-areas:
+      "sidebar editor"
+      "sidebar metadata";
+  }
+  .quizadmin-book-editor-sidebar { grid-area: sidebar; }
+  .quizadmin-book-editor-pane { grid-area: editor; }
+  .quizadmin-book-editor-metadata { grid-area: metadata; }
+}
+
+@media (max-width: 768px) {
+  .quizadmin-book-editor {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "editor"
+      "metadata";
+    gap: var(--space-3);
+  }
+  /* Sidebar becomes a drawer — fixed slide-in from left */
+  .quizadmin-book-editor-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(80vw, 320px);
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform var(--duration-fast);
+    box-shadow: var(--elevation-3, var(--elevation-2));
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .quizadmin-book-editor-sidebar--open {
+    transform: translateX(0);
+  }
+}
+
+.quizadmin-book-editor-drawer-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .quizadmin-book-editor-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 29;
+  }
+}
+
+/* Focus mode: hide sidebar + metadata, expand editor */
+.quizadmin-book-editor--focus {
+  grid-template-columns: 1fr;
+}
+.quizadmin-book-editor--focus .quizadmin-book-editor-sidebar,
+.quizadmin-book-editor--focus .quizadmin-book-editor-metadata {
+  display: none;
 }
 
 .quizadmin-book-editor-sidebar {
@@ -301,6 +390,75 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* Chapter row = main switch button + row actions (move/delete) */
+.quizadmin-book-editor-chapter-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.quizadmin-book-editor-chapter-row-actions {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.quizadmin-book-editor-chapter-row:hover .quizadmin-book-editor-chapter-row-actions,
+.quizadmin-book-editor-chapter-row:focus-within .quizadmin-book-editor-chapter-row-actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  /* Touch devices: row actions always visible */
+  .quizadmin-book-editor-chapter-row-actions { opacity: 1; }
+}
+
+.quizadmin-book-editor-chapter-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  touch-action: manipulation;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.quizadmin-book-editor-chapter-row-action:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.quizadmin-book-editor-chapter-row-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.quizadmin-book-editor-chapter-delete-button:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.quizadmin-book-editor-chapter-delete-confirm {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+  width: auto;
+  padding: 0 var(--space-2);
 }
 
 .quizadmin-book-editor-chapter-button {
@@ -414,6 +572,126 @@
   flex-wrap: wrap;
 }
 
+.quizadmin-book-editor-chips {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-actions-right {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-word-count-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.quizadmin-book-editor-ai-gen-button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong, var(--accent)));
+  color: #fff;
+  border: 1px solid var(--accent);
+  font-weight: 700;
+}
+
+.quizadmin-book-editor-ai-gen-button:hover {
+  filter: brightness(1.05);
+}
+
+/* ================================================================== */
+/* RIGHT METADATA PANEL                                                */
+/* ================================================================== */
+
+.quizadmin-book-editor-metadata {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  position: sticky;
+  top: var(--space-3);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: var(--elevation-1);
+}
+
+@media (max-width: 1099px) {
+  .quizadmin-book-editor-metadata {
+    position: static;
+    max-height: none;
+  }
+}
+
+.quizadmin-book-editor-metadata-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-metadata-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.quizadmin-book-editor-metadata-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quizadmin-book-editor-metadata-row-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+@media (max-width: 480px) {
+  .quizadmin-book-editor-metadata-row-pair { grid-template-columns: 1fr; }
+}
+
+/* Cover image preview */
+.quizadmin-book-editor-cover-preview {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: var(--surface-elevated, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.quizadmin-book-editor-cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.quizadmin-book-editor-cover-placeholder {
+  font-size: var(--text-4xl);
+  color: var(--muted);
+  opacity: 0.5;
+}
+
 .quizadmin-book-editor-save-status {
   font-size: var(--text-sm);
   color: var(--muted);
@@ -504,6 +782,9 @@
   .quizadmin-book-create-card,
   .quizadmin-book-create-card-cta,
   .quizadmin-book-editor-chapter-button,
+  .quizadmin-book-editor-chapter-row-actions,
+  .quizadmin-book-editor-chapter-row-action,
+  .quizadmin-book-editor-sidebar,
   .quizadmin-book-create-paste-textarea,
   .quizadmin-book-editor-text-input,
   .quizadmin-needs-edit-table tbody tr { transition: none; }

@@ -29,6 +29,9 @@ urlpatterns = [
     path('api/book/<int:book_id>/chapter/<int:chapter_id>/public-text/', views_api.api_book_chapter_get_text_public, name='api_book_chapter_get_text_public'),
     path('api/book/<int:book_id>/publish/', views_api.api_book_publish, name='api_book_publish'),
     path('api/book/<int:book_id>/archive/', views_api.api_book_archive, name='api_book_archive'),
+    path('api/book/<int:book_id>/update-metadata/', views_api.api_book_update_metadata, name='api_book_update_metadata'),
+    path('api/book/<int:book_id>/chapter/<int:chapter_id>/delete/', views_api.api_book_chapter_delete, name='api_book_chapter_delete'),
+    path('api/book/<int:book_id>/chapter/<int:chapter_id>/move/', views_api.api_book_chapter_move, name='api_book_chapter_move'),
 
     # Question reject-recovery v1
     path('api/question/<int:question_id>/needs-edit/', views_api.api_question_mark_needs_edit, name='api_question_mark_needs_edit'),

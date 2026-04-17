@@ -677,3 +677,110 @@ SQL SCRIPT RUN ORDER (this session)
   notes/sql-script/mastermind-book-editor-v1.sql  ← new
 
 Cache bumped to v719.
+
+================================================================
+2026-04-17 (later) — Book editor + reader v2 (real functionality)
+================================================================
+
+Plan: notes/claude/app_documentation/plan-mastermind-book-editor-v2.txt
+Reason: v1 shipped a stub (chapter sidebar + textarea + 3 buttons).
+User feedback was direct: "absolute rubbish, no functionality." Root
+cause: I built data plumbing without UX research. v2 = research-driven
+rebuild based on Reedsy / Substack / Wattpad / Atticus / Notion / Kindle /
+Apple Books / Khan Academy patterns.
+
+ZERO SQL CHANGES — every CollBook column already existed; v2 just exposes them.
+
+NEW ENGINE FUNCTIONS (mastermind/book_editor.py)
+  update_book_metadata(book_id, owner, is_staff, metadata)
+    — whitelisted CollBook field updates (cover URL, author, publisher,
+      ISBN, edition, language, description, total_pages)
+  delete_chapter(chapter_id, owner, is_staff)
+    — soft-delete (is_active=False) + soft-deactivate orphaned chunks
+  reorder_chapter(chapter_id, owner, is_staff, direction)
+    — O(1) swap with neighbour above/below; idempotent at boundary
+  chapter_word_count(chapter_id), book_word_count(book_id)
+    — pure ORM Sum aggregates over chunk_word_count
+  estimate_reading_minutes(word_count, words_per_minute=200)
+  ensure_default_chapter_for_orphan_chunks(book_id)
+    — one-shot migration for legacy imported books that have chunks but
+      no chapters. Idempotent. Called from book_editor_page on entry.
+
+NEW MASTERMIND API (3 endpoints)
+  POST /mastermind/api/book/<id>/update-metadata/
+  POST /mastermind/api/book/<id>/chapter/<id>/delete/
+  POST /mastermind/api/book/<id>/chapter/<id>/move/   body {direction: up|down}
+
+EDITOR (Quiz Panel) — 3-column grid layout
+  LEFT  — chapter sidebar
+    + Inline title display
+    + Hover-revealed row actions: ↑ move up, ↓ move down, × delete
+    + Confirm-tap pattern on delete
+    + Active chapter highlighted
+  MIDDLE — active chapter editor
+    + chapter # / title (bn) / title (en) inputs
+    + Plain textarea (no Quill — Bengali rich-text UX is not there yet)
+    + Word-count + reading-time chip ("123 words · ≈ 1 min")
+    + Last-saved chip ("Saved · Just now" → "Saved · 2 min ago",
+       refreshed every 15s via setInterval)
+    + 🤖 "Generate quiz from this chapter" button (wires to existing AI gen)
+    + Save button + auto-save (3s debounce + onblur)
+  RIGHT — book metadata panel (every CollBook field exposed)
+    + Cover image preview (2:3 aspect) + URL input
+    + Title bn/en (bn required)
+    + Author bn/en, Publisher bn/en
+    + Edition + ISBN
+    + Language dropdown (bn/en/ar/hi/ur)
+    + Total pages (optional)
+    + Description (3-row textarea, max 2000 chars)
+    + Auto-saves on input/change with 1.5s debounce + own status chip
+  Toolbar (top of page):
+    + Drawer toggle (mobile only)
+    + ⛶ Focus mode toggle (hides sidebar + metadata, expands editor)
+    + ← Back to my books
+  Mobile (≤768px):
+    + Sidebar becomes a fixed slide-in drawer with backdrop + ESC close
+  Tablet (≤1099px):
+    + Metadata panel folds under the editor (2-column layout)
+
+PUBLIC READER — research-driven UX
+  Controls bar (sticky at top of viewport):
+    + ☰ TOC toggle (mobile drawer)
+    + A− / A+ font size cycler (3 sizes: small/medium/large)
+    + ☀ / 📜 / 🌙 theme cycler (light / sepia / dark)
+  Reading progress bar — 4px gradient fill, % chapters complete
+  TOC sidebar — chapter list with active highlight
+  Reader pane — serif body type (Georgia / Noto Serif Bengali / Hind
+    Siliguri), max 70ch line length, theme-cascading colors
+  Sticky chapter title — fades in as you scroll past the original h1
+  Prev / Next chapter buttons — disabled at boundaries
+  Keyboard:
+    + ← previous chapter
+    + → next chapter
+    + ESC close mobile drawer
+  Persistence — font_size + theme in localStorage (private-mode safe)
+  Theming — CSS custom properties cascade from [data-reader-theme="..."]
+    on the root, not class swaps. Adds sepia (#f4ecd8/#5b4636) and
+    dark (#1a1a1a/#e6e6e6) variants.
+
+BUG FIXES from v1 (carried into v2)
+  - add_chapter_to_book: was hardcoded is_staff_user=False → 400 error
+    when staff added a chapter to a legacy book without owner. Fixed —
+    accepts is_staff_user parameter, API view passes it from request.
+  - Imported book had chunks but "No chapters yet" in editor — chunks
+    were orphaned because ai_generator.ingest_book_from_pdf creates
+    chunks but not chapters. Fixed via
+    ensure_default_chapter_for_orphan_chunks() called on editor load.
+
+NEW NAV TABS (already in place from v1)
+  /quizadmin/my-books/    My Books
+  /quizadmin/needs-edit/  Needs Edit
+
+KEYBOARD SHORTCUTS SUMMARY
+  Editor:    Esc closes mobile drawer
+  Reader:    ← prev chapter, → next chapter, Esc closes drawer
+
+NO SQL CHANGES, NO new tables, NO new columns. All v2 work is
+Python + JS + CSS + HTML on top of the existing v1 schema.
+
+Cache bumped to v720.
