@@ -1,0 +1,64 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Paste plain text. The chunker will split it into ~500-word paragraphs
+    automatically. You can split into more chapters once the editor opens.
+  </p>
+</section>
+
+<form class="quizadmin-book-create-form" id="quizadmin-book-create-paste-form" name="quizadmin_book_create_paste_form">
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Book title (Bengali) <span aria-hidden="true">*</span></span>
+    <input type="text" id="quizadmin-book-create-paste-title-bn" name="quizadmin_book_create_paste_title_bn" class="quizadmin-form-input" maxlength="500" required>
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Book title (English, optional)</span>
+    <input type="text" id="quizadmin-book-create-paste-title-en" name="quizadmin_book_create_paste_title_en" class="quizadmin-form-input" maxlength="500">
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Language</span>
+    <select id="quizadmin-book-create-paste-language" name="quizadmin_book_create_paste_language" class="quizadmin-form-select">
+      <option value="bn" selected>বাংলা (bn)</option>
+      <option value="en">English (en)</option>
+      <option value="ar">العربية (ar)</option>
+    </select>
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Description (optional)</span>
+    <textarea id="quizadmin-book-create-paste-description" name="quizadmin_book_create_paste_description" class="quizadmin-form-input" rows="2" maxlength="2000"></textarea>
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">First chapter title (Bengali, optional)</span>
+    <input type="text" id="quizadmin-book-create-paste-chapter-title-bn" name="quizadmin_book_create_paste_chapter_title_bn" class="quizadmin-form-input" maxlength="500" placeholder="অধ্যায় ১">
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Paste book text <span aria-hidden="true">*</span></span>
+    <textarea id="quizadmin-book-create-paste-text" name="quizadmin_book_create_paste_text" class="quizadmin-book-create-paste-textarea" rows="20" required placeholder="Paste your text here. Paragraphs are detected by blank lines (press Enter twice between paragraphs)."></textarea>
+  </label>
+
+  <div class="quizadmin-inline-message" id="quizadmin-book-create-paste-form-message" role="status" aria-live="polite" hidden></div>
+
+  <div class="quizadmin-page-actions">
+    <a class="quizadmin-table-action" href="{% url 'quizadmin:book_create_page' %}" id="quizadmin-book-create-paste-cancel-link" name="quizadmin_book_create_paste_cancel_link">Cancel</a>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-book-create-paste-submit" name="quizadmin_book_create_paste_submit">Create book</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-book-create-paste.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ book.book_title_bn }} — গ্রন্থাগার{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'mastermind/assets/css/components/book-reader.css' %}">
+{% endblock %}
+
+{% block content %}
+<article class="mastermind-book-reader" id="mastermind-book-reader" data-book-id="{{ book.mastermind_coll_book_id }}">
+
+  <header class="mastermind-book-reader-header">
+    <h1 class="mastermind-book-reader-title">{{ book.book_title_bn }}</h1>
+    {% if book.book_title_en %}<p class="mastermind-book-reader-title-en">{{ book.book_title_en }}</p>{% endif %}
+    <p class="mastermind-book-reader-meta">
+      {% if book.book_author_bn %}{{ book.book_author_bn }}{% if book.book_author_en %} ({{ book.book_author_en }}){% endif %} · {% endif %}
+      {% if book.book_publisher_bn %}{{ book.book_publisher_bn }} · {% endif %}
+      {% if book.book_edition %}{{ book.book_edition }} · {% endif %}
+      {{ book.book_language_code }}
+    </p>
+    {% if book.book_description %}
+    <p class="mastermind-book-reader-description">{{ book.book_description|truncatechars:400 }}</p>
+    {% endif %}
+  </header>
+
+  <div class="mastermind-book-reader-layout">
+    {# Chapter sidebar #}
+    <aside class="mastermind-book-reader-sidebar" aria-label="Table of contents">
+      <h2 class="mastermind-book-reader-sidebar-title">সূচিপত্র</h2>
+      <ol class="mastermind-book-reader-toc" id="mastermind-book-reader-toc" name="mastermind_book_reader_toc">
+        {% for chapter in chapters %}
+        <li>
+          <button type="button"
+                  class="mastermind-book-reader-toc-link {% if forloop.first %}mastermind-book-reader-toc-link--active{% endif %}"
+                  id="mastermind-book-reader-toc-link-{{ chapter.mastermind_coll_book_chapter_id }}"
+                  name="mastermind_book_reader_toc_link_{{ chapter.mastermind_coll_book_chapter_id }}"
+                  data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}">
+            <span class="mastermind-book-reader-toc-number">{{ chapter.chapter_number }}.</span>
+            <span class="mastermind-book-reader-toc-text">{{ chapter.chapter_title_bn }}</span>
+          </button>
+        </li>
+        {% empty %}
+        <li class="mastermind-book-reader-toc-empty">No chapters yet.</li>
+        {% endfor %}
+      </ol>
+    </aside>
+
+    {# Reader pane — first chapter rendered server-side, others lazy-loaded.
+       Django's |linebreaks filter wraps blank-line-separated chunks in <p>
+       AND auto-escapes the content (XSS-safe). #}
+    <main class="mastermind-book-reader-pane" id="mastermind-book-reader-pane" aria-live="polite">
+      {% if first_chapter_text %}
+        {{ first_chapter_text|linebreaks }}
+      {% else %}
+        <p class="mastermind-book-reader-empty">এই বইতে এখনো কোনো লেখা নেই।</p>
+      {% endif %}
+    </main>
+  </div>
+
+  <footer class="mastermind-book-reader-footer">
+    <p class="mastermind-book-reader-footer-text">
+      Mastermind Library · published {{ book.book_published_at|date:"Y-m-d" }}
+    </p>
+  </footer>
+</article>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'mastermind/assets/js/book-reader.js' %}" defer></script>
+{% endblock %}

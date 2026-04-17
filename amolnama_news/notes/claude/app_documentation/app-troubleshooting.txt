@@ -224,6 +224,50 @@ Pattern (mastermind/static/mastermind/assets/js/lobby-sfx.js):
     lobby-host.js with one line each, no duplication).
 Location: mastermind/static/mastermind/assets/js/lobby-sfx.js.
 
+### R24. Long Bengali text + raw pyodbc INSERT pattern (chunk_text fix)
+Date: 2026-04-17
+Was: Saving chapter text via the new book editor needed to insert long
+Bengali strings into coll_book_chunk.chunk_text (NVARCHAR(MAX), UTF-8
+collation). ODBC Driver 17 promotes long parameters to SQL_WLONGVARCHAR
+(ntext), which fails the _SC collation cast.
+Fix: Reuse the proven pattern from ai_generator.ingest_book_from_pdf —
+drop to the raw pyodbc cursor on the Django connection, set
+cursor.setinputsizes() with (pyodbc.SQL_WVARCHAR, 0, 0) on the chunk_text
+parameter only, INSERT, commit. See site_apps/mastermind/book_editor.py
+function _raw_insert_book_chunk(). Same fix as the original PDF chunker
+— do NOT extract it to a "shared utility" because the column index in
+setinputsizes is positional and fragile. Better to copy + comment.
+Location: site_apps/mastermind/book_editor.py.
+
+### R25. Django |linebreaks vs custom paragraph splitting in templates
+Date: 2026-04-17
+Was: Initial book_reader.html template used a non-existent
+|linebreaks_to_paragraphs filter to wrap chunks in <p> tags. Django
+doesn't have that filter — built-in is just |linebreaks (wraps blank-
+line-separated chunks in <p> AND auto-escapes content).
+Fix: Use Django's built-in {{ first_chapter_text|linebreaks }} for the
+SSR first-paint chapter; use JS String.split + escape + manual <p>
+wrapping for client-side chapter switches. Both paths produce identical
+DOM output and both auto-escape user content (XSS-safe).
+Location: mastermind/templates/mastermind/pages/book_reader.html,
+mastermind/static/mastermind/assets/js/book-reader.js.
+
+### R26. Public chapter-text endpoint — separate from edit endpoint
+Date: 2026-04-17
+Was: The reader page needed to lazy-load chapters as the visitor clicks
+TOC entries. Reusing the editor endpoint /api/.../get-text/ would have
+forced @login_required + owner/staff permission — anonymous public
+readers couldn't switch chapters.
+Fix: Added a separate /api/book/<id>/chapter/<id>/public-text/ endpoint
+with NO @login_required and a strict filter on book_status_code='published'.
+Drafts / reviews / archives 404. Both endpoints share the same
+get_chapter_with_text() engine function — single source of truth.
+Pattern: when an authenticated endpoint needs an anonymous-readable
+companion, add a public sibling rather than try to make one endpoint
+handle both auth modes. Cleaner permission story.
+Location: site_apps/mastermind/views_api.py (api_book_chapter_get_text +
+api_book_chapter_get_text_public).
+
 ### R23. Modularising shared lobby JS — host + player + shared module pattern
 Date: 2026-04-17
 Was: lobby-host.js and lobby-player.js were each defining identical

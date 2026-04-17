@@ -1,0 +1,113 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Status: <span class="quizadmin-status-chip quizadmin-status-chip-{{ book.book_status_code }}">{{ book.book_status_code }}</span>
+    · Origin: <strong>{{ book.book_origin_code }}</strong>
+    · Language: <strong>{{ book.book_language_code }}</strong>
+    {% if public_url %} · <a href="{{ public_url }}" target="_blank" rel="noopener" id="quizadmin-book-editor-public-link" name="quizadmin_book_editor_public_link">View public</a>{% endif %}
+  </p>
+</section>
+
+<section class="quizadmin-book-editor"
+         id="quizadmin-book-editor"
+         data-book-id="{{ book.mastermind_coll_book_id }}"
+         data-book-status="{{ book.book_status_code }}">
+
+  {# Chapter sidebar — list, add, switch #}
+  <aside class="quizadmin-book-editor-sidebar" aria-label="Chapter list">
+    <header class="quizadmin-book-editor-sidebar-header">
+      <h2 class="quizadmin-book-editor-sidebar-title">Chapters</h2>
+      <button type="button"
+              class="quizadmin-table-action quizadmin-book-editor-add-chapter-button"
+              id="quizadmin-book-editor-add-chapter-button"
+              name="quizadmin_book_editor_add_chapter_button">+ Add</button>
+    </header>
+    <ol class="quizadmin-book-editor-chapter-list" id="quizadmin-book-editor-chapter-list" aria-live="polite">
+      {% for chapter in chapters %}
+      <li>
+        <button type="button"
+                class="quizadmin-book-editor-chapter-button"
+                id="quizadmin-book-editor-chapter-button-{{ chapter.mastermind_coll_book_chapter_id }}"
+                name="quizadmin_book_editor_chapter_button_{{ chapter.mastermind_coll_book_chapter_id }}"
+                data-chapter-id="{{ chapter.mastermind_coll_book_chapter_id }}"
+                data-chapter-number="{{ chapter.chapter_number }}">
+          <span class="quizadmin-book-editor-chapter-number">{{ chapter.chapter_number }}.</span>
+          <span class="quizadmin-book-editor-chapter-title">{{ chapter.chapter_title_bn }}</span>
+        </button>
+      </li>
+      {% empty %}
+      <li class="quizadmin-book-editor-chapter-empty" id="quizadmin-book-editor-chapter-empty" name="quizadmin_book_editor_chapter_empty">No chapters yet — click "+ Add".</li>
+      {% endfor %}
+    </ol>
+  </aside>
+
+  {# Main editor pane #}
+  <main class="quizadmin-book-editor-pane" aria-label="Chapter editor">
+    <div class="quizadmin-book-editor-empty" id="quizadmin-book-editor-empty" hidden>
+      <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📖</p>
+      <h2>Pick a chapter from the left, or click "+ Add" to start.</h2>
+    </div>
+
+    <form class="quizadmin-book-editor-form" id="quizadmin-book-editor-form" name="quizadmin_book_editor_form" hidden>
+      <input type="hidden" id="quizadmin-book-editor-active-chapter-id" name="quizadmin_book_editor_active_chapter_id" value="">
+
+      <div class="quizadmin-book-editor-meta-row">
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Chapter #</span>
+          <input type="number" min="1" id="quizadmin-book-editor-chapter-number-input" name="quizadmin_book_editor_chapter_number_input" class="quizadmin-form-input">
+        </label>
+
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Title (Bengali)</span>
+          <input type="text" id="quizadmin-book-editor-chapter-title-bn-input" name="quizadmin_book_editor_chapter_title_bn_input" class="quizadmin-form-input" maxlength="500">
+        </label>
+
+        <label class="quizadmin-form-field">
+          <span class="quizadmin-form-label">Title (English)</span>
+          <input type="text" id="quizadmin-book-editor-chapter-title-en-input" name="quizadmin_book_editor_chapter_title_en_input" class="quizadmin-form-input" maxlength="500">
+        </label>
+      </div>
+
+      <label class="quizadmin-form-field">
+        <span class="quizadmin-form-label">Chapter text</span>
+        <textarea class="quizadmin-book-editor-text-input"
+                  id="quizadmin-book-editor-text-input"
+                  name="quizadmin_book_editor_text_input"
+                  rows="22"
+                  spellcheck="false"
+                  placeholder="Type or paste the chapter text. Press Enter twice between paragraphs — chunks are detected at blank lines."></textarea>
+      </label>
+
+      <div class="quizadmin-book-editor-actions">
+        <span class="quizadmin-book-editor-save-status" id="quizadmin-book-editor-save-status" role="status" aria-live="polite"></span>
+        <button type="submit" class="quizadmin-form-submit" id="quizadmin-book-editor-save-button" name="quizadmin_book_editor_save_button">Save chapter</button>
+      </div>
+    </form>
+
+    {# Book-level publish / archive controls #}
+    <footer class="quizadmin-book-editor-footer">
+      {% if book.book_status_code != 'published' %}
+      <button type="button" class="quizadmin-form-submit" id="quizadmin-book-editor-publish-button" name="quizadmin_book_editor_publish_button">Publish book</button>
+      {% else %}
+      <button type="button" class="quizadmin-table-action" id="quizadmin-book-editor-archive-button" name="quizadmin_book_editor_archive_button">Archive book</button>
+      {% endif %}
+      <a class="quizadmin-table-action" href="{% url 'quizadmin:my_books_page' %}" id="quizadmin-book-editor-back-link" name="quizadmin_book_editor_back_link">← Back to my books</a>
+    </footer>
+
+    <div class="quizadmin-inline-message" id="quizadmin-book-editor-inline-message" role="status" aria-live="polite" hidden></div>
+  </main>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-book-editor.js' %}" defer></script>
+{% endblock %}

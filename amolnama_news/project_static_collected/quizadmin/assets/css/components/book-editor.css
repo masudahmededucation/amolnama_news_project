@@ -1,0 +1,514 @@
+/* Quiz Panel — book editor (covers my_books / book_create / book_editor /
+   needs_edit_inbox / paste + authored forms).
+   Tokenised, mobile-first, reduced-motion friendly, no internal styles. */
+
+/* ================================================================== */
+/* MY BOOKS — author dashboard + filter tabs                          */
+/* ================================================================== */
+
+.quizadmin-my-books-tabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.quizadmin-my-books-tab {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--muted);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  letter-spacing: 0.01em;
+  transition: background var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
+}
+
+.quizadmin-my-books-tab:hover {
+  background: var(--surface-elevated, var(--surface));
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.quizadmin-my-books-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.quizadmin-my-books-tab--active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: var(--elevation-1);
+}
+
+.quizadmin-book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+@media (max-width: 480px) {
+  .quizadmin-book-grid { grid-template-columns: 1fr; gap: var(--space-2); }
+}
+
+.quizadmin-book-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 200px;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast), transform var(--duration-fast);
+}
+
+.quizadmin-book-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--elevation-2);
+  transform: translateY(-2px);
+}
+
+.quizadmin-book-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.quizadmin-book-card-origin {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quizadmin-book-card-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.quizadmin-book-card-title-en {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0;
+}
+
+.quizadmin-book-card-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+  flex-grow: 1;
+}
+
+.quizadmin-book-card-meta div { text-align: center; }
+
+.quizadmin-book-card-meta dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin: 0;
+}
+
+.quizadmin-book-card-meta dd {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.quizadmin-book-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+
+/* ================================================================== */
+/* BOOK CREATE — 3-card chooser                                        */
+/* ================================================================== */
+
+.quizadmin-book-create-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
+.quizadmin-book-create-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5, var(--space-4));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  min-height: 220px;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast), transform var(--duration-fast);
+}
+
+.quizadmin-book-create-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--elevation-3, var(--elevation-2));
+  transform: translateY(-2px);
+}
+
+.quizadmin-book-create-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.quizadmin-book-create-card-icon {
+  font-size: var(--text-4xl);
+  line-height: 1;
+}
+
+.quizadmin-book-create-card-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.quizadmin-book-create-card-body {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.quizadmin-book-create-card-cta {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+  transition: transform var(--duration-fast);
+}
+
+.quizadmin-book-create-card:hover .quizadmin-book-create-card-cta {
+  transform: translateX(4px);
+}
+
+
+/* ================================================================== */
+/* BOOK CREATE PASTE / AUTHORED — forms                               */
+/* ================================================================== */
+
+.quizadmin-book-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  box-shadow: var(--elevation-1);
+  max-width: 900px;
+}
+
+.quizadmin-book-create-paste-textarea {
+  width: 100%;
+  min-height: 360px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated, var(--surface));
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--duration-fast);
+}
+
+.quizadmin-book-create-paste-textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+
+/* ================================================================== */
+/* BOOK EDITOR — sidebar + main pane                                   */
+/* ================================================================== */
+
+.quizadmin-book-editor {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .quizadmin-book-editor { grid-template-columns: 1fr; gap: var(--space-3); }
+}
+
+.quizadmin-book-editor-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  position: sticky;
+  top: var(--space-3);
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: var(--elevation-1);
+}
+
+@media (max-width: 768px) {
+  .quizadmin-book-editor-sidebar { position: static; max-height: none; }
+}
+
+.quizadmin-book-editor-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.quizadmin-book-editor-sidebar-title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.quizadmin-book-editor-chapter-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quizadmin-book-editor-chapter-button {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+}
+
+.quizadmin-book-editor-chapter-button:hover {
+  background: var(--surface-elevated, var(--surface));
+  border-color: var(--border);
+}
+
+.quizadmin-book-editor-chapter-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.quizadmin-book-editor-chapter-button--active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-elevated, var(--surface)));
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.quizadmin-book-editor-chapter-number {
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 1.75em;
+  flex-shrink: 0;
+}
+
+.quizadmin-book-editor-chapter-empty {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-style: italic;
+  padding: var(--space-2);
+}
+
+/* Main editor pane */
+.quizadmin-book-editor-pane {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  box-shadow: var(--elevation-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quizadmin-book-editor-empty {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  color: var(--muted);
+}
+
+.quizadmin-book-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quizadmin-book-editor-meta-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .quizadmin-book-editor-meta-row { grid-template-columns: 1fr; gap: var(--space-2); }
+}
+
+.quizadmin-book-editor-text-input {
+  width: 100%;
+  min-height: 480px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-elevated, var(--surface));
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color var(--duration-fast);
+}
+
+.quizadmin-book-editor-text-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--accent);
+}
+
+.quizadmin-book-editor-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.quizadmin-book-editor-save-status {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.quizadmin-book-editor-save-status[data-tone="success"] { color: var(--success, #22c55e); font-weight: 600; }
+.quizadmin-book-editor-save-status[data-tone="in_progress"] { color: var(--accent); font-weight: 600; }
+.quizadmin-book-editor-save-status[data-tone="error"] { color: var(--danger); font-weight: 600; }
+
+.quizadmin-book-editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+
+/* ================================================================== */
+/* NEEDS-EDIT INBOX                                                    */
+/* ================================================================== */
+
+.quizadmin-needs-edit-table tbody tr {
+  transition: background var(--duration-fast);
+}
+
+.quizadmin-needs-edit-table tbody tr:hover {
+  background: var(--surface-elevated, var(--surface));
+}
+
+.quizadmin-needs-edit-question-link {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  line-height: 1.4;
+  min-height: var(--touch-target);
+  padding: var(--space-1) 0;
+}
+
+.quizadmin-needs-edit-question-link:hover { color: var(--accent); }
+
+.quizadmin-needs-edit-question-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Mobile reflow — same data-label pattern as flagged-questions inbox */
+@media (max-width: 720px) {
+  .quizadmin-needs-edit-table thead { display: none; }
+  .quizadmin-needs-edit-table,
+  .quizadmin-needs-edit-table tbody,
+  .quizadmin-needs-edit-table tr,
+  .quizadmin-needs-edit-table td { display: block; width: 100%; }
+  .quizadmin-needs-edit-table tr {
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    background: var(--surface);
+  }
+  .quizadmin-needs-edit-table td {
+    padding: var(--space-1) 0;
+    border: none;
+  }
+  .quizadmin-needs-edit-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+  }
+}
+
+
+/* ================================================================== */
+/* REDUCED MOTION                                                      */
+/* ================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .quizadmin-my-books-tab,
+  .quizadmin-book-card,
+  .quizadmin-book-create-card,
+  .quizadmin-book-create-card-cta,
+  .quizadmin-book-editor-chapter-button,
+  .quizadmin-book-create-paste-textarea,
+  .quizadmin-book-editor-text-input,
+  .quizadmin-needs-edit-table tbody tr { transition: none; }
+  .quizadmin-my-books-tab:hover,
+  .quizadmin-book-card:hover,
+  .quizadmin-book-create-card:hover { transform: none; }
+  .quizadmin-book-create-card:hover .quizadmin-book-create-card-cta { transform: none; }
+}

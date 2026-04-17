@@ -60,6 +60,21 @@
     return body;
   };
 
+  // GET helper for read-only endpoints (book chapter text fetch, etc.).
+  // Same error semantics as quizadminPost so callers handle both consistently.
+  window.quizadminGet = async function (endpoint) {
+    var response = await fetch(endpoint, {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    });
+    var body = await response.json().catch(function () { return {}; });
+    if (!response.ok || body.error) {
+      throw new Error(body.error || 'Request failed (HTTP ' + response.status + ')');
+    }
+    return body;
+  };
+
   window.quizadminGenerateToken = function () {
     return Math.random().toString(36).slice(2, 8);
   };

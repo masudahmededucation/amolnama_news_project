@@ -481,3 +481,131 @@ def generation_jobs_page(request):
         **utils.paginate_generation_jobs(page_number=page_number),
     }
     return render(request, 'quizadmin/pages/generation_jobs.html', context)
+
+
+# ================================================================
+# Book editor v1 — author dashboard, create chooser, full editor, needs-edit
+# ================================================================
+
+@staff_member_required
+def my_books_page(request):
+    """Author dashboard — list books I created (or all books for staff).
+
+    Staff/superuser sees every book. Quiz creators see only their own.
+    Filter by ?status=draft|review|published|archived (defaults to all).
+    """
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    from amolnama_news.site_apps.mastermind.book_editor import list_books_for_owner
+
+    user_profile_id = get_user_profile_id(request)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    status_filter = (request.GET.get('status') or '').strip().lower()
+    if status_filter not in ('draft', 'review', 'published', 'archived'):
+        status_filter = ''
+
+    books = list_books_for_owner(
+        user_profile_id=user_profile_id,
+        status_code=status_filter or None,
+        include_staff_view=is_staff_user,
+    )
+    context = {
+        'page_title': 'My Books' if not is_staff_user else 'All Books',
+        'quizadmin_active_tab': 'my_books',
+        'books': books,
+        'active_status_filter': status_filter,
+        'status_options': ('', 'draft', 'review', 'published', 'archived'),
+        'is_staff_view': is_staff_user,
+    }
+    return render(request, 'quizadmin/pages/my_books.html', context)
+
+
+@staff_member_required
+def book_create_page(request):
+    """Origin chooser — paste text / write from scratch / import PDF.
+
+    The PDF import path links out to the existing /quizadmin/books/ flow.
+    The other two paths target /quizadmin/book/create/<origin>/.
+    """
+    return render(request, 'quizadmin/pages/book_create.html', {
+        'page_title': 'Create a new book',
+        'quizadmin_active_tab': 'my_books',
+    })
+
+
+@staff_member_required
+def book_create_paste_page(request):
+    """Paste-text form — title + language + paste textarea + submit.
+
+    On submit the JS posts to /mastermind/api/book/create-from-paste/ and
+    redirects to /quizadmin/book/<id>/edit/ on success.
+    """
+    return render(request, 'quizadmin/pages/book_create_paste.html', {
+        'page_title': 'Paste book text',
+        'quizadmin_active_tab': 'my_books',
+    })
+
+
+@staff_member_required
+def book_create_authored_page(request):
+    """Write-from-scratch form — title + language + submit (no text yet)."""
+    return render(request, 'quizadmin/pages/book_create_authored.html', {
+        'page_title': 'Write a book',
+        'quizadmin_active_tab': 'my_books',
+    })
+
+
+@staff_member_required
+def book_editor_page(request, book_id):
+    """Full chapter-by-chapter editor for one book.
+
+    Loads the chapter list server-side (so first paint is correct) and a JS
+    controller handles chapter switching + auto-save via the API.
+    """
+    from amolnama_news.site_apps.core.utils import get_user_profile_id
+    from amolnama_news.site_apps.mastermind.book_editor import (
+        list_chapters_for_book,
+    )
+    from amolnama_news.site_apps.mastermind.models import CollBook
+
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=int(book_id), is_active=True,
+    ).first()
+    if not book:
+        return _render_not_found(
+            request, 'Book', book_id, '/quizadmin/my-books/', 'Back to my books',
+        )
+    user_profile_id = get_user_profile_id(request)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    if not is_staff_user and book.link_created_by_user_profile_id != user_profile_id:
+        return _render_not_found(
+            request, 'Book', book_id, '/quizadmin/my-books/', 'Back to my books',
+        )
+
+    chapters = list_chapters_for_book(int(book_id))
+    public_url = (
+        f'/mastermind/book/{book.mastermind_coll_book_id}/{book.book_slug}/'
+        if book.book_slug and book.book_status_code == 'published' else None
+    )
+    context = {
+        'page_title': f'Edit: {book.book_title_bn}',
+        'quizadmin_active_tab': 'my_books',
+        'book': book,
+        'chapters': chapters,
+        'public_url': public_url,
+    }
+    return render(request, 'quizadmin/pages/book_editor.html', context)
+
+
+@staff_member_required
+def needs_edit_inbox_page(request):
+    """Inbox of questions marked 'needs_edit' — staff fixes + republishes."""
+    from amolnama_news.site_apps.mastermind.ai_generator import (
+        list_questions_needing_edit,
+    )
+    questions = list_questions_needing_edit()
+    context = {
+        'page_title': 'Needs Edit Inbox',
+        'quizadmin_active_tab': 'needs_edit',
+        'questions': questions,
+    }
+    return render(request, 'quizadmin/pages/needs_edit_inbox.html', context)

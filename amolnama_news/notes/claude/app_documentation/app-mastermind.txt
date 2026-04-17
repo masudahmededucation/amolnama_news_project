@@ -569,3 +569,111 @@ KNOWN REMAINING DUPLICATION (deferred)
   to avoid risk to the 4 quiz-take consumers.
 
 Cache bumped to v718.
+
+================================================================
+2026-04-17 (later) — Book editor v1 + reject-recovery (SHIPPED)
+================================================================
+
+FOUR FEATURES UNIFIED INTO ONE EDITOR + ONE RECOVERY FLOW
+---------------------------------------------------------
+Plan doc: notes/claude/app_documentation/plan-mastermind-book-editor-v1.txt
+SQL:      notes/sql-script/mastermind-book-editor-v1.sql  (idempotent — user runs in SSMS)
+
+The plan unified three book features (read/edit imported, paste-as-book,
+write-from-scratch) into a SINGLE editor with three doorways. The reject-
+recovery flow is independent — it adds a "needs_edit" mid-state so reviewers
+can fix near-misses instead of throwing them away.
+
+DB CHANGES
+  Added 5 columns to coll_book (no new tables):
+    link_created_by_user_profile_id BIGINT NULL
+    book_origin_code  NVARCHAR(20)  DEFAULT 'imported_pdf'
+    book_status_code  NVARCHAR(20)  DEFAULT 'draft'
+    book_published_at DATETIME2     NULL
+    book_slug         NVARCHAR(300) NULL  (filtered unique index)
+  Plus IX_coll_book_owner_status for fast author-dashboard queries.
+  No DB change for needs_edit — question_status_code already accepts any string.
+
+ENGINE
+  New module: site_apps/mastermind/book_editor.py
+    chunk_pasted_text()      — paragraph + sentence aware splitter (matches PDF chunker)
+    create_book_from_paste() — title + paste → book + chapter + chunks in one call
+    create_blank_authored_book()
+    add_chapter_to_book()
+    update_chapter_metadata()
+    replace_chapter_chunks() — DELETE + INSERT chunks for ONE chapter only
+    get_chapter_with_text()  — returns chunks joined for editor
+    list_chapters_for_book()
+    list_books_for_owner()   — author dashboard query (staff bypass via flag)
+    publish_book()           — sets status, mints slug from book_title_bn
+    archive_book()
+  Extended: site_apps/mastermind/ai_generator.py
+    mark_question_needs_edit()    — review|archived → needs_edit (is_active=True)
+    recover_archived_question()   — archived → needs_edit (one-shot recovery)
+    list_questions_needing_edit()
+
+API (9 new endpoints in mastermind/views_api.py)
+  POST /mastermind/api/book/create-from-paste/
+  POST /mastermind/api/book/create-blank-authored/
+  POST /mastermind/api/book/<id>/chapter-add/
+  POST /mastermind/api/book/<id>/chapter/<id>/save-text/
+  GET  /mastermind/api/book/<id>/chapter/<id>/get-text/      (auth required, owner+staff)
+  GET  /mastermind/api/book/<id>/chapter/<id>/public-text/   (anonymous OK; published only)
+  POST /mastermind/api/book/<id>/publish/
+  POST /mastermind/api/book/<id>/archive/
+  POST /mastermind/api/question/<id>/needs-edit/
+  POST /mastermind/api/question/<id>/recover/
+
+QUIZ PANEL VIEWS (6 new in quizadmin/views.py)
+  /quizadmin/my-books/                — author dashboard (staff sees all)
+  /quizadmin/book/create/             — 3-card chooser (paste / write / import-pdf)
+  /quizadmin/book/create/paste/       — paste-text form
+  /quizadmin/book/create/authored/    — write-from-scratch form
+  /quizadmin/book/<id>/edit/          — full chapter-by-chapter editor
+  /quizadmin/needs-edit/              — staff inbox of needs_edit questions
+  Added 2 nav tabs: "Needs Edit" + "My Books"
+
+PUBLIC READER (in mastermind/views.py)
+  /mastermind/book/<id>/<slug>/  — paginated chapter reader (no auth required)
+  /mastermind/book/<id>/         — same view, slug optional (canonical id-only URL)
+
+TEMPLATES (7 new)
+  quizadmin/pages/my_books.html
+  quizadmin/pages/book_create.html
+  quizadmin/pages/book_create_paste.html
+  quizadmin/pages/book_create_authored.html
+  quizadmin/pages/book_editor.html
+  quizadmin/pages/needs_edit_inbox.html
+  mastermind/pages/book_reader.html
+  + EXTENDED: quizadmin/partials/review_question_card.html (3-way action: Approve / Needs Edit / Reject)
+  + EXTENDED: quizadmin/pages/review_queue.html (kbd hint list adds E shortcut)
+
+JS (4 new + 2 extended)
+  quizadmin/assets/js/pages/page-book-create-paste.js
+  quizadmin/assets/js/pages/page-book-create-authored.js
+  quizadmin/assets/js/pages/page-book-editor.js  — auto-save (3s debounce + onblur), chapter switch, publish/archive
+  mastermind/assets/js/book-reader.js            — TOC click → fetch /public-text/ → render
+  + EXTENDED: quizadmin/assets/js/utilities/quizadmin-utils.js — added window.quizadminGet
+  + EXTENDED: quizadmin/assets/js/pages/page-review-queue.js — added needs_edit action + E shortcut
+
+CSS (2 new)
+  quizadmin/assets/css/components/book-editor.css   — covers all 5 quizadmin book pages
+  mastermind/assets/css/components/book-reader.css  — public reader (serif body type)
+  Both: tokenised, mobile-first (sidebar collapses ≤768px), prefers-reduced-motion guard,
+  focus-visible on every interactive element, touch-target min-height.
+
+REJECT-RECOVERY FLOW
+  Reviewer sees 3 actions on every question:
+    Approve     → published (existing behaviour)
+    Needs Edit  → status='needs_edit', is_active=True (NEW — recoverable)
+    Reject      → status='archived', is_active=False (existing — unrecoverable)
+  Needs-edit questions appear in /quizadmin/needs-edit/ inbox.
+  Staff opens existing question editor (question_form.html, no schema change),
+  fixes whatever's wrong, saves with status='published' to ship to live bank.
+  One-shot recovery: archived → needs_edit via /api/question/<id>/recover/.
+
+SQL SCRIPT RUN ORDER (this session)
+  notes/sql-script/mastermind-multiplayer-lobby.sql
+  notes/sql-script/mastermind-book-editor-v1.sql  ← new
+
+Cache bumped to v719.

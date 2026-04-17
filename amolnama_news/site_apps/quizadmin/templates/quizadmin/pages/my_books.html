@@ -1,0 +1,82 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {% if is_staff_view %}
+      All books in the system. As staff you can edit any book regardless of author.
+    {% else %}
+      Books you've authored or imported. Drafts are private to you; published books appear in the public library.
+    {% endif %}
+  </p>
+
+  <nav class="quizadmin-my-books-tabs" aria-label="Filter books by status">
+    {% for status_option in status_options %}
+    <a class="quizadmin-my-books-tab {% if active_status_filter == status_option %}quizadmin-my-books-tab--active{% endif %}"
+       id="quizadmin-my-books-tab-{{ status_option|default:'all' }}"
+       name="quizadmin_my_books_tab_{{ status_option|default:'all' }}"
+       href="?status={{ status_option }}">
+      {{ status_option|default:"All"|title }}
+    </a>
+    {% endfor %}
+  </nav>
+
+  <div class="quizadmin-page-actions">
+    <a href="{% url 'quizadmin:book_create_page' %}"
+       class="quizadmin-create-quiz-button"
+       id="quizadmin-my-books-create-link"
+       name="quizadmin_my_books_create_link">+ Create new book</a>
+  </div>
+</section>
+
+{% if books %}
+<section class="quizadmin-section">
+  <div class="quizadmin-book-grid" id="quizadmin-book-grid" name="quizadmin_book_grid">
+    {% for book in books %}
+    <article class="quizadmin-book-card" id="quizadmin-book-card-{{ book.mastermind_coll_book_id }}" data-book-id="{{ book.mastermind_coll_book_id }}">
+      <header class="quizadmin-book-card-header">
+        <span class="quizadmin-status-chip quizadmin-status-chip-{{ book.book_status_code }}">{{ book.book_status_code }}</span>
+        <span class="quizadmin-book-card-origin">{{ book.book_origin_code|cut:"_" }}</span>
+      </header>
+      <h2 class="quizadmin-book-card-title">{{ book.book_title_bn }}</h2>
+      {% if book.book_title_en %}<p class="quizadmin-book-card-title-en">{{ book.book_title_en }}</p>{% endif %}
+      <dl class="quizadmin-book-card-meta">
+        <div><dt>Language</dt><dd>{{ book.book_language_code }}</dd></div>
+        {% if book.book_total_pages %}<div><dt>Pages</dt><dd>{{ book.book_total_pages }}</dd></div>{% endif %}
+        {% if book.book_published_at %}<div><dt>Published</dt><dd>{{ book.book_published_at|date:"Y-m-d" }}</dd></div>{% endif %}
+      </dl>
+      <footer class="quizadmin-book-card-actions">
+        <a class="quizadmin-table-action"
+           href="{% url 'quizadmin:book_editor_page' book_id=book.mastermind_coll_book_id %}"
+           id="quizadmin-book-edit-link-{{ book.mastermind_coll_book_id }}"
+           name="quizadmin_book_edit_link_{{ book.mastermind_coll_book_id }}">Edit</a>
+        {% if book.book_slug and book.book_status_code == 'published' %}
+        <a class="quizadmin-table-action"
+           href="/mastermind/book/{{ book.mastermind_coll_book_id }}/{{ book.book_slug }}/"
+           target="_blank" rel="noopener"
+           id="quizadmin-book-public-link-{{ book.mastermind_coll_book_id }}"
+           name="quizadmin_book_public_link_{{ book.mastermind_coll_book_id }}">View public</a>
+        {% endif %}
+      </footer>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero" id="quizadmin-my-books-empty" name="quizadmin_my_books_empty">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">📚</p>
+  <h2 class="quizadmin-empty-hero-title">No books yet</h2>
+  <p class="quizadmin-empty-hero-body">Create your first book — paste existing text, write from scratch, or import a PDF.</p>
+  <a class="quizadmin-create-quiz-button"
+     href="{% url 'quizadmin:book_create_page' %}"
+     id="quizadmin-my-books-empty-create-link"
+     name="quizadmin_my_books_empty_create_link">+ Create new book</a>
+</section>
+{% endif %}
+{% endblock %}

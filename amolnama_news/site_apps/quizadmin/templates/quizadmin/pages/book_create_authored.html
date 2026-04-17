@@ -1,0 +1,54 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Start with the title. Once created you'll land in the editor where you can
+    add chapters and write each one.
+  </p>
+</section>
+
+<form class="quizadmin-book-create-form" id="quizadmin-book-create-authored-form" name="quizadmin_book_create_authored_form">
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Book title (Bengali) <span aria-hidden="true">*</span></span>
+    <input type="text" id="quizadmin-book-create-authored-title-bn" name="quizadmin_book_create_authored_title_bn" class="quizadmin-form-input" maxlength="500" required>
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Book title (English, optional)</span>
+    <input type="text" id="quizadmin-book-create-authored-title-en" name="quizadmin_book_create_authored_title_en" class="quizadmin-form-input" maxlength="500">
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Language</span>
+    <select id="quizadmin-book-create-authored-language" name="quizadmin_book_create_authored_language" class="quizadmin-form-select">
+      <option value="bn" selected>বাংলা (bn)</option>
+      <option value="en">English (en)</option>
+      <option value="ar">العربية (ar)</option>
+    </select>
+  </label>
+
+  <label class="quizadmin-form-field">
+    <span class="quizadmin-form-label">Description (optional)</span>
+    <textarea id="quizadmin-book-create-authored-description" name="quizadmin_book_create_authored_description" class="quizadmin-form-input" rows="3" maxlength="2000"></textarea>
+  </label>
+
+  <div class="quizadmin-inline-message" id="quizadmin-book-create-authored-form-message" role="status" aria-live="polite" hidden></div>
+
+  <div class="quizadmin-page-actions">
+    <a class="quizadmin-table-action" href="{% url 'quizadmin:book_create_page' %}" id="quizadmin-book-create-authored-cancel-link" name="quizadmin_book_create_authored_cancel_link">Cancel</a>
+    <button type="submit" class="quizadmin-form-submit" id="quizadmin-book-create-authored-submit" name="quizadmin_book_create_authored_submit">Create book</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-book-create-authored.js' %}" defer></script>
+{% endblock %}

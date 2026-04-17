@@ -72,3 +72,48 @@ def _stringify_dates(payload):
     if isinstance(payload, decimal.Decimal):
         return float(payload)
     return payload
+
+
+@require_GET
+def book_reader_page(request, book_id, book_slug=None):
+    """Public reader for status='published' books — paginated chapter view.
+
+    No authentication required (the book is public). 404 on unpublished
+    or archived books. The slug is for SEO + readability; we don't enforce
+    a redirect on slug mismatch (just render the canonical book id).
+    """
+    from .book_editor import get_chapter_with_text, list_chapters_for_book
+    from .models import CollBook
+
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=int(book_id),
+        book_status_code='published',
+        is_active=True,
+    ).first()
+    if not book:
+        raise Http404('Book not found or not published.')
+
+    chapters = list_chapters_for_book(book.mastermind_coll_book_id)
+    # Render the FIRST chapter on initial load; client-side JS swaps in others
+    # via /api/book/<id>/chapter/<id>/get-text/ (lazy fetch keeps initial paint fast).
+    first_chapter_text = None
+    if chapters:
+        first_chapter_payload = get_chapter_with_text(chapters[0]['mastermind_coll_book_chapter_id'])
+        if 'error' not in first_chapter_payload:
+            first_chapter_text = first_chapter_payload.get('chapter_text')
+
+    return render(request, 'mastermind/pages/book_reader.html', {
+        'book': book,
+        'chapters': chapters,
+        'first_chapter_id': chapters[0]['mastermind_coll_book_chapter_id'] if chapters else None,
+        'first_chapter_text': first_chapter_text,
+        'seo': {
+            'title': f'{book.book_title_bn} — Mastermind Library',
+            'description': (book.book_description or book.book_title_bn)[:200],
+            'breadcrumbs': [
+                {'name': 'হোম', 'url': '/'},
+                {'name': 'গ্রন্থাগার', 'url': None},
+                {'name': book.book_title_bn, 'url': None},
+            ],
+        },
+    })

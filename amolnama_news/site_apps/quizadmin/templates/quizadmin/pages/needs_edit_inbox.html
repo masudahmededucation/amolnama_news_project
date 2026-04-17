@@ -1,0 +1,70 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Questions a reviewer flagged as "needs_edit" — the stem is fine but
+    something needs fixing (typo, weak distractor, wrong source page).
+    Open in the editor, fix, save with status = "published" to send to the live bank.
+  </p>
+</section>
+
+{% if questions %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-needs-edit-table">
+      <thead>
+        <tr>
+          <th scope="col">Question</th>
+          <th scope="col">Source</th>
+          <th scope="col">Origin</th>
+          <th scope="col">Updated</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for question in questions %}
+        <tr id="quizadmin-needs-edit-row-{{ question.mastermind_coll_question_id }}">
+          <td data-label="Question">
+            <a class="quizadmin-needs-edit-question-link"
+               id="quizadmin-needs-edit-question-link-{{ question.mastermind_coll_question_id }}"
+               name="quizadmin_needs_edit_question_link_{{ question.mastermind_coll_question_id }}"
+               href="{% url 'quizadmin:question_edit' question_id=question.mastermind_coll_question_id %}">
+              {{ question.question_text_bn|default:question.question_text_en|truncatechars:140 }}
+            </a>
+          </td>
+          <td data-label="Source">
+            {% if question.link_mastermind_coll_book_id %}
+              Book #{{ question.link_mastermind_coll_book_id }}{% if question.source_page_number %} · p.{{ question.source_page_number }}{% endif %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td data-label="Origin"><span class="quizadmin-status-chip">{{ question.question_generation_source_code|default:"manual" }}</span></td>
+          <td data-label="Updated">{{ question.updated_at|date:"Y-m-d H:i" }}</td>
+          <td data-label="Action">
+            <a class="quizadmin-table-action"
+               href="{% url 'quizadmin:question_edit' question_id=question.mastermind_coll_question_id %}"
+               id="quizadmin-needs-edit-fix-link-{{ question.mastermind_coll_question_id }}"
+               name="quizadmin_needs_edit_fix_link_{{ question.mastermind_coll_question_id }}">Open in editor</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero" id="quizadmin-needs-edit-empty" name="quizadmin_needs_edit_empty">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">✅</p>
+  <h2 class="quizadmin-empty-hero-title">Inbox empty</h2>
+  <p class="quizadmin-empty-hero-body">No questions waiting for edits. When reviewers mark a near-miss "Needs Edit" in the review queue, it lands here.</p>
+</section>
+{% endif %}
+{% endblock %}

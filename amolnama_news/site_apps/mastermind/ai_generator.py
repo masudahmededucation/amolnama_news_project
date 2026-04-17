@@ -983,7 +983,12 @@ def approve_question(question_id, reviewer_user_profile_id=None):
 
 
 def reject_question(question_id, reviewer_user_profile_id=None):
-    """Reject an AI-generated question — moves to archived."""
+    """Reject an AI-generated question — moves to archived (NOT recoverable
+    via the inbox — use recover_archived_question for accidental rejects).
+
+    "Garbage" path: question is unfixable (garbled OCR, totally wrong topic,
+    spam). Hard-disable so it stops appearing in any active query.
+    """
     updated = CollQuestion.objects.filter(
         mastermind_coll_question_id=question_id,
         question_status_code='review',
@@ -995,6 +1000,85 @@ def reject_question(question_id, reviewer_user_profile_id=None):
     if updated == 0:
         return {'error': 'Question not found or not in review.'}
     return {'success': True, 'question_id': question_id, 'status': 'archived'}
+
+
+def mark_question_needs_edit(question_id, reviewer_user_profile_id=None, note=None):
+    """Mark an AI-generated question as 'needs_edit' — recoverable mid-state.
+
+    Reviewer's verdict: "the question stem is fine but X needs fixing"
+    (typo, weak distractor, wording, source page wrong). Question STAYS
+    is_active=True so the editor can find + open it. Appears in the
+    /quizadmin/needs-edit/ inbox until staff edits + re-publishes.
+
+    No data is lost — the original question text + options + source citation
+    are preserved exactly. Only question_status_code changes.
+    """
+    updated = CollQuestion.objects.filter(
+        mastermind_coll_question_id=question_id,
+        question_status_code__in=['review', 'archived'],
+    ).update(
+        question_status_code='needs_edit',
+        is_active=True,
+        updated_at=timezone.now(),
+    )
+    if updated == 0:
+        return {'error': 'Question not found, not in review, or not archived.'}
+    # Optional: persist the reviewer note to a future-proof location.
+    # For v1 we just return it — the inbox can re-display via question
+    # workflow log, which is a separate table and out-of-scope here.
+    return {
+        'success': True,
+        'question_id': question_id,
+        'status': 'needs_edit',
+        'note': note,
+    }
+
+
+def recover_archived_question(question_id, reviewer_user_profile_id=None):
+    """One-shot recovery for accidentally rejected questions.
+
+    Moves an archived question back to needs_edit so staff can fix and
+    re-publish. Use sparingly — most rejects should stay rejected.
+    """
+    updated = CollQuestion.objects.filter(
+        mastermind_coll_question_id=question_id,
+        question_status_code='archived',
+    ).update(
+        question_status_code='needs_edit',
+        is_active=True,
+        updated_at=timezone.now(),
+    )
+    if updated == 0:
+        return {'error': 'Question not found or not archived.'}
+    return {
+        'success': True,
+        'question_id': question_id,
+        'status': 'needs_edit',
+        'recovered_from': 'archived',
+    }
+
+
+def list_questions_needing_edit(topic_id=None, book_id=None, limit=200):
+    """Inbox for /quizadmin/needs-edit/ — questions awaiting staff edit + republish."""
+    queryset = CollQuestion.objects.filter(
+        question_status_code='needs_edit', is_active=True,
+    )
+    if topic_id:
+        queryset = queryset.filter(link_mastermind_coll_quiz_topic_id=topic_id)
+    if book_id:
+        queryset = queryset.filter(link_mastermind_coll_book_id=book_id)
+    return list(
+        queryset.order_by('-updated_at')[:limit].values(
+            'mastermind_coll_question_id',
+            'question_text_bn', 'question_text_en',
+            'link_mastermind_coll_quiz_topic_id',
+            'link_mastermind_coll_book_id',
+            'link_mastermind_coll_book_chapter_id',
+            'source_page_number',
+            'question_generation_source_code',
+            'updated_at', 'created_at',
+        )
+    )
 
 
 def bulk_approve_questions(question_ids):

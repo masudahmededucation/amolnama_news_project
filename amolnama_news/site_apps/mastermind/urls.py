@@ -11,10 +11,28 @@ urlpatterns = [
     # Multi-player player join page — also aliased at top-level /play/<code>/
     path('play/<str:join_code>/', views.lobby_player_page, name='lobby_player_page'),
 
+    # Public book reader (no auth, status='published' books only)
+    path('book/<int:book_id>/', views.book_reader_page, name='book_reader_page_no_slug'),
+    path('book/<int:book_id>/<slug:book_slug>/', views.book_reader_page, name='book_reader_page'),
+
     # Book management
     path('api/book/create/', views_api.api_book_create, name='api_book_create'),
     path('api/book/<int:book_id>/chapter/create/', views_api.api_book_chapter_create, name='api_book_chapter_create'),
     path('api/book/<int:book_id>/ingest/', views_api.api_ingest_book_pdf, name='api_ingest_book_pdf'),
+
+    # Book editor v1 — paste-as-book + write-from-scratch + chapter text edit
+    path('api/book/create-from-paste/', views_api.api_book_create_from_paste, name='api_book_create_from_paste'),
+    path('api/book/create-blank-authored/', views_api.api_book_create_blank_authored, name='api_book_create_blank_authored'),
+    path('api/book/<int:book_id>/chapter-add/', views_api.api_book_chapter_add, name='api_book_chapter_add'),
+    path('api/book/<int:book_id>/chapter/<int:chapter_id>/save-text/', views_api.api_book_chapter_save_text, name='api_book_chapter_save_text'),
+    path('api/book/<int:book_id>/chapter/<int:chapter_id>/get-text/', views_api.api_book_chapter_get_text, name='api_book_chapter_get_text'),
+    path('api/book/<int:book_id>/chapter/<int:chapter_id>/public-text/', views_api.api_book_chapter_get_text_public, name='api_book_chapter_get_text_public'),
+    path('api/book/<int:book_id>/publish/', views_api.api_book_publish, name='api_book_publish'),
+    path('api/book/<int:book_id>/archive/', views_api.api_book_archive, name='api_book_archive'),
+
+    # Question reject-recovery v1
+    path('api/question/<int:question_id>/needs-edit/', views_api.api_question_mark_needs_edit, name='api_question_mark_needs_edit'),
+    path('api/question/<int:question_id>/recover/', views_api.api_question_recover, name='api_question_recover'),
 
     # Question management
     path('api/question/create/', views_api.api_question_create, name='api_question_create'),

@@ -29,6 +29,14 @@ urlpatterns = [
     path('analytics/',                     views.analytics_dashboard_page,            name='analytics_dashboard'),
     path('webhooks/',                      views.webhooks_page,                       name='webhooks_page'),
     path('flagged/',                       views.flagged_questions_page,              name='flagged_questions_page'),
+
+    # Book editor v1 — author dashboard, create chooser, full editor, needs-edit
+    path('my-books/',                      views.my_books_page,                       name='my_books_page'),
+    path('book/create/',                   views.book_create_page,                    name='book_create_page'),
+    path('book/create/paste/',             views.book_create_paste_page,              name='book_create_paste_page'),
+    path('book/create/authored/',          views.book_create_authored_page,           name='book_create_authored_page'),
+    path('book/<int:book_id>/edit/',       views.book_editor_page,                    name='book_editor_page'),
+    path('needs-edit/',                    views.needs_edit_inbox_page,               name='needs_edit_inbox_page'),
     path('help/',                          views.help_page,                           name='help_page'),
     path('proctoring/',                    views.proctoring_dashboard_page,           name='proctoring_dashboard'),
     path('proctoring/feed/',               views.proctoring_dashboard_feed_partial,   name='proctoring_dashboard_feed'),

@@ -1465,6 +1465,266 @@ def api_question_report_review(request, report_id):
 
 @login_required
 @require_POST
+def api_book_create_from_paste(request):
+    """Create a CollBook + first chapter + chunks from pasted plain text.
+
+    Body: {title_bn, title_en?, description?, language_code?, paste_text,
+           chapter_title_bn?, chapter_title_en?}
+    """
+    from .book_editor import create_book_from_paste
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    result = create_book_from_paste(
+        title_bn=(payload.get('title_bn') or '').strip(),
+        owner_user_profile_id=user_profile_id,
+        paste_text=payload.get('paste_text') or '',
+        title_en=payload.get('title_en'),
+        language_code=payload.get('language_code') or 'bn',
+        description=payload.get('description'),
+        chapter_title_bn=(payload.get('chapter_title_bn') or '').strip() or 'অধ্যায় ১',
+        chapter_title_en=(payload.get('chapter_title_en') or '').strip() or 'Chapter 1',
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_create_blank_authored(request):
+    """Create an empty user-authored book (write-from-scratch flow).
+
+    Body: {title_bn, title_en?, description?, language_code?}
+    """
+    from .book_editor import create_blank_authored_book
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    result = create_blank_authored_book(
+        title_bn=(payload.get('title_bn') or '').strip(),
+        owner_user_profile_id=user_profile_id,
+        title_en=payload.get('title_en'),
+        language_code=payload.get('language_code') or 'bn',
+        description=payload.get('description'),
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_chapter_add(request, book_id):
+    """Append a new (empty) chapter at the end of a book."""
+    from .book_editor import add_chapter_to_book
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    result = add_chapter_to_book(
+        book_id=book_id,
+        owner_user_profile_id=user_profile_id,
+        chapter_title_bn=payload.get('chapter_title_bn'),
+        chapter_title_en=payload.get('chapter_title_en'),
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_chapter_save_text(request, book_id, chapter_id):
+    """Replace a chapter's text — chunks are rebuilt from the supplied plain_text.
+
+    Body: {plain_text, chapter_title_bn?, chapter_title_en?, chapter_number?}
+    """
+    from .book_editor import (
+        replace_chapter_chunks, update_chapter_metadata,
+        _user_can_edit_book,
+    )
+    from .models import CollBook, CollBookChapter
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+    user_profile_id = get_user_profile_id(request)
+    if not user_profile_id:
+        return JsonResponse({'error': 'User profile not found.'}, status=403)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+
+    chapter = CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id,
+        link_mastermind_coll_book_id=book_id,
+        is_active=True,
+    ).first()
+    if not chapter:
+        return JsonResponse({'error': 'Chapter not found.'}, status=404)
+    book = CollBook.objects.filter(mastermind_coll_book_id=book_id).first()
+    if not book or not _user_can_edit_book(book, user_profile_id, is_staff_user):
+        return JsonResponse({'error': 'Permission denied.'}, status=403)
+
+    metadata_result = update_chapter_metadata(
+        chapter_id=chapter_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+        chapter_title_bn=payload.get('chapter_title_bn'),
+        chapter_title_en=payload.get('chapter_title_en'),
+        chapter_number=payload.get('chapter_number')
+            if isinstance(payload.get('chapter_number'), int) else None,
+    )
+    if 'error' in metadata_result:
+        return JsonResponse(metadata_result, status=400)
+
+    plain_text = payload.get('plain_text') or ''
+    chunk_result = replace_chapter_chunks(chapter_id, plain_text)
+    if 'error' in chunk_result:
+        return JsonResponse(chunk_result, status=400)
+    return JsonResponse({
+        'success': True,
+        'chapter_id': chapter_id,
+        'chunk_count': chunk_result.get('chunk_count', 0),
+    })
+
+
+@login_required
+@require_GET
+def api_book_chapter_get_text(request, book_id, chapter_id):
+    """Return chapter metadata + concatenated text for the editor (auth required)."""
+    from .book_editor import get_chapter_with_text, _user_can_edit_book
+    from .models import CollBook
+    user_profile_id = get_user_profile_id(request)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    book = CollBook.objects.filter(
+        mastermind_coll_book_id=book_id, is_active=True,
+    ).first()
+    if not book:
+        return JsonResponse({'error': 'Book not found.'}, status=404)
+    if not _user_can_edit_book(book, user_profile_id, is_staff_user):
+        return JsonResponse({'error': 'Permission denied.'}, status=403)
+    result = get_chapter_with_text(chapter_id)
+    if 'error' in result:
+        return JsonResponse(result, status=404)
+    return JsonResponse(result)
+
+
+@require_GET
+def api_book_chapter_get_text_public(request, book_id, chapter_id):
+    """Public chapter-text fetch for PUBLISHED books only (no auth required).
+
+    Used by the public reader to lazy-load chapters as the visitor clicks
+    through the table of contents. Strictly read-only and strictly limited
+    to status='published' books — drafts + reviews + archives 404.
+    """
+    from .book_editor import get_chapter_with_text
+    from .models import CollBook, CollBookChapter
+    book_is_public = CollBook.objects.filter(
+        mastermind_coll_book_id=book_id,
+        book_status_code='published',
+        is_active=True,
+    ).exists()
+    if not book_is_public:
+        return JsonResponse({'error': 'Book not found or not published.'}, status=404)
+    chapter_belongs_to_book = CollBookChapter.objects.filter(
+        mastermind_coll_book_chapter_id=chapter_id,
+        link_mastermind_coll_book_id=book_id,
+        is_active=True,
+    ).exists()
+    if not chapter_belongs_to_book:
+        return JsonResponse({'error': 'Chapter not found.'}, status=404)
+    result = get_chapter_with_text(chapter_id)
+    if 'error' in result:
+        return JsonResponse(result, status=404)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_publish(request, book_id):
+    """Mark a book as published — visible at /mastermind/book/<id>/<slug>/."""
+    from .book_editor import publish_book
+    user_profile_id = get_user_profile_id(request)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    result = publish_book(
+        book_id=book_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_book_archive(request, book_id):
+    """Soft-archive a book — hides from public reader but recoverable."""
+    from .book_editor import archive_book
+    user_profile_id = get_user_profile_id(request)
+    is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+    result = archive_book(
+        book_id=book_id,
+        owner_user_profile_id=user_profile_id,
+        is_staff_user=is_staff_user,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_question_mark_needs_edit(request, question_id):
+    """Reviewer marks a question as 'needs_edit' (recoverable mid-state)."""
+    from .ai_generator import mark_question_needs_edit
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        payload = {}
+    user_profile_id = get_user_profile_id(request)
+    result = mark_question_needs_edit(
+        question_id=question_id,
+        reviewer_user_profile_id=user_profile_id,
+        note=(payload.get('note') or '').strip() or None,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
+def api_question_recover(request, question_id):
+    """One-shot recovery — moves an archived question to 'needs_edit'."""
+    from .ai_generator import recover_archived_question
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    user_profile_id = get_user_profile_id(request)
+    result = recover_archived_question(
+        question_id=question_id,
+        reviewer_user_profile_id=user_profile_id,
+    )
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_POST
 def api_lobby_create(request):
     """Create a new multi-player lobby for a quiz. Caller becomes the host."""
     from .lobby import create_lobby

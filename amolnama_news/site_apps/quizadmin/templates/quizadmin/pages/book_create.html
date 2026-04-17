@@ -1,0 +1,59 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/components/book-editor.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    Pick how the book gets into the system. All three paths land in the same editor afterwards.
+  </p>
+</section>
+
+<section class="quizadmin-section">
+  <div class="quizadmin-book-create-grid" id="quizadmin-book-create-grid">
+
+    <a href="{% url 'quizadmin:book_create_paste_page' %}"
+       class="quizadmin-book-create-card"
+       id="quizadmin-book-create-card-paste"
+       name="quizadmin_book_create_card_paste">
+      <div class="quizadmin-book-create-card-icon" aria-hidden="true">📋</div>
+      <h2 class="quizadmin-book-create-card-title">Paste existing text</h2>
+      <p class="quizadmin-book-create-card-body">
+        Skip OCR. Paste a clean text version of the book — Constitution articles,
+        government documents, BCS notes, anything you already have as text.
+      </p>
+      <span class="quizadmin-book-create-card-cta">Paste text →</span>
+    </a>
+
+    <a href="{% url 'quizadmin:book_create_authored_page' %}"
+       class="quizadmin-book-create-card"
+       id="quizadmin-book-create-card-authored"
+       name="quizadmin_book_create_card_authored">
+      <div class="quizadmin-book-create-card-icon" aria-hidden="true">✍️</div>
+      <h2 class="quizadmin-book-create-card-title">Write from scratch</h2>
+      <p class="quizadmin-book-create-card-body">
+        Author an original book on the platform. Once published it can also feed
+        the AI question generator for instant quizzes.
+      </p>
+      <span class="quizadmin-book-create-card-cta">Start writing →</span>
+    </a>
+
+    <a href="{% url 'quizadmin:books_page' %}"
+       class="quizadmin-book-create-card"
+       id="quizadmin-book-create-card-import"
+       name="quizadmin_book_create_card_import">
+      <div class="quizadmin-book-create-card-icon" aria-hidden="true">📄</div>
+      <h2 class="quizadmin-book-create-card-title">Import PDF (OCR)</h2>
+      <p class="quizadmin-book-create-card-body">
+        Upload a scanned book or PDF. Server runs OCR (PyMuPDF + Tesseract) and
+        extracts text into editable chunks.
+      </p>
+      <span class="quizadmin-book-create-card-cta">Import PDF →</span>
+    </a>
+  </div>
+</section>
+{% endblock %}

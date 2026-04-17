@@ -24,6 +24,18 @@ class CollBook(models.Model):
     book_language_code = models.CharField(max_length=10, default='bn')
     book_file_path = models.CharField(max_length=1000, null=True, blank=True)
     book_total_pages = models.IntegerField(null=True, blank=True)
+
+    # Book editor v1 — owner + origin + lifecycle (added 2026-04-17, see SQL script
+    # mastermind-book-editor-v1.sql). Migration nullable on link_created_by_user_profile_id
+    # because legacy books pre-date the column.
+    link_created_by_user_profile_id = models.BigIntegerField(null=True, blank=True)
+    book_origin_code = models.CharField(max_length=20, default='imported_pdf')
+        # 'imported_pdf' | 'pasted_text' | 'user_authored'
+    book_status_code = models.CharField(max_length=20, default='draft')
+        # 'draft' | 'review' | 'published' | 'archived'
+    book_published_at = models.DateTimeField(null=True, blank=True)
+    book_slug = models.CharField(max_length=300, null=True, blank=True, unique=True)
+
     sort_order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)

@@ -1,0 +1,331 @@
+PLAN — MASTERMIND BOOK EDITOR + REJECT-RECOVERY (v1)
+======================================================
+Status: APPROVED (2026-04-17) — implementation in progress this session.
+Estimated effort: 1 focused session.
+Last updated: 2026-04-17.
+
+
+SCOPE — 4 features unified into ONE editor + 1 reject-recovery flow
+-------------------------------------------------------------------
+1. Book reader / editor for scanned (imported) books — staff can read OCR'd
+   chapters, fix OCR errors, add chapter#/name, save back.
+2. Paste-as-book ingest — skip OCR entirely; paste plain text → auto-chunk
+   into chapters → save.
+3. Rejected-question review-and-edit — currently rejected = soft-deleted +
+   archived (unrecoverable). Add "Needs edit" status that lets reviewers
+   recover near-misses, fix them in the existing editor, and approve.
+4. Book writing tools — any author can write + edit + publish original
+   books on the platform. Same editor as #1 + #2; new origin code.
+
+Design insight: features #1, #2, #4 are the same primitive (book editor)
+with 3 doorways (imported / pasted / authored). Build ONE editor, three
+entry points. Reuses the existing CollBook + CollBookChapter + CollBookChunk
+data model with minimal additions.
+
+
+GROUND TRUTH (verified by Explore agent, 2026-04-17)
+----------------------------------------------------
+- CollBook has 20 columns; missing: link_created_by_user_profile_id,
+  book_origin_code, book_status_code, book_published_at, book_slug.
+- CollBookChapter has 10 columns (metadata only — no text body).
+- Chapter TEXT lives in CollBookChunk (one row per ~500-word paragraph,
+  with chunk_text + chunk_page_number + chunk_paragraph_index +
+  chunk_sequence_order). Persisted; never discarded.
+- AI gen pipeline (ai_generator.py) reads from CollBookChunk.chunk_text.
+  Re-chunking after edit means re-running chunker + replacing rows for
+  the affected chapter.
+- Question reject (reject_question) currently sets question_status_code='archived'
+  AND is_active=False — hard-disable, no recovery path.
+- review_queue UI shows one question with Approve / Reject. NO in-queue edit.
+- question_form.html is a full bidirectional editor that accepts any status
+  on save — directly reusable for "needs_edit" recovery flow.
+- textextractor has a plaintext engine that takes a FILE PATH, not a string —
+  paste-as-book needs a new helper (chunk_plain_text_string) in mastermind.
+- CollBook does NOT participate in content/ContentRegistry. For v1 we
+  surface the public reader at /mastermind/book/<id>/ without registry
+  integration.
+
+
+DB CHANGES (idempotent SQL — user runs in SSMS)
+------------------------------------------------
+File: notes/sql-script/mastermind-book-editor-v1.sql
+
+ALTER TABLE [mastermind].[coll_book]
+    ADD link_created_by_user_profile_id BIGINT NULL,
+        book_origin_code               NVARCHAR(20) NOT NULL DEFAULT 'imported_pdf',
+            -- 'imported_pdf' | 'pasted_text' | 'user_authored'
+        book_status_code               NVARCHAR(20) NOT NULL DEFAULT 'draft',
+            -- 'draft' | 'review' | 'published' | 'archived'
+        book_published_at              DATETIME2 NULL,
+        book_slug                      NVARCHAR(300) NULL;
+
+CREATE UNIQUE INDEX UQ_coll_book_slug
+    ON [mastermind].[coll_book](book_slug)
+    WHERE book_slug IS NOT NULL;
+
+CREATE INDEX IX_coll_book_owner_status
+    ON [mastermind].[coll_book](link_created_by_user_profile_id, book_status_code, is_active);
+
+NEW STATUS CODE for questions: 'needs_edit'
+   No SQL change — question_status_code is NVARCHAR(20) and accepts any
+   string. Engine + UI just need to recognise it as a 3rd state alongside
+   'review' / 'archived'.
+
+NO new tables needed. CollBook + CollBookChapter + CollBookChunk already
+cover all four features.
+
+
+ARCHITECTURE — module layout (modularised, single source of truth)
+------------------------------------------------------------------
+Engine (Python):
+  mastermind/book_editor.py             [NEW] — pure functions:
+    chunk_pasted_text(plain_text, words_per_chunk=500) → list[dict]
+    create_book_with_origin(...)        — origin-aware creator
+    replace_chapter_chunks(chapter_id, plain_text)  — re-chunk + persist
+    publish_book(book_id, owner_user_profile_id)
+    list_books_for_owner(user_profile_id, status=None)
+  mastermind/engine_advanced.py [EXTEND] — add:
+    mark_question_needs_edit(question_id, reviewer_user_profile_id, note)
+    list_questions_needing_edit(...)
+    recover_archived_question(question_id, reviewer_user_profile_id)
+      (one-time recovery path for accidentally rejected questions)
+
+API (Python):
+  mastermind/views_api.py [EXTEND] — add 6 endpoints:
+    POST  /mastermind/api/book/create-from-paste/  — body {title_bn, title_en, description, paste_text, language_code, origin_code}
+    POST  /mastermind/api/book/<id>/chapter/<chapter_id>/save-text/ — body {plain_text, chapter_title_bn, chapter_title_en}
+    POST  /mastermind/api/book/<id>/publish/        — owner or staff
+    POST  /mastermind/api/book/<id>/archive/        — owner or staff
+    GET   /mastermind/api/book/<id>/chapter/<chapter_id>/text/ — returns raw text for editor
+    POST  /mastermind/api/question/<id>/needs-edit/ — body {note}
+    POST  /mastermind/api/question/<id>/recover/    — staff-only
+
+Quiz Panel views (Python):
+  quizadmin/views.py [EXTEND] — add:
+    my_books_page(request)              — author dashboard
+    book_create_page(request)           — origin chooser (paste / write / import-from-existing)
+    book_editor_page(request, book_id)  — full edit UI (chapters, text, metadata)
+    needs_edit_inbox_page(request)      — list of question_status_code='needs_edit'
+
+Public reader (Python):
+  mastermind/views.py [EXTEND] — add:
+    book_reader_page(request, book_id)  — paginated chapter reader, NO auth required
+                                          for status='published' books
+
+Templates (HTML):
+  quizadmin/templates/quizadmin/pages/
+    my_books.html                       [NEW]
+    book_create.html                    [NEW] — 3-card chooser
+    book_editor.html                    [NEW] — chapter list + active chapter editor
+    needs_edit_inbox.html               [NEW]
+  mastermind/templates/mastermind/pages/
+    book_reader.html                    [NEW] — public reader
+  quizadmin/templates/quizadmin/pages/
+    review_queue.html                   [EXTEND] — add "Needs Edit" 3rd action button
+
+Shared JS (modular):
+  quizadmin/static/quizadmin/assets/js/components/
+    book-editor.js                      [NEW] — auto-save chapter text, chapter add/remove
+    book-create-paste.js                [NEW] — paste textarea + chunk preview + submit
+
+Shared CSS:
+  quizadmin/static/quizadmin/assets/css/components/
+    book-editor.css                     [NEW] — chapter sidebar + main editor pane
+  mastermind/static/mastermind/assets/css/components/
+    book-reader.css                     [NEW] — paginated reader styles
+
+Documentation:
+  app-mastermind.txt                    [EXTEND] — full new section
+  app-troubleshooting.txt               [EXTEND] — new R-entries
+  plan-mastermind-book-editor-v1.txt    [THIS FILE]
+
+
+NAMING CONVENTIONS (compliance)
+-------------------------------
+DB tables:
+  coll_*  — collection (data grows over time, user/staff writes)
+  ref_*   — reference (rarely changed, admin-controlled)
+  No new tables in this plan; only ALTER on coll_book.
+DB columns:
+  link_<entity>_id  — foreign keys
+  book_*  prefix on book-group columns
+  question_*  prefix on question-group columns
+  status codes lowercase (e.g., 'needs_edit', 'imported_pdf')
+Python:
+  api_book_*           — API endpoints
+  *_page               — Quiz Panel views
+  Long, descriptive names (no abbreviations).
+JS:
+  CSS classes: quizadmin-book-editor-* / mastermind-book-reader-*
+  Function names: descriptive, no shortenings (loadChapterText, saveChapterText)
+  Var names: descriptive (currentChapterId, autoSaveTimerHandle)
+HTML attributes:
+  Every <input/select/textarea/button/anchor> gets id + name attributes.
+
+
+STYLING APPROACH
+----------------
+- Mobile-first (single column on ≤768px)
+- Token-based: var(--text-*), var(--radius-*), var(--elevation-*), var(--touch-target)
+- prefers-reduced-motion guard on every animation
+- focus-visible 2px accent outline on every interactive element
+- min-height: var(--touch-target) on every clickable
+- No internal <style> blocks; no inline style="" except dynamic JS-target widths
+- Auto-save indicator (saved/saving/error chip) for the editor
+- Skeleton loader on initial chapter list load
+- Reader uses CSS columns or chapter-jump nav for clean pagination feel
+- Public reader uses serif font for readability
+
+
+ACCESS-CONTROL MATRIX
+---------------------
+                              Staff/Admin   Quiz Creator   Other Authenticated   Anonymous
+Create new book (any origin)     ✅            ✅             ❌                    ❌
+Edit own book                    ✅            ✅             —                     —
+Edit any book                    ✅            ❌             ❌                    ❌
+Publish own book                 ✅            ✅             ❌                    ❌
+Read published book              ✅            ✅             ✅                    ✅
+Read draft/review book           Owner+staff   Owner only     ❌                    ❌
+Approve question                 ✅            ❌             ❌                    ❌
+Mark question 'needs_edit'       ✅            ❌             ❌                    ❌
+Recover archived question        ✅            ❌             ❌                    ❌
+Edit a needs_edit question       ✅            Owner of q     ❌                    ❌
+
+
+FLOW DIAGRAMS
+-------------
+A) Reject-recovery flow:
+   AI generates question (status='review')
+     → Reviewer opens review queue
+     → 3 actions:
+         (1) Approve  → status='published', source='ai_reviewed', is_active=True
+         (2) Needs Edit → status='needs_edit', is_active=True (NOT archived)
+                          → Question appears in /quizadmin/needs-edit/
+                          → Staff opens editor → fixes → saves with status='published'
+         (3) Reject (garbage) → status='archived', is_active=False (current behavior)
+   "Recover" button on archived questions → status='needs_edit' (one-shot recovery
+   for accidentally rejected items).
+
+B) Paste-as-book flow:
+   /quizadmin/book/create/  (3-card chooser)
+     → user clicks "Paste text"
+     → /quizadmin/book/create/paste/ (form: title, lang, paste_text)
+     → POST /mastermind/api/book/create-from-paste/
+        Server: chunk_pasted_text() → CollBookChunk rows + 1 CollBookChapter row
+                book_origin_code='pasted_text', book_status_code='draft'
+     → Redirect to /quizadmin/book/<id>/edit/
+
+C) Author-write flow:
+   /quizadmin/book/create/
+     → user clicks "Write a book"
+     → POST /mastermind/api/book/create/ with origin_code='user_authored'
+     → Redirect to /quizadmin/book/<id>/edit/
+     → User adds chapters, types text into each chapter editor
+     → Auto-save every 3 seconds OR on blur
+
+D) Editor (shared by all 3 origins):
+   Sidebar: chapter list + "+ New chapter" + drag-to-reorder
+   Main: active chapter
+     - chapter_number (auto, editable)
+     - chapter_title_bn / _en
+     - chapter_text textarea (large, monospace acceptable for OCR fix flow)
+     - "Save" button + auto-save chip
+     - "Generate questions from this chapter" button (calls existing AI gen)
+     - "Read mode" toggle to preview as paginated reader
+
+E) Public reader:
+   /mastermind/book/<id>/   — for status='published' books only; 404 otherwise
+   Shows:
+     - Book metadata header (title, author, edition, language)
+     - Chapter sidebar (sticky on desktop, drawer on mobile)
+     - Main reader pane: chapter title + paginated text
+     - "Take quiz from this book" CTA if any quiz cites this book
+
+
+SPRINT BREAKDOWN
+----------------
+Step 1   Plan doc (this file)                           ✅
+Step 2   SQL script — user runs in SSMS
+Step 3   Django models — add 5 columns to CollBook
+Step 4   mastermind/book_editor.py — new module
+Step 5   mastermind/engine_advanced.py — needs_edit + recover
+Step 6   mastermind/views_api.py — 6 new endpoints
+Step 7   mastermind/urls.py — register endpoints
+Step 8   quizadmin/views.py — 4 new views
+Step 9   quizadmin/urls.py — register views
+Step 10  Templates: my_books / book_create / book_editor / needs_edit_inbox
+Step 11  Editor JS + CSS (modular)
+Step 12  Public reader: view + template + CSS
+Step 13  Wire review_queue.html 3-way action
+Step 14  Add "My Books" + "Needs Edit" in quizadmin top nav
+Step 15  Documentation: app-mastermind.txt + app-troubleshooting.txt
+Step 16  Verify (manage.py check + reverse() on all new URLs)
+Step 17  Bump cache + collectstatic + single commit + push
+
+
+PRE-IMPLEMENTATION BUG CHECK ON THE PLAN
+----------------------------------------
+✅ DB script idempotent (column-exists guards)
+✅ Status code 'needs_edit' is just a string — no DB constraint to update
+✅ Permission filter applied at every list endpoint (owner-or-staff)
+✅ Public reader 404s on unpublished books — no leak
+✅ Re-chunking on save replaces (DELETE + INSERT) per chapter only — won't
+   wipe other chapters' chunks
+✅ AI gen path unchanged — still reads CollBookChunk.chunk_text
+✅ Existing question editor accepts any status — no schema work for the
+   needs_edit recovery flow
+✅ Paste-text chunker uses paragraph splitting + ~500-word cap (matches
+   the existing PDF chunker used by ai_generator.py)
+✅ Mobile UX: sidebar collapses to drawer at ≤768px
+✅ XSS: book chapter text rendered through Django auto-escape; reader
+   converts \n\n to <p> blocks via splitlines + escaping (no |safe)
+✅ CSRF: every mutating endpoint uses @require_POST + login_required
+✅ All new HTML form elements get id + name attributes
+✅ All new CSS uses tokens; @media (prefers-reduced-motion: reduce) included
+✅ Auto-save uses throttling (3s) — no excessive server requests
+✅ No internal <style> blocks; no inline style except JS-target dynamic values
+
+POTENTIAL RISKS LOGGED (acceptable for v1)
+- Concurrent edits: last-write wins. Document as known limitation.
+- Very large pastes (>200k words): may take a few seconds to chunk +
+  insert. Acceptable for v1; revisit if real users complain.
+- Author abandonment: half-written drafts stay forever. Acceptable —
+  adds nothing to risk surface.
+
+OUT OF SCOPE for v1 (deferred to v2 if requested)
+- Public book browse / search / discovery feed
+- Likes / comments / bookmarks on books (use existing universal social
+  endpoint when wanted)
+- Rich text formatting (Quill/CKEditor) — start with plain textarea
+- Multi-author collaboration with conflict resolution
+- Book cover image uploader (use existing cover_image_url URL field for now)
+- ContentRegistry integration (publish book to public homepage)
+- Server-side WYSIWYG drag-to-reorder (V1 uses up/down arrows for chapter
+  reordering — same pattern as ordering question)
+- Analytics on book reads / downloads
+
+
+DOCUMENTATION TO UPDATE
+-----------------------
+- app-mastermind.txt — append v1 section (book editor + reject recovery)
+- app-troubleshooting.txt — add R24+ entries for any pitfalls encountered
+- This plan doc — update Status to "SHIPPED" once done
+
+
+DONE-CRITERIA (compare back to this plan when finished)
+-------------------------------------------------------
+[ ] SQL script committed; user has run it
+[ ] Django models updated to match schema
+[ ] All 6 API endpoints registered + reverse() OK
+[ ] All 4 Quiz Panel views render without 500
+[ ] Public reader at /mastermind/book/<id>/ resolves
+[ ] Review queue shows 3-way action (Approve / Needs Edit / Reject)
+[ ] /quizadmin/needs-edit/ inbox loads
+[ ] /quizadmin/my-books/ author dashboard loads
+[ ] Editor auto-save works (verify in shell test)
+[ ] All new CSS tokenised + mobile responsive + reduced-motion
+[ ] All new HTML form elements have id + name
+[ ] No alert/confirm/prompt/console.* in new JS
+[ ] manage.py check clean
+[ ] Cache bumped; collectstatic ran
+[ ] Single commit + push
