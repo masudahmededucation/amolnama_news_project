@@ -291,5 +291,10 @@ PROCTORING_SEVERITY_POINTS = {
     'audio_detected':     3,
 }
 
-# Mastermind notifications — set to True once SMTP is configured
-MASTERMIND_NOTIFICATIONS_ENABLED = env.bool("MASTERMIND_NOTIFICATIONS_ENABLED", default=False)
+# Mastermind notifications use in-house channels: pulse notification badge
+# (newsengine.NotificationItem) + system DM in messenger inbox. No SMTP, no
+# third party. Set MASTERMIND_SYSTEM_SENDER_PROFILE_ID to a UserProfile id to
+# enable the messenger DM channel; pulse notifications fire either way.
+MASTERMIND_SYSTEM_SENDER_PROFILE_ID = env.int(
+    "MASTERMIND_SYSTEM_SENDER_PROFILE_ID", default=None
+)
