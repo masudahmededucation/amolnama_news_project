@@ -1,0 +1,79 @@
+{% load static %}
+{# Mastermind proctoring — consent gate for level-2 (webcam AI) quizzes.
+
+   Usage:
+     {% include 'mastermind/partials/proctoring_consent.html' with quiz_id=quiz.id session_id=session.id proctoring_level=quiz.exam_proctoring_level %}
+
+   Behaviour:
+     - Renders nothing visible if proctoring_level < 2 (no consent needed).
+     - Otherwise blocks the page with a full-overlay consent screen.
+     - Runs a system check (WebAssembly + WebGL + getUserMedia + secure context).
+     - Requires explicit checkbox + successful camera test before "Start quiz" enables.
+     - On consent grant, removes itself and dispatches
+       `mastermind:proctoring-consent-granted` with `{ sessionId, quizId }`.
+     - The consumer page listens for that event and calls window.mastermindProctoring.start().
+
+   Privacy contract (rendered visibly to the user):
+     - Webcam processing happens locally in the browser.
+     - No images, video, or biometric data are stored or transmitted.
+     - Server only ever receives text events ("look_away", "multiple_faces") with timestamps.
+#}
+{% if proctoring_level == 2 %}
+<link rel="stylesheet" href="{% static 'mastermind/assets/css/components/proctoring-consent.css' %}">
+<div class="mastermind-proctoring-consent" id="mastermind-proctoring-consent" role="dialog" aria-modal="true" aria-labelledby="mastermind-proctoring-consent-title" data-quiz-id="{{ quiz_id }}" data-session-id="{{ session_id }}">
+  <div class="mastermind-proctoring-consent-card">
+    <header class="mastermind-proctoring-consent-header">
+      <h2 class="mastermind-proctoring-consent-title" id="mastermind-proctoring-consent-title">Webcam proctoring consent</h2>
+      <p class="mastermind-proctoring-consent-subtitle">This quiz uses optional camera-based monitoring to verify exam integrity.</p>
+    </header>
+
+    <section class="mastermind-proctoring-consent-section" aria-label="What we monitor">
+      <h3 class="mastermind-proctoring-consent-section-title">What we monitor</h3>
+      <ul class="mastermind-proctoring-consent-list">
+        <li>Whether a face is visible in the camera frame.</li>
+        <li>Whether more than one face is in the frame.</li>
+        <li>Whether your gaze is pointed at the screen (sustained 2+ seconds).</li>
+      </ul>
+    </section>
+
+    <section class="mastermind-proctoring-consent-section mastermind-proctoring-consent-section-promise" aria-label="Privacy promise">
+      <h3 class="mastermind-proctoring-consent-section-title">Privacy promise</h3>
+      <ul class="mastermind-proctoring-consent-list">
+        <li><strong>Webcam processing happens locally in your browser.</strong></li>
+        <li><strong>No images, video, or biometric data are stored or transmitted.</strong></li>
+        <li>The server only receives short text events (e.g. <code>look_away</code>) with timestamps.</li>
+        <li>The camera turns off automatically the moment you submit the quiz or close the tab.</li>
+      </ul>
+    </section>
+
+    <section class="mastermind-proctoring-consent-section" aria-label="System check">
+      <h3 class="mastermind-proctoring-consent-section-title">System check</h3>
+      <ul class="mastermind-proctoring-consent-checklist" id="mastermind-proctoring-consent-system-checklist">
+        <li data-check="secure_context"><span class="mastermind-proctoring-consent-check-icon" aria-hidden="true">…</span> Secure context (HTTPS or localhost)</li>
+        <li data-check="wasm"><span class="mastermind-proctoring-consent-check-icon" aria-hidden="true">…</span> WebAssembly support</li>
+        <li data-check="webgl"><span class="mastermind-proctoring-consent-check-icon" aria-hidden="true">…</span> WebGL support</li>
+        <li data-check="getusermedia"><span class="mastermind-proctoring-consent-check-icon" aria-hidden="true">…</span> Camera API available</li>
+        <li data-check="camera_test"><span class="mastermind-proctoring-consent-check-icon" aria-hidden="true">…</span> Camera responds when tested</li>
+      </ul>
+      <button type="button" class="mastermind-proctoring-consent-test-button" id="mastermind-proctoring-consent-test-button" name="mastermind_proctoring_consent_test">Test my camera</button>
+    </section>
+
+    <section class="mastermind-proctoring-consent-section" aria-label="Consent">
+      <label class="mastermind-proctoring-consent-checkbox-label" for="mastermind-proctoring-consent-checkbox">
+        <input type="checkbox" id="mastermind-proctoring-consent-checkbox" name="mastermind_proctoring_consent_checkbox">
+        <span>I understand that my camera will be active during this quiz and that all processing happens locally in my browser. I consent to participate in webcam-based proctoring under these terms.</span>
+      </label>
+    </section>
+
+    <div class="mastermind-proctoring-consent-inline-message" id="mastermind-proctoring-consent-inline-message" role="status" aria-live="polite" hidden></div>
+
+    <footer class="mastermind-proctoring-consent-actions">
+      <a href="/" class="mastermind-proctoring-consent-decline" id="mastermind-proctoring-consent-decline" name="mastermind_proctoring_consent_decline">Decline and exit</a>
+      <button type="button" class="mastermind-proctoring-consent-grant" id="mastermind-proctoring-consent-grant" name="mastermind_proctoring_consent_grant" disabled>Start quiz</button>
+    </footer>
+  </div>
+</div>
+
+<script src="{% static 'mastermind/assets/js/proctoring-consent.js' %}" defer></script>
+<script src="{% static 'mastermind/assets/js/proctoring-webcam.js' %}" defer></script>
+{% endif %}

@@ -181,6 +181,26 @@
 
     state.fullscreenRecheckTimer = setInterval(_ensureFullscreen, FULLSCREEN_RECHECK_INTERVAL_MS);
     _ensureFullscreen();
+
+    // Phase 2 — webcam AI is opt-in per quiz (level 2). It boots only after
+    // the consent screen has dispatched mastermind:proctoring-consent-granted,
+    // so by the time we reach this point with level === 2, consent is already
+    // confirmed. If the webcam module isn't on the page, level falls back to
+    // lockdown-only and we log a single camera_unavailable event.
+    if (state.level >= 2) {
+      if (window.mastermindProctoringWebcam && typeof window.mastermindProctoringWebcam.start === 'function') {
+        window.mastermindProctoringWebcam.start({
+          sessionId: state.sessionId,
+          quizId: state.quizId,
+          csrfToken: state.csrfToken,
+          logEndpoint: state.logEndpoint,
+          onWarning: state.onWarning,
+          onError: state.onError,
+        });
+      } else {
+        _logViolation('camera_unavailable', 'Webcam module not loaded on page');
+      }
+    }
   }
 
   function stop() {
@@ -191,6 +211,9 @@
       state.fullscreenRecheckTimer = null;
     }
     _removeAllListeners();
+    if (window.mastermindProctoringWebcam && typeof window.mastermindProctoringWebcam.stop === 'function') {
+      window.mastermindProctoringWebcam.stop();
+    }
   }
 
   window.mastermindProctoring = {

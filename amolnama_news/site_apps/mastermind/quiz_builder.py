@@ -42,6 +42,16 @@ QUESTION_STATUS_CODES = ('draft', 'review', 'published', 'archived')
 EXAM_STATUS_CODES = ('draft', 'review', 'published', 'archived')
 
 
+def _int_or_default(raw_value, default_value):
+    """Coerce form payload value to int; treat None / empty / unparseable as default."""
+    if raw_value is None or raw_value == '':
+        return default_value
+    try:
+        return int(raw_value)
+    except (TypeError, ValueError):
+        return default_value
+
+
 # ================================================================
 # Slug helpers
 # ================================================================
@@ -124,7 +134,7 @@ def create_quiz_with_questions(payload, user_profile_id=None):
             ),
             exam_allow_review=bool(payload.get('exam_allow_review', True)),
             exam_max_attempts=payload.get('exam_max_attempts') or None,
-            exam_proctoring_level=int(payload.get('exam_proctoring_level') or 0),
+            exam_proctoring_level=_int_or_default(payload.get('exam_proctoring_level'), 1),
             exam_proctoring_max_score=payload.get('exam_proctoring_max_score') or None,
             exam_rewards_enabled=bool(payload.get('exam_rewards_enabled', False)),
             exam_reward_criteria_code=(
@@ -220,7 +230,7 @@ def update_quiz_with_questions(exam_id, payload, user_profile_id=None):
             ),
             exam_allow_review=bool(payload.get('exam_allow_review', exam.exam_allow_review)),
             exam_max_attempts=payload.get('exam_max_attempts') or None,
-            exam_proctoring_level=int(payload.get('exam_proctoring_level') or exam.exam_proctoring_level or 0),
+            exam_proctoring_level=_int_or_default(payload.get('exam_proctoring_level'), exam.exam_proctoring_level),
             exam_proctoring_max_score=payload.get('exam_proctoring_max_score') or None,
             exam_rewards_enabled=bool(payload.get('exam_rewards_enabled', False)),
             exam_reward_criteria_code=(

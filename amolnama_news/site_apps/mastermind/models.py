@@ -294,8 +294,8 @@ class CollQuiz(models.Model):
     exam_scheduled_publish_at = models.DateTimeField(null=True, blank=True)
     exam_scheduled_close_at = models.DateTimeField(null=True, blank=True)
 
-    # Proctoring (Phase 1 = lockdown, Phase 2 = full AI)
-    exam_proctoring_level = models.IntegerField(default=0)
+    # Proctoring (Phase 1 = lockdown, Phase 2 = lockdown + webcam AI)
+    exam_proctoring_level = models.IntegerField(default=1)
     exam_proctoring_max_score = models.IntegerField(null=True, blank=True)
 
     # Rewards (V1 — nullable so legacy exams without rewards still work)

@@ -272,16 +272,21 @@ CSRF_COOKIE_SECURE = False
 # Mastermind quiz proctoring
 PROCTORING_GLOBAL_THRESHOLD = env.int("PROCTORING_GLOBAL_THRESHOLD", default=15)
 PROCTORING_SEVERITY_POINTS = {
-    'tab_switch':       5,
-    'window_blur':      3,
-    'copy_blocked':     2,
-    'paste_blocked':    2,
-    'context_menu':     1,
-    'fullscreen_exit':  4,
-    'key_blocked':      1,
-    'no_face':          2,
-    'multiple_faces':   8,
-    'look_away':        1,
-    'phone_detected':  10,
-    'audio_detected':   3,
+    # Phase 1 — browser lockdown
+    'tab_switch':         5,
+    'window_blur':        3,
+    'copy_blocked':       2,
+    'paste_blocked':      2,
+    'context_menu':       1,
+    'fullscreen_exit':    4,
+    'key_blocked':        1,
+    # Phase 2 — webcam AI (level 2)
+    'no_face':            8,
+    'multiple_faces':    20,
+    'look_away':          5,
+    'camera_unavailable': 3,
+    'camera_blocked':    10,
+    # Phase 3 — reserved
+    'phone_detected':    10,
+    'audio_detected':     3,
 }
