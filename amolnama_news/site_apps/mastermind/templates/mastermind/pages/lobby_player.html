@@ -15,7 +15,10 @@
   {{ lobby_state|json_script:"mastermind-lobby-bootstrap" }}
 
   <header class="mastermind-lobby-header">
-    <h1 class="mastermind-lobby-title" id="mastermind-lobby-title">{{ lobby_state.quiz_title_bn|default:"Live quiz" }}</h1>
+    <div class="mastermind-lobby-header-top">
+      <h1 class="mastermind-lobby-title" id="mastermind-lobby-title">{{ lobby_state.quiz_title_bn|default:"Live quiz" }}</h1>
+      <button type="button" class="mastermind-lobby-sfx-toggle" id="mastermind-lobby-sfx-toggle" name="mastermind_lobby_sfx_toggle" aria-pressed="false" aria-label="Toggle sound effects" title="Toggle sound effects">🔊</button>
+    </div>
     <p class="mastermind-lobby-subtitle">
       Join code <strong class="mastermind-lobby-join-code">{{ join_code }}</strong> ·
       <span id="mastermind-lobby-status">Connecting…</span>
@@ -64,5 +67,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'mastermind/assets/js/lobby-sfx.js' %}" defer></script>
 <script src="{% static 'mastermind/assets/js/lobby-player.js' %}" defer></script>
 {% endblock %}

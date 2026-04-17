@@ -118,7 +118,17 @@
     state.socket.send(JSON.stringify(payload));
   }
 
+  // --- sound-effects helper (no-op when window.mastermindLobbySfx absent) ---
+  function _playSfx(eventCode) {
+    if (window.mastermindLobbySfx && typeof window.mastermindLobbySfx.play === 'function') {
+      window.mastermindLobbySfx.play(eventCode);
+    }
+  }
+
   // --- state application ------------------------------------------
+  var previousStatusCode = null;
+  var previousQuestionIndex = null;
+
   function _applyState(serverState) {
     if (!serverState || serverState.error) {
       _setError(serverState && serverState.error || 'Lobby unavailable.');
@@ -128,18 +138,27 @@
     _renderRoster(serverState.players || []);
     _renderLeaderboard(serverState.leaderboard || []);
 
+    var statusChanged = (previousStatusCode !== serverState.status_code);
+    var questionChanged = (previousQuestionIndex !== serverState.current_question_index);
+
     if (serverState.status_code === 'waiting') {
       _showState('waiting');
       _setStatus('Waiting for host to start');
     } else if (serverState.status_code === 'playing') {
       _showState('playing');
+      if (statusChanged) _playSfx('lobby_start');
       _renderQuestion(serverState);
+      if (questionChanged && !statusChanged) _playSfx('question_advance');
     } else if (serverState.status_code === 'completed') {
       _showState('completed');
       _renderFinalLeaderboard(serverState.leaderboard || []);
       _setStatus('Game over');
       if (state.timerHandle) clearInterval(state.timerHandle);
+      if (statusChanged) _playSfx('game_over');
     }
+
+    previousStatusCode = serverState.status_code;
+    previousQuestionIndex = serverState.current_question_index;
   }
 
   function _renderRoster(players) {
@@ -213,6 +232,9 @@
       renderer(question);
     }
 
+    // Reset per-question timer warnings so each question replays beeps independently
+    lastTimerSecondsAnnounced = null;
+
     // Server-driven timer
     if (state.timerHandle) clearInterval(state.timerHandle);
     if (serverState.question_seconds && serverState.question_started_at) {
@@ -226,13 +248,26 @@
     }
   }
 
+  var lastTimerSecondsAnnounced = null;
   function _tickTimer() {
     if (!state.questionDeadlineMs) return;
     var remainingMs = Math.max(0, state.questionDeadlineMs - Date.now());
     var seconds = Math.ceil(remainingMs / 1000);
     timerEl.textContent = seconds + 's';
+
+    // Urgency: warning at <=10s, critical (red + faster pulse + soft beep) at <=5s
+    timerEl.classList.remove('mastermind-lobby-timer-warning', 'mastermind-lobby-timer-critical');
+    if (seconds <= 5 && seconds > 0) {
+      timerEl.classList.add('mastermind-lobby-timer-critical');
+      if (seconds !== lastTimerSecondsAnnounced) _playSfx('time_warning');
+    } else if (seconds <= 10) {
+      timerEl.classList.add('mastermind-lobby-timer-warning');
+    }
+    lastTimerSecondsAnnounced = seconds;
+
     if (remainingMs <= 0) {
       clearInterval(state.timerHandle);
+      _playSfx('time_up');
       // Auto-submit whatever the user has so far (if anything)
       if (state.currentAnswer && state.answerLockedFor === null) _submitAnswer();
     }
@@ -439,6 +474,7 @@
     submitAnswerButton.disabled = true;
     submitAnswerButton.textContent = 'Locked in';
     state.answerLockedFor = state.latest.current_question_index;
+    _playSfx('lock_in');
     _send({
       type: 'submit_answer',
       question_index: state.latest.current_question_index,
@@ -448,12 +484,62 @@
 
   function _showAnswerResult(result) {
     if (!answerStatus) return;
+    answerStatus.classList.remove('mastermind-lobby-answer-status-correct', 'mastermind-lobby-answer-status-wrong');
     if (result.is_correct) {
       answerStatus.textContent = '✅ Correct — +' + (result.points_earned || 0).toFixed(1) + ' pts';
+      answerStatus.classList.add('mastermind-lobby-answer-status-correct');
+      _playSfx('correct');
     } else {
       answerStatus.textContent = '❌ Not correct — wait for next question.';
+      answerStatus.classList.add('mastermind-lobby-answer-status-wrong');
+      _playSfx('wrong');
     }
     answerStatus.hidden = false;
+  }
+
+  // --- keyboard shortcuts: 1-9 picks the Nth option (mcq_single / true_false) ---
+  document.addEventListener('keydown', function (keyboardEvent) {
+    // Ignore when typing in a text field
+    var activeTagName = (document.activeElement && document.activeElement.tagName) || '';
+    if (activeTagName === 'INPUT' || activeTagName === 'TEXTAREA' || activeTagName === 'SELECT') return;
+    // Only react during a live question
+    if (!state.latest || state.latest.status_code !== 'playing') return;
+    if (state.answerLockedFor === state.latest.current_question_index) return;
+
+    var pressedKey = keyboardEvent.key;
+    if (pressedKey >= '1' && pressedKey <= '9') {
+      var optionIndex = parseInt(pressedKey, 10) - 1;
+      var radioInputs = answerRegion.querySelectorAll('input[type="radio"]');
+      if (radioInputs[optionIndex]) {
+        radioInputs[optionIndex].checked = true;
+        radioInputs[optionIndex].dispatchEvent(new Event('change', { bubbles: true }));
+        keyboardEvent.preventDefault();
+      }
+    } else if (pressedKey === 'Enter' && state.currentAnswer && !submitAnswerButton.disabled) {
+      _submitAnswer();
+      keyboardEvent.preventDefault();
+    }
+  });
+
+  // --- sound-effects mute toggle ------------------------------------
+  var sfxToggleButton = document.getElementById('mastermind-lobby-sfx-toggle');
+  if (sfxToggleButton && window.mastermindLobbySfx) {
+    function _refreshSfxToggleLabel() {
+      var muted = window.mastermindLobbySfx.isMuted();
+      sfxToggleButton.textContent = muted ? '🔇' : '🔊';
+      sfxToggleButton.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      sfxToggleButton.setAttribute(
+        'aria-label',
+        muted ? 'Sound off — click to enable' : 'Sound on — click to mute'
+      );
+    }
+    sfxToggleButton.addEventListener('click', function () {
+      var nextMutedState = !window.mastermindLobbySfx.isMuted();
+      window.mastermindLobbySfx.setMuted(nextMutedState);
+      _refreshSfxToggleLabel();
+      if (!nextMutedState) _playSfx('lock_in');
+    });
+    _refreshSfxToggleLabel();
   }
 
   // --- bootstrap --------------------------------------------------

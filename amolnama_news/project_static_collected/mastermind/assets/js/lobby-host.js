@@ -103,6 +103,15 @@
     state.socket.send(JSON.stringify(payload));
   }
 
+  function _playSfx(eventCode) {
+    if (window.mastermindLobbySfx && typeof window.mastermindLobbySfx.play === 'function') {
+      window.mastermindLobbySfx.play(eventCode);
+    }
+  }
+
+  var previousStatusCode = null;
+  var previousQuestionIndex = null;
+
   function _applyState(serverState) {
     if (!serverState || serverState.error) {
       _setError(serverState && serverState.error || 'Lobby unavailable.');
@@ -112,16 +121,25 @@
     _renderRoster(serverState.players || []);
     _renderLeaderboard(serverState.leaderboard || []);
 
+    var statusChanged = (previousStatusCode !== serverState.status_code);
+    var questionChanged = (previousQuestionIndex !== serverState.current_question_index);
+
     if (serverState.status_code === 'waiting') {
       _showState('waiting');
       _updateStartButton(serverState.players || []);
     } else if (serverState.status_code === 'playing') {
       _showState('playing');
+      if (statusChanged) _playSfx('lobby_start');
       _renderQuestion(serverState);
+      if (questionChanged && !statusChanged) _playSfx('question_advance');
     } else if (serverState.status_code === 'completed') {
       _showState('completed');
       _renderFinalLeaderboard(serverState.leaderboard || []);
+      if (statusChanged) _playSfx('game_over');
     }
+
+    previousStatusCode = serverState.status_code;
+    previousQuestionIndex = serverState.current_question_index;
   }
 
   function _updateStartButton(players) {
@@ -209,6 +227,27 @@
         expected_index: state.latest && state.latest.current_question_index,
       });
     });
+  }
+
+  // Sound-effects mute toggle (host can mute too)
+  var sfxToggleButton = document.getElementById('mastermind-lobby-sfx-toggle');
+  if (sfxToggleButton && window.mastermindLobbySfx) {
+    function _refreshSfxToggleLabel() {
+      var muted = window.mastermindLobbySfx.isMuted();
+      sfxToggleButton.textContent = muted ? '🔇' : '🔊';
+      sfxToggleButton.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      sfxToggleButton.setAttribute(
+        'aria-label',
+        muted ? 'Sound off — click to enable' : 'Sound on — click to mute'
+      );
+    }
+    sfxToggleButton.addEventListener('click', function () {
+      var nextMutedState = !window.mastermindLobbySfx.isMuted();
+      window.mastermindLobbySfx.setMuted(nextMutedState);
+      _refreshSfxToggleLabel();
+      if (!nextMutedState) _playSfx('lock_in');
+    });
+    _refreshSfxToggleLabel();
   }
 
   // Bootstrap from server-side state then connect for live updates

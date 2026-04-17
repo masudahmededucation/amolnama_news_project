@@ -19,6 +19,9 @@
   {# json_script auto-escapes </script> sequences in user-controlled display_name fields. #}
   {{ lobby_state|json_script:"mastermind-lobby-bootstrap" }}
 
+  {# Sound-effects toggle (host can mute too) #}
+  <button type="button" class="mastermind-lobby-sfx-toggle mastermind-lobby-sfx-toggle-floating" id="mastermind-lobby-sfx-toggle" name="mastermind_lobby_sfx_toggle" aria-pressed="false" aria-label="Toggle sound effects" title="Toggle sound effects">🔊</button>
+
   {# Join-code share panel ---------------------------------------- #}
   <aside class="mastermind-lobby-host-share" id="mastermind-lobby-host-share">
     <span class="mastermind-lobby-host-share-code" id="mastermind-lobby-host-share-code">{{ lobby_state.join_code }}</span>
@@ -68,5 +71,6 @@
 {% endblock %}
 
 {% block quizadmin_js %}
+<script src="{% static 'mastermind/assets/js/lobby-sfx.js' %}" defer></script>
 <script src="{% static 'mastermind/assets/js/lobby-host.js' %}" defer></script>
 {% endblock %}
