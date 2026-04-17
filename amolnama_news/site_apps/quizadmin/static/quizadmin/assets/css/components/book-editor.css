@@ -15,11 +15,16 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* Tab pill — inactive state: explicit border + gray text so the global
+   `main a { color: var(--accent) }` rule can't bleed through and turn
+   the pills blue-on-blue. Every state has explicit color + background. */
 .quizadmin-my-books-tab {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--muted);
+  color: var(--text, #1a1a1a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-full);
   text-decoration: none;
   min-height: var(--touch-target);
@@ -27,12 +32,14 @@
   align-items: center;
   touch-action: manipulation;
   letter-spacing: 0.01em;
-  transition: background var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
+  transition: background var(--duration-fast), color var(--duration-fast),
+              border-color var(--duration-fast), transform var(--duration-fast);
 }
 
 .quizadmin-my-books-tab:hover {
   background: var(--surface-elevated, var(--surface));
-  color: var(--text-primary);
+  color: var(--accent);
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 
@@ -44,7 +51,15 @@
 .quizadmin-my-books-tab--active {
   background: var(--accent);
   color: #fff;
+  border-color: var(--accent);
   box-shadow: var(--elevation-1);
+}
+
+.quizadmin-my-books-tab--active:hover {
+  /* Active pill must stay readable on hover — keep white text */
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 
 .quizadmin-book-grid {
