@@ -239,6 +239,14 @@
 .quizadmin-status-chip-revoked    { background: var(--danger); }
 .quizadmin-status-chip-expired    { background: var(--muted); }
 
+/* Proctoring-specific chips (semantic, not borrowed) */
+.quizadmin-status-chip-clean             { background: var(--success); }
+.quizadmin-status-chip-warned            { background: var(--amber); color: var(--text); }
+.quizadmin-status-chip-flagged           { background: var(--danger); }
+.quizadmin-status-chip-locked            { background: var(--danger); }
+.quizadmin-status-chip-violation-active  { background: var(--danger); }
+.quizadmin-status-chip-forgiven          { background: var(--muted); }
+
 /* Empty state ------------------------------------------------------- */
 .quizadmin-empty-state {
   padding: var(--space-8) var(--space-4);

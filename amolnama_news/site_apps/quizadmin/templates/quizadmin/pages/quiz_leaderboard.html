@@ -46,7 +46,7 @@
           <td>
             {% if row.session_proctoring_score and row.session_proctoring_score > 0 %}
               <a href="/quizadmin/proctoring/session/{{ row.mastermind_coll_quiz_session_id }}/" class="quizadmin-table-action">
-                <span class="quizadmin-status-chip quizadmin-status-chip-{% if row.session_proctoring_status_code == 'flagged' %}failed{% elif row.session_proctoring_status_code == 'warned' %}pending{% else %}completed{% endif %}">
+                <span class="quizadmin-status-chip quizadmin-status-chip-{{ row.session_proctoring_status_code|default:'clean' }}">
                   {{ row.session_proctoring_status_code }} ({{ row.session_proctoring_score }})
                 </span>
               </a>

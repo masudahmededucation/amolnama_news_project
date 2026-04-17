@@ -11,14 +11,20 @@
 
 {% block quizadmin_content %}
 <section class="quizadmin-page-intro">
-  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
-  <p class="quizadmin-page-subtitle">Live feed of behavioral violations across all proctored quiz sessions. Auto-refreshes every 5 seconds.</p>
+  <h1 class="quizadmin-page-title">
+    {{ page_title }}
+    <span class="quizadmin-proctoring-feed-indicator" aria-hidden="true">
+      <span class="quizadmin-proctoring-feed-pulse"></span>
+      <span>live · 5s refresh</span>
+    </span>
+  </h1>
+  <p class="quizadmin-page-subtitle">Live feed of behavioral violations across all proctored quiz sessions.</p>
 </section>
 
 <div id="quizadmin-proctoring-feed"
      hx-get="/quizadmin/proctoring/feed/"
      hx-trigger="every 5s"
-     hx-swap="innerHTML">
+     hx-swap="innerHTML transition:true">
   {% include 'quizadmin/partials/proctoring_dashboard_feed.html' %}
 </div>
 {% endblock %}

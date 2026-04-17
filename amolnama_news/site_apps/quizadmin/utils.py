@@ -542,11 +542,13 @@ def paginate_quizzes(page_number=1, per_page=50, sort_by=None, owner_user_profil
 
 def get_quiz_form_context(exam_id=None):
     """Context dict for quiz_form.html (create + edit)."""
+    from django.conf import settings
     from amolnama_news.site_apps.mastermind.models import (
         CollQuiz, CollQuestion, CollQuestionOption, MapQuizQuestionPool,
         RefQuizBadge,
     )
     context = _get_shared_ref_data()
+    context['proctoring_global_threshold'] = getattr(settings, 'PROCTORING_GLOBAL_THRESHOLD', 15)
     context['badges'] = list(
         RefQuizBadge.objects.filter(is_active=True)
         .order_by('sort_order')

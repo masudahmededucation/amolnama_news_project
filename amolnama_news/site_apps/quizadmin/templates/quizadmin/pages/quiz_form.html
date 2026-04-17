@@ -145,7 +145,7 @@
       </label>
       <label class="quizadmin-form-field">
         <span class="quizadmin-form-label">Lockout threshold (override)</span>
-        <input type="number" id="exam_proctoring_max_score" name="exam_proctoring_max_score" class="quizadmin-form-input" min="1" placeholder="default: 15" value="{{ quiz.exam_proctoring_max_score|default:'' }}">
+        <input type="number" id="exam_proctoring_max_score" name="exam_proctoring_max_score" class="quizadmin-form-input" min="1" placeholder="default: {{ proctoring_global_threshold }}" value="{{ quiz.exam_proctoring_max_score|default:'' }}">
       </label>
     </div>
   </section>

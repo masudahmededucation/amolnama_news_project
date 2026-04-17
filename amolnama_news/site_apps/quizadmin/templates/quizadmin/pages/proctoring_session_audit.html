@@ -23,23 +23,23 @@
 <section class="quizadmin-proctoring-summary">
   <div class="quizadmin-proctoring-summary-card">
     <span class="quizadmin-proctoring-summary-label">Suspicion score</span>
-    <span class="quizadmin-proctoring-summary-value">{{ session.session_proctoring_score }}</span>
+    <span class="quizadmin-proctoring-summary-value" id="quizadmin-proctoring-audit-score-value">{{ session.session_proctoring_score }}</span>
   </div>
   <div class="quizadmin-proctoring-summary-card">
     <span class="quizadmin-proctoring-summary-label">Status</span>
     <span class="quizadmin-proctoring-summary-value">
-      <span class="quizadmin-status-chip quizadmin-status-chip-{% if session.session_proctoring_status_code == 'flagged' %}failed{% elif session.session_proctoring_status_code == 'warned' %}pending{% else %}completed{% endif %}">
-        {{ session.session_proctoring_status_code }}
+      <span class="quizadmin-status-chip quizadmin-status-chip-{{ session.session_proctoring_status_code|default:'clean' }}" id="quizadmin-proctoring-audit-status-chip">
+        {{ session.session_proctoring_status_code|default:"clean" }}
       </span>
     </span>
   </div>
   <div class="quizadmin-proctoring-summary-card">
     <span class="quizadmin-proctoring-summary-label">Active violations</span>
-    <span class="quizadmin-proctoring-summary-value">{{ active_violation_count }}</span>
+    <span class="quizadmin-proctoring-summary-value" id="quizadmin-proctoring-audit-active-count">{{ active_violation_count }}</span>
   </div>
   <div class="quizadmin-proctoring-summary-card">
     <span class="quizadmin-proctoring-summary-label">Forgiven</span>
-    <span class="quizadmin-proctoring-summary-value">{{ forgiven_violation_count }}</span>
+    <span class="quizadmin-proctoring-summary-value" id="quizadmin-proctoring-audit-forgiven-count">{{ forgiven_violation_count }}</span>
   </div>
   <div class="quizadmin-proctoring-summary-card">
     <span class="quizadmin-proctoring-summary-label">Quiz score</span>
@@ -50,6 +50,7 @@
 {% if violations %}
 <section class="quizadmin-section">
   <h2 class="quizadmin-section-title">Violation timeline</h2>
+  <div class="quizadmin-inline-message" id="quizadmin-proctoring-audit-inline-message" role="status" aria-live="polite" hidden></div>
   <div class="quizadmin-table-wrapper">
     <table>
       <thead>
@@ -75,9 +76,9 @@
           <td>{{ violation.violation_details|default:"—" }}</td>
           <td>
             {% if violation.is_active %}
-              <span class="quizadmin-status-chip quizadmin-status-chip-failed">active</span>
+              <span class="quizadmin-status-chip quizadmin-status-chip-violation-active">active</span>
             {% else %}
-              <span class="quizadmin-status-chip quizadmin-status-chip-completed">forgiven</span>
+              <span class="quizadmin-status-chip quizadmin-status-chip-forgiven">forgiven</span>
             {% endif %}
           </td>
           <td>
@@ -92,8 +93,6 @@
       </tbody>
     </table>
   </div>
-
-  <div class="quizadmin-inline-message" id="quizadmin-proctoring-audit-inline-message" role="status" aria-live="polite" hidden></div>
 </section>
 {% else %}
 <section class="quizadmin-empty-hero">
