@@ -324,6 +324,82 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* FLAG QUESTION                                                       */
+/* ------------------------------------------------------------------ */
+
+.mastermind-quiz-take-flag {
+  margin-top: var(--space-2);
+}
+
+.mastermind-quiz-take-flag-toggle {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+}
+
+.mastermind-quiz-take-flag-toggle:hover { color: var(--danger); background: rgba(239, 68, 68, 0.06); }
+.mastermind-quiz-take-flag-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mastermind-quiz-take-flag-toggle:disabled { color: var(--success, #22c55e); cursor: default; background: rgba(34, 197, 94, 0.08); }
+
+.mastermind-quiz-take-flag-form {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mastermind-quiz-take-flag-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mastermind-quiz-take-flag-select,
+.mastermind-quiz-take-flag-textarea {
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-family: inherit;
+}
+
+.mastermind-quiz-take-flag-select { min-height: var(--touch-target); }
+
+.mastermind-quiz-take-flag-select:focus-visible,
+.mastermind-quiz-take-flag-textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.mastermind-quiz-take-flag-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.mastermind-quiz-take-flag-status {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------ */
 /* ACTIONS / FOOTER                                                    */
 /* ------------------------------------------------------------------ */
 

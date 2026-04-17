@@ -74,6 +74,37 @@
     </article>
 
     <div class="mastermind-quiz-take-explanation" id="mastermind-quiz-take-explanation" hidden></div>
+
+    {# Student "flag this question" — collapsed by default; only shown after an answer is submitted. #}
+    <div class="mastermind-quiz-take-flag" id="mastermind-quiz-take-flag" hidden>
+      <button type="button" class="mastermind-quiz-take-flag-toggle" id="mastermind-quiz-take-flag-toggle" name="mastermind_quiz_take_flag_toggle" aria-expanded="false">
+        🚩 Report a problem with this question
+      </button>
+      <form class="mastermind-quiz-take-flag-form" id="mastermind-quiz-take-flag-form" name="mastermind_quiz_take_flag_form" hidden>
+        <label class="mastermind-quiz-take-flag-label" for="mastermind-quiz-take-flag-reason">
+          <span>What's wrong?</span>
+          <select class="mastermind-quiz-take-flag-select" id="mastermind-quiz-take-flag-reason" name="mastermind_quiz_take_flag_reason" required>
+            <option value="">Pick a reason…</option>
+            <option value="wrong_answer">The answer marked correct is wrong</option>
+            <option value="unclear_question">The question is unclear or ambiguous</option>
+            <option value="wrong_source">The cited source is wrong</option>
+            <option value="duplicate">This question is a duplicate</option>
+            <option value="offensive">The question is offensive or biased</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label class="mastermind-quiz-take-flag-label" for="mastermind-quiz-take-flag-note">
+          <span>Optional note</span>
+          <textarea class="mastermind-quiz-take-flag-textarea" id="mastermind-quiz-take-flag-note" name="mastermind_quiz_take_flag_note" rows="2" maxlength="500" placeholder="Tell us a bit more (optional, max 500 chars)"></textarea>
+        </label>
+        <div class="mastermind-quiz-take-flag-actions">
+          <button type="button" class="mastermind-quiz-take-button-secondary" id="mastermind-quiz-take-flag-cancel" name="mastermind_quiz_take_flag_cancel">Cancel</button>
+          <button type="submit" class="mastermind-quiz-take-button-primary" id="mastermind-quiz-take-flag-submit" name="mastermind_quiz_take_flag_submit">Submit report</button>
+        </div>
+        <p class="mastermind-quiz-take-flag-status" id="mastermind-quiz-take-flag-status" role="status" aria-live="polite" hidden></p>
+      </form>
+    </div>
+
     <p class="mastermind-quiz-take-error-message" id="mastermind-quiz-take-playing-error" role="alert" hidden></p>
 
     <footer class="mastermind-quiz-take-footer">

@@ -154,6 +154,30 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def flagged_questions_page(request):
+    """Staff inbox: review user-reported question issues.
+
+    Filter via ?status=pending|resolved|invalid|all (default pending). Each row
+    shows the question text, reporter, reason, optional note. Inline actions:
+    Resolve (issue confirmed) or Reject (invalid report).
+    """
+    from amolnama_news.site_apps.mastermind.engine_advanced import list_question_reports
+
+    status_code = (request.GET.get('status') or 'pending').strip().lower()
+    if status_code not in ('pending', 'resolved', 'invalid', 'all'):
+        status_code = 'pending'
+    reports = list_question_reports(status_code=status_code)
+    context = {
+        'page_title': 'Flagged Questions',
+        'quizadmin_active_tab': 'flagged',
+        'reports': reports,
+        'active_status': status_code,
+        'status_options': ('pending', 'resolved', 'invalid', 'all'),
+    }
+    return render(request, 'quizadmin/pages/flagged_questions.html', context)
+
+
+@staff_member_required
 def webhooks_page(request):
     """Manage outbound webhook subscriptions — list + add + delete."""
     from amolnama_news.site_apps.mastermind.models import CollWebhookSubscription

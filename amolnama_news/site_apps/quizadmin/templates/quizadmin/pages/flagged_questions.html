@@ -1,0 +1,82 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-flagged-questions.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    User-reported issues with questions. Resolve once you've fixed the underlying question, or reject if the report was invalid.
+    Auto-archive triggers when a single question gets 3+ pending reports.
+  </p>
+
+  <nav class="quizadmin-flagged-tabs" aria-label="Filter reports by status">
+    {% for status_option in status_options %}
+    <a class="quizadmin-flagged-tab {% if active_status == status_option %}quizadmin-flagged-tab--active{% endif %}" id="quizadmin-flagged-tab-{{ status_option }}" name="quizadmin_flagged_tab_{{ status_option }}" href="?status={{ status_option }}">
+      {{ status_option|title }}
+    </a>
+    {% endfor %}
+  </nav>
+</section>
+
+{% if reports %}
+<section class="quizadmin-section">
+  <div class="quizadmin-table-wrapper">
+    <table class="quizadmin-flagged-table">
+      <thead>
+        <tr>
+          <th scope="col">Question</th>
+          <th scope="col">Reason</th>
+          <th scope="col">Note</th>
+          <th scope="col">Reporter</th>
+          <th scope="col">Status</th>
+          <th scope="col">Filed</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+        <tr id="quizadmin-flagged-row-{{ report.mastermind_coll_question_report_id }}" data-report-id="{{ report.mastermind_coll_question_report_id }}">
+          <td>
+            <a class="quizadmin-flagged-question-link" href="{% url 'quizadmin:question_edit' question_id=report.link_mastermind_coll_question_id %}">
+              {{ report.question_text_bn|default:report.question_text_en|truncatechars:120 }}
+            </a>
+            <small class="quizadmin-flagged-question-meta">Question #{{ report.link_mastermind_coll_question_id }} · {{ report.question_status_code|default:"—" }}</small>
+          </td>
+          <td><span class="quizadmin-status-chip quizadmin-status-chip-warning">{{ report.report_reason_code }}</span></td>
+          <td class="quizadmin-flagged-note-cell">{{ report.report_description|default:"—"|truncatechars:140 }}</td>
+          <td>#{{ report.link_user_profile_id }}</td>
+          <td><span class="quizadmin-status-chip quizadmin-status-chip-{{ report.report_status_code }}">{{ report.report_status_code }}</span></td>
+          <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="quizadmin-flagged-actions-cell">
+            {% if report.report_status_code == 'pending' %}
+              <button type="button" class="quizadmin-table-action quizadmin-flagged-resolve-button" id="quizadmin-flagged-resolve-{{ report.mastermind_coll_question_report_id }}" name="quizadmin_flagged_resolve" data-report-id="{{ report.mastermind_coll_question_report_id }}">Resolve</button>
+              <button type="button" class="quizadmin-table-action quizadmin-flagged-reject-button" id="quizadmin-flagged-reject-{{ report.mastermind_coll_question_report_id }}" name="quizadmin_flagged_reject" data-report-id="{{ report.mastermind_coll_question_report_id }}">Reject</button>
+            {% else %}
+              <small class="quizadmin-flagged-reviewed">{% if report.reviewed_at %}reviewed {{ report.reviewed_at|date:"Y-m-d" }}{% else %}—{% endif %}</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">✅</p>
+  <h2 class="quizadmin-empty-hero-title">No {{ active_status }} reports</h2>
+  <p class="quizadmin-empty-hero-body">When students flag a question with 🚩 on the take page, it lands here for staff review.</p>
+</section>
+{% endif %}
+
+<div class="quizadmin-inline-message" id="quizadmin-flagged-inline-message" role="status" aria-live="polite" hidden></div>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-flagged-questions.js' %}" defer></script>
+{% endblock %}

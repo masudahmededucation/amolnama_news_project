@@ -17,6 +17,8 @@ urlpatterns = [
     path('api/question/create/', views_api.api_question_create, name='api_question_create'),
     path('api/question/<int:question_id>/analytics/', views_api.api_question_analytics, name='api_question_analytics'),
     path('api/question/report/', views_api.api_question_report, name='api_question_report'),
+    path('api/question/report/list/', views_api.api_question_report_list, name='api_question_report_list'),
+    path('api/question/report/<int:report_id>/review/', views_api.api_question_report_review, name='api_question_report_review'),
     path('api/question/bookmark/', views_api.api_question_bookmark_toggle, name='api_question_bookmark_toggle'),
     path('api/question/bulk-import/', views_api.api_bulk_import_questions, name='api_bulk_import_questions'),
 

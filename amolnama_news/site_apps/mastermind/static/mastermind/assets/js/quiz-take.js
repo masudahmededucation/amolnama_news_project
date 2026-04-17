@@ -51,6 +51,15 @@
   var nextButton = document.getElementById('mastermind-quiz-take-next-button');
   var finishButton = document.getElementById('mastermind-quiz-take-finish-button');
 
+  var flagWrapper = document.getElementById('mastermind-quiz-take-flag');
+  var flagToggle = document.getElementById('mastermind-quiz-take-flag-toggle');
+  var flagForm = document.getElementById('mastermind-quiz-take-flag-form');
+  var flagReason = document.getElementById('mastermind-quiz-take-flag-reason');
+  var flagNote = document.getElementById('mastermind-quiz-take-flag-note');
+  var flagSubmit = document.getElementById('mastermind-quiz-take-flag-submit');
+  var flagCancel = document.getElementById('mastermind-quiz-take-flag-cancel');
+  var flagStatus = document.getElementById('mastermind-quiz-take-flag-status');
+
   var resultsTitle = document.getElementById('mastermind-quiz-take-results-title');
   var resultsSubtitle = document.getElementById('mastermind-quiz-take-results-subtitle');
   var resultsScore = document.getElementById('mastermind-quiz-take-results-score');
@@ -237,6 +246,16 @@
     state.answersSubmittedThisQuestion = false;
     _setError(playingError, '');
     explanationEl.hidden = true;
+    if (flagWrapper) flagWrapper.hidden = true;
+    if (flagForm) flagForm.hidden = true;
+    if (flagToggle) {
+      flagToggle.setAttribute('aria-expanded', 'false');
+      flagToggle.disabled = false;
+      flagToggle.textContent = '🚩 Report a problem with this question';
+    }
+    if (flagReason) flagReason.value = '';
+    if (flagNote) flagNote.value = '';
+    if (flagStatus) { flagStatus.hidden = true; flagStatus.textContent = ''; }
     nextButton.hidden = true;
     finishButton.hidden = true;
     submitAnswerButton.hidden = false;
@@ -533,6 +552,55 @@
     }
     explanationEl.innerHTML = explanationParts.join('');
     explanationEl.hidden = false;
+    if (flagWrapper) flagWrapper.hidden = false;
+  }
+
+  // ----- flag-this-question --------------------------------------
+  if (flagToggle) {
+    flagToggle.addEventListener('click', function () {
+      var isOpen = !flagForm.hidden;
+      flagForm.hidden = isOpen;
+      flagToggle.setAttribute('aria-expanded', String(!isOpen));
+    });
+  }
+  if (flagCancel) {
+    flagCancel.addEventListener('click', function () {
+      flagForm.hidden = true;
+      flagToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+  if (flagForm) {
+    flagForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      if (!flagReason.value) {
+        flagStatus.textContent = 'Please pick a reason first.';
+        flagStatus.hidden = false;
+        return;
+      }
+      var question = _currentQuestion();
+      flagSubmit.disabled = true;
+      var originalText = flagSubmit.textContent;
+      flagSubmit.textContent = 'Submitting…';
+      try {
+        await _postJson('/mastermind/api/question/report/', {
+          question_id: question.question_id,
+          reason_code: flagReason.value,
+          description: flagNote.value || null,
+        });
+        flagStatus.textContent = '✅ Thanks — staff will review this report.';
+        flagStatus.hidden = false;
+        flagForm.hidden = true;
+        flagToggle.setAttribute('aria-expanded', 'false');
+        flagToggle.disabled = true;
+        flagToggle.textContent = '✅ Reported';
+      } catch (error) {
+        flagStatus.textContent = error.message;
+        flagStatus.hidden = false;
+      } finally {
+        flagSubmit.disabled = false;
+        flagSubmit.textContent = originalText;
+      }
+    });
   }
 
   function _showAdvanceControls() {

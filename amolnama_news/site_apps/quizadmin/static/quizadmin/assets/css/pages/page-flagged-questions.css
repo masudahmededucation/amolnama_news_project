@@ -1,0 +1,75 @@
+/* Quiz Panel flagged-questions inbox.
+   Tokenised, mobile-first, reduced-motion friendly. */
+
+.quizadmin-flagged-tabs {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+}
+
+.quizadmin-flagged-tab {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.quizadmin-flagged-tab:hover { background: var(--surface-elevated, var(--surface)); color: var(--text-primary); }
+.quizadmin-flagged-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.quizadmin-flagged-tab--active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.quizadmin-flagged-question-link {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.quizadmin-flagged-question-link:hover { color: var(--accent); }
+
+.quizadmin-flagged-question-meta {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.quizadmin-flagged-note-cell {
+  max-width: 320px;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.quizadmin-flagged-actions-cell {
+  white-space: nowrap;
+}
+
+.quizadmin-flagged-resolve-button,
+.quizadmin-flagged-reject-button {
+  margin-right: var(--space-1);
+}
+
+.quizadmin-flagged-reviewed {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizadmin-flagged-tab { transition: none; }
+}

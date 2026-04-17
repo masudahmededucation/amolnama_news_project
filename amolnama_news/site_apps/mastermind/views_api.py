@@ -1425,6 +1425,46 @@ def api_session_resume(request, session_id):
 
 @login_required
 @require_GET
+def api_question_report_list(request):
+    """Staff inbox: list reports filed against questions (?status=pending|resolved|invalid|all)."""
+    from .engine_advanced import list_question_reports
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+
+    status_code = (request.GET.get('status') or 'pending').strip().lower()
+    if status_code not in ('pending', 'resolved', 'invalid', 'all'):
+        return JsonResponse({'error': 'status must be pending, resolved, invalid, or all.'}, status=400)
+    rows = list_question_reports(status_code=status_code)
+    return JsonResponse({'reports': rows, 'status': status_code})
+
+
+@login_required
+@require_POST
+def api_question_report_review(request, report_id):
+    """Staff resolves or rejects a single question report.
+
+    Body: {"action": "resolve"|"reject"}
+    """
+    from .engine_advanced import review_question_report
+
+    if not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'error': 'Staff access required.'}, status=403)
+    try:
+        payload = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    action_code = (payload.get('action') or '').strip().lower()
+    reviewer_user_profile_id = get_user_profile_id(request)
+    result = review_question_report(report_id, reviewer_user_profile_id, action_code)
+    if 'error' in result:
+        return JsonResponse(result, status=400)
+    return JsonResponse(result)
+
+
+@login_required
+@require_GET
 def api_export_quiz(request, quiz_id):
     """Export a single quiz + its question pool as a round-trip-safe JSON bundle."""
     from django.http import HttpResponse

@@ -1097,6 +1097,79 @@ def report_question(user_profile_id, question_id, reason_code, description=None)
     }
 
 
+def list_question_reports(status_code='pending', limit=200):
+    """Staff inbox: list reports with question + reporter context joined in.
+
+    Returns a list of dicts ordered newest-first. status_code can be 'pending',
+    'resolved', 'invalid', or 'all'.
+    """
+    from .models import CollQuestion, CollQuestionReport
+
+    queryset = CollQuestionReport.objects.filter(is_active=True)
+    if status_code != 'all':
+        queryset = queryset.filter(report_status_code=status_code)
+    reports = list(queryset.order_by('-created_at')[:limit].values(
+        'mastermind_coll_question_report_id',
+        'link_mastermind_coll_question_id',
+        'link_user_profile_id',
+        'report_reason_code',
+        'report_description',
+        'report_status_code',
+        'reviewed_by_user_profile_id',
+        'reviewed_at',
+        'created_at',
+    ))
+    if not reports:
+        return []
+
+    # Hydrate question text + topic in one batch
+    question_ids = [report['link_mastermind_coll_question_id'] for report in reports]
+    questions_by_id = {
+        question['mastermind_coll_question_id']: question
+        for question in CollQuestion.objects.filter(
+            mastermind_coll_question_id__in=question_ids
+        ).values(
+            'mastermind_coll_question_id', 'question_text_bn', 'question_text_en',
+            'question_status_code', 'link_mastermind_coll_quiz_topic_id',
+        )
+    }
+    for report in reports:
+        question = questions_by_id.get(report['link_mastermind_coll_question_id']) or {}
+        report['question_text_bn'] = question.get('question_text_bn') or ''
+        report['question_text_en'] = question.get('question_text_en') or ''
+        report['question_status_code'] = question.get('question_status_code') or ''
+        report['question_topic_id'] = question.get('link_mastermind_coll_quiz_topic_id')
+    return reports
+
+
+def review_question_report(report_id, reviewer_user_profile_id, action_code):
+    """Mark a report as 'resolved' (issue confirmed/fixed) or 'invalid' (rejected).
+
+    action_code: 'resolve' → status='resolved'; 'reject' → status='invalid'
+    """
+    from .models import CollQuestionReport
+    from django.utils import timezone
+
+    if action_code not in ('resolve', 'reject'):
+        return {'error': 'action_code must be resolve or reject.'}
+
+    report = CollQuestionReport.objects.filter(
+        mastermind_coll_question_report_id=report_id, is_active=True,
+    ).first()
+    if not report:
+        return {'error': 'Report not found.'}
+
+    new_status = 'resolved' if action_code == 'resolve' else 'invalid'
+    CollQuestionReport.objects.filter(
+        mastermind_coll_question_report_id=report_id
+    ).update(
+        report_status_code=new_status,
+        reviewed_by_user_profile_id=reviewer_user_profile_id,
+        reviewed_at=timezone.now(),
+    )
+    return {'success': True, 'report_id': report_id, 'new_status': new_status}
+
+
 # ================================================================
 # 12. BULK QUESTION IMPORT — CSV/JSON
 # ================================================================

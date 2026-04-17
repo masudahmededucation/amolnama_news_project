@@ -90,13 +90,17 @@ Render: tab on the question detail page.
 
 5. STUDENT FLAG / DISPUTE A QUESTION
 -------------------------------------
-Status: PARTIAL — coll_question_report exists but no UI surfaces it
+Status: DONE (2026-04-17)
 
-Today: model is in models.py, no UI.
-Add: "Flag this question" button on the quiz review screen → row in
-coll_question_report → staff sees backlog in a new /quizadmin/flagged/ page.
-
-Effort: 1 day for the button + 1 day for the staff review page.
+Shipped:
+  - 🚩 "Report a problem" button on the quiz-take explanation panel.
+    Reasons: wrong_answer, unclear_question, wrong_source, duplicate, offensive, other.
+    Optional 500-char note. Auto-archives the question after 3 pending reports.
+  - Staff inbox at /quizadmin/flagged/ with status filter
+    (pending / resolved / invalid / all). Inline Resolve / Reject actions.
+  - APIs: POST /mastermind/api/question/report/  (already existed)
+          GET  /mastermind/api/question/report/list/
+          POST /mastermind/api/question/report/<id>/review/  body {action: resolve|reject}
 
 
 6. EXPORT TO QTI
