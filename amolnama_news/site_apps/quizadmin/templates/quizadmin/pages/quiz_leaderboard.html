@@ -25,6 +25,7 @@
           <th scope="col" class="quizadmin-table-numeric">Score %</th>
           <th scope="col" class="quizadmin-table-numeric">Time (s)</th>
           <th scope="col">Passed</th>
+          <th scope="col">Proctoring</th>
           <th scope="col">Completed</th>
         </tr>
       </thead>
@@ -40,6 +41,17 @@
               <span class="quizadmin-status-chip quizadmin-status-chip-completed">passed</span>
             {% else %}
               <span class="quizadmin-status-chip quizadmin-status-chip-failed">failed</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if row.session_proctoring_score and row.session_proctoring_score > 0 %}
+              <a href="/quizadmin/proctoring/session/{{ row.mastermind_coll_quiz_session_id }}/" class="quizadmin-table-action">
+                <span class="quizadmin-status-chip quizadmin-status-chip-{% if row.session_proctoring_status_code == 'flagged' %}failed{% elif row.session_proctoring_status_code == 'warned' %}pending{% else %}completed{% endif %}">
+                  {{ row.session_proctoring_status_code }} ({{ row.session_proctoring_score }})
+                </span>
+              </a>
+            {% else %}
+              —
             {% endif %}
           </td>
           <td>{{ row.session_completed_at|date:"Y-m-d H:i" }}</td>

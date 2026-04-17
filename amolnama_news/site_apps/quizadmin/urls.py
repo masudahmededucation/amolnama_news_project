@@ -22,6 +22,9 @@ urlpatterns = [
     path('quiz/<int:exam_id>/print/',      views.quiz_print_page,        name='quiz_print'),
     path('quiz/<int:exam_id>/workflow/',   views.quiz_workflow_log_page, name='quiz_workflow_log'),
     path('creators/',                      views.quiz_creators_page,     name='quiz_creators'),
+    path('proctoring/',                    views.proctoring_dashboard_page,           name='proctoring_dashboard'),
+    path('proctoring/feed/',               views.proctoring_dashboard_feed_partial,   name='proctoring_dashboard_feed'),
+    path('proctoring/session/<int:session_id>/', views.proctoring_session_audit_page, name='proctoring_session_audit'),
 
     path('api/approve/',  views_api.api_coll_question_approve,   name='api_coll_question_approve'),
     path('api/reject/',   views_api.api_coll_question_reject,    name='api_coll_question_reject'),
@@ -40,4 +43,5 @@ urlpatterns = [
     path('api/creator/<int:permission_id>/revoke/',     views_api.api_quiz_creator_revoke,         name='api_quiz_creator_revoke'),
     path('api/creator/<int:permission_id>/update-expiry/', views_api.api_quiz_creator_update_expiry, name='api_quiz_creator_update_expiry'),
     path('api/creator/search-users/',                   views_api.api_quiz_creator_search_users,   name='api_quiz_creator_search_users'),
+    path('api/proctoring/violation/<int:violation_id>/forgive/', views_api.api_proctoring_forgive_violation, name='api_proctoring_forgive_violation'),
 ]

@@ -773,3 +773,21 @@ def api_quiz_creator_search_users(request):
     query = request.GET.get('q', '')
     results = utils.search_users_by_email_or_name(query, limit=10)
     return JsonResponse({'results': results})
+
+
+# ================================================================
+# Proctoring admin actions
+# ================================================================
+
+@staff_member_required
+@require_POST
+def api_proctoring_forgive_violation(request, violation_id):
+    """Soft-delete a proctoring violation row and recompute the session's score."""
+    from amolnama_news.site_apps.mastermind.proctoring import forgive_violation
+    user_profile_id, profile_error = _get_user_profile_id_or_error(request)
+    if profile_error is not None:
+        return profile_error
+    result = forgive_violation(int(violation_id), user_profile_id)
+    if not result.get('success'):
+        return JsonResponse({'error': result.get('error', 'Server error.')}, status=400)
+    return JsonResponse(result)

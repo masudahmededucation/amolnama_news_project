@@ -655,6 +655,7 @@ def get_quiz_leaderboard_context(exam_id, limit=50):
             'mastermind_coll_quiz_session_id', 'link_user_profile_id',
             'session_score_percentage', 'session_time_taken_seconds',
             'session_is_passed', 'session_completed_at',
+            'session_proctoring_score', 'session_proctoring_status_code',
         )[:limit]
     )
 
@@ -1123,4 +1124,155 @@ def paginate_generation_jobs(page_number=1, per_page=50):
         'total_count': paginator.count,
         'has_previous': page.has_previous(),
         'has_next': page.has_next(),
+    }
+
+
+# ================================================================
+# Proctoring (Phase 3 admin views)
+# ================================================================
+
+def get_session_proctoring_audit(session_id):
+    """Per-session timeline of violations + summary stats."""
+    from amolnama_news.site_apps.mastermind.models import (
+        CollQuiz, CollQuizSession, CollQuizProctoringLog,
+    )
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    session = (
+        CollQuizSession.objects
+        .filter(mastermind_coll_quiz_session_id=session_id)
+        .values(
+            'mastermind_coll_quiz_session_id', 'link_user_profile_id',
+            'link_mastermind_coll_quiz_id',
+            'session_started_at', 'session_completed_at',
+            'session_status_code', 'session_score_percentage',
+            'session_proctoring_score', 'session_proctoring_status_code',
+        )
+        .first()
+    )
+    if not session:
+        return None
+
+    quiz = (
+        CollQuiz.objects
+        .filter(mastermind_coll_quiz_id=session['link_mastermind_coll_quiz_id'])
+        .values('mastermind_coll_quiz_id', 'exam_title_bn', 'exam_title_en',
+                'exam_proctoring_level', 'exam_proctoring_max_score')
+        .first()
+    )
+
+    user_profile = (
+        UserProfile.objects
+        .filter(user_profile_id=session['link_user_profile_id'])
+        .values('user_profile_id', 'display_name')
+        .first()
+    )
+
+    violations = list(
+        CollQuizProctoringLog.objects
+        .filter(link_mastermind_coll_quiz_session_id=session_id)
+        .order_by('created_at')
+        .values(
+            'mastermind_coll_quiz_proctoring_log_id',
+            'violation_type_code', 'violation_severity_points',
+            'violation_details', 'violation_confidence_score',
+            'violation_client_reported_at', 'created_at',
+            'is_active', 'forgiven_at', 'link_forgiven_by_user_profile_id',
+        )
+    )
+
+    return {
+        'session': session,
+        'quiz': quiz,
+        'user_profile': user_profile,
+        'violations': violations,
+        'active_violation_count': sum(1 for violation in violations if violation['is_active']),
+        'forgiven_violation_count': sum(1 for violation in violations if not violation['is_active']),
+    }
+
+
+def get_recent_proctoring_violations(limit=50):
+    """Newest active violations across all sessions for the live dashboard."""
+    from amolnama_news.site_apps.mastermind.models import (
+        CollQuiz, CollQuizProctoringLog,
+    )
+    from amolnama_news.site_apps.user_account.models import UserProfile
+
+    rows = list(
+        CollQuizProctoringLog.objects
+        .filter(is_active=True)
+        .order_by('-created_at')
+        .values(
+            'mastermind_coll_quiz_proctoring_log_id',
+            'link_mastermind_coll_quiz_session_id',
+            'link_mastermind_coll_quiz_id',
+            'link_user_profile_id',
+            'violation_type_code', 'violation_severity_points',
+            'created_at',
+        )[:limit]
+    )
+
+    user_ids = {row['link_user_profile_id'] for row in rows}
+    quiz_ids = {row['link_mastermind_coll_quiz_id'] for row in rows}
+
+    display_names = dict(
+        UserProfile.objects.filter(user_profile_id__in=user_ids)
+        .values_list('user_profile_id', 'display_name')
+    ) if user_ids else {}
+
+    quiz_titles = dict(
+        CollQuiz.objects.filter(mastermind_coll_quiz_id__in=quiz_ids)
+        .values_list('mastermind_coll_quiz_id', 'exam_title_bn')
+    ) if quiz_ids else {}
+
+    for row in rows:
+        row['display_name'] = display_names.get(row['link_user_profile_id'], 'Anonymous')
+        row['exam_title_bn'] = quiz_titles.get(row['link_mastermind_coll_quiz_id'], '—')
+
+    return rows
+
+
+def get_proctoring_dashboard_summary():
+    """Counts for dashboard cards: active sessions, flagged sessions, today's violations."""
+    from django.utils import timezone
+    from datetime import timedelta
+    from amolnama_news.site_apps.mastermind.models import (
+        CollQuizSession, CollQuizProctoringLog,
+    )
+
+    today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    twenty_four_hours_ago = timezone.now() - timedelta(hours=24)
+
+    active_sessions = (
+        CollQuizSession.objects
+        .filter(session_status_code='in_progress')
+        .count()
+    )
+    flagged_sessions = (
+        CollQuizSession.objects
+        .filter(session_proctoring_status_code='flagged')
+        .count()
+    )
+    warned_sessions = (
+        CollQuizSession.objects
+        .filter(session_proctoring_status_code='warned')
+        .count()
+    )
+    violations_today = (
+        CollQuizProctoringLog.objects
+        .filter(created_at__gte=today_start, is_active=True)
+        .count()
+    )
+    violations_24h = (
+        CollQuizProctoringLog.objects
+        .filter(created_at__gte=twenty_four_hours_ago, is_active=True)
+        .count()
+    )
+
+    return {
+        'active_sessions': active_sessions,
+        'flagged_sessions': flagged_sessions,
+        'warned_sessions': warned_sessions,
+        'violations_today': violations_today,
+        'violations_24h': violations_24h,
     }

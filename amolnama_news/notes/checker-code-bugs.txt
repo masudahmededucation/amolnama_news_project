@@ -34,13 +34,23 @@ you should be writing plan.
 implementing step 1 to... and mark them once done.
 this way you know what is done and not.
 
-----database
+----database naming conventions
+follow naming conventions
+use large descriptive name
+name should so descriptive no one can get confused
+even a person has seen a table for first time
+same for table and column
+also remember, table name 
+does the data changes over time,
+ref table should be only never or rarely changed by staff or admin
+any table data changed by users is not a ref table
 whenever you need to create db table or column.
 give me script, i will check and run myself.
 never use alias when there is no collision among names.
 never use shortcut alias name.
 use full name when possible.
-when there are group of columns.
+don't over-engineer or over use prefix
+when there are group of columns,
 use group as the prefix for column names.
 follow standard rules already placed in table and column creation.
 do you think we should use prefix to name table?

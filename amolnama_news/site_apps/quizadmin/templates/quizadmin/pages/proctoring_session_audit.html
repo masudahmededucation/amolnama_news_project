@@ -1,0 +1,115 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-proctoring.css' %}">
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">
+    {{ user_profile.display_name|default:"Anonymous" }}
+    · Quiz: {{ quiz.exam_title_bn|truncatewords:8 }}
+    · Started: {{ session.session_started_at|date:"Y-m-d H:i" }}
+    {% if session.session_completed_at %}
+      · Completed: {{ session.session_completed_at|date:"H:i" }}
+    {% else %}
+      · <strong>In progress</strong>
+    {% endif %}
+  </p>
+</section>
+
+<section class="quizadmin-proctoring-summary">
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Suspicion score</span>
+    <span class="quizadmin-proctoring-summary-value">{{ session.session_proctoring_score }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Status</span>
+    <span class="quizadmin-proctoring-summary-value">
+      <span class="quizadmin-status-chip quizadmin-status-chip-{% if session.session_proctoring_status_code == 'flagged' %}failed{% elif session.session_proctoring_status_code == 'warned' %}pending{% else %}completed{% endif %}">
+        {{ session.session_proctoring_status_code }}
+      </span>
+    </span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Active violations</span>
+    <span class="quizadmin-proctoring-summary-value">{{ active_violation_count }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Forgiven</span>
+    <span class="quizadmin-proctoring-summary-value">{{ forgiven_violation_count }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Quiz score</span>
+    <span class="quizadmin-proctoring-summary-value">{{ session.session_score_percentage|default:"—" }}%</span>
+  </div>
+</section>
+
+{% if violations %}
+<section class="quizadmin-section">
+  <h2 class="quizadmin-section-title">Violation timeline</h2>
+  <div class="quizadmin-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">When (server)</th>
+          <th scope="col">When (client)</th>
+          <th scope="col">Type</th>
+          <th scope="col" class="quizadmin-table-numeric">Points</th>
+          <th scope="col">Confidence</th>
+          <th scope="col">Details</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for violation in violations %}
+        <tr {% if not violation.is_active %}class="quizadmin-violation-forgiven-row"{% endif %} data-violation-id="{{ violation.mastermind_coll_quiz_proctoring_log_id }}">
+          <td>{{ violation.created_at|date:"H:i:s" }}</td>
+          <td>{% if violation.violation_client_reported_at %}{{ violation.violation_client_reported_at|date:"H:i:s" }}{% else %}—{% endif %}</td>
+          <td><span class="quizadmin-code-inline">{{ violation.violation_type_code }}</span></td>
+          <td class="quizadmin-table-numeric">{{ violation.violation_severity_points }}</td>
+          <td>{% if violation.violation_confidence_score %}{{ violation.violation_confidence_score }}{% else %}—{% endif %}</td>
+          <td>{{ violation.violation_details|default:"—" }}</td>
+          <td>
+            {% if violation.is_active %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-failed">active</span>
+            {% else %}
+              <span class="quizadmin-status-chip quizadmin-status-chip-completed">forgiven</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if violation.is_active %}
+            <button type="button" class="quizadmin-table-action quizadmin-violation-forgive-button" id="quizadmin-violation-forgive-{{ violation.mastermind_coll_quiz_proctoring_log_id }}" name="quizadmin_violation_forgive" data-violation-id="{{ violation.mastermind_coll_quiz_proctoring_log_id }}">Forgive</button>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="quizadmin-inline-message" id="quizadmin-proctoring-audit-message" role="status" aria-live="polite" hidden></div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">✨</p>
+  <h2 class="quizadmin-empty-hero-title">Clean session</h2>
+  <p class="quizadmin-empty-hero-body">No violations were recorded for this session.</p>
+</section>
+{% endif %}
+
+<section class="quizadmin-form-actions">
+  <a href="/quizadmin/proctoring/" class="quizadmin-form-cancel" id="quizadmin-proctoring-back" name="quizadmin_proctoring_back">Back to dashboard</a>
+  <a href="/quizadmin/quiz/{{ quiz.mastermind_coll_quiz_id }}/leaderboard/" class="quizadmin-form-submit" id="quizadmin-proctoring-leaderboard" name="quizadmin_proctoring_leaderboard">Quiz leaderboard</a>
+</section>
+{% endblock %}
+
+{% block quizadmin_js %}
+<script src="{% static 'quizadmin/assets/js/utilities/quizadmin-utils.js' %}" defer></script>
+<script src="{% static 'quizadmin/assets/js/pages/page-proctoring-audit.js' %}" defer></script>
+{% endblock %}

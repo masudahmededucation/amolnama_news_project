@@ -154,6 +154,37 @@ def quiz_preview_page(request, exam_id):
 
 
 @staff_member_required
+def proctoring_dashboard_page(request):
+    context = {
+        'page_title': 'Proctoring Live Dashboard',
+        'quizadmin_active_tab': 'proctoring',
+        'summary': utils.get_proctoring_dashboard_summary(),
+        'recent_violations': utils.get_recent_proctoring_violations(limit=50),
+    }
+    return render(request, 'quizadmin/pages/proctoring_dashboard.html', context)
+
+
+@staff_member_required
+def proctoring_dashboard_feed_partial(request):
+    """HTMX-polled fragment: refreshed every 5s with the latest violations."""
+    context = {
+        'recent_violations': utils.get_recent_proctoring_violations(limit=50),
+        'summary': utils.get_proctoring_dashboard_summary(),
+    }
+    return render(request, 'quizadmin/partials/proctoring_dashboard_feed.html', context)
+
+
+@staff_member_required
+def proctoring_session_audit_page(request, session_id):
+    audit = utils.get_session_proctoring_audit(session_id=int(session_id))
+    if audit is None:
+        return _render_not_found(request, 'Session', session_id, '/quizadmin/proctoring/', 'Back to dashboard')
+    audit['page_title'] = f'Proctoring audit: session #{session_id}'
+    audit['quizadmin_active_tab'] = 'proctoring'
+    return render(request, 'quizadmin/pages/proctoring_session_audit.html', audit)
+
+
+@staff_member_required
 def quiz_creators_page(request):
     context = {
         'page_title': 'Quiz Creators',

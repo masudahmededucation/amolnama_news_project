@@ -1,0 +1,63 @@
+{# HTMX-polled fragment: refreshed every 5s. Self-contained, no script tags. #}
+<section class="quizadmin-proctoring-summary">
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Active sessions</span>
+    <span class="quizadmin-proctoring-summary-value">{{ summary.active_sessions }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card quizadmin-proctoring-summary-card-warning">
+    <span class="quizadmin-proctoring-summary-label">Warned sessions</span>
+    <span class="quizadmin-proctoring-summary-value">{{ summary.warned_sessions }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card quizadmin-proctoring-summary-card-danger">
+    <span class="quizadmin-proctoring-summary-label">Flagged sessions</span>
+    <span class="quizadmin-proctoring-summary-value">{{ summary.flagged_sessions }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Violations today</span>
+    <span class="quizadmin-proctoring-summary-value">{{ summary.violations_today }}</span>
+  </div>
+  <div class="quizadmin-proctoring-summary-card">
+    <span class="quizadmin-proctoring-summary-label">Violations 24h</span>
+    <span class="quizadmin-proctoring-summary-value">{{ summary.violations_24h }}</span>
+  </div>
+</section>
+
+{% if recent_violations %}
+<section class="quizadmin-section">
+  <h2 class="quizadmin-section-title">Recent violations (50 newest)</h2>
+  <div class="quizadmin-table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Time</th>
+          <th scope="col">User</th>
+          <th scope="col">Quiz</th>
+          <th scope="col">Type</th>
+          <th scope="col" class="quizadmin-table-numeric">Severity</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for violation in recent_violations %}
+        <tr>
+          <td>{{ violation.created_at|date:"H:i:s" }}</td>
+          <td>{{ violation.display_name }}</td>
+          <td>{{ violation.exam_title_bn|truncatewords:5 }}</td>
+          <td><span class="quizadmin-code-inline">{{ violation.violation_type_code }}</span></td>
+          <td class="quizadmin-table-numeric">{{ violation.violation_severity_points }}</td>
+          <td>
+            <a href="/quizadmin/proctoring/session/{{ violation.link_mastermind_coll_quiz_session_id }}/" class="quizadmin-table-action">View session</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="quizadmin-empty-hero">
+  <p class="quizadmin-empty-hero-emoji" aria-hidden="true">✨</p>
+  <h2 class="quizadmin-empty-hero-title">No active violations</h2>
+  <p class="quizadmin-empty-hero-body">Either no sessions are being proctored right now, or all participants are behaving.</p>
+</section>
+{% endif %}

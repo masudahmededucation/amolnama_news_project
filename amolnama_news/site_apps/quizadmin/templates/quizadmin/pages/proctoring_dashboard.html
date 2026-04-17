@@ -1,0 +1,24 @@
+{% extends "quizadmin/base_quizadmin.html" %}
+{% load static %}
+
+{% block quizadmin_css %}
+<link rel="stylesheet" href="{% static 'quizadmin/assets/css/pages/page-proctoring.css' %}">
+{% endblock %}
+
+{% block quizadmin_head %}
+<script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+{% endblock %}
+
+{% block quizadmin_content %}
+<section class="quizadmin-page-intro">
+  <h1 class="quizadmin-page-title">{{ page_title }}</h1>
+  <p class="quizadmin-page-subtitle">Live feed of behavioral violations across all proctored quiz sessions. Auto-refreshes every 5 seconds.</p>
+</section>
+
+<div id="quizadmin-proctoring-feed"
+     hx-get="/quizadmin/proctoring/feed/"
+     hx-trigger="every 5s"
+     hx-swap="innerHTML">
+  {% include 'quizadmin/partials/proctoring_dashboard_feed.html' %}
+</div>
+{% endblock %}

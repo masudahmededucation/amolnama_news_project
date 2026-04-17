@@ -1,0 +1,61 @@
+/* Proctoring dashboard + per-session audit pages. */
+
+.quizadmin-proctoring-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.quizadmin-proctoring-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.quizadmin-proctoring-summary-card-warning {
+  border-color: var(--amber);
+  background: var(--amber-light, var(--surface));
+}
+
+.quizadmin-proctoring-summary-card-danger {
+  border-color: var(--danger);
+  background: var(--danger-light, var(--surface));
+}
+
+.quizadmin-proctoring-summary-label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quizadmin-proctoring-summary-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.quizadmin-violation-forgiven-row {
+  opacity: 0.55;
+}
+
+.quizadmin-violation-forgive-button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font: inherit;
+  touch-action: manipulation;
+}
+.quizadmin-violation-forgive-button:hover { background: var(--info-light); }
+.quizadmin-violation-forgive-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.quizadmin-violation-forgive-confirm.quizadmin-violation-forgive-button {
+  background: var(--success);
+  color: #fff;
+  border-color: var(--success);
+}
