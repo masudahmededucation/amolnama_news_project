@@ -10,8 +10,9 @@
 {% block content %}
 <section class="mastermind-lobby" id="mastermind-lobby" data-lobby-id="{{ lobby_state.lobby_id }}" data-join-code="{{ join_code }}" data-role="player">
 
-  {# Bootstrap state for the JS controller — no extra HTTP round-trip on first paint. #}
-  <script type="application/json" id="mastermind-lobby-bootstrap">{{ lobby_state_json|safe }}</script>
+  {# Bootstrap state for the JS controller — no extra HTTP round-trip on first paint.
+     json_script auto-escapes </script> sequences in user-controlled display_name fields. #}
+  {{ lobby_state|json_script:"mastermind-lobby-bootstrap" }}
 
   <header class="mastermind-lobby-header">
     <h1 class="mastermind-lobby-title" id="mastermind-lobby-title">{{ lobby_state.quiz_title_bn|default:"Live quiz" }}</h1>

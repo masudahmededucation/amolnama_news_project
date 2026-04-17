@@ -275,14 +275,15 @@ def submit_lobby_answer(lobby_id, user_profile_id, question_index, answer_payloa
     if not player:
         return {'error': 'Player not in lobby.'}
 
-    # Idempotency: if this player already answered this question, return their previous score
-    answer_key = f'q{question_index}_answered'
-    payload_key = answer_payload.get('_idempotency_key') or answer_key
+    # Idempotency: if this player already answered THIS question, no double-score.
+    # The trailing comma anchors the match — answer_submitted payloads always have
+    # "question_index": N followed by ", is_correct": ..., so "question_index": 1, can't
+    # falsely match "question_index": 10, etc.
     existing_log = CollQuizLobbyEvent.objects.filter(
         link_mastermind_coll_quiz_lobby_id=lobby_id,
         link_user_profile_id=user_profile_id,
         event_type_code='answer_submitted',
-        event_payload_json__contains=f'"question_index": {question_index}',
+        event_payload_json__contains=f'"question_index": {question_index},',
     ).exists()
     if existing_log:
         return {'duplicate': True, 'state': get_lobby_state(lobby_id)}

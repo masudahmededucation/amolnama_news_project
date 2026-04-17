@@ -42,15 +42,16 @@ def lobby_player_page(request, join_code):
     """Player-side multiplayer page — render shell + bootstrap state.
 
     The actual quiz flow runs over WebSocket. This view just hydrates the
-    page with the lobby's metadata so the JS can connect immediately.
+    page with the lobby's metadata so the JS can connect immediately. The
+    template uses {{ lobby_state|json_script:... }} which auto-escapes
+    HTML-unsafe sequences in user-controlled fields like display_name.
     """
     from .lobby import get_lobby_state
     state = get_lobby_state(join_code)
     if 'error' in state:
         raise Http404('Lobby not found or closed.')
     return render(request, 'mastermind/pages/lobby_player.html', {
-        'lobby_state': state,
-        'lobby_state_json': _safe_json_dumps(state),
+        'lobby_state': _stringify_dates(state),
         'join_code': join_code.upper(),
         'seo': {
             'title': f"{state.get('quiz_title_bn') or 'Live quiz'} — Live game",
@@ -59,9 +60,15 @@ def lobby_player_page(request, join_code):
     })
 
 
-def _safe_json_dumps(payload):
-    import json as _json
-    try:
-        return _json.dumps(payload, default=str, ensure_ascii=False)
-    except Exception:
-        return '{}'
+def _stringify_dates(payload):
+    """Walk a dict/list payload, ISO-format any datetime/date/decimal so json_script can serialize."""
+    import datetime, decimal
+    if isinstance(payload, dict):
+        return {key: _stringify_dates(value) for key, value in payload.items()}
+    if isinstance(payload, list):
+        return [_stringify_dates(item) for item in payload]
+    if isinstance(payload, (datetime.datetime, datetime.date)):
+        return payload.isoformat()
+    if isinstance(payload, decimal.Decimal):
+        return float(payload)
+    return payload

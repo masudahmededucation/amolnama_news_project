@@ -252,10 +252,12 @@
 
   function _renderRadioGroup(question) {
     (question.options || []).forEach(function (option) {
+      var inputId = 'mastermind-lobby-option-' + option.option_id;
       var label = document.createElement('label');
       label.className = 'mastermind-lobby-option';
+      label.htmlFor = inputId;
       label.innerHTML =
-        '<input type="radio" name="lobby_answer" value="' + option.option_id + '">' +
+        '<input type="radio" id="' + inputId + '" name="lobby_answer" value="' + option.option_id + '">' +
         '<span class="mastermind-lobby-option-label">' + _escapeHtml(option.option_label) + '.</span>' +
         '<span>' + _escapeHtml(option.option_text_bn || option.option_text_en || '') + '</span>';
       label.addEventListener('change', function () {
@@ -268,10 +270,12 @@
   function _renderCheckboxGroup(question) {
     var selected = new Set();
     (question.options || []).forEach(function (option) {
+      var inputId = 'mastermind-lobby-option-' + option.option_id;
       var label = document.createElement('label');
       label.className = 'mastermind-lobby-option';
+      label.htmlFor = inputId;
       label.innerHTML =
-        '<input type="checkbox" name="lobby_answer" value="' + option.option_id + '">' +
+        '<input type="checkbox" id="' + inputId + '" name="lobby_answer" value="' + option.option_id + '">' +
         '<span class="mastermind-lobby-option-label">' + _escapeHtml(option.option_label) + '.</span>' +
         '<span>' + _escapeHtml(option.option_text_bn || option.option_text_en || '') + '</span>';
       label.querySelector('input').addEventListener('change', function (event) {

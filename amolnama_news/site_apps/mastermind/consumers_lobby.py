@@ -69,9 +69,9 @@ class LobbyConsumer(AsyncWebsocketConsumer):
         join_lobby. For the host flow they're already implicitly a member. This
         is a safety net so opening a stale WS still resyncs.
         """
-        from .lobby import join_lobby, get_lobby_state, CollQuizLobby
-        from .models import CollQuizLobby as _CollQuizLobby
-        lobby = _CollQuizLobby.objects.filter(
+        from .lobby import join_lobby, get_lobby_state
+        from .models import CollQuizLobby
+        lobby = CollQuizLobby.objects.filter(
             mastermind_coll_quiz_lobby_id=lobby_id, is_active=True,
         ).first()
         if not lobby:

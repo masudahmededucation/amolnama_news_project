@@ -16,7 +16,8 @@
 
 <section class="mastermind-lobby" id="mastermind-lobby" data-lobby-id="{{ lobby_state.lobby_id }}" data-join-code="{{ lobby_state.join_code }}" data-role="host">
 
-  <script type="application/json" id="mastermind-lobby-bootstrap">{{ lobby_state_json|safe }}</script>
+  {# json_script auto-escapes </script> sequences in user-controlled display_name fields. #}
+  {{ lobby_state|json_script:"mastermind-lobby-bootstrap" }}
 
   {# Join-code share panel ---------------------------------------- #}
   <aside class="mastermind-lobby-host-share" id="mastermind-lobby-host-share">

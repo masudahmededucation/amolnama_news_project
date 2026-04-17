@@ -196,13 +196,12 @@ def quiz_host_page(request, exam_id):
     if 'error' in (lobby_state or {}):
         return _render_not_found(request, 'Lobby', '?', '/quizadmin/quiz/', 'Back to quizzes')
 
-    import json as _json
+    from amolnama_news.site_apps.mastermind.views import _stringify_dates
     context = {
         'page_title': f'Host: {quiz.exam_title_bn}',
         'quizadmin_active_tab': 'quiz_list',
         'quiz': quiz,
-        'lobby_state': lobby_state,
-        'lobby_state_json': _json.dumps(lobby_state, ensure_ascii=False, default=str),
+        'lobby_state': _stringify_dates(lobby_state),
     }
     return render(request, 'quizadmin/pages/quiz_host.html', context)
 

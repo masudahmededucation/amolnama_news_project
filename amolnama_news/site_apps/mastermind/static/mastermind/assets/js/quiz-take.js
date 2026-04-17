@@ -685,7 +685,7 @@
       '<dt>Wrong</dt><dd>' + result.total_wrong + '</dd>' +
       '<dt>Skipped</dt><dd>' + result.total_skipped + '</dd>' +
       '<dt>Time taken</dt><dd>' + (result.time_taken_seconds ? Math.round(result.time_taken_seconds / 60) + ' min' : '—') + '</dd>' +
-      (result.new_badges && result.new_badges.length ? '<dt>New badges</dt><dd>' + result.new_badges.join(', ') + '</dd>' : '');
+      (result.new_badges && result.new_badges.length ? '<dt>New badges</dt><dd>' + result.new_badges.map(_escapeHtml).join(', ') + '</dd>' : '');
 
     // Certificate link if the engine issued one (poll, since cert issue is async)
     setTimeout(_pollForCertificate, 1500);
