@@ -1263,7 +1263,7 @@ def get_proctoring_dashboard_summary():
         .filter(created_at__gte=today_start, is_active=True)
         .count()
     )
-    violations_24h = (
+    violations_last_24_hours = (
         CollQuizProctoringLog.objects
         .filter(created_at__gte=twenty_four_hours_ago, is_active=True)
         .count()
@@ -1274,5 +1274,5 @@ def get_proctoring_dashboard_summary():
         'flagged_sessions': flagged_sessions,
         'warned_sessions': warned_sessions,
         'violations_today': violations_today,
-        'violations_24h': violations_24h,
+        'violations_last_24_hours': violations_last_24_hours,
     }

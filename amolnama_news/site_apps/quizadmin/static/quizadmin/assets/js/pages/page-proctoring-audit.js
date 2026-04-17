@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var inlineMessage = document.getElementById('quizadmin-proctoring-audit-message');
+  var inlineMessage = document.getElementById('quizadmin-proctoring-audit-inline-message');
 
   document.addEventListener('click', async function (event) {
     var forgiveButton = event.target.closest('.quizadmin-violation-forgive-button');
