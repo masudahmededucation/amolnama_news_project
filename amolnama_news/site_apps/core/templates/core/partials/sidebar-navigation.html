@@ -193,6 +193,18 @@ impossible because the resolver returns exactly one nav_id per request.
       <span class="sidebar-navigation-item-icon">📋</span>
       <span class="sidebar-navigation-item-label">Quiz Panel</span>
     </a>
+
+    {% comment %}
+      কলম link — when settings.BOOKWRITER_LAYOUT_MODE == 'embedded'
+      (default), Inkwell renders inside core/base.html so we use
+      normal SPA-friendly navigation. If you switch to 'standalone'
+      mode, add `target="writing_session" rel="noopener noreferrer"`
+      to open in a separate browser window instead.
+    {% endcomment %}
+    <a href="{% url 'bookwriter:landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'bookwriter' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookwriter" name="sidebar_navigation_item_bookwriter" title="কলম">
+      <span class="sidebar-navigation-item-icon">✒️</span>
+      <span class="sidebar-navigation-item-label">কলম</span>
+    </a>
     {% endif %}
   </div>
 </nav>

@@ -71,8 +71,40 @@ it could be religious books
 --language learning grammar books?
 should we have different engine for language learning model?
 
+################
+at the moment, i can only see the 
+questions and answers.
+--scanned booked in mastermind.
+staff and admin user should be able to read them. 
+copy the text,
+edit the text,
+save the book.
+should have options to put,
+chapter number, 
+chapter name,
+page number should be automatic
+from 1 to ...
+
+--add a book text option,
+directly by copy, paste option 
+and all the above edit options
+
+--rejected questions model
+those should be able to review,
+edit and approve
+nothing should be wasted,
+if it is not garbage or garbled text
+
+These options will  
+speed up the process.
+
+--book writing tools
+if someone want to write a book,
+here we should give them space,
+edit options, publish to write books.
 
 
+#################
 Mastermind follows gold standard patterns from competitive research:
 
 Pattern	Source	Implemented

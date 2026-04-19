@@ -1,0 +1,294 @@
+================================================================
+BOOKWRITER (কলম) — App Documentation
+================================================================
+App location: amolnama_news/site_apps/bookwriter/
+URL prefix:   /bookwriter/
+Schema:       [bookwriter]
+Brand:        কলম (Bengali for "pen")
+Inspiration:  Inkwell design template (paper + ink + Fraunces +
+              EB Garamond + JetBrains Mono — "writing sanctuary")
+
+
+================================================================
+1. PURPOSE
+================================================================
+A standalone writing platform for authors to draft, organise,
+edit, and publish original books. 5 view modes:
+
+  Write     — manuscript editor with chapter sidebar + desk
+  Plot      — corkboard of index cards (act structure)
+  Bible     — characters, locations, objects, research, lore
+  Cover     — cover designer (6 templates · 6 palettes · 8 bgs)
+  Publish   — public Gallery (serial release schedule + analytics)
+
+Plus 4 overlays:
+  Focus     — full-screen distraction-free writing
+  Snapshots — version history (auto + manual snapshots)
+  Sprint    — Pomodoro timer (10/25/45/60 min)
+  Beta      — share manuscript with beta readers (read/comment/suggest)
+
+
+================================================================
+2. LAYOUT MODE — embedded vs standalone
+================================================================
+Inkwell renders in one of two modes, controlled by the setting:
+
+  amolnama_news/settings/base.py
+  → BOOKWRITER_LAYOUT_MODE = "embedded" | "standalone"
+
+Default: "embedded" (recommended).
+
+EMBEDDED mode (default):
+  - Renders inside core/base.html
+  - Global header + left sidebar stay visible
+  - Inkwell occupies the <main> content area
+  - Sidebar কলম link uses normal SPA navigation
+  - Wrapper class: .bookwriter-embedded-wrapper
+  - Height: calc(100vh - var(--bookwriter-header-offset, 64px))
+
+STANDALONE mode:
+  - Full-screen takeover (no global chrome)
+  - Standalone HTML5 doc with own <head>, fonts, CSP
+  - Sidebar কলম link should add target="writing_session" rel="noopener noreferrer"
+    so it opens in a separate browser window/tab
+  - Wrapper class: .bookwriter-shell
+  - Height: 100vh, body locked (overflow: hidden)
+
+To switch modes:
+  1. Edit amolnama_news/settings/base.py — change BOOKWRITER_LAYOUT_MODE value
+  2. If switching TO 'standalone', also edit
+     amolnama_news/site_apps/core/templates/core/partials/sidebar-navigation.html
+     — add target="writing_session" rel="noopener noreferrer" to the কলম link
+  3. Bump CACHE_NAME in amolnama_news/site_apps/seo/views.py
+  4. Run: python manage.py collectstatic --noinput
+  5. Hard-reload browser (Ctrl+Shift+R)
+
+
+================================================================
+3. FILES
+================================================================
+
+Templates:
+  templates/bookwriter/pages/inkwell.html          standalone shell
+  templates/bookwriter/pages/inkwell_embedded.html embedded shell
+  templates/bookwriter/partials/_inkwell_body.html SHARED body content
+                                                   (single source of truth
+                                                    for both modes)
+
+Static:
+  static/bookwriter/assets/css/pages/page-inkwell.css   all styles
+  static/bookwriter/assets/js/pages/page-inkwell.js     all interactions
+
+Python:
+  views.py     bookwriter_inkwell — picks template by layout mode and,
+               for logged-in users, auto-provisions a default book +
+               first chapter via _ensure_default_book_for_user(). Anon
+               visitors get the hardcoded fiction demo.
+  views_api.py 4 JSON endpoints (Phase 1B):
+                 api_bookwriter_chapter_autosave    (POST body)
+                 api_bookwriter_chapter_title_save  (POST title)
+                 api_bookwriter_chapter_load        (GET single chapter)
+                 api_bookwriter_book_chapter_create (POST create chapter)
+               + 3 private helpers (_resolve_chapter_for_owner,
+               _resolve_book_for_owner, _read_json_body) for DRY
+               ownership + parsing.
+  urls.py      5 routes: landing + 4 API endpoints (above).
+  apps.py      BookwriterConfig
+  models.py    Two unmanaged models (Phase 1B Step 1): CollBook,
+               Chapter — exact column match with the SQL schema. Other
+               30 tables get models added incrementally as their UIs
+               are wired.
+
+Database (already applied — see SQL script below):
+  notes/sql-script/bookwriter-v01-schema.sql
+  Schema: [bookwriter]
+  32 tables — 14 ref · 1 coll · 12 sub-entity · 4 engagement · 1 eng
+
+
+================================================================
+4. CSS ARCHITECTURE
+================================================================
+All Inkwell styles are SCOPED to the wrapper classes — they do NOT
+pollute the global page in embedded mode. The pattern:
+
+  .bookwriter-shell, .bookwriter-embedded-wrapper {
+    --paper, --ink, --accent, ... (all variables here, not :root)
+    background, color, font, position
+  }
+
+  .bookwriter-shell *, .bookwriter-embedded-wrapper * {
+    box-sizing, margin, padding (reset scoped to descendants only)
+  }
+
+  .bookwriter-shell::before, .bookwriter-embedded-wrapper::before {
+    paper grain texture
+  }
+
+This means:
+  - Inkwell's --accent (#8b2a1f red) does NOT override the project's
+    global --accent (#0a66c2 blue) outside the wrapper
+  - The * margin/padding reset only applies inside the wrapper
+  - The paper-grain SVG noise stays inside the wrapper, doesn't
+    cover the global header/sidebar in embedded mode
+
+
+================================================================
+5. CURRENT STATUS (v01 + Phase 1B Steps 1-3)
+================================================================
+✓ DB schema (32 tables in [bookwriter])
+✓ UI (5 views + 4 overlays — Write view real, others demo)
+✓ Dual-layout architecture (embedded + standalone, switchable)
+✓ Sidebar nav entry under "Admin Panel" → "কলম"
+✓ Django models for coll_book + chapter (Phase 1B Step 1)
+✓ Real chapter body autosave API + JS fetch (Step 1)
+✓ Auto-provision default book + first chapter on first visit (Step 2)
+✓ Real chapter title autosave API + JS (Step 3)
+✓ Multi-chapter switching (rail click → GET → load HTML/title) (Step 3)
+✓ "+ new chapter" button creates real DB chapter then selects it (Step 3)
+✓ Race-safe chapter switching (flushes pending body+title saves)
+✓ All 52 buttons + 8 inputs in partial carry id+name attributes
+✓ All JS variables fully descriptive (no abbreviations)
+✗ Snapshot create / revert API
+✗ Drag-reorder persists to DB
+✗ Bible / plot / cover / publish persistence
+✗ Beta share link generation + reader access
+✗ Public reader page for Gallery
+✗ Right-rail "Saltwater Almanac" book-info card (still hardcoded demo)
+
+
+================================================================
+6. NEXT PHASES
+================================================================
+Phase 1B Step 4 (proposed) — book-level metadata:
+  1. Render real book title + total word count in right-rail card
+  2. Real "today's session" / streak / goal numbers (eng_user_streak)
+  3. Book settings panel: title, subtitle, author display, language
+
+Phase 1C (proposed) — snapshots + drag reorder:
+  1. POST /api/chapter/<id>/snapshot/  — manual snapshot
+  2. GET  /api/chapter/<id>/snapshots/ — history list
+  3. POST /api/chapter/<id>/revert/<snapshot_id>/ — revert to version
+  4. POST /api/book/<id>/chapters/reorder/ — persist drag-reorder
+  5. JS: snapshot panel reads real history, revert button works
+
+Phase 2+ — bible, plot, cover, beta share, public gallery.
+
+
+================================================================
+7. TROUBLESHOOTING
+================================================================
+
+Q: Inkwell opens INSIDE the content area instead of taking over the
+   browser tab/window in standalone mode.
+A: spa-navigation.js was hijacking the click. Fixed at
+   core/static/core/assets/js/utilities/spa-navigation.js — line 54
+   now skips ANY explicit target attribute (not just _blank).
+
+Q: Inkwell colors / paper grain bleed onto the rest of amolnama in
+   embedded mode.
+A: Should not happen — all variables and body-level styles are
+   scoped to .bookwriter-shell / .bookwriter-embedded-wrapper.
+   If you see this, check page-inkwell.css for any rule that
+   targets `:root`, `body`, `html`, or `*` without the wrapper
+   prefix.
+
+Q: Wrong height in embedded mode (Inkwell overflows or is too short).
+A: The header offset is 64px by default. Tune via:
+     :root { --bookwriter-header-offset: <Npx>; }
+   on the embedded shell or in a project-wide stylesheet.
+
+Q: How do I revert the dual-layout work?
+A: Easiest revert path:
+   1. settings/base.py → set BOOKWRITER_LAYOUT_MODE = "standalone"
+   2. sidebar-navigation.html → re-add target="writing_session"
+   3. Optionally delete inkwell_embedded.html + bookwriter-embedded
+      sections of CSS (clearly labeled with section banners).
+   The standalone shell + body partial keep working as-is.
+
+
+================================================================
+8. RULES / CONVENTIONS
+================================================================
+- Bookwriter is INDEPENDENT. No imports from mastermind / quizadmin.
+- DB tables follow project naming: ref_*, coll_<main>, <bare> for
+  sub-entity, engagement_*, map_*, eng_* (see SQL script header).
+- All form inputs AND buttons have explicit id + name attributes.
+  Naming pattern: id="bookwriter-{view}-{action}-button",
+  name="bookwriter_{view}_{action}_button".
+- No alert() / confirm() / prompt() / console.log() in JS.
+- All JS variables use full descriptive names — no `var btn`, `var w`,
+  `var b`, etc. (Audited 2026-04-19 — zero abbreviations.)
+- CSS variables and body styles are wrapper-scoped (see §4).
+- Bengali text uses Bengali_100_CI_AS collation, English/mixed
+  uses Latin1_General_100_CI_AS_SC_UTF8.
+
+
+================================================================
+9. API ENDPOINTS (Phase 1B)
+================================================================
+All endpoints are JSON over POST/GET, login_required, and enforce
+owner-check via the chapter→book→link_owner_user_profile_id chain.
+CSRF is enforced via Django default middleware — JS sends the
+X-CSRFToken header using window.getCsrfTokenValue() (defined in
+core/static/core/assets/js/utilities/csrf-token.js).
+
+  POST /bookwriter/api/chapter/<int:chapter_id>/autosave/
+       Body: { "chapter_text_html": "<p>…</p>" }
+       Reply: { "ok": true, "chapter_word_count": 1234,
+                "saved_at": "2026-04-19T..." }
+       Behaviour: full-body replace. Idempotent. HTML is run through
+       core.utils.sanitize_user_html() before save. Plain-text strip
+       computes word count.
+
+  POST /bookwriter/api/chapter/<int:chapter_id>/title/
+       Body: { "chapter_title": "..." }
+       Reply: { "ok": true, "saved_at": "..." }
+       Behaviour: full-field replace. Tags stripped before save.
+       Empty / whitespace title saves NULL.
+
+  GET  /bookwriter/api/chapter/<int:chapter_id>/
+       Reply: { "ok": true, "chapter": { "id", "number", "title",
+                                          "html", "word_count" } }
+       Used by the rail click handler when switching chapters.
+
+  POST /bookwriter/api/book/<int:book_id>/chapter/create/
+       Body: {} (empty)
+       Reply: { "ok": true, "chapter": { "id", "number", "title",
+                                          "html", "word_count" } }
+       Append a blank chapter at the end (max(chapter_number)+1).
+
+Errors: 403 (not logged in / not owner), 404 (chapter or book
+not found), 400 (malformed JSON or missing required field).
+
+
+================================================================
+10. E2E DATA ENTRY (typing → DB)
+================================================================
+1. User types in .prose contenteditable in the writer view.
+2. JS input listener (page-inkwell.js) calls scheduleChapterAutosave()
+   which animates the save chip to "saving…" and arms a 800ms
+   debounced timer.
+3. After 800ms idle, performChapterAutosave() reads chapter_id from
+   prose.dataset.chapterId, builds a fetch() POST to
+   /bookwriter/api/chapter/<id>/autosave/ with X-CSRFToken header.
+4. views_api.api_bookwriter_chapter_autosave validates auth+owner,
+   calls sanitize_user_html(), computes word_count, writes to
+   [bookwriter].[chapter] via Django ORM (managed=False model).
+5. JSON reply lands in JS .then() → save chip flips to
+   "saved · just now". On any error → "offline · will retry"; next
+   keystroke fires another save (idempotent endpoint catches up).
+
+Same flow for title (separate debounce timer) and chapter switching
+(GET endpoint, populates editor + label + breadcrumb).
+
+
+================================================================
+11. AUDIT HISTORY (file: notes/checker-code-bugs.txt)
+================================================================
+2026-04-19: Phase 1B Steps 1-3 shipped + naming/id audit pass.
+  - Zero alert/confirm/prompt/console.*/document.write/eval/mark_safe
+    /raw SQL/silent except/print/csrf_exempt/TODO/FIXME/position:fixed
+  - 52 buttons + 8 inputs all carry id+name
+  - All JS vars use full descriptive names
+  - 187/187 JS braces, 719/719 JS parens, all templates tag-balanced
+  - All 4 endpoints + owner-check + XSS handling shell-tested

@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+  কলম / Inkwell — EMBEDDED shell.
+  Used when settings.BOOKWRITER_LAYOUT_MODE == 'embedded' (default).
+  Renders inside the global core/base.html layout — the project's
+  top header and left sidebar stay visible, Inkwell occupies the
+  <main> content area only. Body content lives in
+  partials/_inkwell_body.html — shared with the standalone shell.
+{% endcomment %}
+
+{% block title %}কলম · A Writing Sanctuary | আমলনামা নিউজ{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-inkwell.css' %}">
+{% endblock %}
+
+{% block content %}
+  {% comment %}
+    Page-level mode tabs — mirror the home feed's .post-feed-tabs
+    pattern (underline-style, flex 1) but rendered with the Inkwell
+    aesthetic (Fraunces serif on active, paper-ink-red palette).
+    Lives OUTSIDE .bookwriter-embedded-wrapper so it stays anchored
+    to the global page chrome.
+
+    Both classes are present on every button:
+      .bookwriter-mode-tab   — drives the visual styling
+      .mode-btn              — picked up by setMode() in
+                               page-inkwell.js so active-state syncs
+                               across these tabs AND the in-book
+                               switchers without any JS change.
+  {% endcomment %}
+  <nav class="bookwriter-mode-tabs mode-switch" aria-label="Bookwriter mode" id="bookwriter-mode-tabs" name="bookwriter_mode_tabs">
+    <button type="button" class="bookwriter-mode-tab mode-btn active" onclick="setMode('write')"     id="bookwriter-mode-tab-write"   name="bookwriter_mode_tab_write">Write</button>
+    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('corkboard')" id="bookwriter-mode-tab-plot"    name="bookwriter_mode_tab_plot">Plot</button>
+    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('bible')"     id="bookwriter-mode-tab-bible"   name="bookwriter_mode_tab_bible">Bible</button>
+    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('cover')"     id="bookwriter-mode-tab-cover"   name="bookwriter_mode_tab_cover">Cover</button>
+    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('gallery')"   id="bookwriter-mode-tab-publish" name="bookwriter_mode_tab_publish">Publish</button>
+  </nav>
+
+  <div class="bookwriter-embedded-wrapper">
+    {% include "bookwriter/partials/_inkwell_body.html" %}
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'bookwriter/assets/js/pages/page-inkwell.js' %}" defer></script>
+{% endblock %}

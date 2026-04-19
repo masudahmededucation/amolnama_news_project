@@ -1,4 +1,4 @@
-create app "quizadmin". follow the app structure in core. 
+create app "bookwriter". follow the app structure in core. 
 app location site_apps/<app_name>
 copy all the folder structure only strictly. 
 don't copy files.

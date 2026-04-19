@@ -1,0 +1,1016 @@
+{% comment %}
+  কলম / Inkwell — body content shared by both layout modes.
+  Included by:
+    - bookwriter/pages/inkwell.html           (standalone shell)
+    - bookwriter/pages/inkwell_embedded.html  (embeds inside core/base.html)
+  The shells handle <head>, fonts, CSS link, body class, and the
+  <script src="...page-inkwell.js"> reference. This partial holds
+  ONLY the markup (5 views + 4 overlays).
+{% endcomment %}
+
+  {# ========================== WRITER VIEW (default) ========================== #}
+  <div class="app">
+
+    {# LEFT RAIL — Library #}
+    <aside class="rail">
+      <div class="brand">
+        <div class="brand-mark">কলম</div>
+        <div class="brand-tag">writing sanctuary</div>
+      </div>
+
+      <div class="rail-head">
+        <h3>Chapters</h3>
+        <button type="button" class="new-chapter"
+                id="bookwriter-chapter-add-button"
+                name="bookwriter_chapter_add_button"
+                onclick="addChapter()">+ new</button>
+      </div>
+
+      {% comment %}
+        Logged-in user: render their REAL chapters from DB (loop var
+        `book_chapters_list` populated by views.py:bookwriter_inkwell).
+        Each chapter carries `data-chapter-id` so the autosave fetch
+        knows which row to PATCH. The chapter whose id matches
+        `active_chapter_id` gets `.active`.
+
+        Anon visitor: fall back to the hardcoded fiction demo so the
+        landing surface still tells the story of what bookwriter is.
+      {% endcomment %}
+      <div class="chapters"
+           id="chapters"
+           {% if current_book %}data-book-id="{{ current_book.bookwriter_coll_book_id }}"{% endif %}>
+        {% if book_chapters_list %}
+          {% for chapter_row in book_chapters_list %}
+            <div class="chapter{% if chapter_row.bookwriter_chapter_id == active_chapter_id %} active{% endif %}"
+                 draggable="true"
+                 data-chapter-id="{{ chapter_row.bookwriter_chapter_id }}">
+              <div class="ch-num">{{ chapter_row.chapter_number }}.</div>
+              <div class="ch-title">{{ chapter_row.chapter_title_en|default:chapter_row.chapter_title_bn|default:"Untitled" }}</div>
+              <div class="ch-meta">
+                <span>
+                  <i class="ch-dot {% if chapter_row.chapter_word_count > 0 %}draft{% else %}new{% endif %}"></i>
+                  {{ chapter_row.chapter_word_count|default:0 }} w
+                </span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="chapter" draggable="true">
+            <div class="ch-num">I.</div>
+            <div class="ch-title">The Cartographer's Daughter</div>
+            <div class="ch-meta"><span><i class="ch-dot done"></i>2,841 w</span><span>3 days ago</span></div>
+          </div>
+          <div class="chapter" draggable="true">
+            <div class="ch-num">II.</div>
+            <div class="ch-title">A House of Small Windows</div>
+            <div class="ch-meta"><span><i class="ch-dot done"></i>3,104 w</span><span>2 days ago</span></div>
+          </div>
+          <div class="chapter active" draggable="true">
+            <div class="ch-num">III.</div>
+            <div class="ch-title">The Letter that Arrived in Winter</div>
+            <div class="ch-meta"><span><i class="ch-dot draft"></i>1,687 w</span><span>just now</span></div>
+          </div>
+          <div class="chapter" draggable="true">
+            <div class="ch-num">IV.</div>
+            <div class="ch-title">What the River Knew</div>
+            <div class="ch-meta"><span><i class="ch-dot new"></i>outline</span><span>unstarted</span></div>
+          </div>
+          <div class="chapter" draggable="true">
+            <div class="ch-num">V.</div>
+            <div class="ch-title">Untitled</div>
+            <div class="ch-meta"><span><i class="ch-dot new"></i>blank</span><span>—</span></div>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="book-info">
+        <div class="book-title">The Saltwater Almanac</div>
+        <div class="book-author">by Eliza Whitmore</div>
+        <div class="book-stats">
+          <div><strong>7,632</strong>words</div>
+          <div><strong>34%</strong>complete</div>
+        </div>
+      </div>
+    </aside>
+
+    {# CENTER — The Manuscript #}
+    <section class="stage">
+      <div class="toolbar">
+        <div class="crumb">
+          <em>The Saltwater Almanac</em> &nbsp;·&nbsp; <strong>Chapter III</strong>
+          <span class="save-chip" onclick="toggleSnapshots()" title="View version history"><span class="pulse"></span>saved to the shelf · 2m</span>
+        </div>
+        <div class="tools">
+          <button type="button" class="tool-btn b icon"
+                  id="bookwriter-tool-bold-button"   name="bookwriter_tool_bold_button"   title="Bold"><b>B</b></button>
+          <button type="button" class="tool-btn i icon"
+                  id="bookwriter-tool-italic-button" name="bookwriter_tool_italic_button" title="Italic"><i>I</i></button>
+          <button type="button" class="tool-btn u icon"
+                  id="bookwriter-tool-underline-button" name="bookwriter_tool_underline_button" title="Underline"><u>U</u></button>
+          <div class="tool-divider"></div>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-tool-heading-button" name="bookwriter_tool_heading_button">¶ heading</button>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-tool-quote-button"   name="bookwriter_tool_quote_button">" quote</button>
+          <div class="tool-divider"></div>
+          <button type="button" class="tool-btn sprint-trigger"
+                  id="bookwriter-tool-sprint-button"  name="bookwriter_tool_sprint_button"
+                  onclick="openSprintSetup()" title="Writing sprint">⏱ sprint</button>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-tool-history-button" name="bookwriter_tool_history_button"
+                  onclick="toggleSnapshots()" title="Version history">↺ history</button>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-tool-share-button"   name="bookwriter_tool_share_button"
+                  onclick="openShare()" title="Share with beta readers">share</button>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-tool-focus-button"   name="bookwriter_tool_focus_button"
+                  onclick="enterFocus()" title="Distraction-free writing">◌ focus</button>
+        </div>
+      </div>
+
+      <div class="manuscript">
+        <article class="page fade-in">
+          <div class="focus-ribbon">⏳ chapter iii · 1,687 words</div>
+
+          {% comment %}
+            Logged-in: real chapter title + sanitized saved HTML (already
+            run through core.utils.sanitize_user_html on the way IN via
+            views_api.api_bookwriter_chapter_autosave, so |safe is OK).
+            Anon: hardcoded demo prose so the marketing surface still
+            reads like a finished page, not an empty editor.
+          {% endcomment %}
+          {% if active_chapter_id %}
+            <div class="chapter-label">Chapter {{ book_chapters_list.0.chapter_number|default:"One" }}</div>
+            <h1 class="chapter-title" contenteditable="true" spellcheck="false">{{ active_chapter_title }}</h1>
+          {% else %}
+            <div class="chapter-label">Chapter Three</div>
+            <h1 class="chapter-title" contenteditable="true" spellcheck="false">The Letter that Arrived in Winter</h1>
+          {% endif %}
+
+          <div class="ornament" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"/></svg>
+          </div>
+
+          <div class="prose"
+               id="bookwriter-prose"
+               name="bookwriter_prose"
+               contenteditable="true"
+               spellcheck="false"
+               {% if active_chapter_id %}data-chapter-id="{{ active_chapter_id }}"{% endif %}>
+            {% if active_chapter_id %}
+              {{ active_chapter_html|safe }}
+            {% else %}
+              <p>The letter arrived on a Thursday, folded twice against itself, the ink bled blue through the paper as if the words themselves had been caught out in the rain. Mira turned it over in her hands three times before she dared to open it. The handwriting she knew—of course she knew it—though she had not seen it in eleven years.</p>
+
+              <p>Outside, the snow was doing what snow does: falling without apology, without hurry, the way only the old snows fall in that part of the country. A stray cat watched her from the sill with the considered patience of something that had known hunger and was in no rush to know it again.</p>
+
+              <p>She read the first line. She read it again. Then she set the letter flat on the kitchen table and pressed her palms against it, as though it were a thing that might take flight, or catch fire, or simply <em>be</em>, in some quiet and permanent way, the hinge on which everything after would turn.</p>
+
+              <p>It began, as all the important letters of her life had begun, with her mother's maiden name.</p>
+            {% endif %}
+          </div>
+        </article>
+      </div>
+    </section>
+
+    {# RIGHT — The Desk #}
+    <aside class="desk">
+
+      <div class="card session fade-in">
+        <div class="card-head"><span>Today's Session</span><span>—</span></div>
+        <div class="nums">
+          <div>
+            <div class="num-big">842</div>
+            <div class="num-label">words today</div>
+          </div>
+          <div>
+            <div class="num-big">47<span class="num-big-suffix">m</span></div>
+            <div class="num-label">at the desk</div>
+          </div>
+        </div>
+        <div class="streak">
+          <div class="streak-day hit light"></div>
+          <div class="streak-day hit"></div>
+          <div class="streak-day hit"></div>
+          <div class="streak-day hit light"></div>
+          <div class="streak-day hit"></div>
+          <div class="streak-day hit"></div>
+          <div class="streak-day today"></div>
+        </div>
+        <div class="streak-caption"><strong>7 days</strong> of showing up</div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-head"><span>Daily Goal</span><span>500 w</span></div>
+        <div class="goal-wrap">
+          <svg class="ring" viewBox="0 0 74 74">
+            <circle cx="37" cy="37" r="32" fill="none" stroke="var(--paper-deep)" stroke-width="5"/>
+            <circle cx="37" cy="37" r="32" fill="none" stroke="var(--accent)" stroke-width="5"
+                    stroke-dasharray="201" stroke-dashoffset="0"
+                    stroke-linecap="round" transform="rotate(-90 37 37)"/>
+            <text x="37" y="42" text-anchor="middle"
+                  style="font-family:'Fraunces',serif;font-size:14px;font-weight:600;fill:var(--ink);">168%</text>
+          </svg>
+          <div class="goal-text">
+            <div><span class="num">842</span> <span class="of">/ 500</span></div>
+            <div class="label">You've surpassed today.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-head"><span>Margin Notes</span><span>+ add</span></div>
+        <div class="notes-pad">
+          <p>Check whether the cat appears in ch. I — continuity.</p>
+          <p>Is "eleven years" right? Feels like it should be twelve.</p>
+          <p>Consider moving the snow passage earlier.</p>
+        </div>
+      </div>
+
+      <button type="button" class="publish fade-in"
+              id="bookwriter-publish-draft-button"
+              name="bookwriter_publish_draft_button"
+              onclick="publishFlow()">
+        <span>Publish a draft</span>
+      </button>
+      <div class="publish-meta">
+        ePub · PDF · public link · কলম Reader
+      </div>
+
+      <div class="card card-frameless fade-in">
+        <div class="quote">
+          You can always edit a bad page. You can't edit a blank one.
+          <cite>— Jodi Picoult</cite>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+
+  {# ========================== COVER DESIGNER VIEW ========================== #}
+  <div class="cover-view">
+
+    <aside class="cover-rail">
+      <div class="brand">
+        <div class="brand-mark">কলম</div>
+        <div class="brand-tag">cover studio</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Templates</div>
+        <div class="templates" id="templates">
+          <div class="tmpl active" data-style="classical">
+            <div class="mini mini-classical">
+              <div class="mt">The Saltwater<br>Almanac</div>
+              <div class="ma">E. Whitmore</div>
+            </div>
+            <div class="tmpl-name">Classical</div>
+          </div>
+          <div class="tmpl" data-style="modern">
+            <div class="mini mini-modern">
+              <div>
+                <div class="mt">Saltwater<br>Almanac</div>
+                <div class="ma">Whitmore</div>
+              </div>
+            </div>
+            <div class="tmpl-name">Modern</div>
+          </div>
+          <div class="tmpl" data-style="photo">
+            <div class="mini mini-photo">
+              <div>
+                <div class="mt">Saltwater</div>
+                <div class="ma">Whitmore</div>
+              </div>
+            </div>
+            <div class="tmpl-name">Landscape</div>
+          </div>
+          <div class="tmpl" data-style="minimal">
+            <div class="mini mini-minimal">
+              <div class="mt">Saltwater<br>Almanac</div>
+              <div class="ma">E. Whitmore</div>
+            </div>
+            <div class="tmpl-name">Minimal</div>
+          </div>
+          <div class="tmpl" data-style="vintage">
+            <div class="mini mini-vintage">
+              <div class="mt">Saltwater<br>Almanac</div>
+              <div class="ma">Whitmore</div>
+            </div>
+            <div class="tmpl-name">Vintage</div>
+          </div>
+          <div class="tmpl" data-style="type">
+            <div class="mini mini-type">
+              <div class="mt">S A</div>
+              <div class="ma">Whitmore</div>
+            </div>
+            <div class="tmpl-name">Typographic</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Typography</div>
+        <div class="field">
+          <div class="field-label"><span>Title font</span></div>
+          <div class="font-pick" id="fontPick">
+            <button type="button" class="f-serif active"
+                    id="bookwriter-cover-font-serif-button"   name="bookwriter_cover_font_serif_button"   data-font="serif">Aa serif</button>
+            <button type="button" class="f-italic"
+                    id="bookwriter-cover-font-italic-button"  name="bookwriter_cover_font_italic_button"  data-font="italic">Aa italic</button>
+            <button type="button" class="f-body"
+                    id="bookwriter-cover-font-classic-button" name="bookwriter_cover_font_classic_button" data-font="body">Aa classic</button>
+            <button type="button" class="f-mono"
+                    id="bookwriter-cover-font-mono-button"    name="bookwriter_cover_font_mono_button"    data-font="mono">Aa mono</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Title size</span><span id="sizeVal">42pt</span></div>
+          <input type="range" id="titleSize" name="titleSize" min="22" max="68" value="42">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Letter spacing</span><span id="trackVal">0</span></div>
+          <input type="range" id="tracking" name="tracking" min="-5" max="20" value="0">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Palette</div>
+        <div class="palettes" id="palettes">
+          <div class="pal active" data-bg="#f4ede0" data-fg="#1a1612" data-accent="#8b2a1f">
+            <span style="background:#f4ede0"></span><span style="background:#1a1612"></span><span style="background:#8b2a1f"></span>
+          </div>
+          <div class="pal" data-bg="#1a1612" data-fg="#f4ede0" data-accent="#c46a5d">
+            <span style="background:#1a1612"></span><span style="background:#f4ede0"></span><span style="background:#c46a5d"></span>
+          </div>
+          <div class="pal" data-bg="#2d3b2d" data-fg="#e8dcc0" data-accent="#c8945a">
+            <span style="background:#2d3b2d"></span><span style="background:#e8dcc0"></span><span style="background:#c8945a"></span>
+          </div>
+          <div class="pal" data-bg="#c47a4f" data-fg="#f7e8d0" data-accent="#3d1f15">
+            <span style="background:#c47a4f"></span><span style="background:#f7e8d0"></span><span style="background:#3d1f15"></span>
+          </div>
+          <div class="pal" data-bg="#1c2530" data-fg="#d4c4a0" data-accent="#a03030">
+            <span style="background:#1c2530"></span><span style="background:#d4c4a0"></span><span style="background:#a03030"></span>
+          </div>
+          <div class="pal" data-bg="#e8dcc0" data-fg="#3d1f15" data-accent="#5a6b3f">
+            <span style="background:#e8dcc0"></span><span style="background:#3d1f15"></span><span style="background:#5a6b3f"></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="cover-stage">
+      <div class="toolbar">
+        <div class="crumb">
+          <em>The Saltwater Almanac</em> &nbsp;·&nbsp; <strong>Cover</strong>
+          <span class="save-chip"><span class="pulse"></span>draft cover · saved</span>
+        </div>
+        <div class="tools">
+          <button type="button" class="tool-btn"
+                  id="bookwriter-cover-preview-spine-button" name="bookwriter_cover_preview_spine_button">preview spine</button>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-cover-preview-back-button"  name="bookwriter_cover_preview_back_button">preview back</button>
+          <div class="tool-divider"></div>
+          <button type="button" class="tool-btn"
+                  id="bookwriter-cover-flip-view-button"     name="bookwriter_cover_flip_view_button"
+                  onclick="flipCover()">flip view</button>
+        </div>
+      </div>
+
+      <div class="cover-stage-inner">
+        <div class="cover font-serif" id="cover" data-style="classical"
+             style="background:#f4ede0; color:#1a1612;">
+          <div class="cover-art" id="coverArt"></div>
+          <div class="cover-inner">
+            <div class="cv-frame"></div>
+            <div class="cv-title" id="cvTitle">The Saltwater Almanac</div>
+            <div class="cv-ornament" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"/></svg>
+            </div>
+            <div class="cv-author" id="cvAuthor">Eliza Whitmore</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cover-foot">
+        <span>6 × 9 in · trade paperback</span>
+        <div class="cover-foot-center">
+          <button type="button" class="zoom-btn"
+                  id="bookwriter-cover-zoom-out-button" name="bookwriter_cover_zoom_out_button"
+                  onclick="zoomCover(-20)">−</button>
+          <span id="zoomLabel">100%</span>
+          <button type="button" class="zoom-btn"
+                  id="bookwriter-cover-zoom-in-button"  name="bookwriter_cover_zoom_in_button"
+                  onclick="zoomCover(20)">+</button>
+        </div>
+        <span>300 dpi · print ready</span>
+      </div>
+    </section>
+
+    <aside class="cover-desk">
+
+      <div class="desk-card">
+        <h4>Title &amp; Author</h4>
+        <div class="field">
+          <div class="field-label"><span>Title</span></div>
+          <input type="text" id="inTitle" name="inTitle" value="The Saltwater Almanac">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Subtitle (optional)</span></div>
+          <input type="text" id="inSubtitle" name="inSubtitle" placeholder="a novel in three tides">
+        </div>
+        <div class="field field-no-margin">
+          <div class="field-label"><span>Author</span></div>
+          <input type="text" id="inAuthor" name="inAuthor" value="Eliza Whitmore">
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <h4>Background</h4>
+        <div class="bg-options" id="bgOptions">
+          <div class="bg-opt bg-solid active" data-bg="solid" title="Solid"></div>
+          <div class="bg-opt bg-grad-1" data-bg="grad-1" title="Warm gradient"></div>
+          <div class="bg-opt bg-grad-2" data-bg="grad-2" title="Moss gradient"></div>
+          <div class="bg-opt bg-grad-3" data-bg="grad-3" title="Ink gradient"></div>
+          <div class="bg-opt bg-noise" data-bg="noise" title="Textured"></div>
+          <div class="bg-opt bg-dots" data-bg="dots" title="Dotted"></div>
+          <div class="bg-opt bg-stripes" data-bg="stripes" title="Stripes"></div>
+          <div class="bg-opt bg-upload" data-bg="upload" title="Upload image">+</div>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <h4>Recent Drafts</h4>
+        <div class="history-strip" id="history">
+          <div class="history-item current" style="background:#f4ede0;"></div>
+          <div class="history-item" style="background:#1a1612;"></div>
+          <div class="history-item" style="background:linear-gradient(165deg,#5a6b3f,#c8b79a);"></div>
+          <div class="history-item" style="background:#c47a4f;"></div>
+        </div>
+      </div>
+
+      <button type="button" class="set-as-cover"
+              id="bookwriter-cover-set-as-book-cover-button"
+              name="bookwriter_cover_set_as_book_cover_button"
+              onclick="setAsCover()">
+        <span>Set as book cover</span>
+      </button>
+
+      <div class="desk-card">
+        <h4>Export</h4>
+        <div class="export-row">
+          <button type="button" class="export-btn"
+                  id="bookwriter-cover-export-png-button"  name="bookwriter_cover_export_png_button">PNG</button>
+          <button type="button" class="export-btn"
+                  id="bookwriter-cover-export-pdf-button"  name="bookwriter_cover_export_pdf_button">PDF</button>
+          <button type="button" class="export-btn"
+                  id="bookwriter-cover-export-jpg-button"  name="bookwriter_cover_export_jpg_button">JPG</button>
+          <button type="button" class="export-btn"
+                  id="bookwriter-cover-export-epub-button" name="bookwriter_cover_export_epub_button">ePub</button>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+
+  {# ========================== CORKBOARD VIEW (Plot) ========================== #}
+  <div class="corkboard-view">
+    <aside class="rail">
+      <div class="brand">
+        <div class="brand-mark">কলম</div>
+        <div class="brand-tag">plotting</div>
+      </div>
+      <div class="rail-head">
+        <h3>Act Structure</h3>
+      </div>
+      <div class="chapters">
+        <div class="chapter active"><div class="ch-num">Act I.</div><div class="ch-title">Setup</div><div class="ch-meta"><span>3 cards</span></div></div>
+        <div class="chapter"><div class="ch-num">Act II.</div><div class="ch-title">Confrontation</div><div class="ch-meta"><span>5 cards</span></div></div>
+        <div class="chapter"><div class="ch-num">Act III.</div><div class="ch-title">Resolution</div><div class="ch-meta"><span>2 cards</span></div></div>
+      </div>
+      <div class="book-info">
+        <div class="book-title">The Saltwater Almanac</div>
+        <div class="book-author">plot map · 10 scenes</div>
+      </div>
+    </aside>
+
+    <section class="corkboard-stage">
+      <div class="corkboard-header">
+        <div>
+          <h2>The Saltwater Almanac — Plot Board</h2>
+          <p>Drag cards to reorder. Click to edit. Pin your plot before you write it.</p>
+        </div>
+        <button type="button" class="add-card"
+                id="bookwriter-corkboard-add-card-button"
+                name="bookwriter_corkboard_add_card_button"
+                onclick="addIndexCard()">+ new card</button>
+      </div>
+
+      <div class="corkboard-grid" id="corkboard">
+        <div class="index-card">
+          <div class="card-num">Scene · 01</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">The Cartographer's Daughter</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">Mira returns to her father's house after the funeral. Finds the first map tucked inside his atlas.</div>
+          <div class="card-tag">Act I · Setup</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 02</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">A House of Small Windows</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">We meet the village. Introduce the lighthouse-keeper as possible antagonist. Plant the rumor about her mother.</div>
+          <div class="card-tag">Act I · Setup</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 03</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">The Letter that Arrived in Winter</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">Inciting incident: the letter from her mother, eleven years dead. Mira decides to follow the maps.</div>
+          <div class="card-tag">Act I · Inciting</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 04</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">Crossing the Causeway</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">Mira travels to the first marked island. Storm scene. Meets the fisherman who claims to have known her mother.</div>
+          <div class="card-tag">Act II · Journey</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 05</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">What the River Knew</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">Midpoint revelation — the maps aren't of islands but of years. Her mother was charting time, not geography.</div>
+          <div class="card-tag">Act II · Midpoint</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 06</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">The Second Letter</div>
+          <div class="card-body" contenteditable="true" spellcheck="false">A second letter appears, written in a hand Mira doesn't recognize. Complication — someone else is tracking her.</div>
+          <div class="card-tag">Act II · Complication</div>
+        </div>
+        <div class="index-card">
+          <div class="card-num">Scene · 07</div>
+          <div class="card-title" contenteditable="true" spellcheck="false">Untitled</div>
+          <div class="card-body card-body-placeholder" contenteditable="true" spellcheck="false">Click to begin outlining…</div>
+          <div class="card-tag">unplaced</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  {# ========================== BIBLE VIEW (Characters & Locations) ========================== #}
+  <div class="bible-view">
+    <aside class="bible-rail">
+      <div class="brand">
+        <div class="brand-mark">কলম</div>
+        <div class="brand-tag">the book bible</div>
+      </div>
+      <div class="bible-cats">
+        <div class="bible-cat active" data-cat="characters">
+          <span>Characters</span>
+          <span class="bible-cat-count">07</span>
+        </div>
+        <div class="bible-cat" data-cat="locations">
+          <span>Locations</span>
+          <span class="bible-cat-count">04</span>
+        </div>
+        <div class="bible-cat" data-cat="objects">
+          <span>Objects &amp; Artifacts</span>
+          <span class="bible-cat-count">03</span>
+        </div>
+        <div class="bible-cat" data-cat="research">
+          <span>Research</span>
+          <span class="bible-cat-count">12</span>
+        </div>
+        <div class="bible-cat" data-cat="lore">
+          <span>Lore &amp; Timeline</span>
+          <span class="bible-cat-count">05</span>
+        </div>
+      </div>
+
+      <div class="book-info">
+        <div class="book-title">The Saltwater Almanac</div>
+        <div class="book-author">31 entries · last edited 4m ago</div>
+      </div>
+    </aside>
+
+    <aside class="bible-list" id="bibleList">
+      <div class="bible-item active" data-name="Mira">
+        <div class="bible-avatar">M</div>
+        <div><div class="b-name">Mira Calloway</div><div class="b-role">protagonist</div></div>
+      </div>
+      <div class="bible-item" data-name="Father">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#5a6b3f,#2d3b2d);">A</div>
+        <div><div class="b-name">Arthur Calloway</div><div class="b-role">her father, cartographer</div></div>
+      </div>
+      <div class="bible-item" data-name="Mother">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#c46a5d,#8b2a1f);">E</div>
+        <div><div class="b-name">Elena Vasq. Calloway</div><div class="b-role">her mother (deceased)</div></div>
+      </div>
+      <div class="bible-item" data-name="Keeper">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#c8945a,#6a4e2a);">T</div>
+        <div><div class="b-name">Tomás the Keeper</div><div class="b-role">lighthouse, antagonist?</div></div>
+      </div>
+      <div class="bible-item" data-name="Fisherman">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#1c2530,#3d1f15);">J</div>
+        <div><div class="b-name">Josef Halverson</div><div class="b-role">the fisherman on the causeway</div></div>
+      </div>
+      <div class="bible-item" data-name="Sister">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#c46a5d,#c8945a);">K</div>
+        <div><div class="b-name">Katja Vasquez</div><div class="b-role">half-sister, unknown to Mira</div></div>
+      </div>
+      <div class="bible-item" data-name="Priest">
+        <div class="bible-avatar" style="background:linear-gradient(135deg,#3d342a,#1a1612);">F</div>
+        <div><div class="b-name">Father Olen</div><div class="b-role">village priest, minor</div></div>
+      </div>
+    </aside>
+
+    <section class="bible-detail">
+      <div class="bible-hero">
+        <div class="bible-portrait">M</div>
+        <div class="flex-fill">
+          <h1 contenteditable="true" spellcheck="false">Mira Calloway</h1>
+          <div class="role-edit" contenteditable="true" spellcheck="false">the cartographer's daughter · protagonist · 34</div>
+          <div class="tags">
+            <span class="tag">POV</span>
+            <span class="tag">Act I–III</span>
+            <span class="tag">9 scenes</span>
+            <span class="tag">arc: grief → agency</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bible-section">
+        <h3>Physical Description</h3>
+        <div class="attr-grid">
+          <div class="attr"><div class="attr-key">Age</div><div class="attr-val" contenteditable="true">34</div></div>
+          <div class="attr"><div class="attr-key">Height</div><div class="attr-val" contenteditable="true">5'7"</div></div>
+          <div class="attr"><div class="attr-key">Hair</div><div class="attr-val" contenteditable="true">Dark, cropped short</div></div>
+          <div class="attr"><div class="attr-key">Eyes</div><div class="attr-val" contenteditable="true">Grey-green, like her father's</div></div>
+          <div class="attr"><div class="attr-key">Marker</div><div class="attr-val" contenteditable="true">Thin scar above her left brow</div></div>
+          <div class="attr"><div class="attr-key">Voice</div><div class="attr-val" contenteditable="true">Quiet, deliberate</div></div>
+        </div>
+      </div>
+
+      <div class="bible-section">
+        <h3>Biography</h3>
+        <p contenteditable="true" spellcheck="false">Mira was eight years old when her mother vanished at sea, and eleven when her father stopped pretending there was anything to wait for. She grew up in the narrow house at the end of the causeway, raised on atlases and silence, learning the names of distant islands before she learned the names of her own feelings.</p>
+        <p contenteditable="true" spellcheck="false">She left for the mainland at nineteen, made a life as an archivist, and returned only when her father died and left her the house, the atlas, and the first of the maps.</p>
+      </div>
+
+      <div class="bible-section">
+        <h3>Wants &amp; Needs</h3>
+        <div class="attr-grid">
+          <div class="attr"><div class="attr-key">Surface Want</div><div class="attr-val" contenteditable="true">To understand what her mother was charting</div></div>
+          <div class="attr"><div class="attr-key">Deep Need</div><div class="attr-val" contenteditable="true">To forgive her father for surviving</div></div>
+          <div class="attr"><div class="attr-key">Fatal Flaw</div><div class="attr-val" contenteditable="true">Refuses to ask for help</div></div>
+          <div class="attr"><div class="attr-key">Lie She Believes</div><div class="attr-val" contenteditable="true">Grief is something you finish</div></div>
+        </div>
+      </div>
+
+      <div class="bible-section">
+        <h3>Notes</h3>
+        <p contenteditable="true" spellcheck="false">Mira should never cry on the page. Her grief shows up in what she doesn't say, in the way she handles her father's things. When she finally does cry, it should land like weather, not a scene.</p>
+      </div>
+    </section>
+  </div>
+
+
+  {# ========================== GALLERY VIEW (Public publishing) ========================== #}
+  <div class="gallery-view">
+    <aside class="rail gallery-rail-fill">
+      <div class="brand">
+        <div class="brand-mark">কলম</div>
+        <div class="brand-tag">public library</div>
+      </div>
+      <div class="rail-head">
+        <h3>Reader Activity</h3>
+      </div>
+
+      <div class="gallery-stat-block">
+        <div class="stat-row"><span>Subscribers</span><strong>1,247</strong></div>
+        <div class="stat-row"><span>Chapter reads</span><strong>18,402</strong></div>
+        <div class="stat-row"><span>Reactions</span><strong>2,156</strong></div>
+        <div class="stat-row"><span>Comments</span><strong>341</strong></div>
+      </div>
+
+      <div class="book-info">
+        <div class="book-title">The Saltwater Almanac</div>
+        <div class="book-author">serial · 2 chapters live</div>
+        <div class="book-stats">
+          <div><strong>7 days</strong>until next chapter drop</div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="gallery-content-pane gallery-content-pane-fill">
+      <div class="gallery-header">
+        <div class="gallery-mark">কলম · Public Gallery</div>
+        <h1>The Saltwater Almanac</h1>
+        <p>Release your book chapter by chapter. Readers subscribe and follow along. You control the schedule, the price (if any), and the conversation.</p>
+        <div class="gallery-mode-switch">
+          <button type="button" class="gmode active"
+                  id="bookwriter-gallery-mode-serial-button"   name="bookwriter_gallery_mode_serial_button">Serial</button>
+          <button type="button" class="gmode"
+                  id="bookwriter-gallery-mode-complete-button" name="bookwriter_gallery_mode_complete_button">Complete Book</button>
+          <button type="button" class="gmode"
+                  id="bookwriter-gallery-mode-draft-button"    name="bookwriter_gallery_mode_draft_button">Draft</button>
+        </div>
+      </div>
+
+      <div class="gallery-body">
+        <div class="serial-list">
+          <h3>Published &amp; Scheduled Chapters</h3>
+
+          <div class="serial">
+            <div class="serial-num">I.</div>
+            <div class="serial-body">
+              <h4>The Cartographer's Daughter</h4>
+              <div class="serial-excerpt">The letter arrived on a Thursday, folded twice against itself, the ink bled blue through the paper as if the words themselves had been caught out in the rain…</div>
+              <div class="serial-meta">
+                <span>✓ published 12 days ago</span>
+                <span>👁 8,402 reads</span>
+                <span>❤ 1,024</span>
+                <span>💬 186 comments</span>
+              </div>
+            </div>
+            <div class="serial-status">
+              <div class="status-chip live">● Live</div>
+              <button type="button" class="status-action"
+                      id="bookwriter-publish-status-manage-chapter-1-button"
+                      name="bookwriter_publish_status_manage_chapter_1_button">manage</button>
+            </div>
+          </div>
+
+          <div class="serial">
+            <div class="serial-num">II.</div>
+            <div class="serial-body">
+              <h4>A House of Small Windows</h4>
+              <div class="serial-excerpt">Outside, the snow was doing what snow does: falling without apology, without hurry, the way only the old snows fall in that part of the country…</div>
+              <div class="serial-meta">
+                <span>✓ published 5 days ago</span>
+                <span>👁 6,188 reads</span>
+                <span>❤ 814</span>
+                <span>💬 98 comments</span>
+              </div>
+            </div>
+            <div class="serial-status">
+              <div class="status-chip live">● Live</div>
+              <button type="button" class="status-action"
+                      id="bookwriter-publish-status-manage-chapter-2-button"
+                      name="bookwriter_publish_status_manage_chapter_2_button">manage</button>
+            </div>
+          </div>
+
+          <div class="serial">
+            <div class="serial-num">III.</div>
+            <div class="serial-body">
+              <h4>The Letter that Arrived in Winter</h4>
+              <div class="serial-excerpt">She read the first line. She read it again. Then she set the letter flat on the kitchen table and pressed her palms against it…</div>
+              <div class="serial-meta">
+                <span>⏰ scheduled for April 25, 09:00</span>
+                <span>👁 preview: 142 views</span>
+              </div>
+            </div>
+            <div class="serial-status">
+              <div class="status-chip scheduled">◷ Scheduled</div>
+              <button type="button" class="status-action"
+                      id="bookwriter-publish-status-reschedule-chapter-3-button"
+                      name="bookwriter_publish_status_reschedule_chapter_3_button">reschedule</button>
+            </div>
+          </div>
+
+          <div class="serial">
+            <div class="serial-num">IV.</div>
+            <div class="serial-body">
+              <h4>What the River Knew</h4>
+              <div class="serial-excerpt">Outline complete · 0 words written · ready for drafting next session.</div>
+              <div class="serial-meta">
+                <span>○ not yet written</span>
+              </div>
+            </div>
+            <div class="serial-status">
+              <div class="status-chip draft">Draft</div>
+              <button type="button" class="status-action"
+                      id="bookwriter-publish-status-open-chapter-4-button"
+                      name="bookwriter_publish_status_open_chapter_4_button">open</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="gallery-sidebar">
+          <div class="gal-card">
+            <h4>Release Schedule</h4>
+            <div class="stat-row"><span>Cadence</span><strong>Weekly, Fri</strong></div>
+            <div class="stat-row"><span>Next drop</span><strong>Apr 25</strong></div>
+            <div class="stat-row"><span>Queue</span><strong>1 ready</strong></div>
+            <button type="button" class="publish-next publish-next-spaced"
+                    id="bookwriter-gallery-schedule-next-chapter-button"
+                    name="bookwriter_gallery_schedule_next_chapter_button">Schedule next chapter</button>
+          </div>
+
+          <div class="gal-card">
+            <h4>Visibility</h4>
+            <div class="stat-row"><span>Public gallery</span><strong class="stat-status-on">On</strong></div>
+            <div class="stat-row"><span>Allow comments</span><strong class="stat-status-on">On</strong></div>
+            <div class="stat-row"><span>Paid subscribers</span><strong class="stat-status-off">Off</strong></div>
+            <div class="stat-row"><span>RSS feed</span><strong class="stat-status-on">On</strong></div>
+          </div>
+
+          <div class="gal-card">
+            <h4>Public URL</h4>
+            <div class="share-link share-link-flush">
+              <input id="bookwriterGalleryPublicUrl" name="bookwriterGalleryPublicUrl" type="text" value="kalom.amolnama.news/eliza/saltwater" readonly autocomplete="off">
+              <button type="button"
+                      id="bookwriter-gallery-copy-public-url-button"
+                      name="bookwriter_gallery_copy_public_url_button"
+                      onclick="copyToClipboard(this)">copy</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+
+  {# ========================== FOCUS MODE OVERLAY ========================== #}
+  <div class="focus-mode">
+    <button type="button" class="focus-exit"
+            id="bookwriter-focus-exit-button"
+            name="bookwriter_focus_exit_button"
+            onclick="exitFocus()">ESC · exit focus</button>
+    <div class="focus-stats">
+      <strong id="focusWords">0</strong> words this session
+      &nbsp;·&nbsp; <span id="focusTime">00:00</span>
+    </div>
+    <div class="focus-page">
+      <h1 contenteditable="true" spellcheck="false" id="focusTitle">The Letter that Arrived in Winter</h1>
+      <div class="focus-text" contenteditable="true" spellcheck="false" id="focusText"></div>
+    </div>
+  </div>
+
+
+  {# ========================== SNAPSHOTS PANEL ========================== #}
+  <aside class="snapshot-panel">
+    <div class="snap-head">
+      <h3>Version History</h3>
+      <button type="button" class="snap-close"
+              id="bookwriter-snapshot-close-button"
+              name="bookwriter_snapshot_close_button"
+              onclick="toggleSnapshots()">×</button>
+    </div>
+    <div class="snap-list">
+      <div class="snap current">
+        <div class="snap-time">Today · 14:42</div>
+        <div class="snap-label">Current draft</div>
+        <div class="snap-meta">1,687 words · you</div>
+        <span class="snap-diff plus">+218 words since last</span>
+      </div>
+      <div class="snap">
+        <div class="snap-time">Today · 11:20</div>
+        <div class="snap-label">Morning session</div>
+        <div class="snap-meta">1,469 words · auto-saved</div>
+        <span class="snap-diff plus">+412 words</span>
+      </div>
+      <div class="snap">
+        <div class="snap-time">Yesterday · 21:08</div>
+        <div class="snap-label">Before rewrite of ornament passage</div>
+        <div class="snap-meta">1,057 words · manual snapshot</div>
+      </div>
+      <div class="snap">
+        <div class="snap-time">Yesterday · 18:55</div>
+        <div class="snap-label">Evening session</div>
+        <div class="snap-meta">983 words · auto-saved</div>
+        <span class="snap-diff minus">−74 words</span>
+      </div>
+      <div class="snap">
+        <div class="snap-time">3 days ago · 10:30</div>
+        <div class="snap-label">First full draft of chapter</div>
+        <div class="snap-meta">1,057 words · manual snapshot</div>
+      </div>
+      <div class="snap">
+        <div class="snap-time">4 days ago · 16:12</div>
+        <div class="snap-label">Beginning of chapter III</div>
+        <div class="snap-meta">284 words · auto-saved</div>
+      </div>
+      <div class="snap">
+        <div class="snap-time">6 days ago · 22:45</div>
+        <div class="snap-label">After feedback from M.</div>
+        <div class="snap-meta">0 words · manual snapshot</div>
+      </div>
+    </div>
+    <div class="snap-actions">
+      <button type="button"
+              id="bookwriter-snapshot-name-version-button"
+              name="bookwriter_snapshot_name_version_button">Name this version</button>
+      <button type="button" class="primary"
+              id="bookwriter-snapshot-revert-button"
+              name="bookwriter_snapshot_revert_button">Revert to selected</button>
+    </div>
+  </aside>
+
+
+  {# ========================== SPRINT TIMER ========================== #}
+  <div class="sprint-setup">
+    <h4>Begin a writing sprint</h4>
+    <div class="sprint-options" id="sprintOpts">
+      <button type="button" class="sprint-opt"
+              id="bookwriter-sprint-duration-10-button" name="bookwriter_sprint_duration_10_button" data-min="10">10m</button>
+      <button type="button" class="sprint-opt active"
+              id="bookwriter-sprint-duration-25-button" name="bookwriter_sprint_duration_25_button" data-min="25">25m</button>
+      <button type="button" class="sprint-opt"
+              id="bookwriter-sprint-duration-45-button" name="bookwriter_sprint_duration_45_button" data-min="45">45m</button>
+      <button type="button" class="sprint-opt"
+              id="bookwriter-sprint-duration-60-button" name="bookwriter_sprint_duration_60_button" data-min="60">60m</button>
+    </div>
+    <button type="button" class="sprint-start"
+            id="bookwriter-sprint-begin-button"
+            name="bookwriter_sprint_begin_button"
+            onclick="startSprint()">Begin sprint</button>
+  </div>
+
+  <div class="sprint-float">
+    <div class="sprint-clock" id="sprintClock">25:00</div>
+    <div class="sprint-label"><strong>Sprint</strong>write without pausing</div>
+    <button type="button" class="sprint-btn pause"
+            id="sprintPause" name="bookwriter_sprint_pause_button"
+            onclick="pauseSprint()">pause</button>
+    <button type="button" class="sprint-close"
+            id="bookwriter-sprint-close-button" name="bookwriter_sprint_close_button"
+            onclick="endSprint()">×</button>
+  </div>
+
+
+  {# ========================== BETA SHARE MODAL ========================== #}
+  <div class="modal-backdrop" onclick="if(event.target===this) closeShare()">
+    <div class="modal">
+      <button type="button" class="modal-close"
+              id="bookwriter-share-modal-close-button"
+              name="bookwriter_share_modal_close_button"
+              onclick="closeShare()">×</button>
+      <h2>Share with beta readers</h2>
+      <p class="subhead">Send a private link to trusted readers. They see only what you've written so far — and only what you let them do.</p>
+
+      <div class="share-link">
+        <input id="shareLink" name="shareLink" type="text" value="kalom.amolnama.news/share/k2p8qx-saltwater-ch3" readonly autocomplete="off">
+        <button type="button"
+                id="bookwriter-share-copy-link-button"
+                name="bookwriter_share_copy_link_button"
+                onclick="copyShareLink(this)">Copy</button>
+      </div>
+
+      <div class="perm-group">
+        <h4>What can readers do?</h4>
+        <div class="perm active" onclick="pickPerm(this)" data-perm="read">
+          <div class="perm-radio"></div>
+          <div class="perm-text"><div class="t">Read only</div><div class="d">They can read every published chapter. No feedback, no notes.</div></div>
+        </div>
+        <div class="perm" onclick="pickPerm(this)" data-perm="comment">
+          <div class="perm-radio"></div>
+          <div class="perm-text"><div class="t">Read &amp; leave margin notes</div><div class="d">They can highlight passages and leave comments. They can't edit your manuscript.</div></div>
+        </div>
+        <div class="perm" onclick="pickPerm(this)" data-perm="suggest">
+          <div class="perm-radio"></div>
+          <div class="perm-text"><div class="t">Read &amp; suggest edits</div><div class="d">Suggestions come to you as tracked changes you can accept or reject.</div></div>
+        </div>
+      </div>
+
+      <div class="perm-group">
+        <h4>Current readers (3)</h4>
+        <div class="reader-list">
+          <div class="reader">
+            <div class="reader-avatar">M</div>
+            <div class="reader-name">Marguerite Holloway</div>
+            <div class="reader-perm">comment</div>
+            <button type="button" class="reader-remove"
+                    id="bookwriter-share-reader-remove-1-button"
+                    name="bookwriter_share_reader_remove_1_button"
+                    title="Remove">×</button>
+          </div>
+          <div class="reader">
+            <div class="reader-avatar" style="background:var(--moss);">D</div>
+            <div class="reader-name">Daniel Suh</div>
+            <div class="reader-perm">read</div>
+            <button type="button" class="reader-remove"
+                    id="bookwriter-share-reader-remove-2-button"
+                    name="bookwriter_share_reader_remove_2_button"
+                    title="Remove">×</button>
+          </div>
+          <div class="reader">
+            <div class="reader-avatar" style="background:var(--accent);">R</div>
+            <div class="reader-name">Rose Adeyemi</div>
+            <div class="reader-perm">suggest</div>
+            <button type="button" class="reader-remove"
+                    id="bookwriter-share-reader-remove-3-button"
+                    name="bookwriter_share_reader_remove_3_button"
+                    title="Remove">×</button>
+          </div>
+        </div>
+        <div class="invite-form">
+          <input id="inviteEmail" name="inviteEmail" placeholder="reader@example.com" type="email">
+          <button type="button"
+                  id="bookwriter-share-invite-button"
+                  name="bookwriter_share_invite_button">Invite</button>
+        </div>
+      </div>
+    </div>
+  </div>

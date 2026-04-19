@@ -51,7 +51,9 @@
     const url = link.getAttribute('href');
     if (!url) return;
 
-    if (link.target === '_blank') return;
+    // Any explicit target (_blank, named window like "writing_session", etc.)
+    // means the link wants to open elsewhere — let the browser handle it.
+    if (link.target && link.target !== '_self') return;
     if (url.startsWith('http') && !url.startsWith(window.location.origin)) return;
     if (url.startsWith('#')) return;
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;

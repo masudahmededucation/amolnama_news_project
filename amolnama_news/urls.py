@@ -44,6 +44,7 @@ urlpatterns = [
     # Friendly top-level alias for shareable multiplayer join URLs.
     path("play/<str:join_code>/", RedirectView.as_view(url="/mastermind/play/%(join_code)s/", permanent=False)),
     path("quizadmin/", include("amolnama_news.site_apps.quizadmin.urls")),  # Quiz Panel — staff-only admin dashboard
+    path("bookwriter/", include("amolnama_news.site_apps.bookwriter.urls")),  # Bookwriter — কলম, original book writing
     path("text-extractor/", include("amolnama_news.site_apps.textextractor.urls")),  # Text Extractor
     path("bangladesh-tourist-destinations/", include("amolnama_news.site_apps.bangladesh.urls")),  # Bangladesh (travel, beauty)
     # englishtobangla: no URL routes — app ships JS utilities only (static/englishtobangla/...)

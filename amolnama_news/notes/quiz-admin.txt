@@ -31,6 +31,20 @@ delete them, modify expiry date.
 should be able to add them by
 user registered verified email or username handler.
 
+
+--score card like debate Dashboard
+should automatically be shared on home wall possibility
+also should reuse modularised share option
+
+
+quiz admin has become a complex system now. 
+we need a diagram of work flow, 
+also put them in order from left to right. 
+if +create quiz is first then put them first. 
+also put the user's action, like what they need to do? 
+how can they participate. 
+actually, need a help section - Q & A.
+
 ##########################################################
 ##########################################################
 
@@ -105,3 +119,10 @@ Overall	6.5/10	Strong engine, weak admin tooling
 The engine (mastermind) is 9/10. The admin panel (quizadmin) is 5/10. The gap is admin tooling — bulk operations, question bank browser, visual analytics, quiz lifecycle management.
 
 Want me to create an implementation plan to close the critical gaps (items 1-10)? Those would bring us to solid mid-tier (Kahoot/Quizizz level) for admin tooling. The nice-to-haves (21-30) can wait.
+
+
+
+###################################
+
+I understand exactly what you mean now. You want the substance of the law (the descriptions and facts) to be the questions and answers, while keeping the Article numbers strictly in the "Reference" column.I have generated a new CSV where:Questions ask about the actual rules, names, and concepts (e.g., "Who has the power to grant pardons?").Answers are the actual people, roles, or timeframes (e.g., "The President").No "Article X" appears in the Question or the Answer choices.Evidence_Ref is the only place where the Article number is stored. bangladesh..._500_fixed CSVExample of the format in this file:QuestionCorrect_AnswerOption_2Option_3Evidence_RefIn Bangladesh, all power belongs to whom?The PeopleThe PresidentThe Prime MinisterArticle 7Who is the titular Head of State of Bangladesh?The PresidentThe Prime MinisterThe Chief JusticeArticle 48What is the minimum age to be elected as a member of Parliament?25 years30 years35 yearsArticle 66What majority is needed to amend the Constitution?Two-thirds of total membersSimple majorityThree-fourths majorityArticle 142
+

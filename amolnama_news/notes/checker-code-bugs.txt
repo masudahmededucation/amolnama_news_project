@@ -53,15 +53,15 @@ don't over-engineer or over use prefix
 when there are group of columns,
 use group as the prefix for column names.
 follow standard rules already placed in table and column creation.
-do you think we should use prefix to name table?
 for example: fact_check for fact check tables?
 for ref table ref_fact_check as part of the table name.
 as a result to identify group of table for fact check? for all other group of works.
-should we rename our table like that?
+foreign key id column from other table starts with link_ as prefix
 don't touch other things.
 
 
-
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
 --modularise everything
 make a rule - any new features - should be modularised.
 make the code scalable
@@ -85,7 +85,8 @@ split files when the feature is atomic and independent.
 don't split inter-related or co-related jobs.
 don't touch other things.
 
-
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
 --check styling
 make professional.
 do some research.
@@ -120,11 +121,12 @@ no shortcut dangerous practice.
 don't touch other things.
 
 
-
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
 --naming conventions
 check name rules.
 seo friendly name.
-check variables, filename, functions, features.
+check variables name, filename, functions name, features name.
 all files css, js, ajax, html.
 use large descriptive name always.
 do not use partial name or short name.
@@ -136,6 +138,8 @@ don't touch other things.
 all attributes should have its id and name.
 
 
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
 --Run exhaustive bug scan across all categories
 without removing functionality, features, and messing up 
 including followings
@@ -156,8 +160,17 @@ Missing .catch().
 XSS vulnerabilities.
 tech debt item.
 don't leave anything broken after change
+--nested tag issues - <main>..<div>..<>p
 don't touch other things.
 
+--best practice 
+follow all the rules applicable 
+check gold standard practice is being followed
+use best practice for website
+use professional practices for apps
+use competitive websites practices
+no masking of real issues
+make the app scalable
 
 
 --without removing functionality, features, and messing up 
@@ -202,14 +215,6 @@ bump cache + Collect-static + service worker cache.
 --compare the plan
 at last check that you have completed the task properly.
 
---best practice 
-follow all the rules applicable 
-check gold standard practice is being followed
-use best practice for website
-use professional practices for apps
-use competitive websites practices
-no masking of real issues
-make the app scalable
 
 
 --permission request

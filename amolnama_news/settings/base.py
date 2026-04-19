@@ -84,9 +84,27 @@ LOCAL_APPS = [
     "amolnama_news.site_apps.historybd",
     "amolnama_news.site_apps.mastermind",
     "amolnama_news.site_apps.quizadmin",
+    "amolnama_news.site_apps.bookwriter",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+
+# ================================================================
+# BOOKWRITER — কলম
+# ----------------------------------------------------------------
+# Layout mode for /bookwriter/. Two values:
+#   'embedded'    — renders inside core/base.html, global header
+#                   and left sidebar stay visible. Inkwell occupies
+#                   the <main> content area only. (default)
+#   'standalone'  — full-screen takeover. No global chrome. Used
+#                   when the writer wants the writing surface to
+#                   own the entire viewport.
+# To switch: change the value below, bump CACHE_NAME in
+# seo/views.py, run collectstatic --noinput, hard-reload browser.
+# Full revert procedure in notes/bookwriter-layout-mode.txt.
+# ================================================================
+BOOKWRITER_LAYOUT_MODE = "embedded"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

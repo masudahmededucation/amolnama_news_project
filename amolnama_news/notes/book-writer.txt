@@ -1,0 +1,52 @@
+also by putting inside the content section 
+- we have lost the right side section of the original page 
+- what can done?
+- what is the best place or alternative to display those options?
+
+
+one thing 
+- all the chapters now showing but some 
+chapaters has placeholder values like saying, 
+it is empty, start writing. does it mean you have lost the page text in conversion? only chapter iii has proper restored text.
+
+where is the save button?
+
+dont' move original.
+
+Write
+Plot
+Bible
+Cover
+Publish
+
+lets take a copy of these book side menu options and put them outside the book
+but still inside the our main apps - content section.
+but use the css style of inkwell.html.
+
+
+##############
+
+
+if nav menu side is not collapsed 
+then i can't see the book's own sidebar. 
+either we need to auto hide our nav menu side bar 
+or make it responsive to make the 
+book's content section responsive and smaller. 
+i think, making it responsive is 
+much better option then 
+user can hide the our nav menu side bar. 
+
+what do you think?
+
+it is not responsive yet. book's sidebar 
+not visible when nav menu sidebar expanded. 
+it is only visible when nav menu sidebar collapsed.
+
+Book editing,
+showing text saving, after typing something.
+then if i go to different page 
+and come back then it restores original,
+not edited text.
+
+on open, 
+chapter iii is default, why?
