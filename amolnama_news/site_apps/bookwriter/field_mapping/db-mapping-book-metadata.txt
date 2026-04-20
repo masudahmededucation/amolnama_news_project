@@ -1,0 +1,133 @@
+================================================================================
+BOOKWRITER — DB MAPPING: BOOK METADATA + CHAPTER REORDER
+================================================================================
+Module:       views_api_book.py
+Tables:       coll_book, chapter (for reorder)
+Templates:    _inkwell_body.html (right-rail .book-info card + chapter rail drag)
+JS managed:   page-inkwell.js (book title autosave, drag-reorder)
+              modules/bookwriter-rail-pickers.js (book metadata fields)
+Common steps: See db-mapping-common-steps.txt
+
+================================================================================
+STEP 1 — Book metadata save (title / author / synopsis / status / targets)
+================================================================================
+Endpoint:    POST /api/book/<book_id>/title/
+View:        api_bookwriter_book_title_save
+Trigger:     - .book-title contenteditable → debounced save (page-inkwell.js
+               scheduleBookMetadataAutosave)
+             - .book-author contenteditable → same
+             - .bookwriter-book-metadata-input/-textarea/-select → 600ms
+               debounced save via modules/bookwriter-rail-pickers.js
+
+Form/UI elements (all live in right-rail .book-info card when current_book exists):
+  #bookwriter-book-title         contenteditable     → book_title
+  #bookwriter-book-author        contenteditable     → book_author_display
+                                                       (JS strips leading "by ")
+  #bookwriter-book-synopsis-textarea     <textarea>  → book_synopsis
+  #bookwriter-book-status-select         <select>    → book_status_code
+  #bookwriter-book-daily-word-target-input  <input>  → book_daily_word_target
+  #bookwriter-book-word-target-input        <input>  → book_word_count_target
+
+Request JSON (any subset; keys map to coll_book columns):
+  book_title              string (≤500)        → book_title_en
+  book_subtitle           string (≤500)        → book_subtitle_en
+  book_author_display     string (≤300)        → book_author_display_en
+  book_synopsis           HTML (sanitized)     → book_synopsis
+  book_word_count_target  int 0..10_000_000    → book_word_count_target
+  book_daily_word_target  int 0..100_000       → book_daily_word_target
+  book_status_code        ref code             → book_status_code
+                            (validated against ref_book_status)
+  book_visibility_code    ref code             → book_visibility_code
+                            (validated against ref_chapter_visibility — same
+                             vocabulary reused for the book's surface visibility)
+  book_language_code      'bn'|'en'            → book_language_code
+  book_cover_image_url    string ≤1000         → book_cover_image_url
+  book_slug_en            slug pattern         → book_slug_en
+                            (^[a-z0-9][a-z0-9-]{0,298}$)
+  link_publish_cadence_id int|null             → link_publish_cadence_id
+                            (validated against ref_publish_cadence)
+
+Validation:
+  - Title/author/subtitle: _strip_html_to_plain → trim → length cap
+  - Synopsis: sanitize_user_html (full HTML allowed)
+  - Status/visibility/cadence/language: ref-table existence check
+  - Numbers: type + bounds
+  - Empty strings collapse to NULL via `or None`
+
+DB UPDATE (table = coll_book):
+  Only the keys present in payload get saved (build update_fields list)
+  updated_at  ← now (always added)
+
+BENGALI DISPLAY VARIANTS — currently NOT writable via the API
+  coll_book.book_title_bn          Bengali title — column exists for future
+                                     bilingual edit toggle. JS edits the EN
+                                     contenteditable; book_title_bn stays NULL
+                                     unless seeded directly in SQL.
+  coll_book.book_subtitle_bn       Bengali subtitle — same pattern.
+  coll_book.book_author_display_bn Bengali author display — same pattern.
+  All three READ paths exist (template renders ..._en|default:..._bn|default:"")
+  so a row with only the BN value still displays correctly.
+
+Auto-stamped lifecycle timestamps (set ONCE on first transition):
+  book_published_at  ← now  IFF
+                              payload.book_status_code == 'published' AND
+                              owning_book.book_status_code != 'published' AND
+                              owning_book.book_published_at IS NULL
+  book_archived_at   ← now  IFF
+                              payload.book_status_code == 'archived' AND
+                              owning_book.book_status_code != 'archived' AND
+                              owning_book.book_archived_at IS NULL
+  Rationale: forensic record of when each milestone was first reached.
+  Flipping status back-and-forth never resets/clears these timestamps.
+
+Response: { ok, saved_at }
+
+================================================================================
+STEP 2 — Chapter reorder (drag handle)
+================================================================================
+Endpoint:    POST /api/book/<book_id>/chapters/reorder/
+View:        api_bookwriter_book_chapters_reorder
+Trigger:     Drag-drop release on a .chapter rail row
+             (page-inkwell.js — wireChapterDrag → persistChapterReorder)
+
+Request JSON:
+  chapter_ids   list of int   (the new order, 1-indexed implied)
+
+Strict membership check: incoming set MUST exactly equal current active
+chapter id set for the book. Mismatch returns 400 (prevents silent
+hide / leak attacks).
+
+DB UPDATE (chapter, one per id):
+  chapter.sort_order   ← position in incoming list (1-indexed)
+  chapter.updated_at   ← now
+
+================================================================================
+COVER METADATA (separate save — see db-mapping-cover-design.txt)
+================================================================================
+The `book_cover_image_url` column on coll_book is the EXTERNAL cover image
+URL the writer pastes into the metadata field. This is distinct from
+book_cover_design (the per-template/palette/font designer). Both can coexist:
+- book_cover_image_url is the link/URL stored on coll_book directly
+- book_cover_design is the structured design row (1:1 with coll_book)
+
+================================================================================
+SUBSCRIBE TOGGLE (lives in views_api_book — see db-mapping-engagement.txt)
+================================================================================
+The subscribe-toggle endpoint (POST /api/book/<id>/subscribe/toggle/) is
+implemented in views_api_book.py because it's keyed by book_id, but it
+writes to engagement_serial_subscriber. Mapping documented in
+db-mapping-engagement.txt under "Subscribe".
+
+================================================================================
+RIGHT-RAIL CACHED COUNTERS
+================================================================================
+The right-rail "X words / Y chapters" counters read from:
+  coll_book.book_word_count_cached     (refreshed on every chapter autosave +
+                                         delete + reorder via _refresh_book_caches)
+  coll_book.book_chapter_count_cached  (same)
+
+These are eventual-consistency cache columns — never authoritative for billing
+or display-of-truth. The authoritative counts come from
+SUM(chapter.chapter_word_count) WHERE is_active=1 + COUNT(*).
+
+================================================================================

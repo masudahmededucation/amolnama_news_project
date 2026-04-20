@@ -181,7 +181,7 @@ amolnama_news/site_apps/
 # 🎨 GATE 4 — Styling / CSS / UI standards
 
 1. **External CSS files only.** No internal `<style>` blocks unless absolutely required (critical CSS in base.html, self-contained PDF/embed templates are legitimate exceptions).
-2. **No inline `style=""`** — extract to CSS class. Exception: dynamic values (`background-image:url(...)`, `width: {{ pct }}%`) that CSS cannot express statically.
+2. **No inline `style=""`** — extract to CSS class. Exception: dynamic values (`background-image:url(...)`, `width: {{ pct }}%`) that CSS cannot express statically. **When the dynamic part is just a few data points (per-row hex from DB, dimensions from props), prefer the CSS-custom-property injection pattern over emitting full design rules inline:** the CSS class declares the design (gradient direction, fallback colors, layout) and the inline `style="--var-1: x; --var-2: y;"` carries only the dynamic data. That keeps design centralized and inline strictly limited to data injection. Reference implementation: `.bookwriter-bible-avatar` in `bookwriter/static/.../page-inkwell.css`.
 3. **Use global tokens** from `colors.css`. Never hardcoded colors.
 4. **`colors.css` is the single source of truth for `:root`.** No other file redefines `:root`.
 5. **`hidden` HTML attribute**, not `display: none` CSS class. `.hidden = true/false` in JS. `:not([hidden])` in CSS.

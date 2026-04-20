@@ -1,0 +1,203 @@
+================================================================================
+BOOKWRITER — DB MAPPING: COMMON STEPS (every endpoint shares these)
+================================================================================
+Last updated: 2026-04-20 (initial mapping doc; Phase 1B Steps 1-18 + UI 1E.1-1E.11)
+File: amolnama_news/site_apps/bookwriter/field_mapping/db-mapping-common-steps.txt
+
+Every write endpoint in bookwriter goes through the same auth + owner-check +
+body-parse + sanitization chain. This file documents that chain so the per-
+feature mapping files can reference it instead of repeating it.
+
+================================================================================
+AUTH + OWNER CHECK — ALL WRITE ENDPOINTS
+================================================================================
+
+Every endpoint in views_api_chapter / views_api_book / views_api_bible /
+views_api_writing_artifacts / views_api_collaboration is wrapped:
+
+  @login_required           — Django session cookie required
+  @require_POST             — only POST accepted (or @require_http_methods(['POST','DELETE']) for soft-deletes)
+
+Inside the view body, the FIRST resolution step is owner check via one of
+the helpers in views_api_helpers.py:
+
+  _resolve_chapter_for_owner(chapter_id, user_profile_id)
+    → SELECT chapter WHERE bookwriter_chapter_id=? AND is_active=1
+    → SELECT coll_book WHERE bookwriter_coll_book_id=chapter.link_bookwriter_coll_book_id
+    → assert coll_book.link_owner_user_profile_id == user_profile_id
+    → return (chapter, coll_book) on success
+    → return 404 if chapter/book missing, 403 if not owner
+
+  _resolve_book_for_owner(book_id, user_profile_id)
+    → SELECT coll_book WHERE bookwriter_coll_book_id=? AND is_active=1
+    → assert link_owner_user_profile_id == user_profile_id
+
+  _resolve_plot_card_for_owner(plot_card_id, user_profile_id)
+    → SELECT plot_card WHERE bookwriter_plot_card_id=? AND is_active=1
+    → reuses _resolve_book_for_owner via plot_card.link_bookwriter_coll_book_id
+
+  _resolve_bible_entry_for_owner(bible_entry_id, user_profile_id)
+    → similar chain via bible_entry.link_bookwriter_coll_book_id
+
+  _resolve_margin_note_for_owner(margin_note_id, user_profile_id)
+    → SELECT margin_note → reuses _resolve_chapter_for_owner
+
+  _resolve_beta_reader_for_owner(beta_reader_id, user_profile_id)
+    → SELECT beta_reader → reuses _resolve_book_for_owner
+
+  _resolve_published_release(serial_release_id)
+    → READ-ONLY — used by public engagement endpoints; no ownership check
+       (public reader actions allowed for any logged-in viewer)
+
+user_profile_id is always sourced from:
+  amolnama_news.site_apps.core.utils.get_user_profile_id(request)
+  → returns request.user → UserProfile.user_profile_id, or None
+
+================================================================================
+BODY PARSING — ALL JSON ENDPOINTS
+================================================================================
+
+Helper: views_api_helpers._read_json_body(request)
+  - Validates CONTENT_LENGTH ≤ MAX_CHAPTER_HTML_BYTES (2MB)
+  - Decodes request.body as UTF-8
+  - Parses as JSON
+  - Asserts top-level dict
+  - Returns (payload_dict, None) on success
+  - Returns (None, HttpResponseBadRequest) on any failure
+
+================================================================================
+TEXT SANITIZATION — TWO PATHS
+================================================================================
+
+PATH A — RICH HTML (chapter body + book synopsis):
+  amolnama_news.site_apps.core.utils.sanitize_user_html(raw_html)
+  - Whitelist parser; strips <script>, <iframe>, etc; allows <p><strong><em>...
+  - Used for: chapter.chapter_text_html, coll_book.book_synopsis
+
+PATH B — PLAIN TEXT (titles, names, tags, comments, notes):
+  views_api_helpers._strip_html_to_plain(text)
+  - Regex `<[^>]+>` → strips tags only
+  - DOES NOT escape quotes/semicolons. NEVER use the output inside style="" /
+    data-attr / inline-onclick context. For those, use a strict pattern
+    validator like _is_valid_hex_color.
+
+PATH C — HEX COLORS:
+  views_api_helpers._is_valid_hex_color(value)
+  - Pattern: ^#[0-9a-fA-F]{3,8}$
+  - Used for: bible_entry.entry_avatar_color_hex / _hex_2,
+    book_cover_design.cover_palette_*_hex_override
+
+================================================================================
+WORD COUNT + WRITING TELEMETRY — CHAPTER AUTOSAVE PATH
+================================================================================
+
+After every successful chapter autosave, two side-effect rows update:
+
+  _refresh_book_caches(book_id) writes:
+    coll_book.book_word_count_cached    = SUM(chapter.chapter_word_count) WHERE is_active=1
+    coll_book.book_chapter_count_cached = COUNT(chapter.bookwriter_chapter_id) WHERE is_active=1
+    coll_book.updated_at                = now
+
+  _record_writing_progress(user_profile_id, book_id, words_added_delta) writes:
+    writing_session  (per user+book+today; UPSERT)
+       link_user_profile_id           = user_profile_id
+       link_bookwriter_coll_book_id   = book_id
+       session_date                   = today
+       session_started_at             = now (created) or unchanged
+       session_ended_at               = now (updated)
+       session_words_added            = old_count + max(0, words_added_delta)
+       session_active_seconds         = old (no auto-bump — would need a
+                                              focus/idle tracker; reserved column)
+       is_active                      = 1
+    eng_user_streak  (per user+today; UPSERT)
+       link_user_profile_id           = user_profile_id
+       streak_date                    = today
+       streak_words_written           = old + max(0, words_added_delta)
+       streak_minutes_active          = old (no auto-bump — same focus tracker
+                                              dependency as session_active_seconds;
+                                              reserved column)
+       streak_session_count           = +1 if first save today else unchanged
+       streak_goal_met                = 0 (computed by future cron)
+       is_active                      = 1
+    Returns (today_words, today_active_seconds, current_streak_days)
+
+Negative deltas (deletion) are NOT subtracted — daily counter measures
+"words produced today", not net change.
+
+================================================================================
+RETURN SHAPE — ALL JSON ENDPOINTS
+================================================================================
+
+Success:
+  {
+    "ok": true,
+    ...endpoint-specific keys...,
+    "saved_at": "<iso8601>"   (mutating endpoints only)
+  }
+
+Validation error:
+  HTTP 400 with body = the human-readable validation message string
+
+Auth failure:
+  HTTP 403 with body = 'Not the owner' / 'No user profile'
+
+Resource not found:
+  HTTP 404 with body = JSON {"ok": false, "error": "<resource> not found"}
+
+================================================================================
+REF VALIDATION — CODE-BASED FK STORAGE
+================================================================================
+
+Endpoints that accept ref codes (cover_template_code, beta_permission_code,
+chapter_status_code, etc) validate by:
+
+  RefXxx.objects.filter(<code_field>=value, is_active=True).exists()
+  OR
+  Resolved to id via:
+    RefXxx.objects.filter(<code_field>=value, is_active=True).values_list(
+      <pk_field>, flat=True
+    ).first()
+
+The code_field (NVARCHAR) is what the API accepts; the link_xxx_id (INT/FK)
+is what gets stored in the dependent table. The refs dispatcher
+(/api/refs/<group>/) returns both id and code so the front-end can choose
+either to send back.
+
+================================================================================
+TRANSACTION POLICY
+================================================================================
+
+Bookwriter endpoints are SINGLE-ROW WRITES (no multi-table form submissions
+like newshub). Each endpoint does at most one transaction implicitly via
+Django's ORM. There is no explicit transaction.atomic() wrapper because:
+
+  - Chapter autosave: 1 chapter UPDATE + cache refresh (separate rows, eventual)
+  - Bible save: 1 bible_entry UPDATE
+  - Plot card save: 1 plot_card UPDATE
+  - Beta share create: 1 beta_share_link INSERT
+  - Subscribe toggle: 1 engagement_serial_subscriber UPSERT
+
+Where the side-effect chain matters (autosave → cache refresh → telemetry),
+each step is independent and DB-level consistent — a partial-failure leaves
+the canonical chapter row correct and the caches eventually-consistent on
+the next save.
+
+For the cover designer save, BookCoverDesign is INSERT or UPDATE depending on
+whether a row exists for that book (UNIQUE on link_bookwriter_coll_book_id).
+
+================================================================================
+PUBLIC vs BETA vs WRITER ENDPOINTS
+================================================================================
+
+Three reader/writer contexts with different auth gates:
+
+  WRITER         /bookwriter/ (inkwell page) — @login_required + owner check
+  PUBLIC READER  /bookwriter/read/<slug>/    — anonymous-OK
+  BETA READER    /bookwriter/beta/<token>/   — anonymous-OK + auto-creates
+                                                 BetaReader row for logged-in viewer
+
+API endpoints follow the same gate as the page that hosts them.
+Comment-LIST endpoints are anonymous-readable; comment-CREATE requires
+@login_required.
+
+================================================================================

@@ -1,0 +1,130 @@
+================================================================================
+BOOKWRITER — DB MAPPING: BIBLE (worldbuilding notebook)
+================================================================================
+Module:        views_api_writing_artifacts.py
+Tables:        bible_entry, ref_bible_category
+Templates:     _inkwell_body.html (Bible tab — left rail categories, middle list,
+                                   right detail pane)
+JS managed:    page-inkwell.js (BIBLE VIEW + BIBLE ATTRIBUTES KEY/VALUE EDITOR)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+STEP 1 — Bible entry create (one row per entity)
+================================================================================
+Endpoint:    POST /api/book/<book_id>/bible-entry/create/
+View:        api_bookwriter_book_bible_entry_create
+Trigger:     Click "+ Add entry" button (#bookwriter-bible-add-entry)
+Owner-check: _resolve_book_for_owner(book_id, viewer)
+
+Request JSON:
+  bible_category_code  string  REQUIRED  (validated against ref_bible_category
+                                          via _is_valid_bible_category_code)
+  entry_name           string|null       (defaults to "Untitled" if missing)
+
+DB INSERT (table = bible_entry):
+  link_bookwriter_coll_book_id  ← book_id (URL)
+  bible_category_code            ← payload (validated)
+  entry_name                     ← cleaned name (HTML stripped, trimmed, ≤300)
+                                   or 'Untitled'
+  entry_role                     ← NULL
+  entry_avatar_initial           ← cleaned_name[:1] or '?'
+  entry_avatar_color_hex         ← NULL
+  entry_avatar_color_hex_2       ← NULL
+  entry_image_url                ← NULL
+  entry_biography                ← NULL
+  entry_attributes_json          ← NULL
+  entry_notes                    ← NULL
+  entry_tags_csv                 ← NULL
+  sort_order                     ← MAX(sort_order) + 1 over (book, category)
+  is_active                      ← 1
+  created_at                     ← now
+
+Response: { ok, bible_entry: { id, category_code, name, role, avatar_initial,
+            avatar_color_hex, avatar_color_hex_2, biography, notes, tags_csv } }
+
+================================================================================
+STEP 2 — Bible entry save (partial update)
+================================================================================
+Endpoint:    POST /api/bible-entry/<bible_entry_id>/save/
+View:        api_bookwriter_bible_entry_save
+Trigger:     Per-field debounced 800ms save from contenteditable / input fields
+             in the bible-detail pane (page-inkwell.js scheduleBibleEntrySave)
+Owner-check: _resolve_bible_entry_for_owner
+
+Form/UI elements (in #bookwriter-bible-detail):
+  h1[data-bible-field="entry_name"]            → entry_name
+  .role-edit[data-bible-field="entry_role"]    → entry_role
+  .tags[data-bible-field="entry_tags_csv"]     → entry_tags_csv
+  div[data-bible-field="entry_biography"]      → entry_biography (long text)
+  div[data-bible-field="entry_notes"]          → entry_notes      (long text)
+  #bookwriter-bible-image-url-input            → entry_image_url
+  #bookwriter-bible-entry-attributes-json      → entry_attributes_json (hidden;
+                                                  serialized from key/value
+                                                  rows in #bookwriter-bible-
+                                                  attributes-list)
+
+Request JSON (any subset; all keys optional):
+  entry_name              string                      → entry_name
+                            (max 300; required-after-clean: falls back to 'Untitled')
+  entry_role              string|null                 → entry_role (max 500)
+  entry_tags_csv          string|null                 → entry_tags_csv (max 500)
+  entry_avatar_initial    string|null                 → entry_avatar_initial (max 5)
+  entry_avatar_color_hex  hex pattern|null            → entry_avatar_color_hex (max 10)
+                            (validated: ^#[0-9a-fA-F]{3,8}$ via _is_valid_hex_color)
+  entry_avatar_color_hex_2 hex pattern|null           → entry_avatar_color_hex_2
+  entry_biography         string|null                 → entry_biography (no length cap)
+                            (HTML stripped via _strip_html_to_plain)
+  entry_notes             string|null                 → entry_notes
+  bible_category_code     ref code                    → bible_category_code
+                            (validated via _is_valid_bible_category_code)
+  entry_image_url         string ≤1000|null           → entry_image_url
+  entry_attributes_json   dict|list|JSON-string|null  → entry_attributes_json
+                            (dict/list → json.dumps; string → validated as JSON)
+
+DB UPDATE (table = bible_entry):
+  Each supplied field updated; updated_at ← now
+
+Response: { ok, saved_at }
+
+XSS NOTE: entry_avatar_color_hex / _hex_2 MUST validate against hex pattern
+because the value is interpolated into a style="" attribute in the bible
+detail pane. _strip_html_to_plain alone wouldn't catch quote/semicolon
+breakouts. See app-troubleshooting.txt §B2.
+
+================================================================================
+STEP 3 — Bible entry delete (soft)
+================================================================================
+Endpoint:    POST or DELETE /api/bible-entry/<bible_entry_id>/delete/
+DB UPDATE:   bible_entry.is_active ← 0; updated_at ← now
+
+================================================================================
+SERVER-SIDE RENDER CONTEXT
+================================================================================
+views.py:_read_book_bible_data(book_id) loads:
+  - book_bible_categories_list — all 5 active ref_bible_category rows
+                                  with live `entry_count` per category
+  - book_bible_entries_list    — all active bible_entry rows for book,
+                                  serialized as dicts, ordered by
+                                  bible_category_code + sort_order
+
+Template uses both lists. The entries list is also stashed in a
+{{...|json_script:"bookwriter-bible-entries-data"}} block so the JS can
+hydrate the detail pane on click without a network round-trip.
+
+================================================================================
+REF TABLE: ref_bible_category (5 active codes)
+================================================================================
+Columns:
+  bookwriter_ref_bible_category_id  PK INT IDENTITY
+  bible_category_code               UNIQUE (URL/payload key)
+  bible_category_name_en            display label
+  bible_category_name_bn            Bengali display label
+  bible_category_icon               emoji glyph (👤/📍/🗝/📚/⏳)
+  sort_order
+  is_active
+
+Surfaced via:
+  - Inkwell view context (book_bible_categories_list) — drives left rail
+  - /api/refs/bible_category/ — generic dispatcher
+
+================================================================================

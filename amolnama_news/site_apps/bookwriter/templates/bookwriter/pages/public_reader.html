@@ -1,0 +1,292 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+  Public reader for a published Bookwriter chapter.
+
+  Two modes (selected by view at render time via reader_mode_code):
+    - 'public' — fully public, indexable, view count incremented
+    - 'beta'   — private share-link preview (no analytics, no SEO)
+{% endcomment %}
+
+{% block title %}{{ current_chapter.chapter_title_en|default:current_chapter.chapter_title_bn|default:"Chapter" }} · {{ current_book.book_title_en|default:current_book.book_title_bn|default:"কলম" }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"></noscript>
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-public-reader.css' %}">
+  {% if reader_mode_code == 'beta' %}
+    <meta name="robots" content="noindex, nofollow">
+  {% else %}
+    {% with seo_chapter_title=current_chapter.chapter_title_en|default:current_chapter.chapter_title_bn|default:"Chapter" %}
+    {% with seo_book_title=current_book.book_title_en|default:current_book.book_title_bn|default:"কলম" %}
+    {% with seo_excerpt=serial_release.chapter_excerpt|default:current_chapter.chapter_text_plain|default:"A chapter from "|add:seo_book_title %}
+    {% with seo_canonical_url=request.build_absolute_uri %}
+      <meta name="description" content="{{ seo_excerpt|striptags|truncatewords:30|escape }}">
+      <link rel="canonical" href="{{ seo_canonical_url }}">
+      <meta property="og:type" content="article">
+      <meta property="og:title" content="{{ seo_chapter_title|escape }} · {{ seo_book_title|escape }}">
+      <meta property="og:description" content="{{ seo_excerpt|striptags|truncatewords:30|escape }}">
+      <meta property="og:url" content="{{ seo_canonical_url }}">
+      {% if current_book.book_cover_image_url %}
+        <meta property="og:image" content="{{ current_book.book_cover_image_url }}">
+      {% endif %}
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="{{ seo_chapter_title|escape }} · {{ seo_book_title|escape }}">
+      <meta name="twitter:description" content="{{ seo_excerpt|striptags|truncatewords:30|escape }}">
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Chapter",
+          "name": "{{ seo_chapter_title|escapejs }}",
+          "isPartOf": {
+            "@type": "Book",
+            "name": "{{ seo_book_title|escapejs }}"{% if current_book.book_author_display_en or current_book.book_author_display_bn %},
+            "author": { "@type": "Person", "name": "{{ current_book.book_author_display_en|default:current_book.book_author_display_bn|escapejs }}" }{% endif %}
+          },
+          "url": "{{ seo_canonical_url }}",
+          "description": "{{ seo_excerpt|striptags|truncatewords:30|escapejs }}",
+          "inLanguage": "{{ current_book.book_language_code|default:'bn' }}"{% if serial_release.published_at %},
+          "datePublished": "{{ serial_release.published_at|date:'c' }}"{% endif %}
+        }
+      </script>
+    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'bookwriter/assets/js/modules/bookwriter-namespace.js' %}" defer></script>
+  <script src="{% static 'bookwriter/assets/js/pages/page-public-reader.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+  <article class="bookwriter-public-reader" data-reader-mode="{{ reader_mode_code }}">
+    <header class="bookwriter-reader-header">
+      {% if reader_mode_code == 'beta' %}
+        <div class="bookwriter-reader-beta-badge">BETA PREVIEW · invite only</div>
+      {% endif %}
+      <div class="bookwriter-reader-book-title">{{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }}</div>
+      {% if current_book.book_author_display_en or current_book.book_author_display_bn %}
+        <div class="bookwriter-reader-book-author">by {{ current_book.book_author_display_en|default:current_book.book_author_display_bn }}</div>
+      {% endif %}
+
+      {% if reader_mode_code == 'public' and viewer_user_profile_id %}
+        <button type="button"
+                class="bookwriter-reader-subscribe-button{% if is_subscribed %} bookwriter-is-subscribed{% endif %}"
+                id="bookwriter-reader-subscribe-button"
+                name="bookwriter_reader_subscribe_button"
+                data-book-id="{{ current_book.bookwriter_coll_book_id }}"
+                data-is-subscribed="{{ is_subscribed|yesno:'1,0' }}"
+                aria-pressed="{{ is_subscribed|yesno:'true,false' }}">
+          <span class="bookwriter-reader-subscribe-icon" aria-hidden="true">{% if is_subscribed %}✓{% else %}+{% endif %}</span>
+          <span class="bookwriter-reader-subscribe-label">{% if is_subscribed %}Subscribed{% else %}Subscribe to next chapter{% endif %}</span>
+        </button>
+      {% endif %}
+    </header>
+
+    <h1 class="bookwriter-reader-chapter-title">
+      <span class="bookwriter-reader-chapter-number">Chapter {{ current_chapter.chapter_number }}</span>
+      <span class="bookwriter-reader-chapter-name">{{ current_chapter.chapter_title_en|default:current_chapter.chapter_title_bn|default:"Untitled" }}</span>
+    </h1>
+
+    <div class="bookwriter-reader-prose">
+      {% if current_chapter.chapter_text_html %}
+        {{ current_chapter.chapter_text_html|safe }}
+      {% else %}
+        <p class="bookwriter-reader-empty">This chapter has no text yet.</p>
+      {% endif %}
+    </div>
+
+    {% if reader_mode_code == 'public' and serial_release %}
+      <input type="hidden"
+             id="bookwriter-reader-serial-release-id"
+             name="bookwriter_reader_serial_release_id"
+             value="{{ serial_release.bookwriter_serial_release_id }}">
+
+      <div class="bookwriter-reader-reaction-strip"
+           id="bookwriter-reader-reaction-strip"
+           data-serial-release-id="{{ serial_release.bookwriter_serial_release_id }}"
+           role="group"
+           aria-label="React to this chapter">
+        {% for reaction_kind in reaction_kinds_for_strip %}
+          <button type="button"
+                  class="bookwriter-reader-reaction-button{% if reaction_kind.is_active %} bookwriter-is-reacted{% endif %}{% if not viewer_user_profile_id %} bookwriter-is-disabled{% endif %}"
+                  id="bookwriter-reader-reaction-{{ reaction_kind.code }}-button"
+                  name="bookwriter_reader_reaction_{{ reaction_kind.code }}_button"
+                  data-reaction-kind-code="{{ reaction_kind.code }}"
+                  aria-pressed="{{ reaction_kind.is_active|yesno:'true,false' }}"
+                  {% if not viewer_user_profile_id %}aria-disabled="true" title="Sign in to react"{% endif %}>
+            <span class="bookwriter-reader-reaction-icon" aria-hidden="true">{{ reaction_kind.icon }}</span>
+            <span class="bookwriter-reader-reaction-label">{{ reaction_kind.label }}</span>
+            <span class="bookwriter-reader-reaction-count" data-reaction-count-for="{{ reaction_kind.code }}">{{ reaction_kind.count }}</span>
+          </button>
+        {% endfor %}
+      </div>
+
+      <section class="bookwriter-reader-comments-section"
+               id="bookwriter-reader-comments-section"
+               data-serial-release-id="{{ serial_release.bookwriter_serial_release_id }}"
+               data-is-book-owner="{{ is_book_owner|yesno:'1,0' }}"
+               aria-label="Reader comments">
+        <h2 class="bookwriter-reader-comments-heading">
+          <span class="bookwriter-reader-comments-heading-label">Comments</span>
+          <span class="bookwriter-reader-comments-heading-count" id="bookwriter-reader-comments-count">{{ public_reader_comments_list|length }}</span>
+        </h2>
+
+        {% if viewer_user_profile_id %}
+          <form class="bookwriter-reader-comment-form"
+                id="bookwriter-reader-comment-new-form"
+                onsubmit="return false;">
+            <textarea class="bookwriter-reader-comment-textarea"
+                      id="bookwriter-reader-comment-new-textarea"
+                      name="bookwriter_reader_comment_new_textarea"
+                      placeholder="Share what you thought…"
+                      rows="3"
+                      maxlength="4000"></textarea>
+            <button type="button"
+                    class="bookwriter-reader-comment-submit-button"
+                    id="bookwriter-reader-comment-new-submit-button"
+                    name="bookwriter_reader_comment_new_submit_button">
+              Post comment
+            </button>
+          </form>
+        {% else %}
+          <div class="bookwriter-reader-comment-signin-hint">Sign in to leave a comment.</div>
+        {% endif %}
+
+        <div class="bookwriter-reader-comment-list" id="bookwriter-reader-comment-list">
+          {% for comment_row in public_reader_comments_list %}
+            <article class="bookwriter-reader-comment-row{% if comment_row.parent_comment_id %} bookwriter-is-reply{% endif %}{% if comment_row.is_pinned %} bookwriter-is-pinned{% endif %}"
+                     id="bookwriter-reader-comment-{{ comment_row.comment_id }}"
+                     data-comment-id="{{ comment_row.comment_id }}"
+                     data-parent-comment-id="{{ comment_row.parent_comment_id|default_if_none:'' }}">
+              <header class="bookwriter-reader-comment-header">
+                <span class="bookwriter-reader-comment-author">{{ comment_row.author_display_name }}</span>
+                {% if comment_row.is_pinned %}
+                  <span class="bookwriter-reader-comment-pin-badge">PINNED</span>
+                {% endif %}
+                <time class="bookwriter-reader-comment-time" datetime="{{ comment_row.created_at_iso }}">{{ comment_row.created_at_iso }}</time>
+              </header>
+              <p class="bookwriter-reader-comment-body">{{ comment_row.comment_text }}</p>
+              <footer class="bookwriter-reader-comment-footer">
+                {% if viewer_user_profile_id and not comment_row.parent_comment_id %}
+                  <button type="button"
+                          class="bookwriter-reader-comment-reply-toggle-button"
+                          id="bookwriter-reader-comment-{{ comment_row.comment_id }}-reply-toggle-button"
+                          name="bookwriter_reader_comment_{{ comment_row.comment_id }}_reply_toggle_button"
+                          data-target-comment-id="{{ comment_row.comment_id }}">Reply</button>
+                {% endif %}
+                {% if is_book_owner %}
+                  <button type="button"
+                          class="bookwriter-reader-comment-pin-button"
+                          id="bookwriter-reader-comment-{{ comment_row.comment_id }}-pin-button"
+                          name="bookwriter_reader_comment_{{ comment_row.comment_id }}_pin_button"
+                          data-target-comment-id="{{ comment_row.comment_id }}"
+                          data-is-pinned="{{ comment_row.is_pinned|yesno:'1,0' }}">{% if comment_row.is_pinned %}Unpin{% else %}Pin{% endif %}</button>
+                {% endif %}
+                {% if comment_row.can_delete %}
+                  <button type="button"
+                          class="bookwriter-reader-comment-delete-button"
+                          id="bookwriter-reader-comment-{{ comment_row.comment_id }}-delete-button"
+                          name="bookwriter_reader_comment_{{ comment_row.comment_id }}_delete_button"
+                          data-target-comment-id="{{ comment_row.comment_id }}">Delete</button>
+                {% endif %}
+              </footer>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if reader_mode_code == 'beta' %}
+      <aside class="bookwriter-beta-comments-sidebar"
+             id="bookwriter-beta-comments-sidebar"
+             data-chapter-id="{{ current_chapter.bookwriter_chapter_id }}"
+             data-beta-reader-id="{{ beta_reader_row.bookwriter_beta_reader_id|default:'' }}"
+             data-can-write-comments="{% if beta_reader_row %}1{% else %}0{% endif %}">
+        <h2 class="bookwriter-beta-comments-heading">
+          <span class="bookwriter-beta-comments-heading-label">Beta notes</span>
+          <span class="bookwriter-beta-comments-heading-count" id="bookwriter-beta-comments-count">{{ beta_chapter_comments_list|length }}</span>
+        </h2>
+
+        {% if beta_reader_row %}
+          <form class="bookwriter-beta-comment-form"
+                id="bookwriter-beta-comment-new-form"
+                onsubmit="return false;">
+            <select class="bookwriter-beta-comment-kind-select"
+                    id="bookwriter-beta-comment-kind-select"
+                    name="bookwriter_beta_comment_kind_select">
+              <option value="comment" selected>Comment</option>
+              <option value="suggestion">Suggestion</option>
+              <option value="praise">Praise</option>
+            </select>
+            <textarea class="bookwriter-beta-comment-textarea"
+                      id="bookwriter-beta-comment-new-textarea"
+                      name="bookwriter_beta_comment_new_textarea"
+                      placeholder="Leave a note for the writer…"
+                      rows="3"
+                      maxlength="4000"></textarea>
+            <button type="button"
+                    class="bookwriter-beta-comment-submit-button"
+                    id="bookwriter-beta-comment-new-submit-button"
+                    name="bookwriter_beta_comment_new_submit_button">Post note</button>
+          </form>
+        {% else %}
+          <div class="bookwriter-beta-comment-signin-hint">Sign in to leave notes for the writer.</div>
+        {% endif %}
+
+        <div class="bookwriter-beta-comment-list" id="bookwriter-beta-comment-list">
+          {% for beta_comment_row in beta_chapter_comments_list %}
+            <article class="bookwriter-beta-comment-row{% if beta_comment_row.is_resolved %} bookwriter-is-resolved{% endif %}"
+                     id="bookwriter-beta-comment-{{ beta_comment_row.beta_comment_id }}"
+                     data-beta-comment-id="{{ beta_comment_row.beta_comment_id }}"
+                     {% if beta_comment_row.anchor_offset is not None %}data-anchor-offset="{{ beta_comment_row.anchor_offset }}"{% endif %}
+                     {% if beta_comment_row.anchor_length %}data-anchor-length="{{ beta_comment_row.anchor_length }}"{% endif %}
+                     {% if beta_comment_row.comment_anchor_text %}data-anchor-text="{{ beta_comment_row.comment_anchor_text }}"{% endif %}>
+              <header class="bookwriter-beta-comment-header">
+                <span class="bookwriter-beta-comment-kind">{{ beta_comment_row.comment_kind_code }}</span>
+                <time class="bookwriter-beta-comment-time" datetime="{{ beta_comment_row.created_at_iso }}">{{ beta_comment_row.created_at_iso }}</time>
+              </header>
+              <p class="bookwriter-beta-comment-body">{{ beta_comment_row.comment_text }}</p>
+              <footer class="bookwriter-beta-comment-footer">
+                {% if beta_comment_row.can_resolve %}
+                  <button type="button"
+                          class="bookwriter-beta-comment-resolve-button"
+                          id="bookwriter-beta-comment-{{ beta_comment_row.beta_comment_id }}-resolve-button"
+                          name="bookwriter_beta_comment_{{ beta_comment_row.beta_comment_id }}_resolve_button"
+                          data-target-comment-id="{{ beta_comment_row.beta_comment_id }}"
+                          data-is-resolved="{{ beta_comment_row.is_resolved|yesno:'1,0' }}">{% if beta_comment_row.is_resolved %}Reopen{% else %}Resolve{% endif %}</button>
+                {% endif %}
+                {% if beta_comment_row.can_delete %}
+                  <button type="button"
+                          class="bookwriter-beta-comment-delete-button"
+                          id="bookwriter-beta-comment-{{ beta_comment_row.beta_comment_id }}-delete-button"
+                          name="bookwriter_beta_comment_{{ beta_comment_row.beta_comment_id }}_delete_button"
+                          data-target-comment-id="{{ beta_comment_row.beta_comment_id }}">Delete</button>
+                {% endif %}
+              </footer>
+            </article>
+          {% endfor %}
+        </div>
+      </aside>
+    {% endif %}
+
+    {% if book_other_published_chapters %}
+      <nav class="bookwriter-reader-toc" aria-label="More chapters in this book">
+        <div class="bookwriter-reader-toc-title">More from {{ current_book.book_title_en|default:"this book" }}</div>
+        <ul class="bookwriter-reader-toc-list">
+          {% for chapter_dict in book_other_published_chapters %}
+            <li class="bookwriter-reader-toc-item{% if chapter_dict.bookwriter_chapter_id == current_chapter.bookwriter_chapter_id %} bookwriter-reader-toc-item-current{% endif %}"
+                {% if chapter_dict.serial_release_id and chapter_dict.bookwriter_chapter_id != current_chapter.bookwriter_chapter_id %}data-preview-release-id="{{ chapter_dict.serial_release_id }}"{% endif %}>
+              <span class="bookwriter-reader-toc-num">Ch. {{ chapter_dict.chapter_number }}</span>
+              <span class="bookwriter-reader-toc-name">{{ chapter_dict.chapter_title_en|default:chapter_dict.chapter_title_bn|default:"Untitled" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+  </article>
+{% endblock %}

@@ -1,0 +1,234 @@
+================================================================================
+BOOKWRITER — DB MAPPING: CHAPTER AUTHORING
+================================================================================
+Module:        views_api_chapter.py
+Tables:        chapter, chapter_snapshot, serial_release
+Templates:     _inkwell_body.html (Write tab editor + chapter rail)
+JS managed:    page-inkwell.js (autosave, title save, rail click, drag, snapshot)
+               modules/bookwriter-rail-pickers.js (status + visibility selects)
+Common steps:  See db-mapping-common-steps.txt — auth, owner-check, body parse,
+               sanitization, transactions, telemetry, return shape.
+
+================================================================================
+STEP 1 — Chapter body autosave
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/autosave/
+View:       api_bookwriter_chapter_autosave
+Trigger:    JS debounce 800ms after last keystroke in .editor[contenteditable]
+            (page-inkwell.js — performChapterAutosave)
+Form/UI:    .editor (contenteditable div carrying data-chapter-id)
+Owner-check: _resolve_chapter_for_owner
+
+Request JSON:
+  chapter_text_html  string  (sanitized server-side via sanitize_user_html)
+
+DB writes (table = [bookwriter].[chapter]):
+  chapter_text_html      ← sanitize_user_html(payload.chapter_text_html) or NULL
+  chapter_text_plain     ← _strip_html_to_plain(...) or NULL
+  chapter_word_count     ← _count_words(plain_text)         (whitespace tokens)
+  last_edited_at         ← now
+  updated_at             ← now
+
+Side effects:
+  _refresh_book_caches(book_id) updates coll_book.book_word_count_cached +
+                                          book_chapter_count_cached + updated_at
+  _record_writing_progress(...) upserts writing_session + eng_user_streak
+                                (see common-steps.txt for column-by-column)
+
+Response:
+  ok / chapter_word_count / book_total_word_count / book_total_chapter_count /
+  today_words_written / today_active_seconds / current_streak_days / saved_at
+
+================================================================================
+STEP 2 — Chapter title save
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/title/
+View:       api_bookwriter_chapter_title_save
+Trigger:    JS debounce ~1s after typing in <h1 contenteditable> (chapter title
+            inside the editor article)
+Form/UI:    .editor h1[contenteditable] (article title)
+
+Request JSON:
+  chapter_title  string  (HTML stripped + truncated to 500 chars)
+
+DB writes:
+  chapter.chapter_title_en  ← cleaned_title or NULL (empty saves NULL so the
+                              `|default:"Untitled"` template fallback can render)
+  chapter.last_edited_at    ← now
+  chapter.updated_at        ← now
+
+NOTE: Always writes the EN column. Bengali alternative `chapter_title_bn` is
+NOT currently exposed via the editor (would need a lang toggle).
+
+================================================================================
+STEP 3 — Chapter load (rail click → switch chapter)
+================================================================================
+Endpoint:   GET /api/chapter/<chapter_id>/
+View:       api_bookwriter_chapter_load
+Trigger:    Click on .chapter row in #chapters rail
+            (page-inkwell.js — applyChapterPayloadToEditor)
+
+DB reads:
+  chapter.bookwriter_chapter_id, chapter_number, chapter_title_en,
+  chapter_title_bn, chapter_text_html, chapter_word_count
+
+Response:
+  ok / chapter: { id, number, title, html, word_count }
+
+NOTE: Before switching, JS flushes any pending autosave with the OLD chapter
+id to avoid race-saving the new chapter's content under the previous id.
+
+================================================================================
+STEP 4 — Chapter create (append blank chapter)
+================================================================================
+Endpoint:   POST /api/book/<book_id>/chapter/create/
+View:       api_bookwriter_book_chapter_create
+Trigger:    Click "+ new chapter" button in chapters rail
+
+DB INSERT (table = chapter):
+  link_bookwriter_coll_book_id  ← book_id (URL param)
+  chapter_number                ← MAX(chapter_number) + 1 over active chapters
+  chapter_title_en              ← NULL
+  chapter_word_count            ← 0
+  chapter_status_code           ← 'blank'
+  chapter_visibility_code       ← 'private'
+  sort_order                    ← MAX(sort_order) + 1
+  is_active                     ← 1
+  created_at                    ← now
+
+Side effect: _refresh_book_caches(book_id)
+
+================================================================================
+STEP 5 — Chapter delete (soft)
+================================================================================
+Endpoint:   POST or DELETE /api/chapter/<chapter_id>/delete/
+View:       api_bookwriter_chapter_delete
+Trigger:    Two-click confirm × button on chapter rail row hover
+
+DB UPDATE:
+  chapter.is_active   ← 0
+  chapter.updated_at  ← now
+
+Side effect: _refresh_book_caches refreshes counts (deleted chapter no longer
+counted).
+
+================================================================================
+STEP 6 — Chapter snapshot create
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/snapshot/
+View:       api_bookwriter_chapter_snapshot_create
+Trigger:    "Name this version" button in snapshot panel (manual) or
+            autosave-side-effect (auto kind, future).
+
+Request JSON:
+  snapshot_kind_code  'manual'|'auto'  (default 'manual')
+  snapshot_label      string|null      (max 300 chars, HTML stripped)
+
+DB INSERT (table = chapter_snapshot):
+  link_bookwriter_chapter_id        ← chapter_id (URL)
+  snapshot_kind_code                 ← payload (validated)
+  snapshot_label                     ← cleaned label or NULL
+  snapshot_text_html                 ← chapter.chapter_text_html (frozen copy)
+  snapshot_text_plain                ← chapter.chapter_text_plain
+  snapshot_word_count                ← chapter.chapter_word_count
+  snapshot_word_count_diff           ← current_count - previous_snapshot.count
+                                       (or NULL if no previous snapshot)
+  link_created_by_user_profile_id    ← viewer
+  is_active                          ← 1
+  created_at                         ← now
+
+================================================================================
+STEP 7 — Chapter snapshot list
+================================================================================
+Endpoint:   GET /api/chapter/<chapter_id>/snapshots/
+DB read:    chapter_snapshot rows for chapter_id, newest first, capped 50.
+Response:   { ok, snapshots: [{id, kind, label, word_count, word_count_diff,
+              created_at}, ...] }
+
+================================================================================
+STEP 8 — Chapter snapshot revert
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/snapshot/<snapshot_id>/revert/
+Process:    1. Auto-snapshot the CURRENT chapter state with label "Before revert"
+            2. Overwrite chapter.chapter_text_html / plain / word_count from the
+               selected snapshot
+            3. _refresh_book_caches
+
+DB writes:
+  Step A — INSERT chapter_snapshot (safety) with snapshot_kind_code='auto',
+           snapshot_label='Before revert'
+  Step B — UPDATE chapter:
+             chapter_text_html       ← snapshot.snapshot_text_html
+             chapter_text_plain      ← snapshot.snapshot_text_plain
+             chapter_word_count      ← snapshot.snapshot_word_count
+             last_edited_at          ← now
+             updated_at              ← now
+
+================================================================================
+STEP 9 — Chapter publish
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/publish/
+Trigger:    "Send to the press" button in publish modal (publishFlow JS)
+
+DB UPSERT (table = serial_release; UNIQUE on link_bookwriter_chapter_id):
+  link_bookwriter_chapter_id        ← chapter_id (URL)
+  link_bookwriter_coll_book_id      ← chapter.link_bookwriter_coll_book_id
+  serial_release_status_code         ← 'published'
+  scheduled_at                       ← NULL
+  published_at                       ← now
+  unpublished_at                     ← NULL
+  public_chapter_slug                ← bangla_slugify(chapter_title) or
+                                        'chapter-<id>'; on collision
+                                        appends '-<chapter_id>'
+  chapter_excerpt                    ← chapter.chapter_text_plain[:600] or NULL
+  read_count_cached                  ← 0  (preserved on update)
+  unique_reader_count_cached         ← 0  (preserved on update)
+  reaction_count_cached              ← 0  (preserved on update)
+  comment_count_cached               ← 0  (preserved on update)
+  preview_view_count_cached          ← 0  (preserved on update)
+  is_active                          ← 1
+  created_at                         ← now (insert) or unchanged (update)
+  updated_at                         ← now (update only)
+
+Response: { ok, serial_release: {id, status_code, public_chapter_slug,
+          public_url, published_at} }
+
+================================================================================
+STEP 10 — Chapter unpublish
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/unpublish/
+DB UPDATE:
+  serial_release.serial_release_status_code  ← 'unpublished'
+  serial_release.unpublished_at              ← now
+  serial_release.updated_at                  ← now
+
+NOTE: public_chapter_slug is preserved so re-publishing later produces the
+same URL. Reader-page lookups filter on
+serial_release_status_code='published' so unpublished chapters 404.
+
+================================================================================
+STEP 11 — Chapter status + visibility save
+================================================================================
+Endpoint:   POST /api/chapter/<chapter_id>/status/
+Trigger:    Change event on .bookwriter-chapter-status-select or
+            .bookwriter-chapter-visibility-select
+            (modules/bookwriter-rail-pickers.js)
+
+Form/UI:    Each select is wrapped in a <label class="bookwriter-chapter-picker-field">
+            with a visible label-text span (.bookwriter-chapter-picker-label-text).
+            The chapter rail row shows:
+              [STAGE]      <select>blank|draft|done</select>
+              [VISIBILITY] <select>private|beta|public</select>
+            Tiny mono uppercase label is always visible above the dropdown
+            so the writer never has to hover the title attribute.
+
+Request JSON (any subset):
+  chapter_status_code      validated against ref_chapter_status (active rows)
+  chapter_visibility_code  validated against ref_chapter_visibility
+
+DB UPDATE (chapter):
+  chapter_status_code        ← payload (if supplied)
+  chapter_visibility_code    ← payload (if supplied)
+  updated_at                 ← now
+
+================================================================================

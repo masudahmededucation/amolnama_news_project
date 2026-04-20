@@ -163,6 +163,8 @@ don't leave anything broken after change
 --nested tag issues - <main>..<div>..<>p
 don't touch other things.
 
+
+without removing functionality, features, and messing up 
 --best practice 
 follow all the rules applicable 
 check gold standard practice is being followed
@@ -181,11 +183,13 @@ ready to show the data once user asks.
 proactive prefetch.
 don't touch other things.
 
+without removing functionality, features, and messing up 
 --immediate load
 Show UI immediately, load data in background.
 apply this to all interactions.
 don't touch other things.
 
+without removing functionality, features, and messing up 
 --check code for faster and efficiency
 Optimize code for speed and efficiency.
 Avoid unnecessary or long logic for small tasks.

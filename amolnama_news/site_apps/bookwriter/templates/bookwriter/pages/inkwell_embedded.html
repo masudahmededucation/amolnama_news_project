@@ -15,7 +15,9 @@
 {% block extra_head %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap"></noscript>
   <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-inkwell.css' %}">
 {% endblock %}
 
@@ -34,12 +36,12 @@
                                across these tabs AND the in-book
                                switchers without any JS change.
   {% endcomment %}
-  <nav class="bookwriter-mode-tabs mode-switch" aria-label="Bookwriter mode" id="bookwriter-mode-tabs" name="bookwriter_mode_tabs">
-    <button type="button" class="bookwriter-mode-tab mode-btn active" onclick="setMode('write')"     id="bookwriter-mode-tab-write"   name="bookwriter_mode_tab_write">Write</button>
-    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('corkboard')" id="bookwriter-mode-tab-plot"    name="bookwriter_mode_tab_plot">Plot</button>
-    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('bible')"     id="bookwriter-mode-tab-bible"   name="bookwriter_mode_tab_bible">Bible</button>
-    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('cover')"     id="bookwriter-mode-tab-cover"   name="bookwriter_mode_tab_cover">Cover</button>
-    <button type="button" class="bookwriter-mode-tab mode-btn"        onclick="setMode('gallery')"   id="bookwriter-mode-tab-publish" name="bookwriter_mode_tab_publish">Publish</button>
+  <nav class="bookwriter-mode-tabs bookwriter-mode-switch" aria-label="Bookwriter mode" id="bookwriter-mode-tabs" name="bookwriter_mode_tabs">
+    <button type="button" class="bookwriter-mode-tab bookwriter-mode-btn bookwriter-active" onclick="setMode('write')"     id="bookwriter-mode-tab-write"   name="bookwriter_mode_tab_write">Write</button>
+    <button type="button" class="bookwriter-mode-tab bookwriter-mode-btn"        onclick="setMode('corkboard')" id="bookwriter-mode-tab-plot"    name="bookwriter_mode_tab_plot">Plot</button>
+    <button type="button" class="bookwriter-mode-tab bookwriter-mode-btn"        onclick="setMode('bible')"     id="bookwriter-mode-tab-bible"   name="bookwriter_mode_tab_bible">Bible</button>
+    <button type="button" class="bookwriter-mode-tab bookwriter-mode-btn"        onclick="setMode('cover')"     id="bookwriter-mode-tab-cover"   name="bookwriter_mode_tab_cover">Cover</button>
+    <button type="button" class="bookwriter-mode-tab bookwriter-mode-btn"        onclick="setMode('gallery')"   id="bookwriter-mode-tab-publish" name="bookwriter_mode_tab_publish">Publish</button>
   </nav>
 
   <div class="bookwriter-embedded-wrapper">
@@ -48,5 +50,11 @@
 {% endblock %}
 
 {% block extra_js %}
+  {# bookwriter-namespace.js MUST load FIRST — defines window.bookwriter
+     used by every other script for CSRF / fetch / two-click confirm. #}
+  <script src="{% static 'bookwriter/assets/js/modules/bookwriter-namespace.js' %}" defer></script>
   <script src="{% static 'bookwriter/assets/js/pages/page-inkwell.js' %}" defer></script>
+  <script src="{% static 'bookwriter/assets/js/modules/bookwriter-rail-pickers.js' %}" defer></script>
+  <script src="{% static 'bookwriter/assets/js/modules/bookwriter-beta-reader-mgmt.js' %}" defer></script>
+  <script src="{% static 'bookwriter/assets/js/modules/bookwriter-margin-notes.js' %}" defer></script>
 {% endblock %}

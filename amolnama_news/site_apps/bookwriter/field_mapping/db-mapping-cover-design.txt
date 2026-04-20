@@ -1,0 +1,118 @@
+================================================================================
+BOOKWRITER — DB MAPPING: COVER DESIGNER
+================================================================================
+Module:        views_api_book.py
+Tables:        book_cover_design (1:1 with coll_book), ref_cover_template,
+               ref_cover_palette, ref_cover_background, ref_cover_font
+Templates:     _inkwell_body.html (Cover tab — .cover-rail with 4 sections:
+                                   Templates / Typography / Palette / Background)
+JS managed:    page-inkwell.js (COVER DESIGNER section)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+ENDPOINT — Cover design save (UPSERT, partial fields)
+================================================================================
+Endpoint:    POST /api/book/<book_id>/cover-design/save/
+View:        api_bookwriter_book_cover_design_save
+Trigger:     Per-control change → 600ms debounced save
+             (page-inkwell.js persistCoverFieldsAfterDebounce)
+             ALSO: explicit "Set as book cover" button (window.setAsCover)
+Owner-check: _resolve_book_for_owner
+
+Form/UI elements (all live in .cover-rail):
+  TEMPLATE GRID  (#templates .bookwriter-cover-template-tile)
+    data-style attribute carries cover_template_code
+    Saved as link_cover_template_id via ref lookup
+
+  TYPOGRAPHY
+    #fontPick button[data-font]                → cover_font_code
+    #titleSize <input type="range" 22-68>      → cover_title_size_pt
+    #tracking  <input type="range" -5..20>     → cover_letter_spacing_unit
+
+  PALETTE (#palettes .bookwriter-cover-palette-tile)
+    data-bg / data-fg / data-accent attributes carry hex triplet
+    Saved as cover_palette_*_hex_override (NOT link_cover_palette_id)
+
+  BACKGROUND (#bookwriter-cover-background-grid button[data-background-code])
+    data-background-code carries cover_background_code
+    Saved as link_cover_background_id via ref lookup
+
+Request JSON (any subset; UPSERT — fields not supplied keep prior value):
+  cover_template_code                ref code|null   → link_cover_template_id
+                                        (validated against ref_cover_template)
+  cover_palette_code                 ref code|null   → link_cover_palette_id
+                                        (validated against ref_cover_palette)
+  cover_background_code              ref code|null   → link_cover_background_id
+                                        (validated against ref_cover_background)
+  cover_font_code                    ref code|null   → link_cover_font_id
+                                        (validated against ref_cover_font)
+  cover_title_size_pt                int 16..96      → cover_title_size_pt
+  cover_letter_spacing_unit          int -10..40     → cover_letter_spacing_unit
+  cover_palette_bg_hex_override      hex|null        → cover_palette_bg_hex_override
+                                        (validated via _is_valid_hex_color)
+  cover_palette_fg_hex_override      hex|null        → cover_palette_fg_hex_override
+  cover_palette_accent_hex_override  hex|null        → cover_palette_accent_hex_override
+  cover_custom_image_url             url ≤1000|null  → cover_custom_image_url
+  cover_rendered_preview_url         url ≤1000|null  → cover_rendered_preview_url
+
+DB UPSERT (table = book_cover_design; UNIQUE on link_bookwriter_coll_book_id):
+  INSERT case (no row exists):
+    All FK ids → from cover_fk_id_updates dict (or NULL if not supplied)
+    cover_title_size_pt        ← payload (or default 42)
+    cover_letter_spacing_unit  ← payload (or default 0)
+    All hex overrides           ← payload (or NULL)
+    All URL columns             ← payload (or NULL)
+    is_active                   ← 1
+    created_at                  ← now
+
+  UPDATE case (row exists):
+    Only the supplied fields update; others preserve prior value
+    updated_at                  ← now
+
+Response: { ok, cover_design: { id, link_cover_template_id, link_cover_palette_id,
+            link_cover_background_id, link_cover_font_id, cover_title_size_pt,
+            cover_letter_spacing_unit, cover_palette_*_hex_override (3),
+            cover_custom_image_url, cover_rendered_preview_url }, saved_at }
+
+================================================================================
+SERVER-SIDE RENDER CONTEXT (writer initial paint)
+================================================================================
+views.py:_read_book_cover_design_state(book_id) loads the saved design and
+RESOLVES FK ids back to ref codes so the template can mark the right
+tile/option as `active` on first paint. Returns a dict with:
+  cover_template_code               (resolved from FK)
+  cover_font_code                   (resolved from FK)
+  cover_background_code             (resolved from FK)
+  cover_title_size_pt               (default 42 if no row)
+  cover_letter_spacing_unit         (default 0 if no row)
+  cover_palette_bg_hex_override     (raw hex)
+  cover_palette_fg_hex_override     (raw hex)
+  cover_palette_accent_hex_override (raw hex)
+
+The 6 cover template tiles, 6 palette tiles, 4 font buttons, 8 background
+tiles all check this dict to apply `active` class server-side.
+
+================================================================================
+REF TABLES (4)
+================================================================================
+ref_cover_template      6 codes (classical/modern/photo/minimal/vintage/type)
+                          + cover_template_description display string
+ref_cover_palette       6 presets — bg/fg/accent hex triplet + name
+ref_cover_background    8 codes (solid/grad-1/grad-2/grad-3/noise/dots/stripes/upload)
+                          + display name only
+ref_cover_font          4 codes (serif/italic/body/mono)
+                          + cover_font_family_css / _style_css / _weight_css
+                          (renderer-ready CSS values, no client-side translation)
+
+All surfaced via /api/refs/<group>/. UI currently uses static `<option>`s
+because the lists are stable and small; switching to dynamic fetch is a
+one-line change if the lists grow.
+
+================================================================================
+XSS NOTE
+================================================================================
+cover_palette_*_hex_override fields MUST validate against the hex pattern
+because the values are interpolated into a style="" attribute in the cover
+preview. Same hex validator (_is_valid_hex_color) used by bible avatar.
+
+================================================================================

@@ -1,0 +1,83 @@
+================================================================================
+BOOKWRITER — DB MAPPING: MARGIN NOTES (chapter annotations)
+================================================================================
+Module:        views_api_writing_artifacts.py
+Tables:        margin_note
+Templates:     _inkwell_body.html (right-rail .margin-notes-panel section)
+JS managed:    modules/bookwriter-margin-notes.js (extracted standalone module)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+STEP 1 — Margin note create
+================================================================================
+Endpoint:    POST /api/chapter/<chapter_id>/margin-note/create/
+View:        api_bookwriter_chapter_margin_note_create
+Trigger:     Click "+ Add note" (#bookwriter-margin-notes-add-button) →
+             modules/bookwriter-margin-notes.js submitMarginNote()
+Owner-check: _resolve_chapter_for_owner
+
+Form/UI:
+  #bookwriter-margin-notes-input   <textarea>  → note_text
+  #bookwriter-margin-notes-add-button  button trigger
+
+Request JSON:
+  note_text  string  REQUIRED  (trimmed; HTML stripped; ≤2000 chars; non-empty)
+
+DB INSERT (table = margin_note):
+  link_bookwriter_chapter_id  ← chapter_id (URL param)
+  note_text                    ← cleaned text
+  is_resolved                  ← 0
+  is_active                    ← 1
+  created_at                   ← now
+
+Response: { ok, margin_note: { id, note_text, is_resolved, created_at } }
+
+================================================================================
+STEP 2 — Margin note list
+================================================================================
+Endpoint:    GET /api/chapter/<chapter_id>/margin-notes/
+View:        api_bookwriter_chapter_margin_note_list
+Trigger:     First open of the right-rail panel for this chapter
+             (toggleMarginNotes → loadMarginNotesForActiveChapter)
+Owner-check: _resolve_chapter_for_owner
+
+DB read:    margin_note rows for chapter, is_active=1, ORDER BY created_at DESC,
+            capped 200.
+Response:   { ok, margin_notes: [{id, note_text, is_resolved, created_at}, ...] }
+
+NOTE: Cache invalidated on chapter rail click — switching chapters
+clears `loadedMarginNotesForChapterId` so the next panel-open reloads.
+
+================================================================================
+STEP 3 — Margin note save (resolve toggle / text edit)
+================================================================================
+Endpoint:    POST /api/margin-note/<margin_note_id>/save/
+View:        api_bookwriter_margin_note_save
+Trigger:     Click "✓ resolve" / "↺ unresolve" button on a note row
+Owner-check: _resolve_margin_note_for_owner
+
+Request JSON (any subset; MUST supply at least one):
+  note_text     string|null       → note_text (cleaned; ≤2000; non-empty if set)
+  is_resolved   bool               → is_resolved (0/1)
+
+DB UPDATE (margin_note):
+  Each supplied field; updated_at ← now
+
+================================================================================
+STEP 4 — Margin note delete (soft, two-click confirm)
+================================================================================
+Endpoint:    POST or DELETE /api/margin-note/<margin_note_id>/delete/
+Trigger:     Click "× delete" → second click within 3s confirms (no popup).
+DB UPDATE:   margin_note.is_active ← 0; updated_at ← now
+
+================================================================================
+UI BEHAVIOUR
+================================================================================
+- Panel is hidden by default; reveal via toolbar "✎ notes" button which calls
+  toggleMarginNotes() → toggles `body.margin-notes-open` class
+- CSS slides .margin-notes-panel in from the right edge of the wrapper
+- Panel is per-chapter — switching chapters re-fetches notes
+- Resolved notes stay visible but render with is-resolved class (line-through,
+  reduced opacity)
+
+================================================================================

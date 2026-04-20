@@ -1,6 +1,16 @@
-================================================================
-BOOKWRITER (কলম) — App Documentation
-================================================================
+============================================================
+  bookwriter (কলম) — Inkwell Writing Sanctuary
+  Last refreshed: end of Phase 1 (Steps 1-18 + UI 1E.1-1E.11)
+============================================================
+
+A standalone writing app inside amolnama_news. Lets a user draft a
+book, organize a corkboard of plot cards, build a worldbuilding
+"bible", design a cover, share early drafts with beta readers, and
+publish chapters one at a time as a serial release. Public reader
+page (`/bookwriter/read/<slug>/`) is anonymous-friendly and
+SEO-indexable; beta-only reader (`/bookwriter/beta/<token>/`) is
+noindex.
+
 App location: amolnama_news/site_apps/bookwriter/
 URL prefix:   /bookwriter/
 Schema:       [bookwriter]
@@ -8,287 +18,391 @@ Brand:        কলম (Bengali for "pen")
 Inspiration:  Inkwell design template (paper + ink + Fraunces +
               EB Garamond + JetBrains Mono — "writing sanctuary")
 
+============================================================
+  ARCHITECTURE
+============================================================
 
-================================================================
-1. PURPOSE
-================================================================
-A standalone writing platform for authors to draft, organise,
-edit, and publish original books. 5 view modes:
+  Models           bookwriter/models.py
+                   19 unmanaged models mapping to [bookwriter].* SQL
+                   tables. Schema lives in
+                   amolnama_news/notes/sql-script/bookwriter-v01-schema.sql
+                   — Django reads/writes only; never CREATE/ALTER/DROP.
 
-  Write     — manuscript editor with chapter sidebar + desk
-  Plot      — corkboard of index cards (act structure)
-  Bible     — characters, locations, objects, research, lore
-  Cover     — cover designer (6 templates · 6 palettes · 8 bgs)
-  Publish   — public Gallery (serial release schedule + analytics)
+  URLs             bookwriter/urls.py
+                   Single urlconf — namespace "bookwriter".
+                   ~32 routes (writing API + reader pages).
 
-Plus 4 overlays:
-  Focus     — full-screen distraction-free writing
-  Snapshots — version history (auto + manual snapshots)
-  Sprint    — Pomodoro timer (10/25/45/60 min)
-  Beta      — share manuscript with beta readers (read/comment/suggest)
+  Server views     bookwriter/views.py
+                   Inkwell + 2 reader pages + helper functions for
+                   loading bible / cover / engagement context.
 
+  API endpoints    bookwriter/views_api.py
+                   ~30 authenticated write-API endpoints sharing
+                   helpers (_resolve_chapter_for_owner, _read_json_body,
+                   _record_writing_progress, _refresh_book_caches).
+                   See the TOC at the top of the file.
 
-================================================================
-2. LAYOUT MODE — embedded vs standalone
-================================================================
-Inkwell renders in one of two modes, controlled by the setting:
+                   bookwriter/views_api_refs.py
+                   Standalone refs dispatcher
+                   GET /api/refs/<group>/. 14 ref groups registered.
 
-  amolnama_news/settings/base.py
-  → BOOKWRITER_LAYOUT_MODE = "embedded" | "standalone"
+  Template         bookwriter/templates/bookwriter/pages/
+                     - inkwell_embedded.html  (default — extends core/base.html)
+                     - inkwell.html           (standalone — full-screen)
+                     - public_reader.html     (public + beta reader)
+                     - landing.html           (placeholder)
+                   bookwriter/templates/bookwriter/partials/
+                     - _inkwell_body.html     (1.4k lines — the writer UI)
 
-Default: "embedded" (recommended).
+  Static           bookwriter/static/bookwriter/assets/
+                     css/pages/page-inkwell.css         (3.7k lines)
+                     css/pages/page-public-reader.css   (650 lines)
+                     js/pages/page-inkwell.js           (2.8k lines)
+                     js/pages/page-public-reader.js     (610 lines)
 
-EMBEDDED mode (default):
-  - Renders inside core/base.html
-  - Global header + left sidebar stay visible
-  - Inkwell occupies the <main> content area
-  - Sidebar কলম link uses normal SPA navigation
-  - Wrapper class: .bookwriter-embedded-wrapper
-  - Height: calc(100vh - var(--bookwriter-header-offset, 64px))
+============================================================
+  TABLE INVENTORY  (32 tables, all in [bookwriter].* schema)
+============================================================
 
-STANDALONE mode:
-  - Full-screen takeover (no global chrome)
-  - Standalone HTML5 doc with own <head>, fonts, CSP
-  - Sidebar কলম link should add target="writing_session" rel="noopener noreferrer"
-    so it opens in a separate browser window/tab
-  - Wrapper class: .bookwriter-shell
-  - Height: 100vh, body locked (overflow: hidden)
+  Reference tables (seeded once, rarely changed)
+    ref_book_status               4 codes (draft/in_review/published/archived)
+    ref_chapter_status            4 codes (blank/outline/draft/done)
+    ref_chapter_visibility        3 codes (private/beta/public)
+    ref_bible_category            5 codes (characters/locations/objects/research/lore)
+    ref_cover_template            6 codes (classical/modern/photo/minimal/vintage/type)
+    ref_cover_palette             6 presets (bg/fg/accent triplet)
+    ref_cover_background          8 codes (solid/grad-1/grad-2/grad-3/noise/dots/stripes/upload)
+    ref_cover_font                4 codes (serif/italic/body/mono)
+    ref_beta_permission           3 codes (read/comment/suggest)
+    ref_serial_release_status     4 codes (draft/scheduled/published/unpublished)
+    ref_publish_cadence           11 codes
+    ref_act_structure             4 codes (act_one/act_two/act_three/unplaced)
+    ref_view_referrer             7 codes (direct/search/social/email/rss/internal/unknown)
+    ref_view_device               4 codes (mobile/tablet/desktop/unknown)
 
-To switch modes:
-  1. Edit amolnama_news/settings/base.py — change BOOKWRITER_LAYOUT_MODE value
-  2. If switching TO 'standalone', also edit
-     amolnama_news/site_apps/core/templates/core/partials/sidebar-navigation.html
-     — add target="writing_session" rel="noopener noreferrer" to the কলম link
-  3. Bump CACHE_NAME in amolnama_news/site_apps/seo/views.py
-  4. Run: python manage.py collectstatic --noinput
-  5. Hard-reload browser (Ctrl+Shift+R)
+  Main entities (coll_)
+    coll_book                     One book per writer
+    chapter                       Many chapters per book
+    chapter_snapshot              Version history per chapter
+    bible_entry                   Worldbuilding rows (any category)
+    plot_card                     Corkboard cards (act-grouped)
+    margin_note                   Inline annotations on chapters
 
+  Cover (1:1 with coll_book)
+    book_cover_design             Template + palette + font + bg overrides
 
-================================================================
-3. FILES
-================================================================
+  Beta workflow
+    beta_share_link               Revocable secret URL
+    beta_reader                   Per-reader invitee row
+    beta_comment                  Chapter-anchored comments + suggestions
 
-Templates:
-  templates/bookwriter/pages/inkwell.html          standalone shell
-  templates/bookwriter/pages/inkwell_embedded.html embedded shell
-  templates/bookwriter/partials/_inkwell_body.html SHARED body content
-                                                   (single source of truth
-                                                    for both modes)
+  Sprint + writing telemetry
+    sprint_session                Pomodoro timer sessions
+    writing_session               Per (user, book, day) word counter
 
-Static:
-  static/bookwriter/assets/css/pages/page-inkwell.css   all styles
-  static/bookwriter/assets/js/pages/page-inkwell.js     all interactions
+  Public publishing (serial release)
+    serial_release                Per-chapter publish record (UNIQUE per chapter)
 
-Python:
-  views.py     bookwriter_inkwell — picks template by layout mode and,
-               for logged-in users, auto-provisions a default book +
-               first chapter via _ensure_default_book_for_user(). Anon
-               visitors get the hardcoded fiction demo.
-  views_api.py 4 JSON endpoints (Phase 1B):
-                 api_bookwriter_chapter_autosave    (POST body)
-                 api_bookwriter_chapter_title_save  (POST title)
-                 api_bookwriter_chapter_load        (GET single chapter)
-                 api_bookwriter_book_chapter_create (POST create chapter)
-               + 3 private helpers (_resolve_chapter_for_owner,
-               _resolve_book_for_owner, _read_json_body) for DRY
-               ownership + parsing.
-  urls.py      5 routes: landing + 4 API endpoints (above).
-  apps.py      BookwriterConfig
-  models.py    Two unmanaged models (Phase 1B Step 1): CollBook,
-               Chapter — exact column match with the SQL schema. Other
-               30 tables get models added incrementally as their UIs
-               are wired.
+  Public engagement
+    engagement_serial_subscriber  Subscribe-to-book toggle
+    engagement_serial_reaction    5 kinds: heart/fire/thinking/tear/clap
+    engagement_serial_comment     Threaded comments on a release
+    engagement_serial_view        Per-read tracking (anon via session_hash)
 
-Database (already applied — see SQL script below):
-  notes/sql-script/bookwriter-v01-schema.sql
-  Schema: [bookwriter]
-  32 tables — 14 ref · 1 coll · 12 sub-entity · 4 engagement · 1 eng
+  Streak engine
+    eng_user_streak               Per (user, date) row
 
+============================================================
+  END-TO-END DATA FLOW
+============================================================
 
-================================================================
-4. CSS ARCHITECTURE
-================================================================
-All Inkwell styles are SCOPED to the wrapper classes — they do NOT
-pollute the global page in embedded mode. The pattern:
+  WRITER FLOW
+  ─────────────────────────────────────────────────────────
+  1. Anonymous visitor lands on /bookwriter/ → sees demo content.
+  2. Logged-in visitor → _ensure_default_book_for_user creates a
+     CollBook + Chapter on first visit (idempotent).
+  3. Writer types in editor (.editor[contenteditable]) →
+     debounced 800ms autosave to /api/chapter/<id>/autosave/.
+     This bumps:
+       - chapter.chapter_text_html / chapter_text_plain / word_count
+       - book_word_count_cached / book_chapter_count_cached
+       - WritingSession (today's session row)
+       - EngUserStreak (today's streak row)
+  4. Writer flips to corkboard → plot cards CRUD via
+     /api/book/<id>/plot-card/create/ + /api/plot-card/<id>/save/.
+  5. Writer flips to bible → bible entries CRUD by category.
+  6. Writer flips to cover → tile clicks + sliders persist via
+     /api/book/<id>/cover-design/save/. State reflected on reload.
+  7. Writer publishes chapter → /api/chapter/<id>/publish/ creates
+     a serial_release with public_chapter_slug from chapter title
+     (via bangla_slugify). Idempotent — re-publishing is safe.
 
-  .bookwriter-shell, .bookwriter-embedded-wrapper {
-    --paper, --ink, --accent, ... (all variables here, not :root)
-    background, color, font, position
-  }
+  PUBLIC READER FLOW
+  ─────────────────────────────────────────────────────────
+  1. Anyone visits /bookwriter/read/<slug>/ → renders the chapter
+     prose, increments read_count_cached.
+  2. Engagement strip:
+       - Subscribe button (logged-in only) → toggles
+         engagement_serial_subscriber row.
+       - 5 reaction buttons → toggle engagement_serial_reaction
+         row (UNIQUE on release+user+kind).
+       - Comment thread → engagement_serial_comment with optional
+         parent_id for replies. Owner can pin; author or owner
+         can delete.
+  3. View tracking → POST to /api/release/<id>/view/ on mount.
+     Anonymous reads use session_hash; logged-in reads carry
+     user_profile_id. Bumps read_count_cached + unique_reader_count.
 
-  .bookwriter-shell *, .bookwriter-embedded-wrapper * {
-    box-sizing, margin, padding (reset scoped to descendants only)
-  }
+  BETA READER FLOW
+  ─────────────────────────────────────────────────────────
+  1. Writer mints a share link via /api/book/<id>/beta-share/create/
+     and copies the URL.
+  2. Reader visits /bookwriter/beta/<token>/ → auto-creates a
+     beta_reader row (linking the visitor to the share link).
+  3. Sidebar shows beta comments. Reader can post (kind = comment /
+     suggestion / praise) anchored to a passage.
+  4. Owner can mark resolved or accept/reject suggestions.
 
-  .bookwriter-shell::before, .bookwriter-embedded-wrapper::before {
-    paper grain texture
-  }
+============================================================
+  FEATURE INVENTORY (every wired field)
+============================================================
 
-This means:
-  - Inkwell's --accent (#8b2a1f red) does NOT override the project's
-    global --accent (#0a66c2 blue) outside the wrapper
-  - The * margin/padding reset only applies inside the wrapper
-  - The paper-grain SVG noise stays inside the wrapper, doesn't
-    cover the global header/sidebar in embedded mode
+  Steps 1-12 (initial Phase 1B build):
+    1.  Chapter body autosave + word-count
+    2.  Editor markup + persistence
+    3.  Multi-chapter rail (create/load/title/delete/reorder)
+    4.  Book metadata (title/subtitle/author display)
+    5.  Chapter snapshots (create/list/revert)
+    6.  Sprint timer (start/finish)
+    7.  Plot cards (CRUD + delete affordance)
+    8.  Bible entries (CRUD + per-category list)
+    9.  Margin notes (CRUD via API + side panel UI)
+    10. Cover designer (template/sliders/palette/font/background)
+    11. Beta share link (mint/list/revoke)
+    12. Chapter publish/unpublish + public reader page
 
+  Steps 13-18 (additional fields wired):
+    13. Chapter status + visibility per-row picker
+    14. Plot card promote-to-chapter (link_chapter)
+    15. Beta reader management (invite/list/remove)
+    16. Beta reader comments (anchored, threaded)
+    17. Public reader engagement (subscribe/react/comment/view)
+    18. Refs dispatcher (single endpoint for 14 ref tables)
 
-================================================================
-5. CURRENT STATUS (v01 + Phase 1B Steps 1-3)
-================================================================
-✓ DB schema (32 tables in [bookwriter])
-✓ UI (5 views + 4 overlays — Write view real, others demo)
-✓ Dual-layout architecture (embedded + standalone, switchable)
-✓ Sidebar nav entry under "Admin Panel" → "কলম"
-✓ Django models for coll_book + chapter (Phase 1B Step 1)
-✓ Real chapter body autosave API + JS fetch (Step 1)
-✓ Auto-provision default book + first chapter on first visit (Step 2)
-✓ Real chapter title autosave API + JS (Step 3)
-✓ Multi-chapter switching (rail click → GET → load HTML/title) (Step 3)
-✓ "+ new chapter" button creates real DB chapter then selects it (Step 3)
-✓ Race-safe chapter switching (flushes pending body+title saves)
-✓ All 52 buttons + 8 inputs in partial carry id+name attributes
-✓ All JS variables fully descriptive (no abbreviations)
-✗ Snapshot create / revert API
-✗ Drag-reorder persists to DB
-✗ Bible / plot / cover / publish persistence
-✗ Beta share link generation + reader access
-✗ Public reader page for Gallery
-✗ Right-rail "Saltwater Almanac" book-info card (still hardcoded demo)
+  Plus: book metadata extras (synopsis / status_code / visibility /
+  daily_word_target / word_count_target / publish_cadence /
+  cover_image_url / slug / language_code), bible image_url +
+  attributes_json editor.
 
+============================================================
+  SECURITY GUARANTEES
+============================================================
 
-================================================================
-6. NEXT PHASES
-================================================================
-Phase 1B Step 4 (proposed) — book-level metadata:
-  1. Render real book title + total word count in right-rail card
-  2. Real "today's session" / streak / goal numbers (eng_user_streak)
-  3. Book settings panel: title, subtitle, author display, language
+  - All write endpoints: @login_required + @require_POST/_DELETE.
+  - Owner check: every endpoint resolves chapter→book→user_profile_id
+    via the _resolve_*_for_owner helpers. Cross-owner returns 403.
+  - HTML sanitization: chapter body passes through
+    sanitize_user_html() (core/utils). Bible / plot / margin notes
+    use _strip_html_to_plain (text-only fields).
+  - Hex-color injection: every hex color (cover palette overrides,
+    bible avatar gradient hexes) validated via _is_valid_hex_color
+    against the pattern `^#[0-9a-fA-F]{3,8}$`. Prevents
+    style-attribute breakout XSS.
+  - Beta token: 32-char URL-safe random via secrets.token_urlsafe.
+  - Public reader: anonymous can read + comment list (require_POST
+    gates state changes; only logged-in users can subscribe / react /
+    post comments).
+  - SQL: pure ORM. No raw SQL anywhere.
 
-Phase 1C (proposed) — snapshots + drag reorder:
-  1. POST /api/chapter/<id>/snapshot/  — manual snapshot
-  2. GET  /api/chapter/<id>/snapshots/ — history list
-  3. POST /api/chapter/<id>/revert/<snapshot_id>/ — revert to version
-  4. POST /api/book/<id>/chapters/reorder/ — persist drag-reorder
-  5. JS: snapshot panel reads real history, revert button works
+============================================================
+  PERFORMANCE / SEO
+============================================================
 
-Phase 2+ — bible, plot, cover, beta share, public gallery.
+  - All <script src> tags use defer.
+  - All <img> tags use loading="lazy" + decoding="async".
+  - Google Fonts CSS loaded via preload + media="print"
+    onload="this.media='all'" (non-blocking).
+  - public_reader.html (public mode): full SEO pack
+    (meta description, canonical, og:type=article, og:title, og:url,
+    twitter:card, JSON-LD @type=Chapter with isPartOf Book +
+    inLanguage + datePublished).
+  - Beta reader: <meta name="robots" content="noindex, nofollow">.
+  - Service worker cache bumped on every static change.
+  - Mobile responsive: breakpoint at max-width: 600px on both
+    page-inkwell.css and page-public-reader.css; reaction labels
+    hidden below 380px.
 
+============================================================
+  MODULE LAYOUT (post-split)
+============================================================
 
-================================================================
-7. TROUBLESHOOTING
-================================================================
+  Python (views_api split into per-domain modules):
+    views_api_helpers.py            shared helpers + constants + owner-resolvers
+    views_api_chapter.py            chapter ops, snapshots, publish/unpublish, status
+    views_api_book.py               book metadata, cover design, subscribe-toggle
+    views_api_writing_artifacts.py  sprint, plot cards, bible entries, margin notes
+    views_api_collaboration.py      beta workflow + public engagement
+    views_api_refs.py               refs dispatcher
+    views_api.py                    backward-compat re-export shim
 
-Q: Inkwell opens INSIDE the content area instead of taking over the
-   browser tab/window in standalone mode.
-A: spa-navigation.js was hijacking the click. Fixed at
-   core/static/core/assets/js/utilities/spa-navigation.js — line 54
-   now skips ANY explicit target attribute (not just _blank).
+  JS (page-inkwell.js split into independent IIFE modules where
+  state-sharing allowed it):
+    modules/bookwriter-namespace.js                    SHARED helpers (must load FIRST).
+                                                         Defines window.bookwriter.{
+                                                           csrfHeaders(),
+                                                           apiPost(url, payload),
+                                                           apiDelete(url),
+                                                           apiGet(url),
+                                                           wireTwoClickConfirmDelete(button, options)
+                                                         }
+                                                         Single source of truth for fetch + CSRF +
+                                                         two-click confirm behaviour. Idempotent
+                                                         (safe if loaded twice).
+    pages/page-inkwell.js                              core writer (chapter rail, autosave,
+                                                         editor, mode-switch, cover, snapshot,
+                                                         sprint, share, corkboard, bible,
+                                                         publish, persistence)
+    modules/bookwriter-rail-pickers.js                 chapter status + book metadata fields
+    modules/bookwriter-beta-reader-mgmt.js             beta reader invite / list / remove
+    modules/bookwriter-margin-notes.js                 margin notes panel
+    pages/page-public-reader.js                        public + beta reader page
+                                                         (subscribe / react / comment / view /
+                                                          beta inline highlights)
 
-Q: Inkwell colors / paper grain bleed onto the rest of amolnama in
-   embedded mode.
-A: Should not happen — all variables and body-level styles are
-   scoped to .bookwriter-shell / .bookwriter-embedded-wrapper.
-   If you see this, check page-inkwell.css for any rule that
-   targets `:root`, `body`, `html`, or `*` without the wrapper
-   prefix.
+  Modularisation pass (2026-04-20):
+    - Every fetch+CSRF dance was migrated to window.bookwriter.apiPost/
+      apiDelete/apiGet. Verified: 0 raw `fetch(` and 0 `getCsrfTokenValue`
+      calls outside namespace.js.
+    - Every two-click delete confirm pattern was migrated to
+      wireTwoClickConfirmDelete (pendingConfirm + setTimeout dance lives
+      ONLY in namespace.js).
+    - bookwriter-namespace.js MUST be the first defer-loaded script in
+      every bookwriter page template. Adding a new page or module:
+      reference window.bookwriter.* directly — never re-implement
+      fetch/CSRF/two-click locally.
 
-Q: Wrong height in embedded mode (Inkwell overflows or is too short).
-A: The header offset is 64px by default. Tune via:
-     :root { --bookwriter-header-offset: <Npx>; }
-   on the embedded shell or in a project-wide stylesheet.
+  CSS:
+    pages/page-inkwell.css                             writer styles
+    pages/page-public-reader.css                       public reader styles + mobile breakpoints
 
-Q: How do I revert the dual-layout work?
-A: Easiest revert path:
-   1. settings/base.py → set BOOKWRITER_LAYOUT_MODE = "standalone"
-   2. sidebar-navigation.html → re-add target="writing_session"
-   3. Optionally delete inkwell_embedded.html + bookwriter-embedded
-      sections of CSS (clearly labeled with section banners).
-   The standalone shell + body partial keep working as-is.
+  All clusters of short pre-existing class names (.tmpl, .pal, .snap,
+  .crumb, .perm, .t, .d, .mt, .ma, .num, .mini-*) renamed to the
+  .bookwriter-* convention.
 
+  Naming-convention pass (2026-04-20): every CSS class DEFINED in
+  the bookwriter CSS files now carries the `bookwriter-` prefix.
+  This includes generic names (`.app`, `.row`, `.card`, `.modal`,
+  `.toolbar`) AND domain-specific ones (`.chapter`, `.bible-item`,
+  `.cover-art`, `.manuscript`, `.corkboard-grid`). Templates +
+  JS were rewritten to match. There are now ZERO unprefixed
+  bookwriter classes in CSS files. Animations / @keyframes that
+  share names with classes (e.g. `pulse`) keep their original
+  identifier — only class selectors got the prefix.
 
-================================================================
-8. RULES / CONVENTIONS
-================================================================
-- Bookwriter is INDEPENDENT. No imports from mastermind / quizadmin.
-- DB tables follow project naming: ref_*, coll_<main>, <bare> for
-  sub-entity, engagement_*, map_*, eng_* (see SQL script header).
-- All form inputs AND buttons have explicit id + name attributes.
-  Naming pattern: id="bookwriter-{view}-{action}-button",
-  name="bookwriter_{view}_{action}_button".
-- No alert() / confirm() / prompt() / console.log() in JS.
-- All JS variables use full descriptive names — no `var btn`, `var w`,
-  `var b`, etc. (Audited 2026-04-19 — zero abbreviations.)
-- CSS variables and body styles are wrapper-scoped (see §4).
-- Bengali text uses Bengali_100_CI_AS collation, English/mixed
-  uses Latin1_General_100_CI_AS_SC_UTF8.
+  When adding a new class, ALWAYS prefix with `bookwriter-` even
+  if the name already implies bookwriter scope. Single source of
+  truth: the rename script lives in version control history;
+  use the same prefix-everything policy for any new selector.
 
+============================================================
+  FILES TO MODIFY WHEN ADDING A NEW FEATURE
+============================================================
 
-================================================================
-9. API ENDPOINTS (Phase 1B)
-================================================================
-All endpoints are JSON over POST/GET, login_required, and enforce
-owner-check via the chapter→book→link_owner_user_profile_id chain.
-CSRF is enforced via Django default middleware — JS sends the
-X-CSRFToken header using window.getCsrfTokenValue() (defined in
-core/static/core/assets/js/utilities/csrf-token.js).
+  Adding a new field that already exists in SQL:
+    1. models.py — add the field declaration if not present
+    2. views_api.py — extend the relevant save endpoint to accept it
+    3. views.py — load it into context if templates need it
+    4. _inkwell_body.html — add the form element
+    5. page-inkwell.css — style it (use existing tokens)
+    6. page-inkwell.js — wire change/input handler
 
-  POST /bookwriter/api/chapter/<int:chapter_id>/autosave/
-       Body: { "chapter_text_html": "<p>…</p>" }
-       Reply: { "ok": true, "chapter_word_count": 1234,
-                "saved_at": "2026-04-19T..." }
-       Behaviour: full-body replace. Idempotent. HTML is run through
-       core.utils.sanitize_user_html() before save. Plain-text strip
-       computes word count.
+  Adding a new ref group:
+    1. SQL: INSERT into ref_<name>
+    2. models.py — Ref<Name> class (managed=False)
+    3. views_api_refs.py — one entry in REF_GROUP_TABLE_MAP
+    4. (Optional) JS hits /api/refs/<group>/ to populate dropdown
 
-  POST /bookwriter/api/chapter/<int:chapter_id>/title/
-       Body: { "chapter_title": "..." }
-       Reply: { "ok": true, "saved_at": "..." }
-       Behaviour: full-field replace. Tags stripped before save.
-       Empty / whitespace title saves NULL.
+  Adding a new endpoint:
+    1. views_api.py — add @login_required + @require_POST + resolver
+    2. urls.py — register route under api/<resource>/<action>/
+    3. JS — call via window.bookwriter.apiPost(url, payload).then().catch()
+       — NEVER re-implement fetch+CSRF locally; namespace.js is the
+       single source of truth. Use apiDelete / apiGet for the other
+       verbs.
+    4. For two-click delete affordances, use
+       window.bookwriter.wireTwoClickConfirmDelete(button, {
+         confirmingClass: 'bookwriter-...',  // class defined in CSS
+         initialTitle: '...', confirmingTitle: '...',  // optional a11y
+         onConfirm: function () { window.bookwriter.apiDelete(...); }
+       });
+    5. Verify via Django shell with RequestFactory before claiming done
 
-  GET  /bookwriter/api/chapter/<int:chapter_id>/
-       Reply: { "ok": true, "chapter": { "id", "number", "title",
-                                          "html", "word_count" } }
-       Used by the rail click handler when switching chapters.
+  Adding a new CSS class:
+    - ALWAYS prefix with `bookwriter-`. No exceptions.
+    - Touch-target fallback values must be 44px to match
+      `--touch-target` defined globally in core/colors.css. Pattern:
+      `min-height: var(--touch-target, 44px);`
+    - Mobile coverage already provided by the `@media (pointer: coarse),
+      (max-width: 760px)` block in page-inkwell.css which forces 44px
+      min-height on every button/input/select/textarea inside
+      .bookwriter-shell / .bookwriter-embedded-wrapper.
 
-  POST /bookwriter/api/book/<int:book_id>/chapter/create/
-       Body: {} (empty)
-       Reply: { "ok": true, "chapter": { "id", "number", "title",
-                                          "html", "word_count" } }
-       Append a blank chapter at the end (max(chapter_number)+1).
+  Dynamic per-row inline styles (CSS-variable injection pattern):
+    - When a value MUST come from the database (per-row hex pair,
+      per-record dimensions), do NOT emit a full design rule inline.
+    - Declare the design in CSS with custom properties + sensible
+      fallbacks, then inject ONLY the data:
+        CSS:
+          .bookwriter-bible-avatar {
+            --bookwriter-bible-avatar-hex-1: var(--ochre);
+            --bookwriter-bible-avatar-hex-2: var(--accent);
+            background: linear-gradient(
+              135deg,
+              var(--bookwriter-bible-avatar-hex-1),
+              var(--bookwriter-bible-avatar-hex-2));
+          }
+        Template:
+          <div class="bookwriter-bible-avatar"
+               {% if entry.hex_1 and entry.hex_2 %}
+                 style="--bookwriter-bible-avatar-hex-1:{{ entry.hex_1 }};
+                        --bookwriter-bible-avatar-hex-2:{{ entry.hex_2 }};"
+               {% endif %}>
+        JS (when creating dynamically):
+          el.style.setProperty('--bookwriter-bible-avatar-hex-1', hex1);
+          el.style.setProperty('--bookwriter-bible-avatar-hex-2', hex2);
+    - Why: design (135deg, fallback colours, shape) lives once in CSS
+      where future tweaks are easy. Inline carries strictly DATA, never
+      DESIGN. Reference sites: bible avatar / bible portrait at
+      _inkwell_body.html:882 and :924, page-inkwell.js:1113/1523/1803.
 
-Errors: 403 (not logged in / not owner), 404 (chapter or book
-not found), 400 (malformed JSON or missing required field).
+  Cover palette tiles also use this pattern:
+    - Each tile carries a palette-name class
+      (`.bookwriter-cover-palette-tile-classical` etc.) that sets
+      `--bookwriter-palette-{bg,fg,accent}` custom properties.
+    - The 3 swatch spans inside read those variables — no inline style.
+    - Adding a new palette = one new class block in CSS + one tile in
+      the template (no inline style needed).
 
+  Inline-style audit (bookwriter is currently 100% compliant):
+    - Render inkwell + grep rendered HTML for `style="`.
+    - Acceptable: 0 in inkwell mode, only conditional bible-avatar inline
+      attrs when DB rows have hex pairs set (carries only --hex-1/--hex-2
+      custom properties — data injection only).
 
-================================================================
-10. E2E DATA ENTRY (typing → DB)
-================================================================
-1. User types in .prose contenteditable in the writer view.
-2. JS input listener (page-inkwell.js) calls scheduleChapterAutosave()
-   which animates the save chip to "saving…" and arms a 800ms
-   debounced timer.
-3. After 800ms idle, performChapterAutosave() reads chapter_id from
-   prose.dataset.chapterId, builds a fetch() POST to
-   /bookwriter/api/chapter/<id>/autosave/ with X-CSRFToken header.
-4. views_api.api_bookwriter_chapter_autosave validates auth+owner,
-   calls sanitize_user_html(), computes word_count, writes to
-   [bookwriter].[chapter] via Django ORM (managed=False model).
-5. JSON reply lands in JS .then() → save chip flips to
-   "saved · just now". On any error → "offline · will retry"; next
-   keystroke fires another save (idempotent endpoint catches up).
+============================================================
+  RUNNING THE TESTS
+============================================================
 
-Same flow for title (separate debounce timer) and chapter switching
-(GET endpoint, populates editor + label + breadcrumb).
+  Per CLAUDE.md, DO NOT keep _test_*.py scripts in the repo. They
+  are throwaway shell tests. The pattern used during development:
 
+    1. Write _test_<feature>.py in the project root
+    2. Run: python _test_<feature>.py
+    3. Delete it once done
 
-================================================================
-11. AUDIT HISTORY (file: notes/checker-code-bugs.txt)
-================================================================
-2026-04-19: Phase 1B Steps 1-3 shipped + naming/id audit pass.
-  - Zero alert/confirm/prompt/console.*/document.write/eval/mark_safe
-    /raw SQL/silent except/print/csrf_exempt/TODO/FIXME/position:fixed
-  - 52 buttons + 8 inputs all carry id+name
-  - All JS vars use full descriptive names
-  - 187/187 JS braces, 719/719 JS parens, all templates tag-balanced
-  - All 4 endpoints + owner-check + XSS handling shell-tested
+  Always exercise:
+    - Happy path: 200 + correct JSON shape
+    - Validation errors: 400
+    - Cross-owner access: 403
+    - Anonymous access where applicable: 200 or expected gate
+    - Cleanup: delete any rows created

@@ -1,0 +1,120 @@
+================================================================================
+BOOKWRITER — DB MAPPING: REFERENCE LIST DISPATCHER
+================================================================================
+Module:       views_api_refs.py (standalone, single-file module)
+Tables:       Every ref_* table (14 total) — read-only
+Templates:    Not directly consumed yet — UI uses inline server-rendered
+              dropdowns. Available for any future client-side drop-in.
+Common steps: See db-mapping-common-steps.txt
+
+================================================================================
+ENDPOINT
+================================================================================
+GET /api/refs/<ref_group_code>/
+
+View:        api_bookwriter_ref_list
+Auth:        NONE (public — anonymous-OK)
+Throttle:    None applied (read-only, small payload, idempotent)
+
+URL parameter:
+  ref_group_code  one of REF_GROUP_TABLE_MAP keys (see below)
+
+Response (success): {
+  ok:    true,
+  group: '<ref_group_code>',
+  items: [
+    {id: <pk_int>, code: '<code>', name_en: '<en label>', name_bn: '<bn label>'},
+    ...
+  ]
+}
+- name_bn key is OMITTED for tables that have no _name_bn column
+  (cover_palette / cover_background / cover_font / view_referrer / view_device)
+- Items ordered by sort_order then PK ascending
+- Filtered to is_active=True
+- chapter_status group additionally excludes 'outline' code (until v02 SQL runs)
+
+Response (unknown group):
+HTTP 404 + body { ok: false, error: 'Unknown ref group',
+                  available_groups: [<sorted list of every key>] }
+
+================================================================================
+REF_GROUP_TABLE_MAP (14 entries)
+================================================================================
+Each entry = (ModelClass, pk_field, code_field, name_en_field, name_bn_field|None).
+
+  Group code               Model                     PK column                                  Code column                  Display (en)                    Display (bn)
+  ──────────────────────── ─────────────────────────  ──────────────────────────────────────────  ────────────────────────────  ──────────────────────────────  ───────────────────────────────
+  book_status              RefBookStatus              bookwriter_ref_book_status_id              book_status_code              book_status_name_en             book_status_name_bn
+  chapter_status           RefChapterStatus           bookwriter_ref_chapter_status_id           chapter_status_code           chapter_status_name_en          chapter_status_name_bn
+  chapter_visibility       RefChapterVisibility       bookwriter_ref_chapter_visibility_id       chapter_visibility_code       chapter_visibility_name_en      chapter_visibility_name_bn
+  cover_template           RefCoverTemplate           bookwriter_ref_cover_template_id           cover_template_code           cover_template_name_en          cover_template_name_bn
+  cover_palette            RefCoverPalette            bookwriter_ref_cover_palette_id            cover_palette_code            cover_palette_name_en           (none)
+  cover_background         RefCoverBackground         bookwriter_ref_cover_background_id         cover_background_code         cover_background_name_en        (none)
+  cover_font               RefCoverFont               bookwriter_ref_cover_font_id               cover_font_code               cover_font_name_en              (none)
+  beta_permission          RefBetaPermission          bookwriter_ref_beta_permission_id          beta_permission_code          beta_permission_name_en         beta_permission_name_bn
+  serial_release_status    RefSerialReleaseStatus     bookwriter_ref_serial_release_status_id    serial_release_status_code    serial_release_status_name_en   serial_release_status_name_bn
+  publish_cadence          RefPublishCadence          bookwriter_ref_publish_cadence_id          publish_cadence_code          publish_cadence_name_en         publish_cadence_name_bn
+  act_structure            RefActStructure            bookwriter_ref_act_structure_id            act_structure_code            act_structure_name_en           act_structure_name_bn
+  bible_category           RefBibleCategory           bookwriter_ref_bible_category_id           bible_category_code           bible_category_name_en          bible_category_name_bn
+  view_referrer            RefViewReferrer            bookwriter_ref_view_referrer_id            view_referrer_code            view_referrer_name_en           (none)
+  view_device              RefViewDevice              bookwriter_ref_view_device_id              view_device_code              view_device_name_en             (none)
+
+================================================================================
+DESCRIPTIVE / METADATA COLUMNS (read-only, NOT in the dispatcher response)
+================================================================================
+Several ref tables carry extra columns the dispatcher does NOT include in
+its JSON response. They are loaded only when a server-side template needs
+them (e.g. for tooltips, scheduler logic, or chip styling). Documented
+here so they don't appear "unwired" in coverage audits.
+
+  RefBookStatus.book_status_description           Long-form description for
+                                                    a future "what each status
+                                                    means" tooltip on the
+                                                    book metadata picker.
+  RefChapterVisibility.chapter_visibility_description
+                                                  Same pattern — explains
+                                                  private/beta/public scope.
+  RefBetaPermission.beta_permission_description    Explains read/comment/suggest
+                                                    in the share modal tooltip.
+  RefSerialReleaseStatus.serial_release_status_chip_color_hex
+                                                   Hex color for the publish
+                                                   dashboard's status chip
+                                                   (rendered server-side per
+                                                   row when the dashboard ships).
+  RefPublishCadence.publish_cadence_interval_days  Scheduler config — how often
+                                                   to drop the next chapter.
+  RefPublishCadence.publish_cadence_weekday        Day-of-week (0=Mon..6=Sun)
+                                                   for weekly cadences.
+  RefCoverFont.cover_font_family_css               Already documented in
+                                                   db-mapping-cover-design.txt
+                                                   under REF TABLES (4)
+  RefCoverFont.cover_font_style_css                CSS `font-style` value
+                                                   (italic / normal). Loaded by
+                                                   the cover renderer when it
+                                                   converts the saved
+                                                   link_cover_font_id into
+                                                   inline style for the preview.
+  RefCoverFont.cover_font_weight_css               CSS `font-weight` value
+                                                   (300 / 400 / 700). Same
+                                                   renderer chain.
+
+================================================================================
+ADDING A NEW REF GROUP — checklist
+================================================================================
+1. SQL: CREATE TABLE [bookwriter].[ref_<name>] with at minimum the columns
+   bookwriter_ref_<name>_id (PK), <name>_code (UNIQUE), <name>_name_en, is_active.
+2. Seed initial rows.
+3. models.py: Add Ref<Name> class with managed=False mapping to the new table.
+4. views_api_refs.py: Add one entry to REF_GROUP_TABLE_MAP keyed by the
+   group code; supply the (Class, pk, code, name_en, name_bn|None) tuple.
+5. (Optional) JS hits /api/refs/<group>/ to populate a dropdown.
+
+================================================================================
+WHY THIS MODULE IS STANDALONE
+================================================================================
+views_api_refs.py imports nothing from the other views_api_* modules and
+shares no helpers — it's the cleanest "one feature, one file" split in the
+app. Per CLAUDE.md GATE 6 "split files when the feature is atomic and
+independent" — refs is the textbook example.
+
+================================================================================

@@ -1,0 +1,120 @@
+================================================================================
+BOOKWRITER — TOP-LEVEL TABLE CATALOG  ([bookwriter].* schema, 32 tables)
+================================================================================
+Last updated: 2026-04-20
+File: amolnama_news/site_apps/bookwriter/field_mapping/db-schema-map.txt
+
+Pointer index from feature → table → primary mapping file.
+
+================================================================================
+REFERENCE TABLES (seeded once, surfaced via /api/refs/<group>/)
+================================================================================
+
+ref_book_status              4 codes  draft/in_review/published/archived
+ref_chapter_status           3 active codes (was 4 — outline deactivated v02)
+                                blank/draft/done
+ref_chapter_visibility       3 codes  private/beta/public
+ref_bible_category           5 codes  characters/locations/objects/research/lore
+ref_cover_template           6 codes  classical/modern/photo/minimal/vintage/type
+ref_cover_palette            6 presets bg/fg/accent triplets
+ref_cover_background         8 codes  solid/grad-1/grad-2/grad-3/noise/dots/stripes/upload
+ref_cover_font               4 codes  serif/italic/body/mono
+ref_beta_permission          3 codes  read/comment/suggest
+ref_serial_release_status    4 codes  draft/scheduled/published/unpublished
+ref_publish_cadence          11 codes daily/weekly/biweekly/...
+ref_act_structure            4 codes  act_one/act_two/act_three/unplaced
+ref_view_referrer            7 codes  direct/search/social/email/rss/internal/unknown
+ref_view_device              4 codes  mobile/tablet/desktop/unknown
+
+→ All wired through views_api_refs.py + REF_GROUP_TABLE_MAP.
+→ See db-mapping-refs.txt for the dispatcher mapping.
+
+================================================================================
+MAIN ENTITIES + WHERE THEY ARE WIRED
+================================================================================
+
+  Table                           Primary mapping file
+  ──────────────────────────────  ─────────────────────────────────
+  coll_book                       db-mapping-book-metadata.txt
+  chapter                         db-mapping-chapter-authoring.txt
+  chapter_snapshot                db-mapping-chapter-authoring.txt (Snapshots)
+  bible_entry                     db-mapping-bible.txt
+  plot_card                       db-mapping-corkboard.txt
+  margin_note                     db-mapping-margin-notes.txt
+  book_cover_design               db-mapping-cover-design.txt
+  beta_share_link                 db-mapping-beta-share.txt (Share link)
+  beta_reader                     db-mapping-beta-share.txt (Reader)
+  beta_comment                    db-mapping-beta-share.txt (Comment)
+  sprint_session                  db-mapping-sprint.txt
+  writing_session                 db-mapping-common-steps.txt (telemetry)
+  serial_release                  db-mapping-chapter-authoring.txt (Publish)
+  engagement_serial_subscriber    db-mapping-engagement.txt (Subscribe)
+  engagement_serial_reaction      db-mapping-engagement.txt (Reaction)
+  engagement_serial_comment       db-mapping-engagement.txt (Comment)
+  engagement_serial_view          db-mapping-engagement.txt (View)
+  eng_user_streak                 db-mapping-common-steps.txt (telemetry)
+
+================================================================================
+ENDPOINT → MAPPING FILE INDEX
+================================================================================
+
+POST   /api/chapter/<id>/autosave/                 chapter-authoring  (Step 1)
+POST   /api/chapter/<id>/title/                    chapter-authoring  (Step 3a)
+GET    /api/chapter/<id>/                          chapter-authoring  (Load)
+POST   /api/book/<id>/chapter/create/              chapter-authoring  (Create)
+DELETE /api/chapter/<id>/delete/                   chapter-authoring  (Delete)
+POST   /api/chapter/<id>/snapshot/                 chapter-authoring  (Snapshot create)
+GET    /api/chapter/<id>/snapshots/                chapter-authoring  (Snapshot list)
+POST   /api/chapter/<id>/snapshot/<sid>/revert/    chapter-authoring  (Snapshot revert)
+POST   /api/chapter/<id>/publish/                  chapter-authoring  (Publish)
+POST   /api/chapter/<id>/unpublish/                chapter-authoring  (Unpublish)
+POST   /api/chapter/<id>/status/                   chapter-authoring  (Status save)
+
+POST   /api/book/<id>/title/                       book-metadata      (incl. extended fields)
+POST   /api/book/<id>/chapters/reorder/            book-metadata      (Reorder)
+POST   /api/book/<id>/cover-design/save/           cover-design
+POST   /api/book/<id>/subscribe/toggle/            engagement         (Subscribe)
+
+POST   /api/sprint/start/                          sprint
+POST   /api/sprint/<id>/finish/                    sprint
+
+POST   /api/book/<id>/plot-card/create/            corkboard
+POST   /api/plot-card/<id>/save/                   corkboard
+POST|D /api/plot-card/<id>/delete/                 corkboard
+POST   /api/plot-card/<id>/link-chapter/           corkboard
+
+POST   /api/book/<id>/bible-entry/create/          bible
+POST   /api/bible-entry/<id>/save/                 bible
+POST|D /api/bible-entry/<id>/delete/               bible
+
+POST   /api/chapter/<id>/margin-note/create/       margin-notes
+GET    /api/chapter/<id>/margin-notes/             margin-notes
+POST   /api/margin-note/<id>/save/                 margin-notes
+POST|D /api/margin-note/<id>/delete/               margin-notes
+
+POST   /api/book/<id>/beta-share/create/           beta-share         (Share)
+GET    /api/book/<id>/beta-shares/                 beta-share         (Share list)
+POST   /api/beta-share/<id>/revoke/                beta-share         (Share revoke)
+POST   /api/book/<id>/beta-reader/invite/          beta-share         (Reader invite)
+GET    /api/book/<id>/beta-readers/                beta-share         (Reader list)
+POST|D /api/beta-reader/<id>/remove/               beta-share         (Reader remove)
+POST   /api/chapter/<id>/beta-comment/create/      beta-share         (Comment)
+GET    /api/chapter/<id>/beta-comments/            beta-share         (Comment list)
+POST   /api/beta-comment/<id>/resolve/             beta-share         (Comment resolve)
+POST|D /api/beta-comment/<id>/delete/              beta-share         (Comment delete)
+
+POST   /api/release/<id>/reaction/toggle/          engagement
+POST   /api/release/<id>/comment/create/           engagement
+GET    /api/release/<id>/comments/                 engagement
+POST   /api/serial-comment/<id>/pin/               engagement
+POST|D /api/serial-comment/<id>/delete/            engagement
+POST   /api/release/<id>/view/                     engagement
+POST   /api/release/<id>/preview-impression/       engagement (E)
+
+GET    /api/refs/<group>/                          refs
+
+GET    /                                           (inkwell page — no API mapping)
+GET    /read/<slug>/                               (public reader page)
+GET    /beta/<token>/                              (beta reader page)
+
+================================================================================

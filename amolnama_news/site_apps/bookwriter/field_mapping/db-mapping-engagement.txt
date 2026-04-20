@@ -1,0 +1,231 @@
+================================================================================
+BOOKWRITER — DB MAPPING: PUBLIC ENGAGEMENT (subscribe / react / comment / view)
+================================================================================
+Module:        views_api_collaboration.py + views_api_book.py (subscribe-toggle)
+Tables:        engagement_serial_subscriber, engagement_serial_reaction,
+               engagement_serial_comment, engagement_serial_view
+Templates:     public_reader.html (subscribe button, reaction strip, comment
+                                   thread)
+JS managed:    page-public-reader.js (subscribe / react / comment / view tracking)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+A. SUBSCRIBE TOGGLE (book-keyed)
+================================================================================
+Endpoint:    POST /api/book/<book_id>/subscribe/toggle/
+View:        api_bookwriter_book_subscribe_toggle (in views_api_book.py because
+             it's keyed by book_id, but writes to engagement table)
+Trigger:     #bookwriter-reader-subscribe-button click on public reader
+Auth:        @login_required (anonymous viewers can read but not subscribe)
+
+Form/UI:
+  #bookwriter-reader-subscribe-button   class toggles is-subscribed
+  data-is-subscribed                     server-rendered initial state
+
+Request JSON (all optional):
+  email_notifications_enabled  bool
+    If supplied: ONLY updates the email pref; does NOT toggle is_active.
+    Lets the reader change "send me the next chapter by email" without
+    unsubscribing.
+  (no fields): toggles is_active subscription state. Email pref unchanged.
+
+DB UPSERT (engagement_serial_subscriber; UNIQUE on book + user):
+  If no row exists:
+    INSERT with subscribed_at=now, is_active=1
+    email_notifications_enabled = payload value if supplied else True
+  If row exists AND payload has email_notifications_enabled:
+    Update only email_notifications_enabled + updated_at. is_active unchanged.
+  If row exists AND no fields:
+    Toggle is_active flag, set subscribed_at OR unsubscribed_at to now.
+    Email pref unchanged.
+    updated_at ← now
+
+Response: { ok, is_subscribed: bool, email_notifications_enabled: bool }
+
+================================================================================
+B. REACTION TOGGLE (per-release, per-kind)
+================================================================================
+Endpoint:    POST /api/release/<serial_release_id>/reaction/toggle/
+View:        api_bookwriter_release_reaction_toggle
+Trigger:     #bookwriter-reader-reaction-<kind>-button click
+Auth:        @login_required
+
+Form/UI (5 buttons, one per kind):
+  reaction-heart  / reaction-fire   / reaction-thinking
+  reaction-tear   / reaction-clap
+
+Request JSON:
+  reaction_kind_code  string  default 'heart'
+                        (validated against ALLOWED_REACTION_KINDS =
+                         ('heart','fire','thinking','tear','clap'))
+
+DB UPSERT (engagement_serial_reaction; UNIQUE on release + user + kind):
+  If no row exists for (release, user, kind):
+    INSERT with is_active=1, created_at=now
+    Result: is_reacted=true
+  If row exists:
+    Flip is_active; update updated_at=now
+    Result: is_reacted = !old.is_active
+
+Side effect: Bumps serial_release.reaction_count_cached to count of all
+active reactions for this release across all kinds + users.
+
+Response: { ok, is_reacted: bool, reaction_count: int }
+
+================================================================================
+C. COMMENT THREAD
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+C.1 — Comment create (top-level or reply)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/release/<serial_release_id>/comment/create/
+View:        api_bookwriter_release_comment_create
+Trigger:     #bookwriter-reader-comment-new-submit-button click
+             OR per-row reply submit button (built dynamically by JS
+             toggleReplyFormUnderRow)
+Auth:        @login_required
+
+Request JSON:
+  comment_text  string  REQUIRED  (cleaned, ≤4000, non-empty)
+  parent_id     int|null  optional  (for reply; must reference a comment on
+                                     the SAME release)
+
+DB INSERT (engagement_serial_comment):
+  link_bookwriter_serial_release_id                 ← release_id (URL)
+  link_user_profile_id                              ← viewer
+  parent_link_bookwriter_engagement_serial_comment_id ← payload (or NULL)
+  comment_text                                       ← cleaned text
+  is_pinned                                          ← 0
+  is_active                                          ← 1
+  created_at                                         ← now
+
+Side effect: serial_release.comment_count_cached refreshed to
+COUNT(active comments).
+
+Response: { ok, comment: { id, text, parent_id, created_at }, comment_count }
+
+────────────────────────────────────────────────────────────────────────────────
+C.2 — Comment list (anonymous-readable)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    GET /api/release/<serial_release_id>/comments/
+Auth:        NONE (public — no login required for read-only)
+
+DB read:     engagement_serial_comment rows for release, is_active=1,
+             ORDER BY is_pinned DESC, created_at DESC, capped 500
+Response:    { ok, comments: [{id, parent_id, user_profile_id, text,
+              is_pinned, created_at}, ...] }
+
+────────────────────────────────────────────────────────────────────────────────
+C.3 — Comment pin / unpin (book-owner only)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/serial-comment/<comment_id>/pin/
+Owner-check: book owner of release.link_bookwriter_coll_book_id
+
+Request JSON:
+  is_pinned  bool
+
+DB UPDATE (engagement_serial_comment):
+  is_pinned   ← payload
+  updated_at  ← now
+
+────────────────────────────────────────────────────────────────────────────────
+C.4 — Comment delete
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST or DELETE /api/serial-comment/<comment_id>/delete/
+Authorised:  comment author OR book owner
+
+DB UPDATE:   engagement_serial_comment.is_active ← 0; updated_at ← now
+
+Side effect: serial_release.comment_count_cached refreshed.
+
+================================================================================
+D. VIEW TRACKING (per-read)
+================================================================================
+Endpoint:    POST /api/release/<serial_release_id>/view/
+View:        api_bookwriter_release_view_record
+Trigger:     Page mount on public_reader.html (page-public-reader.js
+             recordPublicReaderView IIFE)
+Auth:        OPTIONAL — anonymous reads use session_hash; logged-in reads
+             carry user_profile_id
+
+Request JSON (all optional):
+  view_seconds         int 0..86400 | null
+  view_completion_pct  int 0..100 | null
+  view_referrer_code   ref code (validated against ref_view_referrer)
+                          allowed: direct/search/social/email/rss/internal/unknown
+  view_device_code     ref code (validated against ref_view_device)
+                          allowed: mobile/tablet/desktop/unknown
+
+JS auto-populates referrer/device codes by inspecting document.referrer
+hostname + window.innerWidth.
+
+DB INSERT (engagement_serial_view):
+  link_bookwriter_serial_release_id  ← release_id (URL)
+  link_user_profile_id               ← viewer (or NULL if anonymous)
+  view_session_hash                  ← (request.session.session_key or '')[:64]
+                                        if anonymous else NULL
+  view_seconds                        ← payload
+  view_completion_pct                 ← payload
+  view_referrer_code                  ← payload (validated)
+  view_device_code                    ← payload (validated)
+  created_at                          ← now
+
+Side effect: serial_release.read_count_cached + unique_reader_count_cached
+refreshed:
+  read_count_cached          = COUNT(*)
+  unique_reader_count_cached = COUNT(DISTINCT (user_profile_id, session_hash))
+
+================================================================================
+E. PREVIEW IMPRESSION (TOC card scrolled into view)
+================================================================================
+Endpoint:    POST /api/release/<serial_release_id>/preview-impression/
+View:        api_bookwriter_release_preview_impression
+Trigger:     IntersectionObserver in page-public-reader.js fires once per
+             TOC row when ≥50% visible. Each TOC row carries
+             data-preview-release-id="<id>" (rendered by views.py via the
+             chapter_id→release_id map). The CURRENT chapter's TOC row is
+             NOT given the data attribute (it's already counted via /view/).
+Auth:        NONE — anonymous-OK
+Validation:  Release must be active + serial_release_status_code='published'
+             (else 404). No body required.
+
+DB UPDATE:
+  serial_release.preview_view_count_cached  ← old + 1
+  serial_release.updated_at                 ← now
+
+Response: { ok }
+
+JS observer is best-effort + idempotent per row:
+  - Once a row's impression fires, the row's dataset.impressionFired = '1'
+    + observer.unobserve(row) so scroll oscillation never re-bumps.
+  - Wrapped in `if (typeof IntersectionObserver === 'function')` for IE
+    graceful degradation (no impressions counted).
+
+================================================================================
+RELEASE-LEVEL CACHED COUNTERS
+================================================================================
+serial_release table carries 5 cached counter columns updated by the above
+side-effects:
+  read_count_cached          ← bumped on every view-record
+  unique_reader_count_cached ← bumped on every view-record (distinct users)
+  reaction_count_cached      ← bumped on every reaction-toggle
+  comment_count_cached       ← bumped on every comment-create / delete
+  preview_view_count_cached  ← bumped on every preview-impression (TOC row visible)
+
+Authoritative counts always come from the engagement_* tables; the cached
+columns are eventual-consistency for fast list/index rendering.
+
+================================================================================
+PRIVACY / SAFETY NOTES
+================================================================================
+- Anonymous view rows store ONLY a session_key hash (not IP, not user-agent).
+  Truncated to 64 chars for size + privacy. Used solely for unique_reader
+  estimation.
+- Comment author display name: resolved at render time by
+  _read_serial_release_comments_for_render via UserProfile.display_name
+  in_bulk lookup. Falls back to "Reader #<profile_id>" if missing.
+- Subscribe always defaults email_notifications_enabled=true on first
+  subscription. (No UI yet to toggle this; future work.)
+
+================================================================================

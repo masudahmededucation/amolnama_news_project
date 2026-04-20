@@ -1,0 +1,84 @@
+================================================================================
+BOOKWRITER — DB MAPPING: SPRINT TIMER (Pomodoro)
+================================================================================
+Module:        views_api_writing_artifacts.py
+Tables:        sprint_session
+Templates:     _inkwell_body.html (sprint-setup popover + sprint-float pill)
+JS managed:    page-inkwell.js (SPRINT TIMER section)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+STEP 1 — Sprint start
+================================================================================
+Endpoint:    POST /api/sprint/start/
+View:        api_bookwriter_sprint_start
+Trigger:     "Begin sprint" button in sprint-setup popover
+             (page-inkwell.js — startSprint())
+Owner-check: NONE — sprint is per-user, not per-book; only @login_required
+             gate. Optional book_id / chapter_id linked, but not validated
+             for ownership (sprint is a personal timer, not a write).
+
+Form/UI:
+  #bookwriter-sprint-duration-{10|25|45|60}-button   selected duration tile
+  #bookwriter-sprint-begin-button                     trigger
+
+Request JSON:
+  planned_minutes  int 1..240   REQUIRED
+  book_id          int|null     (optional; written if supplied)
+  chapter_id       int|null     (optional; written if supplied)
+
+DB INSERT (table = sprint_session):
+  link_user_profile_id          ← viewer's user_profile_id
+  link_bookwriter_coll_book_id  ← payload.book_id (or NULL)
+  link_bookwriter_chapter_id    ← payload.chapter_id (or NULL)
+  sprint_planned_minutes        ← payload.planned_minutes
+  sprint_started_at             ← now
+  sprint_ended_at               ← NULL
+  sprint_actual_seconds         ← NULL
+  sprint_completed              ← 0
+  sprint_words_added            ← 0
+  is_active                     ← 1
+  created_at                    ← now
+
+Response: { ok, sprint_session_id, started_at }
+
+================================================================================
+STEP 2 — Sprint finish
+================================================================================
+Endpoint:    POST /api/sprint/<sprint_session_id>/finish/
+View:        api_bookwriter_sprint_finish
+Trigger:     Sprint timer reaches zero OR user clicks ×/end-sprint
+             (page-inkwell.js — endSprint(naturalCompletion))
+
+Request JSON:
+  completed         bool                REQUIRED
+                       (true if timer ran to 0; false if user aborted)
+  actual_seconds    int 0..86400        REQUIRED  (elapsed time)
+  words_added       int 0..              REQUIRED  (delta in chapter word_count
+                       since sprint started — JS computes from
+                       sprintWordCountAtStart)
+
+Owner-check: implicit via WHERE link_user_profile_id=viewer + sprint_session_id
+             (404 if no match).
+
+DB UPDATE (sprint_session):
+  sprint_ended_at         ← now
+  sprint_actual_seconds   ← payload.actual_seconds
+  sprint_words_added      ← payload.words_added
+  sprint_completed        ← payload.completed (bool)
+
+Response: { ok, sprint_session_id, ended_at }
+
+================================================================================
+RELATED — WRITING TELEMETRY (writing_session + eng_user_streak)
+================================================================================
+sprint_session is independent from writing_session and eng_user_streak.
+The chapter autosave path bumps writing_session.session_words_added on every
+save (per common-steps.txt). Sprints are a UX timer; the actual word counter
+is the autosave path.
+
+A future analytics dashboard could JOIN sprint_session × writing_session on
+(user_profile_id, DATE(sprint_started_at) = session_date) to compute
+"words written DURING sprints" vs "outside of sprints".
+
+================================================================================

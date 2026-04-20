@@ -70,7 +70,7 @@
   background-image:
     radial-gradient(circle at 20% 30%, rgba(139, 42, 31, 0.03) 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(90, 107, 63, 0.03) 0%, transparent 40%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   mix-blend-mode: multiply;
   opacity: 0.7;
 }
@@ -97,7 +97,7 @@ body.bookwriter-standalone {
    (e.g. user keeps the global sidebar open). The min value preserves
    readability; below the @container breakpoints further down they
    collapse entirely. */
-.app {
+.bookwriter-app {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(260px, 320px);
   height: 100%;
@@ -109,8 +109,8 @@ body.bookwriter-standalone {
    `min-width: 0` lets the rail shrink below its intrinsic content width
    when the wrapper narrows; without it the grid `minmax()` is overridden
    by content width and the layout overflows horizontally. Same fix is
-   applied to .desk, .cover-rail, .cover-desk, .bible-rail, .bible-list. */
-.rail {
+   applied to .bookwriter-desk, .bookwriter-cover-rail, .bookwriter-cover-desk, .bookwriter-bible-rail, .bookwriter-bible-list. */
+.bookwriter-rail {
   background: var(--paper-deep);
   border-right: 1px solid var(--line);
   display: flex;
@@ -120,7 +120,7 @@ body.bookwriter-standalone {
   min-width: 0;
 }
 
-.rail::after {
+.bookwriter-rail::after {
   content: '';
   position: absolute;
   top: 0; right: 0; bottom: 0;
@@ -129,7 +129,7 @@ body.bookwriter-standalone {
   pointer-events: none;
 }
 
-.brand {
+.bookwriter-brand {
   padding: 28px 28px 22px;
   border-bottom: 1px solid var(--line);
   display: flex;
@@ -137,7 +137,7 @@ body.bookwriter-standalone {
   gap: 10px;
 }
 
-.brand-mark {
+.bookwriter-brand-mark {
   font-family: 'Fraunces', serif;
   font-weight: 900;
   font-style: italic;
@@ -146,11 +146,11 @@ body.bookwriter-standalone {
   color: var(--ink);
 }
 
-.brand-mark::first-letter {
+.bookwriter-brand-mark::first-letter {
   color: var(--accent);
 }
 
-.brand-tag {
+.bookwriter-brand-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.25em;
@@ -158,14 +158,14 @@ body.bookwriter-standalone {
   color: var(--ink-fade);
 }
 
-.rail-head {
+.bookwriter-rail-head {
   padding: 24px 28px 10px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
 }
 
-.rail-head h3 {
+.bookwriter-rail-head h3 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.3em;
@@ -174,7 +174,7 @@ body.bookwriter-standalone {
   font-weight: 400;
 }
 
-.new-chapter {
+.bookwriter-new-chapter {
   background: none;
   border: none;
   font-family: 'EB Garamond', serif;
@@ -185,19 +185,19 @@ body.bookwriter-standalone {
   transition: color 0.2s;
 }
 
-.new-chapter:hover { color: var(--ink); }
+.bookwriter-new-chapter:hover { color: var(--ink); }
 
-.chapters {
+.bookwriter-chapters {
   flex: 1;
   overflow-y: auto;
   padding: 8px 16px 20px;
 }
 
-.chapters::-webkit-scrollbar { width: 6px; }
-.chapters::-webkit-scrollbar-track { background: transparent; }
-.chapters::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
+.bookwriter-chapters::-webkit-scrollbar { width: 6px; }
+.bookwriter-chapters::-webkit-scrollbar-track { background: transparent; }
+.bookwriter-chapters::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.chapter {
+.bookwriter-chapter {
   padding: 14px 14px;
   border-radius: 2px;
   cursor: pointer;
@@ -206,14 +206,14 @@ body.bookwriter-standalone {
   border-bottom: 1px dashed transparent;
 }
 
-.chapter:hover { background: rgba(26, 22, 18, 0.04); }
+.bookwriter-chapter:hover { background: rgba(26, 22, 18, 0.04); }
 
-.chapter.active {
+.bookwriter-chapter.bookwriter-active {
   background: var(--paper);
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.ch-num {
+.bookwriter-ch-num {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 12px;
@@ -221,7 +221,7 @@ body.bookwriter-standalone {
   letter-spacing: 0.05em;
 }
 
-.ch-title {
+.bookwriter-ch-title {
   font-family: 'Fraunces', serif;
   font-size: 17px;
   font-weight: 500;
@@ -230,7 +230,7 @@ body.bookwriter-standalone {
   line-height: 1.25;
 }
 
-.ch-meta {
+.bookwriter-ch-meta {
   display: flex;
   gap: 10px;
   margin-top: 6px;
@@ -240,24 +240,24 @@ body.bookwriter-standalone {
   letter-spacing: 0.05em;
 }
 
-.ch-dot {
+.bookwriter-ch-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
   display: inline-block;
   margin-right: 5px;
   vertical-align: middle;
 }
-.ch-dot.draft { background: var(--ochre); }
-.ch-dot.done  { background: var(--moss); }
-.ch-dot.new   { background: var(--accent); }
+.bookwriter-ch-dot.bookwriter-draft { background: var(--ochre); }
+.bookwriter-ch-dot.bookwriter-done  { background: var(--moss); }
+.bookwriter-ch-dot.bookwriter-new   { background: var(--accent); }
 
-.book-info {
+.bookwriter-book-info {
   padding: 20px 28px;
   border-top: 1px solid var(--line);
   background: var(--paper-shadow);
 }
 
-.book-title {
+.bookwriter-book-title {
   font-family: 'Fraunces', serif;
   font-weight: 600;
   font-size: 20px;
@@ -266,7 +266,7 @@ body.bookwriter-standalone {
   line-height: 1.15;
 }
 
-.book-author {
+.bookwriter-book-author {
   font-family: 'EB Garamond', serif;
   font-size: 13px;
   color: var(--ink-fade);
@@ -274,7 +274,7 @@ body.bookwriter-standalone {
   font-style: italic;
 }
 
-.book-stats {
+.bookwriter-book-stats {
   display: flex;
   gap: 18px;
   margin-top: 14px;
@@ -285,7 +285,7 @@ body.bookwriter-standalone {
   text-transform: uppercase;
 }
 
-.book-stats strong {
+.bookwriter-book-stats strong {
   color: var(--ink);
   font-weight: 500;
   font-size: 14px;
@@ -298,7 +298,7 @@ body.bookwriter-standalone {
 }
 
 /* ===== CENTER — The Manuscript ===== */
-.stage {
+.bookwriter-stage {
   background: var(--paper);
   display: flex;
   flex-direction: column;
@@ -306,35 +306,38 @@ body.bookwriter-standalone {
   position: relative;
 }
 
-.toolbar {
+.bookwriter-toolbar {
   padding: 18px 64px;
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;          /* breadcrumb + tools wrap to new lines instead of overlapping */
+  gap: 12px;
   background: var(--paper);
   z-index: 3;
 }
 
-.crumb {
+.bookwriter-toolbar-crumb {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 14px;
   color: var(--ink-fade);
 }
 
-.crumb strong {
+.bookwriter-toolbar-crumb strong {
   color: var(--ink);
   font-weight: 500;
 }
 
-.tools {
+.bookwriter-tools {
   display: flex;
   gap: 4px;
   align-items: center;
+  flex-wrap: wrap;          /* tool buttons wrap when toolbar gets narrow */
 }
 
-.tool-btn {
+.bookwriter-tool-btn {
   background: none;
   border: none;
   font-family: 'EB Garamond', serif;
@@ -347,9 +350,9 @@ body.bookwriter-standalone {
   font-style: italic;
 }
 
-.tool-btn:hover { background: var(--paper-deep); color: var(--ink); }
+.bookwriter-tool-btn:hover { background: var(--paper-deep); color: var(--ink); }
 
-.tool-btn.icon {
+.bookwriter-tool-btn.bookwriter-icon {
   width: 32px; height: 32px;
   display: flex;
   align-items: center;
@@ -360,17 +363,17 @@ body.bookwriter-standalone {
   padding: 0;
 }
 
-.tool-btn.i { font-style: italic; }
-.tool-btn.b { font-weight: 700; font-style: normal; }
-.tool-btn.u { text-decoration: underline; font-style: normal; }
+.bookwriter-tool-btn.bookwriter-i { font-style: italic; }
+.bookwriter-tool-btn.bookwriter-b { font-weight: 700; font-style: normal; }
+.bookwriter-tool-btn.bookwriter-u { text-decoration: underline; font-style: normal; }
 
-.tool-divider {
+.bookwriter-tool-divider {
   width: 1px; height: 18px;
   background: var(--line);
   margin: 0 6px;
 }
 
-.save-chip {
+.bookwriter-save-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -382,7 +385,7 @@ body.bookwriter-standalone {
   margin-left: 8px;
 }
 
-.save-chip .pulse {
+.bookwriter-save-chip .bookwriter-pulse {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--moss);
@@ -394,7 +397,7 @@ body.bookwriter-standalone {
   50%      { opacity: 1;   transform: scale(1.3); }
 }
 
-.manuscript {
+.bookwriter-manuscript {
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -403,17 +406,17 @@ body.bookwriter-standalone {
   min-width: 0;
 }
 
-.manuscript::-webkit-scrollbar { width: 10px; }
-.manuscript::-webkit-scrollbar-track { background: transparent; }
-.manuscript::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 5px; }
+.bookwriter-manuscript::-webkit-scrollbar { width: 10px; }
+.bookwriter-manuscript::-webkit-scrollbar-track { background: transparent; }
+.bookwriter-manuscript::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 5px; }
 
-.page {
+.bookwriter-page {
   max-width: 640px;
   width: 100%;
   position: relative;
 }
 
-.chapter-label {
+.bookwriter-chapter-label {
   text-align: center;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -423,7 +426,7 @@ body.bookwriter-standalone {
   margin-bottom: 16px;
 }
 
-.chapter-title {
+.bookwriter-chapter-title {
   font-family: 'Fraunces', serif;
   font-weight: 400;
   font-size: 44px;
@@ -435,7 +438,7 @@ body.bookwriter-standalone {
   outline: none;
 }
 
-.chapter-title:empty::before {
+.bookwriter-chapter-title:empty::before {
   content: 'Chapter title';
   color: var(--ink-whisper);
   font-style: italic;
@@ -445,7 +448,7 @@ body.bookwriter-standalone {
    chapter that has no text yet — clear visual cue rather than
    silently empty. The contenteditable surface still accepts input
    the moment the user starts typing. */
-.prose:empty::before {
+.bookwriter-prose:empty::before {
   content: 'This chapter is blank — start writing…';
   color: var(--ink-whisper);
   font-style: italic;
@@ -455,7 +458,7 @@ body.bookwriter-standalone {
   pointer-events: none;
 }
 
-.ornament {
+.bookwriter-ornament {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,16 +467,16 @@ body.bookwriter-standalone {
   color: var(--ink-whisper);
 }
 
-.ornament::before, .ornament::after {
+.bookwriter-ornament::before, .bookwriter-ornament::after {
   content: '';
   width: 80px;
   height: 1px;
   background: currentColor;
 }
 
-.ornament svg { width: 14px; height: 14px; }
+.bookwriter-ornament svg { width: 14px; height: 14px; }
 
-.prose {
+.bookwriter-prose {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 19px;
   line-height: 1.75;
@@ -482,15 +485,15 @@ body.bookwriter-standalone {
   min-height: 400px;
 }
 
-.prose p {
+.bookwriter-prose p {
   margin-bottom: 1em;
   text-indent: 2em;
 }
 
-.prose p:first-of-type { text-indent: 0; }
+.bookwriter-prose p:first-of-type { text-indent: 0; }
 
 /* Drop cap */
-.prose p:first-of-type::first-letter {
+.bookwriter-prose p:first-of-type::first-letter {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 4.5em;
@@ -500,14 +503,14 @@ body.bookwriter-standalone {
   color: var(--accent);
 }
 
-.prose em { color: var(--ink-soft); }
+.bookwriter-prose em { color: var(--ink-soft); }
 
-.prose::selection, .prose *::selection {
+.bookwriter-prose::selection, .bookwriter-prose *::selection {
   background: rgba(200, 148, 90, 0.3);
 }
 
 /* Focus mode note */
-.focus-ribbon {
+.bookwriter-focus-ribbon {
   position: absolute;
   top: 72px;
   left: -8px;
@@ -522,7 +525,7 @@ body.bookwriter-standalone {
 }
 
 /* ===== RIGHT — The Desk ===== */
-.desk {
+.bookwriter-desk {
   background: var(--paper-deep);
   border-left: 1px solid var(--line);
   padding: 28px 26px;
@@ -533,11 +536,11 @@ body.bookwriter-standalone {
   min-width: 0;
 }
 
-.desk::-webkit-scrollbar { width: 6px; }
-.desk::-webkit-scrollbar-track { background: transparent; }
-.desk::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
+.bookwriter-desk::-webkit-scrollbar { width: 6px; }
+.bookwriter-desk::-webkit-scrollbar-track { background: transparent; }
+.bookwriter-desk::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.card {
+.bookwriter-card {
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 20px 22px;
@@ -545,7 +548,7 @@ body.bookwriter-standalone {
   position: relative;
 }
 
-.card-head {
+.bookwriter-card-head {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -557,13 +560,13 @@ body.bookwriter-standalone {
   align-items: center;
 }
 
-.session .nums {
+.bookwriter-session .bookwriter-nums {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 
-.num-big {
+.bookwriter-num-big {
   font-family: 'Fraunces', serif;
   font-weight: 300;
   font-size: 38px;
@@ -571,7 +574,7 @@ body.bookwriter-standalone {
   letter-spacing: -0.03em;
 }
 
-.num-label {
+.bookwriter-num-label {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 13px;
@@ -579,14 +582,14 @@ body.bookwriter-standalone {
   margin-top: 4px;
 }
 
-.streak {
+.bookwriter-streak {
   margin-top: 18px;
   display: flex;
   gap: 4px;
   align-items: center;
 }
 
-.streak-day {
+.bookwriter-streak-day {
   flex: 1;
   height: 22px;
   background: var(--paper-deep);
@@ -594,14 +597,14 @@ body.bookwriter-standalone {
   position: relative;
 }
 
-.streak-day.hit { background: var(--accent); }
-.streak-day.hit.light { background: var(--accent-soft); }
-.streak-day.today {
+.bookwriter-streak-day.bookwriter-hit { background: var(--accent); }
+.bookwriter-streak-day.bookwriter-hit.bookwriter-light { background: var(--accent-soft); }
+.bookwriter-streak-day.bookwriter-today {
   background: var(--ochre);
   box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ochre);
 }
 
-.streak-caption {
+.bookwriter-streak-caption {
   font-family: 'EB Garamond', serif;
   font-size: 13px;
   font-style: italic;
@@ -609,35 +612,35 @@ body.bookwriter-standalone {
   margin-top: 10px;
 }
 
-.streak-caption strong {
+.bookwriter-streak-caption strong {
   color: var(--accent);
   font-weight: 500;
 }
 
 /* Goal ring */
-.goal-wrap {
+.bookwriter-goal-wrap {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.ring {
+.bookwriter-ring {
   width: 74px; height: 74px;
   flex-shrink: 0;
 }
 
-.goal-text .num {
+.bookwriter-goal-text .bookwriter-goal-num {
   font-family: 'Fraunces', serif;
   font-size: 22px;
   font-weight: 500;
 }
 
-.goal-text .of {
+.bookwriter-goal-text .bookwriter-of {
   color: var(--ink-fade);
   font-style: italic;
 }
 
-.goal-text .label {
+.bookwriter-goal-text .bookwriter-label {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   color: var(--ink-fade);
@@ -646,7 +649,7 @@ body.bookwriter-standalone {
 }
 
 /* Notes */
-.notes-pad {
+.bookwriter-notes-pad {
   font-family: 'EB Garamond', serif;
   font-size: 14px;
   line-height: 1.6;
@@ -654,14 +657,14 @@ body.bookwriter-standalone {
   font-style: italic;
 }
 
-.notes-pad p {
+.bookwriter-notes-pad p {
   padding-bottom: 8px;
   margin-bottom: 8px;
   border-bottom: 1px dotted var(--ink-whisper);
 }
-.notes-pad p:last-child { border-bottom: none; margin-bottom: 0; }
+.bookwriter-notes-pad p:last-child { border-bottom: none; margin-bottom: 0; }
 
-.notes-pad p::before {
+.bookwriter-notes-pad p::before {
   content: '›';
   color: var(--accent);
   margin-right: 8px;
@@ -669,7 +672,7 @@ body.bookwriter-standalone {
 }
 
 /* Publish button */
-.publish {
+.bookwriter-publish {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -688,9 +691,9 @@ body.bookwriter-standalone {
   align-items: center;
 }
 
-.publish:hover { background: var(--accent); }
+.bookwriter-publish:hover { background: var(--accent); }
 
-.publish::after {
+.bookwriter-publish::after {
   content: '→';
   font-family: 'Fraunces', serif;
   font-style: normal;
@@ -698,9 +701,9 @@ body.bookwriter-standalone {
   transition: transform 0.3s;
 }
 
-.publish:hover::after { transform: translateX(4px); }
+.bookwriter-publish:hover::after { transform: translateX(4px); }
 
-.publish-meta {
+.bookwriter-publish-meta {
   font-family: 'EB Garamond', serif;
   font-size: 12px;
   font-style: italic;
@@ -710,7 +713,7 @@ body.bookwriter-standalone {
 }
 
 /* Quote */
-.quote {
+.bookwriter-quote {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 16px;
@@ -720,7 +723,7 @@ body.bookwriter-standalone {
   position: relative;
 }
 
-.quote::before {
+.bookwriter-quote::before {
   content: '"';
   position: absolute;
   top: -18px; left: -8px;
@@ -732,7 +735,7 @@ body.bookwriter-standalone {
   line-height: 1;
 }
 
-.quote cite {
+.bookwriter-quote cite {
   display: block;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -744,14 +747,14 @@ body.bookwriter-standalone {
 }
 
 /* Entrance */
-.fade-in {
+.bookwriter-fade-in {
   animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.fade-in:nth-child(1) { animation-delay: 0.05s; }
-.fade-in:nth-child(2) { animation-delay: 0.15s; }
-.fade-in:nth-child(3) { animation-delay: 0.25s; }
-.fade-in:nth-child(4) { animation-delay: 0.35s; }
-.fade-in:nth-child(5) { animation-delay: 0.45s; }
+.bookwriter-fade-in:nth-child(1) { animation-delay: 0.05s; }
+.bookwriter-fade-in:nth-child(2) { animation-delay: 0.15s; }
+.bookwriter-fade-in:nth-child(3) { animation-delay: 0.25s; }
+.bookwriter-fade-in:nth-child(4) { animation-delay: 0.35s; }
+.bookwriter-fade-in:nth-child(5) { animation-delay: 0.45s; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -761,23 +764,23 @@ body.bookwriter-standalone {
 /* ================================================================
    PAGE-LEVEL MODE TABS (outside the Inkwell wrapper)
    ----------------------------------------------------------------
-   COPIES the exact look of the in-book .mode-switch pill — dark
+   COPIES the exact look of the in-book .bookwriter-mode-switch pill — dark
    ink active button on cream paper container, EB Garamond italic
    for inactive labels, Fraunces serif for the active label.
    Uses LITERAL hex values because these tabs live OUTSIDE the
    wrapper, where wrapper-scoped CSS variables (--paper, --ink,
    etc.) do not resolve.
 
-   Active-state syncs with the in-book .mode-switch through the
-   shared .mode-btn class — page-inkwell.js's setMode() iterates
-   every .mode-switch on the page, so toggling here flips the
+   Active-state syncs with the in-book .bookwriter-mode-switch through the
+   shared .bookwriter-mode-btn class — page-inkwell.js's setMode() iterates
+   every .bookwriter-mode-switch on the page, so toggling here flips the
    in-book switchers too (and vice versa).
    ================================================================ */
 /* Specificity bump: the partial markup is `class="bookwriter-mode-tabs mode-switch"`
-   so the in-book `.mode-switch` rule below would otherwise override our background
+   so the in-book `.bookwriter-mode-switch` rule below would otherwise override our background
    with `var(--paper)` — UNDEFINED outside the Inkwell wrapper, falls back to
    transparent (looks white on the page). Compounding both classes wins on order. */
-nav.bookwriter-mode-tabs.mode-switch,
+nav.bookwriter-mode-tabs.bookwriter-mode-switch,
 .bookwriter-mode-tabs {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -791,7 +794,7 @@ nav.bookwriter-mode-tabs.mode-switch,
   font-family: 'EB Garamond', Georgia, serif;
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.mode-btn {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn {
   background: none;
   border: none;
   padding: 7px 4px;
@@ -806,11 +809,11 @@ nav.bookwriter-mode-tabs.mode-switch,
   text-align: center;
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.mode-btn:hover:not(.active) {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn:hover:not(.bookwriter-active) {
   color: #1a1612;                               /* ink */
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.mode-btn.active {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn.bookwriter-active {
   background: #1a1612;                          /* ink */
   color: #f4ede0;                               /* paper */
   font-style: normal;
@@ -819,18 +822,18 @@ nav.bookwriter-mode-tabs.mode-switch,
   font-size: 11px;
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.mode-btn:focus-visible {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn:focus-visible {
   outline: 2px solid #8b2a1f;                   /* accent */
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bookwriter-mode-tabs .bookwriter-mode-tab.mode-btn { transition: none; }
+  .bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn { transition: none; }
 }
 
 
 /* ===== MODE SWITCHER (in brand area) ===== */
-.mode-switch {
+.bookwriter-mode-switch {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   margin: 18px 20px 0;
@@ -841,7 +844,7 @@ nav.bookwriter-mode-tabs.mode-switch,
   gap: 1px;
 }
 
-.mode-btn {
+.bookwriter-mode-btn {
   background: none;
   border: none;
   padding: 7px 4px;
@@ -856,7 +859,7 @@ nav.bookwriter-mode-tabs.mode-switch,
   text-align: center;
 }
 
-.mode-btn.active {
+.bookwriter-mode-btn.bookwriter-active {
   background: var(--ink);
   color: var(--paper);
   font-style: normal;
@@ -865,7 +868,7 @@ nav.bookwriter-mode-tabs.mode-switch,
   font-size: 11px;
 }
 
-.mode-btn:hover:not(.active) { color: var(--ink); }
+.bookwriter-mode-btn:hover:not(.bookwriter-active) { color: var(--ink); }
 
 /* ===== FOCUS MODE (overlay — covers the wrapper, not the viewport) =====
    Uses position: absolute so in embedded mode the overlay stays inside the
@@ -873,7 +876,7 @@ nav.bookwriter-mode-tabs.mode-switch,
    wrapper has position: relative + overflow: hidden, so this is bounded.
    Standalone mode wraps everything in .bookwriter-shell which is also
    position: relative — same anchor. */
-.focus-mode {
+.bookwriter-focus-mode {
   display: none;
   position: absolute;
   inset: 0;
@@ -883,25 +886,25 @@ nav.bookwriter-mode-tabs.mode-switch,
   padding: 80px 40px 120px;
 }
 
-body.focus-on .focus-mode { display: block; }
+body.bookwriter-focus-on .bookwriter-focus-mode { display: block; }
 /* Lock body scroll only in standalone mode. In embedded mode the wrapper
    already clips with overflow: hidden, and locking the body would hide the
    global header / sidebar scroll. */
-body.bookwriter-standalone.focus-on { overflow: hidden; }
+body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
 
-.focus-mode::before {
+.bookwriter-focus-mode::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background-image:
     radial-gradient(circle at 20% 30%, rgba(139, 42, 31, 0.03) 0%, transparent 40%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   mix-blend-mode: multiply;
   opacity: 0.6;
 }
 
-.focus-exit {
+.bookwriter-focus-exit {
   position: absolute;
   top: 24px;
   right: 32px;
@@ -919,9 +922,9 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   transition: all 0.2s;
 }
 
-.focus-exit:hover { color: var(--ink); border-color: var(--ink-fade); }
+.bookwriter-focus-exit:hover { color: var(--ink); border-color: var(--ink-fade); }
 
-.focus-stats {
+.bookwriter-focus-stats {
   position: absolute;
   top: 24px;
   left: 32px;
@@ -932,7 +935,7 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   z-index: 2;
 }
 
-.focus-stats strong {
+.bookwriter-focus-stats strong {
   color: var(--ink);
   font-family: 'Fraunces', serif;
   font-style: italic;
@@ -941,14 +944,14 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   letter-spacing: 0;
 }
 
-.focus-page {
+.bookwriter-focus-page {
   max-width: 680px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
 }
 
-.focus-page h1 {
+.bookwriter-focus-page h1 {
   font-family: 'Fraunces', serif;
   font-weight: 400;
   font-size: 48px;
@@ -959,7 +962,7 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   outline: none;
 }
 
-.focus-page .focus-text {
+.bookwriter-focus-page .bookwriter-focus-text {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 21px;
   line-height: 1.8;
@@ -970,15 +973,15 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   padding-bottom: 50vh;
 }
 
-.focus-page .focus-text p { margin-bottom: 1em; text-indent: 2em; }
-.focus-page .focus-text p:first-of-type { text-indent: 0; }
+.bookwriter-focus-page .bookwriter-focus-text p { margin-bottom: 1em; text-indent: 2em; }
+.bookwriter-focus-page .bookwriter-focus-text p:first-of-type { text-indent: 0; }
 
 /* ===== SNAPSHOTS / VERSION HISTORY =====
    Slides in from the right edge of the WRAPPER (not viewport) so embedded
    mode keeps it inside the content area instead of covering the global
    sidebar. Width capped to 90% of wrapper so it never overflows narrow
    embedded layouts. */
-.snapshot-panel {
+.bookwriter-snapshot-panel {
   position: absolute;
   top: 0; right: 0; bottom: 0;
   width: 380px;
@@ -993,9 +996,165 @@ body.bookwriter-standalone.focus-on { overflow: hidden; }
   flex-direction: column;
 }
 
-body.snapshots-open .snapshot-panel { transform: translateX(0); }
+body.bookwriter-snapshots-open .bookwriter-snapshot-panel { transform: translateX(0); }
 
-.snap-head {
+/* Margin notes panel — same slide-in mechanic as snapshot-panel,
+   but width capped tighter since each row is short. */
+.bookwriter-margin-notes-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 340px;
+  max-width: 90%;
+  background: var(--paper-deep);
+  border-left: 1px solid var(--line-strong);
+  box-shadow: -20px 0 40px rgba(0,0,0,0.1);
+  z-index: 95;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+body.bookwriter-margin-notes-open .bookwriter-margin-notes-panel { transform: translateX(0); }
+
+.bookwriter-margin-notes-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+.bookwriter-margin-note-row {
+  position: relative;
+  padding: 12px 36px 12px 12px;
+  margin-bottom: 8px;
+  background: var(--paper, #f4ede0);
+  border-left: 3px solid var(--accent, #1B6B4A);
+  border-radius: var(--radius-xs, 2px);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-base, 15px);
+  line-height: 1.5;
+  color: var(--ink, #1a1612);
+  white-space: pre-wrap;
+}
+.bookwriter-margin-note-row.bookwriter-is-resolved {
+  opacity: 0.55;
+  text-decoration: line-through;
+  border-left-color: var(--ink-fade, #8a8078);
+}
+
+.bookwriter-margin-note-row-meta {
+  display: flex;
+  gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 10px);
+  letter-spacing: 0.1em;
+  color: var(--ink-fade, #8a8078);
+  margin-top: 6px;
+}
+.bookwriter-margin-note-row-meta button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-transform: uppercase;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.bookwriter-margin-note-row-meta button:hover { color: var(--ink, #1a1612); }
+.bookwriter-margin-note-row-meta button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.bookwriter-margin-notes-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm, 13px);
+  color: var(--ink-fade, #8a8078);
+}
+
+.bookwriter-margin-notes-add {
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line, rgba(26,22,18,0.12));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bookwriter-margin-notes-add textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.25));
+  border-radius: var(--radius-xs, 2px);
+  background: var(--paper, #f4ede0);
+  color: var(--ink, #1a1612);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-sm, 14px);
+  resize: vertical;
+  min-height: 64px;
+}
+.bookwriter-margin-notes-add textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bookwriter-margin-notes-add button.bookwriter-primary {
+  align-self: flex-end;
+  padding: 8px 14px;
+  background: var(--ink, #1a1612);
+  color: var(--paper, #f4ede0);
+  border: 0;
+  border-radius: var(--radius-xs, 2px);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+.bookwriter-margin-notes-add button.bookwriter-primary:hover { background: var(--accent, #1B6B4A); }
+.bookwriter-margin-notes-add button.bookwriter-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 600px) {
+  .bookwriter-margin-notes-panel { width: 100%; }
+
+  /* Cover designer background grid: 4 cols → 2 cols on mobile */
+  .bookwriter-cover-background-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Beta-reader invite form stacks vertically on narrow screens */
+  .bookwriter-beta-reader-invite-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bookwriter-beta-reader-invite-email-input,
+  .bookwriter-beta-reader-invite-permission-select {
+    flex: none;
+    width: 100%;
+  }
+
+  /* Bible attribute rows: shrink the key column on tiny screens */
+  .bookwriter-bible-attribute-key-input {
+    flex: 0 0 40%;
+  }
+
+  /* Book metadata fields tighter padding */
+  .bookwriter-book-metadata-fields {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  /* Chapter rail status pickers wrap on the narrowest rails */
+  .bookwriter-chapter-status-picker-row {
+    flex-wrap: wrap;
+  }
+
+  .bookwriter-chapter-status-select,
+  .bookwriter-chapter-visibility-select {
+    flex: 1 1 100%;
+  }
+}
+
+.bookwriter-snapshot-head {
   padding: 24px 28px 18px;
   border-bottom: 1px solid var(--line);
   display: flex;
@@ -1003,14 +1162,14 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   align-items: baseline;
 }
 
-.snap-head h3 {
+.bookwriter-snapshot-head h3 {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
   font-size: 22px;
 }
 
-.snap-close {
+.bookwriter-snapshot-close {
   background: none;
   border: none;
   font-family: 'Fraunces', serif;
@@ -1020,13 +1179,13 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   padding: 0 4px;
 }
 
-.snap-list {
+.bookwriter-snapshot-list {
   flex: 1;
   overflow-y: auto;
   padding: 12px 20px;
 }
 
-.snap {
+.bookwriter-snapshot-row {
   padding: 16px 14px;
   border-left: 2px solid var(--ink-whisper);
   margin-left: 6px;
@@ -1035,7 +1194,7 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   transition: all 0.2s;
 }
 
-.snap::before {
+.bookwriter-snapshot-row::before {
   content: '';
   position: absolute;
   left: -6px; top: 22px;
@@ -1045,16 +1204,16 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   border: 2px solid var(--ink-whisper);
 }
 
-.snap:hover { background: rgba(0,0,0,0.03); }
-.snap:hover::before { border-color: var(--accent); }
+.bookwriter-snapshot-row:hover { background: rgba(0,0,0,0.03); }
+.bookwriter-snapshot-row:hover::before { border-color: var(--accent); }
 
-.snap.current::before {
+.bookwriter-snapshot-row.bookwriter-current::before {
   background: var(--accent);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(139,42,31,0.15);
 }
 
-.snap-time {
+.bookwriter-snapshot-time {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.15em;
@@ -1062,7 +1221,7 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   color: var(--ink-fade);
 }
 
-.snap-label {
+.bookwriter-snapshot-label {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 16px;
@@ -1070,7 +1229,7 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   color: var(--ink);
 }
 
-.snap-meta {
+.bookwriter-snapshot-meta {
   font-family: 'EB Garamond', serif;
   font-size: 13px;
   color: var(--ink-fade);
@@ -1078,7 +1237,7 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   font-style: italic;
 }
 
-.snap-diff {
+.bookwriter-snapshot-diff {
   display: inline-block;
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -1088,17 +1247,17 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   background: var(--paper);
 }
 
-.snap-diff.plus  { color: var(--moss); }
-.snap-diff.minus { color: var(--accent); }
+.bookwriter-snapshot-diff.bookwriter-plus  { color: var(--moss); }
+.bookwriter-snapshot-diff.bookwriter-minus { color: var(--accent); }
 
-.snap-actions {
+.bookwriter-snapshot-actions {
   padding: 16px 24px;
   border-top: 1px solid var(--line);
   display: flex;
   gap: 8px;
 }
 
-.snap-actions button {
+.bookwriter-snapshot-actions button {
   flex: 1;
   padding: 10px;
   font-family: 'EB Garamond', serif;
@@ -1111,37 +1270,37 @@ body.snapshots-open .snapshot-panel { transform: translateX(0); }
   transition: all 0.2s;
 }
 
-.snap-actions button:hover { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
+.bookwriter-snapshot-actions button:hover { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
 
-.snap-actions .primary {
+.bookwriter-snapshot-actions .bookwriter-primary {
   background: var(--ink);
   color: var(--paper);
   font-family: 'Fraunces', serif;
   font-style: normal;
   border-color: var(--ink);
 }
-.snap-actions .primary:hover { background: var(--accent); border-color: var(--accent); }
+.bookwriter-snapshot-actions .bookwriter-primary:hover { background: var(--accent); border-color: var(--accent); }
 
 /* ===== DRAG-REORDER CHAPTERS ===== */
-.chapter { cursor: grab; }
-.chapter:active { cursor: grabbing; }
-.chapter.dragging { opacity: 0.4; }
-.chapter.drag-over { border-top: 2px solid var(--accent); }
+.bookwriter-chapter { cursor: grab; }
+.bookwriter-chapter:active { cursor: grabbing; }
+.bookwriter-chapter.bookwriter-dragging { opacity: 0.4; }
+.bookwriter-chapter.bookwriter-drag-over { border-top: 2px solid var(--accent); }
 
 /* ===== CORKBOARD VIEW ===== */
-.corkboard-view {
+.bookwriter-corkboard-view {
   display: none;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
   height: 100%;
 }
 
-body.mode-corkboard .app,
-body.mode-corkboard .cover-view,
-body.mode-corkboard .bible-view,
-body.mode-corkboard .gallery-view { display: none; }
-body.mode-corkboard .corkboard-view { display: grid; }
+body.bookwriter-mode-corkboard .bookwriter-app,
+body.bookwriter-mode-corkboard .bookwriter-cover-view,
+body.bookwriter-mode-corkboard .bookwriter-bible-view,
+body.bookwriter-mode-corkboard .bookwriter-gallery-view { display: none; }
+body.bookwriter-mode-corkboard .bookwriter-corkboard-view { display: grid; }
 
-.corkboard-stage {
+.bookwriter-corkboard-stage {
   background:
     repeating-linear-gradient(45deg, rgba(139,95,55,0.04) 0 2px, transparent 2px 8px),
     linear-gradient(135deg, #c29560 0%, #b08550 100%);
@@ -1151,17 +1310,17 @@ body.mode-corkboard .corkboard-view { display: grid; }
   min-width: 0;
 }
 
-.corkboard-stage::before {
+.bookwriter-corkboard-stage::before {
   content: '';
   position: absolute;
   inset: 0;
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='2' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='2' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
   mix-blend-mode: multiply;
   pointer-events: none;
 }
 
-.corkboard-header {
+.bookwriter-corkboard-header {
   position: relative;
   z-index: 2;
   display: flex;
@@ -1171,7 +1330,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   color: #f4ede0;
 }
 
-.corkboard-header h2 {
+.bookwriter-corkboard-header h2 {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
@@ -1179,14 +1338,14 @@ body.mode-corkboard .corkboard-view { display: grid; }
   letter-spacing: -0.01em;
 }
 
-.corkboard-header p {
+.bookwriter-corkboard-header p {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 14px;
   opacity: 0.8;
 }
 
-.add-card {
+.bookwriter-add-card {
   background: rgba(244,237,224,0.9);
   border: none;
   padding: 8px 16px;
@@ -1198,7 +1357,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   border-radius: 2px;
 }
 
-.corkboard-grid {
+.bookwriter-corkboard-grid {
   position: relative;
   z-index: 2;
   display: grid;
@@ -1206,7 +1365,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   gap: 32px 28px;
 }
 
-.index-card {
+.bookwriter-index-card {
   aspect-ratio: 5/4;
   background: #f7f3e8;
   padding: 16px 18px 20px;
@@ -1221,11 +1380,11 @@ body.mode-corkboard .corkboard-view { display: grid; }
   flex-direction: column;
 }
 
-.index-card:nth-child(3n+1) { --rot: -1.5deg; }
-.index-card:nth-child(3n+2) { --rot: 1deg; }
-.index-card:nth-child(3n+3) { --rot: -0.5deg; }
+.bookwriter-index-card:nth-child(3n+1) { --rot: -1.5deg; }
+.bookwriter-index-card:nth-child(3n+2) { --rot: 1deg; }
+.bookwriter-index-card:nth-child(3n+3) { --rot: -0.5deg; }
 
-.index-card:hover {
+.bookwriter-index-card:hover {
   transform: rotate(0deg) scale(1.03);
   box-shadow:
     0 4px 8px rgba(0,0,0,0.2),
@@ -1233,7 +1392,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   z-index: 5;
 }
 
-.index-card::before {
+.bookwriter-index-card::before {
   content: '';
   position: absolute;
   top: -8px;
@@ -1245,7 +1404,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.index-card::after {
+.bookwriter-index-card::after {
   content: '';
   position: absolute;
   top: 40px; left: 16px; right: 16px; bottom: 20px;
@@ -1253,7 +1412,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   pointer-events: none;
 }
 
-.card-num {
+.bookwriter-card-num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -1264,7 +1423,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   margin-bottom: 10px;
 }
 
-.card-title {
+.bookwriter-card-title {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 16px;
@@ -1274,7 +1433,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   outline: none;
 }
 
-.card-body {
+.bookwriter-card-body {
   font-family: 'EB Garamond', serif;
   font-size: 14px;
   line-height: 1.6;
@@ -1285,7 +1444,7 @@ body.mode-corkboard .corkboard-view { display: grid; }
   z-index: 1;
 }
 
-.card-tag {
+.bookwriter-card-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.15em;
@@ -1295,34 +1454,34 @@ body.mode-corkboard .corkboard-view { display: grid; }
 }
 
 /* ===== BIBLE VIEW (Characters & Locations) ===== */
-.bible-view {
+.bookwriter-bible-view {
   display: none;
   grid-template-columns: minmax(220px, 280px) minmax(200px, 260px) minmax(0, 1fr);
   height: 100%;
 }
 
-body.mode-bible .app,
-body.mode-bible .cover-view,
-body.mode-bible .corkboard-view,
-body.mode-bible .gallery-view { display: none; }
-body.mode-bible .bible-view { display: grid; }
+body.bookwriter-mode-bible .bookwriter-app,
+body.bookwriter-mode-bible .bookwriter-cover-view,
+body.bookwriter-mode-bible .bookwriter-corkboard-view,
+body.bookwriter-mode-bible .bookwriter-gallery-view { display: none; }
+body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 
-.bible-rail {
+.bookwriter-bible-rail {
   background: var(--paper-deep);
   border-right: 1px solid var(--line);
   overflow-y: auto;
   min-width: 0;
 }
 
-.bible-rail::-webkit-scrollbar { width: 6px; }
-.bible-rail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
+.bookwriter-bible-rail::-webkit-scrollbar { width: 6px; }
+.bookwriter-bible-rail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.bible-cats {
+.bookwriter-bible-cats {
   padding: 22px 20px;
   border-bottom: 1px solid var(--line);
 }
 
-.bible-cat {
+.bookwriter-bible-cat {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1335,21 +1494,21 @@ body.mode-bible .bible-view { display: grid; }
   transition: background 0.2s;
 }
 
-.bible-cat:hover { background: rgba(0,0,0,0.04); }
-.bible-cat.active {
+.bookwriter-bible-cat:hover { background: rgba(0,0,0,0.04); }
+.bookwriter-bible-cat.bookwriter-active {
   background: var(--paper);
   color: var(--ink);
   font-weight: 500;
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.bible-cat-count {
+.bookwriter-bible-cat-count {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   color: var(--ink-fade);
 }
 
-.bible-list {
+.bookwriter-bible-list {
   background: var(--paper);
   border-right: 1px solid var(--line);
   overflow-y: auto;
@@ -1357,7 +1516,7 @@ body.mode-bible .bible-view { display: grid; }
   min-width: 0;
 }
 
-.bible-item {
+.bookwriter-bible-item {
   padding: 14px 24px;
   cursor: pointer;
   border-bottom: 1px dashed var(--line);
@@ -1367,14 +1526,26 @@ body.mode-bible .bible-view { display: grid; }
   align-items: center;
 }
 
-.bible-item:hover { background: var(--paper-deep); }
-.bible-item.active { background: var(--paper-deep); border-left: 3px solid var(--accent); padding-left: 21px; }
+.bookwriter-bible-item:hover { background: var(--paper-deep); }
+.bookwriter-bible-item.bookwriter-active { background: var(--paper-deep); border-left: 3px solid var(--accent); padding-left: 21px; }
 
-.bible-avatar {
+.bookwriter-bible-avatar {
+  /* When a real bible entry is rendered the template injects two
+     custom properties --bookwriter-bible-avatar-hex-1 and -hex-2 via
+     a single inline style attr. Falling back to the design tokens
+     keeps the avatar rendering when no DB-side hex pair exists. The
+     gradient direction (135deg) lives here in CSS — only the two
+     hex values come from the database. */
+  --bookwriter-bible-avatar-hex-1: var(--ochre);
+  --bookwriter-bible-avatar-hex-2: var(--accent);
   width: 38px; height: 38px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--ochre), var(--accent));
+  background: linear-gradient(
+    135deg,
+    var(--bookwriter-bible-avatar-hex-1),
+    var(--bookwriter-bible-avatar-hex-2)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1385,14 +1556,14 @@ body.mode-bible .bible-view { display: grid; }
   color: var(--paper);
 }
 
-.bible-item .b-name {
+.bookwriter-bible-item .bookwriter-b-name {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 15px;
   color: var(--ink);
 }
 
-.bible-item .b-role {
+.bookwriter-bible-item .bookwriter-b-role {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 12px;
@@ -1400,17 +1571,17 @@ body.mode-bible .bible-view { display: grid; }
   margin-top: 1px;
 }
 
-.bible-detail {
+.bookwriter-bible-detail {
   background: var(--paper);
   overflow-y: auto;
   padding: 48px 64px;
   min-width: 0;
 }
 
-.bible-detail::-webkit-scrollbar { width: 8px; }
-.bible-detail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 4px; }
+.bookwriter-bible-detail::-webkit-scrollbar { width: 8px; }
+.bookwriter-bible-detail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 4px; }
 
-.bible-hero {
+.bookwriter-bible-hero {
   display: flex;
   gap: 28px;
   padding-bottom: 28px;
@@ -1419,10 +1590,19 @@ body.mode-bible .bible-view { display: grid; }
   align-items: flex-start;
 }
 
-.bible-portrait {
+.bookwriter-bible-portrait {
+  /* Same custom-property pattern as .bookwriter-bible-avatar — the
+     template / JS injects the two hex values via inline custom props,
+     this rule composes the gradient. */
+  --bookwriter-bible-avatar-hex-1: var(--ochre);
+  --bookwriter-bible-avatar-hex-2: var(--accent);
   width: 120px; height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--ochre), var(--accent));
+  background: linear-gradient(
+    135deg,
+    var(--bookwriter-bible-avatar-hex-1),
+    var(--bookwriter-bible-avatar-hex-2)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1435,7 +1615,7 @@ body.mode-bible .bible-view { display: grid; }
   box-shadow: 0 8px 24px rgba(26,22,18,0.15);
 }
 
-.bible-hero h1 {
+.bookwriter-bible-hero h1 {
   font-family: 'Fraunces', serif;
   font-weight: 400;
   font-size: 44px;
@@ -1444,7 +1624,7 @@ body.mode-bible .bible-view { display: grid; }
   outline: none;
 }
 
-.bible-hero .role-edit {
+.bookwriter-bible-hero .bookwriter-role-edit {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 18px;
@@ -1453,14 +1633,14 @@ body.mode-bible .bible-view { display: grid; }
   outline: none;
 }
 
-.bible-hero .tags {
+.bookwriter-bible-hero .bookwriter-tags {
   margin-top: 12px;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
 
-.bible-hero .tag {
+.bookwriter-bible-hero .bookwriter-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.15em;
@@ -1471,9 +1651,9 @@ body.mode-bible .bible-view { display: grid; }
   color: var(--ink-soft);
 }
 
-.bible-section { margin-bottom: 32px; }
+.bookwriter-bible-section { margin-bottom: 32px; }
 
-.bible-section h3 {
+.bookwriter-bible-section h3 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -1483,7 +1663,7 @@ body.mode-bible .bible-view { display: grid; }
   margin-bottom: 12px;
 }
 
-.bible-section p {
+.bookwriter-bible-section p {
   font-family: 'EB Garamond', serif;
   font-size: 17px;
   line-height: 1.7;
@@ -1491,20 +1671,20 @@ body.mode-bible .bible-view { display: grid; }
   outline: none;
 }
 
-.bible-section p + p { margin-top: 1em; }
+.bookwriter-bible-section p + p { margin-top: 1em; }
 
-.attr-grid {
+.bookwriter-attr-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 14px 24px;
 }
 
-.attr {
+.bookwriter-attr {
   border-bottom: 1px dotted var(--ink-whisper);
   padding-bottom: 8px;
 }
 
-.attr-key {
+.bookwriter-attr-key {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.2em;
@@ -1513,36 +1693,559 @@ body.mode-bible .bible-view { display: grid; }
   margin-bottom: 3px;
 }
 
-.attr-val {
+.bookwriter-attr-val {
   font-family: 'EB Garamond', serif;
   font-size: 15px;
   color: var(--ink);
   outline: none;
 }
 
+/* Bible biography / notes contenteditable divs (replace <p> demo content). */
+.bookwriter-bible-section [contenteditable] {
+  font-family: 'EB Garamond', serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink);
+  outline: none;
+  white-space: pre-wrap;
+  min-height: 1.7em;
+}
+
+.bookwriter-bible-section [contenteditable]:empty:before,
+.bookwriter-bible-hero [contenteditable][data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: var(--ink-whisper);
+  font-style: italic;
+  pointer-events: none;
+}
+
+.bookwriter-bible-hero .bookwriter-tags[contenteditable] {
+  display: block;
+  outline: none;
+  font-family: 'EB Garamond', serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 4px 0;
+  min-height: 1.4em;
+}
+
+.bookwriter-bible-add-entry {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 12px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-soft);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+}
+.bookwriter-bible-add-entry:hover { background: var(--paper-tint); color: var(--ink); }
+.bookwriter-bible-add-entry:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.bookwriter-bible-list-empty-state,
+.bookwriter-bible-detail-empty-state {
+  padding: 24px;
+  text-align: center;
+  color: var(--ink-fade);
+}
+
+.bookwriter-bible-list-empty-state-text,
+.bookwriter-bible-detail-empty-state-title {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.bookwriter-bible-list-empty-state-hint,
+.bookwriter-bible-detail-empty-state-text {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bookwriter-bible-detail-empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.bookwriter-bible-item-delete-affordance {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-fade);
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s;
+  padding: 0;
+}
+.bookwriter-bible-item:hover .bookwriter-bible-item-delete-affordance { opacity: 1; }
+.bookwriter-bible-item-delete-affordance:hover { background: var(--paper-tint); color: var(--ink); border-color: var(--line-strong); }
+.bookwriter-bible-item-delete-affordance:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; opacity: 1; }
+.bookwriter-bible-item-delete-affordance.bookwriter-is-confirming { color: #c46a5d; border-color: #c46a5d; opacity: 1; }
+.bookwriter-bible-item { position: relative; }
+
+/* Chapter rail "live" badge — shown when the chapter has an active
+   serial_release row with status='published'. Sits inline alongside
+   the word count so the writer can scan publish state at a glance. */
+.bookwriter-ch-publish-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs, 2px);
+  background: var(--accent, #1B6B4A);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 10px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Active share-link empty state inside the share modal. */
+.bookwriter-active-share-empty,
+.bookwriter-beta-reader-empty {
+  padding: 12px;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm, 13px);
+  color: var(--ink-fade, #8a8078);
+  text-align: center;
+}
+
+/* Beta-reader invite form — email + permission picker + invite. */
+.bookwriter-beta-reader-invite-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.bookwriter-beta-reader-invite-email-input {
+  flex: 1 1 200px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.18));
+  border-radius: var(--radius-xs, 2px);
+  background: var(--paper, #f4ede0);
+  color: var(--ink, #1a1612);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-sm, 14px);
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-beta-reader-invite-email-input:focus-visible,
+.bookwriter-beta-reader-invite-permission-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-beta-reader-invite-permission-select {
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.18));
+  border-radius: var(--radius-xs, 2px);
+  background: var(--paper, #f4ede0);
+  color: var(--ink, #1a1612);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-sm, 14px);
+  min-height: var(--touch-target, 44px);
+  cursor: pointer;
+}
+
+.bookwriter-beta-reader-invite-submit-button {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--radius-xs, 2px);
+  background: var(--ink, #1a1612);
+  color: var(--paper, #f4ede0);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+
+.bookwriter-beta-reader-invite-submit-button:hover {
+  background: var(--accent, #1B6B4A);
+}
+
+.bookwriter-beta-reader-invite-submit-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Cover designer — background swatch grid (8 presets). Mirrors
+   the visual rhythm of .bookwriter-palettes but with code-based backgrounds. */
+.bookwriter-cover-background-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.bookwriter-cover-background-button {
+  padding: 8px 4px;
+  border: 1px solid var(--line, rgba(26,22,18,0.12));
+  border-radius: var(--radius-xs, 2px);
+  background: var(--paper, #f4ede0);
+  color: var(--ink-soft, #5a5048);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 10px);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+
+.bookwriter-cover-background-button:hover {
+  border-color: var(--ink-soft, #5a5048);
+  color: var(--ink, #1a1612);
+}
+
+.bookwriter-cover-background-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-cover-background-button.bookwriter-active {
+  border-color: var(--ink, #1a1612);
+  background: var(--ink, #1a1612);
+  color: var(--paper, #f4ede0);
+}
+
+/* Chapter rail per-row status + visibility picker. Always visible
+   (compact) so the row height never jumps on hover — earlier
+   hover-reveal caused layout shift that made the rail feel jittery. */
+.bookwriter-chapter-status-picker-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--line, rgba(26,22,18,0.08));
+  opacity: 0.55;
+  transition: opacity 0.18s ease-out;
+}
+
+.bookwriter-chapter:hover .bookwriter-chapter-status-picker-row,
+.bookwriter-chapter:focus-within .bookwriter-chapter-status-picker-row,
+.bookwriter-chapter.bookwriter-active .bookwriter-chapter-status-picker-row {
+  opacity: 1;
+}
+
+/* SHARED — every labeled <select> in the writer UI uses these two
+   classes. Single source of truth for the "label above dropdown"
+   pattern. Used by chapter status picker, chapter visibility
+   picker, plot card chapter promote select, and any future labeled
+   picker. NEVER define another labeled-picker class — extend these. */
+.bookwriter-labeled-picker-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.bookwriter-labeled-picker-label-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-fade, #8a8078);
+  line-height: 1;
+}
+
+.bookwriter-chapter-status-select,
+.bookwriter-chapter-visibility-select {
+  width: 100%;
+  padding: 3px 4px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.12));
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink-soft, #5a5048);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 9px);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+}
+
+.bookwriter-chapter-status-select:focus-visible,
+.bookwriter-chapter-visibility-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Book metadata fields in the right rail (synopsis/status/targets). */
+.bookwriter-book-metadata-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line, rgba(26,22,18,0.12));
+}
+
+.bookwriter-book-metadata-field-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 9px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-fade, #8a8078);
+  margin-top: 6px;
+}
+
+.bookwriter-book-metadata-select,
+.bookwriter-book-metadata-input,
+.bookwriter-book-metadata-textarea {
+  width: 100%;
+  padding: 5px 6px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.12));
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink, #1a1612);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-sm, 13px);
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-book-metadata-textarea {
+  font-family: 'EB Garamond', serif;
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.4;
+}
+
+.bookwriter-book-metadata-select:focus-visible,
+.bookwriter-book-metadata-input:focus-visible,
+.bookwriter-book-metadata-textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Bible entry — portrait image URL + attributes editor. */
+.bookwriter-bible-image-url-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong, rgba(26,22,18,0.18));
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink, #1a1612);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm, 12px);
+  margin-bottom: 8px;
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-bible-image-url-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-bible-image-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: var(--radius-sm, 4px);
+  margin-top: 4px;
+}
+
+.bookwriter-bible-attributes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.bookwriter-bible-attribute-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.bookwriter-bible-attribute-key-input,
+.bookwriter-bible-attribute-value-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--line, rgba(26,22,18,0.12));
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink, #1a1612);
+  font-family: 'EB Garamond', serif;
+  font-size: var(--text-sm, 14px);
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-bible-attribute-key-input {
+  flex: 0 0 35%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bookwriter-bible-attribute-key-input:focus-visible,
+.bookwriter-bible-attribute-value-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.bookwriter-bible-attribute-remove-button {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-fade, #8a8078);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.bookwriter-bible-attribute-remove-button:hover {
+  border-color: #c46a5d;
+  color: #c46a5d;
+}
+
+.bookwriter-bible-attribute-remove-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.bookwriter-bible-attribute-add-button {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink-soft, #5a5048);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-bible-attribute-add-button:hover {
+  background: var(--paper-tint);
+  color: var(--ink, #1a1612);
+}
+
+.bookwriter-bible-attribute-add-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Shared select reset — every bookwriter <select> in the writer UI
+   --------------------------------------------------------
+   Native <select> ignores most CSS color (especially the dropdown
+   menu rendered by the OS). `appearance: none` removes the native
+   chrome so background / color / arrow can be styled to match the
+   paper-and-ink aesthetic. The chevron is a small inline SVG so it
+   doesn't fetch over the network.
+   <option> styling is honoured by Chromium + Firefox; Safari ignores
+   it (still falls back to system colors) — acceptable graceful
+   degradation. `color-scheme: light` keeps Safari from forcing dark
+   menu chrome on macOS dark mode.
+   ============================================================ */
+.bookwriter-chapter-status-select,
+.bookwriter-chapter-visibility-select,
+.bookwriter-book-metadata-select,
+.bookwriter-beta-reader-invite-permission-select,
+.bookwriter-plot-card-chapter-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: var(--paper, #f4ede0);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%235a5048' d='M0 0l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 8px 5px;
+  padding-right: 22px;
+  color: var(--ink, #1a1612);
+  color-scheme: light;
+}
+.bookwriter-chapter-status-select option,
+.bookwriter-chapter-visibility-select option,
+.bookwriter-book-metadata-select option,
+.bookwriter-beta-reader-invite-permission-select option,
+.bookwriter-plot-card-chapter-select option {
+  background: var(--paper, #f4ede0);
+  color: var(--ink, #1a1612);
+}
+
+
+/* Plot card chapter promote — uses .bookwriter-labeled-picker-field
+   (shared above) for the wrapper. The select itself is plot-card-
+   specific because of the wider option text. */
+.bookwriter-plot-card-chapter-select {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--line, rgba(26,22,18,0.12));
+  border-radius: var(--radius-xs, 2px);
+  background: transparent;
+  color: var(--ink-soft, #5a5048);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 10px);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+}
+
+.bookwriter-plot-card-chapter-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 /* ===== SPRINT TIMER =====
    Pinned to bottom-center of the WRAPPER (not viewport) so it stays inside
-   the content area in embedded mode. */
-.sprint-float {
+   the content area in embedded mode. Hidden by default with `display: none`
+   so the dark pill never pokes up from the bottom edge — the previous
+   `transform: translateY(120px)` trick wasn't fully clipped after we moved
+   the element from `position: fixed` to `position: absolute`. */
+.bookwriter-sprint-float {
+  display: none;
   position: absolute;
   bottom: 24px;
   left: 50%;
-  transform: translateX(-50%) translateY(120px);
+  transform: translateX(-50%);
   background: var(--ink);
   color: var(--paper);
   padding: 14px 24px;
   border-radius: 60px;
-  display: flex;
   align-items: center;
   gap: 18px;
   box-shadow: 0 12px 32px rgba(0,0,0,0.25);
   z-index: 80;
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
+body.bookwriter-sprint-on .bookwriter-sprint-float { display: flex; }
 
-.sprint-clock {
+.bookwriter-sprint-clock {
   font-family: 'Fraunces', serif;
   font-weight: 300;
   font-size: 32px;
@@ -1551,7 +2254,7 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
   font-variant-numeric: tabular-nums;
 }
 
-.sprint-label {
+.bookwriter-sprint-label {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 13px;
@@ -1560,7 +2263,7 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
   padding-left: 16px;
 }
 
-.sprint-label strong {
+.bookwriter-sprint-label strong {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   color: var(--ochre);
@@ -1571,7 +2274,7 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
   text-transform: uppercase;
 }
 
-.sprint-btn {
+.bookwriter-sprint-btn {
   background: var(--accent);
   color: var(--paper);
   border: none;
@@ -1584,10 +2287,10 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
   transition: all 0.2s;
 }
 
-.sprint-btn:hover { background: var(--accent-soft); }
-.sprint-btn.pause { background: transparent; border: 1px solid var(--ink-whisper); }
+.bookwriter-sprint-btn:hover { background: var(--accent-soft); }
+.bookwriter-sprint-btn.bookwriter-pause { background: transparent; border: 1px solid var(--ink-whisper); }
 
-.sprint-close {
+.bookwriter-sprint-close {
   background: none;
   border: none;
   color: var(--ink-whisper);
@@ -1597,7 +2300,7 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
 }
 
 /* Sprint setup dialog — anchored above the sprint timer, inside the wrapper. */
-.sprint-setup {
+.bookwriter-sprint-setup {
   display: none;
   position: absolute;
   bottom: 90px;
@@ -1612,9 +2315,9 @@ body.sprint-on .sprint-float { transform: translateX(-50%) translateY(0); }
   text-align: center;
 }
 
-body.sprint-setup-open .sprint-setup { display: block; }
+body.bookwriter-sprint-setup-open .bookwriter-sprint-setup { display: block; }
 
-.sprint-setup h4 {
+.bookwriter-sprint-setup h4 {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
@@ -1622,13 +2325,13 @@ body.sprint-setup-open .sprint-setup { display: block; }
   margin-bottom: 14px;
 }
 
-.sprint-options {
+.bookwriter-sprint-options {
   display: flex;
   gap: 8px;
   margin-bottom: 14px;
 }
 
-.sprint-opt {
+.bookwriter-sprint-opt {
   background: var(--paper-deep);
   border: 1px solid var(--line);
   padding: 12px 16px;
@@ -1640,10 +2343,10 @@ body.sprint-setup-open .sprint-setup { display: block; }
   transition: all 0.2s;
 }
 
-.sprint-opt:hover { background: var(--paper); border-color: var(--ink-fade); }
-.sprint-opt.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.bookwriter-sprint-opt:hover { background: var(--paper); border-color: var(--ink-fade); }
+.bookwriter-sprint-opt.bookwriter-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-.sprint-start {
+.bookwriter-sprint-start {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -1656,12 +2359,12 @@ body.sprint-setup-open .sprint-setup { display: block; }
   width: 100%;
   transition: background 0.2s;
 }
-.sprint-start:hover { background: var(--accent); }
+.bookwriter-sprint-start:hover { background: var(--accent); }
 
 /* ===== BETA SHARE MODAL =====
    Backdrop covers the WRAPPER (not viewport). The modal centers inside it.
    In embedded mode this means the global header/sidebar stay interactive. */
-.modal-backdrop {
+.bookwriter-modal-backdrop {
   display: none;
   position: absolute;
   inset: 0;
@@ -1673,9 +2376,9 @@ body.sprint-setup-open .sprint-setup { display: block; }
   padding: 20px;
 }
 
-body.modal-open .modal-backdrop { display: flex; }
+body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
 
-.modal {
+.bookwriter-modal {
   background: var(--paper);
   max-width: 520px;
   width: 100%;
@@ -1687,7 +2390,7 @@ body.modal-open .modal-backdrop { display: flex; }
   overflow-y: auto;
 }
 
-.modal-close {
+.bookwriter-modal-close {
   position: absolute;
   top: 20px; right: 24px;
   background: none;
@@ -1698,7 +2401,7 @@ body.modal-open .modal-backdrop { display: flex; }
   cursor: pointer;
 }
 
-.modal h2 {
+.bookwriter-modal h2 {
   font-family: 'Fraunces', serif;
   font-weight: 400;
   font-size: 32px;
@@ -1706,7 +2409,7 @@ body.modal-open .modal-backdrop { display: flex; }
   margin-bottom: 6px;
 }
 
-.modal .subhead {
+.bookwriter-modal .bookwriter-subhead {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 15px;
@@ -1714,7 +2417,7 @@ body.modal-open .modal-backdrop { display: flex; }
   margin-bottom: 28px;
 }
 
-.share-link {
+.bookwriter-share-link {
   display: flex;
   background: var(--paper-deep);
   border: 1px solid var(--line);
@@ -1723,7 +2426,7 @@ body.modal-open .modal-backdrop { display: flex; }
   margin-bottom: 20px;
 }
 
-.share-link input {
+.bookwriter-share-link input {
   flex: 1;
   border: none;
   background: transparent;
@@ -1734,7 +2437,7 @@ body.modal-open .modal-backdrop { display: flex; }
   outline: none;
 }
 
-.share-link button {
+.bookwriter-share-link button {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -1745,11 +2448,11 @@ body.modal-open .modal-backdrop { display: flex; }
   cursor: pointer;
 }
 
-.share-link button:hover { background: var(--accent); }
+.bookwriter-share-link button:hover { background: var(--accent); }
 
-.perm-group { margin-bottom: 24px; }
+.bookwriter-share-permission-group { margin-bottom: 24px; }
 
-.perm-group h4 {
+.bookwriter-share-permission-group h4 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -1759,7 +2462,7 @@ body.modal-open .modal-backdrop { display: flex; }
   margin-bottom: 12px;
 }
 
-.perm {
+.bookwriter-share-permission-tile {
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -1771,10 +2474,10 @@ body.modal-open .modal-backdrop { display: flex; }
   transition: all 0.2s;
 }
 
-.perm.active { border-color: var(--accent); background: rgba(139,42,31,0.03); }
-.perm:hover:not(.active) { border-color: var(--ink-fade); }
+.bookwriter-share-permission-tile.bookwriter-active { border-color: var(--accent); background: rgba(139,42,31,0.03); }
+.bookwriter-share-permission-tile:hover:not(.bookwriter-active) { border-color: var(--ink-fade); }
 
-.perm-radio {
+.bookwriter-share-permission-radio {
   width: 18px; height: 18px;
   border-radius: 50%;
   border: 1.5px solid var(--ink-fade);
@@ -1783,19 +2486,19 @@ body.modal-open .modal-backdrop { display: flex; }
   transition: all 0.2s;
 }
 
-.perm.active .perm-radio {
+.bookwriter-share-permission-tile.bookwriter-active .bookwriter-share-permission-radio {
   border-color: var(--accent);
   background: radial-gradient(var(--accent) 40%, transparent 45%);
 }
 
-.perm-text .t {
+.bookwriter-share-permission-text .bookwriter-share-permission-title {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 16px;
   color: var(--ink);
 }
 
-.perm-text .d {
+.bookwriter-share-permission-text .bookwriter-share-permission-description {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 13px;
@@ -1803,23 +2506,23 @@ body.modal-open .modal-backdrop { display: flex; }
   margin-top: 2px;
 }
 
-.reader-list {
+.bookwriter-reader-list {
   max-height: 180px;
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 2px;
 }
 
-.reader {
+.bookwriter-reader {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
 }
-.reader:last-child { border-bottom: none; }
+.bookwriter-reader:last-child { border-bottom: none; }
 
-.reader-avatar {
+.bookwriter-reader-avatar {
   width: 28px; height: 28px;
   border-radius: 50%;
   background: var(--ink-whisper);
@@ -1832,14 +2535,14 @@ body.modal-open .modal-backdrop { display: flex; }
   color: var(--paper);
 }
 
-.reader-name {
+.bookwriter-reader-name {
   flex: 1;
   font-family: 'EB Garamond', serif;
   font-size: 14px;
   color: var(--ink);
 }
 
-.reader-perm {
+.bookwriter-reader-perm {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.15em;
@@ -1847,7 +2550,7 @@ body.modal-open .modal-backdrop { display: flex; }
   color: var(--ink-fade);
 }
 
-.reader-remove {
+.bookwriter-reader-remove {
   background: none;
   border: none;
   color: var(--ink-fade);
@@ -1855,15 +2558,15 @@ body.modal-open .modal-backdrop { display: flex; }
   padding: 0 4px;
   font-size: 14px;
 }
-.reader-remove:hover { color: var(--accent); }
+.bookwriter-reader-remove:hover { color: var(--accent); }
 
-.invite-form {
+.bookwriter-invite-form {
   display: flex;
   gap: 6px;
   margin-top: 10px;
 }
 
-.invite-form input {
+.bookwriter-invite-form input {
   flex: 1;
   padding: 9px 12px;
   font-family: 'EB Garamond', serif;
@@ -1873,9 +2576,9 @@ body.modal-open .modal-backdrop { display: flex; }
   background: var(--paper);
   outline: none;
 }
-.invite-form input:focus { border-color: var(--accent); }
+.bookwriter-invite-form input:focus { border-color: var(--accent); }
 
-.invite-form button {
+.bookwriter-invite-form button {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -1888,7 +2591,7 @@ body.modal-open .modal-backdrop { display: flex; }
 }
 
 /* ===== GALLERY VIEW (Public serial publishing) ===== */
-.gallery-view {
+.bookwriter-gallery-view {
   display: none;
   flex-direction: row;
   height: 100%;
@@ -1897,30 +2600,30 @@ body.modal-open .modal-backdrop { display: flex; }
 
 /* Gallery's left rail and content pane both fill the wrapper height
    (no inline height:100vh — that overflows in embedded mode). */
-.gallery-view .gallery-rail-fill {
+.bookwriter-gallery-view .bookwriter-gallery-rail-fill {
   height: 100%;
   overflow-y: auto;
   flex-shrink: 0;
   width: 280px;
 }
-.gallery-view .gallery-content-pane {
+.bookwriter-gallery-view .bookwriter-gallery-content-pane {
   height: 100%;
 }
 
-body.mode-gallery .app,
-body.mode-gallery .cover-view,
-body.mode-gallery .corkboard-view,
-body.mode-gallery .bible-view { display: none; }
-body.mode-gallery .gallery-view { display: flex; }
+body.bookwriter-mode-gallery .bookwriter-app,
+body.bookwriter-mode-gallery .bookwriter-cover-view,
+body.bookwriter-mode-gallery .bookwriter-corkboard-view,
+body.bookwriter-mode-gallery .bookwriter-bible-view { display: none; }
+body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
 
-.gallery-header {
+.bookwriter-gallery-header {
   padding: 56px 64px 36px;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
   position: relative;
 }
 
-.gallery-mark {
+.bookwriter-gallery-mark {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.35em;
@@ -1929,7 +2632,7 @@ body.mode-gallery .gallery-view { display: flex; }
   margin-bottom: 14px;
 }
 
-.gallery-header h1 {
+.bookwriter-gallery-header h1 {
   font-family: 'Fraunces', serif;
   font-weight: 400;
   font-size: 56px;
@@ -1939,7 +2642,7 @@ body.mode-gallery .gallery-view { display: flex; }
   margin-bottom: 12px;
 }
 
-.gallery-header p {
+.bookwriter-gallery-header p {
   font-family: 'EB Garamond', serif;
   font-size: 17px;
   color: var(--ink-soft);
@@ -1947,7 +2650,7 @@ body.mode-gallery .gallery-view { display: flex; }
   max-width: 640px;
 }
 
-.gallery-mode-switch {
+.bookwriter-gallery-mode-switch {
   position: absolute;
   top: 56px;
   right: 64px;
@@ -1955,7 +2658,7 @@ body.mode-gallery .gallery-view { display: flex; }
   gap: 6px;
 }
 
-.gmode {
+.bookwriter-gmode {
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 8px 14px;
@@ -1968,9 +2671,9 @@ body.mode-gallery .gallery-view { display: flex; }
   transition: all 0.2s;
 }
 
-.gmode.active { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
+.bookwriter-gmode.bookwriter-active { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
 
-.gallery-body {
+.bookwriter-gallery-body {
   padding: 48px 64px 80px;
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -1980,7 +2683,7 @@ body.mode-gallery .gallery-view { display: flex; }
   width: 100%;
 }
 
-.serial-list h3 {
+.bookwriter-serial-list h3 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.3em;
@@ -1990,7 +2693,7 @@ body.mode-gallery .gallery-view { display: flex; }
   font-weight: 400;
 }
 
-.serial {
+.bookwriter-serial {
   display: grid;
   grid-template-columns: 60px 1fr auto;
   gap: 20px;
@@ -1999,7 +2702,7 @@ body.mode-gallery .gallery-view { display: flex; }
   align-items: start;
 }
 
-.serial-num {
+.bookwriter-serial-num {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
@@ -2009,7 +2712,7 @@ body.mode-gallery .gallery-view { display: flex; }
   line-height: 1;
 }
 
-.serial-body h4 {
+.bookwriter-serial-body h4 {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 22px;
@@ -2017,7 +2720,7 @@ body.mode-gallery .gallery-view { display: flex; }
   line-height: 1.2;
 }
 
-.serial-body .serial-excerpt {
+.bookwriter-serial-body .bookwriter-serial-excerpt {
   font-family: 'EB Garamond', serif;
   font-size: 15px;
   color: var(--ink-soft);
@@ -2026,7 +2729,7 @@ body.mode-gallery .gallery-view { display: flex; }
   line-height: 1.5;
 }
 
-.serial-body .serial-meta {
+.bookwriter-serial-body .bookwriter-serial-meta {
   display: flex;
   gap: 14px;
   margin-top: 10px;
@@ -2037,14 +2740,14 @@ body.mode-gallery .gallery-view { display: flex; }
   color: var(--ink-fade);
 }
 
-.serial-status {
+.bookwriter-serial-status {
   display: flex;
   flex-direction: column;
   gap: 6px;
   align-items: flex-end;
 }
 
-.status-chip {
+.bookwriter-status-chip {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.2em;
@@ -2053,11 +2756,11 @@ body.mode-gallery .gallery-view { display: flex; }
   border-radius: 30px;
 }
 
-.status-chip.live      { background: var(--moss); color: var(--paper); }
-.status-chip.scheduled { background: var(--ochre); color: var(--paper); }
-.status-chip.draft     { background: var(--paper-deep); color: var(--ink-fade); border: 1px solid var(--line); }
+.bookwriter-status-chip.bookwriter-live      { background: var(--moss); color: var(--paper); }
+.bookwriter-status-chip.bookwriter-scheduled { background: var(--ochre); color: var(--paper); }
+.bookwriter-status-chip.bookwriter-draft     { background: var(--paper-deep); color: var(--ink-fade); border: 1px solid var(--line); }
 
-.status-action {
+.bookwriter-status-action {
   background: none;
   border: none;
   font-family: 'EB Garamond', serif;
@@ -2067,20 +2770,20 @@ body.mode-gallery .gallery-view { display: flex; }
   cursor: pointer;
 }
 
-.gallery-sidebar {
+.bookwriter-gallery-sidebar {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.gal-card {
+.bookwriter-gal-card {
   background: var(--paper-deep);
   border: 1px solid var(--line);
   padding: 22px 24px;
   border-radius: 2px;
 }
 
-.gal-card h4 {
+.bookwriter-gal-card h4 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -2090,7 +2793,7 @@ body.mode-gallery .gallery-view { display: flex; }
   margin-bottom: 14px;
 }
 
-.stat-row {
+.bookwriter-stat-row {
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
@@ -2098,16 +2801,16 @@ body.mode-gallery .gallery-view { display: flex; }
   font-family: 'EB Garamond', serif;
   font-size: 14px;
 }
-.stat-row:last-child { border-bottom: none; }
+.bookwriter-stat-row:last-child { border-bottom: none; }
 
-.stat-row strong {
+.bookwriter-stat-row strong {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 18px;
   color: var(--ink);
 }
 
-.publish-next {
+.bookwriter-publish-next {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -2120,19 +2823,19 @@ body.mode-gallery .gallery-view { display: flex; }
   width: 100%;
   transition: background 0.3s;
 }
-.publish-next:hover { background: var(--accent); }
+.bookwriter-publish-next:hover { background: var(--accent); }
 
 /* ===== COVER DESIGNER VIEW ===== */
-.cover-view {
+.bookwriter-cover-view {
   display: none;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(280px, 340px);
   height: 100%;
 }
 
-body.mode-cover .app { display: none; }
-body.mode-cover .cover-view { display: grid; }
+body.bookwriter-mode-cover .bookwriter-app { display: none; }
+body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 
-.cover-rail {
+.bookwriter-cover-rail {
   background: var(--paper-deep);
   border-right: 1px solid var(--line);
   display: flex;
@@ -2142,17 +2845,17 @@ body.mode-cover .cover-view { display: grid; }
   min-width: 0;
 }
 
-.cover-rail::-webkit-scrollbar { width: 6px; }
-.cover-rail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
+.bookwriter-cover-rail::-webkit-scrollbar { width: 6px; }
+.bookwriter-cover-rail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.section {
+.bookwriter-section {
   padding: 22px 28px;
   border-bottom: 1px solid var(--line);
 }
 
-.section:last-child { border-bottom: none; }
+.bookwriter-section:last-child { border-bottom: none; }
 
-.section-title {
+.bookwriter-section-title {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -2162,13 +2865,13 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Template grid */
-.templates {
+.bookwriter-templates {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.tmpl {
+.bookwriter-cover-template-tile {
   aspect-ratio: 2/3;
   border: 1px solid var(--line);
   cursor: pointer;
@@ -2178,14 +2881,14 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.25s;
 }
 
-.tmpl:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(26,22,18,0.12); }
+.bookwriter-cover-template-tile:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(26,22,18,0.12); }
 
-.tmpl.active {
+.bookwriter-cover-template-tile.bookwriter-active {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent);
 }
 
-.tmpl-name {
+.bookwriter-cover-template-tile-name {
   position: absolute;
   bottom: 4px; left: 6px;
   font-family: 'JetBrains Mono', monospace;
@@ -2198,7 +2901,7 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Miniature cover preview layouts */
-.mini {
+.bookwriter-cover-mini-preview {
   width: 100%; height: 100%;
   position: relative;
   display: flex;
@@ -2208,42 +2911,42 @@ body.mode-cover .cover-view { display: grid; }
   font-family: 'Fraunces', serif;
 }
 
-.mini-classical { background: #e8dcc0; color: #2a1f15; align-items: center; justify-content: center; text-align: center; }
-.mini-classical .mt { font-style: italic; font-size: 10px; line-height: 1; margin-bottom: 4px; }
-.mini-classical .ma { font-size: 5px; letter-spacing: 0.2em; text-transform: uppercase; }
-.mini-classical::before { content:''; width:30%; height:1px; background: currentColor; margin-bottom: 6px; }
-.mini-classical::after  { content:''; width:30%; height:1px; background: currentColor; margin-top: 6px; }
+.bookwriter-cover-mini-classical { background: #e8dcc0; color: #2a1f15; align-items: center; justify-content: center; text-align: center; }
+.bookwriter-cover-mini-classical .bookwriter-cover-mini-title { font-style: italic; font-size: 10px; line-height: 1; margin-bottom: 4px; }
+.bookwriter-cover-mini-classical .bookwriter-cover-mini-author { font-size: 5px; letter-spacing: 0.2em; text-transform: uppercase; }
+.bookwriter-cover-mini-classical::before { content:''; width:30%; height:1px; background: currentColor; margin-bottom: 6px; }
+.bookwriter-cover-mini-classical::after  { content:''; width:30%; height:1px; background: currentColor; margin-top: 6px; }
 
-.mini-modern { background: #1a1612; color: #f4ede0; justify-content: flex-end; }
-.mini-modern .mt { font-size: 11px; font-weight: 600; line-height: 0.95; letter-spacing: -0.02em; }
-.mini-modern .ma { font-size: 5px; letter-spacing: 0.25em; text-transform: uppercase; margin-top: 4px; color: #c46a5d; }
+.bookwriter-cover-mini-modern { background: #1a1612; color: #f4ede0; justify-content: flex-end; }
+.bookwriter-cover-mini-modern .bookwriter-cover-mini-title { font-size: 11px; font-weight: 600; line-height: 0.95; letter-spacing: -0.02em; }
+.bookwriter-cover-mini-modern .bookwriter-cover-mini-author { font-size: 5px; letter-spacing: 0.25em; text-transform: uppercase; margin-top: 4px; color: #c46a5d; }
 
-.mini-photo { background: linear-gradient(135deg,#4a5942,#8a9472); color: #fff; justify-content: flex-end; position: relative; }
-.mini-photo::before { content:''; position:absolute; inset:0; background: linear-gradient(transparent 40%, rgba(0,0,0,0.5)); }
-.mini-photo .mt, .mini-photo .ma { position: relative; z-index: 1; }
-.mini-photo .mt { font-size: 10px; font-style: italic; line-height: 1; }
-.mini-photo .ma { font-size: 5px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 3px; }
+.bookwriter-cover-mini-photo { background: linear-gradient(135deg,#4a5942,#8a9472); color: #fff; justify-content: flex-end; position: relative; }
+.bookwriter-cover-mini-photo::before { content:''; position:absolute; inset:0; background: linear-gradient(transparent 40%, rgba(0,0,0,0.5)); }
+.bookwriter-cover-mini-photo .bookwriter-cover-mini-title, .bookwriter-cover-mini-photo .bookwriter-cover-mini-author { position: relative; z-index: 1; }
+.bookwriter-cover-mini-photo .bookwriter-cover-mini-title { font-size: 10px; font-style: italic; line-height: 1; }
+.bookwriter-cover-mini-photo .bookwriter-cover-mini-author { font-size: 5px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 3px; }
 
-.mini-minimal { background: #f4ede0; color: #1a1612; justify-content: center; align-items: flex-start; }
-.mini-minimal .mt { font-size: 9px; font-weight: 500; line-height: 1; }
-.mini-minimal .ma { font-size: 4.5px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 40px; color: #7a6f5e; }
+.bookwriter-cover-mini-minimal { background: #f4ede0; color: #1a1612; justify-content: center; align-items: flex-start; }
+.bookwriter-cover-mini-minimal .bookwriter-cover-mini-title { font-size: 9px; font-weight: 500; line-height: 1; }
+.bookwriter-cover-mini-minimal .bookwriter-cover-mini-author { font-size: 4.5px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 40px; color: #7a6f5e; }
 
-.mini-vintage { background: #c47a4f; color: #f7e8d0; align-items: center; justify-content: center; text-align: center; }
-.mini-vintage .mt { font-size: 10px; font-weight: 700; font-style: italic; line-height: 1; }
-.mini-vintage .ma { font-size: 5px; letter-spacing: 0.3em; text-transform: uppercase; margin-top: 6px; }
+.bookwriter-cover-mini-vintage { background: #c47a4f; color: #f7e8d0; align-items: center; justify-content: center; text-align: center; }
+.bookwriter-cover-mini-vintage .bookwriter-cover-mini-title { font-size: 10px; font-weight: 700; font-style: italic; line-height: 1; }
+.bookwriter-cover-mini-vintage .bookwriter-cover-mini-author { font-size: 5px; letter-spacing: 0.3em; text-transform: uppercase; margin-top: 6px; }
 
-.mini-type { background: #f0e8d8; color: #8b2a1f; align-items: center; justify-content: center; text-align: center; padding: 4px; }
-.mini-type .mt { font-size: 22px; font-weight: 900; line-height: 0.85; letter-spacing: -0.05em; }
-.mini-type .ma { font-size: 4.5px; letter-spacing: 0.25em; text-transform: uppercase; color: #2a1f15; margin-top: 4px; }
+.bookwriter-cover-mini-type { background: #f0e8d8; color: #8b2a1f; align-items: center; justify-content: center; text-align: center; padding: 4px; }
+.bookwriter-cover-mini-type .bookwriter-cover-mini-title { font-size: 22px; font-weight: 900; line-height: 0.85; letter-spacing: -0.05em; }
+.bookwriter-cover-mini-type .bookwriter-cover-mini-author { font-size: 4.5px; letter-spacing: 0.25em; text-transform: uppercase; color: #2a1f15; margin-top: 4px; }
 
 /* Palette */
-.palettes {
+.bookwriter-palettes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
-.pal {
+.bookwriter-cover-palette-tile {
   aspect-ratio: 3/1;
   cursor: pointer;
   border: 1px solid var(--line);
@@ -2252,14 +2955,14 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.2s;
 }
 
-.pal.active { outline: 2px solid var(--accent); outline-offset: 1px; }
-.pal:hover { transform: scale(1.04); }
-.pal span { flex: 1; }
+.bookwriter-cover-palette-tile.bookwriter-active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bookwriter-cover-palette-tile:hover { transform: scale(1.04); }
+.bookwriter-cover-palette-tile span { flex: 1; }
 
 /* Field */
-.field { margin-bottom: 14px; }
+.bookwriter-field { margin-bottom: 14px; }
 
-.field-label {
+.bookwriter-field-label {
   font-family: 'EB Garamond', serif;
   font-style: italic;
   font-size: 13px;
@@ -2269,14 +2972,14 @@ body.mode-cover .cover-view { display: grid; }
   justify-content: space-between;
 }
 
-.field-label span:last-child {
+.bookwriter-field-label span:last-child {
   font-family: 'JetBrains Mono', monospace;
   font-style: normal;
   font-size: 10px;
   color: var(--ink);
 }
 
-.field input[type="text"] {
+.bookwriter-field input[type="text"] {
   width: 100%;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -2289,9 +2992,9 @@ body.mode-cover .cover-view { display: grid; }
   transition: border-color 0.2s;
 }
 
-.field input[type="text"]:focus { border-color: var(--accent); }
+.bookwriter-field input[type="text"]:focus { border-color: var(--accent); }
 
-.field input[type="range"] {
+.bookwriter-field input[type="range"] {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
@@ -2301,7 +3004,7 @@ body.mode-cover .cover-view { display: grid; }
   margin: 10px 0;
 }
 
-.field input[type="range"]::-webkit-slider-thumb {
+.bookwriter-field input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px; height: 16px;
@@ -2311,7 +3014,7 @@ body.mode-cover .cover-view { display: grid; }
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 1px var(--accent);
 }
-.field input[type="range"]::-moz-range-thumb {
+.bookwriter-field input[type="range"]::-moz-range-thumb {
   width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--accent);
@@ -2320,13 +3023,13 @@ body.mode-cover .cover-view { display: grid; }
   box-shadow: 0 0 0 1px var(--accent);
 }
 
-.font-pick {
+.bookwriter-font-pick {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
 }
 
-.font-pick button {
+.bookwriter-font-pick button {
   padding: 10px 8px;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -2337,21 +3040,21 @@ body.mode-cover .cover-view { display: grid; }
   border-radius: 2px;
 }
 
-.font-pick button.active {
+.bookwriter-font-pick button.bookwriter-active {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
 }
 
-.font-pick button:hover:not(.active) { border-color: var(--ink-soft); }
+.bookwriter-font-pick button:hover:not(.bookwriter-active) { border-color: var(--ink-soft); }
 
-.f-serif  { font-family: 'Fraunces', serif; }
-.f-italic { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
-.f-body   { font-family: 'EB Garamond', serif; }
-.f-mono   { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+.bookwriter-f-serif  { font-family: 'Fraunces', serif; }
+.bookwriter-f-italic { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+.bookwriter-f-body   { font-family: 'EB Garamond', serif; }
+.bookwriter-f-mono   { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
 
 /* ===== COVER STAGE (center) ===== */
-.cover-stage {
+.bookwriter-cover-stage {
   background: var(--paper);
   display: flex;
   flex-direction: column;
@@ -2360,7 +3063,7 @@ body.mode-cover .cover-view { display: grid; }
   min-width: 0;
 }
 
-.cover-stage-inner {
+.bookwriter-cover-stage-inner {
   flex: 1;
   display: flex;
   align-items: center;
@@ -2372,7 +3075,7 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Subtle drafting grid */
-.cover-stage-inner::before {
+.bookwriter-cover-stage-inner::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -2385,7 +3088,7 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* The Book Cover */
-.cover {
+.bookwriter-cover {
   width: 340px;
   aspect-ratio: 2/3;
   background: var(--paper);
@@ -2401,7 +3104,7 @@ body.mode-cover .cover-view { display: grid; }
   transform: perspective(2000px) rotateY(-6deg);
 }
 
-.cover::before {
+.bookwriter-cover::before {
   /* spine shadow */
   content: '';
   position: absolute;
@@ -2412,7 +3115,7 @@ body.mode-cover .cover-view { display: grid; }
   z-index: 5;
 }
 
-.cover-inner {
+.bookwriter-cover-inner {
   position: absolute;
   inset: 0;
   display: flex;
@@ -2421,7 +3124,7 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.5s;
 }
 
-.cover-art {
+.bookwriter-cover-art {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -2429,45 +3132,45 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Variations — classical */
-.cover[data-style="classical"] .cover-inner {
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-inner {
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 40px 36px;
 }
-.cover[data-style="classical"] .cv-frame {
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame {
   position: absolute;
   inset: 20px;
   border: 1px solid currentColor;
   opacity: 0.3;
 }
-.cover[data-style="classical"] .cv-frame::before,
-.cover[data-style="classical"] .cv-frame::after {
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::before,
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::after {
   content: '';
   position: absolute;
   left: 8px; right: 8px;
   border-top: 1px solid currentColor;
   height: 1px;
 }
-.cover[data-style="classical"] .cv-frame::before { top: 8px; }
-.cover[data-style="classical"] .cv-frame::after  { bottom: 8px; }
-.cover[data-style="classical"] .cv-title    { font-style: italic; font-weight: 400; line-height: 1.05; }
-.cover[data-style="classical"] .cv-ornament { margin: 22px 0; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::before { top: 8px; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::after  { bottom: 8px; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-title    { font-style: italic; font-weight: 400; line-height: 1.05; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cv-ornament { margin: 22px 0; }
 
 /* Modern */
-.cover[data-style="modern"] .cover-inner {
+.bookwriter-cover[data-style="modern"] .bookwriter-cover-inner {
   justify-content: flex-end;
   padding: 0 32px 36px;
 }
-.cover[data-style="modern"] .cv-title {
+.bookwriter-cover[data-style="modern"] .bookwriter-cv-title {
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 0.92;
   text-align: left;
 }
-.cover[data-style="modern"] .cv-ornament { display: none; }
-.cover[data-style="modern"] .cv-author { margin-top: 18px; text-align: left; }
-.cover[data-style="modern"] .cover-art::before {
+.bookwriter-cover[data-style="modern"] .bookwriter-cv-ornament { display: none; }
+.bookwriter-cover[data-style="modern"] .bookwriter-cv-author { margin-top: 18px; text-align: left; }
+.bookwriter-cover[data-style="modern"] .bookwriter-cover-art::before {
   content: '';
   position: absolute;
   top: 36px; left: 32px;
@@ -2476,45 +3179,45 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Photo / landscape */
-.cover[data-style="photo"] .cover-inner {
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-inner {
   justify-content: flex-end;
   padding: 0 30px 36px;
 }
-.cover[data-style="photo"] .cv-title {
+.bookwriter-cover[data-style="photo"] .bookwriter-cv-title {
   font-style: italic;
   font-weight: 400;
   line-height: 0.98;
   text-align: left;
   text-shadow: 0 2px 20px rgba(0,0,0,0.4);
 }
-.cover[data-style="photo"] .cv-author { text-align: left; text-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-.cover[data-style="photo"] .cover-art {
+.bookwriter-cover[data-style="photo"] .bookwriter-cv-author { text-align: left; text-shadow: 0 1px 6px rgba(0,0,0,0.3); }
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-art {
   background:
     linear-gradient(transparent 30%, rgba(0,0,0,0.6) 100%),
     radial-gradient(ellipse at 30% 20%, rgba(255,230,180,0.4), transparent 60%),
     linear-gradient(165deg, #3a4835 0%, #5a6b3f 40%, #8a9472 70%, #c8b79a 100%);
 }
-.cover[data-style="photo"] .cover-art::after {
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-art::after {
   content: '';
   position: absolute;
   bottom: 30%; left: 0; right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
 }
-.cover[data-style="photo"] .cv-ornament { display: none; }
+.bookwriter-cover[data-style="photo"] .bookwriter-cv-ornament { display: none; }
 
 /* Minimal */
-.cover[data-style="minimal"] .cover-inner {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cover-inner {
   justify-content: center;
   align-items: flex-start;
   padding: 50px 36px;
 }
-.cover[data-style="minimal"] .cv-title {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cv-title {
   font-weight: 400;
   line-height: 1;
   text-align: left;
 }
-.cover[data-style="minimal"] .cv-author {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cv-author {
   text-align: left;
   margin-top: auto;
   align-self: flex-start;
@@ -2522,8 +3225,8 @@ body.mode-cover .cover-view { display: grid; }
   bottom: 40px;
   left: 36px;
 }
-.cover[data-style="minimal"] .cv-ornament { display: none; }
-.cover[data-style="minimal"] .cover-art::before {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cv-ornament { display: none; }
+.bookwriter-cover[data-style="minimal"] .bookwriter-cover-art::before {
   content: '';
   position: absolute;
   top: 40px; left: 36px;
@@ -2534,21 +3237,21 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Vintage */
-.cover[data-style="vintage"] .cover-inner {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cover-inner {
   justify-content: center;
   align-items: center;
   text-align: center;
 }
-.cover[data-style="vintage"] .cv-title {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cv-title {
   font-style: italic;
   font-weight: 700;
   line-height: 0.95;
 }
-.cover[data-style="vintage"] .cv-ornament::before,
-.cover[data-style="vintage"] .cv-ornament::after {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cv-ornament::before,
+.bookwriter-cover[data-style="vintage"] .bookwriter-cv-ornament::after {
   background: currentColor;
 }
-.cover[data-style="vintage"] .cover-art::before {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cover-art::before {
   content: '';
   position: absolute;
   inset: 14px;
@@ -2557,22 +3260,22 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Type-only */
-.cover[data-style="type"] .cover-inner {
+.bookwriter-cover[data-style="type"] .bookwriter-cover-inner {
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 30px 20px;
 }
-.cover[data-style="type"] .cv-title {
+.bookwriter-cover[data-style="type"] .bookwriter-cv-title {
   font-weight: 900;
   line-height: 0.82;
   letter-spacing: -0.05em;
 }
-.cover[data-style="type"] .cv-ornament { display: none; }
-.cover[data-style="type"] .cv-author   { margin-top: 20px; }
+.bookwriter-cover[data-style="type"] .bookwriter-cv-ornament { display: none; }
+.bookwriter-cover[data-style="type"] .bookwriter-cv-author   { margin-top: 20px; }
 
 /* Cover text elements */
-.cv-title {
+.bookwriter-cv-title {
   font-family: 'Fraunces', serif;
   font-size: 42px;
   margin: 0;
@@ -2580,7 +3283,7 @@ body.mode-cover .cover-view { display: grid; }
   word-wrap: break-word;
 }
 
-.cv-author {
+.bookwriter-cv-author {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.3em;
@@ -2589,7 +3292,7 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.4s;
 }
 
-.cv-ornament {
+.bookwriter-cv-ornament {
   width: 40px;
   height: 14px;
   display: flex;
@@ -2597,23 +3300,23 @@ body.mode-cover .cover-view { display: grid; }
   justify-content: center;
   gap: 6px;
 }
-.cv-ornament::before, .cv-ornament::after {
+.bookwriter-cv-ornament::before, .bookwriter-cv-ornament::after {
   content: '';
   flex: 1;
   height: 1px;
   background: currentColor;
   opacity: 0.6;
 }
-.cv-ornament svg { width: 8px; height: 8px; opacity: 0.7; }
+.bookwriter-cv-ornament svg { width: 8px; height: 8px; opacity: 0.7; }
 
 /* Font families on cover */
-.cover.font-serif  .cv-title { font-family: 'Fraunces', serif; font-style: normal; font-weight: 400; }
-.cover.font-italic .cv-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
-.cover.font-body   .cv-title { font-family: 'EB Garamond', serif; font-weight: 500; }
-.cover.font-mono   .cv-title { font-family: 'JetBrains Mono', monospace; font-weight: 500; letter-spacing: -0.02em; font-size: 28px; }
+.bookwriter-cover.bookwriter-font-serif  .bookwriter-cv-title { font-family: 'Fraunces', serif; font-style: normal; font-weight: 400; }
+.bookwriter-cover.bookwriter-font-italic .bookwriter-cv-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+.bookwriter-cover.bookwriter-font-body   .bookwriter-cv-title { font-family: 'EB Garamond', serif; font-weight: 500; }
+.bookwriter-cover.bookwriter-font-mono   .bookwriter-cv-title { font-family: 'JetBrains Mono', monospace; font-weight: 500; letter-spacing: -0.02em; font-size: 28px; }
 
 /* Cover stage footer */
-.cover-foot {
+.bookwriter-cover-foot {
   padding: 16px 40px;
   border-top: 1px solid var(--line);
   display: flex;
@@ -2626,13 +3329,13 @@ body.mode-cover .cover-view { display: grid; }
   color: var(--ink-fade);
 }
 
-.cover-foot-center {
+.bookwriter-cover-foot-center {
   display: flex;
   gap: 16px;
   align-items: center;
 }
 
-.zoom-btn {
+.bookwriter-zoom-btn {
   background: none;
   border: 1px solid var(--line);
   padding: 4px 10px;
@@ -2644,10 +3347,10 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.2s;
 }
 
-.zoom-btn:hover { background: var(--paper-deep); }
+.bookwriter-zoom-btn:hover { background: var(--paper-deep); }
 
 /* ===== COVER DESK (right) ===== */
-.cover-desk {
+.bookwriter-cover-desk {
   background: var(--paper-deep);
   border-left: 1px solid var(--line);
   padding: 26px;
@@ -2658,17 +3361,17 @@ body.mode-cover .cover-view { display: grid; }
   min-width: 0;
 }
 
-.cover-desk::-webkit-scrollbar { width: 6px; }
-.cover-desk::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
+.bookwriter-cover-desk::-webkit-scrollbar { width: 6px; }
+.bookwriter-cover-desk::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.desk-card {
+.bookwriter-desk-card {
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 18px 20px;
   border-radius: 2px;
 }
 
-.desk-card h4 {
+.bookwriter-desk-card h4 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   letter-spacing: 0.35em;
@@ -2678,13 +3381,13 @@ body.mode-cover .cover-view { display: grid; }
   margin-bottom: 12px;
 }
 
-.bg-options {
+.bookwriter-bg-options {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
-.bg-opt {
+.bookwriter-bg-opt {
   aspect-ratio: 1;
   cursor: pointer;
   border: 1px solid var(--line);
@@ -2694,30 +3397,30 @@ body.mode-cover .cover-view { display: grid; }
   overflow: hidden;
 }
 
-.bg-opt.active { outline: 2px solid var(--accent); outline-offset: 1px; }
-.bg-opt:hover { transform: scale(1.06); }
+.bookwriter-bg-opt.bookwriter-active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bookwriter-bg-opt:hover { transform: scale(1.06); }
 
-.bg-solid  { background: var(--paper); }
-.bg-grad-1 { background: linear-gradient(135deg, #e8c98a, #8b2a1f); }
-.bg-grad-2 { background: linear-gradient(165deg, #5a6b3f, #c8b79a); }
-.bg-grad-3 { background: linear-gradient(135deg, #1a1612, #3d342a); }
-.bg-noise  { background: #c46a5d; position: relative; }
-.bg-noise::after {
+.bookwriter-bg-solid  { background: var(--paper); }
+.bookwriter-bg-grad-1 { background: linear-gradient(135deg, #e8c98a, #8b2a1f); }
+.bookwriter-bg-grad-2 { background: linear-gradient(165deg, #5a6b3f, #c8b79a); }
+.bookwriter-bg-grad-3 { background: linear-gradient(135deg, #1a1612, #3d342a); }
+.bookwriter-bg-noise  { background: #c46a5d; position: relative; }
+.bookwriter-bg-noise::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='40' height='40'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/></svg>");
 }
-.bg-dots {
+.bookwriter-bg-dots {
   background:
     radial-gradient(var(--ink) 1px, transparent 1px),
     var(--paper);
   background-size: 6px 6px;
 }
-.bg-stripes {
+.bookwriter-bg-stripes {
   background: repeating-linear-gradient(45deg, var(--ochre), var(--ochre) 3px, var(--paper) 3px, var(--paper) 8px);
 }
-.bg-upload {
+.bookwriter-bg-upload {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2729,14 +3432,14 @@ body.mode-cover .cover-view { display: grid; }
 }
 
 /* Export button */
-.export-row {
+.bookwriter-export-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-top: 6px;
 }
 
-.export-btn {
+.bookwriter-export-btn {
   background: var(--paper);
   border: 1px solid var(--line);
   padding: 12px;
@@ -2749,9 +3452,9 @@ body.mode-cover .cover-view { display: grid; }
   transition: all 0.2s;
 }
 
-.export-btn:hover { background: var(--ink); color: var(--paper); font-style: normal; font-family: 'Fraunces', serif; }
+.bookwriter-export-btn:hover { background: var(--ink); color: var(--paper); font-style: normal; font-family: 'Fraunces', serif; }
 
-.set-as-cover {
+.bookwriter-set-as-cover {
   background: var(--ink);
   color: var(--paper);
   border: none;
@@ -2767,22 +3470,22 @@ body.mode-cover .cover-view { display: grid; }
   align-items: center;
 }
 
-.set-as-cover:hover { background: var(--accent); }
-.set-as-cover::after {
+.bookwriter-set-as-cover:hover { background: var(--accent); }
+.bookwriter-set-as-cover::after {
   content: '→';
   font-style: normal;
   font-size: 18px;
 }
 
 /* History */
-.history-strip {
+.bookwriter-history-strip {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 4px;
 }
 
-.history-item {
+.bookwriter-history-item {
   width: 48px;
   height: 72px;
   flex-shrink: 0;
@@ -2792,14 +3495,14 @@ body.mode-cover .cover-view { display: grid; }
   position: relative;
 }
 
-.history-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.history-item.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.bookwriter-history-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.bookwriter-history-item.bookwriter-current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 
 /* ===== RESPONSIVE — collapse side panels based on WRAPPER width ====
    Container queries (not media queries) so the layout reacts to the
    wrapper's own width. In embedded mode this means the Inkwell
    layout reflows the moment the user collapses the global sidebar
-   (more wrapper width → keep .desk visible; less → hide). In
+   (more wrapper width → keep .bookwriter-desk visible; less → hide). In
    standalone mode the wrapper === viewport so behaviour is the
    same as the old @media queries. */
 /* Cover and Bible carry the most fixed-width chrome (cover-rail + cover
@@ -2807,57 +3510,57 @@ body.mode-cover .cover-view { display: grid; }
    At wrapper widths below ~1300px the centre column gets uncomfortably
    tight, so drop the right-most reference panel here — leaves rail +
    primary content with breathing room. The 1100px block below keeps its
-   own overrides for the writer (.app) and refines further. */
+   own overrides for the writer (.bookwriter-app) and refines further. */
 @container inkwell (max-width: 1300px) {
-  .cover-view { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); }
-  .cover-desk { display: none; }
-  .bible-view { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); }
-  .bible-list { display: none; }
+  .bookwriter-cover-view { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); }
+  .bookwriter-cover-desk { display: none; }
+  .bookwriter-bible-view { grid-template-columns: minmax(220px, 280px) minmax(0, 1fr); }
+  .bookwriter-bible-list { display: none; }
 }
 
 @container inkwell (max-width: 1100px) {
-  .app { grid-template-columns: minmax(220px, 240px) minmax(0, 1fr); }
-  .desk { display: none; }
-  .cover-view { grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); }
-  .cover-desk { display: none; }
-  .bible-view { grid-template-columns: minmax(220px, 240px) minmax(0, 1fr); }
-  .gallery-body { grid-template-columns: 1fr; }
-  .snapshot-panel { width: 320px; }
+  .bookwriter-app { grid-template-columns: minmax(220px, 240px) minmax(0, 1fr); }
+  .bookwriter-desk { display: none; }
+  .bookwriter-cover-view { grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); }
+  .bookwriter-cover-desk { display: none; }
+  .bookwriter-bible-view { grid-template-columns: minmax(220px, 240px) minmax(0, 1fr); }
+  .bookwriter-gallery-body { grid-template-columns: 1fr; }
+  .bookwriter-snapshot-panel { width: 320px; }
 }
 /* True mobile breakpoint — hide ALL rails so the centre content gets
    the full wrapper. Below 560px rails would only be ~180px which is
    too narrow to read comfortably. Above 560 keep the rail visible
    (it shrinks fluidly via minmax(220, 280) defined on each view). */
 @container inkwell (max-width: 560px) {
-  .app { grid-template-columns: 1fr; }
-  .rail { display: none; }
-  .manuscript { padding: 32px 22px 80px; }
+  .bookwriter-app { grid-template-columns: 1fr; }
+  .bookwriter-rail { display: none; }
+  .bookwriter-manuscript { padding: 32px 22px 80px; }
   /* Toolbar wraps so the breadcrumb and tools stack vertically on
      phones rather than overflowing horizontally. */
-  .toolbar { padding: 14px 22px; flex-wrap: wrap; gap: 10px; }
-  .tools { flex-wrap: wrap; gap: 6px; }
-  .chapter-title { font-size: 32px; }
-  .prose { font-size: 17px; }
-  .cover-view { grid-template-columns: 1fr; }
-  .cover-rail { display: none; }
-  .cover { width: 260px; }
-  .corkboard-view { grid-template-columns: 1fr; }
-  .corkboard-view .rail { display: none; }
-  .bible-view { grid-template-columns: 1fr; }
-  .bible-rail, .bible-list { display: none; }
-  .bible-detail { padding: 32px 24px; }
-  .gallery-view .rail { display: none; }
-  .gallery-header { padding: 32px 24px; }
-  .gallery-header h1 { font-size: 36px; }
-  .gallery-mode-switch { position: static; margin-top: 18px; }
-  .gallery-body { padding: 32px 24px; }
-  .snapshot-panel { width: 100%; }
-  .modal { padding: 28px 22px; }
-  .focus-page h1 { font-size: 32px; }
-  .focus-page .focus-text { font-size: 18px; }
-  .mode-switch { grid-template-columns: repeat(5, 1fr); margin: 12px; }
-  .mode-btn { font-size: 10px; padding: 6px 2px; }
-  .mode-btn.active { font-size: 10px; }
+  .bookwriter-toolbar { padding: 14px 22px; flex-wrap: wrap; gap: 10px; }
+  .bookwriter-tools { flex-wrap: wrap; gap: 6px; }
+  .bookwriter-chapter-title { font-size: 32px; }
+  .bookwriter-prose { font-size: 17px; }
+  .bookwriter-cover-view { grid-template-columns: 1fr; }
+  .bookwriter-cover-rail { display: none; }
+  .bookwriter-cover { width: 260px; }
+  .bookwriter-corkboard-view { grid-template-columns: 1fr; }
+  .bookwriter-corkboard-view .bookwriter-rail { display: none; }
+  .bookwriter-bible-view { grid-template-columns: 1fr; }
+  .bookwriter-bible-rail, .bookwriter-bible-list { display: none; }
+  .bookwriter-bible-detail { padding: 32px 24px; }
+  .bookwriter-gallery-view .bookwriter-rail { display: none; }
+  .bookwriter-gallery-header { padding: 32px 24px; }
+  .bookwriter-gallery-header h1 { font-size: 36px; }
+  .bookwriter-gallery-mode-switch { position: static; margin-top: 18px; }
+  .bookwriter-gallery-body { padding: 32px 24px; }
+  .bookwriter-snapshot-panel { width: 100%; }
+  .bookwriter-modal { padding: 28px 22px; }
+  .bookwriter-focus-page h1 { font-size: 32px; }
+  .bookwriter-focus-page .bookwriter-focus-text { font-size: 18px; }
+  .bookwriter-mode-switch { grid-template-columns: repeat(5, 1fr); margin: 12px; }
+  .bookwriter-mode-btn { font-size: 10px; padding: 6px 2px; }
+  .bookwriter-mode-btn.bookwriter-active { font-size: 10px; }
   /* Outer page-level mode tabs already use a 5-column grid, but
      constrain max-width on tiny screens so they hug the centre. */
   .bookwriter-mode-tabs { max-width: 100%; margin: 12px auto; }
@@ -2917,77 +3620,216 @@ body.mode-cover .cover-view { display: grid; }
    Extracted from the partial to satisfy "no inline styles" rule
    (Gate 4 rule 2). The dynamic colour swatches in the cover palette
    and bible avatars stay inline because they are data, not styling. */
-.bookwriter-shell .save-chip,
-.bookwriter-embedded-wrapper .save-chip {
+.bookwriter-shell .bookwriter-save-chip,
+.bookwriter-embedded-wrapper .bookwriter-save-chip {
   cursor: pointer;
 }
 
-.bookwriter-shell .num-big-suffix,
-.bookwriter-embedded-wrapper .num-big-suffix {
+.bookwriter-shell .bookwriter-num-big-suffix,
+.bookwriter-embedded-wrapper .bookwriter-num-big-suffix {
   font-size: 18px;
   color: var(--ink-fade);
 }
 
-.bookwriter-shell .publish-meta,
-.bookwriter-embedded-wrapper .publish-meta {
+.bookwriter-shell .bookwriter-publish-meta,
+.bookwriter-embedded-wrapper .bookwriter-publish-meta {
   margin-top: -18px;
 }
 
-.bookwriter-shell .card-frameless,
-.bookwriter-embedded-wrapper .card-frameless {
+.bookwriter-shell .bookwriter-card-frameless,
+.bookwriter-embedded-wrapper .bookwriter-card-frameless {
   border-color: transparent;
   background: transparent;
   padding: 4px 4px;
 }
 
-.bookwriter-shell .field-no-margin,
-.bookwriter-embedded-wrapper .field-no-margin {
+.bookwriter-shell .bookwriter-field-no-margin,
+.bookwriter-embedded-wrapper .bookwriter-field-no-margin {
   margin-bottom: 0;
 }
 
-.bookwriter-shell .card-body-placeholder,
-.bookwriter-embedded-wrapper .card-body-placeholder {
+.bookwriter-shell .bookwriter-card-body-placeholder,
+.bookwriter-embedded-wrapper .bookwriter-card-body-placeholder {
   color: var(--ink-whisper);
 }
 
-.bookwriter-shell .flex-fill,
-.bookwriter-embedded-wrapper .flex-fill {
+.bookwriter-shell .bookwriter-flex-fill,
+.bookwriter-embedded-wrapper .bookwriter-flex-fill {
   flex: 1;
 }
 
-.bookwriter-shell .gallery-stat-block,
-.bookwriter-embedded-wrapper .gallery-stat-block {
+.bookwriter-shell .bookwriter-gallery-stat-block,
+.bookwriter-embedded-wrapper .bookwriter-gallery-stat-block {
   padding: 0 24px;
 }
 
-.bookwriter-shell .gallery-content-pane-fill,
-.bookwriter-embedded-wrapper .gallery-content-pane-fill {
+.bookwriter-shell .bookwriter-gallery-content-pane-fill,
+.bookwriter-embedded-wrapper .bookwriter-gallery-content-pane-fill {
   flex: 1;
   overflow-y: auto;
 }
 
-.bookwriter-shell .publish-next-spaced,
-.bookwriter-embedded-wrapper .publish-next-spaced {
+.bookwriter-shell .bookwriter-publish-next-spaced,
+.bookwriter-embedded-wrapper .bookwriter-publish-next-spaced {
   margin-top: 16px;
 }
 
-.bookwriter-shell .share-link-flush,
-.bookwriter-embedded-wrapper .share-link-flush {
+.bookwriter-shell .bookwriter-share-link-flush,
+.bookwriter-embedded-wrapper .bookwriter-share-link-flush {
   margin: 0;
 }
 
 /* Status indicator strongs in the Gallery Visibility card. */
-.bookwriter-shell .stat-status-on,
-.bookwriter-embedded-wrapper .stat-status-on {
+.bookwriter-shell .bookwriter-stat-status-on,
+.bookwriter-embedded-wrapper .bookwriter-stat-status-on {
   color: var(--moss);
 }
 
-.bookwriter-shell .stat-status-off,
-.bookwriter-embedded-wrapper .stat-status-off {
+.bookwriter-shell .bookwriter-stat-status-off,
+.bookwriter-embedded-wrapper .bookwriter-stat-status-off {
   color: var(--ink-fade);
   font-style: italic;
   font-weight: 400;
   font-size: 14px;
+}
+
+
+/* ================================================================
+   CHAPTER DELETE AFFORDANCE — × button on each chapter row
+   ----------------------------------------------------------------
+   Hidden until hover/focus to keep the rail clean. Two-click
+   confirm pattern (× then ✓) avoids accidental loss without using
+   window.confirm(). Positioned absolute so it doesn't shift the
+   row layout. */
+.bookwriter-shell .bookwriter-chapter,
+.bookwriter-embedded-wrapper .bookwriter-chapter {
+  position: relative;
+}
+
+.bookwriter-shell .bookwriter-chapter-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-chapter-delete-affordance {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-fade);
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.bookwriter-shell .bookwriter-chapter:hover .bookwriter-chapter-delete-affordance,
+.bookwriter-shell .bookwriter-chapter:focus-within .bookwriter-chapter-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-chapter:hover .bookwriter-chapter-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-chapter:focus-within .bookwriter-chapter-delete-affordance {
+  opacity: 1;
+}
+
+.bookwriter-shell .bookwriter-chapter-delete-affordance:hover,
+.bookwriter-embedded-wrapper .bookwriter-chapter-delete-affordance:hover {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+.bookwriter-shell .bookwriter-chapter-delete-affordance.bookwriter-confirming,
+.bookwriter-embedded-wrapper .bookwriter-chapter-delete-affordance.bookwriter-confirming {
+  opacity: 1;
+  background: var(--accent);
+  color: var(--paper);
+}
+
+
+/* ================================================================
+   BOOK-INFO CARD — contenteditable surfaces
+   ----------------------------------------------------------------
+   The right-rail title + author become contenteditable for the
+   owner. We add a placeholder via :empty:before so the field never
+   reads as truly blank. Cursor + outline inherit the focus-visible
+   rule defined earlier. */
+.bookwriter-shell .bookwriter-book-title[contenteditable="true"],
+.bookwriter-shell .bookwriter-book-author[contenteditable="true"],
+.bookwriter-embedded-wrapper .bookwriter-book-title[contenteditable="true"],
+.bookwriter-embedded-wrapper .bookwriter-book-author[contenteditable="true"] {
+  cursor: text;
+}
+
+.bookwriter-shell .bookwriter-book-title[contenteditable="true"]:empty:before,
+.bookwriter-shell .bookwriter-book-author[contenteditable="true"]:empty:before,
+.bookwriter-embedded-wrapper .bookwriter-book-title[contenteditable="true"]:empty:before,
+.bookwriter-embedded-wrapper .bookwriter-book-author[contenteditable="true"]:empty:before {
+  content: attr(data-placeholder);
+  color: var(--ink-whisper);
+  font-style: italic;
+}
+
+
+/* ================================================================
+   GOAL RING — SVG <text> styling extracted from inline style.
+   SVG attribute styling can't be moved to a class via the normal
+   `style="..."` route in HTML, but `<text class="...">` works once
+   the CSS uses the `fill` property like an attribute. */
+.bookwriter-shell .bookwriter-goal-ring-percent-label,
+.bookwriter-embedded-wrapper .bookwriter-goal-ring-percent-label {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+
+/* ================================================================
+   PLOT CARD DELETE AFFORDANCE — × button on each corkboard card
+   ----------------------------------------------------------------
+   Same hover-only + two-click confirm pattern as the chapter
+   delete button. Positioned absolute in the card's top-right. */
+.bookwriter-shell .bookwriter-index-card,
+.bookwriter-embedded-wrapper .bookwriter-index-card {
+  position: relative;
+}
+
+.bookwriter-shell .bookwriter-plot-card-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-fade);
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.bookwriter-shell .bookwriter-index-card:hover .bookwriter-plot-card-delete-affordance,
+.bookwriter-shell .bookwriter-index-card:focus-within .bookwriter-plot-card-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-index-card:hover .bookwriter-plot-card-delete-affordance,
+.bookwriter-embedded-wrapper .bookwriter-index-card:focus-within .bookwriter-plot-card-delete-affordance {
+  opacity: 1;
+}
+
+.bookwriter-shell .bookwriter-plot-card-delete-affordance:hover,
+.bookwriter-shell .bookwriter-plot-card-delete-affordance.bookwriter-confirming,
+.bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance:hover,
+.bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance.bookwriter-confirming {
+  background: var(--accent);
+  color: var(--paper);
+  opacity: 1;
 }
 
 
@@ -2998,4 +3840,91 @@ body.mode-cover .cover-view { display: grid; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+
+/* ================================================================
+   STATIC DEMO/PLACEHOLDER COLOURS — extracted from inline styles
+   ----------------------------------------------------------------
+   These classes back the seed/demo content rendered when a book has
+   no real bible entries, no real beta readers, or no real cover
+   history yet. Hex values match the originals lifted from the
+   inline `style="..."` attributes in _inkwell_body.html.
+   Real DB-driven gradients (bible avatars built from
+   entry_avatar_color_hex / _hex_2) keep their inline style — those
+   are dynamic per record and CSS cannot express them statically.
+   ================================================================ */
+.bookwriter-history-item-seed-paper { background: #f4ede0; }
+.bookwriter-history-item-seed-ink { background: #1a1612; }
+.bookwriter-history-item-seed-moss { background: linear-gradient(165deg, #5a6b3f, #c8b79a); }
+.bookwriter-history-item-seed-terracotta { background: #c47a4f; }
+
+.bookwriter-bible-avatar-demo-moss { background: linear-gradient(135deg, #5a6b3f, #2d3b2d); }
+.bookwriter-bible-avatar-demo-clay { background: linear-gradient(135deg, #c46a5d, #8b2a1f); }
+.bookwriter-bible-avatar-demo-ochre { background: linear-gradient(135deg, #c8945a, #6a4e2a); }
+
+.bookwriter-reader-avatar-demo-moss { background: var(--moss); }
+.bookwriter-reader-avatar-demo-accent { background: var(--accent); }
+
+
+/* ================================================================
+   COVER PALETTE TILES — static palette definitions
+   ----------------------------------------------------------------
+   Each palette has 3 fixed colors: bg + fg + accent. Setting them as
+   custom properties on the parent tile lets the 3 swatch spans
+   inside read them via var(...) instead of carrying inline style
+   attributes. The matching `.bookwriter-cover-palette-tile-<name>`
+   class on each tile binds the palette identity to its CSS values.
+   Hex values come from the original inline styles — visual output
+   is byte-identical.
+   ================================================================ */
+.bookwriter-cover-palette-tile-classical {
+  --bookwriter-palette-bg: #f4ede0;
+  --bookwriter-palette-fg: #1a1612;
+  --bookwriter-palette-accent: #8b2a1f;
+}
+.bookwriter-cover-palette-tile-noir {
+  --bookwriter-palette-bg: #1a1612;
+  --bookwriter-palette-fg: #f4ede0;
+  --bookwriter-palette-accent: #c46a5d;
+}
+.bookwriter-cover-palette-tile-forest {
+  --bookwriter-palette-bg: #2d3b2d;
+  --bookwriter-palette-fg: #e8dcc0;
+  --bookwriter-palette-accent: #c8945a;
+}
+.bookwriter-cover-palette-tile-clay {
+  --bookwriter-palette-bg: #c47a4f;
+  --bookwriter-palette-fg: #f7e8d0;
+  --bookwriter-palette-accent: #3d1f15;
+}
+.bookwriter-cover-palette-tile-midnight {
+  --bookwriter-palette-bg: #1c2530;
+  --bookwriter-palette-fg: #d4c4a0;
+  --bookwriter-palette-accent: #a03030;
+}
+.bookwriter-cover-palette-tile-sand {
+  --bookwriter-palette-bg: #e8dcc0;
+  --bookwriter-palette-fg: #3d1f15;
+  --bookwriter-palette-accent: #5a6b3f;
+}
+.bookwriter-cover-palette-tile span:nth-child(1) { background: var(--bookwriter-palette-bg); }
+.bookwriter-cover-palette-tile span:nth-child(2) { background: var(--bookwriter-palette-fg); }
+.bookwriter-cover-palette-tile span:nth-child(3) { background: var(--bookwriter-palette-accent); }
+
+
+/* ================================================================
+   COVER PREVIEW — initial state (matches "classical" palette)
+   ----------------------------------------------------------------
+   Default colors for the cover preview on first paint. The cover
+   designer JS mutates `style.background` / `style.color` directly
+   when the user picks a different palette — that runtime DOM write
+   is still inline style, but it's NOT a template inline style and
+   it depends on user-supplied or palette-supplied hex values which
+   CSS cannot enumerate. The CSS class below covers only the
+   server-rendered initial state.
+   ================================================================ */
+.bookwriter-cover-default-classical {
+  background: #f4ede0;
+  color: #1a1612;
 }

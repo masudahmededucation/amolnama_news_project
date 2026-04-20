@@ -18,6 +18,70 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-inline-style-pattern. Inline style="background:linear-gradient(...)" violated Gate 4 #2 even for DB-driven values
+Date: 2026-04-20
+Was: Bible avatars had `style="background:linear-gradient(135deg, {{ hex_1 }}, {{ hex_2 }});"`.
+     Both the gradient angle (135deg) and the design (linear-gradient + fallback)
+     lived inline. The naive read of "dynamic values are exempt" allowed the
+     whole inline block, mixing design and data.
+Root cause: We treated the entire gradient as one indivisible "dynamic value".
+     In reality, only the two hex values are dynamic. The angle, fallback
+     colours, and gradient syntax are static design.
+Fix: Adopted the CSS-custom-property injection pattern:
+       CSS:    .bookwriter-bible-avatar {
+                  --bookwriter-bible-avatar-hex-1: var(--ochre);    /* fallback */
+                  --bookwriter-bible-avatar-hex-2: var(--accent);   /* fallback */
+                  background: linear-gradient(135deg,
+                    var(--bookwriter-bible-avatar-hex-1),
+                    var(--bookwriter-bible-avatar-hex-2));
+                }
+       Template: style="--bookwriter-bible-avatar-hex-1: {{ hex_1 }};
+                        --bookwriter-bible-avatar-hex-2: {{ hex_2 }};"
+       JS:      el.style.setProperty('--bookwriter-bible-avatar-hex-1', hex1);
+                el.style.setProperty('--bookwriter-bible-avatar-hex-2', hex2);
+     Inline still exists but carries data only (no design, no syntax).
+     Now codified in CLAUDE.md Gate 4 #2.
+Lesson: When you find yourself emitting inline `style="..."`, ask "is the
+     ENTIRE inline value dynamic, or only N specific data points?" If the
+     latter, use custom properties + a CSS rule that composes them. The
+     inline attribute should never carry a CSS function call (linear-gradient,
+     calc, rgb, etc.) — those are design.
+
+### R-bookwriter-classes. Bulk CSS class rename broke styling on cached browsers
+Date: 2026-04-20
+Was: After a bulk rename of every bookwriter CSS class to add the
+     `bookwriter-` prefix, the inkwell page lost its drop-cap (first
+     letter big + accent color) and other visual cues. The CSS file
+     was correct, the templates were correct, but the SERVICE WORKER
+     was still serving the previous CSS where the selector was `.prose`,
+     not `.bookwriter-prose`.
+Root cause: Two-fold. (a) The bulk-rename script only rewrote class
+     names in CSS rules, in HTML `class="..."` attributes, and in JS
+     `classList.*` / `.className` / dot-prefixed selector strings.
+     It MISSED bare class-name strings inside JS string concatenations
+     (e.g. `' is-resolved'` in a ternary), inside JS `innerHTML` template
+     strings (`<div class="margin-notes-empty">`), and inside object-
+     literal options whose key implied a class (e.g.
+     `confirmingClass: 'confirming'`). (b) Service worker cache was
+     not bumped after the CSS rename.
+Fix: Wrote a context-aware pass-2 script that handles innerHTML class=
+     attrs, classList.* calls including leading-whitespace forms,
+     `.className =/+=` full RHS (including ternaries), and object-literal
+     properties whose key ends in `Class`. Then bumped CACHE_NAME from
+     v759 → v760 + ran collectstatic. User had to hard-reload once
+     (Ctrl+Shift+R) for the service worker to refresh.
+Lesson: When doing a bulk CSS class rename, the JS rewrite MUST cover:
+     (1) classList.add/remove/contains/toggle/replace string literals,
+     (2) `.className = / +=` assignments INCLUDING the entire RHS
+     expression (ternaries, concats),
+     (3) innerHTML / template string `class="..."` attributes,
+     (4) object-literal property values whose KEY name ends in `Class`,
+     (5) dot-prefixed selector strings inside querySelector etc.
+     Bumping CACHE_NAME + collectstatic is non-negotiable after any
+     CSS edit, even pure renames.
+
+
+
 ### R0. Quiz Panel review queue scrolled to top on approve/reject
 Date: 2026-04-16
 Was: Clicking approve/reject on /quizadmin/review/ reloaded the page and
@@ -366,3 +430,83 @@ so the toggle anchors to the viewport corner instead of the (now-collapsing)
 container. Adds elevation-3 shadow to make it readable above scrolling content.
 Location: mastermind/static/mastermind/assets/css/components/lobby.css,
 .mastermind-lobby-sfx-toggle-floating.
+
+
+
+### B1. Bookwriter — request.session not available under RequestFactory
+File: bookwriter/views_api.py:api_bookwriter_release_view_record
+Symptom: Test fails with "WSGIRequest object has no attribute session".
+Cause: SessionMiddleware always runs in production but RequestFactory skips it.
+Fix: Use getattr(request, 'session', None) when accessing session_key, so the
+test path doesn't blow up. Production unchanged because the middleware always sets it.
+
+### B2. Bookwriter — XSS via hex-color interpolation into style=""
+File: bookwriter/views_api.py:_is_valid_hex_color
+Symptom: Saving entry_avatar_color_hex='red";attack();"' to a bible entry got
+echoed unescaped into a style="background:linear-gradient(135deg,...)" attribute.
+Cause: The save endpoint only stripped HTML tags via _strip_html_to_plain — it
+preserved quotes/semicolons.
+Fix: Module-level HEX_COLOR_PATTERN = re.compile(r'^#[0-9a-fA-F]{3,8}$') with a
+shared _is_valid_hex_color() helper. Used by both bible avatar fields and
+cover_palette_*_hex_override fields. Bad payloads return 400.
+
+### B3. Bookwriter — view tracking codes must match seeded ref tables
+File: bookwriter/static/bookwriter/assets/js/pages/page-public-reader.js
+Symptom: First impl sent device_code='phone' and referrer_code='external'.
+Both got 400 because seeded values are mobile/tablet/desktop/unknown for
+device and direct/search/social/email/rss/internal/unknown for referrer.
+Fix: Always cross-check JS lookup tables against the seeded ref rows before
+shipping. Bookwriter's seeded codes are documented in app-bookwriter.txt
+under TABLE INVENTORY.
+
+### B4. Bookwriter — bible attribute editor needs hidden JSON field
+File: bookwriter/templates/.../_inkwell_body.html (bible-detail)
+Symptom: Bible entry attributes stored as JSON. UI was a row of key/value
+inputs, but state needed to round-trip across detail-pane swaps (clicking
+another entry re-renders the pane via innerHTML).
+Fix: Hidden <input> #bookwriter-bible-entry-attributes-json carries the
+serialized JSON value. JS hydrates the visible rows from the hidden field
+on render and serializes back on every input event.
+
+### B5. Bookwriter — chapter rail status picker MUST be hover-revealed
+File: bookwriter/static/bookwriter/assets/css/pages/page-inkwell.css
+(.bookwriter-chapter-status-picker-row)
+Symptom: Showing two <select> elements per chapter row by default cluttered
+the rail and broke the calligraphic/minimalist aesthetic.
+Fix: display: none baseline + .chapter:hover .bookwriter-chapter-status-picker-row {
+display: flex; }. focus-within also reveals so keyboard users can reach the
+selects via tab.
+
+### B6. Bookwriter — auto-create BetaReader on first beta link visit
+File: bookwriter/views.py:_resolve_beta_reader_for_share_token
+Pattern: A logged-in viewer arriving at /beta/<token>/ for the first time
+gets a BetaReader row auto-created so subsequent comment posts have a real
+reader_id to attach to. Idempotent — subsequent visits return the existing
+row. Uses share_link.beta_permission_code as the new reader's permission.
+
+### B7. Bookwriter — _strip_html_to_plain leaves quotes/semicolons untouched
+General pattern: bookwriter's _strip_html_to_plain regex is "<[^>]+>" — it
+only strips HTML tags. For free-form text fields (entry_role, entry_name,
+margin notes, comment_text) this is fine because the resulting string is
+rendered via Django's autoescape (not |safe). NEVER use _strip_html_to_plain
+output inside a style="" / data-attr / inline-onclick context — those need
+either escapejs / escape filters or a strict pattern validator.
+
+### B8. Bookwriter — FK constraint blocks DELETE when test cleanup wrong-orders
+File: development-only test scripts
+Symptom: Trying to DELETE a SerialRelease while EngagementSerialReaction
+rows still reference it raises pyodbc.IntegrityError 547.
+Fix: Always delete children FIRST in test cleanup:
+  EngagementSerialReaction.objects.all().delete()
+  EngagementSerialComment.objects.all().delete()
+  EngagementSerialView.objects.all().delete()
+  EngagementSerialSubscriber.objects.all().delete()
+  BetaComment.objects.all().delete()
+  SerialRelease.objects.filter(...).delete()
+
+### B9. Bookwriter — public_chapter_slug collision suffixing
+File: bookwriter/views_api.py:api_bookwriter_chapter_publish
+Pattern: serial_release.public_chapter_slug has a UNIQUE constraint. If two
+chapters in DIFFERENT books happen to slugify to the same string, the second
+publish would fail. Fix: detect collision before insert and append "-<chapter_id>"
+suffix. Same suffix pattern is reused on title-rename republish.

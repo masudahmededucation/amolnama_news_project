@@ -1,3 +1,16 @@
+####
+I need a web page that mimics the aesthetic of that old book page 
+— aged paper background, vintage printing press typography, 
+and a similar layout. 
+Let me check the frontend design guidelines first.
+
+Good call — old wood-pulp paper had visible fiber strands, 
+tiny dark specks (undigested wood bits), 
+and an uneven, slightly rough surface.
+
+
+###
+
 also by putting inside the content section 
 - we have lost the right side section of the original page 
 - what can done?
@@ -50,3 +63,31 @@ not edited text.
 
 on open, 
 chapter iii is default, why?
+okay, then not a problem. 
+is it possible to save the last page 
+and open that page on comeback?
+
+--on write tab
+top section not all the text is visible.
+it is squeezing underneath right section.
+
+maybe show in a multiple line - you call it wrap right?
+
+these texts i am talking about -
+The Saltwater Almanac  ·  Chapter III 
+SAVED TO THE SHELF · 2M
+
+B
+
+I
+
+U
+¶ heading
+" quote
+⏱ sprint
+
+
+বাংলাদেশকে ভালোবাসা এতো সহজ নয়। 
+শকুনের দল, আপনার ইজ্জত নিয়ে লুটবে, পেটে লাথি মারবে, 
+চোখের সামনে সন্তানকে অত্যাচার করবে, স্বামীকে অবর্ণনীয় কষ্ট সহ্য করতে হবে। 
+কেস হবে, পুলিশ আসবে, মানুষ ঢিল মারবে, হয়তো একদিন আপনাকে মেরেও ফেলবে। 

@@ -1,0 +1,124 @@
+================================================================================
+BOOKWRITER — DB MAPPING: CORKBOARD (plot cards)
+================================================================================
+Module:        views_api_writing_artifacts.py
+Tables:        plot_card, ref_act_structure
+Templates:     _inkwell_body.html (Plot tab — #corkboard grid)
+JS managed:    page-inkwell.js (CORKBOARD section — addIndexCard / wirePlotCardEditing)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+STEP 1 — Plot card create
+================================================================================
+Endpoint:    POST /api/book/<book_id>/plot-card/create/
+View:        api_bookwriter_book_plot_card_create
+Trigger:     Click "+ new card" → addIndexCard() in page-inkwell.js
+Owner-check: _resolve_book_for_owner
+
+Request JSON:
+  act_structure_code  string|null   (optional; validated as a string only —
+                                     not currently checked against
+                                     ref_act_structure for forward compat)
+
+DB INSERT (table = plot_card):
+  link_bookwriter_coll_book_id   ← book_id (URL)
+  link_bookwriter_chapter_id     ← NULL (unplaced by default)
+  act_structure_code             ← payload or NULL
+  card_scene_number              ← MAX(card_scene_number) + 1
+  card_title                     ← NULL
+  card_body                      ← NULL
+  card_tag                       ← 'unplaced'
+  sort_order                     ← MAX(sort_order) + 1
+  is_active                      ← 1
+  created_at                     ← now
+
+Response: { ok, plot_card: { id, scene_number, title, body, tag,
+            act_structure_code } }
+
+================================================================================
+STEP 2 — Plot card save (partial update)
+================================================================================
+Endpoint:    POST /api/plot-card/<plot_card_id>/save/
+View:        api_bookwriter_plot_card_save
+Trigger:     Per-field debounced 800ms autosave from contenteditable
+             card-title / card-body / card-tag elements
+             (page-inkwell.js schedulePlotCardSave)
+Owner-check: _resolve_plot_card_for_owner
+
+Form/UI elements per .index-card:
+  .card-title[contenteditable][data-card-field="card_title"]   → card_title
+  .card-body[contenteditable][data-card-field="card_body"]     → card_body
+  .card-tag[contenteditable][data-card-field="card_tag"]       → card_tag
+
+Request JSON (any subset; all keys optional, MUST supply at least one):
+  card_title           string|null  → cleaned (HTML stripped, trimmed, ≤500)
+  card_body            string|null  → cleaned (HTML stripped, trimmed, no cap)
+  card_tag             string|null  → cleaned (≤100)
+  act_structure_code   string|null
+
+DB UPDATE (plot_card):
+  Each supplied field; updated_at ← now
+
+================================================================================
+STEP 3 — Plot card delete (soft)
+================================================================================
+Endpoint:    POST or DELETE /api/plot-card/<plot_card_id>/delete/
+DB UPDATE:   plot_card.is_active ← 0; updated_at ← now
+
+================================================================================
+STEP 4 — Plot card promote-to-chapter (link / unlink chapter)
+================================================================================
+Endpoint:    POST /api/plot-card/<plot_card_id>/link-chapter/
+Trigger:     Change event on .bookwriter-plot-card-chapter-select
+             (event-delegated on #corkboard in page-inkwell.js)
+
+Form/UI:
+  <label class="bookwriter-plot-card-chapter-field">
+    <span class="bookwriter-plot-card-chapter-label-text">Promote to chapter</span>
+    <select class="bookwriter-plot-card-chapter-select" ...>
+      <option value="">— Unplaced —</option>
+      <option value="<chapter_id>">Ch.<n> · <title></option>
+      ...
+    </select>
+  </label>
+
+Request JSON:
+  chapter_id  int|null  REQUIRED  (use null to clear / demote to unplaced)
+
+Validation: when not null, the chapter MUST belong to the same book as the
+card (cross-book promote rejected with 400).
+
+DB UPDATE (plot_card):
+  link_bookwriter_chapter_id  ← payload (int or NULL)
+  updated_at                  ← now
+
+================================================================================
+SERVER-SIDE RENDER CONTEXT
+================================================================================
+views.py loads `book_plot_cards_list` for the corkboard:
+  PlotCard.objects.filter(
+    link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+    is_active=True,
+  ).order_by('sort_order', 'card_scene_number')
+
+Each card carries:
+  data-plot-card-id          (DB row id)
+  data-linked-chapter-id     (current link, '' if unplaced)
+The chapter <select> is populated from `book_chapters_list` (loaded for the
+chapter rail and reused here).
+
+================================================================================
+REF TABLE: ref_act_structure (4 codes)
+================================================================================
+Columns:
+  bookwriter_ref_act_structure_id  PK
+  act_structure_code               'act_one' / 'act_two' / 'act_three' / 'unplaced'
+  act_structure_name_en
+  act_structure_name_bn
+  act_structure_subtitle           short helper text
+
+Surfaced via /api/refs/act_structure/ but NOT currently rendered as a UI
+picker. Cards default to act_structure_code = NULL, the corkboard UI doesn't
+yet group by act. Reserved for future "Act I / II / III" column layout.
+
+================================================================================

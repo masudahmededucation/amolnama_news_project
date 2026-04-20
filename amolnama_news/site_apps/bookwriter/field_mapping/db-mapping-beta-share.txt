@@ -1,0 +1,238 @@
+================================================================================
+BOOKWRITER — DB MAPPING: BETA WORKFLOW (share link + reader + comment)
+================================================================================
+Module:        views_api_collaboration.py
+Tables:        beta_share_link, beta_reader, beta_comment, ref_beta_permission
+Templates:     _inkwell_body.html (Beta share modal — .modal with id "shareLink")
+               public_reader.html (beta-mode aside — beta-comment form + sidebar)
+JS managed:    page-inkwell.js (BETA SHARE MODAL section)
+               modules/bookwriter-beta-reader-mgmt.js (invite/list/remove)
+               page-public-reader.js (beta sidebar + inline highlights)
+Common steps:  See db-mapping-common-steps.txt
+
+================================================================================
+A. SHARE LINK — revocable secret URL
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+A.1 — Share link create
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/book/<book_id>/beta-share/create/
+View:        api_bookwriter_book_beta_share_create
+Trigger:     openShare() / copyShareLink() in page-inkwell.js
+             (lazy-mints on first modal open if no active link exists)
+Owner-check: _resolve_book_for_owner
+
+Request JSON:
+  beta_permission_code  string|null  default 'read'
+                          (validated against ALLOWED_BETA_PERMISSIONS =
+                           ('read','comment','suggest'))
+  share_expires_at      ISO-8601|null  optional expiry
+
+DB INSERT (table = beta_share_link):
+  link_bookwriter_coll_book_id      ← book_id (URL)
+  share_link_token                   ← secrets.token_urlsafe(24) (32 chars URL-safe)
+  beta_permission_code               ← payload (validated)
+  share_expires_at                   ← parsed ISO datetime or NULL
+  link_created_by_user_profile_id    ← viewer
+  is_active                          ← 1
+  created_at                         ← now
+
+Response: { ok, beta_share_link: { id, token, permission_code, share_url,
+            expires_at, created_at } }
+share_url = request.build_absolute_uri('/bookwriter/beta/<token>/')
+
+────────────────────────────────────────────────────────────────────────────────
+A.2 — Share link list
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    GET /api/book/<book_id>/beta-shares/
+DB read:     beta_share_link rows for book, ORDER BY created_at DESC, capped 100
+             (active + revoked, so writer can audit)
+Response:    { ok, beta_share_links: [{id, token, permission_code, share_url,
+              expires_at, revoked_at, is_active, created_at}, ...] }
+
+────────────────────────────────────────────────────────────────────────────────
+A.3 — Share link revoke
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/beta-share/<beta_share_link_id>/revoke/
+DB UPDATE (beta_share_link):
+  share_revoked_at  ← now
+  is_active         ← 0
+  updated_at        ← now
+
+================================================================================
+B. BETA READER — per-reader invitee row
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+B.1 — Beta reader invite (by email)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/book/<book_id>/beta-reader/invite/
+Trigger:     #bookwriter-beta-reader-invite-submit-button click
+             (modules/bookwriter-beta-reader-mgmt.js)
+
+Form/UI:
+  #bookwriter-beta-reader-invite-email-input        <input email>
+  #bookwriter-beta-reader-invite-permission-select  <select>
+                                                      values: read/comment/suggest
+  #bookwriter-beta-reader-invite-submit-button       trigger
+
+Request JSON:
+  reader_email           email (≤254, must contain '@')   REQUIRED
+  reader_display_name    string|null (≤200, HTML stripped)
+  beta_permission_code   ref code (default 'read';
+                          validated against ref_beta_permission)
+
+DB INSERT (table = beta_reader):
+  link_bookwriter_coll_book_id           ← book_id (URL)
+  link_bookwriter_beta_share_link_id     ← NULL (email-invited; no share-link link)
+  reader_email                            ← cleaned email (lowercased)
+  link_reader_user_profile_id             ← NULL (until reader signs in)
+  reader_display_name                     ← cleaned display name or NULL
+  reader_avatar_initial                   ← (display_name or email)[:1]
+  reader_avatar_color_hex                 ← NULL
+  beta_permission_code                    ← payload (validated)
+  invited_at                              ← now
+  is_active                               ← 1
+  created_at                              ← now
+
+────────────────────────────────────────────────────────────────────────────────
+B.2 — Beta reader list
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    GET /api/book/<book_id>/beta-readers/
+DB read:     beta_reader rows for book, is_active=1, ORDER BY created_at DESC,
+             capped 200
+Response:    { ok, beta_readers: [{id, email, display_name, avatar_initial,
+              permission_code, invited_at, accepted_at, last_visited_at}, ...] }
+
+────────────────────────────────────────────────────────────────────────────────
+B.3 — Beta reader remove (soft)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST or DELETE /api/beta-reader/<beta_reader_id>/remove/
+DB UPDATE:   beta_reader.is_active ← 0; updated_at ← now
+
+────────────────────────────────────────────────────────────────────────────────
+B.4 — Auto-create on beta reader page visit (server-side)
+────────────────────────────────────────────────────────────────────────────────
+View:        bookwriter_beta_chapter_reader (in views.py)
+             via _resolve_beta_reader_for_share_token(token, viewer_user_profile_id)
+
+When a logged-in viewer hits /bookwriter/beta/<token>/ for the first time,
+if no beta_reader row exists for (book, viewer), create one:
+  link_bookwriter_coll_book_id           ← share_link.link_bookwriter_coll_book_id
+  link_bookwriter_beta_share_link_id     ← share_link.bookwriter_beta_share_link_id
+  link_reader_user_profile_id             ← viewer
+  beta_permission_code                    ← share_link.beta_permission_code
+  invited_at                              ← now
+  accepted_at                             ← now
+  is_active                               ← 1
+  created_at                              ← now
+
+================================================================================
+C. BETA COMMENT — chapter-anchored comments + suggestions
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+C.1 — Beta comment create
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/chapter/<chapter_id>/beta-comment/create/
+Trigger:     #bookwriter-beta-comment-new-submit-button click in beta sidebar
+             (page-public-reader.js)
+Owner-check: viewer MUST be a registered beta_reader for the book
+             (link_reader_user_profile_id check)
+
+Form/UI:
+  #bookwriter-beta-comment-kind-select   <select>
+                                            values: comment/suggestion/praise
+  #bookwriter-beta-comment-new-textarea  <textarea>
+  #bookwriter-beta-comment-new-submit-button  trigger
+
+Request JSON:
+  beta_reader_id              int    REQUIRED  (must own + be active)
+  comment_text                string REQUIRED  (cleaned, ≤4000, non-empty)
+  comment_kind_code           string default 'comment'
+                                (validated: comment/suggestion/praise)
+  comment_anchor_offset       int|null    optional  (char offset in plain text)
+  comment_anchor_length       int|null    optional  (char length of selection)
+  comment_anchor_text         string|null optional  (snapshot of selected text,
+                                                    ≤500 chars, fallback search)
+  suggestion_replacement_text string|null optional  (only for kind=suggestion)
+
+The anchor offset/length are auto-captured by JS via the selectionchange
+listener — when the user selects text in the prose then types in the
+comment form, those fields populate.
+
+DB INSERT (table = beta_comment):
+  link_bookwriter_chapter_id          ← chapter_id (URL)
+  link_bookwriter_beta_reader_id      ← payload.beta_reader_id
+  comment_anchor_offset               ← payload (or NULL)
+  comment_anchor_length               ← payload (or NULL)
+  comment_anchor_text                 ← cleaned (or NULL)
+  comment_text                        ← cleaned text
+  comment_kind_code                   ← payload (validated)
+  suggestion_replacement_text         ← cleaned (or NULL)
+  suggestion_resolution_code          ← 'pending' if kind='suggestion' else NULL
+  is_resolved                         ← 0
+  is_active                           ← 1
+  created_at                          ← now
+
+────────────────────────────────────────────────────────────────────────────────
+C.2 — Beta comment list
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    GET /api/chapter/<chapter_id>/beta-comments/
+View:        api_bookwriter_chapter_beta_comment_list
+
+Visibility:
+  Book owner     → sees ALL beta_comments for chapter
+  Beta reader    → sees only their own (filter by their beta_reader_id)
+  Other          → 403
+
+Capped 500 newest-first.
+
+Response: { ok, beta_comments: [{id, beta_reader_id, kind, text, anchor_text,
+            anchor_offset, anchor_length, suggestion_replacement_text,
+            suggestion_resolution_code, is_resolved, created_at}, ...] }
+
+────────────────────────────────────────────────────────────────────────────────
+C.3 — Beta comment resolve / accept / reject (owner-only)
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST /api/beta-comment/<beta_comment_id>/resolve/
+Owner-check: book owner only (403 otherwise)
+
+Request JSON (any subset):
+  is_resolved                  bool
+  suggestion_resolution_code   'accepted'|'rejected'|'pending'|null
+
+DB UPDATE (beta_comment):
+  is_resolved                  ← payload (if supplied)
+  suggestion_resolution_code   ← payload (if supplied)
+  updated_at                   ← now
+
+────────────────────────────────────────────────────────────────────────────────
+C.4 — Beta comment delete
+────────────────────────────────────────────────────────────────────────────────
+Endpoint:    POST or DELETE /api/beta-comment/<beta_comment_id>/delete/
+Authorised:  comment author OR book owner
+
+DB UPDATE:   beta_comment.is_active ← 0; updated_at ← now
+
+================================================================================
+INLINE HIGHLIGHT OVERLAY (UI-side, no DB cost)
+================================================================================
+public_reader.html in beta mode renders each beta_comment row with
+data-anchor-offset / data-anchor-length / data-anchor-text attributes.
+page-public-reader.js's applyBetaInlineHighlights() walks the prose DOM,
+maps the offset+length back to a Range, and wraps it with
+<mark class="bookwriter-beta-anchor">. Click the mark → scroll the matching
+comment row into view + flash. Stale anchors (writer edited the prose) fall
+back to comment_anchor_text substring search.
+
+================================================================================
+REF TABLE: ref_beta_permission (3 codes)
+================================================================================
+beta_permission_code  display label    description
+read                  Read only        Can read every visible chapter; no comment, no suggest
+comment               Read & comment   Can leave margin notes / passage comments
+suggest               Read & suggest   Can post suggested edits (tracked-change style)
+
+================================================================================

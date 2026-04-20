@@ -1,0 +1,265 @@
+================================================================================
+BOOKWRITER — DB MAPPING: PAGE-RENDER CONTEXT (read paths)
+================================================================================
+Last updated: 2026-04-20
+File: amolnama_news/site_apps/bookwriter/field_mapping/db-mapping-page-context.txt
+
+The other mapping files document WRITE paths (endpoint → DB column). This
+file documents READ paths — every context variable each page view passes
+to its template, and which DB query produces it.
+
+Three page views:
+  views.py:bookwriter_inkwell                writer surface
+  views.py:bookwriter_public_chapter_reader  public reader (anonymous-OK)
+  views.py:bookwriter_beta_chapter_reader    beta-reader (token-gated)
+
+Common steps: see db-mapping-common-steps.txt for owner-resolver chain.
+
+================================================================================
+A. INKWELL VIEW  (template: pages/inkwell_embedded.html or pages/inkwell.html)
+================================================================================
+View:        views.py:bookwriter_inkwell
+URL:         GET /bookwriter/
+Auth:        anonymous-OK (renders demo content); logged-in users get a real book
+
+────────────────────────────────────────────────────────────────────────────────
+Anonymous viewer:
+  context = {}    (template falls back to demo / marketing fixtures)
+
+Logged-in viewer:
+  Step 1 — auto-provision a default book + first chapter on first visit
+    via _ensure_default_book_for_user(user_profile_id)
+    Inserts CollBook + Chapter (idempotent — returns existing on subsequent visits)
+
+  Step 2 — load every context variable below from DB
+
+────────────────────────────────────────────────────────────────────────────────
+CONTEXT VARIABLES → SOURCE QUERIES
+────────────────────────────────────────────────────────────────────────────────
+
+  current_book                       CollBook.objects.filter(
+                                       link_owner_user_profile_id=user_profile_id,
+                                       is_active=True
+                                     ).order_by('-created_at').first()
+
+  active_chapter_id                  Chapter.objects.filter(
+                                       link_bookwriter_coll_book_id=current_book.id,
+                                       is_active=True
+                                     ).order_by('sort_order','chapter_number').first()
+
+  active_chapter_number              same row → .chapter_number
+  active_chapter_html                same row → .chapter_text_html or ''
+  active_chapter_title               same row → .chapter_title_en or ._bn or 'Untitled'
+
+  book_chapters_list                 Chapter.objects.filter(
+                                       link_bookwriter_coll_book_id=current_book.id,
+                                       is_active=True
+                                     ).order_by('sort_order','chapter_number')
+
+  book_plot_cards_list               PlotCard.objects.filter(
+                                       link_bookwriter_coll_book_id=current_book.id,
+                                       is_active=True
+                                     ).order_by('sort_order','card_scene_number')
+
+  book_bible_categories_list  ←┐
+                               │  Both come from
+  book_bible_entries_list      ←┘  _read_book_bible_data(book_id):
+                                     RefBibleCategory active rows JOIN counts
+                                     from BibleEntry per category (ordered)
+
+  saved_cover_design_state           _read_book_cover_design_state(book_id):
+                                       BookCoverDesign row (UPSERTed) +
+                                       FK ids resolved back to ref codes
+                                       (cover_template_code / cover_font_code /
+                                        cover_background_code) so the template
+                                       can mark the active tile on first paint
+
+  published_chapter_ids_set          set(SerialRelease.objects.filter(
+                                       link_bookwriter_coll_book_id=...,
+                                       serial_release_status_code='published',
+                                       is_active=True
+                                     ).values_list('link_bookwriter_chapter_id', flat=True))
+
+  active_beta_share_links_list       BetaShareLink.objects.filter(
+                                       link_bookwriter_coll_book_id=current_book.id,
+                                       is_active=True,
+                                       share_revoked_at__isnull=True
+                                     ).order_by('-created_at')[:20]
+
+  active_beta_readers_list           BetaReader.objects.filter(
+                                       link_bookwriter_coll_book_id=current_book.id,
+                                       is_active=True
+                                     ).order_by('-created_at')[:50]
+
+  chapter_status_options_list        RefChapterStatus.objects.filter(is_active=True)
+                                       .order_by('sort_order','...id')
+                                       .values('chapter_status_code',
+                                               'chapter_status_name_en',
+                                               'chapter_status_dot_color_hex')
+
+  chapter_visibility_options_list    RefChapterVisibility.objects.filter(is_active=True)
+                                       (similar)
+
+  book_status_options_list           RefBookStatus.objects.filter(is_active=True)
+                                       (similar)
+
+  today_session_words      ←┐
+  today_session_minutes    ←┤  All four come from
+  current_streak_days      ←┤  _read_writer_dashboard_stats(user_profile_id, book_id):
+  last_seven_streak_days   ←┘    WritingSession (today's row words+seconds)
+                                  + EngUserStreak (last 365 dates set →
+                                    consecutive-day walk + last-7-day boolean list)
+
+  daily_word_target                  current_book.book_daily_word_target or 500
+  daily_goal_progress_percent        round(min(today_session_words/target, 1.5)*100)
+
+────────────────────────────────────────────────────────────────────────────────
+TEMPLATE-SIDE WIRING SUMMARY
+────────────────────────────────────────────────────────────────────────────────
+  Right-rail .book-info card → current_book + book_status_options_list
+  Chapter rail #chapters     → book_chapters_list + chapter_status_options_list +
+                                chapter_visibility_options_list +
+                                published_chapter_ids_set
+  Center .editor             → active_chapter_html + active_chapter_id
+  Plot tab #corkboard        → book_plot_cards_list + book_chapters_list
+                                (latter for the per-card link-chapter select)
+  Bible tab .bible-view      → book_bible_categories_list + book_bible_entries_list
+                                (entries also serialized to a JSON island for
+                                 client-side detail-pane swap)
+  Cover tab .cover-view      → saved_cover_design_state (server marks active
+                                tiles for template / palette / font / background)
+  Share modal                 → active_beta_share_links_list + active_beta_readers_list
+  Today's-session widget     → today_session_words + minutes + streak_days +
+                                last_seven_streak_days + goal_progress_percent
+
+================================================================================
+B. PUBLIC CHAPTER READER  (template: pages/public_reader.html)
+================================================================================
+View:        views.py:bookwriter_public_chapter_reader
+URL:         GET /bookwriter/read/<public_chapter_slug>/
+Auth:        anonymous-OK
+Side effect: bumps serial_release.read_count_cached on every render
+
+────────────────────────────────────────────────────────────────────────────────
+LOOKUP CHAIN
+────────────────────────────────────────────────────────────────────────────────
+1. SerialRelease.objects.get(
+     public_chapter_slug=URL_slug,
+     serial_release_status_code='published',
+     is_active=True
+   )                                                       → 404 if missing
+2. Chapter.objects.get(id=release.link_bookwriter_chapter_id, is_active=True)
+3. CollBook.objects.get(id=release.link_bookwriter_coll_book_id, is_active=True)
+4. SerialRelease.objects.filter(pk=release.pk).update(
+     read_count_cached = read_count_cached + 1
+   )                                                       (eventual consistency)
+
+5. → calls _render_chapter_reader_page(reader_mode_code='public', ...)
+
+────────────────────────────────────────────────────────────────────────────────
+CONTEXT VARIABLES (set in _render_chapter_reader_page)
+────────────────────────────────────────────────────────────────────────────────
+
+  reader_mode_code                   'public'
+  current_chapter                    Chapter row (the one being read)
+  current_book                       CollBook row (parent)
+  serial_release                     SerialRelease row
+  viewer_user_profile_id             get_user_profile_id(request) or None
+
+  is_book_owner                      bool: viewer == current_book.link_owner_user_profile_id
+  is_subscribed                      EngagementSerialSubscriber WHERE
+                                       (book, viewer) AND is_active AND
+                                       unsubscribed_at IS NULL  (False if anon)
+
+  existing_user_reaction_kinds_set   set of reaction_kind_code values for the
+                                       viewer on this release (empty if anon)
+
+  reaction_kinds_for_strip           [
+                                       {code, icon, label, count, is_active},
+                                       ...5 entries: heart/fire/thinking/tear/clap
+                                     ]
+                                     count from EngagementSerialReaction
+                                     filtered by release_id + is_active=1
+                                     grouped+annotated by kind
+
+  public_reader_comments_list        _read_serial_release_comments_for_render():
+                                       EngagementSerialComment rows for release,
+                                       is_active=1, ORDER BY -is_pinned, -created_at,
+                                       LIMIT 200, with author_display_name
+                                       resolved via UserProfile.display_name in_bulk
+
+  beta_reader_row                    None in public mode
+  beta_share_link_token              None in public mode
+  beta_chapter_comments_list         [] in public mode
+
+  book_other_published_chapters      Chapter rows for same book, JOINed with
+                                       SerialRelease (only published+active rows
+                                       included) + serial_release_id per dict so
+                                       the TOC's IntersectionObserver can fire
+                                       /preview-impression/ per row
+
+  SEO context (rendered in template extra_head, not via context dict):
+    meta description / canonical / og:title / og:description / twitter:card /
+    JSON-LD @type=Chapter (with isPartOf Book + inLanguage + datePublished)
+
+================================================================================
+C. BETA CHAPTER READER  (template: pages/public_reader.html — beta mode)
+================================================================================
+View:        views.py:bookwriter_beta_chapter_reader
+URL:         GET /bookwriter/beta/<share_link_token>/
+Auth:        anonymous-OK; logged-in viewers get auto-provisioned BetaReader row
+Indexing:    <meta name="robots" content="noindex, nofollow">
+
+────────────────────────────────────────────────────────────────────────────────
+LOOKUP CHAIN
+────────────────────────────────────────────────────────────────────────────────
+1. BetaShareLink.objects.get(
+     share_link_token=URL_token,
+     is_active=True,
+     share_revoked_at__isnull=True
+   )                                                       → 404 if missing
+2. share_row.share_expires_at past → 404 (link expired)
+3. CollBook.objects.get(id=share_row.link_bookwriter_coll_book_id, is_active=True)
+4. Chapter — first active chapter for the book by sort_order
+5. _resolve_beta_reader_for_share_token(token, viewer_user_profile_id)
+     UPSERT BetaReader row for (book, viewer) — see beta-share.txt B.4
+6. → calls _render_chapter_reader_page(reader_mode_code='beta', beta_reader_row=...,
+                                       share_link_token=...)
+
+────────────────────────────────────────────────────────────────────────────────
+CONTEXT VARIABLES (overrides from public mode)
+────────────────────────────────────────────────────────────────────────────────
+
+  reader_mode_code                   'beta'
+  serial_release                     None (beta links bypass publish workflow)
+  is_subscribed                      always False
+  reaction_kinds_for_strip           reactions strip HIDDEN in template
+                                       (only renders when serial_release exists)
+  public_reader_comments_list        same call but release_row is None →
+                                       returns [] early
+  beta_reader_row                    BetaReader instance (may be None for anon)
+  beta_share_link_token              the URL token (passed to template so JS
+                                       can construct the comment-create endpoint
+                                       even though the page hosts the chapter)
+  beta_chapter_comments_list         _read_beta_chapter_comments_for_render():
+                                       owner sees ALL comments for chapter;
+                                       reader sees only their own (filtered by
+                                       my reader_id list); LIMIT 200
+                                     each row carries anchor_offset / anchor_length /
+                                       comment_anchor_text so the JS overlay can
+                                       render <mark> spans inline in the prose
+
+  book_other_published_chapters      published-chapter list still shown but with
+                                       no preview-impression tracking (only
+                                       fires in 'public' reader_mode_code)
+
+================================================================================
+D. WHEN TO TOUCH THIS FILE
+================================================================================
+- A new context variable is added to any of the 3 page views
+- A new query is introduced to a context-loading helper
+- An existing context variable changes its source query
+- A page view auto-provisions a new row on first visit (document the
+  lookup-or-create chain)
+
+================================================================================
