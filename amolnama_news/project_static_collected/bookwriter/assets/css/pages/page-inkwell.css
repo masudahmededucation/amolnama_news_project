@@ -1501,7 +1501,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 }
 
 .bookwriter-bible-cat:hover { background: rgba(0,0,0,0.04); }
-.bookwriter-bible-cat.bookwriter-active {
+.bookwriter-bible-cat-is-selected {
   background: var(--paper);
   color: var(--ink);
   font-weight: 500;
@@ -1533,7 +1533,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 }
 
 .bookwriter-bible-item:hover { background: var(--paper-deep); }
-.bookwriter-bible-item.bookwriter-active { background: var(--paper-deep); border-left: 3px solid var(--accent); padding-left: 21px; }
+.bookwriter-bible-item-is-selected { background: var(--paper-deep); border-left: 3px solid var(--accent); padding-left: 21px; }
 
 .bookwriter-bible-avatar {
   /* When a real bible entry is rendered the template injects two

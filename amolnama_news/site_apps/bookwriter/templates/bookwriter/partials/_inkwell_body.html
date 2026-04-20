@@ -827,7 +827,7 @@
       <div class="bookwriter-bible-cats" id="bookwriter-bible-categories">
         {% if book_bible_categories_list %}
           {% for category_row in book_bible_categories_list %}
-            <div class="bookwriter-bible-cat{% if forloop.first %} bookwriter-active{% endif %}"
+            <div class="bookwriter-bible-cat{% if forloop.first %} bookwriter-bible-cat-is-selected{% endif %}"
                  data-cat="{{ category_row.category_code }}">
               <span>{% if category_row.category_icon %}{{ category_row.category_icon }} {% endif %}{{ category_row.category_name_en }}</span>
               <span class="bookwriter-bible-cat-count" data-cat-count="{{ category_row.category_code }}">
@@ -837,7 +837,7 @@
           {% endfor %}
         {% else %}
           {# Anonymous / no-categories fallback — keeps the demo rail look. #}
-          <div class="bookwriter-bible-cat bookwriter-active" data-cat="characters">
+          <div class="bookwriter-bible-cat bookwriter-bible-cat-is-selected" data-cat="characters">
             <span>Characters</span>
             <span class="bookwriter-bible-cat-count">07</span>
           </div>
@@ -875,7 +875,7 @@
     <aside class="bookwriter-bible-list" id="bibleList">
       {% if book_bible_entries_list %}
         {% for bible_entry_row in book_bible_entries_list %}
-          <div class="bookwriter-bible-item{% if forloop.first %} bookwriter-active{% endif %}"
+          <div class="bookwriter-bible-item{% if forloop.first %} bookwriter-bible-item-is-selected{% endif %}"
                data-bible-entry-id="{{ bible_entry_row.bookwriter_bible_entry_id }}"
                data-cat="{{ bible_entry_row.bible_category_code }}">
             <div class="bookwriter-bible-avatar"
@@ -894,7 +894,7 @@
           <div class="bookwriter-bible-list-empty-state-hint">Use “+ Add entry” below to start your worldbuilding.</div>
         </div>
       {% else %}
-        <div class="bookwriter-bible-item bookwriter-active" data-name="Mira">
+        <div class="bookwriter-bible-item bookwriter-bible-item-is-selected" data-name="Mira">
           <div class="bookwriter-bible-avatar">M</div>
           <div><div class="bookwriter-b-name">Mira Calloway</div><div class="bookwriter-b-role">protagonist</div></div>
         </div>

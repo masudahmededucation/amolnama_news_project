@@ -1150,8 +1150,8 @@
      ======================================================== */
   document.querySelectorAll('.bookwriter-bible-item').forEach(function (item) {
     item.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-item').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      item.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-bible-item').forEach(function (x) { x.classList.remove('bookwriter-bible-item-is-selected'); });
+      item.classList.add('bookwriter-bible-item-is-selected');
 
       var name   = item.querySelector('.bookwriter-b-name') ? item.querySelector('.bookwriter-b-name').innerText : '';
       var role   = item.querySelector('.bookwriter-b-role') ? item.querySelector('.bookwriter-b-role').innerText : '';
@@ -1180,8 +1180,8 @@
 
   document.querySelectorAll('.bookwriter-bible-cat').forEach(function (cat) {
     cat.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-cat').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      cat.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-bible-cat').forEach(function (x) { x.classList.remove('bookwriter-bible-cat-is-selected'); });
+      cat.classList.add('bookwriter-bible-cat-is-selected');
     });
   });
 
@@ -1557,7 +1557,7 @@
   loadBibleEntriesFromIsland();
 
   function activeBibleCategoryCode() {
-    var activeCategoryElement = document.querySelector('.bookwriter-bible-cats .bookwriter-bible-cat.bookwriter-active');
+    var activeCategoryElement = document.querySelector('.bookwriter-bible-cats .bookwriter-bible-cat-is-selected');
     return activeCategoryElement ? activeCategoryElement.dataset.cat : null;
   }
 
@@ -1787,7 +1787,7 @@
 
   function selectBibleEntry(rowElement) {
     document.querySelectorAll('.bookwriter-bible-list .bookwriter-bible-item').forEach(function (otherRow) {
-      otherRow.classList.toggle('bookwriter-active', otherRow === rowElement);
+      otherRow.classList.toggle('bookwriter-bible-item-is-selected', otherRow === rowElement);
     });
     var targetEntryId = rowElement.dataset.bibleEntryId;
     if (!targetEntryId) return;
@@ -1824,7 +1824,7 @@
         window.bookwriter.apiDelete('/bookwriter/api/bible-entry/' + encodeURIComponent(bibleEntryId) + '/delete/')
           .then(function () {
             var deletedCategoryCode = rowElement.dataset.cat;
-            var wasActive = rowElement.classList.contains('bookwriter-active');
+            var wasActive = rowElement.classList.contains('bookwriter-bible-item-is-selected');
             rowElement.parentNode.removeChild(rowElement);
             delete bibleEntriesById[bibleEntryId];
             refreshBibleCategoryCount(deletedCategoryCode, -1);
@@ -1936,7 +1936,7 @@
   document.querySelectorAll('.bookwriter-bible-cats .bookwriter-bible-cat').forEach(function (categoryRow) {
     categoryRow.addEventListener('click', function () {
       document.querySelectorAll('.bookwriter-bible-cats .bookwriter-bible-cat').forEach(function (otherCategory) {
-        otherCategory.classList.toggle('bookwriter-active', otherCategory === categoryRow);
+        otherCategory.classList.toggle('bookwriter-bible-cat-is-selected', otherCategory === categoryRow);
       });
       applyBibleCategoryFilter();
       // Auto-select the first visible entry in the new category, if any.
