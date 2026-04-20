@@ -41,7 +41,7 @@
            {% if current_book %}data-book-id="{{ current_book.bookwriter_coll_book_id }}"{% endif %}>
         {% if book_chapters_list %}
           {% for chapter_row in book_chapters_list %}
-            <div class="bookwriter-chapter{% if chapter_row.bookwriter_chapter_id == active_chapter_id %} bookwriter-active{% endif %}{% if chapter_row.bookwriter_chapter_id in published_chapter_ids_set %} bookwriter-is-published{% endif %}"
+            <div class="bookwriter-chapter{% if chapter_row.bookwriter_chapter_id == active_chapter_id %} bookwriter-chapter-row-is-active{% endif %}{% if chapter_row.bookwriter_chapter_id in published_chapter_ids_set %} bookwriter-is-published{% endif %}"
                  draggable="true"
                  data-chapter-id="{{ chapter_row.bookwriter_chapter_id }}"
                  data-chapter-status-code="{{ chapter_row.chapter_status_code }}"
@@ -96,7 +96,7 @@
             <div class="bookwriter-ch-title">A House of Small Windows</div>
             <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-done"></i>3,104 w</span><span>2 days ago</span></div>
           </div>
-          <div class="bookwriter-chapter bookwriter-active" draggable="true">
+          <div class="bookwriter-chapter bookwriter-chapter-row-is-active" draggable="true">
             <div class="bookwriter-ch-num">III.</div>
             <div class="bookwriter-ch-title">The Letter that Arrived in Winter</div>
             <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-draft"></i>1,687 w</span><span>just now</span></div>
@@ -709,7 +709,7 @@
         <h3>Act Structure</h3>
       </div>
       <div class="bookwriter-chapters">
-        <div class="bookwriter-chapter bookwriter-active"><div class="bookwriter-ch-num">Act I.</div><div class="bookwriter-ch-title">Setup</div><div class="bookwriter-ch-meta"><span>3 cards</span></div></div>
+        <div class="bookwriter-chapter bookwriter-chapter-row-is-active"><div class="bookwriter-ch-num">Act I.</div><div class="bookwriter-ch-title">Setup</div><div class="bookwriter-ch-meta"><span>3 cards</span></div></div>
         <div class="bookwriter-chapter"><div class="bookwriter-ch-num">Act II.</div><div class="bookwriter-ch-title">Confrontation</div><div class="bookwriter-ch-meta"><span>5 cards</span></div></div>
         <div class="bookwriter-chapter"><div class="bookwriter-ch-num">Act III.</div><div class="bookwriter-ch-title">Resolution</div><div class="bookwriter-ch-meta"><span>2 cards</span></div></div>
       </div>

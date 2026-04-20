@@ -78,7 +78,7 @@
 
     // Focus ribbon: chapter number from the active rail row, words from
     // the live editor. Falls back to "iii" only on the anon demo.
-    var activeChapterRailRow = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-num');
+    var activeChapterRailRow = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-num');
     var activeChapterLabel = activeChapterRailRow
       ? activeChapterRailRow.innerText.replace(/\.$/, '').trim().toLowerCase()
       : 'iii';
@@ -208,7 +208,7 @@
         if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>title saved · just now';
         // Mirror the new title into the matching rail row + the breadcrumb
         // so the rest of the UI stays in sync without a full refresh.
-        var activeRailRow = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-title');
+        var activeRailRow = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-title');
         if (activeRailRow) activeRailRow.textContent = title.innerText || 'Untitled';
       })
       .catch(function () {
@@ -307,7 +307,7 @@
     if (!chapterId) return;
     window.bookwriter.apiDelete('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/delete/')
       .then(function (data) {
-        var wasActive = chapterRowElement.classList.contains('bookwriter-active');
+        var wasActive = chapterRowElement.classList.contains('bookwriter-chapter-row-is-active');
         chapterRowElement.parentNode.removeChild(chapterRowElement);
         renumberChapters();
         updateBookStatCounters(data.book_total_word_count, data.book_total_chapter_count);
@@ -355,7 +355,7 @@
   var initialPrimedProseHtml = '';
   if (prose) {
     initialPrimedProseHtml = prose.innerHTML;
-    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-num');
+    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-num');
     if (initialActiveChapterNumberElement) {
       initialPrimedChapterNum = initialActiveChapterNumberElement.innerText.trim();
     }
@@ -379,8 +379,8 @@
   }
 
   function switchToChapterFromRail(chapterRow) {
-    document.querySelectorAll('.bookwriter-chapter').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-    chapterRow.classList.add('bookwriter-active');
+    document.querySelectorAll('.bookwriter-chapter').forEach(function (x) { x.classList.remove('bookwriter-chapter-row-is-active'); });
+    chapterRow.classList.add('bookwriter-chapter-row-is-active');
 
     var realChapterId = chapterRow.dataset.chapterId;
 
@@ -2276,7 +2276,7 @@
         var chapterNumberElement = chapterRow.querySelector('.bookwriter-ch-num');
         if (chapterNumberElement && chapterNumberElement.innerText.trim() === savedState.chapterNum) matchingChapterRow = chapterRow;
       });
-      if (matchingChapterRow && !matchingChapterRow.classList.contains('bookwriter-active')) matchingChapterRow.click();
+      if (matchingChapterRow && !matchingChapterRow.classList.contains('bookwriter-chapter-row-is-active')) matchingChapterRow.click();
     }
 
     if (manuscript && typeof savedState.manuscriptScrollY === 'number' && savedState.manuscriptScrollY > 0) {

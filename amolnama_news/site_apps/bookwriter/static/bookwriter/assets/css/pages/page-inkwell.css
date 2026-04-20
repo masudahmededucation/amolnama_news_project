@@ -208,7 +208,7 @@ body.bookwriter-standalone {
 
 .bookwriter-chapter:hover { background: rgba(26, 22, 18, 0.04); }
 
-.bookwriter-chapter.bookwriter-active {
+.bookwriter-chapter-row-is-active {
   background: var(--paper);
   box-shadow: inset 3px 0 0 var(--accent);
 }
@@ -1951,7 +1951,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 
 .bookwriter-chapter:hover .bookwriter-chapter-status-picker-row,
 .bookwriter-chapter:focus-within .bookwriter-chapter-status-picker-row,
-.bookwriter-chapter.bookwriter-active .bookwriter-chapter-status-picker-row {
+.bookwriter-chapter-row-is-active .bookwriter-chapter-status-picker-row {
   opacity: 1;
 }
 
