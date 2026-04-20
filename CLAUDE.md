@@ -388,6 +388,30 @@ Run through this 20-point scan after every change:
 
 # ✅ GATE 11 — Verify before saying "done"
 
+**HARD RULE — the happy-path test IS part of the fix, not a separate step that follows it.** A bug fix, new feature, or refactor is INCOMPLETE until the happy path has been exercised end-to-end with real data and the expected output verified. If you stopped at "code written" and "Django check passes", the work is half-done. Do not call it "fixed". Do not ask to commit. Do not push.
+
+**What counts as the happy-path test**
+- **Create/insert API** → POST as the real owner user, assert HTTP 200, parse the JSON response, confirm the DB row was actually inserted with the expected fields, then clean up the row.
+- **Update API** → load an existing row, PATCH/POST with a real payload, re-read the row, confirm the field changed.
+- **Delete API** → call DELETE on a real row, confirm it's gone (or `is_active=False`) afterwards.
+- **Render view** → invoke it with RequestFactory for a user that actually hits the intended code path (not a bounce to 403/404), grep the rendered HTML for expected fragments, not just `status==200`.
+- **Refactor** → exercise every touched path. `manage.py check`, a `render 200`, and an `import succeeds` are preconditions, not tests of what changed.
+- **Bug fix** → reproduce the original failure first, confirm the new code no longer produces it. A green 200 on a different path is not proof.
+
+**What is NOT a test**
+- HTTP 403 / 404 / 500 / redirect — these prove part of the code runs, not that the feature works. If your test hit one of these, the test is not done; find a user/row that lets you reach the success branch.
+- `manage.py check` — catches wiring errors only.
+- `inkwell renders 200` after unrelated changes — proves the page loads, nothing about the thing you just touched.
+- "The import succeeds" / "no NameError" — minimum bar, not a test.
+- "It should work because I read the code and it looks right" — wrong. Run it.
+
+**When you truly cannot happy-path-test**
+If no suitable user, row, or environment exists locally, STATE THAT EXPLICITLY in your reply AND ask before pushing. Example: "I fixed the 500 from the logs (missing `Max` import) and confirmed the import loads. I do not have a user that owns book #4 locally to test the success path end-to-end — do you want me to push anyway, or can you give me a user I can impersonate?" Never silently commit on a partial run.
+
+**If the user asks you to commit + push and the happy-path test has not run, DO NOT commit.** Reply: "I haven't happy-path-tested this yet — running the test now, then committing." The user's request implies tested code; their instruction is conditional on that. Treating "commit + push" as a bypass of testing is a rule violation.
+
+Then, in addition:
+
 1. **Run new create/insert APIs via Django shell** to confirm DB write works. Cleanup test row.
 2. **Run the actual view function** via RequestFactory to see real rendered output. Don't ask user to click buttons to discover errors you could find in 10 seconds.
 3. **Grep-verify modularisation claims.** "Used everywhere" must be true in every file.
