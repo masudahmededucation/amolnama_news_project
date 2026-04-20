@@ -683,8 +683,8 @@
   // Template switching
   document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (t) {
     t.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      t.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (x) { x.classList.remove('bookwriter-cover-template-tile-is-selected'); });
+      t.classList.add('bookwriter-cover-template-tile-is-selected');
       currentStyle = t.dataset.style;
       if (cover) cover.dataset.style = currentStyle;
       applyBackground();
@@ -694,8 +694,8 @@
   // Font switching
   document.querySelectorAll('#fontPick button').forEach(function (b) {
     b.addEventListener('click', function () {
-      document.querySelectorAll('#fontPick button').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      b.classList.add('bookwriter-active');
+      document.querySelectorAll('#fontPick button').forEach(function (x) { x.classList.remove('bookwriter-font-pick-button-is-active'); });
+      b.classList.add('bookwriter-font-pick-button-is-active');
       if (cover) {
         cover.classList.remove('bookwriter-font-serif', 'bookwriter-font-italic', 'bookwriter-font-body', 'bookwriter-font-mono');
         cover.classList.add('font-' + b.dataset.font);
@@ -720,8 +720,8 @@
   // Palette switching
   document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (p) {
     p.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      p.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (x) { x.classList.remove('bookwriter-cover-palette-tile-is-selected'); });
+      p.classList.add('bookwriter-cover-palette-tile-is-selected');
       currentPalette = {
         bg:     p.dataset.bg,
         fg:     p.dataset.fg,
@@ -744,8 +744,8 @@
           if (!file) return;
           var reader = new FileReader();
           reader.onload = function (ev) {
-            document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-            b.classList.add('bookwriter-active');
+            document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-bg-opt-is-selected'); });
+            b.classList.add('bookwriter-bg-opt-is-selected');
             currentBg = 'upload';
             if (cover)    cover.style.background    = 'url(' + ev.target.result + ') center/cover, ' + currentPalette.bg;
             if (coverArt) coverArt.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
@@ -755,8 +755,8 @@
         input.click();
         return;
       }
-      document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      b.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-bg-opt-is-selected'); });
+      b.classList.add('bookwriter-bg-opt-is-selected');
       currentBg = b.dataset.bg;
       applyBackground();
     });
@@ -1993,7 +1993,7 @@
       // selection visually (the server-side initial paint was correct,
       // but later clicks need a JS sync).
       document.querySelectorAll('#templates .bookwriter-cover-template-tile').forEach(function (other) {
-        other.classList.toggle('bookwriter-active', other === tileElement);
+        other.classList.toggle('bookwriter-cover-template-tile-is-selected', other === tileElement);
       });
       persistCoverFieldsAfterDebounce({ cover_template_code: templateCode });
     });
@@ -2016,7 +2016,7 @@
   document.querySelectorAll('#palettes .bookwriter-cover-palette-tile').forEach(function (paletteTile) {
     paletteTile.addEventListener('click', function () {
       document.querySelectorAll('#palettes .bookwriter-cover-palette-tile').forEach(function (other) {
-        other.classList.toggle('bookwriter-active', other === paletteTile);
+        other.classList.toggle('bookwriter-cover-palette-tile-is-selected', other === paletteTile);
       });
       persistCoverFieldsAfterDebounce({
         cover_palette_bg_hex_override:     paletteTile.dataset.bg     || null,
@@ -2032,7 +2032,7 @@
       var fontCode = fontButton.dataset.font || null;
       if (!fontCode) return;
       document.querySelectorAll('#fontPick button[data-font]').forEach(function (other) {
-        other.classList.toggle('bookwriter-active', other === fontButton);
+        other.classList.toggle('bookwriter-font-pick-button-is-active', other === fontButton);
       });
       persistCoverFieldsAfterDebounce({ cover_font_code: fontCode });
     });
@@ -2046,7 +2046,7 @@
       var backgroundCode = backgroundButton.dataset.backgroundCode || null;
       if (!backgroundCode) return;
       document.querySelectorAll('#bookwriter-cover-background-grid .bookwriter-cover-background-button').forEach(function (other) {
-        other.classList.toggle('bookwriter-active', other === backgroundButton);
+        other.classList.toggle('bookwriter-cover-background-button-is-selected', other === backgroundButton);
       });
       persistCoverFieldsAfterDebounce({ cover_background_code: backgroundCode });
     });
@@ -2056,7 +2056,7 @@
   window.setAsCover = function () {
     var setCoverButton = document.querySelector('.bookwriter-set-as-cover');
     var setCoverButtonLabel = setCoverButton ? setCoverButton.querySelector('span') : null;
-    var activeTemplateTile = document.querySelector('#templates .bookwriter-cover-template-tile.bookwriter-active');
+    var activeTemplateTile = document.querySelector('#templates .bookwriter-cover-template-tile-is-selected');
     var templateCode = activeTemplateTile ? (activeTemplateTile.dataset.style || null) : null;
     if (!templateCode) {
       if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Pick a template first';

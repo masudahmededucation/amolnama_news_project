@@ -130,8 +130,9 @@ def check_js_class_refs(violations: list[str]) -> None:
             report(match.start(), f"option-key class '{name}' — not in CSS")
 
         # innerHTML class="..." attribute tokens.
-        for match in re.finditer(r'class=([\"\'])([^\"\']*)\1', text):
-            for token in match.group(2).split():
+        for match in re.finditer(r'class=(?:"([^"]*)"|\'([^\']*)\')', text):
+            inner = match.group(1) if match.group(1) is not None else match.group(2)
+            for token in inner.split():
                 if token in defined or token in ALLOWED_PLAIN_CLASSES:
                     continue
                 report(match.start(), f"innerHTML class token '{token}' — not in CSS")
@@ -159,8 +160,10 @@ def check_templates(violations: list[str]) -> None:
                 )
 
         # class= attribute tokens must be prefixed (or allowed-plain).
-        for match in re.finditer(r'class=(["\'])([^"\']*)\1', text):
-            inner = match.group(2)
+        # The two alternatives in the regex handle the case where the
+        # attribute value contains the OPPOSITE quote (e.g. <div class="x{% if y == 'foo' %}…">).
+        for match in re.finditer(r'class=(?:"([^"]*)"|\'([^\']*)\')', text):
+            inner = match.group(1) if match.group(1) is not None else match.group(2)
             cleaned = re.sub(r"\{\{[^{}]*\}\}|\{%[^%]*%\}", "", inner)
             for token in cleaned.split():
                 token = token.strip()

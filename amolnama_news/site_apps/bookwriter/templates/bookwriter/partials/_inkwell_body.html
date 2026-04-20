@@ -436,14 +436,14 @@
       <div class="bookwriter-section">
         <div class="bookwriter-section-title">Templates</div>
         <div class="bookwriter-templates" id="templates">
-          <div class="bookwriter-cover-template-tile{% if not saved_cover_design_state.cover_template_code or saved_cover_design_state.cover_template_code == 'classical' %} active{% endif %}" data-style="classical">
+          <div class="bookwriter-cover-template-tile{% if not saved_cover_design_state.cover_template_code or saved_cover_design_state.cover_template_code == 'classical' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="classical">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-classical">
               <div class="bookwriter-cover-mini-title">The Saltwater<br>Almanac</div>
               <div class="bookwriter-cover-mini-author">E. Whitmore</div>
             </div>
             <div class="bookwriter-cover-template-tile-name">Classical</div>
           </div>
-          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'modern' %} active{% endif %}" data-style="modern">
+          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'modern' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="modern">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-modern">
               <div>
                 <div class="bookwriter-cover-mini-title">Saltwater<br>Almanac</div>
@@ -452,7 +452,7 @@
             </div>
             <div class="bookwriter-cover-template-tile-name">Modern</div>
           </div>
-          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'photo' %} active{% endif %}" data-style="photo">
+          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'photo' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="photo">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-photo">
               <div>
                 <div class="bookwriter-cover-mini-title">Saltwater</div>
@@ -461,21 +461,21 @@
             </div>
             <div class="bookwriter-cover-template-tile-name">Landscape</div>
           </div>
-          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'minimal' %} active{% endif %}" data-style="minimal">
+          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'minimal' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="minimal">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-minimal">
               <div class="bookwriter-cover-mini-title">Saltwater<br>Almanac</div>
               <div class="bookwriter-cover-mini-author">E. Whitmore</div>
             </div>
             <div class="bookwriter-cover-template-tile-name">Minimal</div>
           </div>
-          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'vintage' %} active{% endif %}" data-style="vintage">
+          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'vintage' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="vintage">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-vintage">
               <div class="bookwriter-cover-mini-title">Saltwater<br>Almanac</div>
               <div class="bookwriter-cover-mini-author">Whitmore</div>
             </div>
             <div class="bookwriter-cover-template-tile-name">Vintage</div>
           </div>
-          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'type' %} active{% endif %}" data-style="type">
+          <div class="bookwriter-cover-template-tile{% if saved_cover_design_state.cover_template_code == 'type' %} bookwriter-cover-template-tile-is-selected{% endif %}" data-style="type">
             <div class="bookwriter-cover-mini-preview bookwriter-cover-mini-type">
               <div class="bookwriter-cover-mini-title">S A</div>
               <div class="bookwriter-cover-mini-author">Whitmore</div>
@@ -490,13 +490,13 @@
         <div class="bookwriter-field">
           <div class="bookwriter-field-label"><span>Title font</span></div>
           <div class="bookwriter-font-pick" id="fontPick">
-            <button type="button" class="f-serif{% if not saved_cover_design_state.cover_font_code or saved_cover_design_state.cover_font_code == 'serif' %} active{% endif %}"
+            <button type="button" class="bookwriter-f-serif{% if not saved_cover_design_state.cover_font_code or saved_cover_design_state.cover_font_code == 'serif' %} bookwriter-font-pick-button-is-active{% endif %}"
                     id="bookwriter-cover-font-serif-button"   name="bookwriter_cover_font_serif_button"   data-font="serif">Aa serif</button>
-            <button type="button" class="f-italic{% if saved_cover_design_state.cover_font_code == 'italic' %} active{% endif %}"
+            <button type="button" class="bookwriter-f-italic{% if saved_cover_design_state.cover_font_code == 'italic' %} bookwriter-font-pick-button-is-active{% endif %}"
                     id="bookwriter-cover-font-italic-button"  name="bookwriter_cover_font_italic_button"  data-font="italic">Aa italic</button>
-            <button type="button" class="f-body{% if saved_cover_design_state.cover_font_code == 'body' %} active{% endif %}"
+            <button type="button" class="bookwriter-f-body{% if saved_cover_design_state.cover_font_code == 'body' %} bookwriter-font-pick-button-is-active{% endif %}"
                     id="bookwriter-cover-font-classic-button" name="bookwriter_cover_font_classic_button" data-font="body">Aa classic</button>
-            <button type="button" class="f-mono{% if saved_cover_design_state.cover_font_code == 'mono' %} active{% endif %}"
+            <button type="button" class="bookwriter-f-mono{% if saved_cover_design_state.cover_font_code == 'mono' %} bookwriter-font-pick-button-is-active{% endif %}"
                     id="bookwriter-cover-font-mono-button"    name="bookwriter_cover_font_mono_button"    data-font="mono">Aa mono</button>
           </div>
         </div>
@@ -513,22 +513,22 @@
       <div class="bookwriter-section">
         <div class="bookwriter-section-title">Palette</div>
         <div class="bookwriter-palettes" id="palettes">
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-classical{% if not saved_cover_design_state.cover_palette_bg_hex_override or saved_cover_design_state.cover_palette_bg_hex_override == '#f4ede0' %} active{% endif %}" data-bg="#f4ede0" data-fg="#1a1612" data-accent="#8b2a1f">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-classical{% if not saved_cover_design_state.cover_palette_bg_hex_override or saved_cover_design_state.cover_palette_bg_hex_override == '#f4ede0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#f4ede0" data-fg="#1a1612" data-accent="#8b2a1f">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-noir{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1a1612' %} active{% endif %}" data-bg="#1a1612" data-fg="#f4ede0" data-accent="#c46a5d">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-noir{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1a1612' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#1a1612" data-fg="#f4ede0" data-accent="#c46a5d">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-forest{% if saved_cover_design_state.cover_palette_bg_hex_override == '#2d3b2d' %} active{% endif %}" data-bg="#2d3b2d" data-fg="#e8dcc0" data-accent="#c8945a">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-forest{% if saved_cover_design_state.cover_palette_bg_hex_override == '#2d3b2d' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#2d3b2d" data-fg="#e8dcc0" data-accent="#c8945a">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-clay{% if saved_cover_design_state.cover_palette_bg_hex_override == '#c47a4f' %} active{% endif %}" data-bg="#c47a4f" data-fg="#f7e8d0" data-accent="#3d1f15">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-clay{% if saved_cover_design_state.cover_palette_bg_hex_override == '#c47a4f' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#c47a4f" data-fg="#f7e8d0" data-accent="#3d1f15">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-midnight{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1c2530' %} active{% endif %}" data-bg="#1c2530" data-fg="#d4c4a0" data-accent="#a03030">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-midnight{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1c2530' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#1c2530" data-fg="#d4c4a0" data-accent="#a03030">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-sand{% if saved_cover_design_state.cover_palette_bg_hex_override == '#e8dcc0' %} active{% endif %}" data-bg="#e8dcc0" data-fg="#3d1f15" data-accent="#5a6b3f">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-sand{% if saved_cover_design_state.cover_palette_bg_hex_override == '#e8dcc0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#e8dcc0" data-fg="#3d1f15" data-accent="#5a6b3f">
             <span></span><span></span><span></span>
           </div>
         </div>
@@ -540,42 +540,42 @@
           {# Static list — codes match seeded ref_cover_background. Adding a new one
              is one INSERT in the seed + one entry here. #}
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-solid{% if not saved_cover_design_state.cover_background_code or saved_cover_design_state.cover_background_code == 'solid' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-solid{% if not saved_cover_design_state.cover_background_code or saved_cover_design_state.cover_background_code == 'solid' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-solid-button"
                   name="bookwriter_cover_background_solid_button"
                   data-background-code="solid">Solid</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-1{% if saved_cover_design_state.cover_background_code == 'grad-1' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-1{% if saved_cover_design_state.cover_background_code == 'grad-1' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-grad-1-button"
                   name="bookwriter_cover_background_grad_1_button"
                   data-background-code="grad-1">Gradient 1</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-2{% if saved_cover_design_state.cover_background_code == 'grad-2' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-2{% if saved_cover_design_state.cover_background_code == 'grad-2' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-grad-2-button"
                   name="bookwriter_cover_background_grad_2_button"
                   data-background-code="grad-2">Gradient 2</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-3{% if saved_cover_design_state.cover_background_code == 'grad-3' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-3{% if saved_cover_design_state.cover_background_code == 'grad-3' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-grad-3-button"
                   name="bookwriter_cover_background_grad_3_button"
                   data-background-code="grad-3">Gradient 3</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-noise{% if saved_cover_design_state.cover_background_code == 'noise' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-noise{% if saved_cover_design_state.cover_background_code == 'noise' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-noise-button"
                   name="bookwriter_cover_background_noise_button"
                   data-background-code="noise">Noise</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-dots{% if saved_cover_design_state.cover_background_code == 'dots' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-dots{% if saved_cover_design_state.cover_background_code == 'dots' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-dots-button"
                   name="bookwriter_cover_background_dots_button"
                   data-background-code="dots">Dots</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-stripes{% if saved_cover_design_state.cover_background_code == 'stripes' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-stripes{% if saved_cover_design_state.cover_background_code == 'stripes' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-stripes-button"
                   name="bookwriter_cover_background_stripes_button"
                   data-background-code="stripes">Stripes</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-upload{% if saved_cover_design_state.cover_background_code == 'upload' %} active{% endif %}"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-upload{% if saved_cover_design_state.cover_background_code == 'upload' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-upload-button"
                   name="bookwriter_cover_background_upload_button"
                   data-background-code="upload">Upload</button>
@@ -651,7 +651,7 @@
       <div class="bookwriter-desk-card">
         <h4>Background</h4>
         <div class="bookwriter-bg-options" id="bgOptions">
-          <div class="bookwriter-bg-opt bookwriter-bg-solid bookwriter-active" data-bg="solid" title="Solid"></div>
+          <div class="bookwriter-bg-opt bookwriter-bg-solid bookwriter-bg-opt-is-selected" data-bg="solid" title="Solid"></div>
           <div class="bookwriter-bg-opt bookwriter-bg-grad-1" data-bg="grad-1" title="Warm gradient"></div>
           <div class="bookwriter-bg-opt bookwriter-bg-grad-2" data-bg="grad-2" title="Moss gradient"></div>
           <div class="bookwriter-bg-opt bookwriter-bg-grad-3" data-bg="grad-3" title="Ink gradient"></div>

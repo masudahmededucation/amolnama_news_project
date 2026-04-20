@@ -1930,7 +1930,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   outline-offset: 2px;
 }
 
-.bookwriter-cover-background-button.bookwriter-active {
+.bookwriter-cover-background-button-is-selected {
   border-color: var(--ink, #1a1612);
   background: var(--ink, #1a1612);
   color: var(--paper, #f4ede0);
@@ -2889,7 +2889,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 
 .bookwriter-cover-template-tile:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(26,22,18,0.12); }
 
-.bookwriter-cover-template-tile.bookwriter-active {
+.bookwriter-cover-template-tile-is-selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent);
 }
@@ -2961,7 +2961,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   transition: all 0.2s;
 }
 
-.bookwriter-cover-palette-tile.bookwriter-active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bookwriter-cover-palette-tile-is-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
 .bookwriter-cover-palette-tile:hover { transform: scale(1.04); }
 .bookwriter-cover-palette-tile span { flex: 1; }
 
@@ -3046,13 +3046,13 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   border-radius: 2px;
 }
 
-.bookwriter-font-pick button.bookwriter-active {
+.bookwriter-font-pick-button-is-active {
   background: var(--ink);
   color: var(--paper);
   border-color: var(--ink);
 }
 
-.bookwriter-font-pick button:hover:not(.bookwriter-active) { border-color: var(--ink-soft); }
+.bookwriter-font-pick button:hover:not(.bookwriter-font-pick-button-is-active) { border-color: var(--ink-soft); }
 
 .bookwriter-f-serif  { font-family: 'Fraunces', serif; }
 .bookwriter-f-italic { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
@@ -3403,7 +3403,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   overflow: hidden;
 }
 
-.bookwriter-bg-opt.bookwriter-active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bookwriter-bg-opt-is-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
 .bookwriter-bg-opt:hover { transform: scale(1.06); }
 
 .bookwriter-bg-solid  { background: var(--paper); }
