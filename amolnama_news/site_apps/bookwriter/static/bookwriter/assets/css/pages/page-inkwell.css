@@ -492,7 +492,13 @@ body.bookwriter-standalone {
 
 .bookwriter-prose p:first-of-type { text-indent: 0; }
 
-/* Drop cap */
+/* Drop cap — target the block itself, not a specific <p>, so it still
+   applies when contenteditable stores the content as plain text, <div>
+   lines, or any other wrapper the browser chose. The `p:first-of-type`
+   variant stays for backwards compatibility with any saved content that
+   already has a <p> first child (either selector hits the same letter
+   so there is no double-styling). */
+.bookwriter-prose::first-letter,
 .bookwriter-prose p:first-of-type::first-letter {
   font-family: 'Fraunces', serif;
   font-weight: 500;
