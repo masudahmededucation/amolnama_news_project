@@ -815,11 +815,11 @@ nav.bookwriter-mode-tabs.bookwriter-mode-switch,
   text-align: center;
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn:hover:not(.bookwriter-active) {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn:hover:not(.bookwriter-mode-btn-is-active) {
   color: #1a1612;                               /* ink */
 }
 
-.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn.bookwriter-active {
+.bookwriter-mode-tabs .bookwriter-mode-tab.bookwriter-mode-btn-is-active {
   background: #1a1612;                          /* ink */
   color: #f4ede0;                               /* paper */
   font-style: normal;
@@ -865,7 +865,7 @@ nav.bookwriter-mode-tabs.bookwriter-mode-switch,
   text-align: center;
 }
 
-.bookwriter-mode-btn.bookwriter-active {
+.bookwriter-mode-btn-is-active {
   background: var(--ink);
   color: var(--paper);
   font-style: normal;
@@ -874,7 +874,7 @@ nav.bookwriter-mode-tabs.bookwriter-mode-switch,
   font-size: 11px;
 }
 
-.bookwriter-mode-btn:hover:not(.bookwriter-active) { color: var(--ink); }
+.bookwriter-mode-btn:hover:not(.bookwriter-mode-btn-is-active) { color: var(--ink); }
 
 /* ===== FOCUS MODE (overlay — covers the wrapper, not the viewport) =====
    Uses position: absolute so in embedded mode the overlay stays inside the
@@ -2350,7 +2350,7 @@ body.bookwriter-sprint-setup-open .bookwriter-sprint-setup { display: block; }
 }
 
 .bookwriter-sprint-opt:hover { background: var(--paper); border-color: var(--ink-fade); }
-.bookwriter-sprint-opt.bookwriter-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.bookwriter-sprint-opt-is-selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 .bookwriter-sprint-start {
   background: var(--ink);
@@ -2480,8 +2480,8 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   transition: all 0.2s;
 }
 
-.bookwriter-share-permission-tile.bookwriter-active { border-color: var(--accent); background: rgba(139,42,31,0.03); }
-.bookwriter-share-permission-tile:hover:not(.bookwriter-active) { border-color: var(--ink-fade); }
+.bookwriter-share-permission-tile-is-selected { border-color: var(--accent); background: rgba(139,42,31,0.03); }
+.bookwriter-share-permission-tile:hover:not(.bookwriter-share-permission-tile-is-selected) { border-color: var(--ink-fade); }
 
 .bookwriter-share-permission-radio {
   width: 18px; height: 18px;
@@ -2492,7 +2492,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   transition: all 0.2s;
 }
 
-.bookwriter-share-permission-tile.bookwriter-active .bookwriter-share-permission-radio {
+.bookwriter-share-permission-tile-is-selected .bookwriter-share-permission-radio {
   border-color: var(--accent);
   background: radial-gradient(var(--accent) 40%, transparent 45%);
 }
@@ -2677,7 +2677,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   transition: all 0.2s;
 }
 
-.bookwriter-gmode.bookwriter-active { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
+.bookwriter-gmode-button-is-active { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
 
 .bookwriter-gallery-body {
   padding: 48px 64px 80px;
@@ -3566,7 +3566,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   .bookwriter-focus-page .bookwriter-focus-text { font-size: 18px; }
   .bookwriter-mode-switch { grid-template-columns: repeat(5, 1fr); margin: 12px; }
   .bookwriter-mode-btn { font-size: 10px; padding: 6px 2px; }
-  .bookwriter-mode-btn.bookwriter-active { font-size: 10px; }
+  .bookwriter-mode-btn-is-active { font-size: 10px; }
   /* Outer page-level mode tabs already use a 5-column grid, but
      constrain max-width on tiny screens so they hug the centre. */
   .bookwriter-mode-tabs { max-width: 100%; margin: 12px auto; }

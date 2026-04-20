@@ -622,7 +622,7 @@
         var onclickAttribute = modeButtonElement.getAttribute('onclick') || '';
         var setModeMatch = onclickAttribute.match(/setMode\('(\w+)'\)/);
         var buttonModeCode = setModeMatch ? setModeMatch[1] : null;
-        modeButtonElement.classList.toggle('bookwriter-active', buttonModeCode === mode);
+        modeButtonElement.classList.toggle('bookwriter-mode-btn-is-active', buttonModeCode === mode);
       });
     });
 
@@ -1201,8 +1201,8 @@
 
   document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (opt) {
     opt.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (x) { x.classList.remove('bookwriter-active'); });
-      opt.classList.add('bookwriter-active');
+      document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (x) { x.classList.remove('bookwriter-sprint-opt-is-selected'); });
+      opt.classList.add('bookwriter-sprint-opt-is-selected');
       sprintDuration = parseInt(opt.dataset.min, 10) * 60;
     });
   });
@@ -1297,8 +1297,8 @@
   window.closeShare = closeShare;
 
   function pickPerm(el) {
-    document.querySelectorAll('.bookwriter-share-permission-tile').forEach(function (p) { p.classList.remove('bookwriter-active'); });
-    el.classList.add('bookwriter-active');
+    document.querySelectorAll('.bookwriter-share-permission-tile').forEach(function (p) { p.classList.remove('bookwriter-share-permission-tile-is-selected'); });
+    el.classList.add('bookwriter-share-permission-tile-is-selected');
   }
   window.pickPerm = pickPerm;
 
@@ -2107,7 +2107,7 @@
         return;
       }
     }
-    var activePermissionTile = document.querySelector('.bookwriter-share-permission-tile.bookwriter-active');
+    var activePermissionTile = document.querySelector('.bookwriter-share-permission-tile-is-selected');
     var permissionCode = (activePermissionTile && activePermissionTile.dataset.perm) || 'read';
     window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(betaBookId) + '/beta-share/create/', { beta_permission_code: permissionCode })
       .then(function (data) {
