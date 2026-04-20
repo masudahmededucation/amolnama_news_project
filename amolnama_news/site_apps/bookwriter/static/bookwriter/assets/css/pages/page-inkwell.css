@@ -3934,3 +3934,29 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   background: #f4ede0;
   color: #1a1612;
 }
+
+
+/* ================================================================
+   JS-ONLY MARKER CLASSES — set by JS, queried by JS, no styling
+   ----------------------------------------------------------------
+   These classes serve as querySelector targets for dynamic DOM
+   built in page-inkwell.js. They carry no visual rules — the
+   appearance comes from sibling/parent component classes
+   (.bookwriter-reader, .bookwriter-bible-detail, etc.) or from
+   inline custom-property data injected on the same element.
+   They are defined here (with empty rule blocks) so the bookwriter
+   naming linter can confirm every class JS references is
+   intentional and not a typo. Long-term these should migrate to
+   data-* attributes (`[data-marker="beta-reader-row"]`) which is
+   the semantically-correct pattern for "this element exists for
+   JS to find, not for CSS to style".
+   ================================================================ */
+.bookwriter-cv-subtitle {}
+.bookwriter-index-card-empty-state {}
+.bookwriter-beta-reader-row {}
+.bookwriter-beta-reader-remove-button {}
+.bookwriter-active-share-row {}
+.bookwriter-revoke-share-button {}
+.bookwriter-bible-image-section {}
+.bookwriter-bible-attributes-section {}
+.bookwriter-margin-note-row-body {}

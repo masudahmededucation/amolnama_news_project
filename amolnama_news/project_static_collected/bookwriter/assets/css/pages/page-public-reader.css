@@ -749,3 +749,18 @@ mark.bookwriter-beta-anchor:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+
+/* ================================================================
+   JS-ONLY MARKER CLASSES — set by JS, queried by JS, no styling
+   ----------------------------------------------------------------
+   See the matching block in page-inkwell.css for the rationale.
+   These are listed here so the naming linter can verify every
+   class the page-public-reader.js code references is intentional.
+   ================================================================ */
+.bookwriter-beta-comment-delete-button {}
+.bookwriter-beta-comment-resolve-button {}
+.bookwriter-reader-comment-reply-form {}
+.bookwriter-reader-comment-reply-toggle-button {}
+.bookwriter-reader-comment-pin-button {}
+.bookwriter-reader-subscribe-label {}

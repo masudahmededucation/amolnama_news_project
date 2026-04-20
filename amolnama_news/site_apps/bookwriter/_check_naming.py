@@ -89,6 +89,11 @@ def check_js_class_refs(violations: list[str]) -> None:
             text,
         ):
             name = match.group(1)
+            # Strings ending in `-` are JS prefix concatenations
+            # (e.g. `classList.add('mode-' + variant)`), not actual class
+            # names. The runtime value is computed and can't be linted.
+            if name.endswith("-"):
+                continue
             if name in defined or name in ALLOWED_PLAIN_CLASSES:
                 continue
             report(match.start(), f"classList ref to '{name}' — not in CSS")

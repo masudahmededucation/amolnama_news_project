@@ -15,7 +15,7 @@
   var loadedMarginNotesForChapterId = null;
 
   function activeMarginNoteChapterId() {
-    var editorElement = document.querySelector('.bookwriter-manuscript .editor[data-chapter-id]')
+    var editorElement = document.querySelector('.bookwriter-manuscript .bookwriter-prose[data-chapter-id]')
       || document.querySelector('[data-chapter-id]');
     return editorElement ? editorElement.dataset.chapterId : null;
   }
@@ -26,7 +26,7 @@
     rowElement.dataset.marginNoteId = String(noteRecord.id);
 
     var bodyElement = document.createElement('div');
-    bodyElement.className = 'margin-note-row-body';
+    bodyElement.className = 'bookwriter-margin-note-row-body';
     bodyElement.textContent = noteRecord.note_text || '';
 
     var metaElement = document.createElement('div');

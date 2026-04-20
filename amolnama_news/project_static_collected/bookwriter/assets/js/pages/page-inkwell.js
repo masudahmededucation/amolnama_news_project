@@ -939,9 +939,9 @@
     snapshotListContainer.innerHTML = '';
     if (snapshotRows.length === 0) {
       var emptyStateRow = document.createElement('div');
-      emptyStateRow.className = 'snap';
+      emptyStateRow.className = 'bookwriter-snapshot-row';
       var emptyLabel = document.createElement('div');
-      emptyLabel.className = 'snap-label';
+      emptyLabel.className = 'bookwriter-snapshot-label';
       emptyLabel.textContent = 'No snapshots yet — type to start writing, or click "Name this version" below.';
       emptyStateRow.appendChild(emptyLabel);
       snapshotListContainer.appendChild(emptyStateRow);
@@ -949,20 +949,20 @@
     }
     snapshotRows.forEach(function (snapshotRow, rowIndex) {
       var rowElement = document.createElement('div');
-      rowElement.className = 'snap' + (rowIndex === 0 ? ' bookwriter-current' : '');
+      rowElement.className = 'bookwriter-snapshot-row' + (rowIndex === 0 ? ' bookwriter-current' : '');
       rowElement.dataset.snapshotId = String(snapshotRow.id);
 
       var timeStampElement = document.createElement('div');
-      timeStampElement.className = 'snap-time';
+      timeStampElement.className = 'bookwriter-snapshot-time';
       timeStampElement.textContent = formatSnapshotTimestamp(snapshotRow.created_at);
 
       var labelElement = document.createElement('div');
-      labelElement.className = 'snap-label';
+      labelElement.className = 'bookwriter-snapshot-label';
       labelElement.textContent = snapshotRow.label
         || (snapshotRow.kind === 'manual' ? 'Named version' : 'Auto-saved');
 
       var metaElement = document.createElement('div');
-      metaElement.className = 'snap-meta';
+      metaElement.className = 'bookwriter-snapshot-meta';
       metaElement.textContent = (snapshotRow.word_count || 0).toLocaleString() + ' words · ' + snapshotRow.kind;
 
       rowElement.appendChild(timeStampElement);
@@ -971,7 +971,7 @@
 
       if (snapshotRow.word_count_diff !== null && snapshotRow.word_count_diff !== undefined) {
         var diffElement = document.createElement('span');
-        diffElement.className = 'snap-diff ' + (snapshotRow.word_count_diff >= 0 ? 'bookwriter-plus' : 'bookwriter-minus');
+        diffElement.className = 'bookwriter-snapshot-diff ' + (snapshotRow.word_count_diff >= 0 ? 'bookwriter-plus' : 'bookwriter-minus');
         var sign = snapshotRow.word_count_diff > 0 ? '+' : (snapshotRow.word_count_diff === 0 ? '±' : '−');
         diffElement.textContent = sign + Math.abs(snapshotRow.word_count_diff) + ' words';
         rowElement.appendChild(diffElement);
@@ -1023,7 +1023,7 @@
     if (!prose) return;
     var chapterId = prose.dataset.chapterId;
     if (!chapterId) return;
-    var selectedSnapshotRow = document.querySelector('.bookwriter-snapshot-list .snap.current[data-snapshot-id]');
+    var selectedSnapshotRow = document.querySelector('.bookwriter-snapshot-list .bookwriter-snapshot-row.bookwriter-current[data-snapshot-id]');
     if (!selectedSnapshotRow) return;
     var snapshotId = selectedSnapshotRow.dataset.snapshotId;
     window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/snapshot/' + encodeURIComponent(snapshotId) + '/revert/', {})
@@ -2215,7 +2215,7 @@
   window.publishFlow = function () {
     var publishButton = document.querySelector('.bookwriter-publish');
     var publishButtonLabel = publishButton ? publishButton.querySelector('span') : null;
-    var editorElement = document.querySelector('.bookwriter-manuscript .editor[data-chapter-id]')
+    var editorElement = document.querySelector('.bookwriter-manuscript .bookwriter-prose[data-chapter-id]')
       || document.querySelector('[data-chapter-id]');
     var activeChapterId = editorElement ? editorElement.dataset.chapterId : null;
     if (!activeChapterId) {
