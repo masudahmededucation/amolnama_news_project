@@ -78,7 +78,7 @@
 
     // Focus ribbon: chapter number from the active rail row, words from
     // the live editor. Falls back to "iii" only on the anon demo.
-    var activeChapterRailRow = document.querySelector('.bookwriter-chapter.active .bookwriter-ch-num');
+    var activeChapterRailRow = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-num');
     var activeChapterLabel = activeChapterRailRow
       ? activeChapterRailRow.innerText.replace(/\.$/, '').trim().toLowerCase()
       : 'iii';
@@ -208,7 +208,7 @@
         if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>title saved · just now';
         // Mirror the new title into the matching rail row + the breadcrumb
         // so the rest of the UI stays in sync without a full refresh.
-        var activeRailRow = document.querySelector('.bookwriter-chapter.active .bookwriter-ch-title');
+        var activeRailRow = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-title');
         if (activeRailRow) activeRailRow.textContent = title.innerText || 'Untitled';
       })
       .catch(function () {
@@ -355,7 +355,7 @@
   var initialPrimedProseHtml = '';
   if (prose) {
     initialPrimedProseHtml = prose.innerHTML;
-    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter.active .bookwriter-ch-num');
+    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter.bookwriter-active .bookwriter-ch-num');
     if (initialActiveChapterNumberElement) {
       initialPrimedChapterNum = initialActiveChapterNumberElement.innerText.trim();
     }
@@ -494,6 +494,62 @@
     rowElement.appendChild(numDiv);
     rowElement.appendChild(titleDiv);
     rowElement.appendChild(metaDiv);
+
+    // Clone the status / visibility picker row from any existing chapter row
+    // so the new row matches the server-rendered shape. Without this, freshly
+    // created chapters render without the Stage / Visibility selects until
+    // the user reloads the page (the original bug). Skip silently if no
+    // existing row to clone from (truly first chapter — user reload picks
+    // them up).
+    if (chapterId) {
+      var pickerRowDonor = document.querySelector(
+        '#chapters .bookwriter-chapter[data-chapter-id] .bookwriter-chapter-status-picker-row'
+      );
+      if (pickerRowDonor) {
+        var pickerRowClone = pickerRowDonor.cloneNode(true);
+        var newChapterIdString = String(chapterId);
+        // Rewrite every id / name / data-target-chapter-id reference in the
+        // clone so the new selects bind to the new chapter, not the donor's.
+        pickerRowClone.querySelectorAll('[id], [name], [for], [data-target-chapter-id]').forEach(function (descendantElement) {
+          if (descendantElement.id) {
+            descendantElement.id = descendantElement.id.replace(
+              /(bookwriter-chapter-)\d+(-)/,
+              '$1' + newChapterIdString + '$2'
+            );
+          }
+          if (descendantElement.getAttribute('name')) {
+            descendantElement.setAttribute(
+              'name',
+              descendantElement.getAttribute('name').replace(
+                /(bookwriter_chapter_)\d+(_)/,
+                '$1' + newChapterIdString + '$2'
+              )
+            );
+          }
+          if (descendantElement.getAttribute('for')) {
+            descendantElement.setAttribute(
+              'for',
+              descendantElement.getAttribute('for').replace(
+                /(bookwriter-chapter-)\d+(-)/,
+                '$1' + newChapterIdString + '$2'
+              )
+            );
+          }
+          if (descendantElement.dataset.targetChapterId) {
+            descendantElement.dataset.targetChapterId = newChapterIdString;
+          }
+        });
+        // Each select should land on the DB defaults for a fresh chapter
+        // (first option in each list). The change-handler on the rail will
+        // POST any user-driven change.
+        pickerRowClone.querySelectorAll('select').forEach(function (selectElement) {
+          if (selectElement.options.length > 0) {
+            selectElement.selectedIndex = 0;
+          }
+        });
+        rowElement.appendChild(pickerRowClone);
+      }
+    }
 
     rowElement.addEventListener('click', function () {
       switchToChapterFromRail(rowElement);
@@ -1501,7 +1557,7 @@
   loadBibleEntriesFromIsland();
 
   function activeBibleCategoryCode() {
-    var activeCategoryElement = document.querySelector('.bookwriter-bible-cats .bookwriter-bible-cat.active');
+    var activeCategoryElement = document.querySelector('.bookwriter-bible-cats .bookwriter-bible-cat.bookwriter-active');
     return activeCategoryElement ? activeCategoryElement.dataset.cat : null;
   }
 
@@ -2000,7 +2056,7 @@
   window.setAsCover = function () {
     var setCoverButton = document.querySelector('.bookwriter-set-as-cover');
     var setCoverButtonLabel = setCoverButton ? setCoverButton.querySelector('span') : null;
-    var activeTemplateTile = document.querySelector('#templates .tmpl.active');
+    var activeTemplateTile = document.querySelector('#templates .bookwriter-cover-template-tile.bookwriter-active');
     var templateCode = activeTemplateTile ? (activeTemplateTile.dataset.style || null) : null;
     if (!templateCode) {
       if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Pick a template first';
@@ -2051,8 +2107,8 @@
         return;
       }
     }
-    var activePermissionTile = document.querySelector('.perm.active');
-    var permissionCode = (activePermissionTile && activePermissionTile.dataset.bookwriter-share-permission-tile) || 'read';
+    var activePermissionTile = document.querySelector('.bookwriter-share-permission-tile.bookwriter-active');
+    var permissionCode = (activePermissionTile && activePermissionTile.dataset.perm) || 'read';
     window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(betaBookId) + '/beta-share/create/', { beta_permission_code: permissionCode })
       .then(function (data) {
         var newShare = data.beta_share_link || {};

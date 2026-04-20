@@ -36,7 +36,7 @@ this way you know what is done and not.
 
 ----database naming conventions
 follow naming conventions
-use large descriptive name
+use large, descriptive, easy to read, non-confusing name
 name should so descriptive no one can get confused
 even a person has seen a table for first time
 same for table and column
@@ -88,6 +88,8 @@ don't touch other things.
 don't commit yet, and don't skip or rush anything
 once you finish the above step, then continue this
 --check styling
+use large, descriptive, easy to read, non-confusing name always 
+for id class and for everything
 make professional.
 do some research.
 minimal.
@@ -128,7 +130,7 @@ check name rules.
 seo friendly name.
 check variables name, filename, functions name, features name.
 all files css, js, ajax, html.
-use large descriptive name always.
+use large, descriptive, easy to read, non-confusing name always.
 do not use partial name or short name.
 update documents.
 update troubleshooting documents.
