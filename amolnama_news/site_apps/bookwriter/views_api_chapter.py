@@ -7,6 +7,7 @@ unpublish / status save."""
 import re
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
