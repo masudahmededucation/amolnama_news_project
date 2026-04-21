@@ -18,47 +18,48 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
-### R-spa-nav-scroll-to-top. Sidebar nav (কলম, all items) jumped to top on every click
-Date: 2026-04-21
-Was: Clicking any sidebar nav item — most painfully কলম / Bookwriter — forced
-     `window.scrollTo(0, 0)` on every navigation, even when returning to a page
-     the user had previously scrolled deep into. User reported the same issue
-     10+ times across sessions. Each "fix" was conversational, never landed in
-     repo or docs, so it kept regressing.
-Root cause: spa-navigation.js Step 8 unconditionally called
-     `window.scrollTo(0, 0)` on forward navigation. Only back/forward (popstate
-     with `restoreScrollY`) preserved scroll position. Forward clicks always
-     reset to top — wrong for any long-scroll page (Inkwell manuscript, feed,
-     bookmarks, etc.).
-Fix: Per-URL scroll save/restore — the SPA equivalent of Turbo's morphing
-     scroll preservation:
-       Step 0 — before leaving a page, write `window.scrollY` to
-                `sessionStorage['spa_scroll:' + pathname]`.
-       Step 8 — on arriving at a new URL, look up
-                `sessionStorage['spa_scroll:' + destinationPathname]`. If
-                present, restore it. Else scroll to top.
-     Universal — applies to every sidebar nav link, not just Bookwriter.
-     Sidebar's own scrollTop preservation (sidebar-navigation.js sessionStorage)
-     was already in place; this complements it for the body/window scroll.
-Files: core/static/core/assets/js/utilities/spa-navigation.js (Step 0 + Step 8),
-       seo/views.py (cache bumped v778 → v779).
-Why this is the right fix (not Turbo): The article suggests Turbo + morphing
-     as the "gold standard". But the project already has a working custom
-     PJAX SPA in spa-navigation.js. Switching to Turbo would mean ripping
-     out tested code, dealing with double-init of cleanup registry / Tom Select
-     / Quill destroy paths, and re-validating every page. Per-URL save/restore
-     gives the same UX outcome inside the existing engine — same ~10 lines as
-     the localStorage pattern in the article, scoped per pathname so each page
-     restores its OWN last position, not a global one.
-Verification protocol (do this every time the rule is touched again):
-     1. Open the home page, scroll halfway down the feed.
-     2. Click কলম in sidebar → land on /bookwriter/ at top.
-     3. Scroll halfway through Inkwell.
-     4. Click any other sidebar item → leave bookwriter.
-     5. Click কলম again → MUST land at the same scroll position from step 3.
-     6. Repeat with Home, Quiz Panel, any other long page.
-Stop documenting in chat. Document in this file. If it's not in this file
-on the same commit, it's not fixed.
+### R-scroll. Page jumps to top on nav / form-action / reload — two mechanisms
+Date: 2026-04-21 (consolidates R0 from 2026-04-16)
+
+Two distinct ways the scroll resets to top. Diagnose first (DevTools Network):
+full document reload = mechanism A; XHR + `<main>` swap = mechanism B.
+
+Mechanism A — full reload (`window.location.search/href = ...`, plain `<a href>`)
+  Browser default scroll behaviour on a fresh load is (0, 0) UNLESS the URL has
+  a fragment (`#anchor`) pointing at an in-DOM id.
+  Fix: add `id="..."` to the in-DOM element the user was focused on, append
+  `#same-id` to every URL the JS or template emits. Build URLs explicitly as
+  `pathname + '?' + params + '#anchor'` — `window.location.search = ...` DROPS
+  any hash. Verified: Quiz Panel review queue (`id="quizadmin-review-card"` +
+  `#quizadmin-review-card` on every approve/reject/prev/next URL).
+
+Mechanism B — SPA navigation (sidebar clicks → spa-navigation.js)
+  spa-navigation.js Step 8 used to call `window.scrollTo(0, 0)` on every
+  forward nav. Wrong for any long-scroll page (Inkwell manuscript, feed,
+  bookmarks). Reported 10+ times before being properly committed + documented.
+  Fix: per-URL save/restore in spa-navigation.js —
+    Step 0 (leaving): `sessionStorage['spa_scroll:' + pathname] = scrollY`
+    Step 8 (arriving): if `sessionStorage['spa_scroll:' + destPath]` exists,
+                        restore it; else scroll to top.
+  Universal across every sidebar link. Sidebar's OWN scrollTop preservation
+  (sidebar-navigation.js sessionStorage) was already in place; this is the
+  body/window equivalent.
+
+Files: spa-navigation.js (Step 0 + Step 8), seo/views.py (cache bump).
+
+Verification (browser, do every time):
+  1. Scroll mid-page on home feed.
+  2. Click কলম sidebar → /bookwriter/ at top (first visit).
+  3. Scroll mid-Inkwell.
+  4. Click any other sidebar item → leaves bookwriter.
+  5. Click কলম again → MUST restore step 3 scroll position.
+
+Why not Turbo: project already has working custom PJAX SPA. Swapping engines
+would force re-validating cleanup registry / Tom Select / Quill destroy paths
+across every page. ~10-line save/restore inside the existing SPA gives the
+same UX without the rip-out.
+
+Rule: if not in this file on the same commit, it's not fixed.
 
 ### R-bookwriter-inline-style-pattern. Inline style="background:linear-gradient(...)" violated Gate 4 #2 even for DB-driven values
 Date: 2026-04-20
@@ -122,22 +123,6 @@ Lesson: When doing a bulk CSS class rename, the JS rewrite MUST cover:
      Bumping CACHE_NAME + collectstatic is non-negotiable after any
      CSS edit, even pure renames.
 
-
-
-### R0. Quiz Panel review queue scrolled to top on approve/reject
-Date: 2026-04-16
-Was: Clicking approve/reject on /quizadmin/review/ reloaded the page and
-     browser scrolled to top, losing reviewer's visual context.
-Root cause: navigateToQuestionId() in page-review-queue.js set
-     window.location.search which causes a full reload, and reload
-     always scrolls to top. Prev/Next anchor links had the same issue.
-Fix: Append #quizadmin-review-card fragment to every navigation URL, so
-     the browser automatically scrolls to the review card on load.
-     Added id="quizadmin-review-card" to the <article> element. Full path
-     is now window.location.pathname + '?' + params + '#quizadmin-review-card'.
-Lesson: When a page reload is necessary in a staff workflow where the
-     user's visual focus is mid-page, use URL fragments (#anchor) so the
-     browser restores focus. Don't let the reviewer chase the UI.
 
 
 ### R1. CSRF token wrong pattern in call-webrtc.js
