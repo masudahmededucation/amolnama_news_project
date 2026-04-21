@@ -432,7 +432,7 @@
   border: 1px solid var(--line-strong, rgba(26,22,18,0.18));
   border-radius: var(--radius-xs, 2px);
   background-color: var(--paper, #fff);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.bookwriter-w3.bookwriter-org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%235a5048' d='M0 0l5 6 5-6z'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%235a5048' d='M0 0l5 6 5-6z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 8px 5px;
