@@ -50,7 +50,7 @@
               <div class="bookwriter-ch-title">{{ chapter_row.chapter_title_en|default:chapter_row.chapter_title_bn|default:"Untitled" }}</div>
               <div class="bookwriter-ch-meta">
                 <span>
-                  <i class="bookwriter-ch-dot {% if chapter_row.chapter_word_count > 0 %}bookwriter-draft{% else %}bookwriter-new{% endif %}"></i>
+                  <i class="bookwriter-ch-dot {% if chapter_row.chapter_word_count > 0 %}bookwriter-ch-dot-status-draft{% else %}bookwriter-ch-dot-status-new{% endif %}"></i>
                   {{ chapter_row.chapter_word_count|default:0 }} w
                 </span>
                 {% if chapter_row.bookwriter_chapter_id in published_chapter_ids_set %}
@@ -89,27 +89,27 @@
           <div class="bookwriter-chapter" draggable="true">
             <div class="bookwriter-ch-num">I.</div>
             <div class="bookwriter-ch-title">The Cartographer's Daughter</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-done"></i>2,841 w</span><span>3 days ago</span></div>
+            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-done"></i>2,841 w</span><span>3 days ago</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
             <div class="bookwriter-ch-num">II.</div>
             <div class="bookwriter-ch-title">A House of Small Windows</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-done"></i>3,104 w</span><span>2 days ago</span></div>
+            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-done"></i>3,104 w</span><span>2 days ago</span></div>
           </div>
           <div class="bookwriter-chapter bookwriter-chapter-row-is-active" draggable="true">
             <div class="bookwriter-ch-num">III.</div>
             <div class="bookwriter-ch-title">The Letter that Arrived in Winter</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-draft"></i>1,687 w</span><span>just now</span></div>
+            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-draft"></i>1,687 w</span><span>just now</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
             <div class="bookwriter-ch-num">IV.</div>
             <div class="bookwriter-ch-title">What the River Knew</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-new"></i>outline</span><span>unstarted</span></div>
+            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>outline</span><span>unstarted</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
             <div class="bookwriter-ch-num">V.</div>
             <div class="bookwriter-ch-title">Untitled</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-new"></i>blank</span><span>—</span></div>
+            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>blank</span><span>—</span></div>
           </div>
         {% endif %}
       </div>
@@ -665,7 +665,7 @@
       <div class="bookwriter-desk-card">
         <h4>Recent Drafts</h4>
         <div class="bookwriter-history-strip" id="history">
-          <div class="bookwriter-history-item bookwriter-current bookwriter-history-item-seed-paper"></div>
+          <div class="bookwriter-history-item bookwriter-history-item-is-current bookwriter-history-item-seed-paper"></div>
           <div class="bookwriter-history-item bookwriter-history-item-seed-ink"></div>
           <div class="bookwriter-history-item bookwriter-history-item-seed-moss"></div>
           <div class="bookwriter-history-item bookwriter-history-item-seed-terracotta"></div>
@@ -1144,7 +1144,7 @@
               </div>
             </div>
             <div class="bookwriter-serial-status">
-              <div class="bookwriter-status-chip bookwriter-draft">Draft</div>
+              <div class="bookwriter-status-chip bookwriter-status-chip-status-draft">Draft</div>
               <button type="button" class="bookwriter-status-action"
                       id="bookwriter-publish-status-open-chapter-4-button"
                       name="bookwriter_publish_status_open_chapter_4_button">open</button>
@@ -1214,7 +1214,7 @@
               onclick="toggleSnapshots()">×</button>
     </div>
     <div class="bookwriter-snapshot-list">
-      <div class="bookwriter-snapshot-row bookwriter-current">
+      <div class="bookwriter-snapshot-row bookwriter-snapshot-row-is-current">
         <div class="bookwriter-snapshot-time">Today · 14:42</div>
         <div class="bookwriter-snapshot-label">Current draft</div>
         <div class="bookwriter-snapshot-meta">1,687 words · you</div>

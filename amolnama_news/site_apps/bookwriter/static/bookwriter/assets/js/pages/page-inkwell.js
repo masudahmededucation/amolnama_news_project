@@ -455,7 +455,7 @@
     deleteButton.textContent = '×';
 
     window.bookwriter.wireTwoClickConfirmDelete(deleteButton, {
-      confirmingClass: 'bookwriter-confirming',
+      confirmingClass: 'bookwriter-chapter-delete-affordance-is-confirming',
       initialTitle: 'Remove chapter',
       confirmingTitle: 'Click again to confirm',
       onConfirm: function () {
@@ -486,7 +486,7 @@
     metaDiv.className = 'bookwriter-ch-meta';
     var metaSpan = document.createElement('span');
     var dotIcon = document.createElement('i');
-    dotIcon.className = 'bookwriter-ch-dot ' + (chapterWordCount > 0 ? 'bookwriter-draft' : 'bookwriter-new');
+    dotIcon.className = 'bookwriter-ch-dot ' + (chapterWordCount > 0 ? 'bookwriter-ch-dot-status-draft' : 'bookwriter-ch-dot-status-new');
     metaSpan.appendChild(dotIcon);
     metaSpan.appendChild(document.createTextNode((chapterWordCount || 0) + ' w'));
     metaDiv.appendChild(metaSpan);
@@ -592,7 +592,7 @@
     demoRow.innerHTML =
       '<div class="bookwriter-ch-num">' + (ROMAN_NUMERAL_BY_INDEX[demoCount - 1] || demoCount) + '.</div>' +
       '<div class="bookwriter-ch-title">Untitled</div>' +
-      '<div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-new"></i>blank</span><span>just now</span></div>';
+      '<div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>blank</span><span>just now</span></div>';
     list.appendChild(demoRow);
     demoRow.addEventListener('click', function () { switchToChapterFromRail(demoRow); });
     demoRow.click();
@@ -843,8 +843,8 @@
 
   document.querySelectorAll('.bookwriter-history-item').forEach(function (h) {
     h.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-history-item').forEach(function (x) { x.classList.remove('bookwriter-current'); });
-      h.classList.add('bookwriter-current');
+      document.querySelectorAll('.bookwriter-history-item').forEach(function (x) { x.classList.remove('bookwriter-history-item-is-current'); });
+      h.classList.add('bookwriter-history-item-is-current');
     });
   });
 
@@ -949,7 +949,7 @@
     }
     snapshotRows.forEach(function (snapshotRow, rowIndex) {
       var rowElement = document.createElement('div');
-      rowElement.className = 'bookwriter-snapshot-row' + (rowIndex === 0 ? ' bookwriter-current' : '');
+      rowElement.className = 'bookwriter-snapshot-row' + (rowIndex === 0 ? ' bookwriter-snapshot-row-is-current' : '');
       rowElement.dataset.snapshotId = String(snapshotRow.id);
 
       var timeStampElement = document.createElement('div');
@@ -979,9 +979,9 @@
 
       rowElement.addEventListener('click', function () {
         snapshotListContainer.querySelectorAll('.bookwriter-snapshot-row').forEach(function (otherRow) {
-          otherRow.classList.remove('bookwriter-current');
+          otherRow.classList.remove('bookwriter-snapshot-row-is-current');
         });
-        rowElement.classList.add('bookwriter-current');
+        rowElement.classList.add('bookwriter-snapshot-row-is-current');
       });
 
       snapshotListContainer.appendChild(rowElement);
@@ -1023,7 +1023,7 @@
     if (!prose) return;
     var chapterId = prose.dataset.chapterId;
     if (!chapterId) return;
-    var selectedSnapshotRow = document.querySelector('.bookwriter-snapshot-list .bookwriter-snapshot-row.bookwriter-current[data-snapshot-id]');
+    var selectedSnapshotRow = document.querySelector('.bookwriter-snapshot-list .bookwriter-snapshot-row-is-current[data-snapshot-id]');
     if (!selectedSnapshotRow) return;
     var snapshotId = selectedSnapshotRow.dataset.snapshotId;
     window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/snapshot/' + encodeURIComponent(snapshotId) + '/revert/', {})
@@ -1429,7 +1429,7 @@
     deleteButton.textContent = '×';
 
     window.bookwriter.wireTwoClickConfirmDelete(deleteButton, {
-      confirmingClass: 'bookwriter-confirming',
+      confirmingClass: 'bookwriter-plot-card-delete-affordance-is-confirming',
       onConfirm: function () {
         window.bookwriter.apiDelete('/bookwriter/api/plot-card/' + encodeURIComponent(realPlotCardId) + '/delete/')
           .then(function () {

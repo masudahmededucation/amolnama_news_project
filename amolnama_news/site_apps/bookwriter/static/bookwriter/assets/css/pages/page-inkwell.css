@@ -247,9 +247,9 @@ body.bookwriter-standalone {
   margin-right: 5px;
   vertical-align: middle;
 }
-.bookwriter-ch-dot.bookwriter-draft { background: var(--ochre); }
-.bookwriter-ch-dot.bookwriter-done  { background: var(--moss); }
-.bookwriter-ch-dot.bookwriter-new   { background: var(--accent); }
+.bookwriter-ch-dot-status-draft { background: var(--ochre); }
+.bookwriter-ch-dot-status-done  { background: var(--moss); }
+.bookwriter-ch-dot-status-new   { background: var(--accent); }
 
 .bookwriter-book-info {
   padding: 20px 28px;
@@ -1213,7 +1213,7 @@ body.bookwriter-margin-notes-open .bookwriter-margin-notes-panel { transform: tr
 .bookwriter-snapshot-row:hover { background: rgba(0,0,0,0.03); }
 .bookwriter-snapshot-row:hover::before { border-color: var(--accent); }
 
-.bookwriter-snapshot-row.bookwriter-current::before {
+.bookwriter-snapshot-row-is-current::before {
   background: var(--accent);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(139,42,31,0.15);
@@ -2764,7 +2764,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
 
 .bookwriter-status-chip.bookwriter-live      { background: var(--moss); color: var(--paper); }
 .bookwriter-status-chip.bookwriter-scheduled { background: var(--ochre); color: var(--paper); }
-.bookwriter-status-chip.bookwriter-draft     { background: var(--paper-deep); color: var(--ink-fade); border: 1px solid var(--line); }
+.bookwriter-status-chip-status-draft         { background: var(--paper-deep); color: var(--ink-fade); border: 1px solid var(--line); }
 
 .bookwriter-status-action {
   background: none;
@@ -3502,7 +3502,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 }
 
 .bookwriter-history-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.bookwriter-history-item.bookwriter-current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.bookwriter-history-item-is-current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 
 /* ===== RESPONSIVE — collapse side panels based on WRAPPER width ====
    Container queries (not media queries) so the layout reacts to the
@@ -3746,8 +3746,8 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   color: var(--paper);
 }
 
-.bookwriter-shell .bookwriter-chapter-delete-affordance.bookwriter-confirming,
-.bookwriter-embedded-wrapper .bookwriter-chapter-delete-affordance.bookwriter-confirming {
+.bookwriter-shell .bookwriter-chapter-delete-affordance-is-confirming,
+.bookwriter-embedded-wrapper .bookwriter-chapter-delete-affordance-is-confirming {
   opacity: 1;
   background: var(--accent);
   color: var(--paper);
@@ -3830,9 +3830,9 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 }
 
 .bookwriter-shell .bookwriter-plot-card-delete-affordance:hover,
-.bookwriter-shell .bookwriter-plot-card-delete-affordance.bookwriter-confirming,
+.bookwriter-shell .bookwriter-plot-card-delete-affordance-is-confirming,
 .bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance:hover,
-.bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance.bookwriter-confirming {
+.bookwriter-embedded-wrapper .bookwriter-plot-card-delete-affordance-is-confirming {
   background: var(--accent);
   color: var(--paper);
   opacity: 1;
