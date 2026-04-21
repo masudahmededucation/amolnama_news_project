@@ -252,7 +252,7 @@ body.bookwriter-standalone {
 .bookwriter-ch-dot-status-new   { background: var(--accent); }
 
 .bookwriter-book-info {
-  padding: 20px 28px;
+  padding: 14px 18px;
   border-top: 1px solid var(--line);
   background: var(--paper-shadow);
 }
@@ -260,7 +260,7 @@ body.bookwriter-standalone {
 .bookwriter-book-title {
   font-family: 'Fraunces', serif;
   font-weight: 600;
-  font-size: 20px;
+  font-size: 17px;
   font-style: italic;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -268,18 +268,19 @@ body.bookwriter-standalone {
 
 .bookwriter-book-author {
   font-family: 'EB Garamond', serif;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-fade);
-  margin-top: 4px;
+  margin-top: 2px;
   font-style: italic;
 }
 
 .bookwriter-book-stats {
   display: flex;
-  gap: 18px;
-  margin-top: 14px;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.08em;
   color: var(--ink-fade);
   text-transform: uppercase;
@@ -288,11 +289,11 @@ body.bookwriter-standalone {
 .bookwriter-book-stats strong {
   color: var(--ink);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  display: block;
-  margin-bottom: 2px;
+  display: inline;
+  margin-right: 4px;
   text-transform: none;
   letter-spacing: 0;
 }
@@ -2003,42 +2004,67 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 
 /* Book metadata fields in the right rail (synopsis/status/targets). */
 .bookwriter-book-metadata-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 14px;
-  padding-top: 14px;
+  display: grid;
+  /* Two-column compact layout for short fields (label left, input right).
+     Synopsis spans both columns since it's multi-line. */
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px dashed var(--line, rgba(26,22,18,0.12));
 }
 
 .bookwriter-book-metadata-field-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--text-xs, 9px);
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-fade, #8a8078);
-  margin-top: 6px;
+  margin: 0;
 }
 
 .bookwriter-book-metadata-select,
 .bookwriter-book-metadata-input,
 .bookwriter-book-metadata-textarea {
-  width: 100%;
-  padding: 5px 6px;
+  padding: 4px 6px;
   border: 1px solid var(--line-strong, rgba(26,22,18,0.12));
   border-radius: var(--radius-xs, 2px);
   background: transparent;
   color: var(--ink, #1a1612);
   font-family: 'EB Garamond', serif;
   font-size: var(--text-sm, 13px);
-  min-height: var(--touch-target, 44px);
+  /* Mouse-pointer baseline; the @media (pointer: coarse) block at the
+     bottom of this file overrides to 44px for touch users. */
+  min-height: 28px;
 }
 
+/* Inline fields (status, daily target, manuscript target) — fit into
+   the right grid column at their natural width, capped so very long
+   numbers do not blow out the column. */
+.bookwriter-book-metadata-select,
+.bookwriter-book-metadata-input {
+  width: auto;
+  max-width: 110px;
+  justify-self: end;
+}
+
+/* Synopsis textarea spans the full width below the inline fields. */
 .bookwriter-book-metadata-textarea {
+  grid-column: 1 / -1;
+  width: 100%;
   font-family: 'EB Garamond', serif;
   resize: vertical;
   min-height: 60px;
   line-height: 1.4;
+  margin-top: 4px;
+}
+
+/* The synopsis label sits on its own row above the textarea. */
+.bookwriter-book-metadata-field-label[for="bookwriter-book-synopsis-textarea"] {
+  grid-column: 1 / -1;
+  margin-top: 6px;
 }
 
 .bookwriter-book-metadata-select:focus-visible,

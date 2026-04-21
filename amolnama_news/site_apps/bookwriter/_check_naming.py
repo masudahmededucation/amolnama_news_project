@@ -56,6 +56,13 @@ def check_css_naming(violations: list[str]) -> None:
     for path in sorted(CSS_DIR.rglob("*.css")):
         text = path.read_text(encoding="utf-8")
         no_comments = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+        # Strip url(...) contents — dots inside data URLs (e.g. www.w3.org)
+        # are NOT class selectors. Replace each url(...) with a single
+        # space so byte offsets stay roughly aligned for line counting.
+        no_comments = re.sub(r"url\([^)]*\)", " ", no_comments)
+        # Strip CSS string literals "..." and '...' (font-family names etc.)
+        no_comments = re.sub(r'"[^"]*"', " ", no_comments)
+        no_comments = re.sub(r"'[^']*'", " ", no_comments)
         seen_at_line: set[tuple[int, str]] = set()
         for match in re.finditer(r"\.([a-zA-Z_][a-zA-Z0-9_-]*)", no_comments):
             cls = match.group(1)
