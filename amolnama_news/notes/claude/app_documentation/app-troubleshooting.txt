@@ -45,6 +45,12 @@ Mechanism B — SPA navigation (sidebar clicks → spa-navigation.js)
   (sidebar-navigation.js sessionStorage) was already in place; this is the
   body/window equivalent.
 
+  Sub-bug B2: clicking the SAME active sidebar link twice still scrolled to
+  top. Click handler early-returned on `url === pathname` without calling
+  `event.preventDefault()`, so the browser's default same-href reload kicked
+  in → fresh page load → scroll (0, 0). Fix: preventDefault on the same-
+  pathname branch too. True no-op now.
+
 Files: spa-navigation.js (Step 0 + Step 8), seo/views.py (cache bump).
 
 Verification (browser, do every time):

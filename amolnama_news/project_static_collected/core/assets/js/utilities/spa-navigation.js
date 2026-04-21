@@ -57,7 +57,12 @@
     if (url.startsWith('http') && !url.startsWith(window.location.origin)) return;
     if (url.startsWith('#')) return;
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    if (url === window.location.pathname) return;
+    // Clicking the same sidebar item that's already active: stop the browser's
+    // default same-href reload (which would scroll to top). True no-op.
+    if (url === window.location.pathname) {
+      event.preventDefault();
+      return;
+    }
 
     event.preventDefault();
     isPushState = true;
