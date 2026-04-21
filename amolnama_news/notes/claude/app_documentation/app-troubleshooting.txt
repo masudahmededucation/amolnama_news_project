@@ -18,6 +18,48 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-spa-nav-scroll-to-top. Sidebar nav (কলম, all items) jumped to top on every click
+Date: 2026-04-21
+Was: Clicking any sidebar nav item — most painfully কলম / Bookwriter — forced
+     `window.scrollTo(0, 0)` on every navigation, even when returning to a page
+     the user had previously scrolled deep into. User reported the same issue
+     10+ times across sessions. Each "fix" was conversational, never landed in
+     repo or docs, so it kept regressing.
+Root cause: spa-navigation.js Step 8 unconditionally called
+     `window.scrollTo(0, 0)` on forward navigation. Only back/forward (popstate
+     with `restoreScrollY`) preserved scroll position. Forward clicks always
+     reset to top — wrong for any long-scroll page (Inkwell manuscript, feed,
+     bookmarks, etc.).
+Fix: Per-URL scroll save/restore — the SPA equivalent of Turbo's morphing
+     scroll preservation:
+       Step 0 — before leaving a page, write `window.scrollY` to
+                `sessionStorage['spa_scroll:' + pathname]`.
+       Step 8 — on arriving at a new URL, look up
+                `sessionStorage['spa_scroll:' + destinationPathname]`. If
+                present, restore it. Else scroll to top.
+     Universal — applies to every sidebar nav link, not just Bookwriter.
+     Sidebar's own scrollTop preservation (sidebar-navigation.js sessionStorage)
+     was already in place; this complements it for the body/window scroll.
+Files: core/static/core/assets/js/utilities/spa-navigation.js (Step 0 + Step 8),
+       seo/views.py (cache bumped v778 → v779).
+Why this is the right fix (not Turbo): The article suggests Turbo + morphing
+     as the "gold standard". But the project already has a working custom
+     PJAX SPA in spa-navigation.js. Switching to Turbo would mean ripping
+     out tested code, dealing with double-init of cleanup registry / Tom Select
+     / Quill destroy paths, and re-validating every page. Per-URL save/restore
+     gives the same UX outcome inside the existing engine — same ~10 lines as
+     the localStorage pattern in the article, scoped per pathname so each page
+     restores its OWN last position, not a global one.
+Verification protocol (do this every time the rule is touched again):
+     1. Open the home page, scroll halfway down the feed.
+     2. Click কলম in sidebar → land on /bookwriter/ at top.
+     3. Scroll halfway through Inkwell.
+     4. Click any other sidebar item → leave bookwriter.
+     5. Click কলম again → MUST land at the same scroll position from step 3.
+     6. Repeat with Home, Quiz Panel, any other long page.
+Stop documenting in chat. Document in this file. If it's not in this file
+on the same commit, it's not fixed.
+
 ### R-bookwriter-inline-style-pattern. Inline style="background:linear-gradient(...)" violated Gate 4 #2 even for DB-driven values
 Date: 2026-04-20
 Was: Bible avatars had `style="background:linear-gradient(135deg, {{ hex_1 }}, {{ hex_2 }});"`.

@@ -34,6 +34,7 @@
   <div class="bookwriter-shell">
     {% include "bookwriter/partials/_inkwell_body.html" %}
   </div>
+  {# bookwriter-namespace.js MUST load FIRST — defines window.bookwriter used by every other script for CSRF / fetch / two-click confirm. #}
   <script src="{% static 'bookwriter/assets/js/modules/bookwriter-namespace.js' %}" defer></script>
   <script src="{% static 'bookwriter/assets/js/pages/page-inkwell.js' %}" defer></script>
   <script src="{% static 'bookwriter/assets/js/modules/bookwriter-rail-pickers.js' %}" defer></script>

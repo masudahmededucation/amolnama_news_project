@@ -99,6 +99,11 @@
           { url: window.location.pathname, scrollY: window.scrollY },
           '', window.location.pathname
         );
+        // Also persist per-URL in sessionStorage so a forward nav back to the
+        // same page restores the user's last scroll position (no jump to top).
+        try {
+          sessionStorage.setItem('spa_scroll:' + window.location.pathname, String(window.scrollY));
+        } catch (e) { /* storage full / blocked — fall through to top */ }
 
         // Step 0b: Run registered cleanup functions (destroy third-party instances)
         window.spaCleanupRun();
@@ -136,10 +141,22 @@
         // Step 7: Load page-specific JS
         loadPageJs(parsed);
 
-        // Step 8: Scroll — restore position on back/forward, top on new navigation
+        // Step 8: Scroll — restore position on back/forward, restore per-URL
+        // saved position on forward nav, top only if neither exists.
+        // Per-URL restore is the SPA equivalent of Turbo's morphing scroll
+        // preservation: clicking the same nav link twice or returning to a
+        // previously-visited page lands the user where they left off,
+        // never at the top. Saved in Step 0 above.
         mainElement.scrollTop = 0;
+        var destinationPathname = url.split('#')[0].split('?')[0];
+        var savedScrollForDestination = null;
+        try {
+          savedScrollForDestination = sessionStorage.getItem('spa_scroll:' + destinationPathname);
+        } catch (e) { /* storage blocked — fall through */ }
         if (!isPushState && restoreScrollY !== undefined) {
           window.scrollTo(0, restoreScrollY);
+        } else if (savedScrollForDestination !== null) {
+          window.scrollTo(0, parseInt(savedScrollForDestination, 10) || 0);
         } else {
           window.scrollTo(0, 0);
         }
