@@ -516,6 +516,30 @@ body.bookwriter-standalone {
 
 .bookwriter-prose em { color: var(--ink-soft); }
 
+/* Headline emphasis — applied via toolbar's ¶ heading button to the
+   selected text only (Selection API wraps in this span). Inline so a
+   phrase inside a paragraph can be emphasised without promoting the
+   whole block to <h2>. */
+.bookwriter-prose .bookwriter-prose-headline {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.4em;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+/* Block quote — applied via toolbar's " quote button. formatBlock
+   wraps the current block in <blockquote>; this rule gives it the
+   visible left rule + indent so the user sees the change. */
+.bookwriter-prose blockquote {
+  margin: 1em 0 1em 0;
+  padding: 0.4em 0 0.4em 1.2em;
+  border-left: 3px solid var(--accent);
+  color: var(--ink-soft);
+  font-style: italic;
+  text-indent: 0;
+}
+
 .bookwriter-prose::selection, .bookwriter-prose *::selection {
   background: rgba(200, 148, 90, 0.3);
 }
