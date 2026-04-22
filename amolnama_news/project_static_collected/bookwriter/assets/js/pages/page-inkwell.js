@@ -614,8 +614,8 @@
      ======================================================== */
   function setMode(mode) {
     var modes = ['write', 'corkboard', 'bible', 'cover', 'gallery'];
-    modes.forEach(function (m) { document.body.classList.remove('mode-' + m); });
-    if (mode !== 'write') document.body.classList.add('mode-' + mode);
+    modes.forEach(function (m) { document.body.classList.remove('bookwriter-mode-' + m); });
+    if (mode !== 'write') document.body.classList.add('bookwriter-mode-' + mode);
 
     document.querySelectorAll('.bookwriter-mode-switch').forEach(function (modeSwitcherElement) {
       modeSwitcherElement.querySelectorAll('.bookwriter-mode-btn').forEach(function (modeButtonElement) {
@@ -629,6 +629,39 @@
     saveState({ mode: mode });
   }
   window.setMode = setMode;
+
+
+  /* ========================================================
+     INLINE FORMATTING TOOLBAR (B / I / U / heading / quote)
+     --------------------------------------------------------
+     The buttons in .bookwriter-tools are wired to the active
+     manuscript's contenteditable via document.execCommand().
+     execCommand is deprecated in spec but still ships in every
+     browser and is the only one-line way to apply rich-text
+     formatting to a contenteditable. We use mousedown (not click)
+     + preventDefault so the editor never loses selection — without
+     that, clicking the toolbar would deselect first and the
+     command would no-op on an empty range.
+     ======================================================== */
+  var formattingCommandById = {
+    'bookwriter-tool-bold-button':      { command: 'bold' },
+    'bookwriter-tool-italic-button':    { command: 'italic' },
+    'bookwriter-tool-underline-button': { command: 'underline' },
+    'bookwriter-tool-heading-button':   { command: 'formatBlock', value: 'h2' },
+    'bookwriter-tool-quote-button':     { command: 'formatBlock', value: 'blockquote' }
+  };
+  document.addEventListener('mousedown', function (formattingMouseEvent) {
+    var clickedButton = formattingMouseEvent.target.closest('button');
+    if (!clickedButton) return;
+    var formattingDescriptor = formattingCommandById[clickedButton.id];
+    if (!formattingDescriptor) return;
+    formattingMouseEvent.preventDefault();
+    var activeManuscriptElement = document.querySelector('.bookwriter-prose[contenteditable="true"]');
+    if (activeManuscriptElement && document.activeElement !== activeManuscriptElement) {
+      activeManuscriptElement.focus();
+    }
+    document.execCommand(formattingDescriptor.command, false, formattingDescriptor.value || null);
+  });
 
 
   /* ========================================================

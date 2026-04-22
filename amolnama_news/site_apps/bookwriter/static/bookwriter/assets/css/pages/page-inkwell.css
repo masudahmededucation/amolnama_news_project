@@ -324,6 +324,10 @@ body.bookwriter-standalone {
   font-style: italic;
   font-size: 14px;
   color: var(--ink-fade);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .bookwriter-toolbar-crumb strong {
