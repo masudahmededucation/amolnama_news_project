@@ -927,9 +927,14 @@ body.bookwriter-focus-on .bookwriter-focus-mode { display: block; }
    global header / sidebar scroll. */
 body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
 
+/* Grain texture pinned to the viewport (position: fixed) instead of
+   the focus-mode container. With position: absolute the pseudo lived
+   inside an overflow-y: auto box and its bottom edge sat at one
+   viewport height — scrolling further down revealed smooth (no-grain)
+   paper. fixed keeps it covering the visible area always. */
 .bookwriter-focus-mode::before {
   content: '';
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   background-image:
@@ -937,6 +942,7 @@ body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   mix-blend-mode: multiply;
   opacity: 0.6;
+  z-index: 0;
 }
 
 .bookwriter-focus-exit {
