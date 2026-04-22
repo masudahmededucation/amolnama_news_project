@@ -409,6 +409,18 @@
     clearTimeout(titleSaveTimeout);
     performChapterTitleAutosave();
 
+    // Clear the editor IMMEDIATELY so the user never briefly sees the
+    // PREVIOUS chapter's title/body while the new one is being fetched.
+    // Without this, a slow network leaves the old content visible and
+    // the user might delete the wrong chapter or type into the wrong
+    // body. Reset chapterId too so a stray autosave can't PATCH the
+    // wrong chapter mid-switch.
+    if (title) title.innerText = '';
+    if (prose) {
+      prose.innerHTML = '';
+      delete prose.dataset.chapterId;
+    }
+
     window.bookwriter.apiGet('/bookwriter/api/chapter/' + encodeURIComponent(realChapterId) + '/')
       .then(function (data) {
         applyChapterPayloadToEditor(data.chapter);
@@ -480,7 +492,7 @@
     titleDiv.className = 'bookwriter-ch-title';
     // Use textContent (not innerHTML) so the title is treated as plain text —
     // the server already sanitized it on save, but defence-in-depth.
-    titleDiv.textContent = chapterTitle || 'Untitled';
+    titleDiv.textContent = chapterTitle || 'Untitled Chapter';
 
     var metaDiv = document.createElement('div');
     metaDiv.className = 'bookwriter-ch-meta';
@@ -559,17 +571,37 @@
     return rowElement;
   }
 
+  // Guard against double-clicks creating two chapters (the user reported
+  // "double vision — chapter appears twice"). True while a create call
+  // is in flight so a second + new click is a no-op until the first
+  // finishes (success or failure).
+  var addChapterInFlight = false;
+
   function addChapter() {
+    if (addChapterInFlight) return;
     var list = document.getElementById('chapters');
     if (!list) return;
     var bookId = list.dataset.bookId;
 
     // ---------- REAL DB BRANCH ----------
     if (bookId) {
+      addChapterInFlight = true;
+      // Clear the editor IMMEDIATELY so the user doesn't briefly see the
+      // PREVIOUS chapter's title/body while the new chapter is being
+      // created — that was the "opens with default name of existing
+      // chapter" bug. Empty the title and prose, drop the chapterId so
+      // any stray autosave knows it has nothing to PATCH.
+      if (title) title.innerText = '';
+      if (prose) {
+        prose.innerHTML = '';
+        delete prose.dataset.chapterId;
+      }
       window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(bookId) + '/chapter/create/', {})
         .then(function (data) {
           var newChapter = data.chapter || {};
           var newRow = buildChapterRailRow(newChapter.id, newChapter.number, newChapter.title, newChapter.word_count);
+          // Always append at the end — server gives the new chapter the
+          // highest sort_order so it belongs at the bottom of the rail.
           list.appendChild(newRow);
           newRow.click();
           newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -580,7 +612,8 @@
           if (saveChip) {
             saveChip.innerHTML = '<span class="bookwriter-pulse" style="background:var(--accent);"></span>could not create chapter';
           }
-        });
+        })
+        .then(function () { addChapterInFlight = false; });
       return;
     }
 
@@ -591,7 +624,7 @@
     demoRow.setAttribute('draggable', 'true');
     demoRow.innerHTML =
       '<div class="bookwriter-ch-num">' + (ROMAN_NUMERAL_BY_INDEX[demoCount - 1] || demoCount) + '.</div>' +
-      '<div class="bookwriter-ch-title">Untitled</div>' +
+      '<div class="bookwriter-ch-title">Untitled Chapter</div>' +
       '<div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>blank</span><span>just now</span></div>';
     list.appendChild(demoRow);
     demoRow.addEventListener('click', function () { switchToChapterFromRail(demoRow); });
