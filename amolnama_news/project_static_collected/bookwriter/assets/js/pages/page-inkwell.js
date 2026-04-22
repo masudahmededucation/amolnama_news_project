@@ -78,7 +78,7 @@
 
     // Focus ribbon: chapter number from the active rail row, words from
     // the live editor. Falls back to "iii" only on the anon demo.
-    var activeChapterRailRow = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-num');
+    var activeChapterRailRow = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-chapter-rail-row-number');
     var activeChapterLabel = activeChapterRailRow
       ? activeChapterRailRow.innerText.replace(/\.$/, '').trim().toLowerCase()
       : 'iii';
@@ -163,11 +163,19 @@
       return;
     }
 
-    window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/autosave/', { chapter_text_html: prose.innerHTML })
+    var savedHtmlSnapshot = prose.innerHTML;
+    window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/autosave/', { chapter_text_html: savedHtmlSnapshot })
       .then(function (data) {
         if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>saved · just now';
         updateBookStatCounters(data.book_total_word_count, data.book_total_chapter_count);
         updateWriterDashboardStats(data.today_words_written, data.current_streak_days);
+        // Mirror the saved body into the chapter cache so a SWR
+        // re-open doesn't paint stale (older) HTML over the live one.
+        var existingCachedPayload = chapterPayloadCacheById && chapterPayloadCacheById[chapterId];
+        if (existingCachedPayload) {
+          existingCachedPayload.html = savedHtmlSnapshot;
+          existingCachedPayload.word_count = (data && data.chapter_word_count) || existingCachedPayload.word_count;
+        }
       })
       .catch(function () {
         // Network or server error. Keep the user's text in the editor
@@ -203,13 +211,27 @@
       if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>title noted';
       return;
     }
-    window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/title/', { chapter_title: title.innerText || '' })
+    // Capture the title text AND the matching rail row NOW. Reading
+    // them inside the .then() is wrong: a chapter switch in between
+    // (which clears the editor and changes which rail row is active)
+    // would make the .then() write '' into the WRONG rail row, leaving
+    // the just-saved chapter showing "Untitled Chapter" in the rail
+    // even though its DB row has the real title. Bug reported as
+    // "click chapter 2, sidebar says Untitled but it has a title".
+    var titleTextSnapshot = title.innerText || '';
+    var railTitleElementSnapshot = document.querySelector(
+      '#chapters .bookwriter-chapter[data-chapter-id="' + chapterId + '"] .bookwriter-chapter-rail-row-title'
+    );
+    window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/title/', { chapter_title: titleTextSnapshot })
       .then(function () {
         if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>title saved · just now';
-        // Mirror the new title into the matching rail row + the breadcrumb
-        // so the rest of the UI stays in sync without a full refresh.
-        var activeRailRow = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-title');
-        if (activeRailRow) activeRailRow.textContent = title.innerText || 'Untitled';
+        if (railTitleElementSnapshot) {
+          railTitleElementSnapshot.textContent = titleTextSnapshot || 'Untitled Chapter';
+        }
+        // Mirror into the chapter cache so a SWR re-open shows the
+        // freshly-typed title, not the previously-cached one.
+        var existingCachedPayload = chapterPayloadCacheById && chapterPayloadCacheById[chapterId];
+        if (existingCachedPayload) existingCachedPayload.title = titleTextSnapshot;
       })
       .catch(function () {
         if (saveChip) {
@@ -355,7 +377,7 @@
   var initialPrimedProseHtml = '';
   if (prose) {
     initialPrimedProseHtml = prose.innerHTML;
-    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-ch-num');
+    var initialActiveChapterNumberElement = document.querySelector('.bookwriter-chapter-row-is-active .bookwriter-chapter-rail-row-number');
     if (initialActiveChapterNumberElement) {
       initialPrimedChapterNum = initialActiveChapterNumberElement.innerText.trim();
     }
@@ -375,19 +397,31 @@
       || document.querySelector('.bookwriter-toolbar-crumb strong');
     if (chapterLabelElement) chapterLabelElement.innerText = 'Chapter ' + (chapterPayload.number || '');
     if (crumbChapterElement) crumbChapterElement.innerText = 'Chapter ' + (chapterPayload.number || '');
+    // Resync the matching rail row's title from the DB payload — if a
+    // previous title-autosave race wrote 'Untitled Chapter' into the
+    // wrong row, opening that chapter now corrects it from the source
+    // of truth.
+    if (chapterPayload.id) {
+      var matchingRailTitleElement = document.querySelector(
+        '#chapters .bookwriter-chapter[data-chapter-id="' + chapterPayload.id + '"] .bookwriter-chapter-rail-row-title'
+      );
+      if (matchingRailTitleElement) {
+        matchingRailTitleElement.textContent = chapterPayload.title || 'Untitled Chapter';
+      }
+    }
     refresh();
   }
 
   function switchToChapterFromRail(chapterRow) {
-    document.querySelectorAll('.bookwriter-chapter').forEach(function (x) { x.classList.remove('bookwriter-chapter-row-is-active'); });
+    document.querySelectorAll('.bookwriter-chapter').forEach(function (chapterRowElement) { chapterRowElement.classList.remove('bookwriter-chapter-row-is-active'); });
     chapterRow.classList.add('bookwriter-chapter-row-is-active');
 
     var realChapterId = chapterRow.dataset.chapterId;
 
     if (!realChapterId) {
       // ---------- DEMO BRANCH ----------
-      var demoChapterTitle = chapterRow.querySelector('.bookwriter-ch-title') ? chapterRow.querySelector('.bookwriter-ch-title').innerText : '';
-      var demoChapterNum = chapterRow.querySelector('.bookwriter-ch-num') ? chapterRow.querySelector('.bookwriter-ch-num').innerText.trim() : '';
+      var demoChapterTitle = chapterRow.querySelector('.bookwriter-chapter-rail-row-title') ? chapterRow.querySelector('.bookwriter-chapter-rail-row-title').innerText : '';
+      var demoChapterNum = chapterRow.querySelector('.bookwriter-chapter-rail-row-number') ? chapterRow.querySelector('.bookwriter-chapter-rail-row-number').innerText.trim() : '';
       if (title) title.innerText = (demoChapterTitle === 'Untitled') ? '' : demoChapterTitle;
       var demoLabel = document.querySelector('.bookwriter-chapter-label');
       var demoCrumb = document.querySelector('.bookwriter-toolbar-crumb strong');
@@ -397,7 +431,7 @@
         prose.innerHTML = (demoChapterNum === initialPrimedChapterNum) ? initialPrimedProseHtml : '';
         refresh();
       }
-      saveState({ chapterNum: demoChapterNum, manuscriptScrollY: 0 });
+      saveState({ chapterId: chapterRow.dataset.chapterId || null, chapterNum: demoChapterNum, manuscriptScrollY: 0 });
       return;
     }
 
@@ -409,29 +443,115 @@
     clearTimeout(titleSaveTimeout);
     performChapterTitleAutosave();
 
+    var cachedChapterPayload = chapterPayloadCacheById[realChapterId];
+
+    if (cachedChapterPayload) {
+      // INSTANT path — render from cache, then revalidate in the
+      // background (stale-while-revalidate). Editor never blanks for
+      // a re-visit; freshly loaded data updates seamlessly when it
+      // arrives. This is the perceived-speed win the user asked for.
+      applyChapterPayloadToEditor(cachedChapterPayload);
+      saveState({ chapterId: cachedChapterPayload.id, chapterNum: String(cachedChapterPayload.number || ''), manuscriptScrollY: 0 });
+      fetchAndCacheChapter(realChapterId).then(function (freshChapterPayload) {
+        if (!freshChapterPayload) return;
+        // Only repaint if the user is STILL on this chapter and the
+        // server data is materially different — otherwise the silent
+        // refresh is invisible.
+        if (prose && prose.dataset.chapterId === String(freshChapterPayload.id)) {
+          var titleChanged = (title && title.innerText !== (freshChapterPayload.title || ''));
+          var bodyChanged  = (prose.innerHTML !== (freshChapterPayload.html || ''));
+          if (titleChanged || bodyChanged) {
+            applyChapterPayloadToEditor(freshChapterPayload);
+          }
+        }
+      });
+      return;
+    }
+
+    // COLD path — first time this chapter is opened in the session.
     // Clear the editor IMMEDIATELY so the user never briefly sees the
-    // PREVIOUS chapter's title/body while the new one is being fetched.
-    // Without this, a slow network leaves the old content visible and
-    // the user might delete the wrong chapter or type into the wrong
-    // body. Reset chapterId too so a stray autosave can't PATCH the
-    // wrong chapter mid-switch.
+    // PREVIOUS chapter's title/body while the new one is being
+    // fetched. Reset chapterId too so a stray autosave can't PATCH
+    // the wrong chapter mid-switch. Show a skeleton band so the
+    // blank state feels intentional, not broken.
     if (title) title.innerText = '';
     if (prose) {
       prose.innerHTML = '';
       delete prose.dataset.chapterId;
     }
+    var stageWhileLoading = document.querySelector('.bookwriter-stage');
+    if (stageWhileLoading) stageWhileLoading.classList.add('bookwriter-stage-is-loading');
 
-    window.bookwriter.apiGet('/bookwriter/api/chapter/' + encodeURIComponent(realChapterId) + '/')
-      .then(function (data) {
-        applyChapterPayloadToEditor(data.chapter);
-        if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>chapter loaded';
-        saveState({ chapterNum: String((data.chapter || {}).number || ''), manuscriptScrollY: 0 });
-      })
-      .catch(function () {
-        if (saveChip) {
+    fetchAndCacheChapter(realChapterId)
+      .then(function (chapterPayload) {
+        if (chapterPayload) {
+          applyChapterPayloadToEditor(chapterPayload);
+          if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>chapter loaded';
+          saveState({ chapterId: chapterPayload.id, chapterNum: String(chapterPayload.number || ''), manuscriptScrollY: 0 });
+        } else if (saveChip) {
           saveChip.innerHTML = '<span class="bookwriter-pulse" style="background:var(--accent);"></span>could not load chapter';
         }
+      })
+      .then(function () {
+        if (stageWhileLoading) stageWhileLoading.classList.remove('bookwriter-stage-is-loading');
       });
+  }
+
+  /* ========================================================
+     CHAPTER PAYLOAD CACHE
+     --------------------------------------------------------
+     Map of chapter_id -> last-loaded payload. Lets re-opens
+     render instantly while a background fetch revalidates.
+     In-flight fetches are deduped via the inflight map so
+     hover-prefetch + click on the same chapter only hits the
+     server once. Cache entries are refreshed on every fetch
+     and on title/body autosave (via cacheChapterPayload), so
+     it never goes stale relative to what the user sees.
+     ======================================================== */
+  var chapterPayloadCacheById = {};
+  var chapterPayloadInflightById = {};
+
+  function cacheChapterPayload(chapterPayload) {
+    if (chapterPayload && chapterPayload.id) {
+      chapterPayloadCacheById[String(chapterPayload.id)] = chapterPayload;
+    }
+  }
+
+  function fetchAndCacheChapter(chapterId) {
+    var key = String(chapterId);
+    if (chapterPayloadInflightById[key]) return chapterPayloadInflightById[key];
+    var pendingFetchPromise = window.bookwriter.apiGet(
+      '/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/'
+    ).then(function (data) {
+      var loadedChapterPayload = (data && data.chapter) ? data.chapter : null;
+      if (loadedChapterPayload) cacheChapterPayload(loadedChapterPayload);
+      return loadedChapterPayload;
+    }).catch(function () {
+      return null;
+    }).then(function (chapterPayloadOrNull) {
+      delete chapterPayloadInflightById[key];
+      return chapterPayloadOrNull;
+    });
+    chapterPayloadInflightById[key] = pendingFetchPromise;
+    return pendingFetchPromise;
+  }
+
+  /* Hover prefetch — pointerenter on a rail row starts the GET so
+     that by the time the user clicks, the response is usually back.
+     Combined with the SWR cache above, click → instant render in
+     virtually every case. mouseenter only fires on devices with a
+     pointer; touch devices fall through to the cold path. */
+  var chaptersListForHoverPrefetch = document.getElementById('chapters');
+  if (chaptersListForHoverPrefetch) {
+    chaptersListForHoverPrefetch.addEventListener('mouseenter', function (hoverEvent) {
+      var hoveredRailRow = hoverEvent.target.closest && hoverEvent.target.closest('.bookwriter-chapter[data-chapter-id]');
+      if (!hoveredRailRow) return;
+      var hoveredChapterId = hoveredRailRow.dataset.chapterId;
+      if (!hoveredChapterId) return;
+      if (chapterPayloadCacheById[hoveredChapterId]) return;
+      if (chapterPayloadInflightById[hoveredChapterId]) return;
+      fetchAndCacheChapter(hoveredChapterId);
+    }, true);
   }
 
   document.querySelectorAll('.bookwriter-chapter').forEach(function (chapterRow) {
@@ -485,20 +605,25 @@
     if (chapterId) rowElement.dataset.chapterId = String(chapterId);
 
     var numDiv = document.createElement('div');
-    numDiv.className = 'bookwriter-ch-num';
-    numDiv.textContent = (ROMAN_NUMERAL_BY_INDEX[chapterNumber - 1] || chapterNumber) + '.';
+    numDiv.className = 'bookwriter-chapter-rail-row-number';
+    // Arabic numerals everywhere — server template renders chapter_number
+    // as arabic too (1., 2., 3.). Roman was inconsistent (only 1–20 had
+    // mappings, 21+ silently fell back to arabic) and didn't match the
+    // initial server-rendered list, so the rail flipped between the two
+    // schemes depending on whether you reloaded vs reordered.
+    numDiv.textContent = chapterNumber + '.';
 
     var titleDiv = document.createElement('div');
-    titleDiv.className = 'bookwriter-ch-title';
+    titleDiv.className = 'bookwriter-chapter-rail-row-title';
     // Use textContent (not innerHTML) so the title is treated as plain text —
     // the server already sanitized it on save, but defence-in-depth.
     titleDiv.textContent = chapterTitle || 'Untitled Chapter';
 
     var metaDiv = document.createElement('div');
-    metaDiv.className = 'bookwriter-ch-meta';
+    metaDiv.className = 'bookwriter-chapter-rail-row-metadata';
     var metaSpan = document.createElement('span');
     var dotIcon = document.createElement('i');
-    dotIcon.className = 'bookwriter-ch-dot ' + (chapterWordCount > 0 ? 'bookwriter-ch-dot-status-draft' : 'bookwriter-ch-dot-status-new');
+    dotIcon.className = 'bookwriter-chapter-rail-row-status-dot ' + (chapterWordCount > 0 ? 'bookwriter-chapter-rail-row-status-dot-state-draft' : 'bookwriter-chapter-rail-row-status-dot-state-new');
     metaSpan.appendChild(dotIcon);
     metaSpan.appendChild(document.createTextNode((chapterWordCount || 0) + ' w'));
     metaDiv.appendChild(metaSpan);
@@ -623,9 +748,9 @@
     demoRow.className = 'bookwriter-chapter';
     demoRow.setAttribute('draggable', 'true');
     demoRow.innerHTML =
-      '<div class="bookwriter-ch-num">' + (ROMAN_NUMERAL_BY_INDEX[demoCount - 1] || demoCount) + '.</div>' +
-      '<div class="bookwriter-ch-title">Untitled Chapter</div>' +
-      '<div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>blank</span><span>just now</span></div>';
+      '<div class="bookwriter-chapter-rail-row-number">' + demoCount + '.</div>' +
+      '<div class="bookwriter-chapter-rail-row-title">Untitled Chapter</div>' +
+      '<div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-new"></i>blank</span><span>just now</span></div>';
     list.appendChild(demoRow);
     demoRow.addEventListener('click', function () { switchToChapterFromRail(demoRow); });
     demoRow.click();
@@ -647,7 +772,7 @@
      ======================================================== */
   function setMode(mode) {
     var modes = ['write', 'corkboard', 'bible', 'cover', 'gallery'];
-    modes.forEach(function (m) { document.body.classList.remove('bookwriter-mode-' + m); });
+    modes.forEach(function (modeCode) { document.body.classList.remove('bookwriter-mode-' + modeCode); });
     if (mode !== 'write') document.body.classList.add('bookwriter-mode-' + mode);
 
     document.querySelectorAll('.bookwriter-mode-switch').forEach(function (modeSwitcherElement) {
@@ -664,273 +789,31 @@
   window.setMode = setMode;
 
 
-  /* ========================================================
-     INLINE FORMATTING TOOLBAR (B / I / U / heading / quote)
-     --------------------------------------------------------
-     B / I / U use document.execCommand — the one-line, all-browser
-     way to toggle inline formatting on a contenteditable selection.
-     Heading wraps only the SELECTED text in a span carrying the
-     bookwriter-prose-headline class so a single phrase can be
-     bigger/bolder without promoting the whole paragraph (formatBlock
-     h2 would do the latter — wrong for in-line emphasis). Quote uses
-     formatBlock blockquote because a block-quote is conceptually a
-     block; CSS gives it the visible left border + indent.
-
-     mousedown + preventDefault keeps the manuscript selection alive —
-     a click would shift focus to the button first and the command
-     would run on an empty range.
-     ======================================================== */
-  function wrapSelectionInElement(tagName, className) {
-    var selectionObject = window.getSelection();
-    if (!selectionObject || selectionObject.rangeCount === 0) return;
-    var rangeObject = selectionObject.getRangeAt(0);
-    if (rangeObject.collapsed) return;
-    var extractedContents = rangeObject.extractContents();
-    var wrapperElement = document.createElement(tagName);
-    if (className) wrapperElement.className = className;
-    wrapperElement.appendChild(extractedContents);
-    rangeObject.insertNode(wrapperElement);
-    selectionObject.removeAllRanges();
-    var newRange = document.createRange();
-    newRange.selectNodeContents(wrapperElement);
-    selectionObject.addRange(newRange);
-  }
-
-  var formattingHandlerById = {
-    'bookwriter-tool-bold-button':      function () { document.execCommand('bold'); },
-    'bookwriter-tool-italic-button':    function () { document.execCommand('italic'); },
-    'bookwriter-tool-underline-button': function () { document.execCommand('underline'); },
-    'bookwriter-tool-heading-button':   function () { wrapSelectionInElement('span', 'bookwriter-prose-headline'); },
-    'bookwriter-tool-quote-button':     function () { document.execCommand('formatBlock', false, 'blockquote'); }
-  };
-  document.addEventListener('mousedown', function (formattingMouseEvent) {
-    var clickedButton = formattingMouseEvent.target.closest('button');
-    if (!clickedButton) return;
-    var formattingHandler = formattingHandlerById[clickedButton.id];
-    if (!formattingHandler) return;
-    formattingMouseEvent.preventDefault();
-    var activeManuscriptElement = document.querySelector('.bookwriter-prose[contenteditable="true"]');
-    if (activeManuscriptElement && document.activeElement !== activeManuscriptElement) {
-      activeManuscriptElement.focus();
-    }
-    formattingHandler();
-  });
+  /* INLINE FORMATTING TOOLBAR — extracted to
+     modules/bookwriter-formatting-toolbar.js (loaded as a defer
+     script in inkwell.html / inkwell_embedded.html). Self-contained
+     mousedown handler with no shared state with this IIFE, so the
+     module can boot independently. */
 
 
   /* ========================================================
      COVER DESIGNER
      ======================================================== */
-  var cover     = document.getElementById('cover');
-  var coverArt  = document.getElementById('coverArt');
-  var cvTitle   = document.getElementById('cvTitle');
-  var cvAuthor  = document.getElementById('cvAuthor');
-  var inTitle   = document.getElementById('inTitle');
-  var inSubtitle = document.getElementById('inSubtitle');
-  var inAuthor  = document.getElementById('inAuthor');
-  var titleSize = document.getElementById('titleSize');
-  var tracking  = document.getElementById('tracking');
-  var sizeVal   = document.getElementById('sizeVal');
-  var trackVal  = document.getElementById('trackVal');
+  /* COVER DESIGNER — extracted to
+     modules/bookwriter-cover-designer.js. Owns the cover surface
+     element refs, template/font/palette/background tiles, sliders,
+     live-preview paint, colour helpers, zoom/flip controls, and the
+     debounced POST to /api/book/<id>/cover-design/save/. The
+     previous duplicate-listener pattern (one handler for preview,
+     a second for persist on the same element) was collapsed into
+     single handlers in the module. The three globals the inline
+     onclick attributes call (zoom/flip/save-as-cover) are exposed
+     from inside the module. */
 
-  var currentStyle   = 'classical';
-  var currentPalette = { bg: '#f4ede0', fg: '#1a1612', accent: '#8b2a1f' };
-  var currentBg      = 'solid';
-  var zoom           = 100;
-
-  if (inTitle) {
-    inTitle.addEventListener('input', function () {
-      if (cvTitle) cvTitle.innerText = inTitle.value || 'Untitled';
-    });
-  }
-  if (inAuthor) {
-    inAuthor.addEventListener('input', function () {
-      if (cvAuthor) cvAuthor.innerText = inAuthor.value || 'Anonymous';
-    });
-  }
-  if (inSubtitle) {
-    inSubtitle.addEventListener('input', function () {
-      var existing = document.querySelector('.bookwriter-cv-subtitle');
-      if (inSubtitle.value.trim()) {
-        if (existing) {
-          existing.innerText = inSubtitle.value;
-        } else if (cvTitle) {
-          var subtitleElement = document.createElement('div');
-          subtitleElement.className = 'bookwriter-cv-subtitle';
-          subtitleElement.style.cssText = "font-family: 'EB Garamond', serif; font-style: italic; font-size: 14px; margin-top: 10px; opacity: 0.8;";
-          subtitleElement.innerText = inSubtitle.value;
-          cvTitle.insertAdjacentElement('afterend', subtitleElement);
-        }
-      } else if (existing) {
-        existing.remove();
-      }
-    });
-  }
-
-  // Template switching
-  document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (t) {
-    t.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (x) { x.classList.remove('bookwriter-cover-template-tile-is-selected'); });
-      t.classList.add('bookwriter-cover-template-tile-is-selected');
-      currentStyle = t.dataset.style;
-      if (cover) cover.dataset.style = currentStyle;
-      applyBackground();
-    });
-  });
-
-  // Font switching
-  document.querySelectorAll('#fontPick button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('#fontPick button').forEach(function (x) { x.classList.remove('bookwriter-font-pick-button-is-active'); });
-      b.classList.add('bookwriter-font-pick-button-is-active');
-      if (cover) {
-        cover.classList.remove('bookwriter-font-serif', 'bookwriter-font-italic', 'bookwriter-font-body', 'bookwriter-font-mono');
-        cover.classList.add('font-' + b.dataset.font);
-      }
-    });
-  });
-
-  if (titleSize) {
-    titleSize.addEventListener('input', function () {
-      if (cvTitle) cvTitle.style.fontSize = titleSize.value + 'px';
-      if (sizeVal) sizeVal.textContent    = titleSize.value + 'pt';
-    });
-  }
-  if (tracking) {
-    tracking.addEventListener('input', function () {
-      var letterSpacingEmValue = tracking.value / 100;
-      if (cvTitle)  cvTitle.style.letterSpacing = letterSpacingEmValue + 'em';
-      if (trackVal) trackVal.textContent = (tracking.value > 0 ? '+' : '') + tracking.value;
-    });
-  }
-
-  // Palette switching
-  document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (p) {
-    p.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (x) { x.classList.remove('bookwriter-cover-palette-tile-is-selected'); });
-      p.classList.add('bookwriter-cover-palette-tile-is-selected');
-      currentPalette = {
-        bg:     p.dataset.bg,
-        fg:     p.dataset.fg,
-        accent: p.dataset.accent
-      };
-      if (cover) cover.style.color = currentPalette.fg;
-      applyBackground();
-    });
-  });
-
-  // Background switching
-  document.querySelectorAll('.bookwriter-bg-opt').forEach(function (b) {
-    b.addEventListener('click', function () {
-      if (b.dataset.bg === 'upload') {
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = function (e) {
-          var file = e.target.files[0];
-          if (!file) return;
-          var reader = new FileReader();
-          reader.onload = function (ev) {
-            document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-bg-opt-is-selected'); });
-            b.classList.add('bookwriter-bg-opt-is-selected');
-            currentBg = 'upload';
-            if (cover)    cover.style.background    = 'url(' + ev.target.result + ') center/cover, ' + currentPalette.bg;
-            if (coverArt) coverArt.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
-          };
-          reader.readAsDataURL(file);
-        };
-        input.click();
-        return;
-      }
-      document.querySelectorAll('.bookwriter-bg-opt').forEach(function (x) { x.classList.remove('bookwriter-bg-opt-is-selected'); });
-      b.classList.add('bookwriter-bg-opt-is-selected');
-      currentBg = b.dataset.bg;
-      applyBackground();
-    });
-  });
-
-  function applyBackground() {
-    if (!cover) return;
-    cover.style.background = currentPalette.bg;
-    if (coverArt) coverArt.style.background = '';
-
-    if (currentStyle === 'photo' && coverArt) {
-      cover.style.background = currentPalette.bg;
-      coverArt.style.background =
-        'linear-gradient(transparent 30%, rgba(0,0,0,0.55) 100%),' +
-        'radial-gradient(ellipse at 30% 20%, ' + hexWithAlpha(currentPalette.accent, 0.3) + ', transparent 60%),' +
-        'linear-gradient(165deg, ' + currentPalette.fg + ' 0%, ' + currentPalette.accent + ' 60%, ' + currentPalette.bg + ' 100%)';
-      return;
-    }
-
-    switch (currentBg) {
-      case 'solid':
-        cover.style.background = currentPalette.bg;
-        break;
-      case 'grad-1':
-        cover.style.background = 'linear-gradient(135deg, ' + currentPalette.bg + ', ' + currentPalette.accent + ')';
-        break;
-      case 'grad-2':
-        cover.style.background = 'linear-gradient(165deg, ' + currentPalette.fg + ', ' + currentPalette.bg + ')';
-        break;
-      case 'grad-3':
-        cover.style.background = 'linear-gradient(135deg, ' + currentPalette.fg + ', ' + shade(currentPalette.fg, 20) + ')';
-        break;
-      case 'noise':
-        cover.style.background = currentPalette.bg;
-        if (coverArt) {
-          coverArt.style.background = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>\")";
-          coverArt.style.mixBlendMode = 'multiply';
-        }
-        break;
-      case 'dots':
-        cover.style.background = 'radial-gradient(' + currentPalette.fg + ' 1.5px, transparent 1.5px) 0 0 / 18px 18px, ' + currentPalette.bg;
-        break;
-      case 'stripes':
-        cover.style.background = 'repeating-linear-gradient(45deg, ' + currentPalette.accent + ', ' + currentPalette.accent + ' 6px, ' + currentPalette.bg + ' 6px, ' + currentPalette.bg + ' 18px)';
-        break;
-    }
-  }
-
-  function hexWithAlpha(hex, alpha) {
-    var redChannel   = parseInt(hex.slice(1, 3), 16);
-    var greenChannel = parseInt(hex.slice(3, 5), 16);
-    var blueChannel  = parseInt(hex.slice(5, 7), 16);
-    return 'rgba(' + redChannel + ',' + greenChannel + ',' + blueChannel + ',' + alpha + ')';
-  }
-
-  function shade(hex, amount) {
-    var redChannel   = Math.min(255, parseInt(hex.slice(1, 3), 16) + amount);
-    var greenChannel = Math.min(255, parseInt(hex.slice(3, 5), 16) + amount);
-    var blueChannel  = Math.min(255, parseInt(hex.slice(5, 7), 16) + amount);
-    return 'rgb(' + redChannel + ',' + greenChannel + ',' + blueChannel + ')';
-  }
-
-  function zoomCover(delta) {
-    if (!cover) return;
-    zoom = Math.max(60, Math.min(160, zoom + delta));
-    var zoomLabelElement = document.getElementById('zoomLabel');
-    if (zoomLabelElement) zoomLabelElement.textContent = zoom + '%';
-    cover.style.width = (340 * zoom / 100) + 'px';
-  }
-  window.zoomCover = zoomCover;
-
-  function flipCover() {
-    if (!cover) return;
-    cover.style.transform = cover.style.transform.indexOf('rotateY(6deg)') !== -1
-      ? 'perspective(2000px) rotateY(-6deg)'
-      : 'perspective(2000px) rotateY(6deg)';
-  }
-  window.flipCover = flipCover;
-
-  // window.setAsCover is defined further down — the real implementation
-  // POSTs to /api/book/<id>/cover-design/save/ and reflects success on
-  // the button label. The earlier visual-only stub was removed to avoid
-  // dead code.
-
-  document.querySelectorAll('.bookwriter-history-item').forEach(function (h) {
-    h.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-history-item').forEach(function (x) { x.classList.remove('bookwriter-history-item-is-current'); });
-      h.classList.add('bookwriter-history-item-is-current');
+  document.querySelectorAll('.bookwriter-history-item').forEach(function (historyItemElement) {
+    historyItemElement.addEventListener('click', function () {
+      document.querySelectorAll('.bookwriter-history-item').forEach(function (otherHistoryItemElement) { otherHistoryItemElement.classList.remove('bookwriter-history-item-is-current'); });
+      historyItemElement.classList.add('bookwriter-history-item-is-current');
     });
   });
 
@@ -983,8 +866,8 @@
   if (focusText) focusText.addEventListener('input', updateFocusStats);
 
   // ESC closes focus / modal / snapshots / sprint setup (in priority)
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
+  document.addEventListener('keydown', function (keydownEvent) {
+    if (keydownEvent.key !== 'Escape') return;
     if (document.body.classList.contains('bookwriter-focus-on'))             return exitFocus();
     if (document.body.classList.contains('bookwriter-modal-open'))           return closeShare();
     if (document.body.classList.contains('bookwriter-snapshots-open'))       return toggleSnapshots();
@@ -1133,57 +1016,75 @@
   /* ========================================================
      DRAG-REORDER CHAPTERS
      ======================================================== */
-  var draggedEl = null;
+  var draggedChapterRowElement = null;
 
   function wireChapterDrag() {
-    document.querySelectorAll('.bookwriter-chapter[draggable="true"]').forEach(function (ch) {
+    document.querySelectorAll('.bookwriter-chapter[draggable="true"]').forEach(function (chapterRowElement) {
       // Remove old listeners by cloning if already wired
-      if (ch.dataset.dragWired === '1') return;
-      ch.dataset.dragWired = '1';
+      if (chapterRowElement.dataset.dragWired === '1') return;
+      chapterRowElement.dataset.dragWired = '1';
 
-      ch.addEventListener('dragstart', function (e) {
-        draggedEl = ch;
-        ch.classList.add('bookwriter-dragging');
-        e.dataTransfer.effectAllowed = 'move';
+      chapterRowElement.addEventListener('dragstart', function (dragStartEvent) {
+        draggedChapterRowElement = chapterRowElement;
+        chapterRowElement.classList.add('bookwriter-dragging');
+        dragStartEvent.dataTransfer.effectAllowed = 'move';
       });
 
-      ch.addEventListener('dragend', function () {
-        ch.classList.remove('bookwriter-dragging');
-        document.querySelectorAll('.bookwriter-chapter').forEach(function (c) { c.classList.remove('bookwriter-drag-over'); });
+      chapterRowElement.addEventListener('dragend', function () {
+        chapterRowElement.classList.remove('bookwriter-dragging');
+        document.querySelectorAll('.bookwriter-chapter').forEach(function (otherChapterRowElement) { otherChapterRowElement.classList.remove('bookwriter-drag-over'); });
       });
 
-      ch.addEventListener('dragover', function (e) {
-        e.preventDefault();
-        if (draggedEl !== ch) ch.classList.add('bookwriter-drag-over');
+      chapterRowElement.addEventListener('dragover', function (dragOverEvent) {
+        dragOverEvent.preventDefault();
+        if (draggedChapterRowElement !== chapterRowElement) chapterRowElement.classList.add('bookwriter-drag-over');
       });
 
-      ch.addEventListener('dragleave', function () {
-        ch.classList.remove('bookwriter-drag-over');
+      chapterRowElement.addEventListener('dragleave', function () {
+        chapterRowElement.classList.remove('bookwriter-drag-over');
       });
 
-      ch.addEventListener('drop', function (e) {
-        e.preventDefault();
-        if (draggedEl && draggedEl !== ch) {
-          var parentList = ch.parentNode;
-          var listItems  = Array.prototype.slice.call(parentList.children);
-          var fromIndex = listItems.indexOf(draggedEl);
-          var toIndex   = listItems.indexOf(ch);
-          if (fromIndex < toIndex) parentList.insertBefore(draggedEl, ch.nextSibling);
-          else                     parentList.insertBefore(draggedEl, ch);
+      chapterRowElement.addEventListener('drop', function (dropEvent) {
+        dropEvent.preventDefault();
+        if (draggedChapterRowElement && draggedChapterRowElement !== chapterRowElement) {
+          var parentChaptersListElement = chapterRowElement.parentNode;
+          var siblingChapterRowElements = Array.prototype.slice.call(parentChaptersListElement.children);
+          var draggedFromIndex = siblingChapterRowElements.indexOf(draggedChapterRowElement);
+          var droppedAtIndex   = siblingChapterRowElements.indexOf(chapterRowElement);
+          if (draggedFromIndex < droppedAtIndex) parentChaptersListElement.insertBefore(draggedChapterRowElement, chapterRowElement.nextSibling);
+          else                                    parentChaptersListElement.insertBefore(draggedChapterRowElement, chapterRowElement);
           renumberChapters();
           persistChapterReorder();
         }
-        ch.classList.remove('bookwriter-drag-over');
+        chapterRowElement.classList.remove('bookwriter-drag-over');
       });
     });
   }
 
   function renumberChapters() {
-    var roman = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+    var activeChapterArabicNumber = null;
     document.querySelectorAll('#chapters .bookwriter-chapter').forEach(function (chapterRow, rowIndex) {
-      var chapterNumberElement = chapterRow.querySelector('.bookwriter-ch-num');
-      if (chapterNumberElement) chapterNumberElement.innerText = (roman[rowIndex] || (rowIndex + 1)) + '.';
+      var newArabicNumber = rowIndex + 1;
+      var chapterNumberElement = chapterRow.querySelector('.bookwriter-chapter-rail-row-number');
+      // Arabic — matches the server-rendered chapter_number ("1.", "2.", "3.").
+      if (chapterNumberElement) chapterNumberElement.innerText = newArabicNumber + '.';
+      if (chapterRow.classList.contains('bookwriter-chapter-row-is-active')) {
+        activeChapterArabicNumber = newArabicNumber;
+      }
     });
+    // Reflect the active chapter's NEW number in the editor crumb so
+    // "Chapter X" stays in sync with the rail. Without this the crumb
+    // keeps the pre-reorder number until the user clicks the row again.
+    if (activeChapterArabicNumber !== null) {
+      var crumbChapterElement = document.getElementById('bookwriter-crumb-chapter-label');
+      var legacyCrumbElement = document.querySelector('.bookwriter-toolbar-crumb strong');
+      var chapterLabelElement = document.querySelector('.bookwriter-chapter-label');
+      if (crumbChapterElement)  crumbChapterElement.innerText  = 'Chapter ' + activeChapterArabicNumber;
+      if (legacyCrumbElement && legacyCrumbElement !== crumbChapterElement) {
+        legacyCrumbElement.innerText = 'Chapter ' + activeChapterArabicNumber;
+      }
+      if (chapterLabelElement) chapterLabelElement.innerText = 'Chapter ' + activeChapterArabicNumber;
+    }
   }
 
   /* Persist the new chapter order to the backend after a drag-drop.
@@ -1236,11 +1137,11 @@
      ======================================================== */
   document.querySelectorAll('.bookwriter-bible-item').forEach(function (item) {
     item.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-item').forEach(function (x) { x.classList.remove('bookwriter-bible-item-is-selected'); });
+      document.querySelectorAll('.bookwriter-bible-item').forEach(function (otherBibleItemElement) { otherBibleItemElement.classList.remove('bookwriter-bible-item-is-selected'); });
       item.classList.add('bookwriter-bible-item-is-selected');
 
-      var name   = item.querySelector('.bookwriter-b-name') ? item.querySelector('.bookwriter-b-name').innerText : '';
-      var role   = item.querySelector('.bookwriter-b-role') ? item.querySelector('.bookwriter-b-role').innerText : '';
+      var name   = item.querySelector('.bookwriter-bible-character-name') ? item.querySelector('.bookwriter-bible-character-name').innerText : '';
+      var role   = item.querySelector('.bookwriter-bible-character-role') ? item.querySelector('.bookwriter-bible-character-role').innerText : '';
       var avatar = item.querySelector('.bookwriter-bible-avatar');
       var hero   = document.querySelector('.bookwriter-bible-hero');
       if (!hero) return;
@@ -1266,7 +1167,7 @@
 
   document.querySelectorAll('.bookwriter-bible-cat').forEach(function (cat) {
     cat.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-cat').forEach(function (x) { x.classList.remove('bookwriter-bible-cat-is-selected'); });
+      document.querySelectorAll('.bookwriter-bible-cat').forEach(function (otherBibleCategoryElement) { otherBibleCategoryElement.classList.remove('bookwriter-bible-cat-is-selected'); });
       cat.classList.add('bookwriter-bible-cat-is-selected');
     });
   });
@@ -1287,7 +1188,7 @@
 
   document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (opt) {
     opt.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (x) { x.classList.remove('bookwriter-sprint-opt-is-selected'); });
+      document.querySelectorAll('.bookwriter-sprint-opt').forEach(function (otherSprintOptionElement) { otherSprintOptionElement.classList.remove('bookwriter-sprint-opt-is-selected'); });
       opt.classList.add('bookwriter-sprint-opt-is-selected');
       sprintDuration = parseInt(opt.dataset.min, 10) * 60;
     });
@@ -1383,7 +1284,7 @@
   window.closeShare = closeShare;
 
   function pickPerm(el) {
-    document.querySelectorAll('.bookwriter-share-permission-tile').forEach(function (p) { p.classList.remove('bookwriter-share-permission-tile-is-selected'); });
+    document.querySelectorAll('.bookwriter-share-permission-tile').forEach(function (sharePermissionTileElement) { sharePermissionTileElement.classList.remove('bookwriter-share-permission-tile-is-selected'); });
     el.classList.add('bookwriter-share-permission-tile-is-selected');
   }
   window.pickPerm = pickPerm;
@@ -1729,14 +1630,14 @@
             var listRow = document.querySelector('.bookwriter-bible-item[data-bible-entry-id="' + bibleEntryId + '"]');
             if (listRow) {
               if (fieldName === 'entry_name') {
-                var nameElement = listRow.querySelector('.bookwriter-b-name');
+                var nameElement = listRow.querySelector('.bookwriter-bible-character-name');
                 if (nameElement) nameElement.textContent = fieldValue || 'Untitled';
                 var avatarElement = listRow.querySelector('.bookwriter-bible-avatar');
                 if (avatarElement && !avatarElement.dataset.customInitial) {
                   avatarElement.textContent = (fieldValue || '?').slice(0, 1);
                 }
               } else {
-                var roleElement = listRow.querySelector('.bookwriter-b-role');
+                var roleElement = listRow.querySelector('.bookwriter-bible-character-role');
                 if (roleElement) roleElement.textContent = fieldValue || '';
               }
             }
@@ -1958,10 +1859,10 @@
 
     var labelWrapElement = document.createElement('div');
     var nameElement = document.createElement('div');
-    nameElement.className = 'bookwriter-b-name';
+    nameElement.className = 'bookwriter-bible-character-name';
     nameElement.textContent = entryRow.entry_name || 'Untitled';
     var roleElement = document.createElement('div');
-    roleElement.className = 'bookwriter-b-role';
+    roleElement.className = 'bookwriter-bible-character-role';
     roleElement.textContent = entryRow.entry_role || '';
     labelWrapElement.appendChild(nameElement);
     labelWrapElement.appendChild(roleElement);
@@ -2047,123 +1948,10 @@
   if (bibleAddEntryButton) bibleAddEntryButton.addEventListener('click', addBibleEntryForActiveCategory);
 
 
-  /* ========================================================
-     COVER DESIGNER — persist tile / size / spacing / palette
-     --------------------------------------------------------
-     Each control already has a click/input handler somewhere
-     above that updates the live preview. This block adds an
-     ADDITIONAL listener that pushes the change to the cover
-     design endpoint (debounced 600ms per control). The tile
-     `.tmpl` carries data-style which maps 1:1 to the seeded
-     `cover_template_code`. Sliders persist on `change`
-     (release) rather than `input` (every pixel) to avoid
-     hammering the endpoint. Anonymous visitors are no-op'd
-     because there's no book row to write against. ========== */
-  var COVER_AUTOSAVE_DEBOUNCE_MS = 600;
-  var coverAutosaveTimer;
-  function persistCoverFieldsAfterDebounce(payload) {
-    var chaptersListElement = document.getElementById('chapters');
-    var coverBookId = chaptersListElement ? chaptersListElement.dataset.bookId : null;
-    if (!coverBookId) return;
-    if (coverAutosaveTimer) clearTimeout(coverAutosaveTimer);
-    coverAutosaveTimer = setTimeout(function () {
-      window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(coverBookId) + '/cover-design/save/', payload).catch(function () { /* silent retry on next interaction */ });
-    }, COVER_AUTOSAVE_DEBOUNCE_MS);
-  }
-
-  document.querySelectorAll('#templates .bookwriter-cover-template-tile').forEach(function (tileElement) {
-    tileElement.addEventListener('click', function () {
-      var templateCode = tileElement.dataset.style || null;
-      if (!templateCode) return;
-      // Mirror "active" class swap so subsequent clicks reflect the
-      // selection visually (the server-side initial paint was correct,
-      // but later clicks need a JS sync).
-      document.querySelectorAll('#templates .bookwriter-cover-template-tile').forEach(function (other) {
-        other.classList.toggle('bookwriter-cover-template-tile-is-selected', other === tileElement);
-      });
-      persistCoverFieldsAfterDebounce({ cover_template_code: templateCode });
-    });
-  });
-
-  var titleSizeSlider = document.getElementById('titleSize');
-  if (titleSizeSlider) {
-    titleSizeSlider.addEventListener('change', function () {
-      persistCoverFieldsAfterDebounce({ cover_title_size_pt: parseInt(titleSizeSlider.value, 10) });
-    });
-  }
-
-  var letterSpacingSlider = document.getElementById('tracking');
-  if (letterSpacingSlider) {
-    letterSpacingSlider.addEventListener('change', function () {
-      persistCoverFieldsAfterDebounce({ cover_letter_spacing_unit: parseInt(letterSpacingSlider.value, 10) });
-    });
-  }
-
-  document.querySelectorAll('#palettes .bookwriter-cover-palette-tile').forEach(function (paletteTile) {
-    paletteTile.addEventListener('click', function () {
-      document.querySelectorAll('#palettes .bookwriter-cover-palette-tile').forEach(function (other) {
-        other.classList.toggle('bookwriter-cover-palette-tile-is-selected', other === paletteTile);
-      });
-      persistCoverFieldsAfterDebounce({
-        cover_palette_bg_hex_override:     paletteTile.dataset.bg     || null,
-        cover_palette_fg_hex_override:     paletteTile.dataset.fg     || null,
-        cover_palette_accent_hex_override: paletteTile.dataset.accent || null,
-      });
-    });
-  });
-
-  // Font picker — wire all 4 font buttons to swap active class + persist.
-  document.querySelectorAll('#fontPick button[data-font]').forEach(function (fontButton) {
-    fontButton.addEventListener('click', function () {
-      var fontCode = fontButton.dataset.font || null;
-      if (!fontCode) return;
-      document.querySelectorAll('#fontPick button[data-font]').forEach(function (other) {
-        other.classList.toggle('bookwriter-font-pick-button-is-active', other === fontButton);
-      });
-      persistCoverFieldsAfterDebounce({ cover_font_code: fontCode });
-    });
-  });
-
-  // Background grid — 8 preset backgrounds. Click swaps active class +
-  // POSTs `cover_background_code`. The choice is persisted as an FK id
-  // server-side via the ref dispatcher inside the cover save endpoint.
-  document.querySelectorAll('#bookwriter-cover-background-grid .bookwriter-cover-background-button').forEach(function (backgroundButton) {
-    backgroundButton.addEventListener('click', function () {
-      var backgroundCode = backgroundButton.dataset.backgroundCode || null;
-      if (!backgroundCode) return;
-      document.querySelectorAll('#bookwriter-cover-background-grid .bookwriter-cover-background-button').forEach(function (other) {
-        other.classList.toggle('bookwriter-cover-background-button-is-selected', other === backgroundButton);
-      });
-      persistCoverFieldsAfterDebounce({ cover_background_code: backgroundCode });
-    });
-  });
-
-  // Override the visual-only `setAsCover` stub with a real save call.
-  window.setAsCover = function () {
-    var setCoverButton = document.querySelector('.bookwriter-set-as-cover');
-    var setCoverButtonLabel = setCoverButton ? setCoverButton.querySelector('span') : null;
-    var activeTemplateTile = document.querySelector('#templates .bookwriter-cover-template-tile-is-selected');
-    var templateCode = activeTemplateTile ? (activeTemplateTile.dataset.style || null) : null;
-    if (!templateCode) {
-      if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Pick a template first';
-      return;
-    }
-    var chaptersListElement = document.getElementById('chapters');
-    var coverBookId = chaptersListElement ? chaptersListElement.dataset.bookId : null;
-    if (!coverBookId) return;
-    window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(coverBookId) + '/cover-design/save/', { cover_template_code: templateCode })
-      .then(function () {
-        if (setCoverButton) setCoverButton.style.background = 'var(--moss)';
-        if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Cover saved to manuscript';
-        setTimeout(function () {
-          if (setCoverButton) setCoverButton.style.background = 'var(--ink)';
-          if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Set as book cover';
-        }, 2000);
-      })
-      .catch(function () {
-        if (setCoverButtonLabel) setCoverButtonLabel.innerText = 'Save failed — try again';
-      });
-  };
+  /* COVER DESIGNER PERSISTENCE — also extracted to
+     modules/bookwriter-cover-designer.js (single click handlers
+     do preview + debounced POST in one shot, so the UI section
+     and the persist section are merged in the module). */
 
 
   /* ========================================================
@@ -2356,14 +2144,25 @@
       setMode(savedState.mode);
     }
 
-    if (savedState.chapterNum) {
-      var matchingChapterRow = null;
+    // Prefer the stable chapter_id when present (immune to renumbering
+    // after reorders and to "1" vs "1." display mismatches). Fall back
+    // to the legacy chapterNum lookup so users with old localStorage
+    // entries don't get stranded.
+    var savedChapterIdString = savedState.chapterId ? String(savedState.chapterId) : '';
+    var matchingChapterRow = null;
+    if (savedChapterIdString) {
+      matchingChapterRow = document.querySelector(
+        '#chapters .bookwriter-chapter[data-chapter-id="' + savedChapterIdString + '"]'
+      );
+    } else if (savedState.chapterNum) {
+      var savedChapterNumNormalised = String(savedState.chapterNum).replace(/\.$/, '');
       document.querySelectorAll('.bookwriter-chapter').forEach(function (chapterRow) {
-        var chapterNumberElement = chapterRow.querySelector('.bookwriter-ch-num');
-        if (chapterNumberElement && chapterNumberElement.innerText.trim() === savedState.chapterNum) matchingChapterRow = chapterRow;
+        var chapterNumberElement = chapterRow.querySelector('.bookwriter-chapter-rail-row-number');
+        var renderedChapterNumber = chapterNumberElement ? chapterNumberElement.innerText.trim().replace(/\.$/, '') : '';
+        if (renderedChapterNumber === savedChapterNumNormalised) matchingChapterRow = chapterRow;
       });
-      if (matchingChapterRow && !matchingChapterRow.classList.contains('bookwriter-chapter-row-is-active')) matchingChapterRow.click();
     }
+    if (matchingChapterRow && !matchingChapterRow.classList.contains('bookwriter-chapter-row-is-active')) matchingChapterRow.click();
 
     if (manuscript && typeof savedState.manuscriptScrollY === 'number' && savedState.manuscriptScrollY > 0) {
       manuscript.scrollTop = savedState.manuscriptScrollY;

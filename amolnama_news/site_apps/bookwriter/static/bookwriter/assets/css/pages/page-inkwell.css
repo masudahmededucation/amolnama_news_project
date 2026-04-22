@@ -213,15 +213,15 @@ body.bookwriter-standalone {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.bookwriter-ch-num {
+.bookwriter-chapter-rail-row-number {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-fade);
   letter-spacing: 0.05em;
 }
 
-.bookwriter-ch-title {
+.bookwriter-chapter-rail-row-title {
   font-family: 'Fraunces', serif;
   font-size: 17px;
   font-weight: 500;
@@ -230,7 +230,7 @@ body.bookwriter-standalone {
   line-height: 1.25;
 }
 
-.bookwriter-ch-meta {
+.bookwriter-chapter-rail-row-metadata {
   display: flex;
   gap: 10px;
   margin-top: 6px;
@@ -240,16 +240,16 @@ body.bookwriter-standalone {
   letter-spacing: 0.05em;
 }
 
-.bookwriter-ch-dot {
+.bookwriter-chapter-rail-row-status-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
   display: inline-block;
   margin-right: 5px;
   vertical-align: middle;
 }
-.bookwriter-ch-dot-status-draft { background: var(--ochre); }
-.bookwriter-ch-dot-status-done  { background: var(--moss); }
-.bookwriter-ch-dot-status-new   { background: var(--accent); }
+.bookwriter-chapter-rail-row-status-dot-state-draft { background: var(--ochre); }
+.bookwriter-chapter-rail-row-status-dot-state-done  { background: var(--moss); }
+.bookwriter-chapter-rail-row-status-dot-state-new   { background: var(--accent); }
 
 .bookwriter-book-info {
   padding: 14px 18px;
@@ -268,7 +268,7 @@ body.bookwriter-standalone {
 
 .bookwriter-book-author {
   font-family: 'EB Garamond', serif;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-fade);
   margin-top: 2px;
   font-style: italic;
@@ -289,7 +289,7 @@ body.bookwriter-standalone {
 .bookwriter-book-stats strong {
   color: var(--ink);
   font-weight: 500;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-family: 'Fraunces', serif;
   font-style: italic;
   display: inline;
@@ -307,6 +307,38 @@ body.bookwriter-standalone {
   position: relative;
 }
 
+/* Loading skeleton — applied while a chapter switch is in flight so
+   the editor isn't a jarring blank during the network round-trip.
+   ::after sits inside the stage as a soft pulsing band; when the
+   payload lands the JS removes the class and the band disappears.
+   pointer-events: none so the editor stays clickable underneath. */
+.bookwriter-stage-is-loading::after {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(70%, 540px);
+  height: 14px;
+  border-radius: var(--radius-xs, 2px);
+  background: linear-gradient(90deg,
+    rgba(26, 22, 18, 0.06) 0%,
+    rgba(26, 22, 18, 0.10) 50%,
+    rgba(26, 22, 18, 0.06) 100%);
+  background-size: 200% 100%;
+  animation: bookwriter-stage-shimmer 1.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+@keyframes bookwriter-stage-shimmer {
+  0%   { background-position: 100% 0; opacity: 0.7; }
+  50%  { background-position: 0 0;    opacity: 1;   }
+  100% { background-position: -100% 0; opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-stage-is-loading::after { animation: none; opacity: 0.85; }
+}
+
 .bookwriter-toolbar {
   padding: 18px 64px;
   border-bottom: 1px solid var(--line);
@@ -322,7 +354,7 @@ body.bookwriter-standalone {
 .bookwriter-toolbar-crumb {
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-fade);
   flex: 1 1 auto;
   min-width: 0;
@@ -357,6 +389,14 @@ body.bookwriter-standalone {
 
 .bookwriter-tool-btn:hover { background: var(--paper-deep); color: var(--ink); }
 
+/* Inline SVG icon inside a tool button (e.g. full screen) — sits on the
+   text baseline and inherits text color via stroke="currentColor". */
+.bookwriter-tool-btn-icon {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
 .bookwriter-tool-btn.bookwriter-icon {
   width: 32px; height: 32px;
   display: flex;
@@ -368,9 +408,9 @@ body.bookwriter-standalone {
   padding: 0;
 }
 
-.bookwriter-tool-btn.bookwriter-i { font-style: italic; }
-.bookwriter-tool-btn.bookwriter-b { font-weight: 700; font-style: normal; }
-.bookwriter-tool-btn.bookwriter-u { text-decoration: underline; font-style: normal; }
+.bookwriter-tool-btn.bookwriter-tool-italic    { font-style: italic; }
+.bookwriter-tool-btn.bookwriter-tool-bold      { font-weight: 700; font-style: normal; }
+.bookwriter-tool-btn.bookwriter-tool-underline { text-decoration: underline; font-style: normal; }
 
 .bookwriter-tool-divider {
   width: 1px; height: 18px;
@@ -686,7 +726,7 @@ body.bookwriter-standalone {
 /* Notes */
 .bookwriter-notes-pad {
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--ink-soft);
   font-style: italic;
@@ -713,7 +753,7 @@ body.bookwriter-standalone {
   border: none;
   padding: 18px 24px;
   font-family: 'Fraunces', serif;
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-style: italic;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -740,7 +780,7 @@ body.bookwriter-standalone {
 
 .bookwriter-publish-meta {
   font-family: 'EB Garamond', serif;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-style: italic;
   color: var(--ink-fade);
   text-align: center;
@@ -751,7 +791,7 @@ body.bookwriter-standalone {
 .bookwriter-quote {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.45;
   color: var(--ink-soft);
   padding: 4px 0;
@@ -834,7 +874,7 @@ nav.bookwriter-mode-tabs.bookwriter-mode-switch,
   border: none;
   padding: 7px 4px;
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-style: italic;
   color: #7a6f5e;                               /* ink-fade */
   cursor: pointer;
@@ -884,7 +924,7 @@ nav.bookwriter-mode-tabs.bookwriter-mode-switch,
   border: none;
   padding: 7px 4px;
   font-family: 'EB Garamond', serif;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-style: italic;
   color: var(--ink-fade);
   cursor: pointer;
@@ -927,23 +967,9 @@ body.bookwriter-focus-on .bookwriter-focus-mode { display: block; }
    global header / sidebar scroll. */
 body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
 
-/* Grain texture pinned to the viewport (position: fixed) instead of
-   the focus-mode container. With position: absolute the pseudo lived
-   inside an overflow-y: auto box and its bottom edge sat at one
-   viewport height — scrolling further down revealed smooth (no-grain)
-   paper. fixed keeps it covering the visible area always. */
-.bookwriter-focus-mode::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(139, 42, 31, 0.03) 0%, transparent 40%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  mix-blend-mode: multiply;
-  opacity: 0.6;
-  z-index: 0;
-}
+/* Focus mode uses smooth paper. Grain texture removed — the previous
+   ::before pseudo with feTurbulence noise was distracting in a
+   distraction-free mode. */
 
 .bookwriter-focus-exit {
   position: absolute;
@@ -981,7 +1007,7 @@ body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--text-sm);
   letter-spacing: 0;
 }
 
@@ -995,7 +1021,7 @@ body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
 .bookwriter-focus-page h1 {
   font-family: 'Fraunces', serif;
   font-weight: 400;
-  font-size: 48px;
+  font-size: var(--text-5xl);
   line-height: 1.05;
   text-align: center;
   letter-spacing: -0.02em;
@@ -1214,7 +1240,7 @@ body.bookwriter-margin-notes-open .bookwriter-margin-notes-panel { transform: tr
   background: none;
   border: none;
   font-family: 'Fraunces', serif;
-  font-size: 20px;
+  font-size: var(--text-xl);
   color: var(--ink-fade);
   cursor: pointer;
   padding: 0 4px;
@@ -1265,7 +1291,7 @@ body.bookwriter-margin-notes-open .bookwriter-margin-notes-panel { transform: tr
 .bookwriter-snapshot-label {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   margin-top: 4px;
   color: var(--ink);
 }
@@ -1303,7 +1329,7 @@ body.bookwriter-margin-notes-open .bookwriter-margin-notes-panel { transform: tr
   padding: 10px;
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   background: var(--paper);
   border: 1px solid var(--line);
   cursor: pointer;
@@ -1382,7 +1408,7 @@ body.bookwriter-mode-corkboard .bookwriter-corkboard-view { display: grid; }
 .bookwriter-corkboard-header p {
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   opacity: 0.8;
 }
 
@@ -1392,7 +1418,7 @@ body.bookwriter-mode-corkboard .bookwriter-corkboard-view { display: grid; }
   padding: 8px 16px;
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink);
   cursor: pointer;
   border-radius: 2px;
@@ -1467,7 +1493,7 @@ body.bookwriter-mode-corkboard .bookwriter-corkboard-view { display: grid; }
 .bookwriter-card-title {
   font-family: 'Fraunces', serif;
   font-weight: 500;
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.2;
   color: var(--ink);
   margin-bottom: 8px;
@@ -1476,7 +1502,7 @@ body.bookwriter-mode-corkboard .bookwriter-corkboard-view { display: grid; }
 
 .bookwriter-card-body {
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--ink-soft);
   flex: 1;
@@ -1593,21 +1619,21 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--paper);
 }
 
-.bookwriter-bible-item .bookwriter-b-name {
+.bookwriter-bible-item .bookwriter-bible-character-name {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 15px;
   color: var(--ink);
 }
 
-.bookwriter-bible-item .bookwriter-b-role {
+.bookwriter-bible-item .bookwriter-bible-character-role {
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-fade);
   margin-top: 1px;
 }
@@ -1668,7 +1694,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 .bookwriter-bible-hero .bookwriter-role-edit {
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink-fade);
   margin-top: 6px;
   outline: none;
@@ -1800,7 +1826,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 .bookwriter-bible-list-empty-state-text,
 .bookwriter-bible-detail-empty-state-title {
   font-family: 'Fraunces', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-soft);
   margin-bottom: 8px;
 }
@@ -1814,7 +1840,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 }
 
 .bookwriter-bible-detail-empty-state-icon {
-  font-size: 48px;
+  font-size: var(--text-5xl);
   margin-bottom: 16px;
   opacity: 0.5;
 }
@@ -1829,7 +1855,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   background: transparent;
   border: 1px solid transparent;
   color: var(--ink-fade);
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 18px;
   text-align: center;
   cursor: pointer;
@@ -1846,7 +1872,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 /* Chapter rail "live" badge — shown when the chapter has an active
    serial_release row with status='published'. Sits inline alongside
    the word count so the writer can scan publish state at a glance. */
-.bookwriter-ch-publish-badge {
+.bookwriter-chapter-rail-row-publish-badge {
   display: inline-block;
   margin-left: 8px;
   padding: 1px 6px;
@@ -2185,7 +2211,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   background: transparent;
   color: var(--ink-fade, #8a8078);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 22px;
   text-align: center;
 }
@@ -2243,8 +2269,6 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 .bookwriter-book-metadata-select,
 .bookwriter-beta-reader-invite-permission-select,
 .bookwriter-plot-card-chapter-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   background-color: var(--paper, #f4ede0);
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%235a5048' d='M0 0l5 6 5-6z'/></svg>");
@@ -2348,7 +2372,7 @@ body.bookwriter-sprint-on .bookwriter-sprint-float { display: flex; }
   border-radius: 30px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -2361,7 +2385,7 @@ body.bookwriter-sprint-on .bookwriter-sprint-float { display: flex; }
   border: none;
   color: var(--ink-whisper);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--text-lg);
   padding: 0 4px;
 }
 
@@ -2404,7 +2428,7 @@ body.bookwriter-sprint-setup-open .bookwriter-sprint-setup { display: block; }
   cursor: pointer;
   border-radius: 2px;
   font-family: 'Fraunces', serif;
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink);
   transition: all 0.2s;
 }
@@ -2419,7 +2443,7 @@ body.bookwriter-sprint-setup-open .bookwriter-sprint-setup { display: block; }
   padding: 12px 28px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   border-radius: 2px;
   width: 100%;
@@ -2462,7 +2486,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   background: none;
   border: none;
   font-family: 'Fraunces', serif;
-  font-size: 24px;
+  font-size: var(--text-2xl);
   color: var(--ink-fade);
   cursor: pointer;
 }
@@ -2498,7 +2522,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   background: transparent;
   padding: 12px 16px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink);
   outline: none;
 }
@@ -2510,7 +2534,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   padding: 0 20px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   cursor: pointer;
 }
 
@@ -2560,7 +2584,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
 .bookwriter-share-permission-text .bookwriter-share-permission-title {
   font-family: 'Fraunces', serif;
   font-weight: 500;
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--ink);
 }
 
@@ -2604,7 +2628,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
 .bookwriter-reader-name {
   flex: 1;
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 
@@ -2622,7 +2646,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   color: var(--ink-fade);
   cursor: pointer;
   padding: 0 4px;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .bookwriter-reader-remove:hover { color: var(--accent); }
 
@@ -2636,7 +2660,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   flex: 1;
   padding: 9px 12px;
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   border: 1px solid var(--line);
   border-radius: 2px;
   background: var(--paper);
@@ -2651,7 +2675,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   padding: 0 18px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   cursor: pointer;
   border-radius: 2px;
 }
@@ -2730,7 +2754,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   padding: 8px 14px;
   font-family: 'EB Garamond', serif;
   font-style: italic;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-soft);
   cursor: pointer;
   border-radius: 2px;
@@ -2865,14 +2889,14 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   padding: 10px 0;
   border-bottom: 1px dotted var(--ink-whisper);
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .bookwriter-stat-row:last-child { border-bottom: none; }
 
 .bookwriter-stat-row strong {
   font-family: 'Fraunces', serif;
   font-weight: 500;
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink);
 }
 
@@ -2883,7 +2907,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   padding: 14px 20px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   border-radius: 2px;
   width: 100%;
@@ -3062,7 +3086,6 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 
 .bookwriter-field input[type="range"] {
   width: 100%;
-  -webkit-appearance: none;
   appearance: none;
   height: 2px;
   background: var(--line-strong);
@@ -3100,7 +3123,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   background: var(--paper);
   border: 1px solid var(--line);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--ink);
   transition: all 0.2s;
   border-radius: 2px;
@@ -3204,38 +3227,38 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   text-align: center;
   padding: 40px 36px;
 }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame {
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-frame {
   position: absolute;
   inset: 20px;
   border: 1px solid currentColor;
   opacity: 0.3;
 }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::before,
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::after {
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-frame::before,
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-frame::after {
   content: '';
   position: absolute;
   left: 8px; right: 8px;
   border-top: 1px solid currentColor;
   height: 1px;
 }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::before { top: 8px; }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-frame::after  { bottom: 8px; }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-title    { font-style: italic; font-weight: 400; line-height: 1.05; }
-.bookwriter-cover[data-style="classical"] .bookwriter-cv-ornament { margin: 22px 0; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-frame::before { top: 8px; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-frame::after  { bottom: 8px; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-title    { font-style: italic; font-weight: 400; line-height: 1.05; }
+.bookwriter-cover[data-style="classical"] .bookwriter-cover-art-ornament { margin: 22px 0; }
 
 /* Modern */
 .bookwriter-cover[data-style="modern"] .bookwriter-cover-inner {
   justify-content: flex-end;
   padding: 0 32px 36px;
 }
-.bookwriter-cover[data-style="modern"] .bookwriter-cv-title {
+.bookwriter-cover[data-style="modern"] .bookwriter-cover-art-title {
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 0.92;
   text-align: left;
 }
-.bookwriter-cover[data-style="modern"] .bookwriter-cv-ornament { display: none; }
-.bookwriter-cover[data-style="modern"] .bookwriter-cv-author { margin-top: 18px; text-align: left; }
+.bookwriter-cover[data-style="modern"] .bookwriter-cover-art-ornament { display: none; }
+.bookwriter-cover[data-style="modern"] .bookwriter-cover-art-author { margin-top: 18px; text-align: left; }
 .bookwriter-cover[data-style="modern"] .bookwriter-cover-art::before {
   content: '';
   position: absolute;
@@ -3249,14 +3272,14 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   justify-content: flex-end;
   padding: 0 30px 36px;
 }
-.bookwriter-cover[data-style="photo"] .bookwriter-cv-title {
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-art-title {
   font-style: italic;
   font-weight: 400;
   line-height: 0.98;
   text-align: left;
   text-shadow: 0 2px 20px rgba(0,0,0,0.4);
 }
-.bookwriter-cover[data-style="photo"] .bookwriter-cv-author { text-align: left; text-shadow: 0 1px 6px rgba(0,0,0,0.3); }
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-art-author { text-align: left; text-shadow: 0 1px 6px rgba(0,0,0,0.3); }
 .bookwriter-cover[data-style="photo"] .bookwriter-cover-art {
   background:
     linear-gradient(transparent 30%, rgba(0,0,0,0.6) 100%),
@@ -3270,7 +3293,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
 }
-.bookwriter-cover[data-style="photo"] .bookwriter-cv-ornament { display: none; }
+.bookwriter-cover[data-style="photo"] .bookwriter-cover-art-ornament { display: none; }
 
 /* Minimal */
 .bookwriter-cover[data-style="minimal"] .bookwriter-cover-inner {
@@ -3278,12 +3301,12 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   align-items: flex-start;
   padding: 50px 36px;
 }
-.bookwriter-cover[data-style="minimal"] .bookwriter-cv-title {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cover-art-title {
   font-weight: 400;
   line-height: 1;
   text-align: left;
 }
-.bookwriter-cover[data-style="minimal"] .bookwriter-cv-author {
+.bookwriter-cover[data-style="minimal"] .bookwriter-cover-art-author {
   text-align: left;
   margin-top: auto;
   align-self: flex-start;
@@ -3291,7 +3314,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   bottom: 40px;
   left: 36px;
 }
-.bookwriter-cover[data-style="minimal"] .bookwriter-cv-ornament { display: none; }
+.bookwriter-cover[data-style="minimal"] .bookwriter-cover-art-ornament { display: none; }
 .bookwriter-cover[data-style="minimal"] .bookwriter-cover-art::before {
   content: '';
   position: absolute;
@@ -3308,13 +3331,13 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   align-items: center;
   text-align: center;
 }
-.bookwriter-cover[data-style="vintage"] .bookwriter-cv-title {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cover-art-title {
   font-style: italic;
   font-weight: 700;
   line-height: 0.95;
 }
-.bookwriter-cover[data-style="vintage"] .bookwriter-cv-ornament::before,
-.bookwriter-cover[data-style="vintage"] .bookwriter-cv-ornament::after {
+.bookwriter-cover[data-style="vintage"] .bookwriter-cover-art-ornament::before,
+.bookwriter-cover[data-style="vintage"] .bookwriter-cover-art-ornament::after {
   background: currentColor;
 }
 .bookwriter-cover[data-style="vintage"] .bookwriter-cover-art::before {
@@ -3332,16 +3355,16 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   text-align: center;
   padding: 30px 20px;
 }
-.bookwriter-cover[data-style="type"] .bookwriter-cv-title {
+.bookwriter-cover[data-style="type"] .bookwriter-cover-art-title {
   font-weight: 900;
   line-height: 0.82;
   letter-spacing: -0.05em;
 }
-.bookwriter-cover[data-style="type"] .bookwriter-cv-ornament { display: none; }
-.bookwriter-cover[data-style="type"] .bookwriter-cv-author   { margin-top: 20px; }
+.bookwriter-cover[data-style="type"] .bookwriter-cover-art-ornament { display: none; }
+.bookwriter-cover[data-style="type"] .bookwriter-cover-art-author   { margin-top: 20px; }
 
 /* Cover text elements */
-.bookwriter-cv-title {
+.bookwriter-cover-art-title {
   font-family: 'Fraunces', serif;
   font-size: 42px;
   margin: 0;
@@ -3349,7 +3372,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   word-wrap: break-word;
 }
 
-.bookwriter-cv-author {
+.bookwriter-cover-art-author {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.3em;
@@ -3358,7 +3381,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   transition: all 0.4s;
 }
 
-.bookwriter-cv-ornament {
+.bookwriter-cover-art-ornament {
   width: 40px;
   height: 14px;
   display: flex;
@@ -3366,20 +3389,20 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   justify-content: center;
   gap: 6px;
 }
-.bookwriter-cv-ornament::before, .bookwriter-cv-ornament::after {
+.bookwriter-cover-art-ornament::before, .bookwriter-cover-art-ornament::after {
   content: '';
   flex: 1;
   height: 1px;
   background: currentColor;
   opacity: 0.6;
 }
-.bookwriter-cv-ornament svg { width: 8px; height: 8px; opacity: 0.7; }
+.bookwriter-cover-art-ornament svg { width: 8px; height: 8px; opacity: 0.7; }
 
 /* Font families on cover */
-.bookwriter-cover.bookwriter-font-serif  .bookwriter-cv-title { font-family: 'Fraunces', serif; font-style: normal; font-weight: 400; }
-.bookwriter-cover.bookwriter-font-italic .bookwriter-cv-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
-.bookwriter-cover.bookwriter-font-body   .bookwriter-cv-title { font-family: 'EB Garamond', serif; font-weight: 500; }
-.bookwriter-cover.bookwriter-font-mono   .bookwriter-cv-title { font-family: 'JetBrains Mono', monospace; font-weight: 500; letter-spacing: -0.02em; font-size: 28px; }
+.bookwriter-cover.bookwriter-font-serif  .bookwriter-cover-art-title { font-family: 'Fraunces', serif; font-style: normal; font-weight: 400; }
+.bookwriter-cover.bookwriter-font-italic .bookwriter-cover-art-title { font-family: 'Fraunces', serif; font-style: italic; font-weight: 400; }
+.bookwriter-cover.bookwriter-font-body   .bookwriter-cover-art-title { font-family: 'EB Garamond', serif; font-weight: 500; }
+.bookwriter-cover.bookwriter-font-mono   .bookwriter-cover-art-title { font-family: 'JetBrains Mono', monospace; font-weight: 500; letter-spacing: -0.02em; font-size: 28px; }
 
 /* Cover stage footer */
 .bookwriter-cover-foot {
@@ -3447,13 +3470,13 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   margin-bottom: 12px;
 }
 
-.bookwriter-bg-options {
+.bookwriter-background-optionions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
-.bookwriter-bg-opt {
+.bookwriter-background-option {
   aspect-ratio: 1;
   cursor: pointer;
   border: 1px solid var(--line);
@@ -3463,8 +3486,8 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   overflow: hidden;
 }
 
-.bookwriter-bg-opt-is-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
-.bookwriter-bg-opt:hover { transform: scale(1.06); }
+.bookwriter-background-option-is-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.bookwriter-background-option:hover { transform: scale(1.06); }
 
 .bookwriter-bg-solid  { background: var(--paper); }
 .bookwriter-bg-grad-1 { background: linear-gradient(135deg, #e8c98a, #8b2a1f); }
@@ -3492,7 +3515,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   justify-content: center;
   background: var(--paper);
   font-family: 'Fraunces', serif;
-  font-size: 20px;
+  font-size: var(--text-xl);
   color: var(--ink-fade);
   font-weight: 300;
 }
@@ -3510,7 +3533,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   border: 1px solid var(--line);
   padding: 12px;
   font-family: 'EB Garamond', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-style: italic;
   color: var(--ink);
   cursor: pointer;
@@ -3527,7 +3550,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   padding: 16px;
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   border-radius: 2px;
   transition: all 0.3s;
@@ -3540,7 +3563,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 .bookwriter-set-as-cover::after {
   content: '→';
   font-style: normal;
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 
 /* History */
@@ -3617,13 +3640,13 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   .bookwriter-bible-detail { padding: 32px 24px; }
   .bookwriter-gallery-view .bookwriter-rail { display: none; }
   .bookwriter-gallery-header { padding: 32px 24px; }
-  .bookwriter-gallery-header h1 { font-size: 36px; }
+  .bookwriter-gallery-header h1 { font-size: var(--text-4xl); }
   .bookwriter-gallery-mode-switch { position: static; margin-top: 18px; }
   .bookwriter-gallery-body { padding: 32px 24px; }
   .bookwriter-snapshot-panel { width: 100%; }
   .bookwriter-modal { padding: 28px 22px; }
   .bookwriter-focus-page h1 { font-size: 32px; }
-  .bookwriter-focus-page .bookwriter-focus-text { font-size: 18px; }
+  .bookwriter-focus-page .bookwriter-focus-text { font-size: var(--text-lg); }
   .bookwriter-mode-switch { grid-template-columns: repeat(5, 1fr); margin: 12px; }
   .bookwriter-mode-btn { font-size: 10px; padding: 6px 2px; }
   .bookwriter-mode-btn-is-active { font-size: 10px; }
@@ -3693,7 +3716,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 
 .bookwriter-shell .bookwriter-num-big-suffix,
 .bookwriter-embedded-wrapper .bookwriter-num-big-suffix {
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink-fade);
 }
 
@@ -3756,7 +3779,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   color: var(--ink-fade);
   font-style: italic;
   font-weight: 400;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 
@@ -3786,7 +3809,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   background: transparent;
   color: var(--ink-fade);
   font-family: 'Fraunces', serif;
-  font-size: 18px;
+  font-size: var(--text-lg);
   line-height: 1;
   cursor: pointer;
   opacity: 0;
@@ -3846,7 +3869,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 .bookwriter-shell .bookwriter-goal-ring-percent-label,
 .bookwriter-embedded-wrapper .bookwriter-goal-ring-percent-label {
   font-family: 'Fraunces', serif;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   fill: var(--ink);
 }
@@ -3875,7 +3898,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   background: transparent;
   color: var(--ink-fade);
   font-family: 'Fraunces', serif;
-  font-size: 18px;
+  font-size: var(--text-lg);
   line-height: 1;
   cursor: pointer;
   opacity: 0;
@@ -4011,7 +4034,7 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
    the semantically-correct pattern for "this element exists for
    JS to find, not for CSS to style".
    ================================================================ */
-.bookwriter-cv-subtitle {}
+.bookwriter-cover-art-subtitle {}
 .bookwriter-index-card-empty-state {}
 .bookwriter-beta-reader-row {}
 .bookwriter-beta-reader-remove-button {}

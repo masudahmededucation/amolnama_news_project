@@ -46,15 +46,15 @@
                  data-chapter-id="{{ chapter_row.bookwriter_chapter_id }}"
                  data-chapter-status-code="{{ chapter_row.chapter_status_code }}"
                  data-chapter-visibility-code="{{ chapter_row.chapter_visibility_code }}">
-              <div class="bookwriter-ch-num">{{ chapter_row.chapter_number }}.</div>
-              <div class="bookwriter-ch-title">{{ chapter_row.chapter_title_en|default:chapter_row.chapter_title_bn|default:"Untitled" }}</div>
-              <div class="bookwriter-ch-meta">
+              <div class="bookwriter-chapter-rail-row-number">{{ chapter_row.chapter_number }}.</div>
+              <div class="bookwriter-chapter-rail-row-title">{{ chapter_row.chapter_title_en|default:chapter_row.chapter_title_bn|default:"Untitled" }}</div>
+              <div class="bookwriter-chapter-rail-row-metadata">
                 <span>
-                  <i class="bookwriter-ch-dot {% if chapter_row.chapter_word_count > 0 %}bookwriter-ch-dot-status-draft{% else %}bookwriter-ch-dot-status-new{% endif %}"></i>
+                  <i class="bookwriter-chapter-rail-row-status-dot {% if chapter_row.chapter_word_count > 0 %}bookwriter-chapter-rail-row-status-dot-state-draft{% else %}bookwriter-chapter-rail-row-status-dot-state-new{% endif %}"></i>
                   {{ chapter_row.chapter_word_count|default:0 }} w
                 </span>
                 {% if chapter_row.bookwriter_chapter_id in published_chapter_ids_set %}
-                  <span class="bookwriter-ch-publish-badge" title="Published">● live</span>
+                  <span class="bookwriter-chapter-rail-row-publish-badge" title="Published">● live</span>
                 {% endif %}
               </div>
               <div class="bookwriter-chapter-status-picker-row">
@@ -87,29 +87,29 @@
           {% endfor %}
         {% else %}
           <div class="bookwriter-chapter" draggable="true">
-            <div class="bookwriter-ch-num">I.</div>
-            <div class="bookwriter-ch-title">The Cartographer's Daughter</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-done"></i>2,841 w</span><span>3 days ago</span></div>
+            <div class="bookwriter-chapter-rail-row-number">1.</div>
+            <div class="bookwriter-chapter-rail-row-title">The Cartographer's Daughter</div>
+            <div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-done"></i>2,841 w</span><span>3 days ago</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
-            <div class="bookwriter-ch-num">II.</div>
-            <div class="bookwriter-ch-title">A House of Small Windows</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-done"></i>3,104 w</span><span>2 days ago</span></div>
+            <div class="bookwriter-chapter-rail-row-number">2.</div>
+            <div class="bookwriter-chapter-rail-row-title">A House of Small Windows</div>
+            <div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-done"></i>3,104 w</span><span>2 days ago</span></div>
           </div>
           <div class="bookwriter-chapter bookwriter-chapter-row-is-active" draggable="true">
-            <div class="bookwriter-ch-num">III.</div>
-            <div class="bookwriter-ch-title">The Letter that Arrived in Winter</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-draft"></i>1,687 w</span><span>just now</span></div>
+            <div class="bookwriter-chapter-rail-row-number">3.</div>
+            <div class="bookwriter-chapter-rail-row-title">The Letter that Arrived in Winter</div>
+            <div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-draft"></i>1,687 w</span><span>just now</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
-            <div class="bookwriter-ch-num">IV.</div>
-            <div class="bookwriter-ch-title">What the River Knew</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>outline</span><span>unstarted</span></div>
+            <div class="bookwriter-chapter-rail-row-number">4.</div>
+            <div class="bookwriter-chapter-rail-row-title">What the River Knew</div>
+            <div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-new"></i>outline</span><span>unstarted</span></div>
           </div>
           <div class="bookwriter-chapter" draggable="true">
-            <div class="bookwriter-ch-num">V.</div>
-            <div class="bookwriter-ch-title">Untitled</div>
-            <div class="bookwriter-ch-meta"><span><i class="bookwriter-ch-dot bookwriter-ch-dot-status-new"></i>blank</span><span>—</span></div>
+            <div class="bookwriter-chapter-rail-row-number">5.</div>
+            <div class="bookwriter-chapter-rail-row-title">Untitled Chapter</div>
+            <div class="bookwriter-chapter-rail-row-metadata"><span><i class="bookwriter-chapter-rail-row-status-dot bookwriter-chapter-rail-row-status-dot-state-new"></i>blank</span><span>—</span></div>
           </div>
         {% endif %}
       </div>
@@ -209,16 +209,16 @@
           {% if current_book %}
             <em id="bookwriter-crumb-book-title">{{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }}</em> &nbsp;·&nbsp; <strong id="bookwriter-crumb-chapter-label">Chapter {% if active_chapter_number %}{{ active_chapter_number }}{% else %}1{% endif %}</strong>
           {% else %}
-            <em id="bookwriter-crumb-book-title">The Saltwater Almanac</em> &nbsp;·&nbsp; <strong id="bookwriter-crumb-chapter-label">Chapter III</strong>
+            <em id="bookwriter-crumb-book-title">The Saltwater Almanac</em> &nbsp;·&nbsp; <strong id="bookwriter-crumb-chapter-label">Chapter 3</strong>
           {% endif %}
           <span class="bookwriter-save-chip" onclick="toggleSnapshots()" title="View version history"><span class="bookwriter-pulse"></span>{% if current_book %}saved · just now{% else %}saved to the shelf · 2m{% endif %}</span>
         </div>
         <div class="bookwriter-tools">
-          <button type="button" class="bookwriter-tool-btn bookwriter-b bookwriter-icon"
+          <button type="button" class="bookwriter-tool-btn bookwriter-tool-bold bookwriter-icon"
                   id="bookwriter-tool-bold-button"   name="bookwriter_tool_bold_button"   title="Bold"><b>B</b></button>
-          <button type="button" class="bookwriter-tool-btn bookwriter-i bookwriter-icon"
+          <button type="button" class="bookwriter-tool-btn bookwriter-tool-italic bookwriter-icon"
                   id="bookwriter-tool-italic-button" name="bookwriter_tool_italic_button" title="Italic"><i>I</i></button>
-          <button type="button" class="bookwriter-tool-btn bookwriter-u bookwriter-icon"
+          <button type="button" class="bookwriter-tool-btn bookwriter-tool-underline bookwriter-icon"
                   id="bookwriter-tool-underline-button" name="bookwriter_tool_underline_button" title="Underline"><u>U</u></button>
           <div class="bookwriter-tool-divider"></div>
           <button type="button" class="bookwriter-tool-btn"
@@ -240,7 +240,7 @@
                   onclick="openShare()" title="Share with beta readers">share</button>
           <button type="button" class="bookwriter-tool-btn"
                   id="bookwriter-tool-focus-button"   name="bookwriter_tool_focus_button"
-                  onclick="enterFocus()" title="Distraction-free writing">◌ focus</button>
+                  onclick="enterFocus()" title="Full-screen distraction-free writing"><svg class="bookwriter-tool-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg> full screen</button>
         </div>
       </div>
 
@@ -605,12 +605,12 @@
         <div class="bookwriter-cover bookwriter-font-serif bookwriter-cover-default-classical" id="cover" data-style="classical">
           <div class="bookwriter-cover-art" id="coverArt"></div>
           <div class="bookwriter-cover-inner">
-            <div class="bookwriter-cv-frame"></div>
-            <div class="bookwriter-cv-title" id="cvTitle">The Saltwater Almanac</div>
-            <div class="bookwriter-cv-ornament" aria-hidden="true">
+            <div class="bookwriter-cover-art-frame"></div>
+            <div class="bookwriter-cover-art-title" id="cvTitle">The Saltwater Almanac</div>
+            <div class="bookwriter-cover-art-ornament" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"/></svg>
             </div>
-            <div class="bookwriter-cv-author" id="cvAuthor">Eliza Whitmore</div>
+            <div class="bookwriter-cover-art-author" id="cvAuthor">Eliza Whitmore</div>
           </div>
         </div>
       </div>
@@ -650,15 +650,15 @@
 
       <div class="bookwriter-desk-card">
         <h4>Background</h4>
-        <div class="bookwriter-bg-options" id="bgOptions">
-          <div class="bookwriter-bg-opt bookwriter-bg-solid bookwriter-bg-opt-is-selected" data-bg="solid" title="Solid"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-grad-1" data-bg="grad-1" title="Warm gradient"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-grad-2" data-bg="grad-2" title="Moss gradient"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-grad-3" data-bg="grad-3" title="Ink gradient"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-noise" data-bg="noise" title="Textured"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-dots" data-bg="dots" title="Dotted"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-stripes" data-bg="stripes" title="Stripes"></div>
-          <div class="bookwriter-bg-opt bookwriter-bg-upload" data-bg="upload" title="Upload image">+</div>
+        <div class="bookwriter-background-optionions" id="bgOptions">
+          <div class="bookwriter-background-option bookwriter-bg-solid bookwriter-background-option-is-selected" data-bg="solid" title="Solid"></div>
+          <div class="bookwriter-background-option bookwriter-bg-grad-1" data-bg="grad-1" title="Warm gradient"></div>
+          <div class="bookwriter-background-option bookwriter-bg-grad-2" data-bg="grad-2" title="Moss gradient"></div>
+          <div class="bookwriter-background-option bookwriter-bg-grad-3" data-bg="grad-3" title="Ink gradient"></div>
+          <div class="bookwriter-background-option bookwriter-bg-noise" data-bg="noise" title="Textured"></div>
+          <div class="bookwriter-background-option bookwriter-bg-dots" data-bg="dots" title="Dotted"></div>
+          <div class="bookwriter-background-option bookwriter-bg-stripes" data-bg="stripes" title="Stripes"></div>
+          <div class="bookwriter-background-option bookwriter-bg-upload" data-bg="upload" title="Upload image">+</div>
         </div>
       </div>
 
@@ -709,9 +709,9 @@
         <h3>Act Structure</h3>
       </div>
       <div class="bookwriter-chapters">
-        <div class="bookwriter-chapter bookwriter-chapter-row-is-active"><div class="bookwriter-ch-num">Act I.</div><div class="bookwriter-ch-title">Setup</div><div class="bookwriter-ch-meta"><span>3 cards</span></div></div>
-        <div class="bookwriter-chapter"><div class="bookwriter-ch-num">Act II.</div><div class="bookwriter-ch-title">Confrontation</div><div class="bookwriter-ch-meta"><span>5 cards</span></div></div>
-        <div class="bookwriter-chapter"><div class="bookwriter-ch-num">Act III.</div><div class="bookwriter-ch-title">Resolution</div><div class="bookwriter-ch-meta"><span>2 cards</span></div></div>
+        <div class="bookwriter-chapter bookwriter-chapter-row-is-active"><div class="bookwriter-chapter-rail-row-number">Act I.</div><div class="bookwriter-chapter-rail-row-title">Setup</div><div class="bookwriter-chapter-rail-row-metadata"><span>3 cards</span></div></div>
+        <div class="bookwriter-chapter"><div class="bookwriter-chapter-rail-row-number">Act II.</div><div class="bookwriter-chapter-rail-row-title">Confrontation</div><div class="bookwriter-chapter-rail-row-metadata"><span>5 cards</span></div></div>
+        <div class="bookwriter-chapter"><div class="bookwriter-chapter-rail-row-number">Act III.</div><div class="bookwriter-chapter-rail-row-title">Resolution</div><div class="bookwriter-chapter-rail-row-metadata"><span>2 cards</span></div></div>
       </div>
       <div class="bookwriter-book-info">
         <div class="bookwriter-book-title">The Saltwater Almanac</div>
@@ -883,8 +883,8 @@
               {{ bible_entry_row.entry_avatar_initial|default:bible_entry_row.entry_name|slice:":1" }}
             </div>
             <div>
-              <div class="bookwriter-b-name">{{ bible_entry_row.entry_name }}</div>
-              <div class="bookwriter-b-role">{{ bible_entry_row.entry_role|default:"" }}</div>
+              <div class="bookwriter-bible-character-name">{{ bible_entry_row.entry_name }}</div>
+              <div class="bookwriter-bible-character-role">{{ bible_entry_row.entry_role|default:"" }}</div>
             </div>
           </div>
         {% endfor %}
@@ -896,19 +896,19 @@
       {% else %}
         <div class="bookwriter-bible-item bookwriter-bible-item-is-selected" data-name="Mira">
           <div class="bookwriter-bible-avatar">M</div>
-          <div><div class="bookwriter-b-name">Mira Calloway</div><div class="bookwriter-b-role">protagonist</div></div>
+          <div><div class="bookwriter-bible-character-name">Mira Calloway</div><div class="bookwriter-bible-character-role">protagonist</div></div>
         </div>
         <div class="bookwriter-bible-item" data-name="Father">
           <div class="bookwriter-bible-avatar bookwriter-bible-avatar-demo-moss">A</div>
-          <div><div class="bookwriter-b-name">Arthur Calloway</div><div class="bookwriter-b-role">her father, cartographer</div></div>
+          <div><div class="bookwriter-bible-character-name">Arthur Calloway</div><div class="bookwriter-bible-character-role">her father, cartographer</div></div>
         </div>
         <div class="bookwriter-bible-item" data-name="Mother">
           <div class="bookwriter-bible-avatar bookwriter-bible-avatar-demo-clay">E</div>
-          <div><div class="bookwriter-b-name">Elena Vasq. Calloway</div><div class="bookwriter-b-role">her mother (deceased)</div></div>
+          <div><div class="bookwriter-bible-character-name">Elena Vasq. Calloway</div><div class="bookwriter-bible-character-role">her mother (deceased)</div></div>
         </div>
         <div class="bookwriter-bible-item" data-name="Keeper">
           <div class="bookwriter-bible-avatar bookwriter-bible-avatar-demo-ochre">T</div>
-          <div><div class="bookwriter-b-name">Tomás the Keeper</div><div class="bookwriter-b-role">lighthouse, antagonist?</div></div>
+          <div><div class="bookwriter-bible-character-name">Tomás the Keeper</div><div class="bookwriter-bible-character-role">lighthouse, antagonist?</div></div>
         </div>
       {% endif %}
       {% if current_book %}
@@ -1192,7 +1192,7 @@
     <button type="button" class="bookwriter-focus-exit"
             id="bookwriter-focus-exit-button"
             name="bookwriter_focus_exit_button"
-            onclick="exitFocus()">ESC · exit focus</button>
+            onclick="exitFocus()">ESC · exit full screen</button>
     <div class="bookwriter-focus-stats">
       <strong id="focusWords">0</strong> words this session
       &nbsp;·&nbsp; <span id="focusTime">00:00</span>
@@ -1244,7 +1244,7 @@
       </div>
       <div class="bookwriter-snapshot-row">
         <div class="bookwriter-snapshot-time">4 days ago · 16:12</div>
-        <div class="bookwriter-snapshot-label">Beginning of chapter III</div>
+        <div class="bookwriter-snapshot-label">Beginning of chapter 3</div>
         <div class="bookwriter-snapshot-meta">284 words · auto-saved</div>
       </div>
       <div class="bookwriter-snapshot-row">

@@ -230,11 +230,22 @@ def api_bookwriter_book_chapters_reorder(request, book_id):
         )
 
     saved_at = timezone.now()
+    # Reorder updates BOTH sort_order AND chapter_number to the new
+    # visual position. Without renumbering, the rail's roman numerals
+    # (computed JS-side from position) and the editor crumb's "Chapter X"
+    # (read from chapter_number) diverge — and a refresh snaps the rail
+    # back to the old numbering because the server template reads
+    # chapter_number. Keeping them in lockstep makes reorder survive
+    # a reload and keeps every "Chapter N" reference consistent.
     for new_sort_order, chapter_id in enumerate(incoming_ids, start=1):
         Chapter.objects.filter(
             bookwriter_chapter_id=chapter_id,
             link_bookwriter_coll_book_id=book_id,
-        ).update(sort_order=new_sort_order, updated_at=saved_at)
+        ).update(
+            sort_order=new_sort_order,
+            chapter_number=new_sort_order,
+            updated_at=saved_at,
+        )
 
     return JsonResponse({'ok': True, 'saved_at': saved_at.isoformat()})
 

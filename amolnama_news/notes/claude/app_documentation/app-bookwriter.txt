@@ -1,7 +1,117 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: end of Phase 1 (Steps 1-18 + UI 1E.1-1E.11)
+  Last refreshed: 2026-04-22 (post-naming-audit)
 ============================================================
+
+Recent change log (most recent first):
+  2026-04-22  Cover designer modularised — extracted to
+              modules/bookwriter-cover-designer.js (330 LOC self-
+              contained IIFE). page-inkwell.js dropped 2484 → 2175
+              LOC. Duplicate-listener pattern collapsed (template/
+              font/palette tiles previously had two click handlers
+              each — one for preview, one for persist; merged into
+              single handlers in the module). Inline-onclick globals
+              (zoom/flip/save-as-cover) re-exposed from inside the
+              module. Happy-path tested: cover-design save round-
+              trip returns 200.
+  2026-04-22  Inline formatting toolbar modularised — extracted to
+              modules/bookwriter-formatting-toolbar.js (69 LOC).
+              Self-contained mousedown handler.
+  2026-04-22  Restore-on-refresh fix — saveState now persists
+              chapterId (stable, immune to renumbering and "1" vs
+              "1." display mismatches). restoreState looks up the
+              rail row by data-chapter-id. Old localStorage entries
+              with chapterNum still work via fallback (with trailing
+              dot normalised). Resolved the "notes vanish on refresh"
+              report — notes were saved fine; restore was just landing
+              on the wrong chapter.
+  2026-04-22  Styling + best-practices audit — see app-troubleshooting.txt
+              R-bookwriter-styling-audit. A11Y labels added to 3 form
+              controls (reader/beta comment textareas + beta kind select)
+              via new .bookwriter-visually-hidden utility. Beta accent
+              color (#c46a5d / rgba(196,106,93,*)) tokenized to
+              var(--bookwriter-beta-accent) + var(--bookwriter-beta-
+              accent-rgb) — 24 hardcoded sites collapsed to one source
+              of truth in :where() block. Animation timing aligned
+              (1600ms→1400ms to match @keyframes 1.4s). Redundant
+              -webkit-/-moz- appearance prefixes stripped (3 sites).
+  2026-04-22  Exhaustive bug scan — see R-bookwriter-bug-scan. 0
+              violations across alert/confirm/console.*/missing-catch/
+              silent-swallow/null-check/XSS/SQL/dead-code/CSS/nested
+              <main> categories.
+  2026-04-22  Naming audit pass — see R-bookwriter-naming-audit. CSS
+              classes and JS callback parameters renamed to descriptive
+              forms across the app:
+                - .bookwriter-ch-* → .bookwriter-chapter-rail-row-*
+                - .bookwriter-tool-btn.bookwriter-{b,i,u} →
+                  .bookwriter-tool-{bold,italic,underline}
+                - .bookwriter-b-{name,role} →
+                  .bookwriter-bible-character-{name,role}
+                - .bookwriter-cv-* → .bookwriter-cover-art-*
+                - .bookwriter-bg-opt* → .bookwriter-background-option*
+                - 18+ JS forEach callbacks: function(x) → function(
+                  chapterRowElement) etc.
+                - Drag handler vars: ch / e → chapterRowElement /
+                  dragStartEvent / dropEvent etc.
+              page-inkwell.js sits at 2518 LOC; extraction into cover-
+              designer / formatting-toolbar / mode-switch / sprint-timer
+              modules planned but deferred.
+  2026-04-22  Title autosave race fix — performChapterTitleAutosave
+              snapshots title.innerText AND the rail-row element by
+              data-chapter-id at call time. Without this snapshot, a
+              chapter switch in flight made the .then() callback write
+              '' into the wrong rail row, leaving newly-saved chapters
+              showing "Untitled Chapter" in the rail despite real DB
+              titles. applyChapterPayloadToEditor also resyncs the
+              matching rail row from the API payload, repairing any
+              previously-corrupted "Untitled" rail text on next click.
+  2026-04-22  Chapter switch perf — SWR cache + hover prefetch added.
+              chapterPayloadCacheById + chapterPayloadInflightById +
+              fetchAndCacheChapter helpers in page-inkwell.js. Re-opens
+              render instantly from cache then revalidate silently;
+              first opens show a skeleton (.bookwriter-stage-is-loading
+              ::after pulsing band) during the ~6ms server fetch.
+              mouseenter on rail rows pre-fetches in background. Cache
+              stays consistent: title + body autosave mirror their
+              saved values into the cache.
+  2026-04-22  Roman→Arabic chapter numbering — JS / template / crumb
+              all use arabic now (1., 2., 3., …). Roman fell back to
+              arabic past 20 anyway and conflicted with the server-
+              rendered chapter_number (always arabic).
+  2026-04-22  Reorder renumbering — sort_order AND chapter_number both
+              update on persistChapterReorder. renumberChapters() also
+              syncs the editor crumb's "Chapter N" so the active
+              chapter's label reflects its new position immediately
+              (no reload). Linter + shell-tested with book 4.
+  2026-04-22  Focus mode polish — grain ::before pseudo removed (was
+              jarring + clipped at one viewport via position: absolute
+              inside overflow-y: auto container). Smooth paper now.
+              Toolbar button relabelled "◌ focus" → SVG four-corner
+              icon + "full screen"; exit button matches.
+  2026-04-22  Add-chapter UX — clear editor immediately on switch +
+              skeleton during fetch + double-click lock + "Untitled
+              Chapter" placeholder + new chapter always lands at
+              bottom (server gives max sort_order + 1).
+  2026-04-22  Inline formatting toolbar wired — B / I / U use
+              document.execCommand; ¶ heading wraps SELECTION only
+              in <span class="bookwriter-prose-headline"> (not the
+              whole paragraph); " quote uses formatBlock blockquote
+              with new .bookwriter-prose blockquote CSS so the
+              change is actually visible.
+  2026-04-22  Mode tabs (Write/Plot/Bible/Cover/Publish) un-broken —
+              setMode() now writes body class `bookwriter-mode-<code>`
+              to match the CSS rules (the prefix migration in commit
+              09a437d had renamed the CSS but left the JS writing the
+              legacy unprefixed class).
+  2026-04-22  Top-bar crumb wrap fix — .bookwriter-toolbar-crumb gets
+              flex 1 1 auto + min-width: 0 + overflow-wrap: anywhere
+              so the chapter title wraps to a second line at medium
+              widths instead of being clipped under the right-hand
+              tools.
+  2026-04-22  Sidebar nav scroll-to-top fix — see R-scroll. Per-URL
+              scroll save/restore in spa-navigation.js (Step 0 + Step
+              8) + preventDefault on same-pathname clicks. Universal,
+              not just for bookwriter — every long-scroll page wins.
 
 A standalone writing app inside amolnama_news. Lets a user draft a
 book, organize a corkboard of plot cards, build a worldbuilding
@@ -231,6 +341,42 @@ Inspiration:  Inkwell design template (paper + ink + Fraunces +
   - Mobile responsive: breakpoint at max-width: 600px on both
     page-inkwell.css and page-public-reader.css; reaction labels
     hidden below 380px.
+
+  Chapter switch perceived speed (added 2026-04-22):
+    1. Hover prefetch — mouseenter on a rail row starts the chapter
+       fetch (deduped via chapterPayloadInflightById Map). By the
+       time the user clicks, the response is usually back.
+    2. Stale-while-revalidate cache — chapterPayloadCacheById holds
+       the last payload per chapter_id. Re-opens render INSTANTLY
+       from cache, then a silent background fetch revalidates and
+       only repaints if the server data is materially different and
+       the user hasn't switched again.
+    3. First-open skeleton — .bookwriter-stage-is-loading::after
+       paints a pulsing band so the editor doesn't appear blank
+       during the ~6ms server fetch + network. Cleared on payload
+       arrival in the .then chain.
+    4. Cache stays consistent with autosave — performChapterAutosave
+       and performChapterTitleAutosave both mirror their saved value
+       into the cache so a re-open never paints stale HTML over live
+       edits.
+  Server timing (measured): api_bookwriter_chapter_load = ~6 ms;
+    1.2 KB JSON. Bottleneck is network round-trip + render, not DB.
+
+  A11Y:
+    .bookwriter-visually-hidden — clip-rect screen-reader-only
+    utility (page-public-reader.css). Used on form labels whose
+    visible affordance is just a placeholder (reader comment
+    textarea, beta comment kind select, beta comment textarea).
+    Screen readers announce purpose; sighted users see the
+    placeholder.
+
+  Tokens:
+    --bookwriter-beta-accent-rgb: 196, 106, 93
+    --bookwriter-beta-accent: rgb(var(--bookwriter-beta-accent-rgb))
+    Defined in :where(.bookwriter-public-reader, .bookwriter-shell,
+    .bookwriter-embedded-wrapper). Use rgba(var(--bookwriter-beta-
+    accent-rgb), <alpha>) for transparency variants. Single source
+    of truth for beta-mode terracotta accent.
 
 ============================================================
   MODULE LAYOUT (post-split)

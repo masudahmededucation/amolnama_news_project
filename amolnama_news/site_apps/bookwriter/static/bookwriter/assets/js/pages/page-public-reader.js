@@ -362,15 +362,15 @@
       var endNodeRecord = null;
       var endInNodeOffset = 0;
       var targetEnd = targetOffset + targetLength;
-      for (var i = 0; i < textNodeList.length; i++) {
-        var rec = textNodeList[i];
-        if (startNodeRecord === null && targetOffset >= rec.startOffset && targetOffset < rec.endOffset) {
-          startNodeRecord = rec;
-          startInNodeOffset = targetOffset - rec.startOffset;
+      for (var textNodeIndex = 0; textNodeIndex < textNodeList.length; textNodeIndex++) {
+        var textNodeRecord = textNodeList[textNodeIndex];
+        if (startNodeRecord === null && targetOffset >= textNodeRecord.startOffset && targetOffset < textNodeRecord.endOffset) {
+          startNodeRecord = textNodeRecord;
+          startInNodeOffset = targetOffset - textNodeRecord.startOffset;
         }
-        if (targetEnd > rec.startOffset && targetEnd <= rec.endOffset) {
-          endNodeRecord = rec;
-          endInNodeOffset = targetEnd - rec.startOffset;
+        if (targetEnd > textNodeRecord.startOffset && targetEnd <= textNodeRecord.endOffset) {
+          endNodeRecord = textNodeRecord;
+          endInNodeOffset = targetEnd - textNodeRecord.startOffset;
           break;
         }
       }
@@ -396,16 +396,16 @@
     // Apply each anchor in REVERSE order so earlier wrap operations
     // don't invalidate later offsets (later anchors live in nodes that
     // haven't been touched yet).
-    for (var i = anchorRecords.length - 1; i >= 0; i--) {
-      var rec = anchorRecords[i];
-      var range = findRangePositionInTextNodes(rec.offset, rec.length);
+    for (var anchorRecordIndex = anchorRecords.length - 1; anchorRecordIndex >= 0; anchorRecordIndex--) {
+      var anchorRecord = anchorRecords[anchorRecordIndex];
+      var range = findRangePositionInTextNodes(anchorRecord.offset, anchorRecord.length);
       if (range === null) {
-        range = findRangeByAnchorTextSearch(rec.anchorText);
+        range = findRangeByAnchorTextSearch(anchorRecord.anchorText);
       }
       if (range === null) continue;
       var markElement = document.createElement('mark');
       markElement.className = 'bookwriter-beta-anchor';
-      markElement.dataset.betaCommentId = rec.commentId;
+      markElement.dataset.betaCommentId = anchorRecord.commentId;
       try {
         range.surroundContents(markElement);
       } catch (surroundError) {
@@ -418,7 +418,10 @@
         if (!commentRow) return;
         commentRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         commentRow.classList.add('bookwriter-is-highlight-flash');
-        setTimeout(function () { commentRow.classList.remove('bookwriter-is-highlight-flash'); }, 1600);
+        // Must match the @keyframes bookwriter-beta-comment-row-flash duration
+        // in page-public-reader.css (1.4s). Previously 1600ms here cut the
+        // class off 200ms after the animation already settled — minor jank.
+        setTimeout(function () { commentRow.classList.remove('bookwriter-is-highlight-flash'); }, 1400);
       });
     }
   }
