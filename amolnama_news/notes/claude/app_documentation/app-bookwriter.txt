@@ -1,9 +1,52 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-23 (post-collapse-removal)
+  Last refreshed: 2026-04-23 (post-bangla-input-wiring)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-23  Bangla input wired into the writing surfaces. The
+              chapter title (<h1 contenteditable>), the chapter
+              prose (<div contenteditable>), and the full-screen
+              focus mode's title + text now accept English typing
+              that auto-suggests Bengali words via the existing
+              BanglaInput dropdown. Existing input/textarea fields
+              (book title, author, synopsis, cover designer
+              inputs, etc.) keep working unchanged — same module.
+              Toggle is the global EN/বাংলা radio in the header.
+              No buttons / labels / mode tabs were translated;
+              only the user-input text that gets stored in DB.
+              Files touched:
+                - englishtobangla/.../bangla-input.js: added a small
+                  abstraction layer (isContentEditableElement,
+                  getElementText, getElementCursorOffset,
+                  replaceCharRangeWithText, positionSuggestBoxAtCaret)
+                  + branched ensureSuggestBox / pickSuggestion /
+                  input handler / punctuation keydown to call it.
+                  Input/textarea behaviour unchanged.
+                - englishtobangla/.../bangla-input-auto-attach.js:
+                  added a second querySelectorAll for opt-in
+                  contenteditable elements. Default-off — only
+                  picks up elements explicitly tagged with
+                  data-bangla-input="true".
+                - bookwriter/templates/.../_inkwell_body.html: added
+                  data-bangla-input="true" to .bookwriter-chapter-
+                  title, .bookwriter-prose, #focusTitle, #focusText.
+                - bookwriter/.../page-inkwell.css: drop cap scoped
+                  to :not(:focus-within) so it only applies when
+                  the writer isn't actively editing — the floated
+                  4.5em first-letter wrecked cursor placement when
+                  combined with Bangla conjunct insertions.
+              Cursor-placement fix: replaceCharRangeWithText now
+              uses document.execCommand('insertText', false, text)
+              instead of manual deleteContents+insertNode+setStart
+              because the manual path placed the caret at the wrong
+              codepoint position for conjunct Bengali words like
+              "রাষ্ট্র" (7 codepoints, 2 visible graphemes — the
+              caret landed between graphemes 1 and 2 instead of at
+              the end). Simple words like "সমাজ" worked either way.
+              See app-troubleshooting.txt R-bookwriter-bangla-input-
+              conjunct-cursor for the full story.
+              Cache v838 -> v841.
   2026-04-23  Sidebar collapse feature REMOVED. The bookwriter editor
               previously experimented with a left-sidebar / right-desk
               collapse + expand chevron pattern. Multiple iterations

@@ -268,10 +268,10 @@
           {% endcomment %}
           {% if active_chapter_id %}
             <div class="bookwriter-chapter-label">Chapter {{ book_chapters_list.0.chapter_number|default:"One" }}</div>
-            <h1 class="bookwriter-chapter-title" contenteditable="true" spellcheck="false">{{ active_chapter_title }}</h1>
+            <h1 class="bookwriter-chapter-title" contenteditable="true" data-bangla-input="true" spellcheck="false">{{ active_chapter_title }}</h1>
           {% else %}
             <div class="bookwriter-chapter-label">Chapter Three</div>
-            <h1 class="bookwriter-chapter-title" contenteditable="true" spellcheck="false">The Letter that Arrived in Winter</h1>
+            <h1 class="bookwriter-chapter-title" contenteditable="true" data-bangla-input="true" spellcheck="false">The Letter that Arrived in Winter</h1>
           {% endif %}
 
           <div class="bookwriter-ornament" aria-hidden="true">
@@ -282,6 +282,7 @@
                id="bookwriter-prose"
                name="bookwriter_prose"
                contenteditable="true"
+               data-bangla-input="true"
                spellcheck="false"
                {% if active_chapter_id %}data-chapter-id="{{ active_chapter_id }}"{% endif %}>
             {% if active_chapter_id %}
@@ -1198,8 +1199,8 @@
       &nbsp;·&nbsp; <span id="focusTime">00:00</span>
     </div>
     <div class="bookwriter-focus-page">
-      <h1 contenteditable="true" spellcheck="false" id="focusTitle">The Letter that Arrived in Winter</h1>
-      <div class="bookwriter-focus-text" contenteditable="true" spellcheck="false" id="focusText"></div>
+      <h1 contenteditable="true" data-bangla-input="true" spellcheck="false" id="focusTitle">The Letter that Arrived in Winter</h1>
+      <div class="bookwriter-focus-text" contenteditable="true" data-bangla-input="true" spellcheck="false" id="focusText"></div>
     </div>
   </div>
 

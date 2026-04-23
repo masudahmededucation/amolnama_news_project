@@ -10,6 +10,7 @@
   function attachBanglaInputToAllFields() {
     if (typeof BanglaInput === 'undefined') return;
 
+    /* Inputs and textareas — original opt-out-by-default selector. */
     const fields = document.querySelectorAll('input[type="text"]:not([data-bangla-attached]):not([data-no-bangla]), textarea:not([data-bangla-attached]):not([data-no-bangla])');
     for (let fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
       const field = fields[fieldIndex];
@@ -27,6 +28,19 @@
 
       attachedElements.add(field);
       BanglaInput.attach(field);
+    }
+
+    /* Contenteditable elements — opt-IN via data-bangla-input="true".
+       Default-off because contenteditable is used in many places that
+       shouldn't get bangla input (e.g. inline rename widgets that
+       expect plain ASCII). Bookwriter chapter title + prose mark
+       themselves with this attribute. */
+    const contentEditableFields = document.querySelectorAll('[contenteditable="true"][data-bangla-input="true"]:not([data-bangla-attached]):not([data-no-bangla])');
+    for (let editableIndex = 0; editableIndex < contentEditableFields.length; editableIndex++) {
+      const editableElement = contentEditableFields[editableIndex];
+      if (attachedElements.has(editableElement)) continue;
+      attachedElements.add(editableElement);
+      BanglaInput.attach(editableElement);
     }
   }
 

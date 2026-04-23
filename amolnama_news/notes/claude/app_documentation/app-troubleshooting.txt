@@ -18,6 +18,47 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-bangla-input-conjunct-cursor. Cursor stuck mid-word for conjunct Bengali
+Date: 2026-04-23
+Was: Wired BanglaInput into the bookwriter chapter title + prose +
+     full-screen focus surfaces (all contenteditable). Simple
+     Bengali words like "সমাজ" (4 codepoints, 4 visible graphemes
+     == 1:1) typed and committed correctly. But conjunct words
+     like "রাষ্ট্র" (7 codepoints, 2 visible graphemes — র + া
+     forms the first cluster, ষ + ্ + ট + ্ + র the second) caused
+     the cursor to land between the two clusters after the auto-
+     pick instead of at the end. The user then had to type more
+     words to "release" the cursor.
+     Root cause: the contenteditable replacement code used
+     manual Range API:
+       range.deleteContents();
+       var insertedTextNode = document.createTextNode(newText);
+       range.insertNode(insertedTextNode);
+       caretRange.setStart(insertedTextNode, insertedTextNode.length);
+     `textNode.length` returns UTF-16 code units (= codepoints
+     for BMP chars). For "রাষ্ট্র", length = 7. setStart at
+     offset 7 SHOULD be the end of the text node. But Selection
+     in contenteditable resolves the position relative to GRAPHEME
+     boundaries when displaying the caret, and 7 codepoints inside
+     a 2-grapheme cluster places the visual caret between the
+     graphemes instead of after them.
+Fix: Replaced manual deleteContents/insertNode/setStart with
+     document.execCommand('insertText', false, text) after first
+     selecting the range to replace. execCommand is deprecated but
+     it's the only API that handles grapheme-cluster cursor
+     placement correctly across browsers, AND fires the input
+     event natively (so we no longer need to dispatch one
+     manually). Single-node replacement works for all word types.
+     Also flagged: the .bookwriter-prose drop cap (::first-letter
+     at 4.5em float:left) was an aggravating factor — it produced
+     a giant floated character that further confused cursor
+     positioning during edit. Scoped the drop cap to
+     :not(:focus-within) so it only renders when the prose isn't
+     actively being edited. Visual flourish for non-editing
+     contexts (and the user confirmed they prefer it that way:
+     "it is working but not showing while typing — that is fine").
+Cache v838 -> v841.
+
 ### R-bookwriter-sidebar-collapse-removed. Sidebar collapse / expand pattern abandoned
 Date: 2026-04-23
 Was: Tried to add a collapse/expand chevron pattern to the bookwriter

@@ -593,7 +593,7 @@ body.bookwriter-standalone {
 
 .bookwriter-prose {
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: var(--bookwriter-text-prose);
+  font-size: 17px;
   line-height: 1.75;
   color: var(--ink);
   outline: none;
@@ -622,14 +622,16 @@ body.bookwriter-standalone {
 
 .bookwriter-prose p:first-of-type { text-indent: 0; }
 
-/* Drop cap — target the block itself, not a specific <p>, so it still
-   applies when contenteditable stores the content as plain text, <div>
-   lines, or any other wrapper the browser chose. The `p:first-of-type`
-   variant stays for backwards compatibility with any saved content that
-   already has a <p> first child (either selector hits the same letter
-   so there is no double-styling). */
-.bookwriter-prose::first-letter,
-.bookwriter-prose p:first-of-type::first-letter {
+/* Drop cap — only when the prose is NOT being actively edited.
+   Inside contenteditable, a 4.5em floated first-letter wrecks the
+   cursor: the caret visually pins between the giant first letter
+   and the next small letter, and Bangla input feels like the
+   cursor is stuck on the second character. Scoping with
+   `:not(:focus-within)` keeps the visual flourish for the rest
+   of the time (anyone glancing at the chapter, full-screen reader,
+   when the writer clicks elsewhere) without breaking typing. */
+.bookwriter-prose:not(:focus-within)::first-letter,
+.bookwriter-prose:not(:focus-within) p:first-of-type::first-letter {
   font-family: 'Fraunces', serif;
   font-weight: 500;
   font-size: 4.5em;
@@ -1279,8 +1281,8 @@ body.bookwriter-standalone.bookwriter-focus-on { overflow: hidden; }
 
 .bookwriter-focus-page .bookwriter-focus-text {
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: 21px;
-  line-height: 1.8;
+  font-size: 17px;
+  line-height: 1.75;
   color: var(--ink);
   outline: none;
   min-height: 500px;

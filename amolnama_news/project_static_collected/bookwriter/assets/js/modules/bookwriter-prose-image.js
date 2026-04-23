@@ -45,6 +45,16 @@
      SHARED HELPERS — DOM lookup, CSRF, upload pipeline
      ==================================================== */
   function activeProseElement() {
+    /* In full-screen / focus mode, the live editor is .bookwriter-focus-text
+       (the original .bookwriter-prose still exists in the DOM but is
+       hidden behind the focus overlay). All image events — toolbar
+       click, drag handle, corner-resize — fire on focus-text's images
+       in that mode, so we have to return focus-text or the handlers
+       reject the event via `proseElement.contains(target)`. */
+    if (document.body.classList.contains('bookwriter-focus-on')) {
+      var focusTextElement = document.querySelector('.bookwriter-focus-text[contenteditable="true"]');
+      if (focusTextElement) return focusTextElement;
+    }
     return document.querySelector('.bookwriter-prose[contenteditable="true"]');
   }
   function activeChapterIdString() {

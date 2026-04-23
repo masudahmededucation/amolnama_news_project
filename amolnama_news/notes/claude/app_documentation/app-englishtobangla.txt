@@ -71,3 +71,86 @@ None.
 - news-form-lang.js was overriding localStorage preference on page load
 - Global header toggle now works on every page (was previously only newshub forms)
 - Variable renamed: globalEnabled → globalBengaliKeyboardEnabled (descriptive naming convention)
+
+## Session 2026-04-23 — Contenteditable Support + Digit Conversion + ARIA + XSS Hardening
+
+### Added: BanglaInput now supports contenteditable elements
+- Original module only worked on <input> and <textarea> via .value /
+  .selectionStart / .setSelectionRange. Bookwriter chapter title
+  (<h1 contenteditable>) and prose (<div contenteditable>) need a
+  different DOM API: window.getSelection() + Range manipulation.
+- Added an internal abstraction layer in bangla-input.js:
+    isContentEditableElement(el)
+    getElementText(el)            — .value or textContent
+    getElementCursorOffset(el)    — selectionStart or Range walk
+    replaceCharRangeWithText(el, from, to, text)
+                                  — substring swap or
+                                    document.execCommand('insertText')
+    positionSuggestBoxAtCaret()   — for fixed-position dropdown
+                                    relative to the caret
+- attach() internals now call these helpers. Input/textarea
+  outward behaviour unchanged (same property reads happen at the
+  leaves). Contenteditable elements take the new code path.
+- Why execCommand instead of manual deleteContents+insertNode+
+  setStart? The manual path placed the caret at the wrong codepoint
+  position for conjunct Bengali words (রাষ্ট্র = 7 codepoints but
+  2 visible graphemes — caret landed between graphemes 1 and 2
+  instead of at the end). execCommand('insertText') is deprecated
+  but it's the only API that handles grapheme-cluster cursor
+  placement correctly across all browsers, AND fires the input
+  event natively. See app-troubleshooting.txt
+  R-bookwriter-bangla-input-conjunct-cursor.
+
+### Opt-in for contenteditable: data-bangla-input="true"
+- bangla-input-auto-attach.js now also queries
+    [contenteditable="true"][data-bangla-input="true"]
+                            :not([data-bangla-attached])
+                            :not([data-no-bangla])
+- Default-OFF for contenteditable. Opt-IN per element.
+- Reason: contenteditable is used in many places that shouldn't
+  get bangla input (e.g. inline rename widgets that expect ASCII).
+  Forcing opt-in keeps the change additive and safe.
+- For new writing surfaces in any app, the wiring is ONE
+  attribute on the element — zero JS edits needed.
+- Currently opted-in: bookwriter chapter title, prose, focus mode
+  title, focus mode text.
+
+### Added: Bengali digit conversion (0-9 → ০-৯)
+- 11-line keydown handler at the top of attach()'s keydown
+  listener. Runs FIRST so a digit always wins regardless of
+  whether a suggestion is in flight.
+- Behaviour: typing 0-9 in BN mode immediately inserts the
+  Bengali numeral (০ ১ ২ ৩ ৪ ৫ ৬ ৭ ৮ ৯). Dismisses the
+  suggestion dropdown without picking (clearly a switch of
+  intent). preventDefault stops the browser inserting the
+  Latin digit.
+- Lookup is a single array index by parsed integer:
+    BENGALI_DIGIT_BY_LATIN_INDEX = ['০','১','২','৩','৪','৫','৬','৭','৮','৯']
+- Works in input, textarea, AND contenteditable via the same
+  shared helpers. Single source of truth — every consumer of
+  BanglaInput gets digit conversion automatically.
+
+### XSS hardening: createElement + textContent instead of innerHTML
+- showSuggestions() previously built dropdown items with
+    suggestBox.innerHTML = '<div ...>' + suggestionText + '</div>'
+- Changed to programmatic DOM build via createElement + textContent
+  per item. Even if the Google transliterate API ever returned
+  payloads with HTML / script characters, they would render as
+  literal text, not execute.
+- clearChildren via while(suggestBox.firstChild) suggestBox
+  .removeChild(...) — safer than innerHTML='' which can also nuke
+  retained event listeners.
+
+### ARIA on the suggestion dropdown (autocomplete-listbox pattern)
+- Dropdown gets role="listbox" + aria-label
+- Each option gets role="option" + stable id + aria-selected
+- Input gets role="combobox" + aria-autocomplete="list" +
+  aria-controls + aria-expanded + aria-haspopup="listbox" +
+  aria-activedescendant pointing to the current suggestion
+- ArrowUp/Down/mouseenter all keep aria-selected and
+  aria-activedescendant in sync
+- Screen readers now announce the current suggestion as the
+  user navigates. Matches the WAI-ARIA Authoring Practices
+  pattern for combobox-with-listbox.
+
+### Cache v838 → v842.

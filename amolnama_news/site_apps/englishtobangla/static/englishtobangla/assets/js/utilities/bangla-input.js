@@ -22,6 +22,12 @@ const BanglaInput = (function() {
   const savedLanguagePreference = localStorage.getItem('bangla_input_enabled');
   let globalBengaliKeyboardEnabled = savedLanguagePreference !== null ? savedLanguagePreference === 'true' : true;
 
+  /* Bengali numerals — index 0-9 maps directly to ০-৯. Indexed by
+     the parsed integer so the lookup is a single array index, not
+     a switch / conditional. Used by the keydown handler to convert
+     digits typed in Bangla mode on-the-fly. */
+  const BENGALI_DIGIT_BY_LATIN_INDEX = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
   // ---- Load dictionary ----
   function loadDictionary(callback) {
     if (dictionary) { callback(); return; }
@@ -177,6 +183,118 @@ const BanglaInput = (function() {
     return dictionary[lower.charAt(0)] ? lower.charAt(0) : null;
   }
 
+  /* ============================================================
+     CONTENTEDITABLE SUPPORT — abstraction layer
+     ------------------------------------------------------------
+     Original BanglaInput targets <input> / <textarea> only and uses
+     .value, .selectionStart, .setSelectionRange. To also support
+     contenteditable elements (e.g. the bookwriter chapter title +
+     prose), the same code path uses these helpers which switch
+     implementation based on the element type. Input/textarea
+     behaviour is unchanged — the same property reads/writes happen
+     internally; only contenteditable elements take the new path.
+     ============================================================ */
+  function isContentEditableElement(element) {
+    return !!(element && (element.isContentEditable || element.getAttribute('contenteditable') === 'true'));
+  }
+
+  /* Read the full text content. Input/textarea uses .value.
+     Contenteditable uses textContent (NOT innerText) so the
+     character count stays consistent with Range.toString() / the
+     walkNode character counter in replaceCharRangeWithText.
+     innerText would synthesize "\n" between block elements that
+     don't exist as real characters in the DOM, causing the cursor
+     offset to drift by 1 for every paragraph above the cursor. */
+  function getElementText(element) {
+    return isContentEditableElement(element)
+      ? (element.textContent || '')
+      : (element.value || '');
+  }
+
+  /* Caret offset (character index) from the start of the element's
+     text. For input/textarea, this is .selectionStart. For
+     contenteditable, walk the Selection's start container back to
+     the element root and count text characters. Returns 0 if no
+     selection / cursor is inside the element. */
+  function getElementCursorOffset(element) {
+    if (!isContentEditableElement(element)) {
+      return typeof element.selectionStart === 'number' ? element.selectionStart : 0;
+    }
+    var selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return 0;
+    var range = selection.getRangeAt(0);
+    if (!element.contains(range.startContainer)) return 0;
+    var preCaretRange = document.createRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+    return preCaretRange.toString().length;
+  }
+
+  /* Replace the [from, to) character range with newText and place
+     the caret at the end of the inserted text. For input/textarea,
+     this is a simple substring swap + setSelectionRange. For
+     contenteditable, we walk text nodes to find the start/end
+     positions, build a Range, deleteContents, insertNode(textNode),
+     and re-position the caret — this preserves all surrounding
+     formatting (bold/italic spans, paragraph wrappers, images). */
+  function replaceCharRangeWithText(element, fromCharOffset, toCharOffset, newText) {
+    if (!isContentEditableElement(element)) {
+      var existingValue = element.value || '';
+      element.value = existingValue.substring(0, fromCharOffset) + newText + existingValue.substring(toCharOffset);
+      var newCursorPosition = fromCharOffset + newText.length;
+      element.setSelectionRange(newCursorPosition, newCursorPosition);
+      element.focus();
+      return;
+    }
+    var rangeStartNode = null;
+    var rangeStartOffset = 0;
+    var rangeEndNode = null;
+    var rangeEndOffset = 0;
+    var foundStart = false;
+    var foundEnd = false;
+    var characterCounter = 0;
+    function walkNode(currentNode) {
+      if (foundStart && foundEnd) return;
+      if (currentNode.nodeType === Node.TEXT_NODE) {
+        var textLength = currentNode.length;
+        if (!foundStart && fromCharOffset >= characterCounter && fromCharOffset <= characterCounter + textLength) {
+          rangeStartNode = currentNode;
+          rangeStartOffset = fromCharOffset - characterCounter;
+          foundStart = true;
+        }
+        if (!foundEnd && toCharOffset >= characterCounter && toCharOffset <= characterCounter + textLength) {
+          rangeEndNode = currentNode;
+          rangeEndOffset = toCharOffset - characterCounter;
+          foundEnd = true;
+        }
+        characterCounter += textLength;
+      } else {
+        for (var childIndex = 0; childIndex < currentNode.childNodes.length; childIndex++) {
+          walkNode(currentNode.childNodes[childIndex]);
+          if (foundStart && foundEnd) return;
+        }
+      }
+    }
+    walkNode(element);
+    if (!foundStart || !foundEnd) return;
+    /* Select the range to replace, then insert via execCommand. We
+       previously did the replace manually (deleteContents + insertNode
+       + setStart(textNode, textNode.length)) but that placed the
+       cursor at the wrong position for Bengali multi-codepoint
+       sequences — for "রাষ্ট্র", the cursor landed between "রা" and
+       "ষ্ট্র" instead of at the end. execCommand('insertText') is
+       deprecated but it's the only API that handles grapheme-cluster
+       cursor placement correctly across browsers. It also fires an
+       input event natively, so no manual dispatch needed. */
+    var replacementSelection = window.getSelection();
+    var replacementRange = document.createRange();
+    replacementRange.setStart(rangeStartNode, rangeStartOffset);
+    replacementRange.setEnd(rangeEndNode, rangeEndOffset);
+    replacementSelection.removeAllRanges();
+    replacementSelection.addRange(replacementRange);
+    document.execCommand('insertText', false, newText);
+  }
+
   // ---- Attach to an input element ----
   function attach(inputEl, options) {
     if (!inputEl) return;
@@ -188,56 +306,147 @@ const BanglaInput = (function() {
     let bestSuggestion = "";
     let trailingPunctuation = "";
 
+    /* Stable per-instance id used both as the dropdown's element id
+       and as the prefix for option ids, so aria-activedescendant on
+       the input can point to the currently-active suggestion option
+       (screen-reader autocomplete pattern). */
+    const suggestBoxIdSuffix = 'bangla-input-suggest-' + Math.random().toString(36).slice(2, 10);
+
     // Create suggest dropdown
     function ensureSuggestBox() {
       if (suggestBox) return;
       suggestBox = document.createElement("div");
       suggestBox.className = "bangla-input-suggest";
-      suggestBox.style.cssText = "display:none;position:absolute;z-index:200;background:#fff;border:1.5px solid #d4d4de;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:320px;min-width:160px;overflow:hidden;";
-      const parent = inputEl.parentNode;
-      if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
-      parent.appendChild(suggestBox);
+      suggestBox.id = suggestBoxIdSuffix;
+      /* ARIA — announce the dropdown as a listbox so screen readers
+         treat each option as a selectable item. The input gets
+         role="combobox" + aria-controls / aria-autocomplete. */
+      suggestBox.setAttribute('role', 'listbox');
+      suggestBox.setAttribute('aria-label', 'Bengali word suggestions');
+      if (isContentEditableElement(inputEl)) {
+        /* Contenteditable: position fixed relative to viewport so the
+           dropdown can sit right under the caret regardless of how
+           deep the editable node is in the DOM. Caret coords are
+           computed in showSuggestions() each time the box is shown. */
+        suggestBox.style.cssText = "display:none;position:fixed;z-index:200;background:#fff;border:1.5px solid #d4d4de;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:320px;min-width:160px;overflow:hidden;";
+        document.body.appendChild(suggestBox);
+      } else {
+        /* Input/textarea: original parent-relative positioning. */
+        suggestBox.style.cssText = "display:none;position:absolute;z-index:200;background:#fff;border:1.5px solid #d4d4de;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:320px;min-width:160px;overflow:hidden;";
+        const parent = inputEl.parentNode;
+        if (getComputedStyle(parent).position === "static") parent.style.position = "relative";
+        parent.appendChild(suggestBox);
+      }
+      /* ARIA wiring on the input itself — only set once (idempotent
+         via the suggestBox guard above). aria-controls links the
+         input to its listbox; aria-autocomplete="list" tells AT this
+         is an autocomplete-list pattern, not a free-text combobox. */
+      try {
+        inputEl.setAttribute('role', 'combobox');
+        inputEl.setAttribute('aria-autocomplete', 'list');
+        inputEl.setAttribute('aria-controls', suggestBoxIdSuffix);
+        inputEl.setAttribute('aria-expanded', 'false');
+        inputEl.setAttribute('aria-haspopup', 'listbox');
+      } catch (ariaError) { /* read-only attribute on some elements; ignore */ }
+    }
+
+    /* For contenteditable, position the suggest box near the current
+       caret on every show. Uses the Selection's bounding rect. */
+    function positionSuggestBoxAtCaret() {
+      if (!suggestBox || !isContentEditableElement(inputEl)) return;
+      var selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      var caretRect = selection.getRangeAt(0).getBoundingClientRect();
+      if (caretRect.bottom > 0) {
+        suggestBox.style.top = (caretRect.bottom + 4) + 'px';
+        suggestBox.style.left = caretRect.left + 'px';
+      }
     }
 
     function hideSuggestions() {
       if (suggestBox) suggestBox.style.display = "none";
+      try { inputEl.setAttribute('aria-expanded', 'false'); inputEl.removeAttribute('aria-activedescendant'); } catch (ariaError) {}
       bestSuggestion = "";
     }
 
+    /* Build the dropdown items programmatically with createElement +
+       textContent — never innerHTML with concatenated strings. The
+       suggestion text comes from the local dictionary AND the Google
+       transliterate API; while the local dictionary is controlled,
+       the API response should still be treated as untrusted input.
+       textContent guarantees no HTML / script injection. Each item
+       gets role="option" + a stable id so aria-activedescendant on
+       the input can announce the selected suggestion to screen
+       readers. */
     function showSuggestions(suggestions) {
       ensureSuggestBox();
       if (!suggestions || suggestions.length === 0) { hideSuggestions(); return; }
       bestSuggestion = suggestions[0];
 
-      const html = suggestions.map(function(s, i) {
-        const sel = i === 0
-          ? ' data-active="1" style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;background:#4a6fa5;color:#fff;font-weight:600;"'
-          : ' style="padding:.4rem .7rem;font-size:.88rem;cursor:pointer;border-bottom:1px solid #f0f0f0;"';
-        return '<div class="bangla-input-item" data-index="' + i + '"' + sel + '>' + s + '</div>';
-      }).join("");
-      suggestBox.innerHTML = html;
-      suggestBox.style.display = "block";
+      /* Clear previous items by removing children — safer than
+         innerHTML = '' which can also nuke event listeners on
+         retained references (we don't reuse here, but it's the
+         defensive default). */
+      while (suggestBox.firstChild) suggestBox.removeChild(suggestBox.firstChild);
 
-      suggestBox.querySelectorAll(".bangla-input-item").forEach(function(element) {
-        element.addEventListener("mousedown", function(e) {
-          e.preventDefault();
-          pickSuggestion(element.textContent);
+      suggestions.forEach(function (suggestionText, suggestionIndex) {
+        var optionElement = document.createElement('div');
+        optionElement.className = 'bangla-input-item';
+        optionElement.setAttribute('data-index', String(suggestionIndex));
+        optionElement.setAttribute('role', 'option');
+        optionElement.id = suggestBoxIdSuffix + '-option-' + suggestionIndex;
+        optionElement.style.padding = '.4rem .7rem';
+        optionElement.style.fontSize = '.88rem';
+        optionElement.style.cursor = 'pointer';
+        optionElement.style.borderBottom = '1px solid #f0f0f0';
+        if (suggestionIndex === 0) {
+          optionElement.setAttribute('data-active', '1');
+          optionElement.setAttribute('aria-selected', 'true');
+          optionElement.style.background = '#4a6fa5';
+          optionElement.style.color = '#fff';
+          optionElement.style.fontWeight = '600';
+        } else {
+          optionElement.setAttribute('aria-selected', 'false');
+        }
+        /* SAFE: textContent escapes HTML. Even if the suggestion
+           string contained `<script>` or `<img onerror=…>`, it would
+           render as literal text, not executable HTML. */
+        optionElement.textContent = suggestionText;
+
+        optionElement.addEventListener('mousedown', function (mouseDownEvent) {
+          mouseDownEvent.preventDefault();
+          pickSuggestion(optionElement.textContent);
         });
-        element.addEventListener("mouseenter", function() {
+        optionElement.addEventListener('mouseenter', function () {
           clearActive();
-          element.setAttribute("data-active", "1");
-          element.style.background = "#4a6fa5";
-          element.style.color = "#fff";
-          element.style.fontWeight = "600";
-          bestSuggestion = element.textContent;
+          optionElement.setAttribute('data-active', '1');
+          optionElement.setAttribute('aria-selected', 'true');
+          optionElement.style.background = '#4a6fa5';
+          optionElement.style.color = '#fff';
+          optionElement.style.fontWeight = '600';
+          bestSuggestion = optionElement.textContent;
+          try { inputEl.setAttribute('aria-activedescendant', optionElement.id); } catch (ariaError) {}
         });
+
+        suggestBox.appendChild(optionElement);
       });
+
+      suggestBox.style.display = 'block';
+      positionSuggestBoxAtCaret();
+
+      /* Announce expanded state + initially-active option to AT. */
+      try {
+        inputEl.setAttribute('aria-expanded', 'true');
+        var firstOptionId = suggestBoxIdSuffix + '-option-0';
+        inputEl.setAttribute('aria-activedescendant', firstOptionId);
+      } catch (ariaError) {}
     }
 
     function clearActive() {
       if (!suggestBox) return;
       suggestBox.querySelectorAll(".bangla-input-item").forEach(function(element) {
         element.removeAttribute("data-active");
+        element.setAttribute('aria-selected', 'false');
         element.style.background = "";
         element.style.color = "";
         element.style.fontWeight = "";
@@ -245,15 +454,9 @@ const BanglaInput = (function() {
     }
 
     function pickSuggestion(bangla) {
-      let val = inputEl.value;
-      let before = val.substring(0, wordStart);
       const replaceLength = wordBuffer.length + trailingPunctuation.length;
-      let after = val.substring(wordStart + replaceLength);
       const insertText = bangla + trailingPunctuation + ' ';
-      inputEl.value = before + insertText + after;
-      let newPos = before.length + insertText.length;
-      inputEl.setSelectionRange(newPos, newPos);
-      inputEl.focus();
+      replaceCharRangeWithText(inputEl, wordStart, wordStart + replaceLength, insertText);
       wordBuffer = '';
       trailingPunctuation = '';
       hideSuggestions();
@@ -320,11 +523,14 @@ const BanglaInput = (function() {
     // ---- Event handlers ----
     inputEl.addEventListener("input", function() {
       if (!globalBengaliKeyboardEnabled) { wordBuffer = ''; hideSuggestions(); return; }
-      let val = inputEl.value;
-      const cursor = inputEl.selectionStart;
+      let val = getElementText(inputEl);
+      const cursor = getElementCursorOffset(inputEl);
       const textUpToCursor = val.substring(0, cursor);
-      const lastSpace = textUpToCursor.lastIndexOf(" ");
-      wordStart = lastSpace + 1;
+      /* Word boundary = last space OR newline (contenteditable spans
+         multiple paragraphs; lastIndexOf(" ") alone would skip past
+         paragraph breaks and grab a word from the previous block). */
+      const lastBoundary = Math.max(textUpToCursor.lastIndexOf(" "), textUpToCursor.lastIndexOf("\n"));
+      wordStart = lastBoundary + 1;
       const currentWord = textUpToCursor.substring(wordStart);
 
       /* Strip trailing punctuation — let transliteration work with commas, periods, etc. */
@@ -346,6 +552,23 @@ const BanglaInput = (function() {
 
     inputEl.addEventListener("keydown", function(e) {
       if (!globalBengaliKeyboardEnabled) return;
+
+      /* Bengali digit conversion — type 0-9, get ০-৯. A digit ends
+         the Latin word in progress (typing a digit clearly switches
+         intent away from the suggestion in flight), so we dismiss
+         the dropdown without picking and insert the Bengali digit
+         at the cursor. e.preventDefault() stops the browser from
+         inserting the Latin digit. */
+      if (e.key && e.key.length === 1 && e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        hideSuggestions();
+        wordBuffer = '';
+        trailingPunctuation = '';
+        const cursorOffsetForDigit = getElementCursorOffset(inputEl);
+        replaceCharRangeWithText(inputEl, cursorOffsetForDigit, cursorOffsetForDigit, BENGALI_DIGIT_BY_LATIN_INDEX[parseInt(e.key, 10)]);
+        return;
+      }
+
       // Space or punctuation — auto-pick best suggestion then let punctuation through
       if ((e.key === " " || PUNCTUATION_KEYS[e.key]) && wordBuffer.length > 0 && bestSuggestion) {
         if (e.key === ' ') {
@@ -354,12 +577,7 @@ const BanglaInput = (function() {
         } else {
           /* Punctuation: pick suggestion, let the punctuation character be typed naturally */
           trailingPunctuation = '';
-          const val = inputEl.value;
-          const before = val.substring(0, wordStart);
-          const after = val.substring(wordStart + wordBuffer.length);
-          inputEl.value = before + bestSuggestion + after;
-          const newPos = before.length + bestSuggestion.length;
-          inputEl.setSelectionRange(newPos, newPos);
+          replaceCharRangeWithText(inputEl, wordStart, wordStart + wordBuffer.length, bestSuggestion);
           wordBuffer = '';
           hideSuggestions();
           inputEl.dispatchEvent(new Event('bangla-input-change', { bubbles: true }));
@@ -389,19 +607,23 @@ const BanglaInput = (function() {
         const next = Math.min(activeIdx + 1, items.length - 1);
         clearActive();
         items[next].setAttribute("data-active", "1");
+        items[next].setAttribute('aria-selected', 'true');
         items[next].style.background = "#4a6fa5";
         items[next].style.color = "#fff";
         items[next].style.fontWeight = "600";
         bestSuggestion = items[next].textContent;
+        try { inputEl.setAttribute('aria-activedescendant', items[next].id); } catch (ariaError) {}
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         const previous = Math.max(activeIdx - 1, 0);
         clearActive();
         items[previous].setAttribute("data-active", "1");
+        items[previous].setAttribute('aria-selected', 'true');
         items[previous].style.background = "#4a6fa5";
         items[previous].style.color = "#fff";
         items[previous].style.fontWeight = "600";
         bestSuggestion = items[previous].textContent;
+        try { inputEl.setAttribute('aria-activedescendant', items[previous].id); } catch (ariaError) {}
       } else if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
         pickSuggestion(active ? active.textContent : (items.length > 0 ? items[0].textContent : bestSuggestion));
