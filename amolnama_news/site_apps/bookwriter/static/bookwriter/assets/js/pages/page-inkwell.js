@@ -28,16 +28,35 @@
     var embeddedWrapperElement = document.querySelector('.bookwriter-embedded-wrapper');
     if (!embeddedWrapperElement) return;
     var realTopOffsetPx = Math.max(0, Math.round(embeddedWrapperElement.getBoundingClientRect().top));
-    document.documentElement.style.setProperty('--bookwriter-header-offset', realTopOffsetPx + 'px');
+    var documentRootElement = document.documentElement;
+    var currentValue = documentRootElement.style.getPropertyValue('--bookwriter-header-offset');
+    var nextValue = realTopOffsetPx + 'px';
+    // Skip the write when the value hasn't changed — avoids re-flowing
+    // the sticky rail / desk for no reason and prevents the user from
+    // seeing a "jump" when the same value is re-applied.
+    if (currentValue === nextValue) return;
+    documentRootElement.style.setProperty('--bookwriter-header-offset', nextValue);
   }
-  syncBookwriterHeaderOffsetCustomProperty();
-  window.addEventListener('resize', syncBookwriterHeaderOffsetCustomProperty);
-  // Re-measure after fonts/images settle — chrome can resize once webfont
-  // swap completes (heavier metrics) or after the SPA shell paints.
+  /* Measure ONCE after the layout has settled — running on the very
+     first paint produced a visible "rail starts low, jumps up" flash
+     because the chrome wasn't laid out yet on the first call. Two
+     rAFs guarantee the browser has painted at least one frame; the
+     `load` event covers webfont swap. resize keeps it accurate when
+     the chrome height changes (e.g. dev tools docked / undocked). */
+  function scheduleInitialHeaderOffsetMeasurement() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(syncBookwriterHeaderOffsetCustomProperty);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleInitialHeaderOffsetMeasurement);
+  } else {
+    scheduleInitialHeaderOffsetMeasurement();
+  }
   if (document.readyState !== 'complete') {
     window.addEventListener('load', syncBookwriterHeaderOffsetCustomProperty);
   }
-  setTimeout(syncBookwriterHeaderOffsetCustomProperty, 250);
+  window.addEventListener('resize', syncBookwriterHeaderOffsetCustomProperty);
 
   /* ========================================================
      LOCAL PERSISTENCE — last mode, chapter, scroll position
@@ -72,18 +91,21 @@
   }
 
 
-  /* Defensively clear any stale collapse state + body classes from
-     earlier experiments so the rail/desk can't be frozen in a hidden
+  /* Scrub any legacy collapse keys / body classes from earlier
+     experiments so the layout can never be left in a stuck hidden
      state if the user lands on cached HTML/CSS. */
   try {
-    var savedStateForCleanup = loadState() || {};
-    if (savedStateForCleanup.isLeftRailCollapsed || savedStateForCleanup.isRightDeskCollapsed
-        || savedStateForCleanup.isRailCollapsed) {
-      delete savedStateForCleanup.isLeftRailCollapsed;
-      delete savedStateForCleanup.isRightDeskCollapsed;
-      delete savedStateForCleanup.isRailCollapsed;
-      window.localStorage.setItem(STATE_KEY, JSON.stringify(savedStateForCleanup));
-    }
+    var legacyCleanupState = loadState() || {};
+    var legacyKeys = [
+      'isLeftRailCollapsed', 'isRightDeskCollapsed',
+      'isRailCollapsed', 'isDeskCollapsed',
+      'railCollapsed', 'deskCollapsed'
+    ];
+    var hadLegacyKey = false;
+    legacyKeys.forEach(function (legacyKey) {
+      if (legacyKey in legacyCleanupState) { delete legacyCleanupState[legacyKey]; hadLegacyKey = true; }
+    });
+    if (hadLegacyKey) window.localStorage.setItem(STATE_KEY, JSON.stringify(legacyCleanupState));
   } catch (e) { /* private mode / quota — ignore */ }
   document.body.classList.remove(
     'bookwriter-app-is-left-rail-collapsed',

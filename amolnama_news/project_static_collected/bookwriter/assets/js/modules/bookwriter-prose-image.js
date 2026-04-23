@@ -150,16 +150,15 @@
       });
       delete legacyImageElement.dataset.float;
       legacyImageElement.draggable = false;
-      // Apply size+align if missing. Width: if the old image had an
-      // explicit pixel width from corner-resize, map it to the closest
-      // size bucket; otherwise default to medium.
-      if (!legacyImageElement.dataset.size) {
-        var inlineWidthPx = parseInt(legacyImageElement.style.width || '0', 10);
-        var sizeCode = DEFAULT_SIZE_CODE;
-        if (inlineWidthPx > 0 && inlineWidthPx <= 320)      sizeCode = 'small';
-        else if (inlineWidthPx > 320 && inlineWidthPx < 580) sizeCode = 'medium';
-        else if (inlineWidthPx >= 580)                       sizeCode = 'full';
-        setImageSizeCode(legacyImageElement, sizeCode);
+      var hasCustomInlineWidth = !!legacyImageElement.style.width;
+      // SIZE: only assign a size bucket when the image has neither a
+      // data-size attribute nor a custom inline width. A user-resized
+      // image (corner drag) explicitly removes data-size and stores
+      // its width inline — re-bucketing here would clobber that user
+      // choice on every chapter open. The legacy float-only path
+      // (no inline width, no data-size) still gets a default bucket.
+      if (!legacyImageElement.dataset.size && !hasCustomInlineWidth) {
+        setImageSizeCode(legacyImageElement, DEFAULT_SIZE_CODE);
       }
       if (!legacyImageElement.dataset.align) {
         var mappedAlignCode = FLOAT_TO_ALIGN_MAP[legacyFloatCode] || DEFAULT_ALIGN_CODE;

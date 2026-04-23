@@ -123,9 +123,22 @@ are you clear now?
 the border should be responsive and adjustive to the text. 
 after its initial height, it should expand with the text increasing.
 
+
+drag and expanding the picture also moving the text 
+from the sidebar. it should not affect the left side bar at all.
+
+left sidebar should be independent of the other sections.
+actually left/and middle section both should be independent. 
+
+also resizing is not saving. 
+it goes back to initial state after going away and revisit.
+
 and maybe we can also introduce some of the options 
 which were present in inkwell on the right section 
 - which will also be collapsible 
 - what do you think?
 
-you are suppossed just collapse the left sidebar. but everything is moving on the left side single line including the options from the top. how the fuck that can happen? explain?
+tell me how to describe to google,
+to have the book sidebar collapse and expand option?
+
+also tell me how to describe to create a new section on the right?

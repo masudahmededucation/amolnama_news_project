@@ -1,9 +1,35 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-22 (post-naming-audit)
+  Last refreshed: 2026-04-23 (post-collapse-removal)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-23  Sidebar collapse feature REMOVED. The bookwriter editor
+              previously experimented with a left-sidebar / right-desk
+              collapse + expand chevron pattern. Multiple iterations
+              hit unrecoverable layout problems caused by:
+                (a) CSS Grid auto-flow — when one panel had display:none
+                    the remaining panels shifted into the freed columns,
+                    making it look like the wrong side collapsed
+                    (fixed mid-arc with grid-template-areas + grid-area).
+                (b) Page-shift-vs-grow contradiction — collapsing always
+                    either shifts the manuscript page or fails to grow,
+                    because growing-without-shifting requires anchoring
+                    to a moving boundary.
+                (c) The .app-layout's reserved 300px right-panel column
+                    in core/base.html means the bookwriter app never
+                    occupies the full viewport even when both sides
+                    collapse, so "give me more writing space" via this
+                    collapse never matched the user's mental model.
+              Removed cleanly: 4 buttons from _inkwell_body.html, the
+              COLLAPSE_TOGGLE_DEFINITIONS array + applyCollapseStateFromSavedState
+              from page-inkwell.js, all collapse CSS rules from
+              page-inkwell.css. KEPT: defensive localStorage scrubber +
+              body-class scrubber that wipes any old collapse keys /
+              classes from cached state, so users with stale localStorage
+              don't see a stuck hidden panel after the rollback.
+              Cache v832. Full-screen mode (toolbar's "full screen"
+              button) remains the only "more writing space" mechanism.
   2026-04-22  Chapter autosave — raw pyodbc with setinputsizes(SQL_WVARCHAR)
               for chapter_text_html + chapter_text_plain. Same pattern as
               newsengine.embeddings (memory/troubleshooting.md §5b).

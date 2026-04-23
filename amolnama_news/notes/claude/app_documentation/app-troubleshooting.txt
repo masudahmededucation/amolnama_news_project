@@ -18,6 +18,58 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-sidebar-collapse-removed. Sidebar collapse / expand pattern abandoned
+Date: 2026-04-23
+Was: Tried to add a collapse/expand chevron pattern to the bookwriter
+     editor's left book sidebar AND right desk so the writer could
+     hide either panel for more writing room. Iterated through ~10
+     variants over a single session — every variant hit one of these
+     three categories of bugs:
+       1. CSS Grid auto-flow: `display: none` on a panel made the
+          remaining panels shift LEFT into the freed columns. Looked
+          like the wrong side collapsed. (Fixed mid-arc with
+          grid-template-areas + grid-area on each panel.)
+       2. position: sticky on the rail interacted badly with the JS-
+          measured --bookwriter-header-offset, producing a visible
+          empty band ("yellow box") at the top of the sidebar.
+          (Worked around by removing sticky, but lost the
+          pin-to-viewport behaviour.)
+       3. The page-shift-vs-grow contradiction: the user wanted
+          (a) collapsing to give more writing room AND (b) the page
+          NOT to appear to shift. These are mathematically
+          incompatible without anchoring to a moving boundary or
+          reducing the desk's column width.
+     Layered on top: the global `.app-layout` in core/base.html
+     reserves a 300px right-panel column. The bookwriter editor
+     never occupies the full viewport, so even with both panels
+     collapsed there's always ~300px of dead space on the right
+     that the collapse can't reclaim.
+     User's verdict: "remove the fucking collapsing button and
+     functions". Feature pulled.
+Fix: Cleanly removed:
+       - 4 buttons from _inkwell_body.html
+       - COLLAPSE_TOGGLE_DEFINITIONS array + applyCollapseStateFromSavedState
+         function from page-inkwell.js
+       - All collapse CSS (body class rules, button styling,
+         grid-template-area pinning, page max-width overrides,
+         manuscript padding overrides, mobile + reduced-motion
+         carve-outs) from page-inkwell.css
+     KEPT for safety: defensive localStorage scrubber + body-class
+     scrubber that wipes any old collapse state from cached
+     browsers, so users with stale localStorage don't see a stuck
+     hidden panel after the rollback.
+     Cache v832. Bookwriter editor now matches its pre-collapse
+     state. Full-screen mode (toolbar's "full screen" button)
+     remains the only "more writing space" mechanism.
+Lesson: Side-panel collapse INSIDE an embedded editor that already
+     sits inside a global 3-column .app-layout is layered geometry
+     with no clean solution. If this comes up again, the right
+     answer is probably to break out of the .app-layout wrapper for
+     editor pages (give bookwriter the FULL viewport when in editor
+     mode) — NOT to try to make a nested collapse work. Any future
+     attempt should start by removing the .app-layout's reserved
+     300px right-panel column for bookwriter routes specifically.
+
 ### R-bookwriter-autosave-pyodbc-ntext. Doubled chapter content lost on revisit
 Date: 2026-04-22
 Was: User typed a chapter, then doubled it by paste. On chapter re-open

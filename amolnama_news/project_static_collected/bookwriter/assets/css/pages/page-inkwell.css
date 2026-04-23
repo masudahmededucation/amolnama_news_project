@@ -148,13 +148,18 @@ body.bookwriter-standalone {
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  min-width: 0;
+  /* align-self: start + max-height caps the rail to viewport height
+     (minus the global chrome above it) so the chapters list inside
+     can scroll internally when it overflows. Without these, the rail
+     stretched to the full grid-row height and the inner overflow-y
+     never engaged — chapters list just grew off-screen with no
+     scrollbar. NOT using position: sticky here (caused an empty band
+     at the top in the prior collapse experiment). */
   align-self: start;
   max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
   max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
   overflow: hidden;
-  min-width: 0;
 }
 
 .bookwriter-rail::after {
@@ -398,9 +403,25 @@ body.bookwriter-standalone {
   font-size: var(--text-sm);
   color: var(--ink-fade);
   flex: 1 1 auto;
-  min-width: 0;
-  overflow-wrap: anywhere;
+  /* Hard floor stops the crumb shrinking to a few characters wide
+     and wrapping mid-word when the toolbar gets narrow. Combined
+     with white-space: nowrap on the inner em/strong below, the
+     book title and chapter label stay as single horizontal units. */
+  min-width: 320px;
   line-height: 1.4;
+  /* If the crumb still overflows on a very narrow toolbar (rare:
+     extremely small viewports), trim with ellipsis instead of
+     wrapping mid-character into a vertical column. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Each labelled chunk of the crumb stays on one line — title +
+   chapter label never wrap mid-character. */
+.bookwriter-toolbar-crumb em,
+.bookwriter-toolbar-crumb strong {
+  white-space: nowrap;
 }
 
 .bookwriter-toolbar-crumb strong {
@@ -583,7 +604,16 @@ body.bookwriter-standalone {
      small box floating in a tall manuscript. */
   flex: 1;
   min-height: 400px;
+  /* Prevent the browser's scroll-anchor algorithm from re-aligning
+     the viewport when the prose reflows mid-resize — without this,
+     dragging an image's resize corner causes the sidebar's apparent
+     position to drift because the page scroll auto-adjusts. */
+  overflow-anchor: none;
 }
+
+/* Same for the manuscript wrapper so the page-grow during a resize
+   doesn't trigger scroll re-anchoring at the parent level either. */
+.bookwriter-manuscript { overflow-anchor: none; }
 
 .bookwriter-prose p {
   margin-bottom: 1em;
@@ -814,16 +844,19 @@ body.bookwriter-standalone {
   background: var(--paper-deep);
   border-left: 1px solid var(--line);
   padding: 28px 26px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 26px;
   min-width: 0;
-  position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  /* Same height cap as .bookwriter-rail so the desk's stat cards
+     scroll internally when they overflow instead of stretching the
+     whole grid row taller than the viewport. */
   align-self: start;
   max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
   max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  overflow-y: auto;
+  /* Sticky positioning created an empty band at the top of the desk
+     for the same reason it broke the rail. Reverted to normal flow. */
 }
 
 .bookwriter-desk::-webkit-scrollbar { width: 6px; }
